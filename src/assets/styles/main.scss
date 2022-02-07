@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap");
+@import "~normalize.css";
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+#app {
+  font-family: "Prompt", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #23212d;
+  color: #fff;
+  min-height: 100vh;
+}
