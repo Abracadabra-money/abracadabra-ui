@@ -7,6 +7,16 @@
   margin: 0;
 }
 
+body, html {
+  background-color: #403D53;
+}
+
+#app {
+  background: url("../images/home-bg-full.png") no-repeat top right;
+  background-size: cover;
+  background-position: 10% -10%;
+}
+
 #app {
   font-family: "Prompt", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -15,3 +25,5 @@
   color: #fff;
   min-height: 100vh;
 }
+
+
