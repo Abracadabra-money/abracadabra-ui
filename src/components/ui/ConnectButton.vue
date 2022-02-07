@@ -1,0 +1,59 @@
+<template>
+  <button
+    class="connect-btn link"
+    @click="walletBtnHandler"
+    @mouseenter="itsHover = true"
+    @mouseleave="itsHover = false"
+  >
+    <template v-if="itsHover"> dashboard </template>
+    <template v-else>
+      {{ walletBtnText }}
+    </template>
+  </button>
+</template>
+
+<script>
+import { mapGetters } from "vuex";
+export default {
+  data() {
+    return {
+      itsHover: false,
+    };
+  },
+
+  computed: {
+    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+
+    walletBtnText() {
+      if (this.account) {
+        return `${this.account.slice(0, 6)}...${this.account.slice(-6)}`;
+      } else {
+        return "Connect wallet";
+      }
+    },
+    isWalletConnected() {
+      return this.$store.getters.getAccount;
+    },
+  },
+  methods: {
+    async walletBtnHandler() {
+      if (this.account) {
+        //  this.$router.push({ name: "Dashboard" });
+        return false;
+      }
+      if (!window.ethereum) return false;
+
+      await this.$connectWallet();
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.connect-btn {
+  border: none;
+  outline: transparent;
+  width: 146px;
+  padding: 13px 0;
+}
+</style>

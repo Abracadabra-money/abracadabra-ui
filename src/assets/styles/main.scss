@@ -14,4 +14,30 @@
   background-color: #23212d;
   color: #fff;
   min-height: 100vh;
+  position: relative;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+.link {
+  background: #48465a;
+  backdrop-filter: blur(40px);
+  border-radius: 20px;
+  padding: 13px 18px;
+  font-size: 16px;
+  line-height: 24px;
+  color: #fff;
+  cursor: pointer;
+  min-width: 80px;
 }
