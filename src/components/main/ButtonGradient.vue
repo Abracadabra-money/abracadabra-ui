@@ -13,7 +13,6 @@
       </defs>
       <path d="M0 20C0 8.9543 8.95431 0 20 0H250C261.046 0 270 8.95431 270 20V30C270 41.0457 261.046 50 250 50H20C8.95431 50 0 41.0457 0 30V20Z" fill="white" fill-opacity="0.1"/>
       <path d="M20 2H250V-2H20V2ZM268 20V30H272V20H268ZM250 48H20V52H250V48ZM2 30V20H-2V30H2ZM20 48C10.0589 48 2 39.9411 2 30H-2C-2 42.1503 7.84974 52 20 52V48ZM268 30C268 39.9411 259.941 48 250 48V52C262.15 52 272 42.1503 272 30H268ZM250 2C259.941 2 268 10.0589 268 20H272C272 7.84974 262.15 -2 250 -2V2ZM20 -2C7.84974 -2 -2 7.84973 -2 20H2C2 10.0589 10.0589 2 20 2V-2Z" fill="url(#paint0_linear_732_27606)" fill-opacity="0.8"/>
-      
     </svg>
   </a>
 </template>
@@ -73,7 +72,7 @@ export default {
     top: 0;
     z-index: 1;
   }
-  &:not(.primary):hover {
+  &:not(.primary,.disabled):hover {
     & .button-gradient__inner {
       background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), rgba(255, 255, 255, 0.1);
     }

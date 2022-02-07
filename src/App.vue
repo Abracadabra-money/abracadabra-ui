@@ -12,7 +12,7 @@ const Header = () => import("@/components/main/Header");
 export default {
   components: {
     Header,
-  },
+  }
 };
 </script>
 
