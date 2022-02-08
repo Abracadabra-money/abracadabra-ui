@@ -7,8 +7,6 @@ import { ethers } from "ethers";
 import connectWallet from "./plugins/connectWallet";
 import clickOutside from "./directives/clickOutside";
 
-import "./assets/styles/connectModal.scss";
-
 Vue.use(connectWallet);
 
 Vue.directive("click-outside", clickOutside);

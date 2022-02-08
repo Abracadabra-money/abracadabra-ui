@@ -1,53 +1,73 @@
 import axios from "axios";
 
-export const tokenPrices = async (tokens) => {
-  const prices = {};
-
-  if (tokens.includes("uop")) {
-    const { data } = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=utopia-genesis-foundation&vs_currencies=usd"
-    );
-
-    prices["uop"] = data["utopia-genesis-foundation"].usd;
-  }
-
-  if (tokens.includes("weth")) {
-    const { data } = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=weth&vs_currencies=usd"
-    );
-    prices["weth"] = data.weth.usd;
-  }
-
-  if (tokens.includes("sushi")) {
-    const { data } = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=sushi&vs_currencies=usd"
-    );
-    prices["sushi"] = data.sushi.usd;
-  }
-
-  if (tokens.includes("ice")) {
-    const { data } = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ice-token&vs_currencies=usd"
-    );
-
-    prices["ice"] = data["ice-token"].usd;
-  }
-
-  if (tokens.includes("staker")) {
-    const { data } = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ellipsis&vs_currencies=usd"
-    );
-
-    prices["staker"] = data.ellipsis.usd;
-  }
-
-  if (tokens.includes("mim")) {
-    const { data } = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=mim&vs_currencies=usd"
-    );
-
-    prices["mim"] = data["mim"].usd;
-  }
-
-  return prices;
+const chainCoinGeckoIds = {
+  1: "ethereum",
+  56: "binance-smart-chain",
+  137: "polygon-pos",
+  250: "fantom",
+  42161: "arbitrum-one",
+  43114: "avalanche",
 };
+
+const config = {
+  headers: {
+    "X-Cg-Pro-Api-Key": "CG-nguZHRFas4tyUdHhPHwVgN9T", //api key
+  },
+};
+
+const getTokensArrayPrices = async (chainId, addressArr) => {
+  try {
+    const chainCoinGeckoId = chainCoinGeckoIds[chainId];
+
+    if (!chainCoinGeckoId) return false;
+
+    const pricesResponse = await axios.get(
+      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
+      config
+    );
+
+    const respToArray = [];
+
+    for (const property in pricesResponse.data) {
+      //   console.log(`${property}: ${pricesResponse.data[property].usd}`);
+
+      respToArray.push({
+        address: property.toLowerCase(),
+        price: pricesResponse.data[property].usd,
+      });
+    }
+
+    return respToArray;
+  } catch (e) {
+    console.log("TOKEN PRICE ERR:", e);
+    return false;
+  }
+};
+
+const getTokenPriceByAddress = async (chainId, address) => {
+  try {
+    const chainCoinGeckoId = chainCoinGeckoIds[chainId];
+
+    if (!chainCoinGeckoId) return false;
+
+    const pricesResponse = await axios.get(
+      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
+      config
+    );
+
+    let price = null;
+
+    for (const property in pricesResponse.data) {
+      console.log(`${property}: ${pricesResponse.data[property].usd}`);
+
+      price = pricesResponse.data[property]?.usd;
+    }
+    console.log("pricesResponse", price);
+    return price;
+  } catch (e) {
+    console.log("TOKEN PRICE ERR:", e);
+    return false;
+  }
+};
+
+export { getTokensArrayPrices, getTokenPriceByAddress };

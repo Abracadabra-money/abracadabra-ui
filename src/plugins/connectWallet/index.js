@@ -102,8 +102,8 @@ setTimeout(async () => {
 
         console.log("chainID", chainId);
 
-        store.commit("setActiveNetwork", ethers.utils.hexlify(chainId));
-        store.commit("setChainId", ethers.utils.hexlify(chainId));
+        store.commit("setActiveNetwork", chainId);
+        store.commit("setChainId", chainId);
         store.commit("setProvider", provider);
         store.commit("setSigner", signer);
         store.commit("setAccount", address);
@@ -134,7 +134,7 @@ setTimeout(async () => {
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const { chainId } = await provider.getNetwork();
-    store.commit("setChainId", ethers.utils.hexlify(chainId));
+    store.commit("setChainId", chainId);
     store.commit("setProvider", provider);
     store.commit("setSigner", null);
     store.commit("setAccount", null);
@@ -251,7 +251,7 @@ export default {
           }
         }
 
-        store.commit("setChainId", ethers.utils.hexlify(chainId));
+        store.commit("setChainId", chainId);
         store.commit("setProvider", ethersProvider);
         store.commit("setSigner", signer);
         store.commit("setAccount", address);

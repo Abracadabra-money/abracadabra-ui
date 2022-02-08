@@ -1,26 +1,12 @@
 <template>
-  <button
-    class="connect-btn link"
-    @click="walletBtnHandler"
-    @mouseenter="itsHover = true"
-    @mouseleave="itsHover = false"
-  >
-    <template v-if="itsHover"> dashboard </template>
-    <template v-else>
-      {{ walletBtnText }}
-    </template>
+  <button class="connect-btn link" @click="walletBtnHandler">
+    {{ walletBtnText }}
   </button>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 export default {
-  data() {
-    return {
-      itsHover: false,
-    };
-  },
-
   computed: {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 

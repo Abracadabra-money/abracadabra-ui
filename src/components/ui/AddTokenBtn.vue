@@ -1,5 +1,9 @@
 <template>
-  <button class="token-btn" @click="addToken">
+  <button
+    class="token-btn"
+    @click="addToken"
+    :class="{ disabled: !this.account }"
+  >
     <img :src="tokenIcon" alt="" />
   </button>
 </template>
@@ -22,7 +26,6 @@ export default {
   methods: {
     async addToken() {
       if (!this.account) {
-        alert("Connect wallet first:(");
         return false;
       }
 
@@ -68,5 +71,9 @@ export default {
     max-width: 100%;
     height: auto;
   }
+}
+
+.disabled {
+  cursor: initial;
 }
 </style>
