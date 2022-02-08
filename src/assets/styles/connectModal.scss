@@ -1,0 +1,91 @@
+.web3modal-modal-container {
+  * {
+    font-family: "Prompt", Helvetica, Arial, sans-serif !important;
+  }
+}
+.web3modal-modal-lightbox {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  z-index: 200 !important;
+}
+
+.web3modal-modal-card {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 20px;
+  height: 300px;
+  background: #302e38 !important;
+  position: relative;
+
+  &::before {
+    content: "Choose provider";
+    color: #fff;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    height: 50px;
+    text-align: left;
+    margin-bottom: 5px;
+  }
+
+  padding: 20px !important;
+
+  width: 400px !important;
+
+  .web3modal-provider-wrapper {
+    border: none;
+    padding: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    display: block !important;
+    border-radius: 20px;
+  }
+
+  .web3modal-provider-container {
+    background: rgba(255, 255, 255, 0.1);
+    border: none !important;
+    outline: none !important;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    height: 70px;
+
+    display: grid !important;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.25s ease;
+    border-radius: 20px;
+
+    .web3modal-provider-icon {
+      order: 1;
+
+      img {
+        width: 30px;
+        height: 30px;
+      }
+    }
+
+    .web3modal-provider-name {
+      font-size: 16px;
+      padding: 0;
+      margin: 0;
+      color: #fff;
+      font-weight: 400;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+      transform: scale(1.02);
+    }
+  }
+
+  .web3modal-provider-name {
+    color: #fff;
+  }
+
+  .web3modal-provider-description {
+    display: none;
+  }
+}
