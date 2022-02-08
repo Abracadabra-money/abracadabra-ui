@@ -83,7 +83,7 @@ export default {
 
     this.updateMimPrice = setInterval(async () => {
       await this.getMimPrice();
-    }, 15000);
+    }, 30000);
   },
 
   beforeDestroy() {
