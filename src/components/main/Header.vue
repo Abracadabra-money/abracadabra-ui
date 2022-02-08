@@ -10,7 +10,7 @@
       <DropdownSocial />
       <div class="mim-wrap">
         <TokenButton :tokenInfo="tokensData.MIM" />
-        <p class="mim-price">1,265</p>
+        <p class="mim-price">{{ parseFloat(mimPrice.mim).toFixed(4) }}</p>
       </div>
     </nav>
   </header>
@@ -21,12 +21,15 @@ const Dropdown = () => import("@/components/ui/Dropdown");
 const DropdownSocial = () => import("@/components/ui/DropdownSocial");
 const ConnectButton = () => import("@/components/ui/ConnectButton");
 const TokenButton = () => import("@/components/ui/AddTokenBtn");
+import { tokenPrices } from "@/helpers/priceHelper.js";
+
 import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { mapGetters } from "vuex";
 export default {
   data() {
     return {
       dropdownLinks: ["Stake", "Bridge", "Swap", "Analytics"],
+      mimPrice: 0,
     };
   },
 
@@ -46,6 +49,10 @@ export default {
         (token) => token.name === name && token.chain === this.chainId
       );
     },
+  },
+
+  async created() {
+    this.mimPrice = await tokenPrices("mim");
   },
 
   components: { Dropdown, ConnectButton, DropdownSocial, TokenButton },
