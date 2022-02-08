@@ -162,6 +162,9 @@ input[type="number"]::-webkit-outer-spin-button {
   &:focus {
     outline: none;
   }
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
 }
 
 .no-max-show {
