@@ -24,7 +24,6 @@ export default {
 .stable-info {
   background-color: rgba(35, 33, 45, 0.3);
   border-radius: 30px;
-  margin-top: 30px;
 
   .info-wrap {
     text-align: right;

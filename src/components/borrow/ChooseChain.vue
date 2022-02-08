@@ -118,7 +118,7 @@ export default {
 
 <style lang="scss" scoped>
 .choose {
-  padding: 30px 30px 300px 30px;
+  padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
 }
@@ -175,6 +175,6 @@ export default {
   margin-top: 25px;
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
-  padding-bottom: 14px;
+  padding-bottom: 12px;
 }
 </style>
