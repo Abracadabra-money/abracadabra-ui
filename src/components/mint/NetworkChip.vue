@@ -1,11 +1,7 @@
 <template>
   <button class="chip" :class="{ selected }" @click="$emit('click', $event)">
-    <img
-      class="chip-image"
-      src="@/assets/images/networks/fantom-icon.svg"
-      alt="network"
-    />
-    <span>Fantom</span>
+    <img v-if="network" class="chip-image" :src="network.icon" alt="network" />
+    <span>{{ network.name }}</span>
   </button>
 </template>
 
@@ -14,6 +10,7 @@ export default {
   name: "NetworkChip",
   props: {
     selected: { type: Boolean },
+    network: { type: Object, default: null },
   },
 };
 </script>

@@ -9,10 +9,11 @@
         }"
       >
         <NetworkChip
-          v-for="(e, i) in items"
+          v-for="(network, i) in networks"
           :key="i"
           :selected="i === selectedNetwork"
           @click="selectedNetwork = i"
+          :network="network"
         />
       </div>
       <button
@@ -36,7 +37,13 @@
           </div>
         </div>
 
-        <ValueInput />
+        <ValueInput
+          :values="networks"
+          :tokenIndex="firstTokenIndex"
+          v-model="firstTokenValue"
+          :max="5"
+          error="Some Error Text"
+        />
       </div>
       <div>
         <div class="header-balance">
@@ -46,7 +53,7 @@
           </div>
         </div>
 
-        <ValueInput />
+        <ValueInput :values="[networks[4]]" />
       </div>
     </div>
     <div class="ltv underline">
@@ -59,6 +66,13 @@
 <script>
 const NetworkChip = () => import("@/components/mint/NetworkChip");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
+/**/
+import ethIcon from "@/assets/images/networks/ethereum-icon.svg";
+import fantomIcon from "@/assets/images/networks/fantom-icon.svg";
+import polygonIcon from "@/assets/images/networks/polygon-icon.svg";
+import binanceIcon from "@/assets/images/networks/binance-icon.svg";
+import avalancheIcon from "@/assets/images/networks/avalanche-icon.png";
+import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
 
 export default {
   name: "ChooseChain",
@@ -66,14 +80,38 @@ export default {
   data: () => ({
     selectedNetwork: null,
     isListOpened: false,
-    items: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    firstTokenIndex: 0,
+    firstTokenValue: null,
+    networks: [
+      { name: "ERC-20", icon: ethIcon },
+      {
+        name: "Fantom",
+        icon: fantomIcon,
+      },
+      {
+        name: "BSC",
+        icon: binanceIcon,
+      },
+      {
+        name: "AVAX",
+        icon: avalancheIcon,
+      },
+      {
+        name: "AETH",
+        icon: arbitrumIcon,
+      },
+      {
+        name: "MATIC",
+        icon: polygonIcon,
+      },
+    ],
     lineHeight: 50,
     linesGap: 16,
     itemsInLine: 4,
   }),
   computed: {
     listMaxHeight() {
-      const lines = Math.ceil(this.items.length / 4);
+      const lines = Math.ceil(this.networks.length / 4);
       return this.isListOpened
         ? lines * this.lineHeight + (lines - 1) * this.linesGap
         : this.lineHeight;
