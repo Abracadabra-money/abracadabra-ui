@@ -1,6 +1,6 @@
 <template>
   <div class="choose">
-    <h2>Choose Chain</h2>
+    <h4>Choose Chain</h4>
     <div class="networks underline">
       <div
         class="list"
@@ -31,10 +31,8 @@
 
     <div class="first-input underline">
       <div class="header-balance">
-        <h2>Collateral assets</h2>
-        <div class="balance">
-          <div v-if="false">Balance: 2000.00</div>
-        </div>
+        <h4>Collateral assets</h4>
+        <p v-if="false">Balance: 2000.00</p>
       </div>
 
       <ValueInput
@@ -47,10 +45,8 @@
     </div>
     <div class="second-input underline">
       <div class="header-balance">
-        <h2>Collateral assets</h2>
-        <div class="balance">
-          <div>Balance: 2000.00</div>
-        </div>
+        <h4>Collateral assets</h4>
+        <p>Balance: 2000.00</p>
       </div>
 
       <ValueInput :values="[networks[4]]" />
@@ -169,29 +165,16 @@ export default {
   padding-bottom: 14px;
 }
 
-h2 {
-  font-weight: 600;
-  font-size: 18px;
-}
-
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.header-balance {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-
-  .balance {
-    font-size: 14px;
-  }
-}
 .ltv {
   display: flex;
   justify-content: space-between;
   margin-top: 25px;
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
+  padding-bottom: 14px;
 }
 </style>

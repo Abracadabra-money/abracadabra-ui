@@ -25,8 +25,11 @@ export default {
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   cursor: pointer;
-  border: none;
+  border: 2px solid rgba(118, 195, 245, 0);
   color: white;
+
+  transition: background-color 0.2s, border-bottom-color 0.2s,
+    border-top-color 0.2s, border-left-color 0.2s, border-right-color 0.2s;
 
   &-image {
     height: 20px;
