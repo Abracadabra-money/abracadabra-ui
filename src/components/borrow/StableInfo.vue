@@ -1,13 +1,41 @@
 <template>
   <div class="stable-info">
     <div class="info-wrap">
-      <button class="info-btn">
+      <button class="info-btn" @click="isInfoPressed = !isInfoPressed">
         <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
       </button>
-      <div class="stable-data">
-        <div class="item" v-for="i in 4" :key="i">
-          <p class="item-title">Collateral Deposit</p>
-          <p class="item-value">0.0</p>
+    </div>
+    <div class="stable-data">
+      <div v-if="!isInfoPressed" class="stable-preview">
+        <div class="item" v-for="(item, i) in previewData" :key="i">
+          <p class="item-title">{{ item.name }}</p>
+          <p class="item-value">{{ item.value || "0.0" }}</p>
+        </div>
+      </div>
+      <div v-else class="info-list-wrap">
+        <div class="info-list">
+          <div v-for="(item, i) in listData" :key="i" class="info-list-item">
+            <img
+              class="info-list-icon"
+              src="@/assets/images/info.svg"
+              alt="info"
+            />
+
+            <span class="info-list-name">{{ item.name }}:</span>
+            <span class="info-list-value">{{ item.value }}</span>
+          </div>
+        </div>
+        <div class="info-list-bottom">
+          <div class="info-bottom">
+            <div class="info-list-subitem">
+              <span class="info-list-name">1 MIM</span>
+              <span class="info-list-value">1 USD</span>
+            </div>
+            <div class="info-list-subitem">
+              <span class="info-list-name">1 xSushi</span>
+              <span class="info-list-value">6.1865 MIM</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -17,6 +45,21 @@
 <script>
 export default {
   name: "StableInfo",
+  data: () => ({
+    isInfoPressed: true,
+    listData: [
+      { name: "Maximum collateral ratio", value: 10 },
+      { name: "Liquidation fee", value: 10 },
+      { name: "Borrow fee", value: 10 },
+      { name: "Interest", value: 10 },
+    ],
+    previewData: [
+      { name: "Collateral Deposit", value: 0 },
+      { name: "Collateral Value", value: 0 },
+      { name: "MIM Borrowed", value: 0 },
+      { name: "Liquidation Price", value: 0 },
+    ],
+  }),
 };
 </script>
 
@@ -44,11 +87,15 @@ export default {
   }
 
   .stable-data {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    position: relative;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 30px;
-    padding: 30px;
+
+    .stable-preview {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      padding: 30px;
+    }
 
     .item {
       text-align: center;
@@ -80,5 +127,72 @@ export default {
       font-weight: 700;
     }
   }
+}
+
+.info-list-wrap {
+  padding: 20px 15px;
+
+  .info-list-bottom {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: 30px;
+    padding: 0 17px 10px 17px;
+    margin-top: 10px;
+
+    .info-bottom {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 52px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      .info-list-subitem {
+        display: flex;
+        justify-content: space-between;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 25px;
+        .info-list-value {
+          font-weight: 700;
+          color: white;
+        }
+      }
+    }
+  }
+
+  .info-list {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: 30px;
+    padding: 0 17px 10px 17px;
+
+    .info-list-item {
+      display: flex;
+      justify-content: space-between;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 25px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .info-list-value {
+      font-weight: 700;
+      color: white;
+    }
+    .info-list-name {
+      flex: 1 1 auto;
+      text-align: left;
+    }
+    .info-list-icon {
+      padding-right: 12px;
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
 }
 </style>

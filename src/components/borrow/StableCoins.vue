@@ -6,8 +6,8 @@
       <DefaultButton primary>Approve</DefaultButton>
       <DefaultButton>Mint MIM</DefaultButton>
     </div>
-    <div class="stable-table">
-      <div v-for="(item, i) in tableData" :key="i" class="table-item">
+    <div class="stable-list">
+      <div v-for="(item, i) in listData" :key="i" class="list-item">
         <span>{{ item.name }}:</span>
         <span>{{ item.value }}</span>
       </div>
@@ -23,7 +23,7 @@ export default {
   name: "StableCoins",
   components: { StableInfo, DefaultButton },
   data: () => ({
-    tableData: [
+    listData: [
       { name: "Borrow Fee", value: 10 },
       { name: "Free", value: 10 },
     ],
@@ -52,9 +52,9 @@ export default {
   grid-gap: 20px;
   margin-top: 92px;
 }
-.stable-table {
+.stable-list {
   margin-top: 30px;
-  .table-item {
+  .list-item {
     display: flex;
     justify-content: space-between;
     color: rgba(255, 255, 255, 0.6);
