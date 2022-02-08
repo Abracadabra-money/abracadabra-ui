@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap");
 @import "~normalize.css";
+@import "./connectModal.scss";
 
 * {
   box-sizing: border-box;
@@ -15,4 +16,18 @@
   background-color: #23212d;
   color: #fff;
   min-height: 100vh;
+  position: relative;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
 }
