@@ -64,7 +64,7 @@
 </template>
 
 <script>
-const NetworkChip = () => import("@/components/mint/NetworkChip");
+const NetworkChip = () => import("@/components/borrow/NetworkChip");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 /**/
 import ethIcon from "@/assets/images/networks/ethereum-icon.svg";
