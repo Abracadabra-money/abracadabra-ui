@@ -59,54 +59,21 @@
           </div>
         </div>
       </div>
-
-      <div class="mim-wrap">
-        <TokenButton :tokenInfo="tokensData.MIM" />
-        <p class="mim-price">{{ parseFloat(mimPrice).toFixed(4) }}</p>
-      </div>
+      <MimTokenBlock />
     </nav>
   </header>
 </template>
 
 <script>
 const ConnectButton = () => import("@/components/ui/ConnectButton");
-const TokenButton = () => import("@/components/ui/AddTokenBtn");
-import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
+const MimTokenBlock = () => import("@/components/ui/MimTokenBlock");
 
-import tokensInfo from "@/utils/tokens/addedTokens.js";
-import { mapGetters } from "vuex";
 export default {
   data() {
     return {
-      mimPrice: 0,
       isDropdownTools: false,
       isDropdownOther: false,
     };
-  },
-
-  computed: {
-    ...mapGetters({ chainId: "getChainId" }),
-
-    tokensData() {
-      return {
-        MIM: this.getDataByNameAndChain("MIM"),
-      };
-    },
-
-    mimInfo() {
-      return tokensInfo.find((token) => {
-        return token.chain === this.chainId;
-      });
-    },
-  },
-
-  watch: {
-    async chainId() {
-      this.mimPrice = await getTokenPriceByAddress(
-        this.chainId,
-        this.mimInfo.address
-      );
-    },
   },
 
   methods: {
@@ -125,17 +92,11 @@ export default {
     closeDropdownOther() {
       this.isDropdownOther = false;
     },
-
-    getDataByNameAndChain(name) {
-      return tokensInfo.find(
-        (token) => token.name === name && token.chain === this.chainId
-      );
-    },
   },
 
   components: {
     ConnectButton,
-    TokenButton,
+    MimTokenBlock,
   },
 };
 </script>
@@ -252,14 +213,5 @@ export default {
   .arrow {
     transform: rotate(180deg);
   }
-}
-
-.mim-wrap {
-  display: flex;
-  align-items: center;
-}
-
-.mim-price {
-  margin-left: 10px;
 }
 </style>
