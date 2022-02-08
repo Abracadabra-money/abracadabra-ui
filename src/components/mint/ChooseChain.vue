@@ -28,34 +28,34 @@
         />
       </button>
     </div>
-    <div class="inputs underline">
-      <div>
-        <div class="header-balance">
-          <h2>Collateral assets</h2>
-          <div class="balance">
-            <div v-if="false">Balance: 2000.00</div>
-          </div>
-        </div>
 
-        <ValueInput
-          :values="networks"
-          :tokenIndex="firstTokenIndex"
-          v-model="firstTokenValue"
-          :max="5"
-          error="Some Error Text"
-        />
-      </div>
-      <div>
-        <div class="header-balance">
-          <h2>Collateral assets</h2>
-          <div class="balance">
-            <div>Balance: 2000.00</div>
-          </div>
+    <div class="first-input underline">
+      <div class="header-balance">
+        <h2>Collateral assets</h2>
+        <div class="balance">
+          <div v-if="false">Balance: 2000.00</div>
         </div>
-
-        <ValueInput :values="[networks[4]]" />
       </div>
+
+      <ValueInput
+        :values="networks"
+        :tokenIndex="firstTokenIndex"
+        v-model="firstTokenValue"
+        :max="5"
+        error="Some Error Text"
+      />
     </div>
+    <div class="second-input underline">
+      <div class="header-balance">
+        <h2>Collateral assets</h2>
+        <div class="balance">
+          <div>Balance: 2000.00</div>
+        </div>
+      </div>
+
+      <ValueInput :values="[networks[4]]" />
+    </div>
+
     <div class="ltv underline">
       <span>LTV</span>
       <span>45 %</span>
@@ -159,12 +159,14 @@ export default {
   width: 11px;
 }
 
-.inputs {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  grid-row-gap: 67px;
+.first-input {
   padding-top: 27px;
-  padding-bottom: 30px;
+  padding-bottom: 24px;
+}
+
+.second-input {
+  padding-top: 27px;
+  padding-bottom: 14px;
 }
 
 h2 {

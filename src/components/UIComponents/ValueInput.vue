@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="val-input" :class="{ 'val-input-error': errorText }">
+    <div class="val-input" :class="{ 'val-input-error': error }">
       <button
         :disabled="disabled || values.length <= 1"
         class="value-type value-btn"
@@ -40,7 +40,10 @@
         max
       </button>
     </div>
-    <p class="value-error">{{ errorText }}</p>
+    <p class="value-error">
+      <span v-if="error">{{ error }}</span>
+      <span v-else>&nbsp;</span>
+    </p>
   </div>
 </template>
 
@@ -76,9 +79,6 @@ export default {
       default: "",
     },
   },
-  data: () => ({
-    errorText: "",
-  }),
   computed: {
     currentValue: {
       get() {
@@ -90,14 +90,6 @@ export default {
     },
     selectedToken() {
       return this.values[this.tokenIndex];
-    },
-  },
-  watch: {
-    error: {
-      immediate: true,
-      handler(value) {
-        this.errorText = value || "";
-      },
     },
   },
 };
