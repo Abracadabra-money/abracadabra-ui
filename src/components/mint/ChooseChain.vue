@@ -2,12 +2,30 @@
   <div class="choose">
     <h2>Choose Chain</h2>
     <div class="networks underline">
-      <NetworkChip
-        v-for="i in 5"
-        :key="i"
-        :selected="i === selectedNetwork"
-        @click="selectedNetwork = i"
-      />
+      <div
+        class="list"
+        :style="{
+          height: `${listMaxHeight}px`,
+        }"
+      >
+        <NetworkChip
+          v-for="(e, i) in items"
+          :key="i"
+          :selected="i === selectedNetwork"
+          @click="selectedNetwork = i"
+        />
+      </div>
+      <button
+        class="networks-arrow"
+        :class="{ 'networks-arrow-pressed': isListOpened }"
+        @click="isListOpened = !isListOpened"
+      >
+        <img
+          class="networks-arrow-image"
+          src="@/assets/images/arrow.svg"
+          alt="arrow"
+        />
+      </button>
     </div>
     <div class="inputs underline">
       <div>
@@ -47,7 +65,20 @@ export default {
   components: { NetworkChip, ValueInput },
   data: () => ({
     selectedNetwork: null,
+    isListOpened: false,
+    items: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    lineHeight: 50,
+    linesGap: 16,
+    itemsInLine: 4,
   }),
+  computed: {
+    listMaxHeight() {
+      const lines = Math.ceil(this.items.length / 4);
+      return this.isListOpened
+        ? lines * this.lineHeight + (lines - 1) * this.linesGap
+        : this.lineHeight;
+    },
+  },
 };
 </script>
 
@@ -59,11 +90,35 @@ export default {
 }
 
 .networks {
+  position: relative;
+  margin-top: 10px;
+  padding-bottom: 30px;
+}
+
+.list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-gap: 16px;
-  margin-top: 10px;
-  padding-bottom: 30px;
+  overflow: hidden;
+  transition: height 0.2s ease-out;
+}
+
+.networks-arrow-pressed {
+  transform: rotate(180deg);
+}
+
+.networks-arrow {
+  position: absolute;
+  right: 10px;
+  top: -25px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.networks-arrow-image {
+  width: 11px;
 }
 
 .inputs {
