@@ -5,10 +5,12 @@
       <div class="home__buttons">
         <DefaultButton 
           primary
+          :width="'270px'"
           @click="mint">
           MINT
         </DefaultButton>
         <DefaultButton
+          :width="'270px'"
           @click="leverageUp">
           Leverage up
         </DefaultButton>
@@ -43,7 +45,6 @@ export default  {
     background-size: cover;
     background-position: 0 -10%;
     margin: 0 auto;
-    width: 100vw;
     height: 100vh;
     display: flex;
     align-items: center;

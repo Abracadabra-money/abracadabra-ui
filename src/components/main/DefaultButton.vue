@@ -1,5 +1,5 @@
 <template>
-  <a class="button-gradient" :class="{primary: primary, disabled: disabled}" @click="onClick">
+  <a class="default-button" :style="{'width': setWidth()}" :class="{primary: primary, disabled: disabled}" @click="onClick">
     <slot></slot>
   </a>
 </template>
@@ -11,11 +11,17 @@ export default {
     primary: {
       type: Boolean
     },
+    width: {
+      type: String
+    },
     disabled: {
       type: Boolean
     }
   },
   methods: {
+    setWidth() {
+      return this.width ? this.width : '100%'
+    },
     onClick() {
       if (!this.disabled)
         this.$emit("click");
@@ -25,12 +31,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.button-gradient {
+.default-button {
   cursor: pointer;
   position: relative;
   border-radius: 20px;
   height: 50px;
-  width: 270px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: center;
