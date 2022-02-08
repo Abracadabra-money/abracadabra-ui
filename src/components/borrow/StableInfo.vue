@@ -48,7 +48,7 @@ export default {
   data: () => ({
     isInfoPressed: true,
     listData: [
-      { name: "Maximum collateral ratio", value: 10 },
+      { name: "Maximum collateral ratio", value: 11 },
       { name: "Liquidation fee", value: 10 },
       { name: "Borrow fee", value: 10 },
       { name: "Interest", value: 10 },
