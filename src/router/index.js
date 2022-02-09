@@ -19,6 +19,11 @@ const routes = [
     name: "Mint",
     component: () => import("@/views/Mint"),
   },
+  {
+    path: "/bridge",
+    name: "Bridge",
+    component: () => import("@/views/Bridge"),
+  },
 ];
 
 const router = new VueRouter({
