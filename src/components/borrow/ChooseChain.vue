@@ -1,28 +1,30 @@
 <template>
   <div class="choose">
     <h4>Choose Chain</h4>
-    <div class="networks underline">
-      <div
-        class="list"
-        :style="{
-          height: `${listMaxHeight}px`,
-        }"
-      >
-        <NetworkChip
-          v-for="(network, i) in networks"
-          :key="i"
-          :selected="i === selectedNetwork"
-          @click="selectedNetwork = i"
-          :network="network"
-        />
+    <div class="underline networks-wrap">
+      <div class="networks">
+        <div
+          class="list"
+          :style="{
+            height: `${listMaxHeight}px`,
+          }"
+        >
+          <NetworkChip
+            v-for="(network, i) in networks"
+            :key="i"
+            :selected="i === selectedNetwork"
+            @click="selectedNetwork = i"
+            :network="network"
+          />
+        </div>
       </div>
       <button
-        class="networks-arrow"
-        :class="{ 'networks-arrow-pressed': isListOpened }"
+        class="networks-arrow-btn"
+        :class="{ 'networks-arrow-btn-pressed': isListOpened }"
         @click="isListOpened = !isListOpened"
       >
         <img
-          class="networks-arrow-image"
+          class="networks-arrow-btn-image"
           src="@/assets/images/arrow.svg"
           alt="arrow"
         />
@@ -118,40 +120,53 @@ export default {
 
 <style lang="scss" scoped>
 .choose {
-  padding: 30px;
+  padding: 20px 16px;
   border-radius: 30px;
   background-color: $clrBg2;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.networks-wrap {
+  position: relative;
 }
 
 .networks {
   position: relative;
+  left: -16px;
+  width: calc(100% + 32px);
   margin-top: 10px;
   padding-bottom: 30px;
+  padding-left: 16px;
+  overflow-y: hidden;
+  overflow-x: scroll;
 }
 
 .list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: column;
   grid-gap: 16px;
-  overflow: hidden;
+  max-height: 50px;
   transition: height 0.2s ease-out;
+  width: max-content;
 }
 
-.networks-arrow-pressed {
+.networks-arrow-btn-pressed {
   transform: rotate(180deg);
 }
 
-.networks-arrow {
+.networks-arrow-btn {
   position: absolute;
   right: 10px;
-  top: -25px;
+  top: -28px;
   border: none;
   background-color: transparent;
   cursor: pointer;
   transition: transform 0.2s;
+  display: none;
 }
 
-.networks-arrow-image {
+.networks-arrow-btn-image {
   width: 11px;
 }
 
@@ -176,5 +191,29 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
   padding-bottom: 12px;
+}
+
+@media (min-width: 1024px) {
+  .choose {
+    padding: 30px;
+  }
+
+  .list {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: row;
+    overflow: hidden;
+    max-height: none;
+  }
+
+  .networks-arrow-btn {
+    display: block;
+  }
+
+  .networks {
+    position: static;
+    width: auto;
+    overflow-x: hidden;
+    padding-left: 0;
+  }
 }
 </style>

@@ -19,11 +19,18 @@ export default {
 <style lang="scss" scoped>
 .borrow {
   display: grid;
-  grid-template-columns: 550px 1fr;
+  grid-template-columns: 1fr;
   grid-gap: 30px;
   margin: 0 auto;
-  width: 1320px;
-  max-width: 100%;
+  width: 100%;
   padding-top: 160px;
+}
+
+@media (min-width: 1024px) {
+  .borrow {
+    grid-template-columns: 550px 1fr;
+    width: 1320px;
+    max-width: 100%;
+  }
 }
 </style>
