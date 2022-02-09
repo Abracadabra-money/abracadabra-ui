@@ -1,6 +1,13 @@
 <template>
   <div class="stable-info">
     <div class="info-wrap">
+      <div class="strategy">
+        <template v-if="isInfoPressed">
+          <img src="@/assets/images/degenbox.svg" alt="degenbox" />
+          <span>Degenbox strategy</span>
+          <img src="@/assets/images/arrow_right.svg" alt="degenbox"
+        /></template>
+      </div>
       <button class="info-btn" @click="isInfoPressed = !isInfoPressed">
         <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
       </button>
@@ -69,13 +76,22 @@ export default {
   border-radius: 30px;
 
   .info-wrap {
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 30px 7px 30px;
+
+    .strategy {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: repeat(3, auto);
+      align-items: center;
+    }
 
     .info-btn {
       background-color: transparent;
       cursor: pointer;
       border: none;
-      margin: 9px 30px 7px 0;
+      /* margin: 9px 30px 7px 0;*/
       width: 24px;
       height: 24px;
 
