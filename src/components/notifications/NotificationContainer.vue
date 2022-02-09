@@ -28,17 +28,15 @@ export default {
 
 <style lang="scss" scoped>
 .notification-container {
-  height: -webkit-fill-available;
-  padding-bottom: 110px;
+  height: fit-content;
   overflow-y: scroll;
   position: fixed;
   z-index: 1000;
   top: 110px;
   right: 30px;
   width: 400px;
-  padding-right: 10px;
   & .notification-item {
-    margin-top: 20px;
+    margin-bottom: 20px;
   }
 }
 
