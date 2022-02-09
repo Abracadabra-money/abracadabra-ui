@@ -1,6 +1,6 @@
 <template>
   <div class="notification-container">
-    <transition-group name="fade">
+    <transition-group name="list">
       <NotificationItem
         v-for="notification in notifications"
         :notification="notification"
@@ -40,10 +40,15 @@ export default {
   }
 }
 
-@media screen and(max-width: 600px) {
-  .notification-container {
-    width: 90%;
-    max-width: 350px;
-  }
+.list-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+.list-enter, .list-leave-to /* .list-leave-active до версии 2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
 }
 </style>
