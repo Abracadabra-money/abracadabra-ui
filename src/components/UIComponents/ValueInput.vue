@@ -48,6 +48,8 @@
 </template>
 
 <script>
+import selectIcon from "@/assets/images/select.svg";
+
 export default {
   props: {
     showMax: {
@@ -89,7 +91,7 @@ export default {
       },
     },
     selectedToken() {
-      return this.values[this.tokenIndex];
+      return this.values[this.tokenIndex] || {name: "Select to", icon: selectIcon};
     },
   },
 };
