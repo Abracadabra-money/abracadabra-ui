@@ -5,9 +5,9 @@
         :disabled="disabled || !isChooseToken"
         class="value-type value-btn"
       >
-        <TokenIcon :imageName="tokenName ? tokenIcon : null" isNetwork />
+        <TokenIcon :imageName="name ? icon : null" isNetwork />
         <span class="token-name">
-          {{ tokenName || "Select to" }}
+          {{ name || "Select to" }}
         </span>
         <img
           v-if="isChooseToken"
@@ -71,10 +71,10 @@ export default {
       type: String,
       default: "",
     },
-    tokenIcon: {
+    icon: {
       type: String,
     },
-    tokenName: {
+    name: {
       type: String,
       default: "",
     },

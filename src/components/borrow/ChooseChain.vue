@@ -39,8 +39,8 @@
       </div>
 
       <ValueInput
-        :tokenIcon="networks[0].icon"
-        :tokenName="networks[0].name"
+        :icon="networks[0].icon"
+        :name="networks[0].name"
         v-model="firstTokenValue"
         :max="5"
         error="Some Error Text"
@@ -53,7 +53,7 @@
         <p>Balance: 2000.00</p>
       </div>
 
-      <ValueInput :tokenIcon="networks[2].icon" :tokenName="networks[2].name" />
+      <ValueInput :icon="networks[2].icon" :name="networks[2].name" />
     </div>
 
     <div class="ltv underline">
