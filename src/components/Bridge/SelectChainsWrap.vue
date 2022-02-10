@@ -12,6 +12,7 @@
     </div>
     <img
       class="switch-network"
+      @click="switchHandle"
       src="@/assets/images/swith.svg"
       alt="Switch network"
     />
@@ -30,6 +31,7 @@
 
 <script>
 const TokenIcon = () => import("@/components/UIComponents/TokenIcon");
+
 export default {
   props: {
     fromChain: {
@@ -46,6 +48,10 @@ export default {
   methods: {
     handlerNetwork(action) {
       this.$emit("handlerNetwork", action);
+    },
+
+    switchHandle() {
+      this.$emit("switchHandle");
     },
   },
 

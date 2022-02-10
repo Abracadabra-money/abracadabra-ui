@@ -4,6 +4,7 @@
       <h3 class="title">Bridge</h3>
       <SelectChainsWrap
         @handlerNetwork="openNetworkPopup"
+        @switchHandle="switchChain"
         :fromChain="activeFrom"
         :toChain="activeTo"
       />
@@ -14,7 +15,6 @@
             <div>Balance: 2000.00</div>
           </div>
         </div>
-
         <ValueInput />
       </div>
 
@@ -59,6 +59,7 @@
       @enterChain="changeChain"
       :networksArr="popupNetworksArr"
       :activeChain="activeChainPopup"
+      :popupType="popupType"
     />
   </div>
 </template>
@@ -69,14 +70,16 @@ const DefaultButton = () => import("@/components/main/DefaultButton");
 const SelectChainsWrap = () => import("@/components/Bridge/SelectChainsWrap");
 const NetworkPopup = () => import("@/components/Bridge/NetworkPopup");
 import bridgeMixin from "@/mixins/bridge";
+import chainSwitch from "@/mixins/chainSwitch";
 import { mapGetters } from "vuex";
 export default {
-  mixins: [bridgeMixin],
+  mixins: [bridgeMixin, chainSwitch],
   data() {
     return {
       isOpenNetworkPopup: false,
       popupType: null,
       toChainId: null,
+      fromChainId: null,
     };
   },
 
@@ -84,8 +87,8 @@ export default {
     ...mapGetters({
       bridgeObject: "getBridgeObject",
       activeChain: "getChainId",
+      address: "getAccount",
     }),
-    // ...mapGetters({ address: "getAccount" }),
 
     popupNetworksArr() {
       if (this.popupType === "from") {
@@ -103,13 +106,19 @@ export default {
       }
     },
 
+    targetFromChain() {
+      if (this.fromChainId) return this.fromChainId;
+
+      return this.activeChain;
+    },
+
     activeFrom() {
       return this.bridgeObject?.fromChains.find(
-        (chain) => chain.chainId === this.activeChain
+        (chain) => chain.chainId === this.targetFromChain
       );
     },
 
-    targetChain() {
+    targetToChain() {
       if (this.toChainId) return this.toChainId;
 
       return this.bridgeObject.chainsInfo[0].chainId;
@@ -117,7 +126,7 @@ export default {
 
     activeTo() {
       return this.bridgeObject?.toChains.find(
-        (chain) => chain.chainId === this.targetChain
+        (chain) => chain.chainId === this.targetToChain
       );
     },
 
@@ -138,15 +147,23 @@ export default {
     closeNetworkPopup() {
       this.isOpenNetworkPopup = false;
     },
-    changeChain() {
-      console.log("changeChain");
+
+    changeChain(chainId, type) {
+      if (type === "to") {
+        this.toChainId = chainId;
+      } else {
+        this.switchNetwork(chainId);
+        this.fromChainId = chainId;
+      }
+    },
+
+    switchChain() {
+      this.switchNetwork(this.activeTo.chainId);
     },
   },
 
   async created() {
-    const address = await this.$store.getters.getAccount;
-
-    if (!address) {
+    if (!this.address) {
       // const notification = {
       //   msg: "Connect wallet first",
       // };

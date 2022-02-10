@@ -13,11 +13,10 @@
         :key="inx"
         class="network"
         :class="network.chainId === activeChain.chainId && 'active'"
-        @click="enterChain"
+        @click="enterChain(network.chainId)"
       >
         <img class="network-image" :src="network.icon" alt="network" />
         <span>{{ network.title }}</span>
-        <span>{{ active }}</span>
       </button>
     </div>
   </div>
@@ -38,6 +37,10 @@ export default {
     activeChain: {
       type: Object,
     },
+
+    popupType: {
+      type: String,
+    },
   },
 
   methods: {
@@ -45,14 +48,10 @@ export default {
       this.$emit("closePopup");
     },
 
-    enterChain() {
-      this.$emit("enterChain");
+    enterChain(chainId) {
+      this.$emit("enterChain", chainId, this.popupType);
       this.closePopup();
     },
-  },
-
-  created() {
-    console.log("chainsArr", this.activeChain);
   },
 };
 </script>
