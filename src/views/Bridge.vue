@@ -24,7 +24,12 @@
       </div>
 
       <div class="btn-wrap">
-        <DefaultButton :primary="true">{{ actionBtnText }}</DefaultButton>
+        <DefaultButton
+          :primary="true"
+          :disabled="disableBtn"
+          @click="actionHandler"
+          >{{ actionBtnText }}</DefaultButton
+        >
       </div>
 
       <div class="info" v-for="(info, inx) in chainInfo" :key="inx">
@@ -68,6 +73,8 @@ export default {
       popupType: null,
       toChainId: null,
       fromChainId: null,
+      amount: "",
+      amountError: "",
     };
   },
 
@@ -126,12 +133,20 @@ export default {
     },
 
     expectedMim() {
-      if (!+this.amount) return false;
-      if (this.amountError) return false;
+      if (!+this.amount) return "0.0000";
+      if (this.amountError) return "0.0000";
 
       const feeAmount = this.targetChainInfo.feeAmount;
 
       return `~${parseFloat(+this.amount - feeAmount).toFixed(4)}`;
+    },
+
+    disableBtn() {
+      // if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
+      // if (+this.amount === 0) return true;
+
+      // return !!this.amountError;
+      return false;
     },
 
     targetChainInfo() {
@@ -184,6 +199,101 @@ export default {
     switchChain() {
       this.switchNetwork(this.activeTo.chainId);
     },
+    // ----------------------------------
+
+    updateMainValue(value) {
+      if (Number(value) > Number(this.bridgeObject.balance)) {
+        this.amountError = `The value cannot be greater than ${this.bridgeObject.balance}`;
+        return false;
+      }
+
+      if (Number(value) > Number(this.targetChainInfo.maxAmount)) {
+        this.amountError = `The value cannot be greater than ${this.targetChainInfo.maxAmount}`;
+        return false;
+      }
+
+      if (
+        Number(value) &&
+        Number(value) < Number(this.targetChainInfo.minAmount)
+      ) {
+        this.amountError = `Minimum bridge requirement not met`;
+        return false;
+      }
+
+      this.amountError = "";
+      this.amount = value;
+    },
+
+    async actionHandler() {
+      // if (!this.bridgeObject.isTokenApprove && this.chainId === 1) {
+      //   await this.approveToken(
+      //     this.bridgeObject.tokenContractInstance,
+      //     this.bridgeObject.contractInstance.address
+      //   );
+
+      //   return false;
+      // }
+
+      await this.bridge();
+    },
+
+    async bridge() {
+      try {
+        let re = new RegExp(
+          // eslint-disable-next-line no-useless-escape
+          `^-?\\d+(?:\.\\d{0,` + (18 || -1) + `})?`
+        );
+        const parsedAmount = this.amount.toString().match(re)[0];
+
+        const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
+
+        const toChainId = this.$ethers.BigNumber.from(this.targetToChain);
+
+        const contract = this.bridgeObject.contractInstance;
+
+        const methodName = this.bridgeObject.methodName;
+
+        const tokenAddr = this.targetChainInfo.tokenAddr;
+
+        console.log("111111", tokenAddr);
+        console.log("222222", this.address);
+        console.log("333333", amount);
+        console.log("444444", toChainId);
+        console.log("555555", methodName);
+        console.log("666666", contract);
+
+        const estimateGas = await contract.estimateGas[methodName](
+          tokenAddr,
+          this.address,
+          amount,
+          toChainId
+        );
+
+        console.log("!!!!!!!!!!!!!!!!", estimateGas);
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        this.amount = "";
+
+        const result = await contract[methodName](
+          tokenAddr,
+          this.address,
+          amount,
+          toChainId,
+          {
+            value: 0,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        console.log("gasLimit:", gasLimit);
+      } catch (e) {
+        console.log("SWAP ERR:", e);
+      }
+    },
+    // ----------------------------------
   },
 
   async created() {
