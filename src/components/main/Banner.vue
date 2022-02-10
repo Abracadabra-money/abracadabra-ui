@@ -76,7 +76,6 @@ export default {
   flex-direction: row;
   align-items: center;
   max-width: 920px;
-  // min-width: 920px;
   background: rgba(64, 58, 92, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
@@ -118,7 +117,7 @@ export default {
   }
   &__button {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     width: 260px;
   }
   &__icon-right {

@@ -16,7 +16,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
   .link {
     cursor: pointer;
     font-family: Prompt;
@@ -30,5 +29,4 @@ export default {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-
 </style>
