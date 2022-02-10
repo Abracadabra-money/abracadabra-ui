@@ -4,7 +4,7 @@
       <h5 class="network-title">Network from bridge</h5>
       <div class="select-network" @click="handlerNetwork('from')">
         <div class="icon-wrap">
-          <TokenIcon2 :url="fromChain.icon" :title="fromChain.title" />
+          <TokenIcon :imageName="fromChain.icon" :itsImgURL="true" />
           <p class="network-name">{{ fromChain.title }}</p>
         </div>
         <img src="@/assets/images/arrow-down.svg" alt="Arrow Down" />
@@ -20,7 +20,7 @@
       <h5 class="network-title">Network to bridge</h5>
       <div class="select-network" @click="handlerNetwork('to')">
         <div class="icon-wrap">
-          <TokenIcon2 :url="toChain.icon" :title="toChain.title" />
+          <TokenIcon :imageName="toChain.icon" :itsImgURL="true" />
           <p class="network-name">{{ toChain.title }}</p>
         </div>
         <img src="@/assets/images/arrow-down.svg" alt="Arrow Down" />
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-const TokenIcon2 = () => import("@/components/UIComponents/TokenIcon2");
+const TokenIcon = () => import("@/components/UIComponents/TokenIcon");
 
 export default {
   props: {
@@ -56,7 +56,7 @@ export default {
   },
 
   components: {
-    TokenIcon2,
+    TokenIcon,
   },
 };
 </script>

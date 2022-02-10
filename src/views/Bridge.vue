@@ -15,7 +15,14 @@
             <div>Balance: 2000.00</div>
           </div>
         </div>
-        <ValueInput />
+        <ValueInput
+          :max="bridgeObject.balance"
+          :value="amount"
+          :name="'MIM'"
+          :icon="'MIM'"
+          :error="amountError"
+          @input="updateMainValue"
+        />
       </div>
 
       <div class="info" v-if="expectedMim">
