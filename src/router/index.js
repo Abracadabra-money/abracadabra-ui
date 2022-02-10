@@ -14,16 +14,6 @@ const routes = [
     name: "Borrow",
     component: () => import("@/views/Borrow"),
   },
-  {
-    path: "/mint",
-    name: "Mint",
-    component: () => import("@/views/Mint"),
-  },
-  {
-    path: "/bridge",
-    name: "Bridge",
-    component: () => import("@/views/Bridge"),
-  },
 ];
 
 const router = new VueRouter({
