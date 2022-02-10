@@ -15,9 +15,9 @@ const routes = [
     component: () => import("@/views/Borrow"),
   },
   {
-    path: "/mint",
-    name: "Mint",
-    component: () => import("@/views/Mint"),
+    path: "/bridge",
+    name: "Bridge",
+    component: () => import("@/views/Bridge"),
   },
 ];
 

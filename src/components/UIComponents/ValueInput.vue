@@ -1,21 +1,22 @@
 <template>
   <div>
-    <div class="val-input" :class="{ 'val-input-error': errorText }">
+    <div class="val-input" :class="{ 'val-input-error': error }">
       <button
-        :disabled="disabled || values.length <= 1"
+        @click="$emit('openTokensList')"
+        :disabled="disabled || !isChooseToken"
         class="value-type value-btn"
       >
         <img
-          v-if="selectedToken"
+          v-if="currentToken.icon"
           class="token-icon"
-          :src="selectedToken.icon"
+          :src="currentToken.icon"
           alt="token"
         />
-        <span v-if="selectedToken" class="token-name">
-          {{ selectedToken.name }}
+        <span class="token-name">
+          {{ currentToken.name }}
         </span>
         <img
-          v-if="values.length > 1"
+          v-if="isChooseToken"
           class="token-arrow"
           src="@/assets/images/arrow.svg"
           alt="arrow"
@@ -40,11 +41,16 @@
         max
       </button>
     </div>
-    <p class="value-error">{{ errorText }}</p>
+    <p class="value-error">
+      <span v-if="error">{{ error }}</span>
+      <span v-else>&nbsp;</span>
+    </p>
   </div>
 </template>
 
 <script>
+import selectIcon from "@/assets/images/select.svg";
+
 export default {
   props: {
     showMax: {
@@ -52,14 +58,6 @@ export default {
       default: true,
     },
     max: {
-      type: Number,
-      default: 0,
-    },
-    values: {
-      type: Array,
-      default: () => [],
-    },
-    tokenIndex: {
       type: Number,
       default: 0,
     },
@@ -71,14 +69,22 @@ export default {
       type: Boolean,
       default: false,
     },
+    isChooseToken: {
+      type: Boolean,
+      default: false,
+    },
     error: {
       type: String,
       default: "",
     },
+    icon: {
+      type: String,
+    },
+    name: {
+      type: String,
+      default: "",
+    },
   },
-  data: () => ({
-    errorText: "",
-  }),
   computed: {
     currentValue: {
       get() {
@@ -88,16 +94,13 @@ export default {
         this.$emit("input", value);
       },
     },
-    selectedToken() {
-      return this.values[this.tokenIndex];
-    },
-  },
-  watch: {
-    error: {
-      immediate: true,
-      handler(value) {
-        this.errorText = value || "";
-      },
+    currentToken() {
+      return this.name
+        ? {
+            name: this.name,
+            icon: this.icon,
+          }
+        : { name: "Select to", icon: selectIcon };
     },
   },
 };
@@ -134,6 +137,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .value-type {
   justify-content: space-between;
   flex: 1 1 148px;
+  padding-left: 10px;
 }
 .value-btn {
   display: flex;
@@ -176,11 +180,6 @@ input[type="number"]::-webkit-outer-spin-button {
   flex: 0 0 80px;
 }
 
-.token-icon {
-  height: 32px;
-  min-width: 32px;
-  margin-left: 10px;
-}
 .token-name {
   flex: 1 1 auto;
   text-align: left;
@@ -196,5 +195,9 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 10px;
   margin-top: 5px;
   margin-left: 10px;
+}
+
+.token-icon {
+  height: 32px;
 }
 </style>
