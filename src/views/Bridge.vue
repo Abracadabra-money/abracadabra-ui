@@ -18,35 +18,23 @@
         <ValueInput />
       </div>
 
-      <div class="info">
+      <div class="info" v-if="expectedMim">
         <p class="info-title">Expected MIM</p>
-        <p class="info-value">~490987.9876</p>
+        <p class="info-value">{{ expectedMim }}</p>
       </div>
 
       <div class="btn-wrap">
         <DefaultButton>{{ actionBtnText }}</DefaultButton>
       </div>
-      <div class="info">
+
+      <div class="info" v-for="(info, inx) in chainInfo" :key="inx">
         <p class="info-title">
           <img class="info-icon" src="@/assets/images/info.svg" alt="Icon" />
-          Maximum Bridgeable Amount
+          {{ info.title }}
         </p>
-        <p class="info-value">50000000 MIM</p>
+        <p class="info-value">{{ info.value }}</p>
       </div>
-      <div class="info">
-        <p class="info-title">
-          <img class="info-icon" src="@/assets/images/info.svg" alt="Icon" />
-          Minimum Bridgeable Amount
-        </p>
-        <p class="info-value">12 MIM</p>
-      </div>
-      <div class="info">
-        <p class="info-title">
-          <img class="info-icon" src="@/assets/images/info.svg" alt="Icon" />
-          Minimum Bridging Fee
-        </p>
-        <p class="info-value">0.9 MIM</p>
-      </div>
+
       <div class="link-wrap">
         <a class="link" href="https://app.multichain.org/" target="_blank"
           >Powered by Anyswap</a
@@ -135,6 +123,42 @@ export default {
         return "Approve";
 
       return "Bridge";
+    },
+
+    expectedMim() {
+      if (!+this.amount) return false;
+      if (this.amountError) return false;
+
+      const feeAmount = this.targetChainInfo.feeAmount;
+
+      return `~${parseFloat(+this.amount - feeAmount).toFixed(4)}`;
+    },
+
+    targetChainInfo() {
+      return this.bridgeObject?.chainsInfo.find(
+        (item) => +item.chainId === this.targetToChain
+      );
+    },
+
+    chainInfo() {
+      return [
+        {
+          title: "Maximum Bridgeable Amount",
+          value: `${this.targetChainInfo.maxAmount} MIM`,
+          additional:
+            "Maximum amount that can be sent in one single transaction.",
+        },
+        {
+          title: "Minimum Bridgeable Amount",
+          value: `${this.targetChainInfo.minAmount} MIM`,
+          additional: "Mininum Amount required to bridge tokens.",
+        },
+        {
+          title: "Minimum Bridging Fee",
+          value: `${this.targetChainInfo.feeAmount} MIM`,
+          additional: "Mimimum Fee required to bridge tokens.",
+        },
+      ];
     },
   },
 
