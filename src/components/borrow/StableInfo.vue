@@ -2,7 +2,7 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
-        <template v-if="isInfoPressed">
+        <template v-if="isInfoPressed || isEmpty">
           <img src="@/assets/images/degenbox.svg" alt="degenbox" />
           <span>Degenbox strategy</span>
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
@@ -13,38 +13,55 @@
       </button>
     </div>
     <div class="stable-data">
-      <div v-if="!isInfoPressed" class="stable-preview">
-        <div class="item" v-for="(item, i) in previewData" :key="i">
-          <p class="item-title">{{ item.name }}</p>
-          <p class="item-value">{{ item.value || "0.0" }}</p>
+      <template v-if="isEmpty">
+        <div class="empty-wrap">
+          <img src="@/assets/images/empty.svg" alt="info" />
+          <div class="empty-text">
+            <p>
+              Choose the asset and amount you want to use as collateral as well
+              as the amount of MIM you want to Mint.
+            </p>
+            <p class="empty-bottom">
+              If you want to learn more read our docs
+              <a class="empty-link" href="#" target="_blank">here</a>
+            </p>
+          </div>
         </div>
-      </div>
-      <div v-else class="info-list-wrap">
-        <div class="info-list">
-          <div v-for="(item, i) in listData" :key="i" class="info-list-item">
-            <img
-              class="info-list-icon"
-              src="@/assets/images/info.svg"
-              alt="info"
-            />
+      </template>
+      <template v-else>
+        <div v-if="!isInfoPressed" class="stable-preview">
+          <div class="item" v-for="(item, i) in previewData" :key="i">
+            <p class="item-title">{{ item.name }}</p>
+            <p class="item-value">{{ item.value || "0.0" }}</p>
+          </div>
+        </div>
+        <div v-else class="info-list-wrap">
+          <div class="info-list">
+            <div v-for="(item, i) in listData" :key="i" class="info-list-item">
+              <img
+                class="info-list-icon"
+                src="@/assets/images/info.svg"
+                alt="info"
+              />
 
-            <span class="info-list-name">{{ item.name }}:</span>
-            <span class="info-list-value">{{ item.value }}</span>
-          </div>
-        </div>
-        <div class="info-list-bottom">
-          <div class="info-bottom">
-            <div class="info-list-subitem">
-              <span class="info-list-name">1 MIM</span>
-              <span class="info-list-value">1 USD</span>
-            </div>
-            <div class="info-list-subitem">
-              <span class="info-list-name">1 xSushi</span>
-              <span class="info-list-value">6.1865 MIM</span>
+              <span class="info-list-name">{{ item.name }}:</span>
+              <span class="info-list-value">{{ item.value }}</span>
             </div>
           </div>
-        </div>
-      </div>
+          <div class="info-list-bottom">
+            <div class="info-bottom">
+              <div class="info-list-subitem">
+                <span class="info-list-name">1 MIM</span>
+                <span class="info-list-value">1 USD</span>
+              </div>
+              <div class="info-list-subitem">
+                <span class="info-list-name">1 xSushi</span>
+                <span class="info-list-value">6.1865 MIM</span>
+              </div>
+            </div>
+          </div>
+        </div></template
+      >
     </div>
   </div>
 </template>
@@ -54,6 +71,7 @@ export default {
   name: "StableInfo",
   data: () => ({
     isInfoPressed: false,
+    isEmpty: false,
     listData: [
       { name: "Maximum collateral ratio", value: 12 },
       { name: "Liquidation fee", value: 10 },
@@ -75,6 +93,24 @@ export default {
 .stable-info {
   background-color: rgba(35, 33, 45, 0.3);
   border-radius: 30px;
+
+  .empty-wrap {
+    padding: 23px 65px;
+
+    .empty-bottom {
+      margin-top: 15px;
+    }
+
+    .empty-text {
+      font-size: 18px;
+      line-height: 27px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-link {
+      color: #759ffa;
+    }
+  }
 
   .info-wrap {
     display: flex;
