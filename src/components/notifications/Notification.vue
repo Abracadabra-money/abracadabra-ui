@@ -6,7 +6,7 @@
         alt=""
         class="notification-item__icon"
       />
-      <h2>{{notification.title}}</h2>
+      <h2>{{ notification.title }}</h2>
       <img
         class="notification-item__close"
           src="@/assets/images/notification-icon/close-icon.svg"
@@ -27,42 +27,15 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      timerInterval: null,
-      timeValue: 0,
-    };
-  },
-  computed: {
-    // parsedTime() {
-    //   if (this.timeValue >= 60) {
-    //     let minutes = Math.floor(this.timeValue / 60);
-    //     let seconds = this.timeValue % 60;
-
-    //     return `${minutes} min ${seconds} sec`;
-    //   }
-
-    //   return `${this.timeValue} sec`;
-    // },
-  },
   methods: {
     getImgUrl(type) {
-      var images = require.context('../../assets/images/notification-icon/', false, /\.svg$/)
+      var images = require.context('../../assets/images/notification-icons/', false, /\.svg$/)
       return images('./' + type + "-icon.svg")
     },
     closeNotification() {
-      this.$store.commit("deleteNotification", this.notification.id);
+      this.$store.commit("notifications/delete", this.notification.id);
     }
-  },
-  beforeDestroy() {
-    clearInterval(this.timerInterval);
-  },
-  mounted() {
-    if (this.notification.isError) return false;
-    this.timerInterval = setInterval(() => {
-      this.timeValue++;
-    }, 1000);
-  },
+  }
 };
 </script>
 

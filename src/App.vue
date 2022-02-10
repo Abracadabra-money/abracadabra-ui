@@ -13,40 +13,33 @@ const NotificationContainer = () => import("@/components/notifications/Notificat
 const Header = () => import("@/components/main/Header");
 
 export default {
+  methods: {
+    notificationsTest() {
+
+      const discription = "Thanks for taking part in the innovation of MIM.";
+      const msg = "Consider yourself extremely early in taking part in creating the stablecoin that has no bias and knows no walls. $MIM- stable for everyone, everywhere";
+
+      const mock = [
+        { type: "success",title: "SUCCESS", msg, discription }, 
+        { type: "error", title: "DECLINED", msg, discription },
+        { type: "warning", title: "PENDING", msg, discription },
+        { type: "info", title: "INFO", msg, discription }
+      ];
+
+      const ids = mock
+          .map( i => this.$store.dispatch("notifications/new",i) );
+
+      Promise.all(ids).then((result)=>{console.log("notificationsTest"+result)});
+        
+    }
+  },
   created() {
-    this.$store.commit("addNotification", {
-      title: "SUCCESS",
-      discription: "Thanks for taking part in the innovation of MIM.",
-      msg: "Consider yourself extremely early in taking part in creating the stablecoin that has no bias and knows no walls. $MIM- stable for everyone, everywhere",
-      type: "success",
-      id: (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""),
-    });
-    this.$store.commit("addNotification", {
-      title: "PENDING",
-      discription: "Thanks for taking part in the innovation of MIM.",
-      msg: "Consider yourself extremely early in taking part in creating the stablecoin that has no bias and knows no walls. $MIM- stable for everyone, everywhere",
-      type: "warning",
-      id: (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""),
-    });
-    this.$store.commit("addNotification", {
-      title: "DECLINED",
-      discription: "Thanks for taking part in the innovation of MIM.",
-      msg: "Consider yourself extremely early in taking part in creating the stablecoin that has no bias and knows no walls. $MIM- stable for everyone, everywhere",
-      type: "error",
-      id: (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""),
-    });
-    this.$store.commit("addNotification", {
-      title: "INFO",
-      discription: "Thanks for taking part in the innovation of MIM.",
-      msg: "Consider yourself extremely early in taking part in creating the stablecoin that has no bias and knows no walls. $MIM- stable for everyone, everywhere",
-      type: "info",
-      id: (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""),
-    });
+    // this.notificationsTest();
   },
   components: {
     Header,
-    NotificationContainer
-  }
+    NotificationContainer,
+  },
 };
 </script>
 

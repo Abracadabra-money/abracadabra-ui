@@ -11,17 +11,16 @@
 </template>
 
 <script>
-const NotificationItem = () =>
-  import("@/components/notifications/Notification");
+const NotificationItem = () => import("@/components/notifications/Notification");
 
 export default {
   computed: {
     notifications() {
-      return this.$store.getters.getNotifications;
+      return this.$store.getters["notifications/getAll"];
     },
   },
   components: {
-    NotificationItem,
+    NotificationItem
   },
 };
 </script>
