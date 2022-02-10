@@ -14,7 +14,8 @@
             :key="i"
             :selected="i === selectedNetwork"
             @click="selectedNetwork = i"
-            :network="network"
+            :name="network.name"
+            :icon="network.icon"
           />
         </div>
       </div>
@@ -38,11 +39,12 @@
       </div>
 
       <ValueInput
-        :values="networks"
-        :tokenIndex="firstTokenIndex"
+        :tokenIcon="networks[0].icon"
+        :tokenName="networks[0].name"
         v-model="firstTokenValue"
         :max="5"
         error="Some Error Text"
+        isChooseToken
       />
     </div>
     <div class="second-input underline">
@@ -51,7 +53,7 @@
         <p>Balance: 2000.00</p>
       </div>
 
-      <ValueInput :values="[networks[4]]" />
+      <ValueInput :tokenIcon="networks[2].icon" :tokenName="networks[2].name" />
     </div>
 
     <div class="ltv underline">
@@ -64,13 +66,6 @@
 <script>
 const NetworkChip = () => import("@/components/borrow/NetworkChip");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
-/**/
-import ethIcon from "@/assets/images/networks/ethereum-icon.svg";
-import fantomIcon from "@/assets/images/networks/fantom-icon.svg";
-import polygonIcon from "@/assets/images/networks/polygon-icon.svg";
-import binanceIcon from "@/assets/images/networks/binance-icon.svg";
-import avalancheIcon from "@/assets/images/networks/avalanche-icon.png";
-import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
 
 export default {
   name: "ChooseChain",
@@ -81,26 +76,26 @@ export default {
     firstTokenIndex: 0,
     firstTokenValue: null,
     networks: [
-      { name: "ERC-20", icon: ethIcon },
+      { name: "ERC-20", icon: "ethereum-icon.svg" },
       {
         name: "Fantom",
-        icon: fantomIcon,
+        icon: "fantom-icon.svg",
       },
       {
         name: "BSC",
-        icon: binanceIcon,
+        icon: "binance-icon.svg",
       },
       {
         name: "AVAX",
-        icon: avalancheIcon,
+        icon: "avalanche-icon.png",
       },
       {
         name: "AETH",
-        icon: arbitrumIcon,
+        icon: "arbitrum-icon.svg",
       },
       {
         name: "MATIC",
-        icon: polygonIcon,
+        icon: "polygon-icon.svg",
       },
     ],
     lineHeight: 50,
@@ -138,6 +133,7 @@ export default {
   margin-top: 10px;
   padding-bottom: 30px;
   padding-left: 16px;
+  padding-right: 16px;
   overflow-y: hidden;
   overflow-x: scroll;
 }

@@ -2,20 +2,15 @@
   <div>
     <div class="val-input" :class="{ 'val-input-error': error }">
       <button
-        :disabled="disabled || values.length <= 1"
+        :disabled="disabled || !isChooseToken"
         class="value-type value-btn"
       >
-        <img
-          v-if="selectedToken"
-          class="token-icon"
-          :src="selectedToken.icon"
-          alt="token"
-        />
-        <span v-if="selectedToken" class="token-name">
-          {{ selectedToken.name }}
+        <TokenIcon :imageName="tokenName ? tokenIcon : null" isNetwork />
+        <span class="token-name">
+          {{ tokenName || "Select to" }}
         </span>
         <img
-          v-if="values.length > 1"
+          v-if="isChooseToken"
           class="token-arrow"
           src="@/assets/images/arrow.svg"
           alt="arrow"
@@ -48,7 +43,7 @@
 </template>
 
 <script>
-import selectIcon from "@/assets/images/select.svg";
+const TokenIcon = () => import("@/components/UIComponents/TokenIcon");
 
 export default {
   props: {
@@ -60,14 +55,6 @@ export default {
       type: Number,
       default: 0,
     },
-    values: {
-      type: Array,
-      default: () => [],
-    },
-    tokenIndex: {
-      type: Number,
-      default: 0,
-    },
     value: {
       type: [Number, String],
       default: null,
@@ -76,7 +63,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    isChooseToken: {
+      type: Boolean,
+      default: false,
+    },
     error: {
+      type: String,
+      default: "",
+    },
+    tokenIcon: {
+      type: String,
+    },
+    tokenName: {
       type: String,
       default: "",
     },
@@ -90,9 +88,9 @@ export default {
         this.$emit("input", value);
       },
     },
-    selectedToken() {
-      return this.values[this.tokenIndex] || {name: "Select to", icon: selectIcon};
-    },
+  },
+  components: {
+    TokenIcon,
   },
 };
 </script>
@@ -128,6 +126,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .value-type {
   justify-content: space-between;
   flex: 1 1 148px;
+  padding-left: 10px;
 }
 .value-btn {
   display: flex;
@@ -170,11 +169,6 @@ input[type="number"]::-webkit-outer-spin-button {
   flex: 0 0 80px;
 }
 
-.token-icon {
-  height: 32px;
-  min-width: 32px;
-  margin-left: 10px;
-}
 .token-name {
   flex: 1 1 auto;
   text-align: left;

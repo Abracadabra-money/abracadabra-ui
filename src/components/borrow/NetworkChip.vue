@@ -1,16 +1,20 @@
 <template>
   <button class="chip" :class="{ selected }" @click="$emit('click', $event)">
-    <img v-if="network" class="chip-image" :src="network.icon" alt="network" />
-    <span>{{ network.name }}</span>
+    <TokenIcon v-if="icon" :imageName="icon" height="20px" isNetwork />
+    <span class="network-name">{{ name }}</span>
   </button>
 </template>
 
 <script>
+const TokenIcon = () => import("@/components/UIComponents/TokenIcon");
+
 export default {
   name: "NetworkChip",
+  components: { TokenIcon },
   props: {
     selected: { type: Boolean },
-    network: { type: Object, default: null },
+    icon: { type: String },
+    name: { type: String, default: "" },
   },
 };
 </script>
@@ -31,10 +35,8 @@ export default {
   transition: background-color 0.2s, border-bottom-color 0.2s,
     border-top-color 0.2s, border-left-color 0.2s, border-right-color 0.2s;
 
-  &-image {
-    height: 20px;
-    min-width: 20px;
-    margin-right: 8px;
+  .network-name {
+    margin-left: 8px;
   }
 }
 

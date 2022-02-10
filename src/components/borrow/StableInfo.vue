@@ -59,6 +59,7 @@ export default {
       { name: "Liquidation fee", value: 10 },
       { name: "Borrow fee", value: 10 },
       { name: "Interest", value: 10 },
+      { name: "Some Name", value: 10 },
     ],
     previewData: [
       { name: "Collateral Deposit", value: 0 },
@@ -165,18 +166,21 @@ export default {
         justify-content: space-between;
         color: rgba(255, 255, 255, 0.6);
         line-height: 25px;
-        .info-list-value {
-          font-weight: 700;
-          color: white;
-        }
       }
     }
+  }
+
+  .info-list-value {
+    font-weight: 700;
+    color: white;
   }
 
   .info-list {
     background-color: rgba(255, 255, 255, 0.04);
     border-radius: 30px;
     padding: 0 17px 10px 17px;
+    overflow-y: auto;
+    height: 210px;
 
     .info-list-item {
       display: flex;
@@ -185,10 +189,6 @@ export default {
       line-height: 25px;
       padding: 12px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .info-list-value {
-      font-weight: 700;
-      color: white;
     }
     .info-list-name {
       flex: 1 1 auto;
