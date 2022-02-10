@@ -24,7 +24,7 @@
       </div>
 
       <div class="btn-wrap">
-        <DefaultButton>{{ actionBtnText }}</DefaultButton>
+        <DefaultButton :primary="true">{{ actionBtnText }}</DefaultButton>
       </div>
 
       <div class="info" v-for="(info, inx) in chainInfo" :key="inx">
@@ -308,5 +308,11 @@ export default {
   letter-spacing: 0.025em;
   text-transform: uppercase;
   color: #fff;
+}
+
+.link:hover {
+  background: -webkit-linear-gradient(#5282fd, #76c3f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 </style>

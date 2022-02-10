@@ -112,6 +112,7 @@ export default {
   right: 0;
   max-width: 860px;
   margin: 0 auto;
+  z-index: 10;
 }
 
 .nav {
