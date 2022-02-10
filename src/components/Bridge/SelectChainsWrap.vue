@@ -4,7 +4,9 @@
       <h5 class="network-title">Network from bridge</h5>
       <div class="select-network" @click="handlerNetwork('from')">
         <div class="icon-wrap">
-          <TokenIcon :imageName="fromChain.icon" :itsImgURL="true" />
+          <div class="token-icon-wrap">
+            <img class="token-icon" :src="fromChain.icon" :alt="title" />
+          </div>
           <p class="network-name">{{ fromChain.title }}</p>
         </div>
         <img src="@/assets/images/arrow-down.svg" alt="Arrow Down" />
@@ -20,7 +22,9 @@
       <h5 class="network-title">Network to bridge</h5>
       <div class="select-network" @click="handlerNetwork('to')">
         <div class="icon-wrap">
-          <TokenIcon :imageName="toChain.icon" :itsImgURL="true" />
+          <div class="token-icon-wrap">
+            <img class="token-icon" :src="toChain.icon" :alt="title" />
+          </div>
           <p class="network-name">{{ toChain.title }}</p>
         </div>
         <img src="@/assets/images/arrow-down.svg" alt="Arrow Down" />
@@ -30,8 +34,6 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/UIComponents/TokenIcon");
-
 export default {
   props: {
     fromChain: {
@@ -54,10 +56,6 @@ export default {
       this.$emit("switchHandle");
     },
   },
-
-  components: {
-    TokenIcon,
-  },
 };
 </script>
 
@@ -75,6 +73,20 @@ export default {
   line-height: 27px;
   letter-spacing: 0.025em;
   margin-bottom: 10px;
+}
+
+.token-icon-wrap {
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.token-icon {
+  width: 24px;
+  height: 24px;
 }
 
 .switch-network {
