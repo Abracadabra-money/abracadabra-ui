@@ -19,7 +19,7 @@
           :max="bridgeObject.balance"
           :value="amount"
           :name="'MIM'"
-          :icon="'MIM'"
+          :icon="mimIcon"
           :error="amountError"
           @input="updateMainValue"
         />
@@ -91,6 +91,10 @@ export default {
       activeChain: "getChainId",
       address: "getAccount",
     }),
+
+    mimIcon() {
+      return require("@/assets/images/tokens-icon/MIM.svg");
+    },
 
     popupNetworksArr() {
       if (this.popupType === "from") {
