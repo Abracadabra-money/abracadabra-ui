@@ -2,12 +2,18 @@
   <div>
     <div class="val-input" :class="{ 'val-input-error': error }">
       <button
+        @click="$emit('openTokensList')"
         :disabled="disabled || !isChooseToken"
         class="value-type value-btn"
       >
-        <TokenIcon :imageName="name ? icon : null" isNetwork />
+        <img
+          v-if="currentToken.icon"
+          class="token-icon"
+          :src="currentToken.icon"
+          alt="token"
+        />
         <span class="token-name">
-          {{ name || "Select to" }}
+          {{ currentToken.name }}
         </span>
         <img
           v-if="isChooseToken"
@@ -43,7 +49,7 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/UIComponents/TokenIcon");
+import selectIcon from "@/assets/images/select.svg";
 
 export default {
   props: {
@@ -88,9 +94,14 @@ export default {
         this.$emit("input", value);
       },
     },
-  },
-  components: {
-    TokenIcon,
+    currentToken() {
+      return this.name
+        ? {
+            name: this.name,
+            icon: this.icon,
+          }
+        : { name: "Select to", icon: selectIcon };
+    },
   },
 };
 </script>
@@ -184,5 +195,9 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 10px;
   margin-top: 5px;
   margin-left: 10px;
+}
+
+.token-icon {
+  height: 32px;
 }
 </style>

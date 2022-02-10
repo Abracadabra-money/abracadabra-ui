@@ -1,16 +1,13 @@
 <template>
   <button class="chip" :class="{ selected }" @click="$emit('click', $event)">
-    <TokenIcon v-if="icon" :imageName="icon" height="20px" isNetwork />
+    <img class="network-icon" :src="icon" alt="network" />
     <span class="network-name">{{ name }}</span>
   </button>
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/UIComponents/TokenIcon");
-
 export default {
   name: "NetworkChip",
-  components: { TokenIcon },
   props: {
     selected: { type: Boolean },
     icon: { type: String },
@@ -44,5 +41,9 @@ export default {
   position: relative;
   background-color: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(118, 195, 245, 0.5);
+}
+
+.network-icon {
+  height: 20px;
 }
 </style>

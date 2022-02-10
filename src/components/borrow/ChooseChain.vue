@@ -64,6 +64,13 @@
 </template>
 
 <script>
+import ethIcon from "@/assets/images/networks/ethereum-icon.svg";
+import fantomIcon from "@/assets/images/networks/fantom-icon.svg";
+import polygonIcon from "@/assets/images/networks/polygon-icon.svg";
+import binanceIcon from "@/assets/images/networks/binance-icon.svg";
+import avalancheIcon from "@/assets/images/networks/avalanche-icon.png";
+import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
+
 const NetworkChip = () => import("@/components/borrow/NetworkChip");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 
@@ -76,26 +83,26 @@ export default {
     firstTokenIndex: 0,
     firstTokenValue: null,
     networks: [
-      { name: "ERC-20", icon: "ethereum-icon.svg" },
+      { name: "ERC-20", icon: ethIcon },
       {
         name: "Fantom",
-        icon: "fantom-icon.svg",
+        icon: fantomIcon,
       },
       {
         name: "BSC",
-        icon: "binance-icon.svg",
+        icon: binanceIcon,
       },
       {
         name: "AVAX",
-        icon: "avalanche-icon.png",
+        icon: avalancheIcon,
       },
       {
         name: "AETH",
-        icon: "arbitrum-icon.svg",
+        icon: arbitrumIcon,
       },
       {
         name: "MATIC",
-        icon: "polygon-icon.svg",
+        icon: polygonIcon,
       },
     ],
     lineHeight: 50,
