@@ -1,5 +1,5 @@
 <template>
-  <div class="banner" :class="['banner__'+1]">
+  <div class="banner">
     <div v-if="icon" class="banner__icon">
       <img
           src="@/assets/images/banner-icons/coins.png"
