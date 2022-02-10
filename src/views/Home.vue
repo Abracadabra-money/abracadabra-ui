@@ -24,15 +24,21 @@ import DefaultButton from "@/components/main/DefaultButton.vue";
 
 export default  {
   methods: {
+    onBannerClick() {
+
+    },
     mint() {
       console.log("mint");
     },
     leverageUp() {
       console.log("leverageUp");
     },
+    getBannerTitle() {
+      return "Metamask currently does not support signatures using Ledger/Trezor devices"
+    }
   },
   components: {
-    DefaultButton
+    DefaultButton,
   }
 }
 
@@ -40,6 +46,7 @@ export default  {
 </script>
 
 <style lang="scss" scoped>
+
   .home {
     background: url("../assets/images/home-bg-full.png") no-repeat top right;
     background-size: cover;
