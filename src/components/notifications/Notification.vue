@@ -9,7 +9,7 @@
       <h2>{{ notification.title }}</h2>
       <img
         class="notification-item__close"
-          src="@/assets/images/notification-icon/close-icon.svg"
+          src="@/assets/images/notification-icons/close-icon.svg"
           alt=""
           @click="closeNotification"
       />
