@@ -1,61 +1,61 @@
 <template>
   <div class="choose">
-    <h2>Choose Chain</h2>
-    <div class="networks underline">
-      <div
-        class="list"
-        :style="{
-          height: `${listMaxHeight}px`,
-        }"
-      >
-        <NetworkChip
-          v-for="(network, i) in networks"
-          :key="i"
-          :selected="i === selectedNetwork"
-          @click="selectedNetwork = i"
-          :network="network"
-        />
+    <h4>Choose Chain</h4>
+    <div class="underline networks-wrap">
+      <div class="networks">
+        <div
+          class="list"
+          :style="{
+            height: `${listMaxHeight}px`,
+          }"
+        >
+          <NetworkChip
+            v-for="(network, i) in networks"
+            :key="i"
+            :selected="i === selectedNetwork"
+            @click="selectedNetwork = i"
+            :name="network.name"
+            :icon="network.icon"
+          />
+        </div>
       </div>
       <button
-        class="networks-arrow"
-        :class="{ 'networks-arrow-pressed': isListOpened }"
+        class="networks-arrow-btn"
+        :class="{ 'networks-arrow-btn-pressed': isListOpened }"
         @click="isListOpened = !isListOpened"
       >
         <img
-          class="networks-arrow-image"
+          class="networks-arrow-btn-image"
           src="@/assets/images/arrow.svg"
           alt="arrow"
         />
       </button>
     </div>
-    <div class="inputs underline">
-      <div>
-        <div class="header-balance">
-          <h2>Collateral assets</h2>
-          <div class="balance">
-            <div v-if="false">Balance: 2000.00</div>
-          </div>
-        </div>
 
-        <ValueInput
-          :values="networks"
-          :tokenIndex="firstTokenIndex"
-          v-model="firstTokenValue"
-          :max="5"
-          error="Some Error Text"
-        />
+    <div class="first-input underline">
+      <div class="header-balance">
+        <h4>Collateral assets</h4>
+        <p v-if="false">Balance: 2000.00</p>
       </div>
-      <div>
-        <div class="header-balance">
-          <h2>Collateral assets</h2>
-          <div class="balance">
-            <div>Balance: 2000.00</div>
-          </div>
-        </div>
 
-        <ValueInput :values="[networks[4]]" />
-      </div>
+      <ValueInput
+        :icon="networks[0].icon"
+        :name="networks[0].name"
+        v-model="firstTokenValue"
+        :max="5"
+        error="Some Error Text"
+        isChooseToken
+      />
     </div>
+    <div class="second-input underline">
+      <div class="header-balance">
+        <h4>Collateral assets</h4>
+        <p>Balance: 2000.00</p>
+      </div>
+
+      <ValueInput :icon="networks[2].icon" :name="networks[2].name" />
+    </div>
+
     <div class="ltv underline">
       <span>LTV</span>
       <span>45 %</span>
@@ -64,15 +64,15 @@
 </template>
 
 <script>
-const NetworkChip = () => import("@/components/mint/NetworkChip");
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-/**/
 import ethIcon from "@/assets/images/networks/ethereum-icon.svg";
 import fantomIcon from "@/assets/images/networks/fantom-icon.svg";
 import polygonIcon from "@/assets/images/networks/polygon-icon.svg";
 import binanceIcon from "@/assets/images/networks/binance-icon.svg";
 import avalancheIcon from "@/assets/images/networks/avalanche-icon.png";
 import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
+
+const NetworkChip = () => import("@/components/borrow/NetworkChip");
+const ValueInput = () => import("@/components/UIComponents/ValueInput");
 
 export default {
   name: "ChooseChain",
@@ -122,74 +122,101 @@ export default {
 
 <style lang="scss" scoped>
 .choose {
-  padding: 30px 30px 300px 30px;
+  padding: 20px 16px;
   border-radius: 30px;
   background-color: $clrBg2;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.networks-wrap {
+  position: relative;
 }
 
 .networks {
   position: relative;
+  left: -16px;
+  width: calc(100% + 32px);
   margin-top: 10px;
   padding-bottom: 30px;
+  padding-left: 16px;
+  padding-right: 16px;
+  overflow-y: hidden;
+  overflow-x: scroll;
 }
 
 .list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: column;
   grid-gap: 16px;
-  overflow: hidden;
+  max-height: 50px;
   transition: height 0.2s ease-out;
+  width: max-content;
 }
 
-.networks-arrow-pressed {
+.networks-arrow-btn-pressed {
   transform: rotate(180deg);
 }
 
-.networks-arrow {
+.networks-arrow-btn {
   position: absolute;
   right: 10px;
-  top: -25px;
+  top: -28px;
   border: none;
   background-color: transparent;
   cursor: pointer;
   transition: transform 0.2s;
+  display: none;
 }
 
-.networks-arrow-image {
+.networks-arrow-btn-image {
   width: 11px;
 }
 
-.inputs {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  grid-row-gap: 67px;
+.first-input {
   padding-top: 27px;
-  padding-bottom: 30px;
+  padding-bottom: 24px;
 }
 
-h2 {
-  font-weight: 600;
-  font-size: 18px;
+.second-input {
+  padding-top: 27px;
+  padding-bottom: 14px;
 }
 
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.header-balance {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-
-  .balance {
-    font-size: 14px;
-  }
-}
 .ltv {
   display: flex;
   justify-content: space-between;
   margin-top: 25px;
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
+  padding-bottom: 12px;
+}
+
+@media (min-width: 1024px) {
+  .choose {
+    padding: 30px;
+  }
+
+  .list {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: row;
+    overflow: hidden;
+    max-height: none;
+  }
+
+  .networks-arrow-btn {
+    display: block;
+  }
+
+  .networks {
+    position: static;
+    width: auto;
+    overflow-x: hidden;
+    padding-left: 0;
+  }
 }
 </style>

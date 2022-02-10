@@ -1,7 +1,7 @@
 <template>
   <button class="chip" :class="{ selected }" @click="$emit('click', $event)">
-    <img v-if="network" class="chip-image" :src="network.icon" alt="network" />
-    <span>{{ network.name }}</span>
+    <img class="network-icon" :src="icon" alt="network" />
+    <span class="network-name">{{ name }}</span>
   </button>
 </template>
 
@@ -10,7 +10,8 @@ export default {
   name: "NetworkChip",
   props: {
     selected: { type: Boolean },
-    network: { type: Object, default: null },
+    icon: { type: String },
+    name: { type: String, default: "" },
   },
 };
 </script>
@@ -25,13 +26,14 @@ export default {
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   cursor: pointer;
-  border: none;
+  border: 2px solid rgba(118, 195, 245, 0);
   color: white;
 
-  &-image {
-    height: 20px;
-    min-width: 20px;
-    margin-right: 8px;
+  transition: background-color 0.2s, border-bottom-color 0.2s,
+    border-top-color 0.2s, border-left-color 0.2s, border-right-color 0.2s;
+
+  .network-name {
+    margin-left: 8px;
   }
 }
 
@@ -39,5 +41,9 @@ export default {
   position: relative;
   background-color: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(118, 195, 245, 0.5);
+}
+
+.network-icon {
+  height: 20px;
 }
 </style>

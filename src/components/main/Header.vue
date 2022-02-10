@@ -21,7 +21,9 @@
         </div>
         <div class="list" v-if="isDropdownTools">
           <router-link class="list-link" to="/">Stake</router-link>
-          <router-link class="list-link" to="/">Bridge</router-link>
+          <router-link class="list-link" :to="{ name: 'Bridge' }"
+            >Bridge</router-link
+          >
           <router-link class="list-link" to="/">Swap</router-link>
           <a href="#" class="list-link" target="_blank">Analytics</a>
         </div>
@@ -110,6 +112,7 @@ export default {
   right: 0;
   max-width: 860px;
   margin: 0 auto;
+  z-index: 10;
 }
 
 .nav {

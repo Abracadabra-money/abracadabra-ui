@@ -1,5 +1,36 @@
 <template>
-  <div class="about">
-    <h1>This is an borrow page</h1>
+  <div class="borrow">
+    <ChooseChain />
+    <StableCoins />
   </div>
 </template>
+
+<script>
+const ChooseChain = () => import("@/components/borrow/ChooseChain");
+const StableCoins = () => import("@/components/borrow/StableCoins");
+export default {
+  components: {
+    ChooseChain,
+    StableCoins,
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.borrow {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 30px;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 160px;
+}
+
+@media (min-width: 1024px) {
+  .borrow {
+    grid-template-columns: 550px 1fr;
+    width: 1320px;
+    max-width: 100%;
+  }
+}
+</style>

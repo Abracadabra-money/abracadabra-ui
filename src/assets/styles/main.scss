@@ -6,7 +6,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  caret-color: #7B79F7;
+  caret-color: #7b79f7;
 }
 
 #app {
@@ -44,4 +44,17 @@ a {
   background: -webkit-linear-gradient(107.5deg, #5282FD -3.19%, #76C3F5 101.2%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+h4 {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.header-balance {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 6px;
+  font-size: 14px;
 }
