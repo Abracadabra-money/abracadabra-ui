@@ -2,38 +2,10 @@
   <div class="my-position-view">
     <div class="choose-chain">
       <h4>Choose Chain</h4>
-      <!-- Вынести в компонент -->
-      <div class="underline networks-wrap">
-        <div class="networks">
-          <div
-            class="list"
-            :style="{
-              height: `${listMaxHeight}px`,
-            }"
-          >
-            <NetworkChip
-              v-for="(network, i) in networks"
-              :key="i"
-              :selected="i === selectedNetwork"
-              @click="selectedNetwork = i"
-              :name="network.name"
-              :icon="network.icon"
-            />
-          </div>
-        </div>
-        <button
-          class="networks-arrow-btn"
-          :class="{ 'networks-arrow-btn-pressed': isListOpened }"
-          @click="isListOpened = !isListOpened"
-        >
-          <img
-            class="networks-arrow-btn-image"
-            src="@/assets/images/arrow.svg"
-            alt="arrow"
-          />
-        </button>
+
+      <div class="underline">
+        <NetworksList />
       </div>
-      <!-- END Вынести в компонент -->
 
       <div class="underline">
         <PositionType @changeType="changeType" />
@@ -80,7 +52,7 @@
 </template>
 
 <script>
-const NetworkChip = () => import("@/components/borrow/NetworkChip");
+const NetworksList = () => import("@/components/ui/NetworksList");
 const MyPositionItem = () =>
   import("@/components/myPosition/MyPositionItem.vue");
 
@@ -183,7 +155,7 @@ export default {
   },
 
   components: {
-    NetworkChip,
+    NetworksList,
     MyPositionItem,
     StableInfo,
     PositionType,
@@ -205,7 +177,6 @@ export default {
   padding-top: 160px;
 }
 
-//  chose
 .choose-chain {
   padding: 20px 16px;
   border-radius: 30px;
