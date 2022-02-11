@@ -1,5 +1,10 @@
 <template>
-  <button class="chip" :class="{ selected }" @click="$emit('click', $event)">
+  <button
+    class="chip"
+    :disabled="disabled || selected"
+    :class="{ selected }"
+    @click="$emit('click', $event)"
+  >
     <img class="network-icon" :src="icon" alt="network" />
     <span class="network-name">{{ name }}</span>
   </button>
@@ -9,9 +14,13 @@
 export default {
   name: "NetworkChip",
   props: {
-    selected: { type: Boolean },
+    selected: { type: Boolean, default: false },
     icon: { type: String },
     name: { type: String, default: "" },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
 };
 </script>
@@ -28,6 +37,10 @@ export default {
   cursor: pointer;
   border: 2px solid rgba(118, 195, 245, 0);
   color: white;
+
+  &:disabled {
+    cursor: default;
+  }
 
   transition: background-color 0.2s, border-bottom-color 0.2s,
     border-top-color 0.2s, border-left-color 0.2s, border-right-color 0.2s;

@@ -102,7 +102,6 @@ setTimeout(async () => {
 
         console.log("chainID", chainId);
 
-        store.commit("setActiveNetwork", chainId);
         store.commit("setChainId", chainId);
         store.commit("setProvider", provider);
         store.commit("setSigner", signer);
