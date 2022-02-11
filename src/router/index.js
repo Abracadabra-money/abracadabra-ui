@@ -19,6 +19,11 @@ const routes = [
     name: "Bridge",
     component: () => import("@/views/Bridge"),
   },
+  {
+    path: "/my-positions",
+    name: "MyPositions",
+    component: () => import("@/views/MyPositions"),
+  },
 ];
 
 const router = new VueRouter({
