@@ -25,7 +25,7 @@
     </div>
     <div class="second-input">
       <div class="header-balance">
-        <h4>Deposit</h4>
+        <h4>Receive</h4>
         <p>Balance: 3,000.00</p>
       </div>
       <ValueInput :icon="null" :name="null" />

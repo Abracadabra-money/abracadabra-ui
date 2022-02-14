@@ -14,16 +14,24 @@
       </div>
     </div>
     <div class="profile-data">
-
         <div v-if="!isInfoPressed" class="profile-preview">
-          <div class="item" v-for="(item, i) in previewData" :key="i">
+          <div class="item" v-for="(item, i) in profileData" :key="i">
             <p class="item-name">{{ item.name }}</p>
-            <p class="item-title">{{ item.title }}</p>
-            <p v-if="item.value" class="item-value">{{ item.value || "0.0" }}</p>
-            <p v-if="item.text" class="item-text">{{ item.text }}</p>
+            <div class="item-row">
+                <div class="item-icon">
+                    <img v-if="!isArray(item.icon)" class="item-icon__img" :src="getImgUrl(item.icon)" alt="info" />
+                    <template v-if="isArray(item.icon)">
+                        <img v-for="(icon, key) in item.icon" :key="key"  class="item-icon__img" :src="getImgUrl(icon)" alt="info" />
+                    </template>
+                    </div>
+                <div>
+                    <p class="item-title">{{ item.title }}</p>
+                    <p v-if="item.value" class="item-value">{{ item.value || "0.0" }}</p>
+                    <p v-if="item.text" class="item-text">{{ item.text }}</p>
+                </div>
+            </div>
           </div>
         </div>
-
     </div>
   </div>
 </template>
@@ -31,14 +39,23 @@
 <script>
 export default {
   name: "profileInfo",
+  methods: {
+    getImgUrl(type) {
+      var images = require.context('../../assets/images/tokens-icon/', false, /\.svg$/)
+      return images('./' + type + ".svg")
+    },
+    isArray(item) {
+        return Array.isArray(item);
+    }
+  },
   data: () => ({
     isInfoPressed: false,
     isEmpty: false,
-    previewData: [
-      { name: "Your balance", value: "200,000", title: "Spell", icon: "Spell"},
-      { name: "Staked", value: "3,000", title: "sSpell", icon: "sSpell"  },
-      { name: "", title: "Ratio", text: "1 sSPELL = 1.2292 SPELL", icon: "sSpell" },
-      { name: "", title: "Staking APR", text: "26.98%", icon: "Spell-sSpell"  },
+    profileData: [
+      { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: "200,000", },
+      { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: "3,000",  },
+      { title: "Ratio",       icon: "spell-icon",       text: "1 sSPELL = 1.2292 SPELL" },
+      { title: "Staking APR", icon: ["spell-icon","sspell-icon"], text: "26.98%"  },
     ],
   }),
 };
@@ -48,24 +65,6 @@ export default {
 .profile-info {
   background-color: rgba(35, 33, 45, 0.3);
   border-radius: 30px;
-
-  .empty-wrap {
-    padding: 23px 65px;
-
-    .empty-bottom {
-      margin-top: 15px;
-    }
-
-    .empty-text {
-      font-size: 18px;
-      line-height: 27px;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .empty-link {
-      color: #759ffa;
-    }
-  }
 
   .info-wrap {
     display: flex;
@@ -84,7 +83,6 @@ export default {
       justify-content: center;
       align-items: center;
       background-color: transparent;
-      cursor: pointer;
       border: none;
       height: 24px;
       font-weight: bold;
@@ -108,7 +106,25 @@ export default {
       grid-template-columns: repeat(2, 1fr);
       padding: 30px;
     }
-
+    .item-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    .item-icon {
+        margin-right: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 10px;
+        min-width: 64px;
+        height: 64px;
+        &__img {
+            min-width: 20px;
+            height: 20px;
+        }
+    }
     .item {
       text-align: left;
       border-bottom: 1px rgba(255, 255, 255, 0.1) solid;
@@ -157,60 +173,6 @@ export default {
   }
 }
 
-.info-list-wrap {
-  padding: 20px 15px;
-
-  .info-list-bottom {
-    background-color: rgba(255, 255, 255, 0.04);
-    border-radius: 30px;
-    padding: 0 17px 10px 17px;
-    margin-top: 10px;
-
-    .info-bottom {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-gap: 52px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      .info-list-subitem {
-        display: flex;
-        justify-content: space-between;
-        color: rgba(255, 255, 255, 0.6);
-        line-height: 25px;
-      }
-    }
-  }
-
-  .info-list-value {
-    font-weight: 700;
-    color: white;
-  }
-
-  .info-list {
-    background-color: rgba(255, 255, 255, 0.04);
-    border-radius: 30px;
-    padding: 0 17px 10px 17px;
-    overflow-y: auto;
-    height: 210px;
-
-    .info-list-item {
-      display: flex;
-      justify-content: space-between;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 25px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .info-list-name {
-      flex: 1 1 auto;
-      text-align: left;
-    }
-    .info-list-icon {
-      padding-right: 12px;
-    }
-  }
-}
-
 ::-webkit-scrollbar {
   width: 4px;
 }
@@ -222,4 +184,5 @@ export default {
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
 }
+
 </style>

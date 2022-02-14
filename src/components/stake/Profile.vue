@@ -1,6 +1,6 @@
 <template>
   <div class="profile">
-    <h1 class="title">STACK</h1>
+    <h1 class="title">STAKE</h1>
     <ProfileInfo />
     <div class="profile-actions">
       <DefaultButton primary disabled>Approve</DefaultButton>
