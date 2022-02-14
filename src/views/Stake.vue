@@ -7,7 +7,8 @@
 
 <script>
 const ChooseChain = () => import("@/components/stake/ChooseChain");
-const StableCoins = () => import("@/components/stake/StableCoins");
+const StableCoins = () => import("@/components/stake/Profile");
+
 export default {
   components: {
     ChooseChain,
