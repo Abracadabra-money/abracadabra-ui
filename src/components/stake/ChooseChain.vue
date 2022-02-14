@@ -12,10 +12,10 @@
       </div>
 
       <ValueInput
-        :icon="null"
-        :name="null"
+        :icon="getImgUrl('spell-icon')"
+        :name="'Spell'"
         v-model="firstTokenValue"
-        :max="5"
+        :max="12.292215"
         error="Some Error Text"
         isChooseToken
       />
@@ -28,7 +28,7 @@
         <h4>Receive</h4>
         <p>Balance: 3,000.00</p>
       </div>
-      <ValueInput :icon="null" :name="null" />
+      <ValueInput :icon="getImgUrl('sspell-icon')" :name="'sSpell'" />
     </div>
   </div>
 </template>
@@ -45,6 +45,12 @@ export default {
     firstTokenIndex: 0,
     firstTokenValue: null,
   }),
+  methods: {
+    getImgUrl(type) {
+      var images = require.context('../../assets/images/tokens-icon/', false, /\.svg$/)
+      return images('./' + type + ".svg")
+    }
+  },
   computed: {
     ...mapGetters({ networks: "getAvailableNetworks" }),
   },
@@ -59,7 +65,9 @@ export default {
   justify-content: center;
   cursor: pointer;
 }
-
+.choose-stake-input {
+  background-color: white;
+}
 .choose {
   padding: 20px 16px;
   border-radius: 30px;

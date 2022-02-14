@@ -200,4 +200,5 @@ input[type="number"]::-webkit-outer-spin-button {
 .token-icon {
   height: 32px;
 }
+
 </style>
