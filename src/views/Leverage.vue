@@ -9,7 +9,7 @@
       <div class="first-input underline">
         <div class="header-balance">
           <h4>Collateral assets</h4>
-          <p v-if="false">Balance: 2000.00</p>
+          <p>Balance: 30.00</p>
         </div>
 
         <ValueInput
@@ -17,16 +17,8 @@
           :name="null"
           v-model="firstTokenValue"
           :max="5"
-          error="Some Error Text"
           isChooseToken
         />
-      </div>
-      <div class="second-input underline">
-        <div class="header-balance">
-          <h4>Collateral assets</h4>
-          <p>Balance: 2000.00</p>
-        </div>
-        <ValueInput :icon="null" :name="null" />
       </div>
 
       <div class="leverage-range">
@@ -95,11 +87,6 @@ export default {
 .first-input {
   padding-top: 27px;
   padding-bottom: 24px;
-}
-
-.second-input {
-  padding-top: 27px;
-  padding-bottom: 14px;
 }
 
 .underline {
