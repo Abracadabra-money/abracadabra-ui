@@ -23,12 +23,12 @@
 
       <div class="leverage-range">
         <div class="settings-wrap">
-          <button class="settings-btn">
+          <button @click="isSettingsOpened = true" class="settings-btn">
             <img src="@/assets/images/settings.png" alt="settings" />
           </button>
         </div>
         <div class="leverage-actions">
-          <button class="info-btn" >
+          <button class="info-btn">
             <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
           </button>
           <h4>Leverage up</h4>
@@ -42,6 +42,10 @@
       </div>
     </div>
     <StableCoins />
+    <SettingsPopup
+      :isOpen="isSettingsOpened"
+      @closePopup="isSettingsOpened = false"
+    />
   </div>
 </template>
 
@@ -50,14 +54,16 @@ const Range = () => import("@/components/UIComponents/Range");
 const StableCoins = () => import("@/components/borrow/StableCoins");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
+const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 import { mapGetters } from "vuex";
 
 export default {
-  components: { Range, ValueInput, NetworksList, StableCoins },
+  components: { SettingsPopup, Range, ValueInput, NetworksList, StableCoins },
   data: () => ({
     firstTokenIndex: 0,
     firstTokenValue: null,
-    range: 20
+    range: 20,
+    isSettingsOpened: false,
   }),
   computed: {
     ...mapGetters({ networks: "getAvailableNetworks" }),
