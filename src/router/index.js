@@ -20,6 +20,11 @@ const routes = [
     component: () => import("@/views/Bridge"),
   },
   {
+    path: "/farm",
+    name: "Farm",
+    component: () => import("@/views/Farm"),
+  },
+  {
     path: "/my-positions",
     name: "MyPositions",
     component: () => import("@/views/MyPositions"),
