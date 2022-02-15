@@ -24,6 +24,11 @@ const routes = [
     name: "Farm",
     component: () => import("@/views/Farm"),
   },
+  {
+    path: "/my-positions",
+    name: "MyPositions",
+    component: () => import("@/views/MyPositions"),
+  },
 ];
 
 const router = new VueRouter({

@@ -5,7 +5,11 @@
       <div class="select-network" @click="handlerNetwork('from')">
         <div class="icon-wrap">
           <div class="token-icon-wrap">
-            <img class="token-icon" :src="fromChain.icon" :alt="title" />
+            <img
+              class="token-icon"
+              :src="fromChain.icon"
+              :alt="fromChain.title"
+            />
           </div>
           <p class="network-name">{{ fromChain.title }}</p>
         </div>
@@ -23,7 +27,7 @@
       <div class="select-network" @click="handlerNetwork('to')">
         <div class="icon-wrap">
           <div class="token-icon-wrap">
-            <img class="token-icon" :src="toChain.icon" :alt="title" />
+            <img class="token-icon" :src="toChain.icon" :alt="toChain.title" />
           </div>
           <p class="network-name">{{ toChain.title }}</p>
         </div>
