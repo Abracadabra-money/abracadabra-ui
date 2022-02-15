@@ -55,7 +55,6 @@ const StableCoins = () => import("@/components/borrow/StableCoins");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
-import { mapGetters } from "vuex";
 
 export default {
   components: { SettingsPopup, Range, ValueInput, NetworksList, StableCoins },
@@ -65,9 +64,6 @@ export default {
     range: 20,
     isSettingsOpened: false,
   }),
-  computed: {
-    ...mapGetters({ networks: "getAvailableNetworks" }),
-  },
 };
 </script>
 

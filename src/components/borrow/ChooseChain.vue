@@ -38,7 +38,6 @@
 <script>
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
-import { mapGetters } from "vuex";
 
 export default {
   name: "ChooseChain",
@@ -47,9 +46,6 @@ export default {
     firstTokenIndex: 0,
     firstTokenValue: null,
   }),
-  computed: {
-    ...mapGetters({ networks: "getAvailableNetworks" }),
-  },
 };
 </script>
 
