@@ -58,7 +58,7 @@ export default {
       default: true,
     },
     max: {
-      type: Number,
+      type: [Number, String],
       default: 0,
     },
     value: {
@@ -132,6 +132,10 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .value-type {
