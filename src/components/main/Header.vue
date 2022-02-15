@@ -3,7 +3,7 @@
     <nav class="nav">
       <router-link class="link" to="/">Borrow</router-link>
       <router-link class="link" to="/about">Leverage</router-link>
-      <router-link class="link" to="/about">Positions</router-link>
+      <router-link class="link" to="/my-positions">Positions</router-link>
       <router-link class="link" to="/about">Farm</router-link>
       <div
         class="dropdown-tools link"
