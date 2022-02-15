@@ -112,7 +112,8 @@ export default {
   align-items: center;
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
-  padding: 0 10px;
+  flex-wrap: wrap;
+  padding: 8px 10px 0 10px;
   outline: 1px rgba(255, 255, 255, 0) solid;
   outline-offset: -1px;
   transition: outline-color 0.1s, box-shadow 0.1s;
@@ -140,18 +141,18 @@ input[type="number"] {
 
 .value-type {
   justify-content: space-between;
-  flex: 1 1 148px;
-  padding-left: 10px;
+  flex: 1 1 100%;
+  padding-left: 5px;
 }
 .value-btn {
   display: flex;
   align-items: center;
-  border-radius: 20px;
   background-color: rgba(255, 255, 255, 0.04);
-  height: 60px;
   border: none;
   color: white;
   cursor: pointer;
+  height: 32px;
+  border-radius: 10px;
 
   &:disabled {
     cursor: default;
@@ -159,14 +160,15 @@ input[type="number"] {
 }
 .text-field {
   background: transparent;
-  height: 70px;
   border: none;
   font-weight: 400;
-  font-size: 20px;
-  text-align: center;
+  font-size: 18px;
   color: white;
-  width: calc(100% - (148px + 80px));
   box-sizing: content-box;
+  height: 48px;
+  width: calc(100% - 50px);
+  text-align: left;
+
   &:focus {
     outline: none;
   }
@@ -181,7 +183,8 @@ input[type="number"] {
 
 .max-btn {
   justify-content: center;
-  flex: 0 0 80px;
+  flex: 0 0 50px;
+  border-radius: 20px;
 }
 
 .token-name {
@@ -202,6 +205,33 @@ input[type="number"] {
 }
 
 .token-icon {
-  height: 32px;
+  height: 24px;
+}
+
+@media (min-width: 1024px) {
+  .val-input {
+    flex-wrap: nowrap;
+    padding: 0 10px;
+  }
+  .value-type {
+    flex: 1 1 148px;
+    padding-left: 10px;
+  }
+  .token-icon {
+    height: 32px;
+  }
+  .value-btn {
+    border-radius: 20px;
+    height: 60px;
+  }
+  .max-btn {
+    flex: 0 0 80px;
+  }
+  .text-field {
+    height: 70px;
+    text-align: center;
+    width: calc(100% - (148px + 80px));
+    font-size: 20px;
+  }
 }
 </style>

@@ -9,11 +9,9 @@
         :toChain="activeTo"
       />
       <div class="input-wrap">
-        <div class="input-balance">
-          <p class="input-title">Collateral assets</p>
-          <div class="balance">
-            <div>Balance: 2000.00</div>
-          </div>
+        <div class="header-balance">
+          <h4>Collateral assets</h4>
+          <p>Balance: 2000.00</p>
         </div>
         <ValueInput
           :max="bridgeObject.balance"
@@ -373,23 +371,6 @@ export default {
 
 .input-wrap {
   margin-bottom: 30px;
-}
-
-.input-balance {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-
-  .balance {
-    font-size: 14px;
-  }
-}
-
-.input-title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
 }
 
 .info {
