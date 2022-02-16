@@ -52,9 +52,23 @@ h4 {
 }
 
 .header-balance {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 6px;
-  font-size: 14px;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  text-align: right;
+  h4 {
+    text-align: left;
+    margin-bottom: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-balance {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-direction: row;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
 }
