@@ -48,9 +48,9 @@ export default {
     step: { type: Number, default: 1 },
     value: { type: [Number, String], default: 0 },
     title: { type: String, default: "Leverage up" },
-    subtitle: { type: String, default: "(4.69x)" },
-    coefficient: { type: String, default: "$2,793.6434" },
-    tooltipText: { type: String, default: "Some Text" },
+    subtitle: { type: String, default: "" },
+    coefficient: { type: String, default: "" },
+    tooltipText: { type: String, default: "" },
 
     isSafe: { type: Boolean, default: false },
     isMedium: { type: Boolean, default: false },
