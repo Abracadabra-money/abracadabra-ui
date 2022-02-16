@@ -22,7 +22,7 @@ import DefaultButton from "@/components/main/DefaultButton.vue";
 const ProfileInfo = () => import("@/components/stake/ProfileInfo");
 
 export default {
-  name: "StableCoins",
+  name: "Profile",
   components: { ProfileInfo, DefaultButton },
   data: () => ({}),
 };
