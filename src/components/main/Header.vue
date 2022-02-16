@@ -1,12 +1,14 @@
 <template>
   <header class="header">
     <nav class="nav">
-      <router-link class="link" to="/">Borrow</router-link>
-      <router-link class="link" to="/about">Leverage</router-link>
-      <router-link class="link" to="/my-positions">Positions</router-link>
-      <router-link class="link" :to="{ name: 'Farm' }">Farm</router-link>
+      <router-link class="header-link" to="/">Borrow</router-link>
+      <router-link class="header-link" to="/about">Leverage</router-link>
+      <router-link class="header-link" to="/my-positions"
+        >Positions</router-link
+      >
+      <router-link class="header-link" :to="{ name: 'Farm' }">Farm</router-link>
       <div
-        class="dropdown-tools link"
+        class="dropdown-tools header-link"
         :class="{ active: isDropdownTools }"
         @click="toggleDropdown('tools')"
         v-click-outside="closeDropdownTools"
@@ -30,7 +32,7 @@
       </div>
       <ConnectButton />
       <div
-        class="dropdown-other link"
+        class="dropdown-other header-link"
         :class="{ active: isDropdownOther }"
         @click.stop="toggleDropdown('other')"
         v-click-outside="closeDropdownOther"
@@ -120,7 +122,7 @@ export default {
   justify-content: space-between;
 }
 
-.link {
+.header-link {
   background: #ffffff0f;
   backdrop-filter: blur(40px);
   border-radius: 20px;
@@ -132,7 +134,7 @@ export default {
   min-width: 80px;
 }
 
-.link:hover {
+.header-link:hover {
   background: #ffffff33;
 }
 
