@@ -27,12 +27,7 @@
             <img src="@/assets/images/settings.png" alt="settings" />
           </button>
         </div>
-        <div class="leverage-actions">
-          <button class="info-btn">
-            <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
-          </button>
-          <h4>Leverage up</h4>
-        </div>
+
         <Range v-model="range" />
       </div>
 
@@ -104,7 +99,7 @@ export default {
 }
 
 .leverage-range {
-  margin: 33px 0 87px 0;
+  margin: 33px 0 60px 0;
 }
 
 .settings-wrap {
@@ -116,24 +111,6 @@ export default {
   }
 }
 
-.leverage-actions {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-  .info-btn {
-    background-color: transparent;
-    cursor: pointer;
-    border: none;
-    margin-right: 10px;
-    width: 24px;
-    height: 24px;
-
-    .info-icon {
-      width: 24px;
-      height: 24px;
-    }
-  }
-}
 
 @media (min-width: 1024px) {
   .choose {
