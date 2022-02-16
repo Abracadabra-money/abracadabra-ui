@@ -2,7 +2,7 @@
   <div>
     <div class="leverage-actions">
       <div class="leverage-header">
-        <button class="info-btn">
+        <button v-if="tooltipText" class="info-btn">
           <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
         </button>
         <h4>{{ title }}</h4>
@@ -50,6 +50,7 @@ export default {
     title: { type: String, default: "Leverage up" },
     subtitle: { type: String, default: "(4.69x)" },
     coefficient: { type: String, default: "$2,793.6434" },
+    tooltipText: { type: String, default: "Some Text" },
 
     isSafe: { type: Boolean, default: false },
     isMedium: { type: Boolean, default: false },
