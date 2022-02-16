@@ -37,14 +37,12 @@
       </div>
     </div>
     <StableCoins />
-    <SettingsPopup
-      :isOpen="isSettingsOpened"
-      @closePopup="isSettingsOpened = false"
-    />
+    <PopupWrap v-model="isSettingsOpened"> <SettingsPopup /></PopupWrap>
   </div>
 </template>
 
 <script>
+const PopupWrap = () => import("@/components/ui/PopupWrap");
 const Range = () => import("@/components/UIComponents/Range");
 const StableCoins = () => import("@/components/borrow/StableCoins");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
@@ -52,7 +50,14 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 
 export default {
-  components: { SettingsPopup, Range, ValueInput, NetworksList, StableCoins },
+  components: {
+    PopupWrap,
+    SettingsPopup,
+    Range,
+    ValueInput,
+    NetworksList,
+    StableCoins,
+  },
   data: () => ({
     firstTokenIndex: 0,
     firstTokenValue: null,
@@ -110,7 +115,6 @@ export default {
     cursor: pointer;
   }
 }
-
 
 @media (min-width: 1024px) {
   .choose {
