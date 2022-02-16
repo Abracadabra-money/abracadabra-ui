@@ -8,16 +8,18 @@
         alt="Close popup"
       />
       <p class="title">Select network</p>
-      <button
-        v-for="(network, inx) in networksArr"
-        :key="inx"
-        class="network"
-        :class="network.chainId === activeChain.chainId && 'active'"
-        @click="enterChain(network.chainId)"
-      >
-        <img class="network-image" :src="network.icon" alt="network" />
-        <span>{{ network.title }}</span>
-      </button>
+      <div class="networks-wrap">
+        <button
+          v-for="(network, inx) in networksArr"
+          :key="inx"
+          class="network"
+          :class="network.chainId === activeChain.chainId && 'active'"
+          @click="enterChain(network.chainId)"
+        >
+          <img class="network-image" :src="network.icon" alt="network" />
+          <span>{{ network.title }}</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -76,7 +78,7 @@ export default {
 .popup {
   max-width: 400px;
   width: 100%;
-  padding: 20px 20px 46px;
+  padding: 20px 20px 86px;
   background: #302e38;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
@@ -101,6 +103,12 @@ export default {
   margin-bottom: 23px;
 }
 
+.networks-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .network {
   display: flex;
   justify-content: center;
@@ -112,6 +120,8 @@ export default {
   cursor: pointer;
   border: none;
   color: white;
+  max-width: 170px;
+  width: 100%;
 }
 
 .network:not(:last-child) {
