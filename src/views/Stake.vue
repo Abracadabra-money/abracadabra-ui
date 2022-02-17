@@ -16,13 +16,13 @@
 const StakeInputs = () => import("@/components/stake/StakeInputs");
 const Profile = () => import("@/components/stake/Profile");
 import { mapGetters } from "vuex";
-// import sspellToken from "@/mixins/sspellToken";
+import sspellToken from "@/mixins/sspellToken";
 
-const STAKE = STAKE;
-const UNSTAKE = UNSTAKE;
+const STAKE = "STAKE";
+const UNSTAKE = "UNSTAKE";
 
 export default {
-  // mixins: [sspellToken],
+  mixins: [sspellToken],
   data() {
     return {
       actions: [STAKE,UNSTAKE],
@@ -147,7 +147,7 @@ export default {
     toggleAction() {
       this.amount = "";
       this.amountError = "";
-
+      console.log(this.action)
       if (this.action === STAKE) {
         this.action = UNSTAKE;
         return false;
