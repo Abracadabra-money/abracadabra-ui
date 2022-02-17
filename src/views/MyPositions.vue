@@ -29,7 +29,7 @@
     </div>
 
     <div class="stable">
-      <h1 class="title">Mint Stablecoins</h1>
+      <h1 class="title">My positions</h1>
       <div class="info-wrap underline">
         <StableInfo />
       </div>
