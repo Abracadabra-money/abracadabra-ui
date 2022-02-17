@@ -132,7 +132,7 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding-top: 160px;
+  padding: 100px 0;
 }
 
 .choose-chain {
