@@ -1,10 +1,10 @@
 <template>
   <div class="stable">
-    <h1 class="title">Mint Stablecoins</h1>
-    <StableInfo />
+    <h1 class="title">Borrow Stablecoins</h1>
+    <StableInfo :isEmpty="tokenChainId === null" />
     <div class="stable-actions">
       <DefaultButton primary>Approve</DefaultButton>
-      <DefaultButton>Mint MIM</DefaultButton>
+      <DefaultButton>Borrow MIM</DefaultButton>
     </div>
     <div class="stable-list">
       <div v-for="(item, i) in listData" :key="i" class="list-item">
@@ -22,6 +22,12 @@ const StableInfo = () => import("@/components/borrow/StableInfo");
 export default {
   name: "StableCoins",
   components: { StableInfo, DefaultButton },
+  props: {
+    tokenChainId: {
+      type: Number,
+      default: null,
+    },
+  },
   data: () => ({
     listData: [
       { name: "Borrow Fee", value: 10 },
