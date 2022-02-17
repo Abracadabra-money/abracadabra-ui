@@ -118,4 +118,10 @@ export default {
 .disabled {
   cursor: initial;
 }
+
+@media (max-width: 900px) {
+  .mim-wrap {
+    z-index: 11;
+  }
+}
 </style>

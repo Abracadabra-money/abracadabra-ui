@@ -10,7 +10,7 @@ import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
 export default [
   {
     chainId: 1,
-    chainName: "ETHEREUM",
+    chainName: "ETH",
     chainIcon: ethIcon,
     methodName: "anySwapOutUnderlying(address,address,uint256,uint256)",
     contract: {
@@ -20,7 +20,7 @@ export default [
     },
     chainsInfo: [
       {
-        name: "FANTOM",
+        name: "FTM",
         icon: fantomIcon,
         chainId: 250,
         tokenAddr: "0xbbc4A8d076F4B1888fec42581B6fc58d242CF2D5",
@@ -88,7 +88,7 @@ export default [
     },
     chainsInfo: [
       {
-        name: "ETHEREUM",
+        name: "ETH",
         icon: ethIcon,
         chainId: 1,
         tokenAddr: "0x130966628846BFd36ff31a822705796e8cb8C18D",
@@ -99,7 +99,7 @@ export default [
         maxAmount: 50000000,
       },
       {
-        name: "FANTOM",
+        name: "FTM",
         icon: fantomIcon,
         chainId: 250,
         tokenAddr: "0x130966628846BFd36ff31a822705796e8cb8C18D",
@@ -146,7 +146,7 @@ export default [
   },
   {
     chainId: 250,
-    chainName: "FANTOM",
+    chainName: "FTM",
     chainIcon: fantomIcon,
     methodName: "anySwapOut(address,address,uint256,uint256)",
     contract: {
@@ -156,7 +156,7 @@ export default [
     },
     chainsInfo: [
       {
-        name: "ETHEREUM",
+        name: "ETH",
         icon: ethIcon,
         chainId: 1,
         tokenAddr: "0x82f0B8B456c1A451378467398982d4834b6829c1",
@@ -224,7 +224,7 @@ export default [
     },
     chainsInfo: [
       {
-        name: "ETHEREUM",
+        name: "ETH",
         icon: ethIcon,
         chainId: 1,
         tokenAddr: "0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba",
@@ -235,7 +235,7 @@ export default [
         maxAmount: 50000000,
       },
       {
-        name: "FANTOM",
+        name: "FTM",
         icon: fantomIcon,
         chainId: 250,
         tokenAddr: "0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba",
@@ -292,7 +292,7 @@ export default [
     },
     chainsInfo: [
       {
-        name: "ETHEREUM",
+        name: "ETH",
         icon: ethIcon,
         chainId: 1,
         tokenAddr: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
@@ -303,7 +303,7 @@ export default [
         maxAmount: 50000000,
       },
       {
-        name: "FANTOM",
+        name: "FTM",
         icon: fantomIcon,
         chainId: 250,
         tokenAddr: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
@@ -360,7 +360,7 @@ export default [
     },
     chainsInfo: [
       {
-        name: "ETHEREUM",
+        name: "ETH",
         icon: ethIcon,
         chainId: 1,
         tokenAddr: "0x49a0400587A7F65072c87c4910449fDcC5c47242",
@@ -371,7 +371,7 @@ export default [
         maxAmount: 50000000,
       },
       {
-        name: "FANTOM",
+        name: "FTM",
         icon: fantomIcon,
         chainId: 250,
         tokenAddr: "0x49a0400587A7F65072c87c4910449fDcC5c47242",
