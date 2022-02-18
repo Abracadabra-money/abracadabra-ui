@@ -59,6 +59,7 @@ export default {
       address: "getAccount",
     }),
     isUserLocked() {
+      console.log("isUserLocked")
       return (
         this.lockedUntil &&
         Number(this.lockedUntil) !== 0 &&
@@ -304,8 +305,8 @@ export default {
     }
   },
   async created() {
-    // await this.createStakePool();
-    // this.lockedUntil = await this.getUserLocked();
+    await this.createStakePool();
+    this.lockedUntil = await this.getUserLocked();
     // this.spellUpdateInterval = setInterval(async () => {
     //   await this.createStakePool();
     //   this.lockedUntil = await this.getUserLocked();

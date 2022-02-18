@@ -23,6 +23,7 @@ export default {
   methods: {
     ...mapMutations({ setLoadingsSpellStake: "setLoadingsSpellStake" }),
     async createStakePool() {
+      console.log("createStakePool",this.account)
       if (this.account) {
         this.setLoadingsSpellStake(true);
         if (!stakeInfo) {
