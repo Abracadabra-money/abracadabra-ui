@@ -29,7 +29,7 @@
     </div>
 
     <div class="stable">
-      <h1 class="title">Borrow Stablecoins</h1>
+      <h1 class="title">My positions</h1>
       <div class="info-wrap underline">
         <StableInfo />
       </div>
@@ -132,7 +132,7 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding-top: 160px;
+  padding: 100px 0;
 }
 
 .choose-chain {

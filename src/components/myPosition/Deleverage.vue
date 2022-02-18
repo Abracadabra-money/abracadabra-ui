@@ -1,13 +1,38 @@
 <template>
   <div class="deleverage">
-    <div class="range">
-      <button @click="openSettingsPopup">setting</button>
+    <div class="deleverage-range">
+      <div class="settings-wrap">
+        <button @click="openSettingsPopup" class="settings-btn">
+          <img src="@/assets/images/settings.png" alt="settings" />
+        </button>
+      </div>
+
+      <Range
+        v-model="repayAmount"
+        title="Choose the amount of MIM you want to repay"
+        coefficient="$xxx.xx"
+      />
     </div>
+
+    <div class="deleverage-range">
+      <div class="settings-wrap">
+        <button @click="openSettingsPopup" class="settings-btn">
+          <img src="@/assets/images/settings.png" alt="settings" />
+        </button>
+      </div>
+
+      <Range
+        v-model="removeAmount"
+        title="Choose the amount of collateral you want to remove"
+        coefficient="$xxx.xx"
+      />
+    </div>
+
     <div class="btns-wrap">
       <DefaultButton primary>Approve</DefaultButton>
-      <DefaultButton>Repay</DefaultButton>
+      <DefaultButton>Deleverage</DefaultButton>
     </div>
-    <DefaultButton>Repay</DefaultButton>
+    <DefaultButton>Close Position</DefaultButton>
     <SettingsPopup
       :isOpen="isOpenSettingsPopup"
       @closePopup="closeSettingsPopup"
@@ -18,17 +43,20 @@
 <script>
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const SettingsPopup = () => import("@/components/myPosition/SettingsPopup");
+const Range = () => import("@/components/UIComponents/Range");
 
 export default {
   data() {
     return {
       isOpenSettingsPopup: false,
+      removeAmount: 0,
+      repayAmount: 0,
     };
   },
 
   methods: {
     openSettingsPopup() {
-      this.isOpenSettingsPopup = !this.isOpenSettingsPopup;
+      this.isOpenSettingsPopup = true;
     },
 
     closeSettingsPopup() {
@@ -39,6 +67,7 @@ export default {
   components: {
     DefaultButton,
     SettingsPopup,
+    Range,
   },
 };
 </script>
@@ -48,12 +77,23 @@ export default {
   max-width: 550px;
   width: 100%;
   margin: 0 auto;
-  padding-top: 15px;
+  padding-top: 20px;
 }
 
-.range {
-  height: 300px;
-  margin-bottom: 20px;
+.deleverage-range {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 25px;
+  padding-bottom: 30px;
+}
+
+.settings-wrap {
+  text-align: right;
+}
+
+.settings-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .btns-wrap {

@@ -9,9 +9,11 @@
         :toChain="activeTo"
       />
       <div class="input-wrap">
-        <div class="header-balance">
-          <h4>Collateral assets</h4>
-          <p>Balance: 2000.00</p>
+        <div class="input-balance">
+          <p class="input-title">Token to bridge</p>
+          <div class="balance">
+            <div>Balance: 100,000.00</div>
+          </div>
         </div>
         <ValueInput
           :max="bridgeObject.balance"
@@ -23,9 +25,22 @@
         />
       </div>
 
-      <div class="info" v-if="expectedMim">
-        <p class="info-title">Expected MIM</p>
-        <p class="info-value">{{ expectedMim }}</p>
+      <div class="expected">
+        <p class="expected-title">Expected MIM</p>
+        <p class="expected-value">{{ expectedMim }}</p>
+      </div>
+
+      <div class="info">
+        <div class="info-row underline">
+          <p class="info-text">Estimated Time of Crosschain Arrival:</p>
+          <p class="info-text">10-30 min</p>
+        </div>
+        <div class="info-row">
+          <p class="info-text">
+            Crosschain amounts larger than 1,000,000 MIM estimated arrival:
+          </p>
+          <p class="info-text">up to 12 hours</p>
+        </div>
       </div>
 
       <div class="btn-wrap">
@@ -37,17 +52,21 @@
         >
       </div>
 
-      <div class="info" v-for="(info, inx) in chainInfo" :key="inx">
-        <p class="info-title">
-          <img class="info-icon" src="@/assets/images/info.svg" alt="Icon" />
+      <div class="expected" v-for="(info, inx) in chainInfo" :key="inx">
+        <p class="expected-title">
+          <img
+            class="expected-icon"
+            src="@/assets/images/info.svg"
+            alt="Icon"
+          />
           {{ info.title }}
         </p>
-        <p class="info-value">{{ info.value }}</p>
+        <p class="expected-value">{{ info.value }}</p>
       </div>
 
       <div class="link-wrap">
         <a class="link" href="https://app.multichain.org/" target="_blank"
-          >Powered by Anyswap</a
+          >Powered By Multichain</a
         >
       </div>
     </div>
@@ -346,7 +365,11 @@ export default {
 
 <style lang="scss" scoped>
 .bridge-view {
-  padding-top: 100px;
+  padding: 100px 0;
+}
+
+.underline {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .bridge {
@@ -356,7 +379,7 @@ export default {
   max-width: 680px;
   width: 100%;
   margin: 0 auto;
-  padding: 30px 65px 20px;
+  padding: 30px 65px;
 }
 
 .title {
@@ -370,10 +393,27 @@ export default {
 }
 
 .input-wrap {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
-.info {
+.input-balance {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+
+  .balance {
+    font-size: 14px;
+  }
+}
+
+.input-title {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 27px;
+}
+
+.expected {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -381,16 +421,45 @@ export default {
   height: 50px;
 }
 
-.info-title {
+.expected-title {
   color: rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
 }
 
-.info-icon {
+.expected-icon {
   width: 24px;
   height: 24px;
   margin-right: 10px;
+}
+
+.info {
+  width: 100%;
+  padding: 12px 10px 7px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+  backdrop-filter: blur(100px);
+  border-radius: 20px;
+  margin-top: 30px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 14px;
+  line-height: 21px;
+  color: rgba(255, 255, 255, 0.6);
+  padding-bottom: 5px;
+}
+
+.info-row:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.info-text:nth-child(odd) {
+  max-width: 320px;
+  width: 100%;
 }
 
 .btn-wrap {
