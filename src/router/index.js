@@ -17,7 +17,9 @@ const routes = [
   {
     path: "/stake",
     name: "Stake",
-    component: () => import("@/views/Stake"),
+    component: () => import("@/views/Stake")
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/Leverage"),

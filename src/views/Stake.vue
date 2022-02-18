@@ -56,7 +56,7 @@ export default {
   computed: {
     ...mapGetters({
       isLoadingsSpellStake: "getLoadingsSpellStake",
-      address: "getAccount",
+      account: "getAccount",
     }),
     isUserLocked() {
       console.log("isUserLocked")
@@ -68,9 +68,6 @@ export default {
     },
     tokensInfo() {
       return this.$store.getters.getSSpellObject;
-    },
-    account() {
-      return this.$store.getters.getAccount;
     },
     fromToken() {
       if (this.action === STAKE) return this.tokensInfo.stakeToken;
@@ -138,8 +135,8 @@ export default {
         this.amountError = "";
       }
     },
-    async address() {
-      if (this.address) {
+    async account() {
+      if (this.account) {
         await this.createStakePool();
       }
     },

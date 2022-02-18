@@ -8,7 +8,6 @@ export default {
   },
   mutations: {
     setSSpellObject(state, payload) {
-      console.log("setSSpellObject",payload)
       state.sSpellStakeObject = payload;
     },
     setMimInBentoDepositObject(state, payload) {

@@ -2,6 +2,7 @@ import stakeInfo from "@/utils/contracts/sSpellStakesInfo.js";
 import { tokenPrices } from "@/utils/helpers.js";
 import moment from "moment";
 import { mapMutations } from "vuex";
+import { ethers } from "ethers";
 
 export default {
   data() {
@@ -23,25 +24,38 @@ export default {
   methods: {
     ...mapMutations({ setLoadingsSpellStake: "setLoadingsSpellStake" }),
     async createStakePool() {
-      console.log("createStakePool",this.account)
+      console.log("createStakePool",this.account,stakeInfo,this.chainId);
       if (this.account) {
         this.setLoadingsSpellStake(true);
         if (!stakeInfo) {
           return false;
         }
 
-        if (this.chainId !== "0x01") {
+        if (this.chainId !== 1) {
           this.setLoadingsSpellStake(false);
           return false;
         }
 
         const { mainToken, stakeToken } = stakeInfo;
 
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner(this.account);
+
+        console.log("start", 
+          mainToken.address,
+          JSON.stringify(mainToken.abi),
+          signer
+        );
+        console.log("abi", 
+        );
+
         const mainTokenInstance = new this.$ethers.Contract(
           mainToken.address,
           JSON.stringify(mainToken.abi),
-          this.signer
+          signer
         );
+        
+        console.log("end",mainTokenInstance);
 
         let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
 
