@@ -13,11 +13,12 @@
         </div>
 
         <ValueInput
-          :icon="null"
-          :name="null"
-          v-model="firstTokenValue"
+          :icon="selectedToken ? selectedToken.icon : null"
+          :name="selectedToken ? selectedToken.name : null"
+          v-model="inputValue"
           :max="5"
           isChooseToken
+          @openTokensList="isTokensOpened = true"
         />
       </div>
 
@@ -36,18 +37,27 @@
         <span>0 %</span>
       </div>
     </div>
-    <StableCoins />
+    <StableCoins :tokenChainId="tokenChainId" />
     <PopupWrap v-model="isSettingsOpened"> <SettingsPopup /></PopupWrap>
+    <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
+      <SelectTokenPopup
+        @select="tokenChainId = $event"
+        @close="isTokensOpened = false"
+        :tokens="networks"
+    /></PopupWrap>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const Range = () => import("@/components/UIComponents/Range");
 const StableCoins = () => import("@/components/borrow/StableCoins");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
+const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 
 export default {
   components: {
@@ -57,13 +67,24 @@ export default {
     ValueInput,
     NetworksList,
     StableCoins,
+    SelectTokenPopup,
   },
   data: () => ({
-    firstTokenIndex: 0,
-    firstTokenValue: null,
+    tokenChainId: null,
+    inputValue: null,
     range: 20,
     isSettingsOpened: false,
+    isTokensOpened: false,
   }),
+  computed: {
+    ...mapGetters({ networks: "getAvailableNetworks" }),
+    selectedToken() {
+      return (
+        this.networks.find(({ chainId }) => chainId === this.tokenChainId) ||
+        null
+      );
+    },
+  },
 };
 </script>
 

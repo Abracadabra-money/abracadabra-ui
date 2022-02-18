@@ -19,7 +19,7 @@
           <div class="empty-text">
             <p>
               Choose the asset and amount you want to use as collateral as well
-              as the amount of MIM you want to Mint.
+              as the amount of MIM you want to Borrow.
             </p>
             <p class="empty-bottom">
               If you want to learn more read our docs
@@ -69,9 +69,14 @@
 <script>
 export default {
   name: "StableInfo",
+  props: {
+    isEmpty: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     isInfoPressed: false,
-    isEmpty: false,
     listData: [
       { name: "Maximum collateral ratio", value: 12 },
       { name: "Liquidation fee", value: 10 },
