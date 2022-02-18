@@ -18,11 +18,24 @@ const routes = [
     path: "/stake",
     name: "Stake",
     component: () => import("@/views/Stake"),
+    path: "/leverage",
+    name: "Leverage",
+    component: () => import("@/views/Leverage"),
   },
   {
     path: "/bridge",
     name: "Bridge",
     component: () => import("@/views/Bridge"),
+  },
+  {
+    path: "/farm",
+    name: "Farm",
+    component: () => import("@/views/Farm"),
+  },
+  {
+    path: "/my-positions",
+    name: "MyPositions",
+    component: () => import("@/views/MyPositions"),
   },
 ];
 

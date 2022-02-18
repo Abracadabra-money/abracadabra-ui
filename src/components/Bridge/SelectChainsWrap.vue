@@ -1,15 +1,23 @@
 <template>
   <div class="network-wrap">
     <div class="network-item">
-      <h5 class="network-title">Network from bridge</h5>
+      <h5 class="network-title">Origin Chain</h5>
       <div class="select-network" @click="handlerNetwork('from')">
         <div class="icon-wrap">
           <div class="token-icon-wrap">
-            <img class="token-icon" :src="fromChain.icon" :alt="title" />
+            <img
+              class="token-icon"
+              :src="fromChain.icon"
+              :alt="fromChain.title"
+            />
           </div>
           <p class="network-name">{{ fromChain.title }}</p>
         </div>
-        <img src="@/assets/images/arrow-down.svg" alt="Arrow Down" />
+        <img
+          class="network-arrow"
+          src="@/assets/images/arrow-down.svg"
+          alt="Arrow Down"
+        />
       </div>
     </div>
     <img
@@ -19,15 +27,19 @@
       alt="Switch network"
     />
     <div class="network-item">
-      <h5 class="network-title">Network to bridge</h5>
+      <h5 class="network-title">Destination Chain</h5>
       <div class="select-network" @click="handlerNetwork('to')">
         <div class="icon-wrap">
           <div class="token-icon-wrap">
-            <img class="token-icon" :src="toChain.icon" :alt="title" />
+            <img class="token-icon" :src="toChain.icon" :alt="toChain.title" />
           </div>
           <p class="network-name">{{ toChain.title }}</p>
         </div>
-        <img src="@/assets/images/arrow-down.svg" alt="Arrow Down" />
+        <img
+          class="network-arrow"
+          src="@/assets/images/arrow-down.svg"
+          alt="Arrow Down"
+        />
       </div>
     </div>
   </div>
@@ -55,6 +67,9 @@ export default {
     switchHandle() {
       this.$emit("switchHandle");
     },
+  },
+  mounted() {
+    console.log("fromChain", this.fromChain);
   },
 };
 </script>
@@ -103,7 +118,6 @@ export default {
   padding: 14px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   cursor: pointer;
 }
 
@@ -115,6 +129,10 @@ export default {
 .network-name {
   font-size: 16px;
   line-height: 24px;
+  margin-left: 10px;
+}
+
+.network-arrow {
   margin-left: 10px;
 }
 </style>

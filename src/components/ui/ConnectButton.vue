@@ -1,5 +1,5 @@
 <template>
-  <button class="connect-btn link" @click="walletBtnHandler">
+  <button class="connect-btn header-link" @click="walletBtnHandler">
     {{ walletBtnText }}
   </button>
 </template>

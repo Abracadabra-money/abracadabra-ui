@@ -1,12 +1,14 @@
 <template>
   <header class="header">
     <nav class="nav">
-      <router-link class="link" to="/">Borrow</router-link>
-      <router-link class="link" to="/about">Leverage</router-link>
-      <router-link class="link" to="/about">Positions</router-link>
-      <router-link class="link" to="/about">Farm</router-link>
+      <router-link class="header-link" to="/">Borrow</router-link>
+      <router-link class="header-link" to="/about">Leverage</router-link>
+      <router-link class="header-link" to="/my-positions"
+        >Positions</router-link
+      >
+      <router-link class="header-link" :to="{ name: 'Farm' }">Farm</router-link>
       <div
-        class="dropdown-tools link"
+        class="dropdown-tools header-link"
         :class="{ active: isDropdownTools }"
         @click="toggleDropdown('tools')"
         v-click-outside="closeDropdownTools"
@@ -30,7 +32,7 @@
       </div>
       <ConnectButton />
       <div
-        class="dropdown-other link"
+        class="dropdown-other header-link"
         :class="{ active: isDropdownOther }"
         @click.stop="toggleDropdown('other')"
         v-click-outside="closeDropdownOther"
@@ -62,6 +64,16 @@
         </div>
       </div>
       <MimTokenBlock />
+
+      <div
+        class="burger"
+        :class="{ 'burger-active': mobileMenu }"
+        @click="toggleMobileMenu"
+      >
+        <div class="burger-line"></div>
+      </div>
+
+      <MobileMenu v-if="mobileMenu" @closePopup="closeMobilePopup" />
     </nav>
   </header>
 </template>
@@ -69,13 +81,25 @@
 <script>
 const ConnectButton = () => import("@/components/ui/ConnectButton");
 const MimTokenBlock = () => import("@/components/ui/MimTokenBlock");
+const MobileMenu = () => import("@/components/popups/MobileMenu");
 
 export default {
   data() {
     return {
       isDropdownTools: false,
       isDropdownOther: false,
+      mobileMenu: false,
     };
+  },
+
+  watch: {
+    mobileMenu() {
+      if (this.mobileMenu) {
+        document.documentElement.style.overflow = "hidden";
+      } else {
+        document.documentElement.style.overflow = "auto";
+      }
+    },
   },
 
   methods: {
@@ -94,11 +118,20 @@ export default {
     closeDropdownOther() {
       this.isDropdownOther = false;
     },
+
+    toggleMobileMenu() {
+      this.mobileMenu = !this.mobileMenu;
+    },
+
+    closeMobilePopup() {
+      this.mobileMenu = false;
+    },
   },
 
   components: {
     ConnectButton,
     MimTokenBlock,
+    MobileMenu,
   },
 };
 </script>
@@ -120,7 +153,7 @@ export default {
   justify-content: space-between;
 }
 
-.link {
+.header-link {
   background: #ffffff0f;
   backdrop-filter: blur(40px);
   border-radius: 20px;
@@ -132,7 +165,7 @@ export default {
   min-width: 80px;
 }
 
-.link:hover {
+.header-link:hover {
   background: #ffffff33;
 }
 
@@ -215,6 +248,67 @@ export default {
 
   .arrow {
     transform: rotate(180deg);
+  }
+}
+
+.line {
+  transition: all 0.25s;
+  content: "";
+  width: 20px;
+  height: 2px;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.burger {
+  display: none;
+  align-items: center;
+  height: 16px;
+  position: relative;
+}
+
+.burger-line {
+  @extend .line;
+  &:before {
+    @extend .line;
+    position: absolute;
+    top: 0;
+  }
+  &:after {
+    @extend .line;
+    position: absolute;
+    bottom: 0;
+  }
+}
+
+.burger-active {
+  .burger-line {
+    background-color: transparent;
+    transition: all 0.25s;
+    &:before {
+      top: 45%;
+      transform: rotate(45deg);
+    }
+    &:after {
+      transform: rotate(-45deg);
+      bottom: 45%;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .header-link {
+    display: none;
+  }
+
+  .nav {
+    padding: 0 15px;
+    align-items: center;
+  }
+
+  .burger {
+    display: flex;
+    z-index: 11;
   }
 }
 </style>
