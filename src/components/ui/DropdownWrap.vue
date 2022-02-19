@@ -27,7 +27,7 @@ export default {
     },
     clickHandler() {
       const btn = this.$refs.dropdownBtn.children[0];
-      if (this.isBtnAlreadyFocused) btn.blur();
+      if (this.isBtnAlreadyFocused) document.activeElement.blur();
       else btn.focus();
     },
     listClickHandler(event) {
