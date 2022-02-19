@@ -114,7 +114,6 @@ export default {
   border-radius: 20px;
   flex-wrap: wrap;
   padding: 8px 10px 0 10px;
-  outline: 1px rgba(255, 255, 255, 0) solid;
   outline-offset: -1px;
   transition: outline-color 0.1s, box-shadow 0.1s;
 
