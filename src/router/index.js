@@ -34,6 +34,11 @@ const routes = [
     name: "MyPositions",
     component: () => import("@/views/MyPositions"),
   },
+  {
+    path: "/stats",
+    name: "Stats",
+    component: () => import("@/views/Stats"),
+  },
 ];
 
 const router = new VueRouter({
