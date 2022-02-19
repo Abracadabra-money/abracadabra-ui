@@ -18,14 +18,14 @@
       <DropdownWrap class="dropdown">
         <template slot="btn">
           <button class="sort-btn open-btn">
-            <div class="sort-title-wrap">
+            <span class="sort-title-wrap">
               <img
                 class="sort-icon"
                 src="@/assets/images/filter.svg"
                 alt="filter"
               />
               <span>{{ selectedTitle || "Sorted by Title" }}</span>
-            </div>
+            </span>
             <img
               class="arrow-icon"
               src="@/assets/images/arrow-down.svg"
@@ -45,31 +45,19 @@
         </template>
       </DropdownWrap>
       <div class="stats-list-wrap">
-        <div class="stats-item stats-list-header">
+        <div class="stats-list-header">
           <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
         </div>
-        <div
+        <StatsItem
           v-for="(network, i) in networks"
-          class="stats-item"
-          :key="network.chain"
-        >
-          <div class="network-data">
-            <img class="network-image" :src="network.icon" alt="network" />
-            <span>{{ network.name }}</span>
-          </div>
-          <div>14%</div>
-          <div>14%</div>
-          <div>14%</div>
-          <div>14%</div>
-          <div class="degenbox">
-            <img
-              v-if="i === networks.length - 1"
-              class="degenbox-img"
-              src="@/assets/images/degenbox.svg"
-              alt="DegenBox"
-            />
-          </div>
-        </div>
+          :key="network.chainId"
+          :name="network.name"
+          :icon="network.icon"
+          :degen="i === networks.length - 1"
+          :isNew="!i"
+          :isSelected="selectedNetworkId === network.chainId"
+          @select="selectedNetworkId = network.chainId"
+        />
       </div>
     </div>
   </div>
@@ -79,9 +67,10 @@
 import { mapGetters } from "vuex";
 
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
+const StatsItem = () => import("@/components/stats/StatsItem");
 
 export default {
-  components: { DropdownWrap },
+  components: { DropdownWrap, StatsItem },
   data: () => ({
     titlesList: ["TVL", "Interest", "Interest", "Fee", "MIMs Left"],
     selectedTitle: null,
@@ -93,6 +82,7 @@ export default {
       "INTEREST",
       "LIQUIDATION FEE",
     ],
+    selectedNetworkId: 1,
   }),
   methods: {
     select(name) {
@@ -111,13 +101,14 @@ export default {
   margin: 0 auto;
   width: 940px;
   max-width: 100%;
+  box-sizing: border-box;
 }
 .stats-wrap {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: 20px;
+  grid-template-columns: 1fr;
+  grid-gap: 10px;
   margin-top: 40px;
-  padding-bottom: 60px;
+  padding: 0 16px 60px 16px;
 }
 
 .title {
@@ -202,40 +193,33 @@ export default {
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 10px;
-  grid-column: 1 / 5;
-}
-
-.stats-item {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
-  align-items: center;
-  padding: 0 20px;
-  line-height: 24px;
-  background: #2a2835;
-  border-radius: 20px;
-  height: 100px;
+  grid-column: 1;
+  margin-top: 10px;
 }
 
 .stats-list-header {
+  display: none;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
+  align-items: center;
+  padding: 0 20px;
   height: 60px;
+  font-size: 16px;
+  border-radius: 30px;
+  background-color: #2a2835;
 }
 
-.degenbox {
-  display: flex;
-  justify-content: center;
-}
-
-.degenbox-img {
-  width: 40px;
-}
-
-.network-data {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.network-image {
-  height: 28px;
-  margin-right: 8px;
+@media (min-width: 1024px) {
+  .stats-wrap {
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+    padding: 0 0 60px 0;
+  }
+  .stats-list-wrap {
+    grid-column: 1 / 5;
+    margin-top: 0;
+  }
+  .stats-list-header {
+    display: grid;
+  }
 }
 </style>

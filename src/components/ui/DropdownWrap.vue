@@ -51,6 +51,7 @@ export default {
     top: 100%;
     flex-direction: column;
     width: 100%;
+    z-index: 300;
   }
   &:focus-within {
     .dropdown-list {
