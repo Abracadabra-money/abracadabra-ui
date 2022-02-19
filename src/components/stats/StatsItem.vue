@@ -79,7 +79,7 @@ export default {
 
   &:disabled {
     cursor: default;
-    outline: 1px solid #8180ff;
+    box-shadow: 0 0 0 1px #8180ff;
   }
 }
 

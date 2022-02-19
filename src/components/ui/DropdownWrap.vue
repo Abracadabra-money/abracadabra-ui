@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown-wrap">
+  <div class="dropdown-wrap" tabindex="0">
     <div
       ref="dropdownBtn"
       class="dropdown-btn"
@@ -31,7 +31,7 @@ export default {
       else btn.focus();
     },
     listClickHandler(event) {
-      if (event.target.tabIndex >= 0) event.target.blur();
+      if (event.target.tabIndex >= 0) document.activeElement.blur();
     },
   },
 };
