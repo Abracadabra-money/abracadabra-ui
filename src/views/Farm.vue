@@ -10,9 +10,11 @@
 
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
-          <button class="select" @click="selectToken">
-            <img class="select-icon" src="@/assets/images/select.svg" alt="" />
-            <span class="select-text">Select Farm</span>
+          <button class="select" @click="isTokensOpened = true">
+            <img class="select-icon" :src="selectedTokenIcon" alt="" />
+            <span class="select-text">
+              {{ selectedToken ? selectedToken.name : "Select Farm" }}
+            </span>
             <img
               class="select-arrow"
               src="@/assets/images/arrow.svg"
@@ -41,23 +43,52 @@
 
       <a class="farm-link" href="#" target="_blank">Get LP’s</a>
     </div>
+    <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
+      <SelectTokenPopup
+        @select="tokenChainId = $event"
+        @close="isTokensOpened = false"
+        :tokens="networks"
+    /></PopupWrap>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 const NetworksList = () => import("@/components/ui/NetworksList");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const DefaultButton = () => import("@/components/main/DefaultButton.vue");
+const PopupWrap = () => import("@/components/ui/PopupWrap");
+const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 export default {
-  methods: {
-    selectToken() {
-      console.log("selectToken");
+  data() {
+    return {
+      tokenChainId: null,
+      isTokensOpened: false,
+    };
+  },
+  computed: {
+    ...mapGetters({ networks: "getAvailableNetworks" }),
+    selectedToken() {
+      return (
+        this.networks.find(({ chainId }) => chainId === this.tokenChainId) ||
+        null
+      );
+    },
+
+    selectedTokenIcon() {
+      return this.selectedToken
+        ? this.selectedToken.icon
+        : require("@/assets/images/select.svg");
     },
   },
+
   components: {
     NetworksList,
     ValueInput,
     DefaultButton,
+    PopupWrap,
+    SelectTokenPopup,
   },
 };
 </script>
@@ -125,11 +156,15 @@ export default {
 }
 
 .select-icon {
-  margin-right: 5px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 10px;
+  background-color: white;
 }
 
 .select-text {
-  margin-right: 5px;
+  margin: 0 10px;
 }
 
 .select-arrow {
