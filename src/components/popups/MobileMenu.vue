@@ -2,13 +2,22 @@
   <div class="popup-wrap" :class="{ inner: isOpenInnerPopup }">
     <div class="popup">
       <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" to="/">Borrow</router-link>
+        <router-link class="popup-link" :to="{ name: 'Borrow' }"
+          >Borrow</router-link
+        >
       </div>
       <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" to="/about">Leverage</router-link>
+        <router-link class="popup-link" :to="{ name: 'Leverage' }"
+          >Leverage</router-link
+        >
       </div>
       <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" to="/my-positions"
+        <router-link class="popup-link" :to="{ name: 'Stats' }"
+          >Stats</router-link
+        >
+      </div>
+      <div class="popup-link-wrap" @click="closePopup">
+        <router-link class="popup-link" :to="{ name: 'MyPositions' }"
           >Positions</router-link
         >
       </div>
@@ -33,13 +42,22 @@
     <div class="tools-popup" v-if="showTools" @click="closeInnerPopup('tools')">
       <div class="tools">
         <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" to="/">Borrow</router-link>
+          <router-link class="popup-link" :to="{ name: 'Bridge' }"
+            >Bridge</router-link
+          >
         </div>
         <div class="popup-link-wrap" @click="closePopup">
-          <a class="popup-link" href="#" target="_blank">Swap</a>
+          <a class="popup-link" href="https://curve.fi/mim" target="_blank"
+            >Swap</a
+          >
         </div>
         <div class="popup-link-wrap" @click="closePopup">
-          <a class="popup-link" href="#" target="_blank">Analytics</a>
+          <a
+            class="popup-link"
+            href="https://app.powerbi.com/view?r=eyJrIjoiOGFjN2QyMDgtMzRhMy00NDkzLTk2NDctNTBkZTQ0NzQ3ZjJkIiwidCI6IjYyZTU1MTgwLTQzNmQtNDYyZC1hMWIwLTZkMTg2NjRlZDAxNSJ9"
+            target="_blank"
+            >Analytics</a
+          >
         </div>
       </div>
     </div>

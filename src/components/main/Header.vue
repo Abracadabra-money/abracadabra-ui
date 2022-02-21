@@ -35,8 +35,15 @@
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
-          <router-link class="list-link" to="/">Swap</router-link>
-          <a href="#" class="list-link" target="_blank">Analytics</a>
+          <a href="https://curve.fi/mim" class="list-link" target="_blank"
+            >Swap</a
+          >
+          <a
+            href="https://app.powerbi.com/view?r=eyJrIjoiOGFjN2QyMDgtMzRhMy00NDkzLTk2NDctNTBkZTQ0NzQ3ZjJkIiwidCI6IjYyZTU1MTgwLTQzNmQtNDYyZC1hMWIwLTZkMTg2NjRlZDAxNSJ9"
+            class="list-link"
+            target="_blank"
+            >Analytics</a
+          >
         </div>
       </div>
       <ConnectButton />
