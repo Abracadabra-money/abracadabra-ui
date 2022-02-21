@@ -2,7 +2,7 @@
   <div class="deleverage">
     <div class="deleverage-range">
       <div class="settings-wrap">
-        <button @click="openSettingsPopup" class="settings-btn">
+        <button @click="isSettingsOpened = true" class="settings-btn">
           <img src="@/assets/images/settings.png" alt="settings" />
         </button>
       </div>
@@ -16,7 +16,7 @@
 
     <div class="deleverage-range">
       <div class="settings-wrap">
-        <button @click="openSettingsPopup" class="settings-btn">
+        <button @click="isSettingsOpened = true" class="settings-btn">
           <img src="@/assets/images/settings.png" alt="settings" />
         </button>
       </div>
@@ -33,40 +33,29 @@
       <DefaultButton>Deleverage</DefaultButton>
     </div>
     <DefaultButton>Close Position</DefaultButton>
-    <SettingsPopup
-      :isOpen="isOpenSettingsPopup"
-      @closePopup="closeSettingsPopup"
-    />
+    <PopupWrap v-model="isSettingsOpened"> <SettingsPopup /></PopupWrap>
   </div>
 </template>
 
 <script>
 const DefaultButton = () => import("@/components/main/DefaultButton");
-const SettingsPopup = () => import("@/components/myPosition/SettingsPopup");
 const Range = () => import("@/components/UIComponents/Range");
+const PopupWrap = () => import("@/components/ui/PopupWrap");
+const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 
 export default {
   data() {
     return {
-      isOpenSettingsPopup: false,
+      isSettingsOpened: false,
       removeAmount: 0,
       repayAmount: 0,
     };
   },
 
-  methods: {
-    openSettingsPopup() {
-      this.isOpenSettingsPopup = true;
-    },
-
-    closeSettingsPopup() {
-      this.isOpenSettingsPopup = false;
-    },
-  },
-
   components: {
     DefaultButton,
     SettingsPopup,
+    PopupWrap,
     Range,
   },
 };
