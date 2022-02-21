@@ -14,9 +14,9 @@
       <ValueInput
         :icon="getImgUrl(firstInput.icon)"
         :name="firstInput.label"
-        v-model="firstTokenValue"
+        @input="change"
         :max="firstInput.max"
-        isChooseToken
+        :error="error"
       />
     </div>
     <div class="swap-img">
@@ -27,7 +27,7 @@
         <h4>{{secondInput.text}}</h4>
         <p>Balance: {{secondInput.balance}}</p>
       </div>
-      <ValueInput :icon="getImgUrl(secondInput.icon)" :name="secondInput.label" />
+      <ValueInput @input="change" disabled :icon="getImgUrl(secondInput.icon)" :name="secondInput.label" />
     </div>
   </div>
 </template>
@@ -45,6 +45,9 @@ export default {
     modes: {
       type: Object
     },
+    error: {
+      type: String
+    },
     actions: {
       type: Array
     },
@@ -57,11 +60,8 @@ export default {
     firstTokenValue: null
   }),
   methods: {
-    stake() {
-
-    },
-    unstake() {
-
+    change(value) {
+      this.$emit("change",value)
     },
     getImgUrl(type) {
       var images = require.context('../../assets/images/tokens-icon/', false, /\.svg$/)

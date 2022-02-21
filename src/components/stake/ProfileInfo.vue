@@ -8,9 +8,10 @@
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></template>
       </div>
-      <div class="info-block">
+      <div  class="info-block">
         <img class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
-        <div>Unlock in 24h</div> 
+        <div v-if="lockedUntil">Unlock in {{lockedUntil}}h</div> 
+        <div v-else>Unlocked</div> 
       </div>
     </div>
     <div class="profile-data">
@@ -26,7 +27,7 @@
                     </div>
                 <div>
                     <p class="item-title">{{ item.title }}</p>
-                    <p v-if="item.value" class="item-value">{{ item.value || "0.0" }}</p>
+                    <p v-if="item.value" class="item-value">{{ !isNaN(item.value) ? item.value : "0.0" }}</p>
                     <p v-if="item.text" class="item-text">{{ item.text }}</p>
                 </div>
             </div>
@@ -39,6 +40,14 @@
 <script>
 export default {
   name: "profileInfo",
+  props: {
+    lockedUntil: {
+      type: [String, Boolean]
+    },
+    tokensInfo: {
+      type: Object
+    }
+  },
   methods: {
     getImgUrl(type) {
       var images = require.context('../../assets/images/tokens-icon/', false, /\.svg$/)
@@ -46,17 +55,25 @@ export default {
     },
     isArray(item) {
         return Array.isArray(item);
+    },
+    toFixed(num,range) {
+      return parseFloat(num).toFixed(range)
+    }
+  },
+  computed: {
+    profileData() {
+      return [
+        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.toFixed(this.tokensInfo.stakeToken.balance || 0,4), },
+        { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: this.toFixed(this.tokensInfo.mainToken.balance || 0,4),  },
+        { title: "Ratio",       icon: "spell-icon",  
+          text: `1 sSPELL = ${this.toFixed(this.tokensInfo.tokensRate || 0,4)} SPELL` },
+        { title: "Staking APR", icon: ["spell-icon","sspell-icon"], text: this.tokensInfo.apr || 0 + "%"  },
+      ]
     }
   },
   data: () => ({
     isInfoPressed: false,
-    isEmpty: false,
-    profileData: [
-      { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: "200,000", },
-      { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: "3,000",  },
-      { title: "Ratio",       icon: "spell-icon",       text: "1 sSPELL = 1.2292 SPELL" },
-      { title: "Staking APR", icon: ["spell-icon","sspell-icon"], text: "26.98%"  },
-    ],
+    isEmpty: false
   }),
 };
 </script>

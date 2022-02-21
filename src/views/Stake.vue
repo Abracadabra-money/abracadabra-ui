@@ -1,20 +1,42 @@
 <template>
   <div class="stake">
     <StakeInputs 
-      :mode="this.action" 
-      :actions="this.actions"
-      :modes="this.inputs"
-      @toggleAction="this.toggleAction"
+      :mode="action" 
+      :actions="actions"
+      :modes="inputs"
+      v-model="inputValue"
+      @toggleAction="toggleAction"
+      @change="updateMainValue"
+      :error="amountError"
     />
-    <Profile />
+    <Profile :tokens-info="info" :locked-until="lockedUntil">
+      <template v-slot:buttons>
+        <DefaultButton 
+          loading
+          width="325px"
+          @click="approveToken(info.stakeToken.contractInstance)" 
+          primary 
+          :disabled="info.stakeToken.isTokenApprowed"
+          v-if=" action===actions[0] "
+        >{{ "Approve" }}</DefaultButton>
+        <DefaultButton
+          width="325px"
+          @click="actionHandler"
+          disabled
+        > {{ action === actions[0] ? "Stake" : "Unstake" }} </DefaultButton>
+      </template>
+    </Profile>
   </div>
 </template>
   components: {
     
-  },
+  }
 <script>
+
 const StakeInputs = () => import("@/components/stake/StakeInputs");
 const Profile = () => import("@/components/stake/Profile");
+import DefaultButton from "@/components/main/DefaultButton.vue";
+
 import { mapGetters } from "vuex";
 import sspellToken from "@/mixins/sspellToken";
 
@@ -25,6 +47,7 @@ export default {
   mixins: [sspellToken],
   data() {
     return {
+      inputValue: "333",
       actions: [STAKE,UNSTAKE],
       action: STAKE,
       inputs: { 
@@ -32,8 +55,8 @@ export default {
           input: {
             label: "Spell",
             text: "",
-            max: 12.292215,
-            balance: "200,000.00",
+            max: 0,
+            balance: "0",
             icon: 'spell-icon'
           }
         },
@@ -41,8 +64,8 @@ export default {
           input: {
             label: "sSpell",
             text: "",
-            max: 3000000,
-            balance: "3,000.00",
+            max: 0,
+            balance: "0",
             icon: 'sspell-icon'
           }
         },
@@ -51,15 +74,24 @@ export default {
       amountError: "",
       lockedUntil: false,
       spellUpdateInterval: null,
-    };
+    }
   },
   computed: {
     ...mapGetters({
       isLoadingsSpellStake: "getLoadingsSpellStake",
       account: "getAccount",
     }),
+    tokenObjByAction() {
+      return this.action === this.actions[0] ? this.info.stakeToken : this.info.mainToken;
+    },
+    info() {
+      return this.tokensInfo || {
+        stakeToken: {},
+        mainToken: {contractInstance: {users:()=>false}},
+        
+      };
+    },
     isUserLocked() {
-      console.log("isUserLocked")
       return (
         this.lockedUntil &&
         Number(this.lockedUntil) !== 0 &&
@@ -70,15 +102,13 @@ export default {
       return this.$store.getters.getSSpellObject;
     },
     fromToken() {
-      if (this.action === STAKE) return this.tokensInfo.stakeToken;
-      if (this.action === UNSTAKE) return this.tokensInfo.mainToken;
-
+      if (this.action === STAKE) return this.info.stakeToken;
+      if (this.action === UNSTAKE) return this.info.mainToken;
       return "";
     },
     toToken() {
-      if (this.action === STAKE) return this.tokensInfo.mainToken;
-      if (this.action === UNSTAKE) return this.tokensInfo.stakeToken;
-
+      if (this.action === STAKE) return this.info.mainToken;
+      if (this.action === UNSTAKE) return this.info.stakeToken;
       return "";
     },
     toTokenAmount() {
@@ -138,14 +168,30 @@ export default {
     async account() {
       if (this.account) {
         await this.createStakePool();
+        this.setInputs()
       }
     },
   },
   methods: {
+    setInputs() {
+      this.fillInputData(STAKE,{
+          balance: this.parceBalance(this.info.stakeToken.balance),
+          max: this.parceBalance(this.info.stakeToken.balance)
+        }),
+      this.fillInputData(UNSTAKE,{
+        balance: this.parceBalance(this.info.mainToken.balance),
+        max: this.parceBalance(this.info.mainToken.balance)
+      })
+    },
+    parceBalance(balance) {
+      return balance ? parseFloat(balance).toFixed(4) : 0
+    },
+    fillInputData(mode,data) {
+      this.inputs[mode].input = {...this.inputs[mode].input, ...data};
+    },
     toggleAction() {
       this.amount = "";
       this.amountError = "";
-      console.log(this.action)
       if (this.action === STAKE) {
         this.action = UNSTAKE;
         return false;
@@ -167,13 +213,15 @@ export default {
     },
     async getUserLocked() {
       try {
-        const infoResp = await this.tokensInfo.mainToken.contractInstance.users(
+        const infoResp = await this.info.mainToken.contractInstance.users(
           this.account,
           {
             gasLimit: 1000000,
           }
         );
-
+        if (!infoResp) {
+          return false
+        }
         const lockTimestamp = infoResp.lockedUntil.toString();
         const currentTimestamp = (Date.now() / 1000).toString();
 
@@ -207,7 +255,9 @@ export default {
       }
     },
     async stake() {
+
       console.log(STAKE);
+      
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
@@ -219,8 +269,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance.mint(
           amount,
@@ -300,21 +348,25 @@ export default {
         return false;
       }
     }
+    
   },
   async created() {
     await this.createStakePool();
+    this.setInputs();
     this.lockedUntil = await this.getUserLocked();
-    // this.spellUpdateInterval = setInterval(async () => {
-    //   await this.createStakePool();
-    //   this.lockedUntil = await this.getUserLocked();
-    // }, 15000);
+    this.spellUpdateInterval = setInterval(async () => {
+      await this.createStakePool();
+      this.lockedUntil = await this.getUserLocked();
+    }, 15000);
   },
+
   beforeDestroy() {
     clearInterval(this.spellUpdateInterval);
   },
   components: {
     StakeInputs,
-    Profile
+    Profile,
+    DefaultButton
   },
 };
 </script>

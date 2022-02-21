@@ -1,15 +1,14 @@
 <template>
   <div class="profile">
     <h1 class="title">STAKE</h1>
-    <ProfileInfo />
+    <ProfileInfo :tokens-info="tokensInfo" :locked-until="lockedUntil"  />
     <div class="profile-actions">
-      <DefaultButton primary disabled>Approve</DefaultButton>
-      <DefaultButton disabled>Stake</DefaultButton>
+      <slot name="buttons"></slot>
     </div>
     <div class="profile-subscribtion">
       <div class="profile-subscribtion__approximate">
         <div>Approximate staking APR</div>
-        <div>26.98%</div>
+        <div>{{(this.tokensInfo.apr || 0) + "%"}}</div>
       </div>
       <p>Make SPELL work for you! Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding. After each new deposit, all staked SPELL are subject to a 24H lock-up period!</p>
       <p>sSPELL automatically earns fees from MIM repayments from all wizards proportional to your share of the stake pool.</p>
@@ -18,12 +17,27 @@
 </template>
 
 <script>
-import DefaultButton from "@/components/main/DefaultButton.vue";
 const ProfileInfo = () => import("@/components/stake/ProfileInfo");
 
 export default {
   name: "Profile",
-  components: { ProfileInfo, DefaultButton },
+  components: { ProfileInfo },
+  props: {
+    tokensInfo: {
+      type: Object
+    },
+    lockedUntil: {
+      type: [String, Boolean]
+    }
+  },
+  methods: {
+    approve() {
+      this.$emit("approve");
+    },
+    stake() {
+      this.$emit("stake");
+    }
+  },
   data: () => ({}),
 };
 </script>
@@ -64,10 +78,11 @@ export default {
 }
 
 .profile-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 20px;
+  display: flex;
   margin-top: 92px;
+  & .default-button:last-child {
+    margin-left: auto;
+  }
 }
 
 </style>

@@ -41,21 +41,12 @@ export default {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner(this.account);
 
-        console.log("start", 
-          mainToken.address,
-          JSON.stringify(mainToken.abi),
-          signer
-        );
-        console.log("abi", 
-        );
-
         const mainTokenInstance = new this.$ethers.Contract(
           mainToken.address,
           JSON.stringify(mainToken.abi),
           signer
         );
         
-        console.log("end",mainTokenInstance);
 
         let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
 

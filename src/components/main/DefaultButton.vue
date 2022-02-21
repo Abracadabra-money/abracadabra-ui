@@ -1,6 +1,7 @@
 <template>
-  <a class="default-button" :style="{'width': setWidth()}" :class="{primary: primary, disabled: disabled}" @click="onClick">
-    <slot></slot>
+  <a class="default-button" :style="{'width': setWidth()}" :class="{primary: primary, disabled: (disabled || loading)}" @click="onClick">
+    <div><slot></slot></div>
+    <span v-if="loading" class="loader"></span>
   </a>
 </template>
 
@@ -9,6 +10,9 @@ export default {
   name: "Button",
   props: {
     primary: {
+      type: Boolean
+    },
+    loading: {
       type: Boolean
     },
     width: {
@@ -72,6 +76,57 @@ export default {
       color: rgba(255, 255, 255, 0.6);
     }
   }
+}
+.loader
+{
+    margin-left: 19px;
+    position: relative;
+    display: block;
+    width: 10px;
+    height: 30px;
+
+    -webkit-animation: rectangle infinite 1s ease-in-out -.2s;
+       -moz-animation: rectangle infinite 1s ease-in-out -.2s;
+         -o-animation: rectangle infinite 1s ease-in-out -.2s;
+            animation: rectangle infinite 1s ease-in-out -.2s;
+
+    background-color: #fff;
+}
+.loader:before,
+.loader:after
+{
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    content: '';
+
+    background-color: #fff;
+}
+.loader:before
+{
+    left: -10px;
+    animation: rectangle infinite 1s ease-in-out -.4s;
+}
+.loader:after
+{
+    right: -10px;
+    animation: rectangle infinite 1s ease-in-out;
+}
+
+@keyframes rectangle
+{
+    0%,
+    80%,
+    100%
+    {
+        height: 6px;
+    }
+    40%
+    {   
+        height: 8px;
+    }
 }
 </style>
 
