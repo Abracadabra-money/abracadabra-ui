@@ -7,6 +7,9 @@
       <router-link class="header-link" :to="{ name: 'Leverage' }"
         >Leverage</router-link
       >
+      <router-link class="header-link" :to="{ name: 'Stats' }"
+        >Stats</router-link
+      >
       <router-link class="header-link" :to="{ name: 'MyPositions' }"
         >Positions</router-link
       >
@@ -149,7 +152,7 @@ export default {
   top: 15px;
   left: 0;
   right: 0;
-  max-width: 860px;
+  max-width: 955px;
   margin: 0 auto;
   z-index: 10;
 }
