@@ -12,7 +12,7 @@
         <div class="input-balance">
           <p class="input-title">Token to bridge</p>
           <div class="balance">
-            <div>Balance: 100,000.00</div>
+            <div>Balance: {{ bridgeObject.balance }}</div>
           </div>
         </div>
         <ValueInput
@@ -170,7 +170,8 @@ export default {
     },
 
     disableBtn() {
-      // if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
+      if (this.bridgeObject.isDefaultProvider) return true;
+      if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
       // if (+this.amount === 0) return true;
 
       // return !!this.amountError;
@@ -283,13 +284,6 @@ export default {
 
         const tokenAddr = this.targetChainInfo.tokenAddr;
 
-        console.log("111111", tokenAddr);
-        console.log("222222", this.address);
-        console.log("333333", amount);
-        console.log("444444", toChainId);
-        console.log("555555", methodName);
-        console.log("666666", contract);
-
         const estimateGas = await contract.estimateGas[methodName](
           tokenAddr,
           this.address,
@@ -325,18 +319,6 @@ export default {
   },
 
   async created() {
-    if (!this.address) {
-      // const notification = {
-      //   msg: "Connect wallet first",
-      // };
-
-      alert("Connect wallet first");
-
-      // this.$store.commit("addNotification", notification);
-      //   this.$router.push({ name: "Home" });
-      return false;
-    }
-
     const acceptedNetworks = [43114, 1, 250, 56, 42161, 137];
 
     if (acceptedNetworks.indexOf(this.chainId) === -1) {

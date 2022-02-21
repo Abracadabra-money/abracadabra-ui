@@ -1,16 +1,23 @@
+import { ethers } from "ethers";
 import bridgeConfig from "@/utils/bridge/bridgeConfig";
 import mimToken from "@/utils/contracts/mimToken";
+import { mapGetters } from "vuex";
 
 export default {
+  data() {
+    return {
+      defaultProvider: null,
+    };
+  },
   computed: {
-    chainId() {
-      return this.$store.getters.getChainId;
-    },
+    ...mapGetters({
+      account: "getAccount",
+      chainId: "getChainId",
+      userSigner: "getSigner",
+    }),
+
     signer() {
-      return this.$store.getters.getSigner;
-    },
-    account() {
-      return this.$store.getters.getAccount;
+      return this.userSigner ? this.userSigner : this.defaultProvider;
     },
   },
   methods: {
@@ -43,8 +50,6 @@ export default {
         this.signer
       );
 
-      const balance = await this.getUserBalance(tokenContractInstance);
-
       const fromChains = bridgeConfig.map((configItem) => {
         return {
           chainId: configItem.chainId,
@@ -61,11 +66,23 @@ export default {
         };
       });
 
-      const isTokenApprove = await this.isTokenApprowed(
-        tokenContractInstance,
-        this.account,
-        bridgeInfo.contract.address
-      );
+      let balance, isTokenApprove, isDefaultProvider;
+
+      if (this.userSigner) {
+        balance = await this.getUserBalance(tokenContractInstance);
+
+        isTokenApprove = await this.isTokenApprowed(
+          tokenContractInstance,
+          this.account,
+          bridgeInfo.contract.address
+        );
+
+        isDefaultProvider = false;
+      } else {
+        balance = "Null";
+        isTokenApprove = false;
+        isDefaultProvider = true;
+      }
 
       const bridgeObject = {
         contractInstance,
@@ -76,6 +93,7 @@ export default {
         chainsInfo: bridgeInfo.chainsInfo,
         fromChains,
         toChains,
+        isDefaultProvider,
       };
 
       this.$store.commit("setBridgeObject", bridgeObject);
@@ -136,5 +154,11 @@ export default {
         return false;
       }
     },
+  },
+
+  async created() {
+    this.defaultProvider = new ethers.providers.JsonRpcProvider(
+      "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+    );
   },
 };
