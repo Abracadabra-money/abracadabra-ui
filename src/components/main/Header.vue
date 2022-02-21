@@ -1,9 +1,16 @@
 <template>
   <header class="header">
     <nav class="nav">
-      <router-link class="header-link" to="/">Borrow</router-link>
-      <router-link class="header-link" to="/about">Leverage</router-link>
-      <router-link class="header-link" to="/my-positions"
+      <router-link class="header-link" :to="{ name: 'Borrow' }"
+        >Borrow</router-link
+      >
+      <router-link class="header-link" :to="{ name: 'Leverage' }"
+        >Leverage</router-link
+      >
+      <router-link class="header-link" :to="{ name: 'Stats' }"
+        >Stats</router-link
+      >
+      <router-link class="header-link" :to="{ name: 'MyPositions' }"
         >Positions</router-link
       >
       <router-link class="header-link" :to="{ name: 'Farm' }">Farm</router-link>
@@ -22,12 +29,21 @@
           />
         </div>
         <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" to="/">Stake</router-link>
+          <router-link class="list-link" :to="{ name: 'Stake' }"
+            >Stake</router-link
+          >
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
-          <router-link class="list-link" to="/">Swap</router-link>
-          <a href="#" class="list-link" target="_blank">Analytics</a>
+          <a href="https://curve.fi/mim" class="list-link" target="_blank"
+            >Swap</a
+          >
+          <a
+            href="https://app.powerbi.com/view?r=eyJrIjoiOGFjN2QyMDgtMzRhMy00NDkzLTk2NDctNTBkZTQ0NzQ3ZjJkIiwidCI6IjYyZTU1MTgwLTQzNmQtNDYyZC1hMWIwLTZkMTg2NjRlZDAxNSJ9"
+            class="list-link"
+            target="_blank"
+            >Analytics</a
+          >
         </div>
       </div>
       <ConnectButton />
@@ -143,8 +159,9 @@ export default {
   top: 15px;
   left: 0;
   right: 0;
-  max-width: 860px;
+  max-width: 990px;
   margin: 0 auto;
+  padding: 0 15px;
   z-index: 10;
 }
 
@@ -296,7 +313,7 @@ export default {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .header-link {
     display: none;
   }
