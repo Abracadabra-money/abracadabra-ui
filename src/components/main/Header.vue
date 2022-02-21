@@ -152,8 +152,9 @@ export default {
   top: 15px;
   left: 0;
   right: 0;
-  max-width: 955px;
+  max-width: 990px;
   margin: 0 auto;
+  padding: 0 15px;
   z-index: 10;
 }
 
@@ -305,7 +306,7 @@ export default {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .header-link {
     display: none;
   }
