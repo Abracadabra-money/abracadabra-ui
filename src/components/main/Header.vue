@@ -1,9 +1,13 @@
 <template>
   <header class="header">
     <nav class="nav">
-      <router-link class="header-link" to="/">Borrow</router-link>
-      <router-link class="header-link" to="/about">Leverage</router-link>
-      <router-link class="header-link" to="/my-positions"
+      <router-link class="header-link" :to="{ name: 'Borrow' }"
+        >Borrow</router-link
+      >
+      <router-link class="header-link" :to="{ name: 'Leverage' }"
+        >Leverage</router-link
+      >
+      <router-link class="header-link" :to="{ name: 'MyPositions' }"
         >Positions</router-link
       >
       <router-link class="header-link" :to="{ name: 'Farm' }">Farm</router-link>
@@ -22,7 +26,9 @@
           />
         </div>
         <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" to="/">Stake</router-link>
+          <router-link class="list-link" :to="{ name: 'Stake' }"
+            >Stake</router-link
+          >
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
