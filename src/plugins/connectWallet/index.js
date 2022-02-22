@@ -35,35 +35,16 @@ const web3Modal = new Web3Modal({
  * If provider exist => store into vuex
  */
 
-const initWithoutConnect = async (chainId = 1) => {
+const initWithoutConnect = async () => {
+  const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
   const provider = new ethers.providers.JsonRpcProvider(
     walletconnect.options.rpc[chainId]
   );
 
   store.commit("setChainId", chainId);
   store.commit("setProvider", provider);
-  store.commit("setSigner", null);
   store.commit("setAccount", null);
-  store.commit("setWalletConnection", true);
 
-  const signer = provider;
-
-  window.ethereum.on("chainChanged", () => {
-    window.location.reload();
-  });
-
-  window.ethereum.on("accountsChanged", () => {
-    window.location.reload();
-  });
-
-  window.ethereum.on("disconnect", () => {
-    localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
-    web3Modal.clearCachedProvider();
-    window.location.reload();
-  });
-
-  store.commit("setProvider", provider);
-  store.commit("setSigner", signer);
   store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
   store.commit("setWalletConnection", true);
 };
@@ -143,6 +124,7 @@ setTimeout(async () => {
         store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
         store.commit("setWalletConnection", true);
       }
+      localStorage.removeItem("MAGIC_MONEY_CHAIN_ID");
     } catch (e) {
       console.log("ERROR:", e);
       localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
@@ -166,6 +148,7 @@ setTimeout(async () => {
     const accounts = await window.ethereum.request({ method: "eth_accounts" });
 
     if (accounts.length !== 0) {
+      localStorage.removeItem("MAGIC_MONEY_CHAIN_ID");
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const { chainId } = await provider.getNetwork();
       store.commit("setChainId", chainId);
@@ -196,7 +179,7 @@ setTimeout(async () => {
       store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
       store.commit("setWalletConnection", true);
     } else await initWithoutConnect();
-  }
+  } else await initWithoutConnect();
 
   store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
 }, 500);
