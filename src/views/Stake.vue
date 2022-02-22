@@ -4,7 +4,6 @@
       :mode="action" 
       :actions="actions"
       :modes="inputs"
-      v-model="inputValue"
       @toggleAction="toggleAction"
       @change="updateMainValue"
       :error="amountError"
@@ -12,7 +11,6 @@
     <Profile :tokens-info="info" :locked-until="lockedUntil">
       <template v-slot:buttons>
         <DefaultButton 
-          loading
           width="325px"
           @click="approveToken(info.stakeToken.contractInstance)" 
           primary 
@@ -22,15 +20,13 @@
         <DefaultButton
           width="325px"
           @click="actionHandler"
-          disabled
+          :disabled="amountError"
         > {{ action === actions[0] ? "Stake" : "Unstake" }} </DefaultButton>
       </template>
     </Profile>
   </div>
 </template>
-  components: {
-    
-  }
+  components: {}
 <script>
 
 const StakeInputs = () => import("@/components/stake/StakeInputs");
@@ -47,7 +43,6 @@ export default {
   mixins: [sspellToken],
   data() {
     return {
-      inputValue: "333",
       actions: [STAKE,UNSTAKE],
       action: STAKE,
       inputs: { 
@@ -128,34 +123,11 @@ export default {
       }
       return "";
     },
-    stakeTokenBalanceUsd() {
-      if (!this.tokensInfo.stakeToken.price) return false;
-      if (!+this.tokensInfo.stakeToken.balance) return 0;
-
-      const balanceInUsd =
-        +this.tokensInfo.stakeToken.balance * +this.tokensInfo.stakeToken.price;
-
-      return parseFloat(balanceInUsd).toFixed(6);
-    },
-    mainTokenBalanceUsd() {
-      if (!this.tokensInfo.mainToken.price) return false;
-      if (!+this.tokensInfo.mainToken.balance) return 0;
-
-      const balanceInUsd =
-        +this.tokensInfo.mainToken.balance * +this.tokensInfo.mainToken.price;
-
-      return parseFloat(balanceInUsd).toFixed(6);
-    },
     actionBtnText() {
       if (this.isUserLocked) return "Nothing to do";
       if (!+this.amount || this.amountError) return "Nothing to do";
 
       return this.action;
-    },
-    rateInfo() {
-      const sspel = this.tokensInfo.tokensRate;
-
-      return `1 sSpell = ${parseFloat(sspel).toFixed(4)} Spell`;
     },
   },
   watch: {

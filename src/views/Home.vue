@@ -1,16 +1,17 @@
 <template>
   <div class="home">
     <div class="home__content">
-      <h1 class="home__title">Magic.Money <br/> Make your Interest bearing assets liquid</h1>
+      <h1 class="home__title">Abracadabra.Money <br/> Make your Interest bearing assets liquid</h1>
       <div class="home__buttons">
         <DefaultButton 
           primary
-          :width="'270px'"
+          :width="'200px'"
           @click="mint">
           MINT
         </DefaultButton>
         <DefaultButton
-          :width="'270px'"
+          primary
+          :width="'200px'"
           @click="leverageUp">
           Leverage up
         </DefaultButton>
@@ -71,7 +72,13 @@ export default  {
     }
     &__buttons {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
+      &>a:first-child {
+        margin-right: 12px;
+      }
+      &>a:last-child {
+        margin-left: 12px;
+      }
     }
   }
 </style>

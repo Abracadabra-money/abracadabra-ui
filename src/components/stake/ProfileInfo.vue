@@ -9,9 +9,8 @@
         /></template>
       </div>
       <div  class="info-block">
-        <img class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
+        <img v-if="lockedUntil" class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
         <div v-if="lockedUntil">Unlock in {{lockedUntil}}h</div> 
-        <div v-else>Unlocked</div> 
       </div>
     </div>
     <div class="profile-data">
@@ -56,18 +55,25 @@ export default {
     isArray(item) {
         return Array.isArray(item);
     },
+    getUSDSumm(tokenName) {
+      if (!this.tokensInfo[tokenName].price) return false;
+      if (!+this.tokensInfo[tokenName].balance) return 0;
+      const balanceInUsd =
+        +this.tokensInfo[tokenName].balance * +this.tokensInfo[tokenName].price;
+      return this.toFixed(balanceInUsd,6);
+    },
     toFixed(num,range) {
-      return parseFloat(num).toFixed(range)
+      return parseFloat(num).toFixed(range) || 0;
     }
   },
   computed: {
     profileData() {
       return [
-        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.toFixed(this.tokensInfo.stakeToken.balance || 0,4), },
-        { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: this.toFixed(this.tokensInfo.mainToken.balance || 0,4),  },
+        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.getUSDSumm("stakeToken") + "$" },
+        { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: this.getUSDSumm("mainToken")  + "$" },
         { title: "Ratio",       icon: "spell-icon",  
-          text: `1 sSPELL = ${this.toFixed(this.tokensInfo.tokensRate || 0,4)} SPELL` },
-        { title: "Staking APR", icon: ["spell-icon","sspell-icon"], text: this.tokensInfo.apr || 0 + "%"  },
+          text: `1 sSPELL = ${this.toFixed(this.tokensInfo.tokensRate,4)} SPELL` },
+        { title: "Staking APR", icon: ["spell-icon","sspell-icon"], text: (this.tokensInfo.apr || 0) + "%"  },
       ]
     }
   },

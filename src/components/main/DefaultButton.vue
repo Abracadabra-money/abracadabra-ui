@@ -39,6 +39,7 @@ export default {
   cursor: pointer;
   position: relative;
   border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
   height: 50px;
   padding: 0 20px;
   display: flex;
@@ -63,7 +64,7 @@ export default {
       background: linear-gradient(90deg, #7C82FD 0%, #8EC2F9 100%);
     }
     &.disabled {
-      background: linear-gradient(107.5deg, rgba(85, 82, 253, 0.2) -3.19%, rgba(118, 195, 245, 0.2) 101.2%);
+      background:#2C2A35;
     }
   }
   &:not(.primary) {
@@ -81,14 +82,11 @@ export default {
 {
     margin-left: 19px;
     position: relative;
+    top: 2px;
     display: block;
     width: 10px;
     height: 30px;
-
-    -webkit-animation: rectangle infinite 1s ease-in-out -.2s;
-       -moz-animation: rectangle infinite 1s ease-in-out -.2s;
-         -o-animation: rectangle infinite 1s ease-in-out -.2s;
-            animation: rectangle infinite 1s ease-in-out -.2s;
+    animation: rectangle infinite 1s ease-in-out -.2s;
 
     background-color: #fff;
 }
