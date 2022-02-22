@@ -1,22 +1,17 @@
-import { ethers } from "ethers";
 import bridgeConfig from "@/utils/bridge/bridgeConfig";
 import mimToken from "@/utils/contracts/mimToken";
 import { mapGetters } from "vuex";
 
 export default {
-  data() {
-    return {
-      defaultProvider: null,
-    };
-  },
   computed: {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
       userSigner: "getSigner",
+      defaultProvider: "getProvider",
     }),
 
-    signer() {
+    contractProvider() {
       return this.userSigner ? this.userSigner : this.defaultProvider;
     },
   },
@@ -41,13 +36,13 @@ export default {
       const contractInstance = new this.$ethers.Contract(
         bridgeInfo.contract.address,
         JSON.stringify(bridgeInfo.contract.abi),
-        this.signer
+        this.contractProvider
       );
 
       const tokenContractInstance = new this.$ethers.Contract(
         mimInfo.address,
         JSON.stringify(mimInfo.abi),
-        this.signer
+        this.contractProvider
       );
 
       const fromChains = bridgeConfig.map((configItem) => {
@@ -154,11 +149,5 @@ export default {
         return false;
       }
     },
-  },
-
-  async created() {
-    this.defaultProvider = new ethers.providers.JsonRpcProvider(
-      "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
-    );
   },
 };

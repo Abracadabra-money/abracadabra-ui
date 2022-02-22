@@ -292,8 +292,6 @@ export default {
           toChainId
         );
 
-        console.log("!!!!!!!!!!!!!!!!", estimateGas);
-
         const gasLimit = 1000 + +estimateGas.toString();
 
         this.amount = "";
@@ -316,7 +314,6 @@ export default {
         console.log("SWAP ERR:", e);
       }
     },
-    // ----------------------------------
   },
 
   async created() {
