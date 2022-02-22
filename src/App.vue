@@ -12,22 +12,21 @@
 <script>
 import { mapGetters } from "vuex";
 
-const NotificationContainer = () => import("@/components/notifications/NotificationContainer");
+const NotificationContainer = () =>
+  import("@/components/notifications/NotificationContainer");
 const Header = () => import("@/components/main/Header");
 const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
 
 export default {
-  methods: {},
-  created() {},
   computed: {
     ...mapGetters({ checkInProcess: "getWalletIsConnected" }),
   },
   components: {
     Header,
     NotificationContainer,
-    PopupsWrapper
-  }
-}
+    PopupsWrapper,
+  },
+};
 </script>
 
 <style lang="scss" src="@/assets/styles/main.scss"></style>

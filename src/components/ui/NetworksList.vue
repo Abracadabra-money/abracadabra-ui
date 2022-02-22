@@ -53,7 +53,8 @@ export default {
     async changeNetwork(chainId) {
       this.loading = true;
       try {
-        await this.switchNetwork(chainId);
+        if (this.account) await this.switchNetwork(chainId);
+        else this.switchNetworkWithoutConnect(chainId);
       } catch (e) {
         console.log(e);
       } finally {
@@ -65,6 +66,7 @@ export default {
     ...mapGetters({
       availableNetworks: "getAvailableNetworks",
       chainId: "getChainId",
+      account: "getAccount",
     }),
     networks() {
       return this.activeChain
