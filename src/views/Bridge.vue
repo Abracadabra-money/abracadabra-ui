@@ -226,7 +226,8 @@ export default {
     },
 
     switchChain() {
-      this.switchNetwork(this.activeTo.chainId);
+      if (this.address) this.switchNetwork(this.activeTo.chainId);
+      else this.switchNetworkWithoutConnect(this.activeTo.chainId);
     },
     // ----------------------------------
 
@@ -419,7 +420,7 @@ export default {
   width: 100%;
   padding: 12px 10px 7px;
   background: rgba(255, 255, 255, 0.04);
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+  box-shadow: 0 1px 10px rgba(1, 1, 1, 0.05);
   backdrop-filter: blur(100px);
   border-radius: 20px;
   margin-top: 30px;

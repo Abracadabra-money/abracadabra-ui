@@ -171,6 +171,7 @@ export default {
 }
 
 .header-link {
+  text-align: center;
   background: #ffffff0f;
   backdrop-filter: blur(40px);
   border-radius: 20px;

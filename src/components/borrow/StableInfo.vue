@@ -8,7 +8,11 @@
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></template>
       </div>
-      <button class="info-btn" @click="isInfoPressed = !isInfoPressed">
+      <button
+        :disabled="isEmpty"
+        class="info-btn"
+        @click="isInfoPressed = !isInfoPressed"
+      >
         <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
       </button>
     </div>
@@ -140,6 +144,10 @@ export default {
       .info-icon {
         width: 24px;
         height: 24px;
+      }
+
+      &:disabled {
+        cursor: default;
       }
     }
   }

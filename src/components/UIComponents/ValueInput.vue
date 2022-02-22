@@ -114,18 +114,18 @@ export default {
   border-radius: 20px;
   flex-wrap: wrap;
   padding: 8px 10px 0 10px;
-  outline-offset: -1px;
-  transition: outline-color 0.1s, box-shadow 0.1s;
+  border: 1px solid rgba(0, 0, 0, 0);
+  transition: border-color 0.1s, box-shadow 0.1s;
 
   &:focus-within {
-    outline-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.05);
     box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.1);
   }
 }
 
 .val-input-error,
 .val-input-error:focus-within {
-  outline-color: $clrErrorBorder;
+  border-color: $clrErrorBorder;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
