@@ -34,6 +34,40 @@ const web3Modal = new Web3Modal({
  * Check chached provider and try to connect.
  * If provider exist => store into vuex
  */
+
+const initWithoutConnect = async (chainId = 1) => {
+  const provider = new ethers.providers.JsonRpcProvider(
+    walletconnect.options.rpc[chainId]
+  );
+
+  store.commit("setChainId", chainId);
+  store.commit("setProvider", provider);
+  store.commit("setSigner", null);
+  store.commit("setAccount", null);
+  store.commit("setWalletConnection", true);
+
+  const signer = provider;
+
+  window.ethereum.on("chainChanged", () => {
+    window.location.reload();
+  });
+
+  window.ethereum.on("accountsChanged", () => {
+    window.location.reload();
+  });
+
+  window.ethereum.on("disconnect", () => {
+    localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
+    web3Modal.clearCachedProvider();
+    window.location.reload();
+  });
+
+  store.commit("setProvider", provider);
+  store.commit("setSigner", signer);
+  store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
+  store.commit("setWalletConnection", true);
+};
+
 setTimeout(async () => {
   const { cachedProvider } = web3Modal.providerController;
 
@@ -131,15 +165,15 @@ setTimeout(async () => {
     store.commit("setMetamaskActive", true);
     const accounts = await window.ethereum.request({ method: "eth_accounts" });
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const { chainId } = await provider.getNetwork();
-    store.commit("setChainId", chainId);
-    store.commit("setProvider", provider);
-    store.commit("setSigner", null);
-    store.commit("setAccount", null);
-    store.commit("setWalletConnection", true);
-
     if (accounts.length !== 0) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const { chainId } = await provider.getNetwork();
+      store.commit("setChainId", chainId);
+      store.commit("setProvider", provider);
+      store.commit("setSigner", null);
+      store.commit("setAccount", null);
+      store.commit("setWalletConnection", true);
+
       const signer = provider.getSigner(accounts[0]);
 
       window.ethereum.on("chainChanged", () => {
@@ -161,7 +195,7 @@ setTimeout(async () => {
       store.commit("setAccount", accounts[0]);
       store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
       store.commit("setWalletConnection", true);
-    }
+    } else await initWithoutConnect();
   }
 
   store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);

@@ -38,5 +38,8 @@ export default {
         params: [network.switchData],
       });
     },
+    switchNetworkWithoutConnect(chainId) {
+      console.log(`switch ${chainId}`);
+    },
   },
 };
