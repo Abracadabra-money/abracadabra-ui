@@ -8,7 +8,9 @@
 <script>
 const ChooseChain = () => import("@/components/borrow/ChooseChain");
 const StableCoins = () => import("@/components/borrow/StableCoins");
+import borrowPoolsMixin from "@/mixins/borrowPools.js";
 export default {
+  mixins: [borrowPoolsMixin],
   components: {
     ChooseChain,
     StableCoins,
