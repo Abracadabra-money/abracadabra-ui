@@ -1,23 +1,11 @@
 import farmPools from "@/utils/farmPools/pools";
-import { numberWithCommas } from "../helpers/helpers";
+import { getFarmAddressByName, numberWithCommas } from "../helpers/farmHelper";
 import { getTokenPriceByAddress } from "../helpers/priceHelper";
 import { mapMutations } from "vuex";
 import { ethers } from "ethers";
 import store from "../store";
 
 export default {
-  data() {
-    return {
-      prices: {
-        spellPrice: null,
-        mimPrice: null,
-        icePrice: null,
-        wethPrice: null,
-        ohmPrice: null,
-        timePrice: null,
-      },
-    };
-  },
   computed: {
     chainId() {
       return this.$store.getters.getChainId;
@@ -41,6 +29,11 @@ export default {
   },
   methods: {
     ...mapMutations({ setLoadingPoolsFarm: "setLoadingPoolsFarm" }),
+    async priceByName(name) {
+      return await getTokenPriceByAddress(this.chainId, [
+        getFarmAddressByName(name),
+      ]);
+    },
     async createFarmPools() {
       if (!this.pools.length) {
         this.setLoadingPoolsFarm(true);
@@ -87,8 +80,7 @@ export default {
       );
 
       if (farmPoolInfo.id === 1) {
-        //??????????????????
-        tokenPrice = await this.getTokenPrice("Spell");
+        tokenPrice = await this.priceByName("Spell");
       }
 
       if (farmPoolInfo.depositedBalance) {
@@ -96,12 +88,12 @@ export default {
           await erc20ContractInstance.getReserves();
 
         //MIM or SPELL
-        let token0Price = await this.getTokenPrice(
+        let token0Price = await this.priceByName(
           farmPoolInfo.depositedBalance.token0.name
         );
 
         // ETH always
-        let token1Price = await this.getTokenPrice("WETH");
+        let token1Price = await this.priceByName("WETH");
 
         const token0Amount = this.$ethers.utils.formatUnits(_reserve0, 18);
 
@@ -177,15 +169,16 @@ export default {
         this.signer
       );
 
-      let tokenPrice = await this.getTokenPrice(farmPoolInfo.token.name);
-      let spellPrice = await this.getTokenPrice("Spell");
+      let tokenPrice = await this.priceByName(farmPoolInfo.token.name);
+
+      let spellPrice = await this.priceByName("Spell");
 
       if (farmPoolInfo.id === 3) {
-        tokenPrice = await this.getTokenPrice("Spell");
+        tokenPrice = await this.priceByName("Spell");
       }
 
       if (farmPoolInfo.id === 1) {
-        tokenPrice = await this.getTokenPrice("MIM");
+        tokenPrice = await this.priceByName("MIM");
       }
 
       let { lpYield, lpPrice } = await this.getLPYield(
@@ -385,48 +378,6 @@ export default {
         return +result > 0;
       } catch (error) {
         console.log("getAllowance:", error);
-      }
-    },
-    async getTokenPrice(token) {
-      if (token === "ICE") {
-        if (this.prices.icePrice) return this.prices.icePrice;
-
-        const priceResp = await getTokenPriceByAddress(this.chainId, token);
-        this.prices.icePrice = priceResp;
-        return priceResp;
-      } else if (token === "MIM") {
-        if (this.prices.mimPrice) return this.prices.mimPrice;
-
-        const priceResp = await getTokenPriceByAddress(this.chainId, token);
-
-        this.prices.mimPrice = priceResp;
-        return priceResp;
-      } else if (token === "Spell" || token === "SPELL") {
-        if (this.prices.spellPrice) return this.prices.spellPrice;
-
-        const priceResp = await getTokenPriceByAddress(this.chainId, token);
-
-        this.prices.spellPrice = priceResp;
-        return priceResp;
-      } else if (token === "WETH") {
-        if (this.prices.wethPrice) return this.prices.wethPrice;
-        const priceResp = await getTokenPriceByAddress(this.chainId, token);
-        this.prices.wethPrice = priceResp;
-        return priceResp;
-      } else if (token === "OHM") {
-        if (this.prices.ohmPrice) return this.prices.ohmPrice;
-
-        const priceResp = await getTokenPriceByAddress(this.chainId, token);
-        this.prices.ohmPrice = priceResp;
-        return priceResp;
-      } else if (token === "TIME") {
-        if (this.prices.timePrice) return this.prices.timePrice;
-
-        const priceResp = await getTokenPriceByAddress(this.chainId, token);
-        this.prices.timePrice = priceResp;
-        return priceResp;
-      } else {
-        return await getTokenPriceByAddress(this.chainId, token);
       }
     },
   },
