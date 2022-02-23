@@ -1,6 +1,7 @@
 import Web3 from "web3";
 const web3 = new Web3();
 import farmPools from "@/utils/farmPools/pools";
+import store from "../store";
 
 export const fromWei = (value, weiFormat) => {
   return web3.utils.fromWei(value, weiFormat);
@@ -29,5 +30,12 @@ export const getFarmAddressByName = (name) => {
   if (exceptAddress) return exceptAddress;
   return (
     farmPools.find(({ name: poolName }) => poolName === name)?.address || null
+  );
+};
+
+export const getRpcById = (chainId) => {
+  return (
+    store.getters.getAvailableNetworks.find(({ chainId: id }) => id === chainId)
+      ?.rpc || null
   );
 };

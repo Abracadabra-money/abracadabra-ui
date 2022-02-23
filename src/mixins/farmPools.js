@@ -1,9 +1,12 @@
 import farmPools from "@/utils/farmPools/pools";
-import { getFarmAddressByName, numberWithCommas } from "../helpers/farmHelper";
+import {
+  getFarmAddressByName,
+  getRpcById,
+  numberWithCommas,
+} from "../helpers/farmHelper";
 import { getTokenPriceByAddress } from "../helpers/priceHelper";
 import { mapMutations } from "vuex";
 import { ethers } from "ethers";
-import store from "../store";
 
 export default {
   computed: {
@@ -13,11 +16,7 @@ export default {
     signer() {
       return (
         this.$store.getters.getSigner ||
-        new ethers.providers.JsonRpcProvider(
-          store.getters.getAvailableNetworks.find(
-            ({ chainId: id }) => id === this.chainId
-          )?.rpc
-        )
+        new ethers.providers.JsonRpcProvider(getRpcById(this.chainId))
       );
     },
     account() {
