@@ -38,5 +38,9 @@ export default {
         params: [network.switchData],
       });
     },
+    switchNetworkWithoutConnect(chainId) {
+      localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
+      window.location.reload();
+    },
   },
 };

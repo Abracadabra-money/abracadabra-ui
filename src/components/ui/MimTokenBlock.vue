@@ -119,7 +119,7 @@ export default {
   cursor: initial;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .mim-wrap {
     z-index: 11;
   }

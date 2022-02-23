@@ -1,16 +1,18 @@
 import bridgeConfig from "@/utils/bridge/bridgeConfig";
 import mimToken from "@/utils/contracts/mimToken";
+import { mapGetters } from "vuex";
 
 export default {
   computed: {
-    chainId() {
-      return this.$store.getters.getChainId;
-    },
-    signer() {
-      return this.$store.getters.getSigner;
-    },
-    account() {
-      return this.$store.getters.getAccount;
+    ...mapGetters({
+      account: "getAccount",
+      chainId: "getChainId",
+      userSigner: "getSigner",
+      defaultProvider: "getProvider",
+    }),
+
+    contractProvider() {
+      return this.userSigner ? this.userSigner : this.defaultProvider;
     },
   },
   methods: {
@@ -34,16 +36,14 @@ export default {
       const contractInstance = new this.$ethers.Contract(
         bridgeInfo.contract.address,
         JSON.stringify(bridgeInfo.contract.abi),
-        this.signer
+        this.contractProvider
       );
 
       const tokenContractInstance = new this.$ethers.Contract(
         mimInfo.address,
         JSON.stringify(mimInfo.abi),
-        this.signer
+        this.contractProvider
       );
-
-      const balance = await this.getUserBalance(tokenContractInstance);
 
       const fromChains = bridgeConfig.map((configItem) => {
         return {
@@ -61,11 +61,23 @@ export default {
         };
       });
 
-      const isTokenApprove = await this.isTokenApprowed(
-        tokenContractInstance,
-        this.account,
-        bridgeInfo.contract.address
-      );
+      let balance, isTokenApprove, isDefaultProvider;
+
+      if (this.userSigner) {
+        balance = await this.getUserBalance(tokenContractInstance);
+
+        isTokenApprove = await this.isTokenApprowed(
+          tokenContractInstance,
+          this.account,
+          bridgeInfo.contract.address
+        );
+
+        isDefaultProvider = false;
+      } else {
+        balance = "Null";
+        isTokenApprove = false;
+        isDefaultProvider = true;
+      }
 
       const bridgeObject = {
         contractInstance,
@@ -76,6 +88,7 @@ export default {
         chainsInfo: bridgeInfo.chainsInfo,
         fromChains,
         toChains,
+        isDefaultProvider,
       };
 
       this.$store.commit("setBridgeObject", bridgeObject);

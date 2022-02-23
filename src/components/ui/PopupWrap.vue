@@ -1,6 +1,6 @@
 <template>
   <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div class="popup" @click.stop :style="{ maxWidth }">
+    <div class="popup" @click.stop :style="{ maxWidth, height }">
       <div class="popup-content">
         <button class="close-btn" @click="closePopup">
           <img
@@ -26,6 +26,10 @@ export default {
     maxWidth: {
       type: String,
       default: "300px",
+    },
+    height: {
+      type: String,
+      default: "480px",
     },
   },
   methods: {
@@ -70,7 +74,6 @@ export default {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   position: relative;
-  height: 480px;
 
   .popup-content {
     height: 100%;
