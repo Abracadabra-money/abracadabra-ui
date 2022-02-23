@@ -60,7 +60,10 @@ const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const DefaultButton = () => import("@/components/main/DefaultButton.vue");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
+import farmPoolsMixin from "../mixins/farmPools";
+
 export default {
+  mixins: [farmPoolsMixin],
   data() {
     return {
       tokenChainId: null,
@@ -68,7 +71,11 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({ networks: "getAvailableNetworks" }),
+    ...mapGetters({
+      networks: "getAvailableNetworks",
+      address: "getAccount",
+      pools: "getFarmPools",
+    }),
     selectedToken() {
       return (
         this.networks.find(({ chainId }) => chainId === this.tokenChainId) ||
@@ -82,7 +89,22 @@ export default {
         : require("@/assets/images/select.svg");
     },
   },
+  watch: {
+    async address() {
+      if (this.address) {
+        await this.createFarmPools();
+      }
+    },
+  },
+  async created() {
+    if (!this.pools.length) {
+      await this.createFarmPools();
+    }
 
+    this.farmPoolsTimer = setInterval(async () => {
+      await this.createFarmPools();
+    }, 10000);
+  },
   components: {
     NetworksList,
     ValueInput,

@@ -8,15 +8,6 @@ import store from "../../store";
 // WALLETCONNECT
 const walletconnect = {
   package: WalletConnectProvider,
-  options: {
-    rpc: {
-      1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-      56: "https://bsc-dataseed.binance.org/",
-      250: "https://rpc.ftm.tools/",
-      42161: "https://arb1.arbitrum.io/rpc",
-      43114: "https://api.avax.network/ext/bc/C/rpc",
-    },
-  },
 };
 
 const providerOptions = {
@@ -38,7 +29,9 @@ const web3Modal = new Web3Modal({
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
   const provider = new ethers.providers.JsonRpcProvider(
-    walletconnect.options.rpc[chainId]
+    store.getters.getAvailableNetworks.find(
+      ({ chainId: id }) => id === chainId
+    )?.rpc
   );
 
   store.commit("setChainId", chainId);
