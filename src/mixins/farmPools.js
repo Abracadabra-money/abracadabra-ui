@@ -1,5 +1,6 @@
 import farmPools from "@/utils/farmPools/pools";
-import { numberWithCommas, tokenPrices } from "../utils/helpers";
+import { numberWithCommas } from "../helpers/helpers";
+import { getTokenPriceByAddress } from "../helpers/priceHelper";
 import { mapMutations } from "vuex";
 import { ethers } from "ethers";
 import store from "../store";
@@ -228,7 +229,6 @@ export default {
         );
       }
 
-      //.. const poolYieldPerDollar = parseFloat(poolYield).toFixed(2);
       let poolRoi = await this.getRoi(poolYield, tokenPrice);
 
       if (farmPoolInfo.id === 1) {
@@ -388,68 +388,46 @@ export default {
       }
     },
     async getTokenPrice(token) {
-      if (token === "CRV") {
-        const priceResp = await tokenPrices(["curve-dao-token"]);
-        return priceResp["curve-dao-token"];
-      }
-
-      if (token === "CVX") {
-        const priceResp = await tokenPrices(["convex-finance"]);
-        return priceResp["convex-finance"];
-      }
-
       if (token === "ICE") {
         if (this.prices.icePrice) return this.prices.icePrice;
 
-        const priceResp = await tokenPrices(["ice"]);
-        this.prices.icePrice = priceResp.ice;
-        return priceResp.ice;
-      }
-
-      if (token === "MIM") {
+        const priceResp = await getTokenPriceByAddress(this.chainId, token);
+        this.prices.icePrice = priceResp;
+        return priceResp;
+      } else if (token === "MIM") {
         if (this.prices.mimPrice) return this.prices.mimPrice;
 
-        const priceResp = await tokenPrices(["mim"]);
+        const priceResp = await getTokenPriceByAddress(this.chainId, token);
 
-        this.prices.mimPrice = priceResp.mim;
-        return priceResp.mim;
-      }
-
-      if (token === "Spell" || token === "SPELL") {
+        this.prices.mimPrice = priceResp;
+        return priceResp;
+      } else if (token === "Spell" || token === "SPELL") {
         if (this.prices.spellPrice) return this.prices.spellPrice;
 
-        const priceResp = await tokenPrices(["spell"]);
+        const priceResp = await getTokenPriceByAddress(this.chainId, token);
 
-        this.prices.spellPrice = priceResp.spell;
-        return priceResp.spell;
-      }
-
-      if (token === "WETH") {
+        this.prices.spellPrice = priceResp;
+        return priceResp;
+      } else if (token === "WETH") {
         if (this.prices.wethPrice) return this.prices.wethPrice;
-        const priceResp = await tokenPrices(["weth"]);
-        this.prices.wethPrice = priceResp.weth;
-        return priceResp.weth;
-      }
-
-      if (token === "OHM") {
+        const priceResp = await getTokenPriceByAddress(this.chainId, token);
+        this.prices.wethPrice = priceResp;
+        return priceResp;
+      } else if (token === "OHM") {
         if (this.prices.ohmPrice) return this.prices.ohmPrice;
 
-        const priceResp = await tokenPrices(["olympus"]);
-        this.prices.ohmPrice = priceResp.olympus;
-        return priceResp.olympus;
-      }
-
-      if (token === "TIME") {
+        const priceResp = await getTokenPriceByAddress(this.chainId, token);
+        this.prices.ohmPrice = priceResp;
+        return priceResp;
+      } else if (token === "TIME") {
         if (this.prices.timePrice) return this.prices.timePrice;
 
-        const priceResp = await tokenPrices(["wonderland"]);
-        this.prices.timePrice = priceResp.wonderland;
-        return priceResp.wonderland;
+        const priceResp = await getTokenPriceByAddress(this.chainId, token);
+        this.prices.timePrice = priceResp;
+        return priceResp;
+      } else {
+        return await getTokenPriceByAddress(this.chainId, token);
       }
-
-      // if (token === "MIM") {
-      //   return 1;
-      // }
     },
   },
 };
