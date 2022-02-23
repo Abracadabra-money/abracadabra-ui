@@ -63,7 +63,10 @@ export default {
       return this.toFixed(balanceInUsd,6);
     },
     toFixed(num,range) {
-      return parseFloat(num).toFixed(range) || 0;
+      let fixed = parseFloat(num).toFixed(range);
+      fixed = isNaN(fixed) ? 0 : fixed;
+      console.log(fixed)
+      return fixed || 0;
     }
   },
   computed: {
