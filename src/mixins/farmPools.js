@@ -240,7 +240,7 @@ export default {
             tokenPrice,
             lpPrice,
           })
-        : {};
+        : null;
 
       return {
         name: farmPoolInfo.name,
@@ -262,7 +262,7 @@ export default {
         poolRoi,
         poolTvl,
         tokenName: farmPoolInfo.token.name,
-        ...userData,
+        userData,
       };
     },
     async getFarmPoolYield() {
