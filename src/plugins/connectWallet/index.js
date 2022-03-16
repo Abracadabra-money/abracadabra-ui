@@ -4,7 +4,6 @@ import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import store from "../../store";
-import { getRpcById } from "../../helpers/farmHelper";
 
 // WALLETCONNECT
 const walletconnect = {
@@ -29,7 +28,9 @@ const web3Modal = new Web3Modal({
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
-  const provider = new ethers.providers.JsonRpcProvider(getRpcById(chainId));
+  const provider = new ethers.providers.JsonRpcProvider(
+    store.getters.getRpcById(chainId)
+  );
 
   store.commit("setChainId", chainId);
   store.commit("setProvider", provider);

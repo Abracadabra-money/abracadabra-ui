@@ -1,9 +1,4 @@
 import farmPools from "@/utils/farmPools/pools";
-import {
-  getFarmAddressByName,
-  getRpcById,
-  numberWithCommas,
-} from "../helpers/farmHelper";
 import { getTokenPriceByAddress } from "../helpers/priceHelper";
 import { mapMutations } from "vuex";
 import { ethers } from "ethers";
@@ -16,7 +11,9 @@ export default {
     signer() {
       return (
         this.$store.getters.getSigner ||
-        new ethers.providers.JsonRpcProvider(getRpcById(this.chainId))
+        new ethers.providers.JsonRpcProvider(
+          this.$store.getters.getRpcById(this.chainId)
+        )
       );
     },
     account() {
@@ -28,9 +25,22 @@ export default {
   },
   methods: {
     ...mapMutations({ setLoadingPoolsFarm: "setLoadingPoolsFarm" }),
+    getFarmAddressByName(name) {
+      const exceptPriceAddresses = {
+        SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
+        MIM: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+        WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      };
+      const exceptAddress = exceptPriceAddresses[name.toUpperCase()];
+      if (exceptAddress) return exceptAddress;
+      return (
+        farmPools.find(({ name: poolName }) => poolName === name)?.address ||
+        null
+      );
+    },
     async priceByName(name) {
       return await getTokenPriceByAddress(this.chainId, [
-        getFarmAddressByName(name),
+        this.getFarmAddressByName(name),
       ]);
     },
     async createFarmPools() {
@@ -362,7 +372,9 @@ export default {
 
         const tvl = parseFloat(ttl.toString()) * parseFloat(price.toString());
 
-        return numberWithCommas(parseInt(tvl));
+        return parseInt(tvl)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       } catch (error) {
         console.log(error);
       }

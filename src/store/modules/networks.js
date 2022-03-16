@@ -120,5 +120,10 @@ export default {
   },
   getters: {
     getAvailableNetworks: (state) => state.networks,
+    getRpcById: (state) => (chainId) => {
+      return (
+        state.networks.find(({ chainId: id }) => id === chainId)?.rpc || null
+      );
+    },
   },
 };
