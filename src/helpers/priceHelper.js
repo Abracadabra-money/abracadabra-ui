@@ -15,6 +15,35 @@ const config = {
   },
 };
 
+const getTokensArrayPrices = async (chainId, addressArr) => {
+  try {
+    const chainCoinGeckoId = chainCoinGeckoIds[chainId];
+
+    if (!chainCoinGeckoId) return false;
+
+    const pricesResponse = await axios.get(
+      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
+      config
+    );
+
+    const respToArray = [];
+
+    for (const property in pricesResponse.data) {
+      //   console.log(`${property}: ${pricesResponse.data[property].usd}`);
+
+      respToArray.push({
+        address: property.toLowerCase(),
+        price: pricesResponse.data[property].usd,
+      });
+    }
+
+    return respToArray;
+  } catch (e) {
+    console.log("TOKEN PRICE ERR:", e);
+    return false;
+  }
+};
+
 const getTokenPriceByAddress = async (chainId, address) => {
   try {
     const chainCoinGeckoId = chainCoinGeckoIds[chainId];
@@ -26,8 +55,13 @@ const getTokenPriceByAddress = async (chainId, address) => {
       config
     );
 
-    const price =
-      Object.values(pricesResponse.data).find((data) => data?.usd)?.usd || null;
+    let price = null;
+
+    for (const property in pricesResponse.data) {
+      console.log(`${property}: ${pricesResponse.data[property].usd}`);
+
+      price = pricesResponse.data[property]?.usd;
+    }
 
     console.log("pricesResponse", price);
     return price;
@@ -37,4 +71,4 @@ const getTokenPriceByAddress = async (chainId, address) => {
   }
 };
 
-export { getTokenPriceByAddress };
+export { getTokenPriceByAddress, getTokensArrayPrices };
