@@ -66,12 +66,9 @@ export default {
       erc20ContractInstance,
       farmPoolInfo,
       contractInstance,
-      tokenPrice: rawTokenPrice,
       lpPrice,
     }) {
-      let tokensBalanceInfo = null,
-        // eslint-disable-next-line no-unused-vars
-        tokenPrice = rawTokenPrice;
+      let tokensBalanceInfo = null;
 
       const allowance = await this.getAllowance(
         erc20ContractInstance,
@@ -87,10 +84,6 @@ export default {
         farmPoolInfo.poolId,
         this.account
       );
-
-      if (farmPoolInfo.id === 1) {
-        tokenPrice = await this.priceByName("Spell");
-      }
 
       if (farmPoolInfo.depositedBalance) {
         const { _reserve0, _reserve1 } =
@@ -178,17 +171,15 @@ export default {
         this.signer
       );
 
-      let tokenPrice = await this.priceByName(farmPoolInfo.token.name);
+      let tokenPrice = await this.priceByName(
+        farmPoolInfo.id === 3 || (this.account && farmPoolInfo.id === 1)
+          ? "Spell"
+          : farmPoolInfo.id === 1
+          ? "MIM"
+          : farmPoolInfo.token.name
+      );
 
       let spellPrice = await this.priceByName("Spell");
-
-      if (farmPoolInfo.id === 3) {
-        tokenPrice = await this.priceByName("Spell");
-      }
-
-      if (farmPoolInfo.id === 1) {
-        tokenPrice = await this.priceByName("MIM");
-      }
 
       let { lpYield, lpPrice } = await this.getLPYield(
         poolInfo.stakingToken,
@@ -231,11 +222,10 @@ export default {
         );
       }
 
-      let poolRoi = await this.getRoi(poolYield, tokenPrice);
-
-      if (farmPoolInfo.id === 1) {
-        poolRoi = await this.getRoi(poolYield, spellPrice);
-      }
+      let poolRoi = await this.getRoi(
+        poolYield,
+        farmPoolInfo.id === 1 ? spellPrice : tokenPrice
+      );
 
       const poolTvl = await this.getTVL(
         poolInfo.stakingTokenTotalAmount,
@@ -247,7 +237,6 @@ export default {
             erc20ContractInstance,
             farmPoolInfo,
             contractInstance,
-            tokenPrice,
             lpPrice,
           })
         : null;
