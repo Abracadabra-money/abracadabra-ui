@@ -38,6 +38,8 @@ export default {
         chainPools.map((pool) => this.createPool(pool))
       );
 
+      console.log("pools", pools);
+
       this.$store.commit("setPools", pools);
       this.setLoadingPoolsBorrow(false);
     },
@@ -443,89 +445,12 @@ export default {
         pool.token.decimals
       );
 
-      let userInfo = null;
-      if (this.account) {
-        const { userBorrowPart, contractBorrowPart } =
-          await this.getUserBorrowPart(poolContract);
-
-        let userBalance = await this.getUserBalance(tokenContract);
-
-        let userPairBalance = await this.getUserPairBalance(pairTokenContract);
-
-        const networkBalance = await this.contractProvider.getBalance();
-
-        let claimableReward;
-
-        const claimablePools = [15, 16, 18, 24, 25];
-
-        if (this.chainId === 1 && claimablePools.indexOf(pool.id) !== -1) {
-          claimableReward = await this.getClaimableReward(
-            tokenContract,
-            pool.token.decimals
-          );
-        }
-
-        let maxWithdrawAmount = -1;
-
-        const itsDontHaveStrategy =
-          ((pool.id === 27 || pool.id === 28) && this.chainId === "0x01") ||
-          (pool.id === 8 && this.chainId === "0xa86a") ||
-          ((pool.id === 6 || pool.id === 5) && this.chainId === "0xfa");
-
-        if (pool.isDegenBox && !itsDontHaveStrategy) {
-          const tokenWithdrawAmount = await tokenContract.balanceOf(
-            bentoBoxAddress
-          );
-
-          maxWithdrawAmount = this.$ethers.utils.formatUnits(
-            tokenWithdrawAmount,
-            pool.token.decimals
-          );
-        }
-
-        const userCollateralShare = await this.getUserCollateralShare(
-          masterContract,
-          poolContract,
-          pool.token.decimals,
-          pool.token.address
-        );
-
-        const liquidationPrice = this.getLiquidationPrice(
-          userCollateralShare,
-          userBorrowPart,
-          pool.ltv
-        );
-
-        let collateralLockTimestamp = null;
-
-        if ((pool.id === 11 || pool.id === 22) && this.chainId === 1) {
-          collateralLockTimestamp = await this.checkIsUserCollateralLocked(
-            tokenContract
-          );
-        }
-
-        userInfo = {
-          userBorrowPart,
-          contractBorrowPart,
-          userBalance,
-          userPairBalance,
-          networkBalance,
-          claimableReward,
-          maxWithdrawAmount,
-          userCollateralShare,
-          liquidationPrice,
-          userLockedTimestamp: collateralLockTimestamp,
-          contractBorrowPartParsed: this.$ethers.utils.formatUnits(
-            contractBorrowPart.toString()
-          ),
-        };
-      }
-
-      return {
+      let poolData = {
         name: pool.name,
         image: pool.image,
         id: pool.id,
         isDegenBox: pool.isDegenBox,
+        bentoBoxAddress,
         isDepreciated: pool.isDepreciated,
         isSwappersActive: pool.isSwappersActive,
         hasStrategy: pool.hasStrategy,
@@ -555,12 +480,100 @@ export default {
           decimals: pool.token.decimals,
           oracleExchangeRate: tokenPairRate,
         },
-        userInfo,
+        userInfo: null,
         swapContract,
         reverseSwapContract,
       };
+
+      if (this.account) {
+        return await this.getUserInfo(poolData);
+      } else {
+        return poolData;
+      }
+    },
+    // fetch
+    async getUserInfo(pool) {
+      const { userBorrowPart, contractBorrowPart } =
+        await this.getUserBorrowPart(pool.contractInstance);
+
+      let userBalance = await this.getUserBalance(pool.token.contract);
+
+      let userPairBalance = await this.getUserPairBalance(
+        pool.pairTokenContract
+      );
+
+      const networkBalance = await this.contractProvider.getBalance();
+
+      let claimableReward;
+
+      const claimablePools = [15, 16, 18, 24, 25];
+
+      if (this.chainId === 1 && claimablePools.indexOf(pool.id) !== -1) {
+        claimableReward = await this.getClaimableReward(
+          pool.token.contract,
+          pool.token.decimals
+        );
+      }
+
+      let maxWithdrawAmount = -1;
+
+      const itsDontHaveStrategy =
+        ((pool.id === 27 || pool.id === 28) && this.chainId === "0x01") ||
+        (pool.id === 8 && this.chainId === "0xa86a") ||
+        ((pool.id === 6 || pool.id === 5) && this.chainId === "0xfa");
+
+      if (pool.isDegenBox && !itsDontHaveStrategy) {
+        const tokenWithdrawAmount = await pool.token.contract.balanceOf(
+          pool.bentoBoxAddress
+        );
+
+        maxWithdrawAmount = this.$ethers.utils.formatUnits(
+          tokenWithdrawAmount,
+          pool.token.decimals
+        );
+      }
+
+      const userCollateralShare = await this.getUserCollateralShare(
+        pool.masterContractInstance,
+        pool.contractInstance,
+        pool.token.decimals,
+        pool.token.address
+      );
+
+      const liquidationPrice = this.getLiquidationPrice(
+        userCollateralShare,
+        userBorrowPart,
+        pool.ltv
+      );
+
+      let collateralLockTimestamp = null;
+
+      if ((pool.id === 11 || pool.id === 22) && this.chainId === 1) {
+        collateralLockTimestamp = await this.checkIsUserCollateralLocked(
+          pool.token.contract
+        );
+      }
+
+      pool.userInfo = {
+        userBorrowPart,
+        contractBorrowPart,
+        userBalance,
+        userPairBalance,
+        networkBalance,
+        claimableReward,
+        maxWithdrawAmount,
+        userCollateralShare,
+        liquidationPrice,
+        userLockedTimestamp: collateralLockTimestamp,
+        contractBorrowPartParsed: this.$ethers.utils.formatUnits(
+          contractBorrowPart.toString()
+        ),
+      };
+
+      return pool;
     },
   },
+
   created() {
     this.createPools();
   },

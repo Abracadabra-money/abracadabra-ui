@@ -25,7 +25,7 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding-top: 160px;
+  padding: 160px 0;
 }
 
 @media (min-width: 1024px) {
