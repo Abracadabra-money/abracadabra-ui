@@ -38,6 +38,8 @@ export default {
         chainPools.map((pool) => this.createPool(pool))
       );
 
+      console.log("pools", pools);
+
       this.$store.commit("setPools", pools);
       this.setLoadingPoolsBorrow(false);
     },
