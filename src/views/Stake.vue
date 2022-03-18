@@ -1,36 +1,89 @@
 <template>
   <div class="stake">
-    <StakeInputs 
-      :mode="action" 
-      :actions="actions"
-      :modes="inputs"
-      @toggleAction="toggleAction"
-      @change="updateMainValue"
-      :error="amountError"
-    />
-    <Profile :tokens-info="info" :locked-until="lockedUntil">
-      <template v-slot:buttons>
-        <DefaultButton 
+    <div class="choose">
+      <h4>Choose Chain</h4>
+      <div class="underline">
+        <NetworksList />
+      </div>
+      <div class="first-input">
+        <div class="header-balance">
+          <h4>{{ firstInput.text }}</h4>
+          <p>Balance: {{ firstInput.balance }}</p>
+        </div>
+
+        <ValueInput
+          :icon="getImgUrl(firstInput.icon)"
+          :name="firstInput.label"
+          @input="updateMainValue"
+          :max="firstInput.max"
+          :error="amountError"
+        />
+      </div>
+      <div class="swap-img">
+        <img
+          src="@/assets/images/swap.svg"
+          :class="{ reflect: action === 'UNSTAKE' }"
+          @click="toggleAction"
+          alt="swap"
+        />
+      </div>
+      <div class="second-input">
+        <div class="header-balance">
+          <h4>{{ secondInput.text }}</h4>
+          <p>Balance: {{ secondInput.balance }}</p>
+        </div>
+        <ValueInput
+          @input="updateMainValue"
+          disabled
+          :icon="getImgUrl(secondInput.icon)"
+          :name="secondInput.label"
+        />
+      </div>
+    </div>
+    <div class="profile">
+      <h1 class="title">STAKE</h1>
+      <InfoBlock :tokens-info="info" :locked-until="lockedUntil" />
+      <div class="profile-actions">
+        <DefaultButton
           width="325px"
-          @click="approveToken(info.stakeToken.contractInstance)" 
-          primary 
+          @click="approveToken(info.stakeToken.contractInstance)"
+          primary
           :disabled="info.stakeToken.isTokenApprowed"
-          v-if=" action===actions[0] "
-        >{{ "Approve" }}</DefaultButton>
+          v-if="action === actions[0]"
+          >{{ "Approve" }}</DefaultButton
+        >
         <DefaultButton
           width="325px"
           @click="actionHandler"
           :disabled="amountError"
-        > {{ action === actions[0] ? "Stake" : "Unstake" }} </DefaultButton>
-      </template>
-    </Profile>
+        >
+          {{ action === actions[0] ? "Stake" : "Unstake" }}
+        </DefaultButton>
+      </div>
+      <div class="profile-subscribtion">
+        <div class="profile-subscribtion__approximate">
+          <div>Approximate staking APR</div>
+          <div>{{ (info.apr || 0) + "%" }}</div>
+        </div>
+        <p>
+          Make SPELL work for you! Stake your SPELL and gain sSPELL. No
+          impermanent loss, no loss of governance rights. Continuously
+          compounding. After each new deposit, all staked SPELL are subject to a
+          24H lock-up period!
+        </p>
+        <p>
+          sSPELL automatically earns fees from MIM repayments from all wizards
+          proportional to your share of the stake pool.
+        </p>
+      </div>
+    </div>
   </div>
 </template>
-  components: {}
 <script>
+const InfoBlock = () => import("@/components/stake/InfoBlock");
+const ValueInput = () => import("@/components/UIComponents/ValueInput");
+const NetworksList = () => import("@/components/ui/NetworksList");
 
-const StakeInputs = () => import("@/components/stake/StakeInputs");
-const Profile = () => import("@/components/stake/Profile");
 import DefaultButton from "@/components/main/DefaultButton.vue";
 
 import { mapGetters } from "vuex";
@@ -43,17 +96,17 @@ export default {
   mixins: [sspellToken],
   data() {
     return {
-      actions: [STAKE,UNSTAKE],
+      actions: [STAKE, UNSTAKE],
       action: STAKE,
-      inputs: { 
+      inputs: {
         [STAKE]: {
           input: {
             label: "Spell",
             text: "",
             max: 0,
             balance: "0",
-            icon: 'spell-icon'
-          }
+            icon: "spell-icon",
+          },
         },
         [UNSTAKE]: {
           input: {
@@ -61,30 +114,44 @@ export default {
             text: "",
             max: 0,
             balance: "0",
-            icon: 'sspell-icon'
-          }
+            icon: "sspell-icon",
+          },
         },
       },
       amount: "",
       amountError: "",
       lockedUntil: false,
       spellUpdateInterval: null,
-    }
+    };
   },
   computed: {
     ...mapGetters({
       isLoadingsSpellStake: "getLoadingsSpellStake",
       account: "getAccount",
+      networks: "getAvailableNetworks",
     }),
+    firstInput() {
+      return this.inputs[
+        this.action === this.actions[0] ? this.actions[0] : this.actions[1]
+      ].input;
+    },
+    secondInput() {
+      return this.inputs[
+        this.action === this.actions[0] ? this.actions[1] : this.actions[0]
+      ].input;
+    },
     tokenObjByAction() {
-      return this.action === this.actions[0] ? this.info.stakeToken : this.info.mainToken;
+      return this.action === this.actions[0]
+        ? this.info.stakeToken
+        : this.info.mainToken;
     },
     info() {
-      return this.tokensInfo || {
-        stakeToken: {},
-        mainToken: {contractInstance: {users:()=>false}},
-        
-      };
+      return (
+        this.tokensInfo || {
+          stakeToken: {},
+          mainToken: { contractInstance: { users: () => false } },
+        }
+      );
     },
     isUserLocked() {
       return (
@@ -140,26 +207,26 @@ export default {
     async account() {
       if (this.account) {
         await this.createStakePool();
-        this.setInputs()
+        this.setInputs();
       }
     },
   },
   methods: {
     setInputs() {
-      this.fillInputData(STAKE,{
-          balance: this.parceBalance(this.info.stakeToken.balance),
-          max: this.parceBalance(this.info.stakeToken.balance)
-        }),
-      this.fillInputData(UNSTAKE,{
-        balance: this.parceBalance(this.info.mainToken.balance),
-        max: this.parceBalance(this.info.mainToken.balance)
-      })
+      this.fillInputData(STAKE, {
+        balance: this.parceBalance(this.info.stakeToken.balance),
+        max: this.parceBalance(this.info.stakeToken.balance),
+      }),
+        this.fillInputData(UNSTAKE, {
+          balance: this.parceBalance(this.info.mainToken.balance),
+          max: this.parceBalance(this.info.mainToken.balance),
+        });
     },
     parceBalance(balance) {
-      return balance ? parseFloat(balance).toFixed(4) : 0
+      return balance ? parseFloat(balance).toFixed(4) : 0;
     },
-    fillInputData(mode,data) {
-      this.inputs[mode].input = {...this.inputs[mode].input, ...data};
+    fillInputData(mode, data) {
+      this.inputs[mode].input = { ...this.inputs[mode].input, ...data };
     },
     toggleAction() {
       this.amount = "";
@@ -192,7 +259,7 @@ export default {
           }
         );
         if (!infoResp) {
-          return false
+          return false;
         }
         const lockTimestamp = infoResp.lockedUntil.toString();
         const currentTimestamp = (Date.now() / 1000).toString();
@@ -226,10 +293,17 @@ export default {
         await this.unstake();
       }
     },
+    getImgUrl(type) {
+      var images = require.context(
+        "../assets/images/tokens-icon/",
+        false,
+        /\.svg$/
+      );
+      return images("./" + type + ".svg");
+    },
     async stake() {
-
       console.log(STAKE);
-      
+
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
@@ -319,8 +393,7 @@ export default {
         console.log("isApprowed err:", e);
         return false;
       }
-    }
-    
+    },
   },
   async created() {
     await this.createStakePool();
@@ -336,14 +409,104 @@ export default {
     clearInterval(this.spellUpdateInterval);
   },
   components: {
-    StakeInputs,
-    Profile,
-    DefaultButton
+    InfoBlock,
+    DefaultButton,
+    ValueInput,
+    NetworksList,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.swap-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  & img {
+    transform: rotateX(0deg);
+    transition: all 0.3s;
+  }
+  & img.reflect {
+    transform: rotateX(180deg);
+  }
+}
+.choose-stake-input {
+  background-color: white;
+}
+
+.choose {
+  padding: 20px 16px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.first-input {
+  padding-top: 27px;
+  padding-bottom: 24px;
+}
+
+.second-input {
+  padding-top: 27px;
+  padding-bottom: 14px;
+}
+
+.underline {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .choose {
+    padding: 30px;
+  }
+}
+
+.profile-subscribtion {
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 24px;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.6);
+  &__approximate {
+    margin-top: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  & p {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+}
+
+.profile {
+  padding: 30px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.profile-actions {
+  display: flex;
+  margin-top: 92px;
+  & .default-button:last-child {
+    margin-left: auto;
+  }
+}
+
 .stake {
   display: grid;
   grid-template-columns: 1fr;
