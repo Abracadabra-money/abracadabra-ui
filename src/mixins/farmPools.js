@@ -1,20 +1,18 @@
 import farmPools from "@/utils/farmPools/pools";
 import { getTokenPriceByAddress } from "../helpers/priceHelper";
-import { mapMutations } from "vuex";
-import { ethers } from "ethers";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
   computed: {
+    ...mapGetters({
+      userSigner: "getSigner",
+      defaultProvider: "getProvider",
+    }),
     chainId() {
       return this.$store.getters.getChainId;
     },
     signer() {
-      return (
-        this.$store.getters.getSigner ||
-        new ethers.providers.JsonRpcProvider(
-          this.$store.getters.getRpcById(this.chainId)
-        )
-      );
+      return this.userSigner ? this.userSigner : this.defaultProvider;
     },
     account() {
       return this.$store.getters.getAccount;
