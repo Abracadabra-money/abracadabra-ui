@@ -5,39 +5,43 @@
       <div class="underline">
         <NetworksList />
       </div>
-      <div class="first-input">
+      <div class="swap-wrap">
+      <div class="token-input" :class="{active: action === actions[0]}">
         <div class="header-balance">
-          <h4>{{ firstInput.text }}</h4>
-          <p>Balance: {{ firstInput.balance }}</p>
+          <h4>{{inputTitle(action === actions[0])}}</h4>
+          <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
         </div>
         <ValueInput
-          :icon="getImgUrl(firstInput.icon)"
-          :name="firstInput.label"
+          :icon="getImgUrl('spell-icon')"
+          :name="'Spell'"
           @input="updateMainValue"
-          :max="firstInput.max"
+          :disabled="action === actions[1]"
+          :max="parceBalance(info.stakeToken.balance)"
           :error="amountError"
         />
       </div>
       <div class="swap-img">
         <img
           src="@/assets/images/swap.svg"
-          :class="{ reflect: action === 'UNSTAKE' }"
+          :class="{ reflect: action === actions[1] }"
           @click="toggleAction"
           alt="swap"
         />
       </div>
-      <div class="second-input">
+      <div class="token-input" :class="{active: action === actions[1]}">
         <div class="header-balance">
-          <h4>{{ secondInput.text }}</h4>
-          <p>Balance: {{ secondInput.balance }}</p>
+          <h4>{{inputTitle(action === actions[1])}}</h4>
+          <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
         </div>
         <ValueInput
-          :icon="getImgUrl(secondInput.icon)"
+          :icon="getImgUrl('sspell-icon')"
+          :name="'sSpell'"
           @input="updateMainValue"
-          disabled
-          :name="secondInput.label"
+          :disabled="action === actions[0]"
+          :max="parceBalance(info.mainToken.balance)"
         />
       </div>
+    </div>
     </div>
     <div class="profile">
       <h1 class="title">STAKE</h1>
@@ -97,26 +101,6 @@ export default {
     return {
       actions: [STAKE, UNSTAKE],
       action: STAKE,
-      inputs: {
-        [STAKE]: {
-          input: {
-            label: "Spell",
-            text: "",
-            max: 0,
-            balance: "0",
-            icon: "spell-icon",
-          },
-        },
-        [UNSTAKE]: {
-          input: {
-            label: "sSpell",
-            text: "",
-            max: 0,
-            balance: "0",
-            icon: "sspell-icon",
-          },
-        },
-      },
       amount: "",
       amountError: "",
       lockedUntil: false,
@@ -127,18 +111,8 @@ export default {
     ...mapGetters({
       isLoadingsSpellStake: "getLoadingsSpellStake",
       account: "getAccount",
-      networks: "getAvailableNetworks",
+      networks: "getAvailableNetworks"
     }),
-    firstInput() {
-      return this.inputs[
-        this.action === this.actions[0] ? this.actions[0] : this.actions[1]
-      ].input;
-    },
-    secondInput() {
-      return this.inputs[
-        this.action === this.actions[0] ? this.actions[1] : this.actions[0]
-      ].input;
-    },
     info() {
       return (
         this.tokensInfo || {
@@ -160,11 +134,6 @@ export default {
     fromToken() {
       if (this.action === STAKE) return this.info.stakeToken;
       if (this.action === UNSTAKE) return this.info.mainToken;
-      return "";
-    },
-    toToken() {
-      if (this.action === STAKE) return this.info.mainToken;
-      if (this.action === UNSTAKE) return this.info.stakeToken;
       return "";
     },
     toTokenAmount() {
@@ -201,26 +170,15 @@ export default {
     async account() {
       if (this.account) {
         await this.createStakePool();
-        this.setInputs();
       }
     },
   },
   methods: {
-    setInputs() {
-      this.fillInputData(STAKE, {
-        balance: this.parceBalance(this.info.stakeToken.balance),
-        max: this.parceBalance(this.info.stakeToken.balance),
-      }),
-        this.fillInputData(UNSTAKE, {
-          balance: this.parceBalance(this.info.mainToken.balance),
-          max: this.parceBalance(this.info.mainToken.balance),
-        });
+    inputTitle(toogler) {
+      return toogler ? 'Deposit' : 'Receive'
     },
     parceBalance(balance) {
       return balance ? parseFloat(balance).toFixed(4) : 0;
-    },
-    fillInputData(mode, data) {
-      this.inputs[mode].input = { ...this.inputs[mode].input, ...data };
     },
     toggleAction() {
       this.amount = "";
@@ -358,6 +316,7 @@ export default {
         const receipt = await tx.wait();
 
         console.log(STAKE, receipt);
+
       } catch (e) {
         console.log("stake err:", e);
       }
@@ -391,14 +350,12 @@ export default {
   },
   async created() {
     await this.createStakePool();
-    this.setInputs();
     this.lockedUntil = await this.getUserLocked();
     this.spellUpdateInterval = setInterval(async () => {
       await this.createStakePool();
       this.lockedUntil = await this.getUserLocked();
     }, 15000);
   },
-
   beforeDestroy() {
     clearInterval(this.spellUpdateInterval);
   },
@@ -406,16 +363,25 @@ export default {
     InfoBlock,
     DefaultButton,
     ValueInput,
-    NetworksList,
+    NetworksList
   },
 };
 </script>
 
 <style lang="scss" scoped>
+
+.swap-wrap {
+  position: relative;
+}
+
 .swap-img {
+  position: absolute;
+  left: calc(50% - 20px);
+  top: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 100;
   cursor: pointer;
   & img {
     transform: rotateX(0deg);
@@ -437,14 +403,14 @@ export default {
   overflow: hidden;
 }
 
-.first-input {
-  padding-top: 27px;
-  padding-bottom: 24px;
-}
-
-.second-input {
-  padding-top: 27px;
+.token-input {
+  padding-top: 22px;
   padding-bottom: 14px;
+  position: absolute;
+  top: 164px;
+  &.active {
+    top: 0;
+  }
 }
 
 .underline {
