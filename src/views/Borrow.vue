@@ -8,7 +8,9 @@
 <script>
 const ChooseChain = () => import("@/components/borrow/ChooseChain");
 const StableCoins = () => import("@/components/borrow/StableCoins");
+import borrowPoolsMixin from "@/mixins/borrowPools.js";
 export default {
+  mixins: [borrowPoolsMixin],
   components: {
     ChooseChain,
     StableCoins,
@@ -23,7 +25,7 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding-top: 160px;
+  padding: 160px 0;
 }
 
 @media (min-width: 1024px) {
