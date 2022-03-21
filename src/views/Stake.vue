@@ -10,7 +10,6 @@
           <h4>{{ firstInput.text }}</h4>
           <p>Balance: {{ firstInput.balance }}</p>
         </div>
-
         <ValueInput
           :icon="getImgUrl(firstInput.icon)"
           :name="firstInput.label"
@@ -33,9 +32,9 @@
           <p>Balance: {{ secondInput.balance }}</p>
         </div>
         <ValueInput
+          :icon="getImgUrl(secondInput.icon)"
           @input="updateMainValue"
           disabled
-          :icon="getImgUrl(secondInput.icon)"
           :name="secondInput.label"
         />
       </div>
@@ -139,11 +138,6 @@ export default {
       return this.inputs[
         this.action === this.actions[0] ? this.actions[1] : this.actions[0]
       ].input;
-    },
-    tokenObjByAction() {
-      return this.action === this.actions[0]
-        ? this.info.stakeToken
-        : this.info.mainToken;
     },
     info() {
       return (
