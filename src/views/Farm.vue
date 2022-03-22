@@ -25,14 +25,14 @@
 
         <div class="input-wrap underline">
           <h4 class="sub-title">Deposit LP tokens</h4>
-          <ValueInput />
+          <ValueInput :disabled="!selectedPool" v-model="amount" />
         </div>
 
         <div class="btn-wrap" v-if="selectedPool">
           <DefaultButton v-if="!isAllowance" @click="approveHandler"
             >Approve</DefaultButton
           >
-          <DefaultButton v-else @click="stakeHandler">Stake</DefaultButton>
+          <DefaultButton v-else @click="stakeHandler" :disabled="!amount">Stake</DefaultButton>
         </div>
       </div>
 
@@ -73,6 +73,7 @@ export default {
     return {
       poolId: null,
       isTokensOpened: false,
+      amount: ''
     };
   },
   computed: {
@@ -101,8 +102,6 @@ export default {
           this.selectedPool.poolId,
           parseAmount
         );
-
-        this.closePopup();
 
         const receipt = await tx.wait();
 
