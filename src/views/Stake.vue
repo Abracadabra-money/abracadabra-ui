@@ -6,42 +6,44 @@
         <NetworksList />
       </div>
       <div class="swap-wrap">
-      <div class="token-input" :class="{active: action === actions[0]}">
-        <div class="header-balance">
-          <h4>{{inputTitle(action === actions[0])}}</h4>
-          <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
+        <div class="token-input" :class="{active: action === actions[0]}">
+          <div class="header-balance">
+            <h4>{{inputTitle(action === actions[0])}}</h4>
+            <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
+          </div>
+          <ValueInput
+            class="value-input"
+            :icon="getImgUrl('spell-icon')"
+            :name="'Spell'"
+            @input="updateMainValue"
+            :disabled="action === actions[1]"
+            :max="parceBalance(info.stakeToken.balance)"
+            :error="amountError"
+          />
         </div>
-        <ValueInput
-          :icon="getImgUrl('spell-icon')"
-          :name="'Spell'"
-          @input="updateMainValue"
-          :disabled="action === actions[1]"
-          :max="parceBalance(info.stakeToken.balance)"
-          :error="amountError"
-        />
-      </div>
-      <div class="swap-img">
-        <img
-          src="@/assets/images/swap.svg"
-          :class="{ reflect: action === actions[1] }"
-          @click="toggleAction"
-          alt="swap"
-        />
-      </div>
-      <div class="token-input" :class="{active: action === actions[1]}">
-        <div class="header-balance">
-          <h4>{{inputTitle(action === actions[1])}}</h4>
-          <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
+        <div class="swap-img">
+          <img
+            src="@/assets/images/swap.svg"
+            :class="{ reflect: action === actions[1] }"
+            @click="toggleAction"
+            alt="swap"
+          />
         </div>
-        <ValueInput
-          :icon="getImgUrl('sspell-icon')"
-          :name="'sSpell'"
-          @input="updateMainValue"
-          :disabled="action === actions[0]"
-          :max="parceBalance(info.mainToken.balance)"
-        />
+        <div class="token-input" :class="{active: action === actions[1]}">
+          <div class="header-balance">
+            <h4>{{inputTitle(action === actions[1])}}</h4>
+            <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
+          </div>
+          <ValueInput
+            class="value-input"
+            :icon="getImgUrl('sspell-icon')"
+            :name="'sSpell'"
+            @input="updateMainValue"
+            :disabled="action === actions[0]"
+            :max="parceBalance(info.mainToken.balance)"
+          />
+        </div>
       </div>
-    </div>
     </div>
     <div class="profile">
       <h1 class="title">STAKE</h1>
@@ -372,6 +374,17 @@ export default {
 
 .swap-wrap {
   position: relative;
+  height: 330px;
+  display: flex;
+  justify-content: center;
+  @media (max-width: 1023px) {
+    height: 350px
+  }
+}
+
+.value-input {
+  min-width: 280px; 
+  width: 490px;
 }
 
 .swap-img {
@@ -383,6 +396,9 @@ export default {
   justify-content: center;
   z-index: 100;
   cursor: pointer;
+  @media (max-width: 1023px) {
+    top: 180px
+  }
   & img {
     transform: rotateX(0deg);
     transition: all 0.3s;
@@ -408,6 +424,9 @@ export default {
   padding-bottom: 14px;
   position: absolute;
   top: 164px;
+  @media (max-width: 1023px) {
+    top: 180px
+  }
   &.active {
     top: 0;
   }
@@ -461,7 +480,7 @@ export default {
 
 .profile-actions {
   display: flex;
-  margin-top: 92px;
+  margin-top: 30px;
   & .default-button:last-child {
     margin-left: auto;
   }
@@ -473,10 +492,11 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding-top: 160px;
+  padding-top: 100px;
+  padding-bottom: 100px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1300px) {
   .stake {
     grid-template-columns: 550px 1fr;
     width: 1320px;
