@@ -41,7 +41,7 @@
     <PopupWrap v-model="isSettingsOpened"> <SettingsPopup /></PopupWrap>
     <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
       <SelectTokenPopup
-        @select="tokenChainId = $event"
+        @select="tokenChainId = $event.chainId"
         @close="isTokensOpened = false"
         :tokens="networks"
     /></PopupWrap>

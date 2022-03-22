@@ -10,14 +10,18 @@
       />
     </div>
     <div class="tokens-list">
-      <template v-for="token in tokens">
+      <template v-for="(token, i) in tokens">
         <button
-          @click="selectToken(token.chainId)"
+          @click="selectToken(token)"
           class="token-wrap"
           :key="token.chainId"
         >
           <div class="token-data">
-            <img class="token-icon" :src="token.icon" alt="token" />
+            <img
+              class="token-icon"
+              :src="token.icon || selectIcon"
+              alt="token"
+            />
             <p>{{ token.name }}</p>
           </div>
           <div class="token-value">
@@ -25,7 +29,11 @@
             <p>$ 91,792.2</p>
           </div>
         </button>
-        <div class="token-spacer-wrap" :key="`spacer-${token.chainId}`">
+        <div
+          v-if="i !== tokens.length - 1"
+          class="token-spacer-wrap"
+          :key="`spacer-${token.chainId}`"
+        >
           <div class="token-spacer"></div>
         </div>
       </template>
@@ -34,6 +42,8 @@
 </template>
 
 <script>
+import selectIcon from "@/assets/images/select.svg";
+
 export default {
   props: {
     tokens: {
@@ -41,7 +51,7 @@ export default {
       default: () => [],
     },
   },
-  data: () => ({ search: "" }),
+  data: () => ({ search: "", selectIcon }),
   methods: {
     selectToken(chainId) {
       this.$emit("select", chainId);

@@ -11,9 +11,9 @@
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
           <button class="select" @click="isTokensOpened = true">
-            <img class="select-icon" :src="selectedTokenIcon" alt="" />
+            <img class="select-icon" :src="selectedPoolIcon" alt="" />
             <span class="select-text">
-              {{ selectedToken ? selectedToken.name : "Select Farm" }}
+              {{ selectedPool ? selectedPool.name : "Select Farm" }}
             </span>
             <img
               class="select-arrow"
@@ -28,8 +28,11 @@
           <ValueInput />
         </div>
 
-        <div class="btn-wrap">
-          <DefaultButton disabled>Approve</DefaultButton>
+        <div class="btn-wrap" v-if="selectedPool">
+          <DefaultButton v-if="!isAllowance" @click="approveHandler"
+            >Approve</DefaultButton
+          >
+          <DefaultButton v-else @click="stakeHandler">Stake</DefaultButton>
         </div>
       </div>
 
@@ -43,12 +46,14 @@
 
       <a class="farm-link" href="#" target="_blank">Get LP’s</a>
     </div>
+
     <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
       <SelectTokenPopup
-        @select="tokenChainId = $event"
+        @select="poolId = $event.id"
         @close="isTokensOpened = false"
-        :tokens="networks"
-    /></PopupWrap>
+        :tokens="pools"
+      />
+    </PopupWrap>
   </div>
 </template>
 
@@ -66,27 +71,59 @@ export default {
   mixins: [farmPoolsMixin],
   data() {
     return {
-      tokenChainId: null,
+      poolId: null,
       isTokensOpened: false,
     };
   },
   computed: {
     ...mapGetters({
-      networks: "getAvailableNetworks",
       address: "getAccount",
-      pools: "getFarmPools",
     }),
-    selectedToken() {
-      return (
-        this.networks.find(({ chainId }) => chainId === this.tokenChainId) ||
-        null
-      );
+    selectedPool() {
+      return this.pools.find(({ id }) => id === this.poolId) || null;
     },
 
-    selectedTokenIcon() {
-      return this.selectedToken
-        ? this.selectedToken.icon
-        : require("@/assets/images/select.svg");
+    selectedPoolIcon() {
+      return this.selectedPool?.icon || require("@/assets/images/select.svg");
+    },
+    isAllowance() {
+      return !!this.selectedPool?.userData?.allowance;
+    },
+  },
+  methods: {
+    async stakeHandler() {
+      try {
+        const parseAmount = this.$ethers.utils.parseEther(
+          this.amount.toString()
+        );
+
+        const tx = await this.selectedPool.contractInstance.deposit(
+          this.selectedPool.poolId,
+          parseAmount
+        );
+
+        this.closePopup();
+
+        const receipt = await tx.wait();
+
+        console.log("stake success:", receipt);
+      } catch (error) {
+        console.log("stake err:", error);
+      }
+    },
+    async approveHandler() {
+      try {
+        const tx = await this.selectedPool.erc20ContractInstance.approve(
+          this.selectedPool.contractAddress,
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        );
+
+        const receipt = await tx.wait();
+
+        console.log(receipt);
+      } catch (error) {
+        console.log("approve err:", error);
+      }
     },
   },
   watch: {
