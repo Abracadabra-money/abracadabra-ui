@@ -1,51 +1,83 @@
 <template>
   <div class="borrow">
-    <div class="choose">
+    <div class="deposit-block">
       <h4>Choose Chain</h4>
       <div class="underline">
         <NetworksList />
       </div>
 
-      <div class="first-input underline">
+      <div class="collateral-input underline">
         <div class="header-balance">
           <h4>Collateral assets</h4>
           <p v-if="selectedPool">
-            {{ collateralBalance }}
+            {{ maxCollateralValue }}
           </p>
         </div>
 
         <ValueInput
           :icon="selectedPool ? selectedPool.icon : null"
           :name="selectedPool ? selectedPool.name : null"
-          v-model="inputValue"
-          :max="selectedPool ? collateralBalance : 0"
+          v-model="collateralValue"
+          :max="maxCollateralValue"
           :error="collateralError"
+          :disabled="selectedPool ? false : true"
+          @input="updateCollateralValue"
+          @openTokensList="isOpenPollPopup = true"
           isChooseToken
-          @openTokensList="isTokensOpened = true"
-          @input="changeInput"
         />
       </div>
-      <div class="second-input underline">
+      <div class="borrow-input underline">
         <div class="header-balance">
           <h4>MIM to Borrow</h4>
         </div>
+
         <ValueInput
           :icon="require('@/assets/images/tokens-icon/Token_MIM.svg')"
           name="MIM"
+          v-model="borrowValue"
+          :max="maxBorrowValue"
+          :error="borrowError"
+          :disabled="selectedPool ? false : true"
+          @input="updateBorrowValue"
         />
       </div>
 
-      <div class="ltv underline" v-if="selectedPool">
+      <div class="deposit-info underline" v-if="selectedPool">
         <span>LTV</span>
         <span>{{ selectedPool.ltv }} %</span>
       </div>
     </div>
-    <StableCoins />
 
-    <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
+    <div class="info-block">
+      <h1 class="title">Borrow MIM</h1>
+      <StableInfo
+        :pool="selectedPool"
+        :isEmpty="selectedPool === null"
+        :isDegenBox="selectedPool ? selectedPool.isDegenBox : false"
+        :tokentToMim="tokentToMim"
+      />
+      <template v-if="selectedPool">
+        <div class="btn-wrap">
+          <DefaultButton @click="approveToken" primary :disabled="isApproved"
+            >Approve</DefaultButton
+          >
+          <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+            actionBtnText
+          }}</DefaultButton>
+        </div>
+        <div class="info-list">
+          <div v-for="(item, i) in infoData" :key="i" class="info-item">
+            <span>{{ item.name }}:</span>
+            <span>{{ item.value }}</span>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
       <SelectPoolPopup
-        @select="selectedPool = $event"
-        @close="isTokensOpened = false"
+        @select="chosePool($event)"
+        @close="isOpenPollPopup = false"
         :pools="pools"
     /></PopupWrap>
   </div>
@@ -54,9 +86,11 @@
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const StableCoins = () => import("@/components/borrow/StableCoins");
+const StableInfo = () => import("@/components/borrow/StableInfo");
+const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/SelectPoolPopup");
+
 import borrowPoolsMixin from "@/mixins/borrowPools.js";
 
 import { mapGetters } from "vuex";
@@ -64,45 +98,305 @@ export default {
   mixins: [borrowPoolsMixin],
   data() {
     return {
-      firstTokenIndex: 0,
-      firstTokenValue: null,
-      isTokensOpened: false,
+      collateralValue: "",
+      collateralError: "",
+      borrowValue: "",
+      borrowError: "",
       selectedPool: null,
-      inputValue: null,
-      collateralValue: null,
+      isApproved: false,
+      isOpenPollPopup: false,
     };
   },
   computed: {
     ...mapGetters({ pools: "getPools" }),
-    collateralError() {
+
+    maxCollateralValue() {
       if (this.selectedPool) {
-        if (this.collateralValue > this.collateralBalance) {
-          return `The value cannot be greater than ${this.collateralBalance}`;
-        } else {
-          return null;
-        }
+        return this.$ethers.utils.formatUnits(
+          this.selectedPool.userInfo.userBalance
+        );
       }
 
-      return null;
+      return 0;
     },
-    collateralBalance() {
-      return this.$ethers.utils.formatUnits(
-        this.selectedPool.userInfo.userBalance
+
+    maxBorrowValue() {
+      if (this.selectedPool) {
+        let valueInDolars;
+        let maxPairValue;
+
+        if (this.collateralValue) {
+          valueInDolars = this.collateralValue / this.selectedPool.tokenPrice;
+          maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
+        } else {
+          valueInDolars =
+            this.selectedPool.userInfo.userCollateralShare /
+            this.selectedPool.tokenPrice;
+          maxPairValue =
+            (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
+            this.selectedPool.userInfo.userBorrowPart;
+        }
+
+        return maxPairValue;
+      }
+
+      return 0;
+    },
+
+    actionBtnText() {
+      if (!this.isApproved) return "Nothing to do";
+
+      console.log(this.isUserLocked);
+
+      if (this.isUserLocked && this.collateralValue) return "Nothing to do";
+
+      if (this.collateralError || this.borrowError) return "Nothing to do";
+
+      if (
+        this.collateralValue &&
+        this.borrowValue &&
+        parseFloat(this.borrowValue) > 0
+      )
+        return "Add collateral and borrow";
+
+      if (this.collateralValue) return "Add collateral";
+
+      if (this.borrowValue) return "Borrow";
+
+      return "Nothing to do";
+    },
+
+    isUserLocked() {
+      return (
+        this.selectedPool.userInfo.userLockedTimestamp &&
+        Number(this.selectedPool.userInfo.userLockedTimestamp) !== 0
       );
+    },
+
+    infoData() {
+      return [
+        { name: "Borrow Fee", value: this.selectedPool.borrowFee },
+        { name: "Interest", value: this.selectedPool.interest },
+      ];
+    },
+
+    tokentToMim() {
+      if (this.selectedPool) {
+        const tokenToMim = 1 / this.selectedPool.tokenPrice;
+
+        let decimals = 4;
+
+        if (this.selectedPool.name === "SHIB") decimals = 6;
+
+        // eslint-disable-next-line no-useless-escape
+        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
+        return tokenToMim.toString().match(re)[0];
+      }
+      return "0.0";
     },
   },
 
   methods: {
-    changeInput(value) {
+    updateCollateralValue(value) {
       this.collateralValue = value;
-      console.log(value);
+
+      if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
+        this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
+        return false;
+      }
+
+      this.collateralError = "";
+
+      if (this.borrowValue) {
+        if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
+          this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
+        }
+      }
+    },
+
+    updateBorrowValue(value) {
+      if (parseFloat(value) > parseFloat(this.maxBorrowValue)) {
+        this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
+        return false;
+      }
+
+      this.borrowError = "";
+      this.borrowValue = value;
+
+      // if (!value) {
+      //   this.updatePercentValue("");
+      //   return false;
+      // }
+
+      // this.updatePercentValue(
+      //   parseFloat((this.pairValue / this.maxPairValue) * this.ltv).toFixed(4),
+      //   true
+      // );
+    },
+
+    async isTokenApprowed(tokenContract, spenderAddress) {
+      try {
+        const addressApprowed = await tokenContract.allowance(
+          this.account,
+          spenderAddress,
+          {
+            gasLimit: 1000000,
+          }
+        );
+        return parseFloat(addressApprowed.toString()) > 0;
+      } catch (e) {
+        console.log("isApprowed err:", e);
+        return false;
+      }
+    },
+
+    async approveToken() {
+      try {
+        const estimateGas =
+          await this.selectedPool.pairTokenContract.estimateGas.approve(
+            this.selectedPool.masterContractInstance.address,
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        const tx = await this.selectedPool.pairTokenContract.approve(
+          this.selectedPool.masterContractInstance.address,
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          {
+            gasLimit,
+          }
+        );
+        const receipt = await tx.wait();
+
+        console.log(receipt);
+
+        this.isApproved = true;
+        return true;
+      } catch (e) {
+        console.log("isApprowed err:", e);
+        return false;
+      }
+    },
+
+    async chosePool(pool) {
+      this.collateralValue = "";
+      this.borrowValue = "";
+      this.selectedPool = pool;
+
+      this.isApproved = await this.isTokenApprowed(
+        this.selectedPool.token.contract,
+        this.selectedPool.masterContractInstance.address
+      );
+    },
+
+    checkIsPoolAllowBorrow(amount) {
+      if (+amount < +this.selectedPool.dynamicBorrowAmount) {
+        return true;
+      }
+
+      // const notification = {
+      //   msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
+      // };
+
+      // this.$store.commit("addNotification", notification);
+
+      return false;
+    },
+
+    toFixed(num, fixed) {
+      // eslint-disable-next-line no-useless-escape
+      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
+      return num.toString().match(re)[0];
+    },
+
+    async actionHandler() {
+      if (
+        this.collateralValue &&
+        this.borrowValue &&
+        parseFloat(this.borrowValue) > 0
+      ) {
+        this.collateralAndBorrowHandler();
+        return false;
+      }
+
+      if (this.collateralValue) {
+        this.collateralHandler();
+        return false;
+      }
+
+      if (this.borrowValue) {
+        this.borrowHandler();
+        return false;
+      }
+    },
+
+    collateralAndBorrowHandler() {
+      const parsedCollateral = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
+        this.selectedPool.token.decimals
+      );
+
+      const parsedBorrow = this.$ethers.utils.parseUnits(
+        this.toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        this.selectedPool.pairToken.decimals
+      );
+
+      const payload = {
+        collateralAmount: parsedCollateral,
+        amount: parsedBorrow,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
+      };
+
+      console.log("Add collateral and borrow $emit", payload);
+
+      return false;
+    },
+
+    collateralHandler() {
+      const parsedCollateralValue = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
+        this.selectedPool.token.decimals
+      );
+
+      const payload = {
+        amount: parsedCollateralValue,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
+      };
+
+      console.log("Add collateral $emit", payload);
+
+      return false;
+    },
+
+    borrowHandler() {
+      if (!this.checkIsPoolAllowBorrow(this.borrowValue)) {
+        return false;
+      }
+
+      const parsedBorrowValue = this.$ethers.utils.parseUnits(
+        this.toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        this.selectedPool.pairToken.decimals
+      );
+
+      const payload = {
+        amount: parsedBorrowValue,
+        updatePrice: this.selectedPool.askUpdatePrice,
+      };
+
+      console.log("Add borrow $emit", payload);
+
+      return false;
     },
   },
 
   components: {
     NetworksList,
     ValueInput,
-    StableCoins,
+    StableInfo,
+    DefaultButton,
     PopupWrap,
     SelectPoolPopup,
   },
@@ -116,11 +410,10 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding: 160px 0;
+  padding: 100px 0;
 }
 
-// choose
-.choose {
+.deposit-block {
   padding: 20px 16px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -128,21 +421,21 @@ export default {
   overflow: hidden;
 }
 
-.first-input {
-  padding-top: 27px;
-  padding-bottom: 24px;
-}
-
-.second-input {
-  padding-top: 27px;
-  padding-bottom: 14px;
-}
-
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.ltv {
+.collateral-input {
+  padding-top: 27px;
+  padding-bottom: 24px;
+}
+
+.borrow-input {
+  padding-top: 27px;
+  padding-bottom: 14px;
+}
+
+.deposit-info {
   display: flex;
   justify-content: space-between;
   margin-top: 25px;
@@ -151,18 +444,50 @@ export default {
   padding-bottom: 12px;
 }
 
-@media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
+.info-block {
+  padding: 30px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
 }
-// end choose
+
+.title {
+  font-size: 24px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.btn-wrap {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 20px;
+  margin-top: 92px;
+}
+
+.info-list {
+  margin-top: 30px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 25px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
 @media (min-width: 1024px) {
   .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
+  }
+
+  .choose {
+    padding: 30px;
   }
 }
 </style>

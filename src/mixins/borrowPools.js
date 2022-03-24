@@ -463,6 +463,7 @@ export default {
         interest: pool.interest,
         ltv: pool.ltv,
         tvl,
+        borrowFee: pool.borrowFee || 0.5,
         askUpdatePrice,
         initialMax: pool.initialMax,
         pairToken: pool.pairToken,

@@ -2,14 +2,14 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
-        <template v-if="isInfoPressed || isEmpty">
+        <template v-if="isDegenBox">
           <img src="@/assets/images/degenbox.svg" alt="degenbox" />
           <span>Degenbox strategy</span>
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></template>
       </div>
       <button
-        :disabled="isEmpty"
+        v-if="!isEmpty"
         class="info-btn"
         @click="isInfoPressed = !isInfoPressed"
       >
@@ -34,14 +34,18 @@
       </template>
       <template v-else>
         <div v-if="!isInfoPressed" class="stable-preview">
-          <div class="item" v-for="(item, i) in previewData" :key="i">
+          <div class="item" v-for="(item, i) in basicInfo" :key="i">
             <p class="item-title">{{ item.name }}</p>
             <p class="item-value">{{ item.value || "0.0" }}</p>
           </div>
         </div>
         <div v-else class="info-list-wrap">
           <div class="info-list">
-            <div v-for="(item, i) in listData" :key="i" class="info-list-item">
+            <div
+              v-for="(item, i) in additionalInfo"
+              :key="i"
+              class="info-list-item"
+            >
               <img
                 class="info-list-icon"
                 src="@/assets/images/info.svg"
@@ -59,8 +63,8 @@
                 <span class="info-list-value">1 USD</span>
               </div>
               <div class="info-list-subitem">
-                <span class="info-list-name">1 xSushi</span>
-                <span class="info-list-value">6.1865 MIM</span>
+                <span class="info-list-name">1 {{ pool.name }}</span>
+                <span class="info-list-value">{{ tokentToMim }} MIM</span>
               </div>
             </div>
           </div>
@@ -74,27 +78,79 @@
 export default {
   name: "StableInfo",
   props: {
+    pool: {
+      type: Object,
+    },
     isEmpty: {
       type: Boolean,
       default: false,
     },
+    isDegenBox: {
+      type: Boolean,
+      default: false,
+    },
+    tokentToMim: {
+      type: String,
+    },
   },
   data: () => ({
     isInfoPressed: false,
-    listData: [
-      { name: "Maximum collateral ratio", value: 12 },
-      { name: "Liquidation fee", value: 10 },
-      { name: "Borrow fee", value: 10 },
-      { name: "Interest", value: 10 },
-      { name: "Some Name", value: 10 },
-    ],
-    previewData: [
-      { name: "Collateral Deposit", value: 0 },
-      { name: "Collateral Value", value: 0 },
-      { name: "MIM Borrowed", value: 0 },
-      { name: "Liquidation Price", value: 0 },
-    ],
+    collateralDecimals: 4,
   }),
+
+  computed: {
+    tokenInUsd() {
+      return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
+    },
+
+    borrowLeft() {
+      const maxMimBorrow = (this.tokenInUsd / 100) * (this.pool.ltv - 1);
+      let leftBorrow = parseFloat(
+        maxMimBorrow - this.pool.userInfo.userBorrowPart
+      ).toFixed(20);
+
+      if (+leftBorrow < 0) leftBorrow = "0";
+
+      let re = new RegExp(
+        // eslint-disable-next-line no-useless-escape
+        `^-?\\d+(?:\.\\d{0,` + (4 || -1) + `})?`
+      );
+      return leftBorrow.toString().match(re)[0];
+    },
+
+    basicInfo() {
+      return [
+        {
+          name: "Collateral Deposit",
+          value: parseFloat(this.pool.userInfo.userCollateralShare).toFixed(
+            this.collateralDecimals
+          ),
+        },
+        {
+          name: "Collateral Value",
+          value: parseFloat(this.tokenInUsd).toFixed(4),
+        },
+
+        {
+          name: "MIM Borrowed",
+          value: parseFloat(this.pool.userInfo.userBorrowPart).toFixed(4),
+        },
+        {
+          name: "Liquidation Price",
+          value: parseFloat(this.pool.userInfo.liquidationPrice).toFixed(4),
+        },
+      ];
+    },
+    additionalInfo() {
+      return [
+        { name: "MIM Left To Borrow", value: this.borrowLeft },
+        { name: "Maximum collateral ratio", value: this.pool.ltv },
+        { name: "Liquidation fee", value: this.pool.stabilityFee },
+        { name: "Borrow fee", value: this.pool.borrowFee },
+        { name: "Interest", value: this.pool.interest },
+      ];
+    },
+  },
 };
 </script>
 
@@ -125,6 +181,7 @@ export default {
     display: flex;
     justify-content: space-between;
     padding: 9px 30px 7px 30px;
+    min-height: 40px;
 
     .strategy {
       display: grid;
