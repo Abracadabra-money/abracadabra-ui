@@ -58,7 +58,10 @@
       />
       <template v-if="selectedPool">
         <div class="btn-wrap">
-          <DefaultButton @click="approveToken" primary :disabled="isApproved"
+          <DefaultButton
+            @click="approveTokenHandler"
+            primary
+            :disabled="isApproved"
             >Approve</DefaultButton
           >
           <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
@@ -92,23 +95,34 @@ const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/SelectPoolPopup");
 
 import borrowPoolsMixin from "@/mixins/borrowPools.js";
+import cookMixin from "@/mixins/cook.js";
 
 import { mapGetters } from "vuex";
 export default {
-  mixins: [borrowPoolsMixin],
+  mixins: [borrowPoolsMixin, cookMixin],
   data() {
     return {
       collateralValue: "",
       collateralError: "",
       borrowValue: "",
       borrowError: "",
-      selectedPool: null,
+      poolId: null,
       isApproved: false,
       isOpenPollPopup: false,
     };
   },
   computed: {
-    ...mapGetters({ pools: "getPools" }),
+    ...mapGetters({
+      pools: "getPools",
+      account: "getAccount",
+    }),
+
+    selectedPool() {
+      if (this.poolId) {
+        return this.$store.getters.getPoolById(+this.poolId);
+      }
+      return null;
+    },
 
     maxCollateralValue() {
       if (this.selectedPool) {
@@ -145,8 +159,6 @@ export default {
 
     actionBtnText() {
       if (!this.isApproved) return "Nothing to do";
-
-      console.log(this.isUserLocked);
 
       if (this.isUserLocked && this.collateralValue) return "Nothing to do";
 
@@ -222,16 +234,6 @@ export default {
 
       this.borrowError = "";
       this.borrowValue = value;
-
-      // if (!value) {
-      //   this.updatePercentValue("");
-      //   return false;
-      // }
-
-      // this.updatePercentValue(
-      //   parseFloat((this.pairValue / this.maxPairValue) * this.ltv).toFixed(4),
-      //   true
-      // );
     },
 
     async isTokenApprowed(tokenContract, spenderAddress) {
@@ -243,14 +245,58 @@ export default {
             gasLimit: 1000000,
           }
         );
-        return parseFloat(addressApprowed.toString()) > 0;
+
+        return addressApprowed;
       } catch (e) {
         console.log("isApprowed err:", e);
         return false;
       }
     },
 
-    async approveToken() {
+    async approveToken(tokenContract, spenderAddress) {
+      try {
+        const estimateGas = await tokenContract.estimateGas.approve(
+          spenderAddress,
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        console.log("gasLimit:", gasLimit);
+
+        const tx = await tokenContract.approve(
+          spenderAddress,
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          {
+            gasLimit,
+          }
+        );
+        const receipt = await tx.wait();
+
+        console.log("APPROVE RESP:", receipt);
+
+        return true;
+      } catch (e) {
+        console.log("isApprowed err:", e);
+        return false;
+      }
+    },
+
+    async isApprowed() {
+      try {
+        const masterContract = await this.getMasterContract();
+        const addressApprowed =
+          await this.selectedPool.masterContractInstance.masterContractApproved(
+            masterContract,
+            this.account
+          );
+        return addressApprowed;
+      } catch (e) {
+        console.log("isApprowed err:", e);
+      }
+    },
+
+    async approveTokenHandler() {
       try {
         const estimateGas =
           await this.selectedPool.pairTokenContract.estimateGas.approve(
@@ -282,12 +328,14 @@ export default {
     async chosePool(pool) {
       this.collateralValue = "";
       this.borrowValue = "";
-      this.selectedPool = pool;
+      this.poolId = pool.id;
 
-      this.isApproved = await this.isTokenApprowed(
+      let approw = await this.isTokenApprowed(
         this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address
       );
+
+      this.isApproved = parseFloat(approw.toString()) > 0;
     },
 
     checkIsPoolAllowBorrow(amount) {
@@ -331,7 +379,7 @@ export default {
       }
     },
 
-    collateralAndBorrowHandler() {
+    async collateralAndBorrowHandler() {
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
@@ -351,10 +399,33 @@ export default {
 
       console.log("Add collateral and borrow $emit", payload);
 
+      let isTokenToCookApprove = await this.isTokenApprowed(
+        this.selectedPool.token.contract,
+        this.selectedPool.masterContractInstance.address
+      );
+
+      if (isTokenToCookApprove.lt(payload.collateralAmount)) {
+        isTokenToCookApprove = await this.approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      this.isApproved = await this.isApprowed();
+
+      if (isTokenToCookApprove) {
+        this.cookCollateralAndBorrow(
+          payload,
+          this.isApproved,
+          this.selectedPool
+        );
+        return false;
+      }
+
       return false;
     },
 
-    collateralHandler() {
+    async collateralHandler() {
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
@@ -368,10 +439,29 @@ export default {
 
       console.log("Add collateral $emit", payload);
 
+      let isTokenToCookApprove = await this.isTokenApprowed(
+        this.selectedPool.token.contract,
+        this.selectedPool.masterContractInstance.address
+      );
+
+      if (isTokenToCookApprove.lt(payload.amount)) {
+        isTokenToCookApprove = await this.approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      this.isApproved = await this.isApprowed();
+
+      if (isTokenToCookApprove) {
+        this.cookAddCollateral(payload, this.isApproved, this.selectedPool);
+        return false;
+      }
+
       return false;
     },
 
-    borrowHandler() {
+    async borrowHandler() {
       if (!this.checkIsPoolAllowBorrow(this.borrowValue)) {
         return false;
       }
@@ -388,7 +478,36 @@ export default {
 
       console.log("Add borrow $emit", payload);
 
+      let isTokenToCookApprove = await this.isTokenApprowed(
+        this.selectedPool.token.contract,
+        this.selectedPool.masterContractInstance.address
+      );
+
+      if (isTokenToCookApprove.eq(0)) {
+        isTokenToCookApprove = await this.approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      this.isApproved = await this.isApprowed();
+
+      if (isTokenToCookApprove) {
+        this.cookBorrow(payload, this.isApproved, this.selectedPool);
+        return false;
+      }
+
       return false;
+    },
+
+    async getMasterContract() {
+      try {
+        const masterContract =
+          await this.selectedPool.contractInstance.masterContract();
+        return masterContract;
+      } catch (e) {
+        console.log("getMasterContract err:", e);
+      }
     },
   },
 
