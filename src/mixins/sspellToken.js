@@ -48,11 +48,11 @@ export default {
         );
         
 
-        let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
+        // let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
 
-        mainTokenBalance = this.$ethers.utils.formatEther(
-          mainTokenBalance.toString()
-        );
+        // mainTokenBalance = this.$ethers.utils.formatEther(
+        //   mainTokenBalance.toString()
+        // );
 
         const stakeTokenInstance = new this.$ethers.Contract(
           stakeToken.address,
@@ -60,13 +60,13 @@ export default {
           this.signer
         );
 
-        let stakeTokenBalance = await stakeTokenInstance.balanceOf(
-          this.account
-        );
+        // let stakeTokenBalance = await stakeTokenInstance.balanceOf(
+        //   this.account
+        // );
 
-        stakeTokenBalance = this.$ethers.utils.formatEther(
-          stakeTokenBalance.toString()
-        );
+        // stakeTokenBalance = this.$ethers.utils.formatEther(
+        //   stakeTokenBalance.toString()
+        // );
 
         const tokensRate = await this.getSpellRate(
           stakeTokenInstance,
@@ -112,13 +112,13 @@ export default {
           mainToken: {
             ...mainToken,
             contractInstance: mainTokenInstance,
-            balance: mainTokenBalance,
+            balance: "22",
             price: mainTokenPrice,
           },
           stakeToken: {
             ...stakeToken,
             contractInstance: stakeTokenInstance,
-            balance: stakeTokenBalance,
+            balance: "25",
             isTokenApprowed,
             price: stakeTokenPrice,
           },

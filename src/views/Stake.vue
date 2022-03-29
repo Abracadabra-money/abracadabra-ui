@@ -17,7 +17,7 @@
             :name="'Spell'"
             @input="updateMainValue"
             :disabled="action === actions[1]"
-            :max="parceBalance(info.stakeToken.balance)"
+            :max="action === actions[0] ? parceBalance(info.stakeToken.balance) : null"
             :error="amountError"
           />
         </div>
@@ -32,7 +32,7 @@
         <div class="token-input" :class="{active: action === actions[1]}">
           <div class="header-balance">
             <h4>{{inputTitle(action === actions[1])}}</h4>
-            <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
+            <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
           </div>
           <ValueInput
             class="value-input"
@@ -40,7 +40,7 @@
             :name="'sSpell'"
             @input="updateMainValue"
             :disabled="action === actions[0]"
-            :max="parceBalance(info.mainToken.balance)"
+            :max="action === actions[1] ? parceBalance(info.mainToken.balance) : null"
           />
         </div>
       </div>

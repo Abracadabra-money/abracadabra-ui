@@ -26,7 +26,7 @@
                     </div>
                 <div>
                     <p class="item-title">{{ item.title }}</p>
-                    <p v-if="item.value" class="item-value">{{ !isNaN(item.value) ? item.value : "0.0" }}</p>
+                    <p v-if="item.value" class="item-value">{{ item.value ? item.value : "0.0" }}</p>
                     <p v-if="item.text" class="item-text">{{ item.text }}</p>
                 </div>
             </div>
@@ -45,6 +45,11 @@ export default {
     },
     tokensInfo: {
       type: Object
+    }
+  },
+  watch: {
+    tokensInfo() {
+      this.$nextTick();
     }
   },
   methods: {
@@ -72,8 +77,8 @@ export default {
   computed: {
     profileData() {
       return [
-        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.getUSDSumm("stakeToken") + "$" },
-        { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: this.getUSDSumm("mainToken")  + "$" },
+        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.getUSDSumm("stakeToken") + " $" },
+        { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: this.getUSDSumm("mainToken")  + " $" },
         { title: "Ratio",       icon: "spell-icon",  
           text: `1 sSPELL = ${this.toFixed(this.tokensInfo.tokensRate,4)} SPELL` },
         { title: "Staking APR", icon: ["spell-icon","sspell-icon"], text: (this.tokensInfo.apr || 0) + "%"  },
