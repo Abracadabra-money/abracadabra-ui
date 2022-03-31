@@ -445,6 +445,10 @@ export default {
         pool.token.decimals
       );
 
+      let borrowFee = 0.05;
+
+      if (pool.borrowFee) borrowFee = pool.borrowFee;
+
       let poolData = {
         name: pool.name,
         image: pool.image,
@@ -453,7 +457,7 @@ export default {
         bentoBoxAddress,
         isDepreciated: pool.isDepreciated,
         isSwappersActive: pool.isSwappersActive,
-        hasStrategy: pool.hasStrategy,
+        strategyLink: pool.strategyLink,
         contractInstance: poolContract,
         masterContractInstance: masterContract,
         acceptUseDefaultBalance: pool.acceptUseDefaultBalance || false,
@@ -463,7 +467,7 @@ export default {
         interest: pool.interest,
         ltv: pool.ltv,
         tvl,
-        borrowFee: pool.borrowFee || 0.5,
+        borrowFee,
         askUpdatePrice,
         initialMax: pool.initialMax,
         pairToken: pool.pairToken,
@@ -518,12 +522,7 @@ export default {
 
       let maxWithdrawAmount = -1;
 
-      const itsDontHaveStrategy =
-        ((pool.id === 27 || pool.id === 28) && this.chainId === "0x01") ||
-        (pool.id === 8 && this.chainId === "0xa86a") ||
-        ((pool.id === 6 || pool.id === 5) && this.chainId === "0xfa");
-
-      if (pool.isDegenBox && !itsDontHaveStrategy) {
+      if (pool.strategyLink) {
         const tokenWithdrawAmount = await pool.token.contract.balanceOf(
           pool.bentoBoxAddress
         );

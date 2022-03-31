@@ -2,11 +2,16 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
-        <template v-if="isDegenBox">
+        <a
+          target="_blank"
+          rel="noreferrer noopener"
+          :href="hasStrategy"
+          v-if="hasStrategy"
+        >
           <img src="@/assets/images/degenbox.svg" alt="degenbox" />
           <span>Degenbox strategy</span>
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
-        /></template>
+        /></a>
       </div>
       <button
         v-if="!isEmpty"
@@ -52,7 +57,7 @@
                 alt="info"
               />
 
-              <span class="info-list-name">{{ item.name }}:</span>
+              <span class="info-list-name">{{ item.title }}:</span>
               <span class="info-list-value">{{ item.value }}</span>
             </div>
           </div>
@@ -64,7 +69,7 @@
               </div>
               <div class="info-list-subitem">
                 <span class="info-list-name">1 {{ pool.name }}</span>
-                <span class="info-list-value">{{ tokentToMim }} MIM</span>
+                <span class="info-list-value">{{ tokenToMim }} MIM</span>
               </div>
             </div>
           </div>
@@ -75,6 +80,9 @@
 </template>
 
 <script>
+import { tokenPrices } from "@/utils/helpers.js";
+import { mapGetters } from "vuex";
+import { fetchTokenApy } from "@/utils/HelpersTokenAPY.js";
 export default {
   name: "StableInfo",
   props: {
@@ -85,20 +93,25 @@ export default {
       type: Boolean,
       default: false,
     },
-    isDegenBox: {
-      type: Boolean,
+    hasStrategy: {
+      type: [String, Boolean],
       default: false,
     },
-    tokentToMim: {
+
+    tokenToMim: {
       type: String,
     },
   },
   data: () => ({
     isInfoPressed: false,
     collateralDecimals: 4,
+    wOHMTosOHM: null,
+    tokenApy: null,
   }),
 
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     tokenInUsd() {
       return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
     },
@@ -141,14 +154,168 @@ export default {
         },
       ];
     },
+
     additionalInfo() {
-      return [
-        { name: "MIM Left To Borrow", value: this.borrowLeft },
-        { name: "Maximum collateral ratio", value: this.pool.ltv },
-        { name: "Liquidation fee", value: this.pool.stabilityFee },
-        { name: "Borrow fee", value: this.pool.borrowFee },
-        { name: "Interest", value: this.pool.interest },
-      ];
+      try {
+        const borrowLeftParsed = this.borrowLeft;
+
+        let liquidationDecimals = 4;
+        let collateralDecimals = 4;
+
+        if (this.pool.id === 20 && this.chainId === 1) liquidationDecimals = 6;
+
+        const jlpPools = [4, 6, 7];
+
+        if (
+          jlpPools.indexOf(this.pool.id) !== -1 &&
+          this.chainId === 43114 &&
+          +this.pool.userInfo.userCollateralShare
+        )
+          collateralDecimals = 9;
+
+        const resultArray = [
+          {
+            title: "Collateral Deposited",
+            value: parseFloat(this.pool.userInfo.userCollateralShare).toFixed(
+              collateralDecimals
+            ),
+            additional: "Amount of Tokens Deposited as Collaterals",
+          },
+          {
+            title: "Collateral Value",
+            value: `$${parseFloat(this.tokenInUsd).toFixed(4)}`,
+            additional:
+              "USD Value of the Collateral Deposited in your Position",
+          },
+          {
+            title: "MIM Borrowed",
+            value: `$${parseFloat(this.pool.userInfo.userBorrowPart).toFixed(
+              4
+            )}`,
+            additional: "MIM Currently Borrowed in your Position",
+          },
+        ];
+
+        if (this.pool.id === 10 && this.chainId === 1) {
+          resultArray.push({
+            title: "Liquidation Price",
+            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
+              4
+            )}`,
+            additional:
+              "This is the liquidation price of wsOHM, check the current price of wsOHM at the bottom right of the page!",
+          });
+        } else if (
+          (this.pool.id === 2 || this.pool.id === 5) &&
+          this.chainId === 43114
+        ) {
+          resultArray.push({
+            title: "wMEMO Liquidation Price",
+            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
+              4
+            )}`,
+            additional:
+              "Collateral Price at which your Position will be Liquidated",
+          });
+        } else {
+          resultArray.push({
+            title: "Liquidation Price",
+            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
+              liquidationDecimals
+            )}`,
+            additional:
+              "Collateral Price at which your Position will be Liquidated",
+          });
+        }
+
+        if (this.pool.id === 10 && this.ohmPrice && this.chainId === 1) {
+          const ohmLiquidationPrice =
+            this.pool.userInfo.liquidationPrice / this.wOHMTosOHM;
+
+          resultArray.push({
+            title: "OHM Liquidation Price",
+            value: `$${parseFloat(ohmLiquidationPrice).toFixed(4)}`,
+            additional:
+              "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
+          });
+        }
+
+        if (
+          (this.pool.id === 2 || this.pool.id === 5) &&
+          this.timePrice &&
+          this.chainId === 43114
+        ) {
+          const ohmLiquidationPrice =
+            this.pool.userInfo.liquidationPrice * this.MEMOTowMEMO;
+
+          resultArray.push({
+            title: "MEMO Liquidation Price",
+            value: `$${parseFloat(ohmLiquidationPrice).toFixed(4)}`,
+            additional:
+              "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
+          });
+        }
+
+        resultArray.push({
+          title: "MIM Left To Borrow",
+          value: `${borrowLeftParsed}`,
+          additional: "MIM Borrowable Given the Collateral Deposited",
+        });
+
+        if (this.pool.strategyLink) {
+          resultArray.push({
+            title: "Withdrawable Amount",
+            value: `${parseFloat(this.pool.userInfo.maxWithdrawAmount).toFixed(
+              6
+            )}`,
+            additional: `Maximum Current Amount of ${this.pool.token.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
+          });
+        }
+
+        if (this.tokenApy) {
+          const title = this.pool.strategyLink
+            ? "Your Position Approximate APY"
+            : "Your Position Apy";
+
+          const apyInfo = {
+            title: title,
+            value: `${parseFloat(this.tokenApy).toFixed(4)}%`,
+            additional: "APY Delivered by the Open Position",
+          };
+
+          resultArray.splice(2, 0, apyInfo);
+        }
+        return resultArray;
+      } catch (e) {
+        console.log("createCollateralInfo err: ", e);
+
+        return [];
+      }
+    },
+  },
+
+  watch: {
+    async pool() {
+      this.tokenApy = await fetchTokenApy(this.pool);
+    },
+  },
+
+  methods: {
+    async checkOHMInfo() {
+      console.log("ohm info");
+      if (this.pool.id === 10 && this.chainId === 1) {
+        const priceResp = await tokenPrices(["olympus"]);
+        this.ohmPrice = priceResp.olympus;
+
+        const wOHMTosOHMResp = await this.pool.token.contract.wOHMTosOHM(
+          "1000000000000000000"
+        );
+
+        this.wOHMTosOHM = this.$ethers.utils.formatUnits(
+          wOHMTosOHMResp.toString(),
+          9
+        );
+      }
     },
   },
 };
@@ -184,10 +351,13 @@ export default {
     min-height: 40px;
 
     .strategy {
-      display: grid;
-      grid-gap: 10px;
-      grid-template-columns: repeat(3, auto);
-      align-items: center;
+      a {
+        color: #fff;
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: repeat(3, auto);
+        align-items: center;
+      }
     }
 
     .info-btn {

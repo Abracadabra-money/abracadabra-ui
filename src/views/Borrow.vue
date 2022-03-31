@@ -44,7 +44,7 @@
 
       <div class="deposit-info underline" v-if="selectedPool">
         <span>LTV</span>
-        <span>{{ selectedPool.ltv }} %</span>
+        <span>{{ calculateLtv }}%</span>
       </div>
     </div>
 
@@ -53,8 +53,8 @@
       <StableInfo
         :pool="selectedPool"
         :isEmpty="selectedPool === null"
-        :isDegenBox="selectedPool ? selectedPool.isDegenBox : false"
-        :tokentToMim="tokentToMim"
+        :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
+        :tokenToMim="tokenToMim"
       />
       <template v-if="selectedPool">
         <div class="btn-wrap">
@@ -71,7 +71,7 @@
         <div class="info-list">
           <div v-for="(item, i) in infoData" :key="i" class="info-item">
             <span>{{ item.name }}:</span>
-            <span>{{ item.value }}</span>
+            <span>{{ item.value }}%</span>
           </div>
         </div>
       </template>
@@ -111,6 +111,7 @@ export default {
       isOpenPollPopup: false,
     };
   },
+
   computed: {
     ...mapGetters({
       pools: "getPools",
@@ -187,12 +188,17 @@ export default {
 
     infoData() {
       return [
+        {
+          name: "Maximum collateral ratio",
+          value: this.selectedPool.ltv,
+        },
+        { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
         { name: "Borrow Fee", value: this.selectedPool.borrowFee },
         { name: "Interest", value: this.selectedPool.interest },
       ];
     },
 
-    tokentToMim() {
+    tokenToMim() {
       if (this.selectedPool) {
         const tokenToMim = 1 / this.selectedPool.tokenPrice;
 
@@ -205,6 +211,21 @@ export default {
         return tokenToMim.toString().match(re)[0];
       }
       return "0.0";
+    },
+
+    calculateLtv() {
+      const tokenToMim = this.collateralValue / this.selectedPool.tokenPrice;
+
+      if (this.collateralValue && this.borrowValue) {
+        let ltv = Math.round((this.borrowValue / tokenToMim) * 100) + 1;
+
+        if (ltv <= this.selectedPool.ltv) {
+          return ltv;
+        }
+        return this.selectedPool.ltv;
+      }
+
+      return 0;
     },
   },
 

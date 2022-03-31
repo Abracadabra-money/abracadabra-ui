@@ -17,8 +17,8 @@
             <p>{{ pool.name }}</p>
           </div>
           <div class="token-value">
-            <p>{{ pool.initialMax }}</p>
-            <p>$ {{ Number(pool.totalBorrow).toFixed(2) }}</p>
+            <p>{{ pool.userInfo.userBalance }}</p>
+            <p>$ {{ priceUsd(pool) }}</p>
           </div>
         </button>
         <div class="token-spacer-wrap" :key="`spacer-${pool.id}`">
@@ -58,6 +58,10 @@ export default {
     selectPool(pool) {
       this.$emit("select", pool);
       this.$emit("close");
+    },
+
+    priceUsd(pool) {
+      return Number(pool.userInfo.userBalance * pool.tokenPrice).toFixed(4);
     },
   },
 

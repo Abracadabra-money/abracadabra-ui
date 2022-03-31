@@ -20,7 +20,6 @@ export default {
     icon() {
       let icon;
       iconArray.forEach((iconObj) => {
-        console.log("iconObj.tokenName", iconObj.tokenName === this.token);
         if (iconObj.tokenName === this.token) {
           icon = iconObj.tokenIcon;
         }
@@ -30,12 +29,6 @@ export default {
       return require(`@/assets/images/tokens-icon/Token_ETH.svg`);
     },
   },
-
-  created() {
-    console.log("iconArray", iconArray);
-  },
-
-  methods: {},
 };
 </script>
 
