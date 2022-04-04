@@ -1,5 +1,10 @@
 <template>
-  <button @click="$emit('select')" class="stats-item" :disabled="isSelected">
+  <button
+    @click="$emit('select')"
+    class="stats-item"
+    :class="{ 'stats-item-farm': isFarm }"
+    :disabled="isSelected"
+  >
     <span class="network-data" :class="{ 'network-data-new': isNew }">
       <img class="network-image" :src="icon" alt="network" />
       <span class="network-name-wrap">
@@ -7,21 +12,10 @@
         <span v-if="isNew" class="network-new">New</span>
       </span>
     </span>
-    <span>
-      <span class="column-title">TOTAL MIM BORROWED</span>
-      <span>14.35K</span>
-    </span>
-    <span>
-      <span class="column-title">MIMS LEFT TO BORROW</span>
-      <span>12.33K</span>
-    </span>
-    <span>
-      <span class="column-title">INTEREST</span>
-      <span>4%</span>
-    </span>
-    <span>
-      <span class="column-title">LIQUIDATION FEE</span>
-      <span>12.5%</span>
+
+    <span v-for="(item, i) in items" :key="i">
+      <span class="column-title">{{ item.title }}</span>
+      <span>{{ item.value }}</span>
     </span>
     <span class="degenbox">
       <img
@@ -56,6 +50,26 @@ export default {
     isSelected: {
       type: Boolean,
       default: false,
+    },
+    isFarm: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  computed: {
+    items() {
+      return this.isFarm
+        ? [
+            { title: "~Yield per $1000", value: "192.00" },
+            { title: "ROI Annually", value: "32.06%" },
+            { title: "TVL", value: "$ 11,653,678" },
+          ]
+        : [
+            { title: "TOTAL MIM BORROWED", value: "14.35K" },
+            { title: "MIMS LEFT TO BORROW", value: "12.33K" },
+            { title: "INTEREST", value: "4%" },
+            { title: "LIQUIDATION FEE", value: "12.5%" },
+          ];
     },
   },
 };
@@ -122,6 +136,7 @@ export default {
 .column-title {
   display: block;
   color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
 }
 
 .degenbox {
@@ -145,6 +160,9 @@ export default {
     height: 100px;
     font-size: 16px;
     border-radius: 30px;
+    &-farm {
+      grid-template-columns: 1fr 1fr 1fr 1fr 60px;
+    }
   }
   .network-data {
     margin-bottom: 0;
