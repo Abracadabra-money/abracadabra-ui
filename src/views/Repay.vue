@@ -230,6 +230,7 @@ export default {
   },
 
   methods: {
+    // changed
     updateCollateralValue(value) {
       this.collateralValue = value;
 
@@ -245,11 +246,31 @@ export default {
           this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
         }
       }
-    },
 
+      if (value === this.maxCollateralValue) {
+        this.borrowValue = +this.maxBorrowValue ? this.maxBorrowValue : "";
+        return false;
+      }
+    },
+    // changed
     updateBorrowValue(value) {
       if (parseFloat(value) > parseFloat(this.maxBorrowValue)) {
         this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
+        return false;
+      }
+
+      if (!value) {
+        this.borrowError = "";
+        this.borrowValue = value;
+      }
+
+      if (value === this.maxBorrowValue) {
+        this.borrowError = "";
+        this.collateralValue = +this.maxCollateralValue
+          ? this.maxCollateralValue
+          : "";
+        this.borrowValue = +this.maxBorrowValue ? this.maxBorrowValue : "";
+
         return false;
       }
 
@@ -351,26 +372,12 @@ export default {
       this.borrowValue = "";
       this.poolId = pool.id;
 
-      let approw = await this.isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
-      );
+      // let approw = await this.isTokenApprowed(
+      //   this.selectedPool.token.contract,
+      //   this.selectedPool.masterContractInstance.address
+      // );
 
-      this.isApproved = parseFloat(approw.toString()) > 0;
-    },
-
-    checkIsPoolAllowBorrow(amount) {
-      if (+amount < +this.selectedPool.dynamicBorrowAmount) {
-        return true;
-      }
-
-      // const notification = {
-      //   msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-      // };
-
-      // this.$store.commit("addNotification", notification);
-
-      return false;
+      // this.isApproved = parseFloat(approw.toString()) > 0;
     },
 
     toFixed(num, fixed) {
@@ -385,140 +392,131 @@ export default {
         this.borrowValue &&
         parseFloat(this.borrowValue) > 0
       ) {
-        this.collateralAndBorrowHandler();
+        this.repayCollateralAndBorrowHandler();
         return false;
       }
 
       if (this.collateralValue) {
-        this.collateralHandler();
+        this.repayCollateralHandler();
         return false;
       }
 
       if (this.borrowValue) {
-        this.borrowHandler();
+        this.repayBorrowHandler();
         return false;
       }
     },
 
-    async collateralAndBorrowHandler() {
-      const parsedCollateral = this.$ethers.utils.parseUnits(
-        this.collateralValue.toString(),
+    async repayCollateralAndBorrowHandler() {
+      let parsedCollateral = this.$ethers.utils.parseUnits(
+        this.toFixed(
+          this.collateralValue,
+          this.selectedPool.pairToken.decimals
+        ),
+        this.selectedPool.pairToken.decimals
+      );
+      let parsedBorrow = this.$ethers.utils.parseUnits(
+        this.borrowValue.toString(),
         this.selectedPool.token.decimals
       );
 
-      const parsedBorrow = this.$ethers.utils.parseUnits(
-        this.toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
-        this.selectedPool.pairToken.decimals
-      );
-
-      const payload = {
+      let payload = {
         collateralAmount: parsedCollateral,
         amount: parsedBorrow,
         updatePrice: this.selectedPool.askUpdatePrice,
-        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
       };
 
-      console.log("Add collateral and borrow $emit", payload);
-
-      let isTokenToCookApprove = await this.isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
-      );
-
-      if (isTokenToCookApprove.lt(payload.collateralAmount)) {
-        isTokenToCookApprove = await this.approveToken(
-          this.selectedPool.token.contract,
-          this.selectedPool.masterContractInstance.address
+      const finalCollateral =
+        await this.selectedPool.masterContractInstance.toShare(
+          this.selectedPool.token.address,
+          parsedBorrow,
+          true
         );
-      }
 
-      this.isApproved = await this.isApprowed();
-
-      if (isTokenToCookApprove) {
-        this.cookCollateralAndBorrow(
-          payload,
-          this.isApproved,
-          this.selectedPool
+      payload.amount = finalCollateral;
+      if (
+        this.collateralValue === this.selectedPool.userInfo.userBorrowPart &&
+        this.borrowValue === this.selectedPool.userInfo.userCollateralShare
+      ) {
+        parsedCollateral = this.$ethers.utils.parseUnits(
+          this.selectedPool.userInfo.userBorrowPart,
+          this.selectedPool.pairToken.decimals
         );
+        parsedBorrow = this.$ethers.utils.parseUnits(
+          this.selectedPool.userInfo.userCollateralShare,
+          this.selectedPool.token.decimals
+        );
+
+        payload = {
+          collateralAmount: parsedCollateral,
+          amount: parsedBorrow,
+          updatePrice: this.selectedPool.askUpdatePrice,
+        };
+
+        const finalCollateral =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.token.address,
+            parsedBorrow,
+            true
+          );
+
+        payload.amount = finalCollateral;
+        // start
+        // this.$emit("removeAndRepayMax", payload);
         return false;
       }
 
-      return false;
+      // start
+      // this.$emit("removeAndRepay", payload);
+
+      console.log("repayCollateralAndBorrowHandler", payload);
     },
 
-    async collateralHandler() {
-      const parsedCollateralValue = this.$ethers.utils.parseUnits(
-        this.collateralValue.toString(),
-        this.selectedPool.token.decimals
-      );
+    async repayCollateralHandler() {
+      const itsMax =
+        this.collateralValue === this.selectedPool.userInfo.userBorrowPart;
 
-      const payload = {
-        amount: parsedCollateralValue,
-        updatePrice: this.selectedPool.askUpdatePrice,
-        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
-      };
-
-      console.log("Add collateral $emit", payload);
-
-      let isTokenToCookApprove = await this.isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
-      );
-
-      if (isTokenToCookApprove.lt(payload.amount)) {
-        isTokenToCookApprove = await this.approveToken(
-          this.selectedPool.token.contract,
-          this.selectedPool.masterContractInstance.address
-        );
-      }
-
-      this.isApproved = await this.isApprowed();
-
-      if (isTokenToCookApprove) {
-        this.cookAddCollateral(payload, this.isApproved, this.selectedPool);
-        return false;
-      }
-
-      return false;
-    },
-
-    async borrowHandler() {
-      if (!this.checkIsPoolAllowBorrow(this.borrowValue)) {
-        return false;
-      }
-
-      const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        this.toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+      const parsedCollateral = this.$ethers.utils.parseUnits(
+        this.toFixed(
+          this.collateralValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 
       const payload = {
-        amount: parsedBorrowValue,
+        amount: parsedCollateral,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsMax,
+      };
+      // start
+      // this.$emit("repay", payload);
+
+      console.log("repayCollateralHandler", payload);
+    },
+
+    async repayBorrowHandler() {
+      const parsedBorrowValue = this.$ethers.utils.parseUnits(
+        this.borrowValue.toString(),
+        this.selectedPool.token.decimals
+      );
+
+      const collateralToShare =
+        await this.selectedPool.masterContractInstance.toShare(
+          this.selectedPool.token.address,
+          parsedBorrowValue.toString(),
+          true
+        );
+
+      const payload = {
+        amount: collateralToShare,
         updatePrice: this.selectedPool.askUpdatePrice,
       };
 
-      console.log("Add borrow $emit", payload);
+      // start
+      // this.$emit("removeCollateral", payload);
 
-      let isTokenToCookApprove = await this.isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
-      );
-
-      if (isTokenToCookApprove.eq(0)) {
-        isTokenToCookApprove = await this.approveToken(
-          this.selectedPool.token.contract,
-          this.selectedPool.masterContractInstance.address
-        );
-      }
-
-      this.isApproved = await this.isApprowed();
-
-      if (isTokenToCookApprove) {
-        this.cookBorrow(payload, this.isApproved, this.selectedPool);
-        return false;
-      }
-
-      return false;
+      console.log("repayBorrowHandler", payload);
     },
 
     async getMasterContract() {
