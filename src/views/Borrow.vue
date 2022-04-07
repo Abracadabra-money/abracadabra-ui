@@ -281,7 +281,7 @@ export default {
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         );
 
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+        const gasLimit = 1000 + +estimateGas.toString();
 
         console.log("gasLimit:", gasLimit);
 
@@ -318,32 +318,10 @@ export default {
     },
 
     async approveTokenHandler() {
-      try {
-        const estimateGas =
-          await this.selectedPool.pairTokenContract.estimateGas.approve(
-            this.selectedPool.masterContractInstance.address,
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.selectedPool.pairTokenContract.approve(
-          this.selectedPool.masterContractInstance.address,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
-
-        console.log(receipt);
-
-        this.isApproved = true;
-        return true;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-        return false;
-      }
+      this.isApproved = await this.approveToken(
+        this.selectedPool.token.contract,
+        this.selectedPool.masterContractInstance.address
+      );
     },
 
     async chosePool(pool) {
@@ -351,12 +329,23 @@ export default {
       this.borrowValue = "";
       this.poolId = pool.id;
 
-      let approw = await this.isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
-      );
+      this.isApproved = this.selectedPool?.token?.isTokenApprove;
+    },
 
-      this.isApproved = parseFloat(approw.toString()) > 0;
+    toFixed(num, fixed) {
+      // eslint-disable-next-line no-useless-escape
+      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
+      return num.toString().match(re)[0];
+    },
+
+    async getMasterContract() {
+      try {
+        const masterContract =
+          await this.selectedPool.contractInstance.masterContract();
+        return masterContract;
+      } catch (e) {
+        console.log("getMasterContract err:", e);
+      }
     },
 
     checkIsPoolAllowBorrow(amount) {
@@ -371,12 +360,6 @@ export default {
       // this.$store.commit("addNotification", notification);
 
       return false;
-    },
-
-    toFixed(num, fixed) {
-      // eslint-disable-next-line no-useless-escape
-      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
-      return num.toString().match(re)[0];
     },
 
     async actionHandler() {
@@ -434,7 +417,7 @@ export default {
 
       this.isApproved = await this.isApprowed();
 
-      if (isTokenToCookApprove) {
+      if (+isTokenToCookApprove) {
         this.cookCollateralAndBorrow(
           payload,
           this.isApproved,
@@ -474,7 +457,7 @@ export default {
 
       this.isApproved = await this.isApprowed();
 
-      if (isTokenToCookApprove) {
+      if (+isTokenToCookApprove) {
         this.cookAddCollateral(payload, this.isApproved, this.selectedPool);
         return false;
       }
@@ -513,22 +496,12 @@ export default {
 
       this.isApproved = await this.isApprowed();
 
-      if (isTokenToCookApprove) {
+      if (+isTokenToCookApprove) {
         this.cookBorrow(payload, this.isApproved, this.selectedPool);
         return false;
       }
 
       return false;
-    },
-
-    async getMasterContract() {
-      try {
-        const masterContract =
-          await this.selectedPool.contractInstance.masterContract();
-        return masterContract;
-      } catch (e) {
-        console.log("getMasterContract err:", e);
-      }
     },
   },
 

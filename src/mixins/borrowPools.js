@@ -320,6 +320,23 @@ export default {
       }
     },
 
+    async isTokenApprow(tokenContract, spenderAddress) {
+      try {
+        const addressApprowed = await tokenContract.allowance(
+          this.account,
+          spenderAddress,
+          {
+            gasLimit: 1000000,
+          }
+        );
+
+        return addressApprowed.toString() > 0;
+      } catch (e) {
+        console.log("isTokenApprow err:", e);
+        return false;
+      }
+    },
+
     async createPool(pool) {
       const poolContract = this.createContract(
         pool.contract.address,
@@ -371,6 +388,29 @@ export default {
       const contractExchangeRate = await this.getContractExchangeRate(
         poolContract
       );
+
+      let isTokenApprove = await this.isTokenApprow(
+        tokenContract,
+        masterContract.address
+      );
+
+      let isPairTokenApprove = await this.isTokenApprow(
+        pairTokenContract,
+        masterContract.address
+      );
+
+      let pairToken = { ...pool.pairToken, isPairTokenApprove };
+
+      let isTokenToSwapApprove;
+
+      if (pool?.swapContractInfo?.address) {
+        isTokenToSwapApprove = await this.isTokenApprow(
+          tokenContract,
+          pool.swapContractInfo.address
+        );
+      } else {
+        isTokenToSwapApprove = null;
+      }
 
       let tokenPairRate;
       let askUpdatePrice = false;
@@ -451,7 +491,6 @@ export default {
 
       let poolData = {
         name: pool.name,
-        image: pool.image,
         id: pool.id,
         isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
@@ -470,7 +509,7 @@ export default {
         borrowFee,
         askUpdatePrice,
         initialMax: pool.initialMax,
-        pairToken: pool.pairToken,
+        pairToken: pairToken,
         pairTokenContract,
         tokenPairPrice,
         tokenPrice,
@@ -480,13 +519,14 @@ export default {
         token: {
           contract: tokenContract,
           name: pool.token.name,
-          image: pool.token.image,
           address: pool.token.address,
           decimals: pool.token.decimals,
           oracleExchangeRate: tokenPairRate,
+          isTokenApprove,
         },
         userInfo: null,
         swapContract,
+        isTokenToSwapApprove,
         reverseSwapContract,
       };
 
