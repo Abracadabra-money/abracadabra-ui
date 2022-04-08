@@ -161,20 +161,28 @@ export default {
     actionBtnText() {
       if (!this.isApproved) return "Nothing to do";
 
-      if (this.isUserLocked && this.collateralValue) return "Nothing to do";
+      if (this.isUserLocked && +this.collateralValue > 0)
+        return "Nothing to do";
 
       if (this.collateralError || this.borrowError) return "Nothing to do";
 
       if (
-        this.collateralValue &&
-        this.borrowValue &&
-        parseFloat(this.borrowValue) > 0
+        +this.borrowValue > 0 &&
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
       )
         return "Add collateral and borrow";
 
-      if (this.collateralValue) return "Add collateral";
+      if (
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
+      )
+        return "Add collateral";
 
-      if (this.borrowValue) return "Borrow";
+      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
+        return "Borrow";
 
       return "Nothing to do";
     },
@@ -364,20 +372,25 @@ export default {
 
     async actionHandler() {
       if (
-        this.collateralValue &&
-        this.borrowValue &&
-        parseFloat(this.borrowValue) > 0
+        +this.borrowValue > 0 &&
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
       ) {
         this.collateralAndBorrowHandler();
         return false;
       }
 
-      if (this.collateralValue) {
+      if (
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
+      ) {
         this.collateralHandler();
         return false;
       }
 
-      if (this.borrowValue) {
+      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError) {
         this.borrowHandler();
         return false;
       }

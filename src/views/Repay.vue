@@ -152,29 +152,36 @@ export default {
 
       return 0;
     },
-    // -----------------
+
     actionBtnText() {
       if (!this.isApproved) return "Nothing to do";
 
-      if (this.isUserLocked && this.collateralValue) return "Nothing to do";
+      if (this.isUserLocked && +this.collateralValue > 0)
+        return "Nothing to do";
 
       if (this.collateralError || this.borrowError) return "Nothing to do";
 
       if (
-        this.collateralValue &&
-        this.borrowValue
-        // &&
-        // parseFloat(this.borrowValue) > 0
+        +this.borrowValue > 0 &&
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
       )
         return "Remove and Repay";
 
-      if (this.collateralValue) return "Remove collateral";
+      if (
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
+      )
+        return "Remove collateral";
 
-      if (this.borrowValue) return "Repay borrow";
+      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
+        return "Repay borrow";
 
       return "Nothing to do";
     },
-    // -----------------
+
     isUserLocked() {
       return (
         this.selectedPool.userInfo.userLockedTimestamp &&
@@ -330,7 +337,7 @@ export default {
       this.borrowValue = "";
       this.poolId = pool.id;
 
-      this.isApproved = this.selectedPool?.token?.isTokenApprove;
+      this.isApproved = this.selectedPool?.pairToken?.isPairTokenApprove;
     },
 
     toFixed(num, fixed) {
@@ -351,20 +358,25 @@ export default {
 
     async actionHandler() {
       if (
-        this.collateralValue &&
-        this.borrowValue
-        // && parseFloat(this.borrowValue) > 0
+        +this.borrowValue > 0 &&
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
       ) {
         this.repayCollateralAndBorrowHandler();
         return false;
       }
 
-      if (this.collateralValue) {
+      if (
+        +this.collateralValue > 0 &&
+        !this.collateralError &&
+        !this.borrowError
+      ) {
         this.repayCollateralHandler();
         return false;
       }
 
-      if (this.borrowValue) {
+      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError) {
         this.repayBorrowHandler();
         return false;
       }
