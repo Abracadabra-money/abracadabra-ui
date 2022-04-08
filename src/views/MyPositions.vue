@@ -2,48 +2,52 @@
   <div class="my-position-view">
     <h2 class="title">My positions</h2>
     <div class="choose">
-      <h4>Choose Chain</h4>
+      <h4 class="choose-title">Choose Chain</h4>
       <NetworksList :items="5" />
+    </div>
+
+    <div class="values-list">
+      <div v-for="(item, i) in textItems" :key="i" class="values-list-item">
+        <p class="values-list-title">{{ item.title }}</p>
+        <p class="values-list-value">{{ item.value }}</p>
+      </div>
+    </div>
+    <div class="balance-boxes">
+      <BalanceBox />
+      <BalanceBox />
+    </div>
+    <h2 class="title">Specific positions</h2>
+    <div class="spec-positions">
+      <SpecPos />
+      <SpecPos />
     </div>
   </div>
 </template>
 
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
+const BalanceBox = () => import("@/components/myPositions/BalanceBox");
+const SpecPos = () => import("@/components/myPositions/SpecPos");
 
 export default {
   data: () => ({
-    myPositions: [
+    textItems: [
       {
-        icon: require("@/assets/images/myposition/ETH.svg"),
-        name: "ETH",
-        status: "Safe",
-        collateral: "10",
-        borrowed: "15,000",
-        total: "32,504.49898",
+        title: "Collateral Deposit",
+        value: "10 $",
       },
       {
-        icon: require("@/assets/images/myposition/ETH.svg"),
-        name: "ETH",
-        status: "Medium",
-        collateral: "10",
-        borrowed: "15,000",
-        total: "32,504.49898",
+        title: "MIM Borrowed",
+        value: "10",
       },
       {
-        icon: require("@/assets/images/myposition/ETH.svg"),
-        name: "ETH",
-        status: "High",
-        collateral: "10",
-        borrowed: "15,000",
-        total: "32,504.49898",
+        title: "Yield Generated",
+        value: "10 %",
       },
     ],
-    activeTab: "repay",
-    activePosition: null,
   }),
 
-  components: { NetworksList },
+  components: { SpecPos, NetworksList, BalanceBox },
 };
 </script>
 
@@ -54,6 +58,7 @@ export default {
   width: 780px;
   max-width: 100%;
   box-sizing: border-box;
+  padding-bottom: 207px;
 }
 
 .title {
@@ -68,11 +73,65 @@ export default {
   max-width: 100%;
   overflow: hidden;
   margin-top: 40px;
+
+  &-title {
+    padding-bottom: 14px;
+  }
+}
+
+.values-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(auto-fill, 1fr);
+  row-gap: 33px;
+  padding: 20px 16px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  max-width: 100%;
+  margin-top: 16px;
+
+  &-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    line-height: 27px;
+  }
+
+  &-title {
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  &-value {
+    font-weight: 700;
+  }
+}
+
+.balance-boxes {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 30px;
+  margin-top: 16px;
+  margin-bottom: 32px;
+}
+
+.spec-positions {
+  display: grid;
+  grid-template-rows: repeat(auto-fill, auto);
+  row-gap: 24px;
+  margin-top: 40px;
 }
 
 @media (min-width: 1024px) {
   .choose {
     padding: 30px;
+  }
+  .values-list {
+    padding: 18px 40px 15px 20px;
+  }
+  .balance-boxes {
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>

@@ -8,13 +8,8 @@
         <h4>{{ title }}</h4>
         <div class="range-subtitle">{{ subtitle }}</div>
       </div>
-      <div
-        v-if="statusName"
-        class="range-status"
-        :style="{ backgroundColor: gradientColor }"
-      >
-        {{ statusName }}
-      </div>
+
+      <StatusName :isSafe="isSafe" :isMedium="isMedium" :isHigh="isHigh" />
     </div>
 
     <div
@@ -40,8 +35,11 @@
 </template>
 
 <script>
+const StatusName = () => import("@/components/UIComponents/StatusName");
+
 export default {
   name: "Range",
+  components: { StatusName },
   props: {
     min: { type: Number, default: 0 },
     max: { type: Number, default: 100 },
@@ -52,7 +50,7 @@ export default {
     coefficient: { type: String, default: "" },
     tooltipText: { type: String, default: "" },
 
-    isSafe: { type: Boolean, default: false },
+    isSafe: { type: Boolean, default: true },
     isMedium: { type: Boolean, default: false },
     isHigh: { type: Boolean, default: false },
   },
@@ -195,19 +193,6 @@ input[type="range"]::-moz-range-thumb {
 
 .range-subtitle {
   margin-left: 10px;
-}
-
-.range-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: white;
-  border: none;
-  border-radius: 32px;
-  width: 60px;
-  height: 30px;
-  line-height: 0;
 }
 
 .coefficient {
