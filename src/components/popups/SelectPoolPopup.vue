@@ -17,7 +17,7 @@
             <p>{{ pool.name }}</p>
           </div>
           <div class="token-value">
-            <p>{{ pool.userInfo.userBalance }}</p>
+            <p>{{ userBalance(pool) }}</p>
             <p>$ {{ priceUsd(pool) }}</p>
           </div>
         </button>
@@ -60,8 +60,14 @@ export default {
       this.$emit("close");
     },
 
+    userBalance(pool) {
+      return pool.userInfo?.userBalance ? pool.userInfo?.userBalance : 0;
+    },
+
     priceUsd(pool) {
-      return Number(pool.userInfo.userBalance * pool.tokenPrice).toFixed(4);
+      return pool.userInfo?.userBalance
+        ? Number(pool.userInfo?.userBalance * pool.tokenPrice).toFixed(4)
+        : 0;
     },
   },
 

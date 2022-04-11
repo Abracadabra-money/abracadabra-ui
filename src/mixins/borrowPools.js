@@ -389,26 +389,32 @@ export default {
         poolContract
       );
 
-      let isTokenApprove = await this.isTokenApprow(
-        tokenContract,
-        masterContract.address
-      );
+      let isTokenApprove, pairToken, isTokenToSwapApprove;
 
-      let isPairTokenApprove = await this.isTokenApprow(
-        pairTokenContract,
-        masterContract.address
-      );
-
-      let pairToken = { ...pool.pairToken, isPairTokenApprove };
-
-      let isTokenToSwapApprove;
-
-      if (pool?.swapContractInfo?.address) {
-        isTokenToSwapApprove = await this.isTokenApprow(
+      if (this.account) {
+        isTokenApprove = await this.isTokenApprow(
           tokenContract,
-          pool.swapContractInfo.address
+          masterContract.address
         );
+
+        let isPairTokenApprove = await this.isTokenApprow(
+          pairTokenContract,
+          masterContract.address
+        );
+
+        pairToken = { ...pool.pairToken, isPairTokenApprove };
+
+        if (pool?.swapContractInfo?.address) {
+          isTokenToSwapApprove = await this.isTokenApprow(
+            tokenContract,
+            pool.swapContractInfo.address
+          );
+        } else {
+          isTokenToSwapApprove = null;
+        }
       } else {
+        isTokenApprove = false;
+        pairToken = pool.pairToken;
         isTokenToSwapApprove = null;
       }
 

@@ -14,7 +14,7 @@
         /></a>
       </div>
       <button
-        v-if="!isEmpty"
+        v-if="!isEmpty && account"
         class="info-btn"
         @click="isInfoPressed = !isInfoPressed"
       >
@@ -110,10 +110,13 @@ export default {
   }),
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     tokenInUsd() {
-      return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
+      if (this.account) {
+        return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
+      }
+      return 0;
     },
 
     borrowLeft() {
@@ -135,9 +138,11 @@ export default {
       return [
         {
           name: "Collateral Deposit",
-          value: parseFloat(this.pool.userInfo.userCollateralShare).toFixed(
-            this.collateralDecimals
-          ),
+          value: this.account
+            ? parseFloat(this.pool.userInfo?.userCollateralShare).toFixed(
+                this.collateralDecimals
+              )
+            : 0,
         },
         {
           name: "Collateral Value",
@@ -146,11 +151,15 @@ export default {
 
         {
           name: "MIM Borrowed",
-          value: parseFloat(this.pool.userInfo.userBorrowPart).toFixed(4),
+          value: this.account
+            ? parseFloat(this.pool.userInfo?.userBorrowPart).toFixed(4)
+            : 0,
         },
         {
           name: "Liquidation Price",
-          value: parseFloat(this.pool.userInfo.liquidationPrice).toFixed(4),
+          value: this.account
+            ? parseFloat(this.pool.userInfo?.liquidationPrice).toFixed(4)
+            : 0,
         },
       ];
     },

@@ -126,7 +126,7 @@ export default {
     },
 
     maxCollateralValue() {
-      if (this.selectedPool) {
+      if (this.selectedPool && this.account) {
         return this.$ethers.utils.formatUnits(
           this.selectedPool.userInfo.userBalance
         );
@@ -136,7 +136,7 @@ export default {
     },
 
     maxBorrowValue() {
-      if (this.selectedPool) {
+      if (this.selectedPool && this.account) {
         let valueInDolars;
         let maxPairValue;
 
@@ -189,8 +189,8 @@ export default {
 
     isUserLocked() {
       return (
-        this.selectedPool.userInfo.userLockedTimestamp &&
-        Number(this.selectedPool.userInfo.userLockedTimestamp) !== 0
+        this.selectedPool.userInfo?.userLockedTimestamp &&
+        Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
       );
     },
 
