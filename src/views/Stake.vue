@@ -1,6 +1,12 @@
 <template>
   <div class="stake">
     <div class="choose">
+      <div >
+        <router-link style="color: white" to="/stake/">sSpell </router-link>
+        <router-link style="color: white" to="/stake/mSpell">mSpell</router-link>
+        <br/>
+        is mSpell?: {{isMSpell || "false"}}
+      </div>
       <h4>Choose Chain</h4>
       <div class="underline">
         <NetworksList />
@@ -8,7 +14,7 @@
       <div class="swap-wrap">
         <div class="token-input" :class="{active: action === actions[0]}">
           <div class="header-balance">
-            <h4>{{inputTitle(action === actions[0])}}</h4>
+            <h4>{{ inputTitle(action === actions[0]) }}</h4>
             <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
           </div>
           <ValueInput
@@ -85,6 +91,7 @@
   </div>
 </template>
 <script>
+
 const InfoBlock = () => import("@/components/stake/InfoBlock");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
@@ -115,6 +122,9 @@ export default {
       account: "getAccount",
       networks: "getAvailableNetworks"
     }),
+    isMSpell() {
+      return this.$route.meta.mSpell;
+    },
     info() {
       return (
         this.tokensInfo || {
@@ -131,7 +141,7 @@ export default {
       );
     },
     tokensInfo() {
-      return this.$store.getters.getSSpellObject;
+      return this.isMSpell ? this.$store.getters.getMSpellStakingObj : this.$store.getters.getSSpellObject;
     },
     fromToken() {
       if (this.action === STAKE) return this.info.stakeToken;
@@ -183,8 +193,10 @@ export default {
       return balance ? parseFloat(balance).toFixed(4) : 0;
     },
     toggleAction() {
+
       this.amount = "";
       this.amountError = "";
+
       if (this.action === STAKE) {
         this.action = UNSTAKE;
         return false;
@@ -194,14 +206,14 @@ export default {
         this.action = STAKE;
         return false;
       }
+      
     },
     updateMainValue(value) {
       if (+value > +this.fromToken.balance) {
         this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
-        return false;
+      } else {
+        this.amountError = "";
       }
-
-      this.amountError = "";
       this.amount = value;
     },
     async getUserLocked() {
