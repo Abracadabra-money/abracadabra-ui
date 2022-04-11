@@ -9,7 +9,7 @@ export default {
   data() {
     return {
       stakingContracts: {
-        "0x01": "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
+        "1": "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
         "0xfa": "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
         "0xa86a": "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
         "0xa4b1": "0x1DF188958A8674B5177f77667b8D173c3CdD9e51",
@@ -29,13 +29,14 @@ export default {
   },
   methods: {
     async createMSpellStaking() {
+      console.log("createMSpellStaking",Number(this.chainId).toString(16))
       if (!this.account) {
         this.$store.commit("setLoadingMSpellStake", false);
         return false;
       }
 
       const mSpellStakingAddr = this.stakingContracts[this.chainId];
-
+      console.log(mSpellStakingAddr)
       if (!mSpellStakingAddr) {
         this.$store.commit("setLoadingMSpellStake", false);
         return false;

@@ -107,7 +107,7 @@ const STAKE = "STAKE";
 const UNSTAKE = "UNSTAKE";
 
 export default {
-  mixins: [sspellToken,mSpellStaking],
+  mixins: [sspellToken, mSpellStaking],
   data() {
     return {
       actions: [STAKE, UNSTAKE],
@@ -121,6 +121,7 @@ export default {
   computed: {
     ...mapGetters({
       isLoadingsSpellStake: "getLoadingsSpellStake",
+      isLoadingMSpellStake: "getLoadingMSpellStake",
       account: "getAccount",
       networks: "getAvailableNetworks"
     }),
@@ -366,12 +367,20 @@ export default {
         return false;
       }
     },
+    async createStakeObjects() {
+      if (this.isMSpell) {
+        await this.createMSpellStaking();
+      } else {
+        await this.createStakePool();
+      }
+    },
   },
   async created() {
-    await this.createStakePool();
+    await this.createStakeObjects();
+    console.log(333,this.info)
     this.lockedUntil = await this.getUserLocked();
     this.spellUpdateInterval = setInterval(async () => {
-      await this.createStakePool();
+      await this.createStakeObjects();
       this.lockedUntil = await this.getUserLocked();
     }, 15000);
   },
