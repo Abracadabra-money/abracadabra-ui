@@ -5,7 +5,7 @@
         <router-link style="color: white" to="/stake/">sSpell </router-link>
         <router-link style="color: white" to="/stake/mSpell">mSpell</router-link>
         <br/>
-        is mSpell?: {{isMSpell || "false"}}
+        is mSpell?: {{ isMSpell || "false" }}
       </div>
       <h4>Choose Chain</h4>
       <div class="underline">
@@ -37,7 +37,7 @@
         </div>
         <div class="token-input" :class="{active: action === actions[1]}">
           <div class="header-balance">
-            <h4>{{inputTitle(action === actions[1])}}</h4>
+            <h4>{{ inputTitle(action === actions[1]) }}</h4>
             <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
           </div>
           <ValueInput
@@ -99,13 +99,15 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 import DefaultButton from "@/components/main/DefaultButton.vue";
 
 import { mapGetters } from "vuex";
+
+import mSpellStaking from "@/mixins/mSpellStaking";
 import sspellToken from "@/mixins/sspellToken";
 
 const STAKE = "STAKE";
 const UNSTAKE = "UNSTAKE";
 
 export default {
-  mixins: [sspellToken],
+  mixins: [sspellToken,mSpellStaking],
   data() {
     return {
       actions: [STAKE, UNSTAKE],
@@ -126,6 +128,9 @@ export default {
       return this.$route.meta.mSpell;
     },
     info() {
+      switch(true) {
+        case this.isMSpell:
+      }
       return (
         this.tokensInfo || {
           stakeToken: {},
