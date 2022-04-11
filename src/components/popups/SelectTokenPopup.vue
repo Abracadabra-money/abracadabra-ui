@@ -10,7 +10,7 @@
       />
     </div>
     <div class="tokens-list">
-      <template v-for="(token, i) in tokens">
+      <template v-for="(token, i) in filteredTokens">
         <button
           @click="selectToken(token)"
           class="token-wrap"
@@ -30,9 +30,9 @@
           </div>
         </button>
         <div
-          v-if="i !== tokens.length - 1"
+          v-if="i !== filteredTokens.length - 1"
           class="token-spacer-wrap"
-          :key="`spacer-${token.chainId}`"
+          :key="`spacer-${token.id}`"
         >
           <div class="token-spacer"></div>
         </div>
@@ -56,6 +56,16 @@ export default {
     selectToken(chainId) {
       this.$emit("select", chainId);
       this.$emit("close");
+    },
+  },
+  computed: {
+    filteredTokens() {
+      return !this.search
+        ? this.tokens
+        : this.tokens.filter(
+            ({ name }) =>
+              name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+          );
     },
   },
 };

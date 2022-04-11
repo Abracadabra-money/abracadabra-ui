@@ -133,11 +133,18 @@ export default {
         };
       }
 
+      const accountBalance = await erc20ContractInstance.balanceOf(
+        this.account
+      );
+
+      const balance = this.$ethers.utils.formatEther(accountBalance.toString());
+
       return {
         userInfo,
         userReward,
         allowance,
         tokensBalanceInfo,
+        balance,
       };
     },
     async createFarmPool(farmPoolInfo) {

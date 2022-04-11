@@ -10,7 +10,11 @@
 
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
-          <button class="select" @click="isTokensOpened = true">
+          <button
+            class="select"
+            @click="isTokensOpened = true"
+            :disabled="loading"
+          >
             <img class="select-icon" :src="selectedPoolIcon" alt="" />
             <span class="select-text">
               {{ selectedPool ? selectedPool.name : "Select Farm" }}
@@ -22,31 +26,48 @@
             />
           </button>
         </div>
+        <template v-if="selectedPool">
+          <div class="input-wrap underline">
+            <h4 class="sub-title">Deposit LP tokens</h4>
+            <ValueInput
+              v-model="amount"
+              :name="selectedPool.stakingTokenName"
+              :max="max"
+            />
+          </div>
 
-        <div class="input-wrap underline">
-          <h4 class="sub-title">Deposit LP tokens</h4>
-          <ValueInput :disabled="!selectedPool" v-model="amount" />
+          <div class="btn-wrap" v-if="selectedPool">
+            <DefaultButton v-if="!isAllowance" @click="approveHandler"
+              >Approve</DefaultButton
+            >
+            <template v-else>
+              <DefaultButton @click="stakeHandler" :disabled="!isValid"
+                >Stake</DefaultButton
+              >
+              <DefaultButton @click="unstakeHandler" :disabled="!isValid"
+                >Unstake</DefaultButton
+              ></template
+            >
+          </div></template
+        >
+      </div>
+      <template v-if="selectedPool">
+        <div v-for="(item, i) in bottomItems" :key="i" class="info underline">
+          <p class="info-text">
+            <img src="@/assets/images/info.svg" alt="" />
+            {{ item.title }}
+          </p>
+          <p class="info-value">{{ item.value }}</p>
         </div>
 
-        <div class="btn-wrap" v-if="selectedPool">
-          <DefaultButton v-if="!isAllowance" @click="approveHandler"
-            >Approve</DefaultButton
-          >
-          <DefaultButton v-else @click="stakeHandler" :disabled="!amount">Stake</DefaultButton>
-        </div>
-      </div>
-
-      <div class="info underline">
-        <p class="info-text">
-          <img src="@/assets/images/info.svg" alt="" />
-          Approximate staking APR
-        </p>
-        <p class="info-value">26.9887</p>
-      </div>
-
-      <a class="farm-link" href="#" target="_blank">Get LP’s</a>
+        <a
+          class="farm-link"
+          :href="selectedPool.stakingTokenLink"
+          target="_blank"
+          >Get LP’s</a
+        ></template
+      >
     </div>
-
     <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
       <SelectTokenPopup
         @select="poolId = $event.id"
@@ -73,13 +94,21 @@ export default {
     return {
       poolId: null,
       isTokensOpened: false,
-      amount: ''
+      amount: "",
     };
   },
   computed: {
     ...mapGetters({
       address: "getAccount",
+      loading: "getFarmPoolLoading",
     }),
+    bottomItems() {
+      return [
+        { title: "~Yield per $1000", value: this.selectedPool.poolYield },
+        { title: "ROI Annually", value: this.selectedPool.poolRoi },
+        { title: "TVL", value: this.selectedPool.poolTvl },
+      ];
+    },
     selectedPool() {
       return this.pools.find(({ id }) => id === this.poolId) || null;
     },
@@ -89,6 +118,12 @@ export default {
     },
     isAllowance() {
       return !!this.selectedPool?.userData?.allowance;
+    },
+    max() {
+      return this.selectedPool?.userData?.balance;
+    },
+    isValid() {
+      return this.amount && this.amount !== "0.0";
     },
   },
   methods: {
@@ -108,6 +143,24 @@ export default {
         console.log("stake success:", receipt);
       } catch (error) {
         console.log("stake err:", error);
+      }
+    },
+    async unstakeHandler() {
+      try {
+        const parseAmount = this.$ethers.utils.parseEther(
+          this.amount.toString()
+        );
+
+        const tx = await this.selectedPool.contractInstance.withdraw(
+          this.selectedPool.poolId,
+          parseAmount
+        );
+
+        const receipt = await tx.wait();
+
+        console.log("unstakeHandler success:", receipt);
+      } catch (error) {
+        console.log("unstakeHandler err:", error);
       }
     },
     async approveHandler() {
@@ -211,6 +264,10 @@ export default {
   align-items: center;
   justify-content: center;
   color: #fff;
+
+  &:disabled {
+    cursor: default;
+  }
 }
 
 .select-icon {
@@ -236,6 +293,9 @@ export default {
 }
 
 .btn-wrap {
+  display: grid;
+  grid-template-rows: repeat(auto-fill, 1fr);
+  row-gap: 1rem;
   margin-bottom: 150px;
 }
 

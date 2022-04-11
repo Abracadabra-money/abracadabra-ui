@@ -17,5 +17,8 @@ export default {
     getFarmPoolById: (state) => (id) => {
       return state.farmPools.find((pool) => pool.id === id);
     },
+    getFarmPoolLoading: (state) => {
+      return state.isLoadingPoolsFarm;
+    },
   },
 };
