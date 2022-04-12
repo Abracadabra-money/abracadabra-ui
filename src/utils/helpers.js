@@ -1,8 +1,4 @@
-// TODO: refactoring
-
 import axios from "axios";
-// import Web3 from "web3";
-// const web3 = new Web3();
 
 const config = {
   headers: {
@@ -10,21 +6,11 @@ const config = {
   },
 };
 
-// export const fromWei = (value, weiFormat) => {
-//   return web3.utils.fromWei(value, weiFormat);
-// };
-
-// export const toWei = (value, weiFormat) => {
-//   return web3.utils.toWei(value, weiFormat);
-// };
-
-// export const BigInt = (value) => {
-//   return web3.utils.toBN(value);
-// };
-
-// export const numberWithCommas = (x) => {
-//   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-// };
+export const toFixed = (num, fixed) => {
+  // eslint-disable-next-line no-useless-escape
+  let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
+  return num.toString().match(re)[0];
+};
 
 export const tokenPrices = async (tokens) => {
   const prices = {};

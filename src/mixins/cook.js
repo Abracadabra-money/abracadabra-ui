@@ -1010,5 +1010,170 @@ export default {
         console.log("COOK ERR:", e.code);
       }
     },
+
+    // leverage
+    async cookMultiBorrow(
+      { collateralAmount, amount, updatePrice, minExpected, itsDefaultBalance },
+      isApprowed,
+      pool
+    ) {
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.token.address;
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
+
+      const swapperAddres = pool.swapContract.address;
+      const userAddr = this.account;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        console.log("approvalEncode in COOK", approvalEncode);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          console.log("aproveMasterContract resp: ", approvalMaster);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      //10
+      const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-0x02", userAddr, false]
+      );
+
+      if (collateralAmount) {
+        //20
+        const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [tokenAddr, userAddr, collateralAmount, "0"]
+        );
+
+        eventsArray.push(20);
+        valuesArray.push(collateralValue);
+        datasArray.push(getDepositEncode1);
+
+        eventsArray.push(10);
+        valuesArray.push(0);
+        datasArray.push(getCollateralEncode2);
+      }
+
+      //5
+      const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, swapperAddres]
+      );
+
+      eventsArray.push(5);
+      valuesArray.push(0);
+      datasArray.push(getBorrowSwapperEncode2);
+
+      const swapStaticTx = await pool.swapContract.populateTransaction.swap(
+        userAddr,
+        minExpected,
+        0,
+        {
+          gasLimit: 10000000,
+        }
+      );
+
+      const swapCallByte = swapStaticTx.data.substr(0, 138);
+
+      //30
+      const getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [swapperAddres, swapCallByte, false, true, 2]
+      );
+
+      eventsArray.push(30);
+      valuesArray.push(0);
+      datasArray.push(getCallEncode2);
+
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode2);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
+      console.log("cookData", cookData.datas.join());
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+
+        console.log("gasLimit for cook:", gasLimit);
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        const notification = {
+          msg: this.cookSuccessText,
+        };
+
+        console.log("notification", notification);
+        // this.$store.commit("addNotification", notification);
+      } catch (e) {
+        console.log("MULTI COOK ERR:", e);
+
+        if (e.code === "UNPREDICTABLE_GAS_LIMIT") {
+          const notification = {
+            msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
+          };
+
+          // this.$store.commit("addNotification", notification);
+          console.log("notification", notification);
+        }
+
+        if (e.data.message === "execution reverted: Cauldron: call failed") {
+          const notification = {
+            msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
+          };
+
+          // this.$store.commit("addNotification", notification);
+          console.log("notification", notification);
+        }
+      }
+    },
   },
 };
