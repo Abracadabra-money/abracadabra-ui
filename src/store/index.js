@@ -7,6 +7,7 @@ import notifications from "@/store/modules/notifications";
 import bridge from "@/store/modules/bridge";
 import popups from "@/store/modules/popups";
 import pools from "@/store/modules/pools";
+import farms from "@/store/modules/farms";
 
 Vue.use(Vuex);
 
@@ -21,5 +22,6 @@ export default new Vuex.Store({
     bridge,
     popups,
     pools,
+    farms,
   },
 });
