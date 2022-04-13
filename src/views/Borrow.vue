@@ -286,31 +286,16 @@ export default {
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
-    toFixed(num, fixed) {
-      // eslint-disable-next-line no-useless-escape
-      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
-      return num.toString().match(re)[0];
-    },
-
-    async getMasterContract() {
-      try {
-        const masterContract =
-          await this.selectedPool.contractInstance.masterContract();
-        return masterContract;
-      } catch (e) {
-        console.log("getMasterContract err:", e);
-      }
-    },
-
     checkIsPoolAllowBorrow(amount) {
       if (+amount < +this.selectedPool.dynamicBorrowAmount) {
         return true;
       }
 
-      // const notification = {
-      //   msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-      // };
+      const notification = {
+        msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
+      };
 
+      console.log("notification", notification);
       // this.$store.commit("addNotification", notification);
 
       return false;

@@ -5,7 +5,6 @@
       <div class="underline">
         <NetworksList />
       </div>
-
       <div class="collateral-input underline">
         <div class="header-balance">
           <h4>Remove collateral</h4>
@@ -13,7 +12,6 @@
             {{ maxCollateralValue }}
           </p>
         </div>
-
         <ValueInput
           :icon="selectedPool ? selectedPool.icon : null"
           :name="selectedPool ? selectedPool.name : null"
@@ -30,7 +28,6 @@
         <div class="header-balance">
           <h4>Repay MIM</h4>
         </div>
-
         <ValueInput
           :icon="require('@/assets/images/tokens-icon/Token_MIM.svg')"
           name="MIM"
@@ -42,7 +39,6 @@
         />
       </div>
     </div>
-
     <div class="info-block">
       <h1 class="title">Repay MIM</h1>
       <StableInfo
@@ -71,7 +67,6 @@
         </div>
       </template>
     </div>
-
     <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
       <SelectPoolPopup
         @select="chosePool($event)"
@@ -91,6 +86,12 @@ const SelectPoolPopup = () => import("@/components/popups/SelectPoolPopup");
 
 import borrowPoolsMixin from "@/mixins/borrowPools.js";
 import cookMixin from "@/mixins/cook.js";
+import {
+  isTokenApprowed,
+  approveToken,
+  isApprowed,
+} from "@/utils/approveHelpers.js";
+import { toFixed } from "@/utils/helpers.js";
 
 import { mapGetters } from "vuex";
 export default {
@@ -265,68 +266,8 @@ export default {
       this.borrowValue = value;
     },
 
-    async isTokenApprowed(tokenContract, spenderAddress) {
-      try {
-        const addressApprowed = await tokenContract.allowance(
-          this.account,
-          spenderAddress,
-          {
-            gasLimit: 1000000,
-          }
-        );
-
-        return addressApprowed;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-        return false;
-      }
-    },
-
-    async approveToken(tokenContract, spenderAddress) {
-      try {
-        const estimateGas = await tokenContract.estimateGas.approve(
-          spenderAddress,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-        );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
-
-        const tx = await tokenContract.approve(
-          spenderAddress,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
-
-        console.log("APPROVE RESP:", receipt);
-
-        return true;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-        return false;
-      }
-    },
-
-    async isApprowed() {
-      try {
-        const masterContract = await this.getMasterContract();
-        const addressApprowed =
-          await this.selectedPool.masterContractInstance.masterContractApproved(
-            masterContract,
-            this.account
-          );
-        return addressApprowed;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-      }
-    },
-
     async approveTokenHandler() {
-      this.isApproved = await this.approveToken(
+      this.isApproved = await approveToken(
         this.selectedPool.pairTokenContract,
         this.selectedPool.masterContractInstance.address
       );
@@ -338,22 +279,6 @@ export default {
       this.poolId = pool.id;
 
       this.isApproved = this.selectedPool?.pairToken?.isPairTokenApprove;
-    },
-
-    toFixed(num, fixed) {
-      // eslint-disable-next-line no-useless-escape
-      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
-      return num.toString().match(re)[0];
-    },
-
-    async getMasterContract() {
-      try {
-        const masterContract =
-          await this.selectedPool.contractInstance.masterContract();
-        return masterContract;
-      } catch (e) {
-        console.log("getMasterContract err:", e);
-      }
     },
 
     async actionHandler() {
@@ -383,13 +308,14 @@ export default {
     },
 
     async isCookApprove(pool, amount) {
-      let isTokenToCookApprove = await this.isTokenApprowed(
+      let isTokenToCookApprove = await isTokenApprowed(
         pool.pairTokenContract,
-        pool.masterContractInstance.address
+        pool.masterContractInstance.address,
+        this.account
       );
 
       if (isTokenToCookApprove.lt(amount)) {
-        isTokenToCookApprove = await this.approveToken(
+        isTokenToCookApprove = await approveToken(
           pool.pairTokenContract,
           pool.masterContractInstance.address
         );
@@ -401,10 +327,7 @@ export default {
     async repayCollateralAndBorrowHandler() {
       let isTokenToCookApprove;
       let parsedCollateral = this.$ethers.utils.parseUnits(
-        this.toFixed(
-          this.collateralValue,
-          this.selectedPool.pairToken.decimals
-        ),
+        toFixed(this.collateralValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals
       );
       let parsedBorrow = this.$ethers.utils.parseUnits(
@@ -459,10 +382,14 @@ export default {
           payload.collateralAmount
         );
 
-        const isApprowed = await this.isApprowed();
+        this.isApproved = await isApprowed(this.selectedPool, this.account);
 
         if (+isTokenToCookApprove) {
-          this.cookRemoveAndRepayMax(payload, isApprowed, this.selectedPool);
+          this.cookRemoveAndRepayMax(
+            payload,
+            this.isApproved,
+            this.selectedPool
+          );
           return false;
         }
 
@@ -474,10 +401,10 @@ export default {
         payload.collateralAmount
       );
 
-      const isApprowed = await this.isApprowed();
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookRemoveAndRepay(payload, isApprowed, this.selectedPool);
+        this.cookRemoveAndRepay(payload, this.isApproved, this.selectedPool);
         return false;
       }
     },
@@ -487,10 +414,7 @@ export default {
         this.collateralValue === this.selectedPool.userInfo.userBorrowPart;
 
       const parsedCollateral = this.$ethers.utils.parseUnits(
-        this.toFixed(
-          this.collateralValue,
-          this.selectedPool.pairToken.decimals
-        ),
+        toFixed(this.collateralValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals
       );
 
@@ -507,10 +431,10 @@ export default {
         payload.amount
       );
 
-      const isApprowed = await this.isApprowed();
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookRepayCollateral(payload, isApprowed, this.selectedPool);
+        this.cookRepayCollateral(payload, this.isApproved, this.selectedPool);
         return false;
       }
     },
@@ -535,9 +459,9 @@ export default {
 
       console.log("repayBorrowHandler", payload);
 
-      const isApprowed = await this.isApprowed();
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
 
-      this.cookRemoveCollateral(payload, isApprowed, this.selectedPool);
+      this.cookRemoveCollateral(payload, this.isApproved, this.selectedPool);
     },
   },
 
