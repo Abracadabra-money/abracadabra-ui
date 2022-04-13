@@ -1175,5 +1175,196 @@ export default {
         }
       }
     },
+
+    // deleverage
+    async cookFlashRepay(
+      {
+        borrowAmount,
+        collateralAmount,
+        removeCollateralAmount,
+        updatePrice,
+        itsMax,
+      },
+      isApprowed,
+      pool,
+      account
+    ) {
+      const borrowTokenAddr = pool.pairToken.address;
+      const collateralTokenAddr = pool.token.address;
+      const reverseSwapperAddr = pool.reverseSwapContract.address;
+      const userAddr = account;
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        console.log("approvalEncode in COOK", approvalEncode);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          console.log("aproveMasterContract resp: ", approvalMaster);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      // 4
+      const removeCollateralToSwapper =
+        this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [collateralAmount, reverseSwapperAddr]
+        );
+
+      eventsArray.push(4);
+      valuesArray.push(0);
+      datasArray.push(removeCollateralToSwapper);
+
+      const swapStaticTx =
+        await pool.reverseSwapContract.populateTransaction.swap(
+          collateralTokenAddr,
+          borrowTokenAddr,
+          userAddr,
+          0,
+          collateralAmount,
+          {
+            gasLimit: 10000000,
+          }
+        );
+
+      const swapCallByte = swapStaticTx.data;
+
+      // 30
+      const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [reverseSwapperAddr, swapCallByte, false, false, 2]
+      );
+
+      eventsArray.push(30);
+      valuesArray.push(0);
+      datasArray.push(callEncode);
+
+      if (itsMax) {
+        // 2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          [userBorrowPart, userAddr, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      } else {
+        // 2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          [borrowAmount, userAddr, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      }
+
+      if (+removeCollateralAmount > 0) {
+        // 4
+        const removeCollateralFinal = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [removeCollateralAmount, userAddr]
+        );
+
+        eventsArray.push(4);
+        valuesArray.push(0);
+        datasArray.push(removeCollateralFinal);
+
+        // 21
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [collateralTokenAddr, userAddr, "0x00", removeCollateralAmount]
+        );
+
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(bentoWithdrawEncode);
+      }
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
+      console.log("cookData", `[${cookData.datas.join()}]`);
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+
+        console.log("gasLimit for cook:", gasLimit);
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+      } catch (e) {
+        console.log("FLASH REPAY COOK ERR:", e.error);
+        console.log("FLASH REPAY COOK ERR:", e.data);
+        if (e.error === "execution reverted: Cauldron: user insolvent") {
+          const notification = {
+            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
+          };
+          console.log("notification", notification);
+          // this.$store.commit("addNotification", notification);
+        }
+
+        if (e.error?.message === "execution reverted: BoringMath: Underflow") {
+          const notification = {
+            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
+          };
+
+          console.log("notification", notification);
+          // this.$store.commit("addNotification", notification);
+        }
+
+        if (e.data?.message === "execution reverted: BoringMath: Underflow") {
+          const notification = {
+            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
+          };
+
+          console.log("notification", notification);
+          // this.$store.commit("addNotification", notification);
+        }
+      }
+    },
   },
 };

@@ -25,6 +25,11 @@ const routes = [
     component: () => import("@/views/Leverage"),
   },
   {
+    path: "/deleverage",
+    name: "DeLeverage",
+    component: () => import("@/views/DeLeverage"),
+  },
+  {
     path: "/bridge",
     name: "Bridge",
     component: () => import("@/views/Bridge"),

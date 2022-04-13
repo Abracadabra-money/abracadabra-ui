@@ -30,17 +30,32 @@
             <img src="@/assets/images/settings.png" alt="settings" />
           </button>
         </div>
-        <Range v-model="multiplier" :min="1" :max="maxLeverage" />
-        <p>Liquidation Price &#126; ${{ liquidationPriceExpected }}</p>
+        <Range
+          v-model="flashRepayAmount"
+          :min="0"
+          :max="+maxFlashRepayAmount"
+          :step="+borrowStepRange"
+          title="Choose the amount of MIM you want to repay"
+        />
+        <p>Flash Repay Amount {{ flashRepayAmount }}</p>
         <p>
-          Expected MIM amount &#126;
-          {{ parseFloat(multiplyMimExpected).toFixed(4) }}
+          Liquidation Price &#126; ${{
+            parseFloat(flashReapyExpectedLiquidationPrice).toFixed(4)
+          }}
         </p>
-        <p>Expected leverage &#126; {{ expectedLeverage }}x</p>
+        <Range
+          title="Choose the amount of collateral you want to remove"
+          v-model="flashRepayRemoveAmount"
+          :min="0"
+          :max="maxFlashRepayRemoveAmount"
+          :step="+collateralStepRange"
+        />
+        <p>{{ flashRepayRemoveAmount }} {{ selectedPool.token.name }}</p>
+        <p>Amount of MIM to repay {{ flashRepayAmountFormat }}</p>
       </div>
     </div>
     <div class="info-block">
-      <h1 class="title">Leverage UP</h1>
+      <h1 class="title">Leverage Down</h1>
       <StableInfo
         :pool="selectedPool"
         :isEmpty="selectedPool === null"
@@ -110,10 +125,9 @@ export default {
       isApproved: false,
       isOpenPollPopup: false,
       isSettingsOpened: false,
-      multiplier: 1,
-      percentValue: "",
-      mimAmount: 0,
       slipage: 1,
+      flashRepayAmount: 0,
+      flashRepayRemoveAmount: 0,
     };
   },
 
@@ -121,6 +135,7 @@ export default {
     ...mapGetters({
       pools: "getPools",
       account: "getAccount",
+      chainId: "getChainId",
     }),
 
     selectedPool() {
@@ -169,10 +184,9 @@ export default {
       if (this.isUserLocked && +this.collateralValue > 0)
         return "Nothing to do";
 
-      if (this.collateralError) return "Nothing to do";
-
-      if (+this.collateralValue > 0 && !this.collateralError)
-        return "Add Collateral and Borrow";
+      if (+this.flashRepayAmount && +this.flashRepayRemoveAmount)
+        return "Flash repay & Remove collateral";
+      if (+this.flashRepayAmount) return "Flash Repay";
 
       return "Nothing to do";
     },
@@ -211,112 +225,137 @@ export default {
       return "0.0";
     },
 
-    maxLeverage() {
-      if (this.selectedPool) {
-        if (this.selectedPool.ltv === 90 && this.selectedPool.id !== 17) {
-          return 30;
-        }
-      }
-
-      return 15;
-    },
-
-    depositExpectedBorrowed() {
-      if (this.collateralError)
-        return +this.selectedPool.userInfo.userBorrowPart;
-      return +this.mimAmount + +this.selectedPool.userInfo.userBorrowPart;
-    },
-
-    depositExpectedCollateral() {
-      if (this.collateralError)
-        return +this.selectedPool.userInfo.userCollateralShare;
-      return (
-        +this.collateralValue + +this.selectedPool.userInfo.userCollateralShare
-      );
-    },
-
     liquidationMultiplier() {
       return this.selectedPool ? this.selectedPool.ltv / 100 : 0;
     },
 
-    depositExpectedLiquidationPrice() {
+    borrowStepRange() {
+      return "0.0001";
+    },
+
+    collateralStepRange() {
+      const jlpPools = [4, 6, 7];
+
+      if (
+        jlpPools.indexOf(this.selectedPool.id) !== -1 &&
+        this.chainId === 43114
+      )
+        return "0.00000001";
+      if (this.selectedPool.token.decimals === 18) return "0.00001";
+
+      return "0.0001";
+    },
+
+    maxFlashRepayAmount() {
+      if (this.selectedPool) {
+        return toFixed(this.selectedPool.userInfo.contractBorrowPartParsed, 4);
+      }
+      return 0;
+    },
+
+    maxFlashRepayRemoveAmount() {
+      if (!+this.flashRepayAmount) return 0;
+
+      const persent =
+        this.flashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
+
+      const slipageMutiplier = (100 + this.slipage) / 100;
+
+      const expectedToRepayCollateral =
+        this.flashRepayAmount *
+        this.selectedPool.tokenOraclePrice *
+        slipageMutiplier;
+
+      const expectedToRepayBorrow = this.flashRepayAmount;
+
+      const expectedBorrowBalance =
+        this.selectedPool.userInfo.userBorrowPart - expectedToRepayBorrow;
+      const expectedCollateralBalance =
+        this.selectedPool.userInfo.userCollateralShare -
+        expectedToRepayCollateral;
+
+      const borrowedInDolarts =
+        expectedBorrowBalance / this.selectedPool.tokenPairPrice;
+
+      const collateralInDolarts =
+        expectedCollateralBalance / this.selectedPool.tokenOraclePrice;
+
+      const userHasDolars = collateralInDolarts - borrowedInDolarts;
+      const acceptedPercent = userHasDolars / collateralInDolarts;
+
+      const maxFlashRepayRemoveAmount =
+        expectedCollateralBalance * acceptedPercent * 0.995 * persent;
+
+      if (
+        this.selectedPool.userInfo.maxWithdrawAmount !== -1 &&
+        +this.selectedPool.userInfo.maxWithdrawAmount <
+          +maxFlashRepayRemoveAmount
+      ) {
+        const parsedMaxContractWithdrawAmount = parseFloat(
+          this.selectedPool.userInfo.maxWithdrawAmount
+        ).toFixed(20);
+
+        let re = new RegExp(
+          // eslint-disable-next-line no-useless-escape
+          `^-?\\d+(?:\.\\d{0,` +
+            (this.selectedPool.pairToken.decimals || -1) +
+            `})?`
+        );
+        return parsedMaxContractWithdrawAmount.toString().match(re)[0];
+      }
+
+      return +maxFlashRepayRemoveAmount;
+    },
+
+    flashReapyExpectedLiquidationPrice() {
+      if (!+this.flashRepayAmount) return 0;
+
+      const slipageMutiplier = (100 + this.slipage) / 100;
+
+      const accruedMultiplyer =
+        this.maxFlashRepayAmount / +this.selectedPool.userInfo.userBorrowPart;
+
+      const expectedToRepayBorrow = this.flashRepayAmount / accruedMultiplyer;
+
+      const expectedToRepayCollateral =
+        this.flashRepayAmount *
+        this.selectedPool.tokenOraclePrice *
+        slipageMutiplier;
+
+      const expectedBorrowBalance =
+        this.selectedPool.userInfo.userBorrowPart - +expectedToRepayBorrow;
+      const expectedCollateralBalance =
+        this.selectedPool.userInfo.userCollateralShare -
+        +expectedToRepayCollateral -
+        +this.flashRepayRemoveAmount;
+
       const liquidationPrice =
-        +this.depositExpectedBorrowed /
-          +this.depositExpectedCollateral /
+        +expectedBorrowBalance /
+          +expectedCollateralBalance /
           this.liquidationMultiplier || 0;
 
       return liquidationPrice;
     },
 
-    multiplyMimExpected() {
-      if (!this.mimAmount) return 0;
-      if (this.multiplier === 1) return this.mimAmount;
-      if (!this.percentValue) return 0;
+    flashRepayAmountFormat() {
+      const accruedMultiplyer =
+        this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
 
-      const percentValue = parseFloat(this.percentValue);
+      const jlpPools = [4, 6, 7];
 
-      const amountMultiplyer = percentValue / 100;
+      if (
+        jlpPools.indexOf(this.selectedPool.id) !== -1 &&
+        this.chainId === 43114
+      )
+        return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(8);
 
-      let startAmount = this.mimAmount * 0.995;
-      let finalAmount = 0;
-
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
-
-      return finalAmount;
-    },
-
-    liquidationPriceExpected() {
-      let liquidationDecimals = 4;
-      if (this.selectedPool.name === "SHIB") liquidationDecimals = 6;
-
-      if (+this.multiplier === 1) {
-        return this.depositExpectedLiquidationPrice.toFixed(
-          liquidationDecimals
-        );
-      }
-
-      let expectedDeposit =
-        this.multiplyMimExpected * this.selectedPool.tokenOraclePrice;
-
-      const borrowPart =
-        this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
-
-      const expectedCollateralPart =
-        expectedDeposit +
-        +this.selectedPool.userInfo.userCollateralShare +
-        +this.collateralValue;
-
-      const liquidationPrice =
-        +borrowPart / +expectedCollateralPart / this.liquidationMultiplier || 0;
-
-      const expectedLiquidationPrice =
-        (liquidationPrice / 100) * this.slipage + liquidationPrice;
-
-      return expectedLiquidationPrice.toFixed(liquidationDecimals);
-    },
-
-    percentMultiplier() {
-      if (this.percentValue) return this.percentValue / 100;
-      return false;
-    },
-
-    expectedLeverage() {
-      if (!this.percentMultiplier) return "0";
-
-      const expectedLevearage =
-        (1 - Math.pow(+this.percentMultiplier, this.multiplier)) /
-        (1 - +this.percentMultiplier);
-      return parseFloat(expectedLevearage).toFixed(2);
+      return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(4);
     },
   },
 
   methods: {
     updateCollateralValue(value) {
       this.collateralValue = value;
-      this.updatePercentValue();
 
       if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
         this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
@@ -324,11 +363,6 @@ export default {
       }
 
       this.collateralError = "";
-
-      if (this.percentValue && value) {
-        this.mimAmount =
-          (this.maxBorrowValue * this.percentValue) / this.selectedPool.ltv;
-      }
     },
 
     async approveTokenHandler() {
@@ -342,9 +376,6 @@ export default {
       this.collateralValue = "";
       this.borrowValue = "";
       this.poolId = pool.id;
-      this.multiplier = 2;
-
-      this.percentValue = this.selectedPool.ltv;
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
@@ -354,169 +385,89 @@ export default {
       } else {
         this.slipage = value;
       }
+
       this.isSettingsOpened = false;
     },
 
-    checkIsPoolAllowBorrow(amount) {
-      if (+amount < +this.selectedPool.dynamicBorrowAmount) {
-        return true;
-      }
-
-      // const notification = {
-      //   msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-      // };
-
-      // this.$store.commit("addNotification", notification);
-
-      return false;
-    },
-
     async actionHandler() {
-      if (this.collateralValue && +this.collateralValue > 0) {
-        if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
+      if (+this.flashRepayAmount) {
+        if (!this.slipage) {
           return false;
         }
 
-        const parsedCollateral = this.$ethers.utils.parseUnits(
-          this.collateralValue.toString(),
-          this.selectedPool.token.decimals
-        );
+        let deleverageAmount = this.flashRepayAmount;
+        let itsMax = this.flashRepayAmount === this.maxFlashRepayAmount;
 
-        const parsedMim = this.$ethers.utils.parseUnits(
-          toFixed(this.mimAmount, this.selectedPool.pairToken.decimals),
+        console.log("itsMax", itsMax);
+
+        const slipageMutiplier = (100 + this.slipage) / 100;
+
+        const borrowAmount = toFixed(
+          parseFloat(deleverageAmount).toFixed(20),
           this.selectedPool.pairToken.decimals
         );
 
+        const collateralAmount = toFixed(
+          parseFloat(
+            borrowAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier
+          ).toFixed(20),
+          this.selectedPool.token.decimals
+        );
+
+        const finalBorrowAmount = this.$ethers.utils.parseUnits(
+          borrowAmount,
+          this.selectedPool.pairToken.decimals
+        );
+
+        const finalCollateralAmount = this.$ethers.utils.parseUnits(
+          collateralAmount,
+          this.selectedPool.token.decimals
+        );
+
+        const removeCollateralAmount = toFixed(
+          parseFloat(this.flashRepayRemoveAmount).toFixed(20),
+          this.selectedPool.token.decimals
+        );
+
+        const finalRemoveCollateralAmount = this.$ethers.utils.parseUnits(
+          removeCollateralAmount,
+          this.selectedPool.token.decimals
+        );
+
         const payload = {
-          collateralAmount: parsedCollateral,
-          amount: parsedMim,
+          borrowAmount: finalBorrowAmount,
+          collateralAmount: finalCollateralAmount,
+          removeCollateralAmount: finalRemoveCollateralAmount,
           updatePrice: this.selectedPool.askUpdatePrice,
-          itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
+          itsMax,
         };
 
-        if (this.multiplier > 1) {
-          payload.amount = toFixed(
-            this.mimAmount,
-            this.selectedPool.pairToken.decimals
+        const finalCollateralToShare =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.token.address,
+            finalCollateralAmount,
+            true
           );
 
-          this.multiplierHandle(payload);
-          return false;
-        }
+        const finalRemoveCollateralAmountToShare =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.token.address,
+            finalRemoveCollateralAmount,
+            true
+          );
 
-        this.borrowHandler();
+        payload.collateralAmount = finalCollateralToShare;
+        payload.removeCollateralAmount = finalRemoveCollateralAmountToShare;
 
+        this.flashRepayHandler(payload);
         return false;
       }
 
       return false;
     },
 
-    async borrowHandler() {
-      if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
-        return false;
-      }
-
-      const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        toFixed(this.mimAmount, this.selectedPool.pairToken.decimals),
-        this.selectedPool.pairToken.decimals
-      );
-
-      const payload = {
-        amount: parsedBorrowValue,
-        updatePrice: this.selectedPool.askUpdatePrice,
-      };
-
-      console.log("borrowHandler payload", payload);
-
-      let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address,
-        this.account
-      );
-
-      if (isTokenToCookApprove.eq(0)) {
-        isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
-          this.selectedPool.masterContractInstance.address
-        );
-      }
-
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
-
-      if (+isTokenToCookApprove) {
-        this.cookBorrow(payload, this.isApproved, this.selectedPool);
-        return false;
-      }
-
-      return false;
-    },
-
-    async multiplierHandle(data) {
-      const percentValue = parseFloat(this.percentValue);
-
-      if (!percentValue) return false;
-
-      if (
-        this.liquidationPriceExpected >
-        1 / this.selectedPool.tokenOraclePrice
-      ) {
-        const notification = {
-          msg: "Opening such position will put you at an instant liquidation flag.",
-        };
-
-        // this.$store.commit("addNotification", notification);
-        console.log("notification", notification);
-
-        return false;
-      }
-
-      const slipageMutiplier = (100 - this.slipage) / 100;
-
-      const amountMultiplyer = percentValue / 100;
-
-      let startAmount = data.amount * 0.995;
-      let finalAmount = 0;
-
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
-
-      if (!this.checkIsPoolAllowBorrow(finalAmount)) {
-        return false;
-      }
-
-      const mimAmount = this.$ethers.utils.parseUnits(
-        toFixed(finalAmount, this.selectedPool.pairToken.decimals),
-        this.selectedPool.pairToken.decimals
-      );
-
-      const minValue =
-        finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
-
-      const minValueParsed = this.$ethers.utils.parseUnits(
-        toFixed(minValue, this.selectedPool.token.decimals),
-        this.selectedPool.token.decimals
-      );
-
-      const finalRemoveCollateralAmountToShare =
-        await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.token.address,
-          minValueParsed,
-          true
-        );
-
-      const payload = {
-        ...data,
-        amount: mimAmount,
-        minExpected: finalRemoveCollateralAmountToShare,
-      };
-      this.addMultiBorrowHandler(payload);
-    },
-
-    async addMultiBorrowHandler(data) {
-      console.log("ADD COLL OR/AND BORROW -MULTI- HANDLER", data);
+    async flashRepayHandler(data) {
+      console.log("FLASH REPAY HANDLER", data);
 
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
@@ -533,34 +484,27 @@ export default {
 
       let isTokenToSwapApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
-        this.selectedPool.swapContract.address,
+        this.selectedPool.reverseSwapContract.address,
         this.account
       );
 
-      if (isTokenToSwapApprove.eq(0)) {
+      if (isTokenToSwapApprove.lt(data.collateralAmount)) {
         isTokenToSwapApprove = await approveToken(
           this.selectedPool.token.contract,
-          this.selectedPool.swapContract.address
+          this.selectedPool.reverseSwapContract.address
         );
       }
 
       this.isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        this.cookMultiBorrow(data, this.isApproved, this.selectedPool);
+      if (isTokenToCookApprove && isTokenToSwapApprove) {
+        this.cookFlashRepay(
+          data,
+          this.isApproved,
+          this.selectedPool,
+          this.account
+        );
         return false;
-      }
-    },
-
-    updatePercentValue() {
-      if (this.collateralValue && this.selectedPool.ltv) {
-        const newPairValue =
-          (this.maxBorrowValue * this.selectedPool.ltv) / this.selectedPool.ltv;
-
-        this.mimAmount =
-          +newPairValue > +this.maxBorrowValue
-            ? this.maxBorrowValue
-            : newPairValue;
       }
     },
   },
