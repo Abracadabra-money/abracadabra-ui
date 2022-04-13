@@ -96,6 +96,12 @@ const SelectPoolPopup = () => import("@/components/popups/SelectPoolPopup");
 
 import borrowPoolsMixin from "@/mixins/borrowPools.js";
 import cookMixin from "@/mixins/cook.js";
+import {
+  isTokenApprowed,
+  approveToken,
+  isApprowed,
+} from "@/utils/approveHelpers.js";
+import { toFixed } from "@/utils/helpers.js";
 
 import { mapGetters } from "vuex";
 export default {
@@ -265,68 +271,8 @@ export default {
       this.borrowValue = value;
     },
 
-    async isTokenApprowed(tokenContract, spenderAddress) {
-      try {
-        const addressApprowed = await tokenContract.allowance(
-          this.account,
-          spenderAddress,
-          {
-            gasLimit: 1000000,
-          }
-        );
-
-        return addressApprowed;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-        return false;
-      }
-    },
-
-    async approveToken(tokenContract, spenderAddress) {
-      try {
-        const estimateGas = await tokenContract.estimateGas.approve(
-          spenderAddress,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-        );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
-
-        const tx = await tokenContract.approve(
-          spenderAddress,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
-
-        console.log("APPROVE RESP:", receipt);
-
-        return true;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-        return false;
-      }
-    },
-
-    async isApprowed() {
-      try {
-        const masterContract = await this.getMasterContract();
-        const addressApprowed =
-          await this.selectedPool.masterContractInstance.masterContractApproved(
-            masterContract,
-            this.account
-          );
-        return addressApprowed;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-      }
-    },
-
     async approveTokenHandler() {
-      this.isApproved = await this.approveToken(
+      this.isApproved = await approveToken(
         this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address
       );
@@ -403,7 +349,7 @@ export default {
       );
 
       const parsedBorrow = this.$ethers.utils.parseUnits(
-        this.toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals
       );
 
@@ -416,19 +362,20 @@ export default {
 
       console.log("Add collateral and borrow $emit", payload);
 
-      let isTokenToCookApprove = await this.isTokenApprowed(
+      let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
+        this.selectedPool.masterContractInstance.address,
+        this.account
       );
 
       if (isTokenToCookApprove.lt(payload.collateralAmount)) {
-        isTokenToCookApprove = await this.approveToken(
+        isTokenToCookApprove = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
-      this.isApproved = await this.isApprowed();
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
         this.cookCollateralAndBorrow(
@@ -456,19 +403,20 @@ export default {
 
       console.log("Add collateral $emit", payload);
 
-      let isTokenToCookApprove = await this.isTokenApprowed(
+      let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
+        this.selectedPool.masterContractInstance.address,
+        this.account
       );
 
       if (isTokenToCookApprove.lt(payload.amount)) {
-        isTokenToCookApprove = await this.approveToken(
+        isTokenToCookApprove = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
-      this.isApproved = await this.isApprowed();
+      this.isApproved = await this.isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
         this.cookAddCollateral(payload, this.isApproved, this.selectedPool);
@@ -484,7 +432,7 @@ export default {
       }
 
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        this.toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals
       );
 
@@ -495,19 +443,20 @@ export default {
 
       console.log("Add borrow $emit", payload);
 
-      let isTokenToCookApprove = await this.isTokenApprowed(
+      let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
+        this.selectedPool.masterContractInstance.address,
+        this.account
       );
 
       if (isTokenToCookApprove.eq(0)) {
-        isTokenToCookApprove = await this.approveToken(
+        isTokenToCookApprove = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
-      this.isApproved = await this.isApprowed();
+      this.isApproved = await this.isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
         this.cookBorrow(payload, this.isApproved, this.selectedPool);
