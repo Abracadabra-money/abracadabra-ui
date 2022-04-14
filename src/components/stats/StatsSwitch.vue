@@ -1,15 +1,15 @@
 <template>
   <div class="switch-wrap">
     <div class="switch">
-      <router-link
+      <button
         v-for="(item, i) in items"
         :key="i"
         class="switch-btn"
         :class="{ 'switch-btn-active': name === item.name }"
-        :to="{ name: item.name }"
+        @click="$emit('select', item)"
       >
         {{ item.title }}
-      </router-link>
+      </button>
     </div>
   </div>
 </template>
@@ -17,18 +17,15 @@
 <script>
 export default {
   name: "StatsSwitch",
-  components: {},
   props: {
     name: {
       type: String,
     },
+    items: {
+      type: Array,
+      default: () => [],
+    },
   },
-  data: () => ({
-    items: [
-      { title: "Borrow", name: "StatsBorrow" },
-      { title: "Farm", name: "StatsFarm" },
-    ],
-  }),
 };
 </script>
 
