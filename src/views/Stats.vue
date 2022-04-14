@@ -26,6 +26,7 @@ export default {
   }),
   computed: {
     routeName() {
+      console.log(this.$route.name);
       return this.$route.name;
     },
   },

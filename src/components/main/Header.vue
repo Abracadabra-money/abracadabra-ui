@@ -7,7 +7,7 @@
       <router-link class="header-link" :to="{ name: 'Leverage' }"
         >Leverage</router-link
       >
-      <router-link class="header-link" :to="{ name: 'Stats' }"
+      <router-link class="header-link" :to="{ name: 'StatsBorrow' }"
         >Stats</router-link
       >
       <router-link class="header-link" :to="{ name: 'MyPositions' }"
