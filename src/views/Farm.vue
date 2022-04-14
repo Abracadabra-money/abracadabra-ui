@@ -8,6 +8,14 @@
           <NetworksList />
         </div>
 
+        <div>
+          <button :disabled="!isUnstake" @click="isUnstake = false">
+            Stake
+          </button>
+          <button :disabled="isUnstake" @click="isUnstake = true">
+            Unstake
+          </button>
+        </div>
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
           <button
@@ -41,12 +49,9 @@
               >Approve</DefaultButton
             >
             <template v-else>
-              <DefaultButton @click="stakeHandler" :disabled="!isValid"
-                >Stake</DefaultButton
-              >
-              <DefaultButton @click="unstakeHandler" :disabled="!isValid"
-                >Unstake</DefaultButton
-              ></template
+              <DefaultButton @click="handler" :disabled="!isValid">{{
+                !isUnstake ? "Stake" : "Unstake"
+              }}</DefaultButton></template
             >
           </div></template
         >
@@ -95,6 +100,7 @@ export default {
       poolId: null,
       isTokensOpened: false,
       amount: "",
+      isUnstake: false,
     };
   },
   computed: {
@@ -120,7 +126,9 @@ export default {
       return !!this.selectedPool?.userData?.allowance;
     },
     max() {
-      return this.selectedPool?.userData?.balance;
+      return !this.isUnstake
+        ? this.selectedPool?.userData?.balance
+        : this.selectedPool?.userData.depositedBalance;
     },
     isValid() {
       return this.amount && this.amount !== "0.0";
@@ -144,6 +152,10 @@ export default {
       } catch (error) {
         console.log("stake err:", error);
       }
+    },
+    handler() {
+      if (!this.isUnstake) this.stakeHandler();
+      else this.unstakeHandler();
     },
     async unstakeHandler() {
       try {
@@ -183,6 +195,9 @@ export default {
       if (this.address) {
         await this.createFarmPools();
       }
+    },
+    max() {
+      this.amount = "";
     },
   },
   async created() {

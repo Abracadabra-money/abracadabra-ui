@@ -139,12 +139,22 @@ export default {
 
       const balance = this.$ethers.utils.formatEther(accountBalance.toString());
 
+      const deposited = await contractInstance.userInfo(
+        farmPoolInfo.poolId,
+        this.account
+      );
+
+      const depositedBalance = this.$ethers.utils.formatEther(
+        deposited?.amount.toString()
+      );
+
       return {
         userInfo,
         userReward,
         allowance,
         tokensBalanceInfo,
         balance,
+        depositedBalance,
       };
     },
     async createFarmPool(farmPoolInfo) {
