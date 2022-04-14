@@ -38,6 +38,19 @@ const routes = [
     path: "/stats",
     name: "Stats",
     component: () => import("@/views/Stats"),
+    children: [
+      {
+        path: "",
+        name: "StatsBorrow",
+        component: () => import("@/views/StatsView"),
+      },
+      {
+        path: "farm",
+        name: "StatsFarm",
+        component: () => import("@/views/StatsView"),
+        props: { isFarm: true },
+      },
+    ],
   },
 ];
 
