@@ -34,7 +34,9 @@
         </div>
         <template v-if="selectedPool">
           <div class="input-wrap underline">
-            <h4 class="sub-title">Deposit LP tokens</h4>
+            <h4 class="sub-title">
+              Deposit {{ selectedPool.stakingTokenName }} tokens
+            </h4>
             <ValueInput
               v-model="amount"
               :name="selectedPool.stakingTokenName"
@@ -77,6 +79,7 @@
         @select="poolId = $event.id"
         @close="isTokensOpened = false"
         :tokens="pools"
+        :isUnstake="isUnstake"
       />
     </PopupWrap>
   </div>

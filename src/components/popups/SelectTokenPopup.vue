@@ -11,24 +11,18 @@
     </div>
     <div class="tokens-list">
       <template v-for="(token, i) in filteredTokens">
-        <button
+        <TokenPopupItem
           @click="selectToken(token)"
-          class="token-wrap"
           :key="token.chainId"
-        >
-          <div class="token-data">
-            <img
-              class="token-icon"
-              :src="token.icon || selectIcon"
-              alt="token"
-            />
-            <p>{{ token.name }}</p>
-          </div>
-          <div class="token-value">
-            <p>30</p>
-            <p>$ 91,792.2</p>
-          </div>
-        </button>
+          :name="token.name"
+          :balance="
+            !isUnstake
+              ? token.userData.balance
+              : token.userData.depositedBalance
+          "
+          :price="token.lpPrice"
+          :icon="token.icon || selectIcon"
+        />
         <div
           v-if="i !== filteredTokens.length - 1"
           class="token-spacer-wrap"
@@ -42,6 +36,8 @@
 </template>
 
 <script>
+const TokenPopupItem = () => import("@/components/popups/TokenPopupItem");
+
 import selectIcon from "@/assets/images/select.svg";
 
 export default {
@@ -49,6 +45,10 @@ export default {
     tokens: {
       type: Array,
       default: () => [],
+    },
+    isUnstake: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({ search: "", selectIcon }),
@@ -67,6 +67,9 @@ export default {
               name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
           );
     },
+  },
+  components: {
+    TokenPopupItem,
   },
 };
 </script>
@@ -108,33 +111,6 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-}
-
-.token-wrap {
-  display: flex;
-  justify-content: space-between;
-  padding: 14px 0;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  color: white;
-}
-
-.token-data {
-  display: flex;
-  align-items: center;
-}
-.token-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  background-color: white;
-  border-radius: 10px;
-  margin-right: 10px;
-}
-
-.token-value {
-  text-align: right;
 }
 
 .token-spacer-wrap {
