@@ -41,7 +41,6 @@ export default {
   &-wrap {
     display: flex;
     justify-content: center;
-    padding: 40px 0;
   }
   &-btn {
     display: flex;

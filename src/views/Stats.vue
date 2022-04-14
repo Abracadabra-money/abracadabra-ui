@@ -1,17 +1,20 @@
 <template>
   <div class="stats">
     <h2 class="title">Available MIM Markets</h2>
-    <StatsSwitch
-      :name="routeName"
-      :items="items"
-      @select="$router.push({ name: $event.name })"
-    />
+    <div class="switcher">
+      <StatsSwitch
+        :name="routeName"
+        :items="items"
+        @select="$router.push({ name: $event.name })"
+      />
+    </div>
     <router-view />
   </div>
 </template>
 
 <script>
-import StatsSwitch from "../components/stats/StatsSwitch";
+const StatsSwitch = () => import("@/components/stats/StatsSwitch");
+
 export default {
   name: "Stats",
   components: { StatsSwitch },
@@ -41,5 +44,9 @@ export default {
 .title {
   text-align: center;
   text-transform: uppercase;
+}
+
+.switcher {
+  padding: 40px 0;
 }
 </style>

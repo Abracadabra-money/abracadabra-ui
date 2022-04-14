@@ -7,14 +7,12 @@
         <div class="wrap-networks underline">
           <NetworksList />
         </div>
-
-        <div>
-          <button :disabled="!isUnstake" @click="isUnstake = false">
-            Stake
-          </button>
-          <button :disabled="isUnstake" @click="isUnstake = true">
-            Unstake
-          </button>
+        <div class="switcher">
+          <StatsSwitch
+            :name="selectedTab"
+            :items="items"
+            @select="selectedTab = $event.name"
+          />
         </div>
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
@@ -41,6 +39,7 @@
               v-model="amount"
               :name="selectedPool.stakingTokenName"
               :max="max"
+              :error="error"
             />
           </div>
 
@@ -91,6 +90,7 @@ const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const DefaultButton = () => import("@/components/main/DefaultButton.vue");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
+const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
 
 export default {
@@ -100,7 +100,11 @@ export default {
       poolId: null,
       isTokensOpened: false,
       amount: "",
-      isUnstake: false,
+      selectedTab: "stake",
+      items: [
+        { title: "Stake", name: "stake" },
+        { title: "Unstake", name: "unstake" },
+      ],
     };
   },
   computed: {
@@ -108,6 +112,9 @@ export default {
       address: "getAccount",
       loading: "getFarmPoolLoading",
     }),
+    isUnstake() {
+      return this.selectedTab === "unstake";
+    },
     bottomItems() {
       return [
         { title: "~Yield per $1000", value: this.selectedPool.poolYield },
@@ -132,6 +139,11 @@ export default {
     },
     isValid() {
       return this.amount && this.amount !== "0.0";
+    },
+    error() {
+      return Number(this.amount) > Number(this.max)
+        ? `The value cannot be greater than ${this.max}`
+        : null;
     },
   },
   methods: {
@@ -215,6 +227,7 @@ export default {
     DefaultButton,
     PopupWrap,
     SelectTokenPopup,
+    StatsSwitch,
   },
 };
 </script>
@@ -255,7 +268,7 @@ export default {
 }
 
 .wrap-networks {
-  margin-bottom: 30px;
+  margin-bottom: 17px;
 }
 
 .underline {
@@ -311,7 +324,7 @@ export default {
   display: grid;
   grid-template-rows: repeat(auto-fill, 1fr);
   row-gap: 1rem;
-  margin-bottom: 150px;
+  margin-bottom: 119px;
 }
 
 .info {
@@ -347,6 +360,10 @@ export default {
   background: -webkit-linear-gradient(#5282fd, #76c3f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.switcher {
+  margin-bottom: 27px;
 }
 
 @media (max-width: 768px) {
