@@ -45,6 +45,9 @@ export default {
     },
     tokensInfo: {
       type: Object
+    },
+    isMSpell: {
+      type: Boolean
     }
   },
   watch: {
@@ -75,13 +78,19 @@ export default {
     }
   },
   computed: {
+    icon() {
+      return this.isMSpell ? "Token_mSpell" : "sspell-icon"
+    },
+    rate() {
+      return this.isMSpell ? this.toFixed(this.tokensInfo.mainToken.price,6) + " $" : this.toFixed(this.tokensInfo.tokensRate, 4) + " SPELL"
+    },
     profileData() {
       return [
         { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.getUSDSumm("stakeToken") + " $" },
-        { title: "sSpell",      icon: "sspell-icon", name: "Staked",       value: this.getUSDSumm("mainToken")  + " $" },
+        { title: this.isMSpell ? "mSpell" : "sSpell",  icon: this.icon, name: "Staked",       value: this.getUSDSumm("mainToken")  + " $" },
         { title: "Ratio",       icon: "spell-icon",  
-          text: `1 sSPELL = ${this.toFixed(this.tokensInfo.tokensRate,4)} SPELL` },
-        { title: "Staking APR", icon: ["spell-icon","sspell-icon"], text: (this.tokensInfo.apr || 0) + "%"  },
+          text: `1 ${this.isMSpell ? "mSPELL" : "sSPELL"} = ${this.rate}` },
+        { title: "Staking APR", icon: ["spell-icon", this.icon], text: (this.tokensInfo.apr || 0).toFixed(4) + "%"  },
       ]
     }
   },

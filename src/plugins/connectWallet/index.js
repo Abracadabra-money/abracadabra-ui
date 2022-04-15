@@ -119,7 +119,6 @@ setTimeout(async () => {
 
         store.commit("setChainId", chainId);
         store.commit("setProvider", provider);
-        console.log(33333)
         store.commit("setSigner", signer);
         store.commit("setAccount", address);
         store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);

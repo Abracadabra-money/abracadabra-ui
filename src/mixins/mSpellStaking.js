@@ -29,7 +29,8 @@ export default {
   },
   methods: {
     async createMSpellStaking() {
-      console.log("createMSpellStaking",Number(this.chainId).toString(16))
+      console.log( "createMSpellStaking" , Number(this.chainId).toString(16) )
+
       if (!this.account) {
         this.$store.commit("setLoadingMSpellStake", false);
         return false;
@@ -37,6 +38,7 @@ export default {
 
       const mSpellStakingAddr = this.stakingContracts[this.chainId];
       console.log(mSpellStakingAddr)
+
       if (!mSpellStakingAddr) {
         this.$store.commit("setLoadingMSpellStake", false);
         return false;
@@ -123,6 +125,7 @@ export default {
         apr: mSpellApr,
         stakeToken: {
           name: "SPELL",
+          contractInstance: spellTokenContract,
           balance: spellTokenBalance,
           decimals: 18,
           isTokenApprowed,
@@ -130,11 +133,14 @@ export default {
         },
         mainToken: {
           name: "mSPELL",
+          contractInstance: mSpellStakingContract,
           balance: depositAmount,
           decimals: 18,
           price: spellPrice,
         },
       };
+
+      console.log()
 
       console.log("mSpellStakingObj", mSpellStakingObj);
 

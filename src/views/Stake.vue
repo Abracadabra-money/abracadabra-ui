@@ -2,10 +2,8 @@
   <div class="stake">
     <div class="choose">
       <div >
-        <router-link style="color: white" to="/stake/">sSpell </router-link>
-        <router-link style="color: white" to="/stake/mSpell">mSpell</router-link>
-        <br/>
-        is mSpell?: {{ isMSpell || "false" }}
+        <router-link style="color: white;" :style="{'text-decoration': isMSpell ? 'none' : 'underline'}" to="/stake/" >sSpell </router-link>
+        <router-link style="color: white;" :style="{'text-decoration': !isMSpell ? 'none' : 'underline'}" to="/stake/mSpell" >mSpell</router-link>
       </div>
       <h4>Choose Chain</h4>
       <div class="underline">
@@ -23,7 +21,7 @@
             :name="'Spell'"
             @input="updateMainValue"
             :disabled="action === actions[1]"
-            :max="action === actions[0] ? parceBalance(info.stakeToken.balance) : null"
+            :max="action === actions[0] ? parceBalance(info.stakeToken.balance) : 0"
             :error="amountError"
           />
         </div>
@@ -42,18 +40,19 @@
           </div>
           <ValueInput
             class="value-input"
-            :icon="getImgUrl('sspell-icon')"
-            :name="'sSpell'"
+            :icon="isMSpell ? getImgUrl('Token_mSpell') : getImgUrl('sspell-icon')"
+            :name="isMSpell ? 'mSpell' : 'sSpell'"
             @input="updateMainValue"
             :disabled="action === actions[0]"
-            :max="action === actions[1] ? parceBalance(info.mainToken.balance) : null"
+            :value="toTokenAmount"
+            :max="action === actions[1] ? parceBalance(info.mainToken.balance) : 0"
           />
         </div>
       </div>
     </div>
     <div class="profile">
       <h1 class="title">STAKE</h1>
-      <InfoBlock :tokens-info="info" :locked-until="lockedUntil" />
+      <InfoBlock :tokens-info="info" :locked-until="lockedUntil" :isMSpell="isMSpell" />
       <div class="profile-actions">
         <DefaultButton
           width="325px"
@@ -61,8 +60,8 @@
           primary
           :disabled="info.stakeToken.isTokenApprowed"
           v-if="action === actions[0]"
-          >{{ "Approve" }}</DefaultButton
-        >
+          >{{ "Approve" }}
+        </DefaultButton>
         <DefaultButton
           width="325px"
           @click="actionHandler"
@@ -74,18 +73,28 @@
       <div class="profile-subscribtion">
         <div class="profile-subscribtion__approximate">
           <div>Approximate staking APR</div>
-          <div>{{ (info.apr || 0) + "%" }}</div>
+          <div>{{ (info.apr || 0).toFixed(4) + "%" }}</div>
         </div>
-        <p>
-          Make SPELL work for you! Stake your SPELL and gain sSPELL. No
-          impermanent loss, no loss of governance rights. Continuously
-          compounding. After each new deposit, all staked SPELL are subject to a
-          24H lock-up period!
+        <template v-if="isMSpell">
+          <p>
+            Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. 
+          </p>
+          <p>
+            After each new deposit, all staked SPELL are subject to a 24H lock-up period! 
         </p>
-        <p>
-          sSPELL automatically earns fees from MIM repayments from all wizards
-          proportional to your share of the stake pool.
-        </p>
+        </template>
+        <template v-if="!isMSpell">
+          <p>
+              Make SPELL work for you! Stake your SPELL and gain sSPELL. No
+              impermanent loss, no loss of governance rights. Continuously
+              compounding. After each new deposit, all staked SPELL are subject to a
+              24H lock-up period!
+            </p>
+            <p>
+              sSPELL automatically earns fees from MIM repayments from all wizards
+              proportional to your share of the stake pool.
+          </p>
+        </template>
       </div>
     </div>
   </div>
@@ -129,9 +138,6 @@ export default {
       return this.$route.meta.mSpell;
     },
     info() {
-      switch(true) {
-        case this.isMSpell:
-      }
       return (
         this.tokensInfo || {
           stakeToken: {},
@@ -156,17 +162,17 @@ export default {
     },
     toTokenAmount() {
       if (!this.amount) return "";
-      if (!this.tokensInfo) return "";
+      if (!this.info) return "";
 
       // eslint-disable-next-line no-useless-escape
       let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (6 || -1) + `})?`);
 
       if (this.action === STAKE) {
-        const amount = this.amount / this.tokensInfo.tokensRate;
+        const amount = this.amount / this.info.tokensRate;
         return amount.toString().match(re)[0];
       }
       if (this.action === UNSTAKE) {
-        const amount = this.amount * this.tokensInfo.tokensRate;
+        const amount = this.amount * this.info.tokensRate;
         return amount.toString().match(re)[0];
       }
       return "";
@@ -187,7 +193,7 @@ export default {
     },
     async account() {
       if (this.account) {
-        await this.createStakePool();
+        await this.createStakeObjects();
       }
     },
   },
@@ -224,17 +230,26 @@ export default {
     },
     async getUserLocked() {
       try {
-        const infoResp = await this.info.mainToken.contractInstance.users(
-          this.account,
-          {
-            gasLimit: 1000000,
+        let lockTimestamp, currentTimestamp;
+        currentTimestamp = (Date.now() / 1000).toString();
+
+        if (!this.isMSpell) {
+
+          const infoResp = await this.info.mainToken.contractInstance.users(
+            this.account,
+            {
+              gasLimit: 1000000,
+            }
+          );
+          if (!infoResp) {
+            return false;
           }
-        );
-        if (!infoResp) {
-          return false;
+          currentTimestamp = (Date.now() / 1000).toString();
+          lockTimestamp = infoResp.lockedUntil.toString();
+
+        } else {
+          lockTimestamp = this.info.lockedUntil ? this.info.lockedUntil.toString() : null;
         }
-        const lockTimestamp = infoResp.lockedUntil.toString();
-        const currentTimestamp = (Date.now() / 1000).toString();
 
         if (lockTimestamp && lockTimestamp > currentTimestamp)
           return lockTimestamp;
@@ -377,7 +392,6 @@ export default {
   },
   async created() {
     await this.createStakeObjects();
-    console.log(333,this.info)
     this.lockedUntil = await this.getUserLocked();
     this.spellUpdateInterval = setInterval(async () => {
       await this.createStakeObjects();
