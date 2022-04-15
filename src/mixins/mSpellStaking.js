@@ -10,9 +10,9 @@ export default {
     return {
       stakingContracts: {
         "1": "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
-        "0xfa": "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
-        "0xa86a": "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
-        "0xa4b1": "0x1DF188958A8674B5177f77667b8D173c3CdD9e51",
+        "250": "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
+        "43114": "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
+        "42161": "0x1DF188958A8674B5177f77667b8D173c3CdD9e51"
       },
     };
   },
