@@ -26,7 +26,7 @@ export default {
       default: "",
     },
     price: {
-      type: String,
+      type: [Number, String],
       default: null,
     },
     icon: {

@@ -46,13 +46,16 @@
           </div>
 
           <div class="btn-wrap" v-if="selectedPool">
-            <DefaultButton v-if="!isAllowance" @click="approveHandler"
+            <DefaultButton
+              v-if="!isAllowance && !isUnstake"
+              @click="approveHandler"
               >Approve</DefaultButton
             >
-            <template v-else>
-              <DefaultButton @click="handler" :disabled="!isValid">{{
-                !isUnstake ? "Stake" : "Unstake"
-              }}</DefaultButton></template
+            <DefaultButton
+              v-if="isUnstake || isAllowance"
+              @click="handler"
+              :disabled="!isValid"
+              >{{ !isUnstake ? "Stake" : "Unstake" }}</DefaultButton
             >
           </div></template
         >
