@@ -6,10 +6,13 @@ import poolsInfo from "@/utils/borrowPools/pools";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 import degenBoxAbi from "@/utils/abi/degenBox";
 import oracleAbi from "@/utils/abi/oracle";
+import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 
 export default {
   data() {
-    return {};
+    return {
+      tokenPrices: null,
+    };
   },
   computed: {
     ...mapGetters({
@@ -33,6 +36,10 @@ export default {
       const chainPools = poolsInfo.filter(
         (pool) => pool.contractChain === targetChainId
       );
+
+      this.tokenPrices = await this.fetchTokensPrice(chainPools);
+
+      console.log("!!!!!!!!!!!!!!", this.tokenPrices);
 
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
@@ -495,6 +502,12 @@ export default {
 
       if (pool.borrowFee) borrowFee = pool.borrowFee;
 
+      const price = this.tokenPrices.find(
+        (priceItem) => priceItem.address === pool.token.address.toLowerCase()
+      )?.price;
+
+      console.log("price", price);
+
       let poolData = {
         name: pool.name,
         id: pool.id,
@@ -519,6 +532,7 @@ export default {
         pairTokenContract,
         tokenPairPrice,
         tokenPrice,
+        price,
         dynamicBorrowAmount,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
@@ -617,6 +631,19 @@ export default {
       };
 
       return pool;
+    },
+
+    async fetchTokensPrice(pools) {
+      const tokensArray = [];
+
+      pools.forEach((pool) => {
+        const tokenAddr = pool.token.address;
+        if (tokensArray.indexOf(tokenAddr) === -1) tokensArray.push(tokenAddr);
+      });
+
+      const tokenPrices = await getTokensArrayPrices(this.chainId, tokensArray);
+
+      return tokenPrices;
     },
   },
 

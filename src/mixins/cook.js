@@ -623,17 +623,11 @@ export default {
       }
     },
 
-    async cookRepayCollateral(
-      { amount, updatePrice, itsMax },
-      isApprowed,
-      pool
-    ) {
+    async cookRepayMim({ amount, updatePrice, itsMax }, isApprowed, pool) {
       const pairToken = pool.pairToken.address;
       const userAddr = this.account;
 
       const userBorrowPart = pool.userInfo.contractBorrowPart;
-
-      console.log("itsMax", itsMax);
 
       const eventsArray = [];
       const valuesArray = [];

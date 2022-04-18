@@ -146,19 +146,19 @@ export default {
         },
         {
           name: "Collateral Value",
-          value: parseFloat(this.tokenInUsd).toFixed(4),
+          value: `$${parseFloat(this.tokenInUsd).toFixed(4)}`,
         },
 
         {
           name: "MIM Borrowed",
           value: this.account
-            ? parseFloat(this.pool.userInfo?.userBorrowPart).toFixed(4)
+            ? `$${parseFloat(this.pool.userInfo?.userBorrowPart).toFixed(4)}`
             : 0,
         },
         {
           name: "Liquidation Price",
           value: this.account
-            ? parseFloat(this.pool.userInfo?.liquidationPrice).toFixed(4)
+            ? `$${parseFloat(this.pool.userInfo?.liquidationPrice).toFixed(4)}`
             : 0,
         },
       ];

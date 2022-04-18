@@ -92,7 +92,8 @@ const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const StableInfo = () => import("@/components/borrow/StableInfo");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
-const SelectPoolPopup = () => import("@/components/popups/SelectPoolPopup");
+const SelectPoolPopup = () =>
+  import("@/components/popups/selectPoolPopup/SelectPoolPopup");
 
 import borrowPoolsMixin from "@/mixins/borrowPools.js";
 import cookMixin from "@/mixins/cook.js";
@@ -283,6 +284,8 @@ export default {
       this.borrowValue = "";
       this.poolId = pool.id;
 
+      console.log("pool.id", pool.id);
+
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
@@ -401,7 +404,7 @@ export default {
         );
       }
 
-      this.isApproved = await this.isApprowed(this.selectedPool, this.account);
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
         this.cookAddCollateral(payload, this.isApproved, this.selectedPool);
@@ -441,7 +444,7 @@ export default {
         );
       }
 
-      this.isApproved = await this.isApprowed(this.selectedPool, this.account);
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
         this.cookBorrow(payload, this.isApproved, this.selectedPool);
