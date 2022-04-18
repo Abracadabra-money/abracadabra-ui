@@ -1,12 +1,12 @@
 <template>
-  <div class="box">
+  <div class="box" :class="{ 'box-disabled': isDisabled }">
     <div class="box-header">
       <img
         class="box-header-img"
         src="@/assets/images/degenbox.svg"
         alt="Box"
       />
-      <p class="box-header-title">DegenBox</p>
+      <p class="box-header-title">{{ title }}</p>
     </div>
     <div class="box-data">
       <img
@@ -15,16 +15,18 @@
         class="box-data-img"
       />
       <div>
-        <p class="box-balance1">40000.0</p>
+        <p class="box-balance1">{{ balance.toFixed(1) }}</p>
         <p class="box-balance2">$ 0.0</p>
       </div>
     </div>
-    <div class="box-actions">
-      <NetworkChip name="Withdraw" />
-      <NetworkChip name="Deposit" />
+    <div class="box-actions" :class="{ 'box-actions-disabled': isDisabled }">
+      <template v-if="approved">
+        <NetworkChip name="Withdraw" :disabled="isDisabled" />
+        <NetworkChip name="Deposit" :disabled="isDisabled" selected /></template
+      ><template v-else> <NetworkChip name="Approve" /> </template>
     </div>
     <div class="box-desc">
-      MIM Balance on DegenBox
+      {{ description }}
       <br />
       <a href="#" class="box-desc-more">Read More Here</a>
     </div>
@@ -37,6 +39,26 @@ const NetworkChip = () => import("@/components/borrow/NetworkChip");
 export default {
   name: "BalanceBox",
   components: { NetworkChip },
+  props: {
+    isBento: { type: Boolean, default: false },
+  },
+  computed: {
+    title() {
+      return !this.isBento ? "DegenBox" : "BentoBox";
+    },
+    description() {
+      return `MIM Balance on ${this.title}`;
+    },
+    balance() {
+      return this.isBento ? 0 : 40000;
+    },
+    isDisabled() {
+      return !this.balance;
+    },
+    approved() {
+      return this.isBento;
+    },
+  },
 };
 </script>
 
@@ -55,6 +77,16 @@ export default {
 
   border-radius: 20px;
   padding: 13px 10px 25px 10px;
+
+  &-disabled {
+    background: linear-gradient(
+      92.26deg,
+      rgba(34, 203, 245, 0.05) 0%,
+      rgba(255, 222, 104, 0.05) 40.06%,
+      rgba(167, 255, 181, 0.05) 61.92%,
+      rgba(122, 121, 250, 0.05) 100%
+    );
+  }
 
   &-header {
     display: flex;
@@ -96,8 +128,13 @@ export default {
 
   &-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     column-gap: 15px;
+
+    &-disabled {
+      grid-template-columns: 1fr 1fr;
+      opacity: 0.6;
+    }
   }
 
   &-desc {

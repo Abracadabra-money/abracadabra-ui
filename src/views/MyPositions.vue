@@ -14,7 +14,7 @@
     </div>
     <div class="balance-boxes">
       <BalanceBox />
-      <BalanceBox />
+      <BalanceBox :isBento="true" />
     </div>
     <h2 class="title">Specific positions</h2>
     <div class="spec-positions">

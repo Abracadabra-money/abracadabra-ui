@@ -2,7 +2,10 @@
   <button
     class="chip"
     :disabled="disabled || selected"
-    :class="{ selected, 'chip-no-image': !icon }"
+    :class="{
+      selected,
+      'chip-no-image': !icon,
+    }"
     @click="$emit('click', $event)"
   >
     <img v-if="icon" class="network-icon" :src="icon" alt="network" />
