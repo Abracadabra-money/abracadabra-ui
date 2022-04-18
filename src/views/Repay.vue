@@ -67,7 +67,6 @@
         </div>
       </template>
     </div>
-
     <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
       <SelectPoolPopup
         @select="chosePool($event)"

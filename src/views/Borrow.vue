@@ -284,8 +284,6 @@ export default {
       this.borrowValue = "";
       this.poolId = pool.id;
 
-      console.log("pool.id", pool.id);
-
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 

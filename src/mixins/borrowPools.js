@@ -39,8 +39,6 @@ export default {
 
       this.tokenPrices = await this.fetchTokensPrice(chainPools);
 
-      console.log("!!!!!!!!!!!!!!", this.tokenPrices);
-
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
       );
