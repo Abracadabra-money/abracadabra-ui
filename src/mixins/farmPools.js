@@ -37,7 +37,8 @@ export default {
       );
     },
     async priceByName(name) {
-      return await getTokenPriceByAddress(this.chainId, [
+      //TODO fix token price for ftm
+      return await getTokenPriceByAddress(/*this.chainId*/ 1, [
         this.getFarmAddressByName(name),
       ]);
     },
