@@ -15,14 +15,15 @@ const routes = [
     component: () => import("@/views/Borrow"),
   },
   {
-    path: "/stake/mSpell",
-    meta: { mSpell: true },
+    path: "/stake/",
     name: "Stake",
+    props: { currentComponent: 'SSpell' },
     component: () => import("@/views/Stake")
   },
   {
-    path: "/stake/",
+    path: "/mStake/",
     name: "Stake",
+    props: { currentComponent: 'MSpell' },
     component: () => import("@/views/Stake")
   },
   {

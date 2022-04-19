@@ -13,7 +13,7 @@ export default {
         "250": "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
         "43114": "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
         "42161": "0x1DF188958A8674B5177f77667b8D173c3CdD9e51"
-      },
+      }
     };
   },
   computed: {
