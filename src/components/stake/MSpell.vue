@@ -6,9 +6,9 @@
         <NetworksList />
       </div>
       <div class="swap-wrap">
-        <div class="token-input" :class="{active: action === actions[0]}">
+        <div class="token-input" :class="{active: actions.STAKE}">
           <div class="header-balance">
-            <h4>{{ inputTitle(action === actions[0]) }}</h4>
+            <h4>{{ inputTitle(actions.STAKE) }}</h4>
             <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
           </div>
           <ValueInput
@@ -16,22 +16,22 @@
             :icon="getImgUrl('spell-icon')"
             :name="'Spell'"
             @input="updateMainValue"
-            :disabled="action === actions[1]"
-            :max="action === actions[0] ? parceBalance(info.stakeToken.balance) : 0"
+            :disabled="actions.UNSTAKE"
+            :max="actions.STAKE ? parceBalance(info.stakeToken.balance) : 0"
             :error="amountError"
           />
         </div>
         <div class="swap-img">
           <img
             src="@/assets/images/swap.svg"
-            :class="{ reflect: action === actions[1] }"
+            :class="{ reflect: actions.UNSTAKE }"
             @click="toggleAction"
             alt="swap"
           />
         </div>
-        <div class="token-input" :class="{active: action === actions[1]}">
+        <div class="token-input" :class="{active: actions.UNSTAKE}">
           <div class="header-balance">
-            <h4>{{ inputTitle(action === actions[1]) }}</h4>
+            <h4>{{ inputTitle(actions.UNSTAKE) }}</h4>
             <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
           </div>
           <ValueInput
@@ -39,9 +39,9 @@
             :icon="getImgUrl('Token_mSpell')"
             name="mSpell"
             @input="updateMainValue"
-            :disabled="action === actions[0]"
+            :disabled="actions.STAKE"
             :value="toTokenAmount"
-            :max="action === actions[1] ? parceBalance(info.mainToken.balance) : 0"
+            :max="actions.UNSTAKE ? parceBalance(info.mainToken.balance) : 0"
           />
         </div>
       </div>
@@ -62,7 +62,7 @@
           @click="approveToken(info.stakeToken.contractInstance)"
           primary
           :disabled="info.stakeToken.isTokenApprowed"
-          v-if="action === actions[0]"
+          v-if="actions.STAKE"
           >{{ "Approve" }}
         </DefaultButton>
         <DefaultButton
@@ -70,7 +70,7 @@
           @click="actionHandler"
           :disabled="amountError"
         >
-          {{ action === actions[0] ? "Stake" : "Unstake" }}
+          {{ actions.STAKE ? "Stake" : "Unstake" }}
         </DefaultButton>
       </div>
       <div class="profile-subscribtion">
