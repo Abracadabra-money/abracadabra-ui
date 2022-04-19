@@ -470,7 +470,6 @@ export default {
       this.isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        console.log("payload cookBorrow", payload);
         this.cookBorrow(payload, this.isApproved, this.selectedPool);
         return false;
       }

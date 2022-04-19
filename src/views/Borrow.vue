@@ -272,7 +272,6 @@ export default {
       this.collateralError = "";
 
       if (this.borrowValue) {
-        console.log("gggggggggggggggg", this.maxBorrowValue);
         if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
           this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}!!!!`;
         } else {
