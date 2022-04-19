@@ -229,10 +229,26 @@ export default {
     },
 
     calculateLtv() {
-      const tokenToMim = this.collateralValue / this.selectedPool.tokenPrice;
-
       if (this.collateralValue && this.borrowValue) {
+        const tokenToMim = this.collateralValue / this.selectedPool.tokenPrice;
         let ltv = Math.round((this.borrowValue / tokenToMim) * 100) + 1;
+
+        if (ltv <= this.selectedPool.ltv) {
+          return ltv;
+        }
+        return this.selectedPool.ltv;
+      }
+
+      if (this.borrowValue) {
+        const tokenToMim =
+          this.selectedPool.userInfo.userCollateralShare /
+          this.selectedPool.tokenPrice;
+        let ltv =
+          Math.round(
+            ((+this.borrowValue + +this.selectedPool.userInfo.userBorrowPart) /
+              tokenToMim) *
+              100
+          ) + 1;
 
         if (ltv <= this.selectedPool.ltv) {
           return ltv;
@@ -256,8 +272,11 @@ export default {
       this.collateralError = "";
 
       if (this.borrowValue) {
+        console.log("gggggggggggggggg", this.maxBorrowValue);
         if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
-          this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
+          this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}!!!!`;
+        } else {
+          this.borrowError = "";
         }
       }
     },

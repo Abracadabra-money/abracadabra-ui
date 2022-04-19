@@ -405,12 +405,36 @@ export default {
           return false;
         }
 
-        this.borrowHandler();
+        this.addAndBorrowHandler(payload);
 
         return false;
       }
 
       return false;
+    },
+
+    async addAndBorrowHandler(data) {
+      console.log("ADD COLL & BORROW HANDLER", data);
+
+      let isTokenToCookApprove = await isTokenApprowed(
+        this.selectedPool.token.contract,
+        this.selectedPool.masterContractInstance.address,
+        this.account
+      );
+
+      if (isTokenToCookApprove.lt(data.collateralAmount)) {
+        isTokenToCookApprove = await approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
+
+      if (isTokenToCookApprove) {
+        this.cookAddAndBorrow(data, this.isApproved, this.selectedPool);
+        return false;
+      }
     },
 
     async borrowHandler() {
@@ -446,6 +470,7 @@ export default {
       this.isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
+        console.log("payload cookBorrow", payload);
         this.cookBorrow(payload, this.isApproved, this.selectedPool);
         return false;
       }
