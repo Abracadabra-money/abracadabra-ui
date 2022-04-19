@@ -54,7 +54,6 @@
         icon="Token_mSpell"
         :tokens-info="info" 
         :locked-until="lockedUntil" 
-        :isMSpell="isMSpell"
         :rate="info.tokensRate"
       />
       <div class="profile-actions">
@@ -97,52 +96,28 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 
 import DefaultButton from "@/components/main/DefaultButton.vue";
 
-import { mapGetters } from "vuex";
-
-import mSpellStaking from "@/mixins/mSpellStaking";
-
-const STAKE = "STAKE";
-const UNSTAKE = "UNSTAKE";
+import mSpellStaking from "@/mixins/stake/mSpellStaking";
+import stake from "@/mixins/stake/stake";
 
 export default {
-  mixins: [mSpellStaking],
-  data() {
-    return {
-      actions: [STAKE, UNSTAKE],
-      action: STAKE,
-      amount: "",
-      amountError: "",
-      lockedUntil: false,
-      spellUpdateInterval: null,
-    };
-  },
+  mixins: [mSpellStaking,stake],
   computed: {
-    ...mapGetters({
-      isLoadingMSpellStake: "getLoadingMSpellStake",
-      account: "getAccount",
-      networks: "getAvailableNetworks"
-    }),
-    info() {
-      return (
-        this.tokensInfo || {
-          stakeToken: {},
-          mainToken: { contractInstance: { users: () => false } },
-        }
-      );
-    },
     isUserLocked() {
       return (
         this.lockedUntil &&
         Number(this.lockedUntil) !== 0 &&
-        this.action === UNSTAKE
+        this.actions.UNSTAKE
       );
     },
-    tokensInfo() {
-      return this.$store.getters.getMSpellStakingObj;
+    loading() {
+      return this.$store.getters.getLoadingMSpellStake;
+    },
+    info() {
+      return this.$store.getters.getMSpellStakingObj || this.emptyTokens;
     },
     fromToken() {
-      if (this.action === STAKE) return this.info.stakeToken;
-      if (this.action === UNSTAKE) return this.info.mainToken;
+      if (this.actions.STAKE) return this.info.stakeToken;
+      if (this.actions.UNSTAKE) return this.info.mainToken;
       return "";
     },
     toTokenAmount() {
@@ -152,11 +127,11 @@ export default {
       // eslint-disable-next-line no-useless-escape
       let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (6 || -1) + `})?`);
 
-      if (this.action === STAKE) {
+      if (this.actions.STAKE) {
         const amount = this.amount / this.info.tokensRate;
         return amount.toString().match(re)[0];
       }
-      if (this.action === UNSTAKE) {
+      if (this.actions.UNSTAKE) {
         const amount = this.amount * this.info.tokensRate;
         return amount.toString().match(re)[0];
       }
@@ -178,32 +153,41 @@ export default {
     },
     async account() {
       if (this.account) {
-        await this.createStakeObjects();
+        await this.createMSpellStaking();
       }
     },
   },
   methods: {
+    async claimHandler() {
+      console.log("CLAIM");
+      try {
+        const estimateGas =
+          await this.mSpellStakingObj.mSpellStakingContract.estimateGas.withdraw(
+            0
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        console.log("gasLimit:", gasLimit);
+
+        const tx = await this.mSpellStakingObj.mSpellStakingContract.withdraw(
+          0,
+          {
+            gasLimit,
+          }
+        );
+        const receipt = await tx.wait();
+
+        console.log("CLAIM", receipt);
+      } catch (e) {
+        console.log("CLAIM err:", e);
+      }
+    },
     inputTitle(toogler) {
       return toogler ? 'Deposit' : 'Receive'
     },
     parceBalance(balance) {
       return balance ? parseFloat(balance).toFixed(4) : 0;
-    },
-    toggleAction() {
-
-      this.amount = "";
-      this.amountError = "";
-
-      if (this.action === STAKE) {
-        this.action = UNSTAKE;
-        return false;
-      }
-
-      if (this.action === UNSTAKE) {
-        this.action = STAKE;
-        return false;
-      }
-      
     },
     updateMainValue(value) {
       if (+value > +this.fromToken.balance) {
@@ -231,8 +215,8 @@ export default {
       if (this.isUserLocked) return false;
       if (!+this.amount || this.amountError) return false;
 
-      if (this.action === STAKE) {
-        const isApproved = this.tokensInfo.stakeToken.isTokenApprowed;
+      if (this.actions.STAKE) {
+        const isApproved = this.info.stakeToken.isTokenApprowed;
 
         if (isApproved) {
           await this.stake();
@@ -240,25 +224,17 @@ export default {
         }
 
         const approvedSuccess = await this.approveToken(
-          this.tokensInfo.stakeToken.contractInstance
+          this.info.stakeToken.contractInstance
         );
 
         if (approvedSuccess) await this.stake();
       }
-      if (this.action === UNSTAKE) {
+      if (this.actions.UNSTAKE) {
         await this.unstake();
       }
     },
-    getImgUrl(type) {
-      var images = require.context(
-        "../../assets/images/tokens-icon/",
-        false,
-        /\.svg$/
-      );
-      return images("./" + type + ".svg");
-    },
     async stake() {
-      console.log(STAKE);
+      console.log("STAKE");
 
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
@@ -266,13 +242,13 @@ export default {
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.mint(
+          await this.info.mainToken.contractInstance.estimateGas.mint(
             amount
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.mint(
+        const tx = await this.info.mainToken.contractInstance.mint(
           amount,
           {
             gasLimit,
@@ -284,20 +260,20 @@ export default {
 
         const receipt = await tx.wait();
 
-        console.log(STAKE, receipt);
+        console.log("STAKE", receipt);
       } catch (e) {
         console.log("stake err:", e);
       }
     },
     async unstake() {
-      console.log(UNSTAKE);
+      console.log("UNSTAKE");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.burn(
+          await this.info.mainToken.contractInstance.estimateGas.burn(
             this.account,
             amount
           );
@@ -306,7 +282,7 @@ export default {
 
         console.log("gasLimit:", gasLimit);
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.burn(
+        const tx = await this.info.mainToken.contractInstance.burn(
           this.account,
           amount,
           {
@@ -319,7 +295,7 @@ export default {
 
         const receipt = await tx.wait();
 
-        console.log(STAKE, receipt);
+        console.log("STAKE", receipt);
 
       } catch (e) {
         console.log("stake err:", e);
@@ -328,7 +304,7 @@ export default {
     async approveToken(tokenContract) {
       try {
         const estimateGas = await tokenContract.estimateGas.approve(
-          this.tokensInfo.mainToken.contractInstance.address,
+          this.info.mainToken.contractInstance.address,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         );
 
@@ -337,7 +313,7 @@ export default {
         console.log("gasLimit:", gasLimit);
 
         const tx = await tokenContract.approve(
-          this.tokensInfo.mainToken.contractInstance.address,
+          this.info.mainToken.contractInstance.address,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           {
             gasLimit,
@@ -351,24 +327,17 @@ export default {
         return false;
       }
     },
-    async createStakeObjects() {
-      if (this.isMSpell) {
-        await this.createMSpellStaking();
-      } else {
-        await this.createStakePool();
-      }
-    },
   },
   async created() {
-    await this.createStakeObjects();
+    await this.createMSpellStaking();
     this.lockedUntil = await this.getUserLocked();
-    this.spellUpdateInterval = setInterval(async () => {
-      await this.createStakeObjects();
+    this.updateInterval = setInterval(async () => {
+      await this.createMSpellStaking();
       this.lockedUntil = await this.getUserLocked();
     }, 15000);
   },
   beforeDestroy() {
-    clearInterval(this.spellUpdateInterval);
+    clearInterval(this.updateInterval);
   },
   components: {
     InfoBlock,
