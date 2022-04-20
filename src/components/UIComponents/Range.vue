@@ -64,7 +64,12 @@ export default {
   }),
   computed: {
     gradientPercent() {
-      return Math.floor(100 * Math.abs(+this.range / (this.max - this.min)));
+      let max = 1;
+      if (this.max) {
+        max = this.max;
+      }
+
+      return Math.floor(100 * Math.abs(+this.range / (max - this.min)));
     },
     gradientColor() {
       const { safe, medium, high, none } = this.colors;

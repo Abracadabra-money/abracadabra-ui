@@ -52,7 +52,9 @@ export default [
     isSwappersActive: false,
     acceptUseDefaultBalance: false,
     isDegenBox: true,
-    hasStrategy: true,
+    strategyLink:
+      "https://medium.com/@abracadabramoney/our-cake-degenbox-strategy-68be5f34527",
+
     contract: {
       name: "CauldronV2MultiChain",
       address: "0xF8049467F3A9D50176f4816b20cDdd9bB8a93319",

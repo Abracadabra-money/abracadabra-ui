@@ -3,7 +3,7 @@
     <div class="val-input" :class="{ 'val-input-error': error }">
       <button
         @click="$emit('openTokensList')"
-        :disabled="disabled || !isChooseToken"
+        :disabled="!isChooseToken"
         class="value-type value-btn"
       >
         <img
