@@ -162,7 +162,8 @@ export default {
         : null;
 
       const accountBalance = await farmPoolItem.stakingTokenContract.balanceOf(
-        this.account
+        this.account,
+        { gasLimit: 5000000 }
       );
 
       const balance = this.$ethers.utils.formatEther(accountBalance.toString());
