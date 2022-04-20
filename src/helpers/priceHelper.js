@@ -71,4 +71,8 @@ const getTokenPriceByAddress = async (chainId, address) => {
   }
 };
 
-export { getTokenPriceByAddress, getTokensArrayPrices };
+const numberWithCommas = (x) => {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+export { getTokenPriceByAddress, getTokensArrayPrices, numberWithCommas };

@@ -136,12 +136,12 @@ export default {
       return this.selectedPool?.icon || require("@/assets/images/select.svg");
     },
     isAllowance() {
-      return !!this.selectedPool?.userData?.allowance;
+      return !!this.selectedPool?.accountInfo?.allowance;
     },
     max() {
       return !this.isUnstake
-        ? this.selectedPool?.userData?.balance
-        : this.selectedPool?.userData.depositedBalance;
+        ? this.selectedPool?.accountInfo?.balance
+        : this.selectedPool?.accountInfo?.depositedBalance;
     },
     isValid() {
       return this.amount && this.amount !== "0.0";
@@ -195,7 +195,7 @@ export default {
     },
     async approveHandler() {
       try {
-        const tx = await this.selectedPool.erc20ContractInstance.approve(
+        const tx = await this.selectedPool.stakingTokenContract.approve(
           this.selectedPool.contractAddress,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         );

@@ -17,8 +17,8 @@
           :name="token.name"
           :balance="
             !isUnstake
-              ? token.userData.balance
-              : token.userData.depositedBalance
+              ? token.accountInfo.balance
+              : token.accountInfo.depositedBalance
           "
           :price="token.lpPrice"
           :icon="token.icon || selectIcon"

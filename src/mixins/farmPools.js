@@ -1,18 +1,37 @@
 import farmPools from "@/utils/farmPools/pools";
-import { getTokenPriceByAddress } from "../helpers/priceHelper";
-import { mapGetters, mapMutations } from "vuex";
+import {
+  getTokenPriceByAddress,
+  numberWithCommas,
+} from "@/helpers/priceHelper.js";
+import { mapMutations } from "vuex";
+
+import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
 
 export default {
+  data() {
+    return {
+      /* prices: {
+        spellPrice: null,
+        mimPrice: null,
+        icePrice: null,
+        wethPrice: null,
+        ohmPrice: null,
+        timePrice: null,
+      },*/
+      tokenAddresses: {
+        SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
+        MIM: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3",
+        WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      },
+      tokenPrices: null,
+    };
+  },
   computed: {
-    ...mapGetters({
-      userSigner: "getSigner",
-      defaultProvider: "getProvider",
-    }),
     chainId() {
       return this.$store.getters.getChainId;
     },
     signer() {
-      return this.userSigner ? this.userSigner : this.defaultProvider;
+      return this.$store.getters.getSigner || this.$ethers.getDefaultProvider();
     },
     account() {
       return this.$store.getters.getAccount;
@@ -23,24 +42,19 @@ export default {
   },
   methods: {
     ...mapMutations({ setLoadingPoolsFarm: "setLoadingPoolsFarm" }),
-    getFarmAddressByName(name) {
-      const exceptPriceAddresses = {
-        SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
-        MIM: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
-        WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      };
-      const exceptAddress = exceptPriceAddresses[name.toUpperCase()];
-      if (exceptAddress) return exceptAddress;
-      return (
-        farmPools.find(({ name: poolName }) => poolName === name)?.address ||
-        null
-      );
-    },
-    async priceByName(name) {
-      //TODO fix token price for ftm
-      return await getTokenPriceByAddress(/*this.chainId*/ 1, [
-        this.getFarmAddressByName(name),
-      ]);
+    async updateTokenPrices() {
+      const tokenPrices = {};
+      try {
+        for (const key of Object.keys(this.tokenAddresses)) {
+          tokenPrices[key] = await getTokenPriceByAddress(
+            1,
+            this.tokenAddresses[key]
+          );
+        }
+        this.tokenPrices = tokenPrices;
+      } catch (e) {
+        console.log("updateTokenPrices err", e);
+      }
     },
     async createFarmPools() {
       if (!this.pools.length) {
@@ -51,112 +65,19 @@ export default {
       );
 
       try {
+        if (!this.tokenPrices) await this.updateTokenPrices();
+
         const pools = await Promise.all(
           chainPools.map((pool) => this.createFarmPool(pool))
         );
         this.setLoadingPoolsFarm(false);
 
+        console.log("FARMS:", pools);
+
         this.$store.commit("setFarmPools", pools);
       } catch (e) {
         console.log("createFarmPools err", e);
       }
-    },
-    async getFarmPoolUserData({
-      erc20ContractInstance,
-      farmPoolInfo,
-      contractInstance,
-      lpPrice,
-    }) {
-      let tokensBalanceInfo = null;
-
-      const allowance = await this.getAllowance(
-        erc20ContractInstance,
-        farmPoolInfo.contract.address
-      );
-
-      const userInfo = await contractInstance.userInfo(
-        farmPoolInfo.poolId,
-        this.account
-      );
-
-      const userReward = await contractInstance.pendingIce(
-        farmPoolInfo.poolId,
-        this.account
-      );
-
-      if (farmPoolInfo.depositedBalance) {
-        const { _reserve0, _reserve1 } =
-          await erc20ContractInstance.getReserves();
-
-        //MIM or SPELL
-        let token0Price = await this.priceByName(
-          farmPoolInfo.depositedBalance.token0.name
-        );
-
-        // ETH always
-        let token1Price = await this.priceByName("WETH");
-
-        const token0Amount = this.$ethers.utils.formatUnits(_reserve0, 18);
-
-        const token1Amount = this.$ethers.utils.formatUnits(_reserve1, 18);
-
-        const token0Usd = token0Amount * token0Price;
-        const token1Usd = token1Amount * token1Price;
-
-        const tokensSum = token0Usd + token1Usd;
-
-        const token0Percent = (token0Usd / tokensSum) * 100;
-        const token1Percent = (token1Usd / tokensSum) * 100;
-
-        const userRewardParsed = this.$ethers.utils.formatUnits(
-          userInfo.amount,
-          18
-        );
-
-        const userRewardInUsd = userRewardParsed * lpPrice;
-
-        const token0UserAmount =
-          ((userRewardInUsd / 100) * token0Percent) / token0Price;
-        const token1UserAmount =
-          ((userRewardInUsd / 100) * token1Percent) / token1Price;
-
-        tokensBalanceInfo = {
-          token0: {
-            name: farmPoolInfo.depositedBalance.token0.name,
-            amount: token0UserAmount,
-            amountInUsd: token0UserAmount * token0Price,
-          },
-          token1: {
-            name: farmPoolInfo.depositedBalance.token1.name,
-            amount: token1UserAmount,
-            amountInUsd: token1UserAmount * token1Price,
-          },
-        };
-      }
-
-      const accountBalance = await erc20ContractInstance.balanceOf(
-        this.account
-      );
-
-      const balance = this.$ethers.utils.formatEther(accountBalance.toString());
-
-      const deposited = await contractInstance.userInfo(
-        farmPoolInfo.poolId,
-        this.account
-      );
-
-      const depositedBalance = this.$ethers.utils.formatEther(
-        deposited?.amount.toString()
-      );
-
-      return {
-        userInfo,
-        userReward,
-        allowance,
-        tokensBalanceInfo,
-        balance,
-        depositedBalance,
-      };
     },
     async createFarmPool(farmPoolInfo) {
       const contractInstance = new this.$ethers.Contract(
@@ -165,99 +86,33 @@ export default {
         this.signer
       );
 
-      let poolInfo;
+      const poolInfo = await contractInstance.poolInfo(farmPoolInfo.poolId, {
+        gasLimit: 600000,
+      });
 
-      try {
-        poolInfo = await contractInstance.poolInfo(farmPoolInfo.poolId, {
-          gasLimit: 600000,
-        });
-      } catch (e) {
-        console.log("pool infi err:", e);
-      }
-
-      const erc20ContractInstance = new this.$ethers.Contract(
+      const stakingTokenContract = new this.$ethers.Contract(
         poolInfo.stakingToken,
-        JSON.stringify(farmPoolInfo.erc20Abi),
+        JSON.stringify(farmPoolInfo.stakingTokenAbi),
         this.signer
       );
 
-      let tokenContractInstance = new this.$ethers.Contract(
-        farmPoolInfo.token.address,
-        JSON.stringify(farmPoolInfo.erc20Abi),
-        this.signer
-      );
+      const tokenPrice = this.tokenPrices["SPELL"];
 
-      let tokenPrice = await this.priceByName(
-        farmPoolInfo.id === 3 || (this.account && farmPoolInfo.id === 1)
-          ? "Spell"
-          : farmPoolInfo.id === 1
-          ? "MIM"
-          : farmPoolInfo.token.name
-      );
-
-      let spellPrice = await this.priceByName("Spell");
-
-      let { lpYield, lpPrice } = await this.getLPYield(
-        poolInfo.stakingToken,
-        tokenContractInstance,
-        erc20ContractInstance,
-        tokenPrice
-      );
-
-      let poolYield = await this.getYield(
+      const { poolYield, lpPrice } = await this.getYieldAndLpPrice(
+        stakingTokenContract,
         contractInstance,
-        lpYield,
-        poolInfo.stakingTokenTotalAmount,
-        poolInfo.allocPoint,
-        poolInfo.accIcePerShare
+        poolInfo,
+        farmPoolInfo
       );
 
-      if (farmPoolInfo.id === 3) {
-        const stakingTokenContract = new this.$ethers.Contract(
-          poolInfo.stakingToken,
-          JSON.stringify(farmPoolInfo.stakingTokenAbi),
-          this.signer
-        );
-
-        try {
-          const price = await stakingTokenContract.get_virtual_price();
-
-          const parsedPrice = this.$ethers.utils.formatEther(price.toString());
-
-          if (parsedPrice) lpPrice = parsedPrice;
-        } catch (e) {
-          console.log("get price err:", e);
-        }
-
-        poolYield = await this.getYield(
-          contractInstance,
-          1000,
-          poolInfo.stakingTokenTotalAmount,
-          poolInfo.allocPoint,
-          poolInfo.accIcePerShare
-        );
-      }
-
-      let poolRoi = await this.getRoi(
-        poolYield,
-        farmPoolInfo.id === 1 ? spellPrice : tokenPrice
-      );
+      const poolRoi = await this.getRoi(poolYield, tokenPrice);
 
       const poolTvl = await this.getTVL(
         poolInfo.stakingTokenTotalAmount,
         lpPrice
       );
 
-      const userData = this.account
-        ? await this.getFarmPoolUserData({
-            erc20ContractInstance,
-            farmPoolInfo,
-            contractInstance,
-            lpPrice,
-          })
-        : null;
-
-      return {
+      const farmPoolItem = {
         name: farmPoolInfo.name,
         iconName: farmPoolInfo.iconName,
         nameSubtitle: farmPoolInfo.nameSubtitle,
@@ -269,25 +124,189 @@ export default {
         stakingTokenName: farmPoolInfo.stakingTokenName,
         stakingTokenType: farmPoolInfo.stakingTokenType,
         lpPrice,
+        depositedBalance: farmPoolInfo.depositedBalance,
         contractAddress: farmPoolInfo.contract.address,
         poolInfo,
-        erc20ContractInstance,
+        stakingTokenContract,
         tokenPrice,
         poolYield,
         poolRoi,
         poolTvl,
-        tokenName: farmPoolInfo.token.name,
-        userData,
+        tokenName: farmPoolInfo.earnedToken.name,
+      };
+
+      if (this.account) {
+        farmPoolItem.accountInfo = await this.getFarmUserInfo(farmPoolItem);
+      }
+
+      return farmPoolItem;
+    },
+    async getFarmUserInfo(farmPoolItem) {
+      const allowance = await this.getAllowance(
+        farmPoolItem.stakingTokenContract,
+        farmPoolItem.contractInstance.address
+      );
+
+      const userInfo = await farmPoolItem.contractInstance.userInfo(
+        farmPoolItem.poolId,
+        this.account
+      );
+
+      const userReward = await farmPoolItem.contractInstance.pendingIce(
+        farmPoolItem.poolId,
+        this.account
+      );
+
+      const tokensBalanceInfo = farmPoolItem.depositedBalance
+        ? await this.getSLPBalances(farmPoolItem, userInfo)
+        : null;
+
+      const accountBalance = await farmPoolItem.stakingTokenContract.balanceOf(
+        this.account
+      );
+
+      const balance = this.$ethers.utils.formatEther(accountBalance.toString());
+
+      const deposited = await farmPoolItem.contractInstance.userInfo(
+        farmPoolItem.poolId,
+        this.account
+      );
+
+      const depositedBalance = this.$ethers.utils.formatEther(
+        deposited?.amount.toString()
+      );
+
+      return {
+        allowance,
+        userInfo,
+        userReward,
+        tokensBalanceInfo,
+        balance,
+        depositedBalance,
       };
     },
-    async getFarmPoolYield() {
-      try {
-        const poolYield = (await this.getYield()) / this.icePrice;
-        this.yieldPerDollar = parseFloat(poolYield).toFixed(2);
-        await this.getRoi(poolYield);
-      } catch (e) {
-        console.log("getFarmPoolYield err:", e);
+    async getSLPBalances(farmPoolItem, userInfo) {
+      const { _reserve0, _reserve1 } =
+        await farmPoolItem.stakingTokenContract.getReserves();
+
+      //MIM or SPELL
+      const token0Price =
+        this.tokenPrices[farmPoolItem.depositedBalance.token0.name];
+
+      // ETH always
+      const token1Price = this.tokenPrices["WETH"];
+
+      const token0Amount = this.$ethers.utils.formatUnits(_reserve0, 18);
+
+      const token1Amount = this.$ethers.utils.formatUnits(_reserve1, 18);
+
+      const token0Usd = token0Amount * token0Price;
+      const token1Usd = token1Amount * token1Price;
+
+      const tokensSum = token0Usd + token1Usd;
+
+      const token0Percent = (token0Usd / tokensSum) * 100;
+      const token1Percent = (token1Usd / tokensSum) * 100;
+
+      const userRewardParsed = this.$ethers.utils.formatUnits(
+        userInfo.amount,
+        18
+      );
+
+      const userRewardInUsd = userRewardParsed * farmPoolItem.lpPrice;
+
+      const token0UserAmount =
+        ((userRewardInUsd / 100) * token0Percent) / token0Price;
+      const token1UserAmount =
+        ((userRewardInUsd / 100) * token1Percent) / token1Price;
+
+      return {
+        token0: {
+          name: farmPoolItem.depositedBalance.token0.name,
+          amount: token0UserAmount,
+          amountInUsd: token0UserAmount * token0Price,
+        },
+        token1: {
+          name: farmPoolItem.depositedBalance.token1.name,
+          amount: token1UserAmount,
+          amountInUsd: token1UserAmount * token1Price,
+        },
+      };
+    },
+    async getYieldAndLpPrice(
+      stakingTokenContract,
+      contractInstance,
+      poolInfo,
+      farmPoolInfo
+    ) {
+      if (farmPoolInfo.id === 1 || farmPoolInfo.id === 2) {
+        const mimPrice = this.tokenPrices["MIM"];
+        const spellPrice = this.tokenPrices["SPELL"];
+
+        const mimTokenContract = new this.$ethers.Contract(
+          this.tokenAddresses["MIM"],
+          JSON.stringify(erc20Abi),
+          this.signer
+        );
+
+        const spellTokenContract = new this.$ethers.Contract(
+          this.tokenAddresses["SPELL"],
+          JSON.stringify(erc20Abi),
+          this.signer
+        );
+
+        const { lpYield, lpPrice } = await this.getLPYield(
+          poolInfo.stakingToken,
+          farmPoolInfo.id === 1 ? mimTokenContract : spellTokenContract,
+          stakingTokenContract,
+          farmPoolInfo.id === 1 ? mimPrice : spellPrice
+        );
+
+        const poolYield = await this.getYield(
+          contractInstance,
+          lpYield,
+          poolInfo.stakingTokenTotalAmount,
+          poolInfo.allocPoint,
+          poolInfo.accIcePerShare
+        );
+
+        return {
+          lpPrice,
+          poolYield,
+        };
       }
+
+      if (farmPoolInfo.id === 3) {
+        try {
+          const price = await stakingTokenContract.get_virtual_price();
+
+          const lpPrice = this.$ethers.utils.formatEther(price.toString());
+          const poolYield = await this.getYield(
+            contractInstance,
+            1000,
+            poolInfo.stakingTokenTotalAmount,
+            poolInfo.allocPoint,
+            poolInfo.accIcePerShare
+          );
+
+          return {
+            lpPrice,
+            poolYield,
+          };
+        } catch (e) {
+          console.log("get price err:", e);
+
+          return {
+            lpPrice: 0,
+            poolYield: 0,
+          };
+        }
+      }
+
+      return {
+        lpPrice: 0,
+        poolYield: 0,
+      };
     },
     async getYield(
       contractInstance,
@@ -377,9 +396,7 @@ export default {
 
         const tvl = parseFloat(ttl.toString()) * parseFloat(price.toString());
 
-        return parseInt(tvl)
-          .toString()
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return numberWithCommas(parseInt(tvl));
       } catch (error) {
         console.log(error);
       }
@@ -388,13 +405,78 @@ export default {
       try {
         const result = await contractInstance.allowance(
           this.account,
-          allowAddrr
+          allowAddrr,
+          { gasLimit: 3000000 }
         );
 
         return +result > 0;
       } catch (error) {
         console.log("getAllowance:", error);
       }
-    },
+    } /*
+    async getTokenPrice(token) {
+      if (token === "CRV") {
+        const priceResp = await tokenPrices(["curve-dao-token"]);
+        return priceResp["curve-dao-token"];
+      }
+
+      if (token === "CVX") {
+        const priceResp = await tokenPrices(["convex-finance"]);
+        return priceResp["convex-finance"];
+      }
+
+      if (token === "ICE") {
+        if (this.prices.icePrice) return this.prices.icePrice;
+
+        const priceResp = await tokenPrices(["ice"]);
+        this.prices.icePrice = priceResp.ice;
+        return priceResp.ice;
+      }
+
+      if (token === "MIM") {
+        if (this.prices.mimPrice) return this.prices.mimPrice;
+
+        const priceResp = await tokenPrices(["mim"]);
+
+        this.prices.mimPrice = priceResp.mim;
+        return priceResp.mim;
+      }
+
+      if (token === "Spell" || token === "SPELL") {
+        if (this.prices.spellPrice) return this.prices.spellPrice;
+
+        const priceResp = await tokenPrices(["spell"]);
+
+        this.prices.spellPrice = priceResp.spell;
+        return priceResp.spell;
+      }
+
+      if (token === "WETH") {
+        if (this.prices.wethPrice) return this.prices.wethPrice;
+        const priceResp = await tokenPrices(["weth"]);
+        this.prices.wethPrice = priceResp.weth;
+        return priceResp.weth;
+      }
+
+      if (token === "OHM") {
+        if (this.prices.ohmPrice) return this.prices.ohmPrice;
+
+        const priceResp = await tokenPrices(["olympus"]);
+        this.prices.ohmPrice = priceResp.olympus;
+        return priceResp.olympus;
+      }
+
+      if (token === "TIME") {
+        if (this.prices.timePrice) return this.prices.timePrice;
+
+        const priceResp = await tokenPrices(["wonderland"]);
+        this.prices.timePrice = priceResp.wonderland;
+        return priceResp.wonderland;
+      }
+
+      // if (token === "MIM") {
+      //   return 1;
+      // }
+    },*/,
   },
 };
