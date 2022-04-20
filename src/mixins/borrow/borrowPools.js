@@ -6,10 +6,13 @@ import poolsInfo from "@/utils/borrowPools/pools";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 import degenBoxAbi from "@/utils/abi/degenBox";
 import oracleAbi from "@/utils/abi/oracle";
+import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 
 export default {
   data() {
-    return {};
+    return {
+      tokenPrices: null,
+    };
   },
   computed: {
     ...mapGetters({
@@ -33,6 +36,8 @@ export default {
       const chainPools = poolsInfo.filter(
         (pool) => pool.contractChain === targetChainId
       );
+
+      this.tokenPrices = await this.fetchTokensPrice(chainPools);
 
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
@@ -320,6 +325,23 @@ export default {
       }
     },
 
+    async isTokenApprow(tokenContract, spenderAddress) {
+      try {
+        const addressApprowed = await tokenContract.allowance(
+          this.account,
+          spenderAddress,
+          {
+            gasLimit: 1000000,
+          }
+        );
+
+        return addressApprowed.toString() > 0;
+      } catch (e) {
+        console.log("isTokenApprow err:", e);
+        return false;
+      }
+    },
+
     async createPool(pool) {
       const poolContract = this.createContract(
         pool.contract.address,
@@ -371,6 +393,35 @@ export default {
       const contractExchangeRate = await this.getContractExchangeRate(
         poolContract
       );
+
+      let isTokenApprove, pairToken, isTokenToSwapApprove;
+
+      if (this.account) {
+        isTokenApprove = await this.isTokenApprow(
+          tokenContract,
+          masterContract.address
+        );
+
+        let isPairTokenApprove = await this.isTokenApprow(
+          pairTokenContract,
+          masterContract.address
+        );
+
+        pairToken = { ...pool.pairToken, isPairTokenApprove };
+
+        if (pool?.swapContractInfo?.address) {
+          isTokenToSwapApprove = await this.isTokenApprow(
+            tokenContract,
+            pool.swapContractInfo.address
+          );
+        } else {
+          isTokenToSwapApprove = null;
+        }
+      } else {
+        isTokenApprove = false;
+        pairToken = pool.pairToken;
+        isTokenToSwapApprove = null;
+      }
 
       let tokenPairRate;
       let askUpdatePrice = false;
@@ -445,15 +496,24 @@ export default {
         pool.token.decimals
       );
 
+      let borrowFee = 0.05;
+
+      if (pool.borrowFee) borrowFee = pool.borrowFee;
+
+      const price = this.tokenPrices.find(
+        (priceItem) => priceItem.address === pool.token.address.toLowerCase()
+      )?.price;
+
+      console.log("price", price);
+
       let poolData = {
         name: pool.name,
-        image: pool.image,
         id: pool.id,
         isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
         isDepreciated: pool.isDepreciated,
         isSwappersActive: pool.isSwappersActive,
-        hasStrategy: pool.hasStrategy,
+        strategyLink: pool.strategyLink,
         contractInstance: poolContract,
         masterContractInstance: masterContract,
         acceptUseDefaultBalance: pool.acceptUseDefaultBalance || false,
@@ -463,25 +523,28 @@ export default {
         interest: pool.interest,
         ltv: pool.ltv,
         tvl,
+        borrowFee,
         askUpdatePrice,
         initialMax: pool.initialMax,
-        pairToken: pool.pairToken,
+        pairToken: pairToken,
         pairTokenContract,
         tokenPairPrice,
         tokenPrice,
+        price,
         dynamicBorrowAmount,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
         token: {
           contract: tokenContract,
           name: pool.token.name,
-          image: pool.token.image,
           address: pool.token.address,
           decimals: pool.token.decimals,
           oracleExchangeRate: tokenPairRate,
+          isTokenApprove,
         },
         userInfo: null,
         swapContract,
+        isTokenToSwapApprove,
         reverseSwapContract,
       };
 
@@ -517,12 +580,7 @@ export default {
 
       let maxWithdrawAmount = -1;
 
-      const itsDontHaveStrategy =
-        ((pool.id === 27 || pool.id === 28) && this.chainId === "0x01") ||
-        (pool.id === 8 && this.chainId === "0xa86a") ||
-        ((pool.id === 6 || pool.id === 5) && this.chainId === "0xfa");
-
-      if (pool.isDegenBox && !itsDontHaveStrategy) {
+      if (pool.strategyLink) {
         const tokenWithdrawAmount = await pool.token.contract.balanceOf(
           pool.bentoBoxAddress
         );
@@ -571,6 +629,19 @@ export default {
       };
 
       return pool;
+    },
+
+    async fetchTokensPrice(pools) {
+      const tokensArray = [];
+
+      pools.forEach((pool) => {
+        const tokenAddr = pool.token.address;
+        if (tokensArray.indexOf(tokenAddr) === -1) tokensArray.push(tokenAddr);
+      });
+
+      const tokenPrices = await getTokensArrayPrices(this.chainId, tokensArray);
+
+      return tokenPrices;
     },
   },
 

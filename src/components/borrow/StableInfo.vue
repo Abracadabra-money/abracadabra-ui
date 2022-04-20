@@ -2,14 +2,19 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
-        <template v-if="isInfoPressed || isEmpty">
+        <a
+          target="_blank"
+          rel="noreferrer noopener"
+          :href="hasStrategy"
+          v-if="hasStrategy"
+        >
           <img src="@/assets/images/degenbox.svg" alt="degenbox" />
           <span>Degenbox strategy</span>
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
-        /></template>
+        /></a>
       </div>
       <button
-        :disabled="isEmpty"
+        v-if="!isEmpty && account"
         class="info-btn"
         @click="isInfoPressed = !isInfoPressed"
       >
@@ -34,21 +39,25 @@
       </template>
       <template v-else>
         <div v-if="!isInfoPressed" class="stable-preview">
-          <div class="item" v-for="(item, i) in previewData" :key="i">
+          <div class="item" v-for="(item, i) in basicInfo" :key="i">
             <p class="item-title">{{ item.name }}</p>
             <p class="item-value">{{ item.value || "0.0" }}</p>
           </div>
         </div>
         <div v-else class="info-list-wrap">
           <div class="info-list">
-            <div v-for="(item, i) in listData" :key="i" class="info-list-item">
+            <div
+              v-for="(item, i) in additionalInfo"
+              :key="i"
+              class="info-list-item"
+            >
               <img
                 class="info-list-icon"
                 src="@/assets/images/info.svg"
                 alt="info"
               />
 
-              <span class="info-list-name">{{ item.name }}:</span>
+              <span class="info-list-name">{{ item.title }}:</span>
               <span class="info-list-value">{{ item.value }}</span>
             </div>
           </div>
@@ -59,8 +68,8 @@
                 <span class="info-list-value">1 USD</span>
               </div>
               <div class="info-list-subitem">
-                <span class="info-list-name">1 xSushi</span>
-                <span class="info-list-value">6.1865 MIM</span>
+                <span class="info-list-name">1 {{ pool.name }}</span>
+                <span class="info-list-value">{{ tokenToMim }} MIM</span>
               </div>
             </div>
           </div>
@@ -71,30 +80,253 @@
 </template>
 
 <script>
+import { tokenPrices } from "@/utils/helpers.js";
+import { mapGetters } from "vuex";
+import { fetchTokenApy } from "@/utils/HelpersTokenAPY.js";
 export default {
   name: "StableInfo",
   props: {
+    pool: {
+      type: Object,
+    },
     isEmpty: {
       type: Boolean,
       default: false,
     },
+    hasStrategy: {
+      type: [String, Boolean],
+      default: false,
+    },
+
+    tokenToMim: {
+      type: String,
+    },
   },
   data: () => ({
     isInfoPressed: false,
-    listData: [
-      { name: "Maximum collateral ratio", value: 12 },
-      { name: "Liquidation fee", value: 10 },
-      { name: "Borrow fee", value: 10 },
-      { name: "Interest", value: 10 },
-      { name: "Some Name", value: 10 },
-    ],
-    previewData: [
-      { name: "Collateral Deposit", value: 0 },
-      { name: "Collateral Value", value: 0 },
-      { name: "MIM Borrowed", value: 0 },
-      { name: "Liquidation Price", value: 0 },
-    ],
+    collateralDecimals: 4,
+    wOHMTosOHM: null,
+    tokenApy: null,
   }),
+
+  computed: {
+    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+
+    tokenInUsd() {
+      if (this.account) {
+        return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
+      }
+      return 0;
+    },
+
+    borrowLeft() {
+      const maxMimBorrow = (this.tokenInUsd / 100) * (this.pool.ltv - 1);
+      let leftBorrow = parseFloat(
+        maxMimBorrow - this.pool.userInfo.userBorrowPart
+      ).toFixed(20);
+
+      if (+leftBorrow < 0) leftBorrow = "0";
+
+      let re = new RegExp(
+        // eslint-disable-next-line no-useless-escape
+        `^-?\\d+(?:\.\\d{0,` + (4 || -1) + `})?`
+      );
+      return leftBorrow.toString().match(re)[0];
+    },
+
+    basicInfo() {
+      return [
+        {
+          name: "Collateral Deposit",
+          value: this.account
+            ? parseFloat(this.pool.userInfo?.userCollateralShare).toFixed(
+                this.collateralDecimals
+              )
+            : 0,
+        },
+        {
+          name: "Collateral Value",
+          value: `$${parseFloat(this.tokenInUsd).toFixed(4)}`,
+        },
+
+        {
+          name: "MIM Borrowed",
+          value: this.account
+            ? `$${parseFloat(this.pool.userInfo?.userBorrowPart).toFixed(4)}`
+            : 0,
+        },
+        {
+          name: "Liquidation Price",
+          value: this.account
+            ? `$${parseFloat(this.pool.userInfo?.liquidationPrice).toFixed(4)}`
+            : 0,
+        },
+      ];
+    },
+
+    additionalInfo() {
+      try {
+        const borrowLeftParsed = this.borrowLeft;
+
+        let liquidationDecimals = 4;
+        let collateralDecimals = 4;
+
+        if (this.pool.id === 20 && this.chainId === 1) liquidationDecimals = 6;
+
+        const jlpPools = [4, 6, 7];
+
+        if (
+          jlpPools.indexOf(this.pool.id) !== -1 &&
+          this.chainId === 43114 &&
+          +this.pool.userInfo.userCollateralShare
+        )
+          collateralDecimals = 9;
+
+        const resultArray = [
+          {
+            title: "Collateral Deposited",
+            value: parseFloat(this.pool.userInfo.userCollateralShare).toFixed(
+              collateralDecimals
+            ),
+            additional: "Amount of Tokens Deposited as Collaterals",
+          },
+          {
+            title: "Collateral Value",
+            value: `$${parseFloat(this.tokenInUsd).toFixed(4)}`,
+            additional:
+              "USD Value of the Collateral Deposited in your Position",
+          },
+          {
+            title: "MIM Borrowed",
+            value: `$${parseFloat(this.pool.userInfo.userBorrowPart).toFixed(
+              4
+            )}`,
+            additional: "MIM Currently Borrowed in your Position",
+          },
+        ];
+
+        if (this.pool.id === 10 && this.chainId === 1) {
+          resultArray.push({
+            title: "Liquidation Price",
+            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
+              4
+            )}`,
+            additional:
+              "This is the liquidation price of wsOHM, check the current price of wsOHM at the bottom right of the page!",
+          });
+        } else if (
+          (this.pool.id === 2 || this.pool.id === 5) &&
+          this.chainId === 43114
+        ) {
+          resultArray.push({
+            title: "wMEMO Liquidation Price",
+            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
+              4
+            )}`,
+            additional:
+              "Collateral Price at which your Position will be Liquidated",
+          });
+        } else {
+          resultArray.push({
+            title: "Liquidation Price",
+            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
+              liquidationDecimals
+            )}`,
+            additional:
+              "Collateral Price at which your Position will be Liquidated",
+          });
+        }
+
+        if (this.pool.id === 10 && this.ohmPrice && this.chainId === 1) {
+          const ohmLiquidationPrice =
+            this.pool.userInfo.liquidationPrice / this.wOHMTosOHM;
+
+          resultArray.push({
+            title: "OHM Liquidation Price",
+            value: `$${parseFloat(ohmLiquidationPrice).toFixed(4)}`,
+            additional:
+              "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
+          });
+        }
+
+        if (
+          (this.pool.id === 2 || this.pool.id === 5) &&
+          this.timePrice &&
+          this.chainId === 43114
+        ) {
+          const ohmLiquidationPrice =
+            this.pool.userInfo.liquidationPrice * this.MEMOTowMEMO;
+
+          resultArray.push({
+            title: "MEMO Liquidation Price",
+            value: `$${parseFloat(ohmLiquidationPrice).toFixed(4)}`,
+            additional:
+              "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
+          });
+        }
+
+        resultArray.push({
+          title: "MIM Left To Borrow",
+          value: `${borrowLeftParsed}`,
+          additional: "MIM Borrowable Given the Collateral Deposited",
+        });
+
+        if (this.pool.strategyLink) {
+          resultArray.push({
+            title: "Withdrawable Amount",
+            value: `${parseFloat(this.pool.userInfo.maxWithdrawAmount).toFixed(
+              6
+            )}`,
+            additional: `Maximum Current Amount of ${this.pool.token.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
+          });
+        }
+
+        if (this.tokenApy) {
+          const title = this.pool.strategyLink
+            ? "Your Position Approximate APY"
+            : "Your Position Apy";
+
+          const apyInfo = {
+            title: title,
+            value: `${parseFloat(this.tokenApy).toFixed(4)}%`,
+            additional: "APY Delivered by the Open Position",
+          };
+
+          resultArray.splice(2, 0, apyInfo);
+        }
+        return resultArray;
+      } catch (e) {
+        console.log("createCollateralInfo err: ", e);
+
+        return [];
+      }
+    },
+  },
+
+  watch: {
+    async pool() {
+      this.tokenApy = await fetchTokenApy(this.pool);
+    },
+  },
+
+  methods: {
+    async checkOHMInfo() {
+      console.log("ohm info");
+      if (this.pool.id === 10 && this.chainId === 1) {
+        const priceResp = await tokenPrices(["olympus"]);
+        this.ohmPrice = priceResp.olympus;
+
+        const wOHMTosOHMResp = await this.pool.token.contract.wOHMTosOHM(
+          "1000000000000000000"
+        );
+
+        this.wOHMTosOHM = this.$ethers.utils.formatUnits(
+          wOHMTosOHMResp.toString(),
+          9
+        );
+      }
+    },
+  },
 };
 </script>
 
@@ -125,12 +357,16 @@ export default {
     display: flex;
     justify-content: space-between;
     padding: 9px 30px 7px 30px;
+    min-height: 40px;
 
     .strategy {
-      display: grid;
-      grid-gap: 10px;
-      grid-template-columns: repeat(3, auto);
-      align-items: center;
+      a {
+        color: #fff;
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: repeat(3, auto);
+        align-items: center;
+      }
     }
 
     .info-btn {

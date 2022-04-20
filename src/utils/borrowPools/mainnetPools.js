@@ -666,7 +666,8 @@ export default [
     id: 19,
     isDepreciated: true,
     isSwappersActive: true,
-    hasStrategy: true,
+    strategyLink:
+      "https://abracadabramoney.medium.com/our-ust-strategy-the-first-application-of-the-magic-potentialities-of-degenbox-ea35f13d6b5e",
     isDegenBox: true,
     contract: {
       name: "CauldronV2Flat",
@@ -924,7 +925,8 @@ export default [
     id: 26,
     isDepreciated: false,
     isSwappersActive: true,
-    hasStrategy: true,
+    strategyLink:
+      "https://abracadabramoney.medium.com/our-ust-strategy-the-first-application-of-the-magic-potentialities-of-degenbox-ea35f13d6b5e",
     isDegenBox: true,
     contract: {
       name: "CauldronV2",
@@ -963,7 +965,6 @@ export default [
     id: 27,
     isDepreciated: false,
     isSwappersActive: true,
-    hasStrategy: false,
     isDegenBox: true,
     acceptUseDefaultBalance: true,
     contract: {
@@ -1002,7 +1003,6 @@ export default [
     id: 28,
     isDepreciated: false,
     isSwappersActive: true,
-    hasStrategy: false,
     isDegenBox: true,
     contract: {
       name: "CauldronV2",
@@ -1040,7 +1040,6 @@ export default [
   //   id: 29,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1078,7 +1077,6 @@ export default [
   //   id: 30,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1116,7 +1114,6 @@ export default [
   //   id: 31,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1154,7 +1151,6 @@ export default [
   //   id: 32,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1192,7 +1188,6 @@ export default [
   //   id: 33,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1230,7 +1225,6 @@ export default [
   //   id: 34,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1268,7 +1262,6 @@ export default [
   //   id: 35,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1306,7 +1299,6 @@ export default [
   //   id: 36,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1344,7 +1336,6 @@ export default [
   //   id: 37,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
