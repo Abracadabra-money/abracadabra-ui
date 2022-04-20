@@ -15,7 +15,7 @@
         class="box-data-img"
       />
       <div>
-        <p class="box-balance1">{{ (+balance).toFixed(4) }}</p>
+        <p class="box-balance1">{{ (+formattedBalance).toFixed(4) }}</p>
         <p class="box-balance2">$ {{ usd }}</p>
       </div>
     </div>
@@ -46,7 +46,7 @@ export default {
   props: {
     isBento: { type: Boolean, default: false },
     balance: { type: String, default: "0" },
-    usd: { type: String, default: "0" },
+    mimPrice: { type: Number, default: 0 },
   },
   computed: {
     title() {
@@ -56,7 +56,30 @@ export default {
       return `MIM Balance on ${this.title}`;
     },
     isDisabled() {
-      return this.balance === "0.0";
+      return !+this.balance;
+    },
+    usd() {
+      return this.genBalanceInUsd(this.formattedBalance);
+    },
+    formattedBalance() {
+      return this.formatBalance(this.balance);
+    },
+  },
+  methods: {
+    formatBalance(balance = "x.x") {
+      if (balance !== "x.x") {
+        const b = this.$ethers.utils.formatEther(balance);
+        // eslint-disable-next-line no-useless-escape
+        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (4 || -1) + `})?`);
+        return b.toString().match(re)[0];
+      }
+      return "0";
+    },
+    genBalanceInUsd(balance) {
+      if (+balance) {
+        return parseFloat(+balance * this.mimPrice).toFixed(2);
+      }
+      return "0";
     },
   },
 };
