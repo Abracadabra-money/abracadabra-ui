@@ -12,22 +12,22 @@ const routes = [
   {
     path: "/borrow",
     name: "Borrow",
-    component: () => import("@/views/Borrow"),
+    component: () => import("@/views/borrow/Borrow"),
   },
   {
     path: "/repay",
     name: "Repay",
-    component: () => import("@/views/Repay"),
+    component: () => import("@/views/borrow/Repay"),
   },
   {
     path: "/leverage",
     name: "Leverage",
-    component: () => import("@/views/Leverage"),
+    component: () => import("@/views/borrow/Leverage"),
   },
   {
     path: "/deleverage",
-    name: "DeLeverage",
-    component: () => import("@/views/DeLeverage"),
+    name: "Deleverage",
+    component: () => import("@/views/borrow/Deleverage"),
   },
   {
     path: "/bridge",

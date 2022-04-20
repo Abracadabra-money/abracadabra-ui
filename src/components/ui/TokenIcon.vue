@@ -32,4 +32,13 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.token-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background-color: white;
+  border-radius: 10px;
+  margin-right: 10px;
+}
+</style>

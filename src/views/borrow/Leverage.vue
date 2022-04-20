@@ -87,11 +87,10 @@ const StableInfo = () => import("@/components/borrow/StableInfo");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
-const SelectPoolPopup = () =>
-  import("@/components/popups/selectPoolPopup/SelectPoolPopup");
+const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
 
-import borrowPoolsMixin from "@/mixins/borrowPools.js";
-import cookMixin from "@/mixins/cook.js";
+import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cookMixin from "@/mixins/borrow/cooks.js";
 import { mapGetters } from "vuex";
 import {
   isTokenApprowed,

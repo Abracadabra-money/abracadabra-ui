@@ -9,12 +9,14 @@
         class="search-input"
       />
     </div>
-    <SelectPopupItem
-      v-for="pool in filterPools"
-      :key="pool.id"
-      :pool="pool"
-      @enterPool="selectPool"
-    />
+    <div class="tokens-list">
+      <SelectPopupItem
+        v-for="pool in filterPools"
+        :key="pool.id"
+        :pool="pool"
+        @enterPool="selectPool"
+      />
+    </div>
   </div>
 </template>
 
@@ -116,5 +118,11 @@ export default {
 
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.6);
+}
+
+.tokens-list {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 </style>

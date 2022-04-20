@@ -1,19 +1,14 @@
 <template>
-  <div class="tokens-list">
-    <button @click="enterPool(pool)" class="token-wrap">
-      <div class="token-data">
-        <TokenIcon :token="pool.name" />
-        <p>{{ pool.name }}</p>
-      </div>
-      <div class="token-value">
-        <p>{{ userBalance }}</p>
-        <p v-if="pool.userInfo.userBalance > 0">$ {{ priceUsd }}</p>
-      </div>
-    </button>
-    <div class="token-spacer-wrap" :key="`spacer-${pool.id}`">
-      <div class="token-spacer"></div>
+  <button @click="enterPool(pool)" class="pool-item">
+    <div class="pool-name">
+      <TokenIcon :token="pool.name" />
+      <p>{{ pool.name }}</p>
     </div>
-  </div>
+    <div class="pool-balance">
+      <p>{{ userBalance }}</p>
+      <p v-if="pool.userInfo.userBalance > 0">$ {{ priceUsd }}</p>
+    </div>
+  </button>
 </template>
 
 <script>
@@ -52,13 +47,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.tokens-list {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.token-wrap {
+.pool-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -67,36 +56,25 @@ export default {
   border: none;
   cursor: pointer;
   color: white;
+  position: relative;
 }
 
-.token-data {
+.pool-item::after {
+  content: "";
+  position: absolute;
+  width: calc(100% - 42px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  bottom: 0;
+  left: 42px;
+}
+
+.pool-name {
   display: flex;
   align-items: center;
 }
 
-.token-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  background-color: white;
-  border-radius: 10px;
-  margin-right: 10px;
-}
-
-.token-value {
+.pool-balance {
   text-align: right;
-}
-
-.token-spacer-wrap {
-  display: flex;
-  justify-content: flex-end;
-  flex: 0 0 1px;
-}
-
-.token-spacer {
-  display: inline-block;
-  background-color: rgba(255, 255, 255, 0.1);
-  height: 1px;
-  width: calc(100% - 42px);
 }
 </style>

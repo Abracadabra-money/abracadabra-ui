@@ -5,13 +5,15 @@
       <div class="underline">
         <NetworksList />
       </div>
+
       <div class="collateral-input underline">
         <div class="header-balance">
-          <h4>Remove collateral</h4>
+          <h4>Collateral assets</h4>
           <p v-if="selectedPool">
             {{ maxCollateralValue }}
           </p>
         </div>
+
         <ValueInput
           :icon="selectedPool ? selectedPool.icon : null"
           :name="selectedPool ? selectedPool.name : null"
@@ -26,8 +28,9 @@
       </div>
       <div class="borrow-input underline">
         <div class="header-balance">
-          <h4>Repay MIM</h4>
+          <h4>MIM to Borrow</h4>
         </div>
+
         <ValueInput
           :icon="require('@/assets/images/tokens-icon/Token_MIM.svg')"
           name="MIM"
@@ -38,9 +41,15 @@
           @input="updateBorrowValue"
         />
       </div>
+
+      <div class="deposit-info underline" v-if="selectedPool">
+        <span>LTV</span>
+        <span>{{ calculateLtv }}%</span>
+      </div>
     </div>
+
     <div class="info-block">
-      <h1 class="title">Repay MIM</h1>
+      <h1 class="title">Borrow MIM</h1>
       <StableInfo
         :pool="selectedPool"
         :isEmpty="selectedPool === null"
@@ -67,6 +76,7 @@
         </div>
       </template>
     </div>
+
     <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
       <SelectPoolPopup
         @select="chosePool($event)"
@@ -82,11 +92,10 @@ const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const StableInfo = () => import("@/components/borrow/StableInfo");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
-const SelectPoolPopup = () =>
-  import("@/components/popups/selectPoolPopup/SelectPoolPopup");
+const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
 
-import borrowPoolsMixin from "@/mixins/borrowPools.js";
-import cookMixin from "@/mixins/cook.js";
+import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cookMixin from "@/mixins/borrow/cooks.js";
 import {
   isTokenApprowed,
   approveToken,
@@ -124,106 +133,35 @@ export default {
 
     maxCollateralValue() {
       if (this.selectedPool && this.account) {
-        if (
-          +this.borrowValue === +this.selectedPool.userInfo.userBorrowPart ||
-          !+this.selectedPool.userInfo.userBorrowPart
-        ) {
-          if (
-            this.selectedPool.userInfo.maxWithdrawAmount !== -1 &&
-            +this.selectedPool.userInfo.maxWithdrawAmount <
-              +this.selectedPool.userInfo.userCollateralShare
-          ) {
-            const parsedMaxContractWithdrawAmount = parseFloat(
-              this.selectedPool.userInfo.maxWithdrawAmount
-            ).toFixed(20);
-
-            let re = new RegExp(
-              // eslint-disable-next-line no-useless-escape
-              `^-?\\d+(?:\.\\d{0,` +
-                (this.selectedPool.token.decimals || -1) +
-                `})?`
-            );
-
-            return parsedMaxContractWithdrawAmount.toString().match(re)[0];
-          }
-
-          return this.selectedPool.userInfo.userCollateralShare;
-        }
-
-        return this.maxRemoveValue;
+        return this.$ethers.utils.formatUnits(
+          this.selectedPool.userInfo.userBalance
+        );
       }
 
       return 0;
-    },
-
-    maxRemoveValue() {
-      const tokenInUsd =
-        +this.selectedPool.userInfo.userCollateralShare /
-        +this.selectedPool.tokenPrice;
-
-      const ltvMaxPercent = this.selectedPool.ltv - 1;
-
-      const maxMimBorrow = (tokenInUsd / 100) * ltvMaxPercent;
-
-      const maxBorrowLeft =
-        +this.borrowValue && !this.borrowError
-          ? +maxMimBorrow -
-            +this.selectedPool.userInfo.userBorrowPart +
-            +this.borrowValue
-          : +maxMimBorrow - +this.selectedPool.userInfo.userBorrowPart;
-
-      let borrowLeft = parseFloat(
-        ((maxBorrowLeft * this.selectedPool.tokenPrice) /
-          this.selectedPool.ltv) *
-          100
-      ).toFixed(20);
-
-      if (+borrowLeft < 0) return "0";
-
-      if (
-        this.selectedPool.userInfo.maxWithdrawAmount !== -1 &&
-        +this.selectedPool.userInfo.maxWithdrawAmount < +borrowLeft
-      ) {
-        const parsedMaxContractWithdrawAmount = parseFloat(
-          this.selectedPool.userInfo.maxWithdrawAmount
-        ).toFixed(20);
-
-        let re = new RegExp(
-          // eslint-disable-next-line no-useless-escape
-          `^-?\\d+(?:\.\\d{0,` +
-            (this.selectedPool.token.decimals || -1) +
-            `})?`
-        );
-        return parsedMaxContractWithdrawAmount.toString().match(re)[0];
-      }
-
-      let re = new RegExp(
-        // eslint-disable-next-line no-useless-escape
-        `^-?\\d+(?:\.\\d{0,` + (this.selectedPool.token.decimals || -1) + `})?`
-      );
-
-      return borrowLeft.toString().match(re)[0];
     },
 
     maxBorrowValue() {
       if (this.selectedPool && this.account) {
-        if (
-          parseFloat(this.selectedPool.userInfo.userBorrowPart) >
-          parseFloat(this.parsedPairBalance)
-        )
-          return this.parsedPairBalance;
+        let valueInDolars;
+        let maxPairValue;
 
-        return this.selectedPool.userInfo.userBorrowPart;
+        if (this.collateralValue) {
+          valueInDolars = this.collateralValue / this.selectedPool.tokenPrice;
+          maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
+        } else {
+          valueInDolars =
+            this.selectedPool.userInfo.userCollateralShare /
+            this.selectedPool.tokenPrice;
+          maxPairValue =
+            (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
+            this.selectedPool.userInfo.userBorrowPart;
+        }
+
+        return maxPairValue;
       }
 
       return 0;
-    },
-
-    parsedPairBalance() {
-      return this.$ethers.utils.formatUnits(
-        this.selectedPool.userInfo.userPairBalance.toString(),
-        this.selectedPool.pairToken.decimals
-      );
     },
 
     actionBtnText() {
@@ -240,17 +178,17 @@ export default {
         !this.collateralError &&
         !this.borrowError
       )
-        return "Remove and Repay";
+        return "Add collateral and borrow";
 
       if (
         +this.collateralValue > 0 &&
         !this.collateralError &&
         !this.borrowError
       )
-        return "Remove collateral";
+        return "Add collateral";
 
       if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
-        return "Repay borrow";
+        return "Borrow";
 
       return "Nothing to do";
     },
@@ -288,62 +226,67 @@ export default {
       }
       return "0.0";
     },
+
+    calculateLtv() {
+      if (this.collateralValue && this.borrowValue) {
+        const tokenToMim = this.collateralValue / this.selectedPool.tokenPrice;
+        let ltv = Math.round((this.borrowValue / tokenToMim) * 100) + 1;
+
+        if (ltv <= this.selectedPool.ltv) {
+          return ltv;
+        }
+        return this.selectedPool.ltv;
+      }
+
+      if (this.borrowValue) {
+        const tokenToMim =
+          this.selectedPool.userInfo.userCollateralShare /
+          this.selectedPool.tokenPrice;
+        let ltv =
+          Math.round(
+            ((+this.borrowValue + +this.selectedPool.userInfo.userBorrowPart) /
+              tokenToMim) *
+              100
+          ) + 1;
+
+        if (ltv <= this.selectedPool.ltv) {
+          return ltv;
+        }
+        return this.selectedPool.ltv;
+      }
+
+      return 0;
+    },
   },
 
   methods: {
     updateCollateralValue(value) {
+      this.collateralValue = value;
+
       if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
         this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
         return false;
       }
 
-      if (!value) {
-        this.collateralError = "";
-        this.collateralValue = value;
-      }
-
-      if (value === this.maxCollateralValue) {
-        this.collateralError = "";
-
-        this.borrowValue = +this.maxBorrowValue ? this.maxBorrowValue : "";
-        this.collateralValue = +this.maxCollateralValue
-          ? this.maxCollateralValue
-          : "";
-
-        return false;
-      }
-
       this.collateralError = "";
-      this.collateralValue = value;
 
-      return false;
+      if (this.borrowValue) {
+        if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
+          this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}!!!!`;
+        } else {
+          this.borrowError = "";
+        }
+      }
     },
 
     updateBorrowValue(value) {
-      this.borrowValue = value;
-
       if (parseFloat(value) > parseFloat(this.maxBorrowValue)) {
         this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
         return false;
       }
 
       this.borrowError = "";
-
-      if (this.collateralValue) {
-        if (
-          parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-        ) {
-          this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        }
-      }
-
-      if (value === this.maxBorrowValue) {
-        this.collateralValue = +this.maxCollateralValue
-          ? this.maxCollateralValue
-          : "";
-        return false;
-      }
-      return false;
+      this.borrowValue = value;
     },
 
     async approveTokenHandler() {
@@ -358,9 +301,22 @@ export default {
       this.borrowValue = "";
       this.poolId = pool.id;
 
-      console.log("pool.id", pool.id);
-
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
+    },
+
+    checkIsPoolAllowBorrow(amount) {
+      if (+amount < +this.selectedPool.dynamicBorrowAmount) {
+        return true;
+      }
+
+      const notification = {
+        msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
+      };
+
+      console.log("notification", notification);
+      // this.$store.commit("addNotification", notification);
+
+      return false;
     },
 
     async actionHandler() {
@@ -370,7 +326,7 @@ export default {
         !this.collateralError &&
         !this.borrowError
       ) {
-        this.removeAndRepayHandler();
+        this.collateralAndBorrowHandler();
         return false;
       }
 
@@ -379,178 +335,138 @@ export default {
         !this.collateralError &&
         !this.borrowError
       ) {
-        this.removeCollateralHandler();
+        this.collateralHandler();
         return false;
       }
 
       if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError) {
-        this.repayHandler();
+        this.borrowHandler();
         return false;
       }
     },
 
-    async removeAndRepayHandler() {
-      let parsedAmount = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
-        this.selectedPool.pairToken.decimals
-      );
-
-      let parsedPair = this.$ethers.utils.parseUnits(
+    async collateralAndBorrowHandler() {
+      const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
       );
 
-      let payload = {
-        collateralAmount: parsedAmount,
-        amount: parsedPair,
+      const parsedBorrow = this.$ethers.utils.parseUnits(
+        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        this.selectedPool.pairToken.decimals
+      );
+
+      const payload = {
+        collateralAmount: parsedCollateral,
+        amount: parsedBorrow,
         updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
       };
 
-      const finalCollateral =
-        await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.token.address,
-          parsedPair,
-          true
-        );
-
-      payload.amount = finalCollateral;
-
-      if (
-        this.borrowValue === this.selectedPool.userInfo.userBorrowPart &&
-        this.collateralValue === this.selectedPool.userInfo.userCollateralShare
-      ) {
-        parsedAmount = this.$ethers.utils.parseUnits(
-          this.selectedPool.userInfo.userBorrowPart,
-          this.selectedPool.pairToken.decimals
-        );
-
-        parsedPair = this.$ethers.utils.parseUnits(
-          this.selectedPool.userInfo.userCollateralShare,
-          this.selectedPool.token.decimals
-        );
-
-        payload = {
-          collateralAmount: parsedAmount,
-          amount: parsedPair,
-          updatePrice: this.selectedPool.askUpdatePrice,
-        };
-
-        const finalCollateral =
-          await this.selectedPool.masterContractInstance.toShare(
-            this.selectedPool.token.address,
-            parsedPair,
-            true
-          );
-
-        payload.amount = finalCollateral;
-
-        let isTokenToCookApprove = await isTokenApprowed(
-          this.selectedPool.pairTokenContract,
-          this.selectedPool.masterContractInstance.address,
-          this.account
-        );
-
-        if (isTokenToCookApprove.lt(payload.collateralAmount)) {
-          isTokenToCookApprove = await approveToken(
-            this.selectedPool.pairTokenContract,
-            this.selectedPool.masterContractInstance.address
-          );
-        }
-
-        this.isApproved = await isApprowed(this.selectedPool, this.account);
-
-        if (isTokenToCookApprove) {
-          this.cookRemoveAndRepayMax(
-            payload,
-            this.isApproved,
-            this.selectedPool
-          );
-          return false;
-        }
-
-        return false;
-      }
+      console.log("Add collateral and borrow $emit", payload);
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.pairTokenContract,
+        this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.collateralAmount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.pairTokenContract,
+          this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       this.isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isTokenToCookApprove) {
-        this.cookRemoveAndRepay(payload, this.isApproved, this.selectedPool);
+      if (+isTokenToCookApprove) {
+        this.cookCollateralAndBorrow(
+          payload,
+          this.isApproved,
+          this.selectedPool
+        );
         return false;
       }
+
+      return false;
     },
 
-    async removeCollateralHandler() {
-      const parsedPair = this.$ethers.utils.parseUnits(
+    async collateralHandler() {
+      const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
       );
 
-      const collateralToShare =
-        await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.token.address,
-          parsedPair.toString(),
-          true
-        );
-
       const payload = {
-        amount: collateralToShare,
+        amount: parsedCollateralValue,
         updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
       };
 
-      console.log("REMOVE COLLATERAL HANDLER", payload);
-      console.log("collateral amount", payload.amount.toString());
-
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
-      this.cookRemoveCollateral(payload, this.isApproved, this.selectedPool);
-    },
-
-    async repayHandler() {
-      const itsMax =
-        this.borrowValue === this.selectedPool.userInfo.userBorrowPart;
-
-      const parsedAmount = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
-        this.selectedPool.pairToken.decimals
-      );
-
-      const payload = {
-        amount: parsedAmount,
-        updatePrice: this.selectedPool.askUpdatePrice,
-        itsMax,
-      };
+      console.log("Add collateral $emit", payload);
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.pairTokenContract,
+        this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.amount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.pairTokenContract,
+          this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       this.isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isTokenToCookApprove) {
-        this.cookRepayMim(payload, this.isApproved, this.selectedPool);
+      if (+isTokenToCookApprove) {
+        this.cookAddCollateral(payload, this.isApproved, this.selectedPool);
         return false;
       }
+
+      return false;
+    },
+
+    async borrowHandler() {
+      if (!this.checkIsPoolAllowBorrow(this.borrowValue)) {
+        return false;
+      }
+
+      const parsedBorrowValue = this.$ethers.utils.parseUnits(
+        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        this.selectedPool.pairToken.decimals
+      );
+
+      const payload = {
+        amount: parsedBorrowValue,
+        updatePrice: this.selectedPool.askUpdatePrice,
+      };
+
+      console.log("Add borrow $emit", payload);
+
+      let isTokenToCookApprove = await isTokenApprowed(
+        this.selectedPool.token.contract,
+        this.selectedPool.masterContractInstance.address,
+        this.account
+      );
+
+      if (isTokenToCookApprove.eq(0)) {
+        isTokenToCookApprove = await approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      this.isApproved = await isApprowed(this.selectedPool, this.account);
+
+      if (+isTokenToCookApprove) {
+        this.cookBorrow(payload, this.isApproved, this.selectedPool);
+        return false;
+      }
+
+      return false;
     },
   },
 
@@ -595,6 +511,15 @@ export default {
 .borrow-input {
   padding-top: 27px;
   padding-bottom: 14px;
+}
+
+.deposit-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 25px;
+  padding-bottom: 12px;
 }
 
 .info-block {
