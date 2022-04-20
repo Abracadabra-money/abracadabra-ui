@@ -10,22 +10,24 @@
       />
     </div>
     <div class="tokens-list">
-      <template v-for="token in tokens">
-        <button
-          @click="selectToken(token.chainId)"
-          class="token-wrap"
+      <template v-for="(token, i) in filteredTokens">
+        <TokenPopupItem
+          @click="selectToken(token)"
           :key="token.chainId"
+          :name="token.name"
+          :balance="
+            !isUnstake
+              ? token.accountInfo.balance
+              : token.accountInfo.depositedBalance
+          "
+          :price="token.lpPrice"
+          :icon="token.icon || selectIcon"
+        />
+        <div
+          v-if="i !== filteredTokens.length - 1"
+          class="token-spacer-wrap"
+          :key="`spacer-${token.id}`"
         >
-          <div class="token-data">
-            <img class="token-icon" :src="token.icon" alt="token" />
-            <p>{{ token.name }}</p>
-          </div>
-          <div class="token-value">
-            <p>30</p>
-            <p>$ 91,792.2</p>
-          </div>
-        </button>
-        <div class="token-spacer-wrap" :key="`spacer-${token.chainId}`">
           <div class="token-spacer"></div>
         </div>
       </template>
@@ -34,19 +36,40 @@
 </template>
 
 <script>
+const TokenPopupItem = () => import("@/components/popups/TokenPopupItem");
+
+import selectIcon from "@/assets/images/select.svg";
+
 export default {
   props: {
     tokens: {
       type: Array,
       default: () => [],
     },
+    isUnstake: {
+      type: Boolean,
+      default: false,
+    },
   },
-  data: () => ({ search: "" }),
+  data: () => ({ search: "", selectIcon }),
   methods: {
     selectToken(chainId) {
       this.$emit("select", chainId);
       this.$emit("close");
     },
+  },
+  computed: {
+    filteredTokens() {
+      return !this.search
+        ? this.tokens
+        : this.tokens.filter(
+            ({ name }) =>
+              name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+          );
+    },
+  },
+  components: {
+    TokenPopupItem,
   },
 };
 </script>
@@ -88,33 +111,6 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-}
-
-.token-wrap {
-  display: flex;
-  justify-content: space-between;
-  padding: 14px 0;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  color: white;
-}
-
-.token-data {
-  display: flex;
-  align-items: center;
-}
-.token-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  background-color: white;
-  border-radius: 10px;
-  margin-right: 10px;
-}
-
-.token-value {
-  text-align: right;
 }
 
 .token-spacer-wrap {

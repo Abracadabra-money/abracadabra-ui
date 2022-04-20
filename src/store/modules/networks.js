@@ -11,6 +11,7 @@ export default {
       {
         chainId: 1,
         name: "ETH",
+        rpc: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
         icon: ethIcon,
         switchData: {
           chainId: "0x01",
@@ -19,6 +20,7 @@ export default {
       {
         chainId: 56,
         name: "BSC",
+        rpc: "https://bsc-dataseed.binance.org/",
         icon: binanceIcon,
         switchData: {
           chainId: "0x38",
@@ -42,6 +44,7 @@ export default {
       {
         chainId: 250,
         name: "FTM",
+        rpc: "https://rpc.ftm.tools/",
         icon: fantomIcon,
         switchData: {
           chainId: "0xfa",
@@ -66,6 +69,7 @@ export default {
       {
         chainId: 43114,
         name: "AVAX",
+        rpc: "https://api.avax.network/ext/bc/C/rpc",
         icon: avalancheIcon,
         switchData: {
           chainId: "0xa86a",
@@ -79,6 +83,7 @@ export default {
       {
         chainId: 42161,
         name: "AETH",
+        rpc: "https://arb1.arbitrum.io/rpc",
         icon: arbitrumIcon,
         switchData: {
           chainId: "0xa4b1",
@@ -92,6 +97,7 @@ export default {
       {
         chainId: 137,
         name: "MATIC",
+        rpc: null,
         icon: polygonIcon,
         switchData: {
           chainId: "0x89",
