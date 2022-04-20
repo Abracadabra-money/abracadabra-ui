@@ -15,15 +15,19 @@
         class="box-data-img"
       />
       <div>
-        <p class="box-balance1">{{ balance.toFixed(1) }}</p>
-        <p class="box-balance2">$ 0.0</p>
+        <p class="box-balance1">{{ (+balance).toFixed(4) }}</p>
+        <p class="box-balance2">$ {{ usd }}</p>
       </div>
     </div>
-    <div class="box-actions" :class="{ 'box-actions-disabled': isDisabled }">
-      <template v-if="approved">
-        <NetworkChip name="Withdraw" :disabled="isDisabled" />
-        <NetworkChip name="Deposit" :disabled="isDisabled" selected /></template
-      ><template v-else> <NetworkChip name="Approve" /> </template>
+    <div class="box-actions">
+      <template>
+        <DefaultButton @click="$emit('withdraw')" :disabled="isDisabled"
+          >Withdraw</DefaultButton
+        >
+        <DefaultButton @click="$emit('deposit')" selected
+          >Deposit</DefaultButton
+        ></template
+      >
     </div>
     <div class="box-desc">
       {{ description }}
@@ -34,13 +38,15 @@
 </template>
 
 <script>
-const NetworkChip = () => import("@/components/borrow/NetworkChip");
+const DefaultButton = () => import("@/components/main/DefaultButton");
 
 export default {
   name: "BalanceBox",
-  components: { NetworkChip },
+  components: { DefaultButton },
   props: {
     isBento: { type: Boolean, default: false },
+    balance: { type: String, default: "0" },
+    usd: { type: String, default: "0" },
   },
   computed: {
     title() {
@@ -49,14 +55,8 @@ export default {
     description() {
       return `MIM Balance on ${this.title}`;
     },
-    balance() {
-      return this.isBento ? 0 : 40000;
-    },
     isDisabled() {
-      return !this.balance;
-    },
-    approved() {
-      return this.isBento;
+      return this.balance === "0.0";
     },
   },
 };
@@ -128,13 +128,8 @@ export default {
 
   &-actions {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     column-gap: 15px;
-
-    &-disabled {
-      grid-template-columns: 1fr 1fr;
-      opacity: 0.6;
-    }
   }
 
   &-desc {
