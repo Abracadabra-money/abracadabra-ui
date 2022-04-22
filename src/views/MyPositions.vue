@@ -19,7 +19,7 @@
     <h2 class="title">Specific positions</h2>
     <div class="spec-positions">
       <SpecPos />
-      <SpecPos />
+      <SpecPos :isFarm="true" />
     </div>
   </div>
 </template>
@@ -87,6 +87,7 @@ export default {
 .title {
   text-align: center;
   text-transform: uppercase;
+  margin-top: 32px;
 }
 
 .choose {

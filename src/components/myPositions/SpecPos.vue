@@ -1,7 +1,7 @@
 <template>
   <div class="spec-pos">
     <div class="title">
-      <p>Borrow</p>
+      <p>{{ title }}</p>
       <button @click="opened = !opened" class="open-btn">
         <img
           v-if="opened"
@@ -12,18 +12,34 @@
       </button>
     </div>
     <div class="items">
-      <SpecPosItem v-for="i in 2" :key="i" :opened="opened" />
+      <template v-if="!isFarm">
+        <SpecPosBorrowItem v-for="i in 2" :key="i" :opened="opened"
+      /></template>
+      <template v-else>
+        <SpecPosFarmItem v-for="i in 2" :key="i" :opened="opened"
+      /></template>
     </div>
   </div>
 </template>
 
 <script>
-const SpecPosItem = () => import("@/components/myPositions/SpecPosItem");
+const SpecPosBorrowItem = () =>
+  import("@/components/myPositions/SpecPosBorrowItem");
+const SpecPosFarmItem = () =>
+  import("@/components/myPositions/SpecPosFarmItem");
 
 export default {
   name: "SpecPos",
-  components: { SpecPosItem },
+  props: {
+    isFarm: { type: Boolean, default: false },
+  },
+  components: { SpecPosBorrowItem, SpecPosFarmItem },
   data: () => ({ opened: false }),
+  computed: {
+    title() {
+      return this.isFarm ? "Farm" : "Borrow";
+    },
+  },
 };
 </script>
 

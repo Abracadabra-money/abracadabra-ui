@@ -88,7 +88,7 @@
 const StatusName = () => import("@/components/UIComponents/StatusName");
 
 export default {
-  name: "SpecPosItem",
+  name: "SpecPosBorrowItem",
   components: { StatusName },
   props: {
     opened: { type: Boolean, default: true },
