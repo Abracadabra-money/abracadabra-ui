@@ -98,7 +98,7 @@ export default {
       return this.name
         ? {
             name: this.name,
-            icon: this.icon,
+            icon: this.icon || selectIcon,
           }
         : { name: "Select to", icon: selectIcon };
     },

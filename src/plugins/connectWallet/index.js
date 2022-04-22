@@ -9,13 +9,11 @@ import store from "../../store";
 const walletconnect = {
   package: WalletConnectProvider,
   options: {
-    rpc: {
-      1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-      56: "https://bsc-dataseed.binance.org/",
-      250: "https://rpc.ftm.tools/",
-      42161: "https://arb1.arbitrum.io/rpc",
-      43114: "https://api.avax.network/ext/bc/C/rpc",
-    },
+    rpc: Object.fromEntries(
+      store.getters.getAvailableNetworks
+        .filter(({ rpc }) => rpc)
+        .map(({ chainId, rpc }) => [chainId, rpc])
+    ),
   },
 };
 
