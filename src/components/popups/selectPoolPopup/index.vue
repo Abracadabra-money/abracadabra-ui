@@ -40,13 +40,14 @@ export default {
 
   computed: {
     filterPools() {
-      return this.pools.filter(
-        (pool) =>
-          pool.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
-      );
-      // .sort((a, b) =>
-      //   a.userInfo.userBalance > b.userInfo.userBalance ? -1 : 1
-      // );
+      return this.pools
+        .filter(
+          (pool) =>
+            pool.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+        )
+        .sort((a, b) =>
+          a.userInfo?.userBalance > b.userInfo?.userBalance ? -1 : 1
+        );
     },
   },
 

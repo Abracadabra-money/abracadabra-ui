@@ -9,7 +9,7 @@
         <div class="header-balance">
           <h4>Collateral assets</h4>
           <p v-if="selectedPool">
-            {{ maxCollateralValue }}
+            {{ parseFloat(maxCollateralValue).toFixed(4) }}
           </p>
         </div>
         <ValueInput

@@ -6,7 +6,7 @@
     </div>
     <div class="pool-balance">
       <p>{{ userBalance }}</p>
-      <p v-if="pool.userInfo > 0">$ {{ priceUsd }}</p>
+      <p v-if="pool.userInfo">$ {{ priceUsd }}</p>
     </div>
   </button>
 </template>
