@@ -1,5 +1,10 @@
 <template>
-  <img class="token-icon" :src="icon" alt="token" />
+  <img
+    class="token-icon"
+    :src="icon"
+    alt="token"
+    :style="{ height: size, backgroundColor: bgColor }"
+  />
 </template>
 
 <script>
@@ -11,6 +16,14 @@ export default {
       type: String,
       default: "ETH",
     },
+    size: {
+      type: String,
+      default: "32px",
+    },
+    bgColor: {
+      type: String,
+      default: "white",
+    },
   },
   data() {
     return {};
@@ -18,12 +31,9 @@ export default {
 
   computed: {
     icon() {
-      let icon;
-      iconArray.forEach((iconObj) => {
-        if (iconObj.tokenName === this.token) {
-          icon = iconObj.tokenIcon;
-        }
-      });
+      const icon = iconArray.find(
+        ({ tokenName }) => tokenName.toUpperCase() === this.token.toUpperCase()
+      )?.tokenIcon;
 
       if (icon) return icon;
       return require(`@/assets/images/tokens-icon/Token_ETH.svg`);
@@ -34,10 +44,7 @@ export default {
 
 <style lang="scss" scoped>
 .token-icon {
-  width: 32px;
-  height: 32px;
   object-fit: contain;
-  background-color: white;
   border-radius: 10px;
   margin-right: 10px;
 }

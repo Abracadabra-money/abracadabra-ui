@@ -111,6 +111,7 @@ export default {
         { title: "Stake", name: "stake" },
         { title: "Unstake", name: "unstake" },
       ],
+      farmPoolsTimer: null,
     };
   },
   computed: {
@@ -226,6 +227,9 @@ export default {
     this.farmPoolsTimer = setInterval(async () => {
       await this.createFarmPools();
     }, 10000);
+  },
+  beforeDestroy() {
+    clearInterval(this.farmPoolsTimer);
   },
   components: {
     NetworksList,

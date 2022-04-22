@@ -1,23 +1,19 @@
 <template>
   <div class="pos-farm-item" :class="{ 'pos-farm-item-opened': opened }">
     <div class="header">
-      <img
-        src="@/assets/images/networks/polygon-icon.svg"
-        alt="Token"
-        class="header-img"
-      />
+      <TokenIcon :token="pool.name" size="80px" bgColor="transparent" />
       <div class="header-token">
-        <p class="header-token-title">UST</p>
-        <p v-if="!opened" class="header-token-price">$ {{ 464654 }}</p>
+        <p class="header-token-title">{{ pool.name }}</p>
+        <p v-if="!opened" class="header-token-price">$ {{ 123456 }}</p>
       </div>
       <div v-if="!opened" class="header-content">
         <div>
           <p class="header-content-title">Initial collateral deposited</p>
-          <p class="header-content-value">$ {{ 464654 }}</p>
+          <p class="header-content-value">$ {{ 123456 }}</p>
         </div>
         <div>
           <p class="header-content-title">MIM borrowed</p>
-          <p class="header-content-value">$ {{ 464654 }}</p>
+          <p class="header-content-value">$ {{ 123456 }}</p>
         </div>
       </div>
       <div v-else class="header-content-opened">
@@ -25,6 +21,7 @@
           v-for="(item, i) in openedItems"
           :key="i"
           class="header-opened-item"
+          @click="goToFarms"
         >
           <img :src="item.icon" alt="Hammer" class="header-opened-img" />
           <p class="header-opened-title">{{ item.title }}</p>
@@ -32,44 +29,64 @@
       </div>
     </div>
     <div v-if="opened" class="lp-data">
-      <div class="lp-data-item">
-        <div class="lp-data-title">Earned</div>
-        <div class="lp-data-wrap">
-          <div class="lp-data-info">
-            <img
-              class="lp-data-icon"
-              src="@/assets/images/tokens-icon/MIM.svg"
-              alt="LP"
-            />
-            <p class="lp-data-token">ETH</p>
+      <div>
+        <div class="lp-data-item">
+          <div class="lp-data-title">Earned</div>
+          <div class="lp-data-wrap">
+            <div class="lp-data-info">
+              <TokenIcon
+                :token="pool.tokenName"
+                size="50px"
+                bgColor="transparent"
+              />
+              <p class="lp-data-token">{{ pool.tokenName }}</p>
+            </div>
+            <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
+              <p class="lp-data-balance">{{ earnedData.balance }}</p>
+              <p class="lp-data-price">$ {{ earnedData.usd }}</p>
+            </div>
           </div>
-          <div class="lp-data-balance-wrap">
-            <p class="lp-data-balance">1.00</p>
-            <p class="lp-data-price">$ 1.00</p>
+          <div class="lp-data-actions">
+            <button class="lp-data-btn" v-if="pool.accountInfo">Harvest</button>
           </div>
-        </div>
-        <div class="lp-data-actions">
-          <button class="lp-data-btn">Harvest</button>
         </div>
       </div>
-      <div class="lp-data-item">
-        <div class="lp-data-title">Earned</div>
-        <div class="lp-data-wrap">
-          <div class="lp-data-info">
-            <img
-              class="lp-data-icon"
-              src="@/assets/images/tokens-icon/MIM.svg"
-              alt="LP"
-            />
-            <p class="lp-data-token">ETH</p>
+      <div>
+        <div class="lp-data-item">
+          <div class="lp-data-title">{{ pool.stakingTokenType }} deposited</div>
+          <div class="lp-data-wrap">
+            <div class="lp-data-info">
+              <TokenIcon :token="pool.name" size="50px" bgColor="transparent" />
+              <p class="lp-data-token">{{ pool.name }}</p>
+            </div>
+            <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
+              <p class="lp-data-balance">{{ depositedData.balance }}</p>
+              <p class="lp-data-price">$ {{ depositedData.usd }}</p>
+            </div>
           </div>
-          <div class="lp-data-balance-wrap">
-            <p class="lp-data-balance">1.00</p>
-            <p class="lp-data-price">$ 1.00</p>
+          <div v-if="balanceList.length" class="balance-list">
+            <div
+              class="lp-data-wrap"
+              v-for="balanceItem in balanceList"
+              :key="balanceItem.name"
+            >
+              <div class="lp-data-info">
+                <TokenIcon :token="balanceItem.name" bgColor="transparent" />
+                <p>
+                  {{ balanceItem.name }}
+                </p>
+              </div>
+              <div v-if="pool.accountInfo" class="lp-data-balance-wrap">
+                <p class="balance-list-balance">{{ balanceItem.balance }}</p>
+                <p class="lp-data-price">$ {{ balanceItem.usd }}</p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="lp-data-actions">
-          <button class="lp-data-btn">Harvest</button>
+          <div class="lp-data-actions">
+            <button class="lp-data-btn" v-if="pool.accountInfo">
+              Withdraw
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -77,11 +94,13 @@
 </template>
 
 <script>
+const TokenIcon = () => import("@/components/ui/TokenIcon");
 export default {
   name: "SpecPosFarmItem",
-  components: {},
+  components: { TokenIcon },
   props: {
     opened: { type: Boolean, default: true },
+    pool: { type: Object, required: true },
   },
   data: () => ({
     openedItems: [
@@ -95,7 +114,70 @@ export default {
       },
     ],
   }),
-  methods: {},
+  methods: {
+    parse(value) {
+      return parseFloat(value).toFixed(4);
+    },
+    goToFarms() {
+      this.$router.push({ name: "Farm" });
+    },
+    prepBalanceData(factor = 0, priceValue) {
+      const factorParsed = this.parse(
+        this.$ethers.utils.formatEther(factor.toString())
+      );
+
+      const price = this.parse(factorParsed * priceValue);
+
+      return {
+        usd: price,
+        balance: this.parse(factorParsed),
+      };
+    },
+  },
+  computed: {
+    balanceList() {
+      return [
+        {
+          name: this.pool.depositedBalance?.token0.name,
+          balance: this.parse(
+            this.pool.accountInfo?.tokensBalanceInfo?.token0.amount
+          ),
+          usd: this.parse(
+            this.pool.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
+          ),
+        },
+        {
+          name: this.pool.depositedBalance?.token1.name,
+          balance: this.parse(
+            this.pool.accountInfo?.tokensBalanceInfo?.token1.amount
+          ),
+          usd: this.parse(
+            this.pool.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
+          ),
+        },
+      ].filter((e) => e.name && e.balance);
+    },
+    userRewardParsed() {
+      return this.parse(
+        this.$ethers.utils.formatEther(
+          this.pool.accountInfo?.userReward.toString()
+        )
+      );
+    },
+
+    earnedData() {
+      return this.prepBalanceData(
+        this.pool.accountInfo?.userReward,
+        this.pool.tokenPrice
+      );
+    },
+    depositedData() {
+      return this.prepBalanceData(
+        this.pool.accountInfo?.userInfo.amount,
+        this.pool.lpPrice
+      );
+    },
+  },
 };
 </script>
 
@@ -114,11 +196,8 @@ export default {
     align-items: center;
     min-height: 96px;
     box-sizing: content-box;
+    margin-bottom: 10px;
 
-    &-img {
-      width: 80px;
-      height: 80px;
-    }
     &-content {
       justify-self: flex-end;
       text-align: right;
@@ -219,12 +298,14 @@ export default {
 
     &-icon {
       width: 50px;
-      margin-right: 10px;
     }
 
     &-token {
       font-weight: 400;
       font-size: 18px;
+      text-transform: uppercase;
+
+      margin-left: 10px;
     }
 
     &-balance-wrap {
@@ -257,6 +338,18 @@ export default {
       color: #ffffff;
       border: none;
       cursor: pointer;
+    }
+  }
+  .balance-list {
+    display: grid;
+    grid-template-rows: repeat(auto-fill, 1fr);
+    grid-row-gap: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 9px 0;
+
+    &-balance {
+      font-size: 14px;
+      line-height: 21px;
     }
   }
 }

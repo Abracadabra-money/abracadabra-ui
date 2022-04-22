@@ -13,10 +13,14 @@
     </div>
     <div class="items">
       <template v-if="!isFarm">
-        <SpecPosBorrowItem v-for="i in 2" :key="i" :opened="opened"
+        <SpecPosBorrowItem v-for="i in pools" :key="i" :opened="opened"
       /></template>
       <template v-else>
-        <SpecPosFarmItem v-for="i in 2" :key="i" :opened="opened"
+        <SpecPosFarmItem
+          v-for="pool in pools"
+          :key="pool.id"
+          :opened="opened"
+          :pool="pool"
       /></template>
     </div>
   </div>
@@ -32,6 +36,7 @@ export default {
   name: "SpecPos",
   props: {
     isFarm: { type: Boolean, default: false },
+    pools: { type: Array, default: () => [] },
   },
   components: { SpecPosBorrowItem, SpecPosFarmItem },
   data: () => ({ opened: false }),

@@ -19,19 +19,21 @@
     <h2 class="title">Specific positions</h2>
     <div class="spec-positions">
       <SpecPos />
-      <SpecPos :isFarm="true" />
+      <SpecPos :isFarm="true" :pools="this.pools" />
     </div>
   </div>
 </template>
 
 <script>
+import farmPoolsMixin from "../mixins/farmPools";
+
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 
 export default {
-  mixins: [mimBentoDeposit],
+  mixins: [mimBentoDeposit, farmPoolsMixin],
   data: () => ({
     textItems: [
       {
@@ -48,6 +50,7 @@ export default {
       },
     ],
     mimBentoInterval: null,
+    farmPoolsTimer: null,
   }),
 
   computed: {
@@ -62,6 +65,14 @@ export default {
     BalanceBoxes,
   },
   async created() {
+    if (!this.pools.length) {
+      await this.createFarmPools();
+    }
+
+    this.farmPoolsTimer = setInterval(async () => {
+      await this.createFarmPools();
+    }, 10000);
+
     await this.createMimBentoInfo();
     this.mimBentoInterval = setInterval(async () => {
       await this.createMimBentoInfo();
@@ -69,6 +80,7 @@ export default {
   },
 
   beforeDestroy() {
+    clearInterval(this.farmPoolsTimer);
     clearInterval(this.mimBentoInterval);
   },
 };

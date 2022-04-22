@@ -109,4 +109,24 @@ export default [
     tokenIcon: require(`@/assets/images/tokens-icon/Token_WBTC.png`),
     itsGroup: true,
   },
+  {
+    tokenName: "ETH-SPELL",
+    tokenIcon: require(`@/assets/images/tokens-icon/Token_ETH-SPELL.svg`),
+    itsGroup: true,
+  },
+  {
+    tokenName: "MIM-ETH",
+    tokenIcon: require(`@/assets/images/tokens-icon/Token_MIM-ETH.svg`),
+    itsGroup: true,
+  },
+  {
+    tokenName: "MIM-3LP3CRV-f-2",
+    tokenIcon: require(`@/assets/images/tokens-icon/Token_MIM-3LP3CRV-f-2.svg`),
+    itsGroup: true,
+  },
+  {
+    tokenName: "MIM",
+    tokenIcon: require(`@/assets/images/tokens-icon/Token_MIM.svg`),
+    itsGroup: true,
+  },
 ];
