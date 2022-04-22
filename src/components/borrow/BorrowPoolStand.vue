@@ -84,7 +84,7 @@ import { tokenPrices } from "@/utils/helpers.js";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/utils/HelpersTokenAPY.js";
 export default {
-  name: "StableInfo",
+  name: "BorrowPoolStand",
   props: {
     pool: {
       type: Object,
@@ -101,6 +101,23 @@ export default {
     tokenToMim: {
       type: String,
     },
+
+    typeOperation: {
+      type: String,
+    },
+
+    collateralExpected: {
+      type: [Number, String],
+      default: 0,
+    },
+
+    mimExpected: {
+      type: [Number, String],
+    },
+
+    liquidationPrice: {
+      type: [String, Number],
+    },
   },
   data: () => ({
     isInfoPressed: false,
@@ -113,8 +130,8 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     tokenInUsd() {
-      if (this.account) {
-        return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
+      if (this.account && this.collateralDepositExpected >= 0) {
+        return this.collateralDepositExpected / this.pool.tokenPrice;
       }
       return 0;
     },
@@ -139,7 +156,7 @@ export default {
         {
           name: "Collateral Deposit",
           value: this.account
-            ? parseFloat(this.pool.userInfo?.userCollateralShare).toFixed(
+            ? parseFloat(this.collateralDepositExpected).toFixed(
                 this.collateralDecimals
               )
             : 0,
@@ -152,16 +169,51 @@ export default {
         {
           name: "MIM Borrowed",
           value: this.account
-            ? `$${parseFloat(this.pool.userInfo?.userBorrowPart).toFixed(4)}`
+            ? `$${parseFloat(this.mimBorrowedExpected).toFixed(4)}`
             : 0,
         },
         {
           name: "Liquidation Price",
           value: this.account
-            ? `$${parseFloat(this.pool.userInfo?.liquidationPrice).toFixed(4)}`
+            ? `$${parseFloat(this.liquidationPrice).toFixed(4)}`
             : 0,
         },
       ];
+    },
+
+    collateralDepositExpected() {
+      let defaultValue = +this.pool.userInfo.userCollateralShare;
+
+      if (this.collateralExpected && this.typeOperation === "borrow") {
+        if (
+          this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) <
+          +this.collateralExpected
+        )
+          return defaultValue;
+
+        return +this.collateralExpected + defaultValue;
+      }
+
+      if (this.collateralExpected && this.typeOperation === "repay") {
+        if (defaultValue - +this.collateralExpected < 0) return defaultValue;
+        return defaultValue - +this.collateralExpected;
+      }
+
+      return defaultValue;
+    },
+
+    mimBorrowedExpected() {
+      if (this.mimExpected && this.typeOperation === "borrow") {
+        return +this.pool.userInfo?.userBorrowPart + +this.mimExpected;
+      }
+
+      if (this.mimExpected && this.typeOperation === "repay") {
+        console.log("1111", this.pool.userInfo?.userBorrowPart);
+        console.log("2222", +this.mimExpected);
+        return +this.pool.userInfo?.userBorrowPart - +this.mimExpected;
+      }
+
+      return +this.pool.userInfo?.userBorrowPart;
     },
 
     additionalInfo() {

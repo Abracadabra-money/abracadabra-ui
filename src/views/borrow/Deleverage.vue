@@ -30,6 +30,7 @@
             <img src="@/assets/images/settings.png" alt="settings" />
           </button>
         </div>
+
         <Range
           v-model="flashRepayAmount"
           :min="0"
@@ -37,12 +38,9 @@
           :step="+borrowStepRange"
           title="Choose the amount of MIM you want to repay"
         />
-        <p>Flash Repay Amount {{ flashRepayAmount }}</p>
-        <p>
-          Liquidation Price &#126; ${{
-            parseFloat(flashReapyExpectedLiquidationPrice).toFixed(4)
-          }}
-        </p>
+
+        <div class="range-underline underline"></div>
+
         <Range
           title="Choose the amount of collateral you want to remove"
           v-model="flashRepayRemoveAmount"
@@ -50,17 +48,19 @@
           :max="maxFlashRepayRemoveAmount"
           :step="+collateralStepRange"
         />
-        <p>{{ flashRepayRemoveAmount }} {{ selectedPool.token.name }}</p>
-        <p>Amount of MIM to repay {{ flashRepayAmountFormat }}</p>
       </div>
     </div>
     <div class="info-block">
       <h1 class="title">Leverage Down</h1>
-      <StableInfo
+      <BorrowPoolStand
         :pool="selectedPool"
         :isEmpty="selectedPool === null"
         :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
         :tokenToMim="tokenToMim"
+        typeOperation="repay"
+        :collateralExpected="flashRepayRemoveAmount"
+        :mimExpected="flashRepayAmount"
+        :liquidationPrice="flashReapyExpectedLiquidationPrice"
       />
       <template v-if="selectedPool">
         <div class="btn-wrap">
@@ -98,7 +98,7 @@
 const NetworksList = () => import("@/components/ui/NetworksList");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const Range = () => import("@/components/UIComponents/Range");
-const StableInfo = () => import("@/components/borrow/StableInfo");
+const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
@@ -247,8 +247,11 @@ export default {
     },
 
     maxFlashRepayAmount() {
-      if (this.selectedPool) {
-        return toFixed(this.selectedPool.userInfo.contractBorrowPartParsed, 4);
+      if (this.selectedPool && this.account) {
+        return toFixed(
+          this.selectedPool.userInfo.userBorrowPart,
+          this.selectedPool.pairToken.decimals
+        );
       }
       return 0;
     },
@@ -337,20 +340,20 @@ export default {
       return liquidationPrice;
     },
 
-    flashRepayAmountFormat() {
-      const accruedMultiplyer =
-        this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
+    // flashRepayAmountFormat() {
+    //   const accruedMultiplyer =
+    //     this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
 
-      const jlpPools = [4, 6, 7];
+    //   const jlpPools = [4, 6, 7];
 
-      if (
-        jlpPools.indexOf(this.selectedPool.id) !== -1 &&
-        this.chainId === 43114
-      )
-        return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(8);
+    //   if (
+    //     jlpPools.indexOf(this.selectedPool.id) !== -1 &&
+    //     this.chainId === 43114
+    //   )
+    //     return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(8);
 
-      return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(4);
-    },
+    //   return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(4);
+    // },
   },
 
   methods: {
@@ -513,7 +516,7 @@ export default {
     NetworksList,
     ValueInput,
     Range,
-    StableInfo,
+    BorrowPoolStand,
     DefaultButton,
     PopupWrap,
     SettingsPopup,
@@ -551,6 +554,10 @@ export default {
 
 .leverage-range {
   margin: 33px 0 60px 0;
+}
+
+.range-underline {
+  margin: 30px 0;
 }
 
 .settings-wrap {

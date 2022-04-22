@@ -9,7 +9,7 @@
         <div class="header-balance">
           <h4>Remove collateral</h4>
           <p v-if="selectedPool">
-            {{ maxCollateralValue }}
+            {{ parseFloat(maxCollateralValue).toFixed(4) }}
           </p>
         </div>
         <ValueInput
@@ -41,11 +41,15 @@
     </div>
     <div class="info-block">
       <h1 class="title">Repay MIM</h1>
-      <StableInfo
+      <BorrowPoolStand
         :pool="selectedPool"
         :isEmpty="selectedPool === null"
         :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
         :tokenToMim="tokenToMim"
+        typeOperation="repay"
+        :collateralExpected="collateralValue"
+        :mimExpected="mimExpected"
+        :liquidationPrice="repayExpectedLiquidationPrice"
       />
       <template v-if="selectedPool">
         <div class="btn-wrap">
@@ -79,7 +83,7 @@
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const StableInfo = () => import("@/components/borrow/StableInfo");
+const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
@@ -287,6 +291,44 @@ export default {
       }
       return "0.0";
     },
+
+    mimExpected() {
+      if (!this.borrowError) return this.borrowValue;
+
+      return 0;
+    },
+
+    repayExpectedLiquidationPrice() {
+      if (this.selectedPool && this.account) {
+        console.log("repayExpectedBorrowed", this.repayExpectedBorrowed);
+        console.log("repayExpectedCollateral", this.repayExpectedCollateral);
+        const liquidationPrice =
+          +this.repayExpectedBorrowed /
+            +this.repayExpectedCollateral /
+            this.liquidationMultiplier || 0;
+
+        return liquidationPrice;
+      }
+      return 0;
+    },
+
+    repayExpectedBorrowed() {
+      if (this.collateralError || this.borrowError)
+        return +this.selectedPool.userInfo.userBorrowPart;
+      return +this.selectedPool.userInfo.userBorrowPart - +this.borrowValue;
+    },
+
+    repayExpectedCollateral() {
+      if (this.borrowError || this.collateralError)
+        return +this.selectedPool.userInfo.userCollateralShare;
+      return (
+        +this.selectedPool.userInfo.userCollateralShare - +this.collateralValue
+      );
+    },
+
+    liquidationMultiplier() {
+      return this.selectedPool.ltv / 100;
+    },
   },
 
   methods: {
@@ -356,8 +398,6 @@ export default {
       this.collateralValue = "";
       this.borrowValue = "";
       this.poolId = pool.id;
-
-      console.log("pool.id", pool.id);
 
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
@@ -556,7 +596,7 @@ export default {
   components: {
     NetworksList,
     ValueInput,
-    StableInfo,
+    BorrowPoolStand,
     DefaultButton,
     PopupWrap,
     SelectPoolPopup,
@@ -571,11 +611,11 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding: 100px 0;
+  padding: 100px 5px;
 }
 
 .deposit-block {
-  padding: 20px 16px;
+  padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
   max-width: 100%;

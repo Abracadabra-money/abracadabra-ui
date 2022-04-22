@@ -6,7 +6,7 @@
     </div>
     <div class="pool-balance">
       <p>{{ userBalance }}</p>
-      <p v-if="pool.userInfo.userBalance > 0">$ {{ priceUsd }}</p>
+      <p v-if="pool.userInfo > 0">$ {{ priceUsd }}</p>
     </div>
   </button>
 </template>
@@ -22,18 +22,22 @@ export default {
   },
   computed: {
     userBalance() {
-      return this.pool.userInfo?.userBalance
-        ? this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance)
-        : 0;
+      if (this.pool.userInfo)
+        return parseFloat(
+          this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance)
+        ).toFixed(4);
+
+      return 0;
     },
 
     priceUsd() {
-      return this.pool.userInfo?.userBalance
-        ? (
-            this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) *
-              this.pool.price || 1 / this.pool.tokenPrice
-          ).toFixed(4)
-        : 0;
+      if (this.pool.userInfo)
+        return parseFloat(
+          this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) *
+            this.pool.price || 1 / this.pool.tokenPrice
+        ).toFixed(2);
+
+      return 0;
     },
   },
 

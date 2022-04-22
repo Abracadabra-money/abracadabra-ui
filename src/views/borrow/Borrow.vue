@@ -10,7 +10,7 @@
         <div class="header-balance">
           <h4>Collateral assets</h4>
           <p v-if="selectedPool">
-            {{ maxCollateralValue }}
+            {{ parseFloat(maxCollateralValue).toFixed(4) }}
           </p>
         </div>
 
@@ -50,11 +50,15 @@
 
     <div class="info-block">
       <h1 class="title">Borrow MIM</h1>
-      <StableInfo
+      <BorrowPoolStand
         :pool="selectedPool"
         :isEmpty="selectedPool === null"
         :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
         :tokenToMim="tokenToMim"
+        typeOperation="borrow"
+        :collateralExpected="collateralValue"
+        :mimExpected="mimExpected"
+        :liquidationPrice="depositExpectedLiquidationPrice"
       />
       <template v-if="selectedPool">
         <div class="btn-wrap">
@@ -89,7 +93,7 @@
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const StableInfo = () => import("@/components/borrow/StableInfo");
+const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
@@ -156,6 +160,10 @@ export default {
           maxPairValue =
             (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
             this.selectedPool.userInfo.userBorrowPart;
+        }
+
+        if (maxPairValue < 0) {
+          return 0;
         }
 
         return maxPairValue;
@@ -228,7 +236,12 @@ export default {
     },
 
     calculateLtv() {
-      if (this.collateralValue && this.borrowValue) {
+      if (
+        this.collateralValue &&
+        this.borrowValue &&
+        !this.borrowError &&
+        !this.collateralError
+      ) {
         const tokenToMim = this.collateralValue / this.selectedPool.tokenPrice;
         let ltv = Math.round((this.borrowValue / tokenToMim) * 100) + 1;
 
@@ -238,7 +251,7 @@ export default {
         return this.selectedPool.ltv;
       }
 
-      if (this.borrowValue) {
+      if (this.borrowValue && !this.borrowError) {
         const tokenToMim =
           this.selectedPool.userInfo.userCollateralShare /
           this.selectedPool.tokenPrice;
@@ -256,6 +269,42 @@ export default {
       }
 
       return 0;
+    },
+
+    mimExpected() {
+      if (!this.borrowError) return this.borrowValue;
+
+      return 0;
+    },
+
+    depositExpectedLiquidationPrice() {
+      if (this.selectedPool && this.account) {
+        const liquidationPrice =
+          +this.depositExpectedBorrowed /
+            +this.depositExpectedCollateral /
+            this.liquidationMultiplier || 0;
+
+        return liquidationPrice;
+      }
+      return 0;
+    },
+
+    depositExpectedBorrowed() {
+      if (this.borrowError || this.collateralError)
+        return +this.selectedPool.userInfo.userBorrowPart;
+      return +this.borrowValue + +this.selectedPool.userInfo.userBorrowPart;
+    },
+
+    depositExpectedCollateral() {
+      if (this.borrowError || this.collateralError)
+        return +this.selectedPool.userInfo.userCollateralShare;
+      return (
+        +this.collateralValue + +this.selectedPool.userInfo.userCollateralShare
+      );
+    },
+
+    liquidationMultiplier() {
+      return this.selectedPool.ltv / 100;
     },
   },
 
@@ -473,7 +522,7 @@ export default {
   components: {
     NetworksList,
     ValueInput,
-    StableInfo,
+    BorrowPoolStand,
     DefaultButton,
     PopupWrap,
     SelectPoolPopup,
@@ -488,11 +537,11 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding: 100px 0;
+  padding: 100px 5px;
 }
 
 .deposit-block {
-  padding: 20px 16px;
+  padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
   max-width: 100%;

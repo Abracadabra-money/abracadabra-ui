@@ -9,7 +9,7 @@
         class="search-input"
       />
     </div>
-    <div class="tokens-list">
+    <div class="tokens-list" v-if="filterPools.length">
       <SelectPopupItem
         v-for="pool in filterPools"
         :key="pool.id"
@@ -17,6 +17,7 @@
         @enterPool="selectPool"
       />
     </div>
+    <p style="margin: 30px 0; text-align: center" v-else>LOADING....</p>
   </div>
 </template>
 
@@ -39,14 +40,13 @@ export default {
 
   computed: {
     filterPools() {
-      return this.pools
-        .filter(
-          (pool) =>
-            pool.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
-        )
-        .sort((a, b) =>
-          a.userInfo.userBalance > b.userInfo.userBalance ? -1 : 1
-        );
+      return this.pools.filter(
+        (pool) =>
+          pool.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+      );
+      // .sort((a, b) =>
+      //   a.userInfo.userBalance > b.userInfo.userBalance ? -1 : 1
+      // );
     },
   },
 
