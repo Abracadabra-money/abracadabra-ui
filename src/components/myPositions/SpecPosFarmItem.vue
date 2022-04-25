@@ -4,16 +4,15 @@
       <TokenIcon :token="pool.name" size="80px" bgColor="transparent" />
       <div class="header-token">
         <p class="header-token-title">{{ pool.name }}</p>
-        <p v-if="!opened" class="header-token-price">$ {{ 123456 }}</p>
       </div>
       <div v-if="!opened" class="header-content">
         <div>
-          <p class="header-content-title">Initial collateral deposited</p>
-          <p class="header-content-value">$ {{ 123456 }}</p>
+          <p class="header-content-title">Earned</p>
+          <p class="header-content-value">{{ earnedData.balance }}</p>
         </div>
         <div>
-          <p class="header-content-title">MIM borrowed</p>
-          <p class="header-content-value">$ {{ 123456 }}</p>
+          <p class="header-content-title">Deposited</p>
+          <p class="header-content-value">{{ depositedData.balance }}</p>
         </div>
       </div>
       <div v-else class="header-content-opened">
@@ -47,7 +46,14 @@
             </div>
           </div>
           <div class="lp-data-actions">
-            <button class="lp-data-btn" v-if="pool.accountInfo">Harvest</button>
+            <button
+              class="lp-data-btn"
+              v-if="pool.accountInfo"
+              :disabled="!+earnedData.balance"
+              @click="harvest"
+            >
+              Harvest
+            </button>
           </div>
         </div>
       </div>
@@ -83,7 +89,12 @@
             </div>
           </div>
           <div class="lp-data-actions">
-            <button class="lp-data-btn" v-if="pool.accountInfo">
+            <button
+              class="lp-data-btn"
+              v-if="pool.accountInfo"
+              :disabled="!+depositedData.balance"
+              @click="goToFarms"
+            >
               Withdraw
             </button>
           </div>
@@ -132,6 +143,20 @@ export default {
         usd: price,
         balance: this.parse(factorParsed),
       };
+    },
+    async harvest() {
+      try {
+        const tx = await this.pool.contractInstance.withdraw(
+          this.pool.poolId,
+          0
+        );
+
+        const receipt = await tx.wait();
+
+        console.log("unstakeHandler success:", receipt);
+      } catch (error) {
+        console.log("harvest err:", error);
+      }
     },
   },
   computed: {
@@ -196,7 +221,6 @@ export default {
     align-items: center;
     min-height: 96px;
     box-sizing: content-box;
-    margin-bottom: 10px;
 
     &-content {
       justify-self: flex-end;
@@ -256,12 +280,6 @@ export default {
         font-size: 18px;
         line-height: 27px;
       }
-      &-price {
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 21px;
-        color: rgba(255, 255, 255, 0.8);
-      }
     }
   }
 
@@ -269,6 +287,7 @@ export default {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 37px;
+    margin-top: 10px;
 
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
@@ -335,9 +354,14 @@ export default {
       border-radius: 20px;
       font-weight: 600;
       font-size: 16px;
-      color: #ffffff;
       border: none;
       cursor: pointer;
+      color: white;
+
+      &:disabled {
+        cursor: default;
+        color: rgba(255, 255, 255, 0.6);
+      }
     }
   }
   .balance-list {
