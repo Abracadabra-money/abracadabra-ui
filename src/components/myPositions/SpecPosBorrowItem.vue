@@ -1,14 +1,12 @@
 <template>
   <div class="pos-item" :class="{ 'pos-item-opened': opened }">
     <div class="header">
-      <img
-        src="@/assets/images/networks/polygon-icon.svg"
-        alt="Token"
-        class="header-img"
-      />
       <div class="header-token">
-        <p class="header-token-title">UST</p>
-        <p v-if="!opened" class="header-token-price">$ {{ price }}</p>
+        <TokenIcon :token="pool.token.name" size="80px" bgColor="transparent" />
+        <div>
+          <p class="header-token-title">{{ pool.token.name }}</p>
+          <p v-if="!opened" class="header-token-price">$ {{ price }}</p>
+        </div>
       </div>
       <div v-if="!opened" class="header-content">
         <div>
@@ -85,13 +83,15 @@
 </template>
 
 <script>
+const TokenIcon = () => import("@/components/ui/TokenIcon");
 const StatusName = () => import("@/components/UIComponents/StatusName");
 
 export default {
   name: "SpecPosBorrowItem",
-  components: { StatusName },
+  components: { TokenIcon, StatusName },
   props: {
     opened: { type: Boolean, default: true },
+    pool: { type: Object, required: true },
   },
   data: () => ({
     price: 1,
@@ -158,17 +158,12 @@ export default {
   }
 
   .header {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    column-gap: 10px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     min-height: 96px;
     box-sizing: content-box;
 
-    &-img {
-      width: 80px;
-      height: 80px;
-    }
     &-content {
       justify-self: flex-end;
       text-align: right;
@@ -218,6 +213,8 @@ export default {
     }
 
     &-token {
+      display: flex;
+      align-items: center;
       &-title {
         font-weight: 600;
         font-size: 18px;

@@ -3,7 +3,7 @@
     class="token-icon"
     :src="icon"
     alt="token"
-    :style="{ height: size, backgroundColor: bgColor }"
+    :style="{ height: size, minWidth: size, backgroundColor: bgColor }"
   />
 </template>
 
@@ -36,7 +36,7 @@ export default {
       )?.tokenIcon;
 
       if (icon) return icon;
-      return require(`@/assets/images/tokens-icon/Token_ETH.svg`);
+      return require(`@/assets/images/farmIcons/Token_ETH.svg`);
     },
   },
 };

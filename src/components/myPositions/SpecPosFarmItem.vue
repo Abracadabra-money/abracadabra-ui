@@ -1,8 +1,8 @@
 <template>
   <div class="pos-farm-item" :class="{ 'pos-farm-item-opened': opened }">
     <div class="header">
-      <TokenIcon :token="pool.name" size="80px" bgColor="transparent" />
       <div class="header-token">
+        <TokenIcon :token="pool.name" size="80px" bgColor="transparent" />
         <p class="header-token-title">{{ pool.name }}</p>
       </div>
       <div v-if="!opened" class="header-content">
@@ -215,10 +215,9 @@ export default {
   padding: 18px 20px;
 
   .header {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    column-gap: 10px;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     min-height: 96px;
     box-sizing: content-box;
 
@@ -275,6 +274,8 @@ export default {
     }
 
     &-token {
+      display: flex;
+      align-items: center;
       &-title {
         font-weight: 600;
         font-size: 18px;
@@ -285,8 +286,8 @@ export default {
 
   .lp-data {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-column-gap: 37px;
+    grid-template-columns: 1fr;
+    grid-gap: 37px;
     margin-top: 10px;
 
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -323,8 +324,6 @@ export default {
       font-weight: 400;
       font-size: 18px;
       text-transform: uppercase;
-
-      margin-left: 10px;
     }
 
     &-balance-wrap {
@@ -375,6 +374,12 @@ export default {
       font-size: 14px;
       line-height: 21px;
     }
+  }
+}
+
+@media (min-width: 1024px) {
+  .lp-data {
+    grid-template-columns: 1fr 1fr !important;
   }
 }
 </style>

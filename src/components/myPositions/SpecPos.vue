@@ -13,7 +13,11 @@
     </div>
     <div class="items">
       <template v-if="!isFarm">
-        <SpecPosBorrowItem v-for="i in pools" :key="i" :opened="opened"
+        <SpecPosBorrowItem
+          v-for="pool in pools"
+          :key="pool.id"
+          :opened="opened"
+          :pool="pool"
       /></template>
       <template v-else>
         <SpecPosFarmItem

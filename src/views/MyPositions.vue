@@ -18,7 +18,7 @@
     />
     <h2 class="title">Specific positions</h2>
     <div class="spec-positions">
-      <SpecPos />
+      <SpecPos :pools="this.borrowPools" />
       <SpecPos :isFarm="true" :pools="this.pools" />
     </div>
   </div>
@@ -31,9 +31,11 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
+import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import { mapGetters } from "vuex";
 
 export default {
-  mixins: [mimBentoDeposit, farmPoolsMixin],
+  mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
   data: () => ({
     textItems: [
       {
@@ -51,9 +53,11 @@ export default {
     ],
     mimBentoInterval: null,
     farmPoolsTimer: null,
+    borrowPoolsTimer: null,
   }),
 
   computed: {
+    ...mapGetters({ borrowPools: "getPools" }),
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
     },
@@ -73,6 +77,10 @@ export default {
       await this.createFarmPools();
     }, 10000);
 
+    this.borrowPoolsTimer = setInterval(async () => {
+      await this.createPools();
+    }, 10000);
+
     await this.createMimBentoInfo();
     this.mimBentoInterval = setInterval(async () => {
       await this.createMimBentoInfo();
@@ -82,6 +90,7 @@ export default {
   beforeDestroy() {
     clearInterval(this.farmPoolsTimer);
     clearInterval(this.mimBentoInterval);
+    clearInterval(this.borrowPoolsTimer);
   },
 };
 </script>
