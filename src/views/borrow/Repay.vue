@@ -29,7 +29,6 @@
           <h4>Repay MIM</h4>
         </div>
         <ValueInput
-          :icon="require('@/assets/images/tokens-icon/Token_MIM.svg')"
           name="MIM"
           v-model="borrowValue"
           :max="maxBorrowValue"

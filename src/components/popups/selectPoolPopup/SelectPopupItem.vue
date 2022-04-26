@@ -1,12 +1,12 @@
 <template>
   <button @click="enterPool(pool)" class="pool-item">
     <div class="pool-name">
-      <TokenIcon :token="pool.name" />
+      <TokenIcon :icon="pool.icon" :name="pool.name" />
       <p>{{ pool.name }}</p>
     </div>
     <div class="pool-balance">
       <p>{{ userBalance }}</p>
-      <p v-if="pool.userInfo">$ {{ priceUsd }}</p>
+      <p v-if="+userBalance">$ {{ priceUsd }}</p>
     </div>
   </button>
 </template>

@@ -1,15 +1,21 @@
 <template>
-  <img class="token-icon" :src="icon" alt="token" />
+  <img class="token-icon" :src="tokenIcon" :alt="name" />
 </template>
 
 <script>
-import iconArray from "@/utils/tokenIcon";
-
 export default {
   props: {
-    token: {
+    icon: {
       type: String,
-      default: "ETH",
+    },
+    name: {
+      type: String,
+      default: "Token",
+    },
+    type: {
+      type: String,
+      default: "token",
+      // type = "select"
     },
   },
   data() {
@@ -17,16 +23,13 @@ export default {
   },
 
   computed: {
-    icon() {
-      let icon;
-      iconArray.forEach((iconObj) => {
-        if (iconObj.tokenName === this.token) {
-          icon = iconObj.tokenIcon;
-        }
-      });
+    tokenIcon() {
+      if (this.name === "MIM")
+        return require(`@/assets/images/tokensIcon/Token_MIM.svg`);
+      if (this.icon) return this.icon;
+      if (this.type === "select") return require(`@/assets/images/select.svg`);
 
-      if (icon) return icon;
-      return require(`@/assets/images/tokens-icon/Token_ETH.svg`);
+      return require(`@/assets/images/tokensIcon/Token_ETH.svg`);
     },
   },
 };
@@ -37,7 +40,6 @@ export default {
   width: 32px;
   height: 32px;
   object-fit: contain;
-  background-color: white;
   border-radius: 10px;
   margin-right: 10px;
 }

@@ -508,6 +508,7 @@ export default {
 
       let poolData = {
         name: pool.name,
+        icon: pool.icon,
         id: pool.id,
         isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
