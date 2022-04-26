@@ -2,7 +2,7 @@
   <div class="spec-pos">
     <div class="title">
       <p>{{ title }}</p>
-      <button @click="opened = !opened" class="open-btn">
+      <button v-if="!isFarm" @click="opened = !opened" class="open-btn">
         <img
           v-if="opened"
           src="@/assets/images/myposition/minus.svg"
@@ -23,7 +23,7 @@
         <SpecPosFarmItem
           v-for="pool in pools"
           :key="pool.id"
-          :opened="opened"
+          :opened="true"
           :pool="pool"
       /></template>
     </div>

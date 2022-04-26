@@ -110,7 +110,7 @@ export default {
     }),
 
     mimIcon() {
-      return require("@/assets/images/tokens-icon/MIM.svg");
+      return require("@/assets/images/farmIcons/Token_MIM.svg");
     },
 
     popupNetworksArr() {

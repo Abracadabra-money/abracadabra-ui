@@ -1,5 +1,5 @@
 <template>
-  <div class="pos-item" :class="{ 'pos-item-opened': opened }">
+  <div class="pos-item">
     <div class="header">
       <div class="header-token">
         <TokenIcon :token="pool.token.name" size="80px" bgColor="transparent" />
@@ -8,43 +8,51 @@
           <p v-if="!opened" class="header-token-price">$ {{ price }}</p>
         </div>
       </div>
-      <div v-if="!opened" class="header-content">
-        <div>
-          <p class="header-content-title">Initial collateral deposited</p>
-          <p class="header-content-value">$ {{ setComma(deposited) }}</p>
-        </div>
-        <div>
-          <p class="header-content-title">MIM borrowed</p>
-          <p class="header-content-value">$ {{ setComma(borrowed) }}</p>
-        </div>
-      </div>
-      <div v-else class="header-content-opened">
-        <div
+
+      <div class="header-content">
+        <button
           v-for="(item, i) in openedItems"
           :key="i"
           class="header-opened-item"
         >
           <img :src="item.icon" alt="Hammer" class="header-opened-img" />
           <p class="header-opened-title">{{ item.title }}</p>
+        </button>
+      </div>
+    </div>
+    <div class="lp-data">
+      <div>
+        <div class="lp-data-item">
+          <div class="lp-data-title">Initial collateral deposited</div>
+          <div class="lp-data-wrap">
+            <div class="lp-data-info">
+              <TokenIcon :token="'USD'" size="50px" bgColor="transparent" />
+              <p class="lp-data-token">USD</p>
+            </div>
+            <div class="lp-data-balance-wrap">
+              <p class="lp-data-balance">{{ 666666 }}</p>
+              <p class="lp-data-price">$ {{ 666666 }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="lp-data-item">
+          <div class="lp-data-title">Borrowed</div>
+          <div class="lp-data-wrap">
+            <div class="lp-data-info">
+              <TokenIcon :token="pool.name" size="50px" bgColor="transparent" />
+              <p class="lp-data-token">USD</p>
+            </div>
+            <div class="lp-data-balance-wrap">
+              <p class="lp-data-balance">{{ 66666 }}</p>
+              <p class="lp-data-price">$ {{ 66666 }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <template v-if="opened">
-      <div class="balances">
-        <div class="balance">
-          <p class="balance-title">Price</p>
-          <p class="balance-value">{{ Number(price).toFixed(2) }}</p>
-        </div>
-        <div class="balance">
-          <p class="balance-title">Initial collateral deposited</p>
-          <p class="balance-value">$ {{ setComma(deposited) }}</p>
-        </div>
-        <div class="balance">
-          <p class="balance-title">MIM borrowed</p>
-          <p class="balance-value">$ {{ setComma(borrowed) }}</p>
-          <p class="balance-subtitle">$ {{ setComma(borrowed) }}</p>
-        </div>
-      </div>
       <div class="footer">
         <div class="footer-title">
           <p>Position health</p>
@@ -136,27 +144,6 @@ export default {
   border-radius: 20px;
   padding: 18px 20px;
 
-  &-opened {
-    .header {
-      padding-bottom: 20px;
-    }
-    & > * {
-      position: relative;
-      &:after {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: 100%;
-        width: 100%;
-        height: 1px;
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-      &:last-child:after {
-        display: none;
-      }
-    }
-  }
-
   .header {
     display: flex;
     justify-content: space-between;
@@ -165,50 +152,35 @@ export default {
     box-sizing: content-box;
 
     &-content {
-      justify-self: flex-end;
-      text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
 
-      &-title {
+      .header-opened-item {
+        flex: 0 0 67px;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+      }
+
+      .header-opened-img {
+        flex: 0 0 24px;
+        width: 24px;
+        box-sizing: content-box;
+        padding: 9px;
+        background-color: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+      }
+      .header-opened-title {
+        margin-top: 8px;
         font-weight: 400;
-        font-size: 14px;
-        line-height: 21px;
-        color: rgba(255, 255, 255, 0.8);
-      }
-      &-value {
-        font-weight: 600;
-        font-size: 18px;
-        line-height: 27px;
-        letter-spacing: 0.025em;
-      }
-
-      &-opened {
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-start;
-
-        .header-opened-item {
-          flex: 0 0 67px;
-          display: inline-flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .header-opened-img {
-          flex: 0 0 24px;
-          width: 24px;
-          box-sizing: content-box;
-          padding: 9px;
-          background-color: rgba(255, 255, 255, 0.06);
-          border-radius: 10px;
-        }
-        .header-opened-title {
-          margin-top: 8px;
-          font-weight: 400;
-          font-size: 10px;
-          line-height: 100%;
-          color: rgba(255, 255, 255, 0.4);
-          text-align: center;
-        }
+        font-size: 10px;
+        line-height: 100%;
+        color: rgba(255, 255, 255, 0.4);
+        text-align: center;
       }
     }
 
@@ -228,49 +200,62 @@ export default {
       }
     }
   }
-  .balances {
-    display: flex;
-    .balance {
-      flex: 1 1;
-      position: relative;
-      padding: 20px 0;
-      text-align: center;
+  .lp-data {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 37px;
+    margin-top: 20px;
 
-      &-title {
-        font-weight: 400;
-        font-size: 18px;
-        line-height: 27px;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 12px;
-        padding: 0 40px;
-      }
-      &-value {
-        font-weight: 600;
-        font-size: 18px;
-        line-height: 27px;
-      }
-      &-subtitle {
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 21px;
-        color: rgba(255, 255, 255, 0.8);
-      }
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px 13px 20px 20px;
 
-      &:after {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: calc(50% - 10px);
-        width: 1px;
-        height: 20px;
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-      &:last-child:after {
-        display: none;
-      }
+    &-item {
+      display: grid;
+      grid-template-rows: repeat(auto-fill, auto);
+      grid-row-gap: 10px;
+    }
+
+    &-title {
+      font-weight: 400;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    &-wrap {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &-info {
+      display: flex;
+      align-items: center;
+    }
+
+    &-icon {
+      width: 50px;
+    }
+
+    &-token {
+      font-weight: 400;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    &-balance-wrap {
+      text-align: right;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+    }
+    &-balance {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    &-price {
+      font-size: 12px;
+      line-height: 18px;
     }
   }
-
   .footer {
     padding-top: 20px;
 
@@ -315,10 +300,21 @@ export default {
       margin-top: 14px;
 
       &-item {
+        position: relative;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 0;
+        padding: 18px 0;
+
+        &:after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 32px;
+          right: 32px;
+          height: 1px;
+          background-color: rgba(255, 255, 255, 0.1);
+        }
       }
 
       &-title {
@@ -339,6 +335,12 @@ export default {
         margin-right: 12px;
       }
     }
+  }
+}
+
+@media (min-width: 1024px) {
+  .lp-data {
+    grid-template-columns: 1fr 1fr !important;
   }
 }
 </style>
