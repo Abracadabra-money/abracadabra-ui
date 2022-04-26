@@ -118,6 +118,11 @@ export default {
     liquidationPrice: {
       type: [String, Number],
     },
+
+    itsMaxRepayMim: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     isInfoPressed: false,
@@ -203,13 +208,15 @@ export default {
     },
 
     mimBorrowedExpected() {
+      if (this.itsMaxRepayMim) {
+        return 0;
+      }
+
       if (this.mimExpected && this.typeOperation === "borrow") {
         return +this.pool.userInfo?.userBorrowPart + +this.mimExpected;
       }
 
       if (this.mimExpected && this.typeOperation === "repay") {
-        console.log("1111", this.pool.userInfo?.userBorrowPart);
-        console.log("2222", +this.mimExpected);
         return +this.pool.userInfo?.userBorrowPart - +this.mimExpected;
       }
 

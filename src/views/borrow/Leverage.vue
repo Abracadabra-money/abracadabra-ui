@@ -49,7 +49,7 @@
         :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
         :tokenToMim="tokenToMim"
         typeOperation="borrow"
-        :collateralExpected="collateralValue"
+        :collateralExpected="finalRemoveCollateralAmountToShare"
         :mimExpected="multiplyMimExpected"
         :liquidationPrice="liquidationPriceExpected"
       />
@@ -120,6 +120,7 @@ export default {
       percentValue: "",
       mimAmount: 0,
       slipage: 1,
+      finalRemoveCollateralAmountToShare: 0,
     };
   },
 
@@ -381,6 +382,14 @@ export default {
     },
   },
 
+  watch: {
+    collateralValue() {
+      this.finalCollateralAmountToShare();
+    },
+    multiplier() {
+      this.finalCollateralAmountToShare();
+    },
+  },
   methods: {
     updateCollateralValue(value) {
       this.collateralValue = value;
@@ -569,6 +578,7 @@ export default {
       const amountMultiplyer = percentValue / 100;
 
       let startAmount = data.amount * 0.995;
+
       let finalAmount = 0;
 
       for (let i = this.multiplier; i > 0; i--) {
@@ -599,6 +609,10 @@ export default {
           minValueParsed,
           true
         );
+
+      this.finalRemoveCollateralAmountToShare = this.$ethers.utils.formatEther(
+        finalRemoveCollateralAmountToShare.toString()
+      );
 
       const payload = {
         ...data,
@@ -654,6 +668,51 @@ export default {
           +newPairValue > +this.maxBorrowValue
             ? this.maxBorrowValue
             : newPairValue;
+      }
+    },
+
+    async finalCollateralAmountToShare() {
+      if (this.collateralValue) {
+        let amount = this.$ethers.utils.parseUnits(
+          toFixed(this.mimAmount, this.selectedPool.pairToken.decimals),
+          this.selectedPool.pairToken.decimals
+        );
+        if (this.multiplier > 1) {
+          amount = toFixed(
+            this.mimAmount,
+            this.selectedPool.pairToken.decimals
+          );
+        } else {
+          amount = this.$ethers.utils.formatEther(amount.toString());
+        }
+
+        const percentValue = parseFloat(this.percentValue);
+
+        const slipageMutiplier = (100 - this.slipage) / 100;
+
+        const amountMultiplyer = percentValue / 100;
+
+        let startAmount = amount * 0.995;
+
+        let finalAmount = 0;
+
+        for (let i = this.multiplier; i > 0; i--) {
+          finalAmount += +startAmount;
+          startAmount = startAmount * amountMultiplyer;
+        }
+
+        const minValue =
+          finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
+
+        const minValueParsed = this.$ethers.utils.parseUnits(
+          toFixed(minValue, this.selectedPool.token.decimals),
+          this.selectedPool.token.decimals
+        );
+
+        this.finalRemoveCollateralAmountToShare =
+          this.$ethers.utils.formatEther(minValueParsed.toString());
+      } else {
+        this.finalRemoveCollateralAmountToShare = 0;
       }
     },
   },

@@ -560,6 +560,8 @@ export default {
       const itsMax =
         this.borrowValue === this.selectedPool.userInfo.userBorrowPart;
 
+      console.log("itsMax", itsMax);
+
       const parsedAmount = this.$ethers.utils.parseUnits(
         toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals

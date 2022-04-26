@@ -58,9 +58,10 @@
         :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
         :tokenToMim="tokenToMim"
         typeOperation="repay"
-        :collateralExpected="flashRepayRemoveAmount"
+        :collateralExpected="collateralExpected"
         :mimExpected="flashRepayAmount"
         :liquidationPrice="flashReapyExpectedLiquidationPrice"
+        :itsMaxRepayMim="itsMaxRepayMim"
       />
       <template v-if="selectedPool">
         <div class="btn-wrap">
@@ -248,10 +249,7 @@ export default {
 
     maxFlashRepayAmount() {
       if (this.selectedPool && this.account) {
-        return toFixed(
-          this.selectedPool.userInfo.userBorrowPart,
-          this.selectedPool.pairToken.decimals
-        );
+        return toFixed(this.selectedPool.userInfo.contractBorrowPartParsed, 4);
       }
       return 0;
     },
@@ -340,6 +338,61 @@ export default {
       return liquidationPrice;
     },
 
+    itsMaxRepayMim() {
+      return +this.flashRepayAmount === +this.maxFlashRepayAmount;
+    },
+
+    finalCollateralAmount() {
+      const slipageMutiplier = (100 + this.slipage) / 100;
+
+      const collateralAmount = toFixed(
+        parseFloat(
+          this.borrowAmount *
+            this.selectedPool.tokenOraclePrice *
+            slipageMutiplier
+        ).toFixed(20),
+        this.selectedPool.token.decimals
+      );
+
+      return this.$ethers.utils.parseUnits(
+        collateralAmount,
+        this.selectedPool.token.decimals
+      );
+    },
+
+    finalRemoveCollateralAmount() {
+      const removeCollateralAmount = toFixed(
+        parseFloat(this.flashRepayRemoveAmount).toFixed(20),
+        this.selectedPool.token.decimals
+      );
+
+      return this.$ethers.utils.parseUnits(
+        removeCollateralAmount,
+        this.selectedPool.token.decimals
+      );
+    },
+
+    borrowAmount() {
+      return toFixed(
+        parseFloat(this.flashRepayAmount).toFixed(20),
+        this.selectedPool.pairToken.decimals
+      );
+    },
+
+    collateralExpected() {
+      if (this.selectedPool) {
+        return (
+          +this.$ethers.utils.formatEther(
+            this.finalCollateralAmount.toString()
+          ) +
+          +this.$ethers.utils.formatEther(
+            this.finalRemoveCollateralAmount.toString()
+          )
+        );
+      }
+      return 0;
+    },
+
     // flashRepayAmountFormat() {
     //   const accruedMultiplyer =
     //     this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
@@ -398,49 +451,19 @@ export default {
           return false;
         }
 
-        let deleverageAmount = this.flashRepayAmount;
-        let itsMax = this.flashRepayAmount === this.maxFlashRepayAmount;
+        let itsMax = this.itsMaxRepayMim;
 
         console.log("itsMax", itsMax);
 
-        const slipageMutiplier = (100 + this.slipage) / 100;
-
-        const borrowAmount = toFixed(
-          parseFloat(deleverageAmount).toFixed(20),
-          this.selectedPool.pairToken.decimals
-        );
-
-        const collateralAmount = toFixed(
-          parseFloat(
-            borrowAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier
-          ).toFixed(20),
-          this.selectedPool.token.decimals
-        );
-
         const finalBorrowAmount = this.$ethers.utils.parseUnits(
-          borrowAmount,
+          this.borrowAmount,
           this.selectedPool.pairToken.decimals
-        );
-
-        const finalCollateralAmount = this.$ethers.utils.parseUnits(
-          collateralAmount,
-          this.selectedPool.token.decimals
-        );
-
-        const removeCollateralAmount = toFixed(
-          parseFloat(this.flashRepayRemoveAmount).toFixed(20),
-          this.selectedPool.token.decimals
-        );
-
-        const finalRemoveCollateralAmount = this.$ethers.utils.parseUnits(
-          removeCollateralAmount,
-          this.selectedPool.token.decimals
         );
 
         const payload = {
           borrowAmount: finalBorrowAmount,
-          collateralAmount: finalCollateralAmount,
-          removeCollateralAmount: finalRemoveCollateralAmount,
+          collateralAmount: this.finalCollateralAmount,
+          removeCollateralAmount: this.finalRemoveCollateralAmount,
           updatePrice: this.selectedPool.askUpdatePrice,
           itsMax,
         };
@@ -448,14 +471,14 @@ export default {
         const finalCollateralToShare =
           await this.selectedPool.masterContractInstance.toShare(
             this.selectedPool.token.address,
-            finalCollateralAmount,
+            this.finalCollateralAmount,
             true
           );
 
         const finalRemoveCollateralAmountToShare =
           await this.selectedPool.masterContractInstance.toShare(
             this.selectedPool.token.address,
-            finalRemoveCollateralAmount,
+            this.finalRemoveCollateralAmount,
             true
           );
 
