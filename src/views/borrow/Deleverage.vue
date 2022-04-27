@@ -1,87 +1,97 @@
 <template>
-  <div class="leverage">
-    <div class="choose">
-      <h4>Choose Chain</h4>
-      <div class="underline">
-        <NetworksList />
-      </div>
-      <div class="first-input underline">
-        <div class="header-balance">
-          <h4>Collateral assets</h4>
-          <p v-if="selectedPool">
-            {{ maxCollateralValue }}
-          </p>
+  <div class="leverage" :class="{ 'leverage-loading': followLink }">
+    <template v-if="!followLink">
+      <div class="choose">
+        <h4>Choose Chain</h4>
+        <div class="underline">
+          <NetworksList />
         </div>
-        <ValueInput
-          :icon="selectedPool ? selectedPool.icon : null"
-          :name="selectedPool ? selectedPool.name : null"
-          v-model="collateralValue"
-          :max="maxCollateralValue"
-          :error="collateralError"
-          :disabled="selectedPool ? false : true"
-          @input="updateCollateralValue"
-          @openTokensList="isOpenPollPopup = true"
-          isChooseToken
-        />
-      </div>
-      <div class="leverage-range" v-if="selectedPool">
-        <div class="settings-wrap">
-          <button @click="isSettingsOpened = true" class="settings-btn">
-            <img src="@/assets/images/settings.png" alt="settings" />
+        <div class="first-input underline">
+          <div class="header-balance">
+            <h4>Collateral assets</h4>
+            <p v-if="selectedPool">
+              {{ parseFloat(maxCollateralValue).toFixed(4) }}
+            </p>
+          </div>
+          <button @click="isOpenPollPopup = true" class="select-btn">
+            <div class="select-icon">
+              <TokenIcon :icon="selectIcon" type="select" :name="selectName" />
+              <span class="token-name">
+                {{ selectTitle }}
+              </span>
+            </div>
+            <img
+              class="token-arrow"
+              src="@/assets/images/arrow.svg"
+              alt="arrow"
+            />
           </button>
         </div>
-        <Range
-          v-model="flashRepayAmount"
-          :min="0"
-          :max="+maxFlashRepayAmount"
-          :step="+borrowStepRange"
-          title="Choose the amount of MIM you want to repay"
-        />
-        <p>Flash Repay Amount {{ flashRepayAmount }}</p>
-        <p>
-          Liquidation Price &#126; ${{
-            parseFloat(flashReapyExpectedLiquidationPrice).toFixed(4)
-          }}
-        </p>
-        <Range
-          title="Choose the amount of collateral you want to remove"
-          v-model="flashRepayRemoveAmount"
-          :min="0"
-          :max="maxFlashRepayRemoveAmount"
-          :step="+collateralStepRange"
-        />
-        <p>{{ flashRepayRemoveAmount }} {{ selectedPool.token.name }}</p>
-        <p>Amount of MIM to repay {{ flashRepayAmountFormat }}</p>
-      </div>
-    </div>
-    <div class="info-block">
-      <h1 class="title">Leverage Down</h1>
-      <StableInfo
-        :pool="selectedPool"
-        :isEmpty="selectedPool === null"
-        :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
-        :tokenToMim="tokenToMim"
-      />
-      <template v-if="selectedPool">
-        <div class="btn-wrap">
-          <DefaultButton
-            @click="approveTokenHandler"
-            primary
-            :disabled="isApproved"
-            >Approve</DefaultButton
-          >
-          <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
-            actionBtnText
-          }}</DefaultButton>
-        </div>
-        <div class="info-list">
-          <div v-for="(item, i) in infoData" :key="i" class="info-item">
-            <span>{{ item.name }}:</span>
-            <span>{{ item.value }}%</span>
+        <div class="leverage-range" v-if="selectedPool">
+          <div class="settings-wrap">
+            <button @click="isSettingsOpened = true" class="settings-btn">
+              <img src="@/assets/images/settings.png" alt="settings" />
+            </button>
           </div>
+
+          <Range
+            v-model="flashRepayAmount"
+            :min="0"
+            :max="+maxFlashRepayAmount"
+            :step="+borrowStepRange"
+            title="Choose the amount of MIM you want to repay"
+          />
+
+          <div class="range-underline underline"></div>
+
+          <Range
+            title="Choose the amount of collateral you want to remove"
+            v-model="flashRepayRemoveAmount"
+            :min="0"
+            :max="maxFlashRepayRemoveAmount"
+            :step="+collateralStepRange"
+          />
         </div>
-      </template>
-    </div>
+        <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
+          >Go to Positions</router-link
+        >
+      </div>
+      <div class="info-block">
+        <h1 class="title">DeLeverage farm</h1>
+        <BorrowPoolStand
+          :pool="selectedPool"
+          :isEmpty="selectedPool === null"
+          :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
+          :tokenToMim="tokenToMim"
+          typeOperation="repay"
+          :collateralExpected="collateralExpected"
+          :mimExpected="flashRepayAmount"
+          :liquidationPrice="flashReapyExpectedLiquidationPrice"
+          :itsMaxRepayMim="itsMaxRepayMim"
+          :emptyData="emptyData"
+        />
+        <template v-if="selectedPool">
+          <div class="btn-wrap">
+            <DefaultButton
+              @click="approveTokenHandler"
+              primary
+              :disabled="isApproved"
+              >Approve</DefaultButton
+            >
+            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+              actionBtnText
+            }}</DefaultButton>
+          </div>
+          <div class="info-list">
+            <div v-for="(item, i) in infoData" :key="i" class="info-item">
+              <span>{{ item.name }}:</span>
+              <span>{{ item.value }}%</span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+    <div v-else class="loading">LOADING ....</div>
     <PopupWrap v-model="isSettingsOpened">
       <SettingsPopup @saveSettings="changeSlippage"
     /></PopupWrap>
@@ -96,13 +106,13 @@
 
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const Range = () => import("@/components/UIComponents/Range");
-const StableInfo = () => import("@/components/borrow/StableInfo");
+const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
+const TokenIcon = () => import("@/components/ui/TokenIcon");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
@@ -119,8 +129,6 @@ export default {
 
   data() {
     return {
-      collateralValue: "",
-      collateralError: "",
       poolId: null,
       isApproved: false,
       isOpenPollPopup: false,
@@ -128,6 +136,10 @@ export default {
       slipage: 1,
       flashRepayAmount: 0,
       flashRepayRemoveAmount: 0,
+      emptyData: {
+        img: require(`@/assets/images/empty_leverage.svg`),
+        text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
+      },
     };
   },
 
@@ -140,7 +152,9 @@ export default {
 
     selectedPool() {
       if (this.poolId) {
-        return this.$store.getters.getPoolById(+this.poolId);
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (pool) return pool;
+        return null;
       }
       return null;
     },
@@ -155,34 +169,10 @@ export default {
       return 0;
     },
 
-    maxBorrowValue() {
-      if (this.selectedPool && this.account) {
-        let valueInDolars;
-        let maxPairValue;
-
-        if (this.collateralValue) {
-          valueInDolars = this.collateralValue / this.selectedPool.tokenPrice;
-          maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
-        } else {
-          valueInDolars =
-            this.selectedPool.userInfo.userCollateralShare /
-            this.selectedPool.tokenPrice;
-          maxPairValue =
-            (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
-            this.selectedPool.userInfo.userBorrowPart;
-        }
-
-        return maxPairValue;
-      }
-
-      return 0;
-    },
-
     actionBtnText() {
       if (!this.isApproved) return "Nothing to do";
 
-      if (this.isUserLocked && +this.collateralValue > 0)
-        return "Nothing to do";
+      if (this.isUserLocked) return "Nothing to do";
 
       if (+this.flashRepayAmount && +this.flashRepayRemoveAmount)
         return "Flash repay & Remove collateral";
@@ -247,7 +237,7 @@ export default {
     },
 
     maxFlashRepayAmount() {
-      if (this.selectedPool) {
+      if (this.selectedPool && this.account) {
         return toFixed(this.selectedPool.userInfo.contractBorrowPartParsed, 4);
       }
       return 0;
@@ -337,34 +327,112 @@ export default {
       return liquidationPrice;
     },
 
-    flashRepayAmountFormat() {
-      const accruedMultiplyer =
-        this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
+    itsMaxRepayMim() {
+      return +this.flashRepayAmount === +this.maxFlashRepayAmount;
+    },
 
-      const jlpPools = [4, 6, 7];
+    finalCollateralAmount() {
+      const slipageMutiplier = (100 + this.slipage) / 100;
 
-      if (
-        jlpPools.indexOf(this.selectedPool.id) !== -1 &&
-        this.chainId === 43114
-      )
-        return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(8);
+      const collateralAmount = toFixed(
+        parseFloat(
+          this.borrowAmount *
+            this.selectedPool.tokenOraclePrice *
+            slipageMutiplier
+        ).toFixed(20),
+        this.selectedPool.token.decimals
+      );
 
-      return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(4);
+      return this.$ethers.utils.parseUnits(
+        collateralAmount,
+        this.selectedPool.token.decimals
+      );
+    },
+
+    finalRemoveCollateralAmount() {
+      const removeCollateralAmount = toFixed(
+        parseFloat(this.flashRepayRemoveAmount).toFixed(20),
+        this.selectedPool.token.decimals
+      );
+
+      return this.$ethers.utils.parseUnits(
+        removeCollateralAmount,
+        this.selectedPool.token.decimals
+      );
+    },
+
+    borrowAmount() {
+      return toFixed(
+        parseFloat(this.flashRepayAmount).toFixed(20),
+        this.selectedPool.pairToken.decimals
+      );
+    },
+
+    collateralExpected() {
+      if (this.selectedPool) {
+        return (
+          +this.$ethers.utils.formatEther(
+            this.finalCollateralAmount.toString()
+          ) +
+          +this.$ethers.utils.formatEther(
+            this.finalRemoveCollateralAmount.toString()
+          )
+        );
+      }
+      return 0;
+    },
+
+    selectIcon() {
+      if (this.selectedPool) return this.selectedPool.icon;
+
+      return require(`@/assets/images/select.svg`);
+    },
+
+    selectName() {
+      if (this.selectedPool) return this.selectedPool.name;
+
+      return "Token";
+    },
+
+    selectTitle() {
+      if (this.selectedPool) return this.selectedPool.name;
+
+      return "Select to";
+    },
+
+    followLink() {
+      if (this.$route.params.id && !this.pools.length) return true;
+      return false;
+    },
+
+    // flashRepayAmountFormat() {
+    //   const accruedMultiplyer =
+    //     this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
+
+    //   const jlpPools = [4, 6, 7];
+
+    //   if (
+    //     jlpPools.indexOf(this.selectedPool.id) !== -1 &&
+    //     this.chainId === 43114
+    //   )
+    //     return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(8);
+
+    //   return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(4);
+    // },
+  },
+
+  watch: {
+    pools() {
+      if (this.poolId) {
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (!pool) this.$router.push(`/deleverage`);
+      }
+
+      return false;
     },
   },
 
   methods: {
-    updateCollateralValue(value) {
-      this.collateralValue = value;
-
-      if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
-        this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        return false;
-      }
-
-      this.collateralError = "";
-    },
-
     async approveTokenHandler() {
       this.isApproved = await approveToken(
         this.selectedPool.token.contract,
@@ -373,9 +441,14 @@ export default {
     },
 
     async chosePool(pool) {
-      this.collateralValue = "";
-      this.borrowValue = "";
       this.poolId = pool.id;
+
+      let duplicate = this.$route.fullPath === `/deleverage/${pool.id}`;
+
+      if (!duplicate) {
+        this.$router.push(`/deleverage/${pool.id}`);
+      }
+
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
@@ -395,49 +468,19 @@ export default {
           return false;
         }
 
-        let deleverageAmount = this.flashRepayAmount;
-        let itsMax = this.flashRepayAmount === this.maxFlashRepayAmount;
+        let itsMax = this.itsMaxRepayMim;
 
         console.log("itsMax", itsMax);
 
-        const slipageMutiplier = (100 + this.slipage) / 100;
-
-        const borrowAmount = toFixed(
-          parseFloat(deleverageAmount).toFixed(20),
-          this.selectedPool.pairToken.decimals
-        );
-
-        const collateralAmount = toFixed(
-          parseFloat(
-            borrowAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier
-          ).toFixed(20),
-          this.selectedPool.token.decimals
-        );
-
         const finalBorrowAmount = this.$ethers.utils.parseUnits(
-          borrowAmount,
+          this.borrowAmount,
           this.selectedPool.pairToken.decimals
-        );
-
-        const finalCollateralAmount = this.$ethers.utils.parseUnits(
-          collateralAmount,
-          this.selectedPool.token.decimals
-        );
-
-        const removeCollateralAmount = toFixed(
-          parseFloat(this.flashRepayRemoveAmount).toFixed(20),
-          this.selectedPool.token.decimals
-        );
-
-        const finalRemoveCollateralAmount = this.$ethers.utils.parseUnits(
-          removeCollateralAmount,
-          this.selectedPool.token.decimals
         );
 
         const payload = {
           borrowAmount: finalBorrowAmount,
-          collateralAmount: finalCollateralAmount,
-          removeCollateralAmount: finalRemoveCollateralAmount,
+          collateralAmount: this.finalCollateralAmount,
+          removeCollateralAmount: this.finalRemoveCollateralAmount,
           updatePrice: this.selectedPool.askUpdatePrice,
           itsMax,
         };
@@ -445,14 +488,14 @@ export default {
         const finalCollateralToShare =
           await this.selectedPool.masterContractInstance.toShare(
             this.selectedPool.token.address,
-            finalCollateralAmount,
+            this.finalCollateralAmount,
             true
           );
 
         const finalRemoveCollateralAmountToShare =
           await this.selectedPool.masterContractInstance.toShare(
             this.selectedPool.token.address,
-            finalRemoveCollateralAmount,
+            this.finalRemoveCollateralAmount,
             true
           );
 
@@ -509,11 +552,15 @@ export default {
     },
   },
 
+  created() {
+    this.poolId = this.$route.params.id;
+  },
+
   components: {
     NetworksList,
-    ValueInput,
+    TokenIcon,
     Range,
-    StableInfo,
+    BorrowPoolStand,
     DefaultButton,
     PopupWrap,
     SettingsPopup,
@@ -538,11 +585,32 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .first-input {
   padding-top: 27px;
   padding-bottom: 24px;
+}
+
+.select-btn {
+  background: rgba(129, 126, 166, 0.2);
+  border: 1px solid #494661;
+  box-sizing: border-box;
+  border-radius: 20px;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 10px;
+}
+
+.select-icon {
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .underline {
@@ -551,6 +619,10 @@ export default {
 
 .leverage-range {
   margin: 33px 0 60px 0;
+}
+
+.range-underline {
+  margin: 30px 0;
 }
 
 .settings-wrap {
@@ -572,6 +644,7 @@ export default {
 }
 
 .info-block {
+  min-height: 500px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -606,10 +679,12 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-@media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
+.choose-link {
+  position: absolute;
+  bottom: 10px;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
 }
 
 @media (min-width: 1024px) {
@@ -617,6 +692,22 @@ export default {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
+  }
+
+  .leverage-loading {
+    display: flex;
+    justify-content: center;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+  }
+
+  .choose {
+    padding: 30px;
   }
 }
 </style>

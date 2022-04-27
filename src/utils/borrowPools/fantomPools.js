@@ -7,6 +7,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 export default [
   {
     name: "wFTM",
+    icon: require(`@/assets/images/tokensIcon/Token_FTM.svg`),
     contractChain: "0xfa",
     id: 1,
     isDepreciated: false,
@@ -44,6 +45,7 @@ export default [
   },
   {
     name: "wFTM",
+    icon: require(`@/assets/images/tokensIcon/Token_FTM.svg`),
     contractChain: "0xfa",
     id: 2,
     isDepreciated: false,
@@ -81,6 +83,7 @@ export default [
   },
   {
     name: "yvWFTM",
+    icon: require(`@/assets/images/tokensIcon/Token_FTM.svg`),
     contractChain: "0xfa",
     id: 3,
     isDepreciated: false,
@@ -156,6 +159,7 @@ export default [
   // },
   {
     name: "xBOO",
+    icon: require(`@/assets/images/tokensIcon/Token_xBOO.svg`),
     contractChain: "0xfa",
     id: 5,
     isDepreciated: false,

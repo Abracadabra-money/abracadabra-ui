@@ -24,15 +24,20 @@
     <div class="stable-data">
       <template v-if="isEmpty">
         <div class="empty-wrap">
-          <img src="@/assets/images/empty.svg" alt="info" />
+          <img :src="emptyData.img" v-if="emptyData.img" alt="info" />
           <div class="empty-text">
-            <p>
-              Choose the asset and amount you want to use as collateral as well
-              as the amount of MIM you want to Borrow.
+            <p v-if="emptyData.text">
+              {{ emptyData.text }}
             </p>
-            <p class="empty-bottom">
-              If you want to learn more read our docs
-              <a class="empty-link" href="#" target="_blank">here</a>
+            <p class="empty-bottom" v-if="emptyData.bottom">
+              {{ emptyData.bottom }}
+              <a
+                class="empty-link"
+                :href="emptyData.link"
+                v-if="emptyData.link"
+                target="_blank"
+                >here</a
+              >
             </p>
           </div>
         </div>
@@ -84,7 +89,7 @@ import { tokenPrices } from "@/utils/helpers.js";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/utils/HelpersTokenAPY.js";
 export default {
-  name: "StableInfo",
+  name: "BorrowPoolStand",
   props: {
     pool: {
       type: Object,
@@ -93,6 +98,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    emptyData: {
+      type: Object,
+      require: true,
+    },
     hasStrategy: {
       type: [String, Boolean],
       default: false,
@@ -100,6 +109,28 @@ export default {
 
     tokenToMim: {
       type: String,
+    },
+
+    typeOperation: {
+      type: String,
+    },
+
+    collateralExpected: {
+      type: [Number, String],
+      default: 0,
+    },
+
+    mimExpected: {
+      type: [Number, String],
+    },
+
+    liquidationPrice: {
+      type: [String, Number],
+    },
+
+    itsMaxRepayMim: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -110,11 +141,14 @@ export default {
   }),
 
   computed: {
-    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+    }),
 
     tokenInUsd() {
-      if (this.account) {
-        return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
+      if (this.account && this.collateralDepositExpected >= 0) {
+        return this.collateralDepositExpected / this.pool.tokenPrice;
       }
       return 0;
     },
@@ -139,7 +173,7 @@ export default {
         {
           name: "Collateral Deposit",
           value: this.account
-            ? parseFloat(this.pool.userInfo?.userCollateralShare).toFixed(
+            ? parseFloat(this.collateralDepositExpected).toFixed(
                 this.collateralDecimals
               )
             : 0,
@@ -152,16 +186,53 @@ export default {
         {
           name: "MIM Borrowed",
           value: this.account
-            ? `$${parseFloat(this.pool.userInfo?.userBorrowPart).toFixed(4)}`
+            ? `$${parseFloat(this.mimBorrowedExpected).toFixed(4)}`
             : 0,
         },
         {
           name: "Liquidation Price",
           value: this.account
-            ? `$${parseFloat(this.pool.userInfo?.liquidationPrice).toFixed(4)}`
+            ? `$${parseFloat(this.liquidationPrice).toFixed(4)}`
             : 0,
         },
       ];
+    },
+
+    collateralDepositExpected() {
+      let defaultValue = +this.pool.userInfo.userCollateralShare;
+
+      if (this.collateralExpected && this.typeOperation === "borrow") {
+        if (
+          this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) <
+          +this.collateralExpected
+        )
+          return defaultValue;
+
+        return +this.collateralExpected + defaultValue;
+      }
+
+      if (this.collateralExpected && this.typeOperation === "repay") {
+        if (defaultValue - +this.collateralExpected < 0) return defaultValue;
+        return defaultValue - +this.collateralExpected;
+      }
+
+      return defaultValue;
+    },
+
+    mimBorrowedExpected() {
+      if (this.itsMaxRepayMim) {
+        return 0;
+      }
+
+      if (this.mimExpected && this.typeOperation === "borrow") {
+        return +this.pool.userInfo?.userBorrowPart + +this.mimExpected;
+      }
+
+      if (this.mimExpected && this.typeOperation === "repay") {
+        return +this.pool.userInfo?.userBorrowPart - +this.mimExpected;
+      }
+
+      return +this.pool.userInfo?.userBorrowPart;
     },
 
     additionalInfo() {
@@ -333,10 +404,17 @@ export default {
 <style lang="scss" scoped>
 .stable-info {
   background-color: rgba(35, 33, 45, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 30px;
 
   .empty-wrap {
+    background: #2b2b3c;
+    box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+    backdrop-filter: blur(100px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 30px;
     padding: 23px 65px;
+    min-height: 280px;
 
     .empty-bottom {
       margin-top: 15px;
@@ -397,6 +475,10 @@ export default {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       padding: 30px;
+      background: #2b2b3c;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(100px);
+      border-radius: 30px;
     }
 
     .item {

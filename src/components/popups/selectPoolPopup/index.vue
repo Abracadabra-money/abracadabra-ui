@@ -9,7 +9,13 @@
         class="search-input"
       />
     </div>
-    <div class="tokens-list">
+    <div
+      v-if="!pools.length && !isCreatingPoolsBorrow"
+      style="margin: 30px 0; text-align: center"
+    >
+      LOADING....
+    </div>
+    <div class="tokens-list" v-else-if="filterPools.length">
       <SelectPopupItem
         v-for="pool in filterPools"
         :key="pool.id"
@@ -17,10 +23,30 @@
         @enterPool="selectPool"
       />
     </div>
+    <div class="not-found" v-else-if="!filterPools.length && pools.length">
+      <img
+        class="not-found__img"
+        :src="require('@/assets/images/empty.svg')"
+        alt=""
+      />
+      <p class="not-found__text">
+        No token found with this name, please search via contract address
+      </p>
+    </div>
+    <div class="not-found" v-else-if="!filterPools.length && !isLoadPools">
+      <img
+        class="not-found__img"
+        :src="require('@/assets/images/empty.svg')"
+        alt=""
+      />
+      <p class="not-found__text">NO POOLS ON THIS NETWORK</p>
+      <p class="not-found__text">in the future they will be displayed here</p>
+    </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 const SelectPopupItem = () =>
   import("@/components/popups/selectPoolPopup/SelectPopupItem");
 
@@ -38,6 +64,11 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      isLoadPools: "getLoadPoolsBorrow",
+      isCreatingPoolsBorrow: "getCreatePoolsBorrow",
+    }),
+
     filterPools() {
       return this.pools
         .filter(
@@ -45,7 +76,7 @@ export default {
             pool.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
         )
         .sort((a, b) =>
-          a.userInfo.userBalance > b.userInfo.userBalance ? -1 : 1
+          a.userInfo?.userBalance > b.userInfo?.userBalance ? -1 : 1
         );
     },
   },
@@ -104,12 +135,12 @@ export default {
 }
 
 .search-input {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: rgba(129, 126, 166, 0.2);
   height: 50px;
   width: 100%;
   font-size: 20px;
   border-radius: 20px;
-  border: none;
+  border: 1px solid #494661;
   outline: none;
   color: white;
   padding: 0 14px;
@@ -120,9 +151,23 @@ export default {
   color: rgba(255, 255, 255, 0.6);
 }
 
+.search-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+}
+
 .tokens-list {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+}
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 </style>
