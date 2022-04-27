@@ -1,6 +1,6 @@
 <template>
   <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div class="popup" @click.stop :style="{ maxWidth, height }">
+    <div class="popup" @click.stop :style="{ maxWidth, minHeight: height }">
       <div class="popup-content">
         <button class="close-btn" @click="closePopup">
           <img
@@ -61,7 +61,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-y: auto;
   padding: $headerHeight 10px 60px;
   background: rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(20px);

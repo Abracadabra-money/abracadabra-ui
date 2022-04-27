@@ -17,10 +17,19 @@
       :infoObject="mimInBentoDepositObject"
     />
     <h2 class="title">Specific positions</h2>
-    <div class="spec-positions">
-      <SpecPos :pools="this.borrowPools" />
-      <SpecPos :isFarm="true" :pools="this.pools" />
+    <div
+      v-if="
+        (farmLoading && !this.pools.length) ||
+        (borrowLoading && !this.borrowPools.length)
+      "
+      class="spec-positions"
+    >
+      <div class="loader-wrap"><Loader /></div>
     </div>
+    <template v-else>
+      <SpecPos :pools="this.borrowPools" />
+      <SpecPos :isFarm="true" :pools="this.pools"
+    /></template>
   </div>
 </template>
 
@@ -30,6 +39,7 @@ import farmPoolsMixin from "../mixins/farmPools";
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
+const Loader = () => import("@/components/Loader");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
@@ -57,7 +67,11 @@ export default {
   }),
 
   computed: {
-    ...mapGetters({ borrowPools: "getPools" }),
+    ...mapGetters({
+      borrowPools: "getPools",
+      borrowLoading: "getLoadPoolsBorrow",
+      farmLoading: "getFarmPoolLoading",
+    }),
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
     },
@@ -67,6 +81,7 @@ export default {
     SpecPos,
     NetworksList,
     BalanceBoxes,
+    Loader,
   },
   async created() {
     if (!this.pools.length) {
@@ -108,7 +123,7 @@ export default {
 .title {
   text-align: center;
   text-transform: uppercase;
-  margin-top: 32px;
+  margin: 32px 0 32px 0;
 }
 
 .choose {
@@ -151,6 +166,11 @@ export default {
   &-value {
     font-weight: 700;
   }
+}
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .spec-positions {

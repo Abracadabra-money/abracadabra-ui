@@ -33,6 +33,9 @@
         >
       </template>
     </template>
+    <div v-else class="load-wrap">
+      <Loader />
+    </div>
   </div>
 </template>
 
@@ -42,9 +45,10 @@ import { mapGetters } from "vuex";
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const DefaultButton = () => import("@/components/main/DefaultButton.vue");
 import mimIcon from "@/assets/images/farmIcons/Token_MIM.svg";
+const Loader = () => import("@/components/Loader");
 
 export default {
-  components: { ValueInput, DefaultButton },
+  components: { Loader, ValueInput, DefaultButton },
   props: {
     infoObject: {
       type: Object,
@@ -257,5 +261,10 @@ export default {
   padding-bottom: 20px;
   margin-bottom: 38px;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
+}
+.load-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>
