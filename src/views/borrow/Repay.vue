@@ -1,75 +1,79 @@
 <template>
-  <div class="borrow">
-    <div class="deposit-block">
-      <h4>Choose Chain</h4>
-      <div class="underline">
-        <NetworksList />
-      </div>
-      <div class="collateral-input underline">
-        <div class="header-balance">
-          <h4>Remove collateral</h4>
-          <p v-if="selectedPool">
-            {{ parseFloat(maxCollateralValue).toFixed(4) }}
-          </p>
+  <div class="borrow" :class="{ 'borrow-loading': followLink }">
+    <template v-if="!followLink">
+      <div class="deposit-block">
+        <h4>Choose Chain</h4>
+        <div class="underline">
+          <NetworksList />
         </div>
-        <ValueInput
-          :icon="selectedPool ? selectedPool.icon : null"
-          :name="selectedPool ? selectedPool.name : null"
-          v-model="collateralValue"
-          :max="maxCollateralValue"
-          :error="collateralError"
-          :disabled="selectedPool ? false : true"
-          @input="updateCollateralValue"
-          @openTokensList="isOpenPollPopup = true"
-          isChooseToken
-        />
-      </div>
-      <div class="borrow-input underline">
-        <div class="header-balance">
-          <h4>Repay MIM</h4>
-        </div>
-        <ValueInput
-          name="MIM"
-          v-model="borrowValue"
-          :max="maxBorrowValue"
-          :error="borrowError"
-          :disabled="selectedPool ? false : true"
-          @input="updateBorrowValue"
-        />
-      </div>
-    </div>
-    <div class="info-block">
-      <h1 class="title">Repay MIM</h1>
-      <BorrowPoolStand
-        :pool="selectedPool"
-        :isEmpty="selectedPool === null"
-        :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
-        :tokenToMim="tokenToMim"
-        typeOperation="repay"
-        :collateralExpected="collateralValue"
-        :mimExpected="mimExpected"
-        :liquidationPrice="repayExpectedLiquidationPrice"
-      />
-      <template v-if="selectedPool">
-        <div class="btn-wrap">
-          <DefaultButton
-            @click="approveTokenHandler"
-            primary
-            :disabled="isApproved"
-            >Approve</DefaultButton
-          >
-          <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
-            actionBtnText
-          }}</DefaultButton>
-        </div>
-        <div class="info-list">
-          <div v-for="(item, i) in infoData" :key="i" class="info-item">
-            <span>{{ item.name }}:</span>
-            <span>{{ item.value }}%</span>
+        <div class="collateral-input underline">
+          <div class="header-balance">
+            <h4>Remove collateral</h4>
+            <p v-if="selectedPool">
+              {{ parseFloat(maxCollateralValue).toFixed(4) }}
+            </p>
           </div>
+          <ValueInput
+            :icon="selectedPool ? selectedPool.icon : null"
+            :name="selectedPool ? selectedPool.name : null"
+            v-model="collateralValue"
+            :max="maxCollateralValue"
+            :error="collateralError"
+            :disabled="selectedPool ? false : true"
+            @input="updateCollateralValue"
+            @openTokensList="isOpenPollPopup = true"
+            isChooseToken
+          />
         </div>
-      </template>
-    </div>
+        <div class="borrow-input underline">
+          <div class="header-balance">
+            <h4>Repay MIM</h4>
+          </div>
+          <ValueInput
+            name="MIM"
+            v-model="borrowValue"
+            :max="maxBorrowValue"
+            :error="borrowError"
+            :disabled="selectedPool ? false : true"
+            @input="updateBorrowValue"
+          />
+        </div>
+      </div>
+      <div class="info-block">
+        <h1 class="title">Repay MIM</h1>
+        <BorrowPoolStand
+          :pool="selectedPool"
+          :isEmpty="selectedPool === null"
+          :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
+          :tokenToMim="tokenToMim"
+          typeOperation="repay"
+          :collateralExpected="collateralValue"
+          :mimExpected="mimExpected"
+          :liquidationPrice="repayExpectedLiquidationPrice"
+          :emptyData="emptyData"
+        />
+        <template v-if="selectedPool">
+          <div class="btn-wrap">
+            <DefaultButton
+              @click="approveTokenHandler"
+              primary
+              :disabled="isApproved"
+              >Approve</DefaultButton
+            >
+            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+              actionBtnText
+            }}</DefaultButton>
+          </div>
+          <div class="info-list">
+            <div v-for="(item, i) in infoData" :key="i" class="info-item">
+              <span>{{ item.name }}:</span>
+              <span>{{ item.value }}%</span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+    <div v-else class="loading">LOADING ....</div>
     <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
       <SelectPoolPopup
         @select="chosePool($event)"
@@ -108,6 +112,12 @@ export default {
       poolId: null,
       isApproved: false,
       isOpenPollPopup: false,
+      emptyData: {
+        img: require(`@/assets/images/empty_borrow.svg`),
+        text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
+        bottom: "If you want to learn more read our docs",
+        link: "https://abracadabra.money/",
+      },
     };
   },
 
@@ -119,7 +129,9 @@ export default {
 
     selectedPool() {
       if (this.poolId) {
-        return this.$store.getters.getPoolById(+this.poolId);
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (pool) return pool;
+        return null;
       }
       return null;
     },
@@ -328,6 +340,22 @@ export default {
     liquidationMultiplier() {
       return this.selectedPool.ltv / 100;
     },
+
+    followLink() {
+      if (this.$route.params.id && !this.pools.length) return true;
+      return false;
+    },
+  },
+
+  watch: {
+    pools() {
+      if (this.poolId) {
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (!pool) this.$router.push(`/repay`);
+      }
+
+      return false;
+    },
   },
 
   methods: {
@@ -397,6 +425,12 @@ export default {
       this.collateralValue = "";
       this.borrowValue = "";
       this.poolId = pool.id;
+
+      let duplicate = this.$route.fullPath === `/repay/${pool.id}`;
+
+      if (!duplicate) {
+        this.$router.push(`/repay/${pool.id}`);
+      }
 
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
@@ -594,6 +628,10 @@ export default {
     },
   },
 
+  created() {
+    this.poolId = this.$route.params.id;
+  },
+
   components: {
     NetworksList,
     ValueInput,
@@ -638,6 +676,7 @@ export default {
 }
 
 .info-block {
+  min-height: 500px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -677,6 +716,18 @@ export default {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
+  }
+
+  .borrow-loading {
+    display: flex;
+    justify-content: center;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
   }
 
   .choose {

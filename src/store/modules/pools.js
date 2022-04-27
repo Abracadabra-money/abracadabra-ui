@@ -4,6 +4,7 @@ export default {
     // farmPools: [],
     // mim3Pool: null,
     isLoadingPoolsBorrow: null,
+    isCreatingPoolsBorrow: false,
     // isLoadingPoolsFarm: null,
     tokensVaults: [],
   },
@@ -23,6 +24,11 @@ export default {
     setLoadingPoolsBorrow(state, payload) {
       state.isLoadingPoolsBorrow = payload;
     },
+    setCreatingPoolsBorrow(state, payload) {
+      if (!state.isCreatingPoolsBorrow) {
+        state.isCreatingPoolsBorrow = payload;
+      }
+    },
     // setLoadingPoolsFarm(state, payload) {
     //   state.isLoadingPoolsFarm = payload;
     // },
@@ -39,6 +45,7 @@ export default {
     // },
     // getMim3Pools: (state) => state.mim3Pool,
     getLoadPoolsBorrow: (state) => state.isLoadingPoolsBorrow,
+    getCreatePoolsBorrow: (state) => state.isCreatingPoolsBorrow,
     // getLoadPoolsFarm: (state) => state.isLoadingPoolsFarm,
     getTokensVaults: (state) => state.tokensVaults,
   },

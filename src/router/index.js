@@ -15,8 +15,18 @@ const routes = [
     component: () => import("@/views/borrow/Borrow"),
   },
   {
+    path: "/borrow/:id",
+    name: "BorrowId",
+    component: () => import("@/views/borrow/Borrow"),
+  },
+  {
     path: "/repay",
     name: "Repay",
+    component: () => import("@/views/borrow/Repay"),
+  },
+  {
+    path: "/repay/:id",
+    name: "RepayId",
     component: () => import("@/views/borrow/Repay"),
   },
   {
@@ -25,8 +35,18 @@ const routes = [
     component: () => import("@/views/borrow/Leverage"),
   },
   {
+    path: "/leverage/:id",
+    name: "LeverageId",
+    component: () => import("@/views/borrow/Leverage"),
+  },
+  {
     path: "/deleverage",
     name: "Deleverage",
+    component: () => import("@/views/borrow/Deleverage"),
+  },
+  {
+    path: "/deleverage/:id",
+    name: "DeleverageId",
     component: () => import("@/views/borrow/Deleverage"),
   },
   {

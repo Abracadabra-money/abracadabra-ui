@@ -27,7 +27,10 @@ export default {
     },
   },
   methods: {
-    ...mapMutations({ setLoadingPoolsBorrow: "setLoadingPoolsBorrow" }),
+    ...mapMutations({
+      setLoadingPoolsBorrow: "setLoadingPoolsBorrow",
+      setCreatingPoolsBorrow: "setCreatingPoolsBorrow",
+    }),
     async createPools() {
       this.setLoadingPoolsBorrow(true);
 
@@ -47,6 +50,7 @@ export default {
 
       this.$store.commit("setPools", pools);
       this.setLoadingPoolsBorrow(false);
+      this.setCreatingPoolsBorrow(true);
     },
 
     createContract(address, abi) {

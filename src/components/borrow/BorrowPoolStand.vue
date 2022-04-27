@@ -24,15 +24,20 @@
     <div class="stable-data">
       <template v-if="isEmpty">
         <div class="empty-wrap">
-          <img src="@/assets/images/empty.svg" alt="info" />
+          <img :src="emptyData.img" v-if="emptyData.img" alt="info" />
           <div class="empty-text">
-            <p>
-              Choose the asset and amount you want to use as collateral as well
-              as the amount of MIM you want to Borrow.
+            <p v-if="emptyData.text">
+              {{ emptyData.text }}
             </p>
-            <p class="empty-bottom">
-              If you want to learn more read our docs
-              <a class="empty-link" href="#" target="_blank">here</a>
+            <p class="empty-bottom" v-if="emptyData.bottom">
+              {{ emptyData.bottom }}
+              <a
+                class="empty-link"
+                :href="emptyData.link"
+                v-if="emptyData.link"
+                target="_blank"
+                >here</a
+              >
             </p>
           </div>
         </div>
@@ -93,6 +98,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    emptyData: {
+      type: Object,
+      require: true,
+    },
     hasStrategy: {
       type: [String, Boolean],
       default: false,
@@ -132,7 +141,10 @@ export default {
   }),
 
   computed: {
-    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+    }),
 
     tokenInUsd() {
       if (this.account && this.collateralDepositExpected >= 0) {
@@ -392,10 +404,17 @@ export default {
 <style lang="scss" scoped>
 .stable-info {
   background-color: rgba(35, 33, 45, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 30px;
 
   .empty-wrap {
+    background: #2b2b3c;
+    box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+    backdrop-filter: blur(100px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 30px;
     padding: 23px 65px;
+    min-height: 280px;
 
     .empty-bottom {
       margin-top: 15px;
@@ -456,6 +475,10 @@ export default {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       padding: 30px;
+      background: #2b2b3c;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(100px);
+      border-radius: 30px;
     }
 
     .item {

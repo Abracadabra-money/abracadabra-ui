@@ -1,78 +1,82 @@
 <template>
-  <div class="leverage">
-    <div class="choose">
-      <h4>Choose Chain</h4>
-      <div class="underline">
-        <NetworksList />
-      </div>
-      <div class="first-input underline">
-        <div class="header-balance">
-          <h4>Collateral assets</h4>
-          <p v-if="selectedPool">
-            {{ parseFloat(maxCollateralValue).toFixed(4) }}
-          </p>
+  <div class="leverage" :class="{ 'leverage-loading': followLink }">
+    <template v-if="!followLink">
+      <div class="choose">
+        <h4>Choose Chain</h4>
+        <div class="underline">
+          <NetworksList />
         </div>
-        <ValueInput
-          :icon="selectedPool ? selectedPool.icon : null"
-          :name="selectedPool ? selectedPool.name : null"
-          v-model="collateralValue"
-          :max="maxCollateralValue"
-          :error="collateralError"
-          :disabled="selectedPool ? false : true"
-          @input="updateCollateralValue"
-          @openTokensList="isOpenPollPopup = true"
-          isChooseToken
-        />
-      </div>
-      <div class="leverage-range" v-if="selectedPool">
-        <div class="settings-wrap">
-          <button @click="isSettingsOpened = true" class="settings-btn">
-            <img src="@/assets/images/settings.png" alt="settings" />
-          </button>
-        </div>
-        <Range
-          v-model="multiplier"
-          :max="maxLeverage"
-          :min="1"
-          :risk="leverageRisk"
-          :inputValue="collateralValue"
-          tooltipText="true"
-        />
-        <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
-      </div>
-    </div>
-    <div class="info-block">
-      <h1 class="title">Leverage UP</h1>
-      <BorrowPoolStand
-        :pool="selectedPool"
-        :isEmpty="selectedPool === null"
-        :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
-        :tokenToMim="tokenToMim"
-        typeOperation="borrow"
-        :collateralExpected="finalRemoveCollateralAmountToShare"
-        :mimExpected="multiplyMimExpected"
-        :liquidationPrice="liquidationPriceExpected"
-      />
-      <template v-if="selectedPool">
-        <div class="btn-wrap">
-          <DefaultButton
-            @click="approveTokenHandler"
-            primary
-            :disabled="isApproved"
-            >Approve</DefaultButton
-          >
-          <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
-            actionBtnText
-          }}</DefaultButton>
-        </div>
-        <div class="info-list">
-          <div v-for="(item, i) in infoData" :key="i" class="info-item">
-            <span>{{ item.name }}:</span>
-            <span>{{ item.value }}%</span>
+        <div class="first-input underline">
+          <div class="header-balance">
+            <h4>Collateral assets</h4>
+            <p v-if="selectedPool">
+              {{ parseFloat(maxCollateralValue).toFixed(4) }}
+            </p>
           </div>
+          <ValueInput
+            :icon="selectedPool ? selectedPool.icon : null"
+            :name="selectedPool ? selectedPool.name : null"
+            v-model="collateralValue"
+            :max="maxCollateralValue"
+            :error="collateralError"
+            :disabled="selectedPool ? false : true"
+            @input="updateCollateralValue"
+            @openTokensList="isOpenPollPopup = true"
+            isChooseToken
+          />
         </div>
-      </template>
-    </div>
+        <div class="leverage-range" v-if="selectedPool">
+          <div class="settings-wrap">
+            <button @click="isSettingsOpened = true" class="settings-btn">
+              <img src="@/assets/images/settings.png" alt="settings" />
+            </button>
+          </div>
+          <Range
+            v-model="multiplier"
+            :max="maxLeverage"
+            :min="1"
+            :risk="leverageRisk"
+            :inputValue="collateralValue"
+            tooltipText="true"
+          />
+          <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
+        </div>
+      </div>
+      <div class="info-block">
+        <h1 class="title">Leverage farm</h1>
+        <BorrowPoolStand
+          :pool="selectedPool"
+          :isEmpty="selectedPool === null"
+          :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
+          :tokenToMim="tokenToMim"
+          typeOperation="borrow"
+          :collateralExpected="finalRemoveCollateralAmountToShare"
+          :mimExpected="multiplyMimExpected"
+          :liquidationPrice="liquidationPriceExpected"
+          :emptyData="emptyData"
+        />
+        <template v-if="selectedPool">
+          <div class="btn-wrap">
+            <DefaultButton
+              @click="approveTokenHandler"
+              primary
+              :disabled="isApproved"
+              >Approve</DefaultButton
+            >
+            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+              actionBtnText
+            }}</DefaultButton>
+          </div>
+          <div class="info-list">
+            <div v-for="(item, i) in infoData" :key="i" class="info-item">
+              <span>{{ item.name }}:</span>
+              <span>{{ item.value }}%</span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+    <div v-else class="loading">LOADING ....</div>
     <PopupWrap v-model="isSettingsOpened">
       <SettingsPopup @saveSettings="changeSlippage"
     /></PopupWrap>
@@ -121,6 +125,10 @@ export default {
       mimAmount: 0,
       slipage: 1,
       finalRemoveCollateralAmountToShare: 0,
+      emptyData: {
+        img: require(`@/assets/images/empty_leverage.svg`),
+        text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
+      },
     };
   },
 
@@ -132,7 +140,9 @@ export default {
 
     selectedPool() {
       if (this.poolId) {
-        return this.$store.getters.getPoolById(+this.poolId);
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (pool) return pool;
+        return null;
       }
       return null;
     },
@@ -380,12 +390,27 @@ export default {
       }
       return "default";
     },
+
+    followLink() {
+      if (this.$route.params.id && !this.pools.length) return true;
+      return false;
+    },
   },
 
   watch: {
+    pools() {
+      if (this.poolId) {
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (!pool) this.$router.push(`/leverage`);
+      }
+
+      return false;
+    },
+
     collateralValue() {
       this.finalCollateralAmountToShare();
     },
+
     multiplier() {
       this.finalCollateralAmountToShare();
     },
@@ -420,6 +445,13 @@ export default {
       this.collateralValue = "";
       this.borrowValue = "";
       this.poolId = pool.id;
+
+      let duplicate = this.$route.fullPath === `/leverage/${pool.id}`;
+
+      if (!duplicate) {
+        this.$router.push(`/leverage/${pool.id}`);
+      }
+
       this.multiplier = 2;
 
       this.percentValue = this.selectedPool.ltv;
@@ -717,6 +749,10 @@ export default {
     },
   },
 
+  created() {
+    this.poolId = this.$route.params.id;
+  },
+
   components: {
     NetworksList,
     ValueInput,
@@ -785,6 +821,7 @@ export default {
 }
 
 .info-block {
+  min-height: 500px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -820,16 +857,26 @@ export default {
 }
 
 @media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
-}
-
-@media (min-width: 1024px) {
   .leverage {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
+  }
+
+  .leverage-loading {
+    display: flex;
+    justify-content: center;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+  }
+
+  .choose {
+    padding: 30px;
   }
 }
 </style>

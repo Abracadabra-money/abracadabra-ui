@@ -1,90 +1,94 @@
 <template>
-  <div class="leverage">
-    <div class="choose">
-      <h4>Choose Chain</h4>
-      <div class="underline">
-        <NetworksList />
-      </div>
-      <div class="first-input underline">
-        <div class="header-balance">
-          <h4>Collateral assets</h4>
-          <p v-if="selectedPool">
-            {{ parseFloat(maxCollateralValue).toFixed(4) }}
-          </p>
+  <div class="leverage" :class="{ 'leverage-loading': followLink }">
+    <template v-if="!followLink">
+      <div class="choose">
+        <h4>Choose Chain</h4>
+        <div class="underline">
+          <NetworksList />
         </div>
-        <button @click="isOpenPollPopup = true" class="select-btn">
-          <div class="select-icon">
-            <TokenIcon :icon="selectIcon" type="select" :name="selectName" />
-            <span class="token-name">
-              {{ selectTitle }}
-            </span>
+        <div class="first-input underline">
+          <div class="header-balance">
+            <h4>Collateral assets</h4>
+            <p v-if="selectedPool">
+              {{ parseFloat(maxCollateralValue).toFixed(4) }}
+            </p>
           </div>
-          <img
-            class="token-arrow"
-            src="@/assets/images/arrow.svg"
-            alt="arrow"
-          />
-        </button>
-      </div>
-      <div class="leverage-range" v-if="selectedPool">
-        <div class="settings-wrap">
-          <button @click="isSettingsOpened = true" class="settings-btn">
-            <img src="@/assets/images/settings.png" alt="settings" />
+          <button @click="isOpenPollPopup = true" class="select-btn">
+            <div class="select-icon">
+              <TokenIcon :icon="selectIcon" type="select" :name="selectName" />
+              <span class="token-name">
+                {{ selectTitle }}
+              </span>
+            </div>
+            <img
+              class="token-arrow"
+              src="@/assets/images/arrow.svg"
+              alt="arrow"
+            />
           </button>
         </div>
-
-        <Range
-          v-model="flashRepayAmount"
-          :min="0"
-          :max="+maxFlashRepayAmount"
-          :step="+borrowStepRange"
-          title="Choose the amount of MIM you want to repay"
-        />
-
-        <div class="range-underline underline"></div>
-
-        <Range
-          title="Choose the amount of collateral you want to remove"
-          v-model="flashRepayRemoveAmount"
-          :min="0"
-          :max="maxFlashRepayRemoveAmount"
-          :step="+collateralStepRange"
-        />
-      </div>
-    </div>
-    <div class="info-block">
-      <h1 class="title">Leverage Down</h1>
-      <BorrowPoolStand
-        :pool="selectedPool"
-        :isEmpty="selectedPool === null"
-        :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
-        :tokenToMim="tokenToMim"
-        typeOperation="repay"
-        :collateralExpected="collateralExpected"
-        :mimExpected="flashRepayAmount"
-        :liquidationPrice="flashReapyExpectedLiquidationPrice"
-        :itsMaxRepayMim="itsMaxRepayMim"
-      />
-      <template v-if="selectedPool">
-        <div class="btn-wrap">
-          <DefaultButton
-            @click="approveTokenHandler"
-            primary
-            :disabled="isApproved"
-            >Approve</DefaultButton
-          >
-          <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
-            actionBtnText
-          }}</DefaultButton>
-        </div>
-        <div class="info-list">
-          <div v-for="(item, i) in infoData" :key="i" class="info-item">
-            <span>{{ item.name }}:</span>
-            <span>{{ item.value }}%</span>
+        <div class="leverage-range" v-if="selectedPool">
+          <div class="settings-wrap">
+            <button @click="isSettingsOpened = true" class="settings-btn">
+              <img src="@/assets/images/settings.png" alt="settings" />
+            </button>
           </div>
+
+          <Range
+            v-model="flashRepayAmount"
+            :min="0"
+            :max="+maxFlashRepayAmount"
+            :step="+borrowStepRange"
+            title="Choose the amount of MIM you want to repay"
+          />
+
+          <div class="range-underline underline"></div>
+
+          <Range
+            title="Choose the amount of collateral you want to remove"
+            v-model="flashRepayRemoveAmount"
+            :min="0"
+            :max="maxFlashRepayRemoveAmount"
+            :step="+collateralStepRange"
+          />
         </div>
-      </template>
-    </div>
+      </div>
+      <div class="info-block">
+        <h1 class="title">DeLeverage farm</h1>
+        <BorrowPoolStand
+          :pool="selectedPool"
+          :isEmpty="selectedPool === null"
+          :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
+          :tokenToMim="tokenToMim"
+          typeOperation="repay"
+          :collateralExpected="collateralExpected"
+          :mimExpected="flashRepayAmount"
+          :liquidationPrice="flashReapyExpectedLiquidationPrice"
+          :itsMaxRepayMim="itsMaxRepayMim"
+          :emptyData="emptyData"
+        />
+        <template v-if="selectedPool">
+          <div class="btn-wrap">
+            <DefaultButton
+              @click="approveTokenHandler"
+              primary
+              :disabled="isApproved"
+              >Approve</DefaultButton
+            >
+            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+              actionBtnText
+            }}</DefaultButton>
+          </div>
+          <div class="info-list">
+            <div v-for="(item, i) in infoData" :key="i" class="info-item">
+              <span>{{ item.name }}:</span>
+              <span>{{ item.value }}%</span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+    <div v-else class="loading">LOADING ....</div>
     <PopupWrap v-model="isSettingsOpened">
       <SettingsPopup @saveSettings="changeSlippage"
     /></PopupWrap>
@@ -129,6 +133,10 @@ export default {
       slipage: 1,
       flashRepayAmount: 0,
       flashRepayRemoveAmount: 0,
+      emptyData: {
+        img: require(`@/assets/images/empty_leverage.svg`),
+        text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
+      },
     };
   },
 
@@ -141,7 +149,9 @@ export default {
 
     selectedPool() {
       if (this.poolId) {
-        return this.$store.getters.getPoolById(+this.poolId);
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (pool) return pool;
+        return null;
       }
       return null;
     },
@@ -387,6 +397,11 @@ export default {
       return "Select to";
     },
 
+    followLink() {
+      if (this.$route.params.id && !this.pools.length) return true;
+      return false;
+    },
+
     // flashRepayAmountFormat() {
     //   const accruedMultiplyer =
     //     this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
@@ -403,6 +418,17 @@ export default {
     // },
   },
 
+  watch: {
+    pools() {
+      if (this.poolId) {
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (!pool) this.$router.push(`/deleverage`);
+      }
+
+      return false;
+    },
+  },
+
   methods: {
     async approveTokenHandler() {
       this.isApproved = await approveToken(
@@ -413,6 +439,13 @@ export default {
 
     async chosePool(pool) {
       this.poolId = pool.id;
+
+      let duplicate = this.$route.fullPath === `/deleverage/${pool.id}`;
+
+      if (!duplicate) {
+        this.$router.push(`/deleverage/${pool.id}`);
+      }
+
       this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
@@ -516,6 +549,10 @@ export default {
     },
   },
 
+  created() {
+    this.poolId = this.$route.params.id;
+  },
+
   components: {
     NetworksList,
     TokenIcon,
@@ -603,6 +640,7 @@ export default {
 }
 
 .info-block {
+  min-height: 500px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -638,16 +676,26 @@ export default {
 }
 
 @media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
-}
-
-@media (min-width: 1024px) {
   .leverage {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
+  }
+
+  .leverage-loading {
+    display: flex;
+    justify-content: center;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+  }
+
+  .choose {
+    padding: 30px;
   }
 }
 </style>
