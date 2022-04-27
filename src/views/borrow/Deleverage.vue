@@ -52,6 +52,9 @@
             :step="+collateralStepRange"
           />
         </div>
+        <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
+          >Go to Positions</router-link
+        >
       </div>
       <div class="info-block">
         <h1 class="title">DeLeverage farm</h1>
@@ -582,6 +585,7 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .first-input {
@@ -673,6 +677,14 @@ export default {
   line-height: 25px;
   padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.choose-link {
+  position: absolute;
+  bottom: 10px;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
 }
 
 @media (min-width: 1024px) {
