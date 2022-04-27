@@ -5,7 +5,7 @@
         <TokenIcon :token="pool.token.name" size="80px" bgColor="transparent" />
         <div>
           <p class="header-token-title">{{ pool.token.name }}</p>
-          <p v-if="!opened" class="header-token-price">$ {{ price }}</p>
+          <p class="header-token-price">$ {{ price }}</p>
         </div>
       </div>
 
@@ -56,16 +56,15 @@
       <div class="footer">
         <div class="footer-title">
           <p>Position health</p>
-          <p class="footer-value" :style="{ width: `${health}%` }">
-            {{ health }}%
-          </p>
+          <StatusName :isSafe="true" :bordered="true" />
         </div>
         <div class="footer-range">
           <div class="footer-range-line">
             <div class="footer-range-value"></div>
           </div>
-          <StatusName :isSafe="true" :bordered="true" />
         </div>
+
+        <p class="range-value">20% of 100%</p>
         <div class="footer-list">
           <div
             v-for="(item, i) in valuesList"
@@ -107,10 +106,10 @@ export default {
     borrowed: 4500,
     health: 20,
     valuesList: [
-      { title: "Current P/L", value: "+25% earned", color: "#63CAF8" },
+      { title: "Liquidation price", value: "$0.4917" /*, color: "#63CAF8"*/ },
       {
-        title: "Closing Position now",
-        value: "$ 400 USD Cheaper",
+        title: "Min price",
+        value: "$0.55917",
       },
     ],
     openedItems: [
@@ -268,26 +267,23 @@ export default {
       line-height: 27px;
       color: rgba(255, 255, 255, 0.8);
     }
-    &-value {
-      font-weight: 700;
-      font-size: 18px;
-      line-height: 27px;
-      color: white;
+    .range-value {
+      margin-top: 7px;
       text-align: right;
     }
-
     &-range {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-top: 4px;
+      margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
       &-line {
         width: 417px;
         max-width: calc(100% - 70px);
         height: 8px;
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        margin-top: 16px;
       }
       &-value {
         background-color: #63caf8;
