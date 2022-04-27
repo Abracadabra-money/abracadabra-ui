@@ -79,7 +79,7 @@
     </div>
     <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
       <SelectTokenPopup
-        @select="poolId = $event.id"
+        @select="selectPool"
         @close="isTokensOpened = false"
         :tokens="pools"
         :isUnstake="isUnstake"
@@ -101,9 +101,13 @@ import farmPoolsMixin from "../mixins/farmPools";
 
 export default {
   mixins: [farmPoolsMixin],
+  props: {
+    id: { type: [String, Number], default: null },
+    unstake: { type: Boolean, default: false },
+  },
   data() {
     return {
-      poolId: null,
+      //  id: null,
       isTokensOpened: false,
       amount: "",
       selectedTab: "stake",
@@ -130,7 +134,7 @@ export default {
       ];
     },
     selectedPool() {
-      return this.pools.find(({ id }) => id === this.poolId) || null;
+      return this.pools.find(({ id }) => +id === +this.id) || null;
     },
 
     selectedPoolIcon() {
@@ -154,6 +158,10 @@ export default {
     },
   },
   methods: {
+    selectPool(pool) {
+      if (+pool.id !== +this.id)
+        this.$router.push({ name: "FarmPool", params: { id: pool.id } });
+    },
     async stakeHandler() {
       try {
         const parseAmount = this.$ethers.utils.parseEther(
@@ -161,7 +169,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.deposit(
-          this.selectedPool.poolId,
+          this.selectedPool.id,
           parseAmount
         );
 
@@ -183,7 +191,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.withdraw(
-          this.selectedPool.poolId,
+          this.selectedPool.id,
           parseAmount
         );
 
@@ -217,6 +225,12 @@ export default {
     },
     max() {
       this.amount = "";
+    },
+    unstake: {
+      immediate: true,
+      handler(value) {
+        if (value) this.selectedTab = "unstake";
+      },
     },
   },
   async created() {

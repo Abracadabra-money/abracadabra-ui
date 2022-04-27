@@ -16,15 +16,18 @@
         </div>
       </div>
       <div v-else class="header-content-opened">
-        <button
+        <router-link
           v-for="(item, i) in openedItems"
           :key="i"
           class="header-opened-item"
-          @click="goToFarms"
+          :to="{
+            name: 'FarmPool',
+            params: { id: pool.id, unstake: item.name === 'unstake' },
+          }"
         >
           <img :src="item.icon" alt="Hammer" class="header-opened-img" />
           <p class="header-opened-title">{{ item.title }}</p>
-        </button>
+        </router-link>
       </div>
     </div>
     <div v-if="opened" class="lp-data">
@@ -89,14 +92,17 @@
             </div>
           </div>
           <div class="lp-data-actions">
-            <button
+            <router-link
               class="lp-data-btn"
               v-if="pool.accountInfo"
               :disabled="!+depositedData.balance"
-              @click="goToFarms"
+              :to="{
+                name: 'FarmPool',
+                params: { id: pool.id, unstake: true },
+              }"
             >
               Withdraw
-            </button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -117,10 +123,12 @@ export default {
     openedItems: [
       {
         title: "Stake",
+        name: "stake",
         icon: require("@/assets/images/myposition/graph-up.svg"),
       },
       {
         title: "Unstake",
+        name: "unstake",
         icon: require("@/assets/images/myposition/graph-up.svg"),
       },
     ],
@@ -129,9 +137,7 @@ export default {
     parse(value) {
       return parseFloat(value).toFixed(4);
     },
-    goToFarms() {
-      this.$router.push({ name: "Farm" });
-    },
+
     prepBalanceData(factor = 0, priceValue) {
       const factorParsed = this.parse(
         this.$ethers.utils.formatEther(factor.toString())
@@ -249,8 +255,6 @@ export default {
           flex-direction: column;
           align-items: center;
           padding: 0;
-          background-color: transparent;
-          border: none;
           cursor: pointer;
         }
 
