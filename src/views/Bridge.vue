@@ -65,7 +65,7 @@
       </div>
 
       <div class="link-wrap">
-        <a class="link" href="https://app.multichain.org/" target="_blank"
+        <a href="https://app.multichain.org/" target="_blank"
           >Powered By Multichain</a
         >
       </div>
@@ -452,16 +452,15 @@ export default {
   justify-content: center;
 }
 
-.link {
-  font-weight: 300;
+.link-wrap a {
+  font-weight: 700;
   font-size: 12px;
   line-height: 18px;
-  letter-spacing: 0.025em;
   text-transform: uppercase;
   color: #fff;
 }
 
-.link:hover {
+.link-wrap a:hover {
   background: -webkit-linear-gradient(#5282fd, #76c3f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

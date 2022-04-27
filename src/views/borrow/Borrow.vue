@@ -555,11 +555,6 @@ export default {
 
   created() {
     this.poolId = this.$route.params.id;
-
-    setInterval(() => {
-      console.log("ggggggg");
-      this.createPools();
-    }, 10000);
   },
 
   components: {
