@@ -1,12 +1,12 @@
 <template>
   <button
     class="chip"
-    :disabled="disabled || selected"
+    :disabled="disabled"
     :class="{
       selected,
       'chip-no-image': !icon,
     }"
-    @click="$emit('click', $event)"
+    @click="clickHandler"
   >
     <img v-if="icon" class="network-icon" :src="icon" alt="network" />
     <span>{{ name }}</span>
@@ -23,6 +23,11 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
+    },
+  },
+  methods: {
+    clickHandler(event) {
+      if (!this.selected) this.$emit("click", event);
     },
   },
 };
@@ -49,6 +54,7 @@ export default {
 
   &:disabled {
     cursor: default;
+    opacity: 0.8;
   }
 
   transition: background-color 0.2s, border-bottom-color 0.2s,
@@ -59,6 +65,8 @@ export default {
   position: relative;
   background-color: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(118, 195, 245, 0.5);
+
+  cursor: default;
 }
 
 .network-icon {

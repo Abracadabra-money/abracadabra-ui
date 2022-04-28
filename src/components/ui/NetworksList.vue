@@ -14,7 +14,11 @@
           :selected="network.chainId === chainId"
           :name="network.name"
           :icon="network.icon"
-          :disabled="loading"
+          :disabled="
+            loading ||
+            (network.chainId !== chainId &&
+              !activeList.includes(network.chainId))
+          "
           @click="changeNetwork(network.chainId)"
         />
       </div>
@@ -45,6 +49,7 @@ export default {
   mixins: [chainSwitch],
   props: {
     items: { type: Number, default: 4 },
+    activeList: { type: Array, default: () => [] },
   },
   data: () => ({
     isListOpened: false,
