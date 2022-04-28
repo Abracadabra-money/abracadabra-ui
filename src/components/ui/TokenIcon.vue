@@ -31,8 +31,12 @@ export default {
 
   computed: {
     icon() {
-      const icon = iconArray.find(
-        ({ tokenName }) => tokenName.toUpperCase() === this.token.toUpperCase()
+      const icon = iconArray.find(({ tokenName }) =>
+        typeof tokenName === "string"
+          ? tokenName.toUpperCase() === this.token.toUpperCase()
+          : tokenName.some(
+              (name) => name.toUpperCase() === this.token.toUpperCase()
+            )
       )?.tokenIcon;
 
       if (icon) return icon;

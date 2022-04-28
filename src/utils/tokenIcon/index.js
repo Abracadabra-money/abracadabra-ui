@@ -1,21 +1,21 @@
 export default [
   {
-    tokenName: "yvUSDT",
+    tokenName: ["yvUSDT", "yvUSDT v2"],
     tokenIcon: require(`@/assets/images/farmIcons/Token_USDT.svg`),
     itsGroup: true,
   },
   {
-    tokenName: "yvWETH",
+    tokenName: ["yvWETH", "yvWETH v2"],
     tokenIcon: require(`@/assets/images/farmIcons/Token_WETH.svg`),
     itsGroup: true,
   },
   {
-    tokenName: "yvYFI",
+    tokenName: ["yvYFI", "yvYFI v2"],
     tokenIcon: require(`@/assets/images/farmIcons/Token_Yearn.svg`),
     itsGroup: true,
   },
   {
-    tokenName: "yvUSDC",
+    tokenName: ["yvUSDC", "yvUSDC v2"],
     tokenIcon: require(`@/assets/images/farmIcons/Token_USDC.svg`),
     itsGroup: true,
   },

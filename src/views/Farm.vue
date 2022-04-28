@@ -16,11 +16,7 @@
         </div>
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
-          <button
-            class="select"
-            @click="isTokensOpened = true"
-            :disabled="loading"
-          >
+          <button class="select" @click="isTokensOpened = true">
             <img class="select-icon" :src="selectedPoolIcon" alt="" />
             <span class="select-text">
               {{ selectedPool ? selectedPool.name : "Select Farm" }}
