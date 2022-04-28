@@ -1,7 +1,7 @@
 <template>
   <button @click="$emit('click')" class="token-wrap">
     <div class="token-data">
-      <img class="token-icon" :src="icon" alt="token" />
+      <TokenIcon :token="name" bgColor="transparent" />
       <p>{{ name }}</p>
     </div>
     <div class="token-value">
@@ -14,8 +14,11 @@
 </template>
 
 <script>
+const TokenIcon = () => import("@/components/ui/TokenIcon");
+
 export default {
   name: "TokenPopupItem",
+  components: { TokenIcon },
   props: {
     name: {
       type: String,
@@ -27,10 +30,6 @@ export default {
     },
     price: {
       type: [Number, String],
-      default: null,
-    },
-    icon: {
-      type: String,
       default: null,
     },
   },
@@ -60,15 +59,6 @@ export default {
 .token-data {
   display: flex;
   align-items: center;
-}
-
-.token-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  background-color: white;
-  border-radius: 10px;
-  margin-right: 10px;
 }
 
 .token-value {

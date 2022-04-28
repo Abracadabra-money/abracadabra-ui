@@ -1,5 +1,9 @@
 <template>
-  <button class="stats-item" :class="{ 'stats-item-farm': isFarm }">
+  <router-link
+    :to="{ name: 'FarmPool', params: { id: poolData.id } }"
+    class="stats-item"
+    :class="{ 'stats-item-farm': isFarm }"
+  >
     <span class="network-data" :class="{ 'network-data-new': isNew }">
       <TokenIcon :token="poolData.name" bgColor="transparent" />
       <span class="network-name-wrap">
@@ -20,7 +24,7 @@
         alt="DegenBox"
       />
     </span>
-  </button>
+  </router-link>
 </template>
 
 <script>

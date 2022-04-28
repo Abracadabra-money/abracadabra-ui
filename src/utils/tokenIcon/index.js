@@ -129,4 +129,14 @@ export default [
     tokenIcon: require(`@/assets/images/farmIcons/Token_MIM.svg`),
     itsGroup: true,
   },
+  {
+    tokenName: "SLP",
+    tokenIcon: require(`@/assets/images/farmIcons/Token_Smooth Love Potion.svg`),
+    itsGroup: true,
+  },
+  {
+    tokenName: "SELECT",
+    tokenIcon: require(`@/assets/images/select.svg`),
+    itsGroup: true,
+  },
 ];

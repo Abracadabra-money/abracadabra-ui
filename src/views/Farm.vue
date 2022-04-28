@@ -17,7 +17,10 @@
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
           <button class="select" @click="isTokensOpened = true">
-            <img class="select-icon" :src="selectedPoolIcon" alt="" />
+            <TokenIcon
+              :token="selectedPool ? selectedPool.name : 'SELECT'"
+              bgColor="transparent"
+            />
             <span class="select-text">
               {{ selectedPool ? selectedPool.name : "Select Farm" }}
             </span>
@@ -36,6 +39,7 @@
             <ValueInput
               v-model="amount"
               :name="selectedPool.stakingTokenName"
+              :icon="selectedLPIcon"
               :max="max"
               :error="error"
             />
@@ -50,7 +54,7 @@
             <DefaultButton
               v-if="isUnstake || isAllowance"
               @click="handler"
-              :disabled="!isValid"
+              :disabled="!isValid || !!error"
               >{{ !isUnstake ? "Stake" : "Unstake" }}</DefaultButton
             >
           </div></template
@@ -94,6 +98,8 @@ const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
+const TokenIcon = () => import("@/components/ui/TokenIcon");
+import iconArray from "@/utils/tokenIcon";
 
 export default {
   mixins: [farmPoolsMixin],
@@ -132,10 +138,14 @@ export default {
     selectedPool() {
       return this.pools.find(({ id }) => +id === +this.id) || null;
     },
-
-    selectedPoolIcon() {
-      return this.selectedPool?.icon || require("@/assets/images/select.svg");
+    selectedLPIcon() {
+      if (!this.selectedPool) return null;
+      const lpIcon = iconArray.find(
+        ({ tokenName }) => tokenName === this.selectedPool.stakingTokenName
+      )?.tokenIcon;
+      return lpIcon || null;
     },
+
     isAllowance() {
       return !!this.selectedPool?.accountInfo?.allowance;
     },
@@ -145,7 +155,7 @@ export default {
         : this.selectedPool?.accountInfo?.depositedBalance;
     },
     isValid() {
-      return this.amount && this.amount !== "0.0";
+      return !!+this.amount;
     },
     error() {
       return Number(this.amount) > Number(this.max)
@@ -242,6 +252,7 @@ export default {
     clearInterval(this.farmPoolsTimer);
   },
   components: {
+    TokenIcon,
     NetworksList,
     ValueInput,
     DefaultButton,
@@ -318,16 +329,8 @@ export default {
   }
 }
 
-.select-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  border-radius: 10px;
-  background-color: white;
-}
-
 .select-text {
-  margin: 0 10px;
+  margin-right: 10px;
 }
 
 .select-arrow {

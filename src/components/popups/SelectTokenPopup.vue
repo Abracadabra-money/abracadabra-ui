@@ -21,7 +21,6 @@
               : token.accountInfo.depositedBalance
           "
           :price="token.lpPrice"
-          :icon="token.icon || selectIcon"
         />
         <div
           v-if="i !== filteredTokens.length - 1"
@@ -38,8 +37,6 @@
 <script>
 const TokenPopupItem = () => import("@/components/popups/TokenPopupItem");
 
-import selectIcon from "@/assets/images/select.svg";
-
 export default {
   props: {
     tokens: {
@@ -51,7 +48,7 @@ export default {
       default: false,
     },
   },
-  data: () => ({ search: "", selectIcon }),
+  data: () => ({ search: "" }),
   methods: {
     selectToken(chainId) {
       this.$emit("select", chainId);
