@@ -1,72 +1,85 @@
 <template>
-  <div class="leverage">
-    <div class="choose">
-      <h4>Choose Chain</h4>
-      <div class="underline">
-        <NetworksList />
-      </div>
-      <div class="first-input underline">
-        <div class="header-balance">
-          <h4>Collateral assets</h4>
-          <p v-if="selectedPool">
-            {{ maxCollateralValue }}
-          </p>
+  <div class="leverage" :class="{ 'leverage-loading': followLink }">
+    <template v-if="!followLink">
+      <div class="choose">
+        <h4>Choose Chain</h4>
+        <div class="underline">
+          <NetworksList />
         </div>
-        <ValueInput
-          :icon="selectedPool ? selectedPool.icon : null"
-          :name="selectedPool ? selectedPool.name : null"
-          v-model="collateralValue"
-          :max="maxCollateralValue"
-          :error="collateralError"
-          :disabled="selectedPool ? false : true"
-          @input="updateCollateralValue"
-          @openTokensList="isOpenPollPopup = true"
-          isChooseToken
-        />
-      </div>
-      <div class="leverage-range" v-if="selectedPool">
-        <div class="settings-wrap">
-          <button @click="isSettingsOpened = true" class="settings-btn">
-            <img src="@/assets/images/settings.png" alt="settings" />
-          </button>
-        </div>
-        <Range v-model="multiplier" :min="1" :max="maxLeverage" />
-        <p>Liquidation Price &#126; ${{ liquidationPriceExpected }}</p>
-        <p>
-          Expected MIM amount &#126;
-          {{ parseFloat(multiplyMimExpected).toFixed(4) }}
-        </p>
-        <p>Expected leverage &#126; {{ expectedLeverage }}x</p>
-      </div>
-    </div>
-    <div class="info-block">
-      <h1 class="title">Leverage UP</h1>
-      <StableInfo
-        :pool="selectedPool"
-        :isEmpty="selectedPool === null"
-        :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
-        :tokenToMim="tokenToMim"
-      />
-      <template v-if="selectedPool">
-        <div class="btn-wrap">
-          <DefaultButton
-            @click="approveTokenHandler"
-            primary
-            :disabled="isApproved"
-            >Approve</DefaultButton
-          >
-          <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
-            actionBtnText
-          }}</DefaultButton>
-        </div>
-        <div class="info-list">
-          <div v-for="(item, i) in infoData" :key="i" class="info-item">
-            <span>{{ item.name }}:</span>
-            <span>{{ item.value }}%</span>
+        <div class="first-input underline">
+          <div class="header-balance">
+            <h4>Collateral assets</h4>
+            <p v-if="selectedPool">
+              {{ parseFloat(maxCollateralValue).toFixed(4) }}
+            </p>
           </div>
+          <ValueInput
+            :icon="selectedPool ? selectedPool.icon : null"
+            :name="selectedPool ? selectedPool.name : null"
+            v-model="collateralValue"
+            :max="maxCollateralValue"
+            :error="collateralError"
+            :disabled="selectedPool ? false : true"
+            @input="updateCollateralValue"
+            @openTokensList="isOpenPollPopup = true"
+            isChooseToken
+          />
         </div>
-      </template>
-    </div>
+        <div class="leverage-range" v-if="selectedPool">
+          <div class="settings-wrap">
+            <button @click="isSettingsOpened = true" class="settings-btn">
+              <img src="@/assets/images/settings.png" alt="settings" />
+            </button>
+          </div>
+          <Range
+            v-model="multiplier"
+            :max="maxLeverage"
+            :min="1"
+            :risk="leverageRisk"
+            :inputValue="collateralValue"
+            tooltipText="true"
+          />
+          <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
+        </div>
+        <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
+          >Go to Positions</router-link
+        >
+      </div>
+      <div class="info-block">
+        <h1 class="title">Leverage farm</h1>
+        <BorrowPoolStand
+          :pool="selectedPool"
+          :isEmpty="selectedPool === null"
+          :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
+          :tokenToMim="tokenToMim"
+          typeOperation="borrow"
+          :collateralExpected="finalRemoveCollateralAmountToShare"
+          :mimExpected="multiplyMimExpected"
+          :liquidationPrice="liquidationPriceExpected"
+          :emptyData="emptyData"
+        />
+        <template v-if="selectedPool">
+          <div class="btn-wrap">
+            <DefaultButton
+              @click="approveTokenHandler"
+              primary
+              :disabled="isApproved"
+              >Approve</DefaultButton
+            >
+            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+              actionBtnText
+            }}</DefaultButton>
+          </div>
+          <div class="info-list">
+            <div v-for="(item, i) in infoData" :key="i" class="info-item">
+              <span>{{ item.name }}:</span>
+              <span>{{ item.value }}%</span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+    <div v-else class="loading">LOADING ....</div>
     <PopupWrap v-model="isSettingsOpened">
       <SettingsPopup @saveSettings="changeSlippage"
     /></PopupWrap>
@@ -83,7 +96,7 @@
 const NetworksList = () => import("@/components/ui/NetworksList");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const Range = () => import("@/components/UIComponents/Range");
-const StableInfo = () => import("@/components/borrow/StableInfo");
+const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
@@ -114,6 +127,11 @@ export default {
       percentValue: "",
       mimAmount: 0,
       slipage: 1,
+      finalRemoveCollateralAmountToShare: 0,
+      emptyData: {
+        img: require(`@/assets/images/empty_leverage.svg`),
+        text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
+      },
     };
   },
 
@@ -125,7 +143,9 @@ export default {
 
     selectedPool() {
       if (this.poolId) {
-        return this.$store.getters.getPoolById(+this.poolId);
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (pool) return pool;
+        return null;
       }
       return null;
     },
@@ -228,11 +248,15 @@ export default {
     },
 
     depositExpectedCollateral() {
-      if (this.collateralError)
-        return +this.selectedPool.userInfo.userCollateralShare;
-      return (
-        +this.collateralValue + +this.selectedPool.userInfo.userCollateralShare
-      );
+      if (this.selectedPool.userInfo) {
+        if (this.collateralError)
+          return +this.selectedPool.userInfo.userCollateralShare;
+        return (
+          +this.collateralValue +
+          +this.selectedPool.userInfo.userCollateralShare
+        );
+      }
+      return 0;
     },
 
     liquidationMultiplier() {
@@ -249,6 +273,7 @@ export default {
     },
 
     multiplyMimExpected() {
+      if (!this.collateralValue) return 0;
       if (!this.mimAmount) return 0;
       if (this.multiplier === 1) return this.mimAmount;
       if (!this.percentValue) return 0;
@@ -269,33 +294,39 @@ export default {
     },
 
     liquidationPriceExpected() {
-      let liquidationDecimals = 4;
-      if (this.selectedPool.name === "SHIB") liquidationDecimals = 6;
+      if (this.selectedPool && this.account) {
+        let liquidationDecimals = 4;
+        if (this.selectedPool.name === "SHIB") liquidationDecimals = 6;
 
-      if (+this.multiplier === 1) {
-        return this.depositExpectedLiquidationPrice.toFixed(
-          liquidationDecimals
-        );
+        if (+this.multiplier === 1) {
+          return this.depositExpectedLiquidationPrice.toFixed(
+            liquidationDecimals
+          );
+        }
+
+        if (!this.collateralValue) return 0;
+
+        let expectedDeposit =
+          this.multiplyMimExpected * this.selectedPool.tokenOraclePrice;
+
+        const borrowPart =
+          this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
+
+        const expectedCollateralPart =
+          expectedDeposit +
+          +this.selectedPool.userInfo.userCollateralShare +
+          +this.collateralValue;
+
+        const liquidationPrice =
+          +borrowPart / +expectedCollateralPart / this.liquidationMultiplier ||
+          0;
+
+        const expectedLiquidationPrice =
+          (liquidationPrice / 100) * this.slipage + liquidationPrice;
+
+        return expectedLiquidationPrice.toFixed(liquidationDecimals);
       }
-
-      let expectedDeposit =
-        this.multiplyMimExpected * this.selectedPool.tokenOraclePrice;
-
-      const borrowPart =
-        this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
-
-      const expectedCollateralPart =
-        expectedDeposit +
-        +this.selectedPool.userInfo.userCollateralShare +
-        +this.collateralValue;
-
-      const liquidationPrice =
-        +borrowPart / +expectedCollateralPart / this.liquidationMultiplier || 0;
-
-      const expectedLiquidationPrice =
-        (liquidationPrice / 100) * this.slipage + liquidationPrice;
-
-      return expectedLiquidationPrice.toFixed(liquidationDecimals);
+      return 0;
     },
 
     percentMultiplier() {
@@ -304,18 +335,93 @@ export default {
     },
 
     expectedLeverage() {
-      if (!this.percentMultiplier) return "0";
+      if (!this.collateralValue) return "0.00";
+      if (!this.percentMultiplier) return "0.00";
 
       const expectedLevearage =
         (1 - Math.pow(+this.percentMultiplier, this.multiplier)) /
         (1 - +this.percentMultiplier);
       return parseFloat(expectedLevearage).toFixed(2);
     },
+
+    leverageLiquidationRisk() {
+      if (this.selectedPool) {
+        const tokenPrice = 1 / this.selectedPool.tokenOraclePrice;
+        const priceDifferens = +tokenPrice - +this.liquidationPriceExpected;
+
+        const riskPersent =
+          ((priceDifferens * this.stableCoinMultiplyer) / tokenPrice) * 100;
+
+        if (riskPersent > 100) {
+          return 100;
+        }
+
+        if (riskPersent < 0) {
+          return 0;
+        }
+
+        return parseFloat(riskPersent).toFixed(2);
+      }
+      return 0;
+    },
+
+    stableCoinMultiplyer() {
+      // id 17 AGLD
+      const exceptionPools = [15, 16, 27];
+
+      const itsExcepton = exceptionPools.indexOf(this.selectedPool.id) !== -1;
+
+      if (this.selectedPool.ltv === 90 && !itsExcepton) {
+        return 10;
+      }
+
+      return 1;
+    },
+
+    leverageRisk() {
+      if (this.collateralValue) {
+        if (
+          this.leverageLiquidationRisk > 5 &&
+          this.leverageLiquidationRisk <= 75
+        ) {
+          return "medium";
+        }
+
+        if (this.leverageLiquidationRisk <= 5) {
+          return "high";
+        }
+      }
+      return "default";
+    },
+
+    followLink() {
+      if (this.$route.params.id && !this.pools.length) return true;
+      return false;
+    },
   },
 
+  watch: {
+    pools() {
+      if (this.poolId) {
+        let pool = this.$store.getters.getPoolById(+this.poolId);
+        if (!pool) this.$router.push(`/leverage`);
+      }
+
+      return false;
+    },
+
+    collateralValue() {
+      this.finalCollateralAmountToShare();
+    },
+
+    multiplier() {
+      this.finalCollateralAmountToShare();
+    },
+  },
   methods: {
     updateCollateralValue(value) {
       this.collateralValue = value;
+
       this.updatePercentValue();
 
       if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
@@ -342,6 +448,13 @@ export default {
       this.collateralValue = "";
       this.borrowValue = "";
       this.poolId = pool.id;
+
+      let duplicate = this.$route.fullPath === `/leverage/${pool.id}`;
+
+      if (!duplicate) {
+        this.$router.push(`/leverage/${pool.id}`);
+      }
+
       this.multiplier = 2;
 
       this.percentValue = this.selectedPool.ltv;
@@ -362,10 +475,10 @@ export default {
         return true;
       }
 
-      // const notification = {
-      //   msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-      // };
-
+      const notification = {
+        msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
+      };
+      console.log("notification", notification);
       // this.$store.commit("addNotification", notification);
 
       return false;
@@ -489,8 +602,8 @@ export default {
           msg: "Opening such position will put you at an instant liquidation flag.",
         };
 
-        // this.$store.commit("addNotification", notification);
         console.log("notification", notification);
+        // this.$store.commit("addNotification", notification);
 
         return false;
       }
@@ -500,6 +613,7 @@ export default {
       const amountMultiplyer = percentValue / 100;
 
       let startAmount = data.amount * 0.995;
+
       let finalAmount = 0;
 
       for (let i = this.multiplier; i > 0; i--) {
@@ -530,6 +644,10 @@ export default {
           minValueParsed,
           true
         );
+
+      this.finalRemoveCollateralAmountToShare = this.$ethers.utils.formatEther(
+        finalRemoveCollateralAmountToShare.toString()
+      );
 
       const payload = {
         ...data,
@@ -587,13 +705,62 @@ export default {
             : newPairValue;
       }
     },
+
+    async finalCollateralAmountToShare() {
+      if (this.collateralValue) {
+        let amount = this.$ethers.utils.parseUnits(
+          toFixed(this.mimAmount, this.selectedPool.pairToken.decimals),
+          this.selectedPool.pairToken.decimals
+        );
+        if (this.multiplier > 1) {
+          amount = toFixed(
+            this.mimAmount,
+            this.selectedPool.pairToken.decimals
+          );
+        } else {
+          amount = this.$ethers.utils.formatEther(amount.toString());
+        }
+
+        const percentValue = parseFloat(this.percentValue);
+
+        const slipageMutiplier = (100 - this.slipage) / 100;
+
+        const amountMultiplyer = percentValue / 100;
+
+        let startAmount = amount * 0.995;
+
+        let finalAmount = 0;
+
+        for (let i = this.multiplier; i > 0; i--) {
+          finalAmount += +startAmount;
+          startAmount = startAmount * amountMultiplyer;
+        }
+
+        const minValue =
+          finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
+
+        const minValueParsed = this.$ethers.utils.parseUnits(
+          toFixed(minValue, this.selectedPool.token.decimals),
+          this.selectedPool.token.decimals
+        );
+
+        this.finalRemoveCollateralAmountToShare =
+          this.$ethers.utils.formatEther(minValueParsed.toString());
+      } else {
+        this.finalRemoveCollateralAmountToShare = 0;
+      }
+    },
+  },
+
+  created() {
+    this.poolId = this.$route.params.id;
   },
 
   components: {
     NetworksList,
     ValueInput,
     Range,
-    StableInfo,
+    BorrowPoolStand,
     DefaultButton,
     PopupWrap,
     SettingsPopup,
@@ -609,7 +776,7 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding: 100px 0;
+  padding: 100px 5px;
 }
 
 .choose {
@@ -618,6 +785,7 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .first-input {
@@ -631,6 +799,11 @@ export default {
 
 .leverage-range {
   margin: 33px 0 60px 0;
+}
+
+.leverage-percent {
+  margin: 10px 0;
+  text-align: right;
 }
 
 .settings-wrap {
@@ -652,6 +825,7 @@ export default {
 }
 
 .info-block {
+  min-height: 500px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -686,10 +860,12 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-@media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
+.choose-link {
+  position: absolute;
+  bottom: 10px;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
 }
 
 @media (min-width: 1024px) {
@@ -697,6 +873,22 @@ export default {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
+  }
+
+  .leverage-loading {
+    display: flex;
+    justify-content: center;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+  }
+
+  .choose {
+    padding: 30px;
   }
 }
 </style>

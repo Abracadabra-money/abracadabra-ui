@@ -6,14 +6,9 @@
         :disabled="!isChooseToken"
         class="value-type value-btn"
       >
-        <img
-          v-if="currentToken.icon"
-          class="token-icon"
-          :src="currentToken.icon"
-          alt="token"
-        />
+        <TokenIcon :icon="icon" type="select" :name="name" />
         <span class="token-name">
-          {{ currentToken.name }}
+          {{ poolName }}
         </span>
         <img
           v-if="isChooseToken"
@@ -33,7 +28,7 @@
         placeholder="0.0"
       />
       <button
-        v-if="max && showMax"
+        v-if="+max > 0 && showMax"
         @click="currentValue = max"
         :disabled="disabled"
         class="value-btn max-btn"
@@ -49,7 +44,7 @@
 </template>
 
 <script>
-import selectIcon from "@/assets/images/select.svg";
+const TokenIcon = () => import("@/components/ui/TokenIcon");
 
 export default {
   props: {
@@ -82,7 +77,6 @@ export default {
     },
     name: {
       type: String,
-      default: "",
     },
   },
   computed: {
@@ -94,15 +88,12 @@ export default {
         this.$emit("input", value);
       },
     },
-    currentToken() {
-      return this.name
-        ? {
-            name: this.name,
-            icon: this.icon || selectIcon,
-          }
-        : { name: "Select to", icon: selectIcon };
+    poolName() {
+      if (this.name) return this.name;
+      return "Select to";
     },
   },
+  components: { TokenIcon },
 };
 </script>
 
@@ -110,7 +101,7 @@ export default {
 .val-input {
   display: flex;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.06);
+  background: rgba(129, 126, 166, 0.2);
   border-radius: 20px;
   flex-wrap: wrap;
   padding: 8px 10px 0 10px;
@@ -189,7 +180,6 @@ input[type="number"] {
 .token-name {
   flex: 1 1 auto;
   text-align: left;
-  margin-left: 10px;
 }
 .token-arrow {
   margin-right: 12px;
@@ -203,22 +193,18 @@ input[type="number"] {
   margin-left: 10px;
 }
 
-.token-icon {
-  height: 24px;
-}
-
 @media (min-width: 1024px) {
   .val-input {
     flex-wrap: nowrap;
     padding: 0 10px;
   }
+
   .value-type {
-    flex: 1 1 148px;
+    flex: 1 1 180px;
     padding-left: 10px;
+    max-width: 180px;
   }
-  .token-icon {
-    height: 32px;
-  }
+
   .value-btn {
     border-radius: 20px;
     height: 60px;
