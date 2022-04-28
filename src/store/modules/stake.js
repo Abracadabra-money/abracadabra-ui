@@ -5,11 +5,12 @@ export default {
     sSpellStakeObject: null,
     mSpellStakingObj: null,
     mimInBentoDepositObject: null,
-    isLoadingsSpellStake: null,
+    isLoadingSSpellStake: true,
     isLoadingMSpellStake: true,
   },
   mutations: {
     setSSpellObject(state, payload) {
+      console.log("setSSpellObject",payload);
       state.sSpellStakeObject = payload;
     },
     setMSpellStakingObj(state, payload) {
@@ -18,8 +19,8 @@ export default {
     setMimInBentoDepositObject(state, payload) {
       state.mimInBentoDepositObject = payload;
     },
-    setLoadingsSpellStake(state, payload) {
-      state.isLoadingsSpellStake = payload;
+    setLoadingSSpellStake(state, payload) {
+      state.isLoadingSSpellStake = payload;
     },
     setLoadingMSpellStake(state, payload) {
       state.isLoadingMSpellStake = payload;
@@ -51,6 +52,6 @@ export default {
     getMSpellStakingObj: (state) => state.mSpellStakingObj,
     getSSpellObject: (state) => state.sSpellStakeObject,
     getMimInBentoDepositObject: (state) => state.mimInBentoDepositObject,
-    getLoadingsSpellStake: (state) => state.isLoadingsSpellStake,
+    getLoadingSSpellStake: (state) => state.isLoadingSSpellStake,
   },
 };

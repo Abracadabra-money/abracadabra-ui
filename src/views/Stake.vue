@@ -4,13 +4,15 @@
   </div>
 </template>
 <script>
+
 import MSpell from '@/components/stake/MSpell';
 import SSpell from '@/components/stake/SSpell';
 
 export default {
-  components: {MSpell, SSpell},
-  props: ['currentComponent']
+  components: { MSpell, SSpell },
+  props: [ 'currentComponent' ]
 }
+
 </script>
 <style lang="scss">
 

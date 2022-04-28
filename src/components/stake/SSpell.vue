@@ -68,7 +68,7 @@
         <DefaultButton
           width="325px"
           @click="actionHandler"
-          :disabled="amountError"
+          :disabled="!!amountError || !amount || !info.stakeToken.isTokenApprowed"
         >
           {{ actions.STAKE ? "Stake" : "Unstake" }}
         </DefaultButton>
@@ -76,7 +76,7 @@
       <div class="profile-subscribtion">
         <div class="profile-subscribtion__approximate">
           <div>Approximate staking APR</div>
-          <div>{{ (info.apr || 0).toFixed(4) + "%" }}</div>
+          <div>{{ parceBalance(info.apr) + "%" }}</div>
         </div>
         <p>
             Make SPELL work for you! Stake your SPELL and gain sSPELL. No
@@ -107,7 +107,7 @@ export default {
   mixins: [sspellToken, stake],
   computed: {
     loading() {
-      return this.$store.getters.getMSpellStakingObj
+      return this.$store.getters.getLoadingSSpellStake
     },
     isUserLocked() {
       return (
@@ -117,7 +117,7 @@ export default {
       );
     },
     info() {
-      return this.$store.getters.getSSpellStakingObj || this.emptyTokens;
+      return this.$store.getters.getSSpellObject || this.emptyTokens;
     },
     fromToken() {
       if (this.actions.STAKE) return this.info.stakeToken;
@@ -149,7 +149,7 @@ export default {
     },
   },
   watch: {
-    lockedUntil(val) {
+    isTokenApprowed(val) {
       if (val && Number(val) !== 0) {
         this.amount = "";
         this.amountError = "";

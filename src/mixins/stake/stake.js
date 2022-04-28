@@ -33,20 +33,21 @@ export default {
         },
         toggleAction() {
 
-            this.amount = "";
-            this.amountError = "";
+                this.amount = "";
+                this.amountError = "";
       
             if (this.actions.STAKE) {
-              this.actions.UNSTAKE = true;
-              this.actions.STAKE = false;
-              return;
+               this.actions.UNSTAKE = true;
+               this.actions.STAKE = false;
+               return;
             }
       
             if (this.actions.UNSTAKE) {
-              this.actions.STAKE = true;
-              this.actions.UNSTAKE = false;
-              return;
+               this.actions.STAKE = true;
+               this.actions.UNSTAKE = false;
+               return;
             }
+
         },
     },
 }

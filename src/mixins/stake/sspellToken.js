@@ -1,8 +1,9 @@
 import stakeInfo from "@/utils/contracts/sSpellStakesInfo.js";
 import { tokenPrices } from "@/utils/helpers.js";
-import moment from "moment";
+// import moment from "moment";
 import { mapMutations } from "vuex";
-import { ethers } from "ethers";
+// import { ethers } from "ethers";
+import { getSpellStakingApr, getTokensRate } from "@/helpers/spellStakingApr";
 
 export default {
   data() {
@@ -22,56 +23,54 @@ export default {
     },
   },
   methods: {
-    ...mapMutations({ setLoadingsSpellStake: "setLoadingsSpellStake" }),
+    ...mapMutations({ setLoadingSSpellStake: "setLoadingSSpellStake" }),
     async createStakePool() {
-      console.log("createStakePool",this.account,stakeInfo,this.chainId);
+      this.setLoadingSSpellStake(true);
       if (this.account) {
-        this.setLoadingsSpellStake(true);
         if (!stakeInfo) {
+          this.setLoadingSSpellStake(false);
           return false;
         }
 
         if (this.chainId !== 1) {
-          this.setLoadingsSpellStake(false);
+          this.setLoadingSSpellStake(false);
           return false;
         }
-
+        console.log("ethers", this.$ethers)
         const { mainToken, stakeToken } = stakeInfo;
-
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner(this.account);
 
         const mainTokenInstance = new this.$ethers.Contract(
           mainToken.address,
           JSON.stringify(mainToken.abi),
-          signer
+          this.signer
         );
-        
+        console.log("mainTokenInstance", mainTokenInstance)
+        let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
 
-        // let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
-
-        // mainTokenBalance = this.$ethers.utils.formatEther(
-        //   mainTokenBalance.toString()
-        // );
+        mainTokenBalance = this.$ethers.utils.formatEther(
+          mainTokenBalance.toString()
+        );
 
         const stakeTokenInstance = new this.$ethers.Contract(
           stakeToken.address,
           JSON.stringify(stakeToken.abi),
           this.signer
         );
-
-        // let stakeTokenBalance = await stakeTokenInstance.balanceOf(
-        //   this.account
-        // );
-
-        // stakeTokenBalance = this.$ethers.utils.formatEther(
-        //   stakeTokenBalance.toString()
-        // );
-
-        const tokensRate = await this.getSpellRate(
-          stakeTokenInstance,
-          mainTokenInstance
+        console.log("mainTokenInstance", stakeTokenInstance)
+        let stakeTokenBalance = await stakeTokenInstance.balanceOf(
+          this.account
         );
+        
+        stakeTokenBalance = this.$ethers.utils.formatEther(
+          stakeTokenBalance.toString()
+        );
+        console.log("stakeTokenBalance",stakeTokenBalance)
+        let tokensRate;
+        try {
+           tokensRate = await getTokensRate();
+        } catch (error) {
+          console.log("tokensRateError",error)
+        }
 
         let stakeTokenPrice, mainTokenPrice;
         try {
@@ -91,42 +90,52 @@ export default {
           mainTokenInstance,
           stakeTokenInstance
         );
+        
+        console.log("tvl",tvl)
+        // const startDate = moment("2021-5-25");
+        // const date = moment();
 
-        const startDate = moment("2021-5-25");
-        const date = moment();
+        // const dayDiff = date.diff(startDate, "days");
 
-        const dayDiff = date.diff(startDate, "days");
-
-        const aprNew = (((tokensRate - 1) * 100) / dayDiff) * 365;
-
-        const isTokenApprowed = await this.isTokenApprowed(
-          stakeTokenInstance,
-          this.account,
-          mainToken.address
-        );
+        // const aprNew = (((tokensRate - 1) * 100) / dayDiff) * 365;
+          
+        const { sSpellApr } = await getSpellStakingApr();
+        console.log("sSpellApr",sSpellApr);
+        let isTokenApprowed;
+        try {
+          isTokenApprowed = await this.isTokenApprowed(
+            stakeTokenInstance,
+            this.account,
+            mainToken.address
+          );
+        } catch (error) {
+          console.log("isTokenApprowed", error)
+        }
+        console.log("isTokenApprowed",isTokenApprowed);
 
         const stakeObject = {
           tokensRate,
-          apr: parseFloat(aprNew).toFixed(4),
+          apr: parseFloat(sSpellApr).toFixed(4),
           tvl,
           mainToken: {
             ...mainToken,
             contractInstance: mainTokenInstance,
-            balance: "22",
+            balance: mainTokenBalance,
             price: mainTokenPrice,
           },
           stakeToken: {
             ...stakeToken,
             contractInstance: stakeTokenInstance,
-            balance: "25",
+            balance: stakeTokenBalance,
             isTokenApprowed,
             price: stakeTokenPrice,
           },
         };
-        this.setLoadingsSpellStake(false);
+        this.setLoadingSSpellStake(false);
+        console.log("stakeObject",stakeObject)
         this.$store.commit("setSSpellObject", stakeObject);
       } else {
-        this.setLoadingsSpellStake(false);
+        this.setLoadingSSpellStake(false);
       }
     },
     async getSpellRate(spellContract, sspellContract) {

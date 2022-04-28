@@ -8,9 +8,9 @@
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></template>
       </div>
-      <div  class="info-block">
-        <img v-if="lockedUntil" class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
-        <div v-if="lockedUntil">Unlock in {{lockedUntil}}h</div> 
+      <div v-if="lockedUntil"  class="info-block">
+        <img class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
+        <LockedTimer :finalTime="lockedUntil"/>
       </div>
     </div>
     <div class="profile-data">
@@ -37,8 +37,10 @@
 </template>
 
 <script>
+
+import LockedTimer from "@/components/stake/LockedTimer.vue";
 export default {
-  name: "profileInfo",
+  name: "info-block",
   props: {
     lockedUntil: {
       type: [String, Boolean]
@@ -56,7 +58,7 @@ export default {
       type: String
     },
     rate: {
-      type: String
+      type: [String, Number]
     }
   },
   watch: {
@@ -82,18 +84,17 @@ export default {
     toFixed(num,range) {
       let fixed = parseFloat(num).toFixed(range);
       fixed = isNaN(fixed) ? 0 : fixed;
-      console.log(fixed)
       return fixed || 0;
     }
   },
   computed: {
     profileData() {
       return [
-        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.getUSDSumm("stakeToken") + " $" },
-        { title: this.title,  icon: this.icon, name: "Staked",       value: this.getUSDSumm("mainToken")  + " $" },
+        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.getUSDSumm("stakeToken") || 0 + " $" },
+        { title: this.title,  icon: this.icon, name: "Staked",       value: this.getUSDSumm("mainToken") || 0  + " $" },
         { title: "Ratio",       icon: "spell-icon",  
           text: `1 ${this.mainTokenName} = ${this.toFixed(this.rate,4)} SPELL` },
-        { title: "Staking APR", icon: ["spell-icon", this.icon], text: (this.tokensInfo.apr || 0).toFixed(4) + "%"  },
+        { title: "Staking APR", icon: ["spell-icon", this.icon], text: this.tokensInfo.apr + "%"  },
       ]
     }
   },
@@ -101,6 +102,9 @@ export default {
     isInfoPressed: false,
     isEmpty: false
   }),
+  components: {
+    LockedTimer
+  }
 };
 </script>
 
