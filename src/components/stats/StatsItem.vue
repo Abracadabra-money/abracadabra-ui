@@ -1,11 +1,14 @@
 <template>
   <router-link
-    :to="{ name: 'FarmPool', params: { id: poolData.id } }"
+    :to="{
+      name: isFarm ? 'FarmPool' : 'BorrowId',
+      params: { id: poolData.id },
+    }"
     class="stats-item"
     :class="{ 'stats-item-farm': isFarm }"
   >
     <span class="network-data" :class="{ 'network-data-new': isNew }">
-      <TokenIcon :token="poolData.name" bgColor="transparent" />
+      <TokenIcon :name="poolData.name" :icon="poolData.icon" />
       <span class="network-name-wrap">
         <span>{{ poolData.name }}</span>
         <span v-if="isNew" class="network-new">New</span>

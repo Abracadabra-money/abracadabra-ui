@@ -3,7 +3,7 @@
     class="token-icon"
     :src="tokenIcon"
     :alt="name"
-    :style="{ height: size, minWidth: size, backgroundColor: bgColor }"
+    :style="{ height: size, minWidth: size }"
   />
 </template>
 
@@ -25,10 +25,6 @@ export default {
     size: {
       type: String,
       default: "32px",
-    },
-    bgColor: {
-      type: String,
-      default: "white",
     },
   },
   data() {

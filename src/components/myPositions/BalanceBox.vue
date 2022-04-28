@@ -9,7 +9,7 @@
       <p class="box-header-title">{{ title }}</p>
     </div>
     <div class="box-data">
-      <TokenIcon token="MIM" size="50px" bgColor="transparent" />
+      <TokenIcon name="MIM" size="50px" />
       <div>
         <p class="box-balance1">{{ (+formattedBalance).toFixed(4) }}</p>
         <p class="box-balance2">$ {{ usd }}</p>

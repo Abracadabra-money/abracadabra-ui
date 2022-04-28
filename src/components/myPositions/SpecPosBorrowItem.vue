@@ -2,7 +2,7 @@
   <div class="pos-item">
     <div class="header">
       <div class="header-token">
-        <TokenIcon :token="pool.token.name" size="80px" bgColor="transparent" />
+        <TokenIcon :name="pool.token.name" :icon="poolIcon" size="80px" />
         <div>
           <p class="header-token-title">{{ pool.token.name }}</p>
           <p class="header-token-price">$ {{ price }}</p>
@@ -10,14 +10,15 @@
       </div>
 
       <div class="header-content">
-        <button
+        <router-link
           v-for="(item, i) in openedItems"
           :key="i"
           class="header-opened-item"
+          :to="{ name: item.name, params: { id: pool.id } }"
         >
           <img :src="item.icon" alt="Hammer" class="header-opened-img" />
           <p class="header-opened-title">{{ item.title }}</p>
-        </button>
+        </router-link>
       </div>
     </div>
     <div class="lp-data">
@@ -26,7 +27,7 @@
           <div class="lp-data-title">Initial collateral deposited</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon :token="'USD'" size="50px" bgColor="transparent" />
+              <TokenIcon name="USD" :icon="null" size="50px" />
               <p class="lp-data-token">USD</p>
             </div>
             <div class="lp-data-balance-wrap">
@@ -41,7 +42,7 @@
           <div class="lp-data-title">Borrowed</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon :token="pool.name" size="50px" bgColor="transparent" />
+              <TokenIcon :name="pool.name" :icon="pool.icon" size="50px" />
               <p class="lp-data-token">USD</p>
             </div>
             <div class="lp-data-balance-wrap">
@@ -92,6 +93,7 @@
 <script>
 const TokenIcon = () => import("@/components/ui/TokenIcon");
 const StatusName = () => import("@/components/UIComponents/StatusName");
+import { getTokenIconByName } from "../../utils/helpers";
 
 export default {
   name: "SpecPosBorrowItem",
@@ -105,31 +107,54 @@ export default {
     deposited: 1000,
     borrowed: 4500,
     health: 20,
-    valuesList: [
-      { title: "Liquidation price", value: "$0.4917" /*, color: "#63CAF8"*/ },
-      {
-        title: "Min price",
-        value: "$0.55917",
-      },
-    ],
     openedItems: [
       {
         title: "Repay MIMs",
         icon: require("@/assets/images/myposition/egg.svg"),
+        name: "RepayId",
       },
       {
         title: "Remove Collateral",
         icon: require("@/assets/images/myposition/hammer.svg"),
+        name: "LeverageId",
       },
       {
         title: "Deleverage",
         icon: require("@/assets/images/myposition/graph-up.svg"),
+        name: "DeleverageId",
       },
     ],
   }),
   methods: {
     setComma(value) {
       return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+  },
+  computed: {
+    poolIcon() {
+      return getTokenIconByName(this.pool.token.name);
+    },
+    liquidationMultiplier() {
+      return this.pool.ltv / 100;
+    },
+    liquidationPrice() {
+      return (
+        +this.pool.userInfo.userBorrowPart /
+          +this.pool.userInfo.userCollateralShare /
+          this.liquidationMultiplier || 0
+      );
+    },
+    valuesList() {
+      return [
+        {
+          title: "Liquidation price",
+          value: `$${this.liquidationPrice}` /*, color: "#63CAF8"*/,
+        },
+        {
+          title: "Min price",
+          value: "$0.55917",
+        },
+      ];
     },
   },
 };
@@ -160,9 +185,6 @@ export default {
         display: inline-flex;
         flex-direction: column;
         align-items: center;
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
       }
 
       .header-opened-img {

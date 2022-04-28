@@ -171,6 +171,7 @@ export default {
             roi: pool.poolRoi,
             tvl: pool.poolTvl,
             name: pool.name,
+            icon: pool.icon,
             id: pool.id,
           }))
         : this.filteredPools.map((pool) => ({
@@ -179,6 +180,7 @@ export default {
             interest: pool.interest,
             liquidation: pool.stabilityFee,
             name: pool.name,
+            icon: pool.icon,
             id: pool.id,
           }));
     },

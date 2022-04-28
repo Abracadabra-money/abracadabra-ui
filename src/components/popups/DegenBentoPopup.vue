@@ -44,7 +44,7 @@ import { mapGetters } from "vuex";
 
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const DefaultButton = () => import("@/components/main/DefaultButton.vue");
-import mimIcon from "@/assets/images/farmIcons/Token_MIM.svg";
+import mimIcon from "@/assets/images/tokensIcon/Token_MIM.svg";
 const Loader = () => import("@/components/Loader");
 
 export default {

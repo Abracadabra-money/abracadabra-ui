@@ -15,6 +15,7 @@
           @click="selectToken(token)"
           :key="token.chainId"
           :name="token.name"
+          :icon="token.icon"
           :balance="
             !isUnstake
               ? token.accountInfo.balance

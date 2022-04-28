@@ -18,9 +18,11 @@
           <h4 class="sub-title">Farming Opportunities</h4>
           <button class="select" @click="isTokensOpened = true">
             <TokenIcon
-              :token="selectedPool ? selectedPool.name : 'SELECT'"
-              bgColor="transparent"
+              v-if="selectedPool"
+              :name="selectedPool.name"
+              :icon="selectedPool.icon"
             />
+            <TokenIcon v-else type="select" />
             <span class="select-text">
               {{ selectedPool ? selectedPool.name : "Select Farm" }}
             </span>
@@ -99,7 +101,7 @@ const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
 const TokenIcon = () => import("@/components/ui/TokenIcon");
-import iconArray from "@/utils/tokenIcon";
+import { getTokenIconByName } from "../utils/helpers";
 
 export default {
   mixins: [farmPoolsMixin],
@@ -136,14 +138,11 @@ export default {
       ];
     },
     selectedPool() {
+      console.log(this.pools.find(({ id }) => +id === +this.id));
       return this.pools.find(({ id }) => +id === +this.id) || null;
     },
     selectedLPIcon() {
-      if (!this.selectedPool) return null;
-      const lpIcon = iconArray.find(
-        ({ tokenName }) => tokenName === this.selectedPool.stakingTokenName
-      )?.tokenIcon;
-      return lpIcon || null;
+      return getTokenIconByName(this.selectedPool.stakingTokenName);
     },
 
     isAllowance() {

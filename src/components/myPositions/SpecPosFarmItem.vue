@@ -2,7 +2,7 @@
   <div class="pos-farm-item" :class="{ 'pos-farm-item-opened': opened }">
     <div class="header">
       <div class="header-token">
-        <TokenIcon :token="pool.name" size="80px" bgColor="transparent" />
+        <TokenIcon :name="pool.name" :icon="pool.icon" size="80px" />
         <p class="header-token-title">{{ pool.name }}</p>
       </div>
       <div v-if="!opened" class="header-content">
@@ -36,11 +36,7 @@
           <div class="lp-data-title">Earned</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon
-                :token="pool.tokenName"
-                size="50px"
-                bgColor="transparent"
-              />
+              <TokenIcon :name="pool.tokenName" :icon="pool.icon" size="50px" />
               <p class="lp-data-token">{{ pool.tokenName }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
@@ -65,7 +61,7 @@
           <div class="lp-data-title">{{ pool.stakingTokenType }} deposited</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon :token="pool.name" size="50px" bgColor="transparent" />
+              <TokenIcon :name="pool.name" :icon="pool.icon" size="50px" />
               <p class="lp-data-token">{{ pool.name }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
@@ -80,7 +76,7 @@
               :key="balanceItem.name"
             >
               <div class="lp-data-info">
-                <TokenIcon :token="balanceItem.name" bgColor="transparent" />
+                <TokenIcon :name="balanceItem.name" :icon="null" />
                 <p>
                   {{ balanceItem.name }}
                 </p>

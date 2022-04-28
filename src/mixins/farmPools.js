@@ -114,7 +114,7 @@ export default {
 
       const farmPoolItem = {
         name: farmPoolInfo.name,
-        iconName: farmPoolInfo.iconName,
+        icon: farmPoolInfo.icon,
         nameSubtitle: farmPoolInfo.nameSubtitle,
         stakingTokenLink: farmPoolInfo.stakingTokenLink,
         stakingTokenIcon: farmPoolInfo.stakingTokenIcon,

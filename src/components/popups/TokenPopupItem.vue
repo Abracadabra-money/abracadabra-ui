@@ -1,7 +1,7 @@
 <template>
   <button @click="$emit('click')" class="token-wrap">
     <div class="token-data">
-      <TokenIcon :token="name" bgColor="transparent" />
+      <TokenIcon :icon="icon" :name="name" />
       <p>{{ name }}</p>
     </div>
     <div class="token-value">
@@ -23,6 +23,10 @@ export default {
     name: {
       type: String,
       default: "",
+    },
+    icon: {
+      type: String,
+      default: null,
     },
     balance: {
       type: String,
