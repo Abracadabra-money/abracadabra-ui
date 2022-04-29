@@ -86,6 +86,7 @@
           <div>Approximate staking APR</div>
           <div>{{ (info.apr || 0).toFixed(4) + "%" }}</div>
         </div>
+        <ClaimInfo @onClaim="claim" class="claim-info" token="MIM" icon="Token_MIM" :count="'200,000'"/>
         <p>
           Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. 
         </p>
@@ -99,6 +100,8 @@
 <script>
 
 const InfoBlock = () => import("@/components/stake/InfoBlock");
+const ClaimInfo = () => import("@/components/stake/ClaimInfo");
+
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
 
@@ -309,6 +312,31 @@ export default {
         console.log("WITHDRAW err:", e);
       }
     },
+    async claim() {
+      console.log("CLAIM");
+      try {
+        const estimateGas =
+          await this.info.mSpellStakingContract.estimateGas.withdraw(
+            0
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        console.log("gasLimit:", gasLimit);
+
+        const tx = await this.info.mSpellStakingContract.withdraw(
+          0,
+          {
+            gasLimit,
+          }
+        );
+        const receipt = await tx.wait();
+
+        console.log("CLAIM", receipt);
+      } catch (e) {
+        console.log("CLAIM err:", e);
+      }
+    },
     async approveToken(tokenContract) {
       try {
         const estimateGas = await tokenContract.estimateGas.approve(
@@ -351,7 +379,14 @@ export default {
     InfoBlock,
     DefaultButton,
     ValueInput,
-    NetworksList
+    NetworksList,
+    ClaimInfo
   },
 };
 </script>
+
+<style scoped>
+  .claim-info {
+    margin: 20px 0;
+  }
+</style>
