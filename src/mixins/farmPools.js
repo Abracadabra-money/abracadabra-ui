@@ -23,7 +23,7 @@ export default {
         MIM: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3",
         WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       },
-      tokenPrices: null,
+      farmTokenPrices: null,
     };
   },
   computed: {
@@ -43,15 +43,16 @@ export default {
   methods: {
     ...mapMutations({ setLoadingPoolsFarm: "setLoadingPoolsFarm" }),
     async updateTokenPrices() {
-      const tokenPrices = {};
+      console.log("get prices");
+      const farmTokenPrices = {};
       try {
         for (const key of Object.keys(this.tokenAddresses)) {
-          tokenPrices[key] = await getTokenPriceByAddress(
+          farmTokenPrices[key] = await getTokenPriceByAddress(
             1,
             this.tokenAddresses[key]
           );
         }
-        this.tokenPrices = tokenPrices;
+        this.farmTokenPrices = farmTokenPrices;
       } catch (e) {
         console.log("updateTokenPrices err", e);
       }
@@ -65,7 +66,7 @@ export default {
       );
 
       try {
-        if (!this.tokenPrices) await this.updateTokenPrices();
+        if (!this.farmTokenPrices) await this.updateTokenPrices();
 
         const pools = await Promise.all(
           chainPools.map((pool) => this.createFarmPool(pool))
@@ -96,7 +97,7 @@ export default {
         this.signer
       );
 
-      const tokenPrice = this.tokenPrices["SPELL"];
+      const tokenPrice = this.farmTokenPrices["SPELL"];
 
       const { poolYield, lpPrice } = await this.getYieldAndLpPrice(
         stakingTokenContract,
@@ -114,7 +115,7 @@ export default {
 
       const farmPoolItem = {
         name: farmPoolInfo.name,
-        iconName: farmPoolInfo.iconName,
+        icon: farmPoolInfo.icon,
         nameSubtitle: farmPoolInfo.nameSubtitle,
         stakingTokenLink: farmPoolInfo.stakingTokenLink,
         stakingTokenIcon: farmPoolInfo.stakingTokenIcon,
@@ -192,10 +193,10 @@ export default {
 
       //MIM or SPELL
       const token0Price =
-        this.tokenPrices[farmPoolItem.depositedBalance.token0.name];
+        this.farmTokenPrices[farmPoolItem.depositedBalance.token0.name];
 
       // ETH always
-      const token1Price = this.tokenPrices["WETH"];
+      const token1Price = this.farmTokenPrices["WETH"];
 
       const token0Amount = this.$ethers.utils.formatUnits(_reserve0, 18);
 
@@ -241,8 +242,8 @@ export default {
       farmPoolInfo
     ) {
       if (farmPoolInfo.id === 1 || farmPoolInfo.id === 2) {
-        const mimPrice = this.tokenPrices["MIM"];
-        const spellPrice = this.tokenPrices["SPELL"];
+        const mimPrice = this.farmTokenPrices["MIM"];
+        const spellPrice = this.farmTokenPrices["SPELL"];
 
         const mimTokenContract = new this.$ethers.Contract(
           this.tokenAddresses["MIM"],
@@ -417,19 +418,19 @@ export default {
     } /*
     async getTokenPrice(token) {
       if (token === "CRV") {
-        const priceResp = await tokenPrices(["curve-dao-token"]);
+        const priceResp = await farmTokenPrices(["curve-dao-token"]);
         return priceResp["curve-dao-token"];
       }
 
       if (token === "CVX") {
-        const priceResp = await tokenPrices(["convex-finance"]);
+        const priceResp = await farmTokenPrices(["convex-finance"]);
         return priceResp["convex-finance"];
       }
 
       if (token === "ICE") {
         if (this.prices.icePrice) return this.prices.icePrice;
 
-        const priceResp = await tokenPrices(["ice"]);
+        const priceResp = await farmTokenPrices(["ice"]);
         this.prices.icePrice = priceResp.ice;
         return priceResp.ice;
       }
@@ -437,7 +438,7 @@ export default {
       if (token === "MIM") {
         if (this.prices.mimPrice) return this.prices.mimPrice;
 
-        const priceResp = await tokenPrices(["mim"]);
+        const priceResp = await farmTokenPrices(["mim"]);
 
         this.prices.mimPrice = priceResp.mim;
         return priceResp.mim;
@@ -446,7 +447,7 @@ export default {
       if (token === "Spell" || token === "SPELL") {
         if (this.prices.spellPrice) return this.prices.spellPrice;
 
-        const priceResp = await tokenPrices(["spell"]);
+        const priceResp = await farmTokenPrices(["spell"]);
 
         this.prices.spellPrice = priceResp.spell;
         return priceResp.spell;
@@ -454,7 +455,7 @@ export default {
 
       if (token === "WETH") {
         if (this.prices.wethPrice) return this.prices.wethPrice;
-        const priceResp = await tokenPrices(["weth"]);
+        const priceResp = await farmTokenPrices(["weth"]);
         this.prices.wethPrice = priceResp.weth;
         return priceResp.weth;
       }
@@ -462,7 +463,7 @@ export default {
       if (token === "OHM") {
         if (this.prices.ohmPrice) return this.prices.ohmPrice;
 
-        const priceResp = await tokenPrices(["olympus"]);
+        const priceResp = await farmTokenPrices(["olympus"]);
         this.prices.ohmPrice = priceResp.olympus;
         return priceResp.olympus;
       }
@@ -470,7 +471,7 @@ export default {
       if (token === "TIME") {
         if (this.prices.timePrice) return this.prices.timePrice;
 
-        const priceResp = await tokenPrices(["wonderland"]);
+        const priceResp = await farmTokenPrices(["wonderland"]);
         this.prices.timePrice = priceResp.wonderland;
         return priceResp.wonderland;
       }

@@ -9,11 +9,7 @@
       <p class="box-header-title">{{ title }}</p>
     </div>
     <div class="box-data">
-      <img
-        src="@/assets/images/networks/polygon-icon.svg"
-        alt="Token"
-        class="box-data-img"
-      />
+      <TokenIcon name="MIM" size="50px" />
       <div>
         <p class="box-balance1">{{ (+formattedBalance).toFixed(4) }}</p>
         <p class="box-balance2">$ {{ usd }}</p>
@@ -38,11 +34,12 @@
 </template>
 
 <script>
+const TokenIcon = () => import("@/components/ui/TokenIcon");
 const DefaultButton = () => import("@/components/main/DefaultButton");
 
 export default {
   name: "BalanceBox",
-  components: { DefaultButton },
+  components: { TokenIcon, DefaultButton },
   props: {
     isBento: { type: Boolean, default: false },
     balance: { type: String, default: "0" },
@@ -131,11 +128,6 @@ export default {
     grid-template-columns: auto 1fr;
     padding: 16px 0;
     column-gap: 14px;
-
-    &-img {
-      width: 50px;
-      height: 50px;
-    }
   }
 
   &-balance1 {
