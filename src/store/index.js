@@ -6,6 +6,7 @@ import networks from "@/store/modules/networks";
 import notifications from "@/store/modules/notifications";
 import bridge from "@/store/modules/bridge";
 import popups from "@/store/modules/popups";
+import stake from "@/store/modules/stake";
 import pools from "@/store/modules/pools";
 import farms from "@/store/modules/farms";
 import tokens from "@/store/modules/tokens";
@@ -22,6 +23,7 @@ export default new Vuex.Store({
     notifications,
     bridge,
     popups,
+    stake,
     pools,
     tokens,
     farms,

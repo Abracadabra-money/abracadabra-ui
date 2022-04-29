@@ -219,4 +219,5 @@ input[type="number"] {
     font-size: 20px;
   }
 }
+
 </style>

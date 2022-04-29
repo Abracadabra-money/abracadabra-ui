@@ -30,6 +30,18 @@ const routes = [
     component: () => import("@/views/borrow/Repay"),
   },
   {
+    path: "/stake/",
+    name: "Stake",
+    props: { currentComponent: 'SSpell' },
+    component: () => import("@/views/Stake")
+  },
+  {
+    path: "/mStake/",
+    name: "mStake",
+    props: { currentComponent: 'MSpell' },
+    component: () => import("@/views/Stake")
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/borrow/Leverage"),
