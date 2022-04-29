@@ -96,7 +96,7 @@ export default {
       claimableAmount = this.$ethers.utils.formatEther(
         claimableAmount.toString()
       );
-      
+
       const spellPrice = await this.getTokenPrice("Spell"); // stake.js mixin
 
       const lockTimestamp = moment
@@ -113,6 +113,7 @@ export default {
       const { mSpellApr } = await getSpellStakingApr();
 
       const mSpellStakingObj = {
+        tokensRate: 1,
         mSpellStakingContract,
         spellTokenContract,
         mimTokenContract,
@@ -139,8 +140,6 @@ export default {
           price: spellPrice,
         },
       };
-
-      console.log()
 
       console.log("mSpellStakingObj", mSpellStakingObj);
 

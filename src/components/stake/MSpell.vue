@@ -8,7 +8,7 @@
       <div class="swap-wrap">
         <div class="token-input" :class="{active: actions.STAKE}">
           <div class="header-balance">
-            <h4>{{ inputTitle(actions.STAKE) }}</h4>
+            <h4>{{ inputTitle(actions.STAKE, true) }}</h4>
             <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
           </div>
           <ValueInput
@@ -32,7 +32,7 @@
         </div>
         <div class="token-input" :class="{active: actions.UNSTAKE}">
           <div class="header-balance">
-            <h4>{{ inputTitle(actions.UNSTAKE) }}</h4>
+            <h4>{{ inputTitle(actions.UNSTAKE, false) }}</h4>
             <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
           </div>
           <ValueInput
@@ -74,10 +74,11 @@
             !!amountError ||
             !amount ||
             amount <= 0 ||
-            !info.stakeToken.isTokenApprowed
+            !info.stakeToken.isTokenApprowed ||
+            (isUserLocked && actions.UNSTAKE)
           "
         >
-          {{ actions.STAKE ? "Stake" : "Unstake" }}
+          {{ isUserLocked ? "Nothing to do" : (actions.STAKE ? "Deposit" : "Withdraw") }}
         </DefaultButton>
       </div>
       <div class="profile-subscribtion">
@@ -190,8 +191,9 @@ export default {
         console.log("CLAIM err:", e);
       }
     },
-    inputTitle(toogler) {
-      return toogler ? 'Deposit' : 'Receive'
+    inputTitle(toogler, isSpell) {
+      let text = isSpell ? 'Deposit' : 'Withdrow'
+      return toogler ? text : 'Receive'
     },
     parceBalance(balance) {
       return balance ? parseFloat(balance).toFixed(4) : 0;
@@ -226,62 +228,30 @@ export default {
         const isApproved = this.info.stakeToken.isTokenApprowed;
 
         if (isApproved) {
-          await this.stake();
+          await this.deposit();
           return false;
         }
 
         const approvedSuccess = await this.approveToken(
-          this.info.stakeToken.contractInstance
+          this.info.spellTokenContract,
+          this.info.mSpellStakingContract.address
         );
 
-        if (approvedSuccess) await this.stake();
+        if (approvedSuccess) await this.deposit();
       }
       if (this.actions.UNSTAKE) {
-        await this.unstake();
+        await this.withdraw();
       }
     },
-    async stake() {
-      console.log("STAKE");
-
+    async deposit() {
+      console.log("DEPOSIT");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mainToken.contractInstance.estimateGas.mint(
-            amount
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.info.mainToken.contractInstance.mint(
-          amount,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("STAKE", receipt);
-      } catch (e) {
-        console.log("stake err:", e);
-      }
-    },
-    async unstake() {
-      console.log("UNSTAKE");
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-
-        console.log("AMOUNT", amount.toString());
-
-        const estimateGas =
-          await this.info.mainToken.contractInstance.estimateGas.burn(
-            this.account,
+          await this.info.mSpellStakingContract.estimateGas.deposit(
             amount
           );
 
@@ -289,8 +259,7 @@ export default {
 
         console.log("gasLimit:", gasLimit);
 
-        const tx = await this.info.mainToken.contractInstance.burn(
-          this.account,
+        const tx = await this.info.mSpellStakingContract.deposit(
           amount,
           {
             gasLimit,
@@ -302,10 +271,42 @@ export default {
 
         const receipt = await tx.wait();
 
-        console.log("STAKE", receipt);
-
+        console.log("DEPOSIT", receipt);
       } catch (e) {
-        console.log("stake err:", e);
+        console.log("DEPOSIT err:", e);
+      }
+    },
+    async withdraw() {
+      console.log("WITHDRAW");
+      try {
+        const amount = this.$ethers.utils.parseEther(this.amount);
+
+        console.log("AMOUNT", amount.toString());
+
+        const estimateGas =
+          await this.info.mSpellStakingContract.estimateGas.withdraw(
+            amount
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        console.log("gasLimit:", gasLimit);
+
+        const tx = await this.info.mSpellStakingContract.withdraw(
+          amount,
+          {
+            gasLimit,
+          }
+        );
+
+        this.amount = "";
+        this.amountError = "";
+
+        const receipt = await tx.wait();
+
+        console.log("WITHDRAW", receipt);
+      } catch (e) {
+        console.log("WITHDRAW err:", e);
       }
     },
     async approveToken(tokenContract) {

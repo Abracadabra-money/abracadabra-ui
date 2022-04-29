@@ -115,13 +115,13 @@ export default {
           title: "Spell",
           icon: "spell-icon",
           name: "Your balance",
-          value: this.getBallance("stakeToken", 2) || 0 + " $",
+          value: this.getBallance("stakeToken", 2) || 0,
         },
         {
           title: this.title,
           icon: this.icon,
           name: "Staked",
-          value: this.getBallance("mainToken", 2) || 0 + " $",
+          value: this.getBallance("mainToken", 2) || 0,
         },
         {
           title: "Ratio",

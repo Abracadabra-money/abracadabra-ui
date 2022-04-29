@@ -227,14 +227,6 @@ export default {
         await this.unstake();
       }
     },
-    getImgUrl(type) {
-      var images = require.context(
-        "../../assets/images/tokens-icon/",
-        false,
-        /\.svg$/
-      );
-      return images("./" + type + ".svg");
-    },
     async stake() {
       console.log("STAKE");
 
