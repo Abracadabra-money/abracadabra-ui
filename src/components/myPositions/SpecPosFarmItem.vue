@@ -1,21 +1,11 @@
 <template>
-  <div class="pos-farm-item" :class="{ 'pos-farm-item-opened': opened }">
+  <div class="pos-farm-item pos-farm-item-opened">
     <div class="header">
       <div class="header-token">
         <TokenIcon :name="pool.name" :icon="pool.icon" size="80px" />
         <p class="header-token-title">{{ pool.name }}</p>
       </div>
-      <div v-if="!opened" class="header-content">
-        <div>
-          <p class="header-content-title">Earned</p>
-          <p class="header-content-value">{{ earnedData.balance }}</p>
-        </div>
-        <div>
-          <p class="header-content-title">Deposited</p>
-          <p class="header-content-value">{{ depositedData.balance }}</p>
-        </div>
-      </div>
-      <div v-else class="header-content-opened">
+      <div class="header-content-opened">
         <router-link
           v-for="(item, i) in openedItems"
           :key="i"
@@ -30,17 +20,13 @@
         </router-link>
       </div>
     </div>
-    <div v-if="opened" class="lp-data">
+    <div class="lp-data">
       <div>
         <div class="lp-data-item">
           <div class="lp-data-title">Earned</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon
-                :name="pool.tokenName"
-                :icon="poolTokenIcon"
-                size="50px"
-              />
+              <TokenIcon :name="pool.tokenName" :icon="pool.icon" size="50px" />
               <p class="lp-data-token">{{ pool.tokenName }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
@@ -118,7 +104,6 @@ export default {
   name: "SpecPosFarmItem",
   components: { TokenIcon },
   props: {
-    opened: { type: Boolean, default: true },
     pool: { type: Object, required: true },
   },
   data: () => ({
@@ -212,9 +197,6 @@ export default {
         this.pool.lpPrice
       );
     },
-    poolTokenIcon() {
-      return getTokenIconByName(this.pool.tokenName);
-    },
   },
 };
 </script>
@@ -234,53 +216,35 @@ export default {
     min-height: 96px;
     box-sizing: content-box;
 
-    &-content {
-      justify-self: flex-end;
-      text-align: right;
+    &-content-opened {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
 
-      &-title {
+      .header-opened-item {
+        flex: 0 0 67px;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .header-opened-img {
+        flex: 0 0 24px;
+        width: 24px;
+        box-sizing: content-box;
+        padding: 9px;
+        background-color: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+      }
+      .header-opened-title {
+        margin-top: 8px;
         font-weight: 400;
-        font-size: 14px;
-        line-height: 21px;
-        color: rgba(255, 255, 255, 0.8);
-      }
-      &-value {
-        font-weight: 600;
-        font-size: 18px;
-        line-height: 27px;
-        letter-spacing: 0.025em;
-      }
-
-      &-opened {
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-start;
-
-        .header-opened-item {
-          flex: 0 0 67px;
-          display: inline-flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 0;
-          cursor: pointer;
-        }
-
-        .header-opened-img {
-          flex: 0 0 24px;
-          width: 24px;
-          box-sizing: content-box;
-          padding: 9px;
-          background-color: rgba(255, 255, 255, 0.06);
-          border-radius: 10px;
-        }
-        .header-opened-title {
-          margin-top: 8px;
-          font-weight: 400;
-          font-size: 10px;
-          line-height: 100%;
-          color: rgba(255, 255, 255, 0.4);
-          text-align: center;
-        }
+        font-size: 10px;
+        line-height: 100%;
+        color: rgba(255, 255, 255, 0.4);
+        text-align: center;
       }
     }
 

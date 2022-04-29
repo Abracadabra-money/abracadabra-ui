@@ -4,7 +4,7 @@
       <TokenIcon :icon="icon" :name="name" />
       <p>{{ name }}</p>
     </div>
-    <div class="token-value">
+    <div v-if="balance !== null" class="token-value">
       <p>
         {{ showBalance }}
       </p>

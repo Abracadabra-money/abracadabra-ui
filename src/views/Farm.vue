@@ -5,7 +5,7 @@
         <h3 class="title">Farm</h3>
         <h4 class="sub-title">Choose Chain</h4>
         <div class="wrap-networks underline">
-          <NetworksList />
+          <NetworksList :activeList="activeNetworks" />
         </div>
         <div class="switcher">
           <StatsSwitch
@@ -14,7 +14,10 @@
             @select="selectedTab = $event.name"
           />
         </div>
-        <div class="select-wrap underline">
+        <div v-if="!pools.length && loading" class="loader-wrap">
+          <Loader />
+        </div>
+        <div v-else class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
           <button class="select" @click="isTokensOpened = true">
             <TokenIcon
@@ -41,7 +44,7 @@
             <ValueInput
               v-model="amount"
               :name="selectedPool.stakingTokenName"
-              :icon="selectedLPIcon"
+              :icon="selectedPool.icon"
               :max="max"
               :error="error"
             />
@@ -100,8 +103,8 @@ const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
+import Loader from "../components/Loader";
 const TokenIcon = () => import("@/components/ui/TokenIcon");
-import { getTokenIconByName } from "../utils/helpers";
 
 export default {
   mixins: [farmPoolsMixin],
@@ -111,7 +114,7 @@ export default {
   },
   data() {
     return {
-      //  id: null,
+      activeNetworks: [1, 56, 250, 43114, 42161, 137],
       isTokensOpened: false,
       amount: "",
       selectedTab: "stake",
@@ -140,9 +143,6 @@ export default {
     selectedPool() {
       console.log(this.pools.find(({ id }) => +id === +this.id));
       return this.pools.find(({ id }) => +id === +this.id) || null;
-    },
-    selectedLPIcon() {
-      return getTokenIconByName(this.selectedPool.stakingTokenName);
     },
 
     isAllowance() {
@@ -251,6 +251,7 @@ export default {
     clearInterval(this.farmPoolsTimer);
   },
   components: {
+    Loader,
     TokenIcon,
     NetworksList,
     ValueInput,
@@ -386,6 +387,11 @@ export default {
 
 .switcher {
   margin-bottom: 27px;
+}
+
+.loader-wrap {
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {

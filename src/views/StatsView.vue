@@ -18,9 +18,7 @@
               src="@/assets/images/filter.svg"
               alt="filter"
             />
-            <span>{{
-              selectedTitleData ? selectedTitleData.title : "Sorted by Title"
-            }}</span>
+            <span>{{ `Sorted by ${selectedTitleData.title}` }}</span>
           </span>
           <img
             class="arrow-icon"
@@ -32,13 +30,11 @@
       <template slot="list">
         <button
           class="sort-btn sort-item"
-          v-for="(titleData, i) in titlesList"
+          v-for="(titleData, i) in titlesList.filter(
+            ({ name }) => name !== selectedTitle
+          )"
           :key="i"
-          @click="
-            titleData.name !== selectedTitle
-              ? select(titleData.name)
-              : select(null)
-          "
+          @click="select(titleData.name)"
         >
           {{ titleData.title }}
         </button>
@@ -83,7 +79,7 @@ export default {
   mixins: [farmPoolsMixin, borrowPoolsMixin],
   props: { isFarm: { type: Boolean, default: false } },
   data: () => ({
-    selectedTitle: null,
+    selectedTitle: "name",
     search: "",
     poolsInterval: null,
   }),
@@ -93,19 +89,6 @@ export default {
     },
     calcTokenInUsd(pool) {
       return pool.userInfo.userCollateralShare / pool.tokenPrice;
-    },
-    calcBorrowLeft(pool) {
-      const maxMimBorrow = (this.calcTokenInUsd(pool) / 100) * (pool.ltv - 1);
-      let leftBorrow = parseFloat(
-        maxMimBorrow - pool.userInfo.userBorrowPart
-      ).toFixed(20);
-      if (+leftBorrow < 0) leftBorrow = "0";
-
-      let re = new RegExp(
-        // eslint-disable-next-line no-useless-escape
-        `^-?\\d+(?:\.\\d{0, + (4 || -1) + })?`
-      );
-      return leftBorrow.toString().match(re)[0];
     },
     filterBySearch(pools, search) {
       return search
@@ -118,11 +101,16 @@ export default {
     sortByTitle(pools, titleData) {
       const sortedPools = [...pools];
       if (titleData !== null) {
-        const prepValue = (value) => +String(value).replace(/,/g, "");
+        const prepValue = (value) => {
+          const numb = +String(value).replace(/,/g, "");
+          if (!isNaN(numb)) return numb;
+          return value;
+        };
         sortedPools.sort((aItem, bItem) => {
           const a = prepValue(aItem[titleData.name]);
           const b = prepValue(bItem[titleData.name]);
-          return a - b;
+
+          return a < b ? -1 : 1;
         });
       }
 
@@ -143,15 +131,17 @@ export default {
     titlesList() {
       return this.isFarm
         ? [
+            { title: "Title", name: "name" },
             { title: "YIELD PER $1000", name: "yield" },
             { title: "ROI ANNUALLY", name: "roi" },
             { title: "TVL", name: "tvl" },
           ]
         : [
-            { title: "TOTAL MIM BORROWED", name: "totalMim" },
-            { title: "MIMS LEFT TO BORROW", name: "mimsLeft" },
-            { title: "INTEREST", name: "interest" },
-            { title: "LIQUIDATION FEE", name: "liquidation" },
+            { title: "Title", name: "name" },
+            { title: "TVL", name: "totalMim" },
+            { title: "MIMs Left", name: "mimsLeft" },
+            { title: "Interest", name: "interest" },
+            { title: "Fee", name: "liquidation" },
           ];
     },
     currentPools() {
@@ -161,28 +151,29 @@ export default {
       return this.filterBySearch(this.currentPools, this.search);
     },
     sortedDataItems() {
-      console.log(this.sortByTitle(this.poolDataItems, this.selectedTitleData));
       return this.sortByTitle(this.poolDataItems, this.selectedTitleData);
     },
     poolDataItems() {
-      return this.isFarm
-        ? this.filteredPools.map((pool) => ({
-            yield: pool.poolYield,
-            roi: pool.poolRoi,
-            tvl: pool.poolTvl,
-            name: pool.name,
-            icon: pool.icon,
-            id: pool.id,
-          }))
-        : this.filteredPools.map((pool) => ({
-            totalMim: pool.userInfo?.userBorrowPart,
-            mimsLeft: this.calcBorrowLeft(pool),
-            interest: pool.interest,
-            liquidation: pool.stabilityFee,
-            name: pool.name,
-            icon: pool.icon,
-            id: pool.id,
-          }));
+      if (this.filteredPools.length)
+        return this.isFarm
+          ? this.filteredPools.map((pool) => ({
+              yield: pool.poolYield,
+              roi: pool.poolRoi,
+              tvl: pool.poolTvl,
+              name: pool.name,
+              icon: pool.icon,
+              id: pool.id,
+            }))
+          : this.filteredPools.map((pool) => ({
+              totalMim: Number(pool.totalBorrow || 0).toFixed(4),
+              mimsLeft: Number(pool.dynamicBorrowAmount || 0).toFixed(4),
+              interest: pool.interest,
+              liquidation: pool.stabilityFee,
+              name: pool.name,
+              icon: pool.icon,
+              id: pool.id,
+            }));
+      else return [];
     },
     loading() {
       return this.isFarm ? this.farmLoading : this.borrowLoading;
@@ -217,7 +208,7 @@ export default {
         this.poolsInterval = setInterval(poolsCallback, 5000);
 
         this.search = "";
-        this.selectedTitle = null;
+        this.selectedTitle = "name";
       },
     },
   },

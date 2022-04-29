@@ -1,5 +1,5 @@
 <template>
-  <div class="balance-boxes">
+  <div class="balance-boxes" v-if="account">
     <BalanceBox
       @withdraw="openPopup(false, false)"
       @deposit="openPopup(false, true)"
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 const BalanceBox = () => import("@/components/myPositions/BalanceBox");
 const DegenBentoPopup = () => import("@/components/popups/DegenBentoPopup");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
@@ -54,6 +56,11 @@ export default {
     closePopup() {
       this.popupData = { ...initialPopupData };
     },
+  },
+  computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
   },
 };
 </script>

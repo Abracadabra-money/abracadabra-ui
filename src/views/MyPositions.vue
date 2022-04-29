@@ -3,7 +3,7 @@
     <h2 class="title">My positions</h2>
     <div class="choose">
       <h4 class="choose-title">Choose Chain</h4>
-      <NetworksList :items="5" />
+      <NetworksList :items="5" :activeList="activeNetworks" />
     </div>
 
     <div class="values-list">
@@ -50,6 +50,7 @@ import { mapGetters } from "vuex";
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
   data: () => ({
+    activeNetworks: [1, 56, 250, 43114, 42161, 137],
     textItems: [
       {
         title: "Collateral Deposit",

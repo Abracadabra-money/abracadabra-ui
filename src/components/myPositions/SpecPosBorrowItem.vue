@@ -36,7 +36,7 @@
               />
               <p class="lp-data-token">{{ pool.token.name }}</p>
             </div>
-            <div class="lp-data-balance-wrap">
+            <div class="lp-data-balance-wrap" v-if="pool.userInfo">
               <p class="lp-data-balance">
                 {{ initialBalance }}
               </p>

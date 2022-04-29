@@ -43,6 +43,7 @@ export default {
   methods: {
     ...mapMutations({ setLoadingPoolsFarm: "setLoadingPoolsFarm" }),
     async updateTokenPrices() {
+      console.log("get prices");
       const farmTokenPrices = {};
       try {
         for (const key of Object.keys(this.tokenAddresses)) {

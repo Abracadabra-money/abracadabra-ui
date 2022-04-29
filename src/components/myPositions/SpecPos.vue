@@ -20,11 +20,7 @@
           :pool="pool"
       /></template>
       <template v-else>
-        <SpecPosFarmItem
-          v-for="pool in pools"
-          :key="pool.id"
-          :opened="true"
-          :pool="pool"
+        <SpecPosFarmItem v-for="pool in pools" :key="pool.id" :pool="pool"
       /></template>
     </div>
   </div>
@@ -50,6 +46,7 @@ export default {
     },
     userPools() {
       return this.pools.filter((pool) => {
+        if (!pool.userInfo) return false;
         const tokenInUsd = pool.userInfo.userCollateralShare / pool.tokenPrice;
         if (tokenInUsd < 3) return false;
         return (
