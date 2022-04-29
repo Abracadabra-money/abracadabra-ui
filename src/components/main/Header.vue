@@ -1,5 +1,12 @@
 <template>
   <header class="header">
+    <img
+      src="@/assets/images/magic-crystal.png"
+      alt=""
+      class="main-logo"
+      @click="toHome"
+    />
+
     <nav class="nav">
       <router-link class="header-link" :to="{ name: 'Borrow' }"
         >Borrow</router-link
@@ -119,6 +126,9 @@ export default {
   },
 
   methods: {
+    toHome() {
+      this.$router.push({ name: "Home" });
+    },
     toggleDropdown(nameDropdown) {
       if (nameDropdown === "tools") {
         this.isDropdownTools = !this.isDropdownTools;
@@ -153,20 +163,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.main-logo {
+  width: 50px;
+  height: auto;
+  object-fit: contain;
+  margin-right: 10px;
+  cursor: pointer;
+}
 .header {
   position: absolute;
   height: 80px;
   top: 15px;
   left: 0;
   right: 0;
-  max-width: 990px;
+  max-width: 1050px;
   margin: 0 auto;
   padding: 0 15px;
   z-index: 10;
+  display: flex;
+  align-items: center;
 }
 
 .nav {
   display: flex;
+  flex: 1;
   justify-content: space-between;
 }
 
