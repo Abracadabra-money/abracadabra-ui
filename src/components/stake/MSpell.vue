@@ -6,7 +6,7 @@
         <NetworksList />
       </div>
       <div class="swap-wrap">
-        <div class="token-input" :class="{active: actions.STAKE}">
+        <div class="token-input" :class="{ active: actions.STAKE }">
           <div class="header-balance">
             <h4>{{ inputTitle(actions.STAKE, true) }}</h4>
             <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
@@ -30,7 +30,7 @@
             alt="swap"
           />
         </div>
-        <div class="token-input" :class="{active: actions.UNSTAKE}">
+        <div class="token-input" :class="{ active: actions.UNSTAKE }">
           <div class="header-balance">
             <h4>{{ inputTitle(actions.UNSTAKE, false) }}</h4>
             <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
@@ -50,12 +50,12 @@
     </div>
     <div class="profile">
       <h1 class="title">STAKE</h1>
-      <InfoBlock 
+      <InfoBlock
         mainTokenName="mSPELL"
         title="mSpell"
         icon="Token_mSpell"
-        :tokens-info="info" 
-        :locked-until="lockedUntil" 
+        :tokens-info="info"
+        :locked-until="lockedUntil"
         :rate="info.tokensRate"
       />
       <div class="profile-actions">
@@ -78,7 +78,13 @@
             (isUserLocked && actions.UNSTAKE)
           "
         >
-          {{ isUserLocked ? "Nothing to do" : (actions.STAKE ? "Deposit" : "Withdraw") }}
+          {{
+            isUserLocked
+              ? "Nothing to do"
+              : actions.STAKE
+              ? "Deposit"
+              : "Withdraw"
+          }}
         </DefaultButton>
       </div>
       <div class="profile-subscribtion">
@@ -86,19 +92,26 @@
           <div>Approximate staking APR</div>
           <div>{{ (info.apr || 0).toFixed(4) + "%" }}</div>
         </div>
-        <ClaimInfo @onClaim="claim" class="claim-info" token="MIM" icon="Token_MIM" :count="'200,000'"/>
+        <ClaimInfo
+          @onClaim="claim"
+          class="claim-info"
+          token="MIM"
+          icon="Token_MIM"
+          :count="'200,000'"
+        />
         <p>
-          Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. 
+          Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent
+          loss, no loss of governance rights.
         </p>
         <p>
-          After each new deposit, all staked SPELL are subject to a 24H lock-up period! 
+          After each new deposit, all staked SPELL are subject to a 24H lock-up
+          period!
         </p>
       </div>
     </div>
   </div>
 </template>
 <script>
-
 const InfoBlock = () => import("@/components/stake/InfoBlock");
 const ClaimInfo = () => import("@/components/stake/ClaimInfo");
 
@@ -111,7 +124,7 @@ import mSpellStaking from "@/mixins/stake/mSpellStaking";
 import stake from "@/mixins/stake/stake";
 
 export default {
-  mixins: [mSpellStaking,stake],
+  mixins: [mSpellStaking, stake],
   computed: {
     isUserLocked() {
       return (
@@ -195,8 +208,8 @@ export default {
       }
     },
     inputTitle(toogler, isSpell) {
-      let text = isSpell ? 'Deposit' : 'Withdrow'
-      return toogler ? text : 'Receive'
+      let text = isSpell ? "Deposit" : "Withdrow";
+      return toogler ? text : "Receive";
     },
     parceBalance(balance) {
       return balance ? parseFloat(balance).toFixed(4) : 0;
@@ -213,8 +226,9 @@ export default {
       try {
         let lockTimestamp, currentTimestamp;
         currentTimestamp = (Date.now() / 1000).toString();
-        lockTimestamp = this.info.lockedUntil ? this.info.lockedUntil.toString() : null;
-        
+        lockTimestamp = this.info.lockedUntil
+          ? this.info.lockedUntil.toString()
+          : null;
 
         if (lockTimestamp && lockTimestamp > currentTimestamp)
           return lockTimestamp;
@@ -254,20 +268,15 @@ export default {
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mSpellStakingContract.estimateGas.deposit(
-            amount
-          );
+          await this.info.mSpellStakingContract.estimateGas.deposit(amount);
 
         const gasLimit = 1000 + +estimateGas.toString();
 
         console.log("gasLimit:", gasLimit);
 
-        const tx = await this.info.mSpellStakingContract.deposit(
-          amount,
-          {
-            gasLimit,
-          }
-        );
+        const tx = await this.info.mSpellStakingContract.deposit(amount, {
+          gasLimit,
+        });
 
         this.amount = "";
         this.amountError = "";
@@ -287,20 +296,15 @@ export default {
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mSpellStakingContract.estimateGas.withdraw(
-            amount
-          );
+          await this.info.mSpellStakingContract.estimateGas.withdraw(amount);
 
         const gasLimit = 1000 + +estimateGas.toString();
 
         console.log("gasLimit:", gasLimit);
 
-        const tx = await this.info.mSpellStakingContract.withdraw(
-          amount,
-          {
-            gasLimit,
-          }
-        );
+        const tx = await this.info.mSpellStakingContract.withdraw(amount, {
+          gasLimit,
+        });
 
         this.amount = "";
         this.amountError = "";
@@ -316,20 +320,15 @@ export default {
       console.log("CLAIM");
       try {
         const estimateGas =
-          await this.info.mSpellStakingContract.estimateGas.withdraw(
-            0
-          );
+          await this.info.mSpellStakingContract.estimateGas.withdraw(0);
 
         const gasLimit = 1000 + +estimateGas.toString();
 
         console.log("gasLimit:", gasLimit);
 
-        const tx = await this.info.mSpellStakingContract.withdraw(
-          0,
-          {
-            gasLimit,
-          }
-        );
+        const tx = await this.info.mSpellStakingContract.withdraw(0, {
+          gasLimit,
+        });
         const receipt = await tx.wait();
 
         console.log("CLAIM", receipt);
@@ -380,13 +379,144 @@ export default {
     DefaultButton,
     ValueInput,
     NetworksList,
-    ClaimInfo
+    ClaimInfo,
   },
 };
 </script>
 
-<style scoped>
-  .claim-info {
-    margin: 20px 0;
+<style lang="scss" scoped>
+.swap-wrap {
+  position: relative;
+  height: 330px;
+  display: flex;
+  justify-content: center;
+  @media (max-width: 1023px) {
+    height: 350px;
   }
+}
+
+.value-input {
+  min-width: 280px;
+  width: 490px;
+}
+
+.swap-img {
+  position: absolute;
+  left: calc(50% - 20px);
+  top: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  cursor: pointer;
+  @media (max-width: 1023px) {
+    top: 180px;
+  }
+  & img {
+    transform: rotateX(0deg);
+    transition: all 0.3s;
+  }
+  & img.reflect {
+    transform: rotateX(180deg);
+  }
+}
+.choose-stake-input {
+  background-color: white;
+}
+
+.choose {
+  padding: 20px 16px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.token-input {
+  padding-top: 22px;
+  padding-bottom: 14px;
+  position: absolute;
+  top: 164px;
+  @media (max-width: 1023px) {
+    top: 180px;
+  }
+  &.active {
+    top: 0;
+  }
+}
+
+.underline {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .choose {
+    padding: 30px;
+  }
+}
+
+.profile-subscribtion {
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 24px;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.6);
+  &__approximate {
+    margin-top: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  & p {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+}
+
+.profile {
+  padding: 30px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.profile-actions {
+  display: flex;
+  margin-top: 30px;
+  & .default-button:last-child {
+    margin-left: auto;
+  }
+}
+
+.stake {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 30px;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+@media (min-width: 1300px) {
+  .stake {
+    grid-template-columns: 550px 1fr;
+    width: 1320px;
+    max-width: 100%;
+  }
+}
+.claim-info {
+  margin: 20px 0;
+}
 </style>
