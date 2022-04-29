@@ -22,7 +22,7 @@ const routes = [
   },
   {
     path: "/mStake/",
-    name: "Stake",
+    name: "mStake",
     props: { currentComponent: 'MSpell' },
     component: () => import("@/views/Stake")
   },

@@ -6,7 +6,7 @@
         <NetworksList />
       </div>
       <div class="swap-wrap">
-        <div class="token-input" :class="{active: actions.STAKE}">
+        <div class="token-input" :class="{ active: actions.STAKE }">
           <div class="header-balance">
             <h4>{{ inputTitle(actions.STAKE) }}</h4>
             <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
@@ -15,10 +15,11 @@
             class="value-input"
             :icon="getImgUrl('spell-icon')"
             :name="'Spell'"
+            :disabled="!actions.STAKE"
+            :value="actions.STAKE ? amount : toTokenAmount"
             @input="updateMainValue"
-            :disabled="actions.UNSTAKE"
             :max="actions.STAKE ? parceBalance(info.stakeToken.balance) : 0"
-            :error="amountError"
+            :error="actions.STAKE ? amountError : null"
           />
         </div>
         <div class="swap-img">
@@ -29,7 +30,7 @@
             alt="swap"
           />
         </div>
-        <div class="token-input" :class="{active: actions.UNSTAKE}">
+        <div class="token-input" :class="{ active: actions.UNSTAKE }">
           <div class="header-balance">
             <h4>{{ inputTitle(actions.UNSTAKE) }}</h4>
             <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
@@ -39,8 +40,9 @@
             :icon="getImgUrl('sspell-icon')"
             name="sSpell"
             @input="updateMainValue"
-            :disabled="actions.STAKE"
-            :value="toTokenAmount"
+            :disabled="!actions.UNSTAKE"
+            :error="actions.UNSTAKE ? amountError : null"
+            :value="actions.UNSTAKE ? amount : toTokenAmount"
             :max="actions.UNSTAKE ? parceBalance(info.mainToken.balance) : 0"
           />
         </div>
@@ -48,11 +50,11 @@
     </div>
     <div class="profile">
       <h1 class="title">STAKE</h1>
-      <InfoBlock 
+      <InfoBlock
         mainTokenName="sSPELL"
         title="sSpell"
         icon="sspell-icon"
-        :tokens-info="info" 
+        :tokens-info="info"
         :locked-until="lockedUntil"
         :rate="info.tokensRate"
       />
@@ -68,7 +70,12 @@
         <DefaultButton
           width="325px"
           @click="actionHandler"
-          :disabled="!!amountError || !amount || !info.stakeToken.isTokenApprowed"
+          :disabled="
+            !!amountError ||
+            !amount ||
+            amount <= 0 ||
+            !info.stakeToken.isTokenApprowed
+          "
         >
           {{ actions.STAKE ? "Stake" : "Unstake" }}
         </DefaultButton>
@@ -79,21 +86,20 @@
           <div>{{ parceBalance(info.apr) + "%" }}</div>
         </div>
         <p>
-            Make SPELL work for you! Stake your SPELL and gain sSPELL. No
-            impermanent loss, no loss of governance rights. Continuously
-            compounding. After each new deposit, all staked SPELL are subject to a
-            24H lock-up period!
-          </p>
-          <p>
-            sSPELL automatically earns fees from MIM repayments from all wizards
-            proportional to your share of the stake pool.
+          Make SPELL work for you! Stake your SPELL and gain sSPELL. No
+          impermanent loss, no loss of governance rights. Continuously
+          compounding. After each new deposit, all staked SPELL are subject to a
+          24H lock-up period!
+        </p>
+        <p>
+          sSPELL automatically earns fees from MIM repayments from all wizards
+          proportional to your share of the stake pool.
         </p>
       </div>
     </div>
   </div>
 </template>
 <script>
-
 const InfoBlock = () => import("@/components/stake/InfoBlock");
 const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
@@ -107,7 +113,7 @@ export default {
   mixins: [sspellToken, stake],
   computed: {
     loading() {
-      return this.$store.getters.getLoadingSSpellStake
+      return this.$store.getters.getLoadingSSpellStake;
     },
     isUserLocked() {
       return (
@@ -163,7 +169,7 @@ export default {
   },
   methods: {
     inputTitle(toogler) {
-      return toogler ? 'Deposit' : 'Receive'
+      return toogler ? "Deposit" : "Receive";
     },
     parceBalance(balance) {
       return balance ? parseFloat(balance).toFixed(4) : 0;
@@ -238,18 +244,13 @@ export default {
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mainToken.contractInstance.estimateGas.mint(
-            amount
-          );
+          await this.info.mainToken.contractInstance.estimateGas.mint(amount);
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.info.mainToken.contractInstance.mint(
-          amount,
-          {
-            gasLimit,
-          }
-        );
+        const tx = await this.info.mainToken.contractInstance.mint(amount, {
+          gasLimit,
+        });
 
         this.amount = "";
         this.amountError = "";
@@ -292,7 +293,6 @@ export default {
         const receipt = await tx.wait();
 
         console.log("STAKE", receipt);
-
       } catch (e) {
         console.log("stake err:", e);
       }
@@ -322,7 +322,7 @@ export default {
         console.log("isApprowed err:", e);
         return false;
       }
-    }
+    },
   },
   async created() {
     await this.createStakePool();
@@ -339,7 +339,7 @@ export default {
     InfoBlock,
     DefaultButton,
     ValueInput,
-    NetworksList
+    NetworksList,
   },
 };
 </script>

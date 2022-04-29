@@ -8,103 +8,143 @@
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></template>
       </div>
-      <div v-if="lockedUntil"  class="info-block">
+      <div v-if="lockedUntil" class="info-block">
         <img class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
-        <LockedTimer :finalTime="lockedUntil"/>
+        <LockedTimer :finalTime="lockedUntil" />
       </div>
     </div>
     <div class="profile-data">
-        <div v-if="!isInfoPressed" class="profile-preview">
-          <div class="item" v-for="(item, i) in profileData" :key="i">
-            <p class="item-name">{{ item.name }}</p>
-            <div class="item-row">
-                <div class="item-icon">
-                    <img v-if="!isArray(item.icon)" class="item-icon__img" :src="getImgUrl(item.icon)" alt="info" />
-                    <template v-if="isArray(item.icon)">
-                        <img v-for="(icon, key) in item.icon" :key="key"  class="item-icon__img" :src="getImgUrl(icon)" alt="info" />
-                    </template>
-                    </div>
-                <div>
-                    <p class="item-title">{{ item.title }}</p>
-                    <p v-if="item.value" class="item-value">{{ item.value ? item.value : "0.0" }}</p>
-                    <p v-if="item.text" class="item-text">{{ item.text }}</p>
-                </div>
+      <div v-if="!isInfoPressed" class="profile-preview">
+        <div class="item" v-for="(item, i) in profileData" :key="i">
+          <p class="item-name">{{ item.name }}</p>
+          <div class="item-row">
+            <div class="item-icon">
+              <img
+                v-if="!isArray(item.icon)"
+                class="item-icon__img"
+                :src="getImgUrl(item.icon)"
+                alt="info"
+              />
+              <template v-if="isArray(item.icon)">
+                <img
+                  v-for="(icon, key) in item.icon"
+                  :key="key"
+                  class="item-icon__img"
+                  :src="getImgUrl(icon)"
+                  alt="info"
+                />
+              </template>
+            </div>
+            <div>
+              <p class="item-title">{{ item.title }}</p>
+              <p v-if="item.value" class="item-value">
+                {{ item.value ? item.value : "0.0" }}
+              </p>
+              <p v-if="item.text" class="item-text">{{ item.text }}</p>
             </div>
           </div>
         </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-
 import LockedTimer from "@/components/stake/LockedTimer.vue";
 export default {
   name: "info-block",
   props: {
     lockedUntil: {
-      type: [String, Boolean]
+      type: [String, Boolean],
     },
     mainTokenName: {
-      type: String
+      type: String,
     },
     tokensInfo: {
-      type: Object
+      type: Object,
     },
     icon: {
-      type: String
+      type: String,
     },
     title: {
-      type: String
+      type: String,
     },
     rate: {
-      type: [String, Number]
-    }
+      type: [String, Number],
+    },
   },
   watch: {
     tokensInfo() {
       this.$nextTick();
-    }
+    },
   },
   methods: {
     getImgUrl(type) {
-      var images = require.context('../../assets/images/tokens-icon/', false, /\.svg$/)
-      return images('./' + type + ".svg")
+      var images = require.context(
+        "../../assets/images/tokens-icon/",
+        false,
+        /\.svg$/
+      );
+      return images("./" + type + ".svg");
     },
     isArray(item) {
-        return Array.isArray(item);
+      return Array.isArray(item);
     },
     getUSDSumm(tokenName) {
       if (!this.tokensInfo[tokenName].price) return false;
       if (!+this.tokensInfo[tokenName].balance) return 0;
       const balanceInUsd =
         +this.tokensInfo[tokenName].balance * +this.tokensInfo[tokenName].price;
-      return this.toFixed(balanceInUsd,6);
+      return this.toFixed(balanceInUsd, 6);
     },
-    toFixed(num,range) {
+    getBallance(tokenName, range) {
+      const balance = this.tokensInfo[tokenName].balance;
+      console.log(balance);
+      return balance ? parseFloat(balance).toFixed(range) : 0;
+    },
+    toFixed(num, range) {
       let fixed = parseFloat(num).toFixed(range);
       fixed = isNaN(fixed) ? 0 : fixed;
       return fixed || 0;
-    }
+    },
   },
   computed: {
     profileData() {
       return [
-        { title: "Spell",       icon: "spell-icon",  name: "Your balance", value: this.getUSDSumm("stakeToken") || 0 + " $" },
-        { title: this.title,  icon: this.icon, name: "Staked",       value: this.getUSDSumm("mainToken") || 0  + " $" },
-        { title: "Ratio",       icon: "spell-icon",  
-          text: `1 ${this.mainTokenName} = ${this.toFixed(this.rate,4)} SPELL` },
-        { title: "Staking APR", icon: ["spell-icon", this.icon], text: this.tokensInfo.apr + "%"  },
-      ]
-    }
+        {
+          title: "Spell",
+          icon: "spell-icon",
+          name: "Your balance",
+          value: this.getBallance("stakeToken", 2) || 0 + " $",
+        },
+        {
+          title: this.title,
+          icon: this.icon,
+          name: "Staked",
+          value: this.getBallance("mainToken", 2) || 0 + " $",
+        },
+        {
+          title: "Ratio",
+          icon: "spell-icon",
+          text: `${this.rate ? "1" : "0"} ${
+            this.mainTokenName
+          } = ${this.toFixed(this.rate, 4)} SPELL`,
+        },
+        {
+          title: "Staking APR",
+          icon: ["spell-icon", this.icon],
+          text: this.toFixed(this.tokensInfo.apr, 2) + "%",
+        },
+      ];
+    },
   },
   data: () => ({
     isInfoPressed: false,
-    isEmpty: false
+    isEmpty: false,
   }),
   components: {
-    LockedTimer
-  }
+    LockedTimer,
+  },
 };
 </script>
 
@@ -154,23 +194,23 @@ export default {
       padding: 30px;
     }
     .item-row {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
     .item-icon {
-        margin-right: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 10px;
-        min-width: 64px;
-        height: 64px;
-        &__img {
-            min-width: 20px;
-            height: 20px;
-        }
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      min-width: 64px;
+      height: 64px;
+      &__img {
+        min-width: 20px;
+        height: 20px;
+      }
     }
     .item {
       text-align: left;
@@ -201,17 +241,17 @@ export default {
       margin-bottom: 12px;
     }
     .item-text {
-        font-weight: bold;
-        font-size: 16px;
-        line-height: 24px;
-        color: #FFFFFF
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 24px;
+      color: #ffffff;
     }
-     .item-title {
-        font-weight: normal;
-        font-size: 18px;
-        line-height: 27px;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 9px;
+    .item-title {
+      font-weight: normal;
+      font-size: 18px;
+      line-height: 27px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 9px;
     }
     .item-value {
       font-size: 30px;
@@ -231,5 +271,4 @@ export default {
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
 }
-
 </style>

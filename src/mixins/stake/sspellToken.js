@@ -1,5 +1,4 @@
 import stakeInfo from "@/utils/contracts/sSpellStakesInfo.js";
-import { tokenPrices } from "@/utils/helpers.js";
 // import moment from "moment";
 import { mapMutations } from "vuex";
 // import { ethers } from "ethers";
@@ -222,13 +221,6 @@ export default {
         console.log("getNiceApr err:", e);
       }
     },
-    async getTokenPrice(token) {
-      if (token === "Spell") {
-        const priceResp = await tokenPrices(["spell"]);
 
-        this.spellPrice = priceResp.spell;
-        return priceResp.spell;
-      }
-    },
   },
 };

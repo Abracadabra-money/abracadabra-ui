@@ -1,4 +1,5 @@
 import { mapGetters } from "vuex";
+import { tokenPrices } from "@/utils/helpers.js";
 
 export default {
     data() {
@@ -23,6 +24,14 @@ export default {
         }),
     },
     methods: {
+        async getTokenPrice(token) {
+            if (token === "Spell") {
+              const priceResp = await tokenPrices(["spell"]);
+          
+              this.spellPrice = priceResp.spell;
+              return priceResp.spell;
+            }
+        },
         getImgUrl(type) {
             var images = require.context(
               "../../assets/images/tokens-icon/",

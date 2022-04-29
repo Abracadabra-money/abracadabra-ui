@@ -15,10 +15,11 @@
             class="value-input"
             :icon="getImgUrl('spell-icon')"
             :name="'Spell'"
+            :disabled="!actions.STAKE"
+            :value="actions.STAKE ? amount : toTokenAmount"
             @input="updateMainValue"
-            :disabled="actions.UNSTAKE"
             :max="actions.STAKE ? parceBalance(info.stakeToken.balance) : 0"
-            :error="amountError"
+            :error="actions.STAKE ? amountError : null"
           />
         </div>
         <div class="swap-img">
@@ -39,8 +40,9 @@
             :icon="getImgUrl('Token_mSpell')"
             name="mSpell"
             @input="updateMainValue"
-            :disabled="actions.STAKE"
-            :value="toTokenAmount"
+            :disabled="!actions.UNSTAKE"
+            :error="actions.UNSTAKE ? amountError : null"
+            :value="actions.UNSTAKE ? amount : toTokenAmount"
             :max="actions.UNSTAKE ? parceBalance(info.mainToken.balance) : 0"
           />
         </div>
@@ -68,7 +70,12 @@
         <DefaultButton
           width="325px"
           @click="actionHandler"
-          :disabled="amountError"
+          :disabled="
+            !!amountError ||
+            !amount ||
+            amount <= 0 ||
+            !info.stakeToken.isTokenApprowed
+          "
         >
           {{ actions.STAKE ? "Stake" : "Unstake" }}
         </DefaultButton>
