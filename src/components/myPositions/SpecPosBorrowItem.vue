@@ -5,7 +5,9 @@
         <TokenIcon :name="pool.token.name" :icon="poolIcon" size="80px" />
         <div>
           <p class="header-token-title">{{ pool.token.name }}</p>
-          <p class="header-token-price">$ {{ price }}</p>
+          <p class="header-token-price">
+            1 {{ pool.token.name }}={{ tokenToMim }} {{ pool.pairToken.name }}
+          </p>
         </div>
       </div>
 
@@ -27,12 +29,18 @@
           <div class="lp-data-title">Initial collateral deposited</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon name="USD" :icon="null" size="50px" />
-              <p class="lp-data-token">USD</p>
+              <TokenIcon
+                :name="pool.token.name"
+                :icon="initialIcon"
+                size="50px"
+              />
+              <p class="lp-data-token">{{ pool.token.name }}</p>
             </div>
             <div class="lp-data-balance-wrap">
-              <p class="lp-data-balance">{{ 666666 }}</p>
-              <p class="lp-data-price">$ {{ 666666 }}</p>
+              <p class="lp-data-balance">
+                {{ initialBalance }}
+              </p>
+              <p class="lp-data-price">$ {{ initialInUsd }}</p>
             </div>
           </div>
         </div>
@@ -42,12 +50,15 @@
           <div class="lp-data-title">Borrowed</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon :name="pool.name" :icon="pool.icon" size="50px" />
-              <p class="lp-data-token">USD</p>
+              <TokenIcon
+                :name="pool.pairToken.name"
+                :icon="borrowedIcon"
+                size="50px"
+              />
+              <p class="lp-data-token">{{ pool.pairToken.name }}</p>
             </div>
             <div class="lp-data-balance-wrap">
-              <p class="lp-data-balance">{{ 66666 }}</p>
-              <p class="lp-data-price">$ {{ 66666 }}</p>
+              <p class="lp-data-balance">{{ borrowedBalance }}</p>
             </div>
           </div>
         </div>
@@ -57,15 +68,25 @@
       <div class="footer">
         <div class="footer-title">
           <p>Position health</p>
-          <StatusName :isSafe="true" :bordered="true" />
+          <StatusName
+            :isSafe="liquidationRisk > 75"
+            :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
+            :isHigh="liquidationRisk > 0 && liquidationRisk <= 5"
+            :bordered="true"
+          />
         </div>
         <div class="footer-range">
           <div class="footer-range-line">
-            <div class="footer-range-value"></div>
+            <div
+              class="footer-range-value"
+              :style="{ width: `${liquidationRisk}%` }"
+            >
+              &nbsp;
+            </div>
           </div>
         </div>
 
-        <p class="range-value">20% of 100%</p>
+        <p class="range-value">${{ liquidationRisk }}% of 100%</p>
         <div class="footer-list">
           <div
             v-for="(item, i) in valuesList"
@@ -103,10 +124,6 @@ export default {
     pool: { type: Object, required: true },
   },
   data: () => ({
-    price: 1,
-    deposited: 1000,
-    borrowed: 4500,
-    health: 20,
     openedItems: [
       {
         title: "Repay MIMs",
@@ -131,8 +148,55 @@ export default {
     },
   },
   computed: {
+    initialBalance() {
+      return parseFloat(this.pool.userInfo.userCollateralShare).toFixed(2);
+    },
+    initialInUsd() {
+      return parseFloat(
+        this.pool.userInfo.userCollateralShare / this.pool.tokenPrice
+      ).toFixed(2);
+    },
+    borrowedBalance() {
+      return parseFloat(this.pool.userInfo.userBorrowPart).toFixed(2);
+    },
+    tokenToMim() {
+      const tokenToMim = 1 / this.pool.tokenPrice;
+      // eslint-disable-next-line no-useless-escape
+      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (4 || -1) + `})?`);
+      return tokenToMim.toString().match(re)[0];
+    },
     poolIcon() {
       return getTokenIconByName(this.pool.token.name);
+    },
+    stableCoinMultiplayer() {
+      const exceptionPools = [15, 16, 27];
+
+      const itsExcepton = exceptionPools.includes(this.pool.id);
+
+      if ((this.pool.ltv === 90 || this.pool.ltv === 98) && !itsExcepton) {
+        return 10;
+      }
+
+      return 1;
+    },
+    tokenPrice() {
+      return 1 / this.pool.tokenPrice;
+    },
+    liquidationRisk() {
+      if (
+        +this.pool.userInfo.userBorrowPart === 0 ||
+        isNaN(this.liquidationPrice)
+      )
+        return 0;
+
+      const riskPercent =
+        ((this.minPrice * this.stableCoinMultiplayer) / this.tokenPrice) * 100;
+
+      if (riskPercent > 100) {
+        return 100;
+      }
+
+      return parseFloat(riskPercent).toFixed(2);
     },
     liquidationMultiplier() {
       return this.pool.ltv / 100;
@@ -144,15 +208,24 @@ export default {
           this.liquidationMultiplier || 0
       );
     },
+    minPrice() {
+      return this.tokenPrice - this.liquidationPrice;
+    },
+    initialIcon() {
+      return getTokenIconByName(this.pool.token.name);
+    },
+    borrowedIcon() {
+      return getTokenIconByName(this.pool.pairToken.name);
+    },
     valuesList() {
       return [
         {
           title: "Liquidation price",
-          value: `$${this.liquidationPrice}` /*, color: "#63CAF8"*/,
+          value: `$${this.liquidationPrice.toFixed(4)}` /*, color: "#63CAF8"*/,
         },
         {
           title: "Min price",
-          value: "$0.55917",
+          value: `${parseFloat(this.minPrice).toFixed(6)}$`,
         },
       ];
     },
@@ -301,8 +374,7 @@ export default {
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 20px;
       &-line {
-        width: 417px;
-        max-width: calc(100% - 70px);
+        width: 100%;
         height: 8px;
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 20px;

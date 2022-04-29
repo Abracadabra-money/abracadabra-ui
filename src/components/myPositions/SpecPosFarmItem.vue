@@ -36,7 +36,11 @@
           <div class="lp-data-title">Earned</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon :name="pool.tokenName" :icon="pool.icon" size="50px" />
+              <TokenIcon
+                :name="pool.tokenName"
+                :icon="poolTokenIcon"
+                size="50px"
+              />
               <p class="lp-data-token">{{ pool.tokenName }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
@@ -76,7 +80,7 @@
               :key="balanceItem.name"
             >
               <div class="lp-data-info">
-                <TokenIcon :name="balanceItem.name" :icon="null" />
+                <TokenIcon :name="balanceItem.name" :icon="balanceItem.icon" />
                 <p>
                   {{ balanceItem.name }}
                 </p>
@@ -108,6 +112,8 @@
 
 <script>
 const TokenIcon = () => import("@/components/ui/TokenIcon");
+import { getTokenIconByName } from "../../utils/helpers";
+
 export default {
   name: "SpecPosFarmItem",
   components: { TokenIcon },
@@ -172,6 +178,7 @@ export default {
           usd: this.parse(
             this.pool.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
           ),
+          icon: getTokenIconByName(this.pool.depositedBalance?.token0.name),
         },
         {
           name: this.pool.depositedBalance?.token1.name,
@@ -181,6 +188,7 @@ export default {
           usd: this.parse(
             this.pool.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
           ),
+          icon: getTokenIconByName(this.pool.depositedBalance?.token1.name),
         },
       ].filter((e) => e.name && e.balance);
     },
@@ -203,6 +211,9 @@ export default {
         this.pool.accountInfo?.userInfo.amount,
         this.pool.lpPrice
       );
+    },
+    poolTokenIcon() {
+      return getTokenIconByName(this.pool.tokenName);
     },
   },
 };

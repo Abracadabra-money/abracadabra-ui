@@ -146,7 +146,7 @@ const additionIcons = [
 
 const pools = [...farmPoolsInfo, ...borrowPoolsInfo, ...additionIcons];
 
-export const getTokenIconByName = (name) => {
+export const getTokenIconByName = (name = "") => {
   return (
     pools.find(
       ({ name: poolName }) => poolName.toUpperCase() === name.toUpperCase()

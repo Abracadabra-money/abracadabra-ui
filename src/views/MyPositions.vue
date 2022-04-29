@@ -17,19 +17,22 @@
       :infoObject="mimInBentoDepositObject"
     />
     <h2 class="title">Specific positions</h2>
-    <div
-      v-if="
-        (farmLoading && !this.pools.length) ||
-        (borrowLoading && !this.borrowPools.length)
-      "
-      class="spec-positions"
-    >
-      <div class="loader-wrap"><Loader /></div>
+    <div class="spec-positions">
+      <div
+        v-if="
+          (farmLoading && !this.pools.length) ||
+          (borrowLoading && !this.borrowPools.length)
+        "
+        class="loader-wrap"
+      >
+        <Loader />
+      </div>
+
+      <template v-else>
+        <SpecPos :pools="this.borrowPools" />
+        <SpecPos :isFarm="true" :pools="this.pools"
+      /></template>
     </div>
-    <template v-else>
-      <SpecPos :pools="this.borrowPools" />
-      <SpecPos :isFarm="true" :pools="this.pools"
-    /></template>
   </div>
 </template>
 
