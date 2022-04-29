@@ -5,7 +5,7 @@ import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
 export default [
   {
     name: "ETH-SPELL",
-    iconName: "ETH-SPELL",
+    icon: require(`@/assets/images/farmIcons/Token_ETH-Spell.svg`),
     nameSubtitle: "Sushiswap",
     contractChain: 1,
     id: 2,
@@ -36,7 +36,7 @@ export default [
   },
   {
     name: "MIM-ETH",
-    iconName: "MIM-ETH",
+    icon: require(`@/assets/images/farmIcons/Token_MIM-ETH.svg`),
     nameSubtitle: "Sushiswap",
     contractChain: 1,
     id: 1,
@@ -67,7 +67,7 @@ export default [
   },
   {
     name: "MIM-3LP3CRV-f-2",
-    iconName: "MIM-3LP3CRV-f-2",
+    icon: require(`@/assets/images/farmIcons/Token_Curve-MIM.svg`),
     nameSubtitle: "crv.finance",
     contractChain: 1,
     id: 3,

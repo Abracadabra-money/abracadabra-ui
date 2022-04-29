@@ -72,6 +72,12 @@ const routes = [
     component: () => import("@/views/Farm"),
   },
   {
+    path: "/farm/:id",
+    name: "FarmPool",
+    component: () => import("@/views/Farm"),
+    props: true,
+  },
+  {
     path: "/my-positions",
     name: "MyPositions",
     component: () => import("@/views/MyPositions"),

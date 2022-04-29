@@ -5,7 +5,7 @@ import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
 export default [
   {
     name: "3PoolV2",
-    iconName: "curve",
+    icon: require(`@/assets/images/farmIcons/Token_3Curve.svg`),
     nameSubtitle: "avax.curve.fi",
     contractChain: 43114,
     id: 3,

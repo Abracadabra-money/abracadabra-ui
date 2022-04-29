@@ -1,5 +1,8 @@
 import axios from "axios";
 
+import borrowPoolsInfo from "@/utils/borrowPools/pools";
+import farmPoolsInfo from "@/utils/farmPools/pools";
+
 const config = {
   headers: {
     "X-Cg-Pro-Api-Key": "CG-nguZHRFas4tyUdHhPHwVgN9T", //api key
@@ -116,4 +119,37 @@ export const tokenPrices = async (tokens) => {
   }
 
   return prices;
+};
+
+const additionIcons = [
+  {
+    name: "yvUSDT",
+    icon: require("@/assets/images/tokensIcon/Token_USDT.svg"),
+  },
+  {
+    name: "yvWETH",
+    icon: require("@/assets/images/tokensIcon/Token_WETH.svg"),
+  },
+  {
+    name: "yvYFI",
+    icon: require(`@/assets/images/tokensIcon/Token_Yearn.svg`),
+  },
+  {
+    name: "yvUSDC",
+    icon: require(`@/assets/images/tokensIcon/Token_USDC.svg`),
+  },
+  {
+    name: "SLP",
+    icon: require(`@/assets/images/farmIcons/Token_Smooth Love Potion.svg`),
+  },
+];
+
+const pools = [...farmPoolsInfo, ...borrowPoolsInfo, ...additionIcons];
+
+export const getTokenIconByName = (name = "") => {
+  return (
+    pools.find(
+      ({ name: poolName }) => poolName.toUpperCase() === name.toUpperCase()
+    )?.icon || null
+  );
 };

@@ -7,6 +7,7 @@
         class="switch-btn"
         :class="{ 'switch-btn-active': name === item.name }"
         @click="$emit('select', item)"
+        :disabled="currentName === item.name"
       >
         {{ item.title }}
       </button>
@@ -24,6 +25,11 @@ export default {
     items: {
       type: Array,
       default: () => [],
+    },
+  },
+  computed: {
+    currentName() {
+      return this.$route.name;
     },
   },
 };

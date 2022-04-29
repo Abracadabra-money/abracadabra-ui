@@ -1,5 +1,10 @@
 <template>
-  <img class="token-icon" :src="tokenIcon" :alt="name" />
+  <img
+    class="token-icon"
+    :src="tokenIcon"
+    :alt="name"
+    :style="{ height: size, minWidth: size }"
+  />
 </template>
 
 <script>
@@ -16,6 +21,10 @@ export default {
       type: String,
       default: "token",
       // type = "select"
+    },
+    size: {
+      type: String,
+      default: "32px",
     },
   },
   data() {
@@ -37,8 +46,6 @@ export default {
 
 <style lang="scss" scoped>
 .token-icon {
-  width: 32px;
-  height: 32px;
   object-fit: contain;
   border-radius: 10px;
   margin-right: 10px;

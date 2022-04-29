@@ -5,7 +5,7 @@
         <h3 class="title">Farm</h3>
         <h4 class="sub-title">Choose Chain</h4>
         <div class="wrap-networks underline">
-          <NetworksList />
+          <NetworksList :activeList="activeNetworks" />
         </div>
         <div class="switcher">
           <StatsSwitch
@@ -14,14 +14,18 @@
             @select="selectedTab = $event.name"
           />
         </div>
-        <div class="select-wrap underline">
+        <div v-if="!pools.length && loading" class="loader-wrap">
+          <Loader />
+        </div>
+        <div v-else class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
-          <button
-            class="select"
-            @click="isTokensOpened = true"
-            :disabled="loading"
-          >
-            <img class="select-icon" :src="selectedPoolIcon" alt="" />
+          <button class="select" @click="isTokensOpened = true">
+            <TokenIcon
+              v-if="selectedPool"
+              :name="selectedPool.name"
+              :icon="selectedPool.icon"
+            />
+            <TokenIcon v-else type="select" />
             <span class="select-text">
               {{ selectedPool ? selectedPool.name : "Select Farm" }}
             </span>
@@ -40,6 +44,7 @@
             <ValueInput
               v-model="amount"
               :name="selectedPool.stakingTokenName"
+              :icon="selectedPool.icon"
               :max="max"
               :error="error"
             />
@@ -54,7 +59,7 @@
             <DefaultButton
               v-if="isUnstake || isAllowance"
               @click="handler"
-              :disabled="!isValid"
+              :disabled="!isValid || !!error"
               >{{ !isUnstake ? "Stake" : "Unstake" }}</DefaultButton
             >
           </div></template
@@ -79,7 +84,7 @@
     </div>
     <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
       <SelectTokenPopup
-        @select="poolId = $event.id"
+        @select="selectPool"
         @close="isTokensOpened = false"
         :tokens="pools"
         :isUnstake="isUnstake"
@@ -98,12 +103,18 @@ const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
+import Loader from "../components/Loader";
+const TokenIcon = () => import("@/components/ui/TokenIcon");
 
 export default {
   mixins: [farmPoolsMixin],
+  props: {
+    id: { type: [String, Number], default: null },
+    unstake: { type: Boolean, default: false },
+  },
   data() {
     return {
-      poolId: null,
+      activeNetworks: [1, 56, 250, 43114, 42161, 137],
       isTokensOpened: false,
       amount: "",
       selectedTab: "stake",
@@ -111,6 +122,7 @@ export default {
         { title: "Stake", name: "stake" },
         { title: "Unstake", name: "unstake" },
       ],
+      farmPoolsTimer: null,
     };
   },
   computed: {
@@ -129,12 +141,10 @@ export default {
       ];
     },
     selectedPool() {
-      return this.pools.find(({ id }) => id === this.poolId) || null;
+      console.log(this.pools.find(({ id }) => +id === +this.id));
+      return this.pools.find(({ id }) => +id === +this.id) || null;
     },
 
-    selectedPoolIcon() {
-      return this.selectedPool?.icon || require("@/assets/images/select.svg");
-    },
     isAllowance() {
       return !!this.selectedPool?.accountInfo?.allowance;
     },
@@ -144,7 +154,7 @@ export default {
         : this.selectedPool?.accountInfo?.depositedBalance;
     },
     isValid() {
-      return this.amount && this.amount !== "0.0";
+      return !!+this.amount;
     },
     error() {
       return Number(this.amount) > Number(this.max)
@@ -153,6 +163,10 @@ export default {
     },
   },
   methods: {
+    selectPool(pool) {
+      if (+pool.id !== +this.id)
+        this.$router.push({ name: "FarmPool", params: { id: pool.id } });
+    },
     async stakeHandler() {
       try {
         const parseAmount = this.$ethers.utils.parseEther(
@@ -160,7 +174,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.deposit(
-          this.selectedPool.poolId,
+          this.selectedPool.id,
           parseAmount
         );
 
@@ -182,7 +196,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.withdraw(
-          this.selectedPool.poolId,
+          this.selectedPool.id,
           parseAmount
         );
 
@@ -217,6 +231,12 @@ export default {
     max() {
       this.amount = "";
     },
+    unstake: {
+      immediate: true,
+      handler(value) {
+        if (value) this.selectedTab = "unstake";
+      },
+    },
   },
   async created() {
     if (!this.pools.length) {
@@ -227,7 +247,12 @@ export default {
       await this.createFarmPools();
     }, 10000);
   },
+  beforeDestroy() {
+    clearInterval(this.farmPoolsTimer);
+  },
   components: {
+    Loader,
+    TokenIcon,
     NetworksList,
     ValueInput,
     DefaultButton,
@@ -304,16 +329,8 @@ export default {
   }
 }
 
-.select-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  border-radius: 10px;
-  background-color: white;
-}
-
 .select-text {
-  margin: 0 10px;
+  margin-right: 10px;
 }
 
 .select-arrow {
@@ -370,6 +387,11 @@ export default {
 
 .switcher {
   margin-bottom: 27px;
+}
+
+.loader-wrap {
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
