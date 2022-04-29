@@ -7,8 +7,8 @@
         <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
       </div>
       <input
-        v-model="tolerance"
-        type="text"
+        v-model="slippage"
+        type="number"
         placeholder="Auto 1.0%"
         class="settings-input"
       />
@@ -23,7 +23,7 @@
         class="settings-input"
       />
     </div>
-    <DefaultButton primary>Save</DefaultButton>
+    <DefaultButton primary @click="actionHandler">Save</DefaultButton>
   </div>
 </template>
 
@@ -31,10 +31,18 @@
 const DefaultButton = () => import("@/components/main/DefaultButton");
 
 export default {
-  data: () => ({
-    tolerance: "",
-    deadline: "",
-  }),
+  data() {
+    return {
+      slippage: "",
+      deadline: "",
+    };
+  },
+
+  methods: {
+    actionHandler() {
+      this.$emit("saveSettings", this.slippage);
+    },
+  },
 
   components: {
     DefaultButton,
@@ -43,6 +51,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]:hover,
+input[type="number"]:focus {
+  -moz-appearance: number-input;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .settings-popup {
   display: flex;
   flex-direction: column;

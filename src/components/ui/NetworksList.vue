@@ -5,6 +5,7 @@
         class="list"
         :style="{
           height: `${listMaxHeight}px`,
+          gridTemplateColumns: `repeat(${items}, 1fr)`,
         }"
       >
         <NetworkChip
@@ -42,11 +43,13 @@ export default {
   name: "NetworksList",
   components: { NetworkChip },
   mixins: [chainSwitch],
+  props: {
+    items: { type: Number, default: 4 },
+  },
   data: () => ({
     isListOpened: false,
     lineHeight: 50,
     linesGap: 16,
-    itemsInLine: 4,
     loading: false,
   }),
   methods: {
@@ -84,7 +87,7 @@ export default {
       );
     },
     listMaxHeight() {
-      const lines = Math.ceil(this.networks.length / 4);
+      const lines = Math.ceil(this.networks.length / this.items);
       return this.isListOpened
         ? lines * this.lineHeight + (lines - 1) * this.linesGap
         : this.lineHeight;
@@ -139,7 +142,6 @@ export default {
 
 @media (min-width: 1024px) {
   .list {
-    grid-template-columns: repeat(4, 1fr);
     grid-auto-flow: row;
     overflow: hidden;
     max-height: none;

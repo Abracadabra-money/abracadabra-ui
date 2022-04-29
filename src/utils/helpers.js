@@ -6,6 +6,12 @@ const config = {
   },
 };
 
+export const toFixed = (num, fixed) => {
+  // eslint-disable-next-line no-useless-escape
+  let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
+  return num.toString().match(re)[0];
+};
+
 export const tokenPrices = async (tokens) => {
   const prices = {};
 

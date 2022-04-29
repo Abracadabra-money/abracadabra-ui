@@ -2,11 +2,14 @@
   <button
     class="chip"
     :disabled="disabled || selected"
-    :class="{ selected }"
+    :class="{
+      selected,
+      'chip-no-image': !icon,
+    }"
     @click="$emit('click', $event)"
   >
-    <img class="network-icon" :src="icon" alt="network" />
-    <span class="network-name">{{ name }}</span>
+    <img v-if="icon" class="network-icon" :src="icon" alt="network" />
+    <span>{{ name }}</span>
   </button>
 </template>
 
@@ -27,16 +30,22 @@ export default {
 
 <style scoped lang="scss">
 .chip {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  column-gap: 8px;
   justify-content: center;
   align-items: center;
   height: 50px;
-  width: 110px;
+  min-width: 110px;
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   cursor: pointer;
   border: 2px solid rgba(118, 195, 245, 0);
   color: white;
+
+  &-no-image {
+    grid-template-columns: 1fr;
+  }
 
   &:disabled {
     cursor: default;
@@ -44,10 +53,6 @@ export default {
 
   transition: background-color 0.2s, border-bottom-color 0.2s,
     border-top-color 0.2s, border-left-color 0.2s, border-right-color 0.2s;
-
-  .network-name {
-    margin-left: 8px;
-  }
 }
 
 .selected {

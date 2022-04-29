@@ -8,91 +8,96 @@
         <h4>{{ title }}</h4>
         <div class="range-subtitle">{{ subtitle }}</div>
       </div>
-      <div
-        v-if="statusName"
-        class="range-status"
-        :style="{ backgroundColor: gradientColor }"
-      >
-        {{ statusName }}
+
+      <div class="range-status" :class="risk" v-if="risk !== 'default'">
+        {{ risk }}
       </div>
     </div>
 
-    <div
-      class="range-wrap"
-      :style="{
-        background: `linear-gradient(
-            90deg,
-            ${gradientColor} 0%,
-            ${gradientColor} ${gradientPercent}%,
-            rgba(255, 255, 255, 0.1) ${gradientPercent}%,
-            rgba(255, 255, 255, 0.1) 100%
-          )
-          `,
-      }"
-    >
-      <input v-model="range" type="range" :min="min" :max="max" :step="step" />
-    </div>
-    <p class="coefficient">
-      <template v-if="coefficient"> {{ coefficient }}</template>
-      <template v-else>&nbsp;</template>
-    </p>
+    <transition name="fade">
+      <div class="range-wrap" :style="{ background: gradientRangeTrack }">
+        <input
+          type="range"
+          v-model="range"
+          :min="min"
+          :max="max"
+          :step="step"
+          :class="risk"
+        />
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Range",
   props: {
-    min: { type: Number, default: 0 },
-    max: { type: Number, default: 100 },
-    step: { type: Number, default: 1 },
     value: { type: [Number, String], default: 0 },
+    min: { type: Number, default: 0 },
+    max: { type: Number, default: 10 },
+    step: { type: Number, default: 1 },
+    risk: { type: [String, Boolean], default: "default" },
     title: { type: String, default: "Leverage up" },
-    subtitle: { type: String, default: "" },
-    coefficient: { type: String, default: "" },
     tooltipText: { type: String, default: "" },
-
-    isSafe: { type: Boolean, default: false },
-    isMedium: { type: Boolean, default: false },
-    isHigh: { type: Boolean, default: false },
+    subtitle: { type: String, default: "" },
   },
-  data: () => ({
-    colors: {
-      safe: "#63CAF8",
-      medium: "#FFB800",
-      high: "#FE1842",
-      none: "rgba(255, 255, 255, 0.3)",
-    },
-  }),
+  data() {
+    return {
+      colors: {
+        safe: "#63CAF8",
+        medium: "#FFB800",
+        high: "#FE1842",
+        default: "rgba(255, 255, 255, 0.3)",
+      },
+    };
+  },
   computed: {
+    gradientRangeTrack() {
+      return `linear-gradient(
+            90deg,
+            ${this.colors[this.risk]} 0%,
+            ${this.colors[this.risk]} ${this.gradientPercent}%,
+            rgba(255, 255, 255, 0.1) ${this.gradientPercent}%,
+            rgba(255, 255, 255, 0.1) 100%
+          )
+          `;
+    },
+
     gradientPercent() {
-      return Math.floor(100 * Math.abs(+this.range / (this.max - this.min)));
+      let max = 1;
+      if (this.max) {
+        max = this.max;
+      }
+
+      if (this.min > 0) {
+        if (+this.range === 1) {
+          return 0;
+        }
+
+        if (+this.range === max) {
+          return 100;
+        }
+
+        return Math.floor((100 / (max - this.min)) * (+this.range - this.min));
+      }
+
+      return Math.floor(100 * Math.abs(+this.range / max));
     },
-    gradientColor() {
-      const { safe, medium, high, none } = this.colors;
-      return this.isSafe
-        ? safe
-        : this.isMedium
-        ? medium
-        : this.isHigh
-        ? high
-        : none;
-    },
-    statusName() {
-      return this.isSafe
-        ? "Safe"
-        : this.isMedium
-        ? "Medium"
-        : this.isHigh
-        ? "High"
-        : null;
-    },
+
     range: {
       get() {
         return this.value;
       },
       set(value) {
-        this.$emit("input", value);
+        let arr = String(this.max).split("");
+        let index = arr.indexOf(".");
+        let max = arr.slice(0, index + 5).join("");
+
+        if (max === value) {
+          this.$emit("input", this.max);
+        } else {
+          this.$emit("input", value);
+        }
       },
     },
   },
@@ -100,73 +105,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.range-wrap {
-  display: flex;
-  border-radius: 20px;
-  height: 8px;
-  overflow: visible;
-}
-
-/********** Range Input Styles **********/
-/*Range Reset*/
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-  width: 100%;
-}
-
-/* Removes default focus */
-input[type="range"]:focus {
-  outline: none;
-}
-
-/***** Chrome, Safari, Opera and Edge Chromium styles *****/
-/* slider track */
-input[type="range"]::-webkit-slider-runnable-track {
-  //background: rgba(255, 255, 255, 0.1);
-  background: transparent;
-  border-radius: 20px;
-  height: 8px;
-}
-
-/* slider thumb */
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
-  appearance: none;
-  margin-top: -4px; /* Centers thumb on the track */
-  border-radius: 20px;
-  -webkit-box-shadow: 0 0 0 1px #ffffff;
-  box-shadow: 0 0 0 1px #ffffff;
-
-  /*custom styles*/
-  background-color: #181235;
-  height: 16px;
-  width: 16px;
-}
-
-/******** Firefox styles ********/
-/* slider track */
-input[type="range"]::-moz-range-track {
-  //background: rgba(255, 255, 255, 0.1);
-  background: transparent;
-  border-radius: 20px;
-  height: 8px;
-}
-
-/* slider thumb */
-input[type="range"]::-moz-range-thumb {
-  border-radius: 20px;
-  border: none;
-  box-shadow: 0 0 0 1px #ffffff;
-  -moz-box-shadow: 0 0 0 1px #ffffff;
-  /*custom styles*/
-  background-color: #181235;
-  height: 16px;
-  width: 16px;
-}
-
 .leverage-actions {
   display: flex;
   align-items: center;
@@ -208,10 +146,80 @@ input[type="range"]::-moz-range-thumb {
   width: 60px;
   height: 30px;
   line-height: 0;
+  &.safe {
+    background: #63caf8;
+  }
+
+  &.medium {
+    background: #ffb800;
+  }
+
+  &.high {
+    background: #fe1842;
+  }
 }
 
-.coefficient {
-  text-align: right;
-  margin-top: 9px;
+.range-wrap {
+  display: flex;
+  border-radius: 20px;
+  height: 8px;
+  overflow: visible;
+}
+
+/********** Range Input Styles **********/
+/*Range Reset*/
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Removes default focus */
+input[type="range"]:focus {
+  outline: none;
+}
+
+/***** Chrome, Safari, Opera and Edge Chromium styles *****/
+/* slider track */
+input[type="range"]::-webkit-slider-runnable-track {
+  background: transparent;
+  border-radius: 20px;
+  height: 8px;
+}
+
+/* slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  margin-top: -4px; /* Centers thumb on the track */
+  border-radius: 20px;
+  -webkit-box-shadow: 0 0 0 1px #ffffff;
+  box-shadow: 0 0 0 1px #ffffff;
+  /*custom styles*/
+  background-color: #181235;
+  height: 16px;
+  width: 16px;
+}
+
+/******** Firefox styles ********/
+/* slider track */
+input[type="range"]::-moz-range-track {
+  background: transparent;
+  border-radius: 20px;
+  height: 8px;
+}
+
+/* slider thumb */
+input[type="range"]::-moz-range-thumb {
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 0 0 1px #ffffff;
+  -moz-box-shadow: 0 0 0 1px #ffffff;
+  /*custom styles*/
+  background-color: #181235;
+  height: 16px;
+  width: 16px;
 }
 </style>

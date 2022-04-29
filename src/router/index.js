@@ -12,7 +12,22 @@ const routes = [
   {
     path: "/borrow",
     name: "Borrow",
-    component: () => import("@/views/Borrow"),
+    component: () => import("@/views/borrow/Borrow"),
+  },
+  {
+    path: "/borrow/:id",
+    name: "BorrowId",
+    component: () => import("@/views/borrow/Borrow"),
+  },
+  {
+    path: "/repay",
+    name: "Repay",
+    component: () => import("@/views/borrow/Repay"),
+  },
+  {
+    path: "/repay/:id",
+    name: "RepayId",
+    component: () => import("@/views/borrow/Repay"),
   },
   {
     path: "/stake/",
@@ -29,7 +44,22 @@ const routes = [
   {
     path: "/leverage",
     name: "Leverage",
-    component: () => import("@/views/Leverage"),
+    component: () => import("@/views/borrow/Leverage"),
+  },
+  {
+    path: "/leverage/:id",
+    name: "LeverageId",
+    component: () => import("@/views/borrow/Leverage"),
+  },
+  {
+    path: "/deleverage",
+    name: "Deleverage",
+    component: () => import("@/views/borrow/Deleverage"),
+  },
+  {
+    path: "/deleverage/:id",
+    name: "DeleverageId",
+    component: () => import("@/views/borrow/Deleverage"),
   },
   {
     path: "/bridge",
@@ -50,6 +80,19 @@ const routes = [
     path: "/stats",
     name: "Stats",
     component: () => import("@/views/Stats"),
+    children: [
+      {
+        path: "",
+        name: "StatsBorrow",
+        component: () => import("@/views/StatsView"),
+      },
+      {
+        path: "farm",
+        name: "StatsFarm",
+        component: () => import("@/views/StatsView"),
+        props: { isFarm: true },
+      },
+    ],
   },
 ];
 

@@ -7,13 +7,23 @@
         <div class="wrap-networks underline">
           <NetworksList />
         </div>
-
+        <div class="switcher">
+          <StatsSwitch
+            :name="selectedTab"
+            :items="items"
+            @select="selectedTab = $event.name"
+          />
+        </div>
         <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
-          <button class="select" @click="isTokensOpened = true">
-            <img class="select-icon" :src="selectedTokenIcon" alt="" />
+          <button
+            class="select"
+            @click="isTokensOpened = true"
+            :disabled="loading"
+          >
+            <img class="select-icon" :src="selectedPoolIcon" alt="" />
             <span class="select-text">
-              {{ selectedToken ? selectedToken.name : "Select Farm" }}
+              {{ selectedPool ? selectedPool.name : "Select Farm" }}
             </span>
             <img
               class="select-arrow"
@@ -22,33 +32,59 @@
             />
           </button>
         </div>
+        <template v-if="selectedPool">
+          <div class="input-wrap underline">
+            <h4 class="sub-title">
+              Deposit {{ selectedPool.stakingTokenName }} tokens
+            </h4>
+            <ValueInput
+              v-model="amount"
+              :name="selectedPool.stakingTokenName"
+              :max="max"
+              :error="error"
+            />
+          </div>
 
-        <div class="input-wrap underline">
-          <h4 class="sub-title">Deposit LP tokens</h4>
-          <ValueInput />
+          <div class="btn-wrap" v-if="selectedPool">
+            <DefaultButton
+              v-if="!isAllowance && !isUnstake"
+              @click="approveHandler"
+              >Approve</DefaultButton
+            >
+            <DefaultButton
+              v-if="isUnstake || isAllowance"
+              @click="handler"
+              :disabled="!isValid"
+              >{{ !isUnstake ? "Stake" : "Unstake" }}</DefaultButton
+            >
+          </div></template
+        >
+      </div>
+      <template v-if="selectedPool">
+        <div v-for="(item, i) in bottomItems" :key="i" class="info underline">
+          <p class="info-text">
+            <img src="@/assets/images/info.svg" alt="" />
+            {{ item.title }}
+          </p>
+          <p class="info-value">{{ item.value }}</p>
         </div>
 
-        <div class="btn-wrap">
-          <DefaultButton disabled>Approve</DefaultButton>
-        </div>
-      </div>
-
-      <div class="info underline">
-        <p class="info-text">
-          <img src="@/assets/images/info.svg" alt="" />
-          Approximate staking APR
-        </p>
-        <p class="info-value">26.9887</p>
-      </div>
-
-      <a class="farm-link" href="#" target="_blank">Get LP’s</a>
+        <a
+          class="farm-link"
+          :href="selectedPool.stakingTokenLink"
+          target="_blank"
+          >Get LP’s</a
+        ></template
+      >
     </div>
     <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
       <SelectTokenPopup
-        @select="tokenChainId = $event"
+        @select="poolId = $event.id"
         @close="isTokensOpened = false"
-        :tokens="networks"
-    /></PopupWrap>
+        :tokens="pools"
+        :isUnstake="isUnstake"
+      />
+    </PopupWrap>
   </div>
 </template>
 
@@ -60,35 +96,144 @@ const ValueInput = () => import("@/components/UIComponents/ValueInput");
 const DefaultButton = () => import("@/components/main/DefaultButton.vue");
 const PopupWrap = () => import("@/components/ui/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
+const StatsSwitch = () => import("@/components/stats/StatsSwitch");
+import farmPoolsMixin from "../mixins/farmPools";
+
 export default {
+  mixins: [farmPoolsMixin],
   data() {
     return {
-      tokenChainId: null,
+      poolId: null,
       isTokensOpened: false,
+      amount: "",
+      selectedTab: "stake",
+      items: [
+        { title: "Stake", name: "stake" },
+        { title: "Unstake", name: "unstake" },
+      ],
     };
   },
   computed: {
-    ...mapGetters({ networks: "getAvailableNetworks" }),
-    selectedToken() {
-      return (
-        this.networks.find(({ chainId }) => chainId === this.tokenChainId) ||
-        null
-      );
+    ...mapGetters({
+      address: "getAccount",
+      loading: "getFarmPoolLoading",
+    }),
+    isUnstake() {
+      return this.selectedTab === "unstake";
+    },
+    bottomItems() {
+      return [
+        { title: "~Yield per $1000", value: this.selectedPool.poolYield },
+        { title: "ROI Annually", value: this.selectedPool.poolRoi },
+        { title: "TVL", value: this.selectedPool.poolTvl },
+      ];
+    },
+    selectedPool() {
+      return this.pools.find(({ id }) => id === this.poolId) || null;
     },
 
-    selectedTokenIcon() {
-      return this.selectedToken
-        ? this.selectedToken.icon
-        : require("@/assets/images/select.svg");
+    selectedPoolIcon() {
+      return this.selectedPool?.icon || require("@/assets/images/select.svg");
+    },
+    isAllowance() {
+      return !!this.selectedPool?.accountInfo?.allowance;
+    },
+    max() {
+      return !this.isUnstake
+        ? this.selectedPool?.accountInfo?.balance
+        : this.selectedPool?.accountInfo?.depositedBalance;
+    },
+    isValid() {
+      return this.amount && this.amount !== "0.0";
+    },
+    error() {
+      return Number(this.amount) > Number(this.max)
+        ? `The value cannot be greater than ${this.max}`
+        : null;
     },
   },
+  methods: {
+    async stakeHandler() {
+      try {
+        const parseAmount = this.$ethers.utils.parseEther(
+          this.amount.toString()
+        );
 
+        const tx = await this.selectedPool.contractInstance.deposit(
+          this.selectedPool.poolId,
+          parseAmount
+        );
+
+        const receipt = await tx.wait();
+
+        console.log("stake success:", receipt);
+      } catch (error) {
+        console.log("stake err:", error);
+      }
+    },
+    handler() {
+      if (!this.isUnstake) this.stakeHandler();
+      else this.unstakeHandler();
+    },
+    async unstakeHandler() {
+      try {
+        const parseAmount = this.$ethers.utils.parseEther(
+          this.amount.toString()
+        );
+
+        const tx = await this.selectedPool.contractInstance.withdraw(
+          this.selectedPool.poolId,
+          parseAmount
+        );
+
+        const receipt = await tx.wait();
+
+        console.log("unstakeHandler success:", receipt);
+      } catch (error) {
+        console.log("unstakeHandler err:", error);
+      }
+    },
+    async approveHandler() {
+      try {
+        const tx = await this.selectedPool.stakingTokenContract.approve(
+          this.selectedPool.contractAddress,
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        );
+
+        const receipt = await tx.wait();
+
+        console.log(receipt);
+      } catch (error) {
+        console.log("approve err:", error);
+      }
+    },
+  },
+  watch: {
+    async address() {
+      if (this.address) {
+        await this.createFarmPools();
+      }
+    },
+    max() {
+      this.amount = "";
+    },
+  },
+  async created() {
+    if (!this.pools.length) {
+      await this.createFarmPools();
+    }
+
+    this.farmPoolsTimer = setInterval(async () => {
+      await this.createFarmPools();
+    }, 10000);
+  },
   components: {
     NetworksList,
     ValueInput,
     DefaultButton,
     PopupWrap,
     SelectTokenPopup,
+    StatsSwitch,
   },
 };
 </script>
@@ -129,7 +274,7 @@ export default {
 }
 
 .wrap-networks {
-  margin-bottom: 30px;
+  margin-bottom: 17px;
 }
 
 .underline {
@@ -153,6 +298,10 @@ export default {
   align-items: center;
   justify-content: center;
   color: #fff;
+
+  &:disabled {
+    cursor: default;
+  }
 }
 
 .select-icon {
@@ -178,7 +327,10 @@ export default {
 }
 
 .btn-wrap {
-  margin-bottom: 150px;
+  display: grid;
+  grid-template-rows: repeat(auto-fill, 1fr);
+  row-gap: 1rem;
+  margin-bottom: 119px;
 }
 
 .info {
@@ -214,6 +366,10 @@ export default {
   background: -webkit-linear-gradient(#5282fd, #76c3f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.switcher {
+  margin-bottom: 27px;
 }
 
 @media (max-width: 768px) {

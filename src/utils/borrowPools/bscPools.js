@@ -6,6 +6,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 export default [
   {
     name: "wBNB",
+    icon: require(`@/assets/images/tokensIcon/Token_BNB.svg`),
     contractChain: "0x38",
     id: 1,
     isDepreciated: false,
@@ -46,13 +47,16 @@ export default [
   },
   {
     name: "CAKE",
+    icon: require(`@/assets/images/tokensIcon/Token_CAKE.svg`),
     contractChain: "0x38",
     id: 2,
     isDepreciated: false,
     isSwappersActive: false,
     acceptUseDefaultBalance: false,
     isDegenBox: true,
-    hasStrategy: true,
+    strategyLink:
+      "https://medium.com/@abracadabramoney/our-cake-degenbox-strategy-68be5f34527",
+
     contract: {
       name: "CauldronV2MultiChain",
       address: "0xF8049467F3A9D50176f4816b20cDdd9bB8a93319",

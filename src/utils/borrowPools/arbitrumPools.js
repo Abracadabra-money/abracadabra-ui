@@ -6,6 +6,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 export default [
   {
     name: "ETH",
+    icon: require(`@/assets/images/tokensIcon/Token_ETH.svg`),
     contractChain: "0xa4b1",
     id: 1,
     isDepreciated: false,

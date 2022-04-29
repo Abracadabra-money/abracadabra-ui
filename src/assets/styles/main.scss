@@ -70,5 +70,8 @@ h4 {
     flex-direction: row;
     font-size: 14px;
     margin-bottom: 6px;
+    h4 {
+      margin-bottom: 0;
+    }
   }
 }

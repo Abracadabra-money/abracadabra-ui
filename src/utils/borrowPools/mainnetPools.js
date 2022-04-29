@@ -8,6 +8,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 export default [
   {
     name: "yvUSDT v2",
+    icon: require(`@/assets/images/tokensIcon/Token_USDT.svg`),
     contractChain: "0x01",
     id: 1,
     isDepreciated: true,
@@ -44,6 +45,7 @@ export default [
   },
   {
     name: "yvWETH v2",
+    icon: require(`@/assets/images/tokensIcon/Token_WETH.svg`),
     contractChain: "0x01",
     id: 2,
     isDepreciated: true,
@@ -80,6 +82,7 @@ export default [
   },
   {
     name: "yvYFI v2",
+    icon: require(`@/assets/images/tokensIcon/Token_Yearn.svg`),
     contractChain: "0x01",
     id: 3,
     isDepreciated: true,
@@ -116,6 +119,7 @@ export default [
   },
   {
     name: "yvUSDC v2",
+    icon: require(`@/assets/images/tokensIcon/Token_USDC.svg`),
     contractChain: "0x01",
     id: 4,
     isDepreciated: true,
@@ -152,6 +156,7 @@ export default [
   },
   {
     name: "xSUSHI",
+    icon: require(`@/assets/images/tokensIcon/Token_xSushi.svg`),
     contractChain: "0x01",
     id: 5,
     isDepreciated: true,
@@ -188,6 +193,7 @@ export default [
   },
   {
     name: "yvWETH v2",
+    icon: require(`@/assets/images/tokensIcon/Token_WETH.svg`),
     contractChain: "0x01",
     id: 6,
     isDepreciated: false,
@@ -224,6 +230,7 @@ export default [
   },
   {
     name: "yvcrvIB",
+    icon: require(`@/assets/images/tokensIcon/Token_yvcrvIB.svg`),
     contractChain: "0x01",
     id: 7,
     isDepreciated: false,
@@ -260,6 +267,7 @@ export default [
   },
   {
     name: "xSUSHI",
+    icon: require(`@/assets/images/tokensIcon/Token_xSushi.svg`),
     contractChain: "0x01",
     id: 8,
     isDepreciated: false,
@@ -333,6 +341,7 @@ export default [
   // },
   {
     name: "wsOHM",
+    icon: require(`@/assets/images/tokensIcon/Token_wsOHM.svg`),
     contractChain: "0x01",
     id: 10,
     isDepreciated: true,
@@ -370,6 +379,7 @@ export default [
   },
   {
     name: "sSpell",
+    icon: require(`@/assets/images/tokensIcon/Token_sSpell.svg`),
     contractChain: "0x01",
     id: 11,
     isDepreciated: true,
@@ -403,6 +413,7 @@ export default [
   },
   {
     name: "yvcrvSTETH",
+    icon: require(`@/assets/images/tokensIcon/Token_yvcrvSTETH.svg`),
     contractChain: "0x01",
     id: 12,
     isDepreciated: false,
@@ -440,6 +451,7 @@ export default [
   },
   {
     name: "ALCX",
+    icon: require(`@/assets/images/tokensIcon/Token_ALCX.svg`),
     contractChain: "0x01",
     id: 13,
     isDepreciated: false,
@@ -477,6 +489,7 @@ export default [
   },
   {
     name: "FTM",
+    icon: require(`@/assets/images/tokensIcon/Token_FTM.svg`),
     contractChain: "0x01",
     id: 14,
     isDepreciated: false,
@@ -514,6 +527,7 @@ export default [
   },
   {
     name: "cvx3pool",
+    icon: require(`@/assets/images/tokensIcon/Token_cvx3pool.svg`),
     contractChain: "0x01",
     id: 15,
     isDepreciated: true,
@@ -551,6 +565,7 @@ export default [
   },
   {
     name: "cvxtricrypto2",
+    icon: require(`@/assets/images/tokensIcon/Token_cvxtricrypto2.svg`),
     contractChain: "0x01",
     id: 16,
     isDepreciated: false,
@@ -588,6 +603,7 @@ export default [
   },
   {
     name: "AGLD",
+    icon: require(`@/assets/images/tokensIcon/Token_AGLD.svg`),
     contractChain: "0x01",
     id: 17,
     isDepreciated: false,
@@ -625,6 +641,7 @@ export default [
   },
   {
     name: "cvxrenCrv",
+    icon: require(`@/assets/images/tokensIcon/Token_cvxrenCrv.svg`),
     contractChain: "0x01",
     id: 18,
     isDepreciated: false,
@@ -662,11 +679,13 @@ export default [
   },
   {
     name: "UST",
+    icon: require(`@/assets/images/tokensIcon/Token_UST.svg`),
     contractChain: "0x01",
     id: 19,
     isDepreciated: true,
     isSwappersActive: true,
-    hasStrategy: true,
+    strategyLink:
+      "https://abracadabramoney.medium.com/our-ust-strategy-the-first-application-of-the-magic-potentialities-of-degenbox-ea35f13d6b5e",
     isDegenBox: true,
     contract: {
       name: "CauldronV2Flat",
@@ -701,6 +720,7 @@ export default [
   },
   {
     name: "SHIB",
+    icon: require(`@/assets/images/tokensIcon/Token_SHIB.svg`),
     contractChain: "0x01",
     id: 20,
     isDepreciated: false,
@@ -738,6 +758,7 @@ export default [
   },
   {
     name: "FTT",
+    icon: require(`@/assets/images/tokensIcon/Token_FTT.svg`),
     contractChain: "0x01",
     id: 21,
     isDepreciated: false,
@@ -775,6 +796,7 @@ export default [
   },
   {
     name: "sSpell",
+    icon: require(`@/assets/images/tokensIcon/Token_sSpell.svg`),
     contractChain: "0x01",
     id: 22,
     isDepreciated: false,
@@ -808,6 +830,7 @@ export default [
   },
   {
     name: "Spell",
+    icon: require(`@/assets/images/tokensIcon/Token_Spell.svg`),
     contractChain: "0x01",
     id: 23,
     isDepreciated: false,
@@ -846,6 +869,7 @@ export default [
   },
   {
     name: "cvx3pool",
+    icon: require(`@/assets/images/tokensIcon/Token_cvx3pool.svg`),
     contractChain: "0x01",
     id: 24,
     isDepreciated: true,
@@ -883,6 +907,7 @@ export default [
   },
   {
     name: "cvx3pool",
+    icon: require(`@/assets/images/tokensIcon/Token_cvx3pool.svg`),
     contractChain: "0x01",
     id: 25,
     isDepreciated: false,
@@ -920,11 +945,13 @@ export default [
   },
   {
     name: "UST",
+    icon: require(`@/assets/images/tokensIcon/Token_UST.svg`),
     contractChain: "0x01",
     id: 26,
     isDepreciated: false,
     isSwappersActive: true,
-    hasStrategy: true,
+    strategyLink:
+      "https://abracadabramoney.medium.com/our-ust-strategy-the-first-application-of-the-magic-potentialities-of-degenbox-ea35f13d6b5e",
     isDegenBox: true,
     contract: {
       name: "CauldronV2",
@@ -959,11 +986,11 @@ export default [
   },
   {
     name: "WETH",
+    icon: require(`@/assets/images/tokensIcon/Token_WETH.svg`),
     contractChain: "0x01",
     id: 27,
     isDepreciated: false,
     isSwappersActive: true,
-    hasStrategy: false,
     isDegenBox: true,
     acceptUseDefaultBalance: true,
     contract: {
@@ -998,11 +1025,11 @@ export default [
   },
   {
     name: "WBTC",
+    icon: require(`@/assets/images/tokensIcon/Token_WBTC.svg`),
     contractChain: "0x01",
     id: 28,
     isDepreciated: false,
     isSwappersActive: true,
-    hasStrategy: false,
     isDegenBox: true,
     contract: {
       name: "CauldronV2",
@@ -1040,7 +1067,6 @@ export default [
   //   id: 29,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1078,7 +1104,6 @@ export default [
   //   id: 30,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1116,7 +1141,6 @@ export default [
   //   id: 31,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1154,7 +1178,6 @@ export default [
   //   id: 32,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1192,7 +1215,6 @@ export default [
   //   id: 33,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1230,7 +1252,6 @@ export default [
   //   id: 34,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1268,7 +1289,6 @@ export default [
   //   id: 35,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1306,7 +1326,6 @@ export default [
   //   id: 36,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
@@ -1344,7 +1363,6 @@ export default [
   //   id: 37,
   //   isDepreciated: false,
   //   isSwappersActive: true,
-  //   hasStrategy: false,
   //   isDegenBox: true,
   //   contract: {
   //     name: "CauldronV2",
