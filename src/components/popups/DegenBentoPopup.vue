@@ -41,7 +41,6 @@
 
 <script>
 import { mapGetters } from "vuex";
-
 const BaseTokenInput = () =>
   import("@/components/baseComponents/BaseTokenInput");
 const BaseButton = () => import("@/components/baseComponents/BaseButton");
