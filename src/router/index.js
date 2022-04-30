@@ -30,16 +30,14 @@ const routes = [
     component: () => import("@/views/borrow/Repay"),
   },
   {
-    path: "/stake/",
+    path: "/sSPELL",
     name: "Stake",
-    props: { currentComponent: 'SSpell' },
-    component: () => import("@/views/Stake")
+    component: () => import("@/views/stake/SSpell"),
   },
   {
-    path: "/mStake/",
+    path: "/mSPELL",
     name: "mStake",
-    props: { currentComponent: 'MSpell' },
-    component: () => import("@/views/Stake")
+    component: () => import("@/views/stake/MSpell"),
   },
   {
     path: "/leverage",
@@ -85,17 +83,17 @@ const routes = [
   {
     path: "/stats",
     name: "Stats",
-    component: () => import("@/views/Stats"),
+    component: () => import("@/views/stats/Stats"),
     children: [
       {
         path: "",
         name: "StatsBorrow",
-        component: () => import("@/views/StatsView"),
+        component: () => import("@/views/stats/StatsView"),
       },
       {
         path: "farm",
         name: "StatsFarm",
-        component: () => import("@/views/StatsView"),
+        component: () => import("@/views/stats/StatsView"),
         props: { isFarm: true },
       },
     ],

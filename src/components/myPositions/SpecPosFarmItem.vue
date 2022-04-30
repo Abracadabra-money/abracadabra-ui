@@ -2,7 +2,7 @@
   <div class="pos-farm-item pos-farm-item-opened">
     <div class="header">
       <div class="header-token">
-        <TokenIcon :name="pool.name" :icon="pool.icon" size="80px" />
+        <BaseTokenIcon :name="pool.name" :icon="pool.icon" size="80px" />
         <p class="header-token-title">{{ pool.name }}</p>
       </div>
       <div class="header-content-opened">
@@ -26,7 +26,11 @@
           <div class="lp-data-title">Earned</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon :name="pool.tokenName" :icon="pool.icon" size="50px" />
+              <BaseTokenIcon
+                :name="pool.tokenName"
+                :icon="pool.icon"
+                size="50px"
+              />
               <p class="lp-data-token">{{ pool.tokenName }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
@@ -51,7 +55,7 @@
           <div class="lp-data-title">{{ pool.stakingTokenType }} deposited</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon :name="pool.name" :icon="pool.icon" size="50px" />
+              <BaseTokenIcon :name="pool.name" :icon="pool.icon" size="50px" />
               <p class="lp-data-token">{{ pool.name }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
@@ -66,7 +70,10 @@
               :key="balanceItem.name"
             >
               <div class="lp-data-info">
-                <TokenIcon :name="balanceItem.name" :icon="balanceItem.icon" />
+                <BaseTokenIcon
+                  :name="balanceItem.name"
+                  :icon="balanceItem.icon"
+                />
                 <p>
                   {{ balanceItem.name }}
                 </p>
@@ -97,12 +104,12 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/ui/TokenIcon");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
 import { getTokenIconByName } from "../../utils/helpers";
 
 export default {
   name: "SpecPosFarmItem",
-  components: { TokenIcon },
+  components: { BaseTokenIcon },
   props: {
     pool: { type: Object, required: true },
   },

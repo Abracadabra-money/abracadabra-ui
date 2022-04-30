@@ -15,7 +15,7 @@
             </p>
           </div>
 
-          <ValueInput
+          <BaseTokenInput
             :icon="selectedPool ? selectedPool.icon : null"
             :name="selectedPool ? selectedPool.name : null"
             v-model="collateralValue"
@@ -32,7 +32,7 @@
             <h4>MIM to Borrow</h4>
           </div>
 
-          <ValueInput
+          <BaseTokenInput
             name="MIM"
             v-model="borrowValue"
             :max="maxBorrowValue"
@@ -63,15 +63,15 @@
         />
         <template v-if="selectedPool">
           <div class="btn-wrap">
-            <DefaultButton
+            <BaseButton
               @click="approveTokenHandler"
               primary
               :disabled="isApproved"
-              >Approve</DefaultButton
+              >Approve</BaseButton
             >
-            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+            <BaseButton @click="actionHandler" :disabled="!isApproved">{{
               actionBtnText
-            }}</DefaultButton>
+            }}</BaseButton>
           </div>
           <div class="info-list">
             <div v-for="(item, i) in infoData" :key="i" class="info-item">
@@ -94,11 +94,12 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
+const NetworksList = () => import("@/components/uiComponents/NetworksList");
+const BaseTokenInput = () =>
+  import("@/components/baseComponents/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const DefaultButton = () => import("@/components/main/DefaultButton");
-const PopupWrap = () => import("@/components/ui/PopupWrap");
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
@@ -559,9 +560,9 @@ export default {
 
   components: {
     NetworksList,
-    ValueInput,
+    BaseTokenInput,
     BorrowPoolStand,
-    DefaultButton,
+    BaseButton,
     PopupWrap,
     SelectPoolPopup,
   },

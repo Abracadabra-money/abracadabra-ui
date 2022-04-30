@@ -6,18 +6,18 @@
         Make your Interest bearing assets liquid
       </h1>
       <div class="home__buttons">
-        <DefaultButton primary :width="'200px'" @click="toBorrowPage">
+        <BaseButton primary :width="'200px'" @click="toBorrowPage">
           Borrow
-        </DefaultButton>
-        <DefaultButton primary :width="'200px'" @click="toLeveragePage">
+        </BaseButton>
+        <BaseButton primary :width="'200px'" @click="toLeveragePage">
           Leverage
-        </DefaultButton>
+        </BaseButton>
       </div>
     </div>
   </div>
 </template>
 <script>
-import DefaultButton from "@/components/main/DefaultButton.vue";
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
 
 export default {
   methods: {
@@ -29,7 +29,7 @@ export default {
     },
   },
   components: {
-    DefaultButton,
+    BaseButton,
   },
 };
 </script>

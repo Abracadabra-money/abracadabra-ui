@@ -6,7 +6,7 @@
         :disabled="!isChooseToken"
         class="value-type value-btn"
       >
-        <TokenIcon :icon="icon" type="select" :name="name" />
+        <BaseTokenIcon :icon="icon" type="select" :name="name" />
         <span class="token-name">
           {{ poolName }}
         </span>
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/ui/TokenIcon");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
 
 export default {
   props: {
@@ -93,7 +93,7 @@ export default {
       return "Select to";
     },
   },
-  components: { TokenIcon },
+  components: { BaseTokenIcon },
 };
 </script>
 

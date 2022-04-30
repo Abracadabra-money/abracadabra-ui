@@ -87,7 +87,8 @@
 <script>
 import { tokenPrices } from "@/utils/helpers.js";
 import { mapGetters } from "vuex";
-import { fetchTokenApy } from "@/utils/HelpersTokenAPY.js";
+import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
+
 export default {
   name: "BorrowPoolStand",
   props: {

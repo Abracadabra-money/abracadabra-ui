@@ -1,5 +1,5 @@
 import sushiData from "@sushiswap/sushi-data";
-import store from "../store";
+import store from "@/store";
 import crvRewardPoolAbi from "@/utils/abi/crvRewardPoolAbi";
 import tokenCVXAbi from "@/utils/abi/tokensAbi/CVX";
 import axios from "axios";

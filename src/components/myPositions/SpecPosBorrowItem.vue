@@ -2,7 +2,7 @@
   <div class="pos-item">
     <div class="header">
       <div class="header-token">
-        <TokenIcon :name="pool.token.name" :icon="poolIcon" size="80px" />
+        <BaseTokenIcon :name="pool.token.name" :icon="poolIcon" size="80px" />
         <div>
           <p class="header-token-title">{{ pool.token.name }}</p>
           <p class="header-token-price">
@@ -29,7 +29,7 @@
           <div class="lp-data-title">Initial collateral deposited</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon
+              <BaseTokenIcon
                 :name="pool.token.name"
                 :icon="initialIcon"
                 size="50px"
@@ -50,7 +50,7 @@
           <div class="lp-data-title">Borrowed</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
-              <TokenIcon
+              <BaseTokenIcon
                 :name="pool.pairToken.name"
                 :icon="borrowedIcon"
                 size="50px"
@@ -112,13 +112,13 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/ui/TokenIcon");
-const StatusName = () => import("@/components/UIComponents/StatusName");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
+const StatusName = () => import("@/components/uiComponents/StatusName");
 import { getTokenIconByName } from "../../utils/helpers";
 
 export default {
   name: "SpecPosBorrowItem",
-  components: { TokenIcon, StatusName },
+  components: { BaseTokenIcon, StatusName },
   props: {
     opened: { type: Boolean, default: true },
     pool: { type: Object, required: true },

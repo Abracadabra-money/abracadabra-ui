@@ -8,7 +8,7 @@
           <p>Balance: {{ (+balance).toFixed(2) }}</p>
         </div>
 
-        <ValueInput
+        <BaseTokenInput
           :icon="mimIcon"
           name="MIM"
           v-model="amount"
@@ -18,23 +18,23 @@
       </div>
     </div>
     <template v-if="isApproved !== null">
-      <DefaultButton v-if="!isApproved" primary @click="approveToken"
-        >Approve</DefaultButton
+      <BaseButton v-if="!isApproved" primary @click="approveToken"
+        >Approve</BaseButton
       >
       <template v-else>
-        <DefaultButton
+        <BaseButton
           v-if="isDeposit"
           @click="deposit"
           :disabled="!isValid || !!error"
-          >Deposit</DefaultButton
+          >Deposit</BaseButton
         >
-        <DefaultButton v-else @click="withdraw" :disabled="!isValid || !!error"
-          >Withdraw</DefaultButton
+        <BaseButton v-else @click="withdraw" :disabled="!isValid || !!error"
+          >Withdraw</BaseButton
         >
       </template>
     </template>
     <div v-else class="load-wrap">
-      <Loader />
+      <BaseLoader />
     </div>
   </div>
 </template>
@@ -42,13 +42,14 @@
 <script>
 import { mapGetters } from "vuex";
 
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const DefaultButton = () => import("@/components/main/DefaultButton.vue");
+const BaseTokenInput = () =>
+  import("@/components/baseComponents/BaseTokenInput");
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
 import mimIcon from "@/assets/images/tokensIcon/Token_MIM.svg";
-const Loader = () => import("@/components/Loader");
+const BaseLoader = () => import("@/components/baseComponents/BaseLoader");
 
 export default {
-  components: { Loader, ValueInput, DefaultButton },
+  components: { BaseLoader, BaseTokenInput, BaseButton },
   props: {
     infoObject: {
       type: Object,

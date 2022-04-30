@@ -1,25 +1,34 @@
 <template>
   <div class="banner">
     <div v-if="icon" class="banner__icon">
-      <img
-          src="@/assets/images/banner-icons/coins.png"
-          alt=""
-      />
+      <img src="@/assets/images/banner-icons/coins.png" alt="" />
     </div>
     <div class="banner__content">
-      <h2 class="banner__title" :class="{'banner__title_align-left': button, 'banner__title_align-right': iconRight}">{{title}}</h2>
-      <p class="banner__discription" :class="{'banner__discription_align-right': iconRight}"><slot></slot></p>
+      <h2
+        class="banner__title"
+        :class="{
+          'banner__title_align-left': button,
+          'banner__title_align-right': iconRight,
+        }"
+      >
+        {{ title }}
+      </h2>
+      <p
+        class="banner__discription"
+        :class="{ 'banner__discription_align-right': iconRight }"
+      >
+        <slot></slot>
+      </p>
     </div>
     <div v-if="button" class="banner__button">
-      <DefaultButton @click="button.click" :width="'112px'" >{{button.text}}</DefaultButton>
+      <BaseButton @click="button.click" :width="'112px'">{{
+        button.text
+      }}</BaseButton>
     </div>
     <div v-if="iconRight" class="banner__icon-right">
-      <img
-          src="@/assets/images/banner-icons/coins.png"
-          alt=""
-      />
+      <img src="@/assets/images/banner-icons/coins.png" alt="" />
     </div>
-    <div  class="banner__close">
+    <div class="banner__close">
       <img
         v-if="!noClose"
         class="banner__close"
@@ -32,44 +41,39 @@
 </template>
 
 <script>
-import DefaultButton from "@/components/main/DefaultButton.vue";
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
 
 export default {
   props: {
     title: {
-      type: String
+      type: String,
     },
     icon: {
-      type: Boolean
+      type: Boolean,
     },
     button: {
-      type: Object
+      type: Object,
     },
     noClose: {
-      type: Boolean
+      type: Boolean,
     },
     iconRight: {
-      type: Boolean
+      type: Boolean,
     },
   },
   data() {
-    return {
-
-    };
+    return {};
   },
   methods: {
-    closeBanner() {
-      
-    }
+    closeBanner() {},
   },
   components: {
-    DefaultButton
-  }
+    BaseButton,
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-
 .banner {
   padding: 16px 20px;
   display: flex;
@@ -130,5 +134,4 @@ export default {
     align-self: flex-start;
   }
 }
-
 </style>

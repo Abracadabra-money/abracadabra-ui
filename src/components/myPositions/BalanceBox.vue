@@ -9,7 +9,7 @@
       <p class="box-header-title">{{ title }}</p>
     </div>
     <div class="box-data">
-      <TokenIcon name="MIM" size="50px" />
+      <BaseTokenIcon name="MIM" size="50px" />
       <div>
         <p class="box-balance1">{{ (+formattedBalance).toFixed(4) }}</p>
         <p class="box-balance2">$ {{ usd }}</p>
@@ -17,11 +17,11 @@
     </div>
     <div class="box-actions">
       <template>
-        <DefaultButton @click="$emit('withdraw')" :disabled="isDisabled"
-          >Withdraw</DefaultButton
+        <BaseButton @click="$emit('withdraw')" :disabled="isDisabled"
+          >Withdraw</BaseButton
         >
-        <DefaultButton @click="$emit('deposit')" selected
-          >Deposit</DefaultButton
+        <BaseButton @click="$emit('deposit')" selected
+          >Deposit</BaseButton
         ></template
       >
     </div>
@@ -34,12 +34,12 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/ui/TokenIcon");
-const DefaultButton = () => import("@/components/main/DefaultButton");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
 
 export default {
   name: "BalanceBox",
-  components: { TokenIcon, DefaultButton },
+  components: { BaseTokenIcon, BaseButton },
   props: {
     isBento: { type: Boolean, default: false },
     balance: { type: String, default: "0" },

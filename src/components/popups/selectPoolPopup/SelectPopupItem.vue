@@ -1,7 +1,7 @@
 <template>
   <button @click="enterPool(pool)" class="pool-item">
     <div class="pool-name">
-      <TokenIcon :icon="pool.icon" :name="pool.name" />
+      <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
       <p>{{ pool.name }}</p>
     </div>
     <div class="pool-balance">
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/ui/TokenIcon");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
 export default {
   props: {
     pool: {
@@ -46,7 +46,7 @@ export default {
       this.$emit("enterPool", pool);
     },
   },
-  components: { TokenIcon },
+  components: { BaseTokenIcon },
 };
 </script>
 

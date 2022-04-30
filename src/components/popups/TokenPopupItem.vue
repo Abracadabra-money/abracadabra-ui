@@ -1,7 +1,7 @@
 <template>
   <button @click="$emit('click')" class="token-wrap">
     <div class="token-data">
-      <TokenIcon :icon="icon" :name="name" />
+      <BaseTokenIcon :icon="icon" :name="name" />
       <p>{{ name }}</p>
     </div>
     <div v-if="balance !== null" class="token-value">
@@ -14,11 +14,11 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/ui/TokenIcon");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
 
 export default {
   name: "TokenPopupItem",
-  components: { TokenIcon },
+  components: { BaseTokenIcon },
   props: {
     name: {
       type: String,

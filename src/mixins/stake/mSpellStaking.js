@@ -3,17 +3,17 @@ import spellTokenAbi from "@/utils/abi/tokensAbi/SPELL";
 import mSpellStakingAbi from "@/utils/abi/mSpellStakingAbi";
 import moment from "moment";
 
-import { getSpellStakingApr } from "@/helpers/spellStakingApr";
+import { getSpellStakingApr } from "@/helpers/spellStake/spellStakingApr";
 
 export default {
   data() {
     return {
       stakingContracts: {
-        "1": "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
-        "250": "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
-        "43114": "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
-        "42161": "0x1DF188958A8674B5177f77667b8D173c3CdD9e51"
-      }
+        1: "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
+        250: "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
+        43114: "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
+        42161: "0x1DF188958A8674B5177f77667b8D173c3CdD9e51",
+      },
     };
   },
   computed: {
@@ -29,7 +29,7 @@ export default {
   },
   methods: {
     async createMSpellStaking() {
-      console.log( "createMSpellStaking" , Number(this.chainId).toString(16) )
+      console.log("createMSpellStaking", Number(this.chainId).toString(16));
 
       if (!this.account) {
         this.$store.commit("setLoadingMSpellStake", false);
@@ -37,7 +37,7 @@ export default {
       }
 
       const mSpellStakingAddr = this.stakingContracts[this.chainId];
-      console.log(mSpellStakingAddr)
+      console.log(mSpellStakingAddr);
 
       if (!mSpellStakingAddr) {
         this.$store.commit("setLoadingMSpellStake", false);

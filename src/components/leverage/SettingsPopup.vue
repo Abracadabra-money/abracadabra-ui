@@ -23,12 +23,12 @@
         class="settings-input"
       />
     </div>
-    <DefaultButton primary @click="actionHandler">Save</DefaultButton>
+    <BaseButton primary @click="actionHandler">Save</BaseButton>
   </div>
 </template>
 
 <script>
-const DefaultButton = () => import("@/components/main/DefaultButton");
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
 
 export default {
   data() {
@@ -45,7 +45,7 @@ export default {
   },
 
   components: {
-    DefaultButton,
+    BaseButton,
   },
 };
 </script>

@@ -48,7 +48,7 @@
         <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
       </div>
       <div v-if="!currentPools.length && loading" class="loader-wrap">
-        <Loader />
+        <BaseLoader />
       </div>
       <template v-else>
         <StatsItem
@@ -64,18 +64,18 @@
 </template>
 
 <script>
-import farmPoolsMixin from "../mixins/farmPools";
+import farmPoolsMixin from "@/mixins/farmPools";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
 
-const Loader = () => import("@/components/Loader");
+const BaseLoader = () => import("@/components/baseComponents/BaseLoader");
 
-const DropdownWrap = () => import("@/components/ui/DropdownWrap");
+const DropdownWrap = () => import("@/components/uiComponents/DropdownWrap");
 const StatsItem = () => import("@/components/stats/StatsItem");
 
 export default {
   name: "StatsView",
-  components: { Loader, DropdownWrap, StatsItem },
+  components: { BaseLoader, DropdownWrap, StatsItem },
   mixins: [farmPoolsMixin, borrowPoolsMixin],
   props: { isFarm: { type: Boolean, default: false } },
   data: () => ({

@@ -8,10 +8,10 @@
       <div class="swap-wrap">
         <div class="token-input" :class="{ active: actions.STAKE }">
           <div class="header-balance">
-            <h4>{{ inputTitle(actions.STAKE, true) }}</h4>
+            <h4>{{ inputTitle(actions.STAKE) }}</h4>
             <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
           </div>
-          <ValueInput
+          <BaseTokenInput
             class="value-input"
             :icon="getImgUrl('spell-icon')"
             :name="'Spell'"
@@ -32,13 +32,13 @@
         </div>
         <div class="token-input" :class="{ active: actions.UNSTAKE }">
           <div class="header-balance">
-            <h4>{{ inputTitle(actions.UNSTAKE, false) }}</h4>
+            <h4>{{ inputTitle(actions.UNSTAKE) }}</h4>
             <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
           </div>
-          <ValueInput
+          <BaseTokenInput
             class="value-input"
-            :icon="getImgUrl('Token_mSpell')"
-            name="mSpell"
+            :icon="getImgUrl('sspell-icon')"
+            name="sSpell"
             @input="updateMainValue"
             :disabled="!actions.UNSTAKE"
             :error="actions.UNSTAKE ? amountError : null"
@@ -51,61 +51,49 @@
     <div class="profile">
       <h1 class="title">STAKE</h1>
       <InfoBlock
-        mainTokenName="mSPELL"
-        title="mSpell"
-        icon="Token_mSpell"
+        mainTokenName="sSPELL"
+        title="sSpell"
+        icon="sspell-icon"
         :tokens-info="info"
         :locked-until="lockedUntil"
         :rate="info.tokensRate"
       />
       <div class="profile-actions">
-        <DefaultButton
+        <BaseButton
           width="325px"
           @click="approveToken(info.stakeToken.contractInstance)"
           primary
           :disabled="info.stakeToken.isTokenApprowed"
           v-if="actions.STAKE"
           >{{ "Approve" }}
-        </DefaultButton>
-        <DefaultButton
+        </BaseButton>
+        <BaseButton
           width="325px"
           @click="actionHandler"
           :disabled="
             !!amountError ||
             !amount ||
             amount <= 0 ||
-            !info.stakeToken.isTokenApprowed ||
-            (isUserLocked && actions.UNSTAKE)
+            !info.stakeToken.isTokenApprowed
           "
         >
-          {{
-            isUserLocked
-              ? "Nothing to do"
-              : actions.STAKE
-              ? "Deposit"
-              : "Withdraw"
-          }}
-        </DefaultButton>
+          {{ actions.STAKE ? "Stake" : "Unstake" }}
+        </BaseButton>
       </div>
       <div class="profile-subscribtion">
         <div class="profile-subscribtion__approximate">
           <div>Approximate staking APR</div>
-          <div>{{ (info.apr || 0).toFixed(4) + "%" }}</div>
+          <div>{{ parceBalance(info.apr) + "%" }}</div>
         </div>
-        <ClaimInfo
-          @onClaim="claim"
-          class="claim-info"
-          token="MIM"
-          icon="Token_MIM"
-          :count="'200,000'"
-        />
         <p>
-          Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent
-          loss, no loss of governance rights.
+          Make SPELL work for you! Stake your SPELL and gain sSPELL. No
+          impermanent loss, no loss of governance rights. Continuously
+          compounding. After each new deposit, all staked SPELL are subject to a
+          24H lock-up period!
         </p>
         <p>
-          After each new deposit, all staked SPELL are subject to a 24H lock-up
-          period!
+          sSPELL automatically earns fees from MIM repayments from all wizards
+          proportional to your share of the stake pool.
         </p>
       </div>
     </div>
@@ -113,19 +101,21 @@
 </template>
 <script>
 const InfoBlock = () => import("@/components/stake/InfoBlock");
-const ClaimInfo = () => import("@/components/stake/ClaimInfo");
+const BaseTokenInput = () =>
+  import("@/components/baseComponents/BaseTokenInput");
+const NetworksList = () => import("@/components/uiComponents/NetworksList");
 
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const NetworksList = () => import("@/components/ui/NetworksList");
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
 
-import DefaultButton from "@/components/main/DefaultButton.vue";
-
-import mSpellStaking from "@/mixins/stake/mSpellStaking";
+import sspellToken from "@/mixins/stake/sspellToken";
 import stake from "@/mixins/stake/stake";
 
 export default {
-  mixins: [mSpellStaking, stake],
+  mixins: [sspellToken, stake],
   computed: {
+    loading() {
+      return this.$store.getters.getLoadingSSpellStake;
+    },
     isUserLocked() {
       return (
         this.lockedUntil &&
@@ -133,11 +123,8 @@ export default {
         this.actions.UNSTAKE
       );
     },
-    loading() {
-      return this.$store.getters.getLoadingMSpellStake;
-    },
     info() {
-      return this.$store.getters.getMSpellStakingObj || this.emptyTokens;
+      return this.$store.getters.getSSpellObject || this.emptyTokens;
     },
     fromToken() {
       if (this.actions.STAKE) return this.info.stakeToken;
@@ -169,7 +156,7 @@ export default {
     },
   },
   watch: {
-    lockedUntil(val) {
+    isTokenApprowed(val) {
       if (val && Number(val) !== 0) {
         this.amount = "";
         this.amountError = "";
@@ -177,39 +164,13 @@ export default {
     },
     async account() {
       if (this.account) {
-        await this.createMSpellStaking();
+        await this.createStakePool();
       }
     },
   },
   methods: {
-    async claimHandler() {
-      console.log("CLAIM");
-      try {
-        const estimateGas =
-          await this.mSpellStakingObj.mSpellStakingContract.estimateGas.withdraw(
-            0
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
-
-        const tx = await this.mSpellStakingObj.mSpellStakingContract.withdraw(
-          0,
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
-
-        console.log("CLAIM", receipt);
-      } catch (e) {
-        console.log("CLAIM err:", e);
-      }
-    },
-    inputTitle(toogler, isSpell) {
-      let text = isSpell ? "Deposit" : "Withdrow";
-      return toogler ? text : "Receive";
+    inputTitle(toogler) {
+      return toogler ? "Deposit" : "Receive";
     },
     parceBalance(balance) {
       return balance ? parseFloat(balance).toFixed(4) : 0;
@@ -226,9 +187,17 @@ export default {
       try {
         let lockTimestamp, currentTimestamp;
         currentTimestamp = (Date.now() / 1000).toString();
-        lockTimestamp = this.info.lockedUntil
-          ? this.info.lockedUntil.toString()
-          : null;
+        const infoResp = await this.info.mainToken.contractInstance.users(
+          this.account,
+          {
+            gasLimit: 1000000,
+          }
+        );
+        if (!infoResp) {
+          return false;
+        }
+        currentTimestamp = (Date.now() / 1000).toString();
+        lockTimestamp = infoResp.lockedUntil.toString();
 
         if (lockTimestamp && lockTimestamp > currentTimestamp)
           return lockTimestamp;
@@ -245,36 +214,34 @@ export default {
         const isApproved = this.info.stakeToken.isTokenApprowed;
 
         if (isApproved) {
-          await this.deposit();
+          await this.stake();
           return false;
         }
 
         const approvedSuccess = await this.approveToken(
-          this.info.spellTokenContract,
-          this.info.mSpellStakingContract.address
+          this.info.stakeToken.contractInstance
         );
 
-        if (approvedSuccess) await this.deposit();
+        if (approvedSuccess) await this.stake();
       }
       if (this.actions.UNSTAKE) {
-        await this.withdraw();
+        await this.unstake();
       }
     },
-    async deposit() {
-      console.log("DEPOSIT");
+    async stake() {
+      console.log("STAKE");
+
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mSpellStakingContract.estimateGas.deposit(amount);
+          await this.info.mainToken.contractInstance.estimateGas.mint(amount);
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        console.log("gasLimit:", gasLimit);
-
-        const tx = await this.info.mSpellStakingContract.deposit(amount, {
+        const tx = await this.info.mainToken.contractInstance.mint(amount, {
           gasLimit,
         });
 
@@ -283,57 +250,44 @@ export default {
 
         const receipt = await tx.wait();
 
-        console.log("DEPOSIT", receipt);
+        console.log("STAKE", receipt);
       } catch (e) {
-        console.log("DEPOSIT err:", e);
+        console.log("stake err:", e);
       }
     },
-    async withdraw() {
-      console.log("WITHDRAW");
+    async unstake() {
+      console.log("UNSTAKE");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mSpellStakingContract.estimateGas.withdraw(amount);
+          await this.info.mainToken.contractInstance.estimateGas.burn(
+            this.account,
+            amount
+          );
 
         const gasLimit = 1000 + +estimateGas.toString();
 
         console.log("gasLimit:", gasLimit);
 
-        const tx = await this.info.mSpellStakingContract.withdraw(amount, {
-          gasLimit,
-        });
+        const tx = await this.info.mainToken.contractInstance.burn(
+          this.account,
+          amount,
+          {
+            gasLimit,
+          }
+        );
 
         this.amount = "";
         this.amountError = "";
 
         const receipt = await tx.wait();
 
-        console.log("WITHDRAW", receipt);
+        console.log("STAKE", receipt);
       } catch (e) {
-        console.log("WITHDRAW err:", e);
-      }
-    },
-    async claim() {
-      console.log("CLAIM");
-      try {
-        const estimateGas =
-          await this.info.mSpellStakingContract.estimateGas.withdraw(0);
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
-
-        const tx = await this.info.mSpellStakingContract.withdraw(0, {
-          gasLimit,
-        });
-        const receipt = await tx.wait();
-
-        console.log("CLAIM", receipt);
-      } catch (e) {
-        console.log("CLAIM err:", e);
+        console.log("stake err:", e);
       }
     },
     async approveToken(tokenContract) {
@@ -364,10 +318,10 @@ export default {
     },
   },
   async created() {
-    await this.createMSpellStaking();
+    await this.createStakePool();
     this.lockedUntil = await this.getUserLocked();
     this.updateInterval = setInterval(async () => {
-      await this.createMSpellStaking();
+      await this.createStakePool();
       this.lockedUntil = await this.getUserLocked();
     }, 15000);
   },
@@ -376,14 +330,12 @@ export default {
   },
   components: {
     InfoBlock,
-    DefaultButton,
-    ValueInput,
+    BaseButton,
+    BaseTokenInput,
     NetworksList,
-    ClaimInfo,
   },
 };
 </script>
-
 <style lang="scss" scoped>
 .swap-wrap {
   position: relative;
@@ -505,18 +457,14 @@ export default {
   grid-gap: 30px;
   margin: 0 auto;
   width: 100%;
-  padding-top: 100px;
-  padding-bottom: 100px;
+  padding: 100px 5px;
 }
 
-@media (min-width: 1300px) {
+@media (min-width: 1024px) {
   .stake {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
   }
-}
-.claim-info {
-  margin: 20px 0;
 }
 </style>

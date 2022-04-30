@@ -8,7 +8,7 @@
     :class="{ 'stats-item-farm': isFarm }"
   >
     <span class="network-data" :class="{ 'network-data-new': isNew }">
-      <TokenIcon :name="poolData.name" :icon="poolData.icon" />
+      <BaseTokenIcon :name="poolData.name" :icon="poolData.icon" />
       <span class="network-name-wrap">
         <span>{{ poolData.name }}</span>
         <span v-if="isNew" class="network-new">New</span>
@@ -31,11 +31,11 @@
 </template>
 
 <script>
-const TokenIcon = () => import("@/components/ui/TokenIcon");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
 
 export default {
   name: "StatsItem",
-  components: { TokenIcon },
+  components: { BaseTokenIcon },
   props: {
     poolData: {
       type: Object,

@@ -15,7 +15,7 @@
             <div>Balance: {{ bridgeObject.balance }}</div>
           </div>
         </div>
-        <ValueInput
+        <BaseTokenInput
           :max="bridgeObject.balance"
           :value="amount"
           :name="'MIM'"
@@ -44,11 +44,11 @@
       </div>
 
       <div class="btn-wrap">
-        <DefaultButton
+        <BaseButton
           :primary="true"
           :disabled="disableBtn"
           @click="actionHandler"
-          >{{ actionBtnText }}</DefaultButton
+          >{{ actionBtnText }}</BaseButton
         >
       </div>
 
@@ -82,10 +82,11 @@
 </template>
 
 <script>
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const DefaultButton = () => import("@/components/main/DefaultButton");
-const SelectChainsWrap = () => import("@/components/Bridge/SelectChainsWrap");
-const NetworkPopup = () => import("@/components/Bridge/NetworkPopup");
+const BaseTokenInput = () =>
+  import("@/components/baseComponents/BaseTokenInput");
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
+const NetworkPopup = () => import("@/components/popups/NetworkPopup");
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
 import { mapGetters } from "vuex";
@@ -335,8 +336,8 @@ export default {
   },
 
   components: {
-    ValueInput,
-    DefaultButton,
+    BaseTokenInput,
+    BaseButton,
     SelectChainsWrap,
     NetworkPopup,
   },

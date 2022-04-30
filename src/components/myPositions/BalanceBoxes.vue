@@ -29,7 +29,7 @@ import { mapGetters } from "vuex";
 
 const BalanceBox = () => import("@/components/myPositions/BalanceBox");
 const DegenBentoPopup = () => import("@/components/popups/DegenBentoPopup");
-const PopupWrap = () => import("@/components/ui/PopupWrap");
+const PopupWrap = () => import("@/components/popups/PopupWrap");
 
 const initialPopupData = {
   opened: false,

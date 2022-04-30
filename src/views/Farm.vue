@@ -15,17 +15,17 @@
           />
         </div>
         <div v-if="!pools.length && loading" class="loader-wrap">
-          <Loader />
+          <BaseLoader />
         </div>
         <div v-else class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
           <button class="select" @click="isTokensOpened = true">
-            <TokenIcon
+            <BaseTokenIcon
               v-if="selectedPool"
               :name="selectedPool.name"
               :icon="selectedPool.icon"
             />
-            <TokenIcon v-else type="select" />
+            <BaseTokenIcon v-else type="select" />
             <span class="select-text">
               {{ selectedPool ? selectedPool.name : "Select Farm" }}
             </span>
@@ -41,7 +41,7 @@
             <h4 class="sub-title">
               Deposit {{ selectedPool.stakingTokenName }} tokens
             </h4>
-            <ValueInput
+            <BaseTokenInput
               v-model="amount"
               :name="selectedPool.stakingTokenName"
               :icon="selectedPool.icon"
@@ -51,16 +51,16 @@
           </div>
 
           <div class="btn-wrap" v-if="selectedPool">
-            <DefaultButton
+            <BaseButton
               v-if="!isAllowance && !isUnstake"
               @click="approveHandler"
-              >Approve</DefaultButton
+              >Approve</BaseButton
             >
-            <DefaultButton
+            <BaseButton
               v-if="isUnstake || isAllowance"
               @click="handler"
               :disabled="!isValid || !!error"
-              >{{ !isUnstake ? "Stake" : "Unstake" }}</DefaultButton
+              >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
             >
           </div></template
         >
@@ -96,15 +96,16 @@
 <script>
 import { mapGetters } from "vuex";
 
-const NetworksList = () => import("@/components/ui/NetworksList");
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const DefaultButton = () => import("@/components/main/DefaultButton.vue");
-const PopupWrap = () => import("@/components/ui/PopupWrap");
+const NetworksList = () => import("@/components/uiComponents/NetworksList");
+const BaseTokenInput = () =>
+  import("@/components/baseComponents/BaseTokenInput");
+const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
-import Loader from "../components/Loader";
-const TokenIcon = () => import("@/components/ui/TokenIcon");
+const BaseLoader = () => import("@/components/baseComponents/BaseLoader");
+const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
 
 export default {
   mixins: [farmPoolsMixin],
@@ -251,11 +252,11 @@ export default {
     clearInterval(this.farmPoolsTimer);
   },
   components: {
-    Loader,
-    TokenIcon,
+    BaseLoader,
+    BaseTokenIcon,
     NetworksList,
-    ValueInput,
-    DefaultButton,
+    BaseTokenInput,
+    BaseButton,
     PopupWrap,
     SelectTokenPopup,
     StatsSwitch,

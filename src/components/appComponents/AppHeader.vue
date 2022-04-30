@@ -102,8 +102,8 @@
 </template>
 
 <script>
-const ConnectButton = () => import("@/components/ui/ConnectButton");
-const MimTokenBlock = () => import("@/components/ui/MimTokenBlock");
+const ConnectButton = () => import("@/components/uiComponents/ConnectButton");
+const MimTokenBlock = () => import("@/components/uiComponents/MimTokenBlock");
 const MobileMenu = () => import("@/components/popups/MobileMenu");
 
 export default {
