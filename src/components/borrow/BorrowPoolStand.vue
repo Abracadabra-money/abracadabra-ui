@@ -13,13 +13,47 @@
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></a>
       </div>
-      <button
-        v-if="!isEmpty && account"
-        class="info-btn"
-        @click="isInfoPressed = !isInfoPressed"
-      >
-        <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
-      </button>
+      <div class="deposit-wrap">
+        <button class="deposit" v-if="show3CrvBtn" @click="show3CrvPopup">
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Deposit
+        </button>
+
+        <button class="deposit" v-if="showCrvRenBtn" @click="showCrvRenPopup">
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Deposit
+        </button>
+
+        <button class="deposit" v-if="show3CryptoBtn" @click="show3CryptoPopup">
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Deposit
+        </button>
+
+        <button class="deposit" v-if="showOlimpusBtn" @click="showOhmPopup">
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> WRAP
+        </button>
+
+        <button
+          class="deposit"
+          v-if="showMEMOWrapBtn"
+          @click="showMEMOWrapPopup"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> WRAP
+        </button>
+
+        <button
+          class="deposit"
+          v-if="showClaimCrvReward"
+          @click="handleClaimCrvReward"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Claim
+        </button>
+
+        <button
+          v-if="!isEmpty && account"
+          class="info-btn"
+          @click="isInfoPressed = !isInfoPressed"
+        >
+          <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
+        </button>
+      </div>
     </div>
     <div class="stable-data">
       <template v-if="isEmpty">
@@ -372,6 +406,47 @@ export default {
         return [];
       }
     },
+
+    show3CrvBtn() {
+      return (
+        (this.pool?.id === 15 ||
+          this.pool?.id === 24 ||
+          this.pool?.id === 25) &&
+        this.chainId === 1 &&
+        this.account
+      );
+    },
+
+    showCrvRenBtn() {
+      return this.pool?.id === 18 && this.chainId === 1 && this.account;
+    },
+
+    show3CryptoBtn() {
+      return this.pool?.id === 16 && this.chainId === 1 && this.account;
+    },
+
+    showOlimpusBtn() {
+      return this.pool?.id === 10 && this.chainId === 1 && this.account;
+    },
+
+    showMEMOWrapBtn() {
+      return (
+        (this.pool?.id === 2 || this.pool?.id === 5) &&
+        this.chainId === 43114 &&
+        this.account
+      );
+    },
+
+    showClaimCrvReward() {
+      return (
+        (this.showCrvRenBtn || this.show3CryptoBtn || this.show3CrvBtn) &&
+        this.isUserHasClaimableReward
+      );
+    },
+
+    isUserHasClaimableReward() {
+      return +this.pool.userInfo.claimableReward;
+    },
   },
 
   watch: {
@@ -395,6 +470,62 @@ export default {
           wOHMTosOHMResp.toString(),
           9
         );
+      }
+    },
+
+    show3CrvPopup() {
+      console.log("this.pool", this.pool?.token.address);
+      this.$store.commit("setPopupState", {
+        type: "3crv",
+        isShow: true,
+        data: {
+          address: this.pool?.token.address,
+        },
+      });
+    },
+
+    showCrvRenPopup() {
+      this.$store.commit("setPopupState", {
+        type: "crv-ren",
+        isShow: true,
+      });
+    },
+
+    show3CryptoPopup() {
+      this.$store.commit("setPopupState", {
+        type: "three-crypto-deposit",
+        isShow: true,
+      });
+    },
+
+    showOhmPopup() {
+      this.$store.commit("setPopupState", {
+        type: "olimpus",
+        isShow: true,
+      });
+    },
+
+    showMEMOWrapPopup() {
+      this.$store.commit("setPopupState", {
+        type: "memo-wrap",
+        isShow: true,
+      });
+    },
+
+    async handleClaimCrvReward() {
+      try {
+        const estimateGas =
+          await this.pool.token.contract.estimateGas.getReward(this.account);
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        console.log("gasLimit:", gasLimit);
+
+        await await this.pool.token.contract.getReward(this.account, {
+          gasLimit,
+        });
+      } catch (e) {
+        console.log("handleClaimCrvReward err:", e);
       }
     },
   },
@@ -444,6 +575,25 @@ export default {
         grid-gap: 10px;
         grid-template-columns: repeat(3, auto);
         align-items: center;
+      }
+    }
+
+    .deposit-wrap {
+      display: flex;
+    }
+
+    .deposit {
+      background: rgba(157, 244, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      padding: 3px 8px;
+      color: #63caf8;
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+      cursor: pointer;
+      img {
+        margin-right: 5px;
       }
     }
 

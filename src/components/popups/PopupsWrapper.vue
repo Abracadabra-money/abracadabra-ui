@@ -1,11 +1,24 @@
 <template>
   <div class="popup-wrap" v-if="popupActiveType">
-    <!-- <NetworkPopup @close="closeModal" v-if="popupActiveType === 'network'" /> -->
+    <div v-click-outside="closePopup">
+      <CrvPoolPopup v-if="popupActiveType === '3crv'" />
+      <CrvRenPoolPopup v-if="popupActiveType === 'crv-ren'" />
+      <ThreeCryptoPopup v-if="popupActiveType === 'three-crypto-deposit'" />
+      <OHMPopup v-if="popupActiveType === 'olimpus'" />
+      <MEMOWrapPopup v-if="popupActiveType === 'memo-wrap'" />
+    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+const CrvPoolPopup = () => import("@/components/popups/Deposit/CrvPoolPopup");
+const CrvRenPoolPopup = () =>
+  import("@/components/popups/Deposit/CrvRenPoolPopup");
+const ThreeCryptoPopup = () =>
+  import("@/components/popups/Deposit/ThreeCryptoPopup");
+const OHMPopup = () => import("@/components/popups/Deposit/OHMPopup/index");
+const MEMOWrapPopup = () => import("@/components/popups/Deposit/MEMOWrapPopup");
 export default {
   computed: {
     ...mapGetters({
@@ -14,9 +27,17 @@ export default {
     }),
   },
   methods: {
-    closeModal() {
-      this.$store.commit("closeModals");
+    closePopup() {
+      this.$store.commit("closePopups");
     },
+  },
+
+  components: {
+    CrvPoolPopup,
+    CrvRenPoolPopup,
+    ThreeCryptoPopup,
+    OHMPopup,
+    MEMOWrapPopup,
   },
 };
 </script>
