@@ -1,20 +1,35 @@
 <template>
   <div class="profile-info">
     <div class="info-wrap">
-      <div class="strategy">
-        <template v-if="isInfoPressed || isEmpty">
-          <img src="@/assets/images/degenbox.svg" alt="degenbox" />
-          <span>Degenbox strategy</span>
-          <img src="@/assets/images/arrow_right.svg" alt="degenbox"
-        /></template>
-      </div>
-      <div v-if="lockedUntil" class="info-block">
-        <img class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
-        <LockedTimer :finalTime="lockedUntil" />
-      </div>
+      <template v-if="!isEmpty">
+        <div v-if="tokensInfo.lockedUntil" class="info-block">
+          <img class="info-icon" src="@/assets/images/Clock.svg" alt="info" />
+          <LockedTimer :finalTime="tokensInfo.lockedUntil" />
+        </div>
+      </template>
     </div>
     <div class="profile-data">
-      <div v-if="!isInfoPressed" class="profile-preview">
+      <template v-if="isEmpty">
+        <div class="empty-wrap">
+          <img :src="emptyData.img" v-if="emptyData.img" alt="info" />
+          <div class="empty-text">
+            <p v-if="emptyData.text">
+              {{ emptyData.text }}
+            </p>
+            <p class="empty-bottom" v-if="emptyData.bottom">
+              {{ emptyData.bottom }}
+              <a
+                class="empty-link"
+                :href="emptyData.link"
+                v-if="emptyData.link"
+                target="_blank"
+                >here</a
+              >
+            </p>
+          </div>
+        </div>
+      </template>
+      <div v-else class="profile-preview">
         <div class="item" v-for="(item, i) in profileData" :key="i">
           <p class="item-name">{{ item.name }}</p>
           <div class="item-row">
@@ -51,31 +66,56 @@
 
 <script>
 import LockedTimer from "@/components/stake/LockedTimer.vue";
+
 export default {
   name: "info-block",
   props: {
-    lockedUntil: {
-      type: [String, Boolean],
-    },
-    mainTokenName: {
-      type: String,
-    },
-    tokensInfo: {
-      type: Object,
-    },
-    icon: {
-      type: String,
-    },
-    title: {
-      type: String,
-    },
-    rate: {
-      type: [String, Number],
-    },
+    tokensInfo: {},
   },
-  watch: {
-    tokensInfo() {
-      this.$nextTick();
+  data: () => ({
+    emptyData: {
+      img: require(`@/assets/images/empty_borrow.svg`),
+      text: "Some text 4 empty view",
+      bottom: "If you want to learn more read our docs",
+      link: "https://abracadabra.money/",
+    },
+  }),
+  computed: {
+    isEmpty() {
+      return !this.tokensInfo;
+    },
+    profileData() {
+      if (this.isEmpty) return [];
+
+      return [
+        {
+          title: this.tokensInfo.stakeToken.name,
+          icon: this.tokensInfo.stakeToken.icon,
+          name: "Your balance",
+          value: parseFloat(this.tokensInfo.stakeToken.balance).toFixed(4) || 0,
+        },
+        {
+          title: this.tokensInfo.mainToken.name,
+          icon: this.tokensInfo.mainToken.icon,
+          name: "Staked",
+          value: parseFloat(this.tokensInfo.mainToken.balance).toFixed(4) || 0,
+        },
+        {
+          title: "Ratio",
+          icon: this.tokensInfo.stakeToken.icon,
+          text: `${this.tokensInfo.tokensRate ? "1" : "0"} ${
+            this.tokensInfo.mainToken.name
+          } = ${parseFloat(this.tokensInfo.tokensRate).toFixed(4)} SPELL`,
+        },
+        {
+          title: "Staking APR",
+          icon: [
+            this.tokensInfo.stakeToken.icon,
+            this.tokensInfo.mainToken.icon,
+          ],
+          text: parseFloat(this.tokensInfo.apr).toFixed(2) + "%",
+        },
+      ];
     },
   },
   methods: {
@@ -89,52 +129,7 @@ export default {
         +this.tokensInfo[tokenName].balance * +this.tokensInfo[tokenName].price;
       return this.toFixed(balanceInUsd, 6);
     },
-    getBallance(tokenName, range) {
-      const balance = this.tokensInfo[tokenName].balance;
-      console.log(balance);
-      return balance ? parseFloat(balance).toFixed(range) : 0;
-    },
-    toFixed(num, range) {
-      let fixed = parseFloat(num).toFixed(range);
-      fixed = isNaN(fixed) ? 0 : fixed;
-      return fixed || 0;
-    },
   },
-  computed: {
-    profileData() {
-      return [
-        {
-          title: "Spell",
-          icon: this.spellIcon,
-          name: "Your balance",
-          value: this.getBallance("stakeToken", 2) || 0,
-        },
-        {
-          title: this.title,
-          icon: this.icon,
-          name: "Staked",
-          value: this.getBallance("mainToken", 2) || 0,
-        },
-        {
-          title: "Ratio",
-          icon: this.spellIcon,
-          text: `${this.rate ? "1" : "0"} ${
-            this.mainTokenName
-          } = ${this.toFixed(this.rate, 4)} SPELL`,
-        },
-        {
-          title: "Staking APR",
-          icon: [this.spellIcon, this.icon],
-          text: this.toFixed(this.tokensInfo.apr, 2) + "%",
-        },
-      ];
-    },
-  },
-  data: () => ({
-    isInfoPressed: false,
-    isEmpty: false,
-    spellIcon: require("@/assets/images/spell-icon.svg"),
-  }),
   components: {
     LockedTimer,
   },
@@ -142,14 +137,39 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.empty-wrap {
+  background: #2b2b3c;
+  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+  backdrop-filter: blur(100px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 30px;
+  padding: 23px 65px;
+  min-height: 280px;
+
+  .empty-bottom {
+    margin-top: 15px;
+  }
+
+  .empty-text {
+    font-size: 18px;
+    line-height: 27px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .empty-link {
+    color: #759ffa;
+  }
+}
 .profile-info {
   background-color: rgba(35, 33, 45, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 30px;
 
   .info-wrap {
     display: flex;
     justify-content: space-between;
     padding: 9px 30px 7px 30px;
+    min-height: 40px;
 
     .strategy {
       display: grid;
@@ -185,6 +205,10 @@ export default {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       padding: 30px;
+      background: #2b2b3c;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(100px);
+      border-radius: 30px;
     }
     .item-row {
       display: flex;

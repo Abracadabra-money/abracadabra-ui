@@ -1,22 +1,7 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g opacity="0.45">
-<g opacity="0.45">
-<path opacity="0.45" d="M4.5 12.5686L11.6239 16.776V0.75L4.5 12.5686Z" fill="#010101"/>
-</g>
-</g>
-<g opacity="0.8">
-<g opacity="0.8">
-<path opacity="0.8" d="M11.6241 0.75V16.7782L18.7458 12.5707L11.6241 0.75Z" fill="#010101"/>
-</g>
-</g>
-<g opacity="0.45">
-<g opacity="0.45">
-<path opacity="0.45" d="M4.5 13.9186L11.6239 23.9545V18.1283L4.5 13.9186Z" fill="#010101"/>
-</g>
-</g>
-<g opacity="0.8">
-<g opacity="0.8">
-<path opacity="0.8" d="M11.6241 18.1283V23.9545L18.7502 13.9186L11.6241 18.1283Z" fill="#010101"/>
-</g>
-</g>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path opacity="0.7" d="M15.9984 13.2783L9.125 16.4043L15.9984 20.4651L22.8691 16.4043L15.9984 13.2783Z" fill="white"/>
+<path opacity="0.5" d="M9.125 16.4044L15.9984 20.4652V5L9.125 16.4044Z" fill="white"/>
+<path opacity="0.8" d="M15.9989 5V20.4652L22.8696 16.4044L15.9989 5Z" fill="white"/>
+<path opacity="0.5" d="M9.125 17.7069L15.9984 27.3902V21.7677L9.125 17.7069Z" fill="white"/>
+<path opacity="0.8" d="M15.9989 21.7677V27.3902L22.875 17.7069L15.9989 21.7677Z" fill="white"/>
 </svg>

@@ -14,11 +14,7 @@
           :selected="network.chainId === chainId"
           :name="network.name"
           :icon="network.icon"
-          :disabled="
-            loading ||
-            (network.chainId !== chainId &&
-              !activeList.includes(network.chainId))
-          "
+          :disabled="loading"
           @click="changeNetwork(network.chainId)"
         />
       </div>
