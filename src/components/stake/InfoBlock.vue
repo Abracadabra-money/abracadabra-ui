@@ -22,7 +22,7 @@
               <img
                 v-if="!isArray(item.icon)"
                 class="item-icon__img"
-                :src="getImgUrl(item.icon)"
+                :src="item.icon"
                 alt="info"
               />
               <template v-if="isArray(item.icon)">
@@ -30,7 +30,7 @@
                   v-for="(icon, key) in item.icon"
                   :key="key"
                   class="item-icon__img"
-                  :src="getImgUrl(icon)"
+                  :src="icon"
                   alt="info"
                 />
               </template>
@@ -79,14 +79,6 @@ export default {
     },
   },
   methods: {
-    getImgUrl(type) {
-      var images = require.context(
-        "../../assets/images/tokens-icon/",
-        false,
-        /\.svg$/
-      );
-      return images("./" + type + ".svg");
-    },
     isArray(item) {
       return Array.isArray(item);
     },
@@ -113,7 +105,7 @@ export default {
       return [
         {
           title: "Spell",
-          icon: "spell-icon",
+          icon: this.spellIcon,
           name: "Your balance",
           value: this.getBallance("stakeToken", 2) || 0,
         },
@@ -125,14 +117,14 @@ export default {
         },
         {
           title: "Ratio",
-          icon: "spell-icon",
+          icon: this.spellIcon,
           text: `${this.rate ? "1" : "0"} ${
             this.mainTokenName
           } = ${this.toFixed(this.rate, 4)} SPELL`,
         },
         {
           title: "Staking APR",
-          icon: ["spell-icon", this.icon],
+          icon: [this.spellIcon, this.icon],
           text: this.toFixed(this.tokensInfo.apr, 2) + "%",
         },
       ];
@@ -141,6 +133,7 @@ export default {
   data: () => ({
     isInfoPressed: false,
     isEmpty: false,
+    spellIcon: require("@/assets/images/spell-icon.svg"),
   }),
   components: {
     LockedTimer,

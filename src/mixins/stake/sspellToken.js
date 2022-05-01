@@ -1,7 +1,7 @@
-import stakeInfo from "@/utils/contracts/sSpellStakesInfo.js";
-// import moment from "moment";
+import tokensAbi from "@/utils/abi/tokensAbi/index";
 import { mapMutations } from "vuex";
-// import { ethers } from "ethers";
+import moment from "moment";
+
 import {
   getSpellStakingApr,
   getTokensRate,
@@ -11,6 +11,22 @@ export default {
   data() {
     return {
       spellPrice: null,
+      stakeInfo: {
+        mainToken: {
+          name: "sSPELL",
+          address: "0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9",
+          decimals: 18,
+          abi: tokensAbi.sSPELL,
+          icon: require("@/assets/images/sspell-icon.svg"),
+        },
+        stakeToken: {
+          name: "SPELL",
+          address: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
+          decimals: 18,
+          abi: tokensAbi.SPELL,
+          icon: require("@/assets/images/spell-icon.svg"),
+        },
+      },
     };
   },
   computed: {
@@ -29,17 +45,12 @@ export default {
     async createStakePool() {
       this.setLoadingSSpellStake(true);
       if (this.account) {
-        if (!stakeInfo) {
-          this.setLoadingSSpellStake(false);
-          return false;
-        }
-
         if (this.chainId !== 1) {
           this.setLoadingSSpellStake(false);
           return false;
         }
         console.log("ethers", this.$ethers);
-        const { mainToken, stakeToken } = stakeInfo;
+        const { mainToken, stakeToken } = this.stakeInfo;
 
         const mainTokenInstance = new this.$ethers.Contract(
           mainToken.address,
@@ -115,10 +126,13 @@ export default {
         }
         console.log("isTokenApprowed", isTokenApprowed);
 
+        let lockedUntil = await this.getUserLocked(mainTokenInstance);
+
         const stakeObject = {
           tokensRate,
           apr: parseFloat(sSpellApr).toFixed(4),
           tvl,
+          lockedUntil,
           mainToken: {
             ...mainToken,
             contractInstance: mainTokenInstance,
@@ -138,6 +152,23 @@ export default {
         this.$store.commit("setSSpellObject", stakeObject);
       } else {
         this.setLoadingSSpellStake(false);
+      }
+    },
+    async getUserLocked(contractInstance) {
+      try {
+        const infoResp = await contractInstance.users(this.account, {
+          gasLimit: 1000000,
+        });
+
+        const lockTimestamp = infoResp.lockedUntil.toString();
+        const currentTimestamp = moment().unix().toString();
+
+        if (+lockTimestamp > 0 && lockTimestamp > currentTimestamp)
+          return lockTimestamp;
+        return false;
+      } catch (e) {
+        console.log("isApprowed err:", e);
+        return false;
       }
     },
     async getSpellRate(spellContract, sspellContract) {

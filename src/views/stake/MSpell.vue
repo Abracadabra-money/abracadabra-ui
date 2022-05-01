@@ -13,7 +13,7 @@
           </div>
           <BaseTokenInput
             class="value-input"
-            :icon="getImgUrl('spell-icon')"
+            :icon="info.stakeToken.icon"
             :name="'Spell'"
             :disabled="!actions.STAKE"
             :value="actions.STAKE ? amount : toTokenAmount"
@@ -37,7 +37,7 @@
           </div>
           <BaseTokenInput
             class="value-input"
-            :icon="getImgUrl('Token_mSpell')"
+            :icon="info.mainToken.icon"
             name="mSpell"
             @input="updateMainValue"
             :disabled="!actions.UNSTAKE"
@@ -53,7 +53,7 @@
       <InfoBlock
         mainTokenName="mSPELL"
         title="mSpell"
-        icon="Token_mSpell"
+        :icon="info.mainToken.balance"
         :tokens-info="info"
         :locked-until="lockedUntil"
         :rate="info.tokensRate"
