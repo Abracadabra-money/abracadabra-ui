@@ -1,6 +1,6 @@
 <template>
   <div class="my-position-view">
-    <h2 class="title">My positions</h2>
+    <h2 class="title page-title">My positions</h2>
     <div class="choose">
       <h4 class="choose-title">Choose Chain</h4>
       <NetworksList :items="5" :activeList="activeNetworks" />
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import farmPoolsMixin from "../mixins/farmPools";
+import farmPoolsMixin from "@/mixins/farmPools";
 
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
@@ -128,6 +128,10 @@ export default {
   text-align: center;
   text-transform: uppercase;
   margin: 32px 0 32px 0;
+
+  &.page-title {
+    margin-top: 0;
+  }
 }
 
 .choose {

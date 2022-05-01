@@ -5,7 +5,7 @@ import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
 export default [
   {
     name: "MIM-2Crv",
-    icon: require(`@/assets/images/farmIcons/Token_Curve-MIM.svg`),
+    icon: require(`@/assets/images/tokens/Curve-MIM.png`),
     nameSubtitle: "crv.finance",
     contractChain: 42161,
     id: 3,

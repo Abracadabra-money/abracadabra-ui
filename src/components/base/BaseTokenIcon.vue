@@ -3,7 +3,7 @@
     class="token-icon"
     :src="tokenIcon"
     :alt="name"
-    :style="{ height: size, minWidth: size }"
+    :style="{ height: size, width: size }"
   />
 </template>
 
@@ -28,17 +28,18 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      defaultToken: require("@/assets/images/base_token_icon.png"),
+      selectIcon: require("@/assets/images/base_select_icon.png"),
+    };
   },
 
   computed: {
     tokenIcon() {
-      if (this.name === "MIM")
-        return require(`@/assets/images/tokensIcon/Token_MIM.svg`);
       if (this.icon) return this.icon;
-      if (this.type === "select") return require(`@/assets/images/select.svg`);
+      if (this.type === "select") return this.selectIcon;
 
-      return require(`@/assets/images/tokensIcon/Token_ETH.svg`);
+      return this.defaultToken;
     },
   },
 };
@@ -47,7 +48,6 @@ export default {
 <style lang="scss" scoped>
 .token-icon {
   object-fit: contain;
-  border-radius: 10px;
   margin-right: 10px;
 }
 </style>

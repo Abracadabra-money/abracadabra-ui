@@ -161,6 +161,7 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  max-height: 500px;
 }
 
 .not-found {

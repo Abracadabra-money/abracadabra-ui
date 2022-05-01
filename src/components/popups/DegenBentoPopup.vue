@@ -44,7 +44,7 @@ import { mapGetters } from "vuex";
 const BaseTokenInput = () =>
   import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
-import mimIcon from "@/assets/images/tokensIcon/Token_MIM.svg";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 const BaseLoader = () => import("@/components/base/BaseLoader");
 
 export default {

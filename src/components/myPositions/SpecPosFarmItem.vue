@@ -28,7 +28,7 @@
             <div class="lp-data-info">
               <BaseTokenIcon
                 :name="pool.tokenName"
-                :icon="pool.icon"
+                :icon="spellIcon"
                 size="50px"
               />
               <p class="lp-data-token">{{ pool.tokenName }}</p>
@@ -105,7 +105,7 @@
 
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-import { getTokenIconByName } from "../../utils/helpers";
+const spellIcon = require("@/assets/images/tokens/SPELL.png");
 
 export default {
   name: "SpecPosFarmItem",
@@ -114,6 +114,7 @@ export default {
     pool: { type: Object, required: true },
   },
   data: () => ({
+    spellIcon,
     openedItems: [
       {
         title: "Stake",
@@ -170,7 +171,7 @@ export default {
           usd: this.parse(
             this.pool.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
           ),
-          icon: getTokenIconByName(this.pool.depositedBalance?.token0.name),
+          icon: this.pool.depositedBalance?.token0.icon,
         },
         {
           name: this.pool.depositedBalance?.token1.name,
@@ -180,7 +181,7 @@ export default {
           usd: this.parse(
             this.pool.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
           ),
-          icon: getTokenIconByName(this.pool.depositedBalance?.token1.name),
+          icon: this.pool.depositedBalance?.token1.icon,
         },
       ].filter((e) => e.name && e.balance);
     },

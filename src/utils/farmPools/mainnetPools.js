@@ -5,7 +5,7 @@ import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
 export default [
   {
     name: "ETH-SPELL",
-    icon: require(`@/assets/images/farmIcons/Token_ETH-Spell.svg`),
+    icon: require(`@/assets/images/tokens/ETH-Spell.png`),
     nameSubtitle: "Sushiswap",
     contractChain: 1,
     id: 2,
@@ -18,9 +18,11 @@ export default [
     depositedBalance: {
       token0: {
         name: "SPELL",
+        icon: require("@/assets/images/tokens/SPELL.png"),
       },
       token1: {
         name: "ETH",
+        icon: require("@/assets/images/tokens/ETH.png"),
       },
     },
     stakingTokenAbi: erc20Abi,
@@ -36,7 +38,7 @@ export default [
   },
   {
     name: "MIM-ETH",
-    icon: require(`@/assets/images/farmIcons/Token_MIM-ETH.svg`),
+    icon: require(`@/assets/images/tokens/MIM-ETH.png`),
     nameSubtitle: "Sushiswap",
     contractChain: 1,
     id: 1,
@@ -49,9 +51,11 @@ export default [
     depositedBalance: {
       token0: {
         name: "MIM",
+        icon: require("@/assets/images/tokens/MIM.png"),
       },
       token1: {
         name: "ETH",
+        icon: require("@/assets/images/tokens/ETH.png"),
       },
     },
     stakingTokenAbi: erc20Abi,
@@ -67,7 +71,7 @@ export default [
   },
   {
     name: "MIM-3LP3CRV-f-2",
-    icon: require(`@/assets/images/farmIcons/Token_Curve-MIM.svg`),
+    icon: require(`@/assets/images/tokens/Curve-MIM.png`),
     nameSubtitle: "crv.finance",
     contractChain: 1,
     id: 3,

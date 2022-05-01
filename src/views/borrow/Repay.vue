@@ -31,6 +31,7 @@
           </div>
           <BaseTokenInput
             name="MIM"
+            :icon="mimIcon"
             v-model="borrowValue"
             :max="maxBorrowValue"
             :error="borrowError"
@@ -94,6 +95,7 @@ const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 import {
   isTokenApprowed,
   approveToken,
@@ -106,6 +108,7 @@ export default {
   mixins: [borrowPoolsMixin, cookMixin],
   data() {
     return {
+      mimIcon,
       collateralValue: "",
       collateralError: "",
       borrowValue: "",

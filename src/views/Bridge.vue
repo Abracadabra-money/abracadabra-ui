@@ -111,7 +111,7 @@ export default {
     }),
 
     mimIcon() {
-      return require("@/assets/images/tokensIcon/Token_MIM.svg");
+      return require("@/assets/images/tokens/MIM.png");
     },
 
     popupNetworksArr() {

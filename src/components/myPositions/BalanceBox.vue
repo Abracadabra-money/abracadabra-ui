@@ -9,7 +9,7 @@
       <p class="box-header-title">{{ title }}</p>
     </div>
     <div class="box-data">
-      <BaseTokenIcon name="MIM" size="50px" />
+      <BaseTokenIcon :icon="mimIcon" name="MIM" size="50px" />
       <div>
         <p class="box-balance1">{{ (+formattedBalance).toFixed(4) }}</p>
         <p class="box-balance2">$ {{ usd }}</p>
@@ -36,6 +36,7 @@
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const BaseButton = () => import("@/components/base/BaseButton");
+const mimIcon = require("@/assets/images/tokens/MIM.png");
 
 export default {
   name: "BalanceBox",
@@ -44,6 +45,11 @@ export default {
     isBento: { type: Boolean, default: false },
     balance: { type: String, default: "0" },
     mimPrice: { type: Number, default: 0 },
+  },
+  data() {
+    return {
+      mimIcon,
+    };
   },
   computed: {
     title() {

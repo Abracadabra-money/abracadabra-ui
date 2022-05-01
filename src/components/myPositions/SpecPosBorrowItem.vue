@@ -114,7 +114,7 @@
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusName = () => import("@/components/ui/StatusName");
-import { getTokenIconByName } from "../../utils/helpers";
+const mimIcon = require("@/assets/images/tokens/MIM.png");
 
 export default {
   name: "SpecPosBorrowItem",
@@ -166,7 +166,7 @@ export default {
       return tokenToMim.toString().match(re)[0];
     },
     poolIcon() {
-      return getTokenIconByName(this.pool.token.name);
+      return this.pool.icon;
     },
     stableCoinMultiplayer() {
       const exceptionPools = [15, 16, 27];
@@ -212,10 +212,10 @@ export default {
       return this.tokenPrice - this.liquidationPrice;
     },
     initialIcon() {
-      return getTokenIconByName(this.pool.token.name);
+      return this.pool.icon;
     },
     borrowedIcon() {
-      return getTokenIconByName(this.pool.pairToken.name);
+      return mimIcon;
     },
     valuesList() {
       return [

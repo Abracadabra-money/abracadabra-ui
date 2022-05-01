@@ -5,7 +5,7 @@ import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
 export default [
   {
     name: "3PoolV2",
-    icon: require(`@/assets/images/farmIcons/Token_3Curve.svg`),
+    icon: require(`@/assets/images/tokens/Curve-MIM.png`),
     nameSubtitle: "ftm.curve.fi",
     contractChain: 250,
     id: 3,

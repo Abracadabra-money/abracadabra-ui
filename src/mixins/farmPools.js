@@ -10,14 +10,6 @@ import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
 export default {
   data() {
     return {
-      /* prices: {
-        spellPrice: null,
-        mimPrice: null,
-        icePrice: null,
-        wethPrice: null,
-        ohmPrice: null,
-        timePrice: null,
-      },*/
       tokenAddresses: {
         SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
         MIM: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3",
@@ -415,70 +407,6 @@ export default {
       } catch (error) {
         console.log("getAllowance:", error);
       }
-    } /*
-    async getTokenPrice(token) {
-      if (token === "CRV") {
-        const priceResp = await farmTokenPrices(["curve-dao-token"]);
-        return priceResp["curve-dao-token"];
-      }
-
-      if (token === "CVX") {
-        const priceResp = await farmTokenPrices(["convex-finance"]);
-        return priceResp["convex-finance"];
-      }
-
-      if (token === "ICE") {
-        if (this.prices.icePrice) return this.prices.icePrice;
-
-        const priceResp = await farmTokenPrices(["ice"]);
-        this.prices.icePrice = priceResp.ice;
-        return priceResp.ice;
-      }
-
-      if (token === "MIM") {
-        if (this.prices.mimPrice) return this.prices.mimPrice;
-
-        const priceResp = await farmTokenPrices(["mim"]);
-
-        this.prices.mimPrice = priceResp.mim;
-        return priceResp.mim;
-      }
-
-      if (token === "Spell" || token === "SPELL") {
-        if (this.prices.spellPrice) return this.prices.spellPrice;
-
-        const priceResp = await farmTokenPrices(["spell"]);
-
-        this.prices.spellPrice = priceResp.spell;
-        return priceResp.spell;
-      }
-
-      if (token === "WETH") {
-        if (this.prices.wethPrice) return this.prices.wethPrice;
-        const priceResp = await farmTokenPrices(["weth"]);
-        this.prices.wethPrice = priceResp.weth;
-        return priceResp.weth;
-      }
-
-      if (token === "OHM") {
-        if (this.prices.ohmPrice) return this.prices.ohmPrice;
-
-        const priceResp = await farmTokenPrices(["olympus"]);
-        this.prices.ohmPrice = priceResp.olympus;
-        return priceResp.olympus;
-      }
-
-      if (token === "TIME") {
-        if (this.prices.timePrice) return this.prices.timePrice;
-
-        const priceResp = await farmTokenPrices(["wonderland"]);
-        this.prices.timePrice = priceResp.wonderland;
-        return priceResp.wonderland;
-      }
-
-      // if (token === "MIM") {
-      //   return 1;
-      // }
-    },*/,
+    },
   },
 };

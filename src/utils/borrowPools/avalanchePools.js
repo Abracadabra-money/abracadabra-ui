@@ -7,7 +7,7 @@ import joeInfoAbi from "@/utils/abi/joeInfo";
 export default [
   {
     name: "AVAX",
-    icon: require(`@/assets/images/tokensIcon/Token_AVAX.svg`),
+    icon: require(`@/assets/images/tokens/AVAX.png`),
     contractChain: "0xa86a",
     id: 1,
     isDepreciated: false,
@@ -47,7 +47,7 @@ export default [
   },
   {
     name: "wMEMO",
-    icon: require(`@/assets/images/tokensIcon/Token_MEMO.svg`),
+    icon: require(`@/assets/images/tokens/MEMO.png`),
     contractChain: "0xa86a",
     id: 2,
     isDepreciated: true,
@@ -87,7 +87,7 @@ export default [
   },
   {
     name: "xJOE",
-    icon: require(`@/assets/images/tokensIcon/Token_xJOE.svg`),
+    icon: require(`@/assets/images/tokens/xJOE.png`),
     contractChain: "0xa86a",
     id: 3,
     isDepreciated: false,
@@ -136,7 +136,7 @@ export default [
   },
   {
     name: "AVAX/USDC.e JLP",
-    icon: require(`@/assets/images/tokensIcon/Token_AVAX_USDC.svg`),
+    icon: require(`@/assets/images/tokens/AVAX-USDC.png`),
     contractChain: "0xa86a",
     id: 4,
     isDepreciated: false,
@@ -185,7 +185,7 @@ export default [
   },
   {
     name: "wMEMO",
-    icon: require(`@/assets/images/tokensIcon/Token_MEMO.svg`),
+    icon: require(`@/assets/images/tokens/MEMO.png`),
     contractChain: "0xa86a",
     id: 5,
     isDepreciated: true,
@@ -226,7 +226,7 @@ export default [
   },
   {
     name: "AVAX/USDT.e JLP",
-    icon: require(`@/assets/images/tokensIcon/Token_AVAX_USDT.svg`),
+    icon: require(`@/assets/images/tokens/AVAX-USDT.png`),
     contractChain: "0xa86a",
     id: 6,
     isDepreciated: false,
@@ -275,7 +275,7 @@ export default [
   },
   {
     name: "AVAX/MIM JLP",
-    icon: require(`@/assets/images/tokensIcon/Token_AVAX_MIM.svg`),
+    icon: require(`@/assets/images/tokens/MIM-AVAX.png`),
     contractChain: "0xa86a",
     id: 7,
     isDepreciated: false,
@@ -324,7 +324,7 @@ export default [
   },
   {
     name: "AVAX/MIM SLP",
-    icon: require(`@/assets/images/tokensIcon/Token_AVAX_MIM.svg`),
+    icon: require(`@/assets/images/tokens/MIM-AVAX.png`),
     contractChain: "0xa86a",
     id: 8,
     isDepreciated: false,
