@@ -103,9 +103,9 @@ export default {
         {
           title: "Ratio",
           icon: this.tokensInfo.stakeToken.icon,
-          text: `${this.tokensInfo.tokensRate ? "1" : "0"} ${
-            this.tokensInfo.mainToken.name
-          } = ${parseFloat(this.tokensInfo.tokensRate).toFixed(4)} SPELL`,
+          text: `1 ${this.tokensInfo.mainToken.name} = ${parseFloat(
+            this.tokensInfo.tokensRate
+          ).toFixed(4)} ${this.tokensInfo.stakeToken.name}`,
         },
         {
           title: "Staking APR",
@@ -121,13 +121,6 @@ export default {
   methods: {
     isArray(item) {
       return Array.isArray(item);
-    },
-    getUSDSumm(tokenName) {
-      if (!this.tokensInfo[tokenName].price) return false;
-      if (!+this.tokensInfo[tokenName].balance) return 0;
-      const balanceInUsd =
-        +this.tokensInfo[tokenName].balance * +this.tokensInfo[tokenName].price;
-      return this.toFixed(balanceInUsd, 6);
     },
   },
   components: {
