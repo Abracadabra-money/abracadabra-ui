@@ -5,7 +5,7 @@
       @click="addToken"
       :class="{ disabled: !this.account }"
     >
-      <img src="@/assets/images/tokens-icon/MIM.svg" alt="MIM" />
+      <img src="@/assets/images/PixelMIM.svg" alt="MIM" />
     </button>
     <p class="mim-price">{{ parseFloat(mimPrice).toFixed(4) }}</p>
   </div>

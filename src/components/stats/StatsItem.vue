@@ -1,14 +1,16 @@
 <template>
-  <button
-    @click="$emit('select')"
+  <router-link
+    :to="{
+      name: isFarm ? 'FarmPool' : 'BorrowId',
+      params: { id: poolData.id },
+    }"
     class="stats-item"
     :class="{ 'stats-item-farm': isFarm }"
-    :disabled="isSelected"
   >
     <span class="network-data" :class="{ 'network-data-new': isNew }">
-      <img class="network-image" :src="icon" alt="network" />
+      <BaseTokenIcon :name="poolData.name" :icon="poolData.icon" />
       <span class="network-name-wrap">
-        <span>{{ name }}</span>
+        <span>{{ poolData.name }}</span>
         <span v-if="isNew" class="network-new">New</span>
       </span>
     </span>
@@ -25,19 +27,18 @@
         alt="DegenBox"
       />
     </span>
-  </button>
+  </router-link>
 </template>
 
 <script>
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+
 export default {
   name: "StatsItem",
+  components: { BaseTokenIcon },
   props: {
-    icon: {
-      type: String,
-    },
-    name: {
-      type: String,
-      default: "",
+    poolData: {
+      type: Object,
     },
     degen: {
       type: Boolean,
@@ -47,28 +48,56 @@ export default {
       type: Boolean,
       default: false,
     },
-    isSelected: {
-      type: Boolean,
-      default: false,
-    },
     isFarm: {
       type: Boolean,
       default: false,
+    },
+  },
+  methods: {
+    formatNumber(value) {
+      if (isNaN(Number(value)) || Number(value) < 1) return 0;
+
+      const lookup = [
+        { value: 0, symbol: "" },
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: "k" },
+        { value: 1e6, symbol: "M" },
+      ];
+      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+      let item = lookup
+        .slice()
+        .reverse()
+        .find(function (item) {
+          return parseFloat(value) >= item.value;
+        });
+      return (
+        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
+        item.symbol
+      );
     },
   },
   computed: {
     items() {
       return this.isFarm
         ? [
-            { title: "~Yield per $1000", value: "192.00" },
-            { title: "ROI Annually", value: "32.06%" },
-            { title: "TVL", value: "$ 11,653,678" },
+            { title: "~Yield per $1000", value: this.poolData.yield },
+            { title: "ROI Annually", value: this.poolData.roi },
+            { title: "TVL", value: this.poolData.tvl },
           ]
         : [
-            { title: "TOTAL MIM BORROWED", value: "14.35K" },
-            { title: "MIMS LEFT TO BORROW", value: "12.33K" },
-            { title: "INTEREST", value: "4%" },
-            { title: "LIQUIDATION FEE", value: "12.5%" },
+            {
+              title: "TOTAL MIM BORROWED",
+              value: this.formatNumber(this.poolData.totalMim),
+            },
+            {
+              title: "MIMS LEFT TO BORROW",
+              value: this.formatNumber(this.poolData.mimsLeft),
+            },
+            { title: "INTEREST", value: `${this.poolData.interest}%` },
+            {
+              title: "LIQUIDATION FEE",
+              value: `${this.poolData.liquidation}%`,
+            },
           ];
     },
   },
@@ -90,9 +119,11 @@ export default {
   cursor: pointer;
   color: white;
   text-align: left;
+  box-shadow: 0 0 0 1px transparent;
 
-  &:disabled {
-    cursor: default;
+  transition: all 0.2s;
+
+  &:hover {
     box-shadow: 0 0 0 1px #8180ff;
   }
 }
@@ -103,12 +134,6 @@ export default {
   align-items: center;
   font-size: 16px;
   margin-bottom: 6px;
-  .network-image {
-    height: 32px;
-    min-width: 32px;
-    object-fit: contain;
-    margin-right: 8px;
-  }
   .network-name-wrap {
     position: relative;
     display: flex;
@@ -166,11 +191,6 @@ export default {
   }
   .network-data {
     margin-bottom: 0;
-    .network-image {
-      height: 28px;
-      min-width: 28px;
-      margin-right: 8px;
-    }
     .network-name-wrap {
       height: 28px;
     }

@@ -9,11 +9,7 @@
       <p class="box-header-title">{{ title }}</p>
     </div>
     <div class="box-data">
-      <img
-        src="@/assets/images/networks/polygon-icon.svg"
-        alt="Token"
-        class="box-data-img"
-      />
+      <BaseTokenIcon :icon="mimIcon" name="MIM" size="50px" />
       <div>
         <p class="box-balance1">{{ (+formattedBalance).toFixed(4) }}</p>
         <p class="box-balance2">$ {{ usd }}</p>
@@ -21,11 +17,11 @@
     </div>
     <div class="box-actions">
       <template>
-        <DefaultButton @click="$emit('withdraw')" :disabled="isDisabled"
-          >Withdraw</DefaultButton
+        <BaseButton @click="$emit('withdraw')" :disabled="isDisabled"
+          >Withdraw</BaseButton
         >
-        <DefaultButton @click="$emit('deposit')" selected
-          >Deposit</DefaultButton
+        <BaseButton @click="$emit('deposit')" selected
+          >Deposit</BaseButton
         ></template
       >
     </div>
@@ -38,15 +34,22 @@
 </template>
 
 <script>
-const DefaultButton = () => import("@/components/main/DefaultButton");
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+const BaseButton = () => import("@/components/base/BaseButton");
+const mimIcon = require("@/assets/images/tokens/MIM.png");
 
 export default {
   name: "BalanceBox",
-  components: { DefaultButton },
+  components: { BaseTokenIcon, BaseButton },
   props: {
     isBento: { type: Boolean, default: false },
     balance: { type: String, default: "0" },
     mimPrice: { type: Number, default: 0 },
+  },
+  data() {
+    return {
+      mimIcon,
+    };
   },
   computed: {
     title() {
@@ -131,11 +134,6 @@ export default {
     grid-template-columns: auto 1fr;
     padding: 16px 0;
     column-gap: 14px;
-
-    &-img {
-      width: 50px;
-      height: 50px;
-    }
   }
 
   &-balance1 {

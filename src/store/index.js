@@ -6,24 +6,21 @@ import networks from "@/store/modules/networks";
 import notifications from "@/store/modules/notifications";
 import bridge from "@/store/modules/bridge";
 import popups from "@/store/modules/popups";
-import pools from "@/store/modules/pools";
+import stake from "@/store/modules/stake";
+import borrowPools from "@/store/modules/borrowPools";
 import farms from "@/store/modules/farms";
-import tokens from "@/store/modules/tokens";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
   modules: {
     connectProvider,
     networks,
     notifications,
     bridge,
     popups,
-    pools,
-    tokens,
+    stake,
+    borrowPools,
     farms,
   },
 });

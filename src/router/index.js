@@ -30,6 +30,16 @@ const routes = [
     component: () => import("@/views/borrow/Repay"),
   },
   {
+    path: "/sSPELL",
+    name: "Stake",
+    component: () => import("@/views/stake/SSpell"),
+  },
+  {
+    path: "/mSPELL",
+    name: "mStake",
+    component: () => import("@/views/stake/MSpell"),
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/borrow/Leverage"),
@@ -60,6 +70,12 @@ const routes = [
     component: () => import("@/views/Farm"),
   },
   {
+    path: "/farm/:id",
+    name: "FarmPool",
+    component: () => import("@/views/Farm"),
+    props: true,
+  },
+  {
     path: "/my-positions",
     name: "MyPositions",
     component: () => import("@/views/MyPositions"),
@@ -67,17 +83,17 @@ const routes = [
   {
     path: "/stats",
     name: "Stats",
-    component: () => import("@/views/Stats"),
+    component: () => import("@/views/stats/Stats"),
     children: [
       {
         path: "",
         name: "StatsBorrow",
-        component: () => import("@/views/StatsView"),
+        component: () => import("@/views/stats/StatsView"),
       },
       {
         path: "farm",
         name: "StatsFarm",
-        component: () => import("@/views/StatsView"),
+        component: () => import("@/views/stats/StatsView"),
         props: { isFarm: true },
       },
     ],

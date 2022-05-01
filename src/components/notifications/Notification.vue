@@ -1,5 +1,8 @@
 <template>
-  <div class="notification-item" :class="['notification-item__'+notification.type]">
+  <div
+    class="notification-item"
+    :class="['notification-item__' + notification.type]"
+  >
     <div class="notification-item__header">
       <img
         :src="getImgUrl(notification.type)"
@@ -9,9 +12,9 @@
       <h2>{{ notification.title }}</h2>
       <img
         class="notification-item__close"
-          src="@/assets/images/notification-icons/close-icon.svg"
-          alt=""
-          @click="closeNotification"
+        src="@/assets/images/notification-icons/close-icon.svg"
+        alt=""
+        @click="closeNotification"
       />
     </div>
     <p class="notification-item__discription">{{ notification.discription }}</p>
@@ -29,13 +32,17 @@ export default {
   },
   methods: {
     getImgUrl(type) {
-      var images = require.context('../../assets/images/notification-icons/', false, /\.svg$/)
-      return images('./' + type + "-icon.svg")
+      var images = require.context(
+        "../../assets/images/notification-icons/",
+        false,
+        /\.svg$/
+      );
+      return images("./" + type + "-icon.svg");
     },
     closeNotification() {
       this.$store.commit("notifications/delete", this.notification.id);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -70,7 +77,7 @@ export default {
   &__discription {
     font-size: 16px;
     letter-spacing: 0.025em;
-    color: #FFFFFF;
+    color: #ffffff;
   }
   &__content {
     margin-top: 5px;
@@ -82,17 +89,16 @@ export default {
 }
 .notification-item {
   &__success {
-    border: 1px solid #63FF7B;
+    border: 1px solid #63ff7b;
   }
   &__info {
-    border: 1px solid #517EF2;
+    border: 1px solid #517ef2;
   }
   &__error {
-    border: 1px solid #D94844;
+    border: 1px solid #d94844;
   }
   &__warning {
-    border: 1px solid #E5D752;
+    border: 1px solid #e5d752;
   }
 }
-
 </style>

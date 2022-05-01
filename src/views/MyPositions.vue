@@ -1,9 +1,9 @@
 <template>
   <div class="my-position-view">
-    <h2 class="title">My positions</h2>
+    <h2 class="title page-title">My positions</h2>
     <div class="choose">
       <h4 class="choose-title">Choose Chain</h4>
-      <NetworksList :items="5" />
+      <NetworksList :items="5" :activeList="activeNetworks" />
     </div>
 
     <div class="values-list">
@@ -18,21 +18,39 @@
     />
     <h2 class="title">Specific positions</h2>
     <div class="spec-positions">
-      <SpecPos />
-      <SpecPos />
+      <div
+        v-if="
+          (farmLoading && !this.pools.length) ||
+          (borrowLoading && !this.borrowPools.length)
+        "
+        class="loader-wrap"
+      >
+        <BaseLoader />
+      </div>
+
+      <template v-else>
+        <SpecPos :pools="this.borrowPools" />
+        <SpecPos :isFarm="true" :pools="this.pools"
+      /></template>
     </div>
   </div>
 </template>
 
 <script>
+import farmPoolsMixin from "@/mixins/farmPools";
+
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
+const BaseLoader = () => import("@/components/base/BaseLoader");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
+import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import { mapGetters } from "vuex";
 
 export default {
-  mixins: [mimBentoDeposit],
+  mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
   data: () => ({
+    activeNetworks: [1, 56, 250, 43114, 42161, 137],
     textItems: [
       {
         title: "Collateral Deposit",
@@ -48,9 +66,16 @@ export default {
       },
     ],
     mimBentoInterval: null,
+    farmPoolsTimer: null,
+    borrowPoolsTimer: null,
   }),
 
   computed: {
+    ...mapGetters({
+      borrowPools: "getPools",
+      borrowLoading: "getLoadPoolsBorrow",
+      farmLoading: "getFarmPoolLoading",
+    }),
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
     },
@@ -60,8 +85,21 @@ export default {
     SpecPos,
     NetworksList,
     BalanceBoxes,
+    BaseLoader,
   },
   async created() {
+    if (!this.pools.length) {
+      await this.createFarmPools();
+    }
+
+    this.farmPoolsTimer = setInterval(async () => {
+      await this.createFarmPools();
+    }, 10000);
+
+    this.borrowPoolsTimer = setInterval(async () => {
+      await this.createPools();
+    }, 10000);
+
     await this.createMimBentoInfo();
     this.mimBentoInterval = setInterval(async () => {
       await this.createMimBentoInfo();
@@ -69,7 +107,9 @@ export default {
   },
 
   beforeDestroy() {
+    clearInterval(this.farmPoolsTimer);
     clearInterval(this.mimBentoInterval);
+    clearInterval(this.borrowPoolsTimer);
   },
 };
 </script>
@@ -87,6 +127,11 @@ export default {
 .title {
   text-align: center;
   text-transform: uppercase;
+  margin: 32px 0 32px 0;
+
+  &.page-title {
+    margin-top: 0;
+  }
 }
 
 .choose {
@@ -129,6 +174,11 @@ export default {
   &-value {
     font-weight: 700;
   }
+}
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .spec-positions {

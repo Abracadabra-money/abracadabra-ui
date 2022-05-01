@@ -8,7 +8,7 @@
           <p>Balance: {{ (+balance).toFixed(2) }}</p>
         </div>
 
-        <ValueInput
+        <BaseTokenInput
           :icon="mimIcon"
           name="MIM"
           v-model="amount"
@@ -18,33 +18,37 @@
       </div>
     </div>
     <template v-if="isApproved !== null">
-      <DefaultButton v-if="!isApproved" primary @click="approveToken"
-        >Approve</DefaultButton
+      <BaseButton v-if="!isApproved" primary @click="approveToken"
+        >Approve</BaseButton
       >
       <template v-else>
-        <DefaultButton
+        <BaseButton
           v-if="isDeposit"
           @click="deposit"
           :disabled="!isValid || !!error"
-          >Deposit</DefaultButton
+          >Deposit</BaseButton
         >
-        <DefaultButton v-else @click="withdraw" :disabled="!isValid || !!error"
-          >Withdraw</DefaultButton
+        <BaseButton v-else @click="withdraw" :disabled="!isValid || !!error"
+          >Withdraw</BaseButton
         >
       </template>
     </template>
+    <div v-else class="load-wrap">
+      <BaseLoader />
+    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const DefaultButton = () => import("@/components/main/DefaultButton.vue");
-import mimIcon from "@/assets/images/tokens-icon/MIM.svg";
+const BaseTokenInput = () =>
+  import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
+import mimIcon from "@/assets/images/tokens/MIM.png";
+const BaseLoader = () => import("@/components/base/BaseLoader");
 
 export default {
-  components: { ValueInput, DefaultButton },
+  components: { BaseLoader, BaseTokenInput, BaseButton },
   props: {
     infoObject: {
       type: Object,
@@ -257,5 +261,10 @@ export default {
   padding-bottom: 20px;
   margin-bottom: 38px;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
+}
+.load-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>

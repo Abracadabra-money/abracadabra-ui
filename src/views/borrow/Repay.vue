@@ -13,7 +13,7 @@
               {{ parseFloat(maxCollateralValue).toFixed(4) }}
             </p>
           </div>
-          <ValueInput
+          <BaseTokenInput
             :icon="selectedPool ? selectedPool.icon : null"
             :name="selectedPool ? selectedPool.name : null"
             v-model="collateralValue"
@@ -29,8 +29,9 @@
           <div class="header-balance">
             <h4>Repay MIM</h4>
           </div>
-          <ValueInput
+          <BaseTokenInput
             name="MIM"
+            :icon="mimIcon"
             v-model="borrowValue"
             :max="maxBorrowValue"
             :error="borrowError"
@@ -54,15 +55,15 @@
         />
         <template v-if="selectedPool">
           <div class="btn-wrap">
-            <DefaultButton
+            <BaseButton
               @click="approveTokenHandler"
               primary
               :disabled="isApproved"
-              >Approve</DefaultButton
+              >Approve</BaseButton
             >
-            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+            <BaseButton @click="actionHandler" :disabled="!isApproved">{{
               actionBtnText
-            }}</DefaultButton>
+            }}</BaseButton>
           </div>
           <div class="info-list">
             <div v-for="(item, i) in infoData" :key="i" class="info-item">
@@ -85,14 +86,16 @@
 
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
+const BaseTokenInput = () =>
+  import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const DefaultButton = () => import("@/components/main/DefaultButton");
-const PopupWrap = () => import("@/components/ui/PopupWrap");
+const BaseButton = () => import("@/components/base/BaseButton");
+const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 import {
   isTokenApprowed,
   approveToken,
@@ -105,6 +108,7 @@ export default {
   mixins: [borrowPoolsMixin, cookMixin],
   data() {
     return {
+      mimIcon,
       collateralValue: "",
       collateralError: "",
       borrowValue: "",
@@ -634,9 +638,9 @@ export default {
 
   components: {
     NetworksList,
-    ValueInput,
+    BaseTokenInput,
     BorrowPoolStand,
-    DefaultButton,
+    BaseButton,
     PopupWrap,
     SelectPoolPopup,
   },

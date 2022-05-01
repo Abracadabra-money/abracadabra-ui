@@ -1,10 +1,10 @@
 <template>
   <button @click="$emit('click')" class="token-wrap">
     <div class="token-data">
-      <img class="token-icon" :src="icon" alt="token" />
+      <BaseTokenIcon :icon="icon" :name="name" />
       <p>{{ name }}</p>
     </div>
-    <div class="token-value">
+    <div v-if="balance !== null" class="token-value">
       <p>
         {{ showBalance }}
       </p>
@@ -14,12 +14,19 @@
 </template>
 
 <script>
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+
 export default {
   name: "TokenPopupItem",
+  components: { BaseTokenIcon },
   props: {
     name: {
       type: String,
       default: "",
+    },
+    icon: {
+      type: String,
+      default: null,
     },
     balance: {
       type: String,
@@ -27,10 +34,6 @@ export default {
     },
     price: {
       type: [Number, String],
-      default: null,
-    },
-    icon: {
-      type: String,
       default: null,
     },
   },
@@ -60,15 +63,6 @@ export default {
 .token-data {
   display: flex;
   align-items: center;
-}
-
-.token-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  background-color: white;
-  border-radius: 10px;
-  margin-right: 10px;
 }
 
 .token-value {

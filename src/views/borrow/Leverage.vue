@@ -13,7 +13,7 @@
               {{ parseFloat(maxCollateralValue).toFixed(4) }}
             </p>
           </div>
-          <ValueInput
+          <BaseTokenInput
             :icon="selectedPool ? selectedPool.icon : null"
             :name="selectedPool ? selectedPool.name : null"
             v-model="collateralValue"
@@ -60,15 +60,15 @@
         />
         <template v-if="selectedPool">
           <div class="btn-wrap">
-            <DefaultButton
+            <BaseButton
               @click="approveTokenHandler"
               primary
               :disabled="isApproved"
-              >Approve</DefaultButton
+              >Approve</BaseButton
             >
-            <DefaultButton @click="actionHandler" :disabled="!isApproved">{{
+            <BaseButton @click="actionHandler" :disabled="!isApproved">{{
               actionBtnText
-            }}</DefaultButton>
+            }}</BaseButton>
           </div>
           <div class="info-list">
             <div v-for="(item, i) in infoData" :key="i" class="info-item">
@@ -94,11 +94,12 @@
 
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const Range = () => import("@/components/UIComponents/Range");
+const BaseTokenInput = () =>
+  import("@/components/base/BaseTokenInput");
+const Range = () => import("@/components/ui/Range");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const DefaultButton = () => import("@/components/main/DefaultButton");
-const PopupWrap = () => import("@/components/ui/PopupWrap");
+const BaseButton = () => import("@/components/base/BaseButton");
+const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
 
@@ -758,10 +759,10 @@ export default {
 
   components: {
     NetworksList,
-    ValueInput,
+    BaseTokenInput,
     Range,
     BorrowPoolStand,
-    DefaultButton,
+    BaseButton,
     PopupWrap,
     SettingsPopup,
     SelectPoolPopup,

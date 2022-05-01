@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <div class="router-wrap" v-if="checkInProcess">
       <router-view />
     </div>
@@ -14,7 +14,7 @@ import { mapGetters } from "vuex";
 
 const NotificationContainer = () =>
   import("@/components/notifications/NotificationContainer");
-const Header = () => import("@/components/main/Header");
+const AppHeader = () => import("@/components/app/AppHeader");
 const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
 
 export default {
@@ -22,7 +22,7 @@ export default {
     ...mapGetters({ checkInProcess: "getWalletIsConnected" }),
   },
   components: {
-    Header,
+    AppHeader,
     NotificationContainer,
     PopupsWrapper,
   },

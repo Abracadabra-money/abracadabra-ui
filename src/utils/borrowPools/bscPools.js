@@ -6,7 +6,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 export default [
   {
     name: "wBNB",
-    icon: require(`@/assets/images/tokensIcon/Token_BNB.svg`),
+    icon: require(`@/assets/images/tokens/BNB.png`),
     contractChain: "0x38",
     id: 1,
     isDepreciated: false,
@@ -47,7 +47,7 @@ export default [
   },
   {
     name: "CAKE",
-    icon: require(`@/assets/images/tokensIcon/Token_CAKE.svg`),
+    icon: require(`@/assets/images/tokens/CAKE.png`),
     contractChain: "0x38",
     id: 2,
     isDepreciated: false,
