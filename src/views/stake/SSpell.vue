@@ -102,10 +102,10 @@
 <script>
 const InfoBlock = () => import("@/components/stake/InfoBlock");
 const BaseTokenInput = () =>
-  import("@/components/baseComponents/BaseTokenInput");
-const NetworksList = () => import("@/components/uiComponents/NetworksList");
+  import("@/components/base/BaseTokenInput");
+const NetworksList = () => import("@/components/ui/NetworksList");
 
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const BaseButton = () => import("@/components/base/BaseButton");
 
 import sspellToken from "@/mixins/stake/sspellToken";
 import stake from "@/mixins/stake/stake";

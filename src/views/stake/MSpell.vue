@@ -116,10 +116,10 @@ const InfoBlock = () => import("@/components/stake/InfoBlock");
 const ClaimInfo = () => import("@/components/stake/ClaimInfo");
 
 const BaseTokenInput = () =>
-  import("@/components/baseComponents/BaseTokenInput");
-const NetworksList = () => import("@/components/uiComponents/NetworksList");
+  import("@/components/base/BaseTokenInput");
+const NetworksList = () => import("@/components/ui/NetworksList");
 
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const BaseButton = () => import("@/components/base/BaseButton");
 
 import mSpellStaking from "@/mixins/stake/mSpellStaking";
 import stake from "@/mixins/stake/stake";

@@ -34,8 +34,8 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+const BaseButton = () => import("@/components/base/BaseButton");
 
 export default {
   name: "BalanceBox",

@@ -104,7 +104,7 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 import { getTokenIconByName } from "../../utils/helpers";
 
 export default {

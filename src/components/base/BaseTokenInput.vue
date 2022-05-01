@@ -44,7 +44,7 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 export default {
   props: {

@@ -83,8 +83,8 @@
 
 <script>
 const BaseTokenInput = () =>
-  import("@/components/baseComponents/BaseTokenInput");
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+  import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
 const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
 const NetworkPopup = () => import("@/components/popups/NetworkPopup");
 import bridgeMixin from "@/mixins/bridge";

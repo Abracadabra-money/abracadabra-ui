@@ -41,7 +41,7 @@
 import { mapGetters } from "vuex";
 
 import chainSwitch from "@/mixins/chainSwitch";
-const NetworkChip = () => import("@/components/uiComponents/NetworkChip");
+const NetworkChip = () => import("@/components/ui/NetworkChip");
 
 export default {
   name: "NetworksList",

@@ -93,12 +93,12 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/uiComponents/NetworksList");
+const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () =>
-  import("@/components/baseComponents/BaseTokenInput");
-const Range = () => import("@/components/uiComponents/Range");
+  import("@/components/base/BaseTokenInput");
+const Range = () => import("@/components/ui/Range");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const BaseButton = () => import("@/components/base/BaseButton");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");

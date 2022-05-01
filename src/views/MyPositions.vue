@@ -39,10 +39,10 @@
 <script>
 import farmPoolsMixin from "../mixins/farmPools";
 
-const NetworksList = () => import("@/components/uiComponents/NetworksList");
+const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
-const BaseLoader = () => import("@/components/baseComponents/BaseLoader");
+const BaseLoader = () => import("@/components/base/BaseLoader");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";

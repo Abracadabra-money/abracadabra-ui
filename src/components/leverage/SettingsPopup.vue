@@ -28,7 +28,7 @@
 </template>
 
 <script>
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const BaseButton = () => import("@/components/base/BaseButton");
 
 export default {
   data() {

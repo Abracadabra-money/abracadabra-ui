@@ -88,7 +88,7 @@
 </template>
 
 <script>
-const ConnectButton = () => import("@/components/uiComponents/ConnectButton");
+const ConnectButton = () => import("@/components/ui/ConnectButton");
 export default {
   data() {
     return {

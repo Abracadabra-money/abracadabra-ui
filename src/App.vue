@@ -14,7 +14,7 @@ import { mapGetters } from "vuex";
 
 const NotificationContainer = () =>
   import("@/components/notifications/NotificationContainer");
-const AppHeader = () => import("@/components/appComponents/AppHeader");
+const AppHeader = () => import("@/components/app/AppHeader");
 const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
 
 export default {

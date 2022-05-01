@@ -42,10 +42,10 @@
 <script>
 import { mapGetters } from "vuex";
 const BaseTokenInput = () =>
-  import("@/components/baseComponents/BaseTokenInput");
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+  import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
 import mimIcon from "@/assets/images/tokensIcon/Token_MIM.svg";
-const BaseLoader = () => import("@/components/baseComponents/BaseLoader");
+const BaseLoader = () => import("@/components/base/BaseLoader");
 
 export default {
   components: { BaseLoader, BaseTokenInput, BaseButton },

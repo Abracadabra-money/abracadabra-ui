@@ -105,14 +105,14 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/uiComponents/NetworksList");
-const Range = () => import("@/components/uiComponents/Range");
+const NetworksList = () => import("@/components/ui/NetworksList");
+const Range = () => import("@/components/ui/Range");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+const BaseButton = () => import("@/components/base/BaseButton");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
-const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";

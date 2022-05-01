@@ -68,9 +68,9 @@ import farmPoolsMixin from "@/mixins/farmPools";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
 
-const BaseLoader = () => import("@/components/baseComponents/BaseLoader");
+const BaseLoader = () => import("@/components/base/BaseLoader");
 
-const DropdownWrap = () => import("@/components/uiComponents/DropdownWrap");
+const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const StatsItem = () => import("@/components/stats/StatsItem");
 
 export default {

@@ -96,16 +96,16 @@
 <script>
 import { mapGetters } from "vuex";
 
-const NetworksList = () => import("@/components/uiComponents/NetworksList");
+const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () =>
-  import("@/components/baseComponents/BaseTokenInput");
-const BaseButton = () => import("@/components/baseComponents/BaseButton");
+  import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
-const BaseLoader = () => import("@/components/baseComponents/BaseLoader");
-const BaseTokenIcon = () => import("@/components/baseComponents/BaseTokenIcon");
+const BaseLoader = () => import("@/components/base/BaseLoader");
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 export default {
   mixins: [farmPoolsMixin],
