@@ -42,15 +42,15 @@
       />
     </div>
 
-    <DefaultButton @click="actionHandler" :disabled="disabledBtn" primary>{{
+    <BaseButton @click="actionHandler" :disabled="disabledBtn" primary>{{
       actionBtnText
-    }}</DefaultButton>
+    }}</BaseButton>
   </div>
 </template>
 
 <script>
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const DefaultButton = () => import("@/components/main/DefaultButton");
+const ValueInput = () => import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
 
 import olimpusStake from "@/mixins/getCollateralLogic/olimpusStake";
 import { approveToken } from "@/utils/approveHelpers.js";
@@ -251,7 +251,7 @@ export default {
 
   components: {
     ValueInput,
-    DefaultButton,
+    BaseButton,
   },
 };
 </script>

@@ -10,7 +10,7 @@ export default {
   },
   mainToken: {
     name: "cvxrenCrv",
-    icon: require(`@/assets/images/tokensIcon/Token_cvxrenCrv.svg`),
+    icon: require(`@/assets/images/tokens/Convex-Bitcoin.png`),
     decimals: 18,
     address: "0xB65eDE134521F0EFD4E943c835F450137dC6E83e",
     abi: mainTokenAbi,

@@ -52,15 +52,15 @@
       />
     </div>
 
-    <DefaultButton @click="actionHandler" :disabled="disabledBtn" primary>{{
+    <BaseButton @click="actionHandler" :disabled="disabledBtn" primary>{{
       actionBtnText
-    }}</DefaultButton>
+    }}</BaseButton>
   </div>
 </template>
 
 <script>
-const ValueInput = () => import("@/components/UIComponents/ValueInput");
-const DefaultButton = () => import("@/components/main/DefaultButton");
+const ValueInput = () => import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
 
 import memoWrap from "@/mixins/getCollateralLogic/memoWrap";
 import { mapGetters } from "vuex";
@@ -269,7 +269,7 @@ export default {
     clearInterval(this.updateInterval);
   },
 
-  components: { ValueInput, DefaultButton },
+  components: { ValueInput, BaseButton },
 };
 </script>
 

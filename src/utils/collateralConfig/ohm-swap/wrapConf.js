@@ -1,7 +1,7 @@
 export default {
   mainToken: {
     name: "wsOHM",
-    icon: require(`@/assets/images/tokensIcon/Token_wsOHM.svg`),
+    icon: require(`@/assets/images/tokens/OHM.png`),
     decimals: 18,
     address: "0xCa76543Cf381ebBB277bE79574059e32108e3E65",
     abi: [
@@ -195,7 +195,7 @@ export default {
   },
   stakeToken: {
     name: "sOHM",
-    icon: require(`@/assets/images/tokensIcon/Token_wsOHM.svg`),
+    icon: require(`@/assets/images/tokens/OHM.png`),
     decimals: 9,
     address: "0x04f2694c8fcee23e8fd0dfea1d4f5bb8c352111f",
     abi: [
