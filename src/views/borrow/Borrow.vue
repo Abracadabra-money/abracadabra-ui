@@ -83,7 +83,8 @@
         </template>
       </div>
     </template>
-    <div v-else class="loading">LOADING ....</div>
+
+    <BaseLoader v-else />
 
     <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
       <SelectPoolPopup
@@ -99,6 +100,7 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
+const BaseLoader = () => import("@/components/base/BaseLoader");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
 
@@ -565,6 +567,7 @@ export default {
     BaseTokenInput,
     BorrowPoolStand,
     BaseButton,
+    BaseLoader,
     PopupWrap,
     SelectPoolPopup,
   },
@@ -579,6 +582,13 @@ export default {
   margin: 0 auto;
   width: 100%;
   padding: 100px 5px;
+}
+
+.borrow-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .deposit-block {
@@ -653,18 +663,6 @@ export default {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
-  }
-
-  .borrow-loading {
-    display: flex;
-    justify-content: center;
-  }
-
-  .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
   }
 
   .choose {
