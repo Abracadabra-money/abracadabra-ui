@@ -45,10 +45,10 @@ export default {
   methods: {
     ...mapMutations({ setLoadingSSpellStake: "setLoadingSSpellStake" }),
     async createStakePool() {
-      if (!this.account) {
-        this.setLoadingSSpellStake(false);
-        return false;
-      }
+      // if (!this.account) {
+      //   this.setLoadingSSpellStake(false);
+      //   return false;
+      // }
 
       if (this.chainId !== 1) {
         this.setLoadingSSpellStake(false);
@@ -79,25 +79,33 @@ export default {
 
       const { sSpellApr } = await getSpellStakingApr();
 
-      const isTokenApprowed = await this.isTokenApprowed(
-        stakeTokenInstance,
-        this.account,
-        mainToken.address
-      );
+      // is user connected block (UPDATE IN FUTURE)
+      let lockedUntil = false;
+      let mainTokenBalance = 0;
+      let stakeTokenBalance = 0;
+      let isTokenApprowed = false;
 
-      const lockedUntil = await this.getUserLocked(mainTokenInstance);
+      if (this.account) {
+        isTokenApprowed = await this.isTokenApprowed(
+          stakeTokenInstance,
+          this.account,
+          mainToken.address
+        );
 
-      let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
+        lockedUntil = await this.getUserLocked(mainTokenInstance);
 
-      mainTokenBalance = this.$ethers.utils.formatEther(
-        mainTokenBalance.toString()
-      );
+        mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
 
-      let stakeTokenBalance = await stakeTokenInstance.balanceOf(this.account);
+        mainTokenBalance = this.$ethers.utils.formatEther(
+          mainTokenBalance.toString()
+        );
 
-      stakeTokenBalance = this.$ethers.utils.formatEther(
-        stakeTokenBalance.toString()
-      );
+        stakeTokenBalance = await stakeTokenInstance.balanceOf(this.account);
+
+        stakeTokenBalance = this.$ethers.utils.formatEther(
+          stakeTokenBalance.toString()
+        );
+      }
 
       const stakeObject = {
         tokensRate,

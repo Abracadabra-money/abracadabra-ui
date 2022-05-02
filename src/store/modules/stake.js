@@ -28,5 +28,6 @@ export default {
     getSSpellObject: (state) => state.sSpellStakeObject,
     getMimInBentoDepositObject: (state) => state.mimInBentoDepositObject,
     getLoadingSSpellStake: (state) => state.isLoadingSSpellStake,
+    getLoadingMSpellStake: (state) => state.isLoadingMSpellStake,
   },
 };

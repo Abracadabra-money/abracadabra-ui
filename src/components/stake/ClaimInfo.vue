@@ -7,51 +7,58 @@
           <img src="@/assets/images/tokens/MIM.png" alt="MIM" />
         </div>
         <div class="claim-info__count">
-          <h4>
-            {{ token }}
-          </h4>
+          <h4>MIM</h4>
           <div>
             {{ count }}
           </div>
         </div>
       </div>
-      <a class="button" @click="claim">Claim</a>
+      <BaseButton
+        @click="claimHandler"
+        :disabled="disableClaim"
+        :width="'100px'"
+      >
+        Claim
+      </BaseButton>
     </div>
   </div>
 </template>
 
 <script>
+const BaseButton = () => import("@/components/base/BaseButton");
+
 export default {
   name: "ClaimInfo",
   props: {
-    icon: {
-      type: String,
-      required: true,
-    },
-    token: {
-      type: String,
-      required: true,
-    },
     count: {
       type: [Number, String],
       required: true,
     },
+    disableClaim: {
+      type: Boolean,
+      default: true,
+    },
   },
   methods: {
-    claim() {
+    claimHandler() {
       this.$emit("onClaim");
     },
+  },
+  components: {
+    BaseButton,
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .claim-info {
-  height: 130px;
   background-image: url("../../assets/images/bg-claim.png");
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
+  background-position: center;
   box-sizing: border-box;
+  border: 1px solid rgba(129, 128, 255, 0.2);
+  border-radius: 30px;
   box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
   backdrop-filter: blur(100px);
   padding: 20px;

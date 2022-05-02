@@ -2,11 +2,13 @@ import spellTokenAbi from "@/utils/abi/tokensAbi/SPELL";
 import mSpellStakingAbi from "@/utils/abi/mSpellStakingAbi";
 import moment from "moment";
 
+import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import { getSpellStakingApr } from "@/helpers/spellStake/spellStakingApr";
 
 export default {
   data() {
     return {
+      spellPrice: null,
       stakingContracts: {
         1: "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
         250: "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
@@ -28,15 +30,12 @@ export default {
   },
   methods: {
     async createMSpellStaking() {
-      console.log("createMSpellStaking", Number(this.chainId).toString(16));
-
-      if (!this.account) {
-        this.$store.commit("setLoadingMSpellStake", false);
-        return false;
-      }
+      // if (!this.account) {
+      //   this.$store.commit("setLoadingMSpellStake", false);
+      //   return false;
+      // }
 
       const mSpellStakingAddr = this.stakingContracts[this.chainId];
-      console.log(mSpellStakingAddr);
 
       if (!mSpellStakingAddr) {
         this.$store.commit("setLoadingMSpellStake", false);
@@ -49,12 +48,7 @@ export default {
         this.signer
       );
 
-      console.log("mSpellStakingContract", mSpellStakingContract);
-
       const spellAddr = await mSpellStakingContract.spell();
-      const mimAddr = await mSpellStakingContract.mim();
-
-      console.log(spellAddr, mimAddr);
 
       const spellTokenContract = new this.$ethers.Contract(
         spellAddr,
@@ -62,48 +56,58 @@ export default {
         this.signer
       );
 
-      console.log("mSpellStakingAddr", mSpellStakingAddr);
-
-      let spellTokenBalance = await spellTokenContract.balanceOf(this.account);
-
-      spellTokenBalance = this.$ethers.utils.formatEther(
-        spellTokenBalance.toString()
-      );
-
-      const isTokenApprowed = await this.isTokenApprowed(
-        spellTokenContract,
-        this.account,
-        mSpellStakingContract.address
-      );
-
-      const userInfo = await mSpellStakingContract.userInfo(this.account);
-
-      const depositAmount = this.$ethers.utils.formatEther(
-        userInfo.amount.toString()
-      );
-
-      let claimableAmount = await mSpellStakingContract.pendingReward(
-        this.account
-      );
-
-      claimableAmount = this.$ethers.utils.formatEther(
-        claimableAmount.toString()
-      );
-
-      const spellPrice = await this.getTokenPrice("Spell"); // stake.js mixin
-
-      const lockTimestamp = moment
-        .unix(userInfo.lastAdded.toString())
-        .add(1, "d");
-      const currentTimestamp = moment();
-
-      let lockedUntil = false;
-
-      if (+userInfo.lastAdded > 0 && lockTimestamp.isAfter(currentTimestamp)) {
-        lockedUntil = lockTimestamp.unix().toString();
-      }
+      const spellPrice = this.spellPrice
+        ? this.spellPrice
+        : await getTokenPriceByAddress(1, this.stakingContracts[1]); // SPELL token price
 
       const { mSpellApr } = await getSpellStakingApr();
+
+      // is user connected block (UPDATE IN FUTURE)
+      let lockedUntil = false;
+      let spellTokenBalance = 0;
+      let isTokenApprowed = false;
+      let depositAmount = 0;
+      let claimableAmount = 0;
+
+      if (this.account) {
+        spellTokenBalance = await spellTokenContract.balanceOf(this.account);
+
+        spellTokenBalance = this.$ethers.utils.formatEther(
+          spellTokenBalance.toString()
+        );
+
+        isTokenApprowed = await this.isTokenApprowed(
+          spellTokenContract,
+          this.account,
+          mSpellStakingContract.address
+        );
+
+        const userInfo = await mSpellStakingContract.userInfo(this.account);
+
+        depositAmount = this.$ethers.utils.formatEther(
+          userInfo.amount.toString()
+        );
+
+        claimableAmount = await mSpellStakingContract.pendingReward(
+          this.account
+        );
+
+        claimableAmount = this.$ethers.utils.formatEther(
+          claimableAmount.toString()
+        );
+
+        const lockTimestamp = moment
+          .unix(userInfo.lastAdded.toString())
+          .add(1, "d");
+        const currentTimestamp = moment();
+
+        if (
+          +userInfo.lastAdded > 0 &&
+          lockTimestamp.isAfter(currentTimestamp)
+        ) {
+          lockedUntil = lockTimestamp.unix().toString();
+        }
+      }
 
       const mSpellStakingObj = {
         tokensRate: 1,
@@ -134,9 +138,6 @@ export default {
 
       this.$store.commit("setMSpellStakingObj", mSpellStakingObj);
       this.$store.commit("setLoadingMSpellStake", false);
-
-      // await getSpellStakingRate();
-      // await getSpellApr();
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {
       try {
