@@ -1,18 +1,22 @@
 <template>
-  <button @click="enterPool(pool)" class="pool-item">
-    <div class="pool-name">
-      <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
-      <p>{{ pool.name }}</p>
-    </div>
-    <div class="pool-balance">
-      <p>{{ userBalance }}</p>
-      <p v-if="+userBalance">$ {{ priceUsd }}</p>
-    </div>
-  </button>
+  <div class="popup-item">
+    <StatusBar :pool="pool" />
+    <button @click="enterPool(pool)" class="pool-item">
+      <div class="pool-name">
+        <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
+        <p>{{ pool.name }}</p>
+      </div>
+      <div class="pool-balance">
+        <p>{{ userBalance }}</p>
+        <p v-if="+userBalance">$ {{ priceUsd }}</p>
+      </div>
+    </button>
+  </div>
 </template>
 
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+const StatusBar = () => import("@/components/ui/StatusBar");
 export default {
   props: {
     pool: {
@@ -46,16 +50,20 @@ export default {
       this.$emit("enterPool", pool);
     },
   },
-  components: { BaseTokenIcon },
+  components: { BaseTokenIcon, StatusBar },
 };
 </script>
 
 <style lang="scss" scoped>
+.popup-item {
+  padding: 8px 10px 0 0;
+}
 .pool-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 10px 14px 0;
+  width: 100%;
+  padding: 5px 0 14px;
   background-color: transparent;
   border: none;
   cursor: pointer;

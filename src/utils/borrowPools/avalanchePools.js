@@ -64,6 +64,10 @@ export default [
       decimals: 18,
       address: "0x0da67235dD5787D67955420C84ca1cEcd4E5Bb3b",
       abi: tokensAbi.wMEMO,
+      additionalLogic: {
+        title: "WRAP",
+        type: "memo-wrap",
+      },
     },
     pairToken: {
       name: "MIM",
@@ -203,6 +207,10 @@ export default [
       decimals: 18,
       address: "0x0da67235dD5787D67955420C84ca1cEcd4E5Bb3b",
       abi: tokensAbi.wMEMO,
+      additionalLogic: {
+        title: "WRAP",
+        type: "memo-wrap",
+      },
     },
     pairToken: {
       name: "MIM",

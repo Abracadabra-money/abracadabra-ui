@@ -356,6 +356,10 @@ export default [
       decimals: 18,
       address: "0xCa76543Cf381ebBB277bE79574059e32108e3E65",
       abi: tokensAbi.wsOHM,
+      additionalLogic: {
+        title: "WRAP",
+        type: "olimpus",
+      },
     },
     pairToken: {
       name: "MIM",
@@ -542,6 +546,14 @@ export default [
       decimals: 18,
       address: "0xd92494CB921E5C0d3A39eA88d0147bbd82E51008",
       abi: tokensAbi.stkcvx3Crv,
+      additionalLogic: {
+        title: "Deposit",
+        type: "3crv",
+        data: {
+          address: "0xd92494CB921E5C0d3A39eA88d0147bbd82E51008",
+        },
+        claimCrvReward: true,
+      },
     },
     pairToken: {
       name: "MIM",
@@ -580,6 +592,11 @@ export default [
       decimals: 18,
       address: "0x5958A8DB7dfE0CC49382209069b00F54e17929C2",
       abi: tokensAbi.stakedThreeCrypto,
+      additionalLogic: {
+        title: "Deposit",
+        type: "three-crypto-deposit",
+        claimCrvReward: true,
+      },
     },
     pairToken: {
       name: "MIM",
@@ -656,6 +673,11 @@ export default [
       decimals: 18,
       address: "0xB65eDE134521F0EFD4E943c835F450137dC6E83e",
       abi: tokensAbi.cvxRen,
+      additionalLogic: {
+        title: "Deposit",
+        type: "crv-ren",
+        claimCrvReward: true,
+      },
     },
     pairToken: {
       name: "MIM",
@@ -884,6 +906,14 @@ export default [
       decimals: 18,
       address: "0xd92494CB921E5C0d3A39eA88d0147bbd82E51008",
       abi: tokensAbi.stkcvx3Crv,
+      additionalLogic: {
+        title: "Deposit",
+        type: "3crv",
+        data: {
+          address: "0xd92494CB921E5C0d3A39eA88d0147bbd82E51008",
+        },
+        claimCrvReward: true,
+      },
     },
     pairToken: {
       name: "MIM",
@@ -922,6 +952,14 @@ export default [
       decimals: 18,
       address: "0x3Ba207c25A278524e1cC7FaAea950753049072A4",
       abi: tokensAbi.stkcvx3Crv,
+      additionalLogic: {
+        title: "Deposit",
+        type: "3crv",
+        data: {
+          address: "0xd92494CB921E5C0d3A39eA88d0147bbd82E51008",
+        },
+        claimCrvReward: true,
+      },
     },
     pairToken: {
       name: "MIM",

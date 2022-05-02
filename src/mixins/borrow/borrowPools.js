@@ -546,6 +546,7 @@ export default {
           decimals: pool.token.decimals,
           oracleExchangeRate: tokenPairRate,
           isTokenApprove,
+          additionalLogic: pool.token.additionalLogic,
         },
         userInfo: null,
         swapContract,

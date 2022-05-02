@@ -96,8 +96,7 @@
 
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () =>
-  import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
 const PopupWrap = () => import("@/components/popups/PopupWrap");

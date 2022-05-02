@@ -18,12 +18,13 @@
         </p>
       </div>
 
-      <ValueInput
+      <BaseTokenInput
         :icon="fromToken.icon"
         :name="fromTokenName"
         :max="fromToken.balance || 0"
         @input="updateMainValue"
         :error="amountError"
+        :value="amount"
       />
     </div>
 
@@ -39,12 +40,12 @@
     <div class="collateral-input underline">
       <div class="header-balance">
         <h4>Collateral assets</h4>
-        <p v-if="fromToken.balance">
-          {{ parseFloat(fromToken.balance).toFixed(4) }}
+        <p v-if="toToken.balance">
+          {{ parseFloat(toToken.balance).toFixed(4) }}
         </p>
       </div>
 
-      <ValueInput
+      <BaseTokenInput
         :value="toTokenAmount"
         :icon="toToken.icon"
         :name="toTokenName"
@@ -59,7 +60,7 @@
 </template>
 
 <script>
-const ValueInput = () => import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 import crvDeposit from "@/mixins/getCollateralLogic/crvDeposit";
 import { mapGetters } from "vuex";
@@ -277,7 +278,6 @@ export default {
       this.isApproved = this.tokensInfo.depositToken.isTokenApprowed;
 
       this.updateInterval = setInterval(async () => {
-        console.log("this.popupData.address", this.popupData.address);
         this.tokensInfo = await this.createCrvDeposit(this.popupData.address);
       }, 10000);
 
@@ -295,7 +295,7 @@ export default {
     clearInterval(this.updateInterval);
   },
 
-  components: { ValueInput, BaseButton },
+  components: { BaseTokenInput, BaseButton },
 };
 </script>
 

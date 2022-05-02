@@ -8,9 +8,10 @@
         </p>
       </div>
 
-      <ValueInput
+      <BaseTokenInput
         :icon="fromToken.icon"
         :name="fromToken.name"
+        :value="amount"
         :max="fromToken.balance || 0"
         @input="updateMainValue"
         :error="amountError"
@@ -29,12 +30,12 @@
     <div class="collateral-input underline">
       <div class="header-balance">
         <h4>Collateral assets</h4>
-        <p v-if="fromToken.balance">
-          {{ parseFloat(fromToken.balance).toFixed(4) }}
+        <p v-if="toToken.balance">
+          {{ parseFloat(toToken.balance).toFixed(4) }}
         </p>
       </div>
 
-      <ValueInput
+      <BaseTokenInput
         :value="toTokenAmount"
         :icon="toToken.icon"
         :name="toToken.name"
@@ -49,7 +50,7 @@
 </template>
 
 <script>
-const ValueInput = () => import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 
 import olimpusWrap from "@/mixins/getCollateralLogic/olimpusWrap";
@@ -247,7 +248,7 @@ export default {
   },
 
   components: {
-    ValueInput,
+    BaseTokenInput,
     BaseButton,
   },
 };
