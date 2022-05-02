@@ -32,14 +32,6 @@ export default {
         return priceResp.spell;
       }
     },
-    getImgUrl(type) {
-      var images = require.context(
-        "../../assets/images/tokens-icon/",
-        false,
-        /\.svg$/
-      );
-      return images("./" + type + ".svg");
-    },
     toggleAction() {
       this.amount = "";
       this.amountError = "";

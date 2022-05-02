@@ -1,256 +1,235 @@
 <template>
   <div class="stake">
-    <div class="choose">
+    <div class="input-block">
       <h4>Choose Chain</h4>
       <div class="underline">
         <NetworksList />
       </div>
-      <div class="swap-wrap">
-        <div class="token-input" :class="{ active: actions.STAKE }">
+      <div class="swap-wrap" v-if="tokensInfo">
+        <div class="token-input">
           <div class="header-balance">
-            <h4>{{ inputTitle(actions.STAKE) }}</h4>
-            <p>Balance: {{ parceBalance(info.stakeToken.balance) }}</p>
+            <h4>{{ action }}</h4>
+            <p>Balance: {{ fromToken.balance }}</p>
           </div>
           <BaseTokenInput
-            class="value-input"
-            :icon="getImgUrl('spell-icon')"
-            :name="'Spell'"
-            :disabled="!actions.STAKE"
-            :value="actions.STAKE ? amount : toTokenAmount"
+            :icon="fromToken.icon"
+            :name="fromToken.name"
+            :disabled="tokensInfo.lockedUntil && action === 'Unstake'"
+            :value="amount"
             @input="updateMainValue"
-            :max="actions.STAKE ? parceBalance(info.stakeToken.balance) : 0"
-            :error="actions.STAKE ? amountError : null"
+            :max="fromToken.balance"
+            :error="amountError"
           />
         </div>
         <div class="swap-img">
           <img
             src="@/assets/images/swap.svg"
-            :class="{ reflect: actions.UNSTAKE }"
             @click="toggleAction"
             alt="swap"
           />
         </div>
-        <div class="token-input" :class="{ active: actions.UNSTAKE }">
+        <div class="token-input">
           <div class="header-balance">
-            <h4>{{ inputTitle(actions.UNSTAKE) }}</h4>
-            <p>Balance: {{ parceBalance(info.mainToken.balance) }}</p>
+            <h4>Receive</h4>
           </div>
           <BaseTokenInput
-            class="value-input"
-            :icon="getImgUrl('sspell-icon')"
-            name="sSpell"
-            @input="updateMainValue"
-            :disabled="!actions.UNSTAKE"
-            :error="actions.UNSTAKE ? amountError : null"
-            :value="actions.UNSTAKE ? amount : toTokenAmount"
-            :max="actions.UNSTAKE ? parceBalance(info.mainToken.balance) : 0"
+            :icon="toToken.icon"
+            :name="toToken.name"
+            :value="toTokenAmount"
+            :disabled="true"
           />
         </div>
       </div>
     </div>
     <div class="profile">
-      <h1 class="title">STAKE</h1>
-      <InfoBlock
-        mainTokenName="sSPELL"
-        title="sSpell"
-        icon="sspell-icon"
-        :tokens-info="info"
-        :locked-until="lockedUntil"
-        :rate="info.tokensRate"
-      />
-      <div class="profile-actions">
+      <h1 class="title">sSPELL Token Staking</h1>
+      <InfoBlock :tokensInfo="tokensInfo" />
+      <div class="profile-actions" v-if="tokensInfo">
         <BaseButton
-          width="325px"
-          @click="approveToken(info.stakeToken.contractInstance)"
+          @click="approveTokenHandler"
           primary
-          :disabled="info.stakeToken.isTokenApprowed"
-          v-if="actions.STAKE"
-          >{{ "Approve" }}
+          :disabled="disableApproveBtn"
+          >Approve
         </BaseButton>
-        <BaseButton
-          width="325px"
-          @click="actionHandler"
-          :disabled="
-            !!amountError ||
-            !amount ||
-            amount <= 0 ||
-            !info.stakeToken.isTokenApprowed
-          "
-        >
-          {{ actions.STAKE ? "Stake" : "Unstake" }}
+        <BaseButton @click="actionHandler" :disabled="disableActionBtn">
+          {{ action }}
         </BaseButton>
       </div>
       <div class="profile-subscribtion">
-        <div class="profile-subscribtion__approximate">
+        <div class="profile-subscribtion__approximate" v-if="tokensInfo">
           <div>Approximate staking APR</div>
-          <div>{{ parceBalance(info.apr) + "%" }}</div>
+          <div>{{ parseFloat(tokensInfo.apr).toFixed(2) + "%" }}</div>
         </div>
-        <p>
-          Make SPELL work for you! Stake your SPELL and gain sSPELL. No
-          impermanent loss, no loss of governance rights. Continuously
-          compounding. After each new deposit, all staked SPELL are subject to a
-          24H lock-up period!
-        </p>
-        <p>
-          sSPELL automatically earns fees from MIM repayments from all wizards
-          proportional to your share of the stake pool.
-        </p>
+
+        <div class="text-wrap">
+          <p>
+            Make SPELL work for you! Stake your SPELL and gain sSPELL. No
+            impermanent loss, no loss of governance rights. Continuously
+            compounding. After each new deposit, all staked SPELL are subject to
+            a 24H lock-up period!
+          </p>
+          <p>
+            sSPELL automatically earns fees from MIM repayments from all wizards
+            proportional to your share of the stake pool.
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
 const InfoBlock = () => import("@/components/stake/InfoBlock");
-const BaseTokenInput = () =>
-  import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
 
 const BaseButton = () => import("@/components/base/BaseButton");
 
 import sspellToken from "@/mixins/stake/sspellToken";
-import stake from "@/mixins/stake/stake";
 
 export default {
-  mixins: [sspellToken, stake],
+  mixins: [sspellToken],
+  data() {
+    return {
+      action: "Stake",
+      amount: "",
+      amountError: "",
+      spellUpdateInterval: null,
+    };
+  },
   computed: {
-    loading() {
+    account() {
+      return this.$store.getters.getAccount;
+    },
+    isLoadingsSpellStake() {
       return this.$store.getters.getLoadingSSpellStake;
     },
     isUserLocked() {
-      return (
-        this.lockedUntil &&
-        Number(this.lockedUntil) !== 0 &&
-        this.actions.UNSTAKE
-      );
+      return this.tokensInfo.lockedUntil && this.action === "Unstake";
     },
-    info() {
-      return this.$store.getters.getSSpellObject || this.emptyTokens;
+    tokensInfo() {
+      return this.$store.getters.getSSpellObject;
     },
     fromToken() {
-      if (this.actions.STAKE) return this.info.stakeToken;
-      if (this.actions.UNSTAKE) return this.info.mainToken;
+      if (this.action === "Stake") return this.tokensInfo.stakeToken;
+      if (this.action === "Unstake") return this.tokensInfo.mainToken;
+
+      return "";
+    },
+    toToken() {
+      if (this.action === "Stake") return this.tokensInfo.mainToken;
+      if (this.action === "Unstake") return this.tokensInfo.stakeToken;
+
       return "";
     },
     toTokenAmount() {
       if (!this.amount) return "";
-      if (!this.info) return "";
+      if (!this.tokensInfo) return "";
 
       // eslint-disable-next-line no-useless-escape
       let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (6 || -1) + `})?`);
 
-      if (this.actions.STAKE) {
-        const amount = this.amount / this.info.tokensRate;
+      if (this.action === "Stake") {
+        const amount = this.amount / this.tokensInfo.tokensRate;
         return amount.toString().match(re)[0];
       }
-      if (this.actions.UNSTAKE) {
-        const amount = this.amount * this.info.tokensRate;
+      if (this.action === "Unstake") {
+        const amount = this.amount * this.tokensInfo.tokensRate;
         return amount.toString().match(re)[0];
       }
       return "";
     },
-    actionBtnText() {
-      if (this.isUserLocked) return "Nothing to do";
-      if (!+this.amount || this.amountError) return "Nothing to do";
+    disableActionBtn() {
+      if (this.isUserLocked) return true;
+      if (!+this.amount || this.amountError) return true;
 
-      return this.action;
+      return false;
+    },
+    disableApproveBtn() {
+      if (this.action === "Unstake") return true;
+      if (this.tokensInfo.stakeToken.isTokenApprowed) return true;
+      return false;
     },
   },
   watch: {
-    isTokenApprowed(val) {
-      if (val && Number(val) !== 0) {
-        this.amount = "";
-        this.amountError = "";
-      }
-    },
-    async account() {
-      if (this.account) {
+    async address() {
+      if (this.address) {
         await this.createStakePool();
       }
     },
   },
   methods: {
-    inputTitle(toogler) {
-      return toogler ? "Deposit" : "Receive";
-    },
-    parceBalance(balance) {
-      return balance ? parseFloat(balance).toFixed(4) : 0;
+    toggleAction() {
+      this.amount = "";
+      this.amountError = "";
+
+      if (this.action === "Stake") {
+        this.action = "Unstake";
+        return false;
+      }
+
+      if (this.action === "Unstake") {
+        this.action = "Stake";
+        return false;
+      }
     },
     updateMainValue(value) {
       if (+value > +this.fromToken.balance) {
         this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
-      } else {
-        this.amountError = "";
+        return false;
       }
+
+      this.amountError = "";
       this.amount = value;
     },
-    async getUserLocked() {
-      try {
-        let lockTimestamp, currentTimestamp;
-        currentTimestamp = (Date.now() / 1000).toString();
-        const infoResp = await this.info.mainToken.contractInstance.users(
-          this.account,
-          {
-            gasLimit: 1000000,
-          }
-        );
-        if (!infoResp) {
-          return false;
-        }
-        currentTimestamp = (Date.now() / 1000).toString();
-        lockTimestamp = infoResp.lockedUntil.toString();
-
-        if (lockTimestamp && lockTimestamp > currentTimestamp)
-          return lockTimestamp;
-        return false;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-      }
+    async approveTokenHandler() {
+      await this.approveToken(
+        this.tokensInfo.stakeToken.contractInstance,
+        this.tokensInfo.mainToken.contractInstance.address
+      );
     },
     async actionHandler() {
       if (this.isUserLocked) return false;
       if (!+this.amount || this.amountError) return false;
 
-      if (this.actions.STAKE) {
-        const isApproved = this.info.stakeToken.isTokenApprowed;
+      if (this.action === "Stake") {
+        const isApproved = this.tokensInfo.stakeToken.isTokenApprowed;
+        if (!isApproved) return false;
 
-        if (isApproved) {
-          await this.stake();
-          return false;
-        }
-
-        const approvedSuccess = await this.approveToken(
-          this.info.stakeToken.contractInstance
-        );
-
-        if (approvedSuccess) await this.stake();
+        await this.stake();
       }
-      if (this.actions.UNSTAKE) {
+      if (this.action === "Unstake") {
         await this.unstake();
       }
     },
     async stake() {
       console.log("STAKE");
-
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mainToken.contractInstance.estimateGas.mint(amount);
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.mint(
+            amount
+          );
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.info.mainToken.contractInstance.mint(amount, {
-          gasLimit,
-        });
+        console.log("gasLimit:", gasLimit);
+
+        const tx = await this.tokensInfo.mainToken.contractInstance.mint(
+          amount,
+          {
+            gasLimit,
+          }
+        );
 
         this.amount = "";
         this.amountError = "";
 
         const receipt = await tx.wait();
 
-        console.log("STAKE", receipt);
+        console.log("stake", receipt);
       } catch (e) {
         console.log("stake err:", e);
       }
@@ -263,7 +242,7 @@ export default {
         console.log("AMOUNT", amount.toString());
 
         const estimateGas =
-          await this.info.mainToken.contractInstance.estimateGas.burn(
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.burn(
             this.account,
             amount
           );
@@ -272,7 +251,7 @@ export default {
 
         console.log("gasLimit:", gasLimit);
 
-        const tx = await this.info.mainToken.contractInstance.burn(
+        const tx = await this.tokensInfo.mainToken.contractInstance.burn(
           this.account,
           amount,
           {
@@ -285,15 +264,15 @@ export default {
 
         const receipt = await tx.wait();
 
-        console.log("STAKE", receipt);
+        console.log("stake", receipt);
       } catch (e) {
         console.log("stake err:", e);
       }
     },
-    async approveToken(tokenContract) {
+    async approveToken(tokenContract, approveAddr) {
       try {
         const estimateGas = await tokenContract.estimateGas.approve(
-          this.info.mainToken.contractInstance.address,
+          approveAddr,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         );
 
@@ -302,7 +281,7 @@ export default {
         console.log("gasLimit:", gasLimit);
 
         const tx = await tokenContract.approve(
-          this.info.mainToken.contractInstance.address,
+          approveAddr,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           {
             gasLimit,
@@ -319,14 +298,12 @@ export default {
   },
   async created() {
     await this.createStakePool();
-    this.lockedUntil = await this.getUserLocked();
-    this.updateInterval = setInterval(async () => {
+    this.spellUpdateInterval = setInterval(async () => {
       await this.createStakePool();
-      this.lockedUntil = await this.getUserLocked();
     }, 15000);
   },
   beforeDestroy() {
-    clearInterval(this.updateInterval);
+    clearInterval(this.spellUpdateInterval);
   },
   components: {
     InfoBlock,
@@ -337,33 +314,12 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.swap-wrap {
-  position: relative;
-  height: 330px;
-  display: flex;
-  justify-content: center;
-  @media (max-width: 1023px) {
-    height: 350px;
-  }
-}
-
-.value-input {
-  min-width: 280px;
-  width: 490px;
-}
-
 .swap-img {
-  position: absolute;
-  left: calc(50% - 20px);
-  top: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
   cursor: pointer;
-  @media (max-width: 1023px) {
-    top: 180px;
-  }
+
   & img {
     transform: rotateX(0deg);
     transition: all 0.3s;
@@ -376,8 +332,8 @@ export default {
   background-color: white;
 }
 
-.choose {
-  padding: 20px 16px;
+.input-block {
+  padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
   max-width: 100%;
@@ -387,14 +343,6 @@ export default {
 .token-input {
   padding-top: 22px;
   padding-bottom: 14px;
-  position: absolute;
-  top: 164px;
-  @media (max-width: 1023px) {
-    top: 180px;
-  }
-  &.active {
-    top: 0;
-  }
 }
 
 .underline {
@@ -413,13 +361,17 @@ export default {
   line-height: 24px;
   align-items: center;
   color: rgba(255, 255, 255, 0.6);
+
+  .text-wrap {
+    margin-top: 30px;
+  }
+
   &__approximate {
     margin-top: 55px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding-bottom: 12px;
-    margin-bottom: 30px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
   & p {
@@ -444,11 +396,10 @@ export default {
 }
 
 .profile-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 20px;
   margin-top: 30px;
-  & .default-button:last-child {
-    margin-left: auto;
-  }
 }
 
 .stake {

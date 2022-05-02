@@ -1,4 +1,3 @@
-import mimTokenAbi from "@/utils/abi/tokensAbi/MIM";
 import spellTokenAbi from "@/utils/abi/tokensAbi/SPELL";
 import mSpellStakingAbi from "@/utils/abi/mSpellStakingAbi";
 import moment from "moment";
@@ -63,12 +62,6 @@ export default {
         this.signer
       );
 
-      const mimTokenContract = new this.$ethers.Contract(
-        mimAddr,
-        JSON.stringify(mimTokenAbi),
-        this.signer
-      );
-
       console.log("mSpellStakingAddr", mSpellStakingAddr);
 
       let spellTokenBalance = await spellTokenContract.balanceOf(this.account);
@@ -115,12 +108,6 @@ export default {
       const mSpellStakingObj = {
         tokensRate: 1,
         mSpellStakingContract,
-        spellTokenContract,
-        mimTokenContract,
-        spellTokenBalance,
-        isTokenApprowed,
-        userInfo,
-        depositAmount,
         claimableAmount,
         lockedUntil,
         apr: mSpellApr,
@@ -131,7 +118,7 @@ export default {
           decimals: 18,
           isTokenApprowed,
           price: spellPrice,
-          icon: require("@/assets/images/tokens/SPELL.png"),
+          icon: require("@/assets/images/spell-icon.svg"),
         },
         mainToken: {
           name: "mSPELL",
@@ -139,7 +126,7 @@ export default {
           balance: depositAmount,
           decimals: 18,
           price: spellPrice,
-          icon: require("@/assets/images/tokens/mSPELL.png"),
+          icon: require("@/assets/images/mspell-icon.svg"),
         },
       };
 

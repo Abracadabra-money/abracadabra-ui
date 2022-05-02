@@ -13,7 +13,7 @@
           </div>
           <BaseTokenInput
             class="value-input"
-            :icon="getImgUrl('spell-icon')"
+            :icon="info.stakeToken.icon"
             :name="'Spell'"
             :disabled="!actions.STAKE"
             :value="actions.STAKE ? amount : toTokenAmount"
@@ -37,7 +37,7 @@
           </div>
           <BaseTokenInput
             class="value-input"
-            :icon="getImgUrl('Token_mSpell')"
+            :icon="info.mainToken.icon"
             name="mSpell"
             @input="updateMainValue"
             :disabled="!actions.UNSTAKE"
@@ -53,7 +53,7 @@
       <InfoBlock
         mainTokenName="mSPELL"
         title="mSpell"
-        icon="Token_mSpell"
+        :icon="info.mainToken.icon"
         :tokens-info="info"
         :locked-until="lockedUntil"
         :rate="info.tokensRate"
@@ -93,11 +93,12 @@
           <div>{{ (info.apr || 0).toFixed(4) + "%" }}</div>
         </div>
         <ClaimInfo
+          v-if="!loading"
           @onClaim="claim"
           class="claim-info"
           token="MIM"
           icon="Token_MIM"
-          :count="'200,000'"
+          :count="info.claimableAmount"
         />
         <p>
           Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent
@@ -115,8 +116,7 @@
 const InfoBlock = () => import("@/components/stake/InfoBlock");
 const ClaimInfo = () => import("@/components/stake/ClaimInfo");
 
-const BaseTokenInput = () =>
-  import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
 
 const BaseButton = () => import("@/components/base/BaseButton");
@@ -251,7 +251,7 @@ export default {
         }
 
         const approvedSuccess = await this.approveToken(
-          this.info.spellTokenContract,
+          this.info.stakeToken.contractInstance,
           this.info.mSpellStakingContract.address
         );
 
