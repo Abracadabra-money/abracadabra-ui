@@ -618,6 +618,9 @@ export default {
         );
       }
 
+      let balanceUsd =
+        this.$ethers.utils.formatUnits(userBalance) / pool.tokenPrice;
+
       pool.userInfo = {
         userBorrowPart,
         contractBorrowPart,
@@ -632,6 +635,7 @@ export default {
         contractBorrowPartParsed: this.$ethers.utils.formatUnits(
           contractBorrowPart.toString()
         ),
+        balanceUsd,
       };
 
       return pool;

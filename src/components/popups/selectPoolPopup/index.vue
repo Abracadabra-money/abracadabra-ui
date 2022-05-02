@@ -9,12 +9,11 @@
         class="search-input"
       />
     </div>
-    <div
-      v-if="!pools.length && !isCreatingPoolsBorrow"
-      style="margin: 30px 0; text-align: center"
-    >
-      LOADING....
+
+    <div class="loader-wrapper" v-if="!pools.length && !isCreatingPoolsBorrow">
+      <BaseLoader />
     </div>
+
     <div class="tokens-list" v-else-if="filterPools.length">
       <SelectPopupItem
         v-for="pool in filterPools"
@@ -47,6 +46,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+const BaseLoader = () => import("@/components/base/BaseLoader");
 const SelectPopupItem = () =>
   import("@/components/popups/selectPoolPopup/SelectPopupItem");
 
@@ -76,7 +76,7 @@ export default {
             pool.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
         )
         .sort((a, b) =>
-          a.userInfo?.userBalance > b.userInfo?.userBalance ? -1 : 1
+          +a.userInfo?.balanceUsd > +b.userInfo?.balanceUsd ? -1 : 1
         );
     },
   },
@@ -89,6 +89,7 @@ export default {
   },
 
   components: {
+    BaseLoader,
     SelectPopupItem,
   },
 };
@@ -157,6 +158,13 @@ export default {
   box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
 }
 
+.loader-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 420px;
+}
+
 .tokens-list {
   display: flex;
   flex-direction: column;
@@ -170,5 +178,6 @@ export default {
   align-items: center;
   justify-content: center;
   text-align: center;
+  height: 420px;
 }
 </style>
