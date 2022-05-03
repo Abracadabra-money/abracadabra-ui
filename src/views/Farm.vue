@@ -51,12 +51,15 @@
             <BaseButton
               v-if="!isAllowance && !isUnstake"
               @click="approveHandler"
+              :disabled="!isValid || !!error"
+              primary
               >Approve</BaseButton
             >
             <BaseButton
               v-if="isUnstake || isAllowance"
               @click="handler"
               :disabled="!isValid || !!error"
+              primary
               >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
             >
           </div></template
@@ -135,13 +138,12 @@ export default {
     },
     bottomItems() {
       return [
-        /*{ title: "~Yield per $1000", value: this.selectedPool.poolYield },
+        { title: "~Yield per $1000", value: this.selectedPool.poolYield },
         { title: "ROI Annually", value: this.selectedPool.poolRoi },
-        { title: "TVL", value: this.selectedPool.poolTvl },*/
+        { title: "TVL", value: this.selectedPool.poolTvl },
       ];
     },
     selectedPool() {
-      console.log(this.pools.find(({ id }) => +id === +this.id));
       return this.pools.find(({ id }) => +id === +this.id) || null;
     },
 
