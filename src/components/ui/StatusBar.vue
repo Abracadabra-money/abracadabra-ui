@@ -24,9 +24,9 @@
     <img
       class="info-bar-icon"
       src="@/assets/images/info-bar/depreciated.png"
-      alt="Depreciated"
+      alt="Deprecated"
       v-if="pool.isDepreciated"
-      v-tooltip="'Depreciated'"
+      v-tooltip="'Deprecated'"
     />
   </div>
 </template>
