@@ -94,6 +94,24 @@ export default {
       );
       const degenExactBalance = degenBalance?.toString();
 
+      const bentoAddressApproved = await mimContract.allowance(
+        this.account,
+        bentoBoxContract.address,
+        {
+          gasLimit: 1000000,
+        }
+      );
+      const bentoAllowance = parseFloat(bentoAddressApproved.toString()) > 0;
+
+      const degenAddressApproved = degenBoxContract
+        ? await mimContract.allowance(this.account, degenBoxContract.address, {
+            gasLimit: 1000000,
+          })
+        : null;
+      const degenAllowance = degenBoxContract
+        ? parseFloat(degenAddressApproved.toString()) > 0
+        : false;
+
       const mimOnBentoDeposit = {
         mimBalance,
         mimPrice,
@@ -105,6 +123,8 @@ export default {
         tokenInfo: currentMim,
         bentoExactBalance,
         degenExactBalance,
+        bentoAllowance,
+        degenAllowance,
       };
 
       console.log("MIM IN BENTO OBJ", mimOnBentoDeposit);
