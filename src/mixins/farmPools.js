@@ -1,8 +1,5 @@
 import farmPools from "@/utils/farmPools/pools";
-import {
-  getTokenPriceByAddress,
-  numberWithCommas,
-} from "@/helpers/priceHelper.js";
+import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 import { mapMutations } from "vuex";
 
 import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
@@ -334,11 +331,9 @@ export default {
         const pending =
           (+amount * +accIcePerShareConst) / Math.pow(10, 12) - +rewardDebt;
 
-        return parseFloat(
-          this.$ethers.utils.formatUnits(
-            pending.toLocaleString("fullwide", { useGrouping: false })
-          )
-        ).toFixed(2);
+        return this.$ethers.utils.formatUnits(
+          pending.toLocaleString("fullwide", { useGrouping: false })
+        );
       } catch (error) {
         console.log("getYield", error);
         return 0;
@@ -375,20 +370,20 @@ export default {
         const dollarPerDay =
           ((parseFloat(value) * parseFloat(price) * 100) / 1000) * 365;
 
-        return parseFloat(dollarPerDay).toFixed(2);
+        return dollarPerDay;
       } catch (error) {
         console.log("getRoi", error);
       }
     },
     async getTVL(stakingTokenTotalAmount, price) {
       try {
-        const ttl = parseFloat(
-          this.$ethers.utils.formatEther(stakingTokenTotalAmount.toString())
-        ).toFixed(2);
+        const ttl = this.$ethers.utils.formatEther(
+          stakingTokenTotalAmount.toString()
+        );
 
-        const tvl = parseFloat(ttl.toString()) * parseFloat(price.toString());
+        const tvl = ttl * price;
 
-        return numberWithCommas(parseInt(tvl));
+        return tvl;
       } catch (error) {
         console.log(error);
       }

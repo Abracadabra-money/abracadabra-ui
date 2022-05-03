@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import farmPoolsMixin from "@/mixins/farmPools";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
@@ -176,16 +177,18 @@ export default {
       if (this.filteredPools.length)
         return this.isFarm
           ? this.filteredPools.map((pool) => ({
-              yield: pool.poolYield,
-              roi: pool.poolRoi,
-              tvl: pool.poolTvl,
+              yield: Vue.filter("formatTokenBalance")(pool.poolYield),
+              roi: Vue.filter("formatPercent")(pool.poolRoi),
+              tvl: Vue.filter("formatUSD")(pool.poolTvl),
               name: pool.name,
               icon: pool.icon,
               id: pool.id,
             }))
           : this.filteredPools.map((pool) => ({
-              totalMim: Number(pool.totalBorrow || 0).toFixed(4),
-              mimsLeft: Number(pool.dynamicBorrowAmount || 0).toFixed(4),
+              totalMim: Vue.filter("formatTokenBalance")(pool.totalBorrow),
+              mimsLeft: Vue.filter("formatTokenBalance")(
+                pool.dynamicBorrowAmount
+              ),
               interest: pool.interest,
               liquidation: pool.stabilityFee,
               name: pool.name,

@@ -7,7 +7,7 @@
     >
       <img src="@/assets/images/PixelMIM.svg" alt="MIM" />
     </button>
-    <p class="mim-price">{{ parseFloat(mimPrice).toFixed(4) }}</p>
+    <p class="mim-price">{{ mimPrice | formatUSD }}</p>
   </div>
 </template>
 

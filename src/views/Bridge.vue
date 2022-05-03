@@ -27,7 +27,7 @@
 
       <div class="expected">
         <p class="expected-title">Expected MIM</p>
-        <p class="expected-value">{{ expectedMim }}</p>
+        <p class="expected-value">{{ expectedMim | formatTokenBalance }}</p>
       </div>
 
       <div class="info">
@@ -82,8 +82,7 @@
 </template>
 
 <script>
-const BaseTokenInput = () =>
-  import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
 const NetworkPopup = () => import("@/components/popups/NetworkPopup");
@@ -167,7 +166,7 @@ export default {
 
       const feeAmount = this.targetChainInfo.feeAmount;
 
-      return `~${parseFloat(+this.amount - feeAmount).toFixed(4)}`;
+      return +this.amount - feeAmount;
     },
 
     disableBtn() {

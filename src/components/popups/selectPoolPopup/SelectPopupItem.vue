@@ -7,9 +7,9 @@
         <p>{{ pool.name }}</p>
       </div>
       <div class="pool-balance">
-        <p>{{ userBalance }}</p>
+        <p>{{ userBalance | formatTokenBalance }}</p>
         <p v-if="+userBalance">
-          $ {{ parseFloat(pool.userInfo.balanceUsd).toFixed(2) }}
+          {{ pool.userInfo.balanceUsd | formatUSD }}
         </p>
       </div>
     </button>
@@ -29,9 +29,7 @@ export default {
   computed: {
     userBalance() {
       if (this.pool.userInfo)
-        return parseFloat(
-          this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance)
-        ).toFixed(4);
+        return this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance);
 
       return 0;
     },

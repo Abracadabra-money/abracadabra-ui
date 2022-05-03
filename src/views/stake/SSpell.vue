@@ -58,7 +58,7 @@
       <div class="profile-subscribtion">
         <div class="profile-subscribtion__approximate" v-if="tokensInfo">
           <div>Approximate staking APR</div>
-          <div>{{ parseFloat(tokensInfo.apr).toFixed(2) + "%" }}</div>
+          <div>{{ tokensInfo.apr | formatPercent }}</div>
         </div>
 
         <div class="text-wrap">

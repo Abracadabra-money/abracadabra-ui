@@ -10,7 +10,7 @@
           <div class="header-balance">
             <h4>Collateral assets</h4>
             <p v-if="selectedPool">
-              {{ parseFloat(maxCollateralValue).toFixed(4) }}
+              {{ maxCollateralValue | formatTokenBalance }}
             </p>
           </div>
           <button @click="isOpenPollPopup = true" class="select-btn">

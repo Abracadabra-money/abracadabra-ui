@@ -66,12 +66,30 @@
         >
       </div>
       <template v-if="selectedPool">
-        <div v-for="(item, i) in bottomItems" :key="i" class="info underline">
+        <div class="info underline">
           <p class="info-text">
             <img src="@/assets/images/info.svg" alt="" />
-            {{ item.title }}
+            ~Yield per $1000
           </p>
-          <p class="info-value">{{ item.value }}</p>
+          <p class="info-value">
+            {{ selectedPool.poolYield | formatTokenBalance }}
+          </p>
+        </div>
+
+        <div class="info underline">
+          <p class="info-text">
+            <img src="@/assets/images/info.svg" alt="" />
+            ROI Annually
+          </p>
+          <p class="info-value">{{ selectedPool.poolRoi | formatPercent }}</p>
+        </div>
+
+        <div class="info underline">
+          <p class="info-text">
+            <img src="@/assets/images/info.svg" alt="" />
+            TVL
+          </p>
+          <p class="info-value">{{ selectedPool.poolTvl | formatUSD }}</p>
         </div>
 
         <div class="farm-link-wrap">
@@ -136,13 +154,6 @@ export default {
     isUnstake() {
       return this.selectedTab === "unstake";
     },
-    bottomItems() {
-      return [
-        { title: "~Yield per $1000", value: this.selectedPool.poolYield },
-        { title: "ROI Annually", value: this.selectedPool.poolRoi },
-        { title: "TVL", value: this.selectedPool.poolTvl },
-      ];
-    },
     selectedPool() {
       return this.pools.find(({ id }) => +id === +this.id) || null;
     },
@@ -176,7 +187,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.deposit(
-          this.selectedPool.id,
+          this.selectedPool.poolId,
           parseAmount
         );
 
@@ -198,7 +209,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.withdraw(
-          this.selectedPool.id,
+          this.selectedPool.poolId,
           parseAmount
         );
 

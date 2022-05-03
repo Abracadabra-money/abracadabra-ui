@@ -10,7 +10,7 @@
           <div class="header-balance">
             <h4>Remove collateral</h4>
             <p v-if="selectedPool">
-              {{ parseFloat(maxCollateralValue).toFixed(4) }}
+              {{ maxCollateralValue | formatTokenBalance }}
             </p>
           </div>
           <BaseTokenInput

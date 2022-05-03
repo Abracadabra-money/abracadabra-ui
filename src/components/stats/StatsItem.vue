@@ -8,7 +8,7 @@
     :class="{ 'stats-item-farm': isFarm }"
   >
     <span class="status-wrap"><StatusBar :pool="activePool" /></span>
-    <span class="stats-item-wrap">
+    <span class="stats-item-wrap" :class="{ 'stats-item-wrap-farm': isFarm }">
       <span class="network-data" :class="{ 'network-data-new': isNew }">
         <BaseTokenIcon :name="poolData.name" :icon="poolData.icon" />
         <span class="network-name-wrap">
@@ -222,6 +222,10 @@ export default {
     align-items: center;
     grid-gap: 0;
     height: 36px;
+
+    &-farm {
+      grid-template-columns: 1fr 1fr 1fr 1fr 60px;
+    }
   }
 
   .network-data {

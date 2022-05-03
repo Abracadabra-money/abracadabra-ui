@@ -34,8 +34,10 @@
               <p class="lp-data-token">{{ pool.tokenName }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
-              <p class="lp-data-balance">{{ earnedData.balance }}</p>
-              <p class="lp-data-price">$ {{ earnedData.usd }}</p>
+              <p class="lp-data-balance">
+                {{ earnedData.balance | formatTokenBalance }}
+              </p>
+              <p class="lp-data-price">{{ earnedData.usd | formatUSD }}</p>
             </div>
           </div>
           <div class="lp-data-actions">
@@ -59,8 +61,10 @@
               <p class="lp-data-token">{{ pool.name }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
-              <p class="lp-data-balance">{{ depositedData.balance }}</p>
-              <p class="lp-data-price">$ {{ depositedData.usd }}</p>
+              <p class="lp-data-balance">
+                {{ depositedData.balance | formatTokenBalance }}
+              </p>
+              <p class="lp-data-price">{{ depositedData.usd | formatUSD }}</p>
             </div>
           </div>
           <div v-if="balanceList.length" class="balance-list">
@@ -79,8 +83,10 @@
                 </p>
               </div>
               <div v-if="pool.accountInfo" class="lp-data-balance-wrap">
-                <p class="balance-list-balance">{{ balanceItem.balance }}</p>
-                <p class="lp-data-price">$ {{ balanceItem.usd }}</p>
+                <p class="balance-list-balance">
+                  {{ balanceItem.balance | formatTokenBalance }}
+                </p>
+                <p class="lp-data-price">{{ balanceItem.usd | formatUSD }}</p>
               </div>
             </div>
           </div>
@@ -129,20 +135,14 @@ export default {
     ],
   }),
   methods: {
-    parse(value) {
-      return parseFloat(value).toFixed(4);
-    },
+    prepBalanceData(tokenValue, priceValue) {
+      const tokenValueParsed = this.$ethers.utils.formatEther(tokenValue);
 
-    prepBalanceData(factor = 0, priceValue) {
-      const factorParsed = this.parse(
-        this.$ethers.utils.formatEther(factor.toString())
-      );
-
-      const price = this.parse(factorParsed * priceValue);
+      const price = tokenValueParsed * priceValue;
 
       return {
         usd: price,
-        balance: this.parse(factorParsed),
+        balance: tokenValueParsed,
       };
     },
     async harvest() {
@@ -165,32 +165,20 @@ export default {
       return [
         {
           name: this.pool.depositedBalance?.token0.name,
-          balance: this.parse(
-            this.pool.accountInfo?.tokensBalanceInfo?.token0.amount
-          ),
-          usd: this.parse(
-            this.pool.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
-          ),
+          balance: this.pool.accountInfo?.tokensBalanceInfo?.token0.amount,
+          usd: this.pool.accountInfo?.tokensBalanceInfo?.token0.amountInUsd,
           icon: this.pool.depositedBalance?.token0.icon,
         },
         {
           name: this.pool.depositedBalance?.token1.name,
-          balance: this.parse(
-            this.pool.accountInfo?.tokensBalanceInfo?.token1.amount
-          ),
-          usd: this.parse(
-            this.pool.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
-          ),
+          balance: this.pool.accountInfo?.tokensBalanceInfo?.token1.amount,
+          usd: this.pool.accountInfo?.tokensBalanceInfo?.token1.amountInUsd,
           icon: this.pool.depositedBalance?.token1.icon,
         },
       ].filter((e) => e.name && e.balance);
     },
     userRewardParsed() {
-      return this.parse(
-        this.$ethers.utils.formatEther(
-          this.pool.accountInfo?.userReward.toString()
-        )
-      );
+      return this.$ethers.utils.formatEther(this.pool.accountInfo?.userReward);
     },
 
     earnedData() {

@@ -7,6 +7,15 @@ const formatUSD = (value) => {
   return `$ ${formatAmount.toLocaleString("en-US", { currency: "USD" })}`;
 };
 
+const formatPercent = (value) => {
+  if (isNaN(Number(value)) || +value === 0 || +value < 0.0001) return "0.0%";
+  const decimals = +value < 1 ? 4 : 2;
+
+  const formatAmount = +parseFloat(value).toFixed(decimals);
+
+  return `${formatAmount}%`;
+};
+
 const formatLargeSum = (value) => {
   if (isNaN(Number(value)) || Number(value) < 1) return "0";
 
@@ -69,6 +78,7 @@ const filters = {
   formatTokenBalance,
   formatLargeSum,
   formatToFixed,
+  formatPercent
 };
 
 export default filters;

@@ -4,7 +4,7 @@
       <div class="header-balance">
         <h4>Collateral assets</h4>
         <p v-if="fromToken.balance">
-          {{ parseFloat(fromToken.balance).toFixed(4) }}
+          {{ fromToken.balance | formatTokenBalance }}
         </p>
       </div>
 
@@ -31,7 +31,7 @@
       <div class="header-balance">
         <h4>Collateral assets</h4>
         <p v-if="toToken.balance">
-          {{ parseFloat(toToken.balance).toFixed(4) }}
+          {{ toToken.balance | formatTokenBalance }}
         </p>
       </div>
 

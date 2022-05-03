@@ -11,8 +11,8 @@
     <div class="box-data">
       <BaseTokenIcon :icon="mimIcon" name="MIM" size="50px" />
       <div>
-        <p class="box-balance1">{{ (+formattedBalance).toFixed(4) }}</p>
-        <p class="box-balance2">$ {{ usd }}</p>
+        <p class="box-balance1">{{ parsedBalance | formatTokenBalance }}</p>
+        <p class="box-balance2">{{ balanceInUsd | formatUSD }}</p>
       </div>
     </div>
     <div class="box-actions">
@@ -43,7 +43,7 @@ export default {
   components: { BaseTokenIcon, BaseButton },
   props: {
     isBento: { type: Boolean, default: false },
-    balance: { type: String, default: "0" },
+    balance: { default: "0" },
     mimPrice: { type: Number, default: 0 },
   },
   data() {
@@ -52,6 +52,12 @@ export default {
     };
   },
   computed: {
+    parsedBalance() {
+      return this.$ethers.utils.formatEther(this.balance);
+    },
+    balanceInUsd() {
+      return this.parsedBalance * this.mimPrice;
+    },
     title() {
       return !this.isBento ? "DegenBox" : "BentoBox";
     },
@@ -60,29 +66,6 @@ export default {
     },
     isDisabled() {
       return !+this.balance;
-    },
-    usd() {
-      return this.genBalanceInUsd(this.formattedBalance);
-    },
-    formattedBalance() {
-      return this.formatBalance(this.balance);
-    },
-  },
-  methods: {
-    formatBalance(balance = "x.x") {
-      if (balance !== "x.x") {
-        const b = this.$ethers.utils.formatEther(balance);
-        // eslint-disable-next-line no-useless-escape
-        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (4 || -1) + `})?`);
-        return b.toString().match(re)[0];
-      }
-      return "0";
-    },
-    genBalanceInUsd(balance) {
-      if (+balance) {
-        return parseFloat(+balance * this.mimPrice).toFixed(2);
-      }
-      return "0";
     },
   },
 };

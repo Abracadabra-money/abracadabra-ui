@@ -105,6 +105,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import { tokenPrices } from "@/utils/helpers.js";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
@@ -176,45 +177,39 @@ export default {
 
     borrowLeft() {
       const maxMimBorrow = (this.tokenInUsd / 100) * (this.pool.ltv - 1);
-      let leftBorrow = parseFloat(
-        maxMimBorrow - this.pool.userInfo.userBorrowPart
-      ).toFixed(20);
+      const leftBorrow = maxMimBorrow - this.pool.userInfo.userBorrowPart;
 
-      if (+leftBorrow < 0) leftBorrow = "0";
+      if (+leftBorrow < 0) return "0";
 
-      let re = new RegExp(
-        // eslint-disable-next-line no-useless-escape
-        `^-?\\d+(?:\.\\d{0,` + (4 || -1) + `})?`
-      );
-      return leftBorrow.toString().match(re)[0];
+      return leftBorrow;
     },
 
     basicInfo() {
+      const collateralDeposited = this.account
+        ? this.collateralDepositExpected
+        : 0;
+
+      const mimBorrowed = this.account ? this.mimBorrowedExpected : 0;
+
+      const liquidationPrice = this.account ? this.liquidationPrice : 0;
+
       return [
         {
           name: "Collateral Deposit",
-          value: this.account
-            ? parseFloat(this.collateralDepositExpected).toFixed(
-                this.collateralDecimals
-              )
-            : 0,
+          value: Vue.filter("formatTokenBalance")(collateralDeposited),
         },
         {
           name: "Collateral Value",
-          value: `$${parseFloat(this.tokenInUsd).toFixed(4)}`,
+          value: Vue.filter("formatUSD")(this.tokenInUsd),
         },
 
         {
           name: "MIM Borrowed",
-          value: this.account
-            ? `$${parseFloat(this.mimBorrowedExpected).toFixed(4)}`
-            : 0,
+          value: Vue.filter("formatTokenBalance")(mimBorrowed),
         },
         {
           name: "Liquidation Price",
-          value: this.account
-            ? `$${parseFloat(this.liquidationPrice).toFixed(4)}`
-            : 0,
+          value: Vue.filter("formatUSD")(liquidationPrice),
         },
       ];
     },
@@ -260,39 +255,39 @@ export default {
       try {
         const borrowLeftParsed = this.borrowLeft;
 
-        let liquidationDecimals = 4;
-        let collateralDecimals = 4;
+        // let liquidationDecimals = 4;
+        // let collateralDecimals = 4;
 
-        if (this.pool.id === 20 && this.chainId === 1) liquidationDecimals = 6;
+        // if (this.pool.id === 20 && this.chainId === 1) liquidationDecimals = 6;
 
-        const jlpPools = [4, 6, 7];
+        // const jlpPools = [4, 6, 7];
 
-        if (
-          jlpPools.indexOf(this.pool.id) !== -1 &&
-          this.chainId === 43114 &&
-          +this.pool.userInfo.userCollateralShare
-        )
-          collateralDecimals = 9;
+        // if (
+        //   jlpPools.indexOf(this.pool.id) !== -1 &&
+        //   this.chainId === 43114 &&
+        //   +this.pool.userInfo.userCollateralShare
+        // )
+        // collateralDecimals = 9;
 
         const resultArray = [
           {
             title: "Collateral Deposited",
-            value: parseFloat(this.pool.userInfo.userCollateralShare).toFixed(
-              collateralDecimals
+            value: Vue.filter("formatTokenBalance")(
+              this.pool.userInfo.userCollateralShare
             ),
             additional: "Amount of Tokens Deposited as Collaterals",
           },
           {
             title: "Collateral Value",
-            value: `$${parseFloat(this.tokenInUsd).toFixed(4)}`,
+            value: Vue.filter("formatUSD")(this.tokenInUsd),
             additional:
               "USD Value of the Collateral Deposited in your Position",
           },
           {
             title: "MIM Borrowed",
-            value: `$${parseFloat(this.pool.userInfo.userBorrowPart).toFixed(
-              4
-            )}`,
+            value: Vue.filter("formatTokenBalance")(
+              this.pool.userInfo.userBorrowPart
+            ),
             additional: "MIM Currently Borrowed in your Position",
           },
         ];
@@ -300,9 +295,7 @@ export default {
         if (this.pool.id === 10 && this.chainId === 1) {
           resultArray.push({
             title: "Liquidation Price",
-            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
-              4
-            )}`,
+            value: Vue.filter("formatUSD")(this.pool.userInfo.liquidationPrice),
             additional:
               "This is the liquidation price of wsOHM, check the current price of wsOHM at the bottom right of the page!",
           });
@@ -312,18 +305,14 @@ export default {
         ) {
           resultArray.push({
             title: "wMEMO Liquidation Price",
-            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
-              4
-            )}`,
+            value: Vue.filter("formatUSD")(this.pool.userInfo.liquidationPrice),
             additional:
               "Collateral Price at which your Position will be Liquidated",
           });
         } else {
           resultArray.push({
             title: "Liquidation Price",
-            value: `$${parseFloat(this.pool.userInfo.liquidationPrice).toFixed(
-              liquidationDecimals
-            )}`,
+            value: Vue.filter("formatUSD")(this.pool.userInfo.liquidationPrice),
             additional:
               "Collateral Price at which your Position will be Liquidated",
           });
@@ -335,7 +324,7 @@ export default {
 
           resultArray.push({
             title: "OHM Liquidation Price",
-            value: `$${parseFloat(ohmLiquidationPrice).toFixed(4)}`,
+            value: Vue.filter("formatUSD")(ohmLiquidationPrice),
             additional:
               "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
           });
@@ -351,7 +340,7 @@ export default {
 
           resultArray.push({
             title: "MEMO Liquidation Price",
-            value: `$${parseFloat(ohmLiquidationPrice).toFixed(4)}`,
+            value: Vue.filter("formatUSD")(ohmLiquidationPrice),
             additional:
               "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
           });
@@ -359,16 +348,16 @@ export default {
 
         resultArray.push({
           title: "MIM Left To Borrow",
-          value: `${borrowLeftParsed}`,
+          value: Vue.filter("formatTokenBalance")(borrowLeftParsed),
           additional: "MIM Borrowable Given the Collateral Deposited",
         });
 
         if (this.pool.strategyLink) {
           resultArray.push({
             title: "Withdrawable Amount",
-            value: `${parseFloat(this.pool.userInfo.maxWithdrawAmount).toFixed(
-              6
-            )}`,
+            value: Vue.filter("formatTokenBalance")(
+              this.pool.userInfo.maxWithdrawAmount
+            ),
             additional: `Maximum Current Amount of ${this.pool.token.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
           });
         }
@@ -380,7 +369,7 @@ export default {
 
           const apyInfo = {
             title: title,
-            value: `${parseFloat(this.tokenApy).toFixed(4)}%`,
+            value: Vue.filter("formatPercent")(this.tokenApy),
             additional: "APY Delivered by the Open Position",
           };
 

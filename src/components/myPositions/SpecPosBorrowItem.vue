@@ -6,7 +6,8 @@
         <div>
           <p class="header-token-title">{{ pool.token.name }}</p>
           <p class="header-token-price">
-            1 {{ pool.token.name }}={{ tokenToMim }} {{ pool.pairToken.name }}
+            1 {{ pool.token.name }} = {{ tokenToMim | formatToFixed(4) }}
+            {{ pool.pairToken.name }}
           </p>
         </div>
       </div>
@@ -38,9 +39,9 @@
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.userInfo">
               <p class="lp-data-balance">
-                {{ initialBalance }}
+                {{ pool.userInfo.userCollateralShare | formatTokenBalance }}
               </p>
-              <p class="lp-data-price">$ {{ initialInUsd }}</p>
+              <p class="lp-data-price">{{ initialInUsd | formatUSD }}</p>
             </div>
           </div>
         </div>
@@ -58,7 +59,9 @@
               <p class="lp-data-token">{{ pool.pairToken.name }}</p>
             </div>
             <div class="lp-data-balance-wrap">
-              <p class="lp-data-balance">{{ borrowedBalance }}</p>
+              <p class="lp-data-balance">
+                {{ pool.userInfo.userBorrowPart | formatTokenBalance }}
+              </p>
             </div>
           </div>
         </div>
@@ -112,6 +115,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusName = () => import("@/components/ui/StatusName");
 const mimIcon = require("@/assets/images/tokens/MIM.png");
@@ -148,22 +152,11 @@ export default {
     },
   },
   computed: {
-    initialBalance() {
-      return parseFloat(this.pool.userInfo.userCollateralShare).toFixed(2);
-    },
     initialInUsd() {
-      return parseFloat(
-        this.pool.userInfo.userCollateralShare / this.pool.tokenPrice
-      ).toFixed(2);
-    },
-    borrowedBalance() {
-      return parseFloat(this.pool.userInfo.userBorrowPart).toFixed(2);
+      return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
     },
     tokenToMim() {
-      const tokenToMim = 1 / this.pool.tokenPrice;
-      // eslint-disable-next-line no-useless-escape
-      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (4 || -1) + `})?`);
-      return tokenToMim.toString().match(re)[0];
+      return 1 / this.pool.tokenPrice;
     },
     poolIcon() {
       return this.pool.icon;
@@ -221,11 +214,13 @@ export default {
       return [
         {
           title: "Liquidation price",
-          value: `$${this.liquidationPrice.toFixed(4)}` /*, color: "#63CAF8"*/,
+          value: Vue.filter("formatUSD")(
+            this.liquidationPrice
+          ) /*, color: "#63CAF8"*/,
         },
         {
           title: "Min price",
-          value: `${parseFloat(this.minPrice).toFixed(6)}$`,
+          value: Vue.filter("formatUSD")(this.minPrice),
         },
       ];
     },

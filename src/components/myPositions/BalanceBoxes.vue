@@ -3,13 +3,13 @@
     <BalanceBox
       @withdraw="openPopup(false, false)"
       @deposit="openPopup(false, true)"
-      :balance="infoObject.degenExactBalance"
+      :balance="infoObject.mimInDegenBalance"
       :mimPrice="infoObject.mimPrice"
     />
     <BalanceBox
       @withdraw="openPopup(true, false)"
       @deposit="openPopup(true, true)"
-      :balance="infoObject.bentoExactBalance"
+      :balance="infoObject.mimInBentoBalance"
       :mimPrice="infoObject.mimPrice"
       :isBento="true"
     />

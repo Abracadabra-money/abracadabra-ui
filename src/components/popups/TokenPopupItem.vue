@@ -6,9 +6,9 @@
     </div>
     <div v-if="balance !== null" class="token-value">
       <p>
-        {{ showBalance }}
+        {{ balance | formatTokenBalance }}
       </p>
-      <p v-if="balance !== '0.0'">$ {{ showPrice }}</p>
+      <p v-if="+balance !== 0">{{ balanceInUSD | formatUSD }}</p>
     </div>
   </button>
 </template>
@@ -38,11 +38,8 @@ export default {
     },
   },
   computed: {
-    showBalance() {
-      return parseFloat(this.balance).toFixed(4);
-    },
-    showPrice() {
-      return parseFloat(Number(this.balance) * Number(this.price)).toFixed(4);
+    balanceInUSD() {
+      return Number(this.balance) * Number(this.price);
     },
   },
 };

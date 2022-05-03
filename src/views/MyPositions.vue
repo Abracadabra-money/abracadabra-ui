@@ -50,8 +50,8 @@
 </template>
 
 <script>
+import Vue from "vue";
 import farmPoolsMixin from "@/mixins/farmPools";
-
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
@@ -83,25 +83,35 @@ export default {
       return [
         {
           title: "Collateral Deposit",
-          value: `${this.userBorrowPools
-            .reduce((calc, pool) => {
-              return calc + parseFloat(pool.userInfo.userCollateralShare);
+          value: Vue.filter("formatUSD")(
+            this.userBorrowPools.reduce((calc, pool) => {
+              return (
+                calc +
+                parseFloat(
+                  (pool.userInfo.userCollateralShare * 1) / pool.tokenPrice
+                )
+              );
             }, 0)
-            .toFixed(2)} $`,
+          ),
         },
         {
           title: "MIM Borrowed",
-          value: this.userBorrowPools
-            .reduce((calc, pool) => {
+          value: Vue.filter("formatTokenBalance")(
+            this.userBorrowPools.reduce((calc, pool) => {
               return calc + parseFloat(pool.userInfo.userBorrowPart);
             }, 0)
-            .toFixed(2),
+          ),
         },
         {
-          title: "Yield Generated",
-          value: this.userFarmPools.reduce((calc, pool) => {
-            return calc + parseFloat(pool.accountInfo.userReward);
-          }, 0),
+          title: "Farms Earned",
+          value: Vue.filter("formatTokenBalance")(
+            this.userFarmPools.reduce((calc, pool) => {
+              return (
+                calc +
+                this.$ethers.utils.formatEther(pool.accountInfo.userReward)
+              );
+            }, 0)
+          ),
         },
       ];
     },

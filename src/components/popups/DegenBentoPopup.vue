@@ -5,7 +5,7 @@
       <div>
         <div class="header-balance">
           <h4>Collateral assets</h4>
-          <p>Balance: {{ (+balance).toFixed(2) }}</p>
+          <p>Balance: {{ balance | formatTokenBalance }}</p>
         </div>
 
         <BaseTokenInput
