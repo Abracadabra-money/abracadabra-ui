@@ -1,72 +1,80 @@
 <template>
-  <div class="stats-wrap">
-    <div class="search-wrap">
-      <img class="search-icon" src="@/assets/images/search.svg" alt="search" />
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search"
-        class="search-input"
-      />
-    </div>
-    <DropdownWrap class="dropdown">
-      <template slot="btn">
-        <button class="sort-btn open-btn">
-          <span class="sort-title-wrap">
-            <button
-              @click.stop="sortReverse = !sortReverse"
-              @mousedown.prevent.stop=""
-              class="sort-icon-wrap"
-            >
-              <img
-                class="sort-icon"
-                :class="{ 'sort-icon-reverse': sortReverse }"
-                src="@/assets/images/filter.svg"
-                alt="filter"
-              />
-            </button>
-            <span>{{ `Sorted by ${selectedTitleData.title}` }}</span>
-          </span>
-          <img
-            class="arrow-icon"
-            src="@/assets/images/arrow-down.svg"
-            alt="filter"
-          />
-        </button>
-      </template>
-      <template slot="list">
-        <button
-          class="sort-btn sort-item"
-          v-for="(titleData, i) in titlesList.filter(
-            ({ name }) => name !== selectedTitle
-          )"
-          :key="i"
-          @click="select(titleData.name)"
+  <EmptyList v-if="!currentPools.length && !loading" />
+  <div v-else-if="!currentPools.length && loading" class="loader-wrap">
+    <BaseLoader />
+  </div>
+  <div v-else class="stats-wrap">
+    <template>
+      <div class="search-wrap">
+        <img
+          class="search-icon"
+          src="@/assets/images/search.svg"
+          alt="search"
+        />
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search"
+          class="search-input"
+        />
+      </div>
+      <DropdownWrap class="dropdown">
+        <template slot="btn">
+          <button class="sort-btn open-btn">
+            <span class="sort-title-wrap">
+              <button
+                @click.stop="sortReverse = !sortReverse"
+                @mousedown.prevent.stop=""
+                class="sort-icon-wrap"
+              >
+                <img
+                  class="sort-icon"
+                  :class="{ 'sort-icon-reverse': sortReverse }"
+                  src="@/assets/images/filter.svg"
+                  alt="filter"
+                />
+              </button>
+              <span>{{ `Sorted by ${selectedTitleData.title}` }}</span>
+            </span>
+            <img
+              class="arrow-icon"
+              src="@/assets/images/arrow-down.svg"
+              alt="filter"
+            />
+          </button>
+        </template>
+        <template slot="list">
+          <button
+            class="sort-btn sort-item"
+            v-for="(titleData, i) in titlesList.filter(
+              ({ name }) => name !== selectedTitle
+            )"
+            :key="i"
+            @click="select(titleData.name)"
+          >
+            {{ titleData.title }}
+          </button>
+        </template>
+      </DropdownWrap>
+      <div class="stats-list-wrap">
+        <div
+          class="stats-list-header"
+          :class="{ 'stats-list-header-farm': isFarm }"
         >
-          {{ titleData.title }}
-        </button>
-      </template>
-    </DropdownWrap>
-    <div class="stats-list-wrap">
-      <div
-        class="stats-list-header"
-        :class="{ 'stats-list-header-farm': isFarm }"
-      >
-        <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
-      </div>
-      <div v-if="!currentPools.length && loading" class="loader-wrap">
-        <BaseLoader />
-      </div>
-      <template v-else>
-        <StatsItem
-          v-for="poolData in sortedDataItems"
-          :key="poolData.id"
-          :poolData="poolData"
-          :degen="false"
-          :isNew="false"
-          :isFarm="isFarm"
-      /></template>
-    </div>
+          <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
+        </div>
+
+        <template v-if="sortedDataItems.length">
+          <StatsItem
+            v-for="poolData in sortedDataItems"
+            :key="poolData.id"
+            :poolData="poolData"
+            :degen="false"
+            :isNew="false"
+            :isFarm="isFarm"
+        /></template>
+        <EmptyList v-else /></div
+    ></template>
   </div>
 </template>
 
@@ -76,13 +84,14 @@ import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
 
 const BaseLoader = () => import("@/components/base/BaseLoader");
+const EmptyList = () => import("@/components/stats/EmptyList");
 
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const StatsItem = () => import("@/components/stats/StatsItem");
 
 export default {
   name: "StatsView",
-  components: { BaseLoader, DropdownWrap, StatsItem },
+  components: { EmptyList, BaseLoader, DropdownWrap, StatsItem },
   mixins: [farmPoolsMixin, borrowPoolsMixin],
   props: { isFarm: { type: Boolean, default: false } },
   data: () => ({
@@ -350,6 +359,7 @@ export default {
   }
 }
 .loader-wrap {
+  width: 100%;
   display: flex;
   justify-content: center;
 }
