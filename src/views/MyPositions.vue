@@ -6,8 +6,8 @@
       <NetworksList :items="5" :activeList="activeNetworks" />
     </div>
 
-    <div class="values-list">
-      <div v-for="(item, i) in textItems" :key="i" class="values-list-item">
+    <div class="values-list" v-if="account && !borrowLoading && !farmLoading">
+      <div v-for="(item, i) in balanceItems" :key="i" class="values-list-item">
         <p class="values-list-title">{{ item.title }}</p>
         <p class="values-list-value">{{ item.value }}</p>
       </div>
@@ -66,20 +66,7 @@ export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
   data: () => ({
     activeNetworks: [1, 56, 250, 43114, 42161, 137],
-    textItems: [
-      {
-        title: "Collateral Deposit",
-        value: "10 $",
-      },
-      {
-        title: "MIM Borrowed",
-        value: "10",
-      },
-      {
-        title: "Yield Generated",
-        value: "10 %",
-      },
-    ],
+
     mimBentoInterval: null,
     farmPoolsTimer: null,
     borrowPoolsTimer: null,
@@ -92,6 +79,32 @@ export default {
       farmLoading: "getFarmPoolLoading",
       account: "getAccount",
     }),
+    balanceItems() {
+      return [
+        {
+          title: "Collateral Deposit",
+          value: `${this.userBorrowPools
+            .reduce((calc, pool) => {
+              return calc + parseFloat(pool.userInfo.userCollateralShare);
+            }, 0)
+            .toFixed(2)} $`,
+        },
+        {
+          title: "MIM Borrowed",
+          value: `${this.userBorrowPools
+            .reduce((calc, pool) => {
+              return calc + parseFloat(pool.userInfo.userBorrowPart);
+            }, 0)
+            .toFixed(2)} $`,
+        },
+        {
+          title: "Yield Generated",
+          value: this.userFarmPools.reduce((calc, pool) => {
+            return calc + parseFloat(pool.accountInfo.userReward);
+          }, 0),
+        },
+      ];
+    },
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
     },
