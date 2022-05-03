@@ -2,7 +2,7 @@ import axios from "axios";
 export default {
   state: {
     borrowPools: [],
-    isLoadingPoolsBorrow: null,
+    isLoadingPoolsBorrow: true,
     isCreatingPoolsBorrow: false,
     tokensVaults: [],
   },

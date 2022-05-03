@@ -14,7 +14,7 @@
     <div class="items">
       <template v-if="!isFarm">
         <SpecPosBorrowItem
-          v-for="pool in userPools"
+          v-for="pool in pools"
           :key="pool.id"
           :opened="opened"
           :pool="pool"
@@ -43,17 +43,6 @@ export default {
   computed: {
     title() {
       return this.isFarm ? "Farm" : "Borrow";
-    },
-    userPools() {
-      return this.pools.filter((pool) => {
-        if (!pool.userInfo) return false;
-        const tokenInUsd = pool.userInfo.userCollateralShare / pool.tokenPrice;
-        if (tokenInUsd < 3) return false;
-        return (
-          pool.userBorrowPart !== "0.0" &&
-          pool.userInfo.userCollateralShare !== "0.0"
-        );
-      });
     },
   },
 };

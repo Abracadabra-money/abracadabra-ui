@@ -3,13 +3,15 @@
     <div class="search-wrap">
       <p class="title">Select token</p>
       <input
+        v-if="!isLoading"
         v-model="search"
         type="text"
         placeholder="Search"
         class="search-input"
       />
     </div>
-    <div class="tokens-list">
+
+    <div class="tokens-list" v-if="!isLoading">
       <template v-for="(token, i) in filteredTokens">
         <TokenPopupItem
           @click="selectToken(token)"
@@ -34,10 +36,14 @@
         </div>
       </template>
     </div>
+    <div v-else class="loader-wrap">
+      <BaseLoader />
+    </div>
   </div>
 </template>
 
 <script>
+const BaseLoader = () => import("@/components/base/BaseLoader");
 const TokenPopupItem = () => import("@/components/popups/TokenPopupItem");
 
 export default {
@@ -67,8 +73,12 @@ export default {
               name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
           );
     },
+    isLoading() {
+      return !this.tokens.length;
+    },
   },
   components: {
+    BaseLoader,
     TokenPopupItem,
   },
 };
@@ -123,5 +133,10 @@ export default {
   background-color: rgba(255, 255, 255, 0.1);
   height: 1px;
   width: calc(100% - 42px);
+}
+.loader-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 52px;
 }
 </style>

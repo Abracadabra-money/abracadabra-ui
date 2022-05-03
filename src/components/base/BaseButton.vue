@@ -68,7 +68,11 @@ export default {
       background: linear-gradient(90deg, #7c82fd 0%, #8ec2f9 100%);
     }
     &.disabled {
-      background: #2c2a35;
+      background: linear-gradient(
+        90deg,
+        rgba(85, 82, 253, 0.2) 0%,
+        rgba(118, 195, 245, 0.2) 100%
+      );
     }
   }
   &:not(.primary) {

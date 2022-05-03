@@ -17,38 +17,32 @@
         />
       </div>
     </div>
-    <template v-if="isApproved !== null">
-      <BaseButton v-if="!isApproved" primary @click="approveToken"
-        >Approve</BaseButton
+
+    <BaseButton v-if="!isApproved" primary @click="approveToken"
+      >Approve</BaseButton
+    >
+    <template v-else>
+      <BaseButton
+        v-if="isDeposit"
+        @click="deposit"
+        :disabled="!isValid || !!error"
+        >Deposit</BaseButton
       >
-      <template v-else>
-        <BaseButton
-          v-if="isDeposit"
-          @click="deposit"
-          :disabled="!isValid || !!error"
-          >Deposit</BaseButton
-        >
-        <BaseButton v-else @click="withdraw" :disabled="!isValid || !!error"
-          >Withdraw</BaseButton
-        >
-      </template>
+      <BaseButton v-else @click="withdraw" :disabled="!isValid || !!error"
+        >Withdraw</BaseButton
+      >
     </template>
-    <div v-else class="load-wrap">
-      <BaseLoader />
-    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-const BaseTokenInput = () =>
-  import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 import mimIcon from "@/assets/images/tokens/MIM.png";
-const BaseLoader = () => import("@/components/base/BaseLoader");
 
 export default {
-  components: { BaseLoader, BaseTokenInput, BaseButton },
+  components: { BaseTokenInput, BaseButton },
   props: {
     infoObject: {
       type: Object,
@@ -60,8 +54,6 @@ export default {
   data: () => ({
     amount: "",
     mimIcon,
-    isDegenApproved: null,
-    isBentoApproved: null,
     updateInfoInterval: null,
   }),
   methods: {
@@ -143,28 +135,6 @@ export default {
         console.log("deposit err:", e);
       }
     },
-    async updateApprovedValue() {
-      try {
-        const addressApproved = await this.infoObject.mimContract.allowance(
-          this.account,
-          this.activeContract.address,
-          {
-            gasLimit: 1000000,
-          }
-        );
-        const isApproved = parseFloat(addressApproved.toString()) > 0;
-
-        console.log("OPENED VALUE", isApproved);
-        this.setIsApproved(isApproved);
-      } catch (e) {
-        console.log("isTokenApproved err:", e);
-        this.setIsApproved(false);
-      }
-    },
-    setIsApproved(value) {
-      if (this.isBento) this.isBentoApproved = value;
-      else this.isDegenApproved = value;
-    },
     async approveToken() {
       try {
         const estimateGas =
@@ -198,13 +168,15 @@ export default {
     ...mapGetters({
       account: "getAccount",
     }),
-    isApproved() {
-      return this.isBento ? this.isBentoApproved : this.isDegenApproved;
-    },
     activeContract() {
       return this.isBento
         ? this.infoObject.bentoBoxContract
         : this.infoObject.degenBoxContract;
+    },
+    isApproved() {
+      return this.isBento
+        ? this.infoObject.bentoAllowance
+        : this.infoObject.degenAllowance;
     },
     balance() {
       const balance = this.isDeposit
@@ -229,19 +201,6 @@ export default {
       }`;
     },
   },
-  watch: {
-    activeContract: {
-      immediate: true,
-      handler() {
-        this.updateApprovedValue();
-      },
-    },
-  },
-  created() {
-    this.updateInfoInterval = setInterval(async () => {
-      await this.updateApprovedValue();
-    }, 5000);
-  },
   beforeDestroy() {
     clearInterval(this.updateInfoInterval);
   },
@@ -261,10 +220,5 @@ export default {
   padding-bottom: 20px;
   margin-bottom: 38px;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
-}
-.load-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
 }
 </style>

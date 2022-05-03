@@ -6,8 +6,8 @@
       <NetworksList :items="5" :activeList="activeNetworks" />
     </div>
 
-    <div class="values-list">
-      <div v-for="(item, i) in textItems" :key="i" class="values-list-item">
+    <div class="values-list" v-if="account && !borrowLoading && !farmLoading">
+      <div v-for="(item, i) in balanceItems" :key="i" class="values-list-item">
         <p class="values-list-title">{{ item.title }}</p>
         <p class="values-list-value">{{ item.value }}</p>
       </div>
@@ -17,11 +17,20 @@
       :infoObject="mimInBentoDepositObject"
     />
     <h2 class="title">Specific positions</h2>
-    <div class="spec-positions">
+    <div
+      v-if="
+        !account ||
+        (!borrowPools.length && !pools.length && !borrowLoading && !farmLoading)
+      "
+      class="empty-wrap"
+    >
+      <EmptyPosList />
+    </div>
+    <div v-else class="spec-positions">
       <div
         v-if="
-          (farmLoading && !this.pools.length) ||
-          (borrowLoading && !this.borrowPools.length)
+          (farmLoading && !pools.length) ||
+          (borrowLoading && !borrowPools.length)
         "
         class="loader-wrap"
       >
@@ -29,9 +38,13 @@
       </div>
 
       <template v-else>
-        <SpecPos :pools="this.borrowPools" />
-        <SpecPos :isFarm="true" :pools="this.pools"
-      /></template>
+        <SpecPos v-if="userBorrowPools.length" :pools="userBorrowPools" />
+        <SpecPos
+          v-if="userFarmPools.length"
+          :isFarm="true"
+          :pools="userFarmPools"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -47,24 +60,13 @@ import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
 
+const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
+
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
   data: () => ({
     activeNetworks: [1, 56, 250, 43114, 42161, 137],
-    textItems: [
-      {
-        title: "Collateral Deposit",
-        value: "10 $",
-      },
-      {
-        title: "MIM Borrowed",
-        value: "10",
-      },
-      {
-        title: "Yield Generated",
-        value: "10 %",
-      },
-    ],
+
     mimBentoInterval: null,
     farmPoolsTimer: null,
     borrowPoolsTimer: null,
@@ -75,13 +77,60 @@ export default {
       borrowPools: "getPools",
       borrowLoading: "getLoadPoolsBorrow",
       farmLoading: "getFarmPoolLoading",
+      account: "getAccount",
     }),
+    balanceItems() {
+      return [
+        {
+          title: "Collateral Deposit",
+          value: `${this.userBorrowPools
+            .reduce((calc, pool) => {
+              return calc + parseFloat(pool.userInfo.userCollateralShare);
+            }, 0)
+            .toFixed(2)} $`,
+        },
+        {
+          title: "MIM Borrowed",
+          value: this.userBorrowPools
+            .reduce((calc, pool) => {
+              return calc + parseFloat(pool.userInfo.userBorrowPart);
+            }, 0)
+            .toFixed(2),
+        },
+        {
+          title: "Yield Generated",
+          value: this.userFarmPools.reduce((calc, pool) => {
+            return calc + parseFloat(pool.accountInfo.userReward);
+          }, 0),
+        },
+      ];
+    },
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
+    },
+    userBorrowPools() {
+      return this.borrowPools.filter((pool) => {
+        if (!pool.userInfo) return false;
+        const tokenInUsd = pool.userInfo.userCollateralShare / pool.tokenPrice;
+        if (tokenInUsd < 3) return false;
+        return (
+          pool.userBorrowPart !== "0.0" &&
+          pool.userInfo.userCollateralShare !== "0.0"
+        );
+      });
+    },
+    userFarmPools() {
+      return this.pools.filter((pool) => {
+        return (
+          !pool.accountInfo?.userReward.isZero() ||
+          !pool.accountInfo?.userInfo.amount.isZero()
+        );
+      });
     },
   },
 
   components: {
+    EmptyPosList,
     SpecPos,
     NetworksList,
     BalanceBoxes,
@@ -175,6 +224,7 @@ export default {
     font-weight: 700;
   }
 }
+
 .loader-wrap {
   display: flex;
   align-items: center;
@@ -186,6 +236,12 @@ export default {
   grid-template-rows: repeat(auto-fill, auto);
   row-gap: 24px;
   margin-top: 40px;
+}
+
+.empty-wrap {
+  background-color: #2a2835;
+  border-radius: 30px;
+  padding: 16px 0 50px 0;
 }
 
 @media (min-width: 1024px) {

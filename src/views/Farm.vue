@@ -14,10 +14,7 @@
             @select="selectedTab = $event.name"
           />
         </div>
-        <div v-if="!pools.length && loading" class="loader-wrap">
-          <BaseLoader />
-        </div>
-        <div v-else class="select-wrap underline">
+        <div class="select-wrap underline">
           <h4 class="sub-title">Farming Opportunities</h4>
           <button class="select" @click="isTokensOpened = true">
             <BaseTokenIcon
@@ -54,12 +51,15 @@
             <BaseButton
               v-if="!isAllowance && !isUnstake"
               @click="approveHandler"
+              :disabled="!isValid || !!error"
+              primary
               >Approve</BaseButton
             >
             <BaseButton
               v-if="isUnstake || isAllowance"
               @click="handler"
               :disabled="!isValid || !!error"
+              primary
               >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
             >
           </div></template
@@ -74,13 +74,17 @@
           <p class="info-value">{{ item.value }}</p>
         </div>
 
-        <a
-          class="farm-link"
-          :href="selectedPool.stakingTokenLink"
-          target="_blank"
-          >Get LP’s</a
-        ></template
-      >
+        <div class="farm-link-wrap">
+          <a
+            class="farm-link"
+            :href="selectedPool.stakingTokenLink"
+            target="_blank"
+          >
+            <img src="@/assets/images/farm-lp.svg" alt="" />
+            <p>Get LP’s</p>
+            <img src="@/assets/images/farm-lp-arrow.svg" alt="" />
+          </a></div
+      ></template>
     </div>
     <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
       <SelectTokenPopup
@@ -97,14 +101,12 @@
 import { mapGetters } from "vuex";
 
 const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () =>
-  import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
-const BaseLoader = () => import("@/components/base/BaseLoader");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 export default {
@@ -142,7 +144,6 @@ export default {
       ];
     },
     selectedPool() {
-      console.log(this.pools.find(({ id }) => +id === +this.id));
       return this.pools.find(({ id }) => +id === +this.id) || null;
     },
 
@@ -252,7 +253,6 @@ export default {
     clearInterval(this.farmPoolsTimer);
   },
   components: {
-    BaseLoader,
     BaseTokenIcon,
     NetworksList,
     BaseTokenInput,
@@ -369,23 +369,32 @@ export default {
   }
 }
 
-.farm-link {
-  display: block;
-  max-width: 55px;
-  margin: 0 auto;
-  font-weight: 300;
-  font-size: 12px;
-  line-height: 18px;
-  text-transform: uppercase;
-  color: #fff;
+.farm-link-wrap {
+  display: flex;
+  justify-content: center;
 }
 
+.farm-link {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  grid-column-gap: 7px;
+  justify-content: center;
+  align-items: center;
+  padding: 3px 10px;
+  background: rgba(157, 244, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-sizing: border-box;
+  border-radius: 30px;
+  font-size: 14px;
+  color: #63caf8;
+}
+/*
 .farm-link:hover {
   background: -webkit-linear-gradient(#5282fd, #76c3f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
+*/
 .switcher {
   margin-bottom: 27px;
 }
