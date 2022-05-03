@@ -7,35 +7,39 @@
     class="stats-item"
     :class="{ 'stats-item-farm': isFarm }"
   >
-    <span class="network-data" :class="{ 'network-data-new': isNew }">
-      <BaseTokenIcon :name="poolData.name" :icon="poolData.icon" />
-      <span class="network-name-wrap">
-        <span>{{ poolData.name }}</span>
-        <span v-if="isNew" class="network-new">New</span>
+    <span class="status-wrap"><StatusBar :pool="activePool" /></span>
+    <span class="stats-item-wrap">
+      <span class="network-data" :class="{ 'network-data-new': isNew }">
+        <BaseTokenIcon :name="poolData.name" :icon="poolData.icon" />
+        <span class="network-name-wrap">
+          <span>{{ poolData.name }}</span>
+          <span v-if="isNew" class="network-new">New</span>
+        </span>
       </span>
-    </span>
 
-    <span v-for="(item, i) in items" :key="i">
-      <span class="column-title">{{ item.title }}</span>
-      <span>{{ item.value }}</span>
-    </span>
-    <span class="degenbox">
-      <img
-        v-if="degen"
-        class="degenbox-img"
-        src="@/assets/images/degenbox.svg"
-        alt="DegenBox"
-      />
+      <span v-for="(item, i) in items" :key="i">
+        <span class="column-title">{{ item.title }}</span>
+        <span>{{ item.value }}</span>
+      </span>
+      <span class="degenbox">
+        <img
+          v-if="degen"
+          class="degenbox-img"
+          src="@/assets/images/degenbox.svg"
+          alt="DegenBox"
+        />
+      </span>
     </span>
   </router-link>
 </template>
 
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+const StatusBar = () => import("@/components/ui/StatusBar");
 
 export default {
   name: "StatsItem",
-  components: { BaseTokenIcon },
+
   props: {
     poolData: {
       type: Object,
@@ -100,6 +104,21 @@ export default {
             },
           ];
     },
+
+    activePool() {
+      if (this.poolData) {
+        let pool = this.$store.getters.getPoolById(+this.poolData.id);
+
+        if (pool) return pool;
+        return null;
+      }
+      return null;
+    },
+  },
+
+  components: {
+    BaseTokenIcon,
+    StatusBar,
   },
 };
 </script>
@@ -107,13 +126,13 @@ export default {
 <style lang="scss" scoped>
 .stats-item {
   position: relative;
-  display: grid;
+
   background-color: #2a2835;
   line-height: 21px;
   border-radius: 26px;
   padding: 10px;
   height: auto;
-  grid-gap: 4px;
+
   font-size: 14px;
   border: none;
   cursor: pointer;
@@ -126,6 +145,17 @@ export default {
   &:hover {
     box-shadow: 0 0 0 1px #8180ff;
   }
+}
+
+.status-wrap {
+  height: 18px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.stats-item-wrap {
+  display: grid;
+  grid-gap: 4px;
 }
 
 .network-data {
@@ -178,17 +208,22 @@ export default {
 
 @media (min-width: 1024px) {
   .stats-item {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
-    align-items: center;
-    padding: 0 20px;
-    grid-gap: 0;
-    height: 100px;
+    padding: 8px 20px 0;
     font-size: 16px;
     border-radius: 30px;
+    height: 100px;
     &-farm {
       grid-template-columns: 1fr 1fr 1fr 1fr 60px;
     }
   }
+
+  .stats-item-wrap {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
+    align-items: center;
+    grid-gap: 0;
+    height: 36px;
+  }
+
   .network-data {
     margin-bottom: 0;
     .network-name-wrap {

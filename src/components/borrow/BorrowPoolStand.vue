@@ -559,7 +559,9 @@ export default {
 
   .stable-data {
     position: relative;
-    background: rgba(255, 255, 255, 0.04);
+    box-sizing: border-box;
+    background: #2b2b3c;
+    backdrop-filter: blur(100px);
     border-radius: 30px;
 
     .stable-preview {

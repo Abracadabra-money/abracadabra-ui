@@ -3,29 +3,30 @@
     <img
       class="info-bar-icon"
       src="@/assets/images/info-bar/strategy.png"
-      alt="Іtrategy"
+      alt="Strategy"
       v-if="pool.hasStrategy"
-      @mouseover="addNotifications('strategy')"
+      v-tooltip="'Strategy'"
     />
     <img
       class="info-bar-icon"
       src="@/assets/images/info-bar/spirit.png"
-      alt="Іtrategy"
+      alt="Spirit"
       v-if="false"
+      v-tooltip="'Spirit'"
     />
     <img
       class="info-bar-icon"
       src="@/assets/images/info-bar/new.png"
-      alt="Іtrategy"
+      alt="New"
       v-if="false"
+      v-tooltip="'New'"
     />
     <img
       class="info-bar-icon"
       src="@/assets/images/info-bar/depreciated.png"
-      alt="Вepreciated"
+      alt="Depreciated"
       v-if="pool.isDepreciated"
-      @mouseover="addNotifications('strategy')"
-      @mouseleave="deleteNotifications('strategy')"
+      v-tooltip="'Depreciated'"
     />
   </div>
 </template>
@@ -36,30 +37,6 @@ export default {
     pool: {
       type: Object,
       require: true,
-    },
-  },
-
-  data() {
-    return {
-      notifications: {
-        strategy: { msg: "strategy" },
-        depreciated: { msg: "depreciated" },
-      },
-
-      id: null,
-    };
-  },
-
-  methods: {
-    async addNotifications(type) {
-      this.id = await this.$store.dispatch(
-        "notifications/new",
-        this.notifications[type]
-      );
-    },
-
-    deleteNotifications() {
-      this.$store.commit("notifications/delete", this.id);
     },
   },
 };

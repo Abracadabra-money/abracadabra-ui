@@ -1,7 +1,7 @@
 <template>
   <div class="pools-popup">
     <div class="search-wrap">
-      <p class="title">Select token</p>
+      <p class="title">Select Pool</p>
       <input
         v-model="search"
         type="text"
@@ -25,7 +25,7 @@
     <div class="not-found" v-else-if="!filterPools.length && pools.length">
       <img
         class="not-found__img"
-        :src="require('@/assets/images/empty.svg')"
+        :src="require('@/assets/images/not-found.png')"
         alt=""
       />
       <p class="not-found__text">
