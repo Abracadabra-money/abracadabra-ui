@@ -33,21 +33,22 @@
             />
           </button>
         </div>
-        <template v-if="selectedPool">
+        <template>
           <div class="input-wrap underline">
             <h4 class="sub-title">
-              Deposit {{ selectedPool.stakingTokenName }} tokens
+              Deposit
+              {{ selectedPool ? selectedPool.stakingTokenName : "" }} tokens
             </h4>
             <BaseTokenInput
               v-model="amount"
-              :name="selectedPool.stakingTokenName"
-              :icon="selectedPool.icon"
+              :name="selectedPool ? selectedPool.stakingTokenName : null"
+              :icon="selectedPool ? selectedPool.icon : null"
               :max="max"
               :error="error"
             />
           </div>
 
-          <div class="btn-wrap" v-if="selectedPool">
+          <div class="btn-wrap">
             <BaseButton
               v-if="!isAllowance && !isUnstake"
               @click="approveHandler"

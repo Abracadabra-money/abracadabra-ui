@@ -4,7 +4,7 @@
       class="info-bar-icon"
       src="@/assets/images/info-bar/strategy.png"
       alt="Strategy"
-      v-if="pool.hasStrategy"
+      v-if="pool.strategyLink"
       v-tooltip="'Strategy'"
     />
     <img
@@ -25,7 +25,7 @@
       class="info-bar-icon"
       src="@/assets/images/info-bar/depreciated.png"
       alt="Deprecated"
-      v-if="pool.isDepreciated"
+      v-if="isFarm ? +pool.poolRoi === 0 : pool.isDepreciated"
       v-tooltip="'Deprecated'"
     />
   </div>
@@ -34,6 +34,10 @@
 <script>
 export default {
   props: {
+    isFarm: {
+      type: Boolean,
+      default: false
+    },
     pool: {
       type: Object,
       require: true,

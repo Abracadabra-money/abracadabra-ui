@@ -15,16 +15,11 @@
       <template v-for="(token, i) in filteredTokens">
         <TokenPopupItem
           @click="selectToken(token)"
-          :key="token.chainId"
+          :key="token.id"
           :name="token.name"
           :icon="token.icon"
-          :balance="
-            token.accountInfo
-              ? !isUnstake
-                ? token.accountInfo.balance
-                : token.accountInfo.depositedBalance
-              : null
-          "
+          :farmItem="token"
+          :balance="token.accountInfo ? token.accountInfo.balance : null"
           :price="token.lpPrice"
         />
         <div

@@ -5,9 +5,11 @@
       params: { id: poolData.id },
     }"
     class="stats-item"
-    :class="{ 'stats-item-farm': isFarm }"
+    :class="{ 'stats-item-farm': isFarm, strategy: activePool.strategyLink }"
   >
-    <span class="status-wrap"><StatusBar :pool="activePool" /></span>
+    <span class="status-wrap"
+      ><StatusBar :isFarm="isFarm" :pool="activePool"
+    /></span>
     <span class="stats-item-wrap" :class="{ 'stats-item-wrap-farm': isFarm }">
       <span class="network-data" :class="{ 'network-data-new': isNew }">
         <BaseTokenIcon :name="poolData.name" :icon="poolData.icon" />
@@ -107,7 +109,9 @@ export default {
 
     activePool() {
       if (this.poolData) {
-        let pool = this.$store.getters.getPoolById(+this.poolData.id);
+        let pool = this.isFarm
+          ? this.$store.getters.getFarmPoolById(+this.poolData.id)
+          : this.$store.getters.getPoolById(+this.poolData.id);
 
         if (pool) return pool;
         return null;
@@ -142,8 +146,12 @@ export default {
 
   transition: all 0.2s;
 
-  &:hover {
+  &.strategy {
     box-shadow: 0 0 0 1px #8180ff;
+  }
+
+  &:hover {
+    background: #343141;
   }
 }
 

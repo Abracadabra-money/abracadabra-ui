@@ -6,7 +6,11 @@
         :disabled="!isChooseToken"
         class="value-type value-btn"
       >
-        <BaseTokenIcon :icon="icon" type="select" :name="name" />
+        <BaseTokenIcon
+          :icon="icon"
+          :type="isChooseToken ? 'select' : 'token'"
+          :name="name"
+        />
         <span class="token-name">
           {{ poolName }}
         </span>
@@ -90,7 +94,8 @@ export default {
     },
     poolName() {
       if (this.name) return this.name;
-      return "Select to";
+      if (this.isChooseToken) return "Select to";
+      return "Symbol";
     },
   },
   components: { BaseTokenIcon },
@@ -219,5 +224,4 @@ input[type="number"] {
     font-size: 20px;
   }
 }
-
 </style>
