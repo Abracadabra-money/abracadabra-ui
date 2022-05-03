@@ -17,11 +17,19 @@
       :infoObject="mimInBentoDepositObject"
     />
     <h2 class="title">Specific positions</h2>
-    <div class="spec-positions">
+    <div
+      v-if="
+        !borrowPools.length && !pools.length && !borrowLoading && !farmLoading
+      "
+      class="empty-wrap"
+    >
+      <EmptyPosList />
+    </div>
+    <div v-else class="spec-positions">
       <div
         v-if="
-          (farmLoading && !this.pools.length) ||
-          (borrowLoading && !this.borrowPools.length)
+          (farmLoading && !pools.length) ||
+          (borrowLoading && !borrowPools.length)
         "
         class="loader-wrap"
       >
@@ -29,8 +37,8 @@
       </div>
 
       <template v-else>
-        <SpecPos :pools="this.borrowPools" />
-        <SpecPos :isFarm="true" :pools="this.pools"
+        <SpecPos v-if="userBorrowPools.length" :pools="userBorrowPools" />
+        <SpecPos v-if="pools.length" :isFarm="true" :pools="pools"
       /></template>
     </div>
   </div>
@@ -46,6 +54,7 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
+const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
 
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
@@ -79,9 +88,21 @@ export default {
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
     },
+    userBorrowPools() {
+      return this.borrowPools.filter((pool) => {
+        if (!pool.userInfo) return false;
+        const tokenInUsd = pool.userInfo.userCollateralShare / pool.tokenPrice;
+        if (tokenInUsd < 3) return false;
+        return (
+          pool.userBorrowPart !== "0.0" &&
+          pool.userInfo.userCollateralShare !== "0.0"
+        );
+      });
+    },
   },
 
   components: {
+    EmptyPosList,
     SpecPos,
     NetworksList,
     BalanceBoxes,
@@ -186,6 +207,12 @@ export default {
   grid-template-rows: repeat(auto-fill, auto);
   row-gap: 24px;
   margin-top: 40px;
+}
+
+.empty-wrap {
+  background-color: #2a2835;
+  border-radius: 30px;
+  padding: 16px 0 50px 0;
 }
 
 @media (min-width: 1024px) {

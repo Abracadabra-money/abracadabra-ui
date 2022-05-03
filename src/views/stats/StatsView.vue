@@ -1,5 +1,5 @@
 <template>
-  <EmptyList v-if="!currentPools.length && !loading" />
+  <EmptyStatsList v-if="!currentPools.length && !loading" />
   <div v-else-if="!currentPools.length && loading" class="loader-wrap">
     <BaseLoader />
   </div>
@@ -73,7 +73,7 @@
             :isNew="false"
             :isFarm="isFarm"
         /></template>
-        <EmptyList v-else /></div
+        <EmptyStatsList v-else /></div
     ></template>
   </div>
 </template>
@@ -84,14 +84,14 @@ import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
 
 const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyList = () => import("@/components/stats/EmptyList");
+const EmptyStatsList = () => import("@/components/stats/EmptyStatsList");
 
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const StatsItem = () => import("@/components/stats/StatsItem");
 
 export default {
   name: "StatsView",
-  components: { EmptyList, BaseLoader, DropdownWrap, StatsItem },
+  components: { EmptyStatsList, BaseLoader, DropdownWrap, StatsItem },
   mixins: [farmPoolsMixin, borrowPoolsMixin],
   props: { isFarm: { type: Boolean, default: false } },
   data: () => ({

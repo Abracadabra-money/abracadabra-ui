@@ -1,15 +1,17 @@
 <template>
   <div class="empty-list">
-    <img src="@/assets/images/empty-list.png" alt="Empty list" class="image" />
-    <p class="title">
-      No pools on this network. <br />In the future they will be displayed here
-    </p>
+    <img
+      src="@/assets/images/empty-pos-list.png"
+      alt="Empty list"
+      class="image"
+    />
+    <p class="title">No open positions</p>
   </div>
 </template>
 
 <script>
 export default {
-  name: "EmptyList",
+  name: "EmptyPosList",
 };
 </script>
 
