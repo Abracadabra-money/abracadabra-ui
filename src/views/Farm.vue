@@ -341,7 +341,8 @@ export default {
   height: 70px;
   border: none;
   outline: transparent;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(129, 126, 166, 0.2);
+  border: 1px solid #494661;
   border-radius: 20px;
   cursor: pointer;
   display: flex;

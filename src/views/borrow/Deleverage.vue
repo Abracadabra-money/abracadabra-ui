@@ -143,7 +143,6 @@ export default {
       slipage: 1,
       flashRepayAmount: 0,
       flashRepayRemoveAmount: 0,
-      filteredPool: [],
       emptyData: {
         img: require(`@/assets/images/empty_leverage.svg`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
@@ -157,6 +156,12 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    filteredPool() {
+      return this.pools.filter(
+        (pool) => pool.isSwappersActive && !!pool.reverseSwapContract
+      );
+    },
 
     selectedPool() {
       if (this.poolId) {
@@ -431,13 +436,6 @@ export default {
 
   watch: {
     pools() {
-      this.filteredPool = this.pools.filter(
-        (pool) =>
-          pool.isSwappersActive &&
-          !pool.isDepreciated &&
-          !!pool.reverseSwapContract
-      );
-
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
         if (!pool) this.$router.push(`/deleverage`);

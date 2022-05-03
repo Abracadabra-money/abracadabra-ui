@@ -106,10 +106,10 @@ export default {
   display: flex;
   align-items: center;
   background: rgba(129, 126, 166, 0.2);
+  border: 1px solid #494661;
   border-radius: 20px;
   flex-wrap: wrap;
   padding: 8px 10px 0 10px;
-  border: 1px solid rgba(0, 0, 0, 0);
   transition: border-color 0.1s, box-shadow 0.1s;
 
   &:focus-within {
@@ -141,7 +141,7 @@ input[type="number"] {
 .value-btn {
   display: flex;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.02);
   border: none;
   color: white;
   cursor: pointer;
