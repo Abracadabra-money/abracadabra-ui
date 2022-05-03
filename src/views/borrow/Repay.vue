@@ -119,7 +119,7 @@ export default {
       isApproved: false,
       isOpenPollPopup: false,
       emptyData: {
-        img: require(`@/assets/images/empty_borrow.svg`),
+        img: require(`@/assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabra.money/",

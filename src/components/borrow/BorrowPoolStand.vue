@@ -477,6 +477,12 @@ export default {
     padding: 23px 65px;
     min-height: 280px;
 
+    img {
+      max-width: 160px;
+      width: 90%;
+      height: auto;
+    }
+
     .empty-bottom {
       margin-top: 15px;
     }

@@ -29,6 +29,17 @@
           </div>
         </div>
       </template>
+      <template v-else-if="!isEmpty && !account">
+        <div class="empty-wrap">
+          <img src="@/assets/images/empty-pos-list.png" alt="info" />
+          <div class="empty-text">
+            <p>Connect wallet to check your position</p>
+          </div>
+          <BaseButton :width="'200px'" @click="connectHandler"
+            >Connect</BaseButton
+          >
+        </div>
+      </template>
       <div v-else class="profile-preview">
         <div class="item" v-for="(item, i) in profileData" :key="i">
           <p class="item-name">{{ item.name }}</p>
@@ -67,6 +78,7 @@
 <script>
 import Vue from "vue";
 import LockedTimer from "@/components/stake/LockedTimer.vue";
+const BaseButton = () => import("@/components/base/BaseButton");
 
 export default {
   name: "info-block",
@@ -75,7 +87,7 @@ export default {
   },
   data: () => ({
     emptyData: {
-      img: require(`@/assets/images/empty_borrow.svg`),
+      img: require(`@/assets/images/empty_borrow.png`),
       text: "Some text 4 empty view",
       bottom: "If you want to learn more read our docs",
       link: "https://abracadabra.money/",
@@ -84,6 +96,9 @@ export default {
   computed: {
     isEmpty() {
       return !this.tokensInfo;
+    },
+    account() {
+      return this.$store.getters.getAccount;
     },
     profileData() {
       if (this.isEmpty) return [];
@@ -124,12 +139,16 @@ export default {
     },
   },
   methods: {
+    async connectHandler() {
+      await this.$connectWallet();
+    },
     isArray(item) {
       return Array.isArray(item);
     },
   },
   components: {
     LockedTimer,
+    BaseButton,
   },
 };
 </script>
@@ -143,6 +162,16 @@ export default {
   border-radius: 30px;
   padding: 23px 65px;
   min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  img {
+    max-width: 130px;
+    width: 90%;
+    height: auto;
+  }
 
   .empty-bottom {
     margin-top: 15px;
@@ -152,6 +181,7 @@ export default {
     font-size: 18px;
     line-height: 27px;
     color: rgba(255, 255, 255, 0.6);
+    padding: 10px 0;
   }
 
   .empty-link {

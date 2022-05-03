@@ -9,7 +9,7 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance }}</p>
+            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
@@ -44,7 +44,7 @@
     <div class="profile">
       <h1 class="title">sSPELL Token Staking</h1>
       <InfoBlock :tokensInfo="tokensInfo" />
-      <div class="profile-actions" v-if="tokensInfo">
+      <div class="profile-actions" v-if="tokensInfo && account">
         <BaseButton
           @click="approveTokenHandler"
           primary

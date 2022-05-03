@@ -27,8 +27,6 @@ export default {
         //  this.$router.push({ name: "Dashboard" });
         return false;
       }
-      if (!window.ethereum) return false;
-
       await this.$connectWallet();
     },
   },

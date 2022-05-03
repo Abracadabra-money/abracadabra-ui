@@ -44,7 +44,7 @@
     <div class="profile">
       <h1 class="title">mSPELL Token Staking</h1>
       <InfoBlock :tokensInfo="tokensInfo" />
-      <div class="profile-actions" v-if="tokensInfo">
+      <div class="profile-actions" v-if="tokensInfo && account">
         <BaseButton
           @click="approveTokenHandler"
           primary

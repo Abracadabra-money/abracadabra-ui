@@ -144,7 +144,7 @@ export default {
       flashRepayAmount: 0,
       flashRepayRemoveAmount: 0,
       emptyData: {
-        img: require(`@/assets/images/empty_leverage.svg`),
+        img: require(`@/assets/images/empty_leverage.png`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
       },
     };
