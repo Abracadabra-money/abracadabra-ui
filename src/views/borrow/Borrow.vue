@@ -741,6 +741,7 @@ export default {
 }
 
 .checkbox-wrap {
+  margin-top: 20px;
   display: flex;
   align-items: center;
 

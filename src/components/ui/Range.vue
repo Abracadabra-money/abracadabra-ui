@@ -3,7 +3,12 @@
     <div class="leverage-actions">
       <div class="leverage-header">
         <button v-if="tooltipText" class="info-btn">
-          <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
+          <img
+            class="info-icon"
+            src="@/assets/images/info.svg"
+            v-tooltip="tooltipText"
+            alt="info"
+          />
         </button>
         <h4>{{ title }}</h4>
         <div class="range-subtitle">{{ subtitle }}</div>

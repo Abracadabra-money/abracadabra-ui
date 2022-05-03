@@ -51,7 +51,7 @@
             :min="1"
             :risk="leverageRisk"
             :inputValue="collateralValue"
-            tooltipText="true"
+            tooltipText="Allows users to leverage their position. Read more about this in the documents!"
           />
           <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
         </div>
@@ -962,6 +962,7 @@ export default {
 }
 
 .checkbox-wrap {
+  margin-top: 20px;
   display: flex;
   align-items: center;
 

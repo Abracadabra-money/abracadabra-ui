@@ -78,6 +78,7 @@
               <img
                 class="info-list-icon"
                 src="@/assets/images/info.svg"
+                v-tooltip="item.additional"
                 alt="info"
               />
 
@@ -653,6 +654,7 @@ export default {
     }
     .info-list-icon {
       padding-right: 12px;
+      cursor: pointer;
     }
   }
 }
