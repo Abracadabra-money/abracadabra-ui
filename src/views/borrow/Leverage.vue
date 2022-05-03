@@ -6,6 +6,20 @@
         <div class="underline">
           <NetworksList />
         </div>
+
+        <div class="checkbox-wrap" v-if="acceptUseDefaultBalance">
+          <div
+            class="box-wrap"
+            @click="toggleUseDefaultBalance"
+            :class="{ active: useDefaultBalance }"
+          >
+            <div class="box"></div>
+          </div>
+          <p class="label-text" @click="toggleUseDefaultBalance">
+            Use {{ networkValuteName }}
+          </p>
+        </div>
+
         <div class="first-input underline">
           <div class="header-balance">
             <h4>Collateral assets</h4>
@@ -14,8 +28,8 @@
             </p>
           </div>
           <BaseTokenInput
-            :icon="selectedPool ? selectedPool.icon : null"
-            :name="selectedPool ? selectedPool.name : null"
+            :icon="mainValueTokenName"
+            :name="mainTokenFinalText"
             v-model="collateralValue"
             :max="maxCollateralValue"
             :error="collateralError"
@@ -37,7 +51,7 @@
             :min="1"
             :risk="leverageRisk"
             :inputValue="collateralValue"
-            tooltipText="true"
+            tooltipText="Allows users to leverage their position. Read more about this in the documents!"
           />
           <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
         </div>
@@ -79,7 +93,9 @@
         </template>
       </div>
     </template>
-    <div v-else class="loading">LOADING ....</div>
+
+    <BaseLoader v-else />
+
     <PopupWrap v-model="isSettingsOpened">
       <SettingsPopup @saveSettings="changeSlippage"
     /></PopupWrap>
@@ -87,18 +103,18 @@
       <SelectPoolPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
-        :pools="pools"
+        :pools="filteredPool"
     /></PopupWrap>
   </div>
 </template>
 
 <script>
 const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () =>
-  import("@/components/base/BaseTokenInput");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const Range = () => import("@/components/ui/Range");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
+const BaseLoader = () => import("@/components/base/BaseLoader");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
@@ -129,6 +145,8 @@ export default {
       mimAmount: 0,
       slipage: 1,
       finalRemoveCollateralAmountToShare: 0,
+      useDefaultBalance: false,
+      filteredPool: [],
       emptyData: {
         img: require(`@/assets/images/empty_leverage.svg`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
@@ -153,8 +171,16 @@ export default {
 
     maxCollateralValue() {
       if (this.selectedPool && this.account) {
+        if (this.useDefaultBalance) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.networkBalance,
+            this.selectedPool.token.decimals
+          );
+        }
+
         return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance
+          this.selectedPool.userInfo.userBalance,
+          this.selectedPool.token.decimals
         );
       }
 
@@ -399,10 +425,60 @@ export default {
       if (this.$route.params.id && !this.pools.length) return true;
       return false;
     },
+
+    acceptUseDefaultBalance() {
+      if (this.selectedPool) {
+        return this.selectedPool.acceptUseDefaultBalance;
+      }
+
+      return false;
+    },
+
+    networkValuteName() {
+      if (this.chainId === 1) return "ETH";
+      if (this.chainId === 250) return "FTM";
+      if (this.chainId === 137) return "MATIC";
+      if (this.chainId === 43114) return "AVAX";
+      if (this.chainId === 42161) return "ETH";
+      if (this.chainId === 56) return "BNB";
+
+      return false;
+    },
+
+    mainValueTokenName() {
+      if (this.selectedPool) {
+        if (this.networkValuteName === "FTM" && this.useDefaultBalance)
+          return require(`@/assets/images/tokens/${this.networkValuteName}2.png`);
+
+        if (this.networkValuteName && this.useDefaultBalance)
+          return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
+
+        return this.selectedPool.icon;
+      }
+      return "";
+    },
+
+    mainTokenFinalText() {
+      if (this.selectedPool) {
+        if (this.poolId === 25 && this.chainId === 1)
+          return `${this.mainValueTokenName} (new)`;
+
+        if (this.networkValuteName && this.useDefaultBalance)
+          return this.networkValuteName;
+
+        return this.selectedPool.name;
+      }
+      return "";
+    },
   },
 
   watch: {
     pools() {
+      this.filteredPool = this.pools.filter(
+        (pool) =>
+          pool.isSwappersActive && !pool.isDepreciated && !!pool.swapContract
+      );
+
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
         if (!pool) this.$router.push(`/leverage`);
@@ -419,6 +495,7 @@ export default {
       this.finalCollateralAmountToShare();
     },
   },
+
   methods: {
     updateCollateralValue(value) {
       this.collateralValue = value;
@@ -447,8 +524,9 @@ export default {
 
     async chosePool(pool) {
       this.collateralValue = "";
-      this.borrowValue = "";
       this.poolId = pool.id;
+
+      this.useDefaultBalance = false;
 
       let duplicate = this.$route.fullPath === `/leverage/${pool.id}`;
 
@@ -505,7 +583,7 @@ export default {
           collateralAmount: parsedCollateral,
           amount: parsedMim,
           updatePrice: this.selectedPool.askUpdatePrice,
-          itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
+          itsDefaultBalance: this.useDefaultBalance,
         };
 
         if (this.multiplier > 1) {
@@ -751,6 +829,19 @@ export default {
         this.finalRemoveCollateralAmountToShare = 0;
       }
     },
+
+    toggleUseDefaultBalance() {
+      this.clearData();
+
+      this.useDefaultBalance = !this.useDefaultBalance;
+    },
+
+    clearData() {
+      this.collateralValue = "";
+      this.collateralError = "";
+      this.multiplier = 1;
+      this.slipage = 1;
+    },
   },
 
   created() {
@@ -763,6 +854,7 @@ export default {
     Range,
     BorrowPoolStand,
     BaseButton,
+    BaseLoader,
     PopupWrap,
     SettingsPopup,
     SelectPoolPopup,
@@ -778,6 +870,13 @@ export default {
   margin: 0 auto;
   width: 100%;
   padding: 100px 5px;
+}
+
+.leverage-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .choose {
@@ -869,23 +968,62 @@ export default {
   margin: 0 auto;
 }
 
+.checkbox-wrap {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+
+  .label-text {
+    cursor: pointer;
+  }
+
+  .info-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+  }
+
+  .box-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    border-radius: 8px;
+    border: 1px solid #57507a;
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: all 0.1s ease;
+
+    &:hover {
+      border: 1px solid $clrBlue;
+    }
+
+    &.active {
+      border: 1px solid $clrBlue;
+
+      .box {
+        opacity: 1;
+      }
+    }
+
+    .box {
+      background: $clrBlue;
+      border-radius: 4px;
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      transition: all 0.1s ease;
+    }
+  }
+}
+
 @media (min-width: 1024px) {
   .leverage {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;
-  }
-
-  .leverage-loading {
-    display: flex;
-    justify-content: center;
-  }
-
-  .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
   }
 
   .choose {

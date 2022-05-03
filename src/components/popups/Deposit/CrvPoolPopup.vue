@@ -1,0 +1,343 @@
+<template>
+  <div class="popup" v-if="tokensInfo">
+    <div class="popup-header">
+      <p class="title">{{ action }}</p>
+      <img
+        class="close"
+        @click="closePopup"
+        src="@/assets/images/close.svg"
+        alt="close"
+      />
+    </div>
+
+    <div class="collateral-input underline">
+      <div class="header-balance">
+        <h4>Collateral assets</h4>
+        <p v-if="fromToken.balance">
+          {{ parseFloat(fromToken.balance).toFixed(4) }}
+        </p>
+      </div>
+
+      <BaseTokenInput
+        :icon="fromToken.icon"
+        :name="fromTokenName"
+        :max="fromToken.balance || 0"
+        @input="updateMainValue"
+        :error="amountError"
+        :value="amount"
+      />
+    </div>
+
+    <div class="refresh-wrap">
+      <img
+        class="refresh-img"
+        src="@/assets/images/refresh.svg"
+        @click="toggleAction"
+        alt="refresh"
+      />
+    </div>
+
+    <div class="collateral-input underline">
+      <div class="header-balance">
+        <h4>Collateral assets</h4>
+        <p v-if="toToken.balance">
+          {{ parseFloat(toToken.balance).toFixed(4) }}
+        </p>
+      </div>
+
+      <BaseTokenInput
+        :value="toTokenAmount"
+        :icon="toToken.icon"
+        :name="toTokenName"
+        :disabled="true"
+      />
+    </div>
+
+    <BaseButton @click="actionHandler" :disabled="disabledBtn" primary>{{
+      actionBtnText
+    }}</BaseButton>
+  </div>
+</template>
+
+<script>
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
+import crvDeposit from "@/mixins/getCollateralLogic/crvDeposit";
+import { mapGetters } from "vuex";
+
+import { approveToken } from "@/utils/approveHelpers.js";
+export default {
+  mixins: [crvDeposit],
+  data() {
+    return {
+      tokensInfo: null,
+      action: "Deposit",
+      amount: "",
+      amountError: "",
+      updateInterval: null,
+      isApproved: false,
+    };
+  },
+  computed: {
+    ...mapGetters({ account: "getAccount", popupData: "getPopupData" }),
+
+    fromToken() {
+      if (this.action === "Deposit") return this.tokensInfo.depositToken;
+      if (this.action === "Withdraw") return this.tokensInfo.mainToken;
+
+      return "";
+    },
+
+    fromTokenName() {
+      if (
+        this.popupData?.address ===
+          "0x3Ba207c25A278524e1cC7FaAea950753049072A4" &&
+        this.action === "Withdraw"
+      )
+        return `${this.fromToken.name} (new)`;
+
+      return this.fromToken.name;
+    },
+
+    toToken() {
+      if (this.action === "Deposit") return this.tokensInfo.mainToken;
+      if (this.action === "Withdraw") return this.tokensInfo.depositToken;
+
+      return "";
+    },
+
+    toTokenName() {
+      if (
+        this.popupData?.address ===
+          "0x3Ba207c25A278524e1cC7FaAea950753049072A4" &&
+        this.action === "Deposit"
+      )
+        return `${this.toToken.name} (new)`;
+
+      return this.toToken.name;
+    },
+
+    toTokenAmount() {
+      if (!this.amount) return "";
+      if (!this.tokensInfo) return "";
+
+      // eslint-disable-next-line no-useless-escape
+      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (6 || -1) + `})?`);
+
+      if (this.action === "Deposit") {
+        const amount = this.amount / this.tokensInfo.tokensRate;
+        return amount.toString().match(re)[0];
+      }
+      if (this.action === "Withdraw") {
+        const amount = this.amount * this.tokensInfo.tokensRate;
+        return amount.toString().match(re)[0];
+      }
+      return "";
+    },
+
+    actionBtnText() {
+      if (!this.isApproved) {
+        return "Approve";
+      }
+
+      if (!+this.amount || this.amountError) return "Nothing to do";
+
+      return this.action;
+    },
+
+    disabledBtn() {
+      if (this.actionBtnText === "Nothing to do") return true;
+      return false;
+    },
+  },
+
+  methods: {
+    toggleAction() {
+      this.amount = "";
+      this.amountError = "";
+
+      if (this.action === "Deposit") {
+        this.action = "Withdraw";
+        return false;
+      }
+
+      if (this.action === "Withdraw") {
+        this.action = "Deposit";
+        return false;
+      }
+    },
+
+    updateMainValue(value) {
+      if (+value > +this.fromToken.balance) {
+        this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
+        return false;
+      }
+
+      this.amountError = "";
+      this.amount = value;
+    },
+
+    async actionHandler() {
+      if (!this.isApproved) {
+        this.isApproved = await approveToken(
+          this.tokensInfo.depositToken.contractInstance,
+          this.tokensInfo.mainToken.contractInstance.address
+        );
+      }
+
+      if (!+this.amount || this.amountError) return false;
+
+      if (this.action === "Deposit") {
+        await this.deposit();
+        return false;
+      }
+
+      if (this.action === "Withdraw") {
+        await this.withdraw();
+        return false;
+      }
+    },
+
+    async deposit() {
+      try {
+        const amount = this.$ethers.utils.parseUnits(
+          this.amount,
+          this.tokensInfo.depositToken.decimals
+        );
+
+        const estimateGas =
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
+            amount,
+            this.account
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
+          amount,
+          this.account,
+          {
+            gasLimit,
+          }
+        );
+
+        this.amount = "";
+        this.amountError = "";
+
+        const receipt = await tx.wait();
+
+        console.log("Deposit", receipt);
+      } catch (e) {
+        console.log("stake err:", e);
+      }
+    },
+
+    async withdraw() {
+      try {
+        const amount = this.$ethers.utils.parseUnits(
+          this.amount,
+          this.tokensInfo.mainToken.decimals
+        );
+
+        const estimateGas =
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdrawAndUnwrap(
+            amount
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        const tx =
+          await this.tokensInfo.mainToken.contractInstance.withdrawAndUnwrap(
+            amount,
+            {
+              gasLimit,
+            }
+          );
+
+        this.amount = "";
+        this.amountError = "";
+
+        const receipt = await tx.wait();
+
+        console.log("Deposit", receipt);
+      } catch (e) {
+        console.log("stake err:", e);
+      }
+    },
+
+    closePopup() {
+      this.$store.commit("closePopups");
+    },
+  },
+
+  async created() {
+    if (this.popupData?.address) {
+      console.log("has addr");
+      this.tokensInfo = await this.createCrvDeposit(this.popupData.address);
+
+      this.isApproved = this.tokensInfo.depositToken.isTokenApprowed;
+
+      this.updateInterval = setInterval(async () => {
+        this.tokensInfo = await this.createCrvDeposit(this.popupData.address);
+      }, 10000);
+
+      return false;
+    }
+
+    this.tokensInfo = await this.createCrvDeposit();
+
+    this.updateInterval = setInterval(async () => {
+      this.tokensInfo = await this.createCrvDeposit();
+    }, 10000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.updateInterval);
+  },
+
+  components: { BaseTokenInput, BaseButton },
+};
+</script>
+
+<style lang="scss" scoped>
+.popup {
+  background: #302e38;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 30px;
+  padding: 15px 25px;
+  width: 540px;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 40px;
+}
+
+.refresh-wrap {
+  display: flex;
+  padding: 15px 0;
+  justify-content: center;
+}
+
+.refresh-img {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 30px;
+}
+
+.close {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+</style>

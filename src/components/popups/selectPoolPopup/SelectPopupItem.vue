@@ -1,18 +1,24 @@
 <template>
-  <button @click="enterPool(pool)" class="pool-item">
-    <div class="pool-name">
-      <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
-      <p>{{ pool.name }}</p>
-    </div>
-    <div class="pool-balance">
-      <p>{{ userBalance }}</p>
-      <p v-if="+userBalance">$ {{ priceUsd }}</p>
-    </div>
-  </button>
+  <div class="popup-item">
+    <StatusBar :pool="pool" />
+    <button @click="enterPool(pool)" class="pool-item">
+      <div class="pool-name">
+        <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
+        <p>{{ pool.name }}</p>
+      </div>
+      <div class="pool-balance">
+        <p>{{ userBalance }}</p>
+        <p v-if="+userBalance">
+          $ {{ parseFloat(pool.userInfo.balanceUsd).toFixed(2) }}
+        </p>
+      </div>
+    </button>
+  </div>
 </template>
 
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+const StatusBar = () => import("@/components/ui/StatusBar");
 export default {
   props: {
     pool: {
@@ -30,15 +36,30 @@ export default {
       return 0;
     },
 
-    priceUsd() {
-      if (this.pool.userInfo)
-        return parseFloat(
-          this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) *
-            this.pool.price || 1 / this.pool.tokenPrice
-        ).toFixed(2);
+    // priceUsd() {
+    //   if (this.pool.userInfo) {
+    //     // if (this.pool.price) {
+    //     //   return parseFloat(
+    //     //     this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) *
+    //     //       this.pool.price
+    //     //   ).toFixed(2);
+    //     // } else {
+    //     return parseFloat(
+    //       this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) /
+    //         this.pool.tokenPrice
+    //     ).toFixed(2);
+    //     // }
 
-      return 0;
-    },
+    //     //   return parseFloat(
+    //     //     // this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) *
+    //     //     //   this.pool.price ||
+    //     //     this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) /
+    //     //       this.pool.tokenPrice
+    //     //   ).toFixed(2);
+    //   }
+
+    //   return 0;
+    // },
   },
 
   methods: {
@@ -46,16 +67,20 @@ export default {
       this.$emit("enterPool", pool);
     },
   },
-  components: { BaseTokenIcon },
+  components: { BaseTokenIcon, StatusBar },
 };
 </script>
 
 <style lang="scss" scoped>
+.popup-item {
+  padding: 8px 10px 0 0;
+}
 .pool-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 10px 14px 0;
+  width: 100%;
+  padding: 5px 0 14px;
   background-color: transparent;
   border: none;
   cursor: pointer;

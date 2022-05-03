@@ -13,13 +13,32 @@
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></a>
       </div>
-      <button
-        v-if="!isEmpty && account"
-        class="info-btn"
-        @click="isInfoPressed = !isInfoPressed"
-      >
-        <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
-      </button>
+      <div class="deposit-wrap">
+        <button
+          class="deposit"
+          v-if="showCollateralLogicBtn"
+          @click="showCollateralPopup"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" />
+          {{ collateralTitle }}
+        </button>
+
+        <button
+          class="deposit"
+          v-if="showClaimCrvReward"
+          @click="handleClaimCrvReward"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Claim
+        </button>
+
+        <button
+          v-if="!isEmpty && account"
+          class="info-btn"
+          @click="isInfoPressed = !isInfoPressed"
+        >
+          <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
+        </button>
+      </div>
     </div>
     <div class="stable-data">
       <template v-if="isEmpty">
@@ -59,6 +78,7 @@
               <img
                 class="info-list-icon"
                 src="@/assets/images/info.svg"
+                v-tooltip="item.additional"
                 alt="info"
               />
 
@@ -373,6 +393,28 @@ export default {
         return [];
       }
     },
+
+    showClaimCrvReward() {
+      return (
+        this.pool?.token?.additionalLogic?.claimCrvReward &&
+        this.isUserHasClaimableReward
+      );
+    },
+
+    isUserHasClaimableReward() {
+      return +this.pool.userInfo.claimableReward;
+    },
+
+    showCollateralLogicBtn() {
+      return this.pool?.token?.additionalLogic && this.account;
+    },
+
+    collateralTitle() {
+      if (this.pool?.token?.additionalLogic) {
+        return this.pool.token.additionalLogic.title;
+      }
+      return "";
+    },
   },
 
   watch: {
@@ -397,6 +439,35 @@ export default {
           9
         );
       }
+    },
+
+    async handleClaimCrvReward() {
+      try {
+        const estimateGas =
+          await this.pool.token.contract.estimateGas.getReward(this.account);
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        console.log("gasLimit:", gasLimit);
+
+        await await this.pool.token.contract.getReward(this.account, {
+          gasLimit,
+        });
+      } catch (e) {
+        console.log("handleClaimCrvReward err:", e);
+      }
+    },
+
+    showCollateralPopup() {
+      if (this.pool.token.additionalLogic) {
+        this.$store.commit("setPopupState", {
+          type: this.pool.token.additionalLogic.type,
+          isShow: true,
+          data: this.pool.token.additionalLogic.data,
+        });
+      }
+
+      return false;
     },
   },
 };
@@ -448,6 +519,25 @@ export default {
       }
     }
 
+    .deposit-wrap {
+      display: flex;
+    }
+
+    .deposit {
+      background: rgba(157, 244, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      padding: 3px 8px;
+      color: #63caf8;
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+      cursor: pointer;
+      img {
+        margin-right: 5px;
+      }
+    }
+
     .info-btn {
       background-color: transparent;
       cursor: pointer;
@@ -469,7 +559,9 @@ export default {
 
   .stable-data {
     position: relative;
-    background: rgba(255, 255, 255, 0.04);
+    box-sizing: border-box;
+    background: #2b2b3c;
+    backdrop-filter: blur(100px);
     border-radius: 30px;
 
     .stable-preview {
@@ -564,6 +656,7 @@ export default {
     }
     .info-list-icon {
       padding-right: 12px;
+      cursor: pointer;
     }
   }
 }

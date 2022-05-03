@@ -544,6 +544,7 @@ export default {
           decimals: pool.token.decimals,
           oracleExchangeRate: tokenPairRate,
           isTokenApprove,
+          additionalLogic: pool.token.additionalLogic,
         },
         userInfo: null,
         swapContract,
@@ -615,6 +616,9 @@ export default {
         );
       }
 
+      let balanceUsd =
+        this.$ethers.utils.formatUnits(userBalance) / pool.tokenPrice;
+
       pool.userInfo = {
         userBorrowPart,
         contractBorrowPart,
@@ -629,6 +633,7 @@ export default {
         contractBorrowPartParsed: this.$ethers.utils.formatUnits(
           contractBorrowPart.toString()
         ),
+        balanceUsd,
       };
 
       return pool;

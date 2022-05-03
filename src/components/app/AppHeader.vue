@@ -14,13 +14,35 @@
       <router-link class="header-link" :to="{ name: 'Leverage' }"
         >Leverage</router-link
       >
-      <router-link class="header-link" :to="{ name: 'StatsBorrow' }"
-        >Stats</router-link
-      >
+      <router-link class="header-link" :to="{ name: 'Farm' }">Farm</router-link>
       <router-link class="header-link" :to="{ name: 'MyPositions' }"
         >Positions</router-link
       >
-      <router-link class="header-link" :to="{ name: 'Farm' }">Farm</router-link>
+
+      <div
+        class="dropdown-tools header-link"
+        :class="{ active: isDropdownStake }"
+        @click="toggleDropdown('stake')"
+        v-click-outside="closeDropdownStake"
+      >
+        <div class="title">
+          Stake
+          <img
+            class="arrow"
+            src="@/assets/images/arrow-down.svg"
+            alt="Arrow down"
+          />
+        </div>
+        <div class="list" v-if="isDropdownStake">
+          <router-link class="list-link" :to="{ name: 'Stake' }"
+            >sSpell</router-link
+          >
+          <router-link class="list-link" :to="{ name: 'mStake' }"
+            >mSpell</router-link
+          >
+        </div>
+      </div>
+
       <div
         class="dropdown-tools header-link"
         :class="{ active: isDropdownTools }"
@@ -36,8 +58,8 @@
           />
         </div>
         <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" :to="{ name: 'Stake' }"
-            >Stake</router-link
+          <router-link class="list-link" :to="{ name: 'StatsBorrow' }"
+            >Stats</router-link
           >
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
@@ -110,6 +132,7 @@ export default {
   data() {
     return {
       isDropdownTools: false,
+      isDropdownStake: false,
       isDropdownOther: false,
       mobileMenu: false,
     };
@@ -129,7 +152,11 @@ export default {
     toHome() {
       this.$router.push({ name: "Home" });
     },
+
     toggleDropdown(nameDropdown) {
+      if (nameDropdown === "stake")
+        this.isDropdownStake = !this.isDropdownStake;
+
       if (nameDropdown === "tools") {
         this.isDropdownTools = !this.isDropdownTools;
       }
@@ -139,6 +166,10 @@ export default {
 
     closeDropdownTools() {
       this.isDropdownTools = false;
+    },
+
+    closeDropdownStake() {
+      this.isDropdownStake = false;
     },
 
     closeDropdownOther() {
@@ -201,6 +232,9 @@ export default {
   color: #fff;
   cursor: pointer;
   min-width: 80px;
+  &.router-link-active {
+    background: #ffffff33;
+  }
 }
 
 .header-link:hover {
