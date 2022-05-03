@@ -32,8 +32,6 @@ export default {
       setCreatingPoolsBorrow: "setCreatingPoolsBorrow",
     }),
     async createPools() {
-      this.setLoadingPoolsBorrow(true);
-
       let targetChainId = ethers.utils.hexlify(this.chainId);
 
       const chainPools = poolsInfo.filter(

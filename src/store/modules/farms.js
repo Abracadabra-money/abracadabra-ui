@@ -1,7 +1,7 @@
 export default {
   state: {
     farmPools: [],
-    isLoadingPoolsFarm: null,
+    isLoadingPoolsFarm: true,
   },
   mutations: {
     setFarmPools(state, payload) {

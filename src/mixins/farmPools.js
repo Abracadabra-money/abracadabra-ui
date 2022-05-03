@@ -50,9 +50,6 @@ export default {
       }
     },
     async createFarmPools() {
-      if (!this.pools.length) {
-        this.setLoadingPoolsFarm(true);
-      }
       const chainPools = farmPools.filter(
         (pool) => pool.contractChain === this.chainId
       );
@@ -70,6 +67,7 @@ export default {
         this.$store.commit("setFarmPools", pools);
       } catch (e) {
         console.log("createFarmPools err", e);
+        this.setLoadingPoolsFarm(false);
       }
     },
     async createFarmPool(farmPoolInfo) {
