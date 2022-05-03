@@ -91,11 +91,11 @@ export default {
         },
         {
           title: "MIM Borrowed",
-          value: `${this.userBorrowPools
+          value: this.userBorrowPools
             .reduce((calc, pool) => {
               return calc + parseFloat(pool.userInfo.userBorrowPart);
             }, 0)
-            .toFixed(2)} $`,
+            .toFixed(2),
         },
         {
           title: "Yield Generated",
