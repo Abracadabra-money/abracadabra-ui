@@ -9,7 +9,7 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance }}</p>
+            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"

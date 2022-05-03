@@ -68,7 +68,11 @@
       <template v-if="selectedPool">
         <div class="info underline">
           <p class="info-text">
-            <img src="@/assets/images/info.svg" alt="" />
+            <img
+              src="@/assets/images/info.svg"
+              alt=""
+              v-tooltip="'MAGIC text here'"
+            />
             ~Yield per $1000
           </p>
           <p class="info-value">
@@ -78,7 +82,11 @@
 
         <div class="info underline">
           <p class="info-text">
-            <img src="@/assets/images/info.svg" alt="" />
+            <img
+              src="@/assets/images/info.svg"
+              alt=""
+              v-tooltip="'MAGIC text here'"
+            />
             ROI Annually
           </p>
           <p class="info-value">{{ selectedPool.poolRoi | formatPercent }}</p>
@@ -86,7 +94,11 @@
 
         <div class="info underline">
           <p class="info-text">
-            <img src="@/assets/images/info.svg" alt="" />
+            <img
+              src="@/assets/images/info.svg"
+              alt=""
+              v-tooltip="'MAGIC text here'"
+            />
             TVL
           </p>
           <p class="info-value">{{ selectedPool.poolTvl | formatUSD }}</p>

@@ -58,6 +58,7 @@
             class="expected-icon"
             src="@/assets/images/info.svg"
             alt="Icon"
+            v-tooltip="info.additional"
           />
           {{ info.title }}
         </p>
