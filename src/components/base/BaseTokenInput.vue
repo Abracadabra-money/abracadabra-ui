@@ -27,8 +27,7 @@
         :disabled="disabled"
         class="text-field"
         :class="{ 'no-max-show': !(max && showMax) }"
-        type="number"
-        step="any"
+        type="text"
         placeholder="0.0"
       />
       <button
