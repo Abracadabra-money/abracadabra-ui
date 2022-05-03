@@ -19,7 +19,8 @@
     <h2 class="title">Specific positions</h2>
     <div
       v-if="
-        !borrowPools.length && !pools.length && !borrowLoading && !farmLoading
+        !account ||
+        (!borrowPools.length && !pools.length && !borrowLoading && !farmLoading)
       "
       class="empty-wrap"
     >
@@ -38,8 +39,12 @@
 
       <template v-else>
         <SpecPos v-if="userBorrowPools.length" :pools="userBorrowPools" />
-        <SpecPos v-if="pools.length" :isFarm="true" :pools="pools"
-      /></template>
+        <SpecPos
+          v-if="userFarmPools.length"
+          :isFarm="true"
+          :pools="userFarmPools"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -54,6 +59,7 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
+
 const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
 
 export default {
@@ -84,6 +90,7 @@ export default {
       borrowPools: "getPools",
       borrowLoading: "getLoadPoolsBorrow",
       farmLoading: "getFarmPoolLoading",
+      account: "getAccount",
     }),
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
@@ -96,6 +103,14 @@ export default {
         return (
           pool.userBorrowPart !== "0.0" &&
           pool.userInfo.userCollateralShare !== "0.0"
+        );
+      });
+    },
+    userFarmPools() {
+      return this.pools.filter((pool) => {
+        return (
+          !pool.accountInfo?.userReward.isZero() ||
+          !pool.accountInfo?.userInfo.amount.isZero()
         );
       });
     },
@@ -196,6 +211,7 @@ export default {
     font-weight: 700;
   }
 }
+
 .loader-wrap {
   display: flex;
   align-items: center;
