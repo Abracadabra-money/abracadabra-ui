@@ -5,6 +5,11 @@
       <div class="underline">
         <NetworksList />
       </div>
+
+      <div class="loader-wrap" v-if="isLoadingsSpellStake">
+        <BaseLoader />
+      </div>
+
       <div class="swap-wrap" v-if="tokensInfo">
         <div class="token-input">
           <div class="header-balance">
@@ -61,7 +66,7 @@
           <div>{{ tokensInfo.apr | formatPercent }}</div>
         </div>
         <ClaimInfo
-          v-if="tokensInfo"
+          v-if="tokensInfo && account"
           @onClaim="claimHandler"
           class="claim-info"
           :count="tokensInfo.claimableAmount"
@@ -90,6 +95,7 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 
 const BaseButton = () => import("@/components/base/BaseButton");
 
+const BaseLoader = () => import("@/components/base/BaseLoader");
 import mSpellStaking from "@/mixins/stake/mSpellStaking";
 
 export default {
@@ -350,11 +356,18 @@ export default {
     BaseTokenInput,
     NetworksList,
     ClaimInfo,
+    BaseLoader,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 10px;
+}
 .swap-img {
   display: flex;
   align-items: center;

@@ -35,8 +35,11 @@ export default {
     chainId() {
       return this.$store.getters.getChainId;
     },
+    defaultProvider() {
+      return this.$store.getters.getProvider;
+    },
     signer() {
-      return this.$store.getters.getSigner;
+      return this.$store.getters.getSigner || this.defaultProvider;
     },
     account() {
       return this.$store.getters.getAccount;
@@ -62,6 +65,8 @@ export default {
         JSON.stringify(mainToken.abi),
         this.signer
       );
+
+      console.log(this.signer)
 
       const stakeTokenInstance = new this.$ethers.Contract(
         stakeToken.address,

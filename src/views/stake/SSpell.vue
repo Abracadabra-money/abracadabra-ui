@@ -5,6 +5,11 @@
       <div class="underline">
         <NetworksList />
       </div>
+
+      <div class="loader-wrap" v-if="isLoadingsSpellStake">
+        <BaseLoader />
+      </div>
+
       <div class="swap-wrap" v-if="tokensInfo">
         <div class="token-input">
           <div class="header-balance">
@@ -83,6 +88,8 @@ const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
 
 const BaseButton = () => import("@/components/base/BaseButton");
+
+const BaseLoader = () => import("@/components/base/BaseLoader");
 
 import sspellToken from "@/mixins/stake/sspellToken";
 
@@ -310,10 +317,17 @@ export default {
     BaseButton,
     BaseTokenInput,
     NetworksList,
+    BaseLoader,
   },
 };
 </script>
 <style lang="scss" scoped>
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 10px;
+}
 .swap-img {
   display: flex;
   align-items: center;
