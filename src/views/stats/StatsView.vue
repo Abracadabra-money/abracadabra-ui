@@ -13,11 +13,18 @@
       <template slot="btn">
         <button class="sort-btn open-btn">
           <span class="sort-title-wrap">
-            <img
-              class="sort-icon"
-              src="@/assets/images/filter.svg"
-              alt="filter"
-            />
+            <button
+              @click.stop="sortReverse = !sortReverse"
+              @mousedown.prevent.stop=""
+              class="sort-icon-wrap"
+            >
+              <img
+                class="sort-icon"
+                :class="{ 'sort-icon-reverse': sortReverse }"
+                src="@/assets/images/filter.svg"
+                alt="filter"
+              />
+            </button>
             <span>{{ `Sorted by ${selectedTitleData.title}` }}</span>
           </span>
           <img
@@ -80,6 +87,7 @@ export default {
   props: { isFarm: { type: Boolean, default: false } },
   data: () => ({
     selectedTitle: "name",
+    sortReverse: false,
     search: "",
     poolsInterval: null,
   }),
@@ -110,7 +118,9 @@ export default {
           const a = prepValue(aItem[titleData.name]);
           const b = prepValue(bItem[titleData.name]);
 
-          return a < b ? -1 : 1;
+          const factor = this.sortReverse ? 1 : -1;
+
+          return a < b ? factor : -factor;
         });
       }
 
@@ -244,8 +254,20 @@ export default {
   width: 100%;
 
   .sort-icon {
-    margin-right: 10px;
     width: 20px;
+    &-reverse {
+      transform: rotate(180deg);
+    }
+    &-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+
+      margin-right: 10px;
+    }
   }
 
   .arrow-icon {
