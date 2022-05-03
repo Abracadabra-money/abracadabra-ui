@@ -7,6 +7,19 @@
           <NetworksList />
         </div>
 
+        <div class="checkbox-wrap" v-if="acceptUseDefaultBalance">
+          <div
+            class="box-wrap"
+            @click="toggleUseDefaultBalance"
+            :class="{ active: useDefaultBalance }"
+          >
+            <div class="box"></div>
+          </div>
+          <p class="label-text" @click="toggleUseDefaultBalance">
+            Use {{ networkValuteName }}
+          </p>
+        </div>
+
         <div class="collateral-input underline">
           <div class="header-balance">
             <h4>Collateral assets</h4>
@@ -16,8 +29,8 @@
           </div>
 
           <BaseTokenInput
-            :icon="selectedPool ? selectedPool.icon : null"
-            :name="selectedPool ? selectedPool.name : null"
+            :icon="mainValueTokenName"
+            :name="mainTokenFinalText"
             v-model="collateralValue"
             :max="maxCollateralValue"
             :error="collateralError"
@@ -127,6 +140,7 @@ export default {
       poolId: null,
       isApproved: false,
       isOpenPollPopup: false,
+      useDefaultBalance: false,
       emptyData: {
         img: require(`@/assets/images/empty_borrow.svg`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
@@ -153,8 +167,16 @@ export default {
 
     maxCollateralValue() {
       if (this.selectedPool && this.account) {
+        if (this.useDefaultBalance) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.networkBalance,
+            this.selectedPool.token.decimals
+          );
+        }
+
         return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance
+          this.selectedPool.userInfo.userBalance,
+          this.selectedPool.token.decimals
         );
       }
 
@@ -327,6 +349,51 @@ export default {
       if (this.$route.params.id && !this.pools.length) return true;
       return false;
     },
+
+    acceptUseDefaultBalance() {
+      if (this.selectedPool) {
+        return this.selectedPool.acceptUseDefaultBalance;
+      }
+
+      return false;
+    },
+
+    networkValuteName() {
+      if (this.chainId === 1) return "ETH";
+      if (this.chainId === 250) return "FTM";
+      if (this.chainId === 137) return "MATIC";
+      if (this.chainId === 43114) return "AVAX";
+      if (this.chainId === 42161) return "ETH";
+      if (this.chainId === 56) return "BNB";
+
+      return false;
+    },
+
+    mainValueTokenName() {
+      if (this.selectedPool) {
+        if (this.networkValuteName === "FTM" && this.useDefaultBalance)
+          return require(`@/assets/images/tokens/${this.networkValuteName}2.png`);
+
+        if (this.networkValuteName && this.useDefaultBalance)
+          return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
+
+        return this.selectedPool.icon;
+      }
+      return "";
+    },
+
+    mainTokenFinalText() {
+      if (this.selectedPool) {
+        if (this.poolId === 25 && this.chainId === 1)
+          return `${this.mainValueTokenName} (new)`;
+
+        if (this.networkValuteName && this.useDefaultBalance)
+          return this.networkValuteName;
+
+        return this.selectedPool.name;
+      }
+      return "";
+    },
   },
 
   watch: {
@@ -380,6 +447,8 @@ export default {
     async chosePool(pool) {
       this.collateralValue = "";
       this.borrowValue = "";
+
+      this.useDefaultBalance = false;
 
       this.poolId = pool.id;
 
@@ -448,7 +517,7 @@ export default {
         collateralAmount: parsedCollateral,
         amount: parsedBorrow,
         updatePrice: this.selectedPool.askUpdatePrice,
-        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
+        itsDefaultBalance: this.useDefaultBalance,
       };
 
       console.log("Add collateral and borrow $emit", payload);
@@ -489,7 +558,7 @@ export default {
       const payload = {
         amount: parsedCollateralValue,
         updatePrice: this.selectedPool.askUpdatePrice,
-        itsDefaultBalance: this.selectedPool.acceptUseDefaultBalance,
+        itsDefaultBalance: this.useDefaultBalance,
       };
 
       console.log("Add collateral $emit", payload);
@@ -555,6 +624,19 @@ export default {
       }
 
       return false;
+    },
+
+    toggleUseDefaultBalance() {
+      this.clearData();
+
+      this.useDefaultBalance = !this.useDefaultBalance;
+    },
+
+    clearData() {
+      this.collateralValue = "";
+      this.collateralError = "";
+      this.borrowValue = "";
+      this.borrowError = "";
     },
   },
 
@@ -656,6 +738,56 @@ export default {
   line-height: 25px;
   padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.checkbox-wrap {
+  display: flex;
+  align-items: center;
+
+  .label-text {
+    cursor: pointer;
+  }
+
+  .info-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+  }
+
+  .box-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    border-radius: 8px;
+    border: 1px solid #57507a;
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: all 0.1s ease;
+
+    &:hover {
+      border: 1px solid $clrBlue;
+    }
+
+    &.active {
+      border: 1px solid $clrBlue;
+
+      .box {
+        opacity: 1;
+      }
+    }
+
+    .box {
+      background: $clrBlue;
+      border-radius: 4px;
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      transition: all 0.1s ease;
+    }
+  }
 }
 
 @media (min-width: 1024px) {
