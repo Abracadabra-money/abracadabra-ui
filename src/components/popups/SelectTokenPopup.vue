@@ -1,7 +1,7 @@
 <template>
   <div class="tokens-popup">
     <div class="search-wrap">
-      <p class="title">Select token</p>
+      <p class="title">Select Farm</p>
       <input
         v-if="!isLoading"
         v-model="search"
@@ -11,28 +11,39 @@
       />
     </div>
 
-    <div class="tokens-list" v-if="!isLoading">
-      <template v-for="(token, i) in filteredTokens">
-        <TokenPopupItem
-          @click="selectToken(token)"
-          :key="token.id"
-          :name="token.name"
-          :icon="token.icon"
-          :farmItem="token"
-          :balance="token.accountInfo ? token.accountInfo.balance : null"
-          :price="token.lpPrice"
-        />
-        <div
-          v-if="i !== filteredTokens.length - 1"
-          class="token-spacer-wrap"
-          :key="`spacer-${token.id}`"
-        >
-          <div class="token-spacer"></div>
-        </div>
-      </template>
-    </div>
-    <div v-else class="loader-wrap">
+    <div v-if="isLoading" class="loader-wrap">
       <BaseLoader />
+    </div>
+
+    <div v-else-if="filteredTokens.length" class="tokens-list">
+      <TokenPopupItem
+        v-for="(token, i) in filteredTokens"
+        @click="selectToken(token)"
+        :key="i"
+        :name="token.name"
+        :icon="token.icon"
+        :farmItem="token"
+        :balance="token.accountInfo ? token.accountInfo.balance : null"
+        :price="token.lpPrice"
+      />
+    </div>
+
+    <div class="not-found" v-else-if="!filteredTokens.length && tokens.length">
+      <img
+        class="not-found__img"
+        src="@/assets/images/empty-stats-list.png"
+        alt=""
+      />
+      <p class="not-found__text">No farms found with this name</p>
+    </div>
+    <div class="not-found" v-else-if="!tokens.length">
+      <img
+        class="not-found__img"
+        src="@/assets/images/empty-stats-list.png"
+        alt=""
+      />
+      <p class="not-found__text">NO FARMS ON THIS NETWORK</p>
+      <p class="not-found__text">in the future they will be displayed here</p>
     </div>
   </div>
 </template>
@@ -69,7 +80,7 @@ export default {
           );
     },
     isLoading() {
-      return !this.tokens.length;
+      return this.$store.getters.getFarmPoolLoading;
     },
   },
   components: {
@@ -80,6 +91,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-width: 1px 1px 1px 2px;
+  border-radius: 2px;
+  background-color: #252423;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  border-width: 1px 1px 1px 2px;
+  background-color: #565656;
+}
+
+::-webkit-scrollbar-track {
+  border-width: 1px;
+
+  background-color: #414141;
+  border-color: transparent;
+}
 .tokens-popup {
   display: grid;
   grid-template-rows: auto 1fr;
@@ -108,7 +141,7 @@ export default {
 }
 
 .search-wrap {
-  padding-bottom: 20px;
+  padding: 10px 10px 20px 10px;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
 }
 
@@ -116,6 +149,7 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  max-height: 500px;
 }
 
 .token-spacer-wrap {
@@ -133,5 +167,21 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 52px;
+}
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 10px;
+}
+
+.not-found__img {
+  width: 186px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 19px;
 }
 </style>

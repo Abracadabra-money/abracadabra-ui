@@ -54,13 +54,31 @@ export default {
 
 <style lang="scss" scoped>
 .farm-list-item {
-  width: 100%;
-  padding: 9px 0;
+  padding: 10px 12px;
+
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 90%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    bottom: 0;
+    left: 5%;
+  }
 }
 .token-wrap {
   display: flex;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
   background-color: transparent;
   border: none;
   cursor: pointer;

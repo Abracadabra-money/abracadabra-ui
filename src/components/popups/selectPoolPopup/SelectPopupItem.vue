@@ -1,5 +1,5 @@
 <template>
-  <div class="popup-item">
+  <div class="popup-item-wrap">
     <StatusBar :pool="pool" />
     <button @click="enterPool(pool)" class="pool-item">
       <div class="pool-name">
@@ -70,33 +70,40 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.popup-item {
-  padding: 8px 10px 0 0;
+.popup-item-wrap {
+  padding: 10px 12px;
+
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 90%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    bottom: 0;
+    left: 5%;
+  }
 }
 .pool-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 5px 0 14px;
+  padding: 5px 0;
   background-color: transparent;
   border: none;
   cursor: pointer;
   color: white;
-  position: relative;
 }
 
-.pool-item::after {
-  content: "";
-  position: absolute;
-  width: calc(100% - 42px);
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  bottom: 0;
-  left: 42px;
-}
-
-.pool-name {
+.pool-item .pool-name {
   display: flex;
   align-items: center;
 }

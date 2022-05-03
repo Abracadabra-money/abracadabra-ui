@@ -1,8 +1,9 @@
 <template>
   <div class="pools-popup">
     <div class="search-wrap">
-      <p class="title">Select Pool</p>
+      <p class="title">Select Couldron</p>
       <input
+        v-if="!isLoadPools"
         v-model="search"
         type="text"
         placeholder="Search"
@@ -25,17 +26,15 @@
     <div class="not-found" v-else-if="!filterPools.length && pools.length">
       <img
         class="not-found__img"
-        :src="require('@/assets/images/not-found.png')"
+        src="@/assets/images/empty-stats-list.png"
         alt=""
       />
-      <p class="not-found__text">
-        No token found with this name, please search via contract address
-      </p>
+      <p class="not-found__text">No couldrons found with this name</p>
     </div>
     <div class="not-found" v-else-if="!filterPools.length && !isLoadPools">
       <img
         class="not-found__img"
-        :src="require('@/assets/images/empty.svg')"
+        src="@/assets/images/empty-stats-list.png"
         alt=""
       />
       <p class="not-found__text">NO POOLS ON THIS NETWORK</p>
@@ -125,7 +124,7 @@ export default {
 }
 
 .search-wrap {
-  padding-bottom: 20px;
+  padding: 10px 10px 20px 10px;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
 }
 
@@ -178,6 +177,13 @@ export default {
   align-items: center;
   justify-content: center;
   text-align: center;
-  height: 420px;
+  padding: 30px 10px;
+}
+
+.not-found__img {
+  width: 186px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 19px;
 }
 </style>
