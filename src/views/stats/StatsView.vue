@@ -219,6 +219,7 @@ export default {
 
         this.search = "";
         this.selectedTitle = "name";
+        this.sortReverse = false;
       },
     },
   },
