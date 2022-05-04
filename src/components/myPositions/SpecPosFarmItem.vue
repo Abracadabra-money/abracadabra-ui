@@ -206,7 +206,9 @@ export default {
   padding: 18px 20px;
 
   .header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-row-gap: 20px;
     align-items: center;
     justify-content: space-between;
     min-height: 96px;
@@ -345,6 +347,12 @@ export default {
       font-size: 14px;
       line-height: 21px;
     }
+  }
+}
+
+@media (min-width: 640px) {
+  .header {
+    grid-template-columns: 1fr auto !important;
   }
 }
 

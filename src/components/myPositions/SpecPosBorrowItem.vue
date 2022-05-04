@@ -237,7 +237,9 @@ export default {
   padding: 18px 20px;
 
   .header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-row-gap: 20px;
     justify-content: space-between;
     align-items: center;
     min-height: 96px;
@@ -423,6 +425,11 @@ export default {
   }
 }
 
+@media (min-width: 640px) {
+  .header {
+    grid-template-columns: 1fr auto !important;
+  }
+}
 @media (min-width: 1024px) {
   .lp-data {
     grid-template-columns: 1fr 1fr !important;
