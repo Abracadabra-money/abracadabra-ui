@@ -43,6 +43,7 @@ export default {
   background-color: rgba(255, 255, 255, 0.2);
   padding: 2px 4px;
   border-radius: 20px;
+  max-width: 100%;
 
   &-wrap {
     display: flex;

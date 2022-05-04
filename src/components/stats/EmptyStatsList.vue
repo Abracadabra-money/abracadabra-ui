@@ -25,6 +25,8 @@ export default {
   margin-top: 24px;
 
   .image {
+    max-width: 246px;
+    height: auto;
   }
   .title {
     margin-top: 30px;
