@@ -549,16 +549,17 @@ export default {
       this.isSettingsOpened = false;
     },
 
-    checkIsPoolAllowBorrow(amount) {
+    async checkIsPoolAllowBorrow(amount) {
       if (+amount < +this.selectedPool.dynamicBorrowAmount) {
         return true;
       }
 
       const notification = {
         msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
+        type: "info",
       };
-      console.log("notification", notification);
-      // this.$store.commit("addNotification", notification);
+
+      await this.$store.dispatch("notifications/new", notification);
 
       return false;
     },
@@ -679,10 +680,10 @@ export default {
       ) {
         const notification = {
           msg: "Opening such position will put you at an instant liquidation flag.",
+          type: "warning",
         };
 
-        console.log("notification", notification);
-        // this.$store.commit("addNotification", notification);
+        await this.$store.dispatch("notifications/new", notification);
 
         return false;
       }

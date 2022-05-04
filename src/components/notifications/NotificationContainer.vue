@@ -11,7 +11,8 @@
 </template>
 
 <script>
-const NotificationItem = () => import("@/components/notifications/Notification");
+const NotificationItem = () =>
+  import("@/components/notifications/Notification");
 
 export default {
   computed: {
@@ -20,7 +21,7 @@ export default {
     },
   },
   components: {
-    NotificationItem
+    NotificationItem,
   },
 };
 </script>
@@ -28,7 +29,7 @@ export default {
 <style lang="scss" scoped>
 .notification-container {
   height: fit-content;
-  overflow-y: scroll;
+  // overflow-y: scroll;
   position: fixed;
   z-index: 1000;
   top: 110px;
@@ -39,7 +40,8 @@ export default {
   }
 }
 
-.list-enter-active, .list-leave-active {
+.list-enter-active,
+.list-leave-active {
   transition: all 0.4s;
 }
 .list-enter, .list-leave-to /* .list-leave-active до версии 2.1.8 */ {
