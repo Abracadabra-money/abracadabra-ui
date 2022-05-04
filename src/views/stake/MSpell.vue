@@ -458,21 +458,38 @@ export default {
 
 .stake {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 550px 1fr;
+  width: 1320px;
+  max-width: 100%;
   grid-gap: 30px;
   margin: 0 auto;
-  width: 100%;
-  padding: 100px 5px;
+  width: 95%;
+  padding: 100px 0;
 }
 
-@media (min-width: 1024px) {
-  .stake {
-    grid-template-columns: 550px 1fr;
-    width: 1320px;
-    max-width: 100%;
-  }
-}
 .claim-info {
   margin: 20px 0;
+}
+
+@media (max-width: 1300px) {
+  .stake {
+    grid-template-columns: 450px 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .stake {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .input-block {
+    padding: 30px 10px;
+  }
+
+  .profile {
+    padding: 30px 10px;
+  }
 }
 </style>
