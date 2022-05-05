@@ -178,6 +178,7 @@ export default {
   justify-content: center;
   text-align: center;
   padding: 30px 10px;
+  height: 420px;
 }
 
 .not-found__img {

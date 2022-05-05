@@ -1,11 +1,11 @@
 import contracts from "@/utils/abi/bridge/index";
 
-import ethIcon from "@/assets/images/networks/ETH.svg";
-import fantomIcon from "@/assets/images/networks/FTM.svg";
-import polygonIcon from "@/assets/images/networks/MATIC.svg";
-import binanceIcon from "@/assets/images/networks/BNB.svg";
-import avalancheIcon from "@/assets/images/networks/AVAX.svg";
-import arbitrumIcon from "@/assets/images/networks/Arbitrum.svg";
+import ethIcon from "@/assets/images/bridge/ETH.png";
+import fantomIcon from "@/assets/images/bridge/FTM.png";
+import polygonIcon from "@/assets/images/bridge/MATIC.png";
+import binanceIcon from "@/assets/images/bridge/BNB.png";
+import avalancheIcon from "@/assets/images/bridge/AVAX.png";
+import arbitrumIcon from "@/assets/images/bridge/Arbitrum.png";
 
 export default [
   {

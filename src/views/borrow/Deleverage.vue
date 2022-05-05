@@ -79,10 +79,10 @@
             <BaseButton
               @click="approveTokenHandler"
               primary
-              :disabled="isApproved"
-              >Approve</BaseButton
+              :disabled="isTokenApprove"
+              >{{ actionApproveTokenText }}</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="!isApproved">{{
+            <BaseButton @click="actionHandler" :disabled="!isTokenApprove">{{
               actionBtnText
             }}</BaseButton>
           </div>
@@ -137,12 +137,12 @@ export default {
   data() {
     return {
       poolId: null,
-      isApproved: false,
       isOpenPollPopup: false,
       isSettingsOpened: false,
       slipage: 1,
       flashRepayAmount: 0,
       flashRepayRemoveAmount: 0,
+      updateInterval: null,
       emptyData: {
         img: require(`@/assets/images/empty_leverage.png`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
@@ -183,7 +183,7 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.isApproved) return "Nothing to do";
+      if (!this.isTokenApprove) return "Nothing to do";
 
       if (this.isUserLocked) return "Nothing to do";
 
@@ -192,6 +192,15 @@ export default {
       if (+this.flashRepayAmount) return "Flash Repay";
 
       return "Nothing to do";
+    },
+
+    actionApproveTokenText() {
+      if (!this.selectedPool.token.isTokenApprove) return "Approve Token";
+
+      if (!this.selectedPool.isTokenToReverseSwapApprove)
+        return "Approve UnSwap";
+
+      return "Approve";
     },
 
     isUserLocked() {
@@ -418,6 +427,16 @@ export default {
       return false;
     },
 
+    isTokenApprove() {
+      if (this.selectedPool && this.account) {
+        return (
+          this.selectedPool.token.isTokenApprove &&
+          this.selectedPool.isTokenToReverseSwapApprove
+        );
+      }
+      return true;
+    },
+
     // flashRepayAmountFormat() {
     //   const accruedMultiplyer =
     //     this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
@@ -447,10 +466,21 @@ export default {
 
   methods: {
     async approveTokenHandler() {
-      this.isApproved = await approveToken(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
-      );
+      if (!this.selectedPool.token.isTokenApprove) {
+        await approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      if (!this.selectedPool.isTokenToReverseSwapApprove) {
+        await approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.reverseSwapContract.address
+        );
+      }
+
+      return false;
     },
 
     async chosePool(pool) {
@@ -461,8 +491,6 @@ export default {
       if (!duplicate) {
         this.$router.push(`/deleverage/${pool.id}`);
       }
-
-      this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
     changeSlippage(value) {
@@ -551,15 +579,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isTokenToCookApprove && isTokenToSwapApprove) {
-        this.cookFlashRepay(
-          data,
-          this.isApproved,
-          this.selectedPool,
-          this.account
-        );
+      if (+isTokenToCookApprove && +isTokenToSwapApprove) {
+        this.cookFlashRepay(data, isApproved, this.selectedPool, this.account);
         return false;
       }
     },
@@ -567,6 +590,14 @@ export default {
 
   created() {
     this.poolId = this.$route.params.id;
+    // this.updateInterval = setInterval(async () => {
+    //   console.log("createPools");
+    //   this.tokensInfo = this.createPools();
+    // }, 15000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.updateInterval);
   },
 
   components: {

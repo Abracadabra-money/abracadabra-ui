@@ -396,7 +396,10 @@ export default {
         poolContract
       );
 
-      let isTokenApprove, pairToken, isTokenToSwapApprove;
+      let isTokenApprove,
+        pairToken,
+        isTokenToSwapApprove,
+        isTokenToReverseSwapApprove;
 
       if (this.account) {
         isTokenApprove = await this.isTokenApprow(
@@ -418,6 +421,15 @@ export default {
           );
         } else {
           isTokenToSwapApprove = null;
+        }
+
+        if (pool?.reverseSwapContractInfo?.address) {
+          isTokenToReverseSwapApprove = await this.isTokenApprow(
+            tokenContract,
+            pool.reverseSwapContractInfo.address
+          );
+        } else {
+          isTokenToReverseSwapApprove = null;
         }
       } else {
         isTokenApprove = false;
@@ -506,8 +518,6 @@ export default {
         (priceItem) => priceItem.address === pool.token.address.toLowerCase()
       )?.price;
 
-      console.log("price", price);
-
       let poolData = {
         name: pool.name,
         icon: pool.icon,
@@ -550,6 +560,7 @@ export default {
         swapContract,
         isTokenToSwapApprove,
         reverseSwapContract,
+        isTokenToReverseSwapApprove,
       };
 
       if (this.account) {

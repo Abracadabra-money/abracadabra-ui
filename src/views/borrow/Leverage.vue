@@ -77,10 +77,10 @@
             <BaseButton
               @click="approveTokenHandler"
               primary
-              :disabled="isApproved"
-              >Approve</BaseButton
+              :disabled="isTokenApprove"
+              >{{ actionApproveTokenText }}</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="!isApproved">{{
+            <BaseButton @click="actionHandler" :disabled="!isTokenApprove">{{
               actionBtnText
             }}</BaseButton>
           </div>
@@ -137,7 +137,6 @@ export default {
       collateralValue: "",
       collateralError: "",
       poolId: null,
-      isApproved: false,
       isOpenPollPopup: false,
       isSettingsOpened: false,
       multiplier: 1,
@@ -146,6 +145,7 @@ export default {
       slipage: 1,
       finalRemoveCollateralAmountToShare: 0,
       useDefaultBalance: false,
+      updateInterval: null,
       emptyData: {
         img: require(`@/assets/images/empty_leverage.png`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
@@ -217,7 +217,7 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.isApproved) return "Nothing to do";
+      if (!this.isTokenApprove) return "Nothing to do";
 
       if (this.isUserLocked && +this.collateralValue > 0)
         return "Nothing to do";
@@ -228,6 +228,14 @@ export default {
         return "Add Collateral and Borrow";
 
       return "Nothing to do";
+    },
+
+    actionApproveTokenText() {
+      if (!this.selectedPool.token.isTokenApprove) return "Approve Token";
+
+      if (!this.selectedPool.isTokenToSwapApprove) return "Approve Swap";
+
+      return "Approve";
     },
 
     isUserLocked() {
@@ -476,6 +484,16 @@ export default {
       }
       return "";
     },
+
+    isTokenApprove() {
+      if (this.selectedPool && this.account) {
+        return (
+          this.selectedPool.token.isTokenApprove &&
+          this.selectedPool.isTokenToSwapApprove
+        );
+      }
+      return true;
+    },
   },
 
   watch: {
@@ -517,10 +535,21 @@ export default {
     },
 
     async approveTokenHandler() {
-      this.isApproved = await approveToken(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address
-      );
+      if (!this.selectedPool.token.isTokenApprove) {
+        await approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      if (!this.selectedPool.isTokenToSwapApprove) {
+        await approveToken(
+          this.selectedPool.token.contract,
+          this.selectedPool.swapContract.address
+        );
+      }
+
+      return false;
     },
 
     async chosePool(pool) {
@@ -538,7 +567,6 @@ export default {
       this.multiplier = 2;
 
       this.percentValue = this.selectedPool.ltv;
-      this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
     changeSlippage(value) {
@@ -621,10 +649,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isTokenToCookApprove) {
-        this.cookAddAndBorrow(data, this.isApproved, this.selectedPool);
+      if (+isTokenToCookApprove) {
+        this.cookAddAndBorrow(data, isApproved, this.selectedPool);
         return false;
       }
     },
@@ -659,10 +687,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookBorrow(payload, this.isApproved, this.selectedPool);
+        this.cookBorrow(payload, isApproved, this.selectedPool);
         return false;
       }
 
@@ -766,10 +794,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        this.cookMultiBorrow(data, this.isApproved, this.selectedPool);
+        this.cookMultiBorrow(data, isApproved, this.selectedPool);
         return false;
       }
     },
@@ -845,8 +873,16 @@ export default {
     },
   },
 
-  created() {
+  async created() {
     this.poolId = this.$route.params.id;
+    // this.updateInterval = setInterval(async () => {
+    //   console.log("createPools");
+    //   this.tokensInfo = this.createPools();
+    // }, 15000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.updateInterval);
   },
 
   components: {
