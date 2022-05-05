@@ -11,21 +11,27 @@
           >Leverage</router-link
         >
       </div>
+
       <div class="popup-link-wrap" @click="closePopup">
         <router-link class="popup-link" :to="{ name: 'StatsBorrow' }"
-          >Stats</router-link
+          >Stats</router-link>
+      </div>
+
+            <div class="popup-link-wrap" @click="closePopup">
+              <router-link class="popup-link" :to="{ name: 'Farm' }"
+          >Farm</router-link
         >
       </div>
+
+
+
       <div class="popup-link-wrap" @click="closePopup">
         <router-link class="popup-link" :to="{ name: 'MyPositions' }"
           >Positions</router-link
         >
       </div>
-      <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" :to="{ name: 'Farm' }"
-          >Farm</router-link
-        >
-      </div>
+
+      <button class="popup-link" @click="openInnerPopup('stake')">Stake</button>
       <button class="popup-link" @click="openInnerPopup('tools')">Tools</button>
       <div class="popup-link">
         <ConnectButton />
@@ -39,8 +45,29 @@
       </button>
     </div>
 
+    <div class="stake-popup" v-if="showStake" @click="closeInnerPopup('stake')">
+      <div class="tools">
+        <div class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'Stake' }"
+            >sSpell</router-link
+          >
+        </div>
+
+        <div class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'mStake' }"
+            >mSpell</router-link
+          >
+        </div>
+      </div>
+    </div>
     <div class="tools-popup" v-if="showTools" @click="closeInnerPopup('tools')">
       <div class="tools">
+        <div class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'Stats' }"
+            >Stats</router-link
+          >
+        </div>
+
         <div class="popup-link-wrap" @click="closePopup">
           <router-link class="popup-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
@@ -92,6 +119,7 @@ const ConnectButton = () => import("@/components/ui/ConnectButton");
 export default {
   data() {
     return {
+      showStake: false,
       showTools: false,
       showOther: false,
     };
@@ -109,19 +137,20 @@ export default {
     },
 
     openInnerPopup(name) {
-      if (name === "tools") {
-        this.showTools = true;
-      }
+      if (name === "stake") this.showStake = true;
 
-      if (name === "other") {
-        this.showOther = true;
-      }
+      if (name === "tools") this.showTools = true;
+
+      if (name === "other") this.showOther = true;
 
       return false;
     },
 
     closeInnerPopup(name) {
-      console.log();
+      if (name === "stake" && event.target.classList.contains("stake-popup")) {
+        this.showStake = false;
+      }
+
       if (name === "tools" && event.target.classList.contains("tools-popup")) {
         this.showTools = false;
       }
@@ -185,6 +214,7 @@ export default {
   }
 }
 
+.stake-popup,
 .tools-popup,
 .other-popup {
   position: fixed;

@@ -5,6 +5,7 @@
       alt=""
       class="main-logo"
       @click="toHome"
+      v-if="!mobileMenu"
     />
 
     <nav class="nav">

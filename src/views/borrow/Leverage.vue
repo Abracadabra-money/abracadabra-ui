@@ -1,5 +1,5 @@
 <template>
-  <div class="leverage" :class="{ 'leverage-loading': followLink }">
+  <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
       <div class="choose">
         <h4>Choose Chain</h4>
@@ -864,16 +864,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.leverage {
+.borrow {
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 30px;
   margin: 0 auto;
-  width: 100%;
-  padding: 100px 5px;
+  max-width: 100%;
+  width: 95%;
+  padding: 100px 0;
 }
 
-.leverage-loading {
+.borrow-loading {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1020,8 +1021,55 @@ export default {
   }
 }
 
+@media (max-width: 1200px) {
+  .info-block {
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .borrow {
+    grid-gap: 20px;
+  }
+
+  .deposit-block {
+    padding: 30px 15px;
+  }
+
+  .collateral-input {
+    padding: 20px 0 15px;
+  }
+
+  .info-block {
+    padding: 20px 10px;
+    min-height: auto;
+  }
+
+  .title {
+    margin-bottom: 20px;
+  }
+
+  .btn-wrap {
+    margin-top: 20px;
+  }
+
+  .choose-link {
+    bottom: 25px;
+  }
+}
+
+@media (max-width: 375px) {
+  .btn-wrap {
+    grid-gap: 10px;
+
+    .default-button {
+      padding: 0 10px;
+    }
+  }
+}
+
 @media (min-width: 1024px) {
-  .leverage {
+  .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
     max-width: 100%;

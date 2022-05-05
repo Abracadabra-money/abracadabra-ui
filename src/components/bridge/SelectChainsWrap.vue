@@ -134,4 +134,22 @@ export default {
 .network-arrow {
   margin-left: 10px;
 }
+
+@media (max-width: 600px) {
+  .network-wrap {
+    flex-direction: column;
+  }
+
+  .network-item {
+    width: 100%;
+  }
+
+  .select-network {
+    width: 100%;
+  }
+
+  .switch-network {
+    margin: 15px 0;
+  }
+}
 </style>
