@@ -17,6 +17,9 @@
           <span>{{ poolData.name }}</span>
           <span v-if="isNew" class="network-new">New</span>
         </span>
+        <span class="mobile-status-wrap"
+          ><StatusBar :isFarm="isFarm" :pool="activePool"
+        /></span>
       </span>
 
       <span v-for="(item, i) in items" :key="i">
@@ -157,8 +160,12 @@ export default {
 
 .status-wrap {
   height: 18px;
-  display: block;
   margin-bottom: 6px;
+  display: none;
+}
+
+.mobile-status-wrap {
+  flex: 1 1 max-content;
 }
 
 .stats-item-wrap {
@@ -251,6 +258,10 @@ export default {
     .degenbox-img {
       width: 40px;
     }
+  }
+
+  .status-wrap {
+    display: block;
   }
 }
 </style>

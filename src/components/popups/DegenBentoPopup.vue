@@ -212,12 +212,13 @@ export default {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100%;
+  padding: 0 10px;
 }
 .title {
   font-weight: 600;
   font-size: 18px;
   line-height: 27px;
-  padding-bottom: 20px;
+  padding: 8px 0 18px 0;
   margin-bottom: 38px;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
 }

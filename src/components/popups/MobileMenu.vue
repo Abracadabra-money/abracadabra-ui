@@ -13,10 +13,17 @@
       </div>
 
       <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" :to="{ name: 'Farm' }"
+        <router-link class="popup-link" :to="{ name: 'StatsBorrow' }"
+          >Stats</router-link>
+      </div>
+
+            <div class="popup-link-wrap" @click="closePopup">
+              <router-link class="popup-link" :to="{ name: 'Farm' }"
           >Farm</router-link
         >
       </div>
+
+
 
       <div class="popup-link-wrap" @click="closePopup">
         <router-link class="popup-link" :to="{ name: 'MyPositions' }"
@@ -120,10 +127,7 @@ export default {
 
   computed: {
     isOpenInnerPopup() {
-      if (this.showStake || this.showTools || this.showOther) {
-        return true;
-      }
-      return false;
+      return this.showTools || this.showOther;
     },
   },
 

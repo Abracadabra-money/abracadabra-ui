@@ -36,7 +36,7 @@ export default {
   props: {
     isFarm: {
       type: Boolean,
-      default: false
+      default: false,
     },
     pool: {
       type: Object,
@@ -50,15 +50,26 @@ export default {
 .info-bar {
   display: flex;
   justify-content: flex-end;
+  height: 24px;
 }
 
 .info-bar-icon {
   cursor: pointer;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
 }
 
 .info-bar-icon:not(:last-child) {
   margin-right: 10px;
+}
+
+@media (min-width: 1024px) {
+  .info-bar {
+    height: 18px;
+  }
+  .info-bar-icon {
+    width: 18px;
+    height: 18px;
+  }
 }
 </style>
