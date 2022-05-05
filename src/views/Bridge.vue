@@ -1,7 +1,7 @@
 <template>
   <div class="bridge-view">
     <div class="bridge" v-if="bridgeObject">
-      <h3 class="title">Bridge</h3>
+      <h3 class="title">Network to bridge</h3>
       <SelectChainsWrap
         @handlerNetwork="openNetworkPopup"
         @switchHandle="switchChain"
@@ -12,7 +12,8 @@
         <div class="input-balance">
           <p class="input-title">Token to bridge</p>
           <div class="balance">
-            <div>Balance: {{ bridgeObject.balance }}</div>
+            <span>Balance: </span>
+            <span>{{ bridgeObject.balance }}</span>
           </div>
         </div>
         <BaseTokenInput
@@ -465,5 +466,46 @@ export default {
   background: -webkit-linear-gradient(#5282fd, #76c3f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+@media (max-width: 600px) {
+  .bridge {
+    padding: 30px 15px;
+  }
+
+  .title {
+    margin-bottom: 12px;
+  }
+
+  .balance {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .expected {
+    display: flex;
+    flex-direction: column;
+    align-items: initial;
+    justify-content: initial;
+  }
+
+  .expected-value {
+    text-align: right;
+  }
+
+  .info-row {
+    align-items: center;
+  }
+
+  .info-text:nth-child(odd) {
+    max-width: 70%;
+  }
+}
+
+@media (max-width: 375px) {
+  .info-text:nth-child(odd) {
+    max-width: 160px;
+  }
 }
 </style>
