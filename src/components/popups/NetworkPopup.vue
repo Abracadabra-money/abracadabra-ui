@@ -129,8 +129,8 @@ export default {
 }
 
 .network-image {
-  height: 20px;
-  min-width: 20px;
+  height: 25px;
+  width: 25px;
   margin-right: 8px;
 }
 
@@ -144,5 +144,11 @@ export default {
 .network:hover {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid #6678aa;
+}
+
+@media (max-width: 600px) {
+  .network {
+    max-width: 100%;
+  }
 }
 </style>

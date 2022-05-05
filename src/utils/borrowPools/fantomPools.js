@@ -166,6 +166,7 @@ export default [
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
     isDegenBox: true,
+    dontHaveStrategy: true,
     contract: {
       name: "CauldronV2FTM",
       address: "0xa3Fc1B4b7f06c2391f7AD7D4795C1cD28A59917e",
@@ -243,6 +244,7 @@ export default [
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
     isDegenBox: true,
+    dontHaveStrategy: true,
     contract: {
       name: "CauldronV2FTM",
       address: "0x7208d9F9398D7b02C5C22c334c2a7A3A98c0A45d",

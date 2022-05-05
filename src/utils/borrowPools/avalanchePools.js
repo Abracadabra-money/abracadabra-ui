@@ -339,6 +339,7 @@ export default [
     isSwappersActive: false,
     acceptUseDefaultBalance: false,
     isDegenBox: true,
+    dontHaveStrategy: true,
     contract: {
       name: "CauldronV2Multichain",
       address: "0xAcc6821d0F368b02d223158F8aDA4824dA9f28E3",

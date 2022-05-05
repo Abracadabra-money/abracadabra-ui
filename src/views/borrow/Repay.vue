@@ -58,10 +58,10 @@
             <BaseButton
               @click="approveTokenHandler"
               primary
-              :disabled="isApproved"
+              :disabled="isTokenApprove"
               >Approve</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="!isApproved">{{
+            <BaseButton @click="actionHandler" :disabled="!isTokenApprove">{{
               actionBtnText
             }}</BaseButton>
           </div>
@@ -116,8 +116,8 @@ export default {
       borrowValue: "",
       borrowError: "",
       poolId: null,
-      isApproved: false,
       isOpenPollPopup: false,
+      updateInterval: null,
       emptyData: {
         img: require(`@/assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
@@ -247,7 +247,7 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.isApproved) return "Nothing to do";
+      if (!this.isTokenApprove) return "Nothing to do";
 
       if (this.isUserLocked && +this.collateralValue > 0)
         return "Nothing to do";
@@ -351,6 +351,14 @@ export default {
       if (this.$route.params.id && !this.pools.length) return true;
       return false;
     },
+
+    isTokenApprove() {
+      if (this.selectedPool && this.account && this.borrowValue) {
+        return this.selectedPool.pairToken.isPairTokenApprove;
+      }
+
+      return true;
+    },
   },
 
   watch: {
@@ -421,10 +429,12 @@ export default {
     },
 
     async approveTokenHandler() {
-      this.isApproved = await approveToken(
-        this.selectedPool.token.contract,
+      await approveToken(
+        this.selectedPool.pairTokenContract,
         this.selectedPool.masterContractInstance.address
       );
+
+      return false;
     },
 
     async chosePool(pool) {
@@ -437,8 +447,6 @@ export default {
       if (!duplicate) {
         this.$router.push(`/repay/${pool.id}`);
       }
-
-      this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
     async actionHandler() {
@@ -535,14 +543,10 @@ export default {
           );
         }
 
-        this.isApproved = await isApprowed(this.selectedPool, this.account);
+        let isApproved = await isApprowed(this.selectedPool, this.account);
 
-        if (isTokenToCookApprove) {
-          this.cookRemoveAndRepayMax(
-            payload,
-            this.isApproved,
-            this.selectedPool
-          );
+        if (+isTokenToCookApprove) {
+          this.cookRemoveAndRepayMax(payload, isApproved, this.selectedPool);
           return false;
         }
 
@@ -562,10 +566,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isTokenToCookApprove) {
-        this.cookRemoveAndRepay(payload, this.isApproved, this.selectedPool);
+      if (+isTokenToCookApprove) {
+        this.cookRemoveAndRepay(payload, isApproved, this.selectedPool);
         return false;
       }
     },
@@ -589,10 +593,10 @@ export default {
       };
 
       console.log("REMOVE COLLATERAL HANDLER", payload);
-      console.log("collateral amount", payload.amount.toString());
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
-      this.cookRemoveCollateral(payload, this.isApproved, this.selectedPool);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
+
+      this.cookRemoveCollateral(payload, isApproved, this.selectedPool);
     },
 
     async repayHandler() {
@@ -625,10 +629,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isTokenToCookApprove) {
-        this.cookRepayMim(payload, this.isApproved, this.selectedPool);
+      if (+isTokenToCookApprove) {
+        this.cookRepayMim(payload, isApproved, this.selectedPool);
         return false;
       }
     },
@@ -636,6 +640,15 @@ export default {
 
   created() {
     this.poolId = this.$route.params.id;
+
+    // this.updateInterval = setInterval(async () => {
+    //   console.log("createPools");
+    //   this.tokensInfo = this.createPools();
+    // }, 15000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.updateInterval);
   },
 
   components: {

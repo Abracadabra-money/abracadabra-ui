@@ -80,10 +80,10 @@
             <BaseButton
               @click="approveTokenHandler"
               primary
-              :disabled="isApproved"
+              :disabled="isTokenApprove"
               >Approve</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="!isApproved">{{
+            <BaseButton @click="actionHandler" :disabled="!isTokenApprove">{{
               actionBtnText
             }}</BaseButton>
           </div>
@@ -103,7 +103,7 @@
       <SelectPoolPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
-        :pools="filteredPool"
+        :pools="pools"
     /></PopupWrap>
   </div>
 </template>
@@ -138,9 +138,9 @@ export default {
       borrowValue: "",
       borrowError: "",
       poolId: null,
-      isApproved: false,
       isOpenPollPopup: false,
       useDefaultBalance: false,
+      updateInterval: null,
       emptyData: {
         img: require(`@/assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
@@ -155,10 +155,6 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
-
-    filteredPool() {
-      return this.pools.filter((pool) => !pool.isDepreciated);
-    },
 
     selectedPool() {
       if (this.poolId) {
@@ -215,7 +211,7 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.isApproved) return "Nothing to do";
+      if (!this.isTokenApprove) return "Nothing to do";
 
       if (this.isUserLocked && +this.collateralValue > 0)
         return "Nothing to do";
@@ -398,6 +394,14 @@ export default {
       }
       return "";
     },
+
+    isTokenApprove() {
+      if (this.selectedPool && this.account) {
+        return this.selectedPool.token.isTokenApprove;
+      }
+
+      return true;
+    },
   },
 
   watch: {
@@ -442,10 +446,12 @@ export default {
     },
 
     async approveTokenHandler() {
-      this.isApproved = await approveToken(
+      approveToken(
         this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address
       );
+
+      return false;
     },
 
     async chosePool(pool) {
@@ -461,8 +467,6 @@ export default {
       if (!duplicate) {
         this.$router.push(`/borrow/${pool.id}`);
       }
-
-      this.isApproved = this.selectedPool?.token?.isTokenApprove;
     },
 
     checkIsPoolAllowBorrow(amount) {
@@ -539,14 +543,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookCollateralAndBorrow(
-          payload,
-          this.isApproved,
-          this.selectedPool
-        );
+        this.cookCollateralAndBorrow(payload, isApproved, this.selectedPool);
         return false;
       }
 
@@ -580,10 +580,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookAddCollateral(payload, this.isApproved, this.selectedPool);
+        this.cookAddCollateral(payload, isApproved, this.selectedPool);
         return false;
       }
 
@@ -620,10 +620,10 @@ export default {
         );
       }
 
-      this.isApproved = await isApprowed(this.selectedPool, this.account);
+      let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookBorrow(payload, this.isApproved, this.selectedPool);
+        this.cookBorrow(payload, isApproved, this.selectedPool);
         return false;
       }
 
@@ -646,6 +646,15 @@ export default {
 
   created() {
     this.poolId = this.$route.params.id;
+
+    // this.updateInterval = setInterval(async () => {
+    //   console.log("createPools");
+    //   this.tokensInfo = this.createPools();
+    // }, 15000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.updateInterval);
   },
 
   components: {
