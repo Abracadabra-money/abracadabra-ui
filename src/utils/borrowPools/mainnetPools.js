@@ -1031,7 +1031,6 @@ export default [
     isSwappersActive: true,
     isDegenBox: true,
     acceptUseDefaultBalance: true,
-    dontHaveStrategy: true,
     contract: {
       name: "CauldronV2",
       address: "0x390Db10e65b5ab920C19149C919D970ad9d18A41",
@@ -1070,7 +1069,6 @@ export default [
     isDepreciated: false,
     isSwappersActive: true,
     isDegenBox: true,
-    dontHaveStrategy: true,
     contract: {
       name: "CauldronV2",
       address: "0x5ec47EE69BEde0b6C2A2fC0D9d094dF16C192498",
@@ -1110,7 +1108,6 @@ export default [
     isSwappersActive: true,
     hasStrategy: false,
     isDegenBox: true,
-    dontHaveStrategy: true,
     contract: {
       name: "CauldronV2",
       address: "0xf179fe36a36B32a4644587B8cdee7A23af98ed37",

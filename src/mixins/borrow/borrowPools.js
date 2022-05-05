@@ -595,7 +595,7 @@ export default {
 
       let maxWithdrawAmount = -1;
 
-      if (pool.isDegenBox && !pool.dontHaveStrategy) {
+      if (pool.strategyLink) {
         const tokenWithdrawAmount = await pool.token.contract.balanceOf(
           pool.bentoBoxAddress
         );
