@@ -62,14 +62,4 @@ export default {
 .info-bar-icon:not(:last-child) {
   margin-right: 10px;
 }
-
-@media (min-width: 1024px) {
-  .info-bar {
-    height: 18px;
-  }
-  .info-bar-icon {
-    width: 18px;
-    height: 18px;
-  }
-}
 </style>
