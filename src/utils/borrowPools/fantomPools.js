@@ -241,6 +241,8 @@ export default [
     id: 7,
     isDepreciated: false,
     isSwappersActive: true,
+    strategyLink:
+      "https://abracadabramoney.medium.com/our-spiritswap-lp-degenbox-strategy-11c1a786ff67",
     acceptUseDefaultBalance: false,
     isDegenBox: true,
     contract: {
