@@ -6,8 +6,8 @@ import joeInfoAbi from "@/utils/abi/joeInfo";
 
 export default [
   {
-    name: "AVAX",
     icon: require(`@/assets/images/tokens/AVAX.png`),
+    name: "AVAX",
     contractChain: "0xa86a",
     id: 1,
     isDepreciated: false,
@@ -46,8 +46,8 @@ export default [
     },
   },
   {
-    name: "wMEMO",
     icon: require(`@/assets/images/tokens/MEMO.png`),
+    name: "wMEMO",
     contractChain: "0xa86a",
     id: 2,
     isDepreciated: true,
@@ -90,11 +90,11 @@ export default [
     },
   },
   {
-    name: "xJOE",
     icon: require(`@/assets/images/tokens/xJOE.png`),
+    name: "xJOE",
     contractChain: "0xa86a",
     id: 3,
-    isDepreciated: false,
+    isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
     strategyLink:
@@ -139,11 +139,11 @@ export default [
     },
   },
   {
-    name: "AVAX/USDC.e JLP",
     icon: require(`@/assets/images/tokens/AVAX-USDC.png`),
+    name: "AVAX/USDC.e JLP",
     contractChain: "0xa86a",
     id: 4,
-    isDepreciated: false,
+    isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
     strategyLink:
@@ -188,8 +188,8 @@ export default [
     },
   },
   {
-    name: "wMEMO",
     icon: require(`@/assets/images/tokens/MEMO.png`),
+    name: "wMEMO",
     contractChain: "0xa86a",
     id: 5,
     isDepreciated: true,
@@ -233,11 +233,11 @@ export default [
     },
   },
   {
-    name: "AVAX/USDT.e JLP",
     icon: require(`@/assets/images/tokens/AVAX-USDT.png`),
+    name: "AVAX/USDT.e JLP",
     contractChain: "0xa86a",
     id: 6,
-    isDepreciated: false,
+    isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
     strategyLink:
@@ -282,11 +282,11 @@ export default [
     },
   },
   {
-    name: "AVAX/MIM JLP",
     icon: require(`@/assets/images/tokens/MIM-AVAX.png`),
+    name: "AVAX/MIM JLP",
     contractChain: "0xa86a",
     id: 7,
-    isDepreciated: false,
+    isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
     strategyLink:
@@ -331,8 +331,8 @@ export default [
     },
   },
   {
-    name: "AVAX/MIM SLP",
     icon: require(`@/assets/images/tokens/MIM-AVAX.png`),
+    name: "AVAX/MIM SLP",
     contractChain: "0xa86a",
     id: 8,
     isDepreciated: false,

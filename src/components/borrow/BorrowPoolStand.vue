@@ -31,6 +31,19 @@
           <img src="@/assets/images/deposit.svg" alt="Deposit" /> Claim
         </button>
 
+        <a
+          class="deposit"
+          href="https://app.sushi.com/add/ETH/0x130966628846BFd36ff31a822705796e8cb8C18D"
+          target="_blank"
+          rel="noreferrer noopener"
+          v-if="showAvaxSlpLink"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Get SLP
+          Tokens</a
+        >
+
+        <button v-if="showClaimCrvReward"></button>
+
         <button
           v-if="!isEmpty && account"
           class="info-btn"
@@ -388,6 +401,14 @@ export default {
         this.pool?.token?.additionalLogic?.claimCrvReward &&
         this.isUserHasClaimableReward
       );
+    },
+
+    showAvaxSlpLink() {
+      if (this.pool) {
+        return this.pool.id === 8 && this.chainId === 43114;
+      }
+
+      return false;
     },
 
     isUserHasClaimableReward() {

@@ -2,8 +2,8 @@
 
 export default [
   {
-    name: "MATIC",
     icon: require(`@/assets/images/tokens/MATIC.png`),
+    name: "MATIC",
     contractChain: "0x89",
     id: 1,
     isDepreciated: false,

@@ -7,8 +7,8 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 
 export default [
   {
-    name: "yvUSDT v2",
     icon: require(`@/assets/images/tokens/USDT.png`),
+    name: "yvUSDT v2",
     contractChain: "0x01",
     id: 1,
     isDepreciated: true,
@@ -44,8 +44,8 @@ export default [
     },
   },
   {
-    name: "yvWETH v2",
     icon: require(`@/assets/images/tokens/WETH.png`),
+    name: "yvWETH v2",
     contractChain: "0x01",
     id: 2,
     isDepreciated: true,
@@ -81,8 +81,8 @@ export default [
     },
   },
   {
-    name: "yvYFI v2",
     icon: require(`@/assets/images/tokens/YEARN.png`),
+    name: "yvYFI v2",
     contractChain: "0x01",
     id: 3,
     isDepreciated: true,
@@ -118,8 +118,8 @@ export default [
     },
   },
   {
-    name: "yvUSDC v2",
     icon: require(`@/assets/images/tokens/USDC.png`),
+    name: "yvUSDC v2",
     contractChain: "0x01",
     id: 4,
     isDepreciated: true,
@@ -155,8 +155,8 @@ export default [
     },
   },
   {
-    name: "xSUSHI",
     icon: require(`@/assets/images/tokens/xSUSHI.png`),
+    name: "xSUSHI",
     contractChain: "0x01",
     id: 5,
     isDepreciated: true,
@@ -192,8 +192,8 @@ export default [
     },
   },
   {
-    name: "yvWETH v2",
     icon: require(`@/assets/images/tokens/WETH.png`),
+    name: "yvWETH v2",
     contractChain: "0x01",
     id: 6,
     isDepreciated: false,
@@ -229,8 +229,8 @@ export default [
     },
   },
   {
-    name: "yvcrvIB",
     icon: require(`@/assets/images/tokens/yvcrvIB.png`),
+    name: "yvcrvIB",
     contractChain: "0x01",
     id: 7,
     isDepreciated: false,
@@ -266,8 +266,8 @@ export default [
     },
   },
   {
-    name: "xSUSHI",
     icon: require(`@/assets/images/tokens/xSUSHI.png`),
+    name: "xSUSHI",
     contractChain: "0x01",
     id: 8,
     isDepreciated: false,
@@ -340,8 +340,8 @@ export default [
   //   },
   // },
   {
-    name: "wsOHM",
     icon: require(`@/assets/images/tokens/OHM.png`),
+    name: "wsOHM",
     contractChain: "0x01",
     id: 10,
     isDepreciated: true,
@@ -382,8 +382,8 @@ export default [
     },
   },
   {
-    name: "sSpell",
     icon: require(`@/assets/images/tokens/sSPELL.png`),
+    name: "sSpell",
     contractChain: "0x01",
     id: 11,
     isDepreciated: true,
@@ -416,11 +416,11 @@ export default [
     },
   },
   {
-    name: "yvcrvSTETH",
     icon: require(`@/assets/images/tokens/crvSTETH.png`),
+    name: "yvcrvSTETH",
     contractChain: "0x01",
     id: 12,
-    isDepreciated: false,
+    isDepreciated: true,
     isSwappersActive: true,
     contract: {
       name: "CauldronV2Flat",
@@ -454,8 +454,8 @@ export default [
     },
   },
   {
-    name: "ALCX",
     icon: require(`@/assets/images/tokens/ALCX.png`),
+    name: "ALCX",
     contractChain: "0x01",
     id: 13,
     isDepreciated: false,
@@ -492,11 +492,11 @@ export default [
     },
   },
   {
-    name: "FTM",
     icon: require(`@/assets/images/tokens/FTM.png`),
+    name: "FTM",
     contractChain: "0x01",
     id: 14,
-    isDepreciated: false,
+    isDepreciated: true,
     isSwappersActive: true,
     contract: {
       name: "CauldronV2Flat",
@@ -530,8 +530,8 @@ export default [
     },
   },
   {
-    name: "cvx3pool",
     icon: require(`@/assets/images/tokens/Convex-Curve.png`),
+    name: "cvx3pool",
     contractChain: "0x01",
     id: 15,
     isDepreciated: true,
@@ -576,8 +576,8 @@ export default [
     },
   },
   {
-    name: "cvxtricrypto2",
     icon: require(`@/assets/images/tokens/Convex-Curve3.png`),
+    name: "cvxtricrypto2",
     contractChain: "0x01",
     id: 16,
     isDepreciated: false,
@@ -619,8 +619,8 @@ export default [
     },
   },
   {
-    name: "AGLD",
     icon: require(`@/assets/images/tokens/LOOT.png`),
+    name: "AGLD",
     contractChain: "0x01",
     id: 17,
     isDepreciated: false,
@@ -657,8 +657,8 @@ export default [
     },
   },
   {
-    name: "cvxrenCrv",
     icon: require(`@/assets/images/tokens/Convex-Bitcoin.png`),
+    name: "cvxrenCrv",
     contractChain: "0x01",
     id: 18,
     isDepreciated: false,
@@ -700,8 +700,8 @@ export default [
     },
   },
   {
-    name: "UST",
     icon: require(`@/assets/images/tokens/UST.png`),
+    name: "UST",
     contractChain: "0x01",
     id: 19,
     isDepreciated: true,
@@ -741,8 +741,8 @@ export default [
     },
   },
   {
-    name: "SHIB",
     icon: require(`@/assets/images/tokens/SHIB.png`),
+    name: "SHIB",
     contractChain: "0x01",
     id: 20,
     isDepreciated: false,
@@ -779,8 +779,8 @@ export default [
     },
   },
   {
-    name: "FTT",
     icon: require(`@/assets/images/tokens/FTT.png`),
+    name: "FTT",
     contractChain: "0x01",
     id: 21,
     isDepreciated: false,
@@ -817,8 +817,8 @@ export default [
     },
   },
   {
-    name: "sSpell",
     icon: require(`@/assets/images/tokens/sSPELL.png`),
+    name: "sSpell",
     contractChain: "0x01",
     id: 22,
     isDepreciated: false,
@@ -851,8 +851,8 @@ export default [
     },
   },
   {
-    name: "Spell",
     icon: require(`@/assets/images/tokens/SPELL.png`),
+    name: "Spell",
     contractChain: "0x01",
     id: 23,
     isDepreciated: false,
@@ -890,8 +890,8 @@ export default [
     },
   },
   {
-    name: "cvx3pool",
     icon: require(`@/assets/images/tokens/Convex-Curve.png`),
+    name: "cvx3pool",
     contractChain: "0x01",
     id: 24,
     isDepreciated: true,
@@ -936,8 +936,8 @@ export default [
     },
   },
   {
-    name: "cvx3pool",
     icon: require(`@/assets/images/tokens/Convex-Curve.png`),
+    name: "cvx3pool",
     contractChain: "0x01",
     id: 25,
     isDepreciated: false,
@@ -982,11 +982,11 @@ export default [
     },
   },
   {
-    name: "UST",
     icon: require(`@/assets/images/tokens/UST.png`),
+    name: "UST",
     contractChain: "0x01",
     id: 26,
-    isDepreciated: false,
+    isDepreciated: true,
     isSwappersActive: true,
     strategyLink:
       "https://abracadabramoney.medium.com/our-ust-strategy-the-first-application-of-the-magic-potentialities-of-degenbox-ea35f13d6b5e",
@@ -1023,8 +1023,8 @@ export default [
     },
   },
   {
-    name: "WETH",
     icon: require(`@/assets/images/tokens/WETH.png`),
+    name: "WETH",
     contractChain: "0x01",
     id: 27,
     isDepreciated: false,
@@ -1062,8 +1062,8 @@ export default [
     },
   },
   {
-    name: "WBTC",
     icon: require(`@/assets/images/tokens/WBTC.png`),
+    name: "WBTC",
     contractChain: "0x01",
     id: 28,
     isDepreciated: false,
@@ -1100,13 +1100,12 @@ export default [
     },
   },
   {
-    name: "yvCVXETH",
     icon: require(`@/assets/images/tokens/Convex-ETH.png`),
+    name: "yvCVXETH",
     contractChain: "0x01",
     id: 29,
     isDepreciated: false,
     isSwappersActive: true,
-    hasStrategy: false,
     isDegenBox: true,
     contract: {
       name: "CauldronV2",
@@ -1135,6 +1134,44 @@ export default [
     },
     reverseSwapContractInfo: {
       address: "0xF80a7b98b59e7F71BAa149990bAA6044728321bb",
+      abi: reverseSwapAbi,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/DAI.png`),
+    name: "yvDAI",
+    contractChain: "0x01",
+    id: 30,
+    isDepreciated: false,
+    isSwappersActive: true,
+    isDegenBox: true,
+    contract: {
+      name: "CauldronV2",
+      address: "0x7Ce7D9ED62B9A6c5aCe1c6Ec9aeb115FA3064757",
+      abi: poolsAbi.CauldronV3,
+    },
+    token: {
+      name: "yvDAI",
+      decimals: 18,
+      address: "0xdA816459F1AB5631232FE5e97a05BBBb94970c95",
+      abi: tokensAbi.WBTC,
+    },
+    pairToken: {
+      name: "MIM",
+      decimals: 18,
+      address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      abi: tokensAbi.MIM,
+    },
+    stabilityFee: 0.5,
+    interest: 0,
+    ltv: 98,
+    borrowFee: 0,
+    swapContractInfo: {
+      address: "0xD8AF1558A2ca227607b49a3293e278c6875F9a40",
+      abi: swapAbi,
+    },
+    reverseSwapContractInfo: {
+      address: "0xdb3A46896d2855e7932fC8Ea5A8465Fd07F7Fb57",
       abi: reverseSwapAbi,
     },
   },
