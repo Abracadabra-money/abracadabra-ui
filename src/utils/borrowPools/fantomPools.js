@@ -6,8 +6,8 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 
 export default [
   {
-    name: "wFTM",
     icon: require(`@/assets/images/tokens/FTM.png`),
+    name: "wFTM",
     contractChain: "0xfa",
     id: 1,
     isDepreciated: false,
@@ -44,8 +44,8 @@ export default [
     },
   },
   {
-    name: "wFTM",
     icon: require(`@/assets/images/tokens/FTM.png`),
+    name: "wFTM",
     contractChain: "0xfa",
     id: 2,
     isDepreciated: false,
@@ -82,8 +82,8 @@ export default [
     },
   },
   {
-    name: "yvWFTM",
     icon: require(`@/assets/images/tokens/FTM.png`),
+    name: "yvWFTM",
     contractChain: "0xfa",
     id: 3,
     isDepreciated: false,
@@ -158,8 +158,8 @@ export default [
   //   },
   // },
   {
-    name: "xBOO",
     icon: require(`@/assets/images/tokens/xBOO.png`),
+    name: "xBOO",
     contractChain: "0xfa",
     id: 5,
     isDepreciated: false,
@@ -235,12 +235,14 @@ export default [
   //   },
   // },
   {
-    name: "FTM/MIM",
     icon: require(`@/assets/images/tokens/FTM-MIM.png`),
+    name: "FTM/MIM",
     contractChain: "0xfa",
     id: 7,
     isDepreciated: false,
     isSwappersActive: true,
+    strategyLink:
+      "https://abracadabramoney.medium.com/our-spiritswap-lp-degenbox-strategy-11c1a786ff67",
     acceptUseDefaultBalance: false,
     isDegenBox: true,
     contract: {
@@ -273,44 +275,45 @@ export default [
       abi: reverseSwapAbi,
     },
   },
-  // {
-  //   name: "FTM/MIM",
-  //   icon: require(`@/assets/images/tokens/FTM-MIM.png`),
-  //   contractChain: "0xfa",
-  //   id: 8,
-  //   isDepreciated: false,
-  //   isSwappersActive: true,
-  //   acceptUseDefaultBalance: false,
-  //   isDegenBox: true,
-  //   hasStrategy: true,
-  //   contract: {
-  //     name: "CauldronV2FTM",
-  //     address: "0x4fdfFa59bf8dda3F4d5b38F260EAb8BFaC6d7bC1",
-  //     abi: poolsAbi.CauldronV2FTM,
-  //   },
-  //   token: {
-  //     name: "FTM/MIM",
-  //     decimals: 18,
-  //     address: "0x6f86e65b255c9111109d2D2325ca2dFc82456efc",
-  //     abi: tokensAbi.WFTM,
-  //   },
-  //   pairToken: {
-  //     name: "MIM",
-  //     decimals: 18,
-  //     address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
-  //     abi: tokensAbi.MIM,
-  //   },
-  //   stabilityFee: 8,
-  //   interest: 1,
-  //   borrowFee: 0.5,
-  //   ltv: 85,
-  //   swapContractInfo: {
-  //     address: "0xe788aBab092c165fAb7Ded7b7D2962abc808eE6C",
-  //     abi: swapAbi,
-  //   },
-  //   reverseSwapContractInfo: {
-  //     address: "0xFDF2C2689c130B0686331C9ADa0E40Ec1A1A58d7",
-  //     abi: reverseSwapAbi,
-  //   },
-  // },
+  {
+    icon: require(`@/assets/images/tokens/FTM-MIM.png`),
+    name: "FTM/MIM",
+    contractChain: "0xfa",
+    id: 8,
+    isDepreciated: false,
+    isSwappersActive: true,
+    acceptUseDefaultBalance: false,
+    isDegenBox: true,
+    strategyLink:
+      "https://abracadabramoney.medium.com/our-spookyswap-lp-degenbox-strategy-3a2f35e1b643",
+    contract: {
+      name: "CauldronV2FTM",
+      address: "0x4fdfFa59bf8dda3F4d5b38F260EAb8BFaC6d7bC1",
+      abi: poolsAbi.CauldronV2FTM,
+    },
+    token: {
+      name: "FTM/MIM",
+      decimals: 18,
+      address: "0x6f86e65b255c9111109d2D2325ca2dFc82456efc",
+      abi: tokensAbi.WFTM,
+    },
+    pairToken: {
+      name: "MIM",
+      decimals: 18,
+      address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
+      abi: tokensAbi.MIM,
+    },
+    stabilityFee: 8,
+    interest: 1,
+    borrowFee: 0.5,
+    ltv: 85,
+    swapContractInfo: {
+      address: "0xe788aBab092c165fAb7Ded7b7D2962abc808eE6C",
+      abi: swapAbi,
+    },
+    reverseSwapContractInfo: {
+      address: "0xFDF2C2689c130B0686331C9ADa0E40Ec1A1A58d7",
+      abi: reverseSwapAbi,
+    },
+  },
 ];
