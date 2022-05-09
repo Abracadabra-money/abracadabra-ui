@@ -322,13 +322,13 @@ export default {
     const acceptedNetworks = [43114, 1, 250, 56, 42161, 137];
 
     if (acceptedNetworks.indexOf(this.chainId) === -1) {
-      // const notification = {
-      //   msg: "The bridge is not available on this network",
-      // };
+      const notification = {
+        msg: "The bridge is not available on this network",
+        type: "error",
+      };
 
-      alert("The bridge is not available on this network");
+      await this.$store.dispatch("notifications/new", notification);
 
-      // this.$store.commit("addNotification", notification);
       // this.$router.push({ name: "Home" });
       return false;
     }

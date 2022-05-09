@@ -32,12 +32,18 @@ export default {
   },
   methods: {
     getImgUrl(type) {
-      var images = require.context(
-        "../../assets/images/notification-icons/",
-        false,
-        /\.svg$/
-      );
-      return images("./" + type + "-icon.svg");
+      // var images = require.context(
+      //   "../../assets/images/notification-icons/",
+      //   false,
+      //   /\.svg$/
+      // );
+      // return images("./" + type + "-icon.svg");
+
+      if (!type) {
+        return require(`@/assets/images/notification-icons/info-icon.svg`);
+      }
+
+      return require(`@/assets/images/notification-icons/${type}-icon.svg`);
     },
     closeNotification() {
       this.$store.commit("notifications/delete", this.notification.id);

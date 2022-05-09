@@ -135,10 +135,10 @@ export default {
 
         const notification = {
           msg: this.cookSuccessText,
+          type: "success",
         };
 
-        // this.$store.commit("addNotification", notification);
-        console.log("notification", notification);
+        await this.$store.dispatch("notifications/new", notification);
       } catch (e) {
         console.log("COOK ERR:", e);
         console.log("COOK ERR:", String(e));
@@ -242,10 +242,10 @@ export default {
 
         const notification = {
           msg: this.cookSuccessText,
+          type: "success",
         };
 
-        // this.$store.commit("addNotification", notification);
-        console.log("notification", notification);
+        await this.$store.dispatch("notifications/new", notification);
       } catch (e) {
         console.log("COOK ERR:", e.code);
       }
@@ -1143,29 +1143,29 @@ export default {
 
         const notification = {
           msg: this.cookSuccessText,
+          type: "success",
         };
 
-        console.log("notification", notification);
-        // this.$store.commit("addNotification", notification);
+        await this.$store.dispatch("notifications/new", notification);
       } catch (e) {
         console.log("MULTI COOK ERR:", e);
 
         if (e.code === "UNPREDICTABLE_GAS_LIMIT") {
           const notification = {
             msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
+            type: "warning",
           };
 
-          // this.$store.commit("addNotification", notification);
-          console.log("notification", notification);
+          await this.$store.dispatch("notifications/new", notification);
         }
 
         if (e.data.message === "execution reverted: Cauldron: call failed") {
           const notification = {
             msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
+            type: "warning",
           };
 
-          // this.$store.commit("addNotification", notification);
-          console.log("notification", notification);
+          await this.$store.dispatch("notifications/new", notification);
         }
       }
     },
@@ -1288,10 +1288,10 @@ export default {
 
         const notification = {
           msg: this.cookSuccessText,
+          type: "success",
         };
 
-        console.log("notification", notification);
-        // this.$store.commit("addNotification", notification);
+        await this.$store.dispatch("notifications/new", notification);
       } catch (e) {
         console.log("COOK ERR:", e);
         console.log("COOK ERR:", String(e));
@@ -1465,27 +1465,27 @@ export default {
         if (e.error === "execution reverted: Cauldron: user insolvent") {
           const notification = {
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
+            type: "warning",
           };
-          console.log("notification", notification);
-          // this.$store.commit("addNotification", notification);
+
+          await this.$store.dispatch("notifications/new", notification);
         }
 
         if (e.error?.message === "execution reverted: BoringMath: Underflow") {
           const notification = {
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
+            type: "warning",
           };
 
-          console.log("notification", notification);
-          // this.$store.commit("addNotification", notification);
+          await this.$store.dispatch("notifications/new", notification);
         }
 
         if (e.data?.message === "execution reverted: BoringMath: Underflow") {
           const notification = {
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
+            type: "warning",
           };
-
-          console.log("notification", notification);
-          // this.$store.commit("addNotification", notification);
+          await this.$store.dispatch("notifications/new", notification);
         }
       }
     },
