@@ -1,6 +1,8 @@
 <template>
   <div class="popup-item-wrap">
-    <StatusBar :pool="pool" />
+    <div class="status-bar-wrap">
+      <StatusBar :pool="pool" :small="true" />
+    </div>
     <button @click="enterPool(pool)" class="pool-item">
       <div class="pool-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
@@ -29,7 +31,10 @@ export default {
   computed: {
     userBalance() {
       if (this.pool.userInfo)
-        return this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance);
+        return this.$ethers.utils.formatUnits(
+          this.pool.userInfo.userBalance,
+          this.pool.token.decimals
+        );
 
       return 0;
     },
@@ -91,6 +96,7 @@ export default {
     left: 5%;
   }
 }
+
 .pool-item {
   display: flex;
   justify-content: space-between;

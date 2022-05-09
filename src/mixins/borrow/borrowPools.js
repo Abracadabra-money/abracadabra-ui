@@ -628,7 +628,8 @@ export default {
       }
 
       let balanceUsd =
-        this.$ethers.utils.formatUnits(userBalance) / pool.tokenPrice;
+        this.$ethers.utils.formatUnits(userBalance, pool.token.decimals) /
+        pool.tokenPrice;
 
       pool.userInfo = {
         userBorrowPart,

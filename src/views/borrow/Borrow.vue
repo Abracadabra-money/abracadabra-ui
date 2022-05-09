@@ -55,11 +55,20 @@
             @input="updateBorrowValue"
           />
         </div>
+        <template v-if="selectedPool">
+          <div class="deposit-info underline">
+            <span>LTV</span>
+            <span>{{ calculateLtv }}%</span>
+          </div>
 
-        <div class="deposit-info underline" v-if="selectedPool">
-          <span>LTV</span>
-          <span>{{ calculateLtv }}%</span>
-        </div>
+          <div class="percent-wrap">
+            <PercentageButtons
+              :liquidationPrice="depositExpectedLiquidationPrice"
+              @onchange="updatePercentValue"
+              :maxValue="ltv"
+            />
+          </div>
+        </template>
       </div>
 
       <div class="info-block">
@@ -112,6 +121,7 @@
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
+const PercentageButtons = () => import("@/components/borrow/PercentageButtons");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
@@ -385,7 +395,7 @@ export default {
     mainTokenFinalText() {
       if (this.selectedPool) {
         if (this.poolId === 25 && this.chainId === 1)
-          return `${this.mainValueTokenName} (new)`;
+          return `${this.selectedPool.name} (new)`;
 
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
@@ -401,6 +411,13 @@ export default {
       }
 
       return true;
+    },
+
+    ltv() {
+      if (this.selectedPool) {
+        return this.selectedPool.ltv;
+      }
+      return 0;
     },
   },
 
@@ -642,6 +659,19 @@ export default {
       this.borrowValue = "";
       this.borrowError = "";
     },
+
+    updatePercentValue(value) {
+      if (this.collateralValue && value) {
+        const newBorrowValue =
+          (this.maxBorrowValue * value) / this.selectedPool.ltv;
+        this.borrowValue =
+          +newBorrowValue > +this.maxBorrowValue
+            ? this.maxBorrowValue
+            : newBorrowValue;
+      } else {
+        this.borrowValue = "";
+      }
+    },
   },
 
   created() {
@@ -661,6 +691,7 @@ export default {
     NetworksList,
     BaseTokenInput,
     BorrowPoolStand,
+    PercentageButtons,
     BaseButton,
     BaseLoader,
     PopupWrap,
@@ -716,6 +747,10 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
   padding-bottom: 12px;
+}
+
+.percent-wrap {
+  padding: 30px 0;
 }
 
 .info-block {

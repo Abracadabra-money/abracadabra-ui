@@ -61,7 +61,7 @@
         >
       </div>
       <div class="info-block">
-        <h1 class="title">DeLeverage farm</h1>
+        <h1 class="title">Deleverage</h1>
         <BorrowPoolStand
           :pool="selectedPool"
           :isEmpty="selectedPool === null"
