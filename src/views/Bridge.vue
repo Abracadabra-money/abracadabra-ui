@@ -90,6 +90,8 @@ const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
 const NetworkPopup = () => import("@/components/popups/NetworkPopup");
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
+import notification from "@/utils/notification/index.js";
+
 import { mapGetters } from "vuex";
 export default {
   mixins: [bridgeMixin, chainSwitch],
@@ -99,6 +101,7 @@ export default {
       popupType: null,
       toChainId: null,
       fromChainId: null,
+      updateInterval: null,
       amount: "",
       amountError: "",
     };
@@ -174,10 +177,9 @@ export default {
     disableBtn() {
       if (this.bridgeObject.isDefaultProvider) return true;
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
-      // if (+this.amount === 0) return true;
+      if (+this.amount === 0) return true;
 
-      // return !!this.amountError;
-      return false;
+      return !!this.amountError;
     },
 
     targetChainInfo() {
@@ -231,7 +233,6 @@ export default {
       if (this.address) this.switchNetwork(this.activeTo.chainId);
       else this.switchNetworkWithoutConnect(this.activeTo.chainId);
     },
-    // ----------------------------------
 
     updateMainValue(value) {
       if (Number(value) > Number(this.bridgeObject.balance)) {
@@ -257,19 +258,38 @@ export default {
     },
 
     async actionHandler() {
-      // if (!this.bridgeObject.isTokenApprove && this.chainId === 1) {
-      //   await this.approveToken(
-      //     this.bridgeObject.tokenContractInstance,
-      //     this.bridgeObject.contractInstance.address
-      //   );
+      if (!this.bridgeObject.isTokenApprove && this.chainId === 1) {
+        const notificationId = await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.pending
+        );
 
-      //   return false;
-      // }
+        let approve = await this.approveToken(
+          this.bridgeObject.tokenContractInstance,
+          this.bridgeObject.contractInstance.address
+        );
+
+        if (approve) {
+          await this.$store.commit("notifications/delete", notificationId);
+        } else {
+          await this.$store.commit("notifications/delete", notificationId);
+          await this.$store.dispatch(
+            "notifications/new",
+            notification.approve.error
+          );
+        }
+
+        return false;
+      }
 
       await this.bridge();
     },
 
     async bridge() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         let re = new RegExp(
           // eslint-disable-next-line no-useless-escape
@@ -312,8 +332,19 @@ export default {
         console.log(result);
 
         console.log("gasLimit:", gasLimit);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("SWAP ERR:", e);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
   },
@@ -334,6 +365,15 @@ export default {
     }
 
     await this.createBridgeConfig();
+
+    this.updateInterval = setInterval(async () => {
+      console.log("createBridgeConfig");
+      await this.createBridgeConfig();
+    }, 15000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.updateInterval);
   },
 
   components: {
