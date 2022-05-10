@@ -79,17 +79,15 @@
           />
         </div>
         <div class="footer-range">
-          <div class="footer-range-line">
-            <div
-              class="footer-range-value"
-              :style="{ width: `${liquidationRisk}%` }"
-            >
-              &nbsp;
-            </div>
-          </div>
+          <HealthLine
+            :isSafe="liquidationRisk > 75"
+            :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
+            :isHigh="liquidationRisk > 0 && liquidationRisk <= 5"
+            :percent="liquidationRisk"
+          />
         </div>
 
-        <p class="range-value">${{ liquidationRisk }}% of 100%</p>
+        <p class="range-value">{{ liquidationRisk }}% of 100%</p>
         <div class="footer-list">
           <div
             v-for="(item, i) in valuesList"
@@ -116,13 +114,14 @@
 
 <script>
 import Vue from "vue";
+const HealthLine = () => import("@/components/ui/HealthLine");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusName = () => import("@/components/ui/StatusName");
 const mimIcon = require("@/assets/images/tokens/MIM.png");
 
 export default {
   name: "SpecPosBorrowItem",
-  components: { BaseTokenIcon, StatusName },
+  components: { HealthLine, BaseTokenIcon, StatusName },
   props: {
     opened: { type: Boolean, default: true },
     pool: { type: Object, required: true },
@@ -370,17 +369,6 @@ export default {
       margin-top: 20px;
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      &-line {
-        width: 100%;
-        height: 8px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-      }
-      &-value {
-        background-color: #63caf8;
-        border-radius: 20px;
-        height: 100%;
-      }
     }
 
     &-list {
