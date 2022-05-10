@@ -130,6 +130,7 @@ import {
   isApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
+import notification from "@/utils/notification/index.js";
 
 export default {
   mixins: [borrowPoolsMixin, cookMixin],
@@ -466,17 +467,35 @@ export default {
 
   methods: {
     async approveTokenHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
+      let approve = this.selectedPool.token.isTokenApprove;
+      let approveSwap = this.selectedPool.isTokenToReverseSwapApprove;
+
       if (!this.selectedPool.token.isTokenApprove) {
-        await approveToken(
+        approve = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       if (!this.selectedPool.isTokenToReverseSwapApprove) {
-        await approveToken(
+        approveSwap = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.reverseSwapContract.address
+        );
+      }
+
+      if (approve && approveSwap) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
         );
       }
 
@@ -551,6 +570,11 @@ export default {
     },
 
     async flashRepayHandler(data) {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       console.log("FLASH REPAY HANDLER", data);
 
       let isTokenToCookApprove = await isTokenApprowed(
@@ -582,9 +606,23 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        this.cookFlashRepay(data, isApproved, this.selectedPool, this.account);
+        this.cookFlashRepay(
+          data,
+          isApproved,
+          this.selectedPool,
+          this.account,
+          notificationId
+        );
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
+
+      return false;
     },
   },
 

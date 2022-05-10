@@ -1,12 +1,11 @@
 import { mapGetters } from "vuex";
+
+import notification from "@/utils/notification";
 export default {
   data() {
     return {
       gasLimitConst: 1000,
       defaultTokenAddress: "0x0000000000000000000000000000000000000000",
-      cookSuccessText: `Thanks for taking part in the innovation of MIM.
-      Consider yourself extremely early in taking part in creating the stablecoin that has no bias and knows no walls.
-      $MIM- stable for everyone, everywhere`,
     };
   },
   computed: {
@@ -18,10 +17,12 @@ export default {
     }),
   },
   methods: {
+    // Borrow
     async cookCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
-      pool
+      pool,
+      notificationId
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
@@ -133,23 +134,29 @@ export default {
 
         console.log(result);
 
-        const notification = {
-          msg: this.cookSuccessText,
-          type: "success",
-        };
-
-        await this.$store.dispatch("notifications/new", notification);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("COOK ERR:", e);
         console.log("COOK ERR:", String(e));
         console.log("COOK ERR:", e.code);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
 
     async cookAddCollateral(
       { amount, updatePrice, itsDefaultBalance },
       isApprowed,
-      pool
+      pool,
+      notificationId
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
@@ -240,18 +247,29 @@ export default {
 
         console.log(result);
 
-        const notification = {
-          msg: this.cookSuccessText,
-          type: "success",
-        };
+        await this.$store.commit("notifications/delete", notificationId);
 
-        await this.$store.dispatch("notifications/new", notification);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("COOK ERR:", e.code);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
 
-    async cookBorrow({ amount, updatePrice }, isApprowed, pool) {
+    async cookBorrow(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
       const pairToken = pool.pairToken.address;
       const userAddr = this.account;
 
@@ -336,10 +354,23 @@ export default {
         );
 
         console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("COOK ERR:", e.code);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
+
+    // End Borrow
 
     async getApprovalEncode(pool) {
       if (!this.itsMetamask) return "ledger";
@@ -522,7 +553,289 @@ export default {
       }
     },
 
-    async cookRemoveCollateral({ amount, updatePrice }, isApprowed, pool) {
+    // Repay
+
+    async cookRemoveAndRepayMax(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = pool.token.address;
+      const pairToken = pool.pairToken.address;
+      const userAddr = this.account;
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        console.log("approvalEncode in COOK", approvalEncode);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          console.log("aproveMasterContract resp: ", approvalMaster);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      // 6
+      const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256"],
+        [userBorrowPart]
+      );
+
+      eventsArray.push(6);
+      valuesArray.push(0);
+      datasArray.push(getRepayShareEncode);
+
+      // 20
+      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pairToken, userAddr, "0x00", "-0x01"]
+      );
+
+      eventsArray.push(20);
+      valuesArray.push(0);
+      datasArray.push(depositEncode);
+
+      // 2
+      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        [userBorrowPart, userAddr, false]
+      );
+
+      eventsArray.push(2);
+      valuesArray.push(0);
+      datasArray.push(repayEncode);
+
+      // 4
+      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, userAddr]
+      );
+
+      eventsArray.push(4);
+      valuesArray.push(0);
+      datasArray.push(removeCollateral);
+
+      // 21
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [tokenAddr, userAddr, "0x00", amount]
+      );
+
+      eventsArray.push(21);
+      valuesArray.push(0);
+      datasArray.push(bentoWithdrawEncode);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        console.log("gasLimit for cook:", gasLimit);
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
+      } catch (e) {
+        console.log("COOK ERR:", e.code);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
+      }
+    },
+
+    async cookRemoveAndRepay(
+      { amount, collateralAmount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const pairToken = pool.pairToken.address;
+      const tokenAddr = pool.token.address;
+      const userAddr = this.account;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        console.log("approvalEncode in COOK", approvalEncode);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          console.log("aproveMasterContract resp: ", approvalMaster);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      //20
+      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pairToken, userAddr, collateralAmount, "0x0"]
+      );
+
+      eventsArray.push(20);
+      valuesArray.push(0);
+      datasArray.push(depositEncode);
+
+      //7
+      const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256"],
+        [collateralAmount.sub("1")]
+      );
+
+      eventsArray.push(7);
+      valuesArray.push(0);
+      datasArray.push(getRepayPartEncode);
+
+      //2
+      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-0x01", userAddr, false]
+      );
+
+      eventsArray.push(2);
+      valuesArray.push(0);
+      datasArray.push(repayEncode);
+
+      // 4
+      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, userAddr]
+      );
+
+      eventsArray.push(4);
+      valuesArray.push(0);
+      datasArray.push(removeCollateral);
+
+      //21
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [tokenAddr, userAddr, "0x00", amount]
+      );
+
+      eventsArray.push(21);
+      valuesArray.push(0);
+      datasArray.push(bentoWithdrawEncode);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        console.log("gasLimit for cook:", gasLimit);
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
+      } catch (e) {
+        console.log("COOK ERR:", e.code);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
+      }
+    },
+
+    async cookRemoveCollateral(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
       const tokenAddr = pool.token.address;
       const userAddr = this.account;
 
@@ -618,12 +931,28 @@ export default {
         );
 
         console.log(result);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("COOK ERR:", e.code);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
 
-    async cookRepayMim({ amount, updatePrice, itsMax }, isApprowed, pool) {
+    async cookRepayMim(
+      { amount, updatePrice, itsMax },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
       const pairToken = pool.pairToken.address;
       const userAddr = this.account;
 
@@ -752,264 +1081,29 @@ export default {
         );
 
         console.log(result);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("COOK ERR:", e.code);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
 
-    async cookRemoveAndRepay(
-      { amount, collateralAmount, updatePrice },
-      isApprowed,
-      pool
-    ) {
-      const pairToken = pool.pairToken.address;
-      const tokenAddr = pool.token.address;
-      const userAddr = this.account;
-
-      const eventsArray = [];
-      const valuesArray = [];
-      const datasArray = [];
-
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        console.log("approvalEncode in COOK", approvalEncode);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
-
-      if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
-
-        eventsArray.push(11);
-        valuesArray.push(0);
-        datasArray.push(updateEncode);
-      }
-
-      //20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, collateralAmount, "0x0"]
-      );
-
-      eventsArray.push(20);
-      valuesArray.push(0);
-      datasArray.push(depositEncode);
-
-      //7
-      const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256"],
-        [collateralAmount.sub("1")]
-      );
-
-      eventsArray.push(7);
-      valuesArray.push(0);
-      datasArray.push(getRepayPartEncode);
-
-      //2
-      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-0x01", userAddr, false]
-      );
-
-      eventsArray.push(2);
-      valuesArray.push(0);
-      datasArray.push(repayEncode);
-
-      // 4
-      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
-
-      eventsArray.push(4);
-      valuesArray.push(0);
-      datasArray.push(removeCollateral);
-
-      //21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, "0x00", amount]
-      );
-
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
-      const cookData = {
-        events: eventsArray,
-        values: valuesArray,
-        datas: datasArray,
-      };
-
-      console.log("cookData", cookData);
-
-      try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
-      } catch (e) {
-        console.log("COOK ERR:", e.code);
-      }
-    },
-
-    async cookRemoveAndRepayMax({ amount, updatePrice }, isApprowed, pool) {
-      const tokenAddr = pool.token.address;
-      const pairToken = pool.pairToken.address;
-      const userAddr = this.account;
-      const userBorrowPart = pool.userInfo.contractBorrowPart;
-
-      const eventsArray = [];
-      const valuesArray = [];
-      const datasArray = [];
-
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        console.log("approvalEncode in COOK", approvalEncode);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
-
-      if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
-
-        eventsArray.push(11);
-        valuesArray.push(0);
-        datasArray.push(updateEncode);
-      }
-
-      // 6
-      const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256"],
-        [userBorrowPart]
-      );
-
-      eventsArray.push(6);
-      valuesArray.push(0);
-      datasArray.push(getRepayShareEncode);
-
-      // 20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, "0x00", "-0x01"]
-      );
-
-      eventsArray.push(20);
-      valuesArray.push(0);
-      datasArray.push(depositEncode);
-
-      // 2
-      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        [userBorrowPart, userAddr, false]
-      );
-
-      eventsArray.push(2);
-      valuesArray.push(0);
-      datasArray.push(repayEncode);
-
-      // 4
-      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
-
-      eventsArray.push(4);
-      valuesArray.push(0);
-      datasArray.push(removeCollateral);
-
-      // 21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, "0x00", amount]
-      );
-
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
-      const cookData = {
-        events: eventsArray,
-        values: valuesArray,
-        datas: datasArray,
-      };
-
-      console.log("cookData", cookData);
-      //console.log("cookData", cookData.datas.join());
-
-      try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
-      } catch (e) {
-        console.log("COOK ERR:", e.code);
-      }
-    },
+    // END Repay
 
     // leverage
     async cookMultiBorrow(
       { collateralAmount, amount, updatePrice, minExpected, itsDefaultBalance },
       isApprowed,
-      pool
+      pool,
+      notificationId
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
@@ -1141,41 +1235,47 @@ export default {
 
         console.log(result);
 
-        const notification = {
-          msg: this.cookSuccessText,
-          type: "success",
-        };
-
-        await this.$store.dispatch("notifications/new", notification);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("MULTI COOK ERR:", e);
 
+        let msg;
+
         if (e.code === "UNPREDICTABLE_GAS_LIMIT") {
-          const notification = {
+          msg = {
+            title: "Error",
             msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
-            type: "warning",
+            type: "error",
           };
-
-          await this.$store.dispatch("notifications/new", notification);
         }
 
-        if (e.data.message === "execution reverted: Cauldron: call failed") {
-          const notification = {
+        if (e?.data?.message === "execution reverted: Cauldron: call failed") {
+          msg = {
+            title: "Error",
             msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
-            type: "warning",
+            type: "error",
           };
-
-          await this.$store.dispatch("notifications/new", notification);
         }
+
+        if (!msg) {
+          msg = notification.transaction.error;
+        }
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
     async cookAddAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
-      pool
+      pool,
+      notificationId
     ) {
-      console.log("TEST###");
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
         : pool.token.address;
@@ -1285,17 +1385,21 @@ export default {
         );
 
         console.log(result);
-
-        const notification = {
-          msg: this.cookSuccessText,
-          type: "success",
-        };
-
-        await this.$store.dispatch("notifications/new", notification);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("COOK ERR:", e);
         console.log("COOK ERR:", String(e));
         console.log("COOK ERR:", e.code);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
 
@@ -1310,7 +1414,8 @@ export default {
       },
       isApprowed,
       pool,
-      account
+      account,
+      notificationId
     ) {
       const borrowTokenAddr = pool.pairToken.address;
       const collateralTokenAddr = pool.token.address;
@@ -1459,34 +1564,48 @@ export default {
         );
 
         console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("FLASH REPAY COOK ERR:", e.error);
         console.log("FLASH REPAY COOK ERR:", e.data);
-        if (e.error === "execution reverted: Cauldron: user insolvent") {
-          const notification = {
-            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-            type: "warning",
-          };
+        let msg;
 
-          await this.$store.dispatch("notifications/new", notification);
+        if (e.error === "execution reverted: Cauldron: user insolvent") {
+          msg = {
+            title: "Error",
+            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
+            type: "error",
+          };
         }
 
         if (e.error?.message === "execution reverted: BoringMath: Underflow") {
-          const notification = {
+          msg = {
+            title: "Error",
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-            type: "warning",
+            type: "error",
           };
-
-          await this.$store.dispatch("notifications/new", notification);
         }
 
         if (e.data?.message === "execution reverted: BoringMath: Underflow") {
-          const notification = {
+          msg = {
+            title: "Error",
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-            type: "warning",
+            type: "error",
           };
-          await this.$store.dispatch("notifications/new", notification);
         }
+
+        if (!msg) {
+          msg = notification.transaction.error;
+        }
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
   },

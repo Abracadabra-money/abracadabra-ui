@@ -66,7 +66,6 @@ export default {
       amountError: "",
       updateInterval: null,
       tokensInfo: null,
-      isApproved: false,
     };
   },
 
@@ -106,11 +105,11 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.isApproved) {
+      if (!+this.amount || this.amountError) return "Nothing to do";
+
+      if (!this.isTokenApprove) {
         return "Approve";
       }
-
-      if (!+this.amount || this.amountError) return "Nothing to do";
 
       return this.action;
     },
@@ -124,6 +123,14 @@ export default {
       const ohm = this.tokensInfo.tokensRate;
 
       return `1 sOHM = ${parseFloat(ohm).toFixed(4)} OHM`;
+    },
+
+    isTokenApprove() {
+      if (this.tokensInfo && this.account) {
+        return this.tokensInfo.depositToken.isTokenApprowed;
+      }
+
+      return true;
     },
   },
 
@@ -156,8 +163,8 @@ export default {
     },
 
     async actionHandler() {
-      if (!this.isApproved) {
-        this.isApproved = await approveToken(
+      if (!this.isTokenApprove) {
+        await approveToken(
           this.tokensInfo.depositToken.contractInstance,
           this.tokensInfo.mainToken.contractInstance.address
         );

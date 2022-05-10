@@ -128,6 +128,7 @@ import {
   isApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
+import notification from "@/utils/notification/index.js";
 
 export default {
   mixins: [borrowPoolsMixin, cookMixin],
@@ -500,6 +501,11 @@ export default {
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
+
+        this.multiplier = 2;
+
+        this.percentValue = pool.ltv;
+
         if (!pool) this.$router.push(`/leverage`);
       }
 
@@ -535,17 +541,36 @@ export default {
     },
 
     async approveTokenHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
+      let approve = this.selectedPool.token.isTokenApprove;
+
+      let approveSwap = this.selectedPool.isTokenToSwapApprove;
+
       if (!this.selectedPool.token.isTokenApprove) {
-        await approveToken(
+        approve = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       if (!this.selectedPool.isTokenToSwapApprove) {
-        await approveToken(
+        approveSwap = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.swapContract.address
+        );
+      }
+
+      if (approve && approveSwap) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
         );
       }
 
@@ -578,17 +603,16 @@ export default {
       this.isSettingsOpened = false;
     },
 
-    async checkIsPoolAllowBorrow(amount) {
+    async checkIsPoolAllowBorrow(amount, notificationId) {
       if (+amount < +this.selectedPool.dynamicBorrowAmount) {
         return true;
       }
 
-      const notification = {
-        msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-        type: "info",
-      };
+      if (notificationId) {
+        await this.$store.commit("notifications/delete", notificationId);
+      }
 
-      await this.$store.dispatch("notifications/new", notification);
+      await this.$store.dispatch("notifications/new", notification.allowBorrow);
 
       return false;
     },
@@ -635,6 +659,10 @@ export default {
     },
 
     async addAndBorrowHandler(data) {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       console.log("ADD COLL & BORROW HANDLER", data);
 
       let isTokenToCookApprove = await isTokenApprowed(
@@ -653,66 +681,52 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookAddAndBorrow(data, isApproved, this.selectedPool);
-        return false;
-      }
-    },
-
-    async borrowHandler() {
-      if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
-        return false;
-      }
-
-      const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        toFixed(this.mimAmount, this.selectedPool.pairToken.decimals),
-        this.selectedPool.pairToken.decimals
-      );
-
-      const payload = {
-        amount: parsedBorrowValue,
-        updatePrice: this.selectedPool.askUpdatePrice,
-      };
-
-      console.log("borrowHandler payload", payload);
-
-      let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address,
-        this.account
-      );
-
-      if (isTokenToCookApprove.eq(0)) {
-        isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
-          this.selectedPool.masterContractInstance.address
+        this.cookAddAndBorrow(
+          data,
+          isApproved,
+          this.selectedPool,
+          notificationId
         );
-      }
-
-      let isApproved = await isApprowed(this.selectedPool, this.account);
-
-      if (+isTokenToCookApprove) {
-        this.cookBorrow(payload, isApproved, this.selectedPool);
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
 
       return false;
     },
 
     async multiplierHandle(data) {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       const percentValue = parseFloat(this.percentValue);
 
-      if (!percentValue) return false;
+      if (!percentValue) {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
+
+        return false;
+      }
 
       if (
         this.liquidationPriceExpected >
         1 / this.selectedPool.tokenOraclePrice
       ) {
-        const notification = {
-          msg: "Opening such position will put you at an instant liquidation flag.",
-          type: "warning",
-        };
+        await this.$store.commit("notifications/delete", notificationId);
 
-        await this.$store.dispatch("notifications/new", notification);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.liquidation
+        );
 
         return false;
       }
@@ -730,7 +744,7 @@ export default {
         startAmount = startAmount * amountMultiplyer;
       }
 
-      if (!this.checkIsPoolAllowBorrow(finalAmount)) {
+      if (!this.checkIsPoolAllowBorrow(finalAmount, notificationId)) {
         return false;
       }
 
@@ -763,10 +777,10 @@ export default {
         amount: mimAmount,
         minExpected: finalRemoveCollateralAmountToShare,
       };
-      this.addMultiBorrowHandler(payload);
+      this.addMultiBorrowHandler(payload, notificationId);
     },
 
-    async addMultiBorrowHandler(data) {
+    async addMultiBorrowHandler(data, notificationId) {
       console.log("ADD COLL OR/AND BORROW -MULTI- HANDLER", data);
 
       let isTokenToCookApprove = await isTokenApprowed(
@@ -798,9 +812,22 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        this.cookMultiBorrow(data, isApproved, this.selectedPool);
+        this.cookMultiBorrow(
+          data,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
+
+      return false;
     },
 
     updatePercentValue() {
@@ -876,6 +903,7 @@ export default {
 
   async created() {
     this.poolId = this.$route.params.id;
+
     // this.updateInterval = setInterval(async () => {
     //   console.log("createPools");
     //   this.tokensInfo = this.createPools();

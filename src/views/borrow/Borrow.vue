@@ -136,6 +136,7 @@ import {
   isApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
+import notification from "@/utils/notification/index.js";
 
 import { mapGetters } from "vuex";
 export default {
@@ -463,10 +464,25 @@ export default {
     },
 
     async approveTokenHandler() {
-      approveToken(
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
+      let approve = await approveToken(
         this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address
       );
+
+      if (approve) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
+        );
+      }
 
       return false;
     },
@@ -486,17 +502,14 @@ export default {
       }
     },
 
-    async checkIsPoolAllowBorrow(amount) {
+    async checkIsPoolAllowBorrow(amount, notificationId) {
       if (+amount < +this.selectedPool.dynamicBorrowAmount) {
         return true;
       }
 
-      const notification = {
-        msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-        type: "info",
-      };
+      await this.$store.commit("notifications/delete", notificationId);
 
-      await this.$store.dispatch("notifications/new", notification);
+      await this.$store.dispatch("notifications/new", notification.allowBorrow);
 
       return false;
     },
@@ -528,6 +541,11 @@ export default {
     },
 
     async collateralAndBorrowHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
@@ -545,8 +563,6 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
-      console.log("Add collateral and borrow $emit", payload);
-
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address,
@@ -563,14 +579,31 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookCollateralAndBorrow(payload, isApproved, this.selectedPool);
+        await this.cookCollateralAndBorrow(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
+
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
 
       return false;
     },
 
     async collateralHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
@@ -581,8 +614,6 @@ export default {
         updatePrice: this.selectedPool.askUpdatePrice,
         itsDefaultBalance: this.useDefaultBalance,
       };
-
-      console.log("Add collateral $emit", payload);
 
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
@@ -600,15 +631,31 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookAddCollateral(payload, isApproved, this.selectedPool);
+        await this.cookAddCollateral(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
 
       return false;
     },
 
     async borrowHandler() {
-      if (!this.checkIsPoolAllowBorrow(this.borrowValue)) {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
+      if (!this.checkIsPoolAllowBorrow(this.borrowValue, notificationId)) {
         return false;
       }
 
@@ -621,8 +668,6 @@ export default {
         amount: parsedBorrowValue,
         updatePrice: this.selectedPool.askUpdatePrice,
       };
-
-      console.log("Add borrow $emit", payload);
 
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
@@ -640,9 +685,21 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookBorrow(payload, isApproved, this.selectedPool);
+        await this.cookBorrow(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
+
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
 
       return false;
     },

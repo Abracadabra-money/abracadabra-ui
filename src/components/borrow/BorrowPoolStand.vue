@@ -76,12 +76,6 @@
       </template>
       <template v-else>
         <div v-if="!isInfoPressed" class="stable-preview">
-          <!-- <div class="item" v-for="(item, i) in basicInfo" :key="i">
-            <p class="item-title">{{ item.name }}</p>
-            <p class="item-value" :class="item.class">
-              {{ item.value || "0.0" }}
-            </p>
-          </div> -->
           <div class="item">
             <p class="item-title">Collateral Deposit</p>
             <p class="item-value">
