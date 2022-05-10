@@ -105,11 +105,14 @@ export default {
         );
       } catch (e) {
         console.log("withdraw err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async deposit() {
@@ -158,11 +161,14 @@ export default {
         );
       } catch (e) {
         console.log("deposit err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async approveToken() {
@@ -193,11 +199,14 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
       } catch (e) {
         console.log("isApprowed err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.approve.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     closePopup() {

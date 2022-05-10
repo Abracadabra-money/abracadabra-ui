@@ -262,11 +262,14 @@ export default {
         );
       } catch (e) {
         console.log("stake err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -309,11 +312,14 @@ export default {
         );
       } catch (e) {
         console.log("stake err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 

@@ -144,11 +144,14 @@ export default {
         console.log("COOK ERR:", String(e));
         console.log("COOK ERR:", e.code);
 
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -256,11 +259,14 @@ export default {
       } catch (e) {
         console.log("COOK ERR:", e.code);
 
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -362,11 +368,14 @@ export default {
         );
       } catch (e) {
         console.log("COOK ERR:", e.code);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -686,11 +695,14 @@ export default {
       } catch (e) {
         console.log("COOK ERR:", e.code);
 
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -822,11 +834,14 @@ export default {
         );
       } catch (e) {
         console.log("COOK ERR:", e.code);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -939,11 +954,14 @@ export default {
       } catch (e) {
         console.log("COOK ERR:", e.code);
 
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -1088,11 +1106,14 @@ export default {
         );
       } catch (e) {
         console.log("COOK ERR:", e.code);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -1245,6 +1266,10 @@ export default {
 
         let msg;
 
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        }
+
         if (e.code === "UNPREDICTABLE_GAS_LIMIT") {
           msg = {
             title: "Error",
@@ -1395,11 +1420,14 @@ export default {
         console.log("COOK ERR:", String(e));
         console.log("COOK ERR:", e.code);
 
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -1575,6 +1603,10 @@ export default {
         console.log("FLASH REPAY COOK ERR:", e.error);
         console.log("FLASH REPAY COOK ERR:", e.data);
         let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        }
 
         if (e.error === "execution reverted: Cauldron: user insolvent") {
           msg = {

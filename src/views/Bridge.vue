@@ -340,11 +340,16 @@ export default {
         );
       } catch (e) {
         console.log("SWAP ERR:", e);
+        let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
   },
@@ -353,12 +358,10 @@ export default {
     const acceptedNetworks = [43114, 1, 250, 56, 42161, 137];
 
     if (acceptedNetworks.indexOf(this.chainId) === -1) {
-      const notification = {
-        msg: "The bridge is not available on this network",
-        type: "error",
-      };
-
-      await this.$store.dispatch("notifications/new", notification);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.bridgeNotAvailable
+      );
 
       // this.$router.push({ name: "Home" });
       return false;

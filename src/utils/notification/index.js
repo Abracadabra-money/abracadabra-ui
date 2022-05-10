@@ -7,7 +7,7 @@ export default {
     },
     error: {
       title: "Error",
-      msg: "Approve Error",
+      msg: "Unexpected Error",
       type: "error",
     },
   },
@@ -47,5 +47,16 @@ export default {
     title: "Info",
     msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
     type: "info",
+  },
+
+  userDenied: {
+    title: "Error",
+    msg: "User denied transaction signature.",
+    type: "error",
+  },
+  bridgeNotAvailable: {
+    title: "Error",
+    msg: "The bridge is not available on this network",
+    type: "error",
   },
 };

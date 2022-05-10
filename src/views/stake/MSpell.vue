@@ -274,11 +274,16 @@ export default {
       } catch (e) {
         console.log("CLAIM err:", e);
 
+        let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async deposit() {
@@ -321,11 +326,16 @@ export default {
         );
       } catch (e) {
         console.log("DEPOSIT err:", e);
+        let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async withdraw() {
@@ -368,11 +378,16 @@ export default {
         );
       } catch (e) {
         console.log("WITHDRAW err:", e);
+        let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async approveToken(tokenContract, approveAddr) {
