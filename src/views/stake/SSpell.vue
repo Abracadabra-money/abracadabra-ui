@@ -93,6 +93,8 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 
 import sspellToken from "@/mixins/stake/sspellToken";
 
+import notification from "@/utils/notification/index.js";
+
 export default {
   mixins: [sspellToken],
   data() {
@@ -189,10 +191,27 @@ export default {
       this.amount = value;
     },
     async approveTokenHandler() {
-      await this.approveToken(
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
+      let approve = await this.approveToken(
         this.tokensInfo.stakeToken.contractInstance,
         this.tokensInfo.mainToken.contractInstance.address
       );
+
+      if (approve) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
+        );
+      }
+
+      return false;
     },
     async actionHandler() {
       if (this.isUserLocked) return false;
@@ -209,6 +228,11 @@ export default {
       }
     },
     async stake() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       console.log("STAKE");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
@@ -237,11 +261,27 @@ export default {
         const receipt = await tx.wait();
 
         console.log("stake", receipt);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
     async unstake() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       console.log("UNSTAKE");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
@@ -272,8 +312,19 @@ export default {
         const receipt = await tx.wait();
 
         console.log("stake", receipt);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
     async approveToken(tokenContract, approveAddr) {
