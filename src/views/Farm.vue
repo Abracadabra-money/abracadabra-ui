@@ -59,7 +59,11 @@
             <BaseButton
               v-if="isUnstake || isAllowance"
               @click="handler"
-              :disabled="!isValid || !!error"
+              :disabled="
+                !isValid ||
+                !!error ||
+                (!isUnstake && +selectedPool.poolRoi === 0)
+              "
               primary
               >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
             >
@@ -398,7 +402,6 @@ export default {
 .select {
   width: 100%;
   height: 70px;
-  border: none;
   outline: transparent;
   background: rgba(129, 126, 166, 0.2);
   border: 1px solid #494661;

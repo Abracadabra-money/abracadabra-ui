@@ -7,20 +7,35 @@
     </div>
 
     <div class="values-list" v-if="account && !borrowLoading && !farmLoading">
-      <div v-for="(item, i) in balanceItems" :key="i" class="values-list-item">
-        <p class="values-list-title">{{ item.title }}</p>
-        <p class="values-list-value">{{ item.value }}</p>
-      </div>
+      <template v-for="(item, i) in balanceItems">
+        <router-link
+          v-if="item.routName"
+          :to="{ name: item.routName }"
+          :key="i"
+          class="values-list-item"
+        >
+          <p class="values-list-title">{{ item.title }}</p>
+          <p class="values-list-value">{{ item.value }}</p>
+        </router-link>
+        <div v-else :key="i" class="values-list-item">
+          <p class="values-list-title">{{ item.title }}</p>
+          <p class="values-list-value">{{ item.value }}</p>
+        </div>
+      </template>
     </div>
     <BalanceBoxes
       v-if="mimInBentoDepositObject"
       :infoObject="mimInBentoDepositObject"
     />
     <h2 class="title">Specific positions</h2>
+
     <div
       v-if="
         !account ||
-        (!borrowPools.length && !pools.length && !borrowLoading && !farmLoading)
+        (!userBorrowPools.length &&
+          !userFarmPools.length &&
+          !borrowLoading &&
+          !farmLoading)
       "
       class="empty-wrap"
     >
@@ -29,8 +44,8 @@
     <div v-else class="spec-positions">
       <div
         v-if="
-          (farmLoading && !pools.length) ||
-          (borrowLoading && !borrowPools.length)
+          (farmLoading && !userFarmPools.length) ||
+          (borrowLoading && !userBorrowPools.length)
         "
         class="loader-wrap"
       >
@@ -80,6 +95,14 @@ export default {
       account: "getAccount",
     }),
     balanceItems() {
+      const spellFarmer = Vue.filter("formatTokenBalance")(
+        this.userFarmPools.reduce((calc, pool) => {
+          return (
+            calc + this.$ethers.utils.formatEther(pool.accountInfo.userReward)
+          );
+        }, 0)
+      );
+
       return [
         {
           title: "Collateral Deposit",
@@ -103,17 +126,12 @@ export default {
           ),
         },
         {
-          title: "Farms Earned",
-          value: Vue.filter("formatTokenBalance")(
-            this.userFarmPools.reduce((calc, pool) => {
-              return (
-                calc +
-                this.$ethers.utils.formatEther(pool.accountInfo.userReward)
-              );
-            }, 0)
-          ),
+          title: "SPELL Farmed",
+          value: spellFarmer,
+          routName: "Farm",
+          hidden: spellFarmer === "0.0",
         },
-      ];
+      ].filter((item) => !item.hidden);
     },
     mimInBentoDepositObject() {
       return this.$store.getters.getMimInBentoDepositObject;
@@ -223,6 +241,7 @@ export default {
     align-items: center;
     font-size: 18px;
     line-height: 27px;
+    color: white;
   }
 
   &-title {

@@ -17,9 +17,6 @@
           <span>{{ poolData.name }}</span>
           <span v-if="isNew" class="network-new">New</span>
         </span>
-        <span class="mobile-status-wrap"
-          ><StatusBar :isFarm="isFarm" :pool="activePool"
-        /></span>
       </span>
 
       <span v-for="(item, i) in items" :key="i">
@@ -133,6 +130,8 @@ export default {
 <style lang="scss" scoped>
 .stats-item {
   position: relative;
+  display: flex;
+  align-items: center;
 
   background-color: #2a2835;
   line-height: 21px;
@@ -159,18 +158,15 @@ export default {
 }
 
 .status-wrap {
-  height: 18px;
-  margin-bottom: 6px;
-  display: none;
-}
-
-.mobile-status-wrap {
-  flex: 1 1 max-content;
+  position: absolute;
+  right: 12px;
+  top: 13px;
 }
 
 .stats-item-wrap {
   display: grid;
   grid-gap: 4px;
+  width: 100%;
 }
 
 .network-data {
@@ -223,7 +219,7 @@ export default {
 
 @media (min-width: 1024px) {
   .stats-item {
-    padding: 8px 20px 0;
+    padding: 0 20px;
     font-size: 16px;
     border-radius: 30px;
     height: 100px;
@@ -261,7 +257,7 @@ export default {
   }
 
   .status-wrap {
-    display: block;
+    top: 8px;
   }
 }
 </style>
