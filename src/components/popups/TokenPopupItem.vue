@@ -1,7 +1,7 @@
 <template>
-  <div class="farm-list-item">
+  <button @click="$emit('click')" class="farm-list-item">
     <StatusBar :isFarm="true" :pool="farmItem" />
-    <button @click="$emit('click')" class="token-wrap">
+    <div class="token-wrap">
       <div class="token-data">
         <BaseTokenIcon :icon="icon" :name="name" />
         <p>{{ name }}</p>
@@ -12,8 +12,8 @@
         </p>
         <p v-if="+balance !== 0">{{ balanceInUSD | formatUSD }}</p>
       </div>
-    </button>
-  </div>
+    </div>
+  </button>
 </template>
 
 <script>
@@ -56,9 +56,12 @@ export default {
 .farm-list-item {
   padding: 10px 12px;
 
+  background-color: transparent;
+  border: none;
   border-radius: 20px;
   transition: all 0.2s ease;
   position: relative;
+  cursor: pointer;
 
   &:hover {
     background: rgba(255, 255, 255, 0.06);
@@ -79,9 +82,6 @@ export default {
   width: 100%;
   justify-content: space-between;
   align-items: center;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
   color: white;
   padding: 5px 0;
 }

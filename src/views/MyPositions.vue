@@ -28,10 +28,14 @@
       :infoObject="mimInBentoDepositObject"
     />
     <h2 class="title">Specific positions</h2>
+
     <div
       v-if="
         !account ||
-        (!borrowPools.length && !pools.length && !borrowLoading && !farmLoading)
+        (!userBorrowPools.length &&
+          !userFarmPools.length &&
+          !borrowLoading &&
+          !farmLoading)
       "
       class="empty-wrap"
     >
@@ -40,8 +44,8 @@
     <div v-else class="spec-positions">
       <div
         v-if="
-          (farmLoading && !pools.length) ||
-          (borrowLoading && !borrowPools.length)
+          (farmLoading && !userFarmPools.length) ||
+          (borrowLoading && !userBorrowPools.length)
         "
         class="loader-wrap"
       >

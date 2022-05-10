@@ -47,6 +47,11 @@ export default {
       },
     },
   },
+  watch: {
+    isOpened(value) {
+      document.body.style.overflow = value ? "hidden" : "auto";
+    },
+  },
 };
 </script>
 
