@@ -15,7 +15,7 @@
       <router-link class="header-link" :to="{ name: 'Leverage' }"
         >Leverage</router-link
       >
-      <router-link class="header-link" :to="{ name: 'Farm' }">Farm</router-link>
+
       <router-link class="header-link" :to="{ name: 'MyPositions' }"
         >Positions</router-link
       >
@@ -60,8 +60,13 @@
         </div>
         <div class="list" v-if="isDropdownTools">
           <router-link class="list-link" :to="{ name: 'StatsBorrow' }"
-            >Stats</router-link
+            >Markets</router-link
           >
+
+          <router-link class="list-link" :to="{ name: 'Farm' }"
+            >Farm</router-link
+          >
+
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
@@ -234,12 +239,12 @@ export default {
   cursor: pointer;
   min-width: 80px;
   &.router-link-active {
-    background: #ffffff33;
+    background: #55535d;
   }
 }
 
 .header-link:hover {
-  background: #ffffff33;
+  background: #55535d;
 }
 
 .dropdown-tools {
@@ -273,7 +278,7 @@ export default {
   left: 0;
   display: flex;
   flex-direction: column;
-  background: #ffffff33;
+  background: #55535d;
   width: 100%;
   border-radius: 0 0 20px 20px;
 }
@@ -317,7 +322,7 @@ export default {
 
 .active {
   border-radius: 20px 20px 0 0;
-  background: #ffffff33;
+  background: #55535d;
 
   .arrow {
     transform: rotate(180deg);

@@ -4,22 +4,17 @@
       <p class="title">Settings</p>
       <div class="subtitle-wrap">
         <p class="subtitle">Slippage tolerance</p>
-        <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
+        <img
+          class="info-icon"
+          src="@/assets/images/info.svg"
+          alt="info"
+          v-tooltip="'Magic text'"
+        />
       </div>
       <input
         v-model="slippage"
         type="number"
         placeholder="Auto 1.0%"
-        class="settings-input"
-      />
-      <div class="subtitle-wrap">
-        <p class="subtitle">Transaction deadline</p>
-        <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
-      </div>
-      <input
-        v-model="deadline"
-        type="text"
-        placeholder="minutes"
         class="settings-input"
       />
     </div>
@@ -76,6 +71,8 @@ input[type="number"]::-webkit-outer-spin-button {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  height: 430px;
+  padding: 10px 10px 0 10px;
 }
 .title {
   font-weight: 600;

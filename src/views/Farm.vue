@@ -143,6 +143,7 @@ const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
 const StatsSwitch = () => import("@/components/stats/StatsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import notification from "@/utils/notification/index.js";
 
 export default {
   mixins: [farmPoolsMixin],
@@ -197,7 +198,12 @@ export default {
       if (+pool.id !== +this.id)
         this.$router.push({ name: "FarmPool", params: { id: pool.id } });
     },
+
     async stakeHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const parseAmount = this.$ethers.utils.parseEther(
           this.amount.toString()
@@ -211,8 +217,23 @@ export default {
         const receipt = await tx.wait();
 
         console.log("stake success:", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (error) {
         console.log("stake err:", error);
+        let msg;
+
+        if (error.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     handler() {
@@ -220,6 +241,10 @@ export default {
       else this.unstakeHandler();
     },
     async unstakeHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const parseAmount = this.$ethers.utils.parseEther(
           this.amount.toString()
@@ -233,11 +258,33 @@ export default {
         const receipt = await tx.wait();
 
         console.log("unstakeHandler success:", receipt);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (error) {
         console.log("unstakeHandler err:", error);
+
+        let msg;
+
+        if (error.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async approveHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
       try {
         const tx = await this.selectedPool.stakingTokenContract.approve(
           this.selectedPool.contractAddress,
@@ -247,8 +294,20 @@ export default {
         const receipt = await tx.wait();
 
         console.log(receipt);
+        await this.$store.commit("notifications/delete", notificationId);
       } catch (error) {
         console.log("approve err:", error);
+        let msg;
+
+        if (error.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.approve.error;
+        }
+
+        await this.$store.commit("notifications/delete", notificationId);
+
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
   },

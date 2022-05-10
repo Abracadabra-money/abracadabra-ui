@@ -81,7 +81,7 @@ const routes = [
     component: () => import("@/views/MyPositions"),
   },
   {
-    path: "/stats",
+    path: "/markets",
     name: "Stats",
     component: () => import("@/views/stats/Stats"),
     children: [

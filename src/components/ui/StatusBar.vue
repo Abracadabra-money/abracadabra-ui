@@ -2,6 +2,7 @@
   <div class="info-bar">
     <img
       class="info-bar-icon"
+      :class="{ small }"
       src="@/assets/images/info-bar/strategy.png"
       alt="Strategy"
       v-if="pool.strategyLink"
@@ -9,6 +10,7 @@
     />
     <img
       class="info-bar-icon"
+      :class="{ small }"
       src="@/assets/images/info-bar/spirit.png"
       alt="Spirit"
       v-if="false"
@@ -16,6 +18,7 @@
     />
     <img
       class="info-bar-icon"
+      :class="{ small }"
       src="@/assets/images/info-bar/new.png"
       alt="New"
       v-if="false"
@@ -23,6 +26,7 @@
     />
     <img
       class="info-bar-icon"
+      :class="{ small }"
       src="@/assets/images/info-bar/depreciated.png"
       alt="Deprecated"
       v-if="isFarm ? +pool.poolRoi === 0 : pool.isDepreciated"
@@ -42,6 +46,11 @@ export default {
       type: Object,
       require: true,
     },
+
+    small: {
+      type: Boolean,
+      default: false,
+    },
   },
 };
 </script>
@@ -57,9 +66,24 @@ export default {
   cursor: pointer;
   width: 24px;
   height: 24px;
+
+  &.small {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 .info-bar-icon:not(:last-child) {
   margin-right: 10px;
+}
+
+@media (max-width: 1024px) {
+  .info-bar {
+    height: 18px;
+  }
+  .info-bar-icon {
+    width: 18px;
+    height: 18px;
+  }
 }
 </style>

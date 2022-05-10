@@ -19,6 +19,14 @@
     </div>
     <p class="notification-item__discription">{{ notification.discription }}</p>
     <p class="notification-item__content">{{ notification.msg }}</p>
+    <div class="timer" v-if="notification.type === 'pending'">
+      <img
+        class="timer-icon"
+        src="@/assets/images/notification-icons/pending-icon.svg"
+        alt="Timer"
+      />
+      <p class="timer-number">{{ parsedTime }}</p>
+    </div>
   </div>
 </template>
 
@@ -30,18 +38,61 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      timerInterval: null,
+      timeValue: 0,
+    };
+  },
+
+  computed: {
+    parsedTime() {
+      if (this.timeValue >= 60) {
+        let minutes = Math.floor(this.timeValue / 60);
+        let seconds = this.timeValue % 60;
+
+        return `${minutes} : ${seconds} `;
+      }
+
+      return `${this.timeValue} `;
+    },
+  },
+
   methods: {
     getImgUrl(type) {
-      var images = require.context(
-        "../../assets/images/notification-icons/",
-        false,
-        /\.svg$/
-      );
-      return images("./" + type + "-icon.svg");
+      // var images = require.context(
+      //   "../../assets/images/notification-icons/",
+      //   false,
+      //   /\.svg$/
+      // );
+      // return images("./" + type + "-icon.svg");
+
+      if (!type) {
+        return require(`@/assets/images/notification-icons/info-icon.svg`);
+      }
+
+      return require(`@/assets/images/notification-icons/${type}-icon.svg`);
     },
+
     closeNotification() {
       this.$store.commit("notifications/delete", this.notification.id);
     },
+  },
+
+  created() {
+    this.timerInterval = setInterval(() => {
+      this.timeValue++;
+    }, 1000);
+
+    if (this.notification.type !== "pending") {
+      setTimeout(() => {
+        this.closeNotification();
+      }, 15000);
+    }
+  },
+
+  beforeDestroy() {
+    clearInterval(this.timerInterval);
   },
 };
 </script>
@@ -100,5 +151,24 @@ export default {
   &__warning {
     border: 1px solid #e5d752;
   }
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  padding: 10px 0 0;
+}
+
+.timer-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.timer-number {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 20px;
+  text-align: center;
 }
 </style>

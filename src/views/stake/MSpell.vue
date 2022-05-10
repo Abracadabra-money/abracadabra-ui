@@ -98,6 +98,8 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 import mSpellStaking from "@/mixins/stake/mSpellStaking";
 
+import notification from "@/utils/notification/index.js";
+
 export default {
   mixins: [mSpellStaking],
   data() {
@@ -204,10 +206,25 @@ export default {
       this.amount = value;
     },
     async approveTokenHandler() {
-      await this.approveToken(
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
+      let approve = await this.approveToken(
         this.tokensInfo.stakeToken.contractInstance,
         this.tokensInfo.mainToken.contractInstance.address
       );
+
+      if (approve) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
+        );
+      }
     },
     async actionHandler() {
       if (this.isUserLocked) return false;
@@ -224,6 +241,10 @@ export default {
       }
     },
     async claimHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       console.log("CLAIM");
       try {
         const estimateGas =
@@ -244,11 +265,32 @@ export default {
         const receipt = await tx.wait();
 
         console.log("CLAIM", receipt);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("CLAIM err:", e);
+
+        let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async deposit() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       console.log("DEPOSIT");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
@@ -277,11 +319,30 @@ export default {
         const receipt = await tx.wait();
 
         console.log("DEPOSIT", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("DEPOSIT err:", e);
+        let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async withdraw() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       console.log("WITHDRAW");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
@@ -310,8 +371,23 @@ export default {
         const receipt = await tx.wait();
 
         console.log("WITHDRAW", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("WITHDRAW err:", e);
+        let msg;
+
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
     async approveToken(tokenContract, approveAddr) {

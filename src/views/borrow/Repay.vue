@@ -104,6 +104,7 @@ import {
   isApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
+import notification from "@/utils/notification/index.js";
 
 import { mapGetters } from "vuex";
 export default {
@@ -317,8 +318,6 @@ export default {
 
     repayExpectedLiquidationPrice() {
       if (this.selectedPool && this.account) {
-        console.log("repayExpectedBorrowed", this.repayExpectedBorrowed);
-        console.log("repayExpectedCollateral", this.repayExpectedCollateral);
         const liquidationPrice =
           +this.repayExpectedBorrowed /
             +this.repayExpectedCollateral /
@@ -429,10 +428,25 @@ export default {
     },
 
     async approveTokenHandler() {
-      await approveToken(
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
+      let approve = await approveToken(
         this.selectedPool.pairTokenContract,
         this.selectedPool.masterContractInstance.address
       );
+
+      if (approve) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
+        );
+      }
 
       return false;
     },
@@ -476,6 +490,11 @@ export default {
     },
 
     async removeAndRepayHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       let parsedAmount = this.$ethers.utils.parseUnits(
         toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals
@@ -546,9 +565,20 @@ export default {
         let isApproved = await isApprowed(this.selectedPool, this.account);
 
         if (+isTokenToCookApprove) {
-          this.cookRemoveAndRepayMax(payload, isApproved, this.selectedPool);
+          this.cookRemoveAndRepayMax(
+            payload,
+            isApproved,
+            this.selectedPool,
+            notificationId
+          );
           return false;
         }
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
+        );
 
         return false;
       }
@@ -569,12 +599,31 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookRemoveAndRepay(payload, isApproved, this.selectedPool);
+        await this.cookRemoveAndRepay(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
+
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
+
+      return false;
     },
 
     async removeCollateralHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       const parsedPair = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
@@ -592,14 +641,24 @@ export default {
         updatePrice: this.selectedPool.askUpdatePrice,
       };
 
-      console.log("REMOVE COLLATERAL HANDLER", payload);
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      this.cookRemoveCollateral(payload, isApproved, this.selectedPool);
+      await this.cookRemoveCollateral(
+        payload,
+        isApproved,
+        this.selectedPool,
+        notificationId
+      );
+
+      return false;
     },
 
     async repayHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       const itsMax =
         this.borrowValue === this.selectedPool.userInfo.userBorrowPart;
 
@@ -632,9 +691,23 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookRepayMim(payload, isApproved, this.selectedPool);
+        await this.cookRepayMim(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
+
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
+
+      return false;
     },
   },
 

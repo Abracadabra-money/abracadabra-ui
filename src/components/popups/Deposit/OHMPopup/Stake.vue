@@ -55,6 +55,7 @@ const BaseButton = () => import("@/components/base/BaseButton");
 
 import olimpusStake from "@/mixins/getCollateralLogic/olimpusStake";
 import { approveToken } from "@/utils/approveHelpers.js";
+import notification from "@/utils/notification/index.js";
 import { mapGetters } from "vuex";
 
 export default {
@@ -66,7 +67,6 @@ export default {
       amountError: "",
       updateInterval: null,
       tokensInfo: null,
-      isApproved: false,
     };
   },
 
@@ -74,6 +74,7 @@ export default {
     ...mapGetters({ account: "getAccount" }),
 
     fromToken() {
+      console.log("this.tokensInfo.stakeToken", this.tokensInfo.stakeToken);
       if (this.action === "Stake") return this.tokensInfo.stakeToken;
       if (this.action === "Unstake") return this.tokensInfo.mainToken;
 
@@ -106,11 +107,11 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.isApproved) {
+      // if (!+this.amount || this.amountError) return "Nothing to do";
+
+      if (!this.isTokenApprove) {
         return "Approve";
       }
-
-      if (!+this.amount || this.amountError) return "Nothing to do";
 
       return this.action;
     },
@@ -124,6 +125,20 @@ export default {
       const ohm = this.tokensInfo.tokensRate;
 
       return `1 sOHM = ${parseFloat(ohm).toFixed(4)} OHM`;
+    },
+
+    isTokenApprove() {
+      if (this.tokensInfo && this.account) {
+        if (this.action === "Stake") {
+          return this.tokensInfo.stakeToken.isTokenApprowed;
+        }
+
+        if (this.action === "Unstake") {
+          return this.tokensInfo.mainToken.isTokenApprowed;
+        }
+      }
+
+      return true;
     },
   },
 
@@ -156,11 +171,39 @@ export default {
     },
 
     async actionHandler() {
-      if (!this.isApproved) {
-        this.isApproved = await approveToken(
-          this.tokensInfo.depositToken.contractInstance,
-          this.tokensInfo.mainToken.contractInstance.address
+      if (!this.isTokenApprove) {
+        const notificationId = await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.pending
         );
+
+        let approve;
+
+        if (this.action === "Stake") {
+          approve = await approveToken(
+            this.tokensInfo.stakeToken.contractInstance,
+            this.tokensInfo.stakeContractInstance.address
+          );
+        }
+
+        if (this.action === "Unstake") {
+          approve = await approveToken(
+            this.tokensInfo.mainToken.contractInstance,
+            this.tokensInfo.unstakeContractInstance.address
+          );
+        }
+
+        if (approve) {
+          await this.$store.commit("notifications/delete", notificationId);
+        } else {
+          await this.$store.commit("notifications/delete", notificationId);
+          await this.$store.dispatch(
+            "notifications/new",
+            notification.approve.error
+          );
+        }
+
+        return false;
       }
 
       if (!+this.amount || this.amountError) return false;
@@ -170,13 +213,17 @@ export default {
         return false;
       }
 
-      if (this.action === "Withdraw") {
+      if (this.action === "Unstake") {
         await this.unstake();
         return false;
       }
     },
 
     async stake() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -198,12 +245,29 @@ export default {
         const receipt = await tx.wait();
 
         console.log("stake", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
     async unstake() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -232,8 +296,21 @@ export default {
         const receipt = await tx.wait();
 
         console.log("stake", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
   },
@@ -246,6 +323,7 @@ export default {
       this.tokensInfo = await this.createOlimpusStake();
     }, 10000);
   },
+
   beforeDestroy() {
     clearInterval(this.updateInterval);
   },

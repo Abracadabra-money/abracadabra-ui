@@ -55,11 +55,20 @@
             @input="updateBorrowValue"
           />
         </div>
+        <template v-if="selectedPool">
+          <div class="deposit-info underline">
+            <span>LTV</span>
+            <span>{{ calculateLtv }}%</span>
+          </div>
 
-        <div class="deposit-info underline" v-if="selectedPool">
-          <span>LTV</span>
-          <span>{{ calculateLtv }}%</span>
-        </div>
+          <div class="percent-wrap">
+            <PercentageButtons
+              :liquidationPrice="depositExpectedLiquidationPrice"
+              @onchange="updatePercentValue"
+              :maxValue="ltv"
+            />
+          </div>
+        </template>
       </div>
 
       <div class="info-block">
@@ -112,6 +121,7 @@
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
+const PercentageButtons = () => import("@/components/borrow/PercentageButtons");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
@@ -126,6 +136,7 @@ import {
   isApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
+import notification from "@/utils/notification/index.js";
 
 import { mapGetters } from "vuex";
 export default {
@@ -385,12 +396,12 @@ export default {
     mainTokenFinalText() {
       if (this.selectedPool) {
         if (this.poolId === 25 && this.chainId === 1)
-          return `${this.mainValueTokenName} (new)`;
+          return `${this.selectedPool.name} (new)`;
 
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        return this.selectedPool.name;
+        return this.selectedPool.token.name;
       }
       return "";
     },
@@ -401,6 +412,13 @@ export default {
       }
 
       return true;
+    },
+
+    ltv() {
+      if (this.selectedPool) {
+        return this.selectedPool.ltv;
+      }
+      return 0;
     },
   },
 
@@ -446,10 +464,25 @@ export default {
     },
 
     async approveTokenHandler() {
-      approveToken(
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.pending
+      );
+
+      let approve = await approveToken(
         this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address
       );
+
+      if (approve) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.error
+        );
+      }
 
       return false;
     },
@@ -469,17 +502,14 @@ export default {
       }
     },
 
-    checkIsPoolAllowBorrow(amount) {
+    async checkIsPoolAllowBorrow(amount, notificationId) {
       if (+amount < +this.selectedPool.dynamicBorrowAmount) {
         return true;
       }
 
-      const notification = {
-        msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-      };
+      await this.$store.commit("notifications/delete", notificationId);
 
-      console.log("notification", notification);
-      // this.$store.commit("addNotification", notification);
+      await this.$store.dispatch("notifications/new", notification.allowBorrow);
 
       return false;
     },
@@ -511,6 +541,11 @@ export default {
     },
 
     async collateralAndBorrowHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
@@ -528,8 +563,6 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
-      console.log("Add collateral and borrow $emit", payload);
-
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
         this.selectedPool.masterContractInstance.address,
@@ -546,14 +579,31 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookCollateralAndBorrow(payload, isApproved, this.selectedPool);
+        await this.cookCollateralAndBorrow(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
+
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
 
       return false;
     },
 
     async collateralHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
         this.selectedPool.token.decimals
@@ -564,8 +614,6 @@ export default {
         updatePrice: this.selectedPool.askUpdatePrice,
         itsDefaultBalance: this.useDefaultBalance,
       };
-
-      console.log("Add collateral $emit", payload);
 
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
@@ -583,15 +631,31 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookAddCollateral(payload, isApproved, this.selectedPool);
+        await this.cookAddCollateral(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
 
       return false;
     },
 
     async borrowHandler() {
-      if (!this.checkIsPoolAllowBorrow(this.borrowValue)) {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
+
+      if (!this.checkIsPoolAllowBorrow(this.borrowValue, notificationId)) {
         return false;
       }
 
@@ -604,8 +668,6 @@ export default {
         amount: parsedBorrowValue,
         updatePrice: this.selectedPool.askUpdatePrice,
       };
-
-      console.log("Add borrow $emit", payload);
 
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
@@ -623,9 +685,21 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        this.cookBorrow(payload, isApproved, this.selectedPool);
+        await this.cookBorrow(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId
+        );
+
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approve.error
+      );
 
       return false;
     },
@@ -641,6 +715,19 @@ export default {
       this.collateralError = "";
       this.borrowValue = "";
       this.borrowError = "";
+    },
+
+    updatePercentValue(value) {
+      if (this.collateralValue && value) {
+        const newBorrowValue =
+          (this.maxBorrowValue * value) / this.selectedPool.ltv;
+        this.borrowValue =
+          +newBorrowValue > +this.maxBorrowValue
+            ? this.maxBorrowValue
+            : newBorrowValue;
+      } else {
+        this.borrowValue = "";
+      }
     },
   },
 
@@ -661,6 +748,7 @@ export default {
     NetworksList,
     BaseTokenInput,
     BorrowPoolStand,
+    PercentageButtons,
     BaseButton,
     BaseLoader,
     PopupWrap,
@@ -716,6 +804,10 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
   padding-bottom: 12px;
+}
+
+.percent-wrap {
+  padding: 30px 0;
 }
 
 .info-block {

@@ -13,19 +13,6 @@
       </div>
 
       <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" :to="{ name: 'StatsBorrow' }"
-          >Stats</router-link>
-      </div>
-
-            <div class="popup-link-wrap" @click="closePopup">
-              <router-link class="popup-link" :to="{ name: 'Farm' }"
-          >Farm</router-link
-        >
-      </div>
-
-
-
-      <div class="popup-link-wrap" @click="closePopup">
         <router-link class="popup-link" :to="{ name: 'MyPositions' }"
           >Positions</router-link
         >
@@ -63,8 +50,14 @@
     <div class="tools-popup" v-if="showTools" @click="closeInnerPopup('tools')">
       <div class="tools">
         <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'Stats' }"
-            >Stats</router-link
+          <router-link class="popup-link" :to="{ name: 'StatsBorrow' }"
+            >Markets</router-link
+          >
+        </div>
+
+        <div class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'Farm' }"
+            >Farm</router-link
           >
         </div>
 

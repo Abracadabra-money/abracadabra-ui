@@ -76,9 +76,31 @@
       </template>
       <template v-else>
         <div v-if="!isInfoPressed" class="stable-preview">
-          <div class="item" v-for="(item, i) in basicInfo" :key="i">
-            <p class="item-title">{{ item.name }}</p>
-            <p class="item-value">{{ item.value || "0.0" }}</p>
+          <div class="item">
+            <p class="item-title">Collateral Deposit</p>
+            <p class="item-value">
+              {{ collateralDeposit }}
+            </p>
+          </div>
+
+          <div class="item">
+            <p class="item-title">Collateral Value</p>
+            <p class="item-value">
+              {{ collateralValue }}
+            </p>
+          </div>
+
+          <div class="item">
+            <p class="item-title">MIM Borrowed</p>
+            <p class="item-value">
+              {{ mimBorrowed }}
+            </p>
+          </div>
+          <div class="item">
+            <p class="item-title">Liquidation Price</p>
+            <p class="item-value" :class="liquidationRiskClass">
+              {{ calculateLiquidationPrice }}
+            </p>
           </div>
         </div>
         <div v-else class="info-list-wrap">
@@ -197,34 +219,48 @@ export default {
       return leftBorrow;
     },
 
-    basicInfo() {
+    collateralDeposit() {
       const collateralDeposited = this.account
         ? this.collateralDepositExpected
         : 0;
 
+      return Vue.filter("formatTokenBalance")(collateralDeposited) || "0.0";
+    },
+
+    collateralValue() {
+      return Vue.filter("formatUSD")(this.tokenInUsd);
+    },
+
+    mimBorrowed() {
       const mimBorrowed = this.account ? this.mimBorrowedExpected : 0;
 
+      return Vue.filter("formatTokenBalance")(mimBorrowed);
+    },
+
+    calculateLiquidationPrice() {
       const liquidationPrice = this.account ? this.liquidationPrice : 0;
 
-      return [
-        {
-          name: "Collateral Deposit",
-          value: Vue.filter("formatTokenBalance")(collateralDeposited),
-        },
-        {
-          name: "Collateral Value",
-          value: Vue.filter("formatUSD")(this.tokenInUsd),
-        },
+      return Vue.filter("formatUSD")(liquidationPrice);
+    },
 
-        {
-          name: "MIM Borrowed",
-          value: Vue.filter("formatTokenBalance")(mimBorrowed),
-        },
-        {
-          name: "Liquidation Price",
-          value: Vue.filter("formatUSD")(liquidationPrice),
-        },
-      ];
+    liquidationRiskClass() {
+      if (this.liquidationPrice === 0) {
+        return "";
+      }
+
+      if (this.liquidationRisk > 0 && this.liquidationRisk <= 5) {
+        return "high";
+      }
+
+      if (this.liquidationRisk > 5 && this.liquidationRisk <= 75) {
+        return "medium";
+      }
+
+      if (this.liquidationRisk > 75) {
+        return "safe";
+      }
+
+      return "";
     },
 
     collateralDepositExpected() {
@@ -425,6 +461,42 @@ export default {
       }
       return "";
     },
+
+    liquidationRisk() {
+      if (this.pool) {
+        const riskPersent =
+          this.priceDifferens *
+          this.stableCoinMultiplyer *
+          this.pool.tokenPrice *
+          100;
+
+        if (riskPersent > 100) {
+          return 100;
+        }
+
+        return parseFloat(riskPersent).toFixed(2); // xx of 100%
+      }
+
+      return 0;
+    },
+
+    priceDifferens() {
+      const priceDifferens = 1 / this.pool.tokenPrice - this.liquidationPrice;
+
+      return priceDifferens;
+    },
+
+    stableCoinMultiplyer() {
+      const exceptionPools = [15, 16, 27];
+
+      const itsExcepton = exceptionPools.indexOf(this.pool.id) !== -1;
+
+      if ((this.pool.ltv === 90 || this.pool.ltv === 98) && !itsExcepton) {
+        return 10;
+      }
+
+      return 1;
+    },
   },
 
   watch: {
@@ -620,6 +692,18 @@ export default {
 .item-value {
   font-size: 30px;
   font-weight: 700;
+
+  &.safe {
+    color: #75c9ee;
+  }
+
+  &.medium {
+    color: #ffb800;
+  }
+
+  &.high {
+    color: #fe1842;
+  }
 }
 
 .info-list-wrap {

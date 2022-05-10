@@ -66,6 +66,7 @@ import crvDeposit from "@/mixins/getCollateralLogic/cvxRenDeposit";
 import { mapGetters } from "vuex";
 
 import { approveToken } from "@/utils/approveHelpers.js";
+import notification from "@/utils/notification/index.js";
 export default {
   mixins: [crvDeposit],
   data() {
@@ -75,7 +76,6 @@ export default {
       amount: "",
       amountError: "",
       updateInterval: null,
-      isApproved: false,
     };
   },
   computed: {
@@ -114,11 +114,11 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.isApproved) {
+      if (!+this.amount || this.amountError) return "Nothing to do";
+
+      if (!this.isTokenApprove) {
         return "Approve";
       }
-
-      if (!+this.amount || this.amountError) return "Nothing to do";
 
       return this.action;
     },
@@ -126,6 +126,14 @@ export default {
     disabledBtn() {
       if (this.actionBtnText === "Nothing to do") return true;
       return false;
+    },
+
+    isTokenApprove() {
+      if (this.tokensInfo && this.account) {
+        return this.tokensInfo.depositToken.isTokenApprowed;
+      }
+
+      return true;
     },
   },
 
@@ -156,11 +164,27 @@ export default {
     },
 
     async actionHandler() {
-      if (!this.isApproved) {
-        this.isApproved = await approveToken(
+      if (!this.isTokenApprove) {
+        const notificationId = await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.pending
+        );
+        let approve = await approveToken(
           this.tokensInfo.depositToken.contractInstance,
           this.tokensInfo.mainToken.contractInstance.address
         );
+
+        if (approve) {
+          await this.$store.commit("notifications/delete", notificationId);
+        } else {
+          await this.$store.commit("notifications/delete", notificationId);
+          await this.$store.dispatch(
+            "notifications/new",
+            notification.approve.error
+          );
+        }
+
+        return false;
       }
 
       if (!+this.amount || this.amountError) return false;
@@ -177,6 +201,10 @@ export default {
     },
 
     async deposit() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -205,12 +233,29 @@ export default {
         const receipt = await tx.wait();
 
         console.log("Deposit", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
     async withdraw() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -238,8 +283,21 @@ export default {
         const receipt = await tx.wait();
 
         console.log("Deposit", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+        let msg;
+        if (e.code === 4001) {
+          msg = notification.userDenied;
+        } else {
+          msg = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", msg);
       }
     },
 
@@ -250,8 +308,6 @@ export default {
 
   async created() {
     this.tokensInfo = await this.createCrvRenDeposit();
-
-    this.isApproved = this.tokensInfo.depositToken.isTokenApprowed;
 
     this.updateInterval = setInterval(async () => {
       this.tokensInfo = await this.createCrvRenDeposit();
