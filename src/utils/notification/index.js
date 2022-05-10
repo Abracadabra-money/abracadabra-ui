@@ -3,7 +3,6 @@ export default {
     pending: {
       title: "Pending",
       discription: "Approve in progress",
-      timer: true,
       type: "pending",
     },
     error: {
@@ -16,15 +15,19 @@ export default {
     pending: {
       title: "Pending",
       discription: "Transaction in progress",
-      timer: true,
       type: "pending",
     },
-    success: {
+    successAddCollateral: {
       title: "Success",
       discription: "Thanks for taking part in the innovation of MIM.",
       msg: `Consider yourself extremely early in taking part in
         creating the stablecoin that has no bias and knows no walls.
         $MIM- stable for everyone, everywhere.`,
+      type: "success",
+    },
+    success: {
+      title: "Success",
+      msg: `Transaction Success`,
       type: "success",
     },
     error: {

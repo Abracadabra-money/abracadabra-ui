@@ -122,7 +122,9 @@ export default {
 
     isTokenApprove() {
       if (this.tokensInfo && this.account) {
-        return this.tokensInfo.depositToken.isTokenApprowed;
+        if (this.action === "Wrap") {
+          return this.tokensInfo.stakeToken.isTokenApprowed;
+        }
       }
 
       return true;
@@ -165,7 +167,7 @@ export default {
         );
 
         let approve = await approveToken(
-          this.tokensInfo.depositToken.contractInstance,
+          this.tokensInfo.stakeToken.contractInstance,
           this.tokensInfo.mainToken.contractInstance.address
         );
 

@@ -74,6 +74,7 @@ export default {
     ...mapGetters({ account: "getAccount" }),
 
     fromToken() {
+      console.log("this.tokensInfo.stakeToken", this.tokensInfo.stakeToken);
       if (this.action === "Stake") return this.tokensInfo.stakeToken;
       if (this.action === "Unstake") return this.tokensInfo.mainToken;
 
@@ -106,7 +107,7 @@ export default {
     },
 
     actionBtnText() {
-      if (!+this.amount || this.amountError) return "Nothing to do";
+      // if (!+this.amount || this.amountError) return "Nothing to do";
 
       if (!this.isTokenApprove) {
         return "Approve";
@@ -128,7 +129,13 @@ export default {
 
     isTokenApprove() {
       if (this.tokensInfo && this.account) {
-        return this.tokensInfo.depositToken.isTokenApprowed;
+        if (this.action === "Stake") {
+          return this.tokensInfo.stakeToken.isTokenApprowed;
+        }
+
+        if (this.action === "Unstake") {
+          return this.tokensInfo.mainToken.isTokenApprowed;
+        }
       }
 
       return true;
@@ -170,10 +177,21 @@ export default {
           notification.approve.pending
         );
 
-        let approve = await approveToken(
-          this.tokensInfo.depositToken.contractInstance,
-          this.tokensInfo.mainToken.contractInstance.address
-        );
+        let approve;
+
+        if (this.action === "Stake") {
+          approve = await approveToken(
+            this.tokensInfo.stakeToken.contractInstance,
+            this.tokensInfo.stakeContractInstance.address
+          );
+        }
+
+        if (this.action === "Unstake") {
+          approve = await approveToken(
+            this.tokensInfo.mainToken.contractInstance,
+            this.tokensInfo.unstakeContractInstance.address
+          );
+        }
 
         if (approve) {
           await this.$store.commit("notifications/delete", notificationId);
@@ -195,7 +213,7 @@ export default {
         return false;
       }
 
-      if (this.action === "Withdraw") {
+      if (this.action === "Unstake") {
         await this.unstake();
         return false;
       }
@@ -299,6 +317,7 @@ export default {
       this.tokensInfo = await this.createOlimpusStake();
     }, 10000);
   },
+
   beforeDestroy() {
     clearInterval(this.updateInterval);
   },

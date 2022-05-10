@@ -19,7 +19,7 @@
     </div>
     <p class="notification-item__discription">{{ notification.discription }}</p>
     <p class="notification-item__content">{{ notification.msg }}</p>
-    <div class="timer" v-if="notification.timer">
+    <div class="timer" v-if="notification.type === 'pending'">
       <img
         class="timer-icon"
         src="@/assets/images/notification-icons/pending-icon.svg"
@@ -83,6 +83,12 @@ export default {
     this.timerInterval = setInterval(() => {
       this.timeValue++;
     }, 1000);
+
+    if (this.notification.type !== "pending") {
+      setTimeout(() => {
+        this.closeNotification();
+      }, 15000);
+    }
   },
 
   beforeDestroy() {

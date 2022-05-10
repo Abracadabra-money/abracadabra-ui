@@ -401,7 +401,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        return this.selectedPool.name;
+        return this.selectedPool.token.name;
       }
       return "";
     },
