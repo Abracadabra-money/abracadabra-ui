@@ -55,6 +55,7 @@ const BaseButton = () => import("@/components/base/BaseButton");
 
 import olimpusWrap from "@/mixins/getCollateralLogic/olimpusWrap";
 import { approveToken } from "@/utils/approveHelpers.js";
+import notification from "@/utils/notification/index.js";
 import { mapGetters } from "vuex";
 
 export default {
@@ -158,10 +159,27 @@ export default {
 
     async actionHandler() {
       if (!this.isTokenApprove) {
-        await approveToken(
+        const notificationId = await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.pending
+        );
+
+        let approve = await approveToken(
           this.tokensInfo.depositToken.contractInstance,
           this.tokensInfo.mainToken.contractInstance.address
         );
+
+        if (approve) {
+          await this.$store.commit("notifications/delete", notificationId);
+        } else {
+          await this.$store.commit("notifications/delete", notificationId);
+          await this.$store.dispatch(
+            "notifications/new",
+            notification.approve.error
+          );
+        }
+
+        return false;
       }
 
       if (!+this.amount || this.amountError) return false;
@@ -178,6 +196,10 @@ export default {
     },
 
     async wrap() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -204,11 +226,25 @@ export default {
         const receipt = await tx.wait();
 
         console.log("wrap", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("wrap err:", e);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
     async unwrap() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -235,8 +271,18 @@ export default {
         const receipt = await tx.wait();
 
         console.log("Unwrap", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("Unwrap err:", e);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
   },

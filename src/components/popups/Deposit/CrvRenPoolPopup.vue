@@ -66,6 +66,7 @@ import crvDeposit from "@/mixins/getCollateralLogic/cvxRenDeposit";
 import { mapGetters } from "vuex";
 
 import { approveToken } from "@/utils/approveHelpers.js";
+import notification from "@/utils/notification/index.js";
 export default {
   mixins: [crvDeposit],
   data() {
@@ -164,10 +165,26 @@ export default {
 
     async actionHandler() {
       if (!this.isTokenApprove) {
-        await approveToken(
+        const notificationId = await this.$store.dispatch(
+          "notifications/new",
+          notification.approve.pending
+        );
+        let approve = await approveToken(
           this.tokensInfo.depositToken.contractInstance,
           this.tokensInfo.mainToken.contractInstance.address
         );
+
+        if (approve) {
+          await this.$store.commit("notifications/delete", notificationId);
+        } else {
+          await this.$store.commit("notifications/delete", notificationId);
+          await this.$store.dispatch(
+            "notifications/new",
+            notification.approve.error
+          );
+        }
+
+        return false;
       }
 
       if (!+this.amount || this.amountError) return false;
@@ -184,6 +201,10 @@ export default {
     },
 
     async deposit() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -212,12 +233,26 @@ export default {
         const receipt = await tx.wait();
 
         console.log("Deposit", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
 
     async withdraw() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.transaction.pending
+      );
       try {
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
@@ -245,8 +280,18 @@ export default {
         const receipt = await tx.wait();
 
         console.log("Deposit", receipt);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
       } catch (e) {
         console.log("stake err:", e);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.error
+        );
       }
     },
 
