@@ -1,10 +1,13 @@
 <template>
   <div class="home">
+    <video class="home__video" loop  height="100%" autoplay muted id="vid">
+      <source src="../assets/videos/home-animation.mp4">
+    </video>
     <div class="home__content">
-      <h1 class="home__title">
-        Abracadabra.Money <br />
-        Make your Interest bearing assets liquid
-      </h1>
+      <div class="home__title">
+        <h1>Abracadabra.Money</h1> 
+        <h2>Make your Interest bearing assets liquid</h2>  
+      </div>
       <div class="home__buttons">
         <BaseButton primary :width="'200px'" @click="toBorrowPage">
           Borrow
@@ -36,29 +39,57 @@ export default {
 
 <style lang="scss" scoped>
 .home {
-  background: url("../assets/images/home-bg-full.png") no-repeat top right;
+  @media (max-width: 980px) {
+    background-image: url("../assets/images/home-bg-full.png");
+  }
+  overflow-x: hidden;
+  background-color: #4E4B64;
   background-size: cover;
-  background-position: 0 -10%;
+  background-position: center;
   margin: 0 auto;
   height: 100vh;
   display: flex;
+  position: relative;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
+  &__video {
+    position: absolute;
+    left: 0;
+    @media (max-width: 980px) {
+      display: none;
+    }
+  }
   &__content {
+    margin-left: 185px;
     width: 570px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items:flex-start;
+    justify-content: flex-start;
   }
   &__title {
-    font-family: Prompt;
-    font-style: normal;
-    font-weight: bold;
-    font-size: 40px;
-    line-height: 60px;
-    text-align: center;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    & h1 {
+      font-family: 'Prompt';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 24px;
+      line-height: 36px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    & h2 {
+      font-family: 'Prompt';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 40px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: -webkit-linear-gradient(107.5deg, #abdeff -3.19%, #5552fd 101.2%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    z-index: 2;
+    margin-bottom: 30px;
   }
   &__buttons {
     display: grid;
@@ -90,3 +121,4 @@ export default {
   }
 }
 </style>
+
