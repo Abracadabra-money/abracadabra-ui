@@ -39,8 +39,10 @@ export default {
 
 <style lang="scss" scoped>
 .home {
+  padding-left: 185px;
   @media (max-width: 980px) {
     background-image: url("../assets/images/home-bg-full.png");
+    padding-left: 95px;
   }
   overflow-x: hidden;
   background-color: #4E4B64;
@@ -50,7 +52,6 @@ export default {
   display: flex;
   position: relative;
   align-items: center;
-  padding-left: 185px;
   justify-content: left;
   &__video {
     position: absolute;
