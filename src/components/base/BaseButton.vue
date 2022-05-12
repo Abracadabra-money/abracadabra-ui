@@ -42,6 +42,7 @@ export default {
 .default-button {
   cursor: pointer;
   position: relative;
+  text-transform: uppercase;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.1);
   height: 50px;
