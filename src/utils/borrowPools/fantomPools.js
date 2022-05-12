@@ -13,6 +13,7 @@ export default [
     isDepreciated: false,
     isSwappersActive: true,
     acceptUseDefaultBalance: true,
+    dynamicBorrowAmountLimit: 1000000,
     contract: {
       name: "CauldronV2Flat",
       address: "0x8E45Af6743422e488aFAcDad842cE75A09eaEd34",
@@ -51,6 +52,7 @@ export default [
     isDepreciated: false,
     isSwappersActive: true,
     acceptUseDefaultBalance: true,
+    dynamicBorrowAmountLimit: 1000000,
     contract: {
       name: "CauldronV2Flat",
       address: "0xd4357d43545F793101b592bACaB89943DC89d11b",
@@ -89,6 +91,7 @@ export default [
     isDepreciated: false,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
+    dynamicBorrowAmountLimit: 1000000,
     contract: {
       name: "CauldronV2Flat",
       address: "0xed745b045f9495B8bfC7b58eeA8E0d0597884e12",
@@ -165,6 +168,7 @@ export default [
     isDepreciated: false,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
+    dynamicBorrowAmountLimit: false,
     isDegenBox: true,
     contract: {
       name: "CauldronV2FTM",
@@ -241,6 +245,9 @@ export default [
     id: 7,
     isDepreciated: false,
     isSwappersActive: true,
+    hasWithdrawableLimit: true,
+    hasWithdrawableLimit: true,
+    dynamicBorrowAmountLimit: false,
     strategyLink:
       "https://abracadabramoney.medium.com/our-spiritswap-lp-degenbox-strategy-11c1a786ff67",
     acceptUseDefaultBalance: false,
@@ -283,6 +290,7 @@ export default [
     isDepreciated: false,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
+    dynamicBorrowAmountLimit: false,
     isDegenBox: true,
     strategyLink:
       "https://abracadabramoney.medium.com/our-spookyswap-lp-degenbox-strategy-3a2f35e1b643",

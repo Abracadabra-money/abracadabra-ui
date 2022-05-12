@@ -274,11 +274,7 @@ export default {
     },
 
     maxLeverage() {
-      if (this.selectedPool) {
-        if (this.selectedPool.ltv === 90 && this.selectedPool.id !== 17) {
-          return 30;
-        }
-      }
+      if (this.selectedPool?.leverageMax) return this.selectedPool.leverageMax;
 
       return 15;
     },
@@ -408,16 +404,7 @@ export default {
     },
 
     stableCoinMultiplyer() {
-      // id 17 AGLD
-      const exceptionPools = [15, 16, 27];
-
-      const itsExcepton = exceptionPools.indexOf(this.selectedPool.id) !== -1;
-
-      if (this.selectedPool.ltv === 90 && !itsExcepton) {
-        return 10;
-      }
-
-      return 1;
+      return this.pool?.halsiMultiplier ? this.pool.halsiMultiplier : 1;
     },
 
     leverageRisk() {

@@ -12,6 +12,8 @@ export default [
     isDepreciated: false,
     isSwappersActive: false,
     acceptUseDefaultBalance: true,
+    hasWithdrawableLimit: true,
+    dynamicBorrowAmountLimit: 1000000,
     isDegenBox: true,
     contract: {
       name: "CauldronV2MultiChain",
@@ -53,9 +55,11 @@ export default [
     isDepreciated: false,
     isSwappersActive: false,
     acceptUseDefaultBalance: false,
+    hasWithdrawableLimit: true,
+    dynamicBorrowAmountLimit: 1000000,
     isDegenBox: true,
     strategyLink:
-      "https://medium.com/@abracadabramoney/our-cake-degenbox-strategy-68be5f34527",
+      "https://medium.com/abracadabra-money/our-cake-degenbox-strategy-68be5f34527",
 
     contract: {
       name: "CauldronV2MultiChain",
