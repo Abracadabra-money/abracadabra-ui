@@ -34,7 +34,7 @@
                   alt="filter"
                 />
               </button>
-              <span>{{ `Sorted by ${selectedTitleData.title}` }}</span>
+              <span>{{ `Sorted by ${selectedSortData.title}` }}</span>
             </span>
             <img
               class="arrow-icon"
@@ -46,8 +46,8 @@
         <template slot="list">
           <button
             class="sort-btn sort-item"
-            v-for="(titleData, i) in titlesList.filter(
-              ({ name }) => name !== selectedTitle
+            v-for="(titleData, i) in sortList.filter(
+              ({ name }) => name !== selectedSort
             )"
             :key="i"
             @click="select(titleData.name)"
@@ -64,22 +64,26 @@
           <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
         </div>
 
-        <template v-if="sortedDataItems.length">
-          <MarketsItem
-            v-for="poolData in sortedDataItems"
-            :key="poolData.id"
-            :poolData="poolData"
-            :degen="false"
-            :isNew="false"
-            :isFarm="isFarm"
-        /></template>
+        <template v-if="prepPools.length">
+          <template v-if="isFarm">
+            <MarketsFarmItem
+              v-for="pool in prepPools"
+              :key="pool.id"
+              :pool="pool"
+          /></template>
+          <template v-else>
+            <MarketsBorrowItem
+              v-for="pool in prepPools"
+              :key="pool.id"
+              :pool="pool"
+          /></template>
+        </template>
         <EmptyMarketsList v-else /></div
     ></template>
   </div>
 </template>
 
 <script>
-import Vue from "vue";
 import farmPoolsMixin from "@/mixins/farmPools";
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import { mapGetters } from "vuex";
@@ -88,25 +92,41 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
 
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
-const MarketsItem = () => import("@/components/markets/MarketsItem");
+const MarketsBorrowItem = () =>
+  import("@/components/markets/MarketsBorrowItem");
+const MarketsFarmItem = () => import("@/components/markets/MarketsFarmItem");
+
+const sortKeys = {
+  name: "name",
+  yield: "yield",
+  roi: "roi",
+  tvl: "tvl",
+  totalMim: "totalMim",
+  mimsLeft: "mimsLeft",
+  interest: "interest",
+  liquidation: "liquidation",
+};
 
 export default {
   name: "StatsView",
-  components: { EmptyMarketsList, BaseLoader, DropdownWrap, MarketsItem },
+  components: {
+    EmptyMarketsList,
+    BaseLoader,
+    DropdownWrap,
+    MarketsBorrowItem,
+    MarketsFarmItem,
+  },
   mixins: [farmPoolsMixin, borrowPoolsMixin],
   props: { isFarm: { type: Boolean, default: false } },
   data: () => ({
-    selectedTitle: "name",
+    selectedSort: sortKeys.name,
     sortReverse: false,
     search: "",
     poolsInterval: null,
   }),
   methods: {
     select(name) {
-      this.selectedTitle = name;
-    },
-    calcTokenInUsd(pool) {
-      return pool.userInfo.userCollateralShare / pool.tokenPrice;
+      this.selectedSort = name;
     },
     filterBySearch(pools, search) {
       return search
@@ -116,17 +136,41 @@ export default {
           )
         : pools;
     },
-    sortByTitle(pools, titleData) {
+    sortByTitle(pools) {
       const sortedPools = [...pools];
-      if (titleData !== null) {
-        const prepValue = (value) => {
-          const numb = +String(value).replace(/,/g, "");
-          if (!isNaN(numb)) return numb;
-          return value;
+      if (this.selectedSortData !== null) {
+        const prepValue = (pool, sortData) => {
+          switch (sortData.name) {
+            case sortKeys.name:
+              return pool.name;
+
+            case sortKeys.yield:
+              return pool.poolYield;
+
+            case sortKeys.roi:
+              return pool.poolRoi;
+
+            case sortKeys.tvl:
+              return pool.poolTvl;
+
+            case sortKeys.totalMim:
+              return pool.totalBorrow;
+
+            case sortKeys.mimsLeft:
+              return pool.dynamicBorrowAmount;
+
+            case sortKeys.interest:
+              return pool.interest;
+
+            case sortKeys.liquidation:
+              return pool.stabilityFee;
+          }
+
+          return null;
         };
-        sortedPools.sort((aItem, bItem) => {
-          const a = prepValue(aItem[titleData.name]);
-          const b = prepValue(bItem[titleData.name]);
+        sortedPools.sort((aPool, bPool) => {
+          const a = prepValue(aPool, this.selectedSortData);
+          const b = prepValue(bPool, this.selectedSortData);
 
           const factor = this.sortReverse ? 1 : -1;
 
@@ -143,59 +187,34 @@ export default {
       borrowLoading: "getLoadPoolsBorrow",
       farmLoading: "getFarmPoolLoading",
     }),
-    selectedTitleData() {
+    selectedSortData() {
       return (
-        this.titlesList.find(({ name }) => this.selectedTitle === name) || null
+        this.sortList.find(({ name }) => this.selectedSort === name) || null
       );
     },
-    titlesList() {
+    sortList() {
       return this.isFarm
         ? [
-            { title: "Title", name: "name" },
-            { title: "YIELD PER $1000", name: "yield" },
-            { title: "ROI ANNUALLY", name: "roi" },
-            { title: "TVL", name: "tvl" },
+            { title: "Title", name: sortKeys.name },
+            { title: "YIELD PER $1000", name: sortKeys.yield },
+            { title: "ROI ANNUALLY", name: sortKeys.roi },
+            { title: "TVL", name: sortKeys.tvl },
           ]
         : [
-            { title: "Title", name: "name" },
-            { title: "TVL", name: "totalMim" },
-            { title: "MIMs Left", name: "mimsLeft" },
-            { title: "Interest", name: "interest" },
-            { title: "Fee", name: "liquidation" },
+            { title: "Title", name: sortKeys.name },
+            { title: "TVL", name: sortKeys.totalMim },
+            { title: "MIMs Left", name: sortKeys.mimsLeft },
+            { title: "Interest", name: sortKeys.interest },
+            { title: "Fee", name: sortKeys.liquidation },
           ];
     },
     currentPools() {
       return (this.isFarm ? this.pools : this.borrowPools) || [];
     },
-    filteredPools() {
-      return this.filterBySearch(this.currentPools, this.search);
-    },
-    sortedDataItems() {
-      return this.sortByTitle(this.poolDataItems, this.selectedTitleData);
-    },
-    poolDataItems() {
-      if (this.filteredPools.length)
-        return this.isFarm
-          ? this.filteredPools.map((pool) => ({
-              yield: Vue.filter("formatTokenBalance")(pool.poolYield),
-              roi: Vue.filter("formatPercent")(pool.poolRoi),
-              tvl: Vue.filter("formatUSD")(pool.poolTvl),
-              name: pool.name,
-              icon: pool.icon,
-              id: pool.id,
-            }))
-          : this.filteredPools.map((pool) => ({
-              totalMim: Vue.filter("formatTokenBalance")(pool.totalBorrow),
-              mimsLeft: Vue.filter("formatTokenBalance")(
-                pool.dynamicBorrowAmount
-              ),
-              interest: pool.interest,
-              liquidation: pool.stabilityFee,
-              name: pool.name,
-              icon: pool.icon,
-              id: pool.id,
-            }));
-      else return [];
+    prepPools() {
+      return this.sortByTitle(
+        this.filterBySearch(this.currentPools, this.search)
+      );
     },
     loading() {
       return this.isFarm ? this.farmLoading : this.borrowLoading;
@@ -226,11 +245,11 @@ export default {
               await this.createPools();
             };
 
-        if (!this.poolDataItems.length) poolsCallback();
+        if (!this.currentPools.length) poolsCallback();
         this.poolsInterval = setInterval(poolsCallback, 5000);
 
         this.search = "";
-        this.selectedTitle = "name";
+        this.selectedSort = sortKeys.name;
         this.sortReverse = false;
       },
     },
