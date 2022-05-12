@@ -47,29 +47,6 @@ export default {
       type: Object,
     },
   },
-  methods: {
-    formatNumber(value) {
-      if (isNaN(Number(value)) || Number(value) < 1) return 0;
-
-      const lookup = [
-        { value: 0, symbol: "" },
-        { value: 1, symbol: "" },
-        { value: 1e3, symbol: "k" },
-        { value: 1e6, symbol: "M" },
-      ];
-      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-      let item = lookup
-        .slice()
-        .reverse()
-        .find(function (item) {
-          return parseFloat(value) >= item.value;
-        });
-      return (
-        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
-        item.symbol
-      );
-    },
-  },
   computed: {
     items() {
       return [
