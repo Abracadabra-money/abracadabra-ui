@@ -11,14 +11,14 @@ export default {
       const provider = this.$store.getters.getProvider;
       const isCoinbase = this.$store.getters.getIsCoinbase;
       const data = this.networks.find(
-        ({ switchData }) => switchData.chainId === chainId
+        (item) => item.chainId === chainId
       )?.switchData;
       try {
         await provider.provider.request({
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: chainId === "0x01" ? "0x1" : chainId,
+              chainId: data.chainId === "0x01" ? "0x1" : data.chainId,
             },
           ],
         });
