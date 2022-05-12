@@ -82,18 +82,18 @@ const routes = [
   },
   {
     path: "/markets",
-    name: "Stats",
-    component: () => import("@/views/stats/Stats"),
+    name: "Markets",
+    component: () => import("@/views/markets/Markets"),
     children: [
       {
         path: "",
-        name: "StatsBorrow",
-        component: () => import("@/views/stats/StatsView"),
+        name: "MarketsBorrow",
+        component: () => import("@/views/markets/MarketsView"),
       },
       {
         path: "farm",
-        name: "StatsFarm",
-        component: () => import("@/views/stats/StatsView"),
+        name: "MarketsFarm",
+        component: () => import("@/views/markets/MarketsView"),
         props: { isFarm: true },
       },
     ],

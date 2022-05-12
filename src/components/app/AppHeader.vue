@@ -59,7 +59,7 @@
           />
         </div>
         <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" :to="{ name: 'StatsBorrow' }"
+          <router-link class="list-link" :to="{ name: 'MarketsBorrow' }"
             >Markets</router-link
           >
 

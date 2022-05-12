@@ -1,21 +1,21 @@
 <template>
   <router-link
     :to="{
-      name: isFarm ? 'FarmPool' : 'BorrowId',
-      params: { id: poolData.id },
+      name: 'FarmPool',
+      params: { id: pool.id },
     }"
     class="stats-item"
-    :class="{ 'stats-item-farm': isFarm, strategy: activePool.strategyLink }"
+    :class="{ strategy: activePool ? activePool.strategyLink : false }"
   >
     <span class="status-wrap"
-      ><StatusBar :isFarm="isFarm" :pool="activePool"
+      ><StatusBar v-if="activePool" :isFarm="true" :pool="activePool"
     /></span>
-    <span class="stats-item-wrap" :class="{ 'stats-item-wrap-farm': isFarm }">
-      <span class="network-data" :class="{ 'network-data-new': isNew }">
-        <BaseTokenIcon :name="poolData.name" :icon="poolData.icon" />
+    <span class="stats-item-wrap">
+      <span class="network-data" :class="{ 'network-data-new': false }">
+        <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
-          <span>{{ poolData.name }}</span>
-          <span v-if="isNew" class="network-new">New</span>
+          <span>{{ pool.name }}</span>
+          <!--<span class="network-new">New</span>-->
         </span>
       </span>
 
@@ -24,97 +24,47 @@
         <span>{{ item.value }}</span>
       </span>
       <span class="degenbox">
-        <img
-          v-if="degen"
+        <!--<img
           class="degenbox-img"
           src="@/assets/images/degenbox.svg"
           alt="DegenBox"
-        />
+        />-->
       </span>
     </span>
   </router-link>
 </template>
 
 <script>
+import Vue from "vue";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
 
 export default {
-  name: "StatsItem",
+  name: "MarketsFarmItem",
 
   props: {
-    poolData: {
+    pool: {
       type: Object,
-    },
-    degen: {
-      type: Boolean,
-      default: false,
-    },
-    isNew: {
-      type: Boolean,
-      default: false,
-    },
-    isFarm: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  methods: {
-    formatNumber(value) {
-      if (isNaN(Number(value)) || Number(value) < 1) return 0;
-
-      const lookup = [
-        { value: 0, symbol: "" },
-        { value: 1, symbol: "" },
-        { value: 1e3, symbol: "k" },
-        { value: 1e6, symbol: "M" },
-      ];
-      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-      let item = lookup
-        .slice()
-        .reverse()
-        .find(function (item) {
-          return parseFloat(value) >= item.value;
-        });
-      return (
-        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
-        item.symbol
-      );
     },
   },
   computed: {
     items() {
-      return this.isFarm
-        ? [
-            { title: "~Yield per $1000", value: this.poolData.yield },
-            { title: "ROI Annually", value: this.poolData.roi },
-            { title: "TVL", value: this.poolData.tvl },
-          ]
-        : [
-            {
-              title: "TOTAL MIM BORROWED",
-              value: this.formatNumber(this.poolData.totalMim),
-            },
-            {
-              title: "MIMS LEFT TO BORROW",
-              value: this.formatNumber(this.poolData.mimsLeft),
-            },
-            { title: "INTEREST", value: `${this.poolData.interest}%` },
-            {
-              title: "LIQUIDATION FEE",
-              value: `${this.poolData.liquidation}%`,
-            },
-          ];
+      return [
+        {
+          title: "~Yield per $1000",
+          value: Vue.filter("formatTokenBalance")(this.pool.poolYield),
+        },
+        {
+          title: "ROI Annually",
+          value: Vue.filter("formatPercent")(this.pool.poolRoi),
+        },
+        { title: "TVL", value: Vue.filter("formatUSD")(this.pool.poolTvl) },
+      ];
     },
 
     activePool() {
-      if (this.poolData) {
-        let pool = this.isFarm
-          ? this.$store.getters.getFarmPoolById(+this.poolData.id)
-          : this.$store.getters.getPoolById(+this.poolData.id);
-
-        if (pool) return pool;
-        return null;
+      if (this.pool) {
+        return this.$store.getters.getFarmPoolById(+this.pool.id) || null;
       }
       return null;
     },
@@ -223,20 +173,15 @@ export default {
     font-size: 16px;
     border-radius: 30px;
     height: 100px;
-    &-farm {
-      grid-template-columns: 1fr 1fr 1fr 1fr 60px;
-    }
+
+    grid-template-columns: 1fr 1fr 1fr 1fr 60px;
   }
 
   .stats-item-wrap {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 60px;
     align-items: center;
     grid-gap: 0;
     height: 36px;
-
-    &-farm {
-      grid-template-columns: 1fr 1fr 1fr 1fr 60px;
-    }
   }
 
   .network-data {
