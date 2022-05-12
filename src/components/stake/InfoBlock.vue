@@ -328,11 +328,11 @@ export default {
   .item-value {
     font-size: 18px;
   }
-
   .profile-preview {
     padding: 16px 15px;
   }
 }
+
 @media (max-width: 600px) {
   .profile-preview {
     grid-template-columns: 1fr;

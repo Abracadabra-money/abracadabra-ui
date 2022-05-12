@@ -46,25 +46,24 @@ export default {
   background-color: #4E4B64;
   background-size: cover;
   background-position: center;
-  margin: 0 auto;
   height: 100vh;
   display: flex;
   position: relative;
   align-items: center;
+  padding-left: 185px;
   justify-content: left;
   &__video {
     position: absolute;
-    left: 0;
-    @media (max-width: 980px) {
+    right: 0;
+    @media ( max-width: 980px ) {
       display: none;
     }
   }
   &__content {
-    margin-left: 185px;
     width: 570px;
     display: flex;
     flex-direction: column;
-    align-items:flex-start;
+    align-items: flex-start;
     justify-content: flex-start;
   }
   &__title {
@@ -73,7 +72,7 @@ export default {
       font-style: normal;
       font-weight: 700;
       font-size: 24px;
-      line-height: 36px;
+      line-height: 20px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
@@ -82,6 +81,7 @@ export default {
       font-style: normal;
       font-weight: 700;
       font-size: 40px;
+      line-height: 58px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       background: -webkit-linear-gradient(107.5deg, #abdeff -3.19%, #5552fd 101.2%);
@@ -89,7 +89,7 @@ export default {
       -webkit-text-fill-color: transparent;
     }
     z-index: 2;
-    margin-bottom: 30px;
+    margin-bottom: 32px;
   }
   &__buttons {
     display: grid;
