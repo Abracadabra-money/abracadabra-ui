@@ -40,7 +40,7 @@ const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
 
 export default {
-  name: "StatsItem",
+  name: "MarketsItem",
 
   props: {
     poolData: {

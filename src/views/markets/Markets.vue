@@ -2,7 +2,7 @@
   <div class="stats">
     <h2 class="title">Available MIM Markets</h2>
     <div class="switcher">
-      <StatsSwitch
+      <MarketsSwitch
         :name="routeName"
         :items="items"
         @select="$router.push({ name: $event.name })"
@@ -13,15 +13,15 @@
 </template>
 
 <script>
-const StatsSwitch = () => import("@/components/stats/StatsSwitch");
+const MarketsSwitch = () => import("@/components/markets/MarketsSwitch");
 
 export default {
   name: "Stats",
-  components: { StatsSwitch },
+  components: { MarketsSwitch },
   data: () => ({
     items: [
-      { title: "Borrow", name: "StatsBorrow" },
-      { title: "Farm", name: "StatsFarm" },
+      { title: "Borrow", name: "MarketsBorrow" },
+      { title: "Farm", name: "MarketsFarm" },
     ],
   }),
   computed: {

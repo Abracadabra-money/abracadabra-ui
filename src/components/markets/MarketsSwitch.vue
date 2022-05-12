@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: "StatsSwitch",
+  name: "MarketsSwitch",
   props: {
     name: {
       type: String,

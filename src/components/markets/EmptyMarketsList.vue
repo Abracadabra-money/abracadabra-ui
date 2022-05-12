@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  name: "EmptyStatsList",
+  name: "EmptyMarketsList",
 };
 </script>
 

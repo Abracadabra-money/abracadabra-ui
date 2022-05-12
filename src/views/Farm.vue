@@ -8,7 +8,7 @@
           <NetworksList :activeList="activeNetworks" />
         </div>
         <div class="switcher">
-          <StatsSwitch
+          <MarketsSwitch
             :name="selectedTab"
             :items="items"
             @select="selectedTab = $event.name"
@@ -140,7 +140,7 @@ const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
-const StatsSwitch = () => import("@/components/stats/StatsSwitch");
+const MarketsSwitch = () => import("@/components/markets/MarketsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 import notification from "@/utils/notification/index.js";
@@ -346,7 +346,7 @@ export default {
     BaseButton,
     PopupWrap,
     SelectTokenPopup,
-    StatsSwitch,
+    MarketsSwitch,
   },
 };
 </script>
