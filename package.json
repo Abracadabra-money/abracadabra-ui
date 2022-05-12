@@ -8,8 +8,10 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@coinbase/wallet-sdk": "^3.0.11",
     "@sushiswap/sushi-data": "^1.0.26",
-    "@walletconnect/web3-provider": "^1.7.1",
+    "@toruslabs/torus-embed": "^1.22.5",
+    "@walletconnect/web3-provider": "^1.7.8",
     "axios": "^0.25.0",
     "core-js": "^3.6.5",
     "ethers": "^5.5.4",

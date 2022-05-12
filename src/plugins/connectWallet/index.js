@@ -2,6 +2,10 @@ import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
+import Torus from "@toruslabs/torus-embed";
+// import Authereum from "authereum";
+// import ethProvider from "eth-provider";
 
 import store from "../../store";
 
@@ -9,29 +13,89 @@ import store from "../../store";
 const walletconnect = {
   package: WalletConnectProvider,
   options: {
-    rpc: Object.fromEntries(
-      store.getters.getAvailableNetworks
-        .filter(({ rpc }) => rpc)
-        .map(({ chainId, rpc }) => [chainId, rpc])
-    ),
+    rpc: {
+      1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      56: "https://bsc-dataseed.binance.org/",
+      250: "https://rpc.ftm.tools/",
+      42161: "https://arb1.arbitrum.io/rpc",
+      43114: "https://api.avax.network/ext/bc/C/rpc",
+    },
   },
 };
 
+const coinbasewallet = {
+  package: CoinbaseWalletSDK, // Required
+  options: {
+    appName: "abracadabra.money", // Required
+    rpc: {
+      1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      56: "https://bsc-dataseed.binance.org/",
+      250: "https://rpc.ftm.tools/",
+      42161: "https://arb1.arbitrum.io/rpc",
+      43114: "https://api.avax.network/ext/bc/C/rpc",
+    },
+  },
+};
+
+const binancechainwallet = {
+  package: true,
+};
+
+const torus = {
+  package: Torus,
+};
+
+// const authereum = {
+//   package: Authereum,
+// };
+
+// const frame = {
+//   package: ethProvider,
+// };
+
 const providerOptions = {
   walletconnect,
+  coinbasewallet,
+  binancechainwallet,
+  // portis,
+  torus,
+  // authereum,
+  // frame,
 };
 
 const web3Modal = new Web3Modal({
   providerOptions,
   cacheProvider: true,
   disableInjectedProvider: false,
-  network: "mainnet",
+  theme: "dark",
+  // network: "mainnet",
 });
 
 /**
  * Check chached provider and try to connect.
  * If provider exist => store into vuex
  */
+
+const subscribeProvider = async (provider, isCoinbase) => {
+  if (!provider.on) {
+    return;
+  }
+
+  provider.on("close", () => alert("close"));
+  provider.on("accountsChanged", async (account) => {
+    if (Array.isArray(account) && !account.length) await resetApp();
+    window.location.reload();
+  });
+
+  if (!isCoinbase) {
+    provider.on("chainChanged", () => window.location.reload());
+    provider.on("networkChanged", () => window.location.reload());
+  }
+
+  provider.on("disconnect", async () => {
+    await resetApp();
+  });
+};
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
@@ -47,233 +111,63 @@ const initWithoutConnect = async () => {
   store.commit("setWalletConnection", true);
 };
 
-setTimeout(async () => {
-  const { cachedProvider } = web3Modal.providerController;
+const onConnect = async () => {
+  try {
+    const instance = await web3Modal.connect();
 
-  if (cachedProvider) {
-    console.log("has cachedProvider", cachedProvider);
-    console.log("has cachedProvider", web3Modal.providerController);
-    try {
-      let connectedProvider = await web3Modal.connectTo(cachedProvider);
+    await instance.enable();
 
-      connectedProvider = connectedProvider.selectedProvider
-        ? connectedProvider.selectedProvider
-        : connectedProvider;
+    console.log("instance", instance);
 
-      if (!connectedProvider) {
-        store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
-        return;
-      }
+    const isCoinbase = instance.isCoinbaseWallet;
+    const isMetaMask = instance.isMetaMask;
 
-      if (connectedProvider) {
-        console.log("connectedProvider", connectedProvider);
-        let address = "";
+    await subscribeProvider(instance, isCoinbase);
 
-        if (connectedProvider.isMetaMask) {
-          console.log("cachedProvider METAMASK");
-          store.commit("setMetamaskActive", true);
-          address = connectedProvider.selectedAddress;
-        }
+    const provider = new ethers.providers.Web3Provider(instance);
+    const signer = provider.getSigner();
 
-        if (connectedProvider.accounts) {
-          address = connectedProvider.accounts[0];
-        }
+    const accounts = await signer.getAddress();
 
-        if (connectedProvider._addresses) {
-          address = connectedProvider._addresses[0];
-        }
+    const address = Array.isArray(accounts) ? accounts[0] : accounts;
+    const chainId = await signer.getChainId();
 
-        const provider = new ethers.providers.Web3Provider(connectedProvider);
-        const signer = provider.getSigner(address);
+    console.log("address", address);
+    console.log("provider", provider);
+    console.log("chainId", chainId);
 
-        connectedProvider.on("chainChanged", () => {
-          window.location.reload();
-        });
+    store.commit("setChainId", chainId);
+    store.commit("setProvider", provider);
+    store.commit("setSigner", signer);
+    store.commit("setAccount", address);
+    store.commit("setWalletConnection", true);
+    store.commit("setIsCoinbase", isCoinbase);
+    store.commit("setMetamaskActive", isMetaMask);
+  } catch (error) {
+    console.log("Connection error: ", error);
+  }
+};
 
-        connectedProvider.on("accountsChanged", () => {
-          window.location.reload();
-        });
+const resetApp = async () => {
+  await web3Modal.clearCachedProvider();
+  window.location.reload();
+};
 
-        connectedProvider.on("disconnect", () => {
-          localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
-          localStorage.removeItem(
-            "-walletlink:https://www.walletlink.org:session:linked"
-          );
-          localStorage.removeItem(
-            "-walletlink:https://www.walletlink.org:IsStandaloneSigning"
-          );
-          localStorage.removeItem(
-            "-walletlink:https://www.walletlink.org:session:secret"
-          );
-          web3Modal.clearCachedProvider();
-          web3Modal.providerController.cachedProvider = null;
-          store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
-          window.location.reload();
-        });
+if (web3Modal.cachedProvider) {
+  onConnect();
+} else initWithoutConnect();
 
-        const { chainId } = await provider.getNetwork();
-
-        console.log("chainID", chainId);
-
-        store.commit("setChainId", chainId);
-        store.commit("setProvider", provider);
-        store.commit("setSigner", signer);
-        store.commit("setAccount", address);
-        store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
-        store.commit("setWalletConnection", true);
-      }
-      localStorage.removeItem("MAGIC_MONEY_CHAIN_ID");
-    } catch (e) {
-      console.log("ERROR:", e);
-      localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
-      localStorage.removeItem(
-        "-walletlink:https://www.walletlink.org:session:linked"
-      );
-      localStorage.removeItem(
-        "-walletlink:https://www.walletlink.org:IsStandaloneSigning"
-      );
-      localStorage.removeItem(
-        "-walletlink:https://www.walletlink.org:session:secret"
-      );
-      web3Modal.clearCachedProvider();
-      web3Modal.providerController.cachedProvider = null;
-      store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
-      return;
-    }
-  } else if (window.ethereum?.isMetaMask) {
-    console.log("METAMASK");
-    store.commit("setMetamaskActive", true);
-    const accounts = await window.ethereum.request({ method: "eth_accounts" });
-
-    if (accounts.length !== 0) {
-      localStorage.removeItem("MAGIC_MONEY_CHAIN_ID");
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const { chainId } = await provider.getNetwork();
-      store.commit("setChainId", chainId);
-      store.commit("setProvider", provider);
-      store.commit("setSigner", null);
-      store.commit("setAccount", null);
-      store.commit("setWalletConnection", true);
-
-      const signer = provider.getSigner(accounts[0]);
-
-      window.ethereum.on("chainChanged", () => {
-        window.location.reload();
-      });
-
-      window.ethereum.on("accountsChanged", () => {
-        window.location.reload();
-      });
-
-      window.ethereum.on("disconnect", () => {
-        localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
-        web3Modal.clearCachedProvider();
-        window.location.reload();
-      });
-
-      store.commit("setProvider", provider);
-      store.commit("setSigner", signer);
-      store.commit("setAccount", accounts[0]);
-      store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
-      store.commit("setWalletConnection", true);
-    } else await initWithoutConnect();
-  } else await initWithoutConnect();
-
-  store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
-}, 500);
+store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
 
 export default {
   async install(Vue) {
     Vue.prototype.$connectWallet = async () => {
-      try {
-        let address = "";
-        let provider = await web3Modal.connect();
+      await web3Modal.clearCachedProvider();
+      await onConnect();
+    };
 
-        provider = provider.selectedProvider
-          ? provider.selectedProvider
-          : provider;
-
-        console.log("provider", provider);
-
-        if (!provider) {
-          return;
-        }
-
-        provider.enable();
-
-        if (provider.isMetaMask) {
-          console.log("CONNECT METAMASK");
-          store.commit("setMetamaskActive", true);
-          address = provider.selectedAddress;
-        }
-
-        if (provider.accounts) {
-          address = provider.accounts[0];
-        }
-
-        if (provider._addresses) {
-          address = provider._addresses[0];
-        }
-
-        if (window.ethereum) {
-          try {
-            const accounts = await window.ethereum.request({
-              method: "eth_accounts",
-            });
-            address = accounts[0];
-          } catch (e) {
-            console.log(e);
-          }
-        }
-
-        const ethersProvider = new ethers.providers.Web3Provider(provider);
-        const signer = ethersProvider.getSigner(address);
-
-        provider.on("chainChanged", () => {
-          window.location.reload();
-        });
-
-        provider.on("accountsChanged", () => {
-          window.location.reload();
-        });
-
-        provider.on("disconnect", () => {
-          localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
-          localStorage.removeItem(
-            "-walletlink:https://www.walletlink.org:session:linked"
-          );
-          localStorage.removeItem(
-            "-walletlink:https://www.walletlink.org:IsStandaloneSigning"
-          );
-          localStorage.removeItem(
-            "-walletlink:https://www.walletlink.org:session:secret"
-          );
-          web3Modal.clearCachedProvider();
-          web3Modal.providerController.cachedProvider = null;
-          store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
-          window.location.reload();
-        });
-
-        let { chainId } = await ethersProvider.getNetwork();
-
-        if (!chainId) {
-          try {
-            chainId = window.ethereum?.chainId;
-            console.log("HERE");
-          } catch (e) {
-            console.log(e);
-          }
-        }
-
-        store.commit("setChainId", chainId);
-        store.commit("setProvider", ethersProvider);
-        store.commit("setSigner", signer);
-        store.commit("setAccount", address);
-        store.commit("setWalletConnection", true);
-      } catch (error) {
-        console.log("Error in connect modal");
-        console.log(error);
-      }
+    Vue.prototype.$disconnectWallet = async () => {
+      await resetApp();
     };
   },
 };

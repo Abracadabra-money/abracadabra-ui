@@ -5,6 +5,7 @@ export default {
     account: null,
     chainId: null,
     isMetamaskActive: false,
+    isCoinbase: false,
     isWalletConnected: false,
     walletCheckInProcess: true,
   },
@@ -24,6 +25,9 @@ export default {
     setWalletConnection(state, payload) {
       state.isWalletConnected = payload;
     },
+    setIsCoinbase(state, payload) {
+      state.isCoinbase = payload;
+    },
     setMetamaskActive(state, payload) {
       state.isMetamaskActive = payload;
     },
@@ -40,5 +44,6 @@ export default {
     getWalletIsConnected: (state) => state.isWalletConnected,
     getWalletCheckInProccess: (state) => state.walletCheckInProcess,
     getMetamaskActive: (state) => state.isMetamaskActive,
+    getIsCoinbase: (state) => state.isCoinbase,
   },
 };
