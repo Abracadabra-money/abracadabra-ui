@@ -1,18 +1,34 @@
 <template>
   <div class="home">
-    <video v-if="!isMobile" class="home__video" loop  height="100%" autoplay muted id="vid">
-      <source src="../assets/videos/home-animation.mp4">
+    <video
+      v-if="!isMobile"
+      class="home__video"
+      loop
+      height="100%"
+      autoplay
+      muted
+      id="vid"
+    >
+      <source src="../assets/videos/home-animation.mp4" />
     </video>
     <div class="home__content">
       <div class="home__title">
-        <h1>Abracadabra.Money</h1> 
-        <h2>Make your Interest bearing assets liquid</h2>  
+        <h1>Abracadabra.Money</h1>
+        <h2>Make your Interest bearing assets liquid</h2>
       </div>
       <div class="home__buttons">
-        <BaseButton primary :width="isMobile ? '290px' : '200px'" @click="toBorrowPage">
+        <BaseButton
+          primary
+          :width="isMobile ? '288px' : '200px'"
+          @click="toBorrowPage"
+        >
           Borrow
         </BaseButton>
-        <BaseButton primary :width="isMobile ? '290px' : '200px'" @click="toLeveragePage">
+        <BaseButton
+          primary
+          :width="isMobile ? '288px' : '200px'"
+          @click="toLeveragePage"
+        >
           Leverage Up
         </BaseButton>
       </div>
@@ -25,8 +41,8 @@ const BaseButton = () => import("@/components/base/BaseButton");
 export default {
   data() {
     return {
-      isMobile: false
-    }
+      isMobile: false,
+    };
   },
   methods: {
     toBorrowPage() {
@@ -36,15 +52,15 @@ export default {
       this.$router.push({ name: "Leverage" });
     },
     onResize() {
-      this.isMobile = window.innerWidth < 980
-    }
+      this.isMobile = window.innerWidth < 980;
+    },
   },
   created() {
-    window.addEventListener('resize', this.onResize);
-    this.onResize()
+    window.addEventListener("resize", this.onResize);
+    this.onResize();
   },
-  beforeDestroy() { 
-    window.removeEventListener('resize', this.onResize); 
+  beforeDestroy() {
+    window.removeEventListener("resize", this.onResize);
   },
   components: {
     BaseButton,
@@ -60,39 +76,42 @@ export default {
     justify-content: center;
     text-align: center;
   }
-  padding-left: 185px;
   overflow-x: hidden;
-  background-color: #4E4B64;
+  background-color: #4e4b64;
   background-size: cover;
   background-position: center;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   position: relative;
   align-items: center;
-  justify-content: left;
+  justify-content: center;
   &__video {
     position: absolute;
     right: 0;
   }
   &__content {
-    width: 570px;
+    max-width: 1050px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 100px 15px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    @media (max-width: 980px) {
+      align-items: center;
+      justify-content: center;
+    }
     @media (max-width: 480px) {
       align-items: center;
       justify-content: center;
     }
   }
   &__title {
-    @media (max-width: 480px) {
-      width: 300px;
-    }
-    width: 100%;
+    max-width: 620px;
     & h1 {
       margin: 11px 0;
-      font-family: 'Prompt';
+      font-family: "Prompt";
       font-style: normal;
       font-weight: 700;
       font-size: 24px;
@@ -104,14 +123,18 @@ export default {
       }
     }
     & h2 {
-      font-family: 'Prompt';
+      font-family: "Prompt";
       font-style: normal;
       font-weight: 700;
       font-size: 40px;
       line-height: 58px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      background: -webkit-linear-gradient(107.5deg, #abdeff -3.19%, #5552fd 101.2%);
+      background: -webkit-linear-gradient(
+        107.5deg,
+        #abdeff -3.19%,
+        #5552fd 101.2%
+      );
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       @media (max-width: 480px) {
@@ -123,7 +146,7 @@ export default {
     margin-bottom: 32px;
   }
   &__buttons {
-    @media ( max-width: 980px ) {
+    @media (max-width: 980px) {
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -136,4 +159,3 @@ export default {
   }
 }
 </style>
-
