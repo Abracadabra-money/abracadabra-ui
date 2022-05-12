@@ -68,11 +68,11 @@ export default {
   }
   &__title {
     & h1 {
+      margin: 11px 0;
       font-family: 'Prompt';
       font-style: normal;
       font-weight: 700;
       font-size: 24px;
-      line-height: 20px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
