@@ -478,15 +478,21 @@ export default {
         pool.pairToken.address
       );
 
-      const itsXBoo = this.chainId === 250 && pool.id === 5;
+      if (
+        pool?.dynamicBorrowAmountLimit &&
+        pool?.dynamicBorrowAmountLimit < dynamicBorrowAmount
+      )
+        dynamicBorrowAmount = pool.dynamicBorrowAmountLimit;
 
-      if (dynamicBorrowAmount > 1000000 && !itsXBoo)
-        dynamicBorrowAmount = 1000000;
+      let borrowlimit = null;
 
-      const borrowLimitPools = [26, 25, 16];
+      if (pool.hasAccountBorrowLimit) {
+        const borrowLimitResp = await poolContract.borrowLimit();
 
-      if (this.chainId === 1 && borrowLimitPools.includes(pool.id)) {
-        if (dynamicBorrowAmount > 1000000) dynamicBorrowAmount = 1000000;
+        borrowlimit = this.$ethers.utils.formatUnits(
+          borrowLimitResp.borrowPartPerAddress.toString(),
+          18
+        );
       }
 
       const tokenPairPrice = 1;
@@ -522,6 +528,7 @@ export default {
         name: pool.name,
         icon: pool.icon,
         id: pool.id,
+        halsiMultiplier: pool.halsiMultiplier,
         isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
         isDepreciated: pool.isDepreciated,
@@ -545,8 +552,10 @@ export default {
         tokenPrice,
         price,
         dynamicBorrowAmount,
+        borrowlimit,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
+        leverageMax: pool.leverageMax,
         token: {
           contract: tokenContract,
           name: pool.token.name,
@@ -584,9 +593,7 @@ export default {
 
       let claimableReward;
 
-      const claimablePools = [15, 16, 18, 24, 25];
-
-      if (this.chainId === 1 && claimablePools.indexOf(pool.id) !== -1) {
+      if (this.chainId === 1 && pool.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
           pool.token.contract,
           pool.token.decimals
@@ -595,7 +602,7 @@ export default {
 
       let maxWithdrawAmount = -1;
 
-      if (pool.strategyLink) {
+      if (pool.hasWithdrawableLimit) {
         const tokenWithdrawAmount = await pool.token.contract.balanceOf(
           pool.bentoBoxAddress
         );

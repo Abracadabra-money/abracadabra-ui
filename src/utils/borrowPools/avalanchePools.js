@@ -97,9 +97,7 @@ export default [
     isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
-    strategyLink:
-      "https://abracadabramoney.medium.com/our-xjoe-degenbox-strategy-79c4bf807b4a",
-
+    hasWithdrawableLimit: true,
     isDegenBox: true,
     contract: {
       name: "CauldronV2Multichain",
@@ -146,9 +144,7 @@ export default [
     isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
-    strategyLink:
-      "https://medium.com/@abracadabramoney/our-jlps-degenbox-strategy-f367fb951fe1",
-
+    hasWithdrawableLimit: true,
     isDegenBox: true,
     contract: {
       name: "CauldronV2Multichain",
@@ -195,7 +191,6 @@ export default [
     isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
-    isDegenBox: false,
     contract: {
       name: "CauldronV2Multichain",
       address: "0x35fA7A723B3B39f15623Ff1Eb26D8701E7D6bB21",
@@ -240,9 +235,7 @@ export default [
     isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
-    strategyLink:
-      "https://medium.com/@abracadabramoney/our-jlps-degenbox-strategy-f367fb951fe1",
-
+    hasWithdrawableLimit: true,
     isDegenBox: true,
     contract: {
       name: "CauldronV2Multichain",
@@ -289,9 +282,7 @@ export default [
     isDepreciated: true,
     isSwappersActive: true,
     acceptUseDefaultBalance: false,
-    strategyLink:
-      "https://medium.com/@abracadabramoney/our-jlps-degenbox-strategy-f367fb951fe1",
-
+    hasWithdrawableLimit: true,
     isDegenBox: true,
     contract: {
       name: "CauldronV2Multichain",

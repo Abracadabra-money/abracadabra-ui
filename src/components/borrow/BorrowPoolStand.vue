@@ -424,6 +424,15 @@ export default {
 
           resultArray.splice(2, 0, apyInfo);
         }
+
+        if (this.pool.borrowlimit !== null) {
+          resultArray.push({
+            title: "Maximum Borrowable MIM",
+            value: this.pool.borrowlimit,
+            additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
+          });
+        }
+
         return resultArray;
       } catch (e) {
         console.log("createCollateralInfo err: ", e);
@@ -487,15 +496,7 @@ export default {
     },
 
     stableCoinMultiplyer() {
-      const exceptionPools = [15, 16, 27];
-
-      const itsExcepton = exceptionPools.indexOf(this.pool.id) !== -1;
-
-      if ((this.pool.ltv === 90 || this.pool.ltv === 98) && !itsExcepton) {
-        return 10;
-      }
-
-      return 1;
+      return this.pool?.halsiMultiplier ? this.pool.halsiMultiplier : 1;
     },
   },
 
