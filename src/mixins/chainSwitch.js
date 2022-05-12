@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { mapGetters } from "vuex";
 export default {
   data() {
@@ -9,34 +8,43 @@ export default {
   },
   methods: {
     async switchNetwork(chainId) {
-      let targetChainId = ethers.utils.hexlify(chainId);
+      const provider = this.$store.getters.getProvider;
+      const isCoinbase = this.$store.getters.getIsCoinbase;
+      const data = this.networks.find(
+        (item) => item.chainId === chainId
+      )?.switchData;
+      try {
+        await provider.provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [
+            {
+              chainId: data.chainId === "0x01" ? "0x1" : data.chainId,
+            },
+          ],
+        });
 
-      if (targetChainId === "0x01") {
+        if (isCoinbase) {
+          window.location.reload();
+        }
+      } catch (error) {
+        console.log("switch network err:", error);
+
+        // if(error.code === -32602) {
         try {
-          await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [
-              {
-                chainId: "0x1",
-              },
-            ],
+          await provider.provider.request({
+            method: "wallet_addEthereumChain",
+            params: [data],
           });
 
-          return false;
+          if (isCoinbase) {
+            window.location.reload();
+          }
         } catch (e) {
-          console.log("To switch to Ethereum Mainnet, use metamask");
-          return false;
+          console.log("wallet_addEthereumChain err:", e);
         }
+
+        // }
       }
-
-      const network = this.networks.find(
-        (item) => item.switchData.chainId === targetChainId
-      );
-
-      await window.ethereum.request({
-        method: "wallet_addEthereumChain",
-        params: [network.switchData],
-      });
     },
     switchNetworkWithoutConnect(chainId) {
       localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
