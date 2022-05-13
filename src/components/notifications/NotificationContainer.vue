@@ -48,4 +48,13 @@ export default {
   opacity: 0;
   transform: translateY(30px);
 }
+
+@media (max-width: 600px) {
+  .notification-container {
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+    width: 90vw;
+  }
+}
 </style>

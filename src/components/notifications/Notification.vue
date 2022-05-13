@@ -9,7 +9,7 @@
         alt=""
         class="notification-item__icon"
       />
-      <h2>{{ notification.title }}</h2>
+      <h2>{{ notificationTitle }}</h2>
       <img
         class="notification-item__close"
         src="@/assets/images/notification-icons/close-icon.svg"
@@ -55,6 +55,12 @@ export default {
       }
 
       return `${this.timeValue} `;
+    },
+
+    notificationTitle() {
+      if (this.notification?.title) return this.notification.title;
+
+      return this.notification.type;
     },
   },
 
@@ -150,6 +156,9 @@ export default {
   }
   &__warning {
     border: 1px solid #e5d752;
+  }
+  &__pending {
+    border: 1px solid #9695f8;
   }
 }
 
