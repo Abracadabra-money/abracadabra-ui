@@ -1229,6 +1229,7 @@ export default [
     },
   },
   {
+    icon: require(`@/assets/images/tokens/Stargate-USDC.png`),
     name: "Stargate USDC",
     contractChain: "0x01",
     id: 31,
@@ -1270,6 +1271,7 @@ export default [
     },
   },
   {
+    icon: require(`@/assets/images/tokens/Stargate-USDT.png`),
     name: "Stargate USDT",
     contractChain: "0x01",
     id: 32,
