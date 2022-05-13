@@ -478,7 +478,7 @@ export default {
       if (this.pool) {
         const riskPersent =
           this.priceDifferens *
-          this.stableCoinMultiplyer *
+          this.healthMultiplier *
           this.pool.tokenPrice *
           100;
 
@@ -498,8 +498,8 @@ export default {
       return priceDifferens;
     },
 
-    stableCoinMultiplyer() {
-      return this.pool?.halsiMultiplier ? this.pool.halsiMultiplier : 1;
+    healthMultiplier() {
+      return this.pool?.healthMultiplier;
     },
   },
 

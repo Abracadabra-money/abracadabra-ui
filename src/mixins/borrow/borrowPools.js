@@ -528,7 +528,7 @@ export default {
         name: pool.name,
         icon: pool.icon,
         id: pool.id,
-        halsiMultiplier: pool.halsiMultiplier,
+        healthMultiplier: pool.healthMultiplier || 1,
         isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
         isDepreciated: pool.isDepreciated,
