@@ -58,16 +58,19 @@
         <template v-if="selectedPool">
           <div class="deposit-info underline">
             <span>LTV</span>
-            <span>{{ calculateLtv }}%</span>
+            <span>{{ calculateLtv | formatToFixed }}%</span>
           </div>
 
           <div class="percent-wrap">
             <PercentageButtons
               :liquidationPrice="depositExpectedLiquidationPrice"
+              :collateralValue="collateralValue"
               @onchange="updatePercentValue"
               :maxValue="ltv"
             />
           </div>
+
+          <BalanceBlock :pool="selectedPool" />
         </template>
       </div>
 
@@ -122,6 +125,7 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const PercentageButtons = () => import("@/components/borrow/PercentageButtons");
+const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
@@ -285,19 +289,14 @@ export default {
     },
 
     calculateLtv() {
-      if (
-        this.collateralValue &&
-        this.borrowValue &&
-        !this.borrowError &&
-        !this.collateralError
-      ) {
-        const tokenToMim = this.collateralValue / this.selectedPool.tokenPrice;
-        let ltv = Math.round((this.borrowValue / tokenToMim) * 100) + 1;
+      if (this.collateralValue && !this.collateralError) {
+        const percent = this.maxBorrowValue / this.selectedPool.ltv;
 
-        if (ltv <= this.selectedPool.ltv) {
-          return ltv;
-        }
-        return this.selectedPool.ltv;
+        let ltv = this.borrowValue / percent;
+
+        if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
+
+        return ltv;
       }
 
       if (this.borrowValue && !this.borrowError) {
@@ -749,6 +748,7 @@ export default {
     BaseTokenInput,
     BorrowPoolStand,
     PercentageButtons,
+    BalanceBlock,
     BaseButton,
     BaseLoader,
     PopupWrap,

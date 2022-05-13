@@ -13,7 +13,7 @@
           <p class="input-title">Token to bridge</p>
           <div class="balance">
             <span>Balance: </span>
-            <span>{{ bridgeObject.balance }}</span>
+            <span>{{ mimBalance | formatTokenBalance }}</span>
           </div>
         </div>
         <BaseTokenInput
@@ -174,6 +174,12 @@ export default {
       return +this.amount - feeAmount;
     },
 
+    mimBalance() {
+      if (this.bridgeObject?.balance) return this.bridgeObject.balance;
+
+      return 0;
+    },
+
     disableBtn() {
       if (this.bridgeObject.isDefaultProvider) return true;
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
@@ -235,20 +241,22 @@ export default {
     },
 
     updateMainValue(value) {
-      if (Number(value) > Number(this.bridgeObject.balance)) {
+      if (isNaN(+value)) {
         this.amountError = `The value cannot be greater than ${this.bridgeObject.balance}`;
         return false;
       }
 
-      if (Number(value) > Number(this.targetChainInfo.maxAmount)) {
+      if (+value > +this.bridgeObject.balance) {
+        this.amountError = `The value cannot be greater than ${this.bridgeObject.balance}`;
+        return false;
+      }
+
+      if (+value > +this.targetChainInfo.maxAmount) {
         this.amountError = `The value cannot be greater than ${this.targetChainInfo.maxAmount}`;
         return false;
       }
 
-      if (
-        Number(value) &&
-        Number(value) < Number(this.targetChainInfo.minAmount)
-      ) {
+      if (+value && +value < +this.targetChainInfo.minAmount) {
         this.amountError = `Minimum bridge requirement not met`;
         return false;
       }
@@ -370,7 +378,6 @@ export default {
     await this.createBridgeConfig();
 
     this.updateInterval = setInterval(async () => {
-      console.log("createBridgeConfig");
       await this.createBridgeConfig();
     }, 15000);
   },

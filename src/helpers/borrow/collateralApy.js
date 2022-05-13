@@ -389,7 +389,7 @@ export const fetchTokenApy = async (pool) => {
   }
 
   if ((pool.id === 19 || pool.id === 26) && chainId === mainnetId) {
-    return 16.56;
+    return 0;
   }
 
   if ((pool.id === 2 || pool.id === 5) && chainId === 43114) {

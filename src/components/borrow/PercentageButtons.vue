@@ -3,7 +3,10 @@
     <div class="block-body">
       <div
         class="percent-item"
-        :class="{ active: item == value, disabled: item > maxValue }"
+        :class="{
+          active: item == value && collateralValue,
+          disabled: item > maxValue || !collateralValue,
+        }"
         v-for="(item, idx) in percentItems"
         :key="idx"
         @click="setItemActive(item)"
@@ -15,6 +18,7 @@
         :class="{
           error: customErr,
           active: customValue == value && value !== '',
+          disabled: !collateralValue,
         }"
         @click="setCustomState(true)"
       >
@@ -24,6 +28,7 @@
           type="number"
           placeholder="XX%"
           @input="setCustomValue($event.target.value)"
+          :disabled="!collateralValue"
         />
         <p v-else>custom</p>
       </label>
@@ -40,7 +45,10 @@ export default {
       type: Number,
       require: true,
     },
-    // value: {},
+    collateralValue: {
+      type: String,
+      require: true,
+    },
   },
   data() {
     return {
@@ -59,6 +67,15 @@ export default {
     },
   },
 
+  watch: {
+    collateralValue() {
+      if (!this.collateralValue) {
+        this.isCustom = false;
+        this.value = null;
+      }
+    },
+  },
+
   methods: {
     setCustomValue(value) {
       this.customErr = false;
@@ -73,6 +90,7 @@ export default {
     },
 
     setCustomState(bool) {
+      if (!this.collateralValue) return false;
       if (this.isCustom === bool) return false;
       this.isCustom = bool;
       if (bool) this.emitValue("");
@@ -86,6 +104,7 @@ export default {
     },
 
     emitValue(value) {
+      this.value = value;
       if (!isNaN(value)) this.$emit("onchange", value);
     },
   },
@@ -152,7 +171,7 @@ export default {
 
     &.active,
     &:hover {
-      border: 1px solid #7b79f7;
+      background: #55535d;
     }
 
     &.error {

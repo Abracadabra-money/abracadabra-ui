@@ -4,6 +4,7 @@ import mainTokenAbi from "@/utils/abi/tokensAbi/cvxRen";
 export default {
   depositToken: {
     name: "renCrv",
+    icon: require(`@/assets/images/tokens/Curve-Ren.png`),
     decimals: 18,
     address: "0x49849C98ae39Fff122806C06791Fa73784FB3675",
     abi: depositTokenAbi,

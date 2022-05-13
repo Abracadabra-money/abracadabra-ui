@@ -300,7 +300,7 @@ export default {
     ],
   },
   stakeToken: {
-    name: "OHM",
+    name: "OHMv1",
     icon: require(`@/assets/images/tokens/OHM.png`),
     decimals: 9,
     address: "0x383518188C0C6d7730D91b2c03a03C837814a899",

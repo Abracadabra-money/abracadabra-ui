@@ -44,6 +44,8 @@ const formatToFixed = (value, fixed) => {
 
   if (+parsedValue === 0) return "0";
 
+  if (Number.isInteger(+parsedValue)) return parsedValue;
+
   const removedZero = parsedValue.replace(/0*$/, "");
   const removedDot = removedZero.endsWith(".")
     ? removedZero.slice(0, -1)
@@ -78,7 +80,7 @@ const filters = {
   formatTokenBalance,
   formatLargeSum,
   formatToFixed,
-  formatPercent
+  formatPercent,
 };
 
 export default filters;

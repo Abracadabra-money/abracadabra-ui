@@ -388,7 +388,7 @@ export default {
         const priceDifferens = +tokenPrice - +this.liquidationPriceExpected;
 
         const riskPersent =
-          ((priceDifferens * this.stableCoinMultiplyer) / tokenPrice) * 100;
+          ((priceDifferens * this.healthMultiplier) / tokenPrice) * 100;
 
         if (riskPersent > 100) {
           return 100;
@@ -403,8 +403,8 @@ export default {
       return 0;
     },
 
-    stableCoinMultiplyer() {
-      return this.pool?.halsiMultiplier ? this.pool.halsiMultiplier : 1;
+    healthMultiplier() {
+      return this.pool?.healthMultiplier;
     },
 
     leverageRisk() {
