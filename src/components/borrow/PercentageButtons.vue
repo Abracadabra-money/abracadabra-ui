@@ -4,9 +4,8 @@
       <div
         class="percent-item"
         :class="{
-          active: item == value,
-          disabled: item > maxValue,
-          disabled: !collateralValue,
+          active: item == value && collateralValue,
+          disabled: item > maxValue || !collateralValue,
         }"
         v-for="(item, idx) in percentItems"
         :key="idx"
@@ -72,6 +71,7 @@ export default {
     collateralValue() {
       if (!this.collateralValue) {
         this.isCustom = false;
+        this.value = null;
       }
     },
   },
@@ -104,7 +104,6 @@ export default {
     },
 
     emitValue(value) {
-      console.log(this.collateralValue);
       this.value = value;
       if (!isNaN(value)) this.$emit("onchange", value);
     },
