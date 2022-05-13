@@ -58,7 +58,7 @@
         <template v-if="selectedPool">
           <div class="deposit-info underline">
             <span>LTV</span>
-            <span>{{ calculateLtv }}%</span>
+            <span>{{ calculateLtv | formatToFixed }}%</span>
           </div>
 
           <div class="percent-wrap">
@@ -296,7 +296,7 @@ export default {
 
         if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
 
-        return Math.round(ltv);
+        return ltv;
       }
 
       if (this.borrowValue && !this.borrowError) {
