@@ -7,7 +7,7 @@ import joeInfoAbi from "@/utils/abi/joeInfo";
 export default [
   {
     icon: require(`@/assets/images/tokens/AVAX.png`),
-    name: "AVAX",
+    name: "WAVAX",
     contractChain: "0xa86a",
     id: 1,
     isDepreciated: false,
