@@ -64,6 +64,7 @@
           <div class="percent-wrap">
             <PercentageButtons
               :liquidationPrice="depositExpectedLiquidationPrice"
+              :collateralValue="collateralValue"
               @onchange="updatePercentValue"
               :maxValue="ltv"
             />
@@ -288,19 +289,14 @@ export default {
     },
 
     calculateLtv() {
-      if (
-        this.collateralValue &&
-        this.borrowValue &&
-        !this.borrowError &&
-        !this.collateralError
-      ) {
-        const tokenToMim = this.collateralValue / this.selectedPool.tokenPrice;
-        let ltv = Math.round((this.borrowValue / tokenToMim) * 100) + 1;
+      if (this.collateralValue && !this.collateralError) {
+        const percent = this.maxBorrowValue / this.selectedPool.ltv;
 
-        if (ltv <= this.selectedPool.ltv) {
-          return ltv;
-        }
-        return this.selectedPool.ltv;
+        let ltv = this.borrowValue / percent;
+
+        if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
+
+        return Math.round(ltv);
       }
 
       if (this.borrowValue && !this.borrowError) {
