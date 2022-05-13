@@ -556,6 +556,7 @@ export default {
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
         leverageMax: pool.leverageMax,
+        hasWithdrawableLimit: pool.hasWithdrawableLimit,
         token: {
           contract: tokenContract,
           name: pool.token.name,
@@ -601,6 +602,9 @@ export default {
       }
 
       let maxWithdrawAmount = -1;
+
+      console.log("pool.hasWithdrawableLimit", pool.id);
+      console.log("pool.hasWithdrawableLimit", pool.hasWithdrawableLimit);
 
       if (pool.hasWithdrawableLimit) {
         const tokenWithdrawAmount = await pool.token.contract.balanceOf(

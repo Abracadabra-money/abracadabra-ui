@@ -401,7 +401,7 @@ export default {
           additional: "MIM Borrowable Given the Collateral Deposited",
         });
 
-        if (this.pool.strategyLink) {
+        if (this.pool.userInfo?.maxWithdrawAmount) {
           resultArray.push({
             title: "Withdrawable Amount",
             value: Vue.filter("formatTokenBalance")(
