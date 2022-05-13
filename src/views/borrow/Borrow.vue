@@ -68,6 +68,8 @@
               :maxValue="ltv"
             />
           </div>
+
+          <BalanceBlock :pool="selectedPool" />
         </template>
       </div>
 
@@ -122,6 +124,7 @@ const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const PercentageButtons = () => import("@/components/borrow/PercentageButtons");
+const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
@@ -749,6 +752,7 @@ export default {
     BaseTokenInput,
     BorrowPoolStand,
     PercentageButtons,
+    BalanceBlock,
     BaseButton,
     BaseLoader,
     PopupWrap,
