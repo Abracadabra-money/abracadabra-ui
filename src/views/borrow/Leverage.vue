@@ -33,7 +33,7 @@
             v-model="collateralValue"
             :max="maxCollateralValue"
             :error="collateralError"
-            :disabled="selectedPool ? false : true"
+            :disabled="!selectedPool"
             @input="updateCollateralValue"
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
@@ -123,9 +123,9 @@ import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
 import { mapGetters } from "vuex";
 import {
-  isTokenApprowed,
   approveToken,
   isApprowed,
+  isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
 import notification from "@/utils/notification/index.js";
@@ -306,12 +306,11 @@ export default {
     },
 
     depositExpectedLiquidationPrice() {
-      const liquidationPrice =
+      return (
         +this.depositExpectedBorrowed /
           +this.depositExpectedCollateral /
-          this.liquidationMultiplier || 0;
-
-      return liquidationPrice;
+          this.liquidationMultiplier || 0
+      );
     },
 
     multiplyMimExpected() {
@@ -437,8 +436,7 @@ export default {
     },
 
     followLink() {
-      if (this.$route.params.id && !this.pools.length) return true;
-      return false;
+      return !!(this.$route.params.id && !this.pools.length);
     },
 
     acceptUseDefaultBalance() {
@@ -934,7 +932,7 @@ export default {
   grid-template-columns: 1fr;
   grid-gap: 30px;
   margin: 0 auto;
-  max-width: 100%;
+  max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
 }

@@ -38,7 +38,7 @@ export default {
   padding-top: 160px;
   margin: 0 auto;
   width: 940px;
-  max-width: 100%;
+  max-width: calc(100% - 20px);
   box-sizing: border-box;
 }
 

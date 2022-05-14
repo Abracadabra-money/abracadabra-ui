@@ -149,14 +149,11 @@ export default {
     },
     disableActionBtn() {
       if (this.isUserLocked) return true;
-      if (!+this.amount || this.amountError) return true;
-
-      return false;
+      return !!(!+this.amount || this.amountError);
     },
     disableApproveBtn() {
       if (this.action === "Unstake") return true;
-      if (this.tokensInfo.stakeToken.isTokenApprowed) return true;
-      return false;
+      return !!this.tokensInfo.stakeToken.isTokenApprowed;
     },
   },
   watch: {
@@ -480,9 +477,7 @@ export default {
   display: grid;
   grid-template-columns: 550px 1fr;
   width: 1320px;
-  max-width: 100%;
-  width: 95%;
-
+  max-width: calc(100% - 20px);
   grid-gap: 30px;
   margin: 0 auto;
 

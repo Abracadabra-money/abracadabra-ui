@@ -158,20 +158,15 @@ export default {
         Number(this.tokensInfo.lockedUntil) !== 0
       )
         return true;
-      if (+this.tokensInfo.claimableAmount > 0) return false;
-
-      return true;
+      return +this.tokensInfo.claimableAmount <= 0;
     },
     disableActionBtn() {
       if (this.isUserLocked) return true;
-      if (!+this.amount || this.amountError) return true;
-
-      return false;
+      return !!(!+this.amount || this.amountError);
     },
     disableApproveBtn() {
       if (this.action === "Withdraw") return true;
-      if (this.tokensInfo.stakeToken.isTokenApprowed) return true;
-      return false;
+      return !!this.tokensInfo.stakeToken.isTokenApprowed;
     },
   },
   watch: {
@@ -536,10 +531,9 @@ export default {
   display: grid;
   grid-template-columns: 550px 1fr;
   width: 1320px;
-  max-width: 100%;
+  max-width: calc(100% - 20px);
   grid-gap: 30px;
   margin: 0 auto;
-  width: 95%;
   padding: 100px 0;
 }
 
