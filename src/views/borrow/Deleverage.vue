@@ -321,7 +321,10 @@ export default {
     },
 
     flashReapyExpectedLiquidationPrice() {
-      if (!+this.flashRepayAmount) return 0;
+      const defaultLiquidationPrice =
+        this.selectedPool?.userInfo?.liquidationPrice || 0;
+
+      if (!+this.flashRepayAmount) return defaultLiquidationPrice;
 
       const slipageMutiplier = (100 + this.slipage) / 100;
 

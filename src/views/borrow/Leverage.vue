@@ -332,6 +332,8 @@ export default {
 
     liquidationPriceExpected() {
       if (this.selectedPool && this.account) {
+        const defaultLiquidationPrice =
+          this.selectedPool?.userInfo?.liquidationPrice || 0;
         let liquidationDecimals = 4;
         if (this.selectedPool.name === "SHIB") liquidationDecimals = 6;
 
@@ -341,7 +343,7 @@ export default {
           );
         }
 
-        if (!this.collateralValue) return 0;
+        if (!this.collateralValue) return defaultLiquidationPrice;
 
         let expectedDeposit =
           this.multiplyMimExpected * this.selectedPool.tokenOraclePrice;
