@@ -88,7 +88,7 @@ export default {
   data: () => ({
     emptyData: {
       img: require(`@/assets/images/empty_borrow.png`),
-      text: "Some text 4 empty view",
+      text: "Some text 4 empty view!",
       bottom: "If you want to learn more read our docs",
       link: "https://abracadabra.money/",
     },

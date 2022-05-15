@@ -48,7 +48,10 @@
     </div>
     <div class="profile">
       <h1 class="title">sSPELL Token Staking</h1>
-      <InfoBlock :tokensInfo="tokensInfo" />
+      <div class="loader-wrap" v-if="isLoadingsSpellStake">
+        <BaseLoader />
+      </div>
+      <InfoBlock v-else-if="tokensInfo" :tokensInfo="tokensInfo" />
       <div class="profile-actions" v-if="tokensInfo && account">
         <BaseButton
           @click="approveTokenHandler"
@@ -157,8 +160,8 @@ export default {
     },
   },
   watch: {
-    async address() {
-      if (this.address) {
+    async account(value) {
+      if (value) {
         await this.createStakePool();
       }
     },

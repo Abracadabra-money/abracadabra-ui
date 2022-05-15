@@ -48,7 +48,10 @@
     </div>
     <div class="profile">
       <h1 class="title">mSPELL Token Staking</h1>
-      <InfoBlock :tokensInfo="tokensInfo" />
+      <div class="loader-wrap" v-if="isLoadingsSpellStake">
+        <BaseLoader />
+      </div>
+      <InfoBlock v-else-if="tokensInfo" :tokensInfo="tokensInfo" />
       <div class="profile-actions" v-if="tokensInfo && account">
         <BaseButton
           @click="approveTokenHandler"
@@ -75,7 +78,14 @@
         <div class="text-wrap">
           <p>
             Make SPELL work for you! Stake your SPELL into mSPELL! No
-            impermanent loss, no loss of governance rights.
+            impermanent loss, no loss of governance rights. Take part in the fee
+            sharing mechanism of Abracadabra and earn MIM! Find out more
+            <a
+              target="_blank"
+              href="https://docs.abracadabra.money/intro/stake/mspell"
+              class="empty-link"
+              >here</a
+            >!
           </p>
           <p>
             After each new deposit, all staked SPELL are subject to a 24H
@@ -170,8 +180,8 @@ export default {
     },
   },
   watch: {
-    async address() {
-      if (this.address) {
+    async account(value) {
+      if (value) {
         await this.createMSpellStaking();
       }
     },
@@ -433,6 +443,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.empty-link {
+  color: #759ffa;
+}
+
 .loader-wrap {
   display: flex;
   align-items: center;
