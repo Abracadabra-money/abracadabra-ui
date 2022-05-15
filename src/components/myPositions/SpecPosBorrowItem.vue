@@ -95,7 +95,12 @@
             class="footer-list-item"
           >
             <div class="footer-list-title">
-              <img class="info-img" src="@/assets/images/info.svg" alt="info" />
+              <img
+                v-tooltip="item.tooltipText"
+                class="info-img"
+                src="@/assets/images/info.svg"
+                alt="info"
+              />
 
               <p>{{ item.title }}</p>
             </div>
@@ -126,31 +131,39 @@ export default {
     opened: { type: Boolean, default: true },
     pool: { type: Object, required: true },
   },
-  data: () => ({
-    openedItems: [
-      {
+  computed: {
+    isDeleverageAccepted() {
+      return this.pool.isSwappersActive && !!this.pool.reverseSwapContract;
+    },
+    openedItems() {
+      const openedItems = [];
+
+      const repayLink = {
         title: "Repay MIMs",
         icon: require("@/assets/images/myposition/egg.svg"),
         name: "RepayId",
-      },
-      {
+      };
+
+      openedItems.push(repayLink);
+
+      const removeLink = {
         title: "Remove Collateral",
         icon: require("@/assets/images/myposition/hammer.svg"),
-        name: "LeverageId",
-      },
-      {
+        name: "RepayId",
+      };
+
+      openedItems.push(removeLink);
+
+      const deleverageLink = {
         title: "Deleverage",
         icon: require("@/assets/images/myposition/graph-up.svg"),
         name: "DeleverageId",
-      },
-    ],
-  }),
-  methods: {
-    setComma(value) {
-      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      };
+
+      if (this.isDeleverageAccepted) openedItems.push(deleverageLink);
+
+      return openedItems;
     },
-  },
-  computed: {
     initialInUsd() {
       return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
     },
@@ -161,15 +174,7 @@ export default {
       return this.pool.icon;
     },
     stableCoinMultiplayer() {
-      const exceptionPools = [15, 16, 27];
-
-      const itsExcepton = exceptionPools.includes(this.pool.id);
-
-      if ((this.pool.ltv === 90 || this.pool.ltv === 98) && !itsExcepton) {
-        return 10;
-      }
-
-      return 1;
+      return this.pool?.healthMultiplier;
     },
     tokenPrice() {
       return 1 / this.pool.tokenPrice;
@@ -190,15 +195,8 @@ export default {
 
       return parseFloat(riskPercent).toFixed(2);
     },
-    liquidationMultiplier() {
-      return this.pool.ltv / 100;
-    },
     liquidationPrice() {
-      return (
-        +this.pool.userInfo.userBorrowPart /
-          +this.pool.userInfo.userCollateralShare /
-          this.liquidationMultiplier || 0
-      );
+      return this.pool.userInfo.liquidationPrice;
     },
     minPrice() {
       return this.tokenPrice - this.liquidationPrice;
@@ -213,12 +211,14 @@ export default {
       return [
         {
           title: "Liquidation price",
-          value: Vue.filter("formatUSD")(
-            this.liquidationPrice
-          ) /*, color: "#63CAF8"*/,
+          tooltipText:
+            "Collateral Price at which your Position will be Liquidated",
+          value: Vue.filter("formatUSD")(this.liquidationPrice),
         },
         {
           title: "Min price",
+          tooltipText:
+            "If your Collateral Price drops by this amount, you will be flagged for liquidation",
           value: Vue.filter("formatUSD")(this.minPrice),
         },
       ];

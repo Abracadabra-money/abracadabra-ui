@@ -115,7 +115,7 @@
       <SelectPoolPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
-        :pools="pools"
+        :pools="filteredPool"
     /></PopupWrap>
   </div>
 </template>
@@ -171,6 +171,10 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
+
+    filteredPool() {
+      return this.pools.filter((pool) => !pool.isDepreciated);
+    },
 
     selectedPool() {
       if (this.poolId) {
