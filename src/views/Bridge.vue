@@ -397,7 +397,9 @@ export default {
 
 <style lang="scss" scoped>
 .bridge-view {
+  max-width: calc(100% - 20px);
   padding: 100px 0;
+  margin: 0 auto;
 }
 
 .underline {

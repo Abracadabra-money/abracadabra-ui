@@ -353,12 +353,13 @@ export default {
 
 <style lang="scss" scoped>
 .farm-view {
+  max-width: calc(100% - 20px);
+  width: 740px;
   padding: 100px 0;
+  margin: 0 auto;
 }
 
 .farm {
-  max-width: 740px;
-  width: 100%;
   margin: 0 auto;
   padding: 30px 95px;
   background: #2a2835;
