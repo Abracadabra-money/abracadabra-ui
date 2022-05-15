@@ -103,7 +103,6 @@ export default {
       fromChainId: null,
       updateInterval: null,
       amount: "",
-      amountError: "",
     };
   },
 
@@ -113,6 +112,22 @@ export default {
       activeChain: "getChainId",
       address: "getAccount",
     }),
+
+    amountError() {
+      if (+this.amount > +this.bridgeObject.balance) {
+        return `The value cannot be greater than ${this.bridgeObject.balance}`;
+      }
+
+      if (+this.amount > +this.targetChainInfo.maxAmount) {
+        return `The value cannot be greater than ${this.targetChainInfo.maxAmount}`;
+      }
+
+      if (+this.amount && +this.amount < +this.targetChainInfo.minAmount) {
+        return `Minimum bridge requirement not met`;
+      }
+
+      return false;
+    },
 
     mimIcon() {
       return require("@/assets/images/tokens/MIM.png");
@@ -241,27 +256,6 @@ export default {
     },
 
     updateMainValue(value) {
-      if (isNaN(+value)) {
-        this.amountError = `The value cannot be greater than ${this.bridgeObject.balance}`;
-        return false;
-      }
-
-      if (+value > +this.bridgeObject.balance) {
-        this.amountError = `The value cannot be greater than ${this.bridgeObject.balance}`;
-        return false;
-      }
-
-      if (+value > +this.targetChainInfo.maxAmount) {
-        this.amountError = `The value cannot be greater than ${this.targetChainInfo.maxAmount}`;
-        return false;
-      }
-
-      if (+value && +value < +this.targetChainInfo.minAmount) {
-        this.amountError = `Minimum bridge requirement not met`;
-        return false;
-      }
-
-      this.amountError = "";
       this.amount = value;
     },
 
