@@ -39,6 +39,9 @@
             @input="updateBorrowValue"
           />
         </div>
+        <template v-if="selectedPool">
+          <BalanceBlock :pool="selectedPool" />
+        </template>
       </div>
       <div class="info-block">
         <h1 class="title">Repay MIM</h1>
@@ -94,6 +97,7 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const PopupWrap = () => import("@/components/popups/PopupWrap");
 const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
+const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
@@ -718,6 +722,7 @@ export default {
   },
 
   components: {
+    BalanceBlock,
     NetworksList,
     BaseTokenInput,
     BorrowPoolStand,
