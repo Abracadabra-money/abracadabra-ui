@@ -9,27 +9,7 @@
       </template>
     </div>
     <div class="profile-data">
-      <template v-if="isEmpty">
-        <div class="empty-wrap">
-          <img :src="emptyData.img" v-if="emptyData.img" alt="info" />
-          <div class="empty-text">
-            <p v-if="emptyData.text">
-              {{ emptyData.text }}
-            </p>
-            <p class="empty-bottom" v-if="emptyData.bottom">
-              {{ emptyData.bottom }}
-              <a
-                class="empty-link"
-                :href="emptyData.link"
-                v-if="emptyData.link"
-                target="_blank"
-                >here</a
-              >
-            </p>
-          </div>
-        </div>
-      </template>
-      <template v-else-if="!isEmpty && !account">
+      <template v-if="!isEmpty && !account">
         <div class="empty-wrap">
           <img src="@/assets/images/empty-pos-list.png" alt="info" />
           <div class="empty-text">
