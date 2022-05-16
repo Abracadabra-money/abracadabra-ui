@@ -555,9 +555,13 @@ export default {
   margin: 20px 0;
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1200px) {
   .stake {
-    grid-template-columns: 450px 1fr;
+    grid-gap: 15px;
+  }
+
+  .profile {
+    padding: 30px 15px;
   }
 }
 

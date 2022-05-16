@@ -811,6 +811,10 @@ export default {
 }
 
 @media (max-width: 1200px) {
+  .borrow {
+    grid-gap: 15px;
+  }
+
   .info-block {
     padding: 30px 20px;
   }
