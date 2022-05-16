@@ -1,7 +1,7 @@
 <template>
   <div class="tokens-popup">
     <div class="search-wrap">
-      <p class="title">Select Farm</p>
+      <p class="title">{{ title }}</p>
       <input
         v-if="!isLoading"
         v-model="search"
@@ -11,21 +11,31 @@
       />
     </div>
 
-    <div v-if="isLoading" class="loader-wrap">
+    <div v-if="!tokens.length && isLoading" class="loader-wrap">
       <BaseLoader />
     </div>
 
     <div v-else-if="filteredTokens.length" class="tokens-list">
-      <TokenPopupItem
-        v-for="(token, i) in filteredTokens"
-        @click="selectToken(token)"
-        :key="i"
-        :name="token.name"
-        :icon="token.icon"
-        :farmItem="token"
-        :balance="token.accountInfo ? token.accountInfo.balance : null"
-        :price="token.lpPrice"
-      />
+      <template v-if="popupType === 'tokens'">
+        <TokenPopupItem
+          v-for="token in filteredTokens"
+          @click="selectToken(token)"
+          :key="token.id"
+          :name="token.name"
+          :icon="token.icon"
+          :farmItem="token"
+          :balance="token.accountInfo ? token.accountInfo.balance : null"
+          :price="token.lpPrice"
+        />
+      </template>
+      <template v-else>
+        <SelectPopupItem
+          v-for="pool in filteredTokens"
+          :key="pool.id"
+          :pool="pool"
+          @enterPool="selectToken"
+        />
+      </template>
     </div>
 
     <div class="not-found" v-else-if="!filteredTokens.length && tokens.length">
@@ -34,7 +44,7 @@
         src="@/assets/images/empty-stats-list.png"
         alt=""
       />
-      <p class="not-found__text">No farms found with this name</p>
+      <p class="not-found__text">{{ notFoundTitle }}</p>
     </div>
     <div class="not-found" v-else-if="!tokens.length">
       <img
@@ -42,15 +52,18 @@
         src="@/assets/images/empty-stats-list.png"
         alt=""
       />
-      <p class="not-found__text">NO FARMS ON THIS NETWORK</p>
+      <p class="not-found__text">{{ noOnNetworkTitle }}</p>
       <p class="not-found__text">in the future they will be displayed here</p>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 const BaseLoader = () => import("@/components/base/BaseLoader");
-const TokenPopupItem = () => import("@/components/popups/TokenPopupItem");
+const TokenPopupItem = () => import("@/components/farms/FarmListItem");
+const SelectPopupItem = () => import("@/components/borrow/BorrowListItem");
 
 export default {
   props: {
@@ -62,6 +75,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    popupType: {
+      type: String,
+      required: true,
+    },
   },
   data: () => ({ search: "" }),
   methods: {
@@ -71,6 +88,19 @@ export default {
     },
   },
   computed: {
+    title() {
+      return this.popupType === "tokens" ? "Select Farm" : "Select Couldron";
+    },
+    notFoundTitle() {
+      return this.popupType === "tokens"
+        ? "No farms found with this name"
+        : "No couldrons found with this name";
+    },
+    noOnNetworkTitle() {
+      return this.popupType === "tokens"
+        ? "NO FARMS ON THIS NETWORK"
+        : "NO POOLS ON THIS NETWORK";
+    },
     filteredTokens() {
       return !this.search
         ? this.tokens
@@ -80,11 +110,19 @@ export default {
           );
     },
     isLoading() {
-      return this.$store.getters.getFarmPoolLoading;
+      return this.popupType === "tokens"
+        ? this.farmPoolLoading
+        : this.isLoadBorrowPools;
     },
+    ...mapGetters({
+      isLoadBorrowPools: "getLoadPoolsBorrow",
+      farmPoolLoading: "getFarmPoolLoading",
+      isCreatingPoolsBorrow: "getCreatePoolsBorrow",
+    }),
   },
   components: {
     BaseLoader,
+    SelectPopupItem,
     TokenPopupItem,
   },
 };
@@ -166,6 +204,7 @@ export default {
 .loader-wrap {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 52px;
 }
 

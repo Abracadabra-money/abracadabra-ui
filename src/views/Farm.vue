@@ -45,6 +45,7 @@
               :icon="selectedPool ? selectedPool.icon : null"
               :max="max"
               :error="error"
+              :disabled="!selectedPool"
             />
           </div>
 
@@ -121,14 +122,15 @@
           </a></div
       ></template>
     </div>
-    <PopupWrap v-model="isTokensOpened" maxWidth="400px" height="600px">
-      <SelectTokenPopup
+    <LocalPopupWrap v-model="isTokensOpened">
+      <MarketsListPopup
         @select="selectPool"
         @close="isTokensOpened = false"
+        popupType="tokens"
         :tokens="pools"
         :isUnstake="isUnstake"
       />
-    </PopupWrap>
+    </LocalPopupWrap>
   </div>
 </template>
 
@@ -138,8 +140,8 @@ import { mapGetters } from "vuex";
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
-const PopupWrap = () => import("@/components/popups/PopupWrap");
-const SelectTokenPopup = () => import("@/components/popups/SelectTokenPopup");
+const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
+const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const MarketsSwitch = () => import("@/components/markets/MarketsSwitch");
 import farmPoolsMixin from "../mixins/farmPools";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
@@ -344,8 +346,8 @@ export default {
     NetworksList,
     BaseTokenInput,
     BaseButton,
-    PopupWrap,
-    SelectTokenPopup,
+    LocalPopupWrap,
+    MarketsListPopup,
     MarketsSwitch,
   },
 };
