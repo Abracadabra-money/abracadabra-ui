@@ -140,6 +140,7 @@ const onConnect = async () => {
     store.commit("setProvider", provider);
     store.commit("setSigner", signer);
     store.commit("setAccount", address);
+    store.dispatch("checkENSName", address);
     store.commit("setWalletConnection", true);
     store.commit("setIsCoinbase", isCoinbase);
     store.commit("setMetamaskActive", isMetaMask);

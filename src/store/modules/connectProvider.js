@@ -1,8 +1,11 @@
+import { ethers } from "ethers";
+
 export default {
   state: {
     provider: null,
     signer: null,
     account: null,
+    ensName: null,
     chainId: null,
     isMetamaskActive: false,
     isCoinbase: false,
@@ -18,6 +21,9 @@ export default {
     },
     setAccount(state, payload) {
       state.account = payload;
+    },
+    setENSName(state, payload) {
+      state.ensName = payload;
     },
     setChainId(state, payload) {
       state.chainId = payload;
@@ -36,10 +42,26 @@ export default {
       state.walletCheckInProcess = payload;
     },
   },
+  actions: {
+    async checkENSName({ commit }, address) {
+      try {
+        const ensName = await new ethers.providers.StaticJsonRpcProvider(
+          "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+        ).lookupAddress(address);
+
+        if (ensName) {
+          commit("setENSName", ensName);
+        }
+      } catch (error) {
+        console.log("fetchENSName ERR:", error);
+      }
+    },
+  },
   getters: {
     getProvider: (state) => state.provider,
     getSigner: (state) => state.signer,
     getAccount: (state) => state.account,
+    getEnsName: (state) => state.ensName,
     getChainId: (state) => state.chainId,
     getWalletIsConnected: (state) => state.isWalletConnected,
     getWalletCheckInProccess: (state) => state.walletCheckInProcess,

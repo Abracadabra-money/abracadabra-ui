@@ -267,11 +267,12 @@ export default {
       let defaultValue = +this.pool.userInfo.userCollateralShare;
 
       if (this.collateralExpected && this.typeOperation === "borrow") {
-        if (
-          this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) <
-          +this.collateralExpected
-        )
-          return defaultValue;
+        // NETWORK VALUE FIX
+        // if (
+        //   this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) <
+        //   +this.collateralExpected
+        // )
+        //   return defaultValue;
 
         return +this.collateralExpected + defaultValue;
       }

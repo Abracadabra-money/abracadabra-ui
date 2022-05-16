@@ -70,7 +70,7 @@ export default {
       if (this.chainId === 250) {
         name = "FTM";
         title = "Fantom Opera Mainnet";
-        icon = require("@/assets/images/tokens/FTM.png");
+        icon = require("@/assets/images/tokens/FTM2.png");
       }
       if (this.chainId === 43114) {
         name = "AVAX";
