@@ -259,8 +259,7 @@ export default {
 .dropdown-other {
   display: flex;
   justify-content: center;
-  max-width: 90px;
-  width: 100%;
+  width: 90px;
 
   .title {
     max-width: 20px;
