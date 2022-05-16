@@ -51,7 +51,9 @@
       <div class="loader-wrap" v-if="isLoadingsSpellStake">
         <BaseLoader />
       </div>
+
       <InfoBlock v-else-if="tokensInfo" :tokensInfo="tokensInfo" />
+      <EmptyBlock v-else-if="!isLoadingsSpellStake && !tokensInfo" />
       <div class="profile-actions" v-if="tokensInfo && account">
         <BaseButton
           @click="approveTokenHandler"
@@ -87,11 +89,10 @@
 </template>
 <script>
 const InfoBlock = () => import("@/components/stake/InfoBlock");
+const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
-
 const BaseButton = () => import("@/components/base/BaseButton");
-
 const BaseLoader = () => import("@/components/base/BaseLoader");
 
 import sspellToken from "@/mixins/stake/sspellToken";
@@ -378,6 +379,7 @@ export default {
     BaseTokenInput,
     NetworksList,
     BaseLoader,
+    EmptyBlock,
   },
 };
 </script>

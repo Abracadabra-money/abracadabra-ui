@@ -52,6 +52,10 @@
         <BaseLoader />
       </div>
       <InfoBlock v-else-if="tokensInfo" :tokensInfo="tokensInfo" />
+      <EmptyBlock
+        :warningType="'mspell'"
+        v-else-if="!isLoadingsSpellStake && !tokensInfo"
+      />
       <div class="profile-actions" v-if="tokensInfo && account">
         <BaseButton
           @click="approveTokenHandler"
@@ -99,7 +103,7 @@
 <script>
 const InfoBlock = () => import("@/components/stake/InfoBlock");
 const ClaimInfo = () => import("@/components/stake/ClaimInfo");
-
+const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
 
@@ -438,6 +442,7 @@ export default {
     NetworksList,
     ClaimInfo,
     BaseLoader,
+    EmptyBlock,
   },
 };
 </script>
