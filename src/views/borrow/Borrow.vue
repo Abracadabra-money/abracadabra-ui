@@ -31,6 +31,7 @@
             class="checkbox-wrap"
             v-if="acceptUseDefaultBalance"
             :class="{ active: useDefaultBalance }"
+            @click="toggleUseDefaultBalance"
           >
             <img
               class="checkbox-img"
@@ -45,9 +46,7 @@
               v-else
             />
 
-            <p class="label-text" @click="toggleUseDefaultBalance">
-              Use {{ networkValuteName }}
-            </p>
+            <p class="label-text">Use {{ networkValuteName }}</p>
           </div>
         </div>
         <div class="borrow-input underline">
@@ -860,14 +859,13 @@ export default {
 }
 
 .checkbox-wrap {
-  width: 140px;
-  height: 40px;
   background: rgba(129, 126, 166, 0.1);
   border-radius: 20px;
-  padding: 15px;
-  display: flex;
+  padding: 8px 16px;
+  display: inline-flex;
   align-items: center;
   border: 2px solid transparent;
+  cursor: pointer;
 
   &.active {
     border: 2px solid #8180ff;
