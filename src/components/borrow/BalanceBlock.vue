@@ -1,6 +1,26 @@
 <template>
   <div class="wrap">
-    <h3>Your Balances</h3>
+    <h3 class="title">Your Balance for {{ networkInfo.title }}</h3>
+    <div class="balance-item" v-if="pool.acceptUseDefaultBalance">
+      <div class="balance-name">
+        <BaseTokenIcon :icon="networkInfo.icon" :name="pool.name" />
+        <p>{{ networkInfo.name }}</p>
+      </div>
+      <div class="balance">
+        <p>{{ networkBalance | formatTokenBalance }}</p>
+      </div>
+    </div>
+
+    <div class="balance-item">
+      <div class="balance-name">
+        <BaseTokenIcon :icon="mimIcon" :name="pool.name" />
+        <p>{{ pool.pairToken.name }}</p>
+      </div>
+      <div class="balance">
+        <p>{{ userMimBalance | formatTokenBalance }}</p>
+      </div>
+    </div>
+
     <div class="balance-item">
       <div class="balance-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
@@ -13,21 +33,13 @@
         </p>
       </div>
     </div>
-    <div class="balance-item">
-      <div class="balance-name">
-        <BaseTokenIcon :icon="mimIcon" :name="pool.name" />
-        <p>{{ pool.pairToken.name }}</p>
-      </div>
-      <div class="balance">
-        <p>{{ userPairBalance | formatTokenBalance }}</p>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import { mapGetters } from "vuex";
 export default {
   props: {
     pool: {
@@ -42,6 +54,63 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
+    networkInfo() {
+      let name = "ETH";
+      let title = " Ethereum Mainnet";
+      let icon = require("@/assets/images/tokens/ETH.png");
+
+      if (this.chainId === 56) {
+        name = "BSC";
+        title = "Binance Smart Chain";
+        icon = require("@/assets/images/tokens/BNB.png");
+      }
+
+      if (this.chainId === 250) {
+        name = "FTM";
+        title = "Fantom Opera Mainnet";
+        icon = require("@/assets/images/tokens/FTM.png");
+      }
+      if (this.chainId === 43114) {
+        name = "AVAX";
+        title = "Avalanche Mainnet";
+        icon = require("@/assets/images/tokens/AVAX.png");
+      }
+      if (this.chainId === 42161) {
+        name = "AETH";
+        title = " Arbitrum One";
+        icon = require("@/assets/images/tokens/AETH.png");
+      }
+      if (this.chainId === 137) {
+        name = "MATIC";
+        title = "Polygon Mainnet";
+        icon = require("@/assets/images/tokens/MATIC.png");
+      }
+
+      return { name, icon, title };
+    },
+
+    networkBalance() {
+      if (this.pool.userInfo)
+        return this.$ethers.utils.formatUnits(
+          this.pool.userInfo.networkBalance,
+          18
+        );
+
+      return 0;
+    },
+
+    userMimBalance() {
+      if (this.pool.userInfo)
+        return this.$ethers.utils.formatUnits(
+          this.pool.userInfo.userPairBalance,
+          this.pool.pairToken.decimals
+        );
+
+      return 0;
+    },
+
     userBalance() {
       if (this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
@@ -51,19 +120,6 @@ export default {
 
       return 0;
     },
-    userPairBalance() {
-      if (this.pool.userInfo)
-        return this.$ethers.utils.formatUnits(
-          this.pool.userInfo.userPairBalance,
-          this.pool.pairToken.decimals
-        );
-
-      return 0;
-    },
-  },
-
-  created() {
-    console.log(this.pool);
   },
 
   components: { BaseTokenIcon },
@@ -72,10 +128,19 @@ export default {
 
 <style lang="scss" scoped>
 .wrap {
-  background: rgba(129, 126, 166, 0.2);
-  border: 1px solid #494661;
-  border-radius: 20px;
-  padding: 10px;
+  background: #2b2b3c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+  backdrop-filter: blur(100px);
+  border-radius: 30px;
+  padding: 15px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 27px;
+  margin-bottom: 15px;
 }
 
 .balance-item {
@@ -83,7 +148,12 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 5px 0;
+}
+
+.balance-item:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 .balance-name {
@@ -93,5 +163,11 @@ export default {
 
 .balance {
   text-align: right;
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 16px;
+  }
 }
 </style>
