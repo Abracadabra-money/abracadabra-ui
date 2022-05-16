@@ -128,6 +128,7 @@ export default {
 
   .block-body {
     width: 100%;
+    max-width: 490px;
     display: flex;
     align-items: center;
     justify-content: space-between;
