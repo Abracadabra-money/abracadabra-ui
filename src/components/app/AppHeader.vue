@@ -260,6 +260,7 @@ export default {
   display: flex;
   justify-content: center;
   width: 90px;
+  position: relative;
 
   .title {
     max-width: 20px;
@@ -293,9 +294,10 @@ export default {
 }
 
 .list-link:hover {
-  background: -webkit-linear-gradient(#5282fd, #76c3f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #76c3f5;
+  // background: -webkit-linear-gradient(#5282fd, #76c3f5);
+  // -webkit-background-clip: text;
+  // -webkit-text-fill-color: transparent;
 }
 
 .list-link:last-child {
