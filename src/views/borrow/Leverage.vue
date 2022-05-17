@@ -178,7 +178,7 @@ export default {
     },
 
     maxCollateralValue() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool?.userInfo && this.account) {
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
@@ -196,7 +196,7 @@ export default {
     },
 
     maxBorrowValue() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool?.userInfo && this.account) {
         let valueInDolars;
         let maxPairValue;
 
@@ -287,7 +287,7 @@ export default {
     },
 
     depositExpectedCollateral() {
-      if (this.selectedPool.userInfo) {
+      if (this.selectedPool?.userInfo) {
         if (this.collateralError)
           return +this.selectedPool.userInfo.userCollateralShare;
         return (
@@ -332,7 +332,7 @@ export default {
     },
 
     liquidationPriceExpected() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool?.userInfo && this.account) {
         const defaultLiquidationPrice =
           this.selectedPool?.userInfo?.liquidationPrice || 0;
         let liquidationDecimals = 4;
@@ -486,11 +486,13 @@ export default {
   },
 
   watch: {
+    account() {
+      this.createPools();
+    },
+
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
-
-        this.multiplier = 2;
 
         this.percentValue = pool.ltv;
 
@@ -892,10 +894,11 @@ export default {
   async created() {
     this.poolId = this.$route.params.id;
 
-    // this.updateInterval = setInterval(async () => {
-    //   console.log("createPools");
-    //   this.tokensInfo = this.createPools();
-    // }, 15000);
+    this.multiplier = 2;
+
+    this.updateInterval = setInterval(async () => {
+      this.createPools();
+    }, 15000);
   },
 
   beforeDestroy() {
@@ -1075,6 +1078,10 @@ export default {
 }
 
 @media (max-width: 1200px) {
+  .borrow {
+    grid-gap: 15px;
+  }
+
   .info-block {
     padding: 30px 20px;
   }
@@ -1104,6 +1111,8 @@ export default {
 
   .btn-wrap {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
   }
 
   .choose-link {
@@ -1125,7 +1134,6 @@ export default {
   .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
-    max-width: 100%;
   }
 
   .choose {

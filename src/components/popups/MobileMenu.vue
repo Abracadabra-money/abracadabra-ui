@@ -205,8 +205,7 @@ export default {
   height: 50px;
   border: none;
   outline: transparent;
-  margin-bottom: 20px;
-}
+  margin-bottom: 10px;
 
 .popup-connect {
   padding: 0;
@@ -230,15 +229,23 @@ export default {
 
 .tools,
 .other {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(40px);
+  background: #312f38;
   border-radius: 20px;
-  padding: 15px 5px;
-  width: 95%;
+  padding: 40px 10px;
+  width: 90%;
+
+  .popup-link {
+    background: #3f3e47;
+  }
+
+  .router-link-active {
+    background: rgba(255, 255, 255, 0.2);
+  }
 }
 
 .other {
   padding: 10px 5px;
+  background: #313038;
 }
 
 .other-line {
@@ -263,5 +270,8 @@ export default {
   max-width: 210px;
   margin: 0 auto;
 }
-// ff
+
+.router-link-active {
+  background: rgba(255, 255, 255, 0.2);
+}
 </style>

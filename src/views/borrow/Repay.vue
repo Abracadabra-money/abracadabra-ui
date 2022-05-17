@@ -39,9 +39,9 @@
             @input="updateBorrowValue"
           />
         </div>
-        <template v-if="selectedPool">
+        <div class="balance-wrap" v-if="selectedPool">
           <BalanceBlock :pool="selectedPool" />
-        </template>
+        </div>
       </div>
       <div class="info-block">
         <h1 class="title">Repay MIM</h1>
@@ -53,7 +53,7 @@
           typeOperation="repay"
           :collateralExpected="collateralValue"
           :mimExpected="mimExpected"
-          :liquidationPrice="repayExpectedLiquidationPrice"
+          :liquidationPrice="+repayExpectedLiquidationPrice"
           :emptyData="emptyData"
         />
         <template v-if="selectedPool">
@@ -324,10 +324,14 @@ export default {
 
     repayExpectedLiquidationPrice() {
       if (this.selectedPool && this.account) {
+        if (!this.repayExpectedBorrowed || !this.repayExpectedCollateral) {
+          return 0;
+        }
+
         return (
           +this.repayExpectedBorrowed /
             +this.repayExpectedCollateral /
-            this.liquidationMultiplier || 0
+            +this.liquidationMultiplier || 0
         );
       }
       return 0;
@@ -365,6 +369,10 @@ export default {
   },
 
   watch: {
+    account() {
+      this.createPools();
+    },
+
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
@@ -712,10 +720,9 @@ export default {
   created() {
     this.poolId = this.$route.params.id;
 
-    // this.updateInterval = setInterval(async () => {
-    //   console.log("createPools");
-    //   this.tokensInfo = this.createPools();
-    // }, 15000);
+    this.updateInterval = setInterval(async () => {
+      this.createPools();
+    }, 15000);
   },
 
   beforeDestroy() {
@@ -811,7 +818,15 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.balance-wrap {
+  margin-top: 30px;
+}
+
 @media (max-width: 1200px) {
+  .borrow {
+    grid-gap: 15px;
+  }
+
   .info-block {
     padding: 30px 20px;
   }
@@ -841,6 +856,8 @@ export default {
 
   .btn-wrap {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -858,7 +875,6 @@ export default {
   .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
-    max-width: 100%;
   }
 
   .choose {

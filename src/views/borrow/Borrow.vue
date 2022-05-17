@@ -7,19 +7,6 @@
           <NetworksList />
         </div>
 
-        <div class="checkbox-wrap" v-if="acceptUseDefaultBalance">
-          <div
-            class="box-wrap"
-            @click="toggleUseDefaultBalance"
-            :class="{ active: useDefaultBalance }"
-          >
-            <div class="box"></div>
-          </div>
-          <p class="label-text" @click="toggleUseDefaultBalance">
-            Use {{ networkValuteName }}
-          </p>
-        </div>
-
         <div class="collateral-input underline">
           <div class="header-balance">
             <h4>Collateral assets</h4>
@@ -39,6 +26,28 @@
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
           />
+
+          <div
+            class="checkbox-wrap"
+            v-if="acceptUseDefaultBalance"
+            :class="{ active: useDefaultBalance }"
+            @click="toggleUseDefaultBalance"
+          >
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useDefaultBalance"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+
+            <p class="label-text">Use {{ networkValuteName }}</p>
+          </div>
         </div>
         <div class="borrow-input underline">
           <div class="header-balance">
@@ -58,7 +67,7 @@
         <template v-if="selectedPool">
           <div class="deposit-info underline">
             <span>LTV</span>
-            <span>{{ calculateLtv | formatToFixed }}%</span>
+            <span>{{ calculateLtv }}%</span>
           </div>
 
           <div class="percent-wrap">
@@ -187,7 +196,7 @@ export default {
     },
 
     maxCollateralValue() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool?.userInfo && this.account) {
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
@@ -205,7 +214,7 @@ export default {
     },
 
     maxBorrowValue() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool?.userInfo && this.account) {
         let valueInDolars;
         let maxPairValue;
 
@@ -218,7 +227,7 @@ export default {
             this.selectedPool.tokenPrice;
           maxPairValue =
             (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
-            this.selectedPool.userInfo.userBorrowPart;
+            this.selectedPool.userInfo?.userBorrowPart;
         }
 
         if (maxPairValue < 0) {
@@ -302,22 +311,22 @@ export default {
 
         if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
 
-        return ltv;
+        return parseFloat(ltv).toFixed(0);
       }
 
       if (this.borrowValue && !this.borrowError) {
         const tokenToMim =
-          this.selectedPool.userInfo.userCollateralShare /
+          this.selectedPool.userInfo?.userCollateralShare /
           this.selectedPool.tokenPrice;
         let ltv =
           Math.round(
-            ((+this.borrowValue + +this.selectedPool.userInfo.userBorrowPart) /
+            ((+this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart) /
               tokenToMim) *
               100
           ) + 1;
 
         if (ltv <= this.selectedPool.ltv) {
-          return ltv;
+          return parseFloat(ltv).toFixed(0);
         }
         return this.selectedPool.ltv;
       }
@@ -344,15 +353,15 @@ export default {
 
     depositExpectedBorrowed() {
       if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo.userBorrowPart;
-      return +this.borrowValue + +this.selectedPool.userInfo.userBorrowPart;
+        return +this.selectedPool.userInfo?.userBorrowPart;
+      return +this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart;
     },
 
     depositExpectedCollateral() {
       if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo.userCollateralShare;
+        return +this.selectedPool.userInfo?.userCollateralShare;
       return (
-        +this.collateralValue + +this.selectedPool.userInfo.userCollateralShare
+        +this.collateralValue + +this.selectedPool.userInfo?.userCollateralShare
       );
     },
 
@@ -426,6 +435,10 @@ export default {
   },
 
   watch: {
+    account() {
+      this.createPools();
+    },
+
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
@@ -737,10 +750,9 @@ export default {
   created() {
     this.poolId = this.$route.params.id;
 
-    // this.updateInterval = setInterval(async () => {
-    //   console.log("createPools");
-    //   this.tokensInfo = this.createPools();
-    // }, 15000);
+    this.updateInterval = setInterval(async () => {
+      this.createPools();
+    }, 15000);
   },
 
   beforeDestroy() {
@@ -851,57 +863,34 @@ export default {
 }
 
 .checkbox-wrap {
-  margin-top: 20px;
-  display: flex;
+  background: rgba(129, 126, 166, 0.1);
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: inline-flex;
   align-items: center;
+  border: 2px solid transparent;
+  cursor: pointer;
+
+  &.active {
+    border: 2px solid #8180ff;
+  }
 
   .label-text {
     cursor: pointer;
   }
 
-  .info-icon {
-    width: 16px;
-    height: 16px;
-    margin-left: 5px;
-  }
-
-  .box-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .checkbox-img {
     width: 24px;
     height: 24px;
-    margin-right: 10px;
-    border-radius: 8px;
-    border: 1px solid #57507a;
-    background: rgba(255, 255, 255, 0.06);
-    cursor: pointer;
-    transition: all 0.1s ease;
-
-    &:hover {
-      border: 1px solid $clrBlue;
-    }
-
-    &.active {
-      border: 1px solid $clrBlue;
-
-      .box {
-        opacity: 1;
-      }
-    }
-
-    .box {
-      background: $clrBlue;
-      border-radius: 4px;
-      width: 12px;
-      height: 12px;
-      opacity: 0;
-      transition: all 0.1s ease;
-    }
+    margin-right: 8px;
   }
 }
 
 @media (max-width: 1200px) {
+  .borrow {
+    grid-gap: 15px;
+  }
+
   .info-block {
     padding: 30px 20px;
   }
@@ -931,6 +920,8 @@ export default {
 
   .btn-wrap {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
   }
 }
 

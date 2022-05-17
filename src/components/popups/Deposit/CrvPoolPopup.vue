@@ -361,7 +361,8 @@ export default {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   padding: 15px 25px;
-  width: 540px;
+  max-width: 540px;
+  width: 100%;
 }
 
 .popup-header {

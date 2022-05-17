@@ -87,6 +87,9 @@ export default {
   justify-content: center;
   &__video {
     position: absolute;
+    min-height: 100%;
+    min-width: 100%;
+    object-fit: cover;
     right: 0;
   }
   &__content {

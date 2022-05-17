@@ -128,6 +128,7 @@ export default {
 
   .block-body {
     width: 100%;
+    max-width: 490px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -160,8 +161,9 @@ export default {
       color: #fff;
       outline: none;
       width: 100%;
-      padding-left: 20px;
-      padding-right: 20px;
+      padding-left: 5px;
+      padding-right: 5px;
+      min-width: 50px;
     }
 
     &.disabled {
