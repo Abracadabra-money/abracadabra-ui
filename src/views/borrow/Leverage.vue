@@ -1128,7 +1128,6 @@ export default {
   .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
-    max-width: 100%;
   }
 
   .choose {
