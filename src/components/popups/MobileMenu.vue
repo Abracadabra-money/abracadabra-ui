@@ -206,6 +206,7 @@ export default {
   border: none;
   outline: transparent;
   margin-bottom: 10px;
+}
 
 .popup-connect {
   padding: 0;
