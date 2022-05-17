@@ -64,18 +64,19 @@ export default {
   justify-content: center;
   background: rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(20px);
+  overflow-y: auto;
 }
 
 .popup {
   width: 400px;
   max-width: 100vw;
   height: 600px;
-  max-height: 100vh;
   padding: 10px 10px 16px;
   background: #302e38;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   position: relative;
+  margin-top: 20px;
 
   .popup-content {
     height: 100%;

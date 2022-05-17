@@ -126,7 +126,7 @@
       <MarketsListPopup
         @select="selectPool"
         @close="isTokensOpened = false"
-        popupType="tokens"
+        popupType="pools"
         :tokens="pools"
         :isUnstake="isUnstake"
       />

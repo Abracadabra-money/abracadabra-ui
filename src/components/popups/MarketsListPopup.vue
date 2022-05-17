@@ -89,15 +89,15 @@ export default {
   },
   computed: {
     title() {
-      return this.popupType === "tokens" ? "Select Farm" : "Select Couldron";
+      return this.popupType === "pools" ? "Select Farm" : "Select Couldron";
     },
     notFoundTitle() {
-      return this.popupType === "tokens"
+      return this.popupType === "pools"
         ? "No farms found with this name"
         : "No couldrons found with this name";
     },
     noOnNetworkTitle() {
-      return this.popupType === "tokens"
+      return this.popupType === "pools"
         ? "NO FARMS ON THIS NETWORK"
         : "NO POOLS ON THIS NETWORK";
     },
@@ -110,7 +110,7 @@ export default {
           );
     },
     isLoading() {
-      return this.popupType === "tokens"
+      return this.popupType === "pools"
         ? this.farmPoolLoading
         : this.isLoadBorrowPools;
     },
