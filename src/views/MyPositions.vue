@@ -173,8 +173,10 @@ export default {
       await this.createFarmPools();
     }, 10000);
 
+    console.log("TEXT 1");
     this.borrowPoolsTimer = setInterval(async () => {
       await this.createPools();
+      console.log("TEXT 2");
     }, 10000);
 
     await this.createMimBentoInfo();

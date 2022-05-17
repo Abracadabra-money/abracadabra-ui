@@ -1,6 +1,6 @@
 <template>
   <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div class="popup" @click.stop :style="{ maxWidth, minHeight: height }">
+    <div class="popup" :class="{ 'for-boxes': isForBoxes }" @click.stop>
       <div class="popup-content">
         <button class="close-btn" @click="closePopup">
           <img
@@ -17,19 +17,15 @@
 
 <script>
 export default {
-  name: "PopupWrap",
+  name: "LocalPopupWrap",
   props: {
     value: {
       type: Boolean,
       default: false,
     },
-    maxWidth: {
-      type: String,
-      default: "300px",
-    },
-    height: {
-      type: String,
-      default: "480px",
+    isForBoxes: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {
@@ -63,17 +59,20 @@ export default {
   width: 100%;
   height: 100vh;
   z-index: 300;
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: center;
-  padding: $headerHeight 10px 60px;
   background: rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(20px);
+  overflow-y: auto;
+  padding: 50px 0;
 }
 
 .popup {
-  width: 100%;
-  padding: 10px 10px 36px;
+  width: 400px;
+  max-width: 100vw;
+  height: 600px;
+  padding: 10px 10px 16px;
   background: #302e38;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
@@ -82,6 +81,11 @@ export default {
   .popup-content {
     height: 100%;
   }
+}
+
+.for-boxes {
+  width: 540px;
+  height: 480px;
 }
 
 .close-btn {

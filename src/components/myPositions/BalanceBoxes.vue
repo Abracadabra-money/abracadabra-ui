@@ -13,14 +13,14 @@
       :mimPrice="infoObject.mimPrice"
       :isBento="true"
     />
-    <PopupWrap v-model="popupData.opened" maxWidth="540px" height="400px">
+    <LocalPopupWrap v-model="popupData.opened" :isForBoxes="true">
       <DegenBentoPopup
         :infoObject="infoObject"
         :isBento="popupData.isBento"
         :isDeposit="popupData.isDeposit"
         @close="closePopup"
       />
-    </PopupWrap>
+    </LocalPopupWrap>
   </div>
 </template>
 
@@ -29,7 +29,7 @@ import { mapGetters } from "vuex";
 
 const BalanceBox = () => import("@/components/myPositions/BalanceBox");
 const DegenBentoPopup = () => import("@/components/popups/DegenBentoPopup");
-const PopupWrap = () => import("@/components/popups/PopupWrap");
+const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 
 const initialPopupData = {
   opened: false,
@@ -39,7 +39,7 @@ const initialPopupData = {
 
 export default {
   name: "BalanceBoxes",
-  components: { BalanceBox, DegenBentoPopup, PopupWrap },
+  components: { BalanceBox, DegenBentoPopup, LocalPopupWrap },
   props: {
     infoObject: {
       type: Object,

@@ -81,7 +81,9 @@
           >
         </div>
       </div>
-      <ConnectButton />
+      <div class="header-link header-connect">
+        <ConnectButton />
+      </div>
       <div
         class="dropdown-other header-link"
         :class="{ active: isDropdownOther }"
@@ -241,6 +243,11 @@ export default {
   &.router-link-active {
     background: #55535d;
   }
+}
+
+.header-connect {
+  width: 146px;
+  padding: 0;
 }
 
 .header-link:hover {

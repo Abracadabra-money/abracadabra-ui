@@ -120,12 +120,13 @@
 
     <BaseLoader v-else />
 
-    <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
-      <SelectPoolPopup
+    <LocalPopupWrap v-model="isOpenPollPopup">
+      <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
         :pools="filteredPool"
-    /></PopupWrap>
+        popupType="couldron"
+    /></LocalPopupWrap>
   </div>
 </template>
 
@@ -137,8 +138,8 @@ const PercentageButtons = () => import("@/components/borrow/PercentageButtons");
 const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
-const PopupWrap = () => import("@/components/popups/PopupWrap");
-const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
+const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
+const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
@@ -766,8 +767,8 @@ export default {
     BalanceBlock,
     BaseButton,
     BaseLoader,
-    PopupWrap,
-    SelectPoolPopup,
+    LocalPopupWrap,
+    MarketsListPopup,
   },
 };
 </script>

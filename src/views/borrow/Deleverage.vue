@@ -98,15 +98,16 @@
 
     <BaseLoader v-else />
 
-    <PopupWrap v-model="isSettingsOpened">
+    <LocalPopupWrap v-model="isSettingsOpened">
       <SettingsPopup @saveSettings="changeSlippage"
-    /></PopupWrap>
-    <PopupWrap v-model="isOpenPollPopup" maxWidth="400px" height="600px">
-      <SelectPoolPopup
+    /></LocalPopupWrap>
+    <LocalPopupWrap v-model="isOpenPollPopup">
+      <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
         :pools="filteredPool"
-    /></PopupWrap>
+        popupType="couldron"
+    /></LocalPopupWrap>
   </div>
 </template>
 
@@ -116,9 +117,9 @@ const Range = () => import("@/components/ui/Range");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
-const PopupWrap = () => import("@/components/popups/PopupWrap");
+const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
-const SelectPoolPopup = () => import("@/components/popups/selectPoolPopup");
+const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
@@ -649,9 +650,9 @@ export default {
     BorrowPoolStand,
     BaseButton,
     BaseLoader,
-    PopupWrap,
+    LocalPopupWrap,
     SettingsPopup,
-    SelectPoolPopup,
+    MarketsListPopup,
   },
 };
 </script>
