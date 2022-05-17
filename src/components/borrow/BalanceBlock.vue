@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <h3 class="title">Your Balance for {{ networkInfo.title }}</h3>
+    <h3 class="title">Your Balances</h3>
     <div class="balance-item" v-if="pool.acceptUseDefaultBalance">
       <div class="balance-name">
         <BaseTokenIcon :icon="networkInfo.icon" :name="pool.name" />
@@ -58,37 +58,31 @@ export default {
 
     networkInfo() {
       let name = "ETH";
-      let title = " Ethereum Mainnet";
       let icon = require("@/assets/images/tokens/ETH.png");
 
       if (this.chainId === 56) {
         name = "BSC";
-        title = "Binance Smart Chain";
         icon = require("@/assets/images/tokens/BNB.png");
       }
 
       if (this.chainId === 250) {
         name = "FTM";
-        title = "Fantom Opera Mainnet";
         icon = require("@/assets/images/tokens/FTM2.png");
       }
       if (this.chainId === 43114) {
         name = "AVAX";
-        title = "Avalanche Mainnet";
         icon = require("@/assets/images/tokens/AVAX.png");
       }
       if (this.chainId === 42161) {
         name = "AETH";
-        title = " Arbitrum One";
         icon = require("@/assets/images/tokens/AETH.png");
       }
       if (this.chainId === 137) {
         name = "MATIC";
-        title = "Polygon Mainnet";
         icon = require("@/assets/images/tokens/MATIC.png");
       }
 
-      return { name, icon, title };
+      return { name, icon };
     },
 
     networkBalance() {

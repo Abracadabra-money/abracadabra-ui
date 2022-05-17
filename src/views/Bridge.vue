@@ -16,6 +16,7 @@
             <span>{{ mimBalance | formatTokenBalance }}</span>
           </div>
         </div>
+
         <BaseTokenInput
           :max="bridgeObject.balance"
           :value="amount"
@@ -126,7 +127,7 @@ export default {
         return `Minimum bridge requirement not met`;
       }
 
-      return false;
+      return "";
     },
 
     mimIcon() {

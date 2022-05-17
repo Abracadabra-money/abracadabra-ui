@@ -67,7 +67,7 @@
         <template v-if="selectedPool">
           <div class="deposit-info underline">
             <span>LTV</span>
-            <span>{{ calculateLtv | formatToFixed }}%</span>
+            <span>{{ calculateLtv }}%</span>
           </div>
 
           <div class="percent-wrap">
@@ -195,7 +195,7 @@ export default {
     },
 
     maxCollateralValue() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool?.userInfo && this.account) {
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
@@ -213,7 +213,7 @@ export default {
     },
 
     maxBorrowValue() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool?.userInfo && this.account) {
         let valueInDolars;
         let maxPairValue;
 
@@ -226,7 +226,7 @@ export default {
             this.selectedPool.tokenPrice;
           maxPairValue =
             (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
-            this.selectedPool.userInfo.userBorrowPart;
+            this.selectedPool.userInfo?.userBorrowPart;
         }
 
         if (maxPairValue < 0) {
@@ -310,22 +310,22 @@ export default {
 
         if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
 
-        return ltv;
+        return parseFloat(ltv).toFixed(0);
       }
 
       if (this.borrowValue && !this.borrowError) {
         const tokenToMim =
-          this.selectedPool.userInfo.userCollateralShare /
+          this.selectedPool.userInfo?.userCollateralShare /
           this.selectedPool.tokenPrice;
         let ltv =
           Math.round(
-            ((+this.borrowValue + +this.selectedPool.userInfo.userBorrowPart) /
+            ((+this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart) /
               tokenToMim) *
               100
           ) + 1;
 
         if (ltv <= this.selectedPool.ltv) {
-          return ltv;
+          return parseFloat(ltv).toFixed(0);
         }
         return this.selectedPool.ltv;
       }
@@ -352,15 +352,15 @@ export default {
 
     depositExpectedBorrowed() {
       if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo.userBorrowPart;
-      return +this.borrowValue + +this.selectedPool.userInfo.userBorrowPart;
+        return +this.selectedPool.userInfo?.userBorrowPart;
+      return +this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart;
     },
 
     depositExpectedCollateral() {
       if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo.userCollateralShare;
+        return +this.selectedPool.userInfo?.userCollateralShare;
       return (
-        +this.collateralValue + +this.selectedPool.userInfo.userCollateralShare
+        +this.collateralValue + +this.selectedPool.userInfo?.userCollateralShare
       );
     },
 
@@ -434,6 +434,10 @@ export default {
   },
 
   watch: {
+    account() {
+      this.createPools();
+    },
+
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
@@ -745,10 +749,9 @@ export default {
   created() {
     this.poolId = this.$route.params.id;
 
-    // this.updateInterval = setInterval(async () => {
-    //   console.log("createPools");
-    //   this.tokensInfo = this.createPools();
-    // }, 15000);
+    this.updateInterval = setInterval(async () => {
+      this.createPools();
+    }, 15000);
   },
 
   beforeDestroy() {
@@ -916,6 +919,8 @@ export default {
 
   .btn-wrap {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
   }
 }
 
