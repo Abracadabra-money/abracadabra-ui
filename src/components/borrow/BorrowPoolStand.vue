@@ -219,7 +219,7 @@ export default {
     },
 
     borrowLeft() {
-      const maxMimBorrow = (this.tokenInUsd / 100) * (this.pool.ltv - 1);
+      const maxMimBorrow = (this.collateralInUsd / 100) * (this.pool.ltv - 1);
       const leftBorrow = maxMimBorrow - this.pool.userInfo.userBorrowPart;
 
       if (+leftBorrow < 0) return "0";
@@ -311,7 +311,7 @@ export default {
 
     additionalInfo() {
       try {
-        // const borrowLeftParsed = this.borrowLeft;
+        const borrowLeftParsed = this.borrowLeft;
 
         // let liquidationDecimals = 4;
         // let collateralDecimals = 4;
@@ -412,9 +412,7 @@ export default {
 
         resultArray.push({
           title: "MIM Left To Borrow",
-          value: Vue.filter("formatTokenBalance")(
-            this.pool.userInfo?.userBorrowPart || 0
-          ),
+          value: Vue.filter("formatTokenBalance")(borrowLeftParsed || 0),
           additional: "MIM Borrowable Given the Collateral Deposited",
         });
 
