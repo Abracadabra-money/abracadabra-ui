@@ -45,7 +45,7 @@
         <button v-if="showClaimCrvReward"></button>
 
         <button
-          v-if="!isEmpty && account"
+          v-if="!isEmpty"
           class="info-btn"
           @click="isInfoPressed = !isInfoPressed"
         >
@@ -210,6 +210,14 @@ export default {
       return 0;
     },
 
+    collateralInUsd() {
+      if (this.pool.userInfo) {
+        return this.pool.userInfo?.userCollateralShare / this.pool.tokenPrice;
+      }
+
+      return 0;
+    },
+
     borrowLeft() {
       const maxMimBorrow = (this.tokenInUsd / 100) * (this.pool.ltv - 1);
       const leftBorrow = maxMimBorrow - this.pool.userInfo.userBorrowPart;
@@ -248,7 +256,7 @@ export default {
         return "";
       }
 
-      if (this.liquidationRisk > 0 && this.liquidationRisk <= 5) {
+      if (this.liquidationRisk >= 0 && this.liquidationRisk <= 5) {
         return "high";
       }
 
@@ -264,7 +272,7 @@ export default {
     },
 
     collateralDepositExpected() {
-      let defaultValue = +this.pool.userInfo.userCollateralShare;
+      let defaultValue = +this.pool.userInfo?.userCollateralShare;
 
       if (this.collateralExpected && this.typeOperation === "borrow") {
         // NETWORK VALUE FIX
@@ -303,7 +311,7 @@ export default {
 
     additionalInfo() {
       try {
-        const borrowLeftParsed = this.borrowLeft;
+        // const borrowLeftParsed = this.borrowLeft;
 
         // let liquidationDecimals = 4;
         // let collateralDecimals = 4;
@@ -323,20 +331,20 @@ export default {
           {
             title: "Collateral Deposited",
             value: Vue.filter("formatTokenBalance")(
-              this.pool.userInfo.userCollateralShare
+              this.pool.userInfo?.userCollateralShare || 0
             ),
             additional: "Amount of Tokens Deposited as Collaterals",
           },
           {
             title: "Collateral Value",
-            value: Vue.filter("formatUSD")(this.tokenInUsd),
+            value: Vue.filter("formatUSD")(this.collateralInUsd),
             additional:
               "USD Value of the Collateral Deposited in your Position",
           },
           {
             title: "MIM Borrowed",
             value: Vue.filter("formatTokenBalance")(
-              this.pool.userInfo.userBorrowPart
+              this.pool.userInfo?.userBorrowPart || 0
             ),
             additional: "MIM Currently Borrowed in your Position",
           },
@@ -345,7 +353,9 @@ export default {
         if (this.pool.id === 10 && this.chainId === 1) {
           resultArray.push({
             title: "Liquidation Price",
-            value: Vue.filter("formatUSD")(this.pool.userInfo.liquidationPrice),
+            value: Vue.filter("formatUSD")(
+              this.pool.userInfo?.liquidationPrice || 0
+            ),
             additional:
               "This is the liquidation price of wsOHM, check the current price of wsOHM at the bottom right of the page!",
           });
@@ -355,14 +365,18 @@ export default {
         ) {
           resultArray.push({
             title: "wMEMO Liquidation Price",
-            value: Vue.filter("formatUSD")(this.pool.userInfo.liquidationPrice),
+            value: Vue.filter("formatUSD")(
+              this.pool.userInfo?.liquidationPrice || 0
+            ),
             additional:
               "Collateral Price at which your Position will be Liquidated",
           });
         } else {
           resultArray.push({
             title: "Liquidation Price",
-            value: Vue.filter("formatUSD")(this.pool.userInfo.liquidationPrice),
+            value: Vue.filter("formatUSD")(
+              this.pool.userInfo?.liquidationPrice || 0
+            ),
             additional:
               "Collateral Price at which your Position will be Liquidated",
           });
@@ -370,11 +384,11 @@ export default {
 
         if (this.pool.id === 10 && this.ohmPrice && this.chainId === 1) {
           const ohmLiquidationPrice =
-            this.pool.userInfo.liquidationPrice / this.wOHMTosOHM;
+            this.pool.userInfo?.liquidationPrice / this.wOHMTosOHM;
 
           resultArray.push({
             title: "OHM Liquidation Price",
-            value: Vue.filter("formatUSD")(ohmLiquidationPrice),
+            value: Vue.filter("formatUSD")(ohmLiquidationPrice || 0),
             additional:
               "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
           });
@@ -386,11 +400,11 @@ export default {
           this.chainId === 43114
         ) {
           const ohmLiquidationPrice =
-            this.pool.userInfo.liquidationPrice * this.MEMOTowMEMO;
+            this.pool.userInfo?.liquidationPrice * this.MEMOTowMEMO;
 
           resultArray.push({
             title: "MEMO Liquidation Price",
-            value: Vue.filter("formatUSD")(ohmLiquidationPrice),
+            value: Vue.filter("formatUSD")(ohmLiquidationPrice || 0),
             additional:
               "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
           });
@@ -398,7 +412,9 @@ export default {
 
         resultArray.push({
           title: "MIM Left To Borrow",
-          value: Vue.filter("formatTokenBalance")(borrowLeftParsed),
+          value: Vue.filter("formatTokenBalance")(
+            this.pool.userInfo?.userBorrowPart || 0
+          ),
           additional: "MIM Borrowable Given the Collateral Deposited",
         });
 
@@ -409,7 +425,7 @@ export default {
           resultArray.push({
             title: "Withdrawable Amount",
             value: Vue.filter("formatTokenBalance")(
-              this.pool.userInfo.maxWithdrawAmount
+              this.pool.userInfo?.maxWithdrawAmount || 0
             ),
             additional: `Maximum Current Amount of ${this.pool.token.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
           });
@@ -461,7 +477,7 @@ export default {
     },
 
     isUserHasClaimableReward() {
-      return +this.pool.userInfo.claimableReward;
+      return +this.pool.userInfo?.claimableReward;
     },
 
     showCollateralLogicBtn() {
@@ -485,6 +501,10 @@ export default {
 
         if (riskPersent > 100) {
           return 100;
+        }
+
+        if (riskPersent <= 0) {
+          return 0;
         }
 
         return parseFloat(riskPersent).toFixed(2); // xx of 100%

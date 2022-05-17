@@ -151,7 +151,7 @@ export default {
     maxCollateralValue() {
       if (this.selectedPool && this.account) {
         if (
-          +this.borrowValue === +this.selectedPool.userInfo.userBorrowPart ||
+          +this.selectedPool.userInfo.userBorrowPart ||
           !+this.selectedPool.userInfo.userBorrowPart
         ) {
           if (
@@ -364,6 +364,10 @@ export default {
   },
 
   watch: {
+    account() {
+      this.createPools();
+    },
+
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
@@ -711,10 +715,9 @@ export default {
   created() {
     this.poolId = this.$route.params.id;
 
-    // this.updateInterval = setInterval(async () => {
-    //   console.log("createPools");
-    //   this.tokensInfo = this.createPools();
-    // }, 15000);
+    this.updateInterval = setInterval(async () => {
+      this.createPools();
+    }, 15000);
   },
 
   beforeDestroy() {
@@ -844,6 +847,8 @@ export default {
 
   .btn-wrap {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
   }
 }
 

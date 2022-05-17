@@ -52,7 +52,6 @@ export default {
 
   methods: {
     toggleAction(type) {
-      console.log(type);
       this.amount = "";
       this.amountError = "";
       this.action = type;
@@ -78,7 +77,8 @@ Stake;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   padding: 15px 25px;
-  width: 540px;
+  max-width: 540px;
+  width: 100%;
   min-height: 520px;
 }
 
@@ -104,8 +104,7 @@ Stake;
 }
 
 .popup-tabs {
-  max-width: 320px;
-  width: 100%;
+  width: 320px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -131,5 +130,11 @@ Stake;
 
 .popup-tab-active {
   background: #7a7980;
+}
+
+@media (max-width: 374px) {
+  .popup-tabs {
+    width: 250px;
+  }
 }
 </style>

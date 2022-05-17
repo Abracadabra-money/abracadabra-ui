@@ -192,7 +192,7 @@ export default {
 
         return parsedCollateral;
       } catch (e) {
-        console.log("getUserCollateralShare err!!!:", e);
+        console.log("getUserCollateralShare err:", e);
       }
     },
 
@@ -602,9 +602,6 @@ export default {
       }
 
       let maxWithdrawAmount = -1;
-
-      console.log("pool.hasWithdrawableLimit", pool.id);
-      console.log("pool.hasWithdrawableLimit", pool.hasWithdrawableLimit);
 
       if (pool.hasWithdrawableLimit) {
         const tokenWithdrawAmount = await pool.token.contract.balanceOf(
