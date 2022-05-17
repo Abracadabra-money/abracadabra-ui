@@ -2,7 +2,7 @@
   <div class="connect-wrap">
     <button
       class="connect-btn header-link"
-      :class="{ 'connected-btn': !!account }"
+      :class="{ connected: !!account }"
       @click="walletBtnHandler"
     >
       {{ walletBtnText }}
@@ -46,22 +46,20 @@ export default {
 .connect-btn {
   border: none;
   outline: transparent;
-  width: 146px;
-  padding: 13px 0;
+  width: 100%;
   text-align: center;
-  background: #ffffff0f;
-  backdrop-filter: blur(40px);
   border-radius: 20px;
-  font-size: 16px;
-  line-height: 24px;
-  color: #fff;
+  color: white;
+  background-color: transparent;
   cursor: pointer;
-  min-width: 80px;
+  padding: 15px 0;
 }
 
 .connect-wrap {
   position: relative;
   display: flex;
+  height: 100%;
+  width: 100%;
 
   .disconnect-btn {
     position: absolute;
@@ -78,24 +76,36 @@ export default {
     font-size: 16px;
     line-height: 24px;
     color: #fff;
-    cursor: pointer;
-    &:hover {
-      color: #62a1f9;
-    }
   }
-
   &:hover {
     .disconnect-btn {
       display: flex;
+      color: #62a1f9;
+      cursor: pointer;
     }
 
     .connect-btn {
       background: #55535d;
     }
 
-    .connected-btn {
+    .connected {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
+    }
+  }
+}
+
+@media (max-width: 980px) {
+  .connect-wrap {
+    &:hover {
+      .disconnect-btn {
+        display: none;
+      }
+
+      .connect-btn {
+        background: transparent;
+        border-radius: 0;
+      }
     }
   }
 }

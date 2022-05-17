@@ -20,9 +20,12 @@
 
       <button class="popup-link" @click="openInnerPopup('stake')">Stake</button>
       <button class="popup-link" @click="openInnerPopup('tools')">Tools</button>
-      <div class="popup-link">
+      <div class="popup-link popup-connect">
         <ConnectButton />
       </div>
+      <button v-if="account" class="popup-link" @click="$disconnectWallet">
+        Disconnect
+      </button>
       <button class="popup-link" @click="openInnerPopup('other')">
         <img
           class="title"
@@ -108,6 +111,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 const ConnectButton = () => import("@/components/ui/ConnectButton");
 export default {
   data() {
@@ -119,6 +124,7 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ account: "getAccount" }),
     isOpenInnerPopup() {
       return this.showTools || this.showOther;
     },
@@ -200,11 +206,10 @@ export default {
   border: none;
   outline: transparent;
   margin-bottom: 20px;
+}
 
-  .connect-btn {
-    background: transparent;
-    color: #fff;
-  }
+.popup-connect {
+  padding: 0;
 }
 
 .stake-popup,
