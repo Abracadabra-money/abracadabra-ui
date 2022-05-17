@@ -1,7 +1,16 @@
 <template>
-  <button class="connect-btn header-link" @click="walletBtnHandler">
-    {{ walletBtnText }}
-  </button>
+  <div class="connect-wrap">
+    <button
+      class="connect-btn header-link"
+      :class="{ 'connected-btn': !!account }"
+      @click="walletBtnHandler"
+    >
+      {{ walletBtnText }}
+    </button>
+    <button v-if="account" class="disconnect-btn" @click="$disconnectWallet">
+      Disconnect
+    </button>
+  </div>
 </template>
 
 <script>
@@ -39,5 +48,55 @@ export default {
   outline: transparent;
   width: 146px;
   padding: 13px 0;
+  text-align: center;
+  background: #ffffff0f;
+  backdrop-filter: blur(40px);
+  border-radius: 20px;
+  font-size: 16px;
+  line-height: 24px;
+  color: #fff;
+  cursor: pointer;
+  min-width: 80px;
+}
+
+.connect-wrap {
+  position: relative;
+  display: flex;
+
+  .disconnect-btn {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    display: none;
+    justify-content: center;
+    background-color: #55535d;
+    border: none;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding: 13px 18px;
+    font-size: 16px;
+    line-height: 24px;
+    color: #fff;
+    cursor: pointer;
+    &:hover {
+      color: #62a1f9;
+    }
+  }
+
+  &:hover {
+    .disconnect-btn {
+      display: flex;
+    }
+
+    .connect-btn {
+      background: #55535d;
+    }
+
+    .connected-btn {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
 }
 </style>
