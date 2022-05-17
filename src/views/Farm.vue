@@ -126,8 +126,8 @@
       <MarketsListPopup
         @select="selectPool"
         @close="isTokensOpened = false"
-        popupType="pools"
-        :tokens="pools"
+        popupType="farms"
+        :pools="pools"
         :isUnstake="isUnstake"
       />
     </LocalPopupWrap>

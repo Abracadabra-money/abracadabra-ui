@@ -11,26 +11,26 @@
       />
     </div>
 
-    <div v-if="!tokens.length && isLoading" class="loader-wrap">
+    <div v-if="!pools.length && isLoading" class="loader-wrap">
       <BaseLoader />
     </div>
 
-    <div v-else-if="filteredTokens.length" class="tokens-list">
-      <template v-if="popupType === 'tokens'">
+    <div v-else-if="filteredPools.length" class="tokens-list">
+      <template v-if="popupType === 'farms'">
         <TokenPopupItem
-          v-for="token in filteredTokens"
-          @click="selectToken(token)"
-          :key="token.id"
-          :name="token.name"
-          :icon="token.icon"
-          :farmItem="token"
-          :balance="token.accountInfo ? token.accountInfo.balance : null"
-          :price="token.lpPrice"
+          v-for="pool in filteredPools"
+          @click="selectToken(pool)"
+          :key="pool.id"
+          :name="pool.name"
+          :icon="pool.icon"
+          :farmItem="pool"
+          :balance="pool.accountInfo ? pool.accountInfo.balance : null"
+          :price="pool.lpPrice"
         />
       </template>
       <template v-else>
         <SelectPopupItem
-          v-for="pool in filteredTokens"
+          v-for="pool in filteredPools"
           :key="pool.id"
           :pool="pool"
           @enterPool="selectToken"
@@ -38,7 +38,7 @@
       </template>
     </div>
 
-    <div class="not-found" v-else-if="!filteredTokens.length && tokens.length">
+    <div class="not-found" v-else-if="!filteredPools.length && pools.length">
       <img
         class="not-found__img"
         src="@/assets/images/empty-stats-list.png"
@@ -46,7 +46,7 @@
       />
       <p class="not-found__text">{{ notFoundTitle }}</p>
     </div>
-    <div class="not-found" v-else-if="!tokens.length">
+    <div class="not-found" v-else-if="!pools.length">
       <img
         class="not-found__img"
         src="@/assets/images/empty-stats-list.png"
@@ -67,7 +67,7 @@ const SelectPopupItem = () => import("@/components/borrow/BorrowListItem");
 
 export default {
   props: {
-    tokens: {
+    pools: {
       type: Array,
       default: () => [],
     },
@@ -89,28 +89,28 @@ export default {
   },
   computed: {
     title() {
-      return this.popupType === "pools" ? "Select Farm" : "Select Couldron";
+      return this.popupType === "farms" ? "Select Farm" : "Select Couldron";
     },
     notFoundTitle() {
-      return this.popupType === "pools"
+      return this.popupType === "farms"
         ? "No farms found with this name"
         : "No couldrons found with this name";
     },
     noOnNetworkTitle() {
-      return this.popupType === "pools"
+      return this.popupType === "farms"
         ? "NO FARMS ON THIS NETWORK"
         : "NO POOLS ON THIS NETWORK";
     },
-    filteredTokens() {
+    filteredPools() {
       return !this.search
-        ? this.tokens
-        : this.tokens.filter(
+        ? this.pools
+        : this.pools.filter(
             ({ name }) =>
               name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
           );
     },
     isLoading() {
-      return this.popupType === "pools"
+      return this.popupType === "farms"
         ? this.farmPoolLoading
         : this.isLoadBorrowPools;
     },
