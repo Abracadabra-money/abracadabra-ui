@@ -154,7 +154,8 @@ export default {
 .tokens-popup {
   display: grid;
   grid-template-rows: auto 1fr;
-  height: 100%;
+  max-height: 600px;
+  width: 380px;
 }
 .title {
   font-weight: 600;
@@ -187,7 +188,7 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  max-height: 500px;
+  height: 400px;
 }
 
 .token-spacer-wrap {

@@ -260,8 +260,9 @@ export default {
 .box-popup {
   display: grid;
   grid-template-rows: auto 1fr;
-  height: 100%;
   padding: 0 10px;
+  width: 490px;
+  height: 300px;
 }
 .title {
   font-weight: 600;
