@@ -1,11 +1,11 @@
 <template>
-  <div class="info-bar">
+  <div class="info-bar" v-if="hasSomething">
     <img
       class="info-bar-icon"
       :class="{ small }"
       src="@/assets/images/info-bar/strategy.png"
       alt="Strategy"
-      v-if="pool.strategyLink"
+      v-if="hasStrategy"
       v-tooltip="'Strategy'"
     />
     <img
@@ -29,7 +29,7 @@
       :class="{ small }"
       src="@/assets/images/info-bar/depreciated.png"
       alt="Deprecated"
-      v-if="isFarm ? +pool.poolRoi === 0 : pool.isDepreciated"
+      v-if="isDeprecated"
       v-tooltip="'Deprecated'"
     />
   </div>
@@ -50,6 +50,17 @@ export default {
     small: {
       type: Boolean,
       default: false,
+    },
+  },
+  computed: {
+    hasSomething() {
+      return this.hasStrategy || this.isDeprecated;
+    },
+    hasStrategy() {
+      return this.pool.strategyLink;
+    },
+    isDeprecated() {
+      return this.isFarm ? +this.pool.poolRoi === 0 : this.pool.isDepreciated;
     },
   },
 };

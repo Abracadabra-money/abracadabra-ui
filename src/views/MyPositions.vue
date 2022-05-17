@@ -98,7 +98,7 @@ export default {
       const spellFarmer = Vue.filter("formatTokenBalance")(
         this.userFarmPools.reduce((calc, pool) => {
           return (
-            calc + this.$ethers.utils.formatEther(pool.accountInfo.userReward)
+            calc + +this.$ethers.utils.formatEther(pool.accountInfo.userReward)
           );
         }, 0)
       );

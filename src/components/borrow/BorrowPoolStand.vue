@@ -248,7 +248,7 @@ export default {
     calculateLiquidationPrice() {
       const liquidationPrice = this.account ? this.liquidationPrice : 0;
 
-      return Vue.filter("formatUSD")(liquidationPrice);
+      return Vue.filter("formatLiquidationPrice")(liquidationPrice);
     },
 
     liquidationRiskClass() {
@@ -353,7 +353,7 @@ export default {
         if (this.pool.id === 10 && this.chainId === 1) {
           resultArray.push({
             title: "Liquidation Price",
-            value: Vue.filter("formatUSD")(
+            value: Vue.filter("formatLiquidationPrice")(
               this.pool.userInfo?.liquidationPrice || 0
             ),
             additional:
@@ -365,7 +365,7 @@ export default {
         ) {
           resultArray.push({
             title: "wMEMO Liquidation Price",
-            value: Vue.filter("formatUSD")(
+            value: Vue.filter("formatLiquidationPrice")(
               this.pool.userInfo?.liquidationPrice || 0
             ),
             additional:
@@ -374,7 +374,7 @@ export default {
         } else {
           resultArray.push({
             title: "Liquidation Price",
-            value: Vue.filter("formatUSD")(
+            value: Vue.filter("formatLiquidationPrice")(
               this.pool.userInfo?.liquidationPrice || 0
             ),
             additional:
@@ -388,7 +388,9 @@ export default {
 
           resultArray.push({
             title: "OHM Liquidation Price",
-            value: Vue.filter("formatUSD")(ohmLiquidationPrice || 0),
+            value: Vue.filter("formatLiquidationPrice")(
+              ohmLiquidationPrice || 0
+            ),
             additional:
               "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
           });
@@ -404,7 +406,9 @@ export default {
 
           resultArray.push({
             title: "MEMO Liquidation Price",
-            value: Vue.filter("formatUSD")(ohmLiquidationPrice || 0),
+            value: Vue.filter("formatLiquidationPrice")(
+              ohmLiquidationPrice || 0
+            ),
             additional:
               "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
           });

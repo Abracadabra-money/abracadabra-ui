@@ -53,7 +53,7 @@
             <BaseButton
               v-if="!isAllowance && !isUnstake"
               @click="approveHandler"
-              :disabled="!isValid || !!error"
+              :disabled="!isValid || !!error || +selectedPool.poolRoi === 0"
               primary
               >Approve</BaseButton
             >

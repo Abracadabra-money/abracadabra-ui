@@ -1,6 +1,6 @@
 <template>
   <button @click="$emit('click')" class="farm-list-item">
-    <StatusBar :isFarm="true" :pool="farmItem" />
+    <StatusBar :isFarm="true" :pool="farmItem" :small="true" />
     <div class="token-wrap">
       <div class="token-data">
         <BaseTokenIcon :icon="icon" :name="name" />

@@ -44,7 +44,7 @@ const formatToFixed = (value, fixed) => {
 
   if (+parsedValue === 0) return "0";
 
-  if (Number.isInteger(+parsedValue)) return parsedValue;
+  if (Number.isInteger(+parsedValue)) return parseFloat(parsedValue).toFixed(1);
 
   const removedZero = parsedValue.replace(/0*$/, "");
   const removedDot = removedZero.endsWith(".")
@@ -57,7 +57,7 @@ const formatTokenBalance = (value) => {
   if (isNaN(Number(value)) || +value === 0) return "0.0";
 
   if (+value >= 1) return formatToFixed(value, 4);
-  if (+value > 0.0000001) return formatToFixed(value, 6);
+  if (+value > 0.000001) return formatToFixed(value, 6);
 
   const stringValue = formatToFixed(value, 18);
 
@@ -75,12 +75,17 @@ const formatTokenBalance = (value) => {
   return `${start}..${persedEnd.slice(0, 5)}`;
 };
 
+const formatLiquidationPrice = (value) => {
+  return `$ ${formatTokenBalance(value)}`;
+};
+
 const filters = {
   formatUSD,
   formatTokenBalance,
   formatLargeSum,
   formatToFixed,
   formatPercent,
+  formatLiquidationPrice,
 };
 
 export default filters;

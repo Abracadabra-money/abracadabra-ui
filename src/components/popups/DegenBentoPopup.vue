@@ -193,8 +193,6 @@ export default {
           }
         );
         const receipt = await tx.wait();
-
-        await this.updateApprovedValue();
         console.log("APPROVE RESP:", receipt);
         await this.$store.commit("notifications/delete", notificationId);
       } catch (e) {

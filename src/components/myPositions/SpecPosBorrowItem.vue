@@ -213,7 +213,7 @@ export default {
           title: "Liquidation price",
           tooltipText:
             "Collateral Price at which your Position will be Liquidated",
-          value: Vue.filter("formatUSD")(this.liquidationPrice),
+          value: Vue.filter("formatLiquidationPrice")(this.liquidationPrice),
         },
         {
           title: "Min price",

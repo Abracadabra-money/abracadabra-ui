@@ -82,9 +82,11 @@
               :disabled="isTokenApprove"
               >{{ actionApproveTokenText }}</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="!isTokenApprove">{{
-              actionBtnText
-            }}</BaseButton>
+            <BaseButton
+              @click="actionHandler"
+              :disabled="actionBtnText === 'Nothing to do'"
+              >{{ actionBtnText }}</BaseButton
+            >
           </div>
           <div class="info-list">
             <div v-for="(item, i) in infoData" :key="i" class="info-item">
@@ -187,8 +189,6 @@ export default {
     actionBtnText() {
       if (!this.isTokenApprove) return "Nothing to do";
 
-      if (this.isUserLocked) return "Nothing to do";
-
       if (+this.flashRepayAmount && +this.flashRepayRemoveAmount)
         return "Flash repay & Remove collateral";
       if (+this.flashRepayAmount) return "Flash Repay";
@@ -203,13 +203,6 @@ export default {
         return "Approve UnSwap";
 
       return "Approve";
-    },
-
-    isUserLocked() {
-      return (
-        this.selectedPool.userInfo?.userLockedTimestamp &&
-        Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
-      );
     },
 
     infoData() {

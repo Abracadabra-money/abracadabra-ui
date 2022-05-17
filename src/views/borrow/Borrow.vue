@@ -104,9 +104,11 @@
               :disabled="isTokenApprove"
               >Approve</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="!isTokenApprove">{{
-              actionBtnText
-            }}</BaseButton>
+            <BaseButton
+              @click="actionHandler"
+              :disabled="actionBtnText === 'Nothing to do'"
+              >{{ actionBtnText }}</BaseButton
+            >
           </div>
           <div class="info-list">
             <div v-for="(item, i) in infoData" :key="i" class="info-item">
