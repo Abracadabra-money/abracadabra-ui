@@ -39,9 +39,9 @@
             @input="updateBorrowValue"
           />
         </div>
-        <template v-if="selectedPool">
+        <div class="balance-wrap" v-if="selectedPool">
           <BalanceBlock :pool="selectedPool" />
-        </template>
+        </div>
       </div>
       <div class="info-block">
         <h1 class="title">Repay MIM</h1>
@@ -53,7 +53,7 @@
           typeOperation="repay"
           :collateralExpected="collateralValue"
           :mimExpected="mimExpected"
-          :liquidationPrice="repayExpectedLiquidationPrice"
+          :liquidationPrice="+repayExpectedLiquidationPrice"
           :emptyData="emptyData"
         />
         <template v-if="selectedPool">
@@ -151,7 +151,7 @@ export default {
     maxCollateralValue() {
       if (this.selectedPool && this.account) {
         if (
-          +this.selectedPool.userInfo.userBorrowPart ||
+          +this.borrowValue === +this.selectedPool.userInfo.userBorrowPart ||
           !+this.selectedPool.userInfo.userBorrowPart
         ) {
           if (
@@ -323,10 +323,14 @@ export default {
 
     repayExpectedLiquidationPrice() {
       if (this.selectedPool && this.account) {
+        if (!this.repayExpectedBorrowed || !this.repayExpectedCollateral) {
+          return 0;
+        }
+
         return (
           +this.repayExpectedBorrowed /
             +this.repayExpectedCollateral /
-            this.liquidationMultiplier || 0
+            +this.liquidationMultiplier || 0
         );
       }
       return 0;
@@ -811,6 +815,10 @@ export default {
   line-height: 25px;
   padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.balance-wrap {
+  margin-top: 30px;
 }
 
 @media (max-width: 1200px) {

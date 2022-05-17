@@ -493,8 +493,6 @@ export default {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
 
-        this.multiplier = 2;
-
         this.percentValue = pool.ltv;
 
         if (!pool) this.$router.push(`/leverage`);
@@ -894,6 +892,8 @@ export default {
 
   async created() {
     this.poolId = this.$route.params.id;
+
+    this.multiplier = 2;
 
     this.updateInterval = setInterval(async () => {
       this.createPools();
