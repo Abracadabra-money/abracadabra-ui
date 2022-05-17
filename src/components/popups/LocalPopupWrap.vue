@@ -65,6 +65,7 @@ export default {
   background: rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(20px);
   overflow-y: auto;
+  padding: 50px 0;
 }
 
 .popup {
@@ -76,7 +77,6 @@ export default {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   position: relative;
-  margin-top: 20px;
 
   .popup-content {
     height: 100%;

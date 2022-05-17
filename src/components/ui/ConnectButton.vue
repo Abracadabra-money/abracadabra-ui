@@ -76,12 +76,15 @@ export default {
     font-size: 16px;
     line-height: 24px;
     color: #fff;
+
+    &:hover {
+      color: #62a1f9;
+      cursor: pointer;
+    }
   }
   &:hover {
     .disconnect-btn {
       display: flex;
-      color: #62a1f9;
-      cursor: pointer;
     }
 
     .connect-btn {
