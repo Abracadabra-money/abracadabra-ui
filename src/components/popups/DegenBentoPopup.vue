@@ -262,6 +262,7 @@ export default {
   grid-template-rows: auto 1fr;
   padding: 0 10px;
   width: 490px;
+  max-width: 100%;
   height: 300px;
 }
 .title {

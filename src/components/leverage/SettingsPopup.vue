@@ -72,6 +72,8 @@ input[type="number"]::-webkit-outer-spin-button {
   justify-content: space-between;
   height: 430px;
   width: 380px;
+
+  max-width: 100%;
   padding: 10px 10px 0 10px;
 }
 .title {

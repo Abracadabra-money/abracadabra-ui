@@ -41,7 +41,7 @@ export default {
   },
   watch: {
     isOpened(value) {
-      document.body.style.overflow = value ? "hidden" : "auto";
+      document.documentElement.style.overflow = value ? "hidden" : "auto";
     },
   },
 };
@@ -61,7 +61,7 @@ export default {
   background: rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(20px);
   overflow-y: auto;
-  padding: 50px 0;
+  padding-top: 50px;
 }
 
 .popup {
@@ -70,6 +70,8 @@ export default {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   position: relative;
+
+  max-width: 100vw;
 
   .popup-content {
     height: 100%;
