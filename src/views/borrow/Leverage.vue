@@ -139,7 +139,6 @@ export default {
   data() {
     return {
       collateralValue: "",
-      collateralError: "",
       poolId: null,
       isOpenPollPopup: false,
       isSettingsOpened: false,
@@ -164,10 +163,14 @@ export default {
     }),
 
     filteredPool() {
-      return this.pools.filter(
-        (pool) =>
-          pool.isSwappersActive && !pool.isDepreciated && !!pool.swapContract
-      );
+      return this.pools
+        .filter(
+          (pool) =>
+            pool.isSwappersActive && !pool.isDepreciated && !!pool.swapContract
+        )
+        .sort((a, b) =>
+          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+        );
     },
 
     selectedPool() {
@@ -177,6 +180,16 @@ export default {
         return null;
       }
       return null;
+    },
+
+    collateralError() {
+      if (
+        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
+      ) {
+        return `The value cannot be greater than ${this.maxCollateralValue}`;
+      }
+
+      return "";
     },
 
     maxCollateralValue() {
@@ -519,13 +532,6 @@ export default {
 
       this.updatePercentValue();
 
-      if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
-        this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        return false;
-      }
-
-      this.collateralError = "";
-
       if (this.percentValue && value) {
         this.mimAmount =
           (this.maxBorrowValue * this.percentValue) / this.selectedPool.ltv;
@@ -595,16 +601,29 @@ export default {
       this.isSettingsOpened = false;
     },
 
-    async checkIsPoolAllowBorrow(amount, notificationId) {
-      if (+amount < +this.selectedPool.dynamicBorrowAmount) {
-        return true;
+    checkIsPoolAllowBorrow(amount, notificationId) {
+      let dynamicBorrowAmount;
+      let borrowlimit;
+
+      if (+this.selectedPool.borrowlimit) {
+        borrowlimit = +amount < +this.selectedPool.borrowlimit;
+      } else {
+        borrowlimit = true;
       }
+
+      dynamicBorrowAmount = +amount < +this.selectedPool.dynamicBorrowAmount;
+
+      if (dynamicBorrowAmount && borrowlimit) return true;
 
       if (notificationId) {
-        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("notifications/delete", notificationId);
       }
 
-      await this.$store.dispatch("notifications/new", notification.allowBorrow);
+      if (!dynamicBorrowAmount) {
+        this.$store.dispatch("notifications/new", notification.allowBorrow);
+      } else {
+        this.$store.dispatch("notifications/new", notification.borrowLimit);
+      }
 
       return false;
     },
@@ -887,7 +906,6 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.collateralError = "";
       this.multiplier = 1;
       this.slipage = 1;
     },

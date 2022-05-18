@@ -17,370 +17,6 @@ export default {
     }),
   },
   methods: {
-    // Borrow
-    async cookCollateralAndBorrow(
-      { collateralAmount, amount, updatePrice, itsDefaultBalance },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : pool.token.address;
-      const collateralValue = itsDefaultBalance
-        ? collateralAmount.toString()
-        : 0;
-
-      const pairToken = pool.pairToken.address;
-      const userAddr = this.account;
-
-      const eventsArray = [];
-      const valuesArray = [];
-      const datasArray = [];
-
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        console.log("approvalEncode in COOK", approvalEncode);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
-
-      if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
-
-        eventsArray.push(11);
-        valuesArray.push(0);
-        datasArray.push(updateEncode);
-      }
-
-      // 5
-      const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
-
-      eventsArray.push(5);
-      valuesArray.push(0);
-      datasArray.push(borrowEncode);
-
-      // 21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, amount.sub("1"), "0x0"]
-      );
-
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
-      // 20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, collateralAmount, "0"]
-      );
-
-      eventsArray.push(20);
-      valuesArray.push(collateralValue);
-      datasArray.push(depositEncode);
-
-      // 10
-      const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-2", userAddr, false]
-      );
-
-      eventsArray.push(10);
-      valuesArray.push(0);
-      datasArray.push(colateralEncode);
-
-      const cookData = {
-        events: eventsArray,
-        values: valuesArray,
-        datas: datasArray,
-      };
-
-      console.log("cookData", cookData);
-
-      try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
-      } catch (e) {
-        console.log("COOK ERR:", e);
-        console.log("COOK ERR:", String(e));
-        console.log("COOK ERR:", e.code);
-
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
-      }
-    },
-
-    async cookAddCollateral(
-      { amount, updatePrice, itsDefaultBalance },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : pool.token.address;
-      const collateralValue = itsDefaultBalance ? amount.toString() : 0;
-
-      const userAddr = this.account;
-
-      const eventsArray = [];
-      const valuesArray = [];
-      const datasArray = [];
-
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        console.log("approvalEncode in COOK", approvalEncode);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
-
-      if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
-
-        eventsArray.push(11);
-        valuesArray.push(0);
-        datasArray.push(updateEncode);
-      }
-
-      // 20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, amount, "0"]
-      );
-
-      eventsArray.push(20);
-      valuesArray.push(collateralValue);
-      datasArray.push(depositEncode);
-
-      // 10
-      const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-2", userAddr, false]
-      );
-
-      eventsArray.push(10);
-      valuesArray.push(0);
-      datasArray.push(colateralEncode);
-
-      const cookData = {
-        events: eventsArray,
-        values: valuesArray,
-        datas: datasArray,
-      };
-
-      console.log("cookData", cookData);
-
-      try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
-
-        await this.$store.commit("notifications/delete", notificationId);
-
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
-      } catch (e) {
-        console.log("COOK ERR:", e.code);
-
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
-      }
-    },
-
-    async cookBorrow(
-      { amount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const pairToken = pool.pairToken.address;
-      const userAddr = this.account;
-
-      const eventsArray = [];
-      const valuesArray = [];
-      const datasArray = [];
-
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        console.log("approvalEncode in COOK", approvalEncode);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
-
-      if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
-
-        eventsArray.push(11);
-        valuesArray.push(0);
-        datasArray.push(updateEncode);
-      }
-
-      // 5
-      const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
-
-      eventsArray.push(5);
-      valuesArray.push(0);
-      datasArray.push(borrowEncode);
-
-      //21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, amount.sub("1"), "0x0"]
-      );
-
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
-      const cookData = {
-        events: eventsArray,
-        values: valuesArray,
-        datas: datasArray,
-      };
-
-      console.log("cookData", cookData);
-
-      try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
-      } catch (e) {
-        console.log("COOK ERR:", e.code);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
-      }
-    },
-
-    // End Borrow
-
     async getApprovalEncode(pool) {
       if (!this.itsMetamask) return "ledger";
 
@@ -562,8 +198,391 @@ export default {
       }
     },
 
-    // Repay
+    // Borrow
+    async cookCollateralAndBorrow(
+      { collateralAmount, amount, updatePrice, itsDefaultBalance },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.token.address;
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
 
+      const pairToken = pool.pairToken.address;
+      const userAddr = this.account;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        console.log("approvalEncode in COOK", approvalEncode);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          console.log("aproveMasterContract resp: ", approvalMaster);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      // 5
+      const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, userAddr]
+      );
+
+      eventsArray.push(5);
+      valuesArray.push(0);
+      datasArray.push(borrowEncode);
+
+      // 21
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pairToken, userAddr, amount.sub("1"), "0x0"]
+      );
+
+      eventsArray.push(21);
+      valuesArray.push(0);
+      datasArray.push(bentoWithdrawEncode);
+
+      // 20
+      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [tokenAddr, userAddr, collateralAmount, "0"]
+      );
+
+      eventsArray.push(20);
+      valuesArray.push(collateralValue);
+      datasArray.push(depositEncode);
+
+      // 10
+      const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-2", userAddr, false]
+      );
+
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(colateralEncode);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
+      } catch (e) {
+        console.log("COOK ERR:", e);
+        console.log("COOK ERR:", String(e));
+        console.log("COOK ERR:", e.code);
+
+        let errorNotification;
+        if (e?.code === 4001) {
+          errorNotification = notification.userDenied;
+        } else {
+          errorNotification = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookAddCollateral(
+      { amount, updatePrice, itsDefaultBalance },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.token.address;
+      const collateralValue = itsDefaultBalance ? amount.toString() : 0;
+
+      const userAddr = this.account;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        console.log("approvalEncode in COOK", approvalEncode);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          console.log("aproveMasterContract resp: ", approvalMaster);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      // 20
+      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [tokenAddr, userAddr, amount, "0"]
+      );
+
+      eventsArray.push(20);
+      valuesArray.push(collateralValue);
+      datasArray.push(depositEncode);
+
+      // 10
+      const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-2", userAddr, false]
+      );
+
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(colateralEncode);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        console.log("gasLimit for cook:", gasLimit);
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
+      } catch (e) {
+        console.log("COOK ERR:", e.code);
+
+        let errorNotification;
+        if (e?.code === 4001) {
+          errorNotification = notification.userDenied;
+        } else {
+          errorNotification = notification.transaction.error;
+        }
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookBorrow(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const pairToken = pool.pairToken.address;
+      const userAddr = this.account;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        console.log("approvalEncode in COOK", approvalEncode);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          console.log("aproveMasterContract resp: ", approvalMaster);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      // 5
+      const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, userAddr]
+      );
+
+      eventsArray.push(5);
+      valuesArray.push(0);
+      datasArray.push(borrowEncode);
+
+      //21
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pairToken, userAddr, amount.sub("1"), "0x0"]
+      );
+
+      eventsArray.push(21);
+      valuesArray.push(0);
+      datasArray.push(bentoWithdrawEncode);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        console.log("gasLimit for cook:", gasLimit);
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.transaction.success
+        );
+      } catch (e) {
+        console.log("BORROW COOK ERR:", e, e.data);
+
+        let errorNotification;
+
+        if (
+          String(e).indexOf("Borrow Limit reached") !== -1 ||
+          String(e).indexOf("Whitelisted borrow exceeded") !== -1
+        ) {
+          errorNotification = {
+            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
+          };
+        }
+
+        if (
+          e.data?.message === "Borrow Limit reached: execution reverted" ||
+          e.data?.message ===
+            "Whitelisted borrow exceeded: execution reverted" ||
+          e.data?.message === "execution reverted: Borrow Limit reached" ||
+          e?.message === "execution reverted: Borrow Limit reached"
+        ) {
+          errorNotification = {
+            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
+          };
+        }
+
+        if (!errorNotification) {
+          errorNotification = notification.transaction.error;
+        }
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    // Repay
     async cookRemoveAndRepayMax(
       { amount, updatePrice },
       isApprowed,
@@ -695,14 +714,14 @@ export default {
       } catch (e) {
         console.log("COOK ERR:", e.code);
 
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
+        let errorNotification;
+        if (e?.code === 4001) {
+          errorNotification = notification.userDenied;
         } else {
-          msg = notification.transaction.error;
+          errorNotification = notification.transaction.error;
         }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
 
@@ -834,14 +853,14 @@ export default {
         );
       } catch (e) {
         console.log("COOK ERR:", e.code);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
+        let errorNotification;
+        if (e?.code === 4001) {
+          errorNotification = notification.userDenied;
         } else {
-          msg = notification.transaction.error;
+          errorNotification = notification.transaction.error;
         }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
 
@@ -954,14 +973,14 @@ export default {
       } catch (e) {
         console.log("COOK ERR:", e.code);
 
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
+        let errorNotification;
+        if (e?.code === 4001) {
+          errorNotification = notification.userDenied;
         } else {
-          msg = notification.transaction.error;
+          errorNotification = notification.transaction.error;
         }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
 
@@ -1106,18 +1125,16 @@ export default {
         );
       } catch (e) {
         console.log("COOK ERR:", e.code);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
+        let errorNotification;
+        if (e?.code === 4001) {
+          errorNotification = notification.userDenied;
         } else {
-          msg = notification.transaction.error;
+          errorNotification = notification.transaction.error;
         }
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
-
-    // END Repay
 
     // leverage
     async cookMultiBorrow(
@@ -1262,36 +1279,52 @@ export default {
           notification.transaction.success
         );
       } catch (e) {
-        console.log("MULTI COOK ERR:", e);
+        console.log("LEVERAGE COOK ERR:", e, e.data);
+        let errorNotification;
 
-        let msg;
+        if (
+          String(e).indexOf("Borrow Limit reached") !== -1 ||
+          String(e).indexOf("Whitelisted borrow exceeded") !== -1
+        ) {
+          errorNotification = {
+            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
+            type: "error",
+          };
+        }
 
-        if (e.code === 4001) {
-          msg = notification.userDenied;
+        if (
+          e.data?.message === "Borrow Limit reached: execution reverted" ||
+          e.data?.message ===
+            "Whitelisted borrow exceeded: execution reverted" ||
+          e.data?.message === "execution reverted: Borrow Limit reached" ||
+          e?.message === "execution reverted: Borrow Limit reached"
+        ) {
+          errorNotification = {
+            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
+            type: "error",
+          };
         }
 
         if (e.code === "UNPREDICTABLE_GAS_LIMIT") {
-          msg = {
-            title: "Error",
+          errorNotification = {
             msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
             type: "error",
           };
         }
 
-        if (e?.data?.message === "execution reverted: Cauldron: call failed") {
-          msg = {
-            title: "Error",
+        if (e.data?.message === "execution reverted: Cauldron: call failed") {
+          errorNotification = {
             msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
             type: "error",
           };
         }
 
-        if (!msg) {
-          msg = notification.transaction.error;
+        if (!errorNotification) {
+          errorNotification = notification.transaction.error;
         }
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
 
@@ -1416,18 +1449,37 @@ export default {
           notification.transaction.success
         );
       } catch (e) {
-        console.log("COOK ERR:", e);
-        console.log("COOK ERR:", String(e));
-        console.log("COOK ERR:", e.code);
+        console.log("COOK ERR:", e, e.data);
 
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
+        let errorNotification;
+
+        if (
+          String(e).indexOf("Borrow Limit reached") !== -1 ||
+          String(e).indexOf("Whitelisted borrow exceeded") !== -1
+        ) {
+          errorNotification = {
+            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
+          };
         }
+
+        if (
+          e.data?.message === "Borrow Limit reached: execution reverted" ||
+          e.data?.message ===
+            "Whitelisted borrow exceeded: execution reverted" ||
+          e.data?.message === "execution reverted: Borrow Limit reached" ||
+          e.message === "execution reverted: Borrow Limit reached"
+        ) {
+          errorNotification = {
+            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
+          };
+        }
+
+        if (!errorNotification) {
+          errorNotification = notification.transaction.error;
+        }
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
 
@@ -1602,42 +1654,33 @@ export default {
       } catch (e) {
         console.log("FLASH REPAY COOK ERR:", e.error);
         console.log("FLASH REPAY COOK ERR:", e.data);
-        let msg;
 
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        }
+        let errorNotification;
 
         if (e.error === "execution reverted: Cauldron: user insolvent") {
-          msg = {
-            title: "Error",
+          errorNotification = {
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-            type: "error",
           };
         }
 
         if (e.error?.message === "execution reverted: BoringMath: Underflow") {
-          msg = {
-            title: "Error",
+          errorNotification = {
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-            type: "error",
           };
         }
 
         if (e.data?.message === "execution reverted: BoringMath: Underflow") {
-          msg = {
-            title: "Error",
+          errorNotification = {
             msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-            type: "error",
           };
         }
 
-        if (!msg) {
-          msg = notification.transaction.error;
+        if (!errorNotification) {
+          errorNotification = notification.transaction.error;
         }
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
   },

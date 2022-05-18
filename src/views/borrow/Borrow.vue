@@ -162,9 +162,7 @@ export default {
     return {
       mimIcon,
       collateralValue: "",
-      collateralError: "",
       borrowValue: "",
-      borrowError: "",
       poolId: null,
       isOpenPollPopup: false,
       useDefaultBalance: false,
@@ -185,7 +183,11 @@ export default {
     }),
 
     filteredPool() {
-      return this.pools.filter((pool) => !pool.isDepreciated);
+      return this.pools
+        .filter((pool) => !pool.isDepreciated)
+        .sort((a, b) =>
+          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+        );
     },
 
     selectedPool() {
@@ -195,6 +197,24 @@ export default {
         return null;
       }
       return null;
+    },
+
+    collateralError() {
+      if (
+        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
+      ) {
+        return `The value cannot be greater than ${this.maxCollateralValue}`;
+      }
+
+      return "";
+    },
+
+    borrowError() {
+      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
+        return `The value cannot be greater than ${this.maxBorrowValue}!`;
+      }
+
+      return "";
     },
 
     maxCollateralValue() {
@@ -454,30 +474,9 @@ export default {
   methods: {
     updateCollateralValue(value) {
       this.collateralValue = value;
-
-      if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
-        this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        return false;
-      }
-
-      this.collateralError = "";
-
-      if (this.borrowValue) {
-        if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
-          this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}!!!!`;
-        } else {
-          this.borrowError = "";
-        }
-      }
     },
 
     updateBorrowValue(value) {
-      if (parseFloat(value) > parseFloat(this.maxBorrowValue)) {
-        this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
-        return false;
-      }
-
-      this.borrowError = "";
       this.borrowValue = value;
     },
 
@@ -520,14 +519,29 @@ export default {
       }
     },
 
-    async checkIsPoolAllowBorrow(amount, notificationId) {
-      if (+amount < +this.selectedPool.dynamicBorrowAmount) {
-        return true;
+    checkIsPoolAllowBorrow(amount, notificationId) {
+      let dynamicBorrowAmount;
+      let borrowlimit;
+
+      if (+this.selectedPool.borrowlimit) {
+        borrowlimit = +amount < +this.selectedPool.borrowlimit;
+      } else {
+        borrowlimit = true;
       }
 
-      await this.$store.commit("notifications/delete", notificationId);
+      dynamicBorrowAmount = +amount < +this.selectedPool.dynamicBorrowAmount;
 
-      await this.$store.dispatch("notifications/new", notification.allowBorrow);
+      if (dynamicBorrowAmount && borrowlimit) return true;
+
+      if (notificationId) {
+        this.$store.commit("notifications/delete", notificationId);
+      }
+
+      if (!dynamicBorrowAmount) {
+        this.$store.dispatch("notifications/new", notification.allowBorrow);
+      } else {
+        this.$store.dispatch("notifications/new", notification.borrowLimit);
+      }
 
       return false;
     },
@@ -730,9 +744,7 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.collateralError = "";
       this.borrowValue = "";
-      this.borrowError = "";
     },
 
     updatePercentValue(value) {

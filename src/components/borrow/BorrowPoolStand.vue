@@ -12,6 +12,8 @@
           <span>Degenbox strategy</span>
           <img src="@/assets/images/arrow_right.svg" alt="degenbox"
         /></a>
+
+        <LockedTimer :finalTime="isLockedTimer" v-if="isLockedTimer" />
       </div>
       <div class="deposit-wrap">
         <button
@@ -141,6 +143,7 @@
 
 <script>
 import Vue from "vue";
+import LockedTimer from "@/components/stake/LockedTimer.vue";
 import { tokenPrices } from "@/utils/helpers.js";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
@@ -524,6 +527,14 @@ export default {
     healthMultiplier() {
       return this.pool?.healthMultiplier;
     },
+
+    isLockedTimer() {
+      if (this.pool?.userInfo?.userLockedTimestamp) {
+        return this.pool.userInfo.userLockedTimestamp;
+      }
+
+      return 0;
+    },
   },
 
   watch: {
@@ -578,6 +589,10 @@ export default {
 
       return false;
     },
+  },
+
+  components: {
+    LockedTimer,
   },
 };
 </script>

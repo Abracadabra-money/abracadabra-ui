@@ -86,7 +86,7 @@
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
-        :pools="pools"
+        :pools="filteredPool"
         popupType="couldron"
     /></LocalPopupWrap>
   </div>
@@ -121,9 +121,7 @@ export default {
     return {
       mimIcon,
       collateralValue: "",
-      collateralError: "",
       borrowValue: "",
-      borrowError: "",
       poolId: null,
       isOpenPollPopup: false,
       updateInterval: null,
@@ -141,6 +139,12 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
+
+    filteredPool() {
+      return [...this.pools].sort((a, b) =>
+        a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+      );
+    },
 
     selectedPool() {
       if (this.poolId) {
@@ -358,6 +362,24 @@ export default {
 
       return true;
     },
+
+    collateralError() {
+      if (
+        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
+      ) {
+        return `The value cannot be greater than ${this.maxCollateralValue}`;
+      }
+
+      return "";
+    },
+
+    borrowError() {
+      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
+        return `The value cannot be greater than ${this.maxBorrowValue}!`;
+      }
+
+      return "";
+    },
   },
 
   watch: {
@@ -377,19 +399,11 @@ export default {
 
   methods: {
     updateCollateralValue(value) {
-      if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
-        this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        return false;
-      }
-
       if (!value) {
-        this.collateralError = "";
         this.collateralValue = value;
       }
 
       if (value === this.maxCollateralValue) {
-        this.collateralError = "";
-
         this.borrowValue = +this.maxBorrowValue ? this.maxBorrowValue : "";
         this.collateralValue = +this.maxCollateralValue
           ? this.maxCollateralValue
@@ -398,7 +412,6 @@ export default {
         return false;
       }
 
-      this.collateralError = "";
       this.collateralValue = value;
 
       return false;
@@ -407,27 +420,13 @@ export default {
     updateBorrowValue(value) {
       this.borrowValue = value;
 
-      if (parseFloat(value) > parseFloat(this.maxBorrowValue)) {
-        this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
-        return false;
-      }
-
-      this.borrowError = "";
-
-      if (this.collateralValue) {
-        if (
-          parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-        ) {
-          this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        }
-      }
-
       if (value === this.maxBorrowValue) {
         this.collateralValue = +this.maxCollateralValue
           ? this.maxCollateralValue
           : "";
         return false;
       }
+
       return false;
     },
 
