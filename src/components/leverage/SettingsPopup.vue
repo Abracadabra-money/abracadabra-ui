@@ -70,8 +70,10 @@ input[type="number"]::-webkit-outer-spin-button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
   height: 430px;
+  width: 380px;
+
+  max-width: 100%;
   padding: 10px 10px 0 10px;
 }
 .title {

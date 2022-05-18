@@ -13,7 +13,7 @@
       :mimPrice="infoObject.mimPrice"
       :isBento="true"
     />
-    <LocalPopupWrap v-model="popupData.opened" :isForBoxes="true">
+    <LocalPopupWrap v-model="popupData.opened">
       <DegenBentoPopup
         :infoObject="infoObject"
         :isBento="popupData.isBento"
