@@ -520,14 +520,29 @@ export default {
       }
     },
 
-    async checkIsPoolAllowBorrow(amount, notificationId) {
-      if (+amount < +this.selectedPool.dynamicBorrowAmount) {
-        return true;
+    checkIsPoolAllowBorrow(amount, notificationId) {
+      let dynamicBorrowAmount;
+      let borrowlimit;
+
+      if (+this.selectedPool.borrowlimit) {
+        borrowlimit = +amount < +this.selectedPool.borrowlimit;
+      } else {
+        borrowlimit = true;
       }
 
-      await this.$store.commit("notifications/delete", notificationId);
+      dynamicBorrowAmount = +amount < +this.selectedPool.dynamicBorrowAmount;
 
-      await this.$store.dispatch("notifications/new", notification.allowBorrow);
+      if (dynamicBorrowAmount && borrowlimit) return true;
+
+      if (notificationId) {
+        this.$store.commit("notifications/delete", notificationId);
+      }
+
+      if (!dynamicBorrowAmount) {
+        this.$store.dispatch("notifications/new", notification.allowBorrow);
+      } else {
+        this.$store.dispatch("notifications/new", notification.borrowLimit);
+      }
 
       return false;
     },

@@ -38,7 +38,12 @@ export default {
 
   allowBorrow: {
     msg: "This Lending Market has reached its MIM borrowable limit, please wait for the next MIM replenish to borrow more!",
-    type: "info",
+    type: "error",
+  },
+
+  borrowLimit: {
+    msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
+    type: "error",
   },
 
   userDenied: {
