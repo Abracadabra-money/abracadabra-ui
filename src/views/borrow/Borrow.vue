@@ -185,7 +185,11 @@ export default {
     }),
 
     filteredPool() {
-      return this.pools.filter((pool) => !pool.isDepreciated);
+      return this.pools
+        .filter((pool) => !pool.isDepreciated)
+        .sort((a, b) =>
+          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+        );
     },
 
     selectedPool() {

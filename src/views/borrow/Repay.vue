@@ -86,7 +86,7 @@
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
-        :pools="pools"
+        :pools="filteredPool"
         popupType="couldron"
     /></LocalPopupWrap>
   </div>
@@ -141,6 +141,12 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
+
+    filteredPool() {
+      return [...this.pools].sort((a, b) =>
+        a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+      );
+    },
 
     selectedPool() {
       if (this.poolId) {

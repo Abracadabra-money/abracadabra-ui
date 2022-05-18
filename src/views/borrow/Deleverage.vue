@@ -162,9 +162,11 @@ export default {
     }),
 
     filteredPool() {
-      return this.pools.filter(
-        (pool) => pool.isSwappersActive && !!pool.reverseSwapContract
-      );
+      return this.pools
+        .filter((pool) => pool.isSwappersActive && !!pool.reverseSwapContract)
+        .sort((a, b) =>
+          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+        );
     },
 
     selectedPool() {
