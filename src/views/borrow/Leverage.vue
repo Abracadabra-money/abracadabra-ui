@@ -139,7 +139,6 @@ export default {
   data() {
     return {
       collateralValue: "",
-      collateralError: "",
       poolId: null,
       isOpenPollPopup: false,
       isSettingsOpened: false,
@@ -181,6 +180,16 @@ export default {
         return null;
       }
       return null;
+    },
+
+    collateralError() {
+      if (
+        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
+      ) {
+        return `The value cannot be greater than ${this.maxCollateralValue}`;
+      }
+
+      return "";
     },
 
     maxCollateralValue() {
@@ -522,13 +531,6 @@ export default {
       this.collateralValue = value;
 
       this.updatePercentValue();
-
-      if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
-        this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        return false;
-      }
-
-      this.collateralError = "";
 
       if (this.percentValue && value) {
         this.mimAmount =
@@ -904,7 +906,6 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.collateralError = "";
       this.multiplier = 1;
       this.slipage = 1;
     },

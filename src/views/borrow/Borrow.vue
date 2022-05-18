@@ -162,9 +162,7 @@ export default {
     return {
       mimIcon,
       collateralValue: "",
-      collateralError: "",
       borrowValue: "",
-      borrowError: "",
       poolId: null,
       isOpenPollPopup: false,
       useDefaultBalance: false,
@@ -199,6 +197,24 @@ export default {
         return null;
       }
       return null;
+    },
+
+    collateralError() {
+      if (
+        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
+      ) {
+        return `The value cannot be greater than ${this.maxCollateralValue}`;
+      }
+
+      return "";
+    },
+
+    borrowError() {
+      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
+        return `The value cannot be greater than ${this.maxBorrowValue}!`;
+      }
+
+      return "";
     },
 
     maxCollateralValue() {
@@ -458,30 +474,9 @@ export default {
   methods: {
     updateCollateralValue(value) {
       this.collateralValue = value;
-
-      if (parseFloat(value) > parseFloat(this.maxCollateralValue)) {
-        this.collateralError = `The value cannot be greater than ${this.maxCollateralValue}`;
-        return false;
-      }
-
-      this.collateralError = "";
-
-      if (this.borrowValue) {
-        if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
-          this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}!!!!`;
-        } else {
-          this.borrowError = "";
-        }
-      }
     },
 
     updateBorrowValue(value) {
-      if (parseFloat(value) > parseFloat(this.maxBorrowValue)) {
-        this.borrowError = `The value cannot be greater than ${this.maxBorrowValue}`;
-        return false;
-      }
-
-      this.borrowError = "";
       this.borrowValue = value;
     },
 
@@ -749,9 +744,7 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.collateralError = "";
       this.borrowValue = "";
-      this.borrowError = "";
     },
 
     updatePercentValue(value) {
