@@ -200,7 +200,7 @@ export default {
       if (!this.selectedPool.token.isTokenApprove) return "Approve Token";
 
       if (!this.selectedPool.isTokenToReverseSwapApprove)
-        return "Approve UnSwap";
+        return "Approve Flash Repay";
 
       return "Approve";
     },
@@ -454,6 +454,11 @@ export default {
       this.createPools();
     },
 
+    maxFlashRepayAmount() {
+      this.flashRepayRemoveAmount = 0;
+      this.flashRepayAmount = 0;
+    },
+
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
@@ -627,6 +632,7 @@ export default {
 
   created() {
     this.poolId = this.$route.params.id;
+
     this.updateInterval = setInterval(async () => {
       this.createPools();
     }, 15000);
