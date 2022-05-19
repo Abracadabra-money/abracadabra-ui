@@ -40,7 +40,6 @@
 
           <Range
             v-model="flashRepayAmount"
-            :min="0"
             :max="+maxFlashRepayAmount"
             :step="+borrowStepRange"
             title="Choose the amount of MIM you want to repay"
@@ -51,9 +50,9 @@
           <Range
             title="Choose the amount of collateral you want to remove"
             v-model="flashRepayRemoveAmount"
-            :min="0"
             :max="maxFlashRepayRemoveAmount"
             :step="+collateralStepRange"
+            :parallelRange="flashRepayAmount"
           />
         </div>
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
@@ -64,9 +63,6 @@
         <h1 class="title">Deleverage</h1>
         <BorrowPoolStand
           :pool="selectedPool"
-          :isEmpty="selectedPool === null"
-          :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
-          :tokenToMim="tokenToMim"
           typeOperation="repay"
           :collateralExpected="collateralExpected"
           :mimExpected="flashRepayAmount"
@@ -217,21 +213,6 @@ export default {
         { name: "Borrow Fee", value: this.selectedPool.borrowFee },
         { name: "Interest", value: this.selectedPool.interest },
       ];
-    },
-
-    tokenToMim() {
-      if (this.selectedPool) {
-        const tokenToMim = 1 / this.selectedPool.tokenPrice;
-
-        let decimals = 4;
-
-        if (this.selectedPool.name === "SHIB") decimals = 6;
-
-        // eslint-disable-next-line no-useless-escape
-        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
-        return tokenToMim.toString().match(re)[0];
-      }
-      return "0.0";
     },
 
     liquidationMultiplier() {

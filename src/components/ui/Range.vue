@@ -13,8 +13,7 @@
         <h4>{{ title }}</h4>
         <div class="range-subtitle">{{ subtitle }}</div>
       </div>
-
-      <div class="range-status" :class="risk" v-if="risk !== 'default'">
+      <div class="range-status" :class="risk" v-if="collateralValue">
         {{ risk }}
       </div>
     </div>
@@ -28,6 +27,7 @@
           :max="max"
           :step="step"
           :class="risk"
+          :disabled="disabled"
         />
       </div>
     </transition>
@@ -38,6 +38,7 @@
 export default {
   props: {
     value: { type: [Number, String], default: 0 },
+    collateralValue: { type: [Number, String], default: "" },
     min: { type: Number, default: 0 },
     max: { type: Number, default: 10 },
     step: { type: Number, default: 1 },
@@ -45,6 +46,8 @@ export default {
     title: { type: String, default: "Leverage up" },
     tooltipText: { type: String, default: "" },
     subtitle: { type: String, default: "" },
+    disabled: { type: Boolean, default: false },
+    parallelRange: { type: [Number, String], default: "" },
   },
   data() {
     return {
@@ -58,10 +61,12 @@ export default {
   },
   computed: {
     gradientRangeTrack() {
+      let risk = this.collateralValue ? this.risk : "default";
+
       return `linear-gradient(
             90deg,
-            ${this.colors[this.risk]} 0%,
-            ${this.colors[this.risk]} ${this.gradientPercent}%,
+            ${this.colors[risk]} 0%,
+            ${this.colors[risk]} ${this.gradientPercent}%,
             rgba(255, 255, 255, 0.1) ${this.gradientPercent}%,
             rgba(255, 255, 255, 0.1) 100%
           )
@@ -85,6 +90,8 @@ export default {
 
         return Math.floor((100 / (max - this.min)) * (+this.range - this.min));
       }
+
+      if (this.parallelRange === "0") return 0;
 
       return Math.floor(100 * Math.abs(+this.range / max));
     },

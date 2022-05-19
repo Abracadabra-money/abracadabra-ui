@@ -50,7 +50,8 @@
             :max="maxLeverage"
             :min="1"
             :risk="leverageRisk"
-            :inputValue="collateralValue"
+            :collateralValue="collateralValue"
+            :disabled="!collateralValue"
             tooltipText="Allows users to leverage their position. Read more about this in the documents!"
           />
           <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
@@ -63,10 +64,6 @@
         <h1 class="title">Leverage farm</h1>
         <BorrowPoolStand
           :pool="selectedPool"
-          :isEmpty="selectedPool === null"
-          :hasStrategy="selectedPool ? selectedPool.strategyLink : false"
-          :tokenToMim="tokenToMim"
-          typeOperation="borrow"
           :collateralExpected="finalRemoveCollateralAmountToShare"
           :mimExpected="multiplyMimExpected"
           :liquidationPrice="liquidationPriceExpected"
@@ -274,21 +271,6 @@ export default {
       ];
     },
 
-    tokenToMim() {
-      if (this.selectedPool) {
-        const tokenToMim = 1 / this.selectedPool.tokenPrice;
-
-        let decimals = 4;
-
-        if (this.selectedPool.name === "SHIB") decimals = 6;
-
-        // eslint-disable-next-line no-useless-escape
-        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
-        return tokenToMim.toString().match(re)[0];
-      }
-      return "0.0";
-    },
-
     maxLeverage() {
       if (this.selectedPool?.leverageMax) return this.selectedPool.leverageMax;
 
@@ -421,7 +403,7 @@ export default {
     },
 
     healthMultiplier() {
-      return this.pool?.healthMultiplier;
+      return this.selectedPool?.healthMultiplier;
     },
 
     leverageRisk() {
@@ -437,7 +419,7 @@ export default {
           return "high";
         }
       }
-      return "default";
+      return "safe";
     },
 
     followLink() {
@@ -906,7 +888,7 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.multiplier = 1;
+      this.multiplier = 2;
       this.slipage = 1;
     },
   },
