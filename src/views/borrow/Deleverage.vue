@@ -37,7 +37,7 @@
               <img src="@/assets/images/settings.png" alt="settings" />
             </button>
           </div>
-          {{ flashRepayAmount }}
+
           <Range
             v-model="flashRepayAmount"
             :max="+maxFlashRepayAmount"
