@@ -69,7 +69,7 @@
           :liquidationPrice="flashReapyExpectedLiquidationPrice"
           :itsMaxRepayMim="itsMaxRepayMim"
           :emptyData="emptyData"
-          :poolId="selectedPool.id"
+          :poolId="selectedPoolId"
         />
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -415,6 +415,12 @@ export default {
         );
       }
       return true;
+    },
+
+    selectedPoolId() {
+      if (this.selectedPool) return this.selectedPool.id;
+
+      return null;
     },
 
     // flashRepayAmountFormat() {

@@ -207,6 +207,7 @@ export default {
 
     poolId: {
       type: Number,
+      default: 0,
     },
   },
   data: () => ({
@@ -640,7 +641,7 @@ export default {
   },
 
   async created() {
-    this.tokenApy = await fetchTokenApy(this.pool);
+    if (this.pool) this.tokenApy = await fetchTokenApy(this.pool);
   },
 
   components: {

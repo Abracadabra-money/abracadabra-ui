@@ -68,7 +68,7 @@
           :mimExpected="multiplyMimExpected"
           :liquidationPrice="liquidationPriceExpected"
           :emptyData="emptyData"
-          :poolId="selectedPool.id"
+          :poolId="selectedPoolId"
         />
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -481,6 +481,12 @@ export default {
         );
       }
       return true;
+    },
+
+    selectedPoolId() {
+      if (this.selectedPool) return this.selectedPool.id;
+
+      return null;
     },
   },
 
@@ -923,8 +929,6 @@ export default {
     this.changeSlipage(this.poolId, this.chainId);
 
     this.multiplier = 2;
-
-    console.log("this.slipage", this.slipage);
 
     this.updateInterval = setInterval(async () => {
       this.createPools();
