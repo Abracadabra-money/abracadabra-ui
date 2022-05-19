@@ -5,6 +5,7 @@ import tokenCVXAbi from "@/utils/abi/tokensAbi/CVX";
 import axios from "axios";
 import { ethers } from "ethers";
 import { tokenPrices } from "@/utils/helpers.js";
+import { getStargateApy } from "@/helpers/borrow/stargateApyHelper";
 
 // wMEMO pool APY
 import timeStakingAbi from "@/utils/abi/timeStaking";
@@ -390,6 +391,10 @@ export const fetchTokenApy = async (pool) => {
 
   if ((pool.id === 19 || pool.id === 26) && chainId === mainnetId) {
     return 0;
+  }
+
+  if ((pool.id === 31 || pool.id === 32) && chainId === mainnetId) {
+    return await getStargateApy(pool.token.contract.address, signer);
   }
 
   if ((pool.id === 2 || pool.id === 5) && chainId === 43114) {

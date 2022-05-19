@@ -1234,10 +1234,13 @@ export default [
     contractChain: "0x01",
     id: 31,
     healthMultiplier: 10,
+    hasWithdrawableLimit: true,
     isDepreciated: false,
     isSwappersActive: true,
     dynamicBorrowAmountLimit: false,
     hasAccountBorrowLimit: true,
+    strategyLink:
+      "https://medium.com/@abracadabramoney/our-stargate-degenbox-strategy-4332349ccd71",
     leverageMax: 89,
     isDegenBox: true,
     contract: {
@@ -1276,10 +1279,13 @@ export default [
     contractChain: "0x01",
     id: 32,
     healthMultiplier: 10,
+    hasWithdrawableLimit: true,
     isDepreciated: false,
     isSwappersActive: true,
     dynamicBorrowAmountLimit: false,
     hasAccountBorrowLimit: true,
+    strategyLink:
+      "https://medium.com/@abracadabramoney/our-stargate-degenbox-strategy-4332349ccd71",
     leverageMax: 89,
     isDegenBox: true,
     contract: {

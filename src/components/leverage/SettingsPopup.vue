@@ -12,9 +12,9 @@
         />
       </div>
       <input
-        v-model="slippage"
+        v-model="inputValue"
         type="number"
-        placeholder="Auto 1.0%"
+        :placeholder="`Auto ${slipage}%`"
         class="settings-input"
       />
     </div>
@@ -26,16 +26,21 @@
 const BaseButton = () => import("@/components/base/BaseButton");
 
 export default {
+  props: {
+    slipage: {
+      type: [Number, String],
+      default: 1,
+    },
+  },
   data() {
     return {
-      slippage: "",
-      deadline: "",
+      inputValue: this.slipage,
     };
   },
 
   methods: {
     actionHandler() {
-      this.$emit("saveSettings", this.slippage);
+      this.$emit("saveSettings", this.inputValue);
     },
   },
 
