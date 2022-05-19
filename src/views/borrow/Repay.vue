@@ -52,6 +52,7 @@
           :mimExpected="mimExpected"
           :liquidationPrice="+repayExpectedLiquidationPrice"
           :emptyData="emptyData"
+          :poolId="selectedPool.id"
         />
         <template v-if="selectedPool">
           <div class="btn-wrap">

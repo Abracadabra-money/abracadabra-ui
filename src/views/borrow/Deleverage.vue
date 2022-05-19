@@ -69,6 +69,7 @@
           :liquidationPrice="flashReapyExpectedLiquidationPrice"
           :itsMaxRepayMim="itsMaxRepayMim"
           :emptyData="emptyData"
+          :poolId="selectedPool.id"
         />
         <template v-if="selectedPool">
           <div class="btn-wrap">

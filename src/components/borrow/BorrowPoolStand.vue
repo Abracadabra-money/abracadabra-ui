@@ -46,6 +46,28 @@
 
         <button v-if="showClaimCrvReward"></button>
 
+        <a
+          class="deposit"
+          href="https://stargate.finance/pool/USDC-ETH/add"
+          target="_blank"
+          rel="noreferrer noopener"
+          v-if="showStargateUSDC"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Get Stargate
+          USDC</a
+        >
+
+        <a
+          class="deposit"
+          href="https://stargate.finance/pool/USDT-ETH/add"
+          target="_blank"
+          rel="noreferrer noopener"
+          v-if="showStargateUSDT"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Stargate
+          USDT</a
+        >
+
         <button
           v-if="!!pool"
           class="info-btn"
@@ -181,6 +203,10 @@ export default {
     itsMaxRepayMim: {
       type: Boolean,
       default: false,
+    },
+
+    poolId: {
+      type: Number,
     },
   },
   data: () => ({
@@ -464,9 +490,18 @@ export default {
     },
 
     showAvaxSlpLink() {
-      if (this.pool) {
-        return this.pool.id === 8 && this.chainId === 43114;
-      }
+      if (this.pool) return this.pool.id === 8 && this.chainId === 43114;
+
+      return false;
+    },
+
+    showStargateUSDC() {
+      if (this.pool) return this.pool.id === 31 && this.chainId === 1;
+
+      return false;
+    },
+    showStargateUSDT() {
+      if (this.pool) return this.pool.id === 32 && this.chainId === 1;
 
       return false;
     },
@@ -550,6 +585,10 @@ export default {
     async pool() {
       this.tokenApy = await fetchTokenApy(this.pool);
     },
+
+    poolId() {
+      this.tokenApy = null;
+    },
   },
 
   methods: {
@@ -598,6 +637,10 @@ export default {
 
       return false;
     },
+  },
+
+  async created() {
+    this.tokenApy = await fetchTokenApy(this.pool);
   },
 
   components: {

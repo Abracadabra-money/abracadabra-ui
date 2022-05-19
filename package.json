@@ -11,6 +11,7 @@
     "@coinbase/wallet-sdk": "^3.0.11",
     "@sushiswap/sushi-data": "^1.0.26",
     "@toruslabs/torus-embed": "^1.22.5",
+    "@uniswap/sdk": "^3.0.3",
     "@walletconnect/web3-provider": "^1.7.8",
     "axios": "^0.25.0",
     "core-js": "^3.6.5",
