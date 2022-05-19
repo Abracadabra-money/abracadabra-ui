@@ -37,10 +37,9 @@
               <img src="@/assets/images/settings.png" alt="settings" />
             </button>
           </div>
-
+          {{ flashRepayAmount }}
           <Range
             v-model="flashRepayAmount"
-            :min="0"
             :max="+maxFlashRepayAmount"
             :step="+borrowStepRange"
             title="Choose the amount of MIM you want to repay"
@@ -51,9 +50,9 @@
           <Range
             title="Choose the amount of collateral you want to remove"
             v-model="flashRepayRemoveAmount"
-            :min="0"
             :max="maxFlashRepayRemoveAmount"
             :step="+collateralStepRange"
+            :parallelRange="flashRepayAmount"
           />
         </div>
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"

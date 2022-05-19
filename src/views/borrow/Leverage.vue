@@ -50,7 +50,8 @@
             :max="maxLeverage"
             :min="1"
             :risk="leverageRisk"
-            :inputValue="collateralValue"
+            :collateralValue="collateralValue"
+            :disabled="!collateralValue"
             tooltipText="Allows users to leverage their position. Read more about this in the documents!"
           />
           <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
@@ -421,7 +422,7 @@ export default {
     },
 
     healthMultiplier() {
-      return this.pool?.healthMultiplier;
+      return this.selectedPool?.healthMultiplier;
     },
 
     leverageRisk() {
@@ -437,7 +438,7 @@ export default {
           return "high";
         }
       }
-      return "default";
+      return "safe";
     },
 
     followLink() {
@@ -906,7 +907,7 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.multiplier = 1;
+      this.multiplier = 2;
       this.slipage = 1;
     },
   },
