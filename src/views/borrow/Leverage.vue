@@ -96,7 +96,7 @@
     <BaseLoader v-else />
 
     <LocalPopupWrap v-model="isSettingsOpened">
-      <SettingsPopup @saveSettings="changeSlippage"
+      <SettingsPopup :slipage="slipage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
     <LocalPopupWrap v-model="isOpenPollPopup">
       <MarketsListPopup
@@ -155,6 +155,7 @@ export default {
 
   computed: {
     ...mapGetters({
+      chainId: "getChainId",
       pools: "getPools",
       account: "getAccount",
     }),
@@ -561,6 +562,8 @@ export default {
       this.collateralValue = "";
       this.poolId = pool.id;
 
+      this.changeSlipage(pool.id, this.chainId);
+
       this.useDefaultBalance = false;
 
       let duplicate = this.$route.fullPath === `/leverage/${pool.id}`;
@@ -891,12 +894,36 @@ export default {
       this.multiplier = 2;
       this.slipage = 1;
     },
+
+    changeSlipage(poolId, chainId) {
+      if (+poolId === 30 && +chainId === 1) {
+        this.slipage = 0.1;
+        return false;
+      }
+
+      if (+poolId === 31 && +chainId === 1) {
+        this.slipage = 0.5;
+        return false;
+      }
+
+      if (+poolId === 32 && +chainId === 1) {
+        this.slipage = 0.5;
+        return false;
+      }
+
+      this.slipage = 1;
+      return false;
+    },
   },
 
   async created() {
     this.poolId = this.$route.params.id;
 
+    this.changeSlipage(this.poolId, this.chainId);
+
     this.multiplier = 2;
+
+    console.log("this.slipage", this.slipage);
 
     this.updateInterval = setInterval(async () => {
       this.createPools();
