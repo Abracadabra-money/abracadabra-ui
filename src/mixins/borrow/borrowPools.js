@@ -1,11 +1,15 @@
 import { ethers } from "ethers";
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
+import axios from "axios";
 
 import poolsInfo from "@/utils/borrowPools/pools";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 import degenBoxAbi from "@/utils/abi/degenBox";
 import oracleAbi from "@/utils/abi/oracle";
+import whitelisterAbi from "@/utils/abi/Whitelister";
+import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
+
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 
 export default {
@@ -574,13 +578,13 @@ export default {
       };
 
       if (this.account) {
-        return await this.getUserInfo(poolData);
+        return await this.getUserInfo(poolData, poolContract);
       } else {
         return poolData;
       }
     },
     // fetch
-    async getUserInfo(pool) {
+    async getUserInfo(pool, poolContract) {
       const { userBorrowPart, contractBorrowPart } =
         await this.getUserBorrowPart(pool.contractInstance);
 
@@ -639,6 +643,12 @@ export default {
         this.$ethers.utils.formatUnits(userBalance, pool.token.decimals) /
         pool.tokenPrice;
 
+      let whitelistedInfo;
+      if (pool.id === 33 && this.chainId === 1) {
+        whitelistedInfo = await this.checkPoolWhitelised(poolContract);
+        console.log("whitelistedInfo", whitelistedInfo);
+      }
+
       pool.userInfo = {
         userBorrowPart,
         contractBorrowPart,
@@ -654,6 +664,7 @@ export default {
           contractBorrowPart.toString()
         ),
         balanceUsd,
+        whitelistedInfo,
       };
 
       return pool;
@@ -670,6 +681,87 @@ export default {
       const tokenPrices = await getTokensArrayPrices(this.chainId, tokensArray);
 
       return tokenPrices;
+    },
+
+    async fetchWhitelist(url) {
+      try {
+        // const url =
+        //   "https://bafybeicgmg5jh3gbrgzfjypljgtgm4o5ka7ocws2xcltk6ckazpuaiuddy.ipfs.infura-ipfs.io/";
+        const response = await axios.get(url);
+
+        return response.data;
+      } catch (error) {
+        console.log("fetchWhitelist", error);
+        return false;
+      }
+    },
+
+    async checkPoolWhitelised(cauldronContract) {
+      try {
+        const userAddress = this.account;
+
+        const whitelisterAddress = await cauldronContract.whitelister();
+        const whitelisterContract = new this.$ethers.Contract(
+          whitelisterAddress,
+          JSON.stringify(whitelisterAbi),
+          this.signer
+        );
+
+        const amountAllowed = await whitelisterContract.amountAllowed(
+          userAddress,
+          { gasLimit: 5000000 }
+        );
+
+        console.log("amountAllowed", amountAllowed);
+
+        const fetchingUrl = await whitelisterContract.ipfsMerkleProofs({
+          gasLimit: 5000000,
+        });
+
+        const whitelist = await this.fetchWhitelist(fetchingUrl);
+        console.log("FETCHHH WHITLIST fetchingUrl", fetchingUrl);
+
+        const yvcrvSTETHWhitelist = whitelist
+          ? whitelist
+          : yvcrvSTETHWhitelistLocal;
+
+        let userWhitelistedInfo = null;
+
+        Object.keys(yvcrvSTETHWhitelist).forEach(function (key) {
+          if (key.toLocaleLowerCase() === userAddress.toLocaleLowerCase()) {
+            userWhitelistedInfo = yvcrvSTETHWhitelist[key];
+          }
+        });
+
+        console.log("userWhitelistedInfo", userWhitelistedInfo);
+
+        if (!userWhitelistedInfo)
+          return {
+            isUserWhitelisted: false,
+          };
+
+        const amountAllowedParsed = this.$ethers.utils.formatUnits(
+          amountAllowed,
+          18
+        );
+        const userBorrowPart = this.$ethers.utils.formatUnits(
+          userWhitelistedInfo.userBorrowPart,
+          18
+        );
+
+        return {
+          isUserWhitelisted: true,
+          amountAllowedParsed,
+          userBorrowPart,
+          userWhitelistedInfo,
+          whitelisterContract,
+        };
+      } catch (e) {
+        console.log("checkPoolWhitelised", e);
+        return {
+          isUserWhitelisted: false,
+        };
+      }
     },
   },
 
