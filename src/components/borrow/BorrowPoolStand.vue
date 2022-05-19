@@ -5,8 +5,8 @@
         <a
           target="_blank"
           rel="noreferrer noopener"
-          :href="hasStrategy"
-          v-if="hasStrategy"
+          v-if="!!strategyLink"
+          :href="strategyLink"
         >
           <img src="@/assets/images/degenbox.svg" alt="degenbox" />
           <span>Degenbox strategy</span>
@@ -47,7 +47,7 @@
         <button v-if="showClaimCrvReward"></button>
 
         <button
-          v-if="!isEmpty"
+          v-if="!!pool"
           class="info-btn"
           @click="isInfoPressed = !isInfoPressed"
         >
@@ -56,7 +56,7 @@
       </div>
     </div>
     <div class="stable-data">
-      <template v-if="isEmpty">
+      <template v-if="!pool">
         <div class="empty-wrap">
           <img :src="emptyData.img" v-if="emptyData.img" alt="info" />
           <div class="empty-text">
@@ -154,25 +154,15 @@ export default {
     pool: {
       type: Object,
     },
-    isEmpty: {
-      type: Boolean,
-      default: false,
-    },
+
     emptyData: {
       type: Object,
       require: true,
     },
-    hasStrategy: {
-      type: [String, Boolean],
-      default: false,
-    },
-
-    tokenToMim: {
-      type: String,
-    },
 
     typeOperation: {
       type: String,
+      default: "borrow",
     },
 
     collateralExpected: {
@@ -534,6 +524,25 @@ export default {
       }
 
       return 0;
+    },
+
+    strategyLink() {
+      return this.pool?.strategyLink || "";
+    },
+
+    tokenToMim() {
+      if (this.pool) {
+        const tokenToMim = 1 / this.pool.tokenPrice;
+
+        let decimals = 4;
+
+        if (this.pool.name === "SHIB") decimals = 6;
+
+        // eslint-disable-next-line no-useless-escape
+        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
+        return tokenToMim.toString().match(re)[0];
+      }
+      return "0.0";
     },
   },
 
