@@ -28,7 +28,13 @@
     <div class="box-desc">
       {{ description }}
       <br />
-      <a href="#" class="box-desc-more">Read More Here</a>
+      <a
+        target="_blank"
+        rel="noreferrer noopener"
+        href="https://wizard69.gitbook.io/abracadabra-money/"
+        class="box-desc-more"
+        >Read More Here</a
+      >
     </div>
   </div>
 </template>

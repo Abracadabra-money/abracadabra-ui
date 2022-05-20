@@ -88,19 +88,43 @@
     <div class="other-popup" v-if="showOther" @click="closeInnerPopup('other')">
       <div class="other">
         <div class="other-line">
-          <a class="other-link" href="#" target="_blank">V 1</a>
-          <a class="other-link" href="#" target="_blank">Forum</a>
+          <a
+            href="https://abracadabra.money"
+            target="_blank"
+            rel="noreferrer noopener"
+            class="other-link"
+            >V 1</a
+          >
+          <a
+            href="https://forum.abracadabra.money/"
+            target="_blank"
+            rel="noreferrer noopener"
+            class="other-link"
+            >Forum</a
+          >
           <div class="social">
-            <a href="#" target="_blank"
+            <a
+              href="https://wizard69.gitbook.io/abracadabra-money/"
+              target="_blank"
+              rel="noreferrer noopener"
               ><img src="@/assets/images/social/docs.svg" alt="Docs"
             /></a>
-            <a href="#" target="_blank"
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://abracadabramoney.medium.com/"
               ><img src="@/assets/images/social/medium.svg" alt="Medium"
             /></a>
-            <a href="#" target="_blank"
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://twitter.com/MIM_Spell"
               ><img src="@/assets/images/social/twitter.svg" alt="Twitter"
             /></a>
-            <a href="#" target="_blank"
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://discord.gg/wcsUNxYrFM"
               ><img src="@/assets/images/social/discord.svg" alt="Discord"
             /></a>
           </div>

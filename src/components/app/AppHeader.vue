@@ -96,23 +96,51 @@
           alt="Points"
         />
         <div class="list" v-if="isDropdownOther">
-          <router-link class="list-link" to="/">V 1</router-link>
-          <router-link class="list-link" to="/">Forum</router-link>
+          <a
+            href="https://abracadabra.money"
+            target="_blank"
+            rel="noreferrer noopener"
+            class="list-link"
+            >V 1</a
+          >
+          <a
+            href="https://forum.abracadabra.money/"
+            target="_blank"
+            rel="noreferrer noopener"
+            class="list-link"
+            >Forum</a
+          >
           <div class="list-row">
-            <a href="/" class="list-link" target="_blank"
+            <a
+              href="https://wizard69.gitbook.io/abracadabra-money/"
+              target="_blank"
+              rel="noreferrer noopener"
+              class="list-link"
               ><img src="@/assets/images/social/docs.svg" alt="Docs"
             /></a>
-            <a href="/" class="list-link" target="_blank"
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://abracadabramoney.medium.com/"
+              class="list-link"
               ><img src="@/assets/images/social/medium.svg" alt="Medium"
             /></a>
           </div>
           <div class="list-row">
-            <router-link class="list-link" to="/"
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://twitter.com/MIM_Spell"
+              class="list-link"
               ><img src="@/assets/images/social/twitter.svg" alt="Twitter"
-            /></router-link>
-            <router-link class="list-link" to="/"
+            /></a>
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://discord.gg/wcsUNxYrFM"
+              class="list-link"
               ><img src="@/assets/images/social/discord.svg" alt="Discord"
-            /></router-link>
+            /></a>
           </div>
         </div>
       </div>
