@@ -32,7 +32,7 @@ export default {
       return false;
     },
 
-    isReduceSupply() {
+    isCookNeedReduceSupply() {
       if (this.chainId === 1 && this.selectedPool.id === 12) return true;
       if (
         this.chainId === 1 &&
@@ -259,34 +259,38 @@ export default {
       }
     },
 
-    async reduceSupply(pool) {
-      const yvSETHHelperContract = new this.$ethers.Contract(
-        yvSETHHelperAddr,
-        JSON.stringify(yvSETHHelperAbi),
-        this.signer
-      );
-
-      console.log("yvSETHHelperContract", yvSETHHelperContract);
-
-      const reduceCompletelyStaticTx =
-        await yvSETHHelperContract.populateTransaction.reduceCompletely(
-          pool.contractInstance.address,
-          {
-            gasLimit: 10000000,
-          }
+    async getReduceSupplyEncode(pool) {
+      try {
+        const yvSETHHelperContract = new this.$ethers.Contract(
+          yvSETHHelperAddr,
+          JSON.stringify(yvSETHHelperAbi),
+          this.signer
         );
 
-      const reduceCompletelyCallByte = reduceCompletelyStaticTx.data;
+        console.log("yvSETHHelperContract", yvSETHHelperContract);
 
-      console.log("reduceCompletelyCallByte", reduceCompletelyCallByte);
+        const reduceCompletelyStaticTx =
+          await yvSETHHelperContract.populateTransaction.reduceCompletely(
+            pool.contractInstance.address,
+            {
+              gasLimit: 10000000,
+            }
+          );
 
-      // 30
-      const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "bytes", "bool", "bool", "uint8"],
-        [yvSETHHelperAddr, reduceCompletelyCallByte, false, false, 0]
-      );
+        const reduceCompletelyCallByte = reduceCompletelyStaticTx.data;
 
-      return callEncode;
+        console.log("reduceCompletelyCallByte", reduceCompletelyCallByte);
+
+        // 30
+        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [yvSETHHelperAddr, reduceCompletelyCallByte, false, false, 0]
+        );
+
+        return callEncode;
+      } catch (e) {
+        console.log("Error getReduceSupplyEncode:", e);
+      }
     },
 
     // Borrow
@@ -771,8 +775,8 @@ export default {
       valuesArray.push(0);
       datasArray.push(bentoWithdrawEncode);
 
-      if (this.isReduceSupply) {
-        const callEncode = await this.reduceSupply(pool);
+      if (this.isCookNeedReduceSupply) {
+        const callEncode = await this.getReduceSupplyEncode(pool);
 
         eventsArray.push(30);
         valuesArray.push(0);
@@ -920,8 +924,8 @@ export default {
       valuesArray.push(0);
       datasArray.push(bentoWithdrawEncode);
 
-      if (this.isReduceSupply) {
-        const callEncode = await this.reduceSupply(pool);
+      if (this.isCookNeedReduceSupply) {
+        const callEncode = await this.getReduceSupplyEncode(pool);
 
         eventsArray.push(30);
         valuesArray.push(0);
@@ -1200,8 +1204,8 @@ export default {
         datasArray.push(repayEncode);
       }
 
-      if (this.isReduceSupply) {
-        const callEncode = await this.reduceSupply(pool);
+      if (this.isCookNeedReduceSupply) {
+        const callEncode = await this.getReduceSupplyEncode(pool);
 
         eventsArray.push(30);
         valuesArray.push(0);
@@ -1749,8 +1753,8 @@ export default {
         datasArray.push(bentoWithdrawEncode);
       }
 
-      if (this.isReduceSupply) {
-        const callEncode = await this.reduceSupply(pool);
+      if (this.isCookNeedReduceSupply) {
+        const callEncode = await this.getReduceSupplyEncode(pool);
 
         eventsArray.push(30);
         valuesArray.push(0);
