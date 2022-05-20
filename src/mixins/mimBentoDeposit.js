@@ -52,9 +52,15 @@ export default {
           this.signer
         );
 
-        mimInDegenBalance = await degenBoxContract.balanceOf(
+        const mimInDegenBalanceShare = await degenBoxContract.balanceOf(
           currentMim.address,
           this.account
+        );
+
+        mimInDegenBalance = await degenBoxContract.toAmount(
+          currentMim.address,
+          mimInDegenBalanceShare,
+          false
         );
       }
 
@@ -64,9 +70,15 @@ export default {
         this.signer
       );
 
-      const mimInBentoBalance = await bentoBoxContract.balanceOf(
+      const mimInBentoShare = await bentoBoxContract.balanceOf(
         currentMim.address,
         this.account
+      );
+
+      const mimInBentoBalance = await bentoBoxContract.toAmount(
+        currentMim.address,
+        mimInBentoShare,
+        false
       );
 
       const mimContract = new this.$ethers.Contract(

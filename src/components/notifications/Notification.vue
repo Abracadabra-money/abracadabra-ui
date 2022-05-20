@@ -66,18 +66,11 @@ export default {
 
   methods: {
     getImgUrl(type) {
-      // var images = require.context(
-      //   "../../assets/images/notification-icons/",
-      //   false,
-      //   /\.svg$/
-      // );
-      // return images("./" + type + "-icon.svg");
-
       if (!type) {
-        return require(`@/assets/images/notification-icons/info-icon.svg`);
+        return require(`@/assets/images/notification-icons/info-icon.png`);
       }
 
-      return require(`@/assets/images/notification-icons/${type}-icon.svg`);
+      return require(`@/assets/images/notification-icons/${type}-icon.png`);
     },
 
     closeNotification() {
@@ -116,7 +109,9 @@ export default {
     cursor: pointer;
   }
   &__icon {
-    margin-right: 16px;
+    margin-right: 5px;
+    width: 45px;
+    height: auto;
   }
   &__header {
     font-family: Prompt;
@@ -127,6 +122,7 @@ export default {
     letter-spacing: 0.025em;
     text-transform: uppercase;
     display: flex;
+    align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 13px;
     margin-bottom: 13px;

@@ -140,23 +140,23 @@ export default {
 
       const repayLink = {
         title: "Repay MIMs",
-        icon: require("@/assets/images/myposition/egg.svg"),
+        icon: require("@/assets/images/myposition/Repay.png"),
         name: "RepayId",
       };
 
       openedItems.push(repayLink);
 
-      const removeLink = {
-        title: "Remove Collateral",
-        icon: require("@/assets/images/myposition/hammer.svg"),
-        name: "RepayId",
-      };
+      // const removeLink = {
+      //   title: "Remove Collateral",
+      //   icon: require("@/assets/images/myposition/hammer.svg"),
+      //   name: "RepayId",
+      // };
 
-      openedItems.push(removeLink);
+      // openedItems.push(removeLink);
 
       const deleverageLink = {
         title: "Deleverage",
-        icon: require("@/assets/images/myposition/graph-up.svg"),
+        icon: require("@/assets/images/myposition/Deleverage.png"),
         name: "DeleverageId",
       };
 

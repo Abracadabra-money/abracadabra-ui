@@ -125,12 +125,12 @@ export default {
       {
         title: "Stake",
         name: "stake",
-        icon: require("@/assets/images/myposition/graph-up.svg"),
+        icon: require("@/assets/images/myposition/Stake.png"),
       },
       {
         title: "Unstake",
         name: "unstake",
-        icon: require("@/assets/images/myposition/graph-up.svg"),
+        icon: require("@/assets/images/myposition/Unstake.png"),
       },
     ],
   }),
