@@ -13,8 +13,16 @@
       :class="{ small }"
       src="@/assets/images/info-bar/spirit.png"
       alt="Spirit"
-      v-if="false"
-      v-tooltip="'Spirit'"
+      v-if="isSpiritSwap"
+      v-tooltip="'SpiritSwap'"
+    />
+    <img
+      class="info-bar-icon"
+      :class="{ small }"
+      src="@/assets/images/info-bar/spooky.png"
+      alt="Spooky"
+      v-if="isSpookySwap"
+      v-tooltip="'SpookySwap'"
     />
     <img
       class="info-bar-icon"
@@ -36,6 +44,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   props: {
     isFarm: {
@@ -53,6 +62,8 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     hasSomething() {
       return this.hasStrategy || this.isDeprecated;
     },
@@ -61,6 +72,16 @@ export default {
     },
     isDeprecated() {
       return this.isFarm ? +this.pool.poolRoi === 0 : this.pool.isDepreciated;
+    },
+
+    isSpookySwap() {
+      if (this.chainId === 250 && this.pool.id === 8) return true;
+      return false;
+    },
+
+    isSpiritSwap() {
+      if (this.chainId === 250 && this.pool.id === 7) return true;
+      return false;
     },
   },
 };
