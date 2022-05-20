@@ -139,9 +139,12 @@ export default {
     }),
 
     filteredPool() {
-      return [...this.pools].sort((a, b) =>
-        a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-      );
+      if (this.account) {
+        return [...this.pools].sort((a, b) =>
+          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+        );
+      }
+      return this.pools;
     },
 
     selectedPool() {

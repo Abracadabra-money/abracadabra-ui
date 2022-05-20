@@ -68,6 +68,17 @@
           USDT</a
         >
 
+        <a
+          class="deposit"
+          href="https://yearn.finance/#/vault/0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E"
+          target="_blank"
+          rel="noreferrer noopener"
+          v-if="showyvcrvSTETHConcentrated"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Stargate
+          USDT</a
+        >
+
         <button
           v-if="!!pool"
           class="info-btn"
@@ -240,7 +251,7 @@ export default {
 
     borrowLeft() {
       const maxMimBorrow = (this.collateralInUsd / 100) * (this.pool.ltv - 1);
-      const leftBorrow = maxMimBorrow - this.pool.userInfo.userBorrowPart;
+      const leftBorrow = maxMimBorrow - this.pool.userInfo?.userBorrowPart;
 
       if (+leftBorrow < 0) return "0";
 
@@ -357,7 +368,7 @@ export default {
           },
           {
             title: "Collateral Value",
-            value: Vue.filter("formatUSD")(this.collateralInUsd),
+            value: Vue.filter("formatUSD")(this.collateralInUsd || 0),
             additional:
               "USD Value of the Collateral Deposited in your Position",
           },
@@ -460,7 +471,7 @@ export default {
 
           const apyInfo = {
             title: title,
-            value: Vue.filter("formatPercent")(this.tokenApy),
+            value: Vue.filter("formatPercent")(this.tokenApy || 0),
             additional: "APY Delivered by the Open Position",
           };
 
@@ -471,6 +482,16 @@ export default {
           resultArray.push({
             title: "Maximum Borrowable MIM",
             value: this.pool.borrowlimit,
+            additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
+          });
+        }
+
+        if (this.pool.userInfo?.whitelistedInfo) {
+          resultArray.push({
+            title: "Maximum Borrowable MIM",
+            value: this.pool.userInfo?.whitelistedInfo?.isUserWhitelisted
+              ? this.pool.userInfo?.whitelistedInfo?.userBorrowPart
+              : "0.0",
             additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
           });
         }
@@ -503,6 +524,12 @@ export default {
     },
     showStargateUSDT() {
       if (this.pool) return this.pool.id === 32 && this.chainId === 1;
+
+      return false;
+    },
+
+    showyvcrvSTETHConcentrated() {
+      if (this.pool) return this.pool.id === 33 && this.chainId === 1;
 
       return false;
     },

@@ -180,11 +180,15 @@ export default {
     }),
 
     filteredPool() {
-      return this.pools
-        .filter((pool) => !pool.isDepreciated)
-        .sort((a, b) =>
-          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-        );
+      if (this.account) {
+        return this.pools
+          .filter((pool) => !pool.isDepreciated)
+          .sort((a, b) =>
+            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+          );
+      }
+
+      return this.pools.filter((pool) => !pool.isDepreciated);
     },
 
     selectedPool() {
@@ -534,6 +538,45 @@ export default {
       return false;
     },
 
+    checkIsUserWhitelistedBorrow() {
+      if (!this.pool.userInfo?.whitelistedInfo) return true;
+
+      if (!this.pool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
+        const notification = {
+          msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
+          type: "error",
+        };
+
+        this.$store.dispatch("notifications/new", notification);
+
+        return false;
+      }
+
+      return true;
+    },
+
+    checkIsAcceptNewYvcrvSTETHBorrow() {
+      if (this.pool.id === 33 && this.chainId === 1) {
+        const oldYvCrvSTETH = this.$store.getters.getPoolById(12);
+        const hasOpenedBorrowPosition = +oldYvCrvSTETH.userBorrowPart > 50;
+
+        if (hasOpenedBorrowPosition) {
+          const notification = {
+            msg: "Please close down your old yvcrvSTETH position before opening a new one.",
+            type: "error",
+          };
+
+          this.$store.dispatch("notifications/new", notification);
+
+          return false;
+        }
+
+        return true;
+      }
+
+      return true;
+    },
+
     async actionHandler() {
       if (
         +this.borrowValue > 0 &&
@@ -676,6 +719,14 @@ export default {
       );
 
       if (!this.checkIsPoolAllowBorrow(this.borrowValue, notificationId)) {
+        return false;
+      }
+
+      if (!this.checkIsUserWhitelistedBorrow()) {
+        return false;
+      }
+
+      if (!this.checkIsAcceptNewYvcrvSTETHBorrow()) {
         return false;
       }
 

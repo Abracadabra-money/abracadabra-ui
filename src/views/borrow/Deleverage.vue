@@ -159,11 +159,15 @@ export default {
     }),
 
     filteredPool() {
-      return this.pools
-        .filter((pool) => pool.isSwappersActive && !!pool.reverseSwapContract)
-        .sort((a, b) =>
-          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-        );
+      if (this.account) {
+        return this.pools
+          .filter((pool) => pool.isSwappersActive && !!pool.reverseSwapContract)
+          .sort((a, b) =>
+            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+          );
+      }
+
+      return this.pools.filter((pool) => !pool.isDepreciated);
     },
 
     selectedPool() {

@@ -6,6 +6,7 @@ import CauldronV2CheckpointV1 from "@/utils/abi/borrowPoolsAbi/CauldronV2Checkpo
 import CauldronV2Multichain from "@/utils/abi/borrowPoolsAbi/CauldronV2Multichain";
 import CauldronV2FTM from "@/utils/abi/borrowPoolsAbi/CauldronV2FTM";
 import CauldronV3 from "@/utils/abi/borrowPoolsAbi/CauldronV3";
+import WhitelistedCauldronV3 from "@/utils/abi/borrowPoolsAbi/WhitelistedCauldronV3";
 
 export default {
   CauldronLowRiskV1,
@@ -16,4 +17,5 @@ export default {
   CauldronV2Multichain,
   CauldronV2FTM,
   CauldronV3,
+  WhitelistedCauldronV3,
 };

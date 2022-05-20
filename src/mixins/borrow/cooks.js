@@ -15,6 +15,18 @@ export default {
       chainId: "getChainId",
       signer: "getSigner",
     }),
+
+    needWhitelisterApprove() {
+      if (!(this.selectedPool.id === 33 && this.chainId === 1)) return false;
+
+      if (
+        +this.selectedPool.userInfo?.whitelistedInfo.amountAllowedParsed <
+        +this.selectedPool.userInfo?.whitelistedInfo.userBorrowPart
+      )
+        return true;
+
+      return false;
+    },
   },
   methods: {
     async getApprovalEncode(pool) {
@@ -195,6 +207,41 @@ export default {
         return masterContract;
       } catch (e) {
         console.log("getMasterContract err:", e);
+      }
+    },
+
+    async getWhitelistCallData() {
+      try {
+        const setMaxBorrowStaticTx =
+          await this.selectedPool.userInfo?.whitelistedInfo.whitelisterContract.populateTransaction.setMaxBorrow(
+            this.account,
+            this.selectedPool.userInfo?.whitelistedInfo.userWhitelistedInfo
+              .userBorrowPart,
+            this.selectedPool.userInfo?.whitelistedInfo.userWhitelistedInfo
+              .proof,
+            {
+              gasLimit: 50000000,
+            }
+          );
+
+        const setMaxBorrowCallByte = setMaxBorrowStaticTx.data;
+
+        // 30
+        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            this.selectedPool.userInfo?.whitelistedInfo.whitelisterContract
+              .address,
+            setMaxBorrowCallByte,
+            false,
+            false,
+            0,
+          ]
+        );
+
+        return callEncode;
+      } catch (e) {
+        console.log("getWhitelistCallData error:", e);
       }
     },
 
@@ -486,6 +533,14 @@ export default {
         eventsArray.push(11);
         valuesArray.push(0);
         datasArray.push(updateEncode);
+      }
+
+      if (this.needWhitelisterApprove) {
+        const whitelistedCallData = await this.getWhitelistCallData();
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(whitelistedCallData);
       }
 
       // 5
@@ -1181,6 +1236,14 @@ export default {
         datasArray.push(updateEncode);
       }
 
+      if (this.needWhitelisterApprove) {
+        const whitelistedCallData = await this.getWhitelistCallData();
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(whitelistedCallData);
+      }
+
       //10
       const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address", "bool"],
@@ -1372,6 +1435,14 @@ export default {
         datasArray.push(updateEncode);
       }
 
+      if (this.needWhitelisterApprove) {
+        const whitelistedCallData = await this.getWhitelistCallData();
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(whitelistedCallData);
+      }
+
       // 5
       const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
@@ -1467,7 +1538,7 @@ export default {
           e.data?.message ===
             "Whitelisted borrow exceeded: execution reverted" ||
           e.data?.message === "execution reverted: Borrow Limit reached" ||
-          e.message === "execution reverted: Borrow Limit reached"
+          e?.message === "execution reverted: Borrow Limit reached"
         ) {
           errorNotification = {
             msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
