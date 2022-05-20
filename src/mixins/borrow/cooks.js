@@ -1,6 +1,10 @@
 import { mapGetters } from "vuex";
 
 import notification from "@/utils/notification";
+
+import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
+const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
+
 export default {
   data() {
     return {
@@ -25,6 +29,16 @@ export default {
       )
         return true;
 
+      return false;
+    },
+
+    isReduceSupply() {
+      if (this.chainId === 1 && this.selectedPool.id === 12) return true;
+      if (
+        this.chainId === 1 &&
+        (this.selectedPool.id === 19 || this.selectedPool.id === 26)
+      )
+        return true;
       return false;
     },
   },
@@ -243,6 +257,36 @@ export default {
       } catch (e) {
         console.log("getWhitelistCallData error:", e);
       }
+    },
+
+    async reduceSupply(pool) {
+      const yvSETHHelperContract = new this.$ethers.Contract(
+        yvSETHHelperAddr,
+        JSON.stringify(yvSETHHelperAbi),
+        this.signer
+      );
+
+      console.log("yvSETHHelperContract", yvSETHHelperContract);
+
+      const reduceCompletelyStaticTx =
+        await yvSETHHelperContract.populateTransaction.reduceCompletely(
+          pool.contractInstance.address,
+          {
+            gasLimit: 10000000,
+          }
+        );
+
+      const reduceCompletelyCallByte = reduceCompletelyStaticTx.data;
+
+      console.log("reduceCompletelyCallByte", reduceCompletelyCallByte);
+
+      // 30
+      const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [yvSETHHelperAddr, reduceCompletelyCallByte, false, false, 0]
+      );
+
+      return callEncode;
     },
 
     // Borrow
@@ -727,6 +771,14 @@ export default {
       valuesArray.push(0);
       datasArray.push(bentoWithdrawEncode);
 
+      if (this.isReduceSupply) {
+        const callEncode = await this.reduceSupply(pool);
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(callEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -867,6 +919,14 @@ export default {
       eventsArray.push(21);
       valuesArray.push(0);
       datasArray.push(bentoWithdrawEncode);
+
+      if (this.isReduceSupply) {
+        const callEncode = await this.reduceSupply(pool);
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(callEncode);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -1138,6 +1198,14 @@ export default {
         eventsArray.push(2);
         valuesArray.push(0);
         datasArray.push(repayEncode);
+      }
+
+      if (this.isReduceSupply) {
+        const callEncode = await this.reduceSupply(pool);
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(callEncode);
       }
 
       const cookData = {
@@ -1679,6 +1747,14 @@ export default {
         eventsArray.push(21);
         valuesArray.push(0);
         datasArray.push(bentoWithdrawEncode);
+      }
+
+      if (this.isReduceSupply) {
+        const callEncode = await this.reduceSupply(pool);
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(callEncode);
       }
 
       const cookData = {
