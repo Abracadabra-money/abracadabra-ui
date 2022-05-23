@@ -1,6 +1,7 @@
 import { mapGetters } from "vuex";
 
-import notification from "@/utils/notification";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification.js";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
@@ -413,19 +414,16 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.transaction.success
+          notification.borrowSuccess
         );
       } catch (e) {
-        console.log("COOK ERR:", e);
-        console.log("COOK ERR:", String(e));
-        console.log("COOK ERR:", e.code);
+        console.log("CookCollateralAndBorrow ERR:", e);
 
-        let errorNotification;
-        if (e?.code === 4001) {
-          errorNotification = notification.userDenied;
-        } else {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
@@ -530,17 +528,16 @@ export default {
 
         await this.$store.dispatch(
           "notifications/new",
-          notification.transaction.success
+          notification.borrowSuccess
         );
       } catch (e) {
-        console.log("COOK ERR:", e.code);
+        console.log("CookAddCollateral ERR:", e);
 
-        let errorNotification;
-        if (e?.code === 4001) {
-          errorNotification = notification.userDenied;
-        } else {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
@@ -648,37 +645,15 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.transaction.success
+          notification.borrowSuccess
         );
       } catch (e) {
-        console.log("BORROW COOK ERR:", e, e.data);
+        console.log("CookBorrow ERR:", e);
 
-        let errorNotification;
-
-        if (
-          String(e).indexOf("Borrow Limit reached") !== -1 ||
-          String(e).indexOf("Whitelisted borrow exceeded") !== -1
-        ) {
-          errorNotification = {
-            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
-          };
-        }
-
-        if (
-          e.data?.message === "Borrow Limit reached: execution reverted" ||
-          e.data?.message ===
-            "Whitelisted borrow exceeded: execution reverted" ||
-          e.data?.message === "execution reverted: Borrow Limit reached" ||
-          e?.message === "execution reverted: Borrow Limit reached"
-        ) {
-          errorNotification = {
-            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
-          };
-        }
-
-        if (!errorNotification) {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
@@ -818,19 +793,15 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
-        console.log("COOK ERR:", e.code);
+        console.log("CookRemoveAndRepayMax ERR:", e);
 
-        let errorNotification;
-        if (e?.code === 4001) {
-          errorNotification = notification.userDenied;
-        } else {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
@@ -966,18 +937,15 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
-        console.log("COOK ERR:", e.code);
-        let errorNotification;
-        if (e?.code === 4001) {
-          errorNotification = notification.userDenied;
-        } else {
-          errorNotification = notification.transaction.error;
-        }
+        console.log("CookRemoveAndRepay ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
@@ -1085,19 +1053,15 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
-        console.log("COOK ERR:", e.code);
+        console.log("CookRemoveCollateral ERR:", e.code);
 
-        let errorNotification;
-        if (e?.code === 4001) {
-          errorNotification = notification.userDenied;
-        } else {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
@@ -1246,18 +1210,15 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
-        console.log("COOK ERR:", e.code);
-        let errorNotification;
-        if (e?.code === 4001) {
-          errorNotification = notification.userDenied;
-        } else {
-          errorNotification = notification.transaction.error;
-        }
+        console.log("CookRepayMim ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
@@ -1411,52 +1372,15 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.transaction.success
+          notification.borrowSuccess
         );
       } catch (e) {
-        console.log("LEVERAGE COOK ERR:", e, e.data);
-        let errorNotification;
+        console.log("CookMultiBorrow ERR:", e);
 
-        if (
-          String(e).indexOf("Borrow Limit reached") !== -1 ||
-          String(e).indexOf("Whitelisted borrow exceeded") !== -1
-        ) {
-          errorNotification = {
-            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
-            type: "error",
-          };
-        }
-
-        if (
-          e.data?.message === "Borrow Limit reached: execution reverted" ||
-          e.data?.message ===
-            "Whitelisted borrow exceeded: execution reverted" ||
-          e.data?.message === "execution reverted: Borrow Limit reached" ||
-          e?.message === "execution reverted: Borrow Limit reached"
-        ) {
-          errorNotification = {
-            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
-            type: "error",
-          };
-        }
-
-        if (e.code === "UNPREDICTABLE_GAS_LIMIT") {
-          errorNotification = {
-            msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
-            type: "error",
-          };
-        }
-
-        if (e.data?.message === "execution reverted: Cauldron: call failed") {
-          errorNotification = {
-            msg: "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!",
-            type: "error",
-          };
-        }
-
-        if (!errorNotification) {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
@@ -1589,37 +1513,15 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.transaction.success
+          notification.borrowSuccess
         );
       } catch (e) {
-        console.log("COOK ERR:", e, e.data);
+        console.log("CookAddAndBorrow ERR:", e);
 
-        let errorNotification;
-
-        if (
-          String(e).indexOf("Borrow Limit reached") !== -1 ||
-          String(e).indexOf("Whitelisted borrow exceeded") !== -1
-        ) {
-          errorNotification = {
-            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
-          };
-        }
-
-        if (
-          e.data?.message === "Borrow Limit reached: execution reverted" ||
-          e.data?.message ===
-            "Whitelisted borrow exceeded: execution reverted" ||
-          e.data?.message === "execution reverted: Borrow Limit reached" ||
-          e?.message === "execution reverted: Borrow Limit reached"
-        ) {
-          errorNotification = {
-            msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
-          };
-        }
-
-        if (!errorNotification) {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
@@ -1798,37 +1700,14 @@ export default {
 
         await this.$store.commit("notifications/delete", notificationId);
 
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
-        console.log("FLASH REPAY COOK ERR:", e.error);
-        console.log("FLASH REPAY COOK ERR:", e.data);
+        console.log("CookFlashRepay ERR:", e);
 
-        let errorNotification;
-
-        if (e.error === "execution reverted: Cauldron: user insolvent") {
-          errorNotification = {
-            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-          };
-        }
-
-        if (e.error?.message === "execution reverted: BoringMath: Underflow") {
-          errorNotification = {
-            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-          };
-        }
-
-        if (e.data?.message === "execution reverted: BoringMath: Underflow") {
-          errorNotification = {
-            msg: "Looks like your transaction is likely to fail due to swap tolerance settings, please increase your swap tolerance!",
-          };
-        }
-
-        if (!errorNotification) {
-          errorNotification = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);

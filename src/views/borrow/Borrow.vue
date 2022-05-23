@@ -149,7 +149,7 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
-import notification from "@/utils/notification/index.js";
+import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
 
@@ -475,7 +475,7 @@ export default {
     async approveTokenHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.approve.pending
+        notification.approvePending
       );
 
       let approve = await approveToken(
@@ -489,7 +489,7 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.approve.error
+          notification.approveError
         );
       }
 
@@ -606,7 +606,7 @@ export default {
     async collateralAndBorrowHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
 
       const parsedCollateral = this.$ethers.utils.parseUnits(
@@ -655,7 +655,7 @@ export default {
       await this.$store.commit("notifications/delete", notificationId);
       await this.$store.dispatch(
         "notifications/new",
-        notification.approve.error
+        notification.approveError
       );
 
       return false;
@@ -664,7 +664,7 @@ export default {
     async collateralHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
 
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
@@ -706,7 +706,7 @@ export default {
       await this.$store.commit("notifications/delete", notificationId);
       await this.$store.dispatch(
         "notifications/new",
-        notification.approve.error
+        notification.approveError
       );
 
       return false;
@@ -715,7 +715,7 @@ export default {
     async borrowHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
 
       if (!this.checkIsPoolAllowBorrow(this.borrowValue, notificationId)) {
@@ -769,7 +769,7 @@ export default {
       await this.$store.commit("notifications/delete", notificationId);
       await this.$store.dispatch(
         "notifications/new",
-        notification.approve.error
+        notification.approveError
       );
 
       return false;

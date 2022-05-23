@@ -97,7 +97,8 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 
 import sspellToken from "@/mixins/stake/sspellToken";
 
-import notification from "@/utils/notification/index.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification.js";
 
 export default {
   mixins: [sspellToken],
@@ -194,7 +195,7 @@ export default {
     async approveTokenHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.approve.pending
+        notification.approvePending
       );
 
       let approve = await this.approveToken(
@@ -208,7 +209,7 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.approve.error
+          notification.approveError
         );
       }
 
@@ -231,7 +232,7 @@ export default {
     async stake() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
 
       console.log("STAKE");
@@ -264,28 +265,23 @@ export default {
         console.log("stake", receipt);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("stake err:", e);
-        let msg;
 
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async unstake() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       console.log("UNSTAKE");
       try {
@@ -319,22 +315,17 @@ export default {
         console.log("stake", receipt);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("stake err:", e);
-        let msg;
 
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async approveToken(tokenContract, approveAddr) {
