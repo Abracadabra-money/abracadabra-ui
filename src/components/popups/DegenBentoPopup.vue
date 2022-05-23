@@ -40,7 +40,8 @@ import { mapGetters } from "vuex";
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import notification from "@/utils/notification/index.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification.js";
 
 export default {
   components: { BaseTokenInput, BaseButton },
@@ -61,7 +62,7 @@ export default {
     async withdraw() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
@@ -99,26 +100,23 @@ export default {
         this.closePopup();
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("withdraw err:", e);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async deposit() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
@@ -155,26 +153,23 @@ export default {
 
         this.closePopup();
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("deposit err:", e);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async approveToken() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.approve.pending
+        notification.approvePending
       );
       try {
         const estimateGas =
@@ -197,14 +192,14 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
       } catch (e) {
         console.log("isApprowed err:", e);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     closePopup() {

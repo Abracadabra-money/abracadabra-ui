@@ -130,7 +130,7 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
-import notification from "@/utils/notification/index.js";
+import notification from "@/helpers/notification/notification.js";
 
 export default {
   mixins: [borrowPoolsMixin, cookMixin],
@@ -467,7 +467,7 @@ export default {
     async approveTokenHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.approve.pending
+        notification.approvePending
       );
 
       let approve = this.selectedPool.token.isTokenApprove;
@@ -493,7 +493,7 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.approve.error
+          notification.approveError
         );
       }
 
@@ -570,7 +570,7 @@ export default {
     async flashRepayHandler(data) {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
 
       console.log("FLASH REPAY HANDLER", data);
@@ -617,7 +617,7 @@ export default {
       await this.$store.commit("notifications/delete", notificationId);
       await this.$store.dispatch(
         "notifications/new",
-        notification.approve.error
+        notification.approveError
       );
 
       return false;

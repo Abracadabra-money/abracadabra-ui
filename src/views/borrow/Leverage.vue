@@ -129,7 +129,7 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import { toFixed } from "@/utils/helpers.js";
-import notification from "@/utils/notification/index.js";
+import notification from "@/helpers/notification/notification.js";
 
 export default {
   mixins: [borrowPoolsMixin, cookMixin],
@@ -537,7 +537,7 @@ export default {
     async approveTokenHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.approve.pending
+        notification.approvePending
       );
 
       let approve = this.selectedPool.token.isTokenApprove;
@@ -564,7 +564,7 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.approve.error
+          notification.approveError
         );
       }
 
@@ -717,7 +717,7 @@ export default {
     async addAndBorrowHandler(data) {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       console.log("ADD COLL & BORROW HANDLER", data);
 
@@ -749,7 +749,7 @@ export default {
       await this.$store.commit("notifications/delete", notificationId);
       await this.$store.dispatch(
         "notifications/new",
-        notification.approve.error
+        notification.approveError
       );
 
       return false;
@@ -758,17 +758,14 @@ export default {
     async multiplierHandle(data) {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
 
       const percentValue = parseFloat(this.percentValue);
 
       if (!percentValue) {
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.error
-        );
+        await this.$store.dispatch("notifications/new", notification.error);
 
         return false;
       }
@@ -781,7 +778,7 @@ export default {
 
         await this.$store.dispatch(
           "notifications/new",
-          notification.transaction.liquidation
+          notification.liquidation
         );
 
         return false;
@@ -888,7 +885,7 @@ export default {
       await this.$store.commit("notifications/delete", notificationId);
       await this.$store.dispatch(
         "notifications/new",
-        notification.approve.error
+        notification.approveError
       );
 
       return false;

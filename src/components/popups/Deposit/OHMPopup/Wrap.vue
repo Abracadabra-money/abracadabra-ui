@@ -55,7 +55,8 @@ const BaseButton = () => import("@/components/base/BaseButton");
 
 import olimpusWrap from "@/mixins/getCollateralLogic/olimpusWrap";
 import { approveToken } from "@/utils/approveHelpers.js";
-import notification from "@/utils/notification/index.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 
 export default {
@@ -163,7 +164,7 @@ export default {
       if (!this.isTokenApprove) {
         const notificationId = await this.$store.dispatch(
           "notifications/new",
-          notification.approve.pending
+          notification.approvePending
         );
 
         let approve = await approveToken(
@@ -177,7 +178,7 @@ export default {
           await this.$store.commit("notifications/delete", notificationId);
           await this.$store.dispatch(
             "notifications/new",
-            notification.approve.error
+            notification.approveError
           );
         }
 
@@ -200,7 +201,7 @@ export default {
     async wrap() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       try {
         const amount = this.$ethers.utils.parseUnits(
@@ -229,26 +230,23 @@ export default {
 
         console.log("wrap", receipt);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("wrap err:", e);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async unwrap() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       try {
         const amount = this.$ethers.utils.parseUnits(
@@ -277,20 +275,17 @@ export default {
 
         console.log("Unwrap", receipt);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("Unwrap err:", e);
-        let msg;
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
   },

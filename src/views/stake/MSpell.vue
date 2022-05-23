@@ -112,7 +112,8 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 import mSpellStaking from "@/mixins/stake/mSpellStaking";
 
-import notification from "@/utils/notification/index.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification.js";
 
 export default {
   mixins: [mSpellStaking],
@@ -217,7 +218,7 @@ export default {
     async approveTokenHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.approve.pending
+        notification.approvePending
       );
 
       let approve = await this.approveToken(
@@ -231,7 +232,7 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch(
           "notifications/new",
-          notification.approve.error
+          notification.approveError
         );
       }
     },
@@ -252,7 +253,7 @@ export default {
     async claimHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       console.log("CLAIM");
       try {
@@ -276,29 +277,23 @@ export default {
         console.log("CLAIM", receipt);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("CLAIM err:", e);
 
-        let msg;
-
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async deposit() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       console.log("DEPOSIT");
       try {
@@ -329,28 +324,23 @@ export default {
 
         console.log("DEPOSIT", receipt);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("DEPOSIT err:", e);
-        let msg;
 
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async withdraw() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       console.log("WITHDRAW");
       try {
@@ -381,22 +371,17 @@ export default {
 
         console.log("WITHDRAW", receipt);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("WITHDRAW err:", e);
-        let msg;
 
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     async approveToken(tokenContract, approveAddr) {

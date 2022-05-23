@@ -91,7 +91,8 @@ const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
 const NetworkPopup = () => import("@/components/popups/NetworkPopup");
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
-import notification from "@/utils/notification/index.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
 export default {
@@ -264,7 +265,7 @@ export default {
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1) {
         const notificationId = await this.$store.dispatch(
           "notifications/new",
-          notification.approve.pending
+          notification.approvePending
         );
 
         let approve = await this.approveToken(
@@ -278,7 +279,7 @@ export default {
           await this.$store.commit("notifications/delete", notificationId);
           await this.$store.dispatch(
             "notifications/new",
-            notification.approve.error
+            notification.approveError
           );
         }
 
@@ -291,7 +292,7 @@ export default {
     async bridge() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
-        notification.transaction.pending
+        notification.pending
       );
       try {
         let re = new RegExp(
@@ -337,22 +338,17 @@ export default {
         console.log("gasLimit:", gasLimit);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.transaction.success
-        );
+        await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
         console.log("SWAP ERR:", e);
-        let msg;
 
-        if (e.code === 4001) {
-          msg = notification.userDenied;
-        } else {
-          msg = notification.transaction.error;
-        }
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", msg);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
   },
