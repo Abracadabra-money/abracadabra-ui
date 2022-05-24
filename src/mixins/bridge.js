@@ -1,6 +1,7 @@
 import bridgeConfig from "@/utils/bridge/bridgeConfig";
 import mimToken from "@/utils/contracts/mimToken";
 import { mapGetters } from "vuex";
+import axios from "axios";
 
 export default {
   computed: {
@@ -79,13 +80,15 @@ export default {
         isDefaultProvider = true;
       }
 
+      const chainsInfo = await this.getBridgeProps(bridgeInfo);
+
       const bridgeObject = {
         contractInstance,
         methodName: bridgeInfo.methodName,
         balance,
         isTokenApprove,
         tokenContractInstance,
-        chainsInfo: bridgeInfo.chainsInfo,
+        chainsInfo: chainsInfo,
         fromChains,
         toChains,
         isDefaultProvider,
@@ -148,6 +151,40 @@ export default {
         console.log("approveToken err:", e);
         return false;
       }
+    },
+
+    async getBridgeProps(bridgeInfo) {
+      const response = await axios.get(
+        `https://bridgeapi.anyswap.exchange/v3/serverinfoV3?chainId=${this.chainId}&version=STABLEV3`
+      );
+
+      let chainsData = null;
+
+      for (let prop in response.data) {
+        if (response.data[prop].tokenid === "MIM") {
+          chainsData = response.data[prop].destChains;
+        }
+      }
+
+      const result = [];
+
+      bridgeInfo.chainsInfo.forEach((item) => {
+        if (chainsData[item.chainId]) {
+          let chainData = chainsData[item.chainId];
+
+          result.push({
+            ...item,
+            fee: 0,
+            feeAmount: chainData.MinimumSwapFee,
+            feeAmountMax: chainData.MaximumSwapFee,
+            minAmount: chainData.MinimumSwap,
+            maxAmount: chainData.MaximumSwap,
+            amountLarger: chainData.BigValueThreshold,
+          });
+        }
+      });
+
+      return result;
     },
   },
 };
