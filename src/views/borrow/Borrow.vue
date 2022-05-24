@@ -66,7 +66,15 @@
         </div>
         <template v-if="selectedPool">
           <div class="deposit-info underline">
-            <span>LTV</span>
+            <span>
+              <img
+                class="tooltip-icon"
+                src="@/assets/images/info.svg"
+                v-tooltip="ltvTooltip"
+                alt="info"
+              />
+              LTV</span
+            >
             <span>{{ calculateLtv }}%</span>
           </div>
 
@@ -81,6 +89,10 @@
 
           <BalanceBlock :pool="selectedPool" />
         </template>
+
+        <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
+          >Go to Positions</router-link
+        >
       </div>
 
       <div class="info-block">
@@ -170,6 +182,8 @@ export default {
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabra.money/",
       },
+      ltvTooltip:
+        "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
     };
   },
 
@@ -539,9 +553,9 @@ export default {
     },
 
     checkIsUserWhitelistedBorrow() {
-      if (!this.pool.userInfo?.whitelistedInfo) return true;
+      if (!this.selectedPool.userInfo?.whitelistedInfo) return true;
 
-      if (!this.pool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
+      if (!this.selectedPool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
         const notification = {
           msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
           type: "error",
@@ -556,7 +570,7 @@ export default {
     },
 
     checkIsAcceptNewYvcrvSTETHBorrow() {
-      if (this.pool.id === 33 && this.chainId === 1) {
+      if (this.selectedPool.id === 33 && this.chainId === 1) {
         const oldYvCrvSTETH = this.$store.getters.getPoolById(12);
         const hasOpenedBorrowPosition = +oldYvCrvSTETH.userBorrowPart > 50;
 
@@ -845,11 +859,12 @@ export default {
 }
 
 .deposit-block {
-  padding: 30px;
+  padding: 30px 30px 50px;
   border-radius: 30px;
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .underline {
@@ -869,18 +884,39 @@ export default {
 .deposit-info {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-top: 25px;
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
   padding-bottom: 12px;
 }
 
+.deposit-info span {
+  display: flex;
+  align-items: center;
+  line-height: 24px;
+}
+
+.tooltip-icon {
+  margin-right: 5px;
+  width: 24px;
+  height: 24px;
+}
+
 .percent-wrap {
   padding: 30px 0;
 }
 
+.choose-link {
+  position: absolute;
+  bottom: 10px;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
+}
+
 .info-block {
-  min-height: 500px;
+  min-height: 520px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -947,6 +983,10 @@ export default {
   .info-block {
     padding: 30px 20px;
   }
+
+  .deposit-block {
+    padding: 30px 15px 50px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -954,12 +994,12 @@ export default {
     grid-gap: 20px;
   }
 
-  .deposit-block {
-    padding: 30px 15px;
-  }
-
   .collateral-input {
     padding: 20px 0 15px;
+  }
+
+  .choose-link {
+    bottom: 15px;
   }
 
   .info-block {

@@ -8,7 +8,7 @@
           class="info-icon"
           src="@/assets/images/info.svg"
           alt="info"
-          v-tooltip="'Magic text'"
+          v-tooltip="tooltipText"
         />
       </div>
       <input
@@ -35,6 +35,8 @@ export default {
   data() {
     return {
       inputValue: this.slipage,
+      tooltipText:
+        "Transaction will revert if the leveraged amount changes by this percentage",
     };
   },
 

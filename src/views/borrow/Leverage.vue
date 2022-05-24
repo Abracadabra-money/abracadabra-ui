@@ -62,6 +62,7 @@
       </div>
       <div class="info-block">
         <h1 class="title">Leverage farm</h1>
+        {{ finalRemoveCollateralAmountToShare }}
         <BorrowPoolStand
           :pool="selectedPool"
           :collateralExpected="finalRemoveCollateralAmountToShare"
@@ -627,9 +628,9 @@ export default {
     },
 
     checkIsUserWhitelistedBorrow() {
-      if (!this.pool.userInfo?.whitelistedInfo) return true;
+      if (!this.selectedPool.userInfo?.whitelistedInfo) return true;
 
-      if (!this.pool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
+      if (!this.selectedPool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
         const notification = {
           msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
           type: "error",
@@ -644,7 +645,7 @@ export default {
     },
 
     checkIsAcceptNewYvcrvSTETHBorrow() {
-      if (this.pool.id === 33 && this.chainId === 1) {
+      if (this.selectedPool.id === 33 && this.chainId === 1) {
         const oldYvCrvSTETH = this.$store.getters.getPoolById(12);
         const hasOpenedBorrowPosition = +oldYvCrvSTETH.userBorrowPart > 50;
 
@@ -1030,7 +1031,7 @@ export default {
 }
 
 .choose {
-  padding: 20px 16px;
+  padding: 30px 30px 50px;
   border-radius: 30px;
   background-color: $clrBg2;
   max-width: 100%;
@@ -1075,7 +1076,7 @@ export default {
 }
 
 .info-block {
-  min-height: 500px;
+  min-height: 520px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -1177,6 +1178,10 @@ export default {
   .info-block {
     padding: 30px 20px;
   }
+
+  .choose {
+    padding: 30px 15px 50px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1208,7 +1213,7 @@ export default {
   }
 
   .choose-link {
-    bottom: 25px;
+    bottom: 15px;
   }
 }
 
@@ -1226,10 +1231,6 @@ export default {
   .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
-  }
-
-  .choose {
-    padding: 30px;
   }
 }
 </style>

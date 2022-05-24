@@ -522,7 +522,7 @@ export default {
 
       let borrowFee = 0.05;
 
-      if (pool.borrowFee) borrowFee = pool.borrowFee;
+      if (pool.borrowFee || pool.borrowFee === 0) borrowFee = pool.borrowFee;
 
       const price = this.tokenPrices.find(
         (priceItem) => priceItem.address === pool.token.address.toLowerCase()
