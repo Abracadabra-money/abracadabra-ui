@@ -182,7 +182,8 @@ export default {
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
         return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance
+          this.selectedPool.userInfo.userBalance,
+          this.selectedPool.token.decimals
         );
       }
 
@@ -215,7 +216,7 @@ export default {
           value: this.selectedPool.ltv,
         },
         { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
-        { name: "Borrow Fee", value: this.selectedPool.borrowFee },
+        { name: "Borrow fee", value: this.selectedPool.borrowFee },
         { name: "Interest", value: this.selectedPool.interest },
       ];
     },
@@ -669,7 +670,7 @@ export default {
 }
 
 .choose {
-  padding: 20px 16px;
+  padding: 30px 30px 50px;
   border-radius: 30px;
   background-color: $clrBg2;
   max-width: 100%;
@@ -733,7 +734,7 @@ export default {
 }
 
 .info-block {
-  min-height: 500px;
+  min-height: 520px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -784,6 +785,10 @@ export default {
   .info-block {
     padding: 30px 20px;
   }
+
+  .choose {
+    padding: 30px 15px 50px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -819,7 +824,7 @@ export default {
   }
 
   .choose-link {
-    bottom: 25px;
+    bottom: 15px;
   }
 }
 
@@ -837,10 +842,6 @@ export default {
   .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
-  }
-
-  .choose {
-    padding: 30px;
   }
 }
 </style>

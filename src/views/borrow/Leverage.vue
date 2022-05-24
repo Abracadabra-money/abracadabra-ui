@@ -87,7 +87,9 @@
           <div class="info-list">
             <div v-for="(item, i) in infoData" :key="i" class="info-item">
               <span>{{ item.name }}:</span>
-              <span>{{ item.value }}%</span>
+              <span
+                >{{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span
+              >
             </div>
           </div>
         </template>
@@ -119,6 +121,8 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+
+import Vue from "vue";
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
@@ -274,8 +278,9 @@ export default {
           value: this.selectedPool.ltv,
         },
         { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
-        { name: "Borrow Fee", value: this.selectedPool.borrowFee },
+        { name: "Borrow fee", value: this.selectedPool.borrowFee },
         { name: "Interest", value: this.selectedPool.interest },
+        { name: "Price", value: Vue.filter("formatUSD")(this.tokenToMim) },
       ];
     },
 
@@ -494,6 +499,21 @@ export default {
 
       return null;
     },
+
+    tokenToMim() {
+      if (this.selectedPool) {
+        const tokenToMim = 1 / this.selectedPool.tokenPrice;
+
+        let decimals = 4;
+
+        if (this.selectedPool.name === "SHIB") decimals = 6;
+
+        // eslint-disable-next-line no-useless-escape
+        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
+        return tokenToMim.toString().match(re)[0];
+      }
+      return "0.0";
+    },
   },
 
   watch: {
@@ -627,9 +647,9 @@ export default {
     },
 
     checkIsUserWhitelistedBorrow() {
-      if (!this.pool.userInfo?.whitelistedInfo) return true;
+      if (!this.selectedPool.userInfo?.whitelistedInfo) return true;
 
-      if (!this.pool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
+      if (!this.selectedPool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
         const notification = {
           msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
           type: "error",
@@ -644,7 +664,7 @@ export default {
     },
 
     checkIsAcceptNewYvcrvSTETHBorrow() {
-      if (this.pool.id === 33 && this.chainId === 1) {
+      if (this.selectedPool.id === 33 && this.chainId === 1) {
         const oldYvCrvSTETH = this.$store.getters.getPoolById(12);
         const hasOpenedBorrowPosition = +oldYvCrvSTETH.userBorrowPart > 50;
 
@@ -829,10 +849,6 @@ export default {
           true
         );
 
-      this.finalRemoveCollateralAmountToShare = this.$ethers.utils.formatEther(
-        finalRemoveCollateralAmountToShare.toString()
-      );
-
       const payload = {
         ...data,
         amount: mimAmount,
@@ -942,7 +958,10 @@ export default {
         );
 
         this.finalRemoveCollateralAmountToShare =
-          this.$ethers.utils.formatEther(minValueParsed.toString());
+          this.$ethers.utils.formatUnits(
+            minValueParsed,
+            this.selectedPool.token.decimals
+          );
       } else {
         this.finalRemoveCollateralAmountToShare = 0;
       }
@@ -1030,7 +1049,7 @@ export default {
 }
 
 .choose {
-  padding: 20px 16px;
+  padding: 30px 30px 50px;
   border-radius: 30px;
   background-color: $clrBg2;
   max-width: 100%;
@@ -1075,7 +1094,7 @@ export default {
 }
 
 .info-block {
-  min-height: 500px;
+  min-height: 520px;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -1177,6 +1196,10 @@ export default {
   .info-block {
     padding: 30px 20px;
   }
+
+  .choose {
+    padding: 30px 15px 50px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1208,7 +1231,7 @@ export default {
   }
 
   .choose-link {
-    bottom: 25px;
+    bottom: 15px;
   }
 }
 
@@ -1226,10 +1249,6 @@ export default {
   .borrow {
     grid-template-columns: 550px 1fr;
     width: 1320px;
-  }
-
-  .choose {
-    padding: 30px;
   }
 }
 </style>

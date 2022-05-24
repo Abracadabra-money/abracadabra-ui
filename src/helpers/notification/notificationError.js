@@ -40,7 +40,7 @@ export const notificationErrorMsg = (e) => {
       "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!";
   }
 
-  if (!msg) msg = "Transaction in error";
+  if (!msg) msg = "Transaction encountered an Error";
 
   console.log(msg);
 

@@ -10,7 +10,7 @@ export default {
   },
 
   error: {
-    msg: "Transaction in error",
+    msg: "Transaction encountered an Error",
     type: "error",
   },
 
