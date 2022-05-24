@@ -10,7 +10,10 @@ import clickOutside from "./directives/clickOutside";
 import filters from "./filters";
 
 Vue.use(connectWallet);
-Vue.use(VTooltip);
+
+Vue.use(VTooltip, {
+  defaultTrigger: window.innerWidth > 1024 ? "hover focus click" : "click",
+});
 
 Vue.directive("click-outside", clickOutside);
 
