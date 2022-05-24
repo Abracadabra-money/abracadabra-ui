@@ -71,17 +71,15 @@ export default {
       return this.pool.strategyLink;
     },
     isDeprecated() {
-      return this.isFarm ? +this.pool.poolRoi === 0 : this.pool.isDepreciated;
+      return this.pool.isDepreciated;
     },
 
     isSpookySwap() {
-      if (this.chainId === 250 && this.pool.id === 8) return true;
-      return false;
+      return this.chainId === 250 && this.pool.id === 8;
     },
 
     isSpiritSwap() {
-      if (this.chainId === 250 && this.pool.id === 7) return true;
-      return false;
+      return this.chainId === 250 && this.pool.id === 7;
     },
   },
 };

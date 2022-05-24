@@ -100,6 +100,8 @@ export default {
         lpPrice
       );
 
+      const isDepreciated = poolRoi === 0;
+
       const farmPoolItem = {
         name: farmPoolInfo.name,
         icon: farmPoolInfo.icon,
@@ -121,6 +123,7 @@ export default {
         poolRoi,
         poolTvl,
         tokenName: farmPoolInfo.earnedToken.name,
+        isDepreciated,
       };
 
       if (this.account) {
@@ -367,10 +370,7 @@ export default {
     },
     async getRoi(value, price) {
       try {
-        const dollarPerDay =
-          ((parseFloat(value) * parseFloat(price) * 100) / 1000) * 365;
-
-        return dollarPerDay;
+        return ((parseFloat(value) * parseFloat(price) * 100) / 1000) * 365;
       } catch (error) {
         console.log("getRoi", error);
       }
@@ -381,9 +381,7 @@ export default {
           stakingTokenTotalAmount.toString()
         );
 
-        const tvl = ttl * price;
-
-        return tvl;
+        return ttl * price;
       } catch (error) {
         console.log(error);
       }
