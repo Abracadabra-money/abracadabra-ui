@@ -182,7 +182,8 @@ export default {
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
         return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance
+          this.selectedPool.userInfo.userBalance,
+          this.selectedPool.token.decimals
         );
       }
 

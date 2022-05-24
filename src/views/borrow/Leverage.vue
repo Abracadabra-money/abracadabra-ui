@@ -62,7 +62,6 @@
       </div>
       <div class="info-block">
         <h1 class="title">Leverage farm</h1>
-        {{ finalRemoveCollateralAmountToShare }}
         <BorrowPoolStand
           :pool="selectedPool"
           :collateralExpected="finalRemoveCollateralAmountToShare"
@@ -830,10 +829,6 @@ export default {
           true
         );
 
-      this.finalRemoveCollateralAmountToShare = this.$ethers.utils.formatEther(
-        finalRemoveCollateralAmountToShare.toString()
-      );
-
       const payload = {
         ...data,
         amount: mimAmount,
@@ -943,7 +938,10 @@ export default {
         );
 
         this.finalRemoveCollateralAmountToShare =
-          this.$ethers.utils.formatEther(minValueParsed.toString());
+          this.$ethers.utils.formatUnits(
+            minValueParsed,
+            this.selectedPool.token.decimals
+          );
       } else {
         this.finalRemoveCollateralAmountToShare = 0;
       }
