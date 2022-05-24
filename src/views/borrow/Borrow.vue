@@ -122,7 +122,9 @@
           <div class="info-list">
             <div v-for="(item, i) in infoData" :key="i" class="info-item">
               <span>{{ item.name }}:</span>
-              <span>{{ item.value }}%</span>
+              <span
+                >{{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span
+              >
             </div>
           </div>
         </template>
@@ -151,6 +153,8 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+
+import Vue from "vue";
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
@@ -319,9 +323,16 @@ export default {
           name: "Maximum collateral ratio",
           value: this.selectedPool.ltv,
         },
-        { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
-        { name: "Borrow Fee", value: this.selectedPool.borrowFee },
+        {
+          name: "Liquidation fee",
+          value: this.selectedPool.stabilityFee,
+        },
+        {
+          name: "Borrow fee",
+          value: this.selectedPool.borrowFee,
+        },
         { name: "Interest", value: this.selectedPool.interest },
+        { name: "Price", value: Vue.filter("formatUSD")(this.tokenToMim) },
       ];
     },
 
@@ -459,6 +470,21 @@ export default {
       if (this.selectedPool) return this.selectedPool.id;
 
       return null;
+    },
+
+    tokenToMim() {
+      if (this.selectedPool) {
+        const tokenToMim = 1 / this.selectedPool.tokenPrice;
+
+        let decimals = 4;
+
+        if (this.selectedPool.name === "SHIB") decimals = 6;
+
+        // eslint-disable-next-line no-useless-escape
+        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
+        return tokenToMim.toString().match(re)[0];
+      }
+      return "0.0";
     },
   },
 

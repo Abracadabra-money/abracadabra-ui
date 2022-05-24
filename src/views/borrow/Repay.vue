@@ -293,7 +293,7 @@ export default {
           value: this.selectedPool.ltv,
         },
         { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
-        { name: "Borrow Fee", value: this.selectedPool.borrowFee },
+        { name: "Borrow fee", value: this.selectedPool.borrowFee },
         { name: "Interest", value: this.selectedPool.interest },
       ];
     },
