@@ -227,7 +227,7 @@ export default {
     valuesList() {
       return [
         {
-          title: "Min price",
+          title: "Required Drop in price",
           tooltipText:
             "If your Collateral Price drops by this amount, you will be flagged for liquidation",
           value: Vue.filter("formatUSD")(this.minPrice),
