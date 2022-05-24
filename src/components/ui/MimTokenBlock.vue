@@ -12,19 +12,25 @@
 </template>
 
 <script>
-import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { mapGetters } from "vuex";
+import { ethers } from "ethers";
+import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 export default {
   data() {
     return {
       mimPrice: 0,
       updateMimPrice: null,
+      contract: null,
     };
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+      signer: "getSigner",
+    }),
 
     mimInfo() {
       let id = 1;
@@ -71,19 +77,36 @@ export default {
     },
 
     async getMimPrice() {
-      this.mimPrice = await getTokenPriceByAddress(
-        this.mimInfo.chain,
-        this.mimInfo.address
+      if (this.contract) {
+        const price = await this.contract.latestAnswer();
+
+        this.mimPrice = this.$ethers.utils.formatUnits(price.toString(), 8);
+      }
+    },
+
+    async initContract() {
+      this.contract = new ethers.Contract(
+        "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
+        JSON.stringify(priceAbi),
+        this.signer
       );
+      await this.getMimPrice();
     },
   },
 
   async created() {
-    await this.getMimPrice();
-
     this.updateMimPrice = setInterval(async () => {
       await this.getMimPrice();
     }, 30000);
+  },
+
+  watch: {
+    signer: {
+      immediate: true,
+      handler(signer, oldSigner) {
+        if (!oldSigner && signer) this.initContract();
+      },
+    },
   },
 
   beforeDestroy() {
