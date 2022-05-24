@@ -180,6 +180,9 @@ export default {
 
       return sortedPools;
     },
+    sortByDepreciate(pools = []) {
+      return pools.sort(({ isDepreciated: a }, { isDepreciated: b }) => a - b);
+    },
   },
   computed: {
     ...mapGetters({
@@ -212,8 +215,8 @@ export default {
       return (this.isFarm ? this.pools : this.borrowPools) || [];
     },
     prepPools() {
-      return this.sortByTitle(
-        this.filterBySearch(this.currentPools, this.search)
+      return this.sortByDepreciate(
+        this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
       );
     },
     loading() {

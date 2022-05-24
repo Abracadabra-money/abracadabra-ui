@@ -24,7 +24,7 @@
       </template>
     </div>
     <BalanceBoxes
-      v-if="mimInBentoDepositObject"
+      v-if="mimInBentoDepositObject && !hideBoxes"
       :infoObject="mimInBentoDepositObject"
     />
     <h2 class="title">Specific positions</h2>
@@ -154,6 +154,12 @@ export default {
           !pool.accountInfo?.userInfo.amount.isZero()
         );
       });
+    },
+    hideBoxes() {
+      return (
+        !+this.mimInBentoDepositObject.mimInBentoBalance &&
+        !+this.mimInBentoDepositObject.mimInDegenBalance
+      );
     },
   },
 

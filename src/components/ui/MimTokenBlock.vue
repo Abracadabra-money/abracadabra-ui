@@ -7,24 +7,33 @@
     >
       <img src="@/assets/images/PixelMIM.svg" alt="MIM" />
     </button>
-    <p class="mim-price">{{ mimPrice | formatUSD }}</p>
+    <p class="mim-price" v-if="mimPrice !== null">{{ mimPrice | formatUSD }}</p>
   </div>
 </template>
 
 <script>
-import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { mapGetters } from "vuex";
+import { ethers } from "ethers";
+import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 export default {
   data() {
     return {
-      mimPrice: 0,
+      mimPrice: null,
       updateMimPrice: null,
+      contract: null,
     };
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+    }),
+
+    signer() {
+      return this.$store.getters.getSigner || this.$ethers.getDefaultProvider();
+    },
 
     mimInfo() {
       let id = 1;
@@ -71,14 +80,24 @@ export default {
     },
 
     async getMimPrice() {
-      this.mimPrice = await getTokenPriceByAddress(
-        this.mimInfo.chain,
-        this.mimInfo.address
+      if (this.contract) {
+        const price = await this.contract.latestAnswer();
+
+        this.mimPrice = this.$ethers.utils.formatUnits(price.toString(), 8);
+      }
+    },
+
+    async initContract() {
+      this.contract = new ethers.Contract(
+        "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
+        JSON.stringify(priceAbi),
+        this.signer
       );
     },
   },
 
   async created() {
+    await this.initContract();
     await this.getMimPrice();
 
     this.updateMimPrice = setInterval(async () => {

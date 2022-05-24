@@ -89,12 +89,12 @@ export default {
   },
   computed: {
     title() {
-      return this.popupType === "farms" ? "Select Farm" : "Select Couldron";
+      return this.popupType === "farms" ? "Select Farm" : "Select Cauldron";
     },
     notFoundTitle() {
       return this.popupType === "farms"
         ? "No farms found with this name"
-        : "No couldrons found with this name";
+        : "No cauldrons found with this name";
     },
     noOnNetworkTitle() {
       return this.popupType === "farms"
