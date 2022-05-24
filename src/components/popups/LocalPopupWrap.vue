@@ -71,7 +71,7 @@ export default {
   border-radius: 30px;
   position: relative;
 
-  max-width: 100vw;
+  max-width: 95vw;
 
   .popup-content {
     height: 100%;
