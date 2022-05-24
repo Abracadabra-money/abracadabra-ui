@@ -39,7 +39,9 @@
         </div>
         <div class="info-row">
           <p class="info-text">
-            Crosschain amounts larger than 1,000,000 MIM estimated arrival:
+            Crosschain amounts larger than
+            {{ targetChainInfo.amountLarger | formatNumber }} MIM estimated
+            arrival:
           </p>
           <p class="info-text">up to 12 hours</p>
         </div>
@@ -89,6 +91,7 @@ const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
 const NetworkPopup = () => import("@/components/popups/NetworkPopup");
+import Vue from "vue";
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -215,7 +218,9 @@ export default {
       return [
         {
           title: "Maximum Bridgeable Amount",
-          value: `${this.targetChainInfo.maxAmount} MIM`,
+          value: `${Vue.filter("formatNumber")(
+            this.targetChainInfo.maxAmount
+          )} MIM`,
           additional:
             "Maximum amount that can be sent in one single transaction.",
         },
