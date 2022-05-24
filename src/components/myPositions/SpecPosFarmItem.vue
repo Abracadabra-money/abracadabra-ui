@@ -226,11 +226,13 @@ export default {
         align-items: center;
         padding: 0;
         cursor: pointer;
+        height: 60px;
       }
 
       .header-opened-img {
         flex: 0 0 24px;
         width: 24px;
+        height: 24px;
         box-sizing: content-box;
         padding: 9px;
         background-color: rgba(255, 255, 255, 0.06);

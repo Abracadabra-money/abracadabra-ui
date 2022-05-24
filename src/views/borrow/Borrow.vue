@@ -138,7 +138,7 @@
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
         :pools="filteredPool"
-        popupType="couldron"
+        popupType="cauldron"
     /></LocalPopupWrap>
   </div>
 </template>

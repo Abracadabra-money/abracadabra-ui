@@ -24,6 +24,24 @@
         </router-link>
       </div>
     </div>
+    <HealthWrap
+      :isSafe="liquidationRisk > 75"
+      :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
+      :isHigh="liquidationRisk > 0 && liquidationRisk <= 5"
+    >
+      <div class="liq-price">
+        <div>
+          <span class="liq-price-text">Liquidation price</span>
+          <span class="liq-price-value">{{ liqPrice }}</span>
+        </div>
+        <StatusName
+          class="status-name"
+          :isSafe="liquidationRisk > 75"
+          :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
+          :isHigh="liquidationRisk > 0 && liquidationRisk <= 5"
+          :bordered="true"
+        /></div
+    ></HealthWrap>
     <div class="lp-data">
       <div>
         <div class="lp-data-item">
@@ -67,16 +85,11 @@
         </div>
       </div>
     </div>
+
     <template v-if="opened">
       <div class="footer">
         <div class="footer-title">
           <p>Position health</p>
-          <StatusName
-            :isSafe="liquidationRisk > 75"
-            :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
-            :isHigh="liquidationRisk > 0 && liquidationRisk <= 5"
-            :bordered="true"
-          />
         </div>
         <div class="footer-range">
           <HealthLine
@@ -119,6 +132,7 @@
 
 <script>
 import Vue from "vue";
+import HealthWrap from "@/components/ui/HealthWrap";
 const HealthLine = () => import("@/components/ui/HealthLine");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusName = () => import("@/components/ui/StatusName");
@@ -126,7 +140,7 @@ const mimIcon = require("@/assets/images/tokens/MIM.png");
 
 export default {
   name: "SpecPosBorrowItem",
-  components: { HealthLine, BaseTokenIcon, StatusName },
+  components: { HealthWrap, HealthLine, BaseTokenIcon, StatusName },
   props: {
     opened: { type: Boolean, default: true },
     pool: { type: Object, required: true },
@@ -207,16 +221,13 @@ export default {
     borrowedIcon() {
       return mimIcon;
     },
+    liqPrice() {
+      return Vue.filter("formatLiquidationPrice")(this.liquidationPrice);
+    },
     valuesList() {
       return [
         {
-          title: "Liquidation price",
-          tooltipText:
-            "Collateral Price at which your Position will be Liquidated",
-          value: Vue.filter("formatLiquidationPrice")(this.liquidationPrice),
-        },
-        {
-          title: "Min price",
+          title: "Required Drop in price",
           tooltipText:
             "If your Collateral Price drops by this amount, you will be flagged for liquidation",
           value: Vue.filter("formatUSD")(this.minPrice),
@@ -233,7 +244,28 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
   border-radius: 20px;
-  padding: 18px 20px;
+  padding: 20px;
+
+  .liq-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+
+    padding: 6px 11px;
+
+    &-text {
+      font-weight: 400;
+    }
+    &-value {
+      font-weight: 700;
+      margin-left: 1em;
+    }
+  }
+
+  .status-name {
+    height: 20px;
+  }
 
   .header {
     display: grid;
@@ -241,8 +273,9 @@ export default {
     grid-row-gap: 20px;
     justify-content: space-between;
     align-items: center;
-    min-height: 96px;
+
     box-sizing: content-box;
+    margin-bottom: 16px;
 
     &-content {
       display: flex;
@@ -254,11 +287,13 @@ export default {
         display: inline-flex;
         flex-direction: column;
         align-items: center;
+        height: 60px;
       }
 
       .header-opened-img {
         flex: 0 0 24px;
         width: 24px;
+        height: 24px;
         box-sizing: content-box;
         padding: 9px;
         background-color: rgba(255, 255, 255, 0.06);
@@ -294,7 +329,7 @@ export default {
     display: grid;
     grid-template-columns: 1fr;
     grid-gap: 37px;
-    margin-top: 20px;
+    margin-top: 16px;
 
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
