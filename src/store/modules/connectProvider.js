@@ -64,7 +64,7 @@ export default {
     getEnsName: (state) => state.ensName,
     getChainId: (state) => state.chainId,
     getWalletIsConnected: (state) => state.isWalletConnected,
-    getWalletCheckInProccess: (state) => state.walletCheckInProcess,
+    getWalletCheckInProcess: (state) => state.walletCheckInProcess,
     getMetamaskActive: (state) => state.isMetamaskActive,
     getIsCoinbase: (state) => state.isCoinbase,
   },

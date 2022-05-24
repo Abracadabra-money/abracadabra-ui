@@ -7,7 +7,7 @@
     >
       <img src="@/assets/images/PixelMIM.svg" alt="MIM" />
     </button>
-    <p class="mim-price">{{ mimPrice | formatUSD }}</p>
+    <p class="mim-price" v-if="mimPrice !== null">{{ mimPrice | formatUSD }}</p>
   </div>
 </template>
 
@@ -19,7 +19,7 @@ import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 export default {
   data() {
     return {
-      mimPrice: 0,
+      mimPrice: null,
       updateMimPrice: null,
       contract: null,
     };
@@ -29,8 +29,11 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      signer: "getSigner",
     }),
+
+    signer() {
+      return this.$store.getters.getSigner || this.$ethers.getDefaultProvider();
+    },
 
     mimInfo() {
       let id = 1;
@@ -90,23 +93,16 @@ export default {
         JSON.stringify(priceAbi),
         this.signer
       );
-      await this.getMimPrice();
     },
   },
 
   async created() {
+    await this.initContract();
+    await this.getMimPrice();
+
     this.updateMimPrice = setInterval(async () => {
       await this.getMimPrice();
     }, 30000);
-  },
-
-  watch: {
-    signer: {
-      immediate: true,
-      handler(signer, oldSigner) {
-        if (!oldSigner && signer) this.initContract();
-      },
-    },
   },
 
   beforeDestroy() {
