@@ -976,7 +976,7 @@ export default [
   },
   {
     icon: require(`@/assets/images/tokens/Convex-Curve.png`),
-    name: "cvx3pool",
+    name: "cvx3pool (new)",
     contractChain: "0x01",
     id: 25,
     isDepreciated: false,
