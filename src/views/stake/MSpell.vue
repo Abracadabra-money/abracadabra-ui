@@ -518,7 +518,6 @@ export default {
 
 .title {
   font-size: 24px;
-  text-transform: uppercase;
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
