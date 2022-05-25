@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="profile">
-      <h1 class="title">sSPELL Token Staking</h1>
+      <h1 class="title">sSPELL TOKEN STAKING</h1>
       <div class="loader-wrap" v-if="isLoadingsSpellStake">
         <BaseLoader />
       </div>
@@ -66,10 +66,10 @@
         </BaseButton>
       </div>
       <div class="profile-subscribtion">
-        <div class="profile-subscribtion__approximate" v-if="tokensInfo">
+        <!-- <div class="profile-subscribtion__approximate" v-if="tokensInfo">
           <div>Approximate staking APR</div>
           <div>{{ tokensInfo.apr | formatPercent }}</div>
-        </div>
+        </div> -->
 
         <div class="text-wrap">
           <p>
@@ -456,7 +456,6 @@ export default {
 
 .title {
   font-size: 24px;
-  text-transform: uppercase;
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;

@@ -124,7 +124,7 @@
             <a
               target="_blank"
               rel="noreferrer noopener"
-              href="https://discord.gg/wcsUNxYrFM"
+              href="https://discord.com/invite/mim"
               ><img src="@/assets/images/social/discord.svg" alt="Discord"
             /></a>
           </div>
