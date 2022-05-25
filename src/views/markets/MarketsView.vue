@@ -174,7 +174,10 @@ export default {
           const a = prepValue(aPool, this.selectedSortData);
           const b = prepValue(bPool, this.selectedSortData);
 
-          const factor = this.sortReverse ? 1 : -1;
+          const factor = this.sortReverse ? -1 : 1;
+
+          if (this.selectedSort === sortKeys.name)
+            return a < b ? -factor : factor;
 
           return a < b ? factor : -factor;
         });
