@@ -173,6 +173,9 @@ export default {
   },
 
   watch: {
+    $route() {
+      this.hideAllDropdowns();
+    },
     mobileMenu() {
       if (this.mobileMenu) {
         document.documentElement.style.overflow = "hidden";
@@ -185,6 +188,12 @@ export default {
   methods: {
     toHome() {
       this.$router.push({ name: "Home" });
+    },
+
+    hideAllDropdowns() {
+      this.isDropdownTools = false;
+      this.isDropdownStake = false;
+      this.isDropdownOther = false;
     },
 
     toggleDropdown(nameDropdown) {
