@@ -100,6 +100,8 @@ const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
 
+import Vue from "vue";
+
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
 import mimIcon from "@/assets/images/tokens/MIM.png";
@@ -108,7 +110,6 @@ import {
   isApprowed,
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
-import { toFixed } from "@/utils/helpers.js";
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
@@ -481,7 +482,10 @@ export default {
       );
 
       let parsedAmount = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 
@@ -644,7 +648,10 @@ export default {
       console.log("itsMax", itsMax);
 
       const parsedAmount = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 

@@ -164,7 +164,6 @@ import {
   isApprowed,
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
-import { toFixed } from "@/utils/helpers.js";
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
@@ -654,7 +653,7 @@ export default {
       );
 
       const parsedBorrow = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+         Vue.filter("formatToFixed")(this.borrowValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals
       );
 
@@ -770,7 +769,7 @@ export default {
       }
 
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+         Vue.filter("formatToFixed")(this.borrowValue, this.selectedPool.pairToken.decimals),
         this.selectedPool.pairToken.decimals
       );
 
