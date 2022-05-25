@@ -121,6 +121,8 @@ const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
+import Vue from "vue";
+
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
 import { mapGetters } from "vuex";
@@ -129,7 +131,6 @@ import {
   isApprowed,
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
-import { toFixed } from "@/utils/helpers.js";
 import notification from "@/helpers/notification/notification.js";
 
 export default {
@@ -244,7 +245,10 @@ export default {
 
     maxFlashRepayAmount() {
       if (this.selectedPool && this.account) {
-        return toFixed(this.selectedPool.userInfo.contractBorrowPartParsed, 4);
+        return Vue.filter("formatToFixed")(
+          this.selectedPool.userInfo.contractBorrowPartParsed,
+          4
+        );
       }
       return 0;
     },
@@ -342,7 +346,7 @@ export default {
     finalCollateralAmount() {
       const slipageMutiplier = (100 + this.slipage) / 100;
 
-      const collateralAmount = toFixed(
+      const collateralAmount = Vue.filter("formatToFixed")(
         parseFloat(
           this.borrowAmount *
             this.selectedPool.tokenOraclePrice *
@@ -358,7 +362,7 @@ export default {
     },
 
     finalRemoveCollateralAmount() {
-      const removeCollateralAmount = toFixed(
+      const removeCollateralAmount = Vue.filter("formatToFixed")(
         parseFloat(this.flashRepayRemoveAmount).toFixed(20),
         this.selectedPool.token.decimals
       );
@@ -370,7 +374,7 @@ export default {
     },
 
     borrowAmount() {
-      return toFixed(
+      return Vue.filter("formatToFixed")(
         parseFloat(this.flashRepayAmount).toFixed(20),
         this.selectedPool.pairToken.decimals
       );

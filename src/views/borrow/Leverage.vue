@@ -64,7 +64,7 @@
         <h1 class="title">Leverage farm</h1>
         <BorrowPoolStand
           :pool="selectedPool"
-          :collateralExpected="finalRemoveCollateralAmountToShare"
+          :collateralExpected="collateralExpected"
           :mimExpected="multiplyMimExpected"
           :liquidationPrice="liquidationPriceExpected"
           :emptyData="emptyData"
@@ -147,7 +147,6 @@ export default {
       percentValue: "",
       mimAmount: 0,
       slipage: 1,
-      finalRemoveCollateralAmountToShare: 0,
       useDefaultBalance: false,
       updateInterval: null,
       emptyData: {
@@ -191,11 +190,12 @@ export default {
     },
 
     collateralError() {
+      if (isNaN(this.collateralValue)) return "Please input valid value";
+
       if (
         parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      ) {
+      )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
-      }
 
       return "";
     },
@@ -319,10 +319,38 @@ export default {
       );
     },
 
+    collateralExpected() {
+      if (!this.collateralValue) return 0;
+
+      let amount = Vue.filter("formatToFixed")(
+        this.mimAmount,
+        this.selectedPool.token.decimals
+      );
+
+      const percentValue = parseFloat(this.percentValue);
+
+      const slipageMutiplier = (100 - this.slipage) / 100;
+
+      const amountMultiplyer = percentValue / 100;
+
+      let startAmount = amount * 0.995;
+
+      let finalAmount = 0;
+
+      for (let i = this.multiplier; i > 0; i--) {
+        finalAmount += +startAmount;
+        startAmount = startAmount * amountMultiplyer;
+      }
+
+      const minValue =
+        finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
+
+      return +minValue + +this.collateralValue;
+    },
+
     multiplyMimExpected() {
       if (!this.collateralValue) return 0;
       if (!this.mimAmount) return 0;
-      if (this.multiplier === 1) return this.mimAmount;
       if (!this.percentValue) return 0;
 
       const percentValue = parseFloat(this.percentValue);
@@ -346,12 +374,6 @@ export default {
           this.selectedPool?.userInfo?.liquidationPrice || 0;
         let liquidationDecimals = 4;
         if (this.selectedPool.name === "SHIB") liquidationDecimals = 6;
-
-        if (+this.multiplier === 1) {
-          return this.depositExpectedLiquidationPrice.toFixed(
-            liquidationDecimals
-          );
-        }
 
         if (!this.collateralValue) return defaultLiquidationPrice;
 
@@ -531,14 +553,6 @@ export default {
 
       return false;
     },
-
-    collateralValue() {
-      this.finalCollateralAmountToShare();
-    },
-
-    multiplier() {
-      this.finalCollateralAmountToShare();
-    },
   },
 
   methods: {
@@ -591,22 +605,15 @@ export default {
     },
 
     async chosePool(pool) {
-      this.collateralValue = "";
       this.poolId = pool.id;
 
-      this.changeSlipage(pool.id, this.chainId);
-
-      this.useDefaultBalance = false;
+      this.clearData();
 
       let duplicate = this.$route.fullPath === `/leverage/${pool.id}`;
 
       if (!duplicate) {
         this.$router.push(`/leverage/${pool.id}`);
       }
-
-      this.multiplier = 2;
-
-      this.percentValue = this.selectedPool.ltv;
     },
 
     changeSlippage(value) {
@@ -718,61 +725,14 @@ export default {
           itsDefaultBalance: this.useDefaultBalance,
         };
 
-        if (this.multiplier > 1) {
-          payload.amount = Vue.filter("formatToFixed")(
-            this.mimAmount,
-            this.selectedPool.pairToken.decimals
-          );
+        payload.amount = Vue.filter("formatToFixed")(
+          this.mimAmount,
+          this.selectedPool.pairToken.decimals
+        );
 
-          this.multiplierHandle(payload);
-          return false;
-        }
-
-        this.addAndBorrowHandler(payload);
-
+        this.multiplierHandle(payload);
         return false;
       }
-
-      return false;
-    },
-
-    async addAndBorrowHandler(data) {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-      console.log("ADD COLL & BORROW HANDLER", data);
-
-      let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
-        this.selectedPool.masterContractInstance.address,
-        this.account
-      );
-
-      if (isTokenToCookApprove.lt(data.collateralAmount)) {
-        isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
-          this.selectedPool.masterContractInstance.address
-        );
-      }
-
-      let isApproved = await isApprowed(this.selectedPool, this.account);
-
-      if (+isTokenToCookApprove) {
-        this.cookAddAndBorrow(
-          data,
-          isApproved,
-          this.selectedPool,
-          notificationId
-        );
-        return false;
-      }
-
-      await this.$store.commit("notifications/delete", notificationId);
-      await this.$store.dispatch(
-        "notifications/new",
-        notification.approveError
-      );
 
       return false;
     },
@@ -842,16 +802,10 @@ export default {
       const minValue =
         finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
 
-      console.log("minValue!!!!!!!!", minValue);
-
-      console.log("minValue!!!!!!!!", minValue);
-
       const minValueParsed = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(minValue, this.selectedPool.token.decimals),
         this.selectedPool.token.decimals
       );
-
-      console.log("minValueParsed!!!!!!!!", minValueParsed.toString());
 
       const finalRemoveCollateralAmountToShare =
         await this.selectedPool.masterContractInstance.toShare(
@@ -930,60 +884,6 @@ export default {
       }
     },
 
-    async finalCollateralAmountToShare() {
-      if (this.collateralValue) {
-        let amount = this.$ethers.utils.parseUnits(
-          Vue.filter("formatToFixed")(
-            this.mimAmount,
-            this.selectedPool.pairToken.decimals
-          ),
-          this.selectedPool.pairToken.decimals
-        );
-        if (this.multiplier > 1) {
-          amount = Vue.filter("formatToFixed")(
-            this.mimAmount,
-            this.selectedPool.pairToken.decimals
-          );
-        } else {
-          amount = this.$ethers.utils.formatEther(amount.toString());
-        }
-
-        const percentValue = parseFloat(this.percentValue);
-
-        const slipageMutiplier = (100 - this.slipage) / 100;
-
-        const amountMultiplyer = percentValue / 100;
-
-        let startAmount = amount * 0.995;
-
-        let finalAmount = 0;
-
-        for (let i = this.multiplier; i > 0; i--) {
-          finalAmount += +startAmount;
-          startAmount = startAmount * amountMultiplyer;
-        }
-
-        const minValue =
-          finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
-
-        const minValueParsed = this.$ethers.utils.parseUnits(
-          Vue.filter("formatToFixed")(
-            minValue,
-            this.selectedPool.token.decimals
-          ),
-          this.selectedPool.token.decimals
-        );
-
-        this.finalRemoveCollateralAmountToShare =
-          this.$ethers.utils.formatUnits(
-            minValueParsed,
-            this.selectedPool.token.decimals
-          );
-      } else {
-        this.finalRemoveCollateralAmountToShare = 0;
-      }
-    },
-
     toggleUseDefaultBalance() {
       this.clearData();
 
@@ -992,8 +892,10 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.multiplier = 2;
-      this.slipage = 1;
+      this.useDefaultBalance = false;
+      this.multiplier = 1;
+      this.changeSlipage(this.selectedPool.id, this.chainId);
+      this.percentValue = this.selectedPool.ltv;
     },
 
     changeSlipage(poolId, chainId) {
@@ -1021,8 +923,6 @@ export default {
     this.poolId = this.$route.params.id;
 
     this.changeSlipage(this.poolId, this.chainId);
-
-    this.multiplier = 2;
 
     this.updateInterval = setInterval(async () => {
       this.createPools();
