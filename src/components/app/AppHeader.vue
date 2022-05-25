@@ -1,12 +1,8 @@
 <template>
   <header class="header">
-    <img
-      src="@/assets/images/magic-crystal.png"
-      alt=""
-      class="main-logo"
-      @click="toHome"
-      v-if="!mobileMenu"
-    />
+    <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
+      <img src="@/assets/images/magic-crystal.png" alt="" class="main-logo" />
+    </router-link>
 
     <nav class="nav">
       <router-link class="header-link" :to="{ name: 'Borrow' }"
@@ -77,6 +73,8 @@
             href="https://app.powerbi.com/view?r=eyJrIjoiOGFjN2QyMDgtMzRhMy00NDkzLTk2NDctNTBkZTQ0NzQ3ZjJkIiwidCI6IjYyZTU1MTgwLTQzNmQtNDYyZC1hMWIwLTZkMTg2NjRlZDAxNSJ9"
             class="list-link"
             target="_blank"
+            @click.prevent.stop
+            v-tooltip="'Work In Progress'"
             >Analytics</a
           >
         </div>
@@ -137,7 +135,7 @@
             <a
               target="_blank"
               rel="noreferrer noopener"
-              href="https://discord.gg/wcsUNxYrFM"
+              href="https://discord.com/invite/mim"
               class="list-link"
               ><img src="@/assets/images/social/discord.svg" alt="Discord"
             /></a>
@@ -175,6 +173,9 @@ export default {
   },
 
   watch: {
+    $route() {
+      this.hideAllDropdowns();
+    },
     mobileMenu() {
       if (this.mobileMenu) {
         document.documentElement.style.overflow = "hidden";
@@ -187,6 +188,12 @@ export default {
   methods: {
     toHome() {
       this.$router.push({ name: "Home" });
+    },
+
+    hideAllDropdowns() {
+      this.isDropdownTools = false;
+      this.isDropdownStake = false;
+      this.isDropdownOther = false;
     },
 
     toggleDropdown(nameDropdown) {

@@ -100,6 +100,8 @@ const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
 
+import Vue from "vue";
+
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
 import mimIcon from "@/assets/images/tokens/MIM.png";
@@ -108,7 +110,6 @@ import {
   isApprowed,
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
-import { toFixed } from "@/utils/helpers.js";
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
@@ -127,7 +128,7 @@ export default {
         img: require(`@/assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
         bottom: "If you want to learn more read our docs",
-        link: "https://abracadabra.money/",
+        link: "https://docs.abracadabra.money/",
       },
     };
   },
@@ -350,16 +351,19 @@ export default {
     },
 
     collateralError() {
+      if (isNaN(this.collateralValue)) return "Please input valid value";
+
       if (
         parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      ) {
+      )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
-      }
 
       return "";
     },
 
     borrowError() {
+      if (isNaN(this.borrowValue)) return "Please input valid value";
+
       if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
         return `The value cannot be greater than ${this.maxBorrowValue}!`;
       }
@@ -391,19 +395,6 @@ export default {
 
   methods: {
     updateCollateralValue(value) {
-      if (!value) {
-        this.collateralValue = value;
-      }
-
-      if (value === this.maxCollateralValue) {
-        this.borrowValue = +this.maxBorrowValue ? this.maxBorrowValue : "";
-        this.collateralValue = +this.maxCollateralValue
-          ? this.maxCollateralValue
-          : "";
-
-        return false;
-      }
-
       this.collateralValue = value;
 
       return false;
@@ -491,7 +482,10 @@ export default {
       );
 
       let parsedAmount = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 
@@ -654,7 +648,10 @@ export default {
       console.log("itsMax", itsMax);
 
       const parsedAmount = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 

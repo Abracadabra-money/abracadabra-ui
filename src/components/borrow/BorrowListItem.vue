@@ -6,7 +6,9 @@
     <button @click="enterPool(pool)" class="pool-item">
       <div class="pool-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
-        <p>{{ pool.name }}</p>
+        <p>
+          {{ pool.name }} <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
+        </p>
       </div>
       <div class="pool-balance">
         <p>{{ userBalance | formatTokenBalance }}</p>
@@ -112,6 +114,11 @@ export default {
 .pool-item .pool-name {
   display: flex;
   align-items: center;
+
+  p span {
+    font-size: 13px;  
+    color: rgba(255, 255, 255, 0.6);
+  }
 }
 
 .pool-balance {

@@ -164,7 +164,6 @@ import {
   isApprowed,
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
-import { toFixed } from "@/utils/helpers.js";
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
@@ -184,7 +183,7 @@ export default {
         img: require(`@/assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
         bottom: "If you want to learn more read our docs",
-        link: "https://abracadabra.money/",
+        link: "https://docs.abracadabra.money/",
       },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
@@ -219,19 +218,21 @@ export default {
     },
 
     collateralError() {
+      if (isNaN(this.collateralValue)) return "Please input valid value";
+
       if (
         parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      ) {
+      )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
-      }
 
       return "";
     },
 
     borrowError() {
-      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
-        return `The value cannot be greater than ${this.maxBorrowValue}!`;
-      }
+      if (isNaN(this.borrowValue)) return "Please input valid value";
+
+      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue))
+        return `The value cannot be greater than ${this.maxBorrowValue}`;
 
       return "";
     },
@@ -337,7 +338,7 @@ export default {
     },
 
     calculateLtv() {
-      if (this.collateralValue && !this.collateralError) {
+      if (this.collateralValue && !this.collateralError && !this.borrowError) {
         const percent = this.maxBorrowValue / this.selectedPool.ltv;
 
         let ltv = this.borrowValue / percent;
@@ -347,7 +348,7 @@ export default {
         return parseFloat(ltv).toFixed(0);
       }
 
-      if (this.borrowValue && !this.borrowError) {
+      if (this.borrowValue && !this.borrowError && !this.collateralError) {
         const tokenToMim =
           this.selectedPool.userInfo?.userCollateralShare /
           this.selectedPool.tokenPrice;
@@ -440,9 +441,6 @@ export default {
 
     mainTokenFinalText() {
       if (this.selectedPool) {
-        if (this.poolId === 25 && this.chainId === 1)
-          return `${this.selectedPool.name} (new)`;
-
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
@@ -654,8 +652,15 @@ export default {
         this.selectedPool.token.decimals
       );
 
+      if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
+        return false;
+      }
+
       const parsedBorrow = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 
@@ -758,7 +763,7 @@ export default {
         notification.pending
       );
 
-      if (!this.checkIsPoolAllowBorrow(this.borrowValue, notificationId)) {
+      if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
         return false;
       }
 
@@ -771,7 +776,10 @@ export default {
       }
 
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        toFixed(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 

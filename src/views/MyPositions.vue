@@ -27,7 +27,7 @@
       v-if="mimInBentoDepositObject && !hideBoxes"
       :infoObject="mimInBentoDepositObject"
     />
-    <h2 class="title">Specific positions</h2>
+    <h2 class="title">Individual positions</h2>
 
     <div
       v-if="

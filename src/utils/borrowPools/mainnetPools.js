@@ -976,7 +976,7 @@ export default [
   },
   {
     icon: require(`@/assets/images/tokens/Convex-Curve.png`),
-    name: "cvx3pool",
+    name: "cvx3pool (new)",
     contractChain: "0x01",
     id: 25,
     isDepreciated: false,
@@ -989,7 +989,7 @@ export default [
       abi: poolsAbi.CauldronV2CheckpointV1,
     },
     token: {
-      name: "cvx3pool",
+      name: "cvx3pool (new)",
       decimals: 18,
       address: "0x3Ba207c25A278524e1cC7FaAea950753049072A4",
       abi: tokensAbi.stkcvx3Crv,
@@ -997,7 +997,7 @@ export default [
         title: "Deposit",
         type: "3crv",
         data: {
-          address: "0xd92494CB921E5C0d3A39eA88d0147bbd82E51008",
+          address: "0x3Ba207c25A278524e1cC7FaAea950753049072A4",
         },
         claimCrvReward: true,
       },

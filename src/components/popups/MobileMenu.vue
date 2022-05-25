@@ -79,6 +79,8 @@
             class="popup-link"
             href="https://app.powerbi.com/view?r=eyJrIjoiOGFjN2QyMDgtMzRhMy00NDkzLTk2NDctNTBkZTQ0NzQ3ZjJkIiwidCI6IjYyZTU1MTgwLTQzNmQtNDYyZC1hMWIwLTZkMTg2NjRlZDAxNSJ9"
             target="_blank"
+            @click.prevent.stop
+            v-tooltip="'Work In Progress'"
             >Analytics</a
           >
         </div>
@@ -124,7 +126,7 @@
             <a
               target="_blank"
               rel="noreferrer noopener"
-              href="https://discord.gg/wcsUNxYrFM"
+              href="https://discord.com/invite/mim"
               ><img src="@/assets/images/social/discord.svg" alt="Discord"
             /></a>
           </div>
