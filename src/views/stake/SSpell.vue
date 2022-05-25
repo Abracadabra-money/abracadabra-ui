@@ -82,6 +82,13 @@
             sSPELL automatically earns fees from MIM repayments from all wizards
             proportional to your share of the stake pool.
           </p>
+
+          <p>
+            Interested in earning stablecoin? Find out about
+            <router-link class="empty-link" :to="{ name: 'mStake' }"
+              >mSPELL</router-link
+            >
+          </p>
         </div>
       </div>
     </div>
@@ -375,6 +382,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.empty-link {
+  color: #759ffa;
+}
+
 .loader-wrap {
   display: flex;
   align-items: center;

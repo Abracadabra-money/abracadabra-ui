@@ -1,12 +1,8 @@
 <template>
   <header class="header">
-    <img
-      src="@/assets/images/magic-crystal.png"
-      alt=""
-      class="main-logo"
-      @click="toHome"
-      v-if="!mobileMenu"
-    />
+    <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
+      <img src="@/assets/images/magic-crystal.png" alt="" class="main-logo" />
+    </router-link>
 
     <nav class="nav">
       <router-link class="header-link" :to="{ name: 'Borrow' }"
