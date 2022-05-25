@@ -957,11 +957,17 @@ export default {
           this.selectedPool.token.decimals
         );
 
+        let finalCollateralAmount = this.$ethers.utils.formatUnits(
+          minValueParsed,
+          this.selectedPool.token.decimals
+        );
+
         this.finalRemoveCollateralAmountToShare =
-          this.$ethers.utils.formatUnits(
-            minValueParsed,
-            this.selectedPool.token.decimals
-          );
+          +finalCollateralAmount + +this.collateralValue;
+        console.log(
+          " this.finalRemoveCollateralAmountToShare",
+          this.finalRemoveCollateralAmountToShare
+        );
       } else {
         this.finalRemoveCollateralAmountToShare = 0;
       }
