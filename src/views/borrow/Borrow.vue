@@ -652,8 +652,15 @@ export default {
         this.selectedPool.token.decimals
       );
 
+      if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
+        return false;
+      }
+
       const parsedBorrow = this.$ethers.utils.parseUnits(
-         Vue.filter("formatToFixed")(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 
@@ -756,7 +763,7 @@ export default {
         notification.pending
       );
 
-      if (!this.checkIsPoolAllowBorrow(this.borrowValue, notificationId)) {
+      if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
         return false;
       }
 
@@ -769,7 +776,10 @@ export default {
       }
 
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
-         Vue.filter("formatToFixed")(this.borrowValue, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          this.borrowValue,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 
