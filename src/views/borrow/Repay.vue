@@ -351,16 +351,20 @@ export default {
 
     collateralError() {
       if (
-        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      ) {
+        parseFloat(this.collateralValue) >
+          parseFloat(this.maxCollateralValue) ||
+        isNaN(this.collateralValue)
+      )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
-      }
 
       return "";
     },
 
     borrowError() {
-      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
+      if (
+        parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue) ||
+        isNaN(this.borrowValue)
+      ) {
         return `The value cannot be greater than ${this.maxBorrowValue}!`;
       }
 
@@ -391,19 +395,6 @@ export default {
 
   methods: {
     updateCollateralValue(value) {
-      if (!value) {
-        this.collateralValue = value;
-      }
-
-      if (value === this.maxCollateralValue) {
-        this.borrowValue = +this.maxBorrowValue ? this.maxBorrowValue : "";
-        this.collateralValue = +this.maxCollateralValue
-          ? this.maxCollateralValue
-          : "";
-
-        return false;
-      }
-
       this.collateralValue = value;
 
       return false;

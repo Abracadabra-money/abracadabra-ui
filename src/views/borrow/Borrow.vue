@@ -220,18 +220,21 @@ export default {
 
     collateralError() {
       if (
-        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      ) {
+        parseFloat(this.collateralValue) >
+          parseFloat(this.maxCollateralValue) ||
+        isNaN(this.collateralValue)
+      )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
-      }
 
       return "";
     },
 
     borrowError() {
-      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
-        return `The value cannot be greater than ${this.maxBorrowValue}!`;
-      }
+      if (
+        parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue) ||
+        isNaN(this.borrowValue)
+      )
+        return `The value cannot be greater than ${this.maxBorrowValue}`;
 
       return "";
     },
@@ -337,7 +340,7 @@ export default {
     },
 
     calculateLtv() {
-      if (this.collateralValue && !this.collateralError) {
+      if (this.collateralValue && !this.collateralError && !this.borrowError) {
         const percent = this.maxBorrowValue / this.selectedPool.ltv;
 
         let ltv = this.borrowValue / percent;
@@ -347,7 +350,7 @@ export default {
         return parseFloat(ltv).toFixed(0);
       }
 
-      if (this.borrowValue && !this.borrowError) {
+      if (this.borrowValue && !this.borrowError && !this.collateralError) {
         const tokenToMim =
           this.selectedPool.userInfo?.userCollateralShare /
           this.selectedPool.tokenPrice;

@@ -191,10 +191,11 @@ export default {
 
     collateralError() {
       if (
-        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      ) {
+        parseFloat(this.collateralValue) >
+          parseFloat(this.maxCollateralValue) ||
+        isNaN(this.collateralValue)
+      )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
-      }
 
       return "";
     },
