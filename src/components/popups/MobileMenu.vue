@@ -79,6 +79,8 @@
             class="popup-link"
             href="https://app.powerbi.com/view?r=eyJrIjoiOGFjN2QyMDgtMzRhMy00NDkzLTk2NDctNTBkZTQ0NzQ3ZjJkIiwidCI6IjYyZTU1MTgwLTQzNmQtNDYyZC1hMWIwLTZkMTg2NjRlZDAxNSJ9"
             target="_blank"
+            @click.prevent.stop
+            v-tooltip="'Work In Progress'"
             >Analytics</a
           >
         </div>

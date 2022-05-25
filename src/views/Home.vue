@@ -91,6 +91,7 @@ export default {
     min-width: 100%;
     object-fit: cover;
     right: 0;
+    top: -5px;
   }
   &__content {
     max-width: 1050px;
