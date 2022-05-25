@@ -442,9 +442,6 @@ export default {
 
     mainTokenFinalText() {
       if (this.selectedPool) {
-        if (this.poolId === 25 && this.chainId === 1)
-          return `${this.selectedPool.name} (new)`;
-
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
