@@ -132,7 +132,6 @@ import {
   isApprowed,
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
-import { toFixed } from "@/utils/helpers.js";
 import notification from "@/helpers/notification/notification.js";
 
 export default {
@@ -389,7 +388,7 @@ export default {
       if (!this.percentMultiplier) return "0.00";
 
       const expectedLevearage =
-        (1 - Math.pow(+this.percentMultiplier, this.multiplier)) /
+        (1 - Math.pow(+this.percentMultiplier, +this.multiplier + 1)) /
         (1 - +this.percentMultiplier);
       return parseFloat(expectedLevearage).toFixed(2);
     },
@@ -705,7 +704,10 @@ export default {
         );
 
         const parsedMim = this.$ethers.utils.parseUnits(
-          toFixed(this.mimAmount, this.selectedPool.pairToken.decimals),
+          Vue.filter("formatToFixed")(
+            this.mimAmount,
+            this.selectedPool.pairToken.decimals
+          ),
           this.selectedPool.pairToken.decimals
         );
 
@@ -717,7 +719,7 @@ export default {
         };
 
         if (this.multiplier > 1) {
-          payload.amount = toFixed(
+          payload.amount = Vue.filter("formatToFixed")(
             this.mimAmount,
             this.selectedPool.pairToken.decimals
           );
@@ -830,17 +832,26 @@ export default {
       }
 
       const mimAmount = this.$ethers.utils.parseUnits(
-        toFixed(finalAmount, this.selectedPool.pairToken.decimals),
+        Vue.filter("formatToFixed")(
+          finalAmount,
+          this.selectedPool.pairToken.decimals
+        ),
         this.selectedPool.pairToken.decimals
       );
 
       const minValue =
         finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
 
+      console.log("minValue!!!!!!!!", minValue);
+
+      console.log("minValue!!!!!!!!", minValue);
+
       const minValueParsed = this.$ethers.utils.parseUnits(
-        toFixed(minValue, this.selectedPool.token.decimals),
+        Vue.filter("formatToFixed")(minValue, this.selectedPool.token.decimals),
         this.selectedPool.token.decimals
       );
+
+      console.log("minValueParsed!!!!!!!!", minValueParsed.toString());
 
       const finalRemoveCollateralAmountToShare =
         await this.selectedPool.masterContractInstance.toShare(
@@ -922,11 +933,14 @@ export default {
     async finalCollateralAmountToShare() {
       if (this.collateralValue) {
         let amount = this.$ethers.utils.parseUnits(
-          toFixed(this.mimAmount, this.selectedPool.pairToken.decimals),
+          Vue.filter("formatToFixed")(
+            this.mimAmount,
+            this.selectedPool.pairToken.decimals
+          ),
           this.selectedPool.pairToken.decimals
         );
         if (this.multiplier > 1) {
-          amount = toFixed(
+          amount = Vue.filter("formatToFixed")(
             this.mimAmount,
             this.selectedPool.pairToken.decimals
           );
@@ -953,7 +967,10 @@ export default {
           finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
 
         const minValueParsed = this.$ethers.utils.parseUnits(
-          toFixed(minValue, this.selectedPool.token.decimals),
+          Vue.filter("formatToFixed")(
+            minValue,
+            this.selectedPool.token.decimals
+          ),
           this.selectedPool.token.decimals
         );
 
