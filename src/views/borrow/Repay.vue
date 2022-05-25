@@ -350,10 +350,10 @@ export default {
     },
 
     collateralError() {
+      if (isNaN(this.collateralValue)) return "Please input valid value";
+
       if (
-        parseFloat(this.collateralValue) >
-          parseFloat(this.maxCollateralValue) ||
-        isNaN(this.collateralValue)
+        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
       )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
 
@@ -361,10 +361,9 @@ export default {
     },
 
     borrowError() {
-      if (
-        parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue) ||
-        isNaN(this.borrowValue)
-      ) {
+      if (isNaN(this.borrowValue)) return "Please input valid value";
+
+      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue)) {
         return `The value cannot be greater than ${this.maxBorrowValue}!`;
       }
 

@@ -190,10 +190,10 @@ export default {
     },
 
     collateralError() {
+      if (isNaN(this.collateralValue)) return "Please input valid value";
+
       if (
-        parseFloat(this.collateralValue) >
-          parseFloat(this.maxCollateralValue) ||
-        isNaN(this.collateralValue)
+        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
       )
         return `The value cannot be greater than ${this.maxCollateralValue}`;
 
