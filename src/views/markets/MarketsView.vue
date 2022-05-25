@@ -4,7 +4,7 @@
     <BaseLoader />
   </div>
   <div v-else class="stats-wrap">
-    <template>
+    <div class="tools-wrap">
       <div class="search-wrap">
         <img
           class="search-icon"
@@ -18,6 +18,7 @@
           class="search-input"
         />
       </div>
+
       <DropdownWrap class="dropdown">
         <template slot="btn">
           <button class="sort-btn open-btn">
@@ -56,30 +57,31 @@
           </button>
         </template>
       </DropdownWrap>
-      <div class="stats-list-wrap">
-        <div
-          class="stats-list-header"
-          :class="{ 'stats-list-header-farm': isFarm }"
-        >
-          <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
-        </div>
+    </div>
+    <div class="stats-list-wrap">
+      <div
+        class="stats-list-header"
+        :class="{ 'stats-list-header-farm': isFarm }"
+      >
+        <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
+      </div>
 
-        <template v-if="prepPools.length">
-          <template v-if="isFarm">
-            <MarketsFarmItem
-              v-for="pool in prepPools"
-              :key="pool.id"
-              :pool="pool"
-          /></template>
-          <template v-else>
-            <MarketsBorrowItem
-              v-for="pool in prepPools"
-              :key="pool.id"
-              :pool="pool"
-          /></template>
-        </template>
-        <EmptyMarketsList v-else /></div
-    ></template>
+      <template v-if="prepPools.length">
+        <template v-if="isFarm">
+          <MarketsFarmItem
+            v-for="pool in prepPools"
+            :key="pool.id"
+            :pool="pool"
+        /></template>
+        <template v-else>
+          <MarketsBorrowItem
+            v-for="pool in prepPools"
+            :key="pool.id"
+            :pool="pool"
+        /></template>
+      </template>
+      <EmptyMarketsList v-else />
+    </div>
   </div>
 </template>
 
@@ -145,25 +147,25 @@ export default {
               return pool.name;
 
             case sortKeys.yield:
-              return pool.poolYield;
+              return +pool.poolYield;
 
             case sortKeys.roi:
-              return pool.poolRoi;
+              return +pool.poolRoi;
 
             case sortKeys.tvl:
-              return pool.poolTvl;
+              return +pool.poolTvl;
 
             case sortKeys.totalMim:
-              return pool.totalBorrow;
+              return +pool.totalBorrow;
 
             case sortKeys.mimsLeft:
-              return pool.dynamicBorrowAmount;
+              return +pool.dynamicBorrowAmount;
 
             case sortKeys.interest:
-              return pool.interest;
+              return +pool.interest;
 
             case sortKeys.liquidation:
-              return pool.stabilityFee;
+              return +pool.stabilityFee;
           }
 
           return null;
@@ -172,7 +174,10 @@ export default {
           const a = prepValue(aPool, this.selectedSortData);
           const b = prepValue(bPool, this.selectedSortData);
 
-          const factor = this.sortReverse ? 1 : -1;
+          const factor = this.sortReverse ? -1 : 1;
+
+          if (this.selectedSort === sortKeys.name)
+            return a < b ? -factor : factor;
 
           return a < b ? factor : -factor;
         });
@@ -181,7 +186,9 @@ export default {
       return sortedPools;
     },
     sortByDepreciate(pools = []) {
-      return pools.sort(({ isDepreciated: a }, { isDepreciated: b }) => a - b);
+      return pools.sort(
+        ({ isDepreciated: a }, { isDepreciated: b }) => +a - +b
+      );
     },
   },
   computed: {
@@ -199,8 +206,8 @@ export default {
       return this.isFarm
         ? [
             { title: "Title", name: sortKeys.name },
-            { title: "YIELD PER $1000", name: sortKeys.yield },
-            { title: "ROI ANNUALLY", name: sortKeys.roi },
+            { title: "Yield Per $1000", name: sortKeys.yield },
+            { title: "ROI Annually", name: sortKeys.roi },
             { title: "TVL", name: sortKeys.tvl },
           ]
         : [
@@ -265,17 +272,30 @@ export default {
 
 <style lang="scss" scoped>
 .stats-wrap {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 10px;
   padding: 0 16px 60px 16px;
 }
 
+.tools-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 10px;
+  margin-bottom: 10px;
+}
+
 .dropdown {
+  grid-column: auto / span 1;
   &:focus-within {
     .open-btn {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
+      background-color: #55535d;
+      color: white !important;
+    }
+    .sort-btn {
+      background-color: #55535d;
+      &:hover {
+        color: #76c3f5;
+      }
     }
   }
 }
@@ -287,6 +307,11 @@ export default {
   border-radius: 20px;
   padding: 0 17px 0 12px;
   width: 100%;
+  background-color: rgba(255, 255, 255, 0.06);
+
+  &:hover {
+    background-color: #55535d;
+  }
 
   .sort-icon {
     width: 20px;
@@ -313,7 +338,6 @@ export default {
 .sort-btn {
   height: 50px;
   color: white;
-  background-color: rgba(255, 255, 255, 0.06);
   cursor: pointer;
   border: none;
 }
@@ -325,7 +349,6 @@ export default {
 
 .sort-item {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(40px);
 
   &:last-child {
     border-bottom-left-radius: 20px;
@@ -341,6 +364,7 @@ export default {
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   height: 50px;
+  grid-column: auto / span 1;
 
   .search-icon {
     width: 20px;
@@ -389,10 +413,20 @@ export default {
   justify-content: center;
 }
 
+@media (min-width: 768px) {
+  .dropdown {
+    grid-column: auto / span 4;
+  }
+  .search-wrap {
+    grid-column: auto / span 3;
+  }
+  .tools-wrap {
+    grid-template-columns: repeat(12, 1fr);
+  }
+}
+
 @media (min-width: 1024px) {
   .stats-wrap {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 20px;
     padding: 0 0 60px 0;
   }
   .stats-list-wrap {

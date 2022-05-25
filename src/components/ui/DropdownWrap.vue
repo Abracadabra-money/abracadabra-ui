@@ -40,8 +40,7 @@ export default {
 <style scoped lang="scss">
 .dropdown-wrap {
   position: relative;
-  display: inline-block;
-  width: 100%;
+  display: block;
   .dropdown-btn {
     width: 100%;
   }
