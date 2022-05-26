@@ -197,7 +197,7 @@ export default {
     }),
 
     filteredPool() {
-      if (this.account) {
+      if (this.account && this.pools[0]?.userInfo) {
         return this.pools
           .filter((pool) => !pool.isDepreciated)
           .sort((a, b) =>
@@ -533,8 +533,7 @@ export default {
     },
 
     async chosePool(pool) {
-      this.collateralValue = "";
-      this.borrowValue = "";
+      this.clearData();
 
       this.useDefaultBalance = false;
 
@@ -933,6 +932,7 @@ export default {
   margin-right: 5px;
   width: 24px;
   height: 24px;
+  cursor: pointer;
 }
 
 .percent-wrap {

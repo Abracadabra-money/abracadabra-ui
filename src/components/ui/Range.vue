@@ -132,6 +132,7 @@ export default {
     height: 24px;
 
     .info-icon {
+      cursor: pointer;
       width: 24px;
       height: 24px;
     }

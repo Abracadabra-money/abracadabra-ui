@@ -165,7 +165,6 @@
               <div class="info-list-subitem">
                 <span class="info-list-name">1 {{ pool.name }}</span>
                 <span class="info-list-value">{{ tokenToMim }} MIM</span>
-                <span class="info-list-value">TEST{{ tokenToMim }} </span>
               </div>
             </div>
           </div>
@@ -762,6 +761,7 @@ export default {
 }
 
 .info-icon {
+  cursor: pointer;
   width: 24px;
   height: 24px;
 }

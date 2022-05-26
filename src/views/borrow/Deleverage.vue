@@ -160,7 +160,7 @@ export default {
     }),
 
     filteredPool() {
-      if (this.account) {
+      if (this.account && this.pools[0]?.userInfo) {
         return this.pools
           .filter((pool) => pool.isSwappersActive && !!pool.reverseSwapContract)
           .sort((a, b) =>
@@ -344,11 +344,9 @@ export default {
       const slipageMutiplier = (100 + this.slipage) / 100;
 
       const collateralAmount = Vue.filter("formatToFixed")(
-        parseFloat(
-          this.borrowAmount *
-            this.selectedPool.tokenOraclePrice *
-            slipageMutiplier
-        ).toFixed(20),
+        this.borrowAmount *
+          this.selectedPool.tokenOraclePrice *
+          slipageMutiplier,
         this.selectedPool.token.decimals
       );
 
@@ -360,7 +358,7 @@ export default {
 
     finalRemoveCollateralAmount() {
       const removeCollateralAmount = Vue.filter("formatToFixed")(
-        parseFloat(this.flashRepayRemoveAmount).toFixed(20),
+        this.flashRepayRemoveAmount,
         this.selectedPool.token.decimals
       );
 
@@ -372,7 +370,7 @@ export default {
 
     borrowAmount() {
       return Vue.filter("formatToFixed")(
-        parseFloat(this.flashRepayAmount).toFixed(20),
+        this.flashRepayAmount,
         this.selectedPool.pairToken.decimals
       );
     },

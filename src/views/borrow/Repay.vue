@@ -140,7 +140,7 @@ export default {
     }),
 
     filteredPool() {
-      if (this.account) {
+      if (this.account && this.pools[0]?.userInfo) {
         return [...this.pools].sort((a, b) =>
           a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
         );
