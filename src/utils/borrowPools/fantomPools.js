@@ -246,7 +246,6 @@ export default [
     isDepreciated: false,
     isSwappersActive: true,
     hasWithdrawableLimit: true,
-    hasWithdrawableLimit: true,
     dynamicBorrowAmountLimit: false,
     strategyLink:
       "https://abracadabramoney.medium.com/our-spiritswap-lp-degenbox-strategy-11c1a786ff67",
@@ -289,6 +288,7 @@ export default [
     id: 8,
     isDepreciated: false,
     isSwappersActive: true,
+    hasWithdrawableLimit: true,
     acceptUseDefaultBalance: false,
     dynamicBorrowAmountLimit: false,
     isDegenBox: true,

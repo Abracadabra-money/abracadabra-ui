@@ -68,12 +68,7 @@
               >{{ actionBtnText }}</BaseButton
             >
           </div>
-          <div class="info-list">
-            <div v-for="(item, i) in infoData" :key="i" class="info-item">
-              <span>{{ item.name }}:</span>
-              <span>{{ item.value }}%</span>
-            </div>
-          </div>
+          <InfoBlock :pool="selectedPool" />
         </template>
       </div>
     </template>
@@ -96,6 +91,7 @@ const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
+const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
@@ -276,18 +272,6 @@ export default {
         return "Repay borrow";
 
       return "Nothing to do";
-    },
-
-    infoData() {
-      return [
-        {
-          name: "Maximum collateral ratio",
-          value: this.selectedPool.ltv,
-        },
-        { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
-        { name: "Borrow fee", value: this.selectedPool.borrowFee },
-        { name: "Interest", value: this.selectedPool.interest },
-      ];
     },
 
     mimExpected() {
@@ -707,6 +691,7 @@ export default {
     BorrowPoolStand,
     BaseButton,
     BaseLoader,
+    InfoBlock,
     LocalPopupWrap,
     MarketsListPopup,
   },
@@ -774,19 +759,7 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
   margin-top: 92px;
-}
-
-.info-list {
-  margin-top: 30px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 25px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
 }
 
 .balance-wrap {

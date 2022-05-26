@@ -95,12 +95,7 @@
               >{{ actionBtnText }}</BaseButton
             >
           </div>
-          <div class="info-list">
-            <div v-for="(item, i) in infoData" :key="i" class="info-item">
-              <span>{{ item.name }}:</span>
-              <span>{{ item.value }}%</span>
-            </div>
-          </div>
+          <InfoBlock :pool="selectedPool" />
         </template>
       </div>
     </template>
@@ -126,6 +121,7 @@ const Range = () => import("@/components/ui/Range");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
+const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
@@ -218,18 +214,6 @@ export default {
         return "Approve Flash Repay";
 
       return "Approve";
-    },
-
-    infoData() {
-      return [
-        {
-          name: "Maximum collateral ratio",
-          value: this.selectedPool.ltv,
-        },
-        { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
-        { name: "Borrow fee", value: this.selectedPool.borrowFee },
-        { name: "Interest", value: this.selectedPool.interest },
-      ];
     },
 
     liquidationMultiplier() {
@@ -670,6 +654,7 @@ export default {
     BorrowPoolStand,
     BaseButton,
     BaseLoader,
+    InfoBlock,
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
@@ -780,19 +765,7 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
   margin-top: 92px;
-}
-
-.info-list {
-  margin-top: 30px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 25px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
 }
 
 .choose-link {
