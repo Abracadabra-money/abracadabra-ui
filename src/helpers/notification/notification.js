@@ -5,7 +5,7 @@ export default {
   },
 
   pending: {
-    discription: "Transaction in progress",
+    discription: "Confirm in wallet and wait for confirmation",
     type: "pending",
   },
 
