@@ -173,9 +173,6 @@ export default {
   },
 
   watch: {
-    $route() {
-      this.hideAllDropdowns();
-    },
     mobileMenu() {
       if (this.mobileMenu) {
         document.documentElement.style.overflow = "hidden";
@@ -190,21 +187,18 @@ export default {
       this.$router.push({ name: "Home" });
     },
 
-    hideAllDropdowns() {
-      this.isDropdownTools = false;
-      this.isDropdownStake = false;
-      this.isDropdownOther = false;
-    },
-
     toggleDropdown(nameDropdown) {
-      if (nameDropdown === "stake")
+      if (nameDropdown === "stake") {
         this.isDropdownStake = !this.isDropdownStake;
+      }
 
       if (nameDropdown === "tools") {
         this.isDropdownTools = !this.isDropdownTools;
       }
-      if (nameDropdown === "other")
+
+      if (nameDropdown === "other") {
         this.isDropdownOther = !this.isDropdownOther;
+      }
     },
 
     closeDropdownTools() {
@@ -226,6 +220,20 @@ export default {
     closeMobilePopup() {
       this.mobileMenu = false;
     },
+
+    hideAllDropdowns() {
+      this.isDropdownTools = false;
+      this.isDropdownStake = false;
+      this.isDropdownOther = false;
+    },
+  },
+
+  mounted() {
+    window.addEventListener("popstate", this.hideAllDropdowns, false);
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("popstate", this.hideAllDropdowns);
   },
 
   components: {
