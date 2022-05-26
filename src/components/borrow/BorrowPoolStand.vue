@@ -451,14 +451,11 @@ export default {
           additional: "MIM Borrowable Given the Collateral Deposited",
         });
 
-        if (
-          this.pool.hasWithdrawableLimit &&
-          this.pool.userInfo?.maxWithdrawAmount
-        ) {
+        if (this.pool.hasWithdrawableLimit && this.pool.maxWithdrawAmount) {
           resultArray.push({
             title: "Withdrawable Amount",
             value: Vue.filter("formatTokenBalance")(
-              this.pool.userInfo?.maxWithdrawAmount || 0
+              this.pool.maxWithdrawAmount || 0
             ),
             additional: `Maximum Current Amount of ${this.pool.token.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
           });

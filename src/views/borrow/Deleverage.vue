@@ -77,20 +77,25 @@
               @click="approveTokenHandler"
               primary
               :disabled="isTokenApprove"
+              v-if="!isTokenApprove"
               >{{ actionApproveTokenText }}</BaseButton
             >
+
+            <BaseButton
+              v-else
+              @click="closePosition"
+              primary
+              :disabled="isDisabledClosePosition"
+              >Close Position</BaseButton
+            >
+
             <BaseButton
               @click="actionHandler"
               :disabled="actionBtnText === 'Nothing to do'"
               >{{ actionBtnText }}</BaseButton
             >
           </div>
-          <div class="info-list">
-            <div v-for="(item, i) in infoData" :key="i" class="info-item">
-              <span>{{ item.name }}:</span>
-              <span>{{ item.value }}%</span>
-            </div>
-          </div>
+          <InfoBlock :pool="selectedPool" />
         </template>
       </div>
     </template>
@@ -116,6 +121,7 @@ const Range = () => import("@/components/ui/Range");
 const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
+const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
@@ -210,18 +216,6 @@ export default {
       return "Approve";
     },
 
-    infoData() {
-      return [
-        {
-          name: "Maximum collateral ratio",
-          value: this.selectedPool.ltv,
-        },
-        { name: "Liquidation fee", value: this.selectedPool.stabilityFee },
-        { name: "Borrow fee", value: this.selectedPool.borrowFee },
-        { name: "Interest", value: this.selectedPool.interest },
-      ];
-    },
-
     liquidationMultiplier() {
       return this.selectedPool ? this.selectedPool.ltv / 100 : 0;
     },
@@ -251,6 +245,15 @@ export default {
         );
       }
       return 0;
+    },
+
+    isDisabledClosePosition() {
+      if (this.selectedPool && this.account) {
+        return this.selectedPool?.userInfo?.contractBorrowPartParsed > 0
+          ? false
+          : true;
+      }
+      return false;
     },
 
     maxFlashRepayRemoveAmount() {
@@ -287,12 +290,11 @@ export default {
         expectedCollateralBalance * acceptedPercent * 0.995 * persent;
 
       if (
-        this.selectedPool.userInfo.maxWithdrawAmount !== -1 &&
-        +this.selectedPool.userInfo.maxWithdrawAmount <
-          +maxFlashRepayRemoveAmount
+        this.selectedPool.maxWithdrawAmount !== -1 &&
+        +this.selectedPool.maxWithdrawAmount < +maxFlashRepayRemoveAmount
       ) {
         const parsedMaxContractWithdrawAmount = parseFloat(
-          this.selectedPool.userInfo.maxWithdrawAmount
+          this.selectedPool.maxWithdrawAmount
         ).toFixed(20);
 
         return Vue.filter("formatToFixed")(
@@ -622,6 +624,14 @@ export default {
 
       return false;
     },
+
+    closePosition() {
+      this.flashRepayAmount = this.maxFlashRepayAmount;
+
+      this.flashRepayRemoveAmount = this.maxFlashRepayRemoveAmount;
+
+      setTimeout(this.actionHandler(), 100);
+    },
   },
 
   created() {
@@ -643,6 +653,7 @@ export default {
     BorrowPoolStand,
     BaseButton,
     BaseLoader,
+    InfoBlock,
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
@@ -753,19 +764,7 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
   margin-top: 92px;
-}
-
-.info-list {
-  margin-top: 30px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 25px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
 }
 
 .choose-link {
