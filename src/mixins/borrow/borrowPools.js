@@ -530,6 +530,20 @@ export default {
         (priceItem) => priceItem.address === pool.token.address.toLowerCase()
       )?.price;
 
+      let maxWithdrawAmount = -1;
+
+      if (pool.hasWithdrawableLimit) {
+        const tokenWithdrawAmount = await tokenContract.balanceOf(
+          bentoBoxAddress,
+          { gasLimit: 5000000 }
+        );
+
+        maxWithdrawAmount = this.$ethers.utils.formatUnits(
+          tokenWithdrawAmount,
+          pool.token.decimals
+        );
+      }
+
       let poolData = {
         name: pool.name,
         icon: pool.icon,
@@ -572,6 +586,7 @@ export default {
           isTokenApprove,
           additionalLogic: pool.token.additionalLogic,
         },
+        maxWithdrawAmount,
         userInfo: null,
         swapContract,
         isTokenToSwapApprove,
@@ -603,19 +618,6 @@ export default {
       if (this.chainId === 1 && pool.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
           pool.token.contract,
-          pool.token.decimals
-        );
-      }
-
-      let maxWithdrawAmount = -1;
-
-      if (pool.hasWithdrawableLimit) {
-        const tokenWithdrawAmount = await pool.token.contract.balanceOf(
-          pool.bentoBoxAddress
-        );
-
-        maxWithdrawAmount = this.$ethers.utils.formatUnits(
-          tokenWithdrawAmount,
           pool.token.decimals
         );
       }
@@ -658,7 +660,6 @@ export default {
         userPairBalance,
         networkBalance,
         claimableReward,
-        maxWithdrawAmount,
         userCollateralShare,
         liquidationPrice,
         userLockedTimestamp: collateralLockTimestamp,

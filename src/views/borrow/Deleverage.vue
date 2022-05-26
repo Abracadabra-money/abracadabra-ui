@@ -290,12 +290,11 @@ export default {
         expectedCollateralBalance * acceptedPercent * 0.995 * persent;
 
       if (
-        this.selectedPool.userInfo.maxWithdrawAmount !== -1 &&
-        +this.selectedPool.userInfo.maxWithdrawAmount <
-          +maxFlashRepayRemoveAmount
+        this.selectedPool.maxWithdrawAmount !== -1 &&
+        +this.selectedPool.maxWithdrawAmount < +maxFlashRepayRemoveAmount
       ) {
         const parsedMaxContractWithdrawAmount = parseFloat(
-          this.selectedPool.userInfo.maxWithdrawAmount
+          this.selectedPool.maxWithdrawAmount
         ).toFixed(20);
 
         return Vue.filter("formatToFixed")(

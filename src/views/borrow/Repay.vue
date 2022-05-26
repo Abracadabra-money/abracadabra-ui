@@ -160,12 +160,12 @@ export default {
           !+this.selectedPool.userInfo.userBorrowPart
         ) {
           if (
-            this.selectedPool.userInfo.maxWithdrawAmount !== -1 &&
-            +this.selectedPool.userInfo.maxWithdrawAmount <
+            this.selectedPool.maxWithdrawAmount !== -1 &&
+            +this.selectedPool.maxWithdrawAmount <
               +this.selectedPool.userInfo.userCollateralShare
           ) {
             const parsedMaxContractWithdrawAmount = parseFloat(
-              this.selectedPool.userInfo.maxWithdrawAmount
+              this.selectedPool.maxWithdrawAmount
             ).toFixed(20);
 
             return Vue.filter("formatToFixed")(
@@ -208,11 +208,11 @@ export default {
       if (+borrowLeft < 0) return "0";
 
       if (
-        this.selectedPool.userInfo.maxWithdrawAmount !== -1 &&
-        +this.selectedPool.userInfo.maxWithdrawAmount < +borrowLeft
+        this.selectedPool.maxWithdrawAmount !== -1 &&
+        +this.selectedPool.maxWithdrawAmount < +borrowLeft
       ) {
         const parsedMaxContractWithdrawAmount = parseFloat(
-          this.selectedPool.userInfo.maxWithdrawAmount
+          this.selectedPool.maxWithdrawAmount
         ).toFixed(20);
 
         return Vue.filter("formatToFixed")(
