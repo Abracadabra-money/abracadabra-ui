@@ -259,7 +259,7 @@ export default {
       if (this.collateralError) return "Nothing to do";
 
       if (+this.collateralValue > 0 && !this.collateralError)
-        return "Add Collateral and Borrow";
+        return "Leverage Up";
 
       return "Nothing to do";
     },
@@ -267,7 +267,7 @@ export default {
     actionApproveTokenText() {
       if (!this.selectedPool.token.isTokenApprove) return "Approve Token";
 
-      if (!this.selectedPool.isTokenToSwapApprove) return "Approve Swap";
+      if (!this.selectedPool.isTokenToSwapApprove) return "Approve Leverage";
 
       return "Approve";
     },

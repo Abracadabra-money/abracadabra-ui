@@ -497,6 +497,8 @@ export default {
           borrowLimitResp.borrowPartPerAddress.toString(),
           18
         );
+
+        dynamicBorrowAmount = borrowlimit;
       }
 
       const tokenPairPrice = 1;
