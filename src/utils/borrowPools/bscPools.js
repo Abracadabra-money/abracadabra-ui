@@ -6,7 +6,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 export default [
   {
     icon: require(`@/assets/images/tokens/BNB.png`),
-    name: "wBNB",
+    name: "WBNB",
     contractChain: "0x38",
     id: 1,
     isDepreciated: false,
@@ -21,7 +21,7 @@ export default [
       abi: poolsAbi.CauldronV2Multichain,
     },
     token: {
-      name: "wBNB",
+      name: "WBNB",
       decimals: 18,
       address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
 

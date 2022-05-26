@@ -23,8 +23,8 @@
 
     <div class="balance-item">
       <div class="balance-name">
-        <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
-        <p>{{ pool.name }}</p>
+        <BaseTokenIcon :icon="pool.icon" :name="pool.token.name" />
+        <p>{{ pool.token.name }}</p>
       </div>
       <div class="balance">
         <p>{{ userBalance | formatTokenBalance }}</p>
@@ -73,10 +73,10 @@ export default {
         name = "AVAX";
         icon = require("@/assets/images/tokens/AVAX.png");
       }
-      if (this.chainId === 42161) {
-        name = "AETH";
-        icon = require("@/assets/images/tokens/AETH.png");
-      }
+      // if (this.chainId === 42161) {
+      //   name = "AETH";
+      //   icon = require("@/assets/images/tokens/AETH.png");
+      // }
       if (this.chainId === 137) {
         name = "MATIC";
         icon = require("@/assets/images/tokens/MATIC.png");

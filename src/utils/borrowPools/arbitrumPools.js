@@ -6,7 +6,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 export default [
   {
     icon: require(`@/assets/images/tokens/WETH.png`),
-    name: "ETH",
+    name: "WETH",
     contractChain: "0xa4b1",
     id: 1,
     isDepreciated: false,
@@ -18,7 +18,7 @@ export default [
       abi: poolsAbi.CauldronV2Flat,
     },
     token: {
-      name: "wETH",
+      name: "WETH",
       decimals: 18,
       address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
 
