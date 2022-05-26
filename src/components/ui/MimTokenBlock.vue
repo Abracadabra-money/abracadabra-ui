@@ -7,7 +7,9 @@
     >
       <img src="@/assets/images/PixelMIM.svg" alt="MIM" />
     </button>
-    <p class="mim-price" v-if="mimPrice !== null">{{ mimPrice | formatUSD }}</p>
+    <p class="mim-price" v-if="mimPrice !== null">
+      $ {{ mimPrice | formatToFixed(4) }}
+    </p>
   </div>
 </template>
 
@@ -102,7 +104,7 @@ export default {
 
     this.updateMimPrice = setInterval(async () => {
       await this.getMimPrice();
-    }, 30000);
+    }, 15000);
   },
 
   beforeDestroy() {
