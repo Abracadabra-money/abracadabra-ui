@@ -198,7 +198,7 @@ export default {
         +this.pool.userInfo.userBorrowPart === 0 ||
         isNaN(this.liquidationPrice)
       )
-        return 0;
+        return 100;
 
       const riskPercent =
         ((this.minPrice * this.stableCoinMultiplayer) / this.tokenPrice) * 100;
