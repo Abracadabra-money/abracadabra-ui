@@ -1,8 +1,13 @@
 const formatUSD = (value) => {
-  if (isNaN(Number(value)) || +value === 0 || +value < 0.0001) return "$ 0.0";
-  const decimals = +value < 1 ? 4 : 2;
+  if (isNaN(Number(value)) || +value === 0) return "$ 0.0";
+
+  let decimals = +value < 1 ? 4 : 2;
+
+  if (+value < 0.0001) decimals = 6;
 
   const formatAmount = +parseFloat(value).toFixed(decimals);
+
+  if (+value < 0.0001) return `$ ${formatAmount}`;
 
   return `$ ${formatAmount.toLocaleString("en-US", { currency: "USD" })}`;
 };
