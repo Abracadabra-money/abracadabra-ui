@@ -68,7 +68,7 @@ export default {
       if (this.price) {
         info.push({
           name: "Price",
-          value: Vue.filter("formatUSD")(this.price),
+          value: Vue.filter("formatExactPrice")(this.price),
           tooltip: "Price of one collateral token",
         });
       }

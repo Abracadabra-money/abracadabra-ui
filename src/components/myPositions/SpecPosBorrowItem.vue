@@ -222,7 +222,7 @@ export default {
       return mimIcon;
     },
     liqPrice() {
-      return Vue.filter("formatLiquidationPrice")(this.liquidationPrice);
+      return Vue.filter("formatExactPrice")(this.liquidationPrice);
     },
     valuesList() {
       return [

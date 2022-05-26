@@ -89,7 +89,7 @@ const formatTokenBalance = (value) => {
   return `${start}..${persedEnd.slice(0, 5)}`;
 };
 
-const formatLiquidationPrice = (value) => {
+const formatExactPrice = (value) => {
   return `$ ${formatTokenBalance(value)}`;
 };
 
@@ -100,7 +100,7 @@ const filters = {
   formatLargeSum,
   formatToFixed,
   formatPercent,
-  formatLiquidationPrice,
+  formatExactPrice,
 };
 
 export default filters;
