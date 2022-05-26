@@ -3,7 +3,7 @@
     <div class="input-block">
       <h4>Choose Chain</h4>
       <div class="underline">
-        <NetworksList />
+        <NetworksList :active-list="[1]" />
       </div>
 
       <div class="loader-wrap" v-if="isLoadingsSpellStake">
