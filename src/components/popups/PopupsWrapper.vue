@@ -6,6 +6,7 @@
       <ThreeCryptoPopup v-if="popupActiveType === 'three-crypto-deposit'" />
       <OHMPopup v-if="popupActiveType === 'olimpus'" />
       <MEMOWrapPopup v-if="popupActiveType === 'memo-wrap'" />
+      <SucessPopup v-if="popupActiveType === 'success'" />
     </div>
   </div>
 </template>
@@ -19,6 +20,8 @@ const ThreeCryptoPopup = () =>
   import("@/components/popups/Deposit/ThreeCryptoPopup");
 const OHMPopup = () => import("@/components/popups/Deposit/OHMPopup/index");
 const MEMOWrapPopup = () => import("@/components/popups/Deposit/MEMOWrapPopup");
+const SucessPopup = () => import("@/components/popups/SuccessPopup");
+
 export default {
   computed: {
     ...mapGetters({
@@ -38,6 +41,7 @@ export default {
     ThreeCryptoPopup,
     OHMPopup,
     MEMOWrapPopup,
+    SucessPopup,
   },
 };
 </script>

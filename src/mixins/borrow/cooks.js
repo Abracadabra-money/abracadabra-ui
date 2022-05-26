@@ -412,10 +412,14 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.borrowSuccess
-        );
+        // await this.$store.dispatch(
+        //   "notifications/new",
+        //   notification.borrowSuccess
+        // );
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookCollateralAndBorrow ERR:", e);
 
@@ -526,10 +530,14 @@ export default {
 
         await this.$store.commit("notifications/delete", notificationId);
 
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.borrowSuccess
-        );
+        // await this.$store.dispatch(
+        //   "notifications/new",
+        //   notification.borrowSuccess
+        // );
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookAddCollateral ERR:", e);
 
@@ -643,10 +651,14 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.borrowSuccess
-        );
+        // await this.$store.dispatch(
+        //   "notifications/new",
+        //   notification.borrowSuccess
+        // );
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookBorrow ERR:", e);
 
@@ -1370,10 +1382,14 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.borrowSuccess
-        );
+        // await this.$store.dispatch(
+        //   "notifications/new",
+        //   notification.borrowSuccess
+        // );
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookMultiBorrow ERR:", e);
 

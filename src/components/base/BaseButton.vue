@@ -2,7 +2,7 @@
   <a
     class="default-button"
     :style="{ width: setWidth() }"
-    :class="{ primary: primary, disabled: disabled || loading }"
+    :class="{ primary: primary, disabled: disabled || loading, borderless }"
     @click="onClick"
   >
     <div><slot></slot></div>
@@ -15,6 +15,9 @@ export default {
   name: "Button",
   props: {
     primary: {
+      type: Boolean,
+    },
+    borderless: {
       type: Boolean,
     },
     loading: {
@@ -60,6 +63,20 @@ export default {
   &.disabled {
     cursor: not-allowed;
   }
+
+  &.borderless {
+    border: none;
+
+    &:hover {
+      background: linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.2),
+          rgba(255, 255, 255, 0.2)
+        ),
+        rgba(255, 255, 255, 0.1);
+    }
+  }
+
   &.primary {
     line-height: 50px;
     background: linear-gradient(107.5deg, #5552fd -3.19%, #76c3f5 101.2%);
@@ -75,7 +92,7 @@ export default {
       );
     }
   }
-  &:not(.primary) {
+  &:not(.primary, .borderless) {
     &:hover:not(.disabled) {
       border: 2px solid #62a5d3;
       background: linear-gradient(
