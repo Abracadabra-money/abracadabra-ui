@@ -364,7 +364,6 @@ export default {
     &-token {
       font-weight: 400;
       font-size: 18px;
-      text-transform: uppercase;
     }
 
     &-balance-wrap {
