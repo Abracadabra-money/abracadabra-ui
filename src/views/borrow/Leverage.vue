@@ -407,11 +407,14 @@ export default {
 
     leverageLiquidationRisk() {
       if (this.selectedPool) {
-        const tokenPrice = 1 / this.selectedPool.tokenOraclePrice;
-        const priceDifferens = +tokenPrice - +this.liquidationPriceExpected;
+        const priceDifferens =
+          1 / this.selectedPool.tokenPrice - this.liquidationPriceExpected;
 
         const riskPersent =
-          ((priceDifferens * this.healthMultiplier) / tokenPrice) * 100;
+          priceDifferens *
+          this.healthMultiplier *
+          this.selectedPool.tokenPrice *
+          100;
 
         if (riskPersent > 100) {
           return 100;
