@@ -172,14 +172,10 @@ export default {
               this.selectedPool.userInfo.maxWithdrawAmount
             ).toFixed(20);
 
-            let re = new RegExp(
-              // eslint-disable-next-line no-useless-escape
-              `^-?\\d+(?:\.\\d{0,` +
-                (this.selectedPool.token.decimals || -1) +
-                `})?`
+            return Vue.filter("formatToFixed")(
+              parsedMaxContractWithdrawAmount,
+              this.selectedPool.token.decimals
             );
-
-            return parsedMaxContractWithdrawAmount.toString().match(re)[0];
           }
 
           return this.selectedPool.userInfo.userCollateralShare;
@@ -223,21 +219,16 @@ export default {
           this.selectedPool.userInfo.maxWithdrawAmount
         ).toFixed(20);
 
-        let re = new RegExp(
-          // eslint-disable-next-line no-useless-escape
-          `^-?\\d+(?:\.\\d{0,` +
-            (this.selectedPool.token.decimals || -1) +
-            `})?`
+        return Vue.filter("formatToFixed")(
+          parsedMaxContractWithdrawAmount,
+          this.selectedPool.token.decimals
         );
-        return parsedMaxContractWithdrawAmount.toString().match(re)[0];
       }
 
-      let re = new RegExp(
-        // eslint-disable-next-line no-useless-escape
-        `^-?\\d+(?:\.\\d{0,` + (this.selectedPool.token.decimals || -1) + `})?`
+      return Vue.filter("formatToFixed")(
+        borrowLeft,
+        this.selectedPool.token.decimals
       );
-
-      return borrowLeft.toString().match(re)[0];
     },
 
     maxBorrowValue() {

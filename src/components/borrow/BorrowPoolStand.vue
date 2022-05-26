@@ -165,6 +165,7 @@
               <div class="info-list-subitem">
                 <span class="info-list-name">1 {{ pool.name }}</span>
                 <span class="info-list-value">{{ tokenToMim }} MIM</span>
+                <span class="info-list-value">TEST{{ tokenToMim }} </span>
               </div>
             </div>
           </div>
@@ -601,9 +602,7 @@ export default {
 
         if (this.pool.name === "SHIB") decimals = 6;
 
-        // eslint-disable-next-line no-useless-escape
-        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
-        return tokenToMim.toString().match(re)[0];
+        return Vue.filter("formatToFixed")(tokenToMim, decimals);
       }
       return "0.0";
     },
