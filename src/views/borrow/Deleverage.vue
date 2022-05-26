@@ -77,8 +77,18 @@
               @click="approveTokenHandler"
               primary
               :disabled="isTokenApprove"
+              v-if="!isTokenApprove"
               >{{ actionApproveTokenText }}</BaseButton
             >
+
+            <BaseButton
+              v-else
+              @click="closePosition"
+              primary
+              :disabled="isDisabledClosePosition"
+              >Close Position</BaseButton
+            >
+
             <BaseButton
               @click="actionHandler"
               :disabled="actionBtnText === 'Nothing to do'"
@@ -251,6 +261,15 @@ export default {
         );
       }
       return 0;
+    },
+
+    isDisabledClosePosition() {
+      if (this.selectedPool && this.account) {
+        return this.selectedPool?.userInfo?.contractBorrowPartParsed > 0
+          ? false
+          : true;
+      }
+      return false;
     },
 
     maxFlashRepayRemoveAmount() {
@@ -621,6 +640,14 @@ export default {
       );
 
       return false;
+    },
+
+    closePosition() {
+      this.flashRepayAmount = this.maxFlashRepayAmount;
+
+      this.flashRepayRemoveAmount = this.maxFlashRepayRemoveAmount;
+
+      setTimeout(this.actionHandler(), 100);
     },
   },
 
