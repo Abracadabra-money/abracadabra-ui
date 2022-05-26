@@ -55,6 +55,12 @@
             :parallelRange="flashRepayAmount"
           />
         </div>
+        <BaseButton
+          @click="closePosition"
+          primary
+          :disabled="isDisabledClosePosition"
+          >Close Position</BaseButton
+        >
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
         >
@@ -77,16 +83,7 @@
               @click="approveTokenHandler"
               primary
               :disabled="isTokenApprove"
-              v-if="!isTokenApprove"
               >{{ actionApproveTokenText }}</BaseButton
-            >
-
-            <BaseButton
-              v-else
-              @click="closePosition"
-              primary
-              :disabled="isDisabledClosePosition"
-              >Close Position</BaseButton
             >
 
             <BaseButton
