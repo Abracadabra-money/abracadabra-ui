@@ -601,9 +601,7 @@ export default {
 
         if (this.pool.name === "SHIB") decimals = 6;
 
-        // eslint-disable-next-line no-useless-escape
-        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
-        return tokenToMim.toString().match(re)[0];
+        return Vue.filter("formatToFixed")(tokenToMim, decimals);
       }
       return "0.0";
     },
@@ -763,6 +761,7 @@ export default {
 }
 
 .info-icon {
+  cursor: pointer;
   width: 24px;
   height: 24px;
 }

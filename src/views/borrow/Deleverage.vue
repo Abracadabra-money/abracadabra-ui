@@ -160,7 +160,7 @@ export default {
     }),
 
     filteredPool() {
-      if (this.account) {
+      if (this.account && this.pools[0]?.userInfo) {
         return this.pools
           .filter((pool) => pool.isSwappersActive && !!pool.reverseSwapContract)
           .sort((a, b) =>
@@ -295,13 +295,10 @@ export default {
           this.selectedPool.userInfo.maxWithdrawAmount
         ).toFixed(20);
 
-        let re = new RegExp(
-          // eslint-disable-next-line no-useless-escape
-          `^-?\\d+(?:\.\\d{0,` +
-            (this.selectedPool.pairToken.decimals || -1) +
-            `})?`
+        return Vue.filter("formatToFixed")(
+          parsedMaxContractWithdrawAmount,
+          this.selectedPool.pairToken.decimals
         );
-        return parsedMaxContractWithdrawAmount.toString().match(re)[0];
       }
 
       return +maxFlashRepayRemoveAmount;
@@ -347,11 +344,9 @@ export default {
       const slipageMutiplier = (100 + this.slipage) / 100;
 
       const collateralAmount = Vue.filter("formatToFixed")(
-        parseFloat(
-          this.borrowAmount *
-            this.selectedPool.tokenOraclePrice *
-            slipageMutiplier
-        ).toFixed(20),
+        this.borrowAmount *
+          this.selectedPool.tokenOraclePrice *
+          slipageMutiplier,
         this.selectedPool.token.decimals
       );
 
@@ -363,7 +358,7 @@ export default {
 
     finalRemoveCollateralAmount() {
       const removeCollateralAmount = Vue.filter("formatToFixed")(
-        parseFloat(this.flashRepayRemoveAmount).toFixed(20),
+        this.flashRepayRemoveAmount,
         this.selectedPool.token.decimals
       );
 
@@ -375,7 +370,7 @@ export default {
 
     borrowAmount() {
       return Vue.filter("formatToFixed")(
-        parseFloat(this.flashRepayAmount).toFixed(20),
+        this.flashRepayAmount,
         this.selectedPool.pairToken.decimals
       );
     },

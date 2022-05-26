@@ -102,6 +102,10 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 }
 
+.info-icon {
+  cursor: pointer;
+}
+
 .settings-input {
   background-color: rgba(255, 255, 255, 0.1);
   height: 50px;

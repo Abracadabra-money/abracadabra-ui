@@ -443,6 +443,7 @@ export default {
       .info-img {
         width: 20px;
         margin-right: 12px;
+        cursor: pointer;
       }
     }
   }

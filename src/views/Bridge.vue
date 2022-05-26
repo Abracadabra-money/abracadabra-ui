@@ -300,11 +300,7 @@ export default {
         notification.pending
       );
       try {
-        let re = new RegExp(
-          // eslint-disable-next-line no-useless-escape
-          `^-?\\d+(?:\.\\d{0,` + (18 || -1) + `})?`
-        );
-        const parsedAmount = this.amount.toString().match(re)[0];
+        const parsedAmount = Vue.filter("formatToFixed")(this.amount, 18);
 
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
 
@@ -461,6 +457,7 @@ export default {
   width: 24px;
   height: 24px;
   margin-right: 10px;
+  cursor: pointer;
 }
 
 .info {

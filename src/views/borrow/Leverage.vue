@@ -7,19 +7,6 @@
           <NetworksList />
         </div>
 
-        <div class="checkbox-wrap" v-if="acceptUseDefaultBalance">
-          <div
-            class="box-wrap"
-            @click="toggleUseDefaultBalance"
-            :class="{ active: useDefaultBalance }"
-          >
-            <div class="box"></div>
-          </div>
-          <p class="label-text" @click="toggleUseDefaultBalance">
-            Use {{ networkValuteName }}
-          </p>
-        </div>
-
         <div class="first-input underline">
           <div class="header-balance">
             <h4>Collateral assets</h4>
@@ -38,6 +25,28 @@
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
           />
+
+          <div
+            class="checkbox-wrap"
+            v-if="acceptUseDefaultBalance"
+            :class="{ active: useDefaultBalance }"
+            @click="toggleUseDefaultBalance"
+          >
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useDefaultBalance"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+
+            <p class="label-text">Use {{ networkValuteName }}</p>
+          </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
           <div class="settings-wrap">
@@ -164,7 +173,7 @@ export default {
     }),
 
     filteredPool() {
-      if (this.account) {
+      if (this.account && this.pools[0]?.userInfo) {
         return this.pools
           .filter(
             (pool) =>
@@ -529,9 +538,7 @@ export default {
 
         if (this.selectedPool.name === "SHIB") decimals = 6;
 
-        // eslint-disable-next-line no-useless-escape
-        let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (decimals || -1) + `})?`);
-        return tokenToMim.toString().match(re)[0];
+        return Vue.filter("formatToFixed")(tokenToMim, decimals);
       }
       return "0.0";
     },
@@ -606,6 +613,7 @@ export default {
 
     async chosePool(pool) {
       this.poolId = pool.id;
+      this.useDefaultBalance = false;
 
       this.clearData();
 
@@ -892,7 +900,6 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.useDefaultBalance = false;
       this.multiplier = 1;
       this.changeSlipage(this.selectedPool.id, this.chainId);
       this.percentValue = this.selectedPool.ltv;
@@ -1055,53 +1062,26 @@ export default {
 }
 
 .checkbox-wrap {
-  margin-top: 20px;
-  display: flex;
+  background: rgba(129, 126, 166, 0.1);
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: inline-flex;
   align-items: center;
+  border: 2px solid transparent;
+  cursor: pointer;
+
+  &.active {
+    border: 2px solid #8180ff;
+  }
 
   .label-text {
     cursor: pointer;
   }
 
-  .info-icon {
-    width: 16px;
-    height: 16px;
-    margin-left: 5px;
-  }
-
-  .box-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .checkbox-img {
     width: 24px;
     height: 24px;
-    margin-right: 10px;
-    border-radius: 8px;
-    border: 1px solid #57507a;
-    background: rgba(255, 255, 255, 0.06);
-    cursor: pointer;
-    transition: all 0.1s ease;
-
-    &:hover {
-      border: 1px solid $clrBlue;
-    }
-
-    &.active {
-      border: 1px solid $clrBlue;
-
-      .box {
-        opacity: 1;
-      }
-    }
-
-    .box {
-      background: $clrBlue;
-      border-radius: 4px;
-      width: 12px;
-      height: 12px;
-      opacity: 0;
-      transition: all 0.1s ease;
-    }
+    margin-right: 8px;
   }
 }
 

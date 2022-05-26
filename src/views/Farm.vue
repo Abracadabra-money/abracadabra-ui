@@ -443,6 +443,7 @@ export default {
 
   img {
     margin-right: 10px;
+    cursor: pointer;
   }
 }
 

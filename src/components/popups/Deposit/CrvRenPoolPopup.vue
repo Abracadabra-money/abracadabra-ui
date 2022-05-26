@@ -60,6 +60,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 import crvDeposit from "@/mixins/getCollateralLogic/cvxRenDeposit";
@@ -100,16 +101,13 @@ export default {
       if (!this.amount) return "";
       if (!this.tokensInfo) return "";
 
-      // eslint-disable-next-line no-useless-escape
-      let re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (6 || -1) + `})?`);
-
       if (this.action === "Deposit") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return amount.toString().match(re)[0];
+        return Vue.filter("formatToFixed")(amount, 6);
       }
       if (this.action === "Withdraw") {
         const amount = this.amount * this.tokensInfo.tokensRate;
-        return amount.toString().match(re)[0];
+        return Vue.filter("formatToFixed")(amount, 6);
       }
       return "";
     },
