@@ -9,7 +9,7 @@
         }"
       >
         <NetworkChip
-          v-for="network in networks"
+          v-for="network in activeNetworks"
           :key="network.chainId"
           :selected="network.chainId === chainId"
           :name="network.name"
@@ -82,13 +82,20 @@ export default {
           ]
         : this.availableNetworks;
     },
+    activeNetworks() {
+      return !this.activeList.length
+        ? this.networks
+        : this.networks.filter(({ chainId }) =>
+            this.activeList.includes(chainId)
+          );
+    },
     activeChain() {
       return this.availableNetworks.find(
         ({ chainId }) => chainId === this.chainId
       );
     },
     listMaxHeight() {
-      const lines = Math.ceil(this.networks.length / this.items);
+      const lines = Math.ceil(this.activeNetworks.length / this.items);
       return this.isListOpened
         ? lines * this.lineHeight + (lines - 1) * this.linesGap
         : this.lineHeight;
