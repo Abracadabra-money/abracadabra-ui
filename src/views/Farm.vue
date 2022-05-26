@@ -77,7 +77,7 @@
             <img
               src="@/assets/images/info.svg"
               alt=""
-              v-tooltip="'MAGIC text here'"
+              v-tooltip="'Daily amount of SPELL per $1000 Staked'"
             />
             ~Yield per $1000
           </p>
@@ -91,7 +91,7 @@
             <img
               src="@/assets/images/info.svg"
               alt=""
-              v-tooltip="'MAGIC text here'"
+              v-tooltip="'Annual Return on Staked tokens at current price'"
             />
             ROI Annually
           </p>
@@ -103,7 +103,7 @@
             <img
               src="@/assets/images/info.svg"
               alt=""
-              v-tooltip="'MAGIC text here'"
+              v-tooltip="'Total Value Locked in the Farm'"
             />
             TVL
           </p>
