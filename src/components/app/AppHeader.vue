@@ -169,6 +169,7 @@ export default {
       isDropdownStake: false,
       isDropdownOther: false,
       mobileMenu: false,
+      changeRoute: false,
     };
   },
 
@@ -191,20 +192,31 @@ export default {
     },
 
     hideAllDropdowns() {
-      this.isDropdownTools = false;
-      this.isDropdownStake = false;
-      this.isDropdownOther = false;
+      if (
+        this.isDropdownTools ||
+        this.isDropdownStake ||
+        this.isDropdownOther
+      ) {
+        this.isDropdownTools = false;
+        this.isDropdownStake = false;
+        this.isDropdownOther = false;
+        this.changeRoute = true;
+      }
     },
 
     toggleDropdown(nameDropdown) {
-      if (nameDropdown === "stake")
+      if (nameDropdown === "stake" && !this.changeRoute) {
         this.isDropdownStake = !this.isDropdownStake;
+      }
 
-      if (nameDropdown === "tools") {
+      if (nameDropdown === "tools" && !this.changeRoute) {
         this.isDropdownTools = !this.isDropdownTools;
       }
-      if (nameDropdown === "other")
+      if (nameDropdown === "other" && !this.changeRoute) {
         this.isDropdownOther = !this.isDropdownOther;
+      }
+
+      this.changeRoute = false;
     },
 
     closeDropdownTools() {
@@ -226,6 +238,21 @@ export default {
     closeMobilePopup() {
       this.mobileMenu = false;
     },
+
+    clearDropdownsData() {
+      this.isDropdownTools = false;
+      this.isDropdownStake = false;
+      this.isDropdownOther = false;
+      this.changeRoute = false;
+    },
+  },
+
+  mounted() {
+    window.addEventListener("popstate", this.clearDropdownsData, false);
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("popstate", this.clearDropdownsData);
   },
 
   components: {
