@@ -44,8 +44,6 @@
           Tokens</a
         >
 
-        <button v-if="showClaimCrvReward"></button>
-
         <a
           class="deposit"
           href="https://stargate.finance/pool/USDC-ETH/add"
