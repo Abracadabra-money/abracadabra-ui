@@ -79,13 +79,13 @@
           USDT</a
         >
 
-        <button
+        <div
           v-if="!!pool"
           class="info-btn"
           @click="isInfoPressed = !isInfoPressed"
         >
           <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
-        </button>
+        </div>
       </div>
     </div>
     <div class="stable-data">
