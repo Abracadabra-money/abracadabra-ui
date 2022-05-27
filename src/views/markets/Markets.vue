@@ -36,6 +36,7 @@ export default {
 <style lang="scss" scoped>
 .stats {
   padding-top: 160px;
+  padding-bottom: 100px;
   margin: 0 auto;
   width: 940px;
   max-width: calc(100% - 20px);

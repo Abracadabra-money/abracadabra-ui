@@ -271,9 +271,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.stats-wrap {
-  padding: 0 16px 60px 16px;
-}
+// .stats-wrap {
+//   padding: 0 16px 60px 16px;
+// }
 
 .tools-wrap {
   display: grid;
@@ -426,9 +426,9 @@ export default {
 }
 
 @media (min-width: 1024px) {
-  .stats-wrap {
-    padding: 0 0 60px 0;
-  }
+  // .stats-wrap {
+  //   padding: 0 0 60px 0;
+  // }
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;
