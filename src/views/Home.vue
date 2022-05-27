@@ -61,7 +61,13 @@
             While in our markets, your collateral keeps growing at the same rate
             as if it was in your wallet!
           </p>
-          <a href="#" class="link">Read more</a>
+          <a
+            target="_blank"
+            rel="noreferrer noopener"
+            href="https://docs.abracadabra.money/intro/lending-markets"
+            class="link"
+            >Read more</a
+          >
         </div>
         <div class="image-wrap">
           <img
@@ -91,14 +97,20 @@
         <div class="info-wrap">
           <h3>Our Pegged Assets</h3>
           <p>
-            Magic Internet Money ($MIM) and Magic Internet Gold (MIG) are the
+            Magic Internet Money ($MIM) and Magic Internet Gold ($MIG) are the
             pillars of the Abracadabra Ecosystem. Our tokens are paired to the
             dollar and the ounce of gold.
           </p>
           <p class="highlited">
             Use them to store value, earn yield or any other DeFi opportunities!
           </p>
-          <a href="#" class="link">Read more</a>
+          <a
+            target="_blank"
+            rel="noreferrer noopener"
+            href="https://docs.abracadabra.money/tokens/tokenomics#the-mim-token"
+            class="link"
+            >Read more</a
+          >
         </div>
       </div>
     </section>
@@ -117,7 +129,13 @@
             Enjoy the best stable yield thanks to our built in Leverage Engine,
             and our DeFi knowledge!
           </p>
-          <a href="#" class="link">Read more about Abracadabra Ecosystem</a>
+          <a
+            rel="noreferrer noopener"
+            target="_blank"
+            href="https://docs.abracadabra.money/intro/leveraged-positions"
+            class="link"
+            >Read more about Abracadabra Ecosystem</a
+          >
         </div>
       </div>
     </section>
