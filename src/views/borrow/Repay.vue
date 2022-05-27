@@ -269,7 +269,7 @@ export default {
         return "Remove collateral";
 
       if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
-        return "Repay borrow";
+        return "Repay";
 
       return "Nothing to do";
     },

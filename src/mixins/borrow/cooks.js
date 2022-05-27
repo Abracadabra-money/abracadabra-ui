@@ -1,7 +1,7 @@
 import { mapGetters } from "vuex";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
+// import notification from "@/helpers/notification/notification.js";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
@@ -805,7 +805,11 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
+        // await this.$store.dispatch("notifications/new", notification.success);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookRemoveAndRepayMax ERR:", e);
 
@@ -949,7 +953,11 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
+        // await this.$store.dispatch("notifications/new", notification.success);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookRemoveAndRepay ERR:", e);
 
@@ -1065,7 +1073,11 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
+        // await this.$store.dispatch("notifications/new", notification.success);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookRemoveCollateral ERR:", e.code);
 
@@ -1222,7 +1234,11 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
+        // await this.$store.dispatch("notifications/new", notification.success);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookRepayMim ERR:", e);
 
@@ -1574,8 +1590,11 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-
-        await this.$store.dispatch("notifications/new", notification.success);
+        // await this.$store.dispatch("notifications/new", notification.success);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
       } catch (e) {
         console.log("CookFlashRepay ERR:", e);
 
