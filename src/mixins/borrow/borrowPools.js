@@ -501,6 +501,10 @@ export default {
         dynamicBorrowAmount = borrowlimit;
       }
 
+      if (pool.isDepreciated) {
+        dynamicBorrowAmount = 0;
+      }
+
       const tokenPairPrice = 1;
 
       let oracleDecimals = pool.token.decimals;
