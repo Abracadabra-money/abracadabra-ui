@@ -101,7 +101,7 @@
     <BaseLoader v-else />
 
     <LocalPopupWrap v-model="isSettingsOpened">
-      <SettingsPopup @saveSettings="changeSlippage"
+      <SettingsPopup :slipage="slipage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
     <LocalPopupWrap v-model="isOpenPollPopup">
       <MarketsListPopup
