@@ -27,7 +27,7 @@
     <HealthWrap
       :isSafe="liquidationRisk > 75"
       :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
-      :isHigh="liquidationRisk > 0 && liquidationRisk <= 5"
+      :isHigh="liquidationRisk >= 0 && liquidationRisk <= 5"
     >
       <div class="liq-price">
         <div>
@@ -38,7 +38,7 @@
           class="status-name"
           :isSafe="liquidationRisk > 75"
           :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
-          :isHigh="liquidationRisk > 0 && liquidationRisk <= 5"
+          :isHigh="liquidationRisk >= 0 && liquidationRisk <= 5"
           :bordered="true"
         /></div
     ></HealthWrap>
@@ -205,6 +205,10 @@ export default {
 
       if (riskPercent > 100) {
         return 100;
+      }
+
+      if (riskPercent < 0) {
+        return 0;
       }
 
       return parseFloat(riskPercent).toFixed(2);
