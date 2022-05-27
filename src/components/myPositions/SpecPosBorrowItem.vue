@@ -457,6 +457,26 @@ export default {
     grid-template-columns: 1fr auto !important;
   }
 }
+
+@media (max-width: 640px) {
+  .pos-item .lp-data-token {
+    font-size: 16px;
+  }
+
+  .pos-item .lp-data-balance {
+    font-size: 15px;
+  }
+
+  .pos-item {
+    padding: 20px 10px;
+  }
+
+  .pos-item .footer-list-title,
+  .pos-item .footer-list-value {
+    font-size: 15px;
+  }
+}
+
 @media (min-width: 1024px) {
   .lp-data {
     grid-template-columns: 1fr 1fr !important;
