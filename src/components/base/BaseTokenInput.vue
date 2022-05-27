@@ -102,6 +102,9 @@ export default {
       }
       this.$emit("input", value);
     },
+    value(val) {
+      this.currentValue = val
+    }
   },
   components: { BaseTokenIcon },
 };
