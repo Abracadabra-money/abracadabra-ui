@@ -1,4 +1,4 @@
-# magic.money
+# abracadabra.money
 
 ## Project setup
 ```
