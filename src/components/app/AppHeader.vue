@@ -114,15 +114,17 @@
               target="_blank"
               rel="noreferrer noopener"
               class="list-link"
-              ><img src="@/assets/images/social/docs.svg" alt="Docs"
-            /></a>
+            >
+              <Docs />
+            </a>
             <a
               target="_blank"
               rel="noreferrer noopener"
               href="https://abracadabramoney.medium.com/"
               class="list-link"
-              ><img src="@/assets/images/social/medium.svg" alt="Medium"
-            /></a>
+            >
+              <Medium />
+            </a>
           </div>
           <div class="list-row">
             <a
@@ -130,15 +132,17 @@
               rel="noreferrer noopener"
               href="https://twitter.com/MIM_Spell"
               class="list-link"
-              ><img src="@/assets/images/social/twitter.svg" alt="Twitter"
-            /></a>
+            >
+              <Twitter />
+            </a>
             <a
               target="_blank"
               rel="noreferrer noopener"
               href="https://discord.com/invite/mim"
               class="list-link"
-              ><img src="@/assets/images/social/discord.svg" alt="Discord"
-            /></a>
+            >
+              <Discord />
+            </a>
           </div>
         </div>
       </div>
@@ -161,6 +165,10 @@
 const ConnectButton = () => import("@/components/ui/ConnectButton");
 const MimTokenBlock = () => import("@/components/ui/MimTokenBlock");
 const MobileMenu = () => import("@/components/popups/MobileMenu");
+const Docs = () => import("@/components/icons/Docs");
+const Medium = () => import("@/components/icons/Medium");
+const Twitter = () => import("@/components/icons/Twitter");
+const Discord = () => import("@/components/icons/Discord");
 
 export default {
   data() {
@@ -240,6 +248,10 @@ export default {
     ConnectButton,
     MimTokenBlock,
     MobileMenu,
+    Docs,
+    Medium,
+    Twitter,
+    Discord,
   },
 };
 </script>

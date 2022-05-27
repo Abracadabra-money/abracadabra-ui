@@ -109,26 +109,25 @@
               href="https://wizard69.gitbook.io/abracadabra-money/"
               target="_blank"
               rel="noreferrer noopener"
-              ><img src="@/assets/images/social/docs.svg" alt="Docs"
+            >
+              <Docs
             /></a>
             <a
               target="_blank"
               rel="noreferrer noopener"
               href="https://abracadabramoney.medium.com/"
-              ><img src="@/assets/images/social/medium.svg" alt="Medium"
+            >
+              <Medium
             /></a>
             <a
               target="_blank"
               rel="noreferrer noopener"
               href="https://twitter.com/MIM_Spell"
-              ><img src="@/assets/images/social/twitter.svg" alt="Twitter"
-            /></a>
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://discord.com/invite/mim"
-              ><img src="@/assets/images/social/discord.svg" alt="Discord"
-            /></a>
+            >
+              <Twitter />
+            </a>
+
+            <Discord />
           </div>
         </div>
       </div>
@@ -140,6 +139,10 @@
 import { mapGetters } from "vuex";
 
 const ConnectButton = () => import("@/components/ui/ConnectButton");
+const Docs = () => import("@/components/icons/Docs");
+const Medium = () => import("@/components/icons/Medium");
+const Twitter = () => import("@/components/icons/Twitter");
+const Discord = () => import("@/components/icons/Discord");
 export default {
   data() {
     return {
@@ -190,6 +193,10 @@ export default {
 
   components: {
     ConnectButton,
+    Docs,
+    Medium,
+    Twitter,
+    Discord,
   },
 };
 </script>
