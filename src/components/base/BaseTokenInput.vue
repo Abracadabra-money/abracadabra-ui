@@ -82,19 +82,25 @@ export default {
       type: String,
     },
   },
+  data() {
+    return {
+      currentValue: this.value,
+    };
+  },
   computed: {
-    currentValue: {
-      get() {
-        return this.value;
-      },
-      set(value) {
-        this.$emit("input", value);
-      },
-    },
     poolName() {
       if (this.name) return this.name;
       if (this.isChooseToken) return "Select to";
       return "Symbol";
+    },
+  },
+  watch: {
+    currentValue(value, oldValue) {
+      if (isNaN(value)) {
+        this.currentValue = oldValue;
+        return false;
+      }
+      this.$emit("input", value);
     },
   },
   components: { BaseTokenIcon },
