@@ -552,6 +552,7 @@ export default {
         isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
         isDepreciated: pool.isDepreciated,
+        isCollateralClaimable: pool.isCollateralClaimable,
         isSwappersActive: pool.isSwappersActive,
         strategyLink: pool.strategyLink,
         contractInstance: poolContract,

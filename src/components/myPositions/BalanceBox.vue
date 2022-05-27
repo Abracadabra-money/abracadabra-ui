@@ -38,7 +38,7 @@
       <a
         target="_blank"
         rel="noreferrer noopener"
-        href="https://wizard69.gitbook.io/abracadabra-money/"
+        :href="link"
         class="box-desc-more"
         >Read More Here</a
       >
@@ -65,6 +65,12 @@ export default {
     };
   },
   computed: {
+    link() {
+      if (this.isBento)
+        return "https://docs.abracadabra.money/intro/the-dashboard#mim-balance-on-bentobox";
+
+      return "https://docs.abracadabra.money/our-ecosystem/our-contracts#our-degenbox-contracts";
+    },
     parsedBalance() {
       return this.$ethers.utils.formatEther(this.balance);
     },

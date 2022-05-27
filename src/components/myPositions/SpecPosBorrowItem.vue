@@ -45,7 +45,7 @@
     <div class="lp-data">
       <div>
         <div class="lp-data-item">
-          <div class="lp-data-title">Initial collateral deposited</div>
+          <div class="lp-data-title">Collateral Deposited</div>
           <div class="lp-data-wrap">
             <div class="lp-data-info">
               <BaseTokenIcon
