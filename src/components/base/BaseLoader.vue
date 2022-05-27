@@ -67,4 +67,10 @@ i {
     transform: scale(1);
   }
 }
+
+@media (max-width: 860px) {
+  .spinner {
+    transform: scale(0.8);
+  }
+}
 </style>
