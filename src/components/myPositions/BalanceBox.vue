@@ -2,6 +2,13 @@
   <div class="box" :class="{ 'box-disabled': isDisabled }">
     <div class="box-header">
       <img
+        v-if="isBento"
+        class="box-header-img"
+        src="@/assets/images/bento-box.jpeg"
+        alt="Box"
+      />
+      <img
+        v-else
         class="box-header-img"
         src="@/assets/images/degenbox.svg"
         alt="Box"
@@ -112,6 +119,9 @@ export default {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     &-img {
+      width: 24px;
+      height: auto;
+      object-fit: contain;
     }
     &-title {
       margin-left: 8px;

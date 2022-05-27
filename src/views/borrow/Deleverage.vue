@@ -56,6 +56,7 @@
           />
         </div>
         <BaseButton
+          v-if="selectedPool"
           @click="closePosition"
           primary
           :disabled="isDisabledClosePosition"
@@ -150,7 +151,9 @@ export default {
       updateInterval: null,
       emptyData: {
         img: require(`@/assets/images/empty_leverage.png`),
-        text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
+        text: "Deleverage your position using our built-in Flash repay function.",
+        bottom: "Read more about it",
+        link: "https://docs.abracadabra.money/intro/lending-markets",
       },
     };
   },
