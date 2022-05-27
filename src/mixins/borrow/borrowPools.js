@@ -498,7 +498,8 @@ export default {
           18
         );
 
-        dynamicBorrowAmount = borrowlimit;
+        if (dynamicBorrowAmount > borrowlimit)
+          dynamicBorrowAmount = borrowlimit;
       }
 
       if (pool.isDepreciated) {
