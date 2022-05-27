@@ -95,7 +95,7 @@
         />
         <div class="list" v-if="isDropdownOther">
           <a
-            href="https://abracadabra.money"
+            href="https://legacy.abracadabra.money"
             target="_blank"
             rel="noreferrer noopener"
             class="list-link"

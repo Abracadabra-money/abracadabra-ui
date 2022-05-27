@@ -91,7 +91,7 @@
       <div class="other">
         <div class="other-line">
           <a
-            href="https://abracadabra.money"
+            href="https://legacy.abracadabra.money"
             target="_blank"
             rel="noreferrer noopener"
             class="other-link"
