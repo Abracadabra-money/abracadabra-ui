@@ -7,7 +7,8 @@
       <div class="pool-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
         <p>
-          {{ pool.name }} <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
+          {{ pool.name }}
+          <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
         </p>
       </div>
       <div class="pool-balance">
@@ -116,7 +117,7 @@ export default {
   align-items: center;
 
   p span {
-    font-size: 13px;  
+    font-size: 13px;
     color: rgba(255, 255, 255, 0.6);
   }
 }

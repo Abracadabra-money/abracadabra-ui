@@ -44,7 +44,11 @@
             <div>
               <p class="item-title">{{ item.title }}</p>
               <p v-if="item.value" class="item-value">
-                {{ item.value ? item.value : "0.0" }}
+                {{ item.value ? item.value : "0.0" }} <br />
+
+                <span class="usd-balance" v-if="item.valueInUsd">{{
+                  item.valueInUsd
+                }}</span>
               </p>
               <p v-if="item.text" class="item-text">{{ item.text }}</p>
             </div>
@@ -91,6 +95,10 @@ export default {
           value: Vue.filter("formatTokenBalance")(
             this.tokensInfo.stakeToken.balance
           ),
+          valueInUsd: Vue.filter("formatUSD")(
+            this.tokensInfo.stakeToken.balance *
+              this.tokensInfo.stakeToken.price
+          ),
         },
         {
           title: this.tokensInfo.mainToken.name,
@@ -98,6 +106,9 @@ export default {
           name: "Staked",
           value: Vue.filter("formatTokenBalance")(
             this.tokensInfo.mainToken.balance
+          ),
+          valueInUsd: Vue.filter("formatUSD")(
+            this.tokensInfo.mainToken.balance * this.tokensInfo.mainToken.price
           ),
         },
         {
@@ -134,6 +145,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.usd-balance {
+  font-weight: normal;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
 .empty-wrap {
   background: #2b2b3c;
   box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
@@ -288,8 +305,9 @@ export default {
 }
 
 .item-value {
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 700;
+  line-height: 1;
 }
 
 ::-webkit-scrollbar {

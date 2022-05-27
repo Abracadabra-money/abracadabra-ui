@@ -63,7 +63,10 @@ export default {
 
       const spellPrice = this.spellPrice
         ? this.spellPrice
-        : await getTokenPriceByAddress(1, this.stakingContracts[1]); // SPELL token price
+        : await getTokenPriceByAddress(
+            1,
+            "0x090185f2135308BaD17527004364eBcC2D37e5F6"
+          ); // SPELL token price
 
       const { mSpellApr } = await getSpellStakingApr();
 
