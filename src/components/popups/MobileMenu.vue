@@ -86,7 +86,7 @@
         </div>
       </div>
     </div>
-
+    
     <div class="other-popup" v-if="showOther" @click="closeInnerPopup('other')">
       <div class="other">
         <div class="other-line">
