@@ -380,11 +380,13 @@ export default {
     collateralExpected() {
       if (this.selectedPool) {
         return (
-          +this.$ethers.utils.formatEther(
-            this.finalCollateralAmount.toString()
+          +this.$ethers.utils.formatUnits(
+            this.finalCollateralAmount,
+            this.selectedPool.token.decimals
           ) +
-          +this.$ethers.utils.formatEther(
-            this.finalRemoveCollateralAmount.toString()
+          +this.$ethers.utils.formatUnits(
+            this.finalRemoveCollateralAmount,
+            this.selectedPool.token.decimals
           )
         );
       }
