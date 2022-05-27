@@ -17,7 +17,7 @@
       <p class="info-subtitle">Head over to my position to view it.</p>
     </div>
 
-    <BaseButton borderless @click="toMyPosition">My Position</BaseButton>
+    <BaseButton @click="toMyPosition">My Position</BaseButton>
   </div>
 </template>
 
@@ -41,7 +41,6 @@ export default {
 <style lang="scss" scoped>
 .popup {
   background: #302e38;
-  border: 1px solid #63ff7b;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   padding: 20px;
@@ -54,7 +53,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 20px;
-  border-bottom: 1px solid #63ff7b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);;
   margin-bottom: 15px;
 }
 
@@ -62,11 +61,11 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 15px 25px 15px;
+  padding: 0 10px 25px 10px;
   text-align: center;
 
   .main-img {
-    width: 120px;
+    width: 135px;
     height: auto;
     object-fit: contain;
     margin-bottom: 6px;
