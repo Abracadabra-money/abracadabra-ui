@@ -174,7 +174,7 @@ export default {
           );
       }
 
-      return this.pools.filter((pool) => !pool.isDepreciated);
+      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
     },
 
     selectedPool() {

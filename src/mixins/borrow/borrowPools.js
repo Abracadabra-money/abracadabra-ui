@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 import axios from "axios";
@@ -36,10 +35,8 @@ export default {
       setCreatingPoolsBorrow: "setCreatingPoolsBorrow",
     }),
     async createPools() {
-      let targetChainId = ethers.utils.hexlify(this.chainId);
-
       const chainPools = poolsInfo.filter(
-        (pool) => pool.contractChain === targetChainId
+        (pool) => pool.contractChain === +this.chainId
       );
 
       this.tokenPrices = await this.fetchTokensPrice(chainPools);
@@ -355,7 +352,9 @@ export default {
       );
 
       let bentoBoxAddress = await poolContract.bentoBox();
-      let masterContractAbi = pool.isDegenBox ? degenBoxAbi : bentoBoxAbi;
+      let masterContractAbi = pool.cauldronSettings.isDegenBox
+        ? degenBoxAbi
+        : bentoBoxAbi;
 
       if (!bentoBoxAddress) {
         console.log("No master Contract");
@@ -483,14 +482,14 @@ export default {
       );
 
       if (
-        pool?.dynamicBorrowAmountLimit &&
-        pool?.dynamicBorrowAmountLimit < dynamicBorrowAmount
+        pool.cauldronSettings.dynamicBorrowAmountLimit &&
+        pool.cauldronSettings.dynamicBorrowAmountLimit < dynamicBorrowAmount
       )
-        dynamicBorrowAmount = pool.dynamicBorrowAmountLimit;
+        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
 
       let borrowlimit = null;
 
-      if (pool.hasAccountBorrowLimit) {
+      if (pool.cauldronSettings.hasAccountBorrowLimit) {
         const borrowLimitResp = await poolContract.borrowLimit();
 
         borrowlimit = this.$ethers.utils.formatUnits(
@@ -502,7 +501,7 @@ export default {
           dynamicBorrowAmount = borrowlimit;
       }
 
-      if (pool.isDepreciated) {
+      if (pool.cauldronSettings.isDepreciated) {
         dynamicBorrowAmount = 0;
       }
 
@@ -537,7 +536,7 @@ export default {
 
       let maxWithdrawAmount = -1;
 
-      if (pool.hasWithdrawableLimit) {
+      if (pool.cauldronSettings.hasWithdrawableLimit) {
         const tokenWithdrawAmount = await tokenContract.balanceOf(
           bentoBoxAddress,
           { gasLimit: 5000000 }
@@ -553,16 +552,11 @@ export default {
         name: pool.name,
         icon: pool.icon,
         id: pool.id,
-        healthMultiplier: pool.healthMultiplier || 1,
-        isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
-        isDepreciated: pool.isDepreciated,
-        isCollateralClaimable: pool.isCollateralClaimable,
         isSwappersActive: pool.isSwappersActive,
-        strategyLink: pool.strategyLink,
+        cauldronSettings: pool.cauldronSettings,
         contractInstance: poolContract,
         masterContractInstance: masterContract,
-        acceptUseDefaultBalance: pool.acceptUseDefaultBalance || false,
         totalCollateralShare,
         totalBorrow,
         stabilityFee: pool.stabilityFee,
@@ -571,7 +565,6 @@ export default {
         tvl,
         borrowFee,
         askUpdatePrice,
-        initialMax: pool.initialMax,
         pairToken: pairToken,
         pairTokenContract,
         tokenPairPrice,
@@ -581,8 +574,6 @@ export default {
         borrowlimit,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
-        leverageMax: pool.leverageMax,
-        hasWithdrawableLimit: pool.hasWithdrawableLimit,
         token: {
           contract: tokenContract,
           name: pool.token.name,
@@ -621,7 +612,7 @@ export default {
 
       let claimableReward;
 
-      if (this.chainId === 1 && pool.isCollateralClaimable) {
+      if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
           pool.token.contract,
           pool.token.decimals

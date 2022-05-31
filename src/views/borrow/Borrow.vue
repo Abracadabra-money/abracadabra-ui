@@ -193,13 +193,13 @@ export default {
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
         return this.pools
-          .filter((pool) => !pool.isDepreciated)
+          .filter((pool) => !pool.cauldronSettings.isDepreciated)
           .sort((a, b) =>
             a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
           );
       }
 
-      return this.pools.filter((pool) => !pool.isDepreciated);
+      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
     },
 
     selectedPool() {
@@ -384,7 +384,7 @@ export default {
 
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
-        return this.selectedPool.acceptUseDefaultBalance;
+        return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
       }
 
       return false;

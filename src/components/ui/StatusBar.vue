@@ -68,9 +68,15 @@ export default {
       return this.hasStrategy || this.isDeprecated;
     },
     hasStrategy() {
+      if (this.pool?.cauldronSettings)
+        return this.pool.cauldronSettings.strategyLink;
+
       return this.pool.strategyLink;
     },
     isDeprecated() {
+      if (this.pool?.cauldronSettings)
+        return this.pool.cauldronSettings.isDepreciated;
+
       return this.pool.isDepreciated;
     },
 

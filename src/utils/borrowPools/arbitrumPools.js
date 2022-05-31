@@ -7,11 +7,22 @@ export default [
   {
     icon: require(`@/assets/images/tokens/WETH.png`),
     name: "WETH",
-    contractChain: "0xa4b1",
+    contractChain: 42161,
     id: 1,
-    isDepreciated: false,
     isSwappersActive: true,
-    acceptUseDefaultBalance: true,
+    cauldronSettings: {
+      isDegenBox: false,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: true,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: 1000000,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
     contract: {
       name: "CauldronV2Flat",
       address: "0xC89958B03A55B5de2221aCB25B58B89A000215E6",
@@ -21,7 +32,6 @@ export default [
       name: "WETH",
       decimals: 18,
       address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
-
       abi: tokensAbi.wETH,
     },
     pairToken: {
@@ -34,7 +44,6 @@ export default [
     interest: 0.5,
     borrowFee: 0.5,
     ltv: 85,
-    initialMax: 15,
     swapContractInfo: {
       address: "0xC9faCFA2fC50C9A30C77a2ad14E2dB107d591918",
       abi: swapAbi,
