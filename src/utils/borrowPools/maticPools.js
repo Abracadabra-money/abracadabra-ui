@@ -6,6 +6,10 @@ export default [
     name: "MATIC",
     contractChain: 137,
     id: 1,
+    stabilityFee: 12.5,
+    interest: 2.5,
+    ltv: 75,
+    borrowFee: 0.05,
     isSwappersActive: false,
     cauldronSettings: {
       isDegenBox: false,
@@ -1344,9 +1348,6 @@ export default [
         },
       ],
     },
-    stabilityFee: 12.5,
-    interest: 2.5,
-    ltv: 75,
     swapContractInfo: {
       address: "0x3d19f3Af2AA7A6fFec2324f92421A8f4156309D1",
       abi: [

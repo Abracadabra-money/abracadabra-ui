@@ -9,6 +9,10 @@ export default [
     name: "WBNB",
     contractChain: 56,
     id: 1,
+    stabilityFee: 10,
+    interest: 2,
+    ltv: 85,
+    borrowFee: 0.5,
     isSwappersActive: false,
     cauldronSettings: {
       isDegenBox: true,
@@ -23,7 +27,6 @@ export default [
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
-
     contract: {
       name: "CauldronV2MultiChain",
       address: "0x692CF15F80415D83E8c0e139cAbcDA67fcc12C90",
@@ -41,10 +44,6 @@ export default [
       address: "0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba",
       abi: tokensAbi.MIM,
     },
-    stabilityFee: 10,
-    interest: 2,
-    borrowFee: 0.5,
-    ltv: 85,
     swapContractInfo: {
       address: "0x197De282d7b5cEFfFD8f8B0196c30e8401593CF6",
       abi: swapAbi,
@@ -59,6 +58,10 @@ export default [
     name: "CAKE",
     contractChain: 56,
     id: 2,
+    stabilityFee: 12.5,
+    interest: 3,
+    ltv: 75,
+    borrowFee: 0.5,
     isSwappersActive: false,
     cauldronSettings: {
       isDegenBox: true,
@@ -91,10 +94,6 @@ export default [
       address: "0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba",
       abi: tokensAbi.MIM,
     },
-    stabilityFee: 12.5,
-    interest: 3,
-    borrowFee: 0.5,
-    ltv: 75,
     swapContractInfo: {
       address: "0x197De282d7b5cEFfFD8f8B0196c30e8401593CF6",
       abi: swapAbi,

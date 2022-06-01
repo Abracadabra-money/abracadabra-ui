@@ -9,6 +9,10 @@ export default [
     name: "WETH",
     contractChain: 42161,
     id: 1,
+    stabilityFee: 5,
+    interest: 0.5,
+    ltv: 85,
+    borrowFee: 0.5,
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: false,
@@ -40,10 +44,6 @@ export default [
       address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
       abi: tokensAbi.MIM,
     },
-    stabilityFee: 5,
-    interest: 0.5,
-    borrowFee: 0.5,
-    ltv: 85,
     swapContractInfo: {
       address: "0xC9faCFA2fC50C9A30C77a2ad14E2dB107d591918",
       abi: swapAbi,
