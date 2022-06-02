@@ -516,6 +516,7 @@ export default {
 
       return false;
     },
+
     showStargateUSDT() {
       if (this.pool) return this.pool.id === 32 && this.chainId === 1;
 

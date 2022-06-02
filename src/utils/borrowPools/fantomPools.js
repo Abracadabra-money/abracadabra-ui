@@ -41,6 +41,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -90,6 +91,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -139,6 +141,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -236,6 +239,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -334,6 +338,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -384,6 +389,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,

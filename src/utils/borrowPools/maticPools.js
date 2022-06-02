@@ -694,6 +694,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x01288e04435bFcd4718FF203D6eD18146C17Cd4b",
       abi: [
