@@ -79,6 +79,9 @@
           >
         </div>
       </div>
+      <div class="header-link networks-btn" @click="openNetworkPopup">
+        <img src="@/assets/images/networks/ethereum-icon.svg" alt="" />
+      </div>
       <div class="header-link header-connect">
         <ConnectButton />
       </div>
@@ -156,28 +159,62 @@
         <div class="burger-line"></div>
       </div>
 
-      <MobileMenu v-if="mobileMenu" @closePopup="closeMobilePopup" />
+      <NetworkPopup
+        :isOpen="isOpenNetworkPopup"
+        @closePopup="closeNetworkPopup"
+        @enterChain="changeChain"
+        :networksArr="popupNetworksArr"
+        :activeChain="chainId"
+      />
+
+      <MobileMenu
+        v-if="mobileMenu"
+        @closePopup="closeMobilePopup"
+        @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
+      />
     </nav>
   </header>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 const ConnectButton = () => import("@/components/ui/ConnectButton");
 const MimTokenBlock = () => import("@/components/ui/MimTokenBlock");
+const NetworkPopup = () => import("@/components/popups/NetworkPopup");
 const MobileMenu = () => import("@/components/popups/MobileMenu");
 const Docs = () => import("@/components/icons/Docs");
 const Medium = () => import("@/components/icons/Medium");
 const Twitter = () => import("@/components/icons/Twitter");
 const Discord = () => import("@/components/icons/Discord");
 
+import chainSwitch from "@/mixins/chainSwitch";
+
 export default {
+  mixins: [chainSwitch],
   data() {
     return {
       isDropdownTools: false,
       isDropdownStake: false,
       isDropdownOther: false,
+      isOpenNetworkPopup: false,
       mobileMenu: false,
     };
+  },
+
+  computed: {
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+      networksArr: "getAvailableNetworks",
+    }),
+
+    popupNetworksArr() {
+      return this.networksArr.map((chain) => {
+        if (chain?.title) return chain;
+        chain.title = chain.name;
+        return chain;
+      });
+    },
   },
 
   watch: {
@@ -221,6 +258,23 @@ export default {
       this.isDropdownOther = false;
     },
 
+    openNetworkPopup() {
+      this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
+    },
+
+    closeNetworkPopup() {
+      this.isOpenNetworkPopup = false;
+    },
+
+    async changeChain(chainId) {
+      try {
+        if (this.account) await this.switchNetwork(chainId);
+        else this.switchNetworkWithoutConnect(chainId);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+
     toggleMobileMenu() {
       this.mobileMenu = !this.mobileMenu;
     },
@@ -247,6 +301,7 @@ export default {
   components: {
     ConnectButton,
     MimTokenBlock,
+    NetworkPopup,
     MobileMenu,
     Docs,
     Medium,
@@ -298,6 +353,14 @@ export default {
   &.router-link-active {
     background: #55535d;
   }
+}
+
+.networks-btn {
+  padding: 0;
+  min-width: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .header-connect {
@@ -437,7 +500,7 @@ export default {
   }
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1024px) {
   .header-link {
     display: none;
   }

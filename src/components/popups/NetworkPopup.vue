@@ -13,7 +13,7 @@
           v-for="(network, inx) in networksArr"
           :key="inx"
           class="network"
-          :class="network.chainId === activeChain.chainId && 'active'"
+          :class="network.chainId === activeChain && 'active'"
           @click="enterChain(network.chainId)"
         >
           <img class="network-image" :src="network.icon" alt="network" />
@@ -37,7 +37,7 @@ export default {
     },
 
     activeChain: {
-      type: Object,
+      type: [String, Number],
     },
 
     popupType: {

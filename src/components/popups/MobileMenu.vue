@@ -20,6 +20,9 @@
 
       <button class="popup-link" @click="openInnerPopup('stake')">Stake</button>
       <button class="popup-link" @click="openInnerPopup('tools')">Tools</button>
+      <button class="popup-link" @click="openInnerPopup('networks')">
+        <img src="@/assets/images/networks/ethereum-icon.svg" alt="" />
+      </button>
       <div class="popup-link popup-connect">
         <ConnectButton />
       </div>
@@ -86,7 +89,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="other-popup" v-if="showOther" @click="closeInnerPopup('other')">
       <div class="other">
         <div class="other-line">
@@ -171,6 +174,8 @@ export default {
 
       if (name === "other") this.showOther = true;
 
+      if (name === "networks") this.$emit("openNetworksPopup");
+
       return false;
     },
 
@@ -239,6 +244,7 @@ export default {
   border: none;
   outline: transparent;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .popup-connect {
