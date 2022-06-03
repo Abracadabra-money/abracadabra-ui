@@ -186,9 +186,16 @@ export default {
       return sortedPools;
     },
     sortByDepreciate(pools = []) {
-      return pools.sort(
-        ({ isDepreciated: a }, { isDepreciated: b }) => +a - +b
-      );
+      return pools.sort((a, b) => {
+        if (a?.cauldronSettings || b?.cauldronSettings) {
+          return (
+            +a.cauldronSettings.isDepreciated -
+            +b.cauldronSettings.isDepreciated
+          );
+        }
+
+        return +a.isDepreciated - +b.isDepreciated;
+      });
     },
   },
   computed: {

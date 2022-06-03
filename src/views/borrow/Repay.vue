@@ -30,8 +30,8 @@
             <h4>Repay MIM</h4>
           </div>
           <BaseTokenInput
-            name="MIM"
-            :icon="mimIcon"
+            :name="borrowToken.name"
+            :icon="borrowToken.icon"
             v-model="borrowValue"
             :max="maxBorrowValue"
             :error="borrowError"
@@ -100,7 +100,7 @@ import Vue from "vue";
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
-import mimIcon from "@/assets/images/tokens/MIM.png";
+
 import {
   approveToken,
   isApprowed,
@@ -114,7 +114,6 @@ export default {
   mixins: [borrowPoolsMixin, cookMixin],
   data() {
     return {
-      mimIcon,
       collateralValue: "",
       borrowValue: "",
       poolId: null,
@@ -151,6 +150,19 @@ export default {
         return null;
       }
       return null;
+    },
+
+    borrowToken() {
+      if (this.selectedPool)
+        return {
+          name: this.selectedPool.pairToken.name,
+          icon: this.selectedPool.pairToken.icon,
+        };
+
+      return {
+        name: "MIM",
+        icon: require("@/assets/images/tokens/MIM.png"),
+      };
     },
 
     maxCollateralValue() {

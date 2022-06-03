@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 import axios from "axios";
@@ -36,10 +35,8 @@ export default {
       setCreatingPoolsBorrow: "setCreatingPoolsBorrow",
     }),
     async createPools() {
-      let targetChainId = ethers.utils.hexlify(this.chainId);
-
       const chainPools = poolsInfo.filter(
-        (pool) => pool.contractChain === targetChainId
+        (pool) => pool.contractChain === +this.chainId
       );
 
       this.tokenPrices = await this.fetchTokensPrice(chainPools);
@@ -355,7 +352,9 @@ export default {
       );
 
       let bentoBoxAddress = await poolContract.bentoBox();
-      let masterContractAbi = pool.isDegenBox ? degenBoxAbi : bentoBoxAbi;
+      let masterContractAbi = pool.cauldronSettings.isDegenBox
+        ? degenBoxAbi
+        : bentoBoxAbi;
 
       if (!bentoBoxAddress) {
         console.log("No master Contract");
@@ -400,111 +399,38 @@ export default {
         poolContract
       );
 
-      let isTokenApprove,
-        pairToken,
-        isTokenToSwapApprove,
-        isTokenToReverseSwapApprove;
-
-      if (this.account) {
-        isTokenApprove = await this.isTokenApprow(
-          tokenContract,
-          masterContract.address
-        );
-
-        let isPairTokenApprove = await this.isTokenApprow(
-          pairTokenContract,
-          masterContract.address
-        );
-
-        pairToken = { ...pool.pairToken, isPairTokenApprove };
-
-        if (pool?.swapContractInfo?.address) {
-          isTokenToSwapApprove = await this.isTokenApprow(
-            tokenContract,
-            pool.swapContractInfo.address
-          );
-        } else {
-          isTokenToSwapApprove = null;
-        }
-
-        if (pool?.reverseSwapContractInfo?.address) {
-          isTokenToReverseSwapApprove = await this.isTokenApprow(
-            tokenContract,
-            pool.reverseSwapContractInfo.address
-          );
-        } else {
-          isTokenToReverseSwapApprove = null;
-        }
-      } else {
-        isTokenApprove = false;
-        pairToken = pool.pairToken;
-        isTokenToSwapApprove = null;
-      }
-
-      let tokenPairRate;
-      let askUpdatePrice = false;
-
-      if (
-        oracleExchangeRate.toString() > contractExchangeRate.toString() &&
-        !contractExchangeRate.eq(0)
-      ) {
-        tokenPairRate = contractExchangeRate;
-        askUpdatePrice = true;
-      } else if (contractExchangeRate.eq(0)) {
-        tokenPairRate = oracleExchangeRate;
-        askUpdatePrice = true;
-      } else if (
-        oracleExchangeRate.toString() !== contractExchangeRate.toString()
-      ) {
-        tokenPairRate = oracleExchangeRate;
-      } else {
-        tokenPairRate = oracleExchangeRate;
-      }
-
-      let totalCollateralShare;
-      try {
-        totalCollateralShare = await poolContract.totalCollateralShare();
-      } catch (e) {
-        console.log("totalCollateralShare Err:", e);
-      }
-
-      let totalBorrow;
-      try {
-        const totalBorrowResp = await poolContract.totalBorrow();
-        totalBorrow = this.$ethers.utils.formatUnits(totalBorrowResp.base, 18);
-      } catch (e) {
-        console.log("totalBorrow Err:", e);
-      }
-
-      let dynamicBorrowAmount = await this.getMaxBorrow(
-        masterContract,
-        pool.contract.address,
-        pool.pairToken.address
+      const { isTokenApprove, isPairTokenApprove } = await this.getTokenApprove(
+        tokenContract,
+        pairTokenContract,
+        masterContract
       );
 
-      if (
-        pool?.dynamicBorrowAmountLimit &&
-        pool?.dynamicBorrowAmountLimit < dynamicBorrowAmount
-      )
-        dynamicBorrowAmount = pool.dynamicBorrowAmountLimit;
+      const pairToken = { ...pool.pairToken, isPairTokenApprove };
 
-      let borrowlimit = null;
+      const { isTokenToSwapApprove, isTokenToReverseSwapApprove } =
+        await this.getSwapContractApprove(pool, tokenContract);
 
-      if (pool.hasAccountBorrowLimit) {
-        const borrowLimitResp = await poolContract.borrowLimit();
+      const { tokenPairRate, askUpdatePrice } = this.getTokenPairRate(
+        oracleExchangeRate,
+        contractExchangeRate
+      );
 
-        borrowlimit = this.$ethers.utils.formatUnits(
-          borrowLimitResp.borrowPartPerAddress.toString(),
-          18
-        );
+      const totalCollateralShare = await poolContract.totalCollateralShare();
 
-        if (dynamicBorrowAmount > borrowlimit)
-          dynamicBorrowAmount = borrowlimit;
-      }
+      const totalBorrowResp = await poolContract.totalBorrow();
 
-      if (pool.isDepreciated) {
-        dynamicBorrowAmount = 0;
-      }
+      const totalBorrow = this.$ethers.utils.formatUnits(
+        totalBorrowResp.base,
+        pool.pairToken.decimals
+      );
+
+      const { borrowlimit } = await this.getBorrowlimit(pool, poolContract);
+
+      const { dynamicBorrowAmount } = await this.getDynamicBorrowAmount(
+        pool,
+        masterContract,
+        borrowlimit
+      );
 
       const tokenPairPrice = 1;
 
@@ -527,51 +453,33 @@ export default {
         pool.token.decimals
       );
 
-      let borrowFee = 0.05;
-
-      if (pool.borrowFee || pool.borrowFee === 0) borrowFee = pool.borrowFee;
-
       const price = this.tokenPrices.find(
         (priceItem) => priceItem.address === pool.token.address.toLowerCase()
       )?.price;
 
-      let maxWithdrawAmount = -1;
-
-      if (pool.hasWithdrawableLimit) {
-        const tokenWithdrawAmount = await tokenContract.balanceOf(
-          bentoBoxAddress,
-          { gasLimit: 5000000 }
-        );
-
-        maxWithdrawAmount = this.$ethers.utils.formatUnits(
-          tokenWithdrawAmount,
-          pool.token.decimals
-        );
-      }
+      const { maxWithdrawAmount } = await this.getMaxWithdrawAmount(
+        pool,
+        tokenContract,
+        bentoBoxAddress
+      );
 
       let poolData = {
         name: pool.name,
         icon: pool.icon,
         id: pool.id,
-        healthMultiplier: pool.healthMultiplier || 1,
-        isDegenBox: pool.isDegenBox,
         bentoBoxAddress,
-        isDepreciated: pool.isDepreciated,
-        isCollateralClaimable: pool.isCollateralClaimable,
         isSwappersActive: pool.isSwappersActive,
-        strategyLink: pool.strategyLink,
+        cauldronSettings: pool.cauldronSettings,
         contractInstance: poolContract,
         masterContractInstance: masterContract,
-        acceptUseDefaultBalance: pool.acceptUseDefaultBalance || false,
         totalCollateralShare,
         totalBorrow,
         stabilityFee: pool.stabilityFee,
         interest: pool.interest,
         ltv: pool.ltv,
         tvl,
-        borrowFee,
+        borrowFee: pool.borrowFee,
         askUpdatePrice,
-        initialMax: pool.initialMax,
         pairToken: pairToken,
         pairTokenContract,
         tokenPairPrice,
@@ -581,8 +489,6 @@ export default {
         borrowlimit,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
-        leverageMax: pool.leverageMax,
-        hasWithdrawableLimit: pool.hasWithdrawableLimit,
         token: {
           contract: tokenContract,
           name: pool.token.name,
@@ -621,7 +527,7 @@ export default {
 
       let claimableReward;
 
-      if (this.chainId === 1 && pool.isCollateralClaimable) {
+      if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
           pool.token.contract,
           pool.token.decimals
@@ -771,6 +677,133 @@ export default {
           isUserWhitelisted: false,
         };
       }
+    },
+
+    getTokenPairRate(oracleExchangeRate, contractExchangeRate) {
+      let tokenPairRate;
+      let askUpdatePrice = false;
+
+      if (
+        oracleExchangeRate.toString() > contractExchangeRate.toString() &&
+        !contractExchangeRate.eq(0)
+      ) {
+        tokenPairRate = contractExchangeRate;
+        askUpdatePrice = true;
+      } else if (contractExchangeRate.eq(0)) {
+        tokenPairRate = oracleExchangeRate;
+        askUpdatePrice = true;
+      } else if (
+        oracleExchangeRate.toString() !== contractExchangeRate.toString()
+      ) {
+        tokenPairRate = oracleExchangeRate;
+      } else {
+        tokenPairRate = oracleExchangeRate;
+      }
+
+      return { tokenPairRate, askUpdatePrice };
+    },
+
+    async getMaxWithdrawAmount(pool, tokenContract, bentoBoxAddress) {
+      let maxWithdrawAmount = -1;
+
+      if (pool.cauldronSettings.hasWithdrawableLimit) {
+        const tokenWithdrawAmount = await tokenContract.balanceOf(
+          bentoBoxAddress,
+          { gasLimit: 5000000 }
+        );
+
+        maxWithdrawAmount = this.$ethers.utils.formatUnits(
+          tokenWithdrawAmount,
+          pool.token.decimals
+        );
+      }
+
+      return { maxWithdrawAmount };
+    },
+
+    async getBorrowlimit(pool, poolContract) {
+      let borrowlimit = null;
+
+      if (pool.cauldronSettings.hasAccountBorrowLimit) {
+        const borrowLimitResp = await poolContract.borrowLimit();
+
+        borrowlimit = this.$ethers.utils.formatUnits(
+          borrowLimitResp.borrowPartPerAddress.toString(),
+          pool.pairToken.decimals
+        );
+      }
+
+      return { borrowlimit };
+    },
+
+    async getDynamicBorrowAmount(pool, masterContract, borrowlimit) {
+      let dynamicBorrowAmount = await this.getMaxBorrow(
+        masterContract,
+        pool.contract.address,
+        pool.pairToken.address
+      );
+
+      if (
+        pool.cauldronSettings.dynamicBorrowAmountLimit &&
+        pool.cauldronSettings.dynamicBorrowAmountLimit < dynamicBorrowAmount
+      )
+        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+
+      if (
+        pool.cauldronSettings.hasAccountBorrowLimit &&
+        dynamicBorrowAmount > borrowlimit
+      )
+        dynamicBorrowAmount = borrowlimit;
+
+      if (pool.cauldronSettings.isDepreciated) dynamicBorrowAmount = 0;
+
+      return { dynamicBorrowAmount };
+    },
+
+    async getTokenApprove(tokenContract, pairTokenContract, masterContract) {
+      let isTokenApprove = false,
+        isPairTokenApprove = false;
+
+      if (this.account) {
+        isTokenApprove = await this.isTokenApprow(
+          tokenContract,
+          masterContract.address
+        );
+
+        isPairTokenApprove = await this.isTokenApprow(
+          pairTokenContract,
+          masterContract.address
+        );
+      }
+
+      return {
+        isTokenApprove,
+        isPairTokenApprove,
+      };
+    },
+
+    async getSwapContractApprove(pool, tokenContract) {
+      let isTokenToSwapApprove = false,
+        isTokenToReverseSwapApprove = false;
+
+      if (pool?.swapContractInfo?.address && this.account) {
+        isTokenToSwapApprove = await this.isTokenApprow(
+          tokenContract,
+          pool.swapContractInfo.address
+        );
+      }
+
+      if (pool?.reverseSwapContractInfo?.address && this.account) {
+        isTokenToReverseSwapApprove = await this.isTokenApprow(
+          tokenContract,
+          pool.reverseSwapContractInfo.address
+        );
+      }
+
+      return {
+        isTokenToSwapApprove,
+        isTokenToReverseSwapApprove,
+      };
     },
   },
 

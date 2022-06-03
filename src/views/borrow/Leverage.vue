@@ -174,7 +174,7 @@ export default {
           .filter(
             (pool) =>
               pool.isSwappersActive &&
-              !pool.isDepreciated &&
+              !pool.cauldronSettings.isDepreciated &&
               !!pool.swapContract
           )
           .sort((a, b) =>
@@ -182,7 +182,7 @@ export default {
           );
       }
 
-      return this.pools.filter((pool) => !pool.isDepreciated);
+      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
     },
 
     selectedPool() {
@@ -276,9 +276,7 @@ export default {
     },
 
     maxLeverage() {
-      if (this.selectedPool?.leverageMax) return this.selectedPool.leverageMax;
-
-      return 15;
+      return this.selectedPool.cauldronSettings.leverageMax;
     },
 
     depositExpectedBorrowed() {
@@ -432,7 +430,7 @@ export default {
     },
 
     healthMultiplier() {
-      return this.selectedPool?.healthMultiplier;
+      return this.selectedPool.cauldronSettings.healthMultiplier;
     },
 
     leverageRisk() {
@@ -457,7 +455,7 @@ export default {
 
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
-        return this.selectedPool.acceptUseDefaultBalance;
+        return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
       }
 
       return false;

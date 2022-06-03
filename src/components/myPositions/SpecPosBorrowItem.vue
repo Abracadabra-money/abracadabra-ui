@@ -188,7 +188,7 @@ export default {
       return this.pool.icon;
     },
     stableCoinMultiplayer() {
-      return this.pool?.healthMultiplier;
+      return this.pool.cauldronSettings.healthMultiplier;
     },
     tokenPrice() {
       return 1 / this.pool.tokenPrice;

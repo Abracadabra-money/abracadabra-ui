@@ -55,8 +55,8 @@
           </div>
 
           <BaseTokenInput
-            name="MIM"
-            :icon="mimIcon"
+            :name="borrowToken.name"
+            :icon="borrowToken.icon"
             v-model="borrowValue"
             :max="maxBorrowValue"
             :error="borrowError"
@@ -152,7 +152,6 @@ import Vue from "vue";
 
 import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
-import mimIcon from "@/assets/images/tokens/MIM.png";
 import {
   approveToken,
   isApprowed,
@@ -166,7 +165,6 @@ export default {
   mixins: [borrowPoolsMixin, cookMixin],
   data() {
     return {
-      mimIcon,
       collateralValue: "",
       borrowValue: "",
       poolId: null,
@@ -193,13 +191,13 @@ export default {
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
         return this.pools
-          .filter((pool) => !pool.isDepreciated)
+          .filter((pool) => !pool.cauldronSettings.isDepreciated)
           .sort((a, b) =>
             a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
           );
       }
 
-      return this.pools.filter((pool) => !pool.isDepreciated);
+      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
     },
 
     selectedPool() {
@@ -209,6 +207,19 @@ export default {
         return null;
       }
       return null;
+    },
+
+    borrowToken() {
+      if (this.selectedPool)
+        return {
+          name: this.selectedPool.pairToken.name,
+          icon: this.selectedPool.pairToken.icon,
+        };
+
+      return {
+        name: "MIM",
+        icon: require("@/assets/images/tokens/MIM.png"),
+      };
     },
 
     collateralError() {
@@ -384,7 +395,7 @@ export default {
 
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
-        return this.selectedPool.acceptUseDefaultBalance;
+        return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
       }
 
       return false;
