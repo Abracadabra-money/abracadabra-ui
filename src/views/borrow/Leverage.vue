@@ -194,6 +194,15 @@ export default {
     selectedPool() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
+
+        if (
+          !pool.isSwappersActive &&
+          !pool.isDepreciated &&
+          !!pool.swapContract
+        ) {
+          return null;
+        }
+
         if (pool) return pool;
         return null;
       }
@@ -547,7 +556,11 @@ export default {
 
         this.percentValue = pool.ltv;
 
-        if (!pool) this.$router.push(`/leverage`);
+        if (
+          !pool ||
+          (!pool.isSwappersActive && !pool.isDepreciated && !!pool.swapContract)
+        )
+          this.$router.push(`/leverage`);
       }
 
       return false;
