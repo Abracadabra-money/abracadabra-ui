@@ -93,7 +93,12 @@
               >{{ actionBtnText }}</BaseButton
             >
           </div>
-          <InfoBlock :pool="selectedPool" :price="tokenToMim" />
+
+          <div class="info-wrap">
+            <InfoBlock :pool="selectedPool" :price="tokenToMim" />
+          </div>
+
+          <LeftBorrow :borrowLeft="selectedPool.dynamicBorrowAmount" />
         </template>
       </div>
     </template>
@@ -121,6 +126,7 @@ const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
 const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const InfoBlock = () => import("@/components/borrow/InfoBlock");
+const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
@@ -934,6 +940,7 @@ export default {
     BaseButton,
     BaseLoader,
     InfoBlock,
+    LeftBorrow,
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
@@ -1058,6 +1065,10 @@ export default {
     height: 24px;
     margin-right: 8px;
   }
+}
+
+.info-wrap {
+  margin-bottom: 20px;
 }
 
 @media (max-width: 1200px) {
