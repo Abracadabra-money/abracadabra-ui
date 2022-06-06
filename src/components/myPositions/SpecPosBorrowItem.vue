@@ -152,6 +152,14 @@ export default {
     openedItems() {
       const openedItems = [];
 
+      const addCollateralLink = {
+        title: "Add Collateral",
+        icon: require("@/assets/images/myposition/AddCollateral.png"),
+        name: "BorrowId",
+      };
+
+      openedItems.push(addCollateralLink);
+
       const repayLink = {
         title: "Repay MIMs",
         icon: require("@/assets/images/myposition/Repay.png"),

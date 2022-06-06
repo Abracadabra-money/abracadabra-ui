@@ -3,12 +3,14 @@
     <div class="title">
       <p>{{ title }}</p>
       <button v-if="!isFarm" @click="opened = !opened" class="open-btn">
+        <p>{{ openBtnText }}</p>
+
         <img
           v-if="opened"
-          src="@/assets/images/myposition/minus.svg"
+          src="@/assets/images/myposition/Icon-Minus.png"
           alt="close"
         />
-        <img v-else src="@/assets/images/myposition/plus.svg" alt="open" />
+        <img v-else src="@/assets/images/myposition/Icon-Plus.png" alt="open" />
       </button>
     </div>
     <div class="items">
@@ -44,6 +46,11 @@ export default {
     title() {
       return this.isFarm ? "Farm" : "Borrow";
     },
+    openBtnText() {
+      if (this.opened) return "Show less";
+
+      return "Show more";
+    },
   },
 };
 </script>
@@ -64,9 +71,30 @@ export default {
   }
 
   .open-btn {
+    display: flex;
+    align-items: center;
     background-color: transparent;
     border: none;
     cursor: pointer;
+
+    p {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+
+      background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+
+    img {
+      width: 20px;
+      height: auto;
+      object-fit: contain;
+      margin-left: 8px;
+    }
   }
 
   .items {
