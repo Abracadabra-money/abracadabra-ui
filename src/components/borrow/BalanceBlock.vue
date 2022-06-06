@@ -1,7 +1,10 @@
 <template>
   <div class="wrap">
     <h3 class="title">Your Wallet Balances</h3>
-    <div class="balance-item" v-if="pool.acceptUseDefaultBalance">
+    <div
+      class="balance-item"
+      v-if="pool.cauldronSettings.acceptUseDefaultBalance"
+    >
       <div class="balance-name">
         <BaseTokenIcon :icon="networkInfo.icon" :name="pool.name" />
         <p>{{ networkInfo.name }}</p>

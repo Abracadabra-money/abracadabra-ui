@@ -445,7 +445,10 @@ export default {
           additional: "MIM Borrowable Given the Collateral Deposited",
         });
 
-        if (this.pool.hasWithdrawableLimit && this.pool.maxWithdrawAmount) {
+        if (
+          this.pool.cauldronSettings.hasWithdrawableLimit &&
+          this.pool.maxWithdrawAmount
+        ) {
           resultArray.push({
             title: "Withdrawable Amount",
             value: Vue.filter("formatTokenBalance")(
@@ -456,7 +459,7 @@ export default {
         }
 
         if (this.tokenApy) {
-          const title = this.pool.strategyLink
+          const title = this.pool.cauldronSettings.strategyLink
             ? "Your Position Approximate APY"
             : "Your Position Apy";
 
@@ -497,7 +500,7 @@ export default {
 
     showClaimCrvReward() {
       return (
-        this.pool?.token?.additionalLogic?.claimCrvReward &&
+        this.pool?.cauldronSettings.claimCrvReward &&
         this.isUserHasClaimableReward
       );
     },
@@ -513,6 +516,7 @@ export default {
 
       return false;
     },
+
     showStargateUSDT() {
       if (this.pool) return this.pool.id === 32 && this.chainId === 1;
 
@@ -569,7 +573,7 @@ export default {
     },
 
     healthMultiplier() {
-      return this.pool?.healthMultiplier;
+      return this.pool?.cauldronSettings.healthMultiplier;
     },
 
     isLockedTimer() {
@@ -581,7 +585,7 @@ export default {
     },
 
     strategyLink() {
-      return this.pool?.strategyLink || "";
+      return this.pool?.cauldronSettings.strategyLink;
     },
 
     tokenToMim() {

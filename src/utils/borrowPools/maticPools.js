@@ -4,11 +4,26 @@ export default [
   {
     icon: require(`@/assets/images/tokens/MATIC.png`),
     name: "MATIC",
-    contractChain: "0x89",
+    contractChain: 137,
     id: 1,
-    isDepreciated: false,
+    stabilityFee: 12.5,
+    interest: 2.5,
+    ltv: 75,
+    borrowFee: 0.05,
     isSwappersActive: false,
-    acceptUseDefaultBalance: true,
+    cauldronSettings: {
+      isDegenBox: false,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: true,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: 1000000,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
     contract: {
       name: "CauldronV2Polygon",
       address: "0x5ff7FB4D65d6250b1C7BAB5d64D83D859E0d6CF5",
@@ -679,6 +694,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x01288e04435bFcd4718FF203D6eD18146C17Cd4b",
       abi: [
@@ -1333,10 +1349,6 @@ export default [
         },
       ],
     },
-    stabilityFee: 12.5,
-    interest: 2.5,
-    ltv: 75,
-    initialMax: 15,
     swapContractInfo: {
       address: "0x3d19f3Af2AA7A6fFec2324f92421A8f4156309D1",
       abi: [

@@ -184,7 +184,7 @@ export default {
           );
       }
 
-      return this.pools.filter((pool) => !pool.isDepreciated);
+      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
     },
 
     selectedPool() {
@@ -272,7 +272,7 @@ export default {
       const persent =
         this.flashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
 
-      const slipageMutiplier = (100 + this.slipage) / 100;
+      const slipageMutiplier = (100 + +this.slipage) / 100;
 
       const expectedToRepayCollateral =
         this.flashRepayAmount *
@@ -322,7 +322,7 @@ export default {
 
       if (!+this.flashRepayAmount) return defaultLiquidationPrice;
 
-      const slipageMutiplier = (100 + this.slipage) / 100;
+      const slipageMutiplier = (100 + +this.slipage) / 100;
 
       const accruedMultiplyer =
         this.maxFlashRepayAmount / +this.selectedPool.userInfo.userBorrowPart;
@@ -336,6 +336,7 @@ export default {
 
       const expectedBorrowBalance =
         this.selectedPool.userInfo.userBorrowPart - +expectedToRepayBorrow;
+
       const expectedCollateralBalance =
         this.selectedPool.userInfo.userCollateralShare -
         +expectedToRepayCollateral -
@@ -353,7 +354,7 @@ export default {
     },
 
     finalCollateralAmount() {
-      const slipageMutiplier = (100 + this.slipage) / 100;
+      const slipageMutiplier = (100 + +this.slipage) / 100;
 
       const collateralAmount = Vue.filter("formatToFixed")(
         this.borrowAmount *
@@ -483,8 +484,13 @@ export default {
     },
 
     maxFlashRepayAmount() {
-      this.flashRepayRemoveAmount = 0;
-      this.flashRepayAmount = 0;
+      this.resetRange();
+    },
+
+    flashRepayAmount() {
+      if (+this.flashRepayAmount === 0) {
+        this.resetRange();
+      }
     },
 
     pools() {
@@ -645,6 +651,7 @@ export default {
           this.account,
           notificationId
         );
+
         return false;
       }
 
@@ -667,6 +674,11 @@ export default {
 
     clearRepayToken() {
       this.flashRepayRemoveAmount = 0;
+    },
+
+    resetRange() {
+      this.flashRepayRemoveAmount = 0;
+      this.flashRepayAmount = 0;
     },
   },
 

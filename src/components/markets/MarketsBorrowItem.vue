@@ -5,7 +5,9 @@
       params: { id: pool.id },
     }"
     class="stats-item"
-    :class="{ strategy: activePool ? activePool.strategyLink : false }"
+    :class="{
+      strategy: activePool ? activePool.cauldronSettings.strategyLink : false,
+    }"
   >
     <span class="status-wrap"
       ><StatusBar v-if="activePool" :pool="activePool"
