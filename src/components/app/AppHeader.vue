@@ -80,7 +80,7 @@
         </div>
       </div>
       <div class="header-link networks-btn" @click="openNetworkPopup">
-        <img src="@/assets/images/networks/ethereum-icon.svg" alt="" />
+        <img :src="networcIcon" alt="" />
       </div>
       <div class="header-link header-connect">
         <ConnectButton />
@@ -214,6 +214,18 @@ export default {
         chain.title = chain.name;
         return chain;
       });
+    },
+
+    networcIcon() {
+      if (this.popupNetworksArr.length && this.chainId) {
+        const chain = this.popupNetworksArr.find((chain) => {
+          if (chain.chainId === this.chainId) return chain;
+        });
+
+        return chain.icon;
+      }
+
+      return "";
     },
   },
 
@@ -361,6 +373,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.networks-btn img {
+  max-width: 32px;
+  max-height: 32px;
+  width: 100%;
+  height: 100%;
 }
 
 .header-connect {
