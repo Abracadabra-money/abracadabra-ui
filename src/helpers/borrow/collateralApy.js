@@ -4,7 +4,7 @@ import crvRewardPoolAbi from "@/utils/abi/crvRewardPoolAbi";
 import tokenCVXAbi from "@/utils/abi/tokensAbi/CVX";
 import axios from "axios";
 import { ethers } from "ethers";
-import { tokenPrices } from "@/utils/helpers.js";
+import { getTokenPriceByAddress } from "../priceHelper";
 import { getStargateApy } from "@/helpers/borrow/stargateApyHelper";
 
 // wMEMO pool APY
@@ -14,6 +14,20 @@ import memoTokenAbi from "@/utils/abi/tokensAbi/MEMO";
 let crvTokenPrice = null;
 let cvxTokenPrice = null;
 const mainnetId = 1;
+
+const getCurveDaoTokenPrice = async (
+  chainId,
+  address = "0xD533a949740bb3306d119CC777fa900bA034cd52"
+) => {
+  return await getTokenPriceByAddress(chainId, address);
+};
+
+const convexFinanceTokenPrice = async (
+  chainId,
+  address = "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B"
+) => {
+  return await getTokenPriceByAddress(chainId, address);
+};
 
 const getMEMOApy = async (signer) => {
   try {
@@ -98,7 +112,7 @@ const fetchOHMApy = async () => {
   }
 };
 
-const getCrvPoolApy = async (tokenRate, signer) => {
+const getCrvPoolApy = async (tokenRate, signer, chainId) => {
   try {
     const crvRewardPoolContract = new ethers.Contract(
       "0x689440f2Ff927E1f24c72F1087E1FAF471eCe1c8",
@@ -129,13 +143,11 @@ const getCrvPoolApy = async (tokenRate, signer) => {
     let cvxPrice = cvxTokenPrice;
 
     if (!crvTokenPrice) {
-      const priceResp = await tokenPrices(["curve-dao-token"]);
-      crvTokenPrice = priceResp["curve-dao-token"];
+      crvTokenPrice = await getCurveDaoTokenPrice(chainId);
     }
 
     if (!cvxTokenPrice) {
-      const priceResp = await tokenPrices(["convex-finance"]);
-      cvxTokenPrice = priceResp["convex-finance"];
+      cvxTokenPrice = await convexFinanceTokenPrice(chainId);
     }
 
     crvPrice = crvTokenPrice;
@@ -195,7 +207,7 @@ const convertCrvToCvx = async (amount, signer) => {
   }
 };
 
-const getCryptoPoolApy = async (tokenRate, signer) => {
+const getCryptoPoolApy = async (tokenRate, signer, chainId) => {
   try {
     const crvRewardPoolContract = new ethers.Contract(
       "0x9d5c5e364d81dab193b72db9e9be9d8ee669b652",
@@ -226,13 +238,11 @@ const getCryptoPoolApy = async (tokenRate, signer) => {
     let cvxPrice = cvxTokenPrice;
 
     if (!crvTokenPrice) {
-      const priceResp = await tokenPrices(["curve-dao-token"]);
-      crvTokenPrice = priceResp["curve-dao-token"];
+      crvTokenPrice = await getCurveDaoTokenPrice(chainId);
     }
 
     if (!cvxTokenPrice) {
-      const priceResp = await tokenPrices(["convex-finance"]);
-      cvxTokenPrice = priceResp["convex-finance"];
+      cvxTokenPrice = await convexFinanceTokenPrice(chainId);
     }
 
     crvPrice = crvTokenPrice;
@@ -382,11 +392,11 @@ export const fetchTokenApy = async (pool) => {
     (pool.id === 15 || pool.id === 24 || pool.id === 25) &&
     chainId === mainnetId
   ) {
-    return await getCrvPoolApy(pool.tokenPrice, signer);
+    return await getCrvPoolApy(pool.tokenPrice, signer, chainId);
   }
 
   if (pool.id === 16 && chainId === mainnetId) {
-    return await getCryptoPoolApy(pool.tokenPrice, signer);
+    return await getCryptoPoolApy(pool.tokenPrice, signer, chainId);
   }
 
   if ((pool.id === 19 || pool.id === 26) && chainId === mainnetId) {

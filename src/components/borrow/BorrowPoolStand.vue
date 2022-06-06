@@ -175,7 +175,6 @@
 <script>
 import Vue from "vue";
 import LockedTimer from "@/components/stake/LockedTimer.vue";
-import { tokenPrices } from "@/utils/helpers.js";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
 
@@ -613,23 +612,6 @@ export default {
   },
 
   methods: {
-    async checkOHMInfo() {
-      console.log("ohm info");
-      if (this.pool.id === 10 && this.chainId === 1) {
-        const priceResp = await tokenPrices(["olympus"]);
-        this.ohmPrice = priceResp.olympus;
-
-        const wOHMTosOHMResp = await this.pool.token.contract.wOHMTosOHM(
-          "1000000000000000000"
-        );
-
-        this.wOHMTosOHM = this.$ethers.utils.formatUnits(
-          wOHMTosOHMResp.toString(),
-          9
-        );
-      }
-    },
-
     async handleClaimCrvReward() {
       try {
         const estimateGas =
