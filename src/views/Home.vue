@@ -54,8 +54,7 @@
           <h3>Borrow the Stablecoin $MIM</h3>
           <p>
             Use your favourite assets as collateral to borrow Magic Internet
-            Money, one of the leading Decentralised collateral backed
-            stablecoin.
+            Money, a leading decentralised and collateral-backed stablecoin.
           </p>
           <p class="highlited">
             While in our markets, your collateral keeps growing at the same rate
@@ -98,11 +97,12 @@
           <h3>Our Pegged Assets</h3>
           <p>
             Magic Internet Money ($MIM) and Magic Internet Gold ($MIG) are the
-            pillars of the Abracadabra Ecosystem. Our tokens are paired to the
+            pillars of the Abracadabra ecosystem. Our tokens are paired to the
             dollar and the ounce of gold.
           </p>
           <p class="highlited">
-            Use them to store value, earn yield or any other DeFi opportunities!
+            USE THEM TO STORE VALUE, EARN YIELD OR PARTICIPATE IN MANY OTHER
+            DEFI OPPORTUNITIES!
           </p>
           <a
             target="_blank"
@@ -126,8 +126,8 @@
         <div class="info-wrap">
           <h3>Leverage And Farming Opportunities</h3>
           <p>
-            Enjoy the best stable yield thanks to our built in Leverage Engine,
-            and our DeFi knowledge!
+            ENJOY THE BEST STABLE YIELD THANKS TO OUR BUILT-IN LEVERAGE ENGINE,
+            AND OUR DEFI KNOWLEDGE!
           </p>
           <a
             rel="noreferrer noopener"

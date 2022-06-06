@@ -147,11 +147,13 @@ export default {
     },
 
     activeChainPopup() {
-      if (this.popupType === "from") {
-        return this.activeFrom;
-      } else {
-        return this.activeTo;
+      if (this.popupType === "from" && this.activeFrom) {
+        return this.activeFrom.chainId;
+      } else if (this.activeTo) {
+        return this.activeTo.chainId;
       }
+
+      return 1;
     },
 
     targetFromChain() {
