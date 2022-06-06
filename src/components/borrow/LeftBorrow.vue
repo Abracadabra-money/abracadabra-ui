@@ -1,7 +1,7 @@
 <template>
   <div class="left-borrow">
     <span>MIMS LEFT TO BORROW:</span>
-    <span>{{ borrowLeft | formatNumber }}</span>
+    <span>{{ borrowLeft | formatLargeSum }}</span>
   </div>
 </template>
 
@@ -11,32 +11,6 @@ export default {
     borrowLeft: {
       type: [String, Number],
       default: 0,
-    },
-  },
-
-  filters: {
-    formatNumber(value) {
-      if (!value) return value;
-      if (Number(value) === 0) return value;
-      if (Number(value) < 1) return 0;
-
-      const lookup = [
-        { value: 0, symbol: "" },
-        { value: 1, symbol: "" },
-        { value: 1e3, symbol: "k" },
-        { value: 1e6, symbol: "M" },
-      ];
-      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-      let item = lookup
-        .slice()
-        .reverse()
-        .find(function (item) {
-          return parseFloat(value) >= item.value;
-        });
-      return (
-        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
-        item.symbol
-      );
     },
   },
 };

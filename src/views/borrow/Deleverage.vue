@@ -45,6 +45,11 @@
             title="Choose the amount of MIM you want to repay"
           />
 
+          <div class="repay-token">
+            {{ repayBorrow | formatTokenBalance }}
+            {{ selectedPool.pairToken.name }}
+          </div>
+
           <div class="range-underline underline"></div>
 
           <Range
@@ -54,6 +59,11 @@
             :step="+collateralStepRange"
             :parallelRange="flashRepayAmount"
           />
+
+          <div class="repay-token">
+            {{ repayToken | formatTokenBalance }}
+            {{ selectedPool.token.name }}
+          </div>
         </div>
         <BaseButton
           v-if="selectedPool"
@@ -445,6 +455,26 @@ export default {
 
     //   return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(4);
     // },
+
+    repayBorrow() {
+      if (this.itsMaxRepayMim) {
+        return +this.selectedPool.userInfo.userBorrowPart;
+      }
+
+      return this.flashRepayAmount;
+    },
+
+    repayToken() {
+      if (+this.repayBorrow === 0) {
+        this.clearRepayToken();
+        return 0;
+      }
+
+      if (this.flashRepayRemoveAmount > this.maxFlashRepayRemoveAmount)
+        return this.maxFlashRepayRemoveAmount;
+
+      return this.flashRepayRemoveAmount;
+    },
   },
 
   watch: {
@@ -634,6 +664,10 @@ export default {
 
       setTimeout(this.actionHandler(), 100);
     },
+
+    clearRepayToken() {
+      this.flashRepayRemoveAmount = 0;
+    },
   },
 
   created() {
@@ -775,6 +809,12 @@ export default {
   right: 0;
   left: 0;
   margin: 0 auto;
+}
+
+.repay-token {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
 }
 
 @media (max-width: 1200px) {
