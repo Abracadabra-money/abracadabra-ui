@@ -80,7 +80,7 @@
         </div>
       </div>
       <div class="header-link networks-btn" @click="openNetworkPopup">
-        <img :src="networcIcon" alt="" />
+        <img v-if="!!networcIcon" :src="networcIcon" alt="" />
       </div>
       <div class="header-link header-connect">
         <ConnectButton />
@@ -376,8 +376,8 @@ export default {
 }
 
 .networks-btn img {
-  max-width: 32px;
-  max-height: 32px;
+  max-width: 25px;
+  max-height: 25px;
   width: 100%;
   height: 100%;
 }
