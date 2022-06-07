@@ -424,12 +424,17 @@ export default {
         pool.pairToken.decimals
       );
 
-      const { borrowlimit } = await this.getBorrowlimit(pool, poolContract);
+      const { borrowlimit, globalBorrowlimit } = await this.getBorrowlimit(
+        pool,
+        poolContract
+      );
 
       const { dynamicBorrowAmount } = await this.getDynamicBorrowAmount(
         pool,
         masterContract,
-        borrowlimit
+        borrowlimit,
+        totalBorrow,
+        globalBorrowlimit
       );
 
       const tokenPairPrice = 1;
@@ -723,6 +728,7 @@ export default {
 
     async getBorrowlimit(pool, poolContract) {
       let borrowlimit = null;
+      let globalBorrowlimit = null;
 
       if (pool.cauldronSettings.hasAccountBorrowLimit) {
         const borrowLimitResp = await poolContract.borrowLimit();
@@ -731,12 +737,23 @@ export default {
           borrowLimitResp.borrowPartPerAddress.toString(),
           pool.pairToken.decimals
         );
+
+        globalBorrowlimit = this.$ethers.utils.formatUnits(
+          borrowLimitResp.total.toString(),
+          pool.pairToken.decimals
+        );
       }
 
-      return { borrowlimit };
+      return { borrowlimit, globalBorrowlimit };
     },
 
-    async getDynamicBorrowAmount(pool, masterContract, borrowlimit) {
+    async getDynamicBorrowAmount(
+      pool,
+      masterContract,
+      borrowlimit,
+      totalBorrow,
+      globalBorrowlimit
+    ) {
       let dynamicBorrowAmount = await this.getMaxBorrow(
         masterContract,
         pool.contract.address,
@@ -756,6 +773,17 @@ export default {
         dynamicBorrowAmount = borrowlimit;
 
       if (pool.cauldronSettings.isDepreciated) dynamicBorrowAmount = 0;
+
+      if (
+        globalBorrowlimit &&
+        +globalBorrowlimit - +totalBorrow < dynamicBorrowAmount
+      ) {
+        // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
+        dynamicBorrowAmount =
+          +globalBorrowlimit - +totalBorrow < 1000
+            ? 0
+            : +globalBorrowlimit - +totalBorrow;
+      }
 
       return { dynamicBorrowAmount };
     },
