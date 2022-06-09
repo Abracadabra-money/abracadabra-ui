@@ -73,8 +73,8 @@
           rel="noreferrer noopener"
           v-if="showyvcrvSTETHConcentrated"
         >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Stargate
-          USDT</a
+          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Yearn
+          Tokens</a
         >
 
         <div
