@@ -442,8 +442,8 @@ export default {
     },
 
     isTokenApprove() {
-      if (this.selectedPool && this.account) {
-        return this.selectedPool.token.isApprove;
+      if (this.selectedPool && this.selectedPool.userInfo && this.account) {
+        return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
 
       return true;

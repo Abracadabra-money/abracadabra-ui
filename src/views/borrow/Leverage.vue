@@ -181,7 +181,7 @@ export default {
             (pool) =>
               pool.isSwappersActive &&
               !pool.cauldronSettings.isDepreciated &&
-              !!pool.swapContract
+              !!pool.levSwapperContract
           )
           .sort((a, b) =>
             a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
@@ -198,7 +198,7 @@ export default {
         if (
           !pool.isSwappersActive &&
           !pool.isDepreciated &&
-          !!pool.swapContract
+          !!pool.levSwapperContract
         ) {
           return null;
         }
@@ -276,9 +276,11 @@ export default {
     },
 
     actionApproveTokenText() {
-      if (!this.selectedPool.token.isApprove) return "Approve Token";
+      if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
+        return "Approve Token";
 
-      if (!this.selectedPool.isTokenToSwapApprove) return "Approve Leverage";
+      if (!this.selectedPool.userInfo?.isApproveLevSwapper)
+        return "Approve Leverage";
 
       return "Approve";
     },
@@ -514,10 +516,10 @@ export default {
     },
 
     isTokenApprove() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool && this.selectedPool.userInfo && this.account) {
         return (
-          this.selectedPool.token.isApprove &&
-          this.selectedPool.isTokenToSwapApprove
+          this.selectedPool.userInfo.isApproveTokenCollateral &&
+          this.selectedPool.userInfo.isApproveLevSwapper
         );
       }
       return true;
@@ -556,7 +558,9 @@ export default {
 
         if (
           !pool ||
-          (!pool.isSwappersActive && !pool.isDepreciated && !!pool.swapContract)
+          (!pool.isSwappersActive &&
+            !pool.isDepreciated &&
+            !!pool.levSwapperContract)
         )
           this.$router.push(`/leverage`);
       }
@@ -583,21 +587,21 @@ export default {
         notification.approvePending
       );
 
-      let approve = this.selectedPool.token.isApprove;
+      let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
 
-      let approveSwap = this.selectedPool.isTokenToSwapApprove;
+      let approveSwap = this.selectedPool.userInfo?.isApproveLevSwapper;
 
-      if (!this.selectedPool.token.isApprove) {
+      if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
-      if (!this.selectedPool.isTokenToSwapApprove) {
+      if (!this.selectedPool.userInfo?.isApproveLevSwapper) {
         approveSwap = await approveToken(
           this.selectedPool.token.contract,
-          this.selectedPool.swapContract.address
+          this.selectedPool.levSwapperContract.address
         );
       }
 
@@ -851,14 +855,14 @@ export default {
 
       let isTokenToSwapApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
-        this.selectedPool.swapContract.address,
+        this.selectedPool.levSwapperContract.address,
         this.account
       );
 
       if (isTokenToSwapApprove.eq(0)) {
         isTokenToSwapApprove = await approveToken(
           this.selectedPool.token.contract,
-          this.selectedPool.swapContract.address
+          this.selectedPool.levSwapperContract.address
         );
       }
 

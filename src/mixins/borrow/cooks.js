@@ -1266,7 +1266,7 @@ export default {
         ? collateralAmount.toString()
         : 0;
 
-      const swapperAddres = pool.swapContract.address;
+      const swapperAddres = pool.levSwapperContract.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -1337,14 +1337,15 @@ export default {
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      const swapStaticTx = await pool.swapContract.populateTransaction.swap(
-        userAddr,
-        minExpected,
-        0,
-        {
-          gasLimit: 10000000,
-        }
-      );
+      const swapStaticTx =
+        await pool.levSwapperContract.populateTransaction.swap(
+          userAddr,
+          minExpected,
+          0,
+          {
+            gasLimit: 10000000,
+          }
+        );
 
       const swapCallByte = swapStaticTx.data.substr(0, 138);
 
@@ -1435,7 +1436,7 @@ export default {
     ) {
       const borrowTokenAddr = pool.pairToken.address;
       const collateralTokenAddr = pool.token.address;
-      const reverseSwapperAddr = pool.reverseSwapContract.address;
+      const reverseSwapperAddr = pool.liqSwapperContract.address;
       const userAddr = account;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
 
@@ -1479,7 +1480,7 @@ export default {
       datasArray.push(removeCollateralToSwapper);
 
       const swapStaticTx =
-        await pool.reverseSwapContract.populateTransaction.swap(
+        await pool.liqSwapperContract.populateTransaction.swap(
           collateralTokenAddr,
           borrowTokenAddr,
           userAddr,

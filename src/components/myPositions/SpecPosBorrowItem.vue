@@ -147,7 +147,7 @@ export default {
   },
   computed: {
     isDeleverageAccepted() {
-      return this.pool.isSwappersActive && !!this.pool.reverseSwapContract;
+      return this.pool.isSwappersActive && !!this.pool.liqSwapperContract;
     },
     openedItems() {
       const openedItems = [];

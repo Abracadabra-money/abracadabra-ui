@@ -330,8 +330,13 @@ export default {
     },
 
     isTokenApprove() {
-      if (this.selectedPool && this.account && this.borrowValue) {
-        return this.selectedPool.pairToken.isApprove;
+      if (
+        this.selectedPool &&
+        this.selectedPool.userInfo &&
+        this.account &&
+        this.borrowValue
+      ) {
+        return this.selectedPool.userInfo.isApproveTokenBorrow;
       }
 
       return true;

@@ -178,7 +178,7 @@ export default {
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
         return this.pools
-          .filter((pool) => pool.isSwappersActive && !!pool.reverseSwapContract)
+          .filter((pool) => pool.isSwappersActive && !!pool.liqSwapperContract)
           .sort((a, b) =>
             a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
           );
@@ -218,9 +218,10 @@ export default {
     },
 
     actionApproveTokenText() {
-      if (!this.selectedPool.token.isApprove) return "Approve Token";
+      if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
+        return "Approve Token";
 
-      if (!this.selectedPool.isTokenToReverseSwapApprove)
+      if (!this.selectedPool.userInfo?.isApproveLiqSwapper)
         return "Approve Flash Repay";
 
       return "Approve";
@@ -427,12 +428,13 @@ export default {
     },
 
     isTokenApprove() {
-      if (this.selectedPool && this.account) {
+      if (this.selectedPool && this.selectedPool.userInfo && this.account) {
         return (
-          this.selectedPool.token.isApprove &&
-          this.selectedPool.isTokenToReverseSwapApprove
+          this.selectedPool.userInfo.isApproveTokenCollateral &&
+          this.selectedPool.userInfo.isApproveLiqSwapper
         );
       }
+
       return true;
     },
 
@@ -510,20 +512,20 @@ export default {
         notification.approvePending
       );
 
-      let approve = this.selectedPool.token.isApprove;
-      let approveSwap = this.selectedPool.isTokenToReverseSwapApprove;
+      let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
+      let approveSwap = this.selectedPool.userInfo?.isApproveLiqSwapper;
 
-      if (!this.selectedPool.token.isApprove) {
+      if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
-      if (!this.selectedPool.isTokenToReverseSwapApprove) {
+      if (!this.selectedPool.userInfo?.isApproveLiqSwapper) {
         approveSwap = await approveToken(
           this.selectedPool.token.contract,
-          this.selectedPool.reverseSwapContract.address
+          this.selectedPool.liqSwapperContract.address
         );
       }
 
@@ -630,14 +632,14 @@ export default {
 
       let isTokenToSwapApprove = await isTokenApprowed(
         this.selectedPool.token.contract,
-        this.selectedPool.reverseSwapContract.address,
+        this.selectedPool.liqSwapperContract.address,
         this.account
       );
 
       if (isTokenToSwapApprove.lt(data.collateralAmount)) {
         isTokenToSwapApprove = await approveToken(
           this.selectedPool.token.contract,
-          this.selectedPool.reverseSwapContract.address
+          this.selectedPool.liqSwapperContract.address
         );
       }
 

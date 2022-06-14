@@ -376,14 +376,14 @@ export default {
         pool.token.abi
       );
 
-      let swapContract = pool.swapContractInfo
+      const levSwapperContract = pool.swapContractInfo
         ? this.createContract(
             pool.swapContractInfo.address,
             pool.swapContractInfo.abi
           )
         : null;
 
-      let reverseSwapContract = pool.reverseSwapContractInfo
+      const liqSwapperContract = pool.reverseSwapContractInfo
         ? this.createContract(
             pool.reverseSwapContractInfo.address,
             pool.reverseSwapContractInfo.abi
@@ -398,11 +398,6 @@ export default {
       const contractExchangeRate = await this.getContractExchangeRate(
         poolContract
       );
-
-      const pairToken = { ...pool.pairToken, isApprove: false };
-
-      const { isTokenToSwapApprove, isTokenToReverseSwapApprove } =
-        await this.getSwapContractApprove(pool, tokenContract);
 
       const { tokenPairRate, askUpdatePrice } = this.getTokenPairRate(
         oracleExchangeRate,
@@ -479,7 +474,7 @@ export default {
         tvl,
         borrowFee: pool.borrowFee,
         askUpdatePrice,
-        pairToken: pairToken,
+        pairToken: pool.pairToken,
         pairTokenContract,
         tokenPairPrice,
         tokenPrice,
@@ -494,15 +489,12 @@ export default {
           address: pool.token.address,
           decimals: pool.token.decimals,
           oracleExchangeRate: tokenPairRate,
-          isApprove: false,
           additionalLogic: pool.token.additionalLogic,
         },
         maxWithdrawAmount,
         userInfo: null,
-        swapContract,
-        isTokenToSwapApprove,
-        reverseSwapContract,
-        isTokenToReverseSwapApprove,
+        levSwapperContract,
+        liqSwapperContract,
       };
 
       if (this.account) {
@@ -564,15 +556,29 @@ export default {
         console.log("whitelistedInfo", whitelistedInfo);
       }
 
-      pool.token.isApprove = await this.isTokenApprow(
+      const isApproveTokenCollateral = await this.isTokenApprow(
         pool.token.contract,
         pool.masterContractInstance.address
       );
 
-      pool.pairToken.isApprove = await this.isTokenApprow(
+      const isApproveTokenBorrow = await this.isTokenApprow(
         pool.pairTokenContract,
         pool.masterContractInstance.address
       );
+
+      const isApproveLevSwapper = pool.levSwapperContract
+        ? await this.isTokenApprow(
+            pool.token.contract,
+            pool.levSwapperContract.address
+          )
+        : false;
+
+      const isApproveLiqSwapper = pool.liqSwapperContract
+        ? await this.isTokenApprow(
+            pool.token.contract,
+            pool.liqSwapperContract.address
+          )
+        : false;
 
       pool.userInfo = {
         userBorrowPart,
@@ -589,6 +595,10 @@ export default {
         ),
         balanceUsd,
         whitelistedInfo,
+        isApproveTokenCollateral,
+        isApproveTokenBorrow,
+        isApproveLevSwapper,
+        isApproveLiqSwapper,
       };
 
       return pool;
@@ -790,30 +800,6 @@ export default {
       }
 
       return { dynamicBorrowAmount };
-    },
-
-    async getSwapContractApprove(pool, tokenContract) {
-      let isTokenToSwapApprove = false,
-        isTokenToReverseSwapApprove = false;
-
-      if (pool?.swapContractInfo?.address && this.account) {
-        isTokenToSwapApprove = await this.isTokenApprow(
-          tokenContract,
-          pool.swapContractInfo.address
-        );
-      }
-
-      if (pool?.reverseSwapContractInfo?.address && this.account) {
-        isTokenToReverseSwapApprove = await this.isTokenApprow(
-          tokenContract,
-          pool.reverseSwapContractInfo.address
-        );
-      }
-
-      return {
-        isTokenToSwapApprove,
-        isTokenToReverseSwapApprove,
-      };
     },
   },
 
