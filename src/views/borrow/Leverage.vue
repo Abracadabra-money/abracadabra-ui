@@ -225,13 +225,13 @@ export default {
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
-            this.selectedPool.token.decimals
+            this.selectedPool.collateralToken.decimals
           );
         }
 
         return this.$ethers.utils.formatUnits(
           this.selectedPool.userInfo.userBalance,
-          this.selectedPool.token.decimals
+          this.selectedPool.collateralToken.decimals
         );
       }
 
@@ -331,7 +331,7 @@ export default {
 
       let amount = Vue.filter("formatToFixed")(
         this.mimAmount,
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       const percentValue = parseFloat(this.percentValue);
@@ -593,14 +593,14 @@ export default {
 
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       if (!this.selectedPool.userInfo?.isApproveLevSwapper) {
         approveSwap = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.levSwapperContract.address
         );
       }
@@ -722,7 +722,7 @@ export default {
 
         const parsedCollateral = this.$ethers.utils.parseUnits(
           this.collateralValue.toString(),
-          this.selectedPool.token.decimals
+          this.selectedPool.collateralToken.decimals
         );
 
         const parsedMim = this.$ethers.utils.parseUnits(
@@ -818,13 +818,16 @@ export default {
         finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
 
       const minValueParsed = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(minValue, this.selectedPool.token.decimals),
-        this.selectedPool.token.decimals
+        Vue.filter("formatToFixed")(
+          minValue,
+          this.selectedPool.collateralToken.decimals
+        ),
+        this.selectedPool.collateralToken.decimals
       );
 
       const finalRemoveCollateralAmountToShare =
         await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.token.address,
+          this.selectedPool.collateralToken.address,
           minValueParsed,
           true
         );
@@ -841,27 +844,27 @@ export default {
       console.log("ADD COLL OR/AND BORROW -MULTI- HANDLER", data);
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.eq(0)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.levSwapperContract.address,
         this.account
       );
 
       if (isTokenToSwapApprove.eq(0)) {
         isTokenToSwapApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.levSwapperContract.address
         );
       }

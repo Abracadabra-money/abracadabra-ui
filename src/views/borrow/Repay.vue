@@ -182,7 +182,7 @@ export default {
 
             return Vue.filter("formatToFixed")(
               parsedMaxContractWithdrawAmount,
-              this.selectedPool.token.decimals
+              this.selectedPool.collateralToken.decimals
             );
           }
 
@@ -229,13 +229,13 @@ export default {
 
         return Vue.filter("formatToFixed")(
           parsedMaxContractWithdrawAmount,
-          this.selectedPool.token.decimals
+          this.selectedPool.collateralToken.decimals
         );
       }
 
       return Vue.filter("formatToFixed")(
         borrowLeft,
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
     },
 
@@ -483,7 +483,7 @@ export default {
 
       let parsedPair = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       let payload = {
@@ -493,7 +493,7 @@ export default {
       };
 
       payload.amount = await this.selectedPool.masterContractInstance.toShare(
-        this.selectedPool.token.address,
+        this.selectedPool.collateralToken.address,
         parsedPair,
         true
       );
@@ -509,7 +509,7 @@ export default {
 
         parsedPair = this.$ethers.utils.parseUnits(
           this.selectedPool.userInfo.userCollateralShare,
-          this.selectedPool.token.decimals
+          this.selectedPool.collateralToken.decimals
         );
 
         payload = {
@@ -519,7 +519,7 @@ export default {
         };
 
         payload.amount = await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.token.address,
+          this.selectedPool.collateralToken.address,
           parsedPair,
           true
         );
@@ -601,12 +601,12 @@ export default {
 
       const parsedPair = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       const collateralToShare =
         await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.token.address,
+          this.selectedPool.collateralToken.address,
           parsedPair.toString(),
           true
         );

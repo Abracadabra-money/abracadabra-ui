@@ -484,7 +484,7 @@ export default {
         borrowlimit,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
-        token: {
+        collateralToken: {
           contract: tokenContract,
           name: pool.token.name,
           address: pool.token.address,
@@ -509,7 +509,9 @@ export default {
       const { userBorrowPart, contractBorrowPart } =
         await this.getUserBorrowPart(pool.contractInstance);
 
-      let userBalance = await this.getUserBalance(pool.token.contract);
+      let userBalance = await this.getUserBalance(
+        pool.collateralToken.contract
+      );
 
       let userPairBalance = await this.getUserPairBalance(
         pool.pairTokenContract
@@ -521,16 +523,16 @@ export default {
 
       if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
-          pool.token.contract,
-          pool.token.decimals
+          pool.collateralToken.contract,
+          pool.collateralToken.decimals
         );
       }
 
       const userCollateralShare = await this.getUserCollateralShare(
         pool.masterContractInstance,
         pool.contractInstance,
-        pool.token.decimals,
-        pool.token.address
+        pool.collateralToken.decimals,
+        pool.collateralToken.address
       );
 
       const liquidationPrice = this.getLiquidationPrice(
@@ -543,13 +545,15 @@ export default {
 
       if ((pool.id === 11 || pool.id === 22) && this.chainId === 1) {
         collateralLockTimestamp = await this.checkIsUserCollateralLocked(
-          pool.token.contract
+          pool.collateralToken.contract
         );
       }
 
       let balanceUsd =
-        this.$ethers.utils.formatUnits(userBalance, pool.token.decimals) /
-        pool.tokenPrice;
+        this.$ethers.utils.formatUnits(
+          userBalance,
+          pool.collateralToken.decimals
+        ) / pool.tokenPrice;
 
       let whitelistedInfo;
       if (pool.id === 33 && this.chainId === 1) {
@@ -558,7 +562,7 @@ export default {
       }
 
       const isApproveTokenCollateral = await this.isTokenApprow(
-        pool.token.contract,
+        pool.collateralToken.contract,
         pool.masterContractInstance.address
       );
 
@@ -569,14 +573,14 @@ export default {
 
       const isApproveLevSwapper = pool.levSwapperContract
         ? await this.isTokenApprow(
-            pool.token.contract,
+            pool.collateralToken.contract,
             pool.levSwapperContract.address
           )
         : false;
 
       const isApproveLiqSwapper = pool.liqSwapperContract
         ? await this.isTokenApprow(
-            pool.token.contract,
+            pool.collateralToken.contract,
             pool.liqSwapperContract.address
           )
         : false;

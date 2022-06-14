@@ -303,7 +303,7 @@ export default {
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.token.address;
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -441,7 +441,7 @@ export default {
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.token.address;
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance ? amount.toString() : 0;
 
       const userAddr = this.account;
@@ -679,7 +679,7 @@ export default {
       pool,
       notificationId
     ) {
-      const tokenAddr = pool.token.address;
+      const tokenAddr = pool.collateralToken.address;
       const pairToken = pool.pairToken.address;
       const userAddr = this.account;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
@@ -830,7 +830,7 @@ export default {
       notificationId
     ) {
       const pairToken = pool.pairToken.address;
-      const tokenAddr = pool.token.address;
+      const tokenAddr = pool.collateralToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -977,7 +977,7 @@ export default {
       pool,
       notificationId
     ) {
-      const tokenAddr = pool.token.address;
+      const tokenAddr = pool.collateralToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -1261,7 +1261,7 @@ export default {
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.token.address;
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -1435,7 +1435,7 @@ export default {
       notificationId
     ) {
       const borrowTokenAddr = pool.pairToken.address;
-      const collateralTokenAddr = pool.token.address;
+      const collateralTokenAddr = pool.collateralToken.address;
       const reverseSwapperAddr = pool.liqSwapperContract.address;
       const userAddr = account;
       const userBorrowPart = pool.userInfo.contractBorrowPart;

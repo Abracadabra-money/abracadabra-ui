@@ -62,7 +62,7 @@
 
           <div class="repay-token">
             {{ repayToken | formatTokenBalance }}
-            {{ selectedPool.token.name }}
+            {{ selectedPool.collateralToken.name }}
           </div>
         </div>
         <BaseButton
@@ -200,7 +200,7 @@ export default {
       if (this.selectedPool?.userInfo && this.account) {
         return this.$ethers.utils.formatUnits(
           this.selectedPool.userInfo.userBalance,
-          this.selectedPool.token.decimals
+          this.selectedPool.collateralToken.decimals
         );
       }
 
@@ -243,7 +243,7 @@ export default {
         this.chainId === 43114
       )
         return "0.00000001";
-      if (this.selectedPool.token.decimals === 18) return "0.00001";
+      if (this.selectedPool.collateralToken.decimals === 18) return "0.00001";
 
       return "0.0001";
     },
@@ -361,24 +361,24 @@ export default {
         this.borrowAmount *
           this.selectedPool.tokenOraclePrice *
           slipageMutiplier,
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       return this.$ethers.utils.parseUnits(
         collateralAmount,
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
     },
 
     finalRemoveCollateralAmount() {
       const removeCollateralAmount = Vue.filter("formatToFixed")(
         this.flashRepayRemoveAmount,
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       return this.$ethers.utils.parseUnits(
         removeCollateralAmount,
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
     },
 
@@ -394,11 +394,11 @@ export default {
         return (
           +this.$ethers.utils.formatUnits(
             this.finalCollateralAmount,
-            this.selectedPool.token.decimals
+            this.selectedPool.collateralToken.decimals
           ) +
           +this.$ethers.utils.formatUnits(
             this.finalRemoveCollateralAmount,
-            this.selectedPool.token.decimals
+            this.selectedPool.collateralToken.decimals
           )
         );
       }
@@ -517,14 +517,14 @@ export default {
 
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       if (!this.selectedPool.userInfo?.isApproveLiqSwapper) {
         approveSwap = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.liqSwapperContract.address
         );
       }
@@ -587,14 +587,14 @@ export default {
 
         const finalCollateralToShare =
           await this.selectedPool.masterContractInstance.toShare(
-            this.selectedPool.token.address,
+            this.selectedPool.collateralToken.address,
             this.finalCollateralAmount,
             true
           );
 
         const finalRemoveCollateralAmountToShare =
           await this.selectedPool.masterContractInstance.toShare(
-            this.selectedPool.token.address,
+            this.selectedPool.collateralToken.address,
             this.finalRemoveCollateralAmount,
             true
           );
@@ -618,27 +618,27 @@ export default {
       console.log("FLASH REPAY HANDLER", data);
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.eq(0)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.liqSwapperContract.address,
         this.account
       );
 
       if (isTokenToSwapApprove.lt(data.collateralAmount)) {
         isTokenToSwapApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.liqSwapperContract.address
         );
       }

@@ -2,11 +2,16 @@
   <div class="pos-item">
     <div class="header">
       <div class="header-token">
-        <BaseTokenIcon :name="pool.token.name" :icon="poolIcon" size="80px" />
+        <BaseTokenIcon
+          :name="pool.collateralToken.name"
+          :icon="poolIcon"
+          size="80px"
+        />
         <div>
-          <p class="header-token-title">{{ pool.token.name }}</p>
+          <p class="header-token-title">{{ pool.collateralToken.name }}</p>
           <p class="header-token-price">
-            1 {{ pool.token.name }} = {{ tokenToMim | formatToFixed(4) }}
+            1 {{ pool.collateralToken.name }} =
+            {{ tokenToMim | formatToFixed(4) }}
             {{ pool.pairToken.name }}
           </p>
         </div>
@@ -49,11 +54,11 @@
           <div class="lp-data-wrap">
             <div class="lp-data-info">
               <BaseTokenIcon
-                :name="pool.token.name"
+                :name="pool.collateralToken.name"
                 :icon="initialIcon"
                 size="50px"
               />
-              <p class="lp-data-token">{{ pool.token.name }}</p>
+              <p class="lp-data-token">{{ pool.collateralToken.name }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.userInfo">
               <p class="lp-data-balance">

@@ -36,7 +36,7 @@ export default {
       if (this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.userBalance,
-          this.pool.token.decimals
+          this.pool.collateralToken.decimals
         );
 
       return 0;

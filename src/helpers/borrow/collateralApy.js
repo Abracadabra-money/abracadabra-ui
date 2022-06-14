@@ -371,6 +371,7 @@ const getJlpYield = async (
 export const fetchTokenApy = async (pool) => {
   let chainId = store.getters.getChainId;
   let signer = store.getters.getSigner;
+  ("");
 
   console.log("fetchTokenApy chainId", chainId);
   console.log("fetchTokenApy signer", signer);
@@ -381,7 +382,12 @@ export const fetchTokenApy = async (pool) => {
 
   if (pool.joeInfo) {
     const jlpPrice = 1 / pool.tokenPrice;
-    return await getJLPApr(pool.joeInfo, jlpPrice, pool.token.contract, signer);
+    return await getJLPApr(
+      pool.joeInfo,
+      jlpPrice,
+      pool.collateralToken.contract,
+      signer
+    );
   }
 
   if (pool.id === 10 && chainId === mainnetId) {
@@ -404,7 +410,7 @@ export const fetchTokenApy = async (pool) => {
   }
 
   if ((pool.id === 31 || pool.id === 32) && chainId === mainnetId) {
-    return await getStargateApy(pool.token.contract.address, signer);
+    return await getStargateApy(pool.collateralToken.contract.address, signer);
   }
 
   if ((pool.id === 2 || pool.id === 5) && chainId === 43114) {
@@ -420,7 +426,7 @@ export const fetchTokenApy = async (pool) => {
     }
 
     const tokenItem = store.getters.getTokensVaults.find(
-      (item) => item.address === pool.token.address
+      (item) => item.address === pool.collateralToken.address
     );
 
     if (!tokenItem) return null;

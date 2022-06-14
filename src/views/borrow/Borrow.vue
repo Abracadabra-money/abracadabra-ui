@@ -253,13 +253,13 @@ export default {
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
-            this.selectedPool.token.decimals
+            this.selectedPool.collateralToken.decimals
           );
         }
 
         return this.$ethers.utils.formatUnits(
           this.selectedPool.userInfo.userBalance,
-          this.selectedPool.token.decimals
+          this.selectedPool.collateralToken.decimals
         );
       }
 
@@ -436,7 +436,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        return this.selectedPool.token.name;
+        return this.selectedPool.collateralToken.name;
       }
       return "";
     },
@@ -507,7 +507,7 @@ export default {
       );
 
       let approve = await approveToken(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address
       );
 
@@ -638,7 +638,7 @@ export default {
 
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
@@ -661,14 +661,14 @@ export default {
       };
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.collateralAmount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -703,7 +703,7 @@ export default {
 
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       const payload = {
@@ -713,14 +713,14 @@ export default {
       };
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.amount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -778,14 +778,14 @@ export default {
       };
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.eq(0)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }

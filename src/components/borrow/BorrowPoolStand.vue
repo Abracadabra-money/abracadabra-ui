@@ -453,7 +453,7 @@ export default {
             value: Vue.filter("formatTokenBalance")(
               this.pool.maxWithdrawAmount || 0
             ),
-            additional: `Maximum Current Amount of ${this.pool.token.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
+            additional: `Maximum Current Amount of ${this.pool.collateralToken.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
           });
         }
 
@@ -538,7 +538,7 @@ export default {
 
     collateralTitle() {
       if (this.pool?.token?.additionalLogic) {
-        return this.pool.token.additionalLogic.title;
+        return this.pool.collateralToken.additionalLogic.title;
       }
       return "";
     },
@@ -615,13 +615,15 @@ export default {
     async handleClaimCrvReward() {
       try {
         const estimateGas =
-          await this.pool.token.contract.estimateGas.getReward(this.account);
+          await this.pool.collateralToken.contract.estimateGas.getReward(
+            this.account
+          );
 
         const gasLimit = 1000 + +estimateGas.toString();
 
         console.log("gasLimit:", gasLimit);
 
-        await await this.pool.token.contract.getReward(this.account, {
+        await await this.pool.collateralToken.contract.getReward(this.account, {
           gasLimit,
         });
       } catch (e) {
@@ -630,11 +632,11 @@ export default {
     },
 
     showCollateralPopup() {
-      if (this.pool.token.additionalLogic) {
+      if (this.pool.collateralToken.additionalLogic) {
         this.$store.commit("setPopupState", {
-          type: this.pool.token.additionalLogic.type,
+          type: this.pool.collateralToken.additionalLogic.type,
           isShow: true,
-          data: this.pool.token.additionalLogic.data,
+          data: this.pool.collateralToken.additionalLogic.data,
         });
       }
 
