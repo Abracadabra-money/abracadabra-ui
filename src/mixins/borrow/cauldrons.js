@@ -399,13 +399,7 @@ export default {
         poolContract
       );
 
-      const { isTokenApprove, isPairTokenApprove } = await this.getTokenApprove(
-        tokenContract,
-        pairTokenContract,
-        masterContract
-      );
-
-      const pairToken = { ...pool.pairToken, isPairTokenApprove };
+      const pairToken = { ...pool.pairToken, isApprove: false };
 
       const { isTokenToSwapApprove, isTokenToReverseSwapApprove } =
         await this.getSwapContractApprove(pool, tokenContract);
@@ -500,7 +494,7 @@ export default {
           address: pool.token.address,
           decimals: pool.token.decimals,
           oracleExchangeRate: tokenPairRate,
-          isTokenApprove,
+          isApprove: false,
           additionalLogic: pool.token.additionalLogic,
         },
         maxWithdrawAmount,
@@ -517,7 +511,7 @@ export default {
         return poolData;
       }
     },
-    // fetch
+
     async getUserInfo(pool, poolContract) {
       const { userBorrowPart, contractBorrowPart } =
         await this.getUserBorrowPart(pool.contractInstance);
@@ -569,6 +563,16 @@ export default {
         whitelistedInfo = await this.checkPoolWhitelised(poolContract);
         console.log("whitelistedInfo", whitelistedInfo);
       }
+
+      pool.token.isApprove = await this.isTokenApprow(
+        pool.token.contract,
+        pool.masterContractInstance.address
+      );
+
+      pool.pairToken.isApprove = await this.isTokenApprow(
+        pool.pairTokenContract,
+        pool.masterContractInstance.address
+      );
 
       pool.userInfo = {
         userBorrowPart,
@@ -786,28 +790,6 @@ export default {
       }
 
       return { dynamicBorrowAmount };
-    },
-
-    async getTokenApprove(tokenContract, pairTokenContract, masterContract) {
-      let isTokenApprove = false,
-        isPairTokenApprove = false;
-
-      if (this.account) {
-        isTokenApprove = await this.isTokenApprow(
-          tokenContract,
-          masterContract.address
-        );
-
-        isPairTokenApprove = await this.isTokenApprow(
-          pairTokenContract,
-          masterContract.address
-        );
-      }
-
-      return {
-        isTokenApprove,
-        isPairTokenApprove,
-      };
     },
 
     async getSwapContractApprove(pool, tokenContract) {

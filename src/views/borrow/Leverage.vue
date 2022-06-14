@@ -276,7 +276,7 @@ export default {
     },
 
     actionApproveTokenText() {
-      if (!this.selectedPool.token.isTokenApprove) return "Approve Token";
+      if (!this.selectedPool.token.isApprove) return "Approve Token";
 
       if (!this.selectedPool.isTokenToSwapApprove) return "Approve Leverage";
 
@@ -516,7 +516,7 @@ export default {
     isTokenApprove() {
       if (this.selectedPool && this.account) {
         return (
-          this.selectedPool.token.isTokenApprove &&
+          this.selectedPool.token.isApprove &&
           this.selectedPool.isTokenToSwapApprove
         );
       }
@@ -583,11 +583,11 @@ export default {
         notification.approvePending
       );
 
-      let approve = this.selectedPool.token.isTokenApprove;
+      let approve = this.selectedPool.token.isApprove;
 
       let approveSwap = this.selectedPool.isTokenToSwapApprove;
 
-      if (!this.selectedPool.token.isTokenApprove) {
+      if (!this.selectedPool.token.isApprove) {
         approve = await approveToken(
           this.selectedPool.token.contract,
           this.selectedPool.masterContractInstance.address

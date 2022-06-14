@@ -443,7 +443,7 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.account) {
-        return this.selectedPool.token.isTokenApprove;
+        return this.selectedPool.token.isApprove;
       }
 
       return true;

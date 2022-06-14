@@ -331,7 +331,7 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.account && this.borrowValue) {
-        return this.selectedPool.pairToken.isPairTokenApprove;
+        return this.selectedPool.pairToken.isApprove;
       }
 
       return true;
