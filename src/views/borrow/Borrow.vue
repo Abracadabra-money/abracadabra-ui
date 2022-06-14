@@ -156,7 +156,7 @@ const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
 import Vue from "vue";
 
-import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
 import {
   approveToken,
@@ -168,7 +168,7 @@ import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 
 export default {
-  mixins: [borrowPoolsMixin, cookMixin],
+  mixins: [cauldronsMixin, cookMixin],
   data() {
     return {
       collateralValue: "",

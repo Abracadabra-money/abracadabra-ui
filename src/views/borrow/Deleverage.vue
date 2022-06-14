@@ -137,7 +137,7 @@ const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 import Vue from "vue";
 
-import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
 import { mapGetters } from "vuex";
 import {
@@ -148,7 +148,7 @@ import {
 import notification from "@/helpers/notification/notification.js";
 
 export default {
-  mixins: [borrowPoolsMixin, cookMixin],
+  mixins: [cauldronsMixin, cookMixin],
 
   data() {
     return {

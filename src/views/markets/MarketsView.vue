@@ -87,7 +87,7 @@
 
 <script>
 import farmPoolsMixin from "@/mixins/farmPools";
-import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import { mapGetters } from "vuex";
 
 const BaseLoader = () => import("@/components/base/BaseLoader");
@@ -118,7 +118,7 @@ export default {
     MarketsBorrowItem,
     MarketsFarmItem,
   },
-  mixins: [farmPoolsMixin, borrowPoolsMixin],
+  mixins: [farmPoolsMixin, cauldronsMixin],
   props: { isFarm: { type: Boolean, default: false } },
   data: () => ({
     selectedSort: sortKeys.name,

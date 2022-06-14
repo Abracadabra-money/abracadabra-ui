@@ -72,13 +72,13 @@ const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
-import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import { mapGetters } from "vuex";
 
 const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
 
 export default {
-  mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
+  mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
   data: () => ({
     activeNetworks: [1, 56, 250, 43114, 42161, 137],
 
