@@ -308,7 +308,7 @@ export default {
         ? collateralAmount.toString()
         : 0;
 
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -557,7 +557,7 @@ export default {
       pool,
       notificationId
     ) {
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -680,7 +680,7 @@ export default {
       notificationId
     ) {
       const tokenAddr = pool.collateralToken.address;
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
 
@@ -829,7 +829,7 @@ export default {
       pool,
       notificationId
     ) {
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const tokenAddr = pool.collateralToken.address;
       const userAddr = this.account;
 
@@ -1097,7 +1097,7 @@ export default {
       pool,
       notificationId
     ) {
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       const userBorrowPart = pool.userInfo.contractBorrowPart;
@@ -1434,7 +1434,7 @@ export default {
       account,
       notificationId
     ) {
-      const borrowTokenAddr = pool.pairToken.address;
+      const borrowTokenAddr = pool.borrowToken.address;
       const collateralTokenAddr = pool.collateralToken.address;
       const reverseSwapperAddr = pool.liqSwapperContract.address;
       const userAddr = account;

@@ -17,7 +17,7 @@
     <div class="balance-item">
       <div class="balance-name">
         <BaseTokenIcon :icon="mimIcon" :name="pool.name" />
-        <p>{{ pool.pairToken.name }}</p>
+        <p>{{ pool.borrowToken.name }}</p>
       </div>
       <div class="balance">
         <p>{{ userMimBalance | formatTokenBalance }}</p>
@@ -102,7 +102,7 @@ export default {
       if (this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.userPairBalance,
-          this.pool.pairToken.decimals
+          this.pool.borrowToken.decimals
         );
 
       return 0;

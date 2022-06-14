@@ -155,8 +155,8 @@ export default {
     borrowToken() {
       if (this.selectedPool)
         return {
-          name: this.selectedPool.pairToken.name,
-          icon: this.selectedPool.pairToken.icon,
+          name: this.selectedPool.borrowToken.name,
+          icon: this.selectedPool.borrowToken.icon,
         };
 
       return {
@@ -256,7 +256,7 @@ export default {
     parsedPairBalance() {
       return this.$ethers.utils.formatUnits(
         this.selectedPool.userInfo.userPairBalance.toString(),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
     },
 
@@ -412,7 +412,7 @@ export default {
       );
 
       let approve = await approveToken(
-        this.selectedPool.pairTokenContract,
+        this.selectedPool.borrowToken.contract,
         this.selectedPool.masterContractInstance.address
       );
 
@@ -476,9 +476,9 @@ export default {
       let parsedAmount = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(
           this.borrowValue,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         ),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
 
       let parsedPair = this.$ethers.utils.parseUnits(
@@ -504,7 +504,7 @@ export default {
       ) {
         parsedAmount = this.$ethers.utils.parseUnits(
           this.selectedPool.userInfo.userBorrowPart,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         );
 
         parsedPair = this.$ethers.utils.parseUnits(
@@ -525,14 +525,14 @@ export default {
         );
 
         let isTokenToCookApprove = await isTokenApprowed(
-          this.selectedPool.pairTokenContract,
+          this.selectedPool.borrowToken.contract,
           this.selectedPool.masterContractInstance.address,
           this.account
         );
 
         if (isTokenToCookApprove.lt(payload.collateralAmount)) {
           isTokenToCookApprove = await approveToken(
-            this.selectedPool.pairTokenContract,
+            this.selectedPool.borrowToken.contract,
             this.selectedPool.masterContractInstance.address
           );
         }
@@ -559,14 +559,14 @@ export default {
       }
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.pairTokenContract,
+        this.selectedPool.borrowToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.collateralAmount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.pairTokenContract,
+          this.selectedPool.borrowToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -642,9 +642,9 @@ export default {
       const parsedAmount = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(
           this.borrowValue,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         ),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
 
       const payload = {
@@ -654,14 +654,14 @@ export default {
       };
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.pairTokenContract,
+        this.selectedPool.borrowToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.amount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.pairTokenContract,
+          this.selectedPool.borrowToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }

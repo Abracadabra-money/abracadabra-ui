@@ -728,9 +728,9 @@ export default {
         const parsedMim = this.$ethers.utils.parseUnits(
           Vue.filter("formatToFixed")(
             this.mimAmount,
-            this.selectedPool.pairToken.decimals
+            this.selectedPool.borrowToken.decimals
           ),
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         );
 
         const payload = {
@@ -742,7 +742,7 @@ export default {
 
         payload.amount = Vue.filter("formatToFixed")(
           this.mimAmount,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         );
 
         this.multiplierHandle(payload);
@@ -809,9 +809,9 @@ export default {
       const mimAmount = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(
           finalAmount,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         ),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
 
       const minValue =

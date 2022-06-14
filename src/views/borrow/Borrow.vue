@@ -218,8 +218,8 @@ export default {
     borrowToken() {
       if (this.selectedPool)
         return {
-          name: this.selectedPool.pairToken.name,
-          icon: this.selectedPool.pairToken.icon,
+          name: this.selectedPool.borrowToken.name,
+          icon: this.selectedPool.borrowToken.icon,
         };
 
       return {
@@ -648,9 +648,9 @@ export default {
       const parsedBorrow = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(
           this.borrowValue,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         ),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
 
       const payload = {
@@ -767,9 +767,9 @@ export default {
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(
           this.borrowValue,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         ),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
 
       const payload = {

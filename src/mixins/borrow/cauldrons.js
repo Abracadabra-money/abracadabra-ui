@@ -106,10 +106,10 @@ export default {
       }
     },
 
-    async getUserBalance(tokenContract) {
+    async getUserBalance(contract) {
       let userBalance;
       try {
-        userBalance = await tokenContract.balanceOf(this.account, {
+        userBalance = await contract.balanceOf(this.account, {
           gasLimit: 600000,
         });
       } catch (e) {
@@ -119,10 +119,10 @@ export default {
       return userBalance;
     },
 
-    async getUserPairBalance(pairTokenContract) {
+    async getUserPairBalance(tokenBorrowContract) {
       let userPairBalance;
       try {
-        userPairBalance = await pairTokenContract.balanceOf(this.account, {
+        userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
           gasLimit: 600000,
         });
       } catch (e) {
@@ -201,9 +201,9 @@ export default {
       return liquidationPrice;
     },
 
-    async checkIsUserCollateralLocked(tokenContractInstance) {
+    async checkIsUserCollateralLocked(contractInstance) {
       try {
-        const infoResp = await tokenContractInstance.users(this.account, {
+        const infoResp = await contractInstance.users(this.account, {
           gasLimit: 1000000,
         });
 
@@ -323,9 +323,9 @@ export default {
       }
     },
 
-    async isTokenApprow(tokenContract, spenderAddress) {
+    async isTokenApprow(contract, spenderAddress) {
       try {
-        const addressApprowed = await tokenContract.allowance(
+        const addressApprowed = await contract.allowance(
           this.account,
           spenderAddress,
           {
@@ -363,13 +363,13 @@ export default {
         this.contractProvider
       );
 
-      const tokenContract = new Contract(
+      const tokenCollateralContract = new Contract(
         pool.token.address,
         pool.token.abi,
         this.contractProvider
       );
 
-      const pairTokenContract = new Contract(
+      const tokenBorrowContract = new Contract(
         pool.pairToken.address,
         pool.token.abi,
         this.contractProvider
@@ -427,7 +427,7 @@ export default {
         globalBorrowlimit
       );
 
-      const tokenPairPrice = 1;
+      const tokenBorrowPrice = 1;
 
       let oracleDecimals = pool.token.decimals;
 
@@ -454,7 +454,7 @@ export default {
 
       const { maxWithdrawAmount } = await this.getMaxWithdrawAmount(
         pool,
-        tokenContract,
+        tokenCollateralContract,
         bentoBoxAddress
       );
 
@@ -475,9 +475,11 @@ export default {
         tvl,
         borrowFee: pool.borrowFee,
         askUpdatePrice,
-        pairToken: pool.pairToken,
-        pairTokenContract,
-        tokenPairPrice,
+        borrowToken: {
+          ...pool.pairToken,
+          contract: tokenBorrowContract,
+          price: tokenBorrowPrice,
+        },
         tokenPrice,
         price,
         dynamicBorrowAmount,
@@ -485,7 +487,7 @@ export default {
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
         collateralToken: {
-          contract: tokenContract,
+          contract: tokenCollateralContract,
           name: pool.token.name,
           address: pool.token.address,
           decimals: pool.token.decimals,
@@ -514,7 +516,7 @@ export default {
       );
 
       let userPairBalance = await this.getUserPairBalance(
-        pool.pairTokenContract
+        pool.borrowToken.contract
       );
 
       const networkBalance = await this.contractProvider.getBalance();
@@ -567,7 +569,7 @@ export default {
       );
 
       const isApproveTokenBorrow = await this.isTokenApprow(
-        pool.pairTokenContract,
+        pool.borrowToken.contract,
         pool.masterContractInstance.address
       );
 
@@ -727,14 +729,13 @@ export default {
       return { tokenPairRate, askUpdatePrice };
     },
 
-    async getMaxWithdrawAmount(pool, tokenContract, bentoBoxAddress) {
+    async getMaxWithdrawAmount(pool, contract, bentoBoxAddress) {
       let maxWithdrawAmount = -1;
 
       if (pool.cauldronSettings.hasWithdrawableLimit) {
-        const tokenWithdrawAmount = await tokenContract.balanceOf(
-          bentoBoxAddress,
-          { gasLimit: 5000000 }
-        );
+        const tokenWithdrawAmount = await contract.balanceOf(bentoBoxAddress, {
+          gasLimit: 5000000,
+        });
 
         maxWithdrawAmount = this.$ethers.utils.formatUnits(
           tokenWithdrawAmount,

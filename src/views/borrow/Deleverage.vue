@@ -47,7 +47,7 @@
 
           <div class="repay-token">
             {{ repayBorrow | formatTokenBalance }}
-            {{ selectedPool.pairToken.name }}
+            {{ selectedPool.borrowToken.name }}
           </div>
 
           <div class="range-underline underline"></div>
@@ -289,7 +289,7 @@ export default {
         expectedToRepayCollateral;
 
       const borrowedInDolarts =
-        expectedBorrowBalance / this.selectedPool.tokenPairPrice;
+        expectedBorrowBalance / this.selectedPool.borrowToken.price;
 
       const collateralInDolarts =
         expectedCollateralBalance / this.selectedPool.tokenOraclePrice;
@@ -310,7 +310,7 @@ export default {
 
         return Vue.filter("formatToFixed")(
           parsedMaxContractWithdrawAmount,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         );
       }
 
@@ -385,7 +385,7 @@ export default {
     borrowAmount() {
       return Vue.filter("formatToFixed")(
         this.flashRepayAmount,
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
     },
 
@@ -574,7 +574,7 @@ export default {
 
         const finalBorrowAmount = this.$ethers.utils.parseUnits(
           this.borrowAmount,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         );
 
         const payload = {

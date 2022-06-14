@@ -12,7 +12,7 @@
           <p class="header-token-price">
             1 {{ pool.collateralToken.name }} =
             {{ tokenToMim | formatToFixed(4) }}
-            {{ pool.pairToken.name }}
+            {{ pool.borrowToken.name }}
           </p>
         </div>
       </div>
@@ -75,11 +75,11 @@
           <div class="lp-data-wrap">
             <div class="lp-data-info">
               <BaseTokenIcon
-                :name="pool.pairToken.name"
+                :name="pool.borrowToken.name"
                 :icon="borrowedIcon"
                 size="50px"
               />
-              <p class="lp-data-token">{{ pool.pairToken.name }}</p>
+              <p class="lp-data-token">{{ pool.borrowToken.name }}</p>
             </div>
             <div class="lp-data-balance-wrap">
               <p class="lp-data-balance">
