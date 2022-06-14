@@ -1,6 +1,7 @@
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 import axios from "axios";
+import { Contract } from "ethers";
 
 import poolsInfo from "@/utils/borrowPools/pools";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
@@ -52,20 +53,14 @@ export default {
       this.setCreatingPoolsBorrow(true);
     },
 
-    createContract(address, abi) {
-      return new this.$ethers.Contract(
-        address,
-        JSON.stringify(abi),
-        this.contractProvider
-      );
-    },
-
     async getOracleExchangeRate(contract, customOracleAddress = null) {
       let oracleAddress = await contract.oracle();
       let oracleData = await contract.oracleData();
-      const oracleContract = this.createContract(
+
+      const oracleContract = new Contract(
         customOracleAddress ? customOracleAddress : oracleAddress,
-        oracleAbi
+        oracleAbi,
+        this.contractProvider
       );
 
       try {
@@ -346,9 +341,10 @@ export default {
     },
 
     async createPool(pool) {
-      const poolContract = this.createContract(
+      const poolContract = new Contract(
         pool.contract.address,
-        pool.contract.abi
+        pool.contract.abi,
+        this.contractProvider
       );
 
       let bentoBoxAddress = await poolContract.bentoBox();
@@ -361,32 +357,37 @@ export default {
         return false;
       }
 
-      const masterContract = this.createContract(
+      const masterContract = new Contract(
         bentoBoxAddress,
-        masterContractAbi
+        masterContractAbi,
+        this.contractProvider
       );
 
-      const tokenContract = this.createContract(
+      const tokenContract = new Contract(
         pool.token.address,
-        pool.token.abi
+        pool.token.abi,
+        this.contractProvider
       );
 
-      const pairTokenContract = this.createContract(
+      const pairTokenContract = new Contract(
         pool.pairToken.address,
-        pool.token.abi
+        pool.token.abi,
+        this.contractProvider
       );
 
       const levSwapperContract = pool.swapContractInfo
-        ? this.createContract(
+        ? new Contract(
             pool.swapContractInfo.address,
-            pool.swapContractInfo.abi
+            pool.swapContractInfo.abi,
+            this.contractProvider
           )
         : null;
 
       const liqSwapperContract = pool.reverseSwapContractInfo
-        ? this.createContract(
+        ? new Contract(
             pool.reverseSwapContractInfo.address,
-            pool.reverseSwapContractInfo.abi
+            pool.reverseSwapContractInfo.abi,
+            this.contractProvider
           )
         : null;
 
