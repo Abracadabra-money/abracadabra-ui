@@ -371,7 +371,6 @@ const getJlpYield = async (
 export const fetchTokenApy = async (pool) => {
   let chainId = store.getters.getChainId;
   let signer = store.getters.getSigner;
-  ("");
 
   console.log("fetchTokenApy chainId", chainId);
   console.log("fetchTokenApy signer", signer);
