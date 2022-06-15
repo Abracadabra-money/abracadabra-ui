@@ -111,7 +111,8 @@ export default {
               return (
                 calc +
                 parseFloat(
-                  (pool.userInfo.userCollateralShare * 1) / pool.tokenPrice
+                  (pool.userInfo.userCollateralShare * 1) /
+                    pool.borrowToken.exchangeRate
                 )
               );
             }, 0)
@@ -139,7 +140,8 @@ export default {
     userBorrowPools() {
       return this.borrowPools.filter((pool) => {
         if (!pool.userInfo) return false;
-        const tokenInUsd = pool.userInfo.userCollateralShare / pool.tokenPrice;
+        const tokenInUsd =
+          pool.userInfo.userCollateralShare / pool.borrowToken.exchangeRate;
         if (tokenInUsd < 3) return false;
         return (
           pool.userBorrowPart !== "0.0" &&

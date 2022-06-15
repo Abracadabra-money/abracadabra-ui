@@ -244,12 +244,13 @@ export default {
         let maxPairValue;
 
         if (this.collateralValue) {
-          valueInDolars = this.collateralValue / this.selectedPool.tokenPrice;
+          valueInDolars =
+            this.collateralValue / this.selectedPool.borrowToken.exchangeRate;
           maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
         } else {
           valueInDolars =
             this.selectedPool.userInfo.userCollateralShare /
-            this.selectedPool.tokenPrice;
+            this.selectedPool.borrowToken.exchangeRate;
           maxPairValue =
             (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
             this.selectedPool.userInfo.userBorrowPart;
@@ -425,12 +426,13 @@ export default {
     leverageLiquidationRisk() {
       if (this.selectedPool) {
         const priceDifferens =
-          1 / this.selectedPool.tokenPrice - this.liquidationPriceExpected;
+          1 / this.selectedPool.borrowToken.exchangeRate -
+          this.liquidationPriceExpected;
 
         const riskPersent =
           priceDifferens *
           this.healthMultiplier *
-          this.selectedPool.tokenPrice *
+          this.selectedPool.borrowToken.exchangeRate *
           100;
 
         if (riskPersent > 100) {
@@ -533,7 +535,7 @@ export default {
 
     tokenToMim() {
       if (this.selectedPool) {
-        const tokenToMim = 1 / this.selectedPool.tokenPrice;
+        const tokenToMim = 1 / this.selectedPool.borrowToken.exchangeRate;
 
         let decimals = 4;
 

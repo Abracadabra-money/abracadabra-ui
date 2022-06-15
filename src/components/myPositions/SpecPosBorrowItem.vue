@@ -192,10 +192,13 @@ export default {
       return openedItems;
     },
     initialInUsd() {
-      return this.pool.userInfo.userCollateralShare / this.pool.tokenPrice;
+      return (
+        this.pool.userInfo.userCollateralShare /
+        this.pool.borrowToken.exchangeRate
+      );
     },
     tokenToMim() {
-      return 1 / this.pool.tokenPrice;
+      return 1 / this.pool.borrowToken.exchangeRate;
     },
     poolIcon() {
       return this.pool.icon;
@@ -204,7 +207,7 @@ export default {
       return this.pool.cauldronSettings.healthMultiplier;
     },
     tokenPrice() {
-      return 1 / this.pool.tokenPrice;
+      return 1 / this.pool.borrowToken.exchangeRate;
     },
     liquidationRisk() {
       if (

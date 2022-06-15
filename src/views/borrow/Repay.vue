@@ -198,7 +198,7 @@ export default {
     maxRemoveValue() {
       const tokenInUsd =
         +this.selectedPool.userInfo.userCollateralShare /
-        +this.selectedPool.tokenPrice;
+        +this.selectedPool.borrowToken.exchangeRate;
 
       const ltvMaxPercent = this.selectedPool.ltv - 1;
 
@@ -212,7 +212,7 @@ export default {
           : +maxMimBorrow - +this.selectedPool.userInfo.userBorrowPart;
 
       let borrowLeft = parseFloat(
-        ((maxBorrowLeft * this.selectedPool.tokenPrice) /
+        ((maxBorrowLeft * this.selectedPool.borrowToken.exchangeRate) /
           this.selectedPool.ltv) *
           100
       ).toFixed(20);

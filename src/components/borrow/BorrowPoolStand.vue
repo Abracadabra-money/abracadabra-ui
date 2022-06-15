@@ -233,14 +233,19 @@ export default {
 
     tokenInUsd() {
       if (this.account && this.collateralDepositExpected >= 0) {
-        return this.collateralDepositExpected / this.pool.tokenPrice;
+        return (
+          this.collateralDepositExpected / this.pool.borrowToken.exchangeRate
+        );
       }
       return 0;
     },
 
     collateralInUsd() {
       if (this.pool.userInfo) {
-        return this.pool.userInfo?.userCollateralShare / this.pool.tokenPrice;
+        return (
+          this.pool.userInfo?.userCollateralShare /
+          this.pool.borrowToken.exchangeRate
+        );
       }
 
       return 0;
@@ -548,7 +553,7 @@ export default {
         const riskPersent =
           this.priceDifferens *
           this.healthMultiplier *
-          this.pool.tokenPrice *
+          this.pool.borrowToken.exchangeRate *
           100;
 
         if (riskPersent > 100) {
@@ -566,7 +571,8 @@ export default {
     },
 
     priceDifferens() {
-      const priceDifferens = 1 / this.pool.tokenPrice - this.liquidationPrice;
+      const priceDifferens =
+        1 / this.pool.borrowToken.exchangeRate - this.liquidationPrice;
 
       return priceDifferens;
     },
@@ -589,7 +595,7 @@ export default {
 
     tokenToMim() {
       if (this.pool) {
-        const tokenToMim = 1 / this.pool.tokenPrice;
+        const tokenToMim = 1 / this.pool.borrowToken.exchangeRate;
 
         let decimals = 4;
 

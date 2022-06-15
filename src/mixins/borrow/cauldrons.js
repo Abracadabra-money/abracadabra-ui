@@ -13,11 +13,11 @@ import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 
 export default {
-  data() {
-    return {
-      tokenPrices: null,
-    };
-  },
+  // data() {
+  //   return {
+  //     pricesUsdCollateralToken: null,
+  //   };
+  // },
   computed: {
     ...mapGetters({
       chainId: "getChainId",
@@ -40,7 +40,7 @@ export default {
         (pool) => pool.contractChain === +this.chainId
       );
 
-      this.tokenPrices = await this.fetchTokensPrice(chainPools);
+      // this.pricesUsdCollateralToken = await this.fetchTokensPrice(chainPools);
 
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
@@ -148,12 +148,12 @@ export default {
       }
     },
 
-    parseTotalCollateralToUsd(
+    parseCollatealTokenToBorrowToken(
       totalCollateralShare,
       oracleExchangeRate,
       decimals
     ) {
-      const tokenPrice =
+      const exchangeRate =
         1 / this.$ethers.utils.formatUnits(oracleExchangeRate, decimals);
 
       const parsedCollateral = this.$ethers.utils.formatUnits(
@@ -161,7 +161,7 @@ export default {
         decimals
       );
 
-      return parsedCollateral * tokenPrice;
+      return parsedCollateral * exchangeRate;
     },
 
     async getUserCollateralShare(
@@ -221,8 +221,6 @@ export default {
     async getUserBorrowPart(poolContract) {
       try {
         const userBorrowPart = await poolContract.userBorrowPart(this.account);
-
-        // return this.$ethers.utils.formatUnits(userBorrowPart.toString());
 
         const totalBorrowInfo = await poolContract.totalBorrow();
 
@@ -399,8 +397,7 @@ export default {
       const contractExchangeRate = await this.getContractExchangeRate(
         poolContract
       );
-
-      const { tokenPairRate, askUpdatePrice } = this.getTokenPairRate(
+      const { borrowTokenRate, askUpdatePrice } = this.getBorrowTokenRate(
         oracleExchangeRate,
         contractExchangeRate
       );
@@ -427,30 +424,30 @@ export default {
         globalBorrowlimit
       );
 
-      const tokenBorrowPrice = 1;
-
       let oracleDecimals = pool.token.decimals;
 
       if (pool.token.oracleDatas?.data && pool.token.oracleDatas?.decimals)
         oracleDecimals = pool.token.oracleDatas?.decimals;
 
-      const tokenPrice = Number(
-        this.$ethers.utils.formatUnits(tokenPairRate, oracleDecimals)
+      const tokenBorrowPrice = 1;
+
+      const borrowTokenExchangeRate = Number(
+        this.$ethers.utils.formatUnits(borrowTokenRate, oracleDecimals)
       );
 
       const tokenOraclePrice = Number(
         this.$ethers.utils.formatUnits(oracleExchangeRate, oracleDecimals)
       );
 
-      const tvl = this.parseTotalCollateralToUsd(
+      const tvl = this.parseCollatealTokenToBorrowToken(
         totalCollateralShare,
-        tokenPairRate,
+        borrowTokenRate,
         pool.token.decimals
       );
 
-      const price = this.tokenPrices.find(
-        (priceItem) => priceItem.address === pool.token.address.toLowerCase()
-      )?.price;
+      // const priceUsd = this.pricesUsdCollateralToken.find(
+      //   (priceItem) => priceItem.address === pool.token.address.toLowerCase()
+      // )?.price;
 
       const { maxWithdrawAmount } = await this.getMaxWithdrawAmount(
         pool,
@@ -479,9 +476,8 @@ export default {
           ...pool.pairToken,
           contract: tokenBorrowContract,
           price: tokenBorrowPrice,
+          exchangeRate: borrowTokenExchangeRate,
         },
-        tokenPrice,
-        price,
         dynamicBorrowAmount,
         borrowlimit,
         tokenOraclePrice,
@@ -491,8 +487,9 @@ export default {
           name: pool.token.name,
           address: pool.token.address,
           decimals: pool.token.decimals,
-          oracleExchangeRate: tokenPairRate,
+          oracleExchangeRate: borrowTokenRate,
           additionalLogic: pool.token.additionalLogic,
+          // priceUsd,
         },
         maxWithdrawAmount,
         userInfo: null,
@@ -555,7 +552,7 @@ export default {
         this.$ethers.utils.formatUnits(
           userBalance,
           pool.collateralToken.decimals
-        ) / pool.tokenPrice;
+        ) / pool.borrowToken.exchangeRate;
 
       let whitelistedInfo;
       if (pool.id === 33 && this.chainId === 1) {
@@ -705,28 +702,28 @@ export default {
       }
     },
 
-    getTokenPairRate(oracleExchangeRate, contractExchangeRate) {
-      let tokenPairRate;
+    getBorrowTokenRate(oracleExchangeRate, contractExchangeRate) {
+      let borrowTokenRate;
       let askUpdatePrice = false;
 
       if (
         oracleExchangeRate.toString() > contractExchangeRate.toString() &&
         !contractExchangeRate.eq(0)
       ) {
-        tokenPairRate = contractExchangeRate;
+        borrowTokenRate = contractExchangeRate;
         askUpdatePrice = true;
       } else if (contractExchangeRate.eq(0)) {
-        tokenPairRate = oracleExchangeRate;
+        borrowTokenRate = oracleExchangeRate;
         askUpdatePrice = true;
       } else if (
         oracleExchangeRate.toString() !== contractExchangeRate.toString()
       ) {
-        tokenPairRate = oracleExchangeRate;
+        borrowTokenRate = oracleExchangeRate;
       } else {
-        tokenPairRate = oracleExchangeRate;
+        borrowTokenRate = oracleExchangeRate;
       }
 
-      return { tokenPairRate, askUpdatePrice };
+      return { borrowTokenRate, askUpdatePrice };
     },
 
     async getMaxWithdrawAmount(pool, contract, bentoBoxAddress) {

@@ -381,7 +381,7 @@ export const fetchTokenApy = async (pool) => {
   }
 
   if (pool.joeInfo) {
-    const jlpPrice = 1 / pool.tokenPrice;
+    const jlpPrice = 1 / pool.borrowToken.exchangeRate;
     return await getJLPApr(
       pool.joeInfo,
       jlpPrice,
@@ -398,11 +398,15 @@ export const fetchTokenApy = async (pool) => {
     (pool.id === 15 || pool.id === 24 || pool.id === 25) &&
     chainId === mainnetId
   ) {
-    return await getCrvPoolApy(pool.tokenPrice, signer, chainId);
+    return await getCrvPoolApy(pool.borrowToken.exchangeRate, signer, chainId);
   }
 
   if (pool.id === 16 && chainId === mainnetId) {
-    return await getCryptoPoolApy(pool.tokenPrice, signer, chainId);
+    return await getCryptoPoolApy(
+      pool.borrowToken.exchangeRate,
+      signer,
+      chainId
+    );
   }
 
   if ((pool.id === 19 || pool.id === 26) && chainId === mainnetId) {
