@@ -380,8 +380,13 @@ export const fetchTokenApy = async (pool) => {
   }
 
   if (pool.joeInfo) {
-    const jlpPrice = 1 / pool.tokenPrice;
-    return await getJLPApr(pool.joeInfo, jlpPrice, pool.token.contract, signer);
+    const jlpPrice = 1 / pool.borrowToken.exchangeRate;
+    return await getJLPApr(
+      pool.joeInfo,
+      jlpPrice,
+      pool.collateralToken.contract,
+      signer
+    );
   }
 
   if (pool.id === 10 && chainId === mainnetId) {
@@ -392,11 +397,15 @@ export const fetchTokenApy = async (pool) => {
     (pool.id === 15 || pool.id === 24 || pool.id === 25) &&
     chainId === mainnetId
   ) {
-    return await getCrvPoolApy(pool.tokenPrice, signer, chainId);
+    return await getCrvPoolApy(pool.borrowToken.exchangeRate, signer, chainId);
   }
 
   if (pool.id === 16 && chainId === mainnetId) {
-    return await getCryptoPoolApy(pool.tokenPrice, signer, chainId);
+    return await getCryptoPoolApy(
+      pool.borrowToken.exchangeRate,
+      signer,
+      chainId
+    );
   }
 
   if ((pool.id === 19 || pool.id === 26) && chainId === mainnetId) {
@@ -404,7 +413,7 @@ export const fetchTokenApy = async (pool) => {
   }
 
   if ((pool.id === 31 || pool.id === 32) && chainId === mainnetId) {
-    return await getStargateApy(pool.token.contract.address, signer);
+    return await getStargateApy(pool.collateralToken.contract.address, signer);
   }
 
   if ((pool.id === 2 || pool.id === 5) && chainId === 43114) {
@@ -420,7 +429,7 @@ export const fetchTokenApy = async (pool) => {
     }
 
     const tokenItem = store.getters.getTokensVaults.find(
-      (item) => item.address === pool.token.address
+      (item) => item.address === pool.collateralToken.address
     );
 
     if (!tokenItem) return null;

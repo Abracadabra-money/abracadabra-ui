@@ -17,7 +17,7 @@
     <div class="balance-item">
       <div class="balance-name">
         <BaseTokenIcon :icon="mimIcon" :name="pool.name" />
-        <p>{{ pool.pairToken.name }}</p>
+        <p>{{ pool.borrowToken.name }}</p>
       </div>
       <div class="balance">
         <p>{{ userMimBalance | formatTokenBalance }}</p>
@@ -26,8 +26,8 @@
 
     <div class="balance-item">
       <div class="balance-name">
-        <BaseTokenIcon :icon="pool.icon" :name="pool.token.name" />
-        <p>{{ pool.token.name }}</p>
+        <BaseTokenIcon :icon="pool.icon" :name="pool.collateralToken.name" />
+        <p>{{ pool.collateralToken.name }}</p>
       </div>
       <div class="balance">
         <p>{{ userBalance | formatTokenBalance }}</p>
@@ -102,7 +102,7 @@ export default {
       if (this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.userPairBalance,
-          this.pool.pairToken.decimals
+          this.pool.borrowToken.decimals
         );
 
       return 0;
@@ -112,7 +112,7 @@ export default {
       if (this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.userBalance,
-          this.pool.token.decimals
+          this.pool.collateralToken.decimals
         );
 
       return 0;

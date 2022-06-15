@@ -303,12 +303,12 @@ export default {
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.token.address;
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
 
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -441,7 +441,7 @@ export default {
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.token.address;
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance ? amount.toString() : 0;
 
       const userAddr = this.account;
@@ -557,7 +557,7 @@ export default {
       pool,
       notificationId
     ) {
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -679,8 +679,8 @@ export default {
       pool,
       notificationId
     ) {
-      const tokenAddr = pool.token.address;
-      const pairToken = pool.pairToken.address;
+      const tokenAddr = pool.collateralToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
 
@@ -829,8 +829,8 @@ export default {
       pool,
       notificationId
     ) {
-      const pairToken = pool.pairToken.address;
-      const tokenAddr = pool.token.address;
+      const pairToken = pool.borrowToken.address;
+      const tokenAddr = pool.collateralToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -977,7 +977,7 @@ export default {
       pool,
       notificationId
     ) {
-      const tokenAddr = pool.token.address;
+      const tokenAddr = pool.collateralToken.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -1097,7 +1097,7 @@ export default {
       pool,
       notificationId
     ) {
-      const pairToken = pool.pairToken.address;
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       const userBorrowPart = pool.userInfo.contractBorrowPart;
@@ -1261,12 +1261,12 @@ export default {
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.token.address;
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
 
-      const swapperAddres = pool.swapContract.address;
+      const swapperAddres = pool.levSwapperContract.address;
       const userAddr = this.account;
 
       const eventsArray = [];
@@ -1337,14 +1337,15 @@ export default {
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      const swapStaticTx = await pool.swapContract.populateTransaction.swap(
-        userAddr,
-        minExpected,
-        0,
-        {
-          gasLimit: 10000000,
-        }
-      );
+      const swapStaticTx =
+        await pool.levSwapperContract.populateTransaction.swap(
+          userAddr,
+          minExpected,
+          0,
+          {
+            gasLimit: 10000000,
+          }
+        );
 
       const swapCallByte = swapStaticTx.data.substr(0, 138);
 
@@ -1433,9 +1434,9 @@ export default {
       account,
       notificationId
     ) {
-      const borrowTokenAddr = pool.pairToken.address;
-      const collateralTokenAddr = pool.token.address;
-      const reverseSwapperAddr = pool.reverseSwapContract.address;
+      const borrowTokenAddr = pool.borrowToken.address;
+      const collateralTokenAddr = pool.collateralToken.address;
+      const reverseSwapperAddr = pool.liqSwapperContract.address;
       const userAddr = account;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
 
@@ -1479,7 +1480,7 @@ export default {
       datasArray.push(removeCollateralToSwapper);
 
       const swapStaticTx =
-        await pool.reverseSwapContract.populateTransaction.swap(
+        await pool.liqSwapperContract.populateTransaction.swap(
           collateralTokenAddr,
           borrowTokenAddr,
           userAddr,

@@ -156,7 +156,7 @@ const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
 import Vue from "vue";
 
-import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
 import {
   approveToken,
@@ -168,7 +168,7 @@ import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 
 export default {
-  mixins: [borrowPoolsMixin, cookMixin],
+  mixins: [cauldronsMixin, cookMixin],
   data() {
     return {
       collateralValue: "",
@@ -218,8 +218,8 @@ export default {
     borrowToken() {
       if (this.selectedPool)
         return {
-          name: this.selectedPool.pairToken.name,
-          icon: this.selectedPool.pairToken.icon,
+          name: this.selectedPool.borrowToken.name,
+          icon: this.selectedPool.borrowToken.icon,
         };
 
       return {
@@ -253,13 +253,13 @@ export default {
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
-            this.selectedPool.token.decimals
+            this.selectedPool.collateralToken.decimals
           );
         }
 
         return this.$ethers.utils.formatUnits(
           this.selectedPool.userInfo.userBalance,
-          this.selectedPool.token.decimals
+          this.selectedPool.collateralToken.decimals
         );
       }
 
@@ -272,12 +272,13 @@ export default {
         let maxPairValue;
 
         if (this.collateralValue) {
-          valueInDolars = this.collateralValue / this.selectedPool.tokenPrice;
+          valueInDolars =
+            this.collateralValue / this.selectedPool.borrowToken.exchangeRate;
           maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
         } else {
           valueInDolars =
             this.selectedPool.userInfo.userCollateralShare /
-            this.selectedPool.tokenPrice;
+            this.selectedPool.borrowToken.exchangeRate;
           maxPairValue =
             (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
             this.selectedPool.userInfo?.userBorrowPart;
@@ -343,7 +344,7 @@ export default {
       if (this.borrowValue && !this.borrowError && !this.collateralError) {
         const tokenToMim =
           this.selectedPool.userInfo?.userCollateralShare /
-          this.selectedPool.tokenPrice;
+          this.selectedPool.borrowToken.exchangeRate;
         let ltv =
           Math.round(
             ((+this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart) /
@@ -436,14 +437,14 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        return this.selectedPool.token.name;
+        return this.selectedPool.collateralToken.name;
       }
       return "";
     },
 
     isTokenApprove() {
-      if (this.selectedPool && this.account) {
-        return this.selectedPool.token.isTokenApprove;
+      if (this.selectedPool && this.selectedPool.userInfo && this.account) {
+        return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
 
       return true;
@@ -464,7 +465,7 @@ export default {
 
     tokenToMim() {
       if (this.selectedPool) {
-        const tokenToMim = 1 / this.selectedPool.tokenPrice;
+        const tokenToMim = 1 / this.selectedPool.borrowToken.exchangeRate;
 
         let decimals = 4;
 
@@ -507,7 +508,7 @@ export default {
       );
 
       let approve = await approveToken(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address
       );
 
@@ -638,7 +639,7 @@ export default {
 
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
@@ -648,9 +649,9 @@ export default {
       const parsedBorrow = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(
           this.borrowValue,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         ),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
 
       const payload = {
@@ -661,14 +662,14 @@ export default {
       };
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.collateralAmount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -703,7 +704,7 @@ export default {
 
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.token.decimals
+        this.selectedPool.collateralToken.decimals
       );
 
       const payload = {
@@ -713,14 +714,14 @@ export default {
       };
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.amount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -767,9 +768,9 @@ export default {
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(
           this.borrowValue,
-          this.selectedPool.pairToken.decimals
+          this.selectedPool.borrowToken.decimals
         ),
-        this.selectedPool.pairToken.decimals
+        this.selectedPool.borrowToken.decimals
       );
 
       const payload = {
@@ -778,14 +779,14 @@ export default {
       };
 
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.token.contract,
+        this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.eq(0)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.token.contract,
+          this.selectedPool.collateralToken.contract,
           this.selectedPool.masterContractInstance.address
         );
       }

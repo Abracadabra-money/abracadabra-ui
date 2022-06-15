@@ -72,13 +72,13 @@ const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
-import borrowPoolsMixin from "@/mixins/borrow/borrowPools.js";
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import { mapGetters } from "vuex";
 
 const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
 
 export default {
-  mixins: [mimBentoDeposit, farmPoolsMixin, borrowPoolsMixin],
+  mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
   data: () => ({
     activeNetworks: [1, 56, 250, 43114, 42161, 137],
 
@@ -111,7 +111,8 @@ export default {
               return (
                 calc +
                 parseFloat(
-                  (pool.userInfo.userCollateralShare * 1) / pool.tokenPrice
+                  (pool.userInfo.userCollateralShare * 1) /
+                    pool.borrowToken.exchangeRate
                 )
               );
             }, 0)
@@ -139,7 +140,8 @@ export default {
     userBorrowPools() {
       return this.borrowPools.filter((pool) => {
         if (!pool.userInfo) return false;
-        const tokenInUsd = pool.userInfo.userCollateralShare / pool.tokenPrice;
+        const tokenInUsd =
+          pool.userInfo.userCollateralShare / pool.borrowToken.exchangeRate;
         if (tokenInUsd < 3) return false;
         return (
           pool.userBorrowPart !== "0.0" &&

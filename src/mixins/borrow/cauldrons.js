@@ -1,6 +1,7 @@
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 import axios from "axios";
+import { Contract } from "ethers";
 
 import poolsInfo from "@/utils/borrowPools/pools";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
@@ -12,11 +13,11 @@ import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 
 export default {
-  data() {
-    return {
-      tokenPrices: null,
-    };
-  },
+  // data() {
+  //   return {
+  //     pricesUsdCollateralToken: null,
+  //   };
+  // },
   computed: {
     ...mapGetters({
       chainId: "getChainId",
@@ -39,7 +40,7 @@ export default {
         (pool) => pool.contractChain === +this.chainId
       );
 
-      this.tokenPrices = await this.fetchTokensPrice(chainPools);
+      // this.pricesUsdCollateralToken = await this.fetchTokensPrice(chainPools);
 
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
@@ -52,20 +53,14 @@ export default {
       this.setCreatingPoolsBorrow(true);
     },
 
-    createContract(address, abi) {
-      return new this.$ethers.Contract(
-        address,
-        JSON.stringify(abi),
-        this.contractProvider
-      );
-    },
-
     async getOracleExchangeRate(contract, customOracleAddress = null) {
       let oracleAddress = await contract.oracle();
       let oracleData = await contract.oracleData();
-      const oracleContract = this.createContract(
+
+      const oracleContract = new Contract(
         customOracleAddress ? customOracleAddress : oracleAddress,
-        oracleAbi
+        oracleAbi,
+        this.contractProvider
       );
 
       try {
@@ -111,10 +106,10 @@ export default {
       }
     },
 
-    async getUserBalance(tokenContract) {
+    async getUserBalance(contract) {
       let userBalance;
       try {
-        userBalance = await tokenContract.balanceOf(this.account, {
+        userBalance = await contract.balanceOf(this.account, {
           gasLimit: 600000,
         });
       } catch (e) {
@@ -124,10 +119,10 @@ export default {
       return userBalance;
     },
 
-    async getUserPairBalance(pairTokenContract) {
+    async getUserPairBalance(tokenBorrowContract) {
       let userPairBalance;
       try {
-        userPairBalance = await pairTokenContract.balanceOf(this.account, {
+        userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
           gasLimit: 600000,
         });
       } catch (e) {
@@ -153,12 +148,12 @@ export default {
       }
     },
 
-    parseTotalCollateralToUsd(
+    parseCollatealTokenToBorrowToken(
       totalCollateralShare,
       oracleExchangeRate,
       decimals
     ) {
-      const tokenPrice =
+      const exchangeRate =
         1 / this.$ethers.utils.formatUnits(oracleExchangeRate, decimals);
 
       const parsedCollateral = this.$ethers.utils.formatUnits(
@@ -166,7 +161,7 @@ export default {
         decimals
       );
 
-      return parsedCollateral * tokenPrice;
+      return parsedCollateral * exchangeRate;
     },
 
     async getUserCollateralShare(
@@ -206,9 +201,9 @@ export default {
       return liquidationPrice;
     },
 
-    async checkIsUserCollateralLocked(tokenContractInstance) {
+    async checkIsUserCollateralLocked(contractInstance) {
       try {
-        const infoResp = await tokenContractInstance.users(this.account, {
+        const infoResp = await contractInstance.users(this.account, {
           gasLimit: 1000000,
         });
 
@@ -226,8 +221,6 @@ export default {
     async getUserBorrowPart(poolContract) {
       try {
         const userBorrowPart = await poolContract.userBorrowPart(this.account);
-
-        // return this.$ethers.utils.formatUnits(userBorrowPart.toString());
 
         const totalBorrowInfo = await poolContract.totalBorrow();
 
@@ -328,9 +321,9 @@ export default {
       }
     },
 
-    async isTokenApprow(tokenContract, spenderAddress) {
+    async isTokenApprow(contract, spenderAddress) {
       try {
-        const addressApprowed = await tokenContract.allowance(
+        const addressApprowed = await contract.allowance(
           this.account,
           spenderAddress,
           {
@@ -346,9 +339,10 @@ export default {
     },
 
     async createPool(pool) {
-      const poolContract = this.createContract(
+      const poolContract = new Contract(
         pool.contract.address,
-        pool.contract.abi
+        pool.contract.abi,
+        this.contractProvider
       );
 
       let bentoBoxAddress = await poolContract.bentoBox();
@@ -361,32 +355,37 @@ export default {
         return false;
       }
 
-      const masterContract = this.createContract(
+      const masterContract = new Contract(
         bentoBoxAddress,
-        masterContractAbi
+        masterContractAbi,
+        this.contractProvider
       );
 
-      const tokenContract = this.createContract(
+      const tokenCollateralContract = new Contract(
         pool.token.address,
-        pool.token.abi
+        pool.token.abi,
+        this.contractProvider
       );
 
-      const pairTokenContract = this.createContract(
+      const tokenBorrowContract = new Contract(
         pool.pairToken.address,
-        pool.token.abi
+        pool.token.abi,
+        this.contractProvider
       );
 
-      let swapContract = pool.swapContractInfo
-        ? this.createContract(
+      const levSwapperContract = pool.swapContractInfo
+        ? new Contract(
             pool.swapContractInfo.address,
-            pool.swapContractInfo.abi
+            pool.swapContractInfo.abi,
+            this.contractProvider
           )
         : null;
 
-      let reverseSwapContract = pool.reverseSwapContractInfo
-        ? this.createContract(
+      const liqSwapperContract = pool.reverseSwapContractInfo
+        ? new Contract(
             pool.reverseSwapContractInfo.address,
-            pool.reverseSwapContractInfo.abi
+            pool.reverseSwapContractInfo.abi,
+            this.contractProvider
           )
         : null;
 
@@ -398,19 +397,7 @@ export default {
       const contractExchangeRate = await this.getContractExchangeRate(
         poolContract
       );
-
-      const { isTokenApprove, isPairTokenApprove } = await this.getTokenApprove(
-        tokenContract,
-        pairTokenContract,
-        masterContract
-      );
-
-      const pairToken = { ...pool.pairToken, isPairTokenApprove };
-
-      const { isTokenToSwapApprove, isTokenToReverseSwapApprove } =
-        await this.getSwapContractApprove(pool, tokenContract);
-
-      const { tokenPairRate, askUpdatePrice } = this.getTokenPairRate(
+      const { borrowTokenRate, askUpdatePrice } = this.getBorrowTokenRate(
         oracleExchangeRate,
         contractExchangeRate
       );
@@ -437,34 +424,34 @@ export default {
         globalBorrowlimit
       );
 
-      const tokenPairPrice = 1;
-
       let oracleDecimals = pool.token.decimals;
 
       if (pool.token.oracleDatas?.data && pool.token.oracleDatas?.decimals)
         oracleDecimals = pool.token.oracleDatas?.decimals;
 
-      const tokenPrice = Number(
-        this.$ethers.utils.formatUnits(tokenPairRate, oracleDecimals)
+      const tokenBorrowPrice = 1;
+
+      const borrowTokenExchangeRate = Number(
+        this.$ethers.utils.formatUnits(borrowTokenRate, oracleDecimals)
       );
 
       const tokenOraclePrice = Number(
         this.$ethers.utils.formatUnits(oracleExchangeRate, oracleDecimals)
       );
 
-      const tvl = this.parseTotalCollateralToUsd(
+      const tvl = this.parseCollatealTokenToBorrowToken(
         totalCollateralShare,
-        tokenPairRate,
+        borrowTokenRate,
         pool.token.decimals
       );
 
-      const price = this.tokenPrices.find(
-        (priceItem) => priceItem.address === pool.token.address.toLowerCase()
-      )?.price;
+      // const priceUsd = this.pricesUsdCollateralToken.find(
+      //   (priceItem) => priceItem.address === pool.token.address.toLowerCase()
+      // )?.price;
 
       const { maxWithdrawAmount } = await this.getMaxWithdrawAmount(
         pool,
-        tokenContract,
+        tokenCollateralContract,
         bentoBoxAddress
       );
 
@@ -485,30 +472,29 @@ export default {
         tvl,
         borrowFee: pool.borrowFee,
         askUpdatePrice,
-        pairToken: pairToken,
-        pairTokenContract,
-        tokenPairPrice,
-        tokenPrice,
-        price,
+        borrowToken: {
+          ...pool.pairToken,
+          contract: tokenBorrowContract,
+          price: tokenBorrowPrice,
+          exchangeRate: borrowTokenExchangeRate,
+        },
         dynamicBorrowAmount,
         borrowlimit,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
-        token: {
-          contract: tokenContract,
+        collateralToken: {
+          contract: tokenCollateralContract,
           name: pool.token.name,
           address: pool.token.address,
           decimals: pool.token.decimals,
-          oracleExchangeRate: tokenPairRate,
-          isTokenApprove,
+          oracleExchangeRate: borrowTokenRate,
           additionalLogic: pool.token.additionalLogic,
+          // priceUsd,
         },
         maxWithdrawAmount,
         userInfo: null,
-        swapContract,
-        isTokenToSwapApprove,
-        reverseSwapContract,
-        isTokenToReverseSwapApprove,
+        levSwapperContract,
+        liqSwapperContract,
       };
 
       if (this.account) {
@@ -517,15 +503,17 @@ export default {
         return poolData;
       }
     },
-    // fetch
+
     async getUserInfo(pool, poolContract) {
       const { userBorrowPart, contractBorrowPart } =
         await this.getUserBorrowPart(pool.contractInstance);
 
-      let userBalance = await this.getUserBalance(pool.token.contract);
+      let userBalance = await this.getUserBalance(
+        pool.collateralToken.contract
+      );
 
       let userPairBalance = await this.getUserPairBalance(
-        pool.pairTokenContract
+        pool.borrowToken.contract
       );
 
       const networkBalance = await this.contractProvider.getBalance();
@@ -534,16 +522,16 @@ export default {
 
       if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
-          pool.token.contract,
-          pool.token.decimals
+          pool.collateralToken.contract,
+          pool.collateralToken.decimals
         );
       }
 
       const userCollateralShare = await this.getUserCollateralShare(
         pool.masterContractInstance,
         pool.contractInstance,
-        pool.token.decimals,
-        pool.token.address
+        pool.collateralToken.decimals,
+        pool.collateralToken.address
       );
 
       const liquidationPrice = this.getLiquidationPrice(
@@ -556,19 +544,45 @@ export default {
 
       if ((pool.id === 11 || pool.id === 22) && this.chainId === 1) {
         collateralLockTimestamp = await this.checkIsUserCollateralLocked(
-          pool.token.contract
+          pool.collateralToken.contract
         );
       }
 
       let balanceUsd =
-        this.$ethers.utils.formatUnits(userBalance, pool.token.decimals) /
-        pool.tokenPrice;
+        this.$ethers.utils.formatUnits(
+          userBalance,
+          pool.collateralToken.decimals
+        ) / pool.borrowToken.exchangeRate;
 
       let whitelistedInfo;
       if (pool.id === 33 && this.chainId === 1) {
         whitelistedInfo = await this.checkPoolWhitelised(poolContract);
         console.log("whitelistedInfo", whitelistedInfo);
       }
+
+      const isApproveTokenCollateral = await this.isTokenApprow(
+        pool.collateralToken.contract,
+        pool.masterContractInstance.address
+      );
+
+      const isApproveTokenBorrow = await this.isTokenApprow(
+        pool.borrowToken.contract,
+        pool.masterContractInstance.address
+      );
+
+      const isApproveLevSwapper = pool.levSwapperContract
+        ? await this.isTokenApprow(
+            pool.collateralToken.contract,
+            pool.levSwapperContract.address
+          )
+        : false;
+
+      const isApproveLiqSwapper = pool.liqSwapperContract
+        ? await this.isTokenApprow(
+            pool.collateralToken.contract,
+            pool.liqSwapperContract.address
+          )
+        : false;
 
       pool.userInfo = {
         userBorrowPart,
@@ -585,6 +599,10 @@ export default {
         ),
         balanceUsd,
         whitelistedInfo,
+        isApproveTokenCollateral,
+        isApproveTokenBorrow,
+        isApproveLevSwapper,
+        isApproveLiqSwapper,
       };
 
       return pool;
@@ -684,38 +702,37 @@ export default {
       }
     },
 
-    getTokenPairRate(oracleExchangeRate, contractExchangeRate) {
-      let tokenPairRate;
+    getBorrowTokenRate(oracleExchangeRate, contractExchangeRate) {
+      let borrowTokenRate;
       let askUpdatePrice = false;
 
       if (
         oracleExchangeRate.toString() > contractExchangeRate.toString() &&
         !contractExchangeRate.eq(0)
       ) {
-        tokenPairRate = contractExchangeRate;
+        borrowTokenRate = contractExchangeRate;
         askUpdatePrice = true;
       } else if (contractExchangeRate.eq(0)) {
-        tokenPairRate = oracleExchangeRate;
+        borrowTokenRate = oracleExchangeRate;
         askUpdatePrice = true;
       } else if (
         oracleExchangeRate.toString() !== contractExchangeRate.toString()
       ) {
-        tokenPairRate = oracleExchangeRate;
+        borrowTokenRate = oracleExchangeRate;
       } else {
-        tokenPairRate = oracleExchangeRate;
+        borrowTokenRate = oracleExchangeRate;
       }
 
-      return { tokenPairRate, askUpdatePrice };
+      return { borrowTokenRate, askUpdatePrice };
     },
 
-    async getMaxWithdrawAmount(pool, tokenContract, bentoBoxAddress) {
+    async getMaxWithdrawAmount(pool, contract, bentoBoxAddress) {
       let maxWithdrawAmount = -1;
 
       if (pool.cauldronSettings.hasWithdrawableLimit) {
-        const tokenWithdrawAmount = await tokenContract.balanceOf(
-          bentoBoxAddress,
-          { gasLimit: 5000000 }
-        );
+        const tokenWithdrawAmount = await contract.balanceOf(bentoBoxAddress, {
+          gasLimit: 5000000,
+        });
 
         maxWithdrawAmount = this.$ethers.utils.formatUnits(
           tokenWithdrawAmount,
@@ -786,52 +803,6 @@ export default {
       }
 
       return { dynamicBorrowAmount };
-    },
-
-    async getTokenApprove(tokenContract, pairTokenContract, masterContract) {
-      let isTokenApprove = false,
-        isPairTokenApprove = false;
-
-      if (this.account) {
-        isTokenApprove = await this.isTokenApprow(
-          tokenContract,
-          masterContract.address
-        );
-
-        isPairTokenApprove = await this.isTokenApprow(
-          pairTokenContract,
-          masterContract.address
-        );
-      }
-
-      return {
-        isTokenApprove,
-        isPairTokenApprove,
-      };
-    },
-
-    async getSwapContractApprove(pool, tokenContract) {
-      let isTokenToSwapApprove = false,
-        isTokenToReverseSwapApprove = false;
-
-      if (pool?.swapContractInfo?.address && this.account) {
-        isTokenToSwapApprove = await this.isTokenApprow(
-          tokenContract,
-          pool.swapContractInfo.address
-        );
-      }
-
-      if (pool?.reverseSwapContractInfo?.address && this.account) {
-        isTokenToReverseSwapApprove = await this.isTokenApprow(
-          tokenContract,
-          pool.reverseSwapContractInfo.address
-        );
-      }
-
-      return {
-        isTokenToSwapApprove,
-        isTokenToReverseSwapApprove,
-      };
     },
   },
 

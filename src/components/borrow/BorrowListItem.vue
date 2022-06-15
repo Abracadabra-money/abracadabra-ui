@@ -36,36 +36,11 @@ export default {
       if (this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.userBalance,
-          this.pool.token.decimals
+          this.pool.collateralToken.decimals
         );
 
       return 0;
     },
-
-    // priceUsd() {
-    //   if (this.pool.userInfo) {
-    //     // if (this.pool.price) {
-    //     //   return parseFloat(
-    //     //     this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) *
-    //     //       this.pool.price
-    //     //   ).toFixed(2);
-    //     // } else {
-    //     return parseFloat(
-    //       this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) /
-    //         this.pool.tokenPrice
-    //     ).toFixed(2);
-    //     // }
-
-    //     //   return parseFloat(
-    //     //     // this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) *
-    //     //     //   this.pool.price ||
-    //     //     this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) /
-    //     //       this.pool.tokenPrice
-    //     //   ).toFixed(2);
-    //   }
-
-    //   return 0;
-    // },
   },
 
   methods: {
