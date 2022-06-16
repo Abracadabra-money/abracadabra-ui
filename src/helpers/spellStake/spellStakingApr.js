@@ -65,12 +65,13 @@ const getTokensRate = async () => {
 const getSpellApr = async () => {
   const tokenRate = await getTokensRate();
 
-  const startDate = moment().subtract(1, "months");
+  // const startDate = moment().subtract(1, "months");
+  const startDate = moment("2021-5-25");
   const date = moment();
 
   const dayDiff = date.diff(startDate, "days");
 
-  const apr = (((tokenRate - 1) * 100) / dayDiff) * dayDiff;
+  const apr = (((tokenRate - 1) * 100) / dayDiff) * 365;
 
   console.log("apr apr", apr);
   return apr;
