@@ -538,11 +538,11 @@ export default {
     },
 
     showCollateralLogicBtn() {
-      return this.pool?.token?.additionalLogic && this.account;
+      return this.pool?.collateralToken?.additionalLogic && this.account;
     },
 
     collateralTitle() {
-      if (this.pool?.token?.additionalLogic) {
+      if (this.pool?.collateralToken?.additionalLogic) {
         return this.pool.collateralToken.additionalLogic.title;
       }
       return "";
