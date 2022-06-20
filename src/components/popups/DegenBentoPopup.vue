@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <BaseButton v-if="!isApproved" primary @click="approveToken"
+    <BaseButton v-if="!isApproved && isDeposit" primary @click="approveToken"
       >Approve</BaseButton
     >
     <template v-else>
