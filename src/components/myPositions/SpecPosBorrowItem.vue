@@ -158,7 +158,7 @@ export default {
       const openedItems = [];
 
       const addCollateralLink = {
-        title: "Add Collateral",
+        title: "Add Collateral/ Borrow MIM",
         icon: require("@/assets/images/myposition/AddCollateral.png"),
         name: "BorrowId",
       };
@@ -166,7 +166,7 @@ export default {
       openedItems.push(addCollateralLink);
 
       const repayLink = {
-        title: "Repay MIMs",
+        title: "Repay MIMs/ Remove Collateral",
         icon: require("@/assets/images/myposition/Repay.png"),
         name: "RepayId",
       };
@@ -472,9 +472,15 @@ export default {
   .header {
     grid-template-columns: 1fr auto !important;
   }
+
+
 }
 
 @media (max-width: 640px) {
+  .pos-item .header-content .header-opened-item {
+    height: auto;
+  }
+
   .pos-item .lp-data-token {
     font-size: 16px;
   }
