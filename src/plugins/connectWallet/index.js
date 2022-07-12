@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
+import Web3 from "web3";
 
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
@@ -8,6 +9,7 @@ import Torus from "@toruslabs/torus-embed";
 // import ethProvider from "eth-provider";
 
 import store from "../../store";
+import { sanctionAbi } from "@/utils/abi/sanctionAbi";
 
 // WALLETCONNECT
 const walletconnect = {
@@ -111,6 +113,19 @@ const initWithoutConnect = async () => {
   store.commit("setWalletConnection", true);
 };
 
+const checkSanctionAddress = (address, provider) =>
+  new Promise((resolve) => {
+    const web3 = new Web3(provider);
+    const contract = new web3.eth.Contract(
+      sanctionAbi,
+      "0x40c57923924b5c5c5455c48d93317139addac8fb"
+    );
+
+    contract.methods.isSanctioned(address).call((err, result) => {
+      resolve(result);
+    });
+  });
+
 const onConnect = async () => {
   try {
     const instance = await web3Modal.connect();
@@ -130,6 +145,15 @@ const onConnect = async () => {
     const accounts = await signer.getAddress();
 
     const address = Array.isArray(accounts) ? accounts[0] : accounts;
+
+    if (await checkSanctionAddress(address, provider.provider)) {
+      await store.dispatch("notifications/new", {
+        msg: "BAN", //TODO update msg
+        type: "error",
+      });
+      return false;
+    }
+
     const chainId = await signer.getChainId();
 
     console.log("address", address);
