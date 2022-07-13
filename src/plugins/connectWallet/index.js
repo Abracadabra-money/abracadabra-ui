@@ -156,7 +156,12 @@ const onConnect = async () => {
 
     const address = Array.isArray(accounts) ? accounts[0] : accounts;
 
-    if (await checkSanctionAddress(address)) return false;
+    if (
+      await checkSanctionAddress(address)
+    ) {
+      initWithoutConnect();
+      return false;
+    }
 
     const chainId = await signer.getChainId();
 
