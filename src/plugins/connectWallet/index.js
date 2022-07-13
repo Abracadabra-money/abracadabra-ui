@@ -8,6 +8,7 @@ import Torus from "@toruslabs/torus-embed";
 // import ethProvider from "eth-provider";
 
 import store from "../../store";
+import { sanctionAbi } from "@/utils/abi/sanctionAbi";
 
 // WALLETCONNECT
 const walletconnect = {
@@ -111,6 +112,30 @@ const initWithoutConnect = async () => {
   store.commit("setWalletConnection", true);
 };
 
+const checkSanctionAddress = async (address) => {
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  );
+
+  const contract = new ethers.Contract(
+    "0x40c57923924b5c5c5455c48d93317139addac8fb",
+    JSON.stringify(sanctionAbi),
+    provider
+  );
+
+  const res = await contract.isSanctioned(address);
+  if (res) {
+    await store.dispatch("notifications/new", {
+      title: "Sanction address Warning",
+      msg: "It looks like the address you have connected to Abracadabra UI is on a Sanction List. Abracadabra Money is not offering services to sanctioned addresses.",
+      type: "error",
+    });
+
+    return true;
+  }
+  return false;
+};
+
 const onConnect = async () => {
   try {
     const instance = await web3Modal.connect();
@@ -130,6 +155,14 @@ const onConnect = async () => {
     const accounts = await signer.getAddress();
 
     const address = Array.isArray(accounts) ? accounts[0] : accounts;
+
+    if (
+      await checkSanctionAddress(address)
+    ) {
+      initWithoutConnect();
+      return false;
+    }
+
     const chainId = await signer.getChainId();
 
     console.log("address", address);
