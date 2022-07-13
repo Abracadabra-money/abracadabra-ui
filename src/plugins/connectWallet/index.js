@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import Web3 from "web3";
 
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
@@ -113,18 +112,29 @@ const initWithoutConnect = async () => {
   store.commit("setWalletConnection", true);
 };
 
-const checkSanctionAddress = (address, provider) =>
-  new Promise((resolve) => {
-    const web3 = new Web3(provider);
-    const contract = new web3.eth.Contract(
-      sanctionAbi,
-      "0x40c57923924b5c5c5455c48d93317139addac8fb"
-    );
+const checkSanctionAddress = async (address) => {
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  );
 
-    contract.methods.isSanctioned(address).call((err, result) => {
-      resolve(result);
+  const contract = new ethers.Contract(
+    "0x40c57923924b5c5c5455c48d93317139addac8fb",
+    JSON.stringify(sanctionAbi),
+    provider
+  );
+
+  const res = await contract.isSanctioned(address);
+  if (res) {
+    await store.dispatch("notifications/new", {
+      title: "Sanction address Warning",
+      msg: "It looks like the address you have connected to Abracadabra UI is on a Sanction List. Abracadabra Money is not offering services to sanctioned addresses.",
+      type: "error",
     });
-  });
+
+    return true;
+  }
+  return false;
+};
 
 const onConnect = async () => {
   try {
@@ -146,14 +156,7 @@ const onConnect = async () => {
 
     const address = Array.isArray(accounts) ? accounts[0] : accounts;
 
-    if (await checkSanctionAddress(address, provider.provider)) {
-      await store.dispatch("notifications/new", {
-        title: "Sanction address Warning",
-        msg: "It looks like the address you have connected to Abracadabra UI is on a Sanction List. Abracadabra Money is not offering services to sanctioned addresses.",
-        type: "error",
-      });
-      return false;
-    }
+    if (await checkSanctionAddress(address)) return false;
 
     const chainId = await signer.getChainId();
 
