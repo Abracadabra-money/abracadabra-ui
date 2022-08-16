@@ -32,6 +32,8 @@ import WBTC from "@/utils/abi/tokensAbi/WBTC";
 import ICE from "@/utils/abi/tokensAbi/ICE";
 import SLP from "@/utils/abi/tokensAbi/SLP";
 import xBOO from "@/utils/abi/tokensAbi/xBOO";
+import opUSDC from "@/utils/abi/tokensAbi/opUSDC";
+import sUSDC from "@/utils/abi/tokensAbi/sUSDC";
 
 export default {
   ALCX,
@@ -68,4 +70,6 @@ export default {
   ICE,
   SLP,
   xBOO,
+  opUSDC,
+  sUSDC,
 };

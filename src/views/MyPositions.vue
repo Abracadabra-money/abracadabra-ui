@@ -80,7 +80,7 @@ const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
   data: () => ({
-    activeNetworks: [1, 56, 250, 43114, 42161, 137],
+    activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
 
     mimBentoInterval: null,
     farmPoolsTimer: null,

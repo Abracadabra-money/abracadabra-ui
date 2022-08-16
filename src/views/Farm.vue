@@ -156,7 +156,7 @@ export default {
   },
   data() {
     return {
-      activeNetworks: [1, 56, 250, 43114, 42161, 137],
+      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
       isTokensOpened: false,
       amount: "",
       selectedTab: "stake",

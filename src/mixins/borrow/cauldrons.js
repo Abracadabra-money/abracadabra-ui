@@ -126,7 +126,7 @@ export default {
           gasLimit: 600000,
         });
       } catch (e) {
-        console.log("userBalance Err:", e);
+        console.log("getUserPairBalance Err:", e);
       }
       return userPairBalance;
     },
