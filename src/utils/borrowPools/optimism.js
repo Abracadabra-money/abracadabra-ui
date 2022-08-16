@@ -55,7 +55,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/USDT.png`),
+    icon: require(`@/assets/images/tokens/Stargate-USDC.png`),
     name: "Stargate USDC",
     contractChain: 10,
     id: 2,
