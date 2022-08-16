@@ -13,7 +13,7 @@ export default [
     interest: 2,
     ltv: 70,
     borrowFee: 0,
-    isSwappersActive: true,
+    isSwappersActive: false,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
@@ -63,7 +63,7 @@ export default [
     interest: 0,
     ltv: 95,
     borrowFee: 0,
-    isSwappersActive: true,
+    isSwappersActive: false,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
