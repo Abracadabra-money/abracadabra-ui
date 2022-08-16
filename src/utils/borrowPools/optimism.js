@@ -5,7 +5,7 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 
 export default [
   {
-    icon: require(`@/assets/images/tokens/USDT.png`),
+    icon: require(`@/assets/images/tokens/OP_USDC.png`),
     name: "Velodrome Volatile OP/USDC",
     contractChain: 10,
     id: 1,
