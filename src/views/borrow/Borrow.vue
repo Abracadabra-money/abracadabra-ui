@@ -176,6 +176,7 @@ export default {
       poolId: null,
       isOpenPollPopup: false,
       useDefaultBalance: false,
+      lpDefaultBalance: false,
       updateInterval: null,
       emptyData: {
         img: require(`@/assets/images/empty_borrow.png`),
@@ -248,8 +249,26 @@ export default {
       return "";
     },
 
+    isLpLogic() {
+      return !!this.selectedPool.lpLogic;
+    },
+
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
+        if (this.isLpLogic && !this.lpDefaultBalance) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.lpBalance,
+            this.selectedPool.lpLogic.lpDecimals
+          );
+        }
+
+        if (this.isLpLogic && this.lpDefaultBalance) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.userBalance,
+            this.selectedPool.collateralToken.decimals
+          );
+        }
+
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
@@ -402,6 +421,10 @@ export default {
 
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
+        if (this.selectedPool.lpLogic) {
+          return true;
+        }
+
         return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
       }
 
@@ -415,12 +438,16 @@ export default {
       if (this.chainId === 43114) return "AVAX";
       if (this.chainId === 42161) return "ETH";
       if (this.chainId === 56) return "BNB";
+      if (this.chainId === 10) return "wOP/USDT";
 
       return false;
     },
 
     mainValueTokenName() {
       if (this.selectedPool) {
+        if (this.networkValuteName === "wOP/USDT")
+          return require(`@/assets/images/tokens/OP_USDC.png`);
+
         if (this.networkValuteName === "FTM" && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}2.png`);
 
@@ -815,6 +842,10 @@ export default {
 
     toggleUseDefaultBalance() {
       this.clearData();
+
+      if (this.isLpLogic) {
+        this.lpDefaultBalance = !this.lpDefaultBalance;
+      }
 
       this.useDefaultBalance = !this.useDefaultBalance;
     },

@@ -2,6 +2,9 @@ import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
+import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
+import lpAbi from "@/utils/abi/lp/lpAbi";
+import lpWrapperAbi from "@/utils/abi/lp/lpWrapperAbi";
 
 export default [
   {
@@ -37,6 +40,14 @@ export default [
       decimals: 18,
       address: "0x6eb1709e0b562097bf1cc48bc6a378446c297c04",
       abi: tokensAbi.opUSDC,
+    },
+    lpLogic: {
+      lpAddress: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
+      tokenWrapper: "0xF4B36812d1645dca9d562846E3aBf416D590349e",
+      tokenWrapperAbi: lptokenWrapperAbi,
+      lpAbi,
+      lpWrapperAbi,
+      name: "wOP/USDC",
     },
     pairToken: {
       name: "MIM",

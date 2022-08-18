@@ -455,6 +455,33 @@ export default {
         bentoBoxAddress
       );
 
+      let lpLogic = null;
+
+      if (pool.lpLogic) {
+        const tokenWrapperContract = new Contract(
+          pool.lpLogic.tokenWrapper,
+          pool.lpLogic.tokenWrapperAbi,
+          this.contractProvider
+        );
+
+        const lpContract = new Contract(
+          pool.lpLogic.lpAddress,
+          pool.lpLogic.lpAbi,
+          this.contractProvider
+        );
+
+        const lpDecimals = await lpContract.decimals();
+
+        lpLogic = pool.lpLogic
+          ? {
+              ...pool.lpLogic,
+              tokenWrapperContract,
+              lpContract,
+              lpDecimals,
+            }
+          : null;
+      }
+
       let poolData = {
         name: pool.name,
         icon: pool.icon,
@@ -495,6 +522,7 @@ export default {
         userInfo: null,
         levSwapperContract,
         liqSwapperContract,
+        lpLogic,
       };
 
       if (this.account) {
@@ -584,6 +612,18 @@ export default {
           )
         : false;
 
+      const lpBalance = pool.lpLogic
+        ? await this.getUserBalance(pool.lpLogic.lpContract)
+        : "0.0";
+
+      let balanceLpToUsd =
+        lpBalance > 0
+          ? this.$ethers.utils.formatUnits(
+              lpBalance,
+              pool.collateralToken.decimals
+            ) / pool.borrowToken.exchangeRate
+          : "0.0";
+
       pool.userInfo = {
         userBorrowPart,
         contractBorrowPart,
@@ -603,6 +643,8 @@ export default {
         isApproveTokenBorrow,
         isApproveLevSwapper,
         isApproveLiqSwapper,
+        lpBalance,
+        balanceLpToUsd,
       };
 
       return pool;

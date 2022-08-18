@@ -36,6 +36,18 @@
         </p>
       </div>
     </div>
+    <div class="balance-item" v-if="isLpLogic">
+      <div class="balance-name">
+        <BaseTokenIcon :icon="pool.icon" :name="pool.lpLogic.name" />
+        <p>{{ pool.lpLogic.name }}</p>
+      </div>
+      <div class="balance">
+        <p>{{ pool.userInfo.lpBalance | formatTokenBalance }}</p>
+        <p v-if="+pool.userInfo.lpBalance">
+          {{ pool.userInfo.balanceLpToUsd | formatUSD }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -116,6 +128,10 @@ export default {
         );
 
       return 0;
+    },
+
+    isLpLogic() {
+      return !!this.pool.lpLogic;
     },
   },
 
