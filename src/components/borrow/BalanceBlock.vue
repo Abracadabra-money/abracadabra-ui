@@ -42,9 +42,9 @@
         <p>{{ pool.lpLogic.name }}</p>
       </div>
       <div class="balance">
-        <p>{{ pool.userInfo.lpBalance | formatTokenBalance }}</p>
-        <p v-if="+pool.userInfo.lpBalance">
-          {{ pool.userInfo.balanceLpToUsd | formatUSD }}
+        <p>{{ lpBalance | formatTokenBalance }}</p>
+        <p v-if="+lpBalance">
+          {{ pool.userInfo.lpInfo.balanceUsd | formatUSD }}
         </p>
       </div>
     </div>
@@ -132,6 +132,15 @@ export default {
 
     isLpLogic() {
       return !!this.pool.lpLogic;
+    },
+
+    lpBalance() {
+      if (this.pool.userInfo) {
+        return this.pool.userInfo.lpInfo
+          ? this.pool.userInfo.lpInfo.balance
+          : 0;
+      }
+      return 0;
     },
   },
 

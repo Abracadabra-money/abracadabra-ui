@@ -381,7 +381,8 @@ export default {
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
-      notificationId
+      notificationId,
+      isLpLogic = false
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
@@ -421,7 +422,7 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      if (pool.lpLogic) {
+      if (isLpLogic) {
         const { lpEventsArray, lpValuesArray, lpDatasArray } =
           await this.getLpcookCollateralAndBorrowData(
             pool,
@@ -595,7 +596,8 @@ export default {
       { amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
-      notificationId
+      notificationId,
+      isLpLogic = false
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
@@ -632,7 +634,7 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      if (pool.lpLogic) {
+      if (isLpLogic) {
         const { lpEventsArray, lpValuesArray, lpDatasArray } =
           await this.getLpCookAddCollateralData(pool, amount, userAddr);
 

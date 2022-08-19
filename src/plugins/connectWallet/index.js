@@ -16,6 +16,7 @@ const walletconnect = {
   options: {
     rpc: {
       1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      10: "https://mainnet.optimism.io",
       56: "https://bsc-dataseed.binance.org/",
       250: "https://rpc.ftm.tools/",
       42161: "https://arb1.arbitrum.io/rpc",
@@ -30,6 +31,7 @@ const coinbasewallet = {
     appName: "abracadabra.money", // Required
     rpc: {
       1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      10: "https://mainnet.optimism.io",
       56: "https://bsc-dataseed.binance.org/",
       250: "https://rpc.ftm.tools/",
       42161: "https://arb1.arbitrum.io/rpc",
@@ -156,9 +158,7 @@ const onConnect = async () => {
 
     const address = Array.isArray(accounts) ? accounts[0] : accounts;
 
-    if (
-      await checkSanctionAddress(address)
-    ) {
+    if (await checkSanctionAddress(address)) {
       initWithoutConnect();
       return false;
     }

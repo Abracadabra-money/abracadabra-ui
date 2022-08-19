@@ -455,32 +455,7 @@ export default {
         bentoBoxAddress
       );
 
-      let lpLogic = null;
-
-      if (pool.lpLogic) {
-        const tokenWrapperContract = new Contract(
-          pool.lpLogic.tokenWrapper,
-          pool.lpLogic.tokenWrapperAbi,
-          this.contractProvider
-        );
-
-        const lpContract = new Contract(
-          pool.lpLogic.lpAddress,
-          pool.lpLogic.lpAbi,
-          this.contractProvider
-        );
-
-        const lpDecimals = await lpContract.decimals();
-
-        lpLogic = pool.lpLogic
-          ? {
-              ...pool.lpLogic,
-              tokenWrapperContract,
-              lpContract,
-              lpDecimals,
-            }
-          : null;
-      }
+      const lpLogic = pool.lpLogic ? await this.getLpLogic(pool) : null;
 
       let poolData = {
         name: pool.name,
@@ -612,17 +587,7 @@ export default {
           )
         : false;
 
-      const lpBalance = pool.lpLogic
-        ? await this.getUserBalance(pool.lpLogic.lpContract)
-        : "0.0";
-
-      let balanceLpToUsd =
-        lpBalance > 0
-          ? this.$ethers.utils.formatUnits(
-              lpBalance,
-              pool.collateralToken.decimals
-            ) / pool.borrowToken.exchangeRate
-          : "0.0";
+      const lpInfo = pool.lpLogic ? await this.getLpInfo(pool) : null;
 
       pool.userInfo = {
         userBorrowPart,
@@ -643,8 +608,7 @@ export default {
         isApproveTokenBorrow,
         isApproveLevSwapper,
         isApproveLiqSwapper,
-        lpBalance,
-        balanceLpToUsd,
+        lpInfo,
       };
 
       return pool;
@@ -845,6 +809,52 @@ export default {
       }
 
       return { dynamicBorrowAmount };
+    },
+
+    async getLpLogic(pool) {
+      const { tokenWrapper, tokenWrapperAbi, lpAddress, lpAbi, name } =
+        pool.lpLogic;
+
+      const tokenWrapperContract = new Contract(
+        tokenWrapper,
+        tokenWrapperAbi,
+        this.contractProvider
+      );
+
+      const lpContract = new Contract(lpAddress, lpAbi, this.contractProvider);
+
+      const lpDecimals = await lpContract.decimals();
+
+      return {
+        tokenWrapperContract,
+        lpContract,
+        lpDecimals,
+        lpAddress,
+        tokenWrapper,
+        name,
+      };
+    },
+
+    async getLpInfo(pool) {
+      const isApprove = await this.isTokenApprow(
+        pool.lpLogic.lpContract,
+        pool.masterContractInstance.address
+      );
+      const balance = await this.getUserBalance(pool.lpLogic.lpContract);
+
+      let balanceUsd =
+        balance > 0
+          ? this.$ethers.utils.formatUnits(
+              balance,
+              pool.collateralToken.decimals
+            ) / pool.borrowToken.exchangeRate
+          : "0.0";
+
+      return {
+        isApprove,
+        balance,
+        balanceUsd,
+      };
     },
   },
 
