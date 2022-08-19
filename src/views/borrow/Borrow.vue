@@ -49,7 +49,7 @@
             <p class="label-text" v-if="networkValuteName">
               Use {{ networkValuteName }}
             </p>
-            <p class="label-text" v-if="isLpLogic">Use OP/USDC</p>
+            <p class="label-text" v-else-if="isLpLogic">Use {{ fromToken }}</p>
           </div>
         </div>
         <div class="borrow-input underline">
@@ -254,6 +254,14 @@ export default {
 
     isLpLogic() {
       return !!this.selectedPool.lpLogic;
+    },
+
+    fromToken() {
+      if (this.selectedPool) {
+        return this.selectedPool.lpLogic.name;
+      }
+
+      return "";
     },
 
     maxCollateralValue() {
