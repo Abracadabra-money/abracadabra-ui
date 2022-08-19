@@ -35,13 +35,13 @@ export default [
       abi: poolsAbi.CauldronV3_2,
     },
     token: {
-      name: "OP/USDC",
+      name: "wOP/USDC",
       decimals: 18,
       address: "0x6eb1709e0b562097bf1cc48bc6a378446c297c04",
       abi: tokensAbi.opUSDC,
     },
     lpLogic: {
-      name: "wOP/USDC",
+      name: "OP/USDC",
       lpAddress: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
       lpAbi,
       tokenWrapper: "0xF4B36812d1645dca9d562846E3aBf416D590349e",

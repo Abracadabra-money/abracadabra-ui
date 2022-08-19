@@ -137,7 +137,10 @@ export default {
     lpBalance() {
       if (this.pool.userInfo) {
         return this.pool.userInfo.lpInfo
-          ? this.pool.userInfo.lpInfo.balance
+          ? this.$ethers.utils.formatUnits(
+              this.pool.userInfo.lpInfo.balance,
+              this.pool.lpLogic.lpDecimals
+            )
           : 0;
       }
       return 0;

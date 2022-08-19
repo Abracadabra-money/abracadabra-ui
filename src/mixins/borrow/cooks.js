@@ -582,7 +582,7 @@ export default {
       // add collateral
       const lpColateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address", "bool"],
-        ["-2", userAddr, false]
+        ["-2", userAddr, true]
       );
 
       lpEventsArray.push(10);
@@ -1346,7 +1346,7 @@ export default {
     },
 
     async getLpCookRemoveCollateralData(pool, amount, userAddr) {
-      const { tokenWrapper } = pool.lpLogic;
+      const { tokenWrapper, lpAddress } = pool.lpLogic;
       const lpEventsArray = [];
       const lpValuesArray = [];
       const lpDatasArray = [];
@@ -1392,6 +1392,16 @@ export default {
       lpEventsArray.push(30);
       lpValuesArray.push(0);
       lpDatasArray.push(lpCallEncode);
+
+      // 21
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, userAddr, "0x00", amount.sub(400)]
+      );
+
+      lpEventsArray.push(21);
+      lpValuesArray.push(0);
+      lpDatasArray.push(bentoWithdrawEncode);
 
       return { lpEventsArray, lpValuesArray, lpDatasArray };
     },

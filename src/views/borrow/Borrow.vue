@@ -46,7 +46,10 @@
               v-else
             />
 
-            <p class="label-text">Use {{ networkValuteName }}</p>
+            <p class="label-text" v-if="networkValuteName">
+              Use {{ networkValuteName }}
+            </p>
+            <p class="label-text" v-if="isLpLogic">Use OP/USDC</p>
           </div>
         </div>
         <div class="borrow-input underline">
@@ -438,16 +441,12 @@ export default {
       if (this.chainId === 43114) return "AVAX";
       if (this.chainId === 42161) return "ETH";
       if (this.chainId === 56) return "BNB";
-      if (this.chainId === 10) return "wOP/USDT";
 
       return false;
     },
 
     mainValueTokenName() {
       if (this.selectedPool) {
-        if (this.networkValuteName === "wOP/USDT")
-          return require(`@/assets/images/tokens/OP_USDC.png`);
-
         if (this.networkValuteName === "FTM" && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}2.png`);
 
