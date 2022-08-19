@@ -471,6 +471,9 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
+        if (this.selectedPool.lpLogic && this.useDefaultBalance)
+          return this.selectedPool.lpLogic.name;
+
         return this.selectedPool.collateralToken.name;
       }
       return "";
