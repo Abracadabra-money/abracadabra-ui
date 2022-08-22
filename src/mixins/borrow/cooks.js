@@ -1346,7 +1346,7 @@ export default {
     },
 
     async getLpCookRemoveCollateralData(pool, amount, userAddr) {
-      const { tokenWrapper } = pool.lpLogic;
+      const { tokenWrapper, lpAddress } = pool.lpLogic;
       const lpEventsArray = [];
       const lpValuesArray = [];
       const lpDatasArray = [];
@@ -1393,6 +1393,17 @@ export default {
       lpEventsArray.push(30);
       lpValuesArray.push(0);
       lpDatasArray.push(lpCallEncode);
+
+      // 21
+      // withdraw to token wrapper
+      const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, userAddr, amount, "0"]
+      );
+
+      lpEventsArray.push(21);
+      lpValuesArray.push(0);
+      lpDatasArray.push(lpWrapperEncode);
 
       return { lpEventsArray, lpValuesArray, lpDatasArray };
     },
