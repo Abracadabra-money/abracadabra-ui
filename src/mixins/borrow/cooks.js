@@ -957,67 +957,6 @@ export default {
       };
     },
 
-    async getLpCookRemoveAndRepayMaxData(
-      pool,
-      borrowAmount,
-      userAddr,
-      pairToken,
-      userBorrowPart
-    ) {
-      const lpRemoveAndRepayMaxEventsArray = [];
-      const lpRemoveAndRepayMaxValuesArray = [];
-      const lpRemoveAndRepayMaxDatasArray = [];
-      // 6
-      const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256"],
-        [userBorrowPart]
-      );
-
-      lpRemoveAndRepayMaxEventsArray.push(6);
-      lpRemoveAndRepayMaxValuesArray.push(0);
-      lpRemoveAndRepayMaxDatasArray.push(getRepayShareEncode);
-
-      // 20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, "0x00", "-0x01"]
-      );
-
-      lpRemoveAndRepayMaxEventsArray.push(20);
-      lpRemoveAndRepayMaxValuesArray.push(0);
-      lpRemoveAndRepayMaxDatasArray.push(depositEncode);
-
-      // 2
-      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        [userBorrowPart, userAddr, false]
-      );
-
-      lpRemoveAndRepayMaxEventsArray.push(2);
-      lpRemoveAndRepayMaxValuesArray.push(0);
-      lpRemoveAndRepayMaxDatasArray.push(repayEncode);
-
-      const {
-        lpRemoveCollateralEventsArray,
-        lpRemoveCollateralValuesArray,
-        lpRemoveCollateralDatasArray,
-      } = await this.getLpCookRemoveCollateralData(
-        pool,
-        borrowAmount,
-        userAddr
-      );
-
-      lpRemoveAndRepayMaxEventsArray.push(...lpRemoveCollateralEventsArray);
-      lpRemoveAndRepayMaxValuesArray.push(...lpRemoveCollateralValuesArray);
-      lpRemoveAndRepayMaxDatasArray.push(...lpRemoveCollateralDatasArray);
-
-      return {
-        lpRemoveAndRepayMaxEventsArray,
-        lpRemoveAndRepayMaxValuesArray,
-        lpRemoveAndRepayMaxDatasArray,
-      };
-    },
-
     async cookRemoveAndRepayMax(
       { amount, updatePrice },
       isApprowed,
@@ -1057,55 +996,47 @@ export default {
         datasArray.push(updateEncode);
       }
 
+      // 6
+      const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256"],
+        [userBorrowPart]
+      );
+
+      eventsArray.push(6);
+      valuesArray.push(0);
+      datasArray.push(getRepayShareEncode);
+
+      // 20
+      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pairToken, userAddr, "0x00", "-0x01"]
+      );
+
+      eventsArray.push(20);
+      valuesArray.push(0);
+      datasArray.push(depositEncode);
+
+      // 2
+      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        [userBorrowPart, userAddr, false]
+      );
+
+      eventsArray.push(2);
+      valuesArray.push(0);
+      datasArray.push(repayEncode);
+
       if (pool.lpLogic) {
-        console.log("----------lpLogic-------------");
         const {
-          lpRemoveAndRepayMaxEventsArray,
-          lpRemoveAndRepayMaxValuesArray,
-          lpRemoveAndRepayMaxDatasArray,
-        } = await this.getLpCookRemoveAndRepayMaxData(
-          pool,
-          amount,
-          userAddr,
-          pairToken,
-          userBorrowPart
-        );
+          lpRemoveCollateralEventsArray,
+          lpRemoveCollateralValuesArray,
+          lpRemoveCollateralDatasArray,
+        } = await this.getLpCookRemoveCollateralData(pool, amount, userAddr);
 
-        eventsArray.push(...lpRemoveAndRepayMaxEventsArray);
-        valuesArray.push(...lpRemoveAndRepayMaxValuesArray);
-        datasArray.push(...lpRemoveAndRepayMaxDatasArray);
+        eventsArray.push(...lpRemoveCollateralEventsArray);
+        valuesArray.push(...lpRemoveCollateralValuesArray);
+        datasArray.push(...lpRemoveCollateralDatasArray);
       } else {
-        console.log("----------BaseLogic-------------");
-        // 6
-        const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256"],
-          [userBorrowPart]
-        );
-
-        eventsArray.push(6);
-        valuesArray.push(0);
-        datasArray.push(getRepayShareEncode);
-
-        // 20
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pairToken, userAddr, "0x00", "-0x01"]
-        );
-
-        eventsArray.push(20);
-        valuesArray.push(0);
-        datasArray.push(depositEncode);
-
-        // 2
-        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address", "bool"],
-          [userBorrowPart, userAddr, false]
-        );
-
-        eventsArray.push(2);
-        valuesArray.push(0);
-        datasArray.push(repayEncode);
-
         // 4
         const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address"],
