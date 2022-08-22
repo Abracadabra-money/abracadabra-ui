@@ -1346,7 +1346,7 @@ export default {
     },
 
     async getLpCookRemoveCollateralData(pool, amount, userAddr) {
-      const { tokenWrapper, lpAddress } = pool.lpLogic;
+      const { tokenWrapper } = pool.lpLogic;
       const lpEventsArray = [];
       const lpValuesArray = [];
       const lpDatasArray = [];
@@ -1376,11 +1376,12 @@ export default {
 
       // 30
       // unwrap and deposit for alice in degenbox
+
       const swapStaticTx =
         await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
           pool.bentoBoxAddress,
           pool.collateralToken.address,
-          pool.contractInstance.address,
+          userAddr,
           amount
         );
 
@@ -1392,16 +1393,6 @@ export default {
       lpEventsArray.push(30);
       lpValuesArray.push(0);
       lpDatasArray.push(lpCallEncode);
-
-      // 21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [lpAddress, userAddr, "0x00", amount.sub(400)]
-      );
-
-      lpEventsArray.push(21);
-      lpValuesArray.push(0);
-      lpDatasArray.push(bentoWithdrawEncode);
 
       return { lpEventsArray, lpValuesArray, lpDatasArray };
     },
