@@ -278,9 +278,22 @@ export default {
       );
 
       try {
+        const estimateGas =
+          await this.selectedPool.stakingTokenContract.estimateGas.approve(
+            this.selectedPool.contractAddress,
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        console.log("gasLimit:", gasLimit);
+
         const tx = await this.selectedPool.stakingTokenContract.approve(
           this.selectedPool.contractAddress,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          {
+            gasLimit,
+          }
         );
 
         const receipt = await tx.wait();
