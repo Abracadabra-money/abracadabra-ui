@@ -84,7 +84,6 @@ const getSpellStakingApr = async () => {
     sSpellApr: apr,
     mSpellApr: apr,
   };
-
   // let totalSSpell = BigNumber.from(0);
   // let totalMSpelll = BigNumber.from(0);
 
