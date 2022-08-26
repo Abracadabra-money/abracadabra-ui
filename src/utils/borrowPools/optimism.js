@@ -4,6 +4,7 @@ import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
 import lpAbi from "@/utils/abi/lp/lpAbi";
+import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 
 export default [
   {
@@ -15,7 +16,8 @@ export default [
     interest: 2,
     ltv: 70,
     borrowFee: 0,
-    isSwappersActive: false,
+    isSwappersActive: true,
+    isZeroXSwappers: true,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
@@ -39,6 +41,14 @@ export default [
       decimals: 18,
       address: "0x6eb1709e0b562097bf1cc48bc6a378446c297c04",
       abi: tokensAbi.opUSDC,
+    },
+    token0: {
+      address: "0x4200000000000000000000000000000000000042",
+      abi: abiERC20,
+    },
+    token1: {
+      address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+      abi: abiERC20,
     },
     lpLogic: {
       name: "OP/USDC",

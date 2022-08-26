@@ -143,6 +143,8 @@ import {
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
 
+import { getLeverageData } from "@/utils/zeroXSwap/ZeroXSwapHelper.js";
+
 export default {
   mixins: [cauldronsMixin, cookMixin],
 
@@ -172,6 +174,8 @@ export default {
       chainId: "getChainId",
       pools: "getPools",
       account: "getAccount",
+      provider: "getProvider",
+      signer: "getSigner",
     }),
 
     filteredPool() {
@@ -472,8 +476,16 @@ export default {
       return !!(this.$route.params.id && !this.pools.length);
     },
 
+    isLpLogic() {
+      return !!this.selectedPool.lpLogic;
+    },
+
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
+        if (this.isLpLogic) {
+          return true;
+        }
+
         return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
       }
 
@@ -735,17 +747,32 @@ export default {
           this.selectedPool.borrowToken.decimals
         );
 
-        const payload = {
-          collateralAmount: parsedCollateral,
-          amount: parsedMim,
-          updatePrice: this.selectedPool.askUpdatePrice,
-          itsDefaultBalance: this.useDefaultBalance,
-        };
+        // ZeroXSwapHelper
+        let payload = null;
 
-        payload.amount = Vue.filter("formatToFixed")(
-          this.mimAmount,
-          this.selectedPool.borrowToken.decimals
-        );
+        if (this.selectedPool.isZeroXSwappers) {
+          payload = await getLeverageData(
+            parsedMim,
+
+            this.selectedPool,
+
+            this.provider,
+
+            this.slipage
+          );
+        } else {
+          payload = {
+            collateralAmount: parsedCollateral,
+            amount: parsedMim,
+            updatePrice: this.selectedPool.askUpdatePrice,
+            itsDefaultBalance: this.useDefaultBalance,
+          };
+
+          payload.amount = Vue.filter("formatToFixed")(
+            this.mimAmount,
+            this.selectedPool.borrowToken.decimals
+          );
+        }
 
         this.multiplierHandle(payload);
         return false;

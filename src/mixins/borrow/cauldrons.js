@@ -457,12 +457,54 @@ export default {
 
       const lpLogic = pool.lpLogic ? await this.getLpLogic(pool) : null;
 
+      let token0 = null;
+      let token1 = null;
+
+      if (pool.isZeroXSwappers) {
+        const token0Contract = new this.$ethers.Contract(
+          pool.token0.address,
+          JSON.stringify(pool.token0.abi),
+          this.contractProvider
+        );
+
+        token0 = {
+          contract: token0Contract,
+          // price: token0Price,
+          // canBeDefault: poolInfo.token0.canBeDefault,
+          // symbol: poolInfo.token0.symbol,
+          // decimals: poolInfo.token0.decimals,
+          // address: poolInfo.token0.address,
+          // contractInstance: token0Contract,
+          // icon: poolInfo.token0.icon,
+        };
+
+        const token1Contract = new this.$ethers.Contract(
+          pool.token0.address,
+          JSON.stringify(pool.token0.abi),
+          this.contractProvider
+        );
+
+        token1 = {
+          contract: token1Contract,
+          // price: token0Price,
+          // canBeDefault: poolInfo.token0.canBeDefault,
+          // symbol: poolInfo.token0.symbol,
+          // decimals: poolInfo.token0.decimals,
+          // address: poolInfo.token0.address,
+          // contractInstance: token0Contract,
+          // icon: poolInfo.token0.icon,
+        };
+
+        console.log("ggggggggggggggggg", token0);
+      }
+
       let poolData = {
         name: pool.name,
         icon: pool.icon,
         id: pool.id,
         bentoBoxAddress,
         isSwappersActive: pool.isSwappersActive,
+        isZeroXSwappers: pool.isZeroXSwappers,
         cauldronSettings: pool.cauldronSettings,
         contractInstance: poolContract,
         masterContractInstance: masterContract,
@@ -498,6 +540,8 @@ export default {
         levSwapperContract,
         liqSwapperContract,
         lpLogic,
+        token0,
+        token1,
       };
 
       if (this.account) {

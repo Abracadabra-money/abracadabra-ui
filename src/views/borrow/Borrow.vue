@@ -432,7 +432,7 @@ export default {
 
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
-        if (this.selectedPool.lpLogic) {
+        if (this.isLpLogic) {
           return true;
         }
 
