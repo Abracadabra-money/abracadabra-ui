@@ -42,6 +42,7 @@ import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import SpellAbi from "@/utils/abi/tokensAbi/SPELL";
 import sSpellAbi from "@/utils/abi/tokensAbi/sSPELL";
 import moment from "moment";
+import axios from "axios";
 
 const getTokensRate = async () => {
   const spellAddr = "0x090185f2135308BaD17527004364eBcC2D37e5F6";
@@ -62,6 +63,17 @@ const getTokensRate = async () => {
   return tokenRate;
 };
 
+const fetchSpellApr = async () => {
+  try {
+    const response = await axios.get("https://analytics.back.popsicle.finance/api/v1/ethereum/SpellStakingInfo");
+    return response.data.apr;
+  } catch (error) {
+    console.log("fetchSpellApr err:", error);
+
+    return "N/A"
+  }
+};
+ 
 const getSpellApr = async () => {
   const tokenRate = await getTokensRate();
 
@@ -78,7 +90,7 @@ const getSpellApr = async () => {
 };
 
 const getSpellStakingApr = async () => {
-  const apr = await getSpellApr();
+  const apr = await fetchSpellApr();
 
   return {
     sSpellApr: apr,
