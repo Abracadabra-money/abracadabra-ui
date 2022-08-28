@@ -1,8 +1,5 @@
-// import { BigNumber, Contract, ethers } from "ethers";
 import { BigNumber, Contract, ethers } from "ethers";
-// import EACAggregatorProxyAbi from "./abi/EACAggregatorProxy";
 import axios from "axios";
-
 import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 
 const getBigNumber = (amount = 0, decimals = 18) => {
@@ -28,6 +25,7 @@ const query0x = async (sellToken, buyToken, slippage, amountSell) => {
 
 const initializeProps = async (pool, provider) => {
   const MIM = pool.borrowToken.contract;
+
   const defaultProvider = await ethers.getDefaultProvider();
 
   const MimChainlink = await new Contract(
@@ -72,10 +70,10 @@ const initializeProps = async (pool, provider) => {
     token1PriceInUsd,
     token0Reserve,
     token1Reserve,
+    Pair,
   };
 };
 
-// tyt
 const getLeverageData = async (mimAmount, pool, wallet, slipage = 0.01) => {
   const slippage = slipage / 100;
 
@@ -90,30 +88,29 @@ const getLeverageData = async (mimAmount, pool, wallet, slipage = 0.01) => {
     token1Reserve,
   } = await initializeProps(pool, wallet);
 
-  const mimValueInUsd = mimAmount.mul(mimPriceInUsd); // 26 decimals
+  const mimValueInUsd = mimAmount.mul(mimPriceInUsd); //18 + 8 = 26 decimals
 
-  // Both 18 decimals
-  const token0ReserveTotalValueInUsd = token0Reserve.mul(token0PriceInUsd); // 36 decimals
+  const token0ReserveTotalValueInUsd = token0Reserve.mul(token0PriceInUsd); //18 + 8 = 26 decimals
 
   const token1ReserveTotalValueInUsd = token1Reserve
     .mul(token1PriceInUsd)
-    .mul(BigNumber.from(10).pow(10)); // 26 -> 36 decimals
+    .mul(BigNumber.from(10).pow(12)); // 6 + 8 + 12 = 26 decimals
 
   const lpTotalValueInUsd = token0ReserveTotalValueInUsd.add(
     token1ReserveTotalValueInUsd
-  ); // 36 decimals
+  ); // 26 decimals
 
   const lpFractionBuyingPower = mimValueInUsd
-    .mul(BigNumber.from(10).pow(28))
-    .div(lpTotalValueInUsd); // 18 decimals
+    .mul(BigNumber.from(10).pow(18))
+    .div(lpTotalValueInUsd); // 26 + 18 - 26 = 18 decimals
 
   const token0BuyingPower = lpFractionBuyingPower
     .mul(token0Reserve)
-    .div(BigNumber.from(10).pow(18)); // 18 decimals
+    .div(BigNumber.from(10).pow(18)); // 18 + 18 - 18 = 18 decimals
 
   const token1BuyingPower = lpFractionBuyingPower
     .mul(token1Reserve)
-    .div(BigNumber.from(10).pow(18)); // 18 decimals
+    .div(BigNumber.from(10).pow(18)); // 18 + 6 + 18 = 6 decimals
 
   // Query 0x to get how much MIM you get from swapping token0 and token1. No slipage is used
   // so that we get the quote only.
@@ -126,14 +123,14 @@ const getLeverageData = async (mimAmount, pool, wallet, slipage = 0.01) => {
     token0BuyingPower
   );
 
-  //sell  token1BuyingPower => buy MIM
-
   const queryMimAmountFromToken1 = await query0x(
     token1.address,
     MIM.address,
     0,
     token1BuyingPower
   );
+
+  //sell  token1BuyingPower => buy MIM
 
   // Now calculate how much % of the initial mim the returned mim value consist of
   // This extra step is just to make sure the total input amount of mim doesn't exceed
@@ -199,44 +196,43 @@ const getLeverageData = async (mimAmount, pool, wallet, slipage = 0.01) => {
   return data;
 };
 
-// const getLiquidationData = async (lpAmount, pool, wallet, slippage = 0.01) => {
-//   console.log("=== Liquidation ===");
+const getLiquidationData = async (lpAmount, pool, wallet, slippage = 0.01) => {
+  console.log("=== Liquidation ===");
 
-//   const { Pair, MIM, token0, token1 } = await initializeProps(pool, wallet);
+  const { Pair, MIM, token0, token1 } = await initializeProps(pool, wallet);
 
-//   const totalSupply = await Pair.totalSupply();
-//   const lpAmountToken0 = await token0.balanceOf(Pair.address);
-//   const lpAmountToken1 = await token1.balanceOf(Pair.address);
-//   const amount0 = lpAmount.mul(lpAmountToken0).div(totalSupply);
-//   const amount1 = lpAmount.mul(lpAmountToken1).div(totalSupply);
+  const totalSupply = await Pair.totalSupply();
+  const lpAmountToken0 = await token0.balanceOf(Pair.address);
+  const lpAmountToken1 = await token1.balanceOf(Pair.address);
+  const amount0 = lpAmount.mul(lpAmountToken0).div(totalSupply);
+  const amount1 = lpAmount.mul(lpAmountToken1).div(totalSupply);
 
-//   const queryToken0ToMim = await query0x(
-//     token0.address,
-//     MIM.address,
-//     slippage,
-//     amount0
-//   );
+  const queryToken0ToMim = await query0x(
+    token0.address,
+    MIM.address,
+    slippage,
+    amount0
+  );
 
-//   const queryToken1ToMim = await query0x(
-//     token1.address,
-//     MIM.address,
-//     slippage,
-//     amount1
-//   );
+  const queryToken1ToMim = await query0x(
+    token1.address,
+    MIM.address,
+    slippage,
+    amount1
+  );
 
-//   let totalMimBuyAmount = queryToken0ToMim.buyAmount.add(
-//     queryToken1ToMim.buyAmount
-//   );
+  // let totalMimBuyAmount = queryToken0ToMim.buyAmount.add(
+  //   queryToken1ToMim.buyAmount
+  // );
 
-//   totalMimBuyAmount = totalMimBuyAmount.sub(totalMimBuyAmount.div(100)); // add 1% sippage
+  // totalMimBuyAmount = totalMimBuyAmount.sub(totalMimBuyAmount.div(100)); // add 1% sippage
 
-//   const data = ethers.utils.defaultAbiCoder.encode(
-//     ["bytes[]"],
-//     [[queryToken0ToMim.data, queryToken1ToMim.data]]
-//   );
+  const data = ethers.utils.defaultAbiCoder.encode(
+    ["bytes[]"],
+    [[queryToken0ToMim.data, queryToken1ToMim.data]]
+  );
 
-//   return data;
-// };
+  return data;
+};
 
-// export { getLeverageData, getLiquidationData };
-export { getLeverageData };
+export { getLeverageData, getLiquidationData };

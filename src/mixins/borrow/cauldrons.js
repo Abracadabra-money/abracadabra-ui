@@ -469,33 +469,17 @@ export default {
 
         token0 = {
           contract: token0Contract,
-          // price: token0Price,
-          // canBeDefault: poolInfo.token0.canBeDefault,
-          // symbol: poolInfo.token0.symbol,
-          // decimals: poolInfo.token0.decimals,
-          // address: poolInfo.token0.address,
-          // contractInstance: token0Contract,
-          // icon: poolInfo.token0.icon,
         };
 
         const token1Contract = new this.$ethers.Contract(
-          pool.token0.address,
+          pool.token1.address,
           JSON.stringify(pool.token0.abi),
           this.contractProvider
         );
 
         token1 = {
           contract: token1Contract,
-          // price: token0Price,
-          // canBeDefault: poolInfo.token0.canBeDefault,
-          // symbol: poolInfo.token0.symbol,
-          // decimals: poolInfo.token0.decimals,
-          // address: poolInfo.token0.address,
-          // contractInstance: token0Contract,
-          // icon: poolInfo.token0.icon,
         };
-
-        console.log("ggggggggggggggggg", token0);
       }
 
       let poolData = {
