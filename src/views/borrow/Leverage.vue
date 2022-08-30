@@ -45,7 +45,10 @@
               v-else
             />
 
-            <p class="label-text">Use {{ networkValuteName }}</p>
+            <p class="label-text" v-if="networkValuteName">
+              Use {{ networkValuteName }}
+            </p>
+            <p class="label-text" v-else-if="isLpLogic">Use {{ fromToken }}</p>
           </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
@@ -480,6 +483,14 @@ export default {
       return !!this.selectedPool.lpLogic;
     },
 
+    fromToken() {
+      if (this.selectedPool) {
+        return this.selectedPool.lpLogic.name;
+      }
+
+      return "";
+    },
+
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
         if (this.isLpLogic) {
@@ -524,7 +535,10 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        return this.selectedPool.name;
+        if (this.selectedPool.lpLogic && this.useDefaultBalance)
+          return this.selectedPool.lpLogic.name;
+
+        return this.selectedPool.collateralToken.name;
       }
       return "";
     },
