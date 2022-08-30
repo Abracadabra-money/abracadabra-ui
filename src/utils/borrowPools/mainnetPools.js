@@ -1544,7 +1544,7 @@ export default [
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:
-        "https://medium.com/@abracadabramoney/our-stargate-degenbox-strategy-4332349ccd71",
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/3tuTirZF2R57eg5S7K7P-2oiosuZsOcicO22HCLU9SY",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 10,
@@ -1595,7 +1595,7 @@ export default [
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:
-        "https://medium.com/@abracadabramoney/our-stargate-degenbox-strategy-4332349ccd71",
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/3tuTirZF2R57eg5S7K7P-2oiosuZsOcicO22HCLU9SY",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 10,

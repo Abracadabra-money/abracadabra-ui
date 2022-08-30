@@ -67,7 +67,7 @@ export default [
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:
-        "https://medium.com/abracadabra-money/our-cake-degenbox-strategy-68be5f34527",
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/AyHB_Ir-nb59HXY2o4H4ysBf5D1yPkWyh-xghKzfCeg",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
