@@ -159,6 +159,7 @@ export default {
       flashRepayAmount: 0,
       flashRepayRemoveAmount: 0,
       updateInterval: null,
+      borrowStepRange: "0.0001",
       emptyData: {
         img: require(`@/assets/images/empty_leverage.png`),
         text: "Deleverage your position using our built-in Flash repay function.",
@@ -229,10 +230,6 @@ export default {
 
     liquidationMultiplier() {
       return this.selectedPool ? this.selectedPool.ltv / 100 : 0;
-    },
-
-    borrowStepRange() {
-      return "0.0001";
     },
 
     collateralStepRange() {
@@ -444,21 +441,6 @@ export default {
       return null;
     },
 
-    // flashRepayAmountFormat() {
-    //   const accruedMultiplyer =
-    //     this.maxFlashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
-
-    //   const jlpPools = [4, 6, 7];
-
-    //   if (
-    //     jlpPools.indexOf(this.selectedPool.id) !== -1 &&
-    //     this.chainId === 43114
-    //   )
-    //     return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(8);
-
-    //   return parseFloat(this.flashRepayAmount / accruedMultiplyer).toFixed(4);
-    // },
-
     repayBorrow() {
       if (this.itsMaxRepayMim) {
         return +this.selectedPool.userInfo.userBorrowPart;
@@ -570,8 +552,6 @@ export default {
 
         let itsMax = this.itsMaxRepayMim;
 
-        console.log("itsMax", itsMax);
-
         const finalBorrowAmount = this.$ethers.utils.parseUnits(
           this.borrowAmount,
           this.selectedPool.borrowToken.decimals
@@ -614,8 +594,6 @@ export default {
         "notifications/new",
         notification.pending
       );
-
-      console.log("FLASH REPAY HANDLER", data);
 
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.collateralToken.contract,

@@ -68,10 +68,6 @@
         </BaseButton>
       </div>
       <div class="profile-subscribtion">
-        <!-- <div class="profile-subscribtion__approximate" v-if="tokensInfo">
-          <div>Approximate staking APR</div>
-          <div>{{ tokensInfo.apr | formatPercent }}</div>
-        </div> -->
         <ClaimInfo
           v-if="tokensInfo && account"
           @onClaim="claimHandler"
@@ -107,9 +103,7 @@ const ClaimInfo = () => import("@/components/stake/ClaimInfo");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
-
 const BaseButton = () => import("@/components/base/BaseButton");
-
 const BaseLoader = () => import("@/components/base/BaseLoader");
 import mSpellStaking from "@/mixins/stake/mSpellStaking";
 
@@ -253,7 +247,7 @@ export default {
         "notifications/new",
         notification.pending
       );
-      console.log("CLAIM");
+
       try {
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
@@ -261,8 +255,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
           0,
@@ -293,11 +285,8 @@ export default {
         "notifications/new",
         notification.pending
       );
-      console.log("DEPOSIT");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
-        console.log("AMOUNT", amount.toString());
 
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
@@ -305,8 +294,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
           amount,
@@ -340,11 +327,8 @@ export default {
         "notifications/new",
         notification.pending
       );
-      console.log("WITHDRAW");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
-        console.log("AMOUNT", amount.toString());
 
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
@@ -352,8 +336,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
           amount,
@@ -390,8 +372,6 @@ export default {
         );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await tokenContract.approve(
           approveAddr,

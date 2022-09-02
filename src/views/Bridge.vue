@@ -21,7 +21,7 @@
           :max="bridgeObject.balance"
           :value="amount"
           :name="'MIM'"
-          :icon="mimIcon"
+          :icon="require('@/assets/images/tokens/MIM.png')"
           :error="amountError"
           @input="updateMainValue"
         />
@@ -132,10 +132,6 @@ export default {
       }
 
       return "";
-    },
-
-    mimIcon() {
-      return require("@/assets/images/tokens/MIM.png");
     },
 
     popupNetworksArr() {
@@ -338,8 +334,6 @@ export default {
 
         console.log(result);
 
-        console.log("gasLimit:", gasLimit);
-
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
@@ -365,7 +359,6 @@ export default {
         notification.bridgeNotAvailable
       );
 
-      // this.$router.push({ name: "Home" });
       return false;
     }
 

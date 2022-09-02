@@ -1,16 +1,11 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
 import Torus from "@toruslabs/torus-embed";
-// import Authereum from "authereum";
-// import ethProvider from "eth-provider";
-
 import store from "../../store";
 import { sanctionAbi } from "@/utils/abi/sanctionAbi";
 
-// WALLETCONNECT
 const walletconnect = {
   package: WalletConnectProvider,
   options: {
@@ -46,22 +41,11 @@ const torus = {
   package: Torus,
 };
 
-// const authereum = {
-//   package: Authereum,
-// };
-
-// const frame = {
-//   package: ethProvider,
-// };
-
 const providerOptions = {
   walletconnect,
   coinbasewallet,
   binancechainwallet,
-  // portis,
   torus,
-  // authereum,
-  // frame,
 };
 
 const web3Modal = new Web3Modal({
@@ -69,7 +53,6 @@ const web3Modal = new Web3Modal({
   cacheProvider: true,
   disableInjectedProvider: false,
   theme: "dark",
-  // network: "mainnet",
 });
 
 /**
@@ -142,8 +125,6 @@ const onConnect = async () => {
 
     await instance.enable();
 
-    console.log("instance", instance);
-
     const isCoinbase = instance.isCoinbaseWallet;
     const isMetaMask = instance.isMetaMask;
 
@@ -156,18 +137,12 @@ const onConnect = async () => {
 
     const address = Array.isArray(accounts) ? accounts[0] : accounts;
 
-    if (
-      await checkSanctionAddress(address)
-    ) {
+    if (await checkSanctionAddress(address)) {
       initWithoutConnect();
       return false;
     }
 
     const chainId = await signer.getChainId();
-
-    console.log("address", address);
-    console.log("provider", provider);
-    console.log("chainId", chainId);
 
     store.commit("setChainId", chainId);
     store.commit("setProvider", provider);

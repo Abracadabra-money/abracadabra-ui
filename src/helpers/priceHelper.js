@@ -22,7 +22,7 @@ const getTokensArrayPrices = async (chainId, addressArr) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
+      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
       config
     );
 
@@ -51,7 +51,7 @@ const getTokenPriceByAddress = async (chainId, address) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
+      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
       config
     );
 
