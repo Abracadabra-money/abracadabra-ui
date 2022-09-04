@@ -612,6 +612,9 @@ export default {
         !this.collateralError &&
         !this.borrowError
       ) {
+
+        if(this.chainId === 43114) return false; //TEMP
+
         this.collateralAndBorrowHandler();
         return false;
       }
@@ -626,6 +629,9 @@ export default {
       }
 
       if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError) {
+
+        if(this.chainId === 43114) return false; //TEMP
+
         this.borrowHandler();
         return false;
       }
