@@ -709,6 +709,8 @@ export default {
     },
 
     async actionHandler() {
+      if(this.chainId === 43114) return false; //TEMP
+
       if (this.collateralValue && +this.collateralValue > 0) {
         if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
           return false;
