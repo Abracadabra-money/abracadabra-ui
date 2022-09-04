@@ -606,15 +606,14 @@ export default {
     },
 
     async actionHandler() {
+      if(this.chainId === 43114) return false; //TEMP
+      
       if (
         +this.borrowValue > 0 &&
         +this.collateralValue > 0 &&
         !this.collateralError &&
         !this.borrowError
       ) {
-
-        if(this.chainId === 43114) return false; //TEMP
-
         this.collateralAndBorrowHandler();
         return false;
       }
@@ -629,9 +628,6 @@ export default {
       }
 
       if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError) {
-
-        if(this.chainId === 43114) return false; //TEMP
-
         this.borrowHandler();
         return false;
       }

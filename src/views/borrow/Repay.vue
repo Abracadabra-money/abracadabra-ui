@@ -442,6 +442,8 @@ export default {
     },
 
     async actionHandler() {
+      if(this.chainId === 43114) return false; //TEMP
+
       if (
         +this.borrowValue > 0 &&
         +this.collateralValue > 0 &&
