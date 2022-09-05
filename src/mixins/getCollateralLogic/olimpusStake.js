@@ -89,8 +89,6 @@ export default {
         },
       };
 
-      console.log("STAKE OLIMPUS:", stakeObject);
-
       return stakeObject;
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {

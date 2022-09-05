@@ -102,8 +102,6 @@ export default {
         },
       };
 
-      console.log("DEPOSIT CRV:", stakeObject);
-
       return stakeObject;
     },
 

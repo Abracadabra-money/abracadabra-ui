@@ -55,8 +55,6 @@ export default {
         );
 
         stakeToMain = sOHMTowOHMParsed;
-
-        console.log("stakeToMain", stakeToMain);
       } catch (e) {
         console.log("rate errro:", e);
       }
@@ -74,8 +72,6 @@ export default {
         );
 
         mainToStake = sOHMTowOHMParsed;
-
-        console.log("mainToStake", mainToStake);
       } catch (e) {
         console.log("rate errro:", e);
       }
@@ -102,7 +98,6 @@ export default {
         },
       };
 
-      console.log("WRAP OLIMPUS:", wrapObject);
       return wrapObject;
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {
