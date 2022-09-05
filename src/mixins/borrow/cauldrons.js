@@ -13,11 +13,6 @@ import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 
 export default {
-  // data() {
-  //   return {
-  //     pricesUsdCollateralToken: null,
-  //   };
-  // },
   computed: {
     ...mapGetters({
       chainId: "getChainId",
@@ -40,13 +35,9 @@ export default {
         (pool) => pool.contractChain === +this.chainId
       );
 
-      // this.pricesUsdCollateralToken = await this.fetchTokensPrice(chainPools);
-
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
       );
-
-      console.log("pools", pools);
 
       this.$store.commit("setPools", pools);
       this.setLoadingPoolsBorrow(false);
@@ -106,29 +97,26 @@ export default {
       }
     },
 
-    async getUserBalance(contract) {
-      let userBalance;
+    async getUserBalance(contract, decimals) {
       try {
-        userBalance = await contract.balanceOf(this.account, {
+        return await contract.balanceOf(this.account, {
           gasLimit: 600000,
         });
       } catch (e) {
         console.log("userBalance Err:", e);
+        return this.$ethers.utils.parseUnits("0", decimals);
       }
-
-      return userBalance;
     },
 
-    async getUserPairBalance(tokenBorrowContract) {
-      let userPairBalance;
+    async getUserPairBalance(tokenBorrowContract, decimals) {
       try {
-        userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
+        return await tokenBorrowContract.balanceOf(this.account, {
           gasLimit: 600000,
         });
       } catch (e) {
         console.log("userBalance Err:", e);
+        return this.$ethers.utils.parseUnits("0", decimals);
       }
-      return userPairBalance;
     },
 
     async getClaimableReward(contractInstance, decimals) {
@@ -247,8 +235,6 @@ export default {
           })
           .toString()
           .match(re)[0];
-
-        // return this.$ethers.utils.formatUnits(userBorrowMultiply.toString());
 
         const accrueInfo = await poolContract.accrueInfo();
         const poolInterest = accrueInfo.INTEREST_PER_SECOND;
@@ -445,10 +431,6 @@ export default {
         pool.token.decimals
       );
 
-      // const priceUsd = this.pricesUsdCollateralToken.find(
-      //   (priceItem) => priceItem.address === pool.token.address.toLowerCase()
-      // )?.price;
-
       const { maxWithdrawAmount } = await this.getMaxWithdrawAmount(
         pool,
         tokenCollateralContract,
@@ -489,7 +471,6 @@ export default {
           decimals: pool.token.decimals,
           oracleExchangeRate: borrowTokenRate,
           additionalLogic: pool.token.additionalLogic,
-          // priceUsd,
         },
         maxWithdrawAmount,
         userInfo: null,
@@ -509,11 +490,13 @@ export default {
         await this.getUserBorrowPart(pool.contractInstance);
 
       let userBalance = await this.getUserBalance(
-        pool.collateralToken.contract
+        pool.collateralToken.contract,
+        pool.collateralToken.decimals
       );
 
       let userPairBalance = await this.getUserPairBalance(
-        pool.borrowToken.contract
+        pool.borrowToken.contract,
+        pool.borrowToken.decimals
       );
 
       const networkBalance = await this.contractProvider.getBalance();
@@ -557,7 +540,6 @@ export default {
       let whitelistedInfo;
       if (pool.id === 33 && this.chainId === 1) {
         whitelistedInfo = await this.checkPoolWhitelised(poolContract);
-        console.log("whitelistedInfo", whitelistedInfo);
       }
 
       const isApproveTokenCollateral = await this.isTokenApprow(
@@ -623,10 +605,7 @@ export default {
 
     async fetchWhitelist(url) {
       try {
-        // const url =
-        //   "https://bafybeicgmg5jh3gbrgzfjypljgtgm4o5ka7ocws2xcltk6ckazpuaiuddy.ipfs.infura-ipfs.io/";
         const response = await axios.get(url);
-
         return response.data;
       } catch (error) {
         console.log("fetchWhitelist", error);
@@ -650,14 +629,11 @@ export default {
           { gasLimit: 5000000 }
         );
 
-        console.log("amountAllowed", amountAllowed);
-
         const fetchingUrl = await whitelisterContract.ipfsMerkleProofs({
           gasLimit: 5000000,
         });
 
         const whitelist = await this.fetchWhitelist(fetchingUrl);
-        console.log("FETCHHH WHITLIST fetchingUrl", fetchingUrl);
 
         const yvcrvSTETHWhitelist = whitelist
           ? whitelist
@@ -670,8 +646,6 @@ export default {
             userWhitelistedInfo = yvcrvSTETHWhitelist[key];
           }
         });
-
-        console.log("userWhitelistedInfo", userWhitelistedInfo);
 
         if (!userWhitelistedInfo)
           return {
