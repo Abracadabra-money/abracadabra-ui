@@ -1,7 +1,5 @@
 import { mapGetters } from "vuex";
-
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-// import notification from "@/helpers/notification/notification.js";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
@@ -80,25 +78,15 @@ export default {
         nonce,
       };
 
-      console.log("signature data");
-      console.log(domain, types, value);
       let signature;
-
       try {
         signature = await this.signer._signTypedData(domain, types, value);
-
-        console.log("signature SUCCESS", signature);
       } catch (e) {
         console.log("SIG ERR:", e.code);
 
         if (e.code === -32603) {
           console.log("signature ERROR LEGER HERE", e.code);
           return "ledger";
-
-          // this.$store.commit("setPopupState", {
-          //   type: "device-error",
-          //   isShow: true,
-          // });
         }
         return false;
       }
@@ -112,8 +100,6 @@ export default {
       if (parsedSignature.v === 1) {
         parsedSignature.v = 28;
       }
-
-      console.log("parsedSignature", parsedSignature);
 
       return this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
@@ -130,8 +116,7 @@ export default {
 
     async getVerifyingContract(pool) {
       try {
-        const verifyingContract = await pool.contractInstance.bentoBox();
-        return verifyingContract;
+        return await pool.contractInstance.bentoBox();
       } catch (e) {
         console.log("getVerifyingContract err:", e);
       }
@@ -140,16 +125,6 @@ export default {
     async approveMasterContract(pool) {
       try {
         const masterContract = await this.getMasterContract(pool);
-
-        console.log(
-          "approveMasterContract",
-          this.account,
-          masterContract,
-          true,
-          this.$ethers.utils.formatBytes32String(""),
-          this.$ethers.utils.formatBytes32String(""),
-          this.$ethers.utils.formatBytes32String("")
-        );
 
         const estimateGas =
           await pool.masterContractInstance.estimateGas.setMasterContractApproval(
@@ -195,8 +170,6 @@ export default {
       var s = parsedSignature.substring(64, 128);
       var v = parsedSignature.substring(128, 130);
 
-      console.log("ORIGINAL SIGNATURE:", r, s, v);
-
       return {
         r: "0x" + r,
         s: "0x" + s,
@@ -207,9 +180,6 @@ export default {
     async getNonce(pool) {
       try {
         const nonces = await pool.masterContractInstance.nonces(this.account);
-
-        console.log("NONCE:", nonces.toString());
-
         return nonces.toString();
       } catch (e) {
         console.log("getNonce err:", e);
@@ -218,8 +188,7 @@ export default {
 
     async getMasterContract(pool) {
       try {
-        const masterContract = await pool.contractInstance.masterContract();
-        return masterContract;
+        return await pool.contractInstance.masterContract();
       } catch (e) {
         console.log("getMasterContract err:", e);
       }
@@ -268,8 +237,6 @@ export default {
           this.signer
         );
 
-        console.log("yvSETHHelperContract", yvSETHHelperContract);
-
         const reduceCompletelyStaticTx =
           await yvSETHHelperContract.populateTransaction.reduceCompletely(
             pool.contractInstance.address,
@@ -279,8 +246,6 @@ export default {
           );
 
         const reduceCompletelyCallByte = reduceCompletelyStaticTx.data;
-
-        console.log("reduceCompletelyCallByte", reduceCompletelyCallByte);
 
         // 30
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -318,11 +283,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -385,8 +347,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -412,10 +372,7 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch(
-        //   "notifications/new",
-        //   notification.borrowSuccess
-        // );
+
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -453,11 +410,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -500,8 +454,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -513,8 +465,6 @@ export default {
         );
 
         const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -530,10 +480,6 @@ export default {
 
         await this.$store.commit("notifications/delete", notificationId);
 
-        // await this.$store.dispatch(
-        //   "notifications/new",
-        //   notification.borrowSuccess
-        // );
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -567,11 +513,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -622,8 +565,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -635,8 +576,6 @@ export default {
         );
 
         const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -651,10 +590,6 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch(
-        //   "notifications/new",
-        //   notification.borrowSuccess
-        // );
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -691,11 +626,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -776,8 +708,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -789,8 +719,6 @@ export default {
         );
 
         const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -805,7 +733,6 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch("notifications/new", notification.success);
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -840,11 +767,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -925,8 +849,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -938,8 +860,6 @@ export default {
         );
 
         const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -953,7 +873,6 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch("notifications/new", notification.success);
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -987,11 +906,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -1034,8 +950,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       const swapStaticTx = await pool.contractInstance.populateTransaction.cook(
         cookData.events,
         cookData.values,
@@ -1059,8 +973,6 @@ export default {
 
         const gasLimit = this.gasLimitConst + +estimateGas.toString();
 
-        console.log("gasLimit for cook:", gasLimit);
-
         const result = await pool.contractInstance.cook(
           cookData.events,
           cookData.values,
@@ -1073,7 +985,6 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch("notifications/new", notification.success);
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -1109,11 +1020,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -1206,8 +1114,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -1219,8 +1125,6 @@ export default {
         );
 
         const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -1234,7 +1138,6 @@ export default {
 
         console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch("notifications/new", notification.success);
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -1276,11 +1179,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -1369,9 +1269,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-      console.log("cookData", cookData.datas.join());
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -1383,8 +1280,6 @@ export default {
         );
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -1399,10 +1294,6 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch(
-        //   "notifications/new",
-        //   notification.borrowSuccess
-        // );
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
@@ -1447,11 +1338,8 @@ export default {
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
-        console.log("approvalEncode in COOK", approvalEncode);
-
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
-          console.log("aproveMasterContract resp: ", approvalMaster);
           if (!approvalMaster) return false;
         } else {
           eventsArray.push(24);
@@ -1561,9 +1449,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-      console.log("cookData", `[${cookData.datas.join()}]`);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -1575,8 +1460,6 @@ export default {
         );
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
-
-        console.log("gasLimit for cook:", gasLimit);
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -1591,7 +1474,6 @@ export default {
         console.log(result);
 
         await this.$store.commit("notifications/delete", notificationId);
-        // await this.$store.dispatch("notifications/new", notification.success);
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
