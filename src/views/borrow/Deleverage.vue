@@ -545,6 +545,8 @@ export default {
     },
 
     async actionHandler() {
+      if(this.chainId === 43114) return false; //TEMP
+
       if (+this.flashRepayAmount) {
         if (!this.slipage) {
           return false;
