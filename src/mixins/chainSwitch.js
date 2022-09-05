@@ -29,7 +29,6 @@ export default {
       } catch (error) {
         console.log("switch network err:", error);
 
-        // if(error.code === -32602) {
         try {
           await provider.provider.request({
             method: "wallet_addEthereumChain",
@@ -42,8 +41,6 @@ export default {
         } catch (e) {
           console.log("wallet_addEthereumChain err:", e);
         }
-
-        // }
       }
     },
     switchNetworkWithoutConnect(chainId) {

@@ -19,7 +19,7 @@ const fetchBasicApy = async (signer, collateralAddress) => {
 
   const rewardPrice = await getTokenPriceByAddress(
     1,
-    "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6" // Stargate tokrn price
+    "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6" // Stargate token price
   );
 
   const price = ethers.utils.parseEther(String(rewardPrice));
@@ -36,14 +36,10 @@ export const getStargateApy = async (collateralAddress, signer) => {
 
   const basicApy = (await fetchBasicApy(signer, collateralAddress)) * 100;
 
-  console.log("basicApy", basicApy);
-
   const { targetPercentage } = await DegenBoxContract.strategyData(
     collateralAddress
   );
   const farmingPercentage = targetPercentage / 100;
-
-  console.log("farmingPercentage", farmingPercentage);
 
   const strategyAddress = await DegenBoxContract.strategy(collateralAddress);
 

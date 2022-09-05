@@ -32,7 +32,6 @@ export default {
   methods: {
     ...mapMutations({ setLoadingPoolsFarm: "setLoadingPoolsFarm" }),
     async updateTokenPrices() {
-      console.log("get prices");
       const farmTokenPrices = {};
       try {
         for (const key of Object.keys(this.tokenAddresses)) {
@@ -58,8 +57,6 @@ export default {
           chainPools.map((pool) => this.createFarmPool(pool))
         );
         this.setLoadingPoolsFarm(false);
-
-        console.log("FARMS:", pools);
 
         this.$store.commit("setFarmPools", pools);
       } catch (e) {

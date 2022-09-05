@@ -29,8 +29,6 @@ const getTokensArrayPrices = async (chainId, addressArr) => {
     const respToArray = [];
 
     for (const property in pricesResponse.data) {
-      //   console.log(`${property}: ${pricesResponse.data[property].usd}`);
-
       respToArray.push({
         address: property.toLowerCase(),
         price: pricesResponse.data[property].usd,
@@ -58,12 +56,9 @@ const getTokenPriceByAddress = async (chainId, address) => {
     let price = null;
 
     for (const property in pricesResponse.data) {
-      console.log(`${property}: ${pricesResponse.data[property].usd}`);
-
       price = pricesResponse.data[property]?.usd;
     }
 
-    console.log("pricesResponse", price);
     return price;
   } catch (e) {
     console.log("TOKEN PRICE ERR:", e);

@@ -68,9 +68,6 @@ export default {
       this.$emit("switchHandle");
     },
   },
-  mounted() {
-    console.log("fromChain", this.fromChain);
-  },
 };
 </script>
 

@@ -15,21 +15,13 @@
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
           <span>{{ pool.name }}</span>
-          <!--<span class="network-new">New</span>-->
         </span>
       </span>
-
       <span v-for="(item, i) in items" :key="i">
         <span class="column-title">{{ item.title }}</span>
         <span>{{ item.value }}</span>
       </span>
-      <span class="degenbox">
-        <!--<img
-          class="degenbox-img"
-          src="@/assets/images/degenbox.svg"
-          alt="DegenBox"
-        />-->
-      </span>
+      <span class="degenbox"> </span>
     </span>
   </router-link>
 </template>

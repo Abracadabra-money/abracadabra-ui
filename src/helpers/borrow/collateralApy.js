@@ -60,7 +60,6 @@ const getMEMOApy = async (signer) => {
 };
 
 const getTokenXSushiAPY = async () => {
-  // thanks to sushi guys:)
   try {
     const results = await Promise.all([
       sushiData.bar.info(),
@@ -107,7 +106,6 @@ const fetchOHMApy = async () => {
     return false;
   } catch (e) {
     console.log("fetchOHMApy error:", e);
-
     return false;
   }
 };
@@ -191,13 +189,11 @@ const convertCrvToCvx = async (amount, signer) => {
       const reduction = totalCliffs.sub(cliff);
       //reduce
       _amount = _amount.mul(reduction).div(totalCliffs);
-
       //supply cap check
       const amtTillMax = maxSupply.sub(supply);
       if (_amount.gt(amtTillMax)) {
         _amount = amtTillMax;
       }
-
       //mint
       return _amount;
     }
@@ -371,9 +367,6 @@ const getJlpYield = async (
 export const fetchTokenApy = async (pool) => {
   let chainId = store.getters.getChainId;
   let signer = store.getters.getSigner;
-
-  console.log("fetchTokenApy chainId", chainId);
-  console.log("fetchTokenApy signer", signer);
 
   if (pool.id === 5 && chainId === 250) {
     return await getXBOOApy();

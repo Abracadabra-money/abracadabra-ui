@@ -180,27 +180,5 @@ export default {
       border: 1px solid red;
     }
   }
-
-  // .safe-status {
-  //   min-width: 50px;
-  //   height: 24px;
-  //   outline: none;
-  //   border: none;
-  //   background: $clrBlue4;
-  //   border-radius: 23px;
-  //   font-size: 12px;
-  //   color: $clrText;
-  //   padding: 0 5px;
-  //   transition: all 0.3s ease;
-  //   margin-left: auto;
-
-  //   &.medium {
-  //     background: $clrOrange;
-  //   }
-
-  //   &.high {
-  //     background: #bb0145;
-  //   }
-  // }
 }
 </style>

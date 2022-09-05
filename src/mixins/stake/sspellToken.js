@@ -48,11 +48,6 @@ export default {
   methods: {
     ...mapMutations({ setLoadingSSpellStake: "setLoadingSSpellStake" }),
     async createStakePool() {
-      // if (!this.account) {
-      //   this.setLoadingSSpellStake(false);
-      //   return false;
-      // }
-
       if (this.chainId !== 1) {
         this.setLoadingSSpellStake(false);
         return false;
@@ -65,8 +60,6 @@ export default {
         JSON.stringify(mainToken.abi),
         this.signer
       );
-
-      console.log(this.signer)
 
       const stakeTokenInstance = new this.$ethers.Contract(
         stakeToken.address,
@@ -130,8 +123,6 @@ export default {
           price: stakeTokenPrice,
         },
       };
-
-      console.log("stakeObject", stakeObject);
 
       this.$store.commit("setSSpellObject", stakeObject);
       this.setLoadingSSpellStake(false);
