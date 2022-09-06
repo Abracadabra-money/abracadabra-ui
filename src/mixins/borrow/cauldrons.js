@@ -65,7 +65,7 @@ export default {
 
       try {
         const rate = await oracleContract.peekSpot(oracleData, {
-          gasLimit: 300000,
+          gasLimit: 3000000,
         });
 
         return rate;
@@ -77,7 +77,7 @@ export default {
     async getContractExchangeRate(contract) {
       try {
         const rate = await contract.exchangeRate({
-          gasLimit: 300000,
+          gasLimit: 3000000,
         });
 
         return rate;
