@@ -281,7 +281,7 @@ const getJLPApr = async (joeInfo, tokenPrice, tokenInstance, signer) => {
 
   try {
     poolInfo = await masterJoeContract.poolInfo(joeInfo.pid, {
-      gasLimit: 600000,
+      gasLimit: 6000000,
     });
   } catch (e) {
     console.log("pool infi err:", e);
@@ -291,7 +291,7 @@ const getJLPApr = async (joeInfo, tokenPrice, tokenInstance, signer) => {
 
   try {
     stakingTokenTotalAmount = await tokenInstance.balanceOf(joeInfo.address, {
-      gasLimit: 600000,
+      gasLimit: 6000000,
     });
   } catch (e) {
     console.log("pool infi err:", e);

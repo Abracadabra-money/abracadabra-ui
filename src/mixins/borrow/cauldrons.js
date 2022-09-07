@@ -110,7 +110,7 @@ export default {
       let userBalance;
       try {
         userBalance = await contract.balanceOf(this.account, {
-          gasLimit: 600000,
+          gasLimit: 6000000,
         });
       } catch (e) {
         console.log("userBalance Err:", e);
@@ -123,7 +123,7 @@ export default {
       let userPairBalance;
       try {
         userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
-          gasLimit: 600000,
+          gasLimit: 6000000,
         });
       } catch (e) {
         console.log("userBalance Err:", e);
