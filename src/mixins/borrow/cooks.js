@@ -1254,7 +1254,14 @@ export default {
 
     // leverage
     async cookMultiBorrow(
-      { collateralAmount, amount, updatePrice, minExpected, itsDefaultBalance },
+      {
+        collateralAmount,
+        amount,
+        updatePrice,
+        minExpected,
+        itsDefaultBalance,
+        swapData,
+      },
       isApprowed,
       pool,
       notificationId
@@ -1337,8 +1344,20 @@ export default {
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      const swapStaticTx =
-        await pool.levSwapperContract.populateTransaction.swap(
+      let swapStaticTx;
+
+      if (swapData) {
+        swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
+          pool.userAddr,
+          minExpected,
+          0,
+          swapData,
+          {
+            gasLimit: 10000000,
+          }
+        );
+      } else {
+        swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
           userAddr,
           minExpected,
           0,
@@ -1346,6 +1365,7 @@ export default {
             gasLimit: 10000000,
           }
         );
+      }
 
       const swapCallByte = swapStaticTx.data.substr(0, 138);
 
@@ -1428,6 +1448,7 @@ export default {
         removeCollateralAmount,
         updatePrice,
         itsMax,
+        swapData,
       },
       isApprowed,
       pool,
@@ -1479,8 +1500,21 @@ export default {
       valuesArray.push(0);
       datasArray.push(removeCollateralToSwapper);
 
-      const swapStaticTx =
-        await pool.liqSwapperContract.populateTransaction.swap(
+      let swapStaticTx;
+      if (swapData) {
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
+          collateralTokenAddr,
+          borrowTokenAddr,
+          userAddr,
+          0,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 10000000,
+          }
+        );
+      } else {
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
           collateralTokenAddr,
           borrowTokenAddr,
           userAddr,
@@ -1490,6 +1524,7 @@ export default {
             gasLimit: 10000000,
           }
         );
+      }
 
       const swapCallByte = swapStaticTx.data;
 

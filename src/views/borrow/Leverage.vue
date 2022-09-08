@@ -132,6 +132,7 @@ const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
 import Vue from "vue";
+import axios from "axios";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
@@ -708,8 +709,32 @@ export default {
       return true;
     },
 
+    async query0x(sellToken, buyToken, slippage = 0, amountSell) {
+      const url = "https://api.0x.org/swap/v1/quote";
+
+      const params = {
+        buyToken: buyToken,
+        sellToken: sellToken,
+        sellAmount: amountSell.toString(),
+        slippagePercentage: slippage,
+        skipValidation: true,
+        takerAddress: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
+      };
+
+      const response = await axios.get(url, { params: params });
+
+      const { data, buyAmount, sellAmount, estimatedGas } = response.data;
+
+      return {
+        data: data,
+        buyAmount: this.$ethers.BigNumber.from(buyAmount),
+        sellAmount: this.$ethers.BigNumber.from(sellAmount),
+        estimatedGas: this.$ethers.BigNumber.from(estimatedGas),
+      };
+    },
+
     async actionHandler() {
-      if(this.chainId === 43114) return false; //TEMP
+      if (this.chainId === 43114) return false; //TEMP
 
       if (this.collateralValue && +this.collateralValue > 0) {
         if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
@@ -737,7 +762,7 @@ export default {
           this.selectedPool.borrowToken.decimals
         );
 
-        const payload = {
+        let payload = {
           collateralAmount: parsedCollateral,
           amount: parsedMim,
           updatePrice: this.selectedPool.askUpdatePrice,
@@ -748,6 +773,17 @@ export default {
           this.mimAmount,
           this.selectedPool.borrowToken.decimals
         );
+
+        if (this.selectedPool.id === 34 && this.chainId === 1) {
+          const response = await this.query0x(
+            this.selectedPool.borrowToken.address,
+            this.selectedPool.collateralToken.address,
+            this.slipage,
+            parsedCollateral
+          );
+
+          payload.swapData = response.data;
+        }
 
         this.multiplierHandle(payload);
         return false;
