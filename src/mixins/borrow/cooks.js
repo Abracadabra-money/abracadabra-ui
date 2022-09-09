@@ -1369,7 +1369,7 @@ export default {
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      let swapStaticTx;
+      let swapStaticTx, swapCallByte;
       if (pool.id === 34 && this.chainId === 1) {
         const response = await this.query0x(
           pool.collateralToken.address,
@@ -1383,12 +1383,13 @@ export default {
         swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
           userAddr,
           minExpected,
-          0,
+          collateralAmount,
           swapData,
           {
             gasLimit: 10000000,
           }
         );
+        swapCallByte = swapStaticTx.data;
       } else {
         swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
           userAddr,
@@ -1398,9 +1399,8 @@ export default {
             gasLimit: 10000000,
           }
         );
+        swapCallByte = swapStaticTx.data.substr(0, 138);
       }
-
-      const swapCallByte = swapStaticTx.data.substr(0, 138);
 
       //30
       const getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
