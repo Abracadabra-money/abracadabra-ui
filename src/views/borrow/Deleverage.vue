@@ -585,6 +585,7 @@ export default {
           removeCollateralAmount: this.finalRemoveCollateralAmount,
           updatePrice: this.selectedPool.askUpdatePrice,
           itsMax,
+          slipage: this.slipage,
         };
 
         const finalCollateralToShare =

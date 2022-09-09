@@ -742,6 +742,7 @@ export default {
           amount: parsedMim,
           updatePrice: this.selectedPool.askUpdatePrice,
           itsDefaultBalance: this.useDefaultBalance,
+          slipage: this.slipage,
         };
 
         payload.amount = Vue.filter("formatToFixed")(

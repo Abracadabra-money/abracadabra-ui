@@ -294,14 +294,9 @@ export default {
       }
     },
 
-    async query0x(
-      buyToken,
-      sellToken,
-      slippagePercentage = 0,
-      amountSell,
-      takerAddress
-    ) {
+    async query0x(buyToken, sellToken, slippage = 0, amountSell, takerAddress) {
       const url = "https://api.0x.org/swap/v1/quote";
+      const slippagePercentage = slippage / 100;
 
       const params = {
         buyToken: buyToken,
@@ -1284,7 +1279,14 @@ export default {
 
     // leverage
     async cookMultiBorrow(
-      { collateralAmount, amount, updatePrice, minExpected, itsDefaultBalance },
+      {
+        collateralAmount,
+        amount,
+        updatePrice,
+        minExpected,
+        itsDefaultBalance,
+        slipage,
+      },
       isApprowed,
       pool,
       notificationId
@@ -1372,7 +1374,7 @@ export default {
         const response = await this.query0x(
           pool.collateralToken.address,
           pool.borrowToken.address,
-          0,
+          slipage,
           collateralAmount,
           pool.levSwapperContract.address
         );
@@ -1443,7 +1445,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit,
+            gasLimit: 5000000,
           }
         );
 
@@ -1479,6 +1481,7 @@ export default {
         removeCollateralAmount,
         updatePrice,
         itsMax,
+        slipage,
       },
       isApprowed,
       pool,
@@ -1535,7 +1538,7 @@ export default {
         const response = await this.query0x(
           pool.borrowToken.address,
           pool.collateralToken.address,
-          this.slipage,
+          slipage,
           collateralAmount,
           pool.liqSwapperContract.address
         );
