@@ -136,7 +136,6 @@ const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 import Vue from "vue";
-import axios from "axios";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooks.js";
@@ -563,31 +562,6 @@ export default {
       this.isSettingsOpened = false;
     },
 
-    async query0x(sellToken, buyToken, slippage = 0, amountSell) {
-      console.log(slippage);
-      const url = "https://api.0x.org/swap/v1/quote";
-
-      const params = {
-        buyToken: buyToken,
-        sellToken: sellToken,
-        sellAmount: amountSell.toString(),
-        slippagePercentage: slippage,
-        skipValidation: true,
-        takerAddress: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
-      };
-
-      const response = await axios.get(url, { params: params });
-
-      const { data, buyAmount, sellAmount, estimatedGas } = response.data;
-
-      return {
-        data: data,
-        buyAmount: this.$ethers.BigNumber.from(buyAmount),
-        sellAmount: this.$ethers.BigNumber.from(sellAmount),
-        estimatedGas: this.$ethers.BigNumber.from(estimatedGas),
-      };
-    },
-
     async actionHandler() {
       if (this.chainId === 43114) return false; //TEMP
 
@@ -629,17 +603,6 @@ export default {
 
         payload.collateralAmount = finalCollateralToShare;
         payload.removeCollateralAmount = finalRemoveCollateralAmountToShare;
-
-        if (this.selectedPool.id === 34 && this.chainId === 1) {
-          const response = await this.query0x(
-            this.selectedPool.collateralToken.address,
-            this.selectedPool.borrowToken.address,
-            this.slipage,
-            finalCollateralToShare
-          );
-
-          payload.swapData = response.data;
-        }
 
         this.flashRepayHandler(payload);
         return false;

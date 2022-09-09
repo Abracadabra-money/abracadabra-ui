@@ -3,9 +3,9 @@
 import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
-import zeroXswapperAbi from "@/utils/abi/zeroXswapper";
+import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
-import zeroXLevSwapper from "@/utils/abi/zeroXLevSwapper";
+import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 
 export default [
   {
@@ -1728,11 +1728,11 @@ export default [
     },
     swapContractInfo: {
       address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
-      abi: zeroXswapperAbi,
+      abi: zeroXLevSwapperAbi,
     },
     reverseSwapContractInfo: {
       address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
-      abi: zeroXLevSwapper,
+      abi: zeroXLiqSwapperAbi,
     },
   },
 ];
