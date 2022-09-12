@@ -1698,7 +1698,7 @@ export default [
     is0xSwap: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: false,
+      strategyLink: true,
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 10,
