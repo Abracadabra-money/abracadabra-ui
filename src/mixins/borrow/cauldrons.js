@@ -461,6 +461,7 @@ export default {
         id: pool.id,
         bentoBoxAddress,
         isSwappersActive: pool.isSwappersActive,
+        is0xSwap: pool.is0xSwap,
         cauldronSettings: pool.cauldronSettings,
         contractInstance: poolContract,
         masterContractInstance: masterContract,

@@ -1369,8 +1369,8 @@ export default {
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      let swapStaticTx, swapCallByte;
-      if (pool.id === 34 && this.chainId === 1) {
+      let swapStaticTx, swapCallByte, getCallEncode2;
+      if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.collateralToken.address,
           pool.borrowToken.address,
@@ -1390,6 +1390,12 @@ export default {
           }
         );
         swapCallByte = swapStaticTx.data;
+
+        //30
+        getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [swapperAddres, swapCallByte, false, false, 2]
+        );
       } else {
         swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
           userAddr,
@@ -1400,13 +1406,13 @@ export default {
           }
         );
         swapCallByte = swapStaticTx.data.substr(0, 138);
-      }
 
-      //30
-      const getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "bytes", "bool", "bool", "uint8"],
-        [swapperAddres, swapCallByte, false, false, 2]
-      );
+        //30
+        getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [swapperAddres, swapCallByte, false, true, 2]
+        );
+      }
 
       eventsArray.push(30);
       valuesArray.push(0);
@@ -1445,7 +1451,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit: 5000000,
+            gasLimit,
           }
         );
 
@@ -1534,7 +1540,7 @@ export default {
       datasArray.push(removeCollateralToSwapper);
 
       let swapStaticTx;
-      if (pool.id === 34 && this.chainId === 1) {
+      if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.borrowToken.address,
           pool.collateralToken.address,
