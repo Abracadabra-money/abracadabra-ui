@@ -1375,7 +1375,7 @@ export default {
           pool.collateralToken.address,
           pool.borrowToken.address,
           slipage,
-          collateralAmount,
+          amount,
           pool.levSwapperContract.address
         );
 
@@ -1383,7 +1383,7 @@ export default {
         swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
           userAddr,
           minExpected,
-          collateralAmount,
+          amount,
           swapData,
           {
             gasLimit: 10000000,
@@ -1405,7 +1405,7 @@ export default {
       //30
       const getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes", "bool", "bool", "uint8"],
-        [swapperAddres, swapCallByte, false, true, 2]
+        [swapperAddres, swapCallByte, false, false, 2]
       );
 
       eventsArray.push(30);
