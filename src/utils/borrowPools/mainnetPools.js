@@ -1698,7 +1698,8 @@ export default [
     is0xSwap: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: true,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/BTQEafdHaQ2PnQznmXwXCcftAZT17zw7_AgH2FDyHGM",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 10,
