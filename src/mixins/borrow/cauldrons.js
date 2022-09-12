@@ -65,7 +65,7 @@ export default {
 
       try {
         const rate = await oracleContract.peekSpot(oracleData, {
-          gasLimit: 300000,
+          gasLimit: 3000000,
         });
 
         return rate;
@@ -77,7 +77,7 @@ export default {
     async getContractExchangeRate(contract) {
       try {
         const rate = await contract.exchangeRate({
-          gasLimit: 300000,
+          gasLimit: 3000000,
         });
 
         return rate;
@@ -110,7 +110,7 @@ export default {
       let userBalance;
       try {
         userBalance = await contract.balanceOf(this.account, {
-          gasLimit: 600000,
+          gasLimit: 6000000,
         });
       } catch (e) {
         console.log("userBalance Err:", e);
@@ -123,7 +123,7 @@ export default {
       let userPairBalance;
       try {
         userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
-          gasLimit: 600000,
+          gasLimit: 6000000,
         });
       } catch (e) {
         console.log("userBalance Err:", e);

@@ -99,7 +99,7 @@ export default {
     async getUserBalance(tokenContract) {
       try {
         const userBalance = await tokenContract.balanceOf(this.account, {
-          gasLimit: 600000,
+          gasLimit: 6000000,
         });
 
         return this.$ethers.utils.formatUnits(userBalance, 18);
