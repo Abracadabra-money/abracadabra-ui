@@ -606,8 +606,8 @@ export default {
     },
 
     async actionHandler() {
-      if(this.chainId === 43114) return false; //TEMP
-      
+      if (this.chainId === 43114) return false; //TEMP
+
       if (
         +this.borrowValue > 0 &&
         +this.collateralValue > 0 &&
@@ -846,6 +846,11 @@ export default {
     this.updateInterval = setInterval(async () => {
       this.createPools();
     }, 15000);
+  },
+
+  // TEST
+  mounted() {
+    console.log("11111111111111111111", process.env.VUE_APP_COINGECKO_API_KEY);
   },
 
   beforeDestroy() {

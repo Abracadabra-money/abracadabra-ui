@@ -11,7 +11,7 @@ const chainCoinGeckoIds = {
 
 const config = {
   headers: {
-    "X-Cg-Pro-Api-Key": "CG-nguZHRFas4tyUdHhPHwVgN9T", //api key
+    "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY,
   },
 };
 

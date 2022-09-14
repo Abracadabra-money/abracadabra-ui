@@ -35,6 +35,10 @@ export default {
         (pool) => pool.contractChain === +this.chainId
       );
 
+      // test
+      let test = await this.fetchTokensPrice(chainPools);
+      console.log("TEST", test);
+
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
       );
