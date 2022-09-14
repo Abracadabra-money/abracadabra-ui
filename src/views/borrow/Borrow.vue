@@ -848,11 +848,6 @@ export default {
     }, 15000);
   },
 
-  // TEST
-  mounted() {
-    console.log("11111111111111111111", process.env.VUE_APP_COINGECKO_API_KEY);
-  },
-
   beforeDestroy() {
     clearInterval(this.updateInterval);
   },
