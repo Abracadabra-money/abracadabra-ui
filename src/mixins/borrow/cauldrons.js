@@ -97,20 +97,9 @@ export default {
       }
     },
 
-    async getUserBalance(contract, decimals) {
+    async getUserTokenBalance(contract, decimals) {
       try {
         return await contract.balanceOf(this.account, {
-          gasLimit: 600000,
-        });
-      } catch (e) {
-        console.log("userBalance Err:", e);
-        return this.$ethers.utils.parseUnits("0", decimals);
-      }
-    },
-
-    async getUserPairBalance(tokenBorrowContract, decimals) {
-      try {
-        return await tokenBorrowContract.balanceOf(this.account, {
           gasLimit: 600000,
         });
       } catch (e) {
@@ -489,12 +478,12 @@ export default {
       const { userBorrowPart, contractBorrowPart } =
         await this.getUserBorrowPart(pool.contractInstance);
 
-      let userBalance = await this.getUserBalance(
+      let userBalance = await this.getUserTokenBalance(
         pool.collateralToken.contract,
         pool.collateralToken.decimals
       );
 
-      let userPairBalance = await this.getUserPairBalance(
+      let userPairBalance = await this.getUserTokenBalance(
         pool.borrowToken.contract,
         pool.borrowToken.decimals
       );
@@ -681,7 +670,7 @@ export default {
       let askUpdatePrice = false;
 
       if (
-        oracleExchangeRate.toString() > contractExchangeRate.toString() &&
+        oracleExchangeRate.gt(contractExchangeRate) &&
         !contractExchangeRate.eq(0)
       ) {
         borrowTokenRate = contractExchangeRate;
@@ -689,10 +678,6 @@ export default {
       } else if (contractExchangeRate.eq(0)) {
         borrowTokenRate = oracleExchangeRate;
         askUpdatePrice = true;
-      } else if (
-        oracleExchangeRate.toString() !== contractExchangeRate.toString()
-      ) {
-        borrowTokenRate = oracleExchangeRate;
       } else {
         borrowTokenRate = oracleExchangeRate;
       }
