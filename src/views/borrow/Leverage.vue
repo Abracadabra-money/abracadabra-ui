@@ -99,7 +99,6 @@
             <ExecutionPrice
               v-if="isExecutionPrice && selectedPool"
               :pool="selectedPool"
-              @differencePrice="changeDifferencePrice"
             />
           </div>
 
@@ -125,13 +124,6 @@
         popupType="cauldron"
       />
     </LocalPopupWrap>
-
-    <LocalPopupWrap v-model="isOpenExecutionPricePopup">
-      <ExecutionPricePopup
-        @closeExecutionPricePopup="closeExecutionPricePopup"
-        @approveExecutionPrice="approveExecutionPrice"
-      />
-    </LocalPopupWrap>
   </div>
 </template>
 
@@ -146,8 +138,7 @@ const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const ExecutionPricePopup = () =>
-  import("@/components/popups/ExecutionPricePopup");
+
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
@@ -184,8 +175,6 @@ export default {
         bottom: "Read more about it",
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
-      isOpenExecutionPricePopup: false,
-      isDifferencePrice: false,
     };
   },
 
@@ -735,12 +724,7 @@ export default {
       return true;
     },
 
-    async actionHandler(executionPriceApprove = false) {
-      if (this.isDifferencePrice && !executionPriceApprove) {
-        this.isOpenExecutionPricePopup = true;
-        return false;
-      }
-
+    async actionHandler() {
       if (this.collateralValue && +this.collateralValue > 0) {
         if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
           return false;
@@ -969,18 +953,6 @@ export default {
       this.slipage = 1;
       return false;
     },
-
-    closeExecutionPricePopup() {
-      this.isOpenExecutionPricePopup = false;
-    },
-
-    approveExecutionPrice() {
-      this.actionHandler(true);
-    },
-
-    changeDifferencePrice(isMoreOnePercent) {
-      this.isDifferencePrice = isMoreOnePercent;
-    },
   },
 
   async created() {
@@ -1010,7 +982,6 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
-    ExecutionPricePopup,
   },
 };
 </script>
