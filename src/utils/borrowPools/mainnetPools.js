@@ -1696,6 +1696,7 @@ export default [
     borrowFee: 0,
     isSwappersActive: true,
     is0xSwap: true,
+    executionPrice: true,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:

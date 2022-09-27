@@ -79,6 +79,7 @@
           :emptyData="emptyData"
           :poolId="selectedPoolId"
         />
+
         <template v-if="selectedPool">
           <div class="btn-wrap">
             <BaseButton
@@ -92,6 +93,14 @@
               :disabled="actionBtnText === 'Nothing to do'"
               >{{ actionBtnText }}</BaseButton
             >
+          </div>
+
+          <div class="info-row-wrap">
+            <ExecutionPrice
+              v-if="isExecutionPrice && selectedPool"
+              :pool="selectedPool"
+              @differencePrice="changeDifferencePrice"
+            />
           </div>
 
           <div class="info-wrap">
@@ -114,7 +123,15 @@
         @close="isOpenPollPopup = false"
         :pools="filteredPool"
         popupType="cauldron"
-    /></LocalPopupWrap>
+      />
+    </LocalPopupWrap>
+
+    <LocalPopupWrap v-model="isOpenExecutionPricePopup">
+      <ExecutionPricePopup
+        @closeExecutionPricePopup="closeExecutionPricePopup"
+        @approveExecutionPrice="approveExecutionPrice"
+      />
+    </LocalPopupWrap>
   </div>
 </template>
 
@@ -127,7 +144,10 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
+const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
+const ExecutionPricePopup = () =>
+  import("@/components/popups/ExecutionPricePopup");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
@@ -164,6 +184,8 @@ export default {
         bottom: "Read more about it",
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
+      isOpenExecutionPricePopup: false,
+      isDifferencePrice: false,
     };
   },
 
@@ -545,6 +567,11 @@ export default {
       }
       return "0.0";
     },
+
+    isExecutionPrice() {
+      if (this.selectedPool?.executionPrice) return true;
+      return false;
+    },
   },
 
   watch: {
@@ -708,7 +735,12 @@ export default {
       return true;
     },
 
-    async actionHandler() {
+    async actionHandler(executionPriceApprove = false) {
+      if (this.isDifferencePrice && !executionPriceApprove) {
+        this.isOpenExecutionPricePopup = true;
+        return false;
+      }
+
       if (this.collateralValue && +this.collateralValue > 0) {
         if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
           return false;
@@ -937,6 +969,18 @@ export default {
       this.slipage = 1;
       return false;
     },
+
+    closeExecutionPricePopup() {
+      this.isOpenExecutionPricePopup = false;
+    },
+
+    approveExecutionPrice() {
+      this.actionHandler(true);
+    },
+
+    changeDifferencePrice(isMoreOnePercent) {
+      this.isDifferencePrice = isMoreOnePercent;
+    },
   },
 
   async created() {
@@ -962,9 +1006,11 @@ export default {
     BaseLoader,
     InfoBlock,
     LeftBorrow,
+    ExecutionPrice,
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
+    ExecutionPricePopup,
   },
 };
 </script>
@@ -1046,6 +1092,10 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+}
+
+.info-row-wrap {
+  margin-bottom: 20px;
 }
 
 .btn-wrap {
