@@ -1,7 +1,16 @@
 <template>
   <div class="wrap">
     <div class="info" :class="{ difference: isDifference }">
-      <span>Execution Price</span>
+      <span class="title">
+        <img
+          src="@/assets/images/info.svg"
+          alt="info"
+          v-tooltip="
+            'Execution price of 1 name of collateral in MIM terms, given your chosen leverage.'
+          "
+        />
+        Execution Price
+      </span>
       <span class="price">{{ executionPrice }}</span>
     </div>
     <p v-if="isDifference" class="error">Warning! Exchange rate is low.</p>
@@ -9,14 +18,13 @@
 </template>
 
 <script>
-import Vue from "vue";
 import axios from "axios";
 export default {
   props: {
     pool: {
       type: Object,
     },
-    collateralValue: {
+    sellAmount: {
       type: [String, Number],
     },
     slipage: {
@@ -34,22 +42,8 @@ export default {
   },
 
   computed: {
-    sellAmount() {
-      return this.$ethers.utils
-        .parseUnits(
-          Vue.filter("formatToFixed")(
-            this.collateralValue,
-            this.pool.collateralToken.decimals
-          ),
-          this.pool.collateralToken.decimals
-        )
-        .toString();
-    },
-
     executionPrice() {
-      if (this.fetching) {
-        return "Fetching...";
-      }
+      if (this.fetching) return "Fetching...";
 
       return 1 / this.price;
     },
@@ -62,7 +56,7 @@ export default {
   },
 
   watch: {
-    collateralValue() {
+    sellAmount() {
       this.getExecutionPrice(this.pool);
     },
   },
@@ -137,6 +131,16 @@ export default {
 
   .price {
     color: #e54369;
+  }
+}
+
+.title {
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-right: 5px;
+    cursor: pointer;
   }
 }
 

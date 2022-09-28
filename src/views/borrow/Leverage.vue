@@ -99,7 +99,7 @@
             <ExecutionPrice
               v-if="isExecutionPrice"
               :pool="selectedPool"
-              :collateralValue="collateralValue"
+              :sellAmount="sellAmount"
               :slipage="slipage"
             />
           </div>
@@ -569,6 +569,40 @@ export default {
         return true;
 
       return false;
+    },
+
+    sellAmount() {
+      if (!this.collateralValue) return 0;
+
+      const amount = Vue.filter("formatToFixed")(
+        this.mimAmount,
+        this.selectedPool.borrowToken.decimals
+      );
+
+      const percentValue = parseFloat(this.percentValue);
+
+      const amountMultiplyer = percentValue / 100;
+
+      let startAmount = amount * 0.995;
+
+      let finalAmount = 0;
+
+      for (let i = this.multiplier; i > 0; i--) {
+        finalAmount += +startAmount;
+        startAmount = startAmount * amountMultiplyer;
+      }
+
+      const mimAmount = this.$ethers.utils
+        .parseUnits(
+          Vue.filter("formatToFixed")(
+            finalAmount,
+            this.selectedPool.borrowToken.decimals
+          ),
+          this.selectedPool.borrowToken.decimals
+        )
+        .toString();
+
+      return mimAmount;
     },
   },
 
