@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import axios from "axios";
 export default {
   props: {
@@ -35,7 +36,7 @@ export default {
       price: 0,
       isMoreOnePercent: false,
       updateInterval: null,
-      fetching: false,
+      fetching: true,
     };
   },
 
@@ -43,7 +44,8 @@ export default {
     executionPrice() {
       if (this.fetching) return "Fetching...";
 
-      return 1 / this.price;
+      const price = 1 / this.price;
+      return Vue.filter("formatTokenBalance")(price);
     },
 
     isDifference() {
