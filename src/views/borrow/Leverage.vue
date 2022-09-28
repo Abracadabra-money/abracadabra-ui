@@ -604,10 +604,6 @@ export default {
 
       return mimAmount;
     },
-
-    isLusdPool() {
-      return this.chainId === 1 && this.selectedPool.id === 34;
-    },
   },
 
   watch: {
@@ -772,24 +768,6 @@ export default {
     },
 
     async actionHandler() {
-      if (this.isLusdPool) {
-        const formatSellAmount = this.$ethers.utils.formatUnits(
-          this.sellAmount,
-          this.selectedPool.borrowToken.decimals
-        );
-
-        if (+formatSellAmount > 1000000) {
-          const notification = {
-            msg: "Reached MIM borrow limit",
-            type: "error",
-          };
-
-          await this.$store.dispatch("notifications/new", notification);
-
-          return false;
-        }
-      }
-
       if (this.collateralValue && +this.collateralValue > 0) {
         if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
           return false;
