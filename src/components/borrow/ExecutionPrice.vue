@@ -1,19 +1,26 @@
 <template>
   <div class="wrap">
-    <div class="info" :class="{ difference: isMoreOnePercent }">
+    <div class="info" :class="{ difference: isDifference }">
       <span>Execution Price</span>
-      <span class="price">{{ price }}</span>
+      <span class="price">{{ executionPrice }}</span>
     </div>
-    <p v-if="isMoreOnePercent" class="error">Warning! Exchange rate is low.</p>
+    <p v-if="isDifference" class="error">Warning! Exchange rate is low.</p>
   </div>
 </template>
 
 <script>
+import Vue from "vue";
 import axios from "axios";
 export default {
   props: {
     pool: {
       type: Object,
+    },
+    collateralValue: {
+      type: [String, Number],
+    },
+    slipage: {
+      type: [String, Number],
     },
   },
 
@@ -22,21 +29,62 @@ export default {
       price: 0,
       isMoreOnePercent: false,
       updateInterval: null,
+      fetching: false,
     };
+  },
+
+  computed: {
+    sellAmount() {
+      return this.$ethers.utils
+        .parseUnits(
+          Vue.filter("formatToFixed")(
+            this.collateralValue,
+            this.pool.collateralToken.decimals
+          ),
+          this.pool.collateralToken.decimals
+        )
+        .toString();
+    },
+
+    executionPrice() {
+      if (this.fetching) {
+        return "Fetching...";
+      }
+
+      return 1 / this.price;
+    },
+
+    isDifference() {
+      if (this.isMoreOnePercent && !this.fetching) return true;
+
+      return false;
+    },
+  },
+
+  watch: {
+    collateralValue() {
+      this.getExecutionPrice(this.pool);
+    },
   },
 
   methods: {
     async getExecutionPrice(pool) {
+      this.fetching = true;
       const url = "https://api.0x.org/swap/v1/quote";
-      const { collateralToken, borrowToken, tokenOraclePrice } = pool;
-      const sellAmount = (1000000000000000000).toString();
-      const slippagePercentage = 0;
+      const {
+        collateralToken,
+        borrowToken,
+        tokenOraclePrice,
+        levSwapperContract,
+      } = pool;
 
       const params = {
         buyToken: collateralToken.address,
         sellToken: borrowToken.address,
-        sellAmount,
-        slippagePercentage,
+        sellAmount: this.sellAmount,
+        slippagePercentage: this.slipage,
+        skipValidation: true,
+        takerAddress: levSwapperContract.address,
       };
 
       const response = await axios.get(url, { params: params });
@@ -44,6 +92,8 @@ export default {
       const { price } = response.data;
 
       this.price = price;
+
+      this.fetching = false;
 
       const difference =
         Math.abs(
@@ -53,6 +103,7 @@ export default {
       this.isMoreOnePercent = difference > 1;
     },
   },
+
   async mounted() {
     this.getExecutionPrice(this.pool);
 

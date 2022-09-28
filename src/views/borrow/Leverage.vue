@@ -97,8 +97,10 @@
 
           <div class="info-row-wrap">
             <ExecutionPrice
-              v-if="isExecutionPrice && selectedPool"
+              v-if="isExecutionPrice"
               :pool="selectedPool"
+              :collateralValue="collateralValue"
+              :slipage="slipage"
             />
           </div>
 
@@ -558,7 +560,14 @@ export default {
     },
 
     isExecutionPrice() {
-      if (this.selectedPool?.executionPrice) return true;
+      if (
+        this.selectedPool?.executionPrice &&
+        this.selectedPool &&
+        this.collateralValue &&
+        !this.collateralError
+      )
+        return true;
+
       return false;
     },
   },
