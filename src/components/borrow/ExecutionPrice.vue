@@ -5,9 +5,7 @@
         <img
           src="@/assets/images/info.svg"
           alt="info"
-          v-tooltip="
-            'Execution price of 1 name of collateral in MIM terms, given your chosen leverage.'
-          "
+          v-tooltip="tooltipText"
         />
         Execution Price
       </span>
@@ -52,6 +50,10 @@ export default {
       if (this.isMoreOnePercent && !this.fetching) return true;
 
       return false;
+    },
+
+    tooltipText() {
+      return `Execution price of 1 ${this.pool.collateralToken.name} in MIM terms, given your chosen leverage.`;
     },
   },
 
