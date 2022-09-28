@@ -777,7 +777,6 @@ export default {
           this.sellAmount,
           this.selectedPool.borrowToken.decimals
         );
-        console.log(formatSellAmount);
 
         if (+formatSellAmount > 1000000) {
           const notification = {
