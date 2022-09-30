@@ -56,7 +56,7 @@ export default {
 
       try {
         const rate = await oracleContract.peekSpot(oracleData, {
-          gasLimit: 300000,
+          gasLimit: 3000000,
         });
 
         return rate;
@@ -68,7 +68,7 @@ export default {
     async getContractExchangeRate(contract) {
       try {
         const rate = await contract.exchangeRate({
-          gasLimit: 300000,
+          gasLimit: 3000000,
         });
 
         return rate;
@@ -100,12 +100,24 @@ export default {
     async getUserTokenBalance(contract, decimals) {
       try {
         return await contract.balanceOf(this.account, {
-          gasLimit: 600000,
+          gasLimit: 6000000,
         });
       } catch (e) {
         console.log("userBalance Err:", e);
         return this.$ethers.utils.parseUnits("0", decimals);
       }
+    },
+
+    async getUserPairBalance(tokenBorrowContract) {
+      let userPairBalance;
+      try {
+        userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
+          gasLimit: 6000000,
+        });
+      } catch (e) {
+        console.log("userBalance Err:", e);
+      }
+      return userPairBalance;
     },
 
     async getClaimableReward(contractInstance, decimals) {

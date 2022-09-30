@@ -72,7 +72,7 @@ export default {
       );
 
       const poolInfo = await contractInstance.poolInfo(farmPoolInfo.poolId, {
-        gasLimit: 600000,
+        gasLimit: 6000000,
       });
 
       const stakingTokenContract = new this.$ethers.Contract(
