@@ -6,6 +6,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import { getTokenPriceByAddress } from "../priceHelper";
 import { getStargateApy } from "@/helpers/borrow/stargateApyHelper";
+import { getLUSDApy } from "@/helpers/borrow/LUSDApy";
 
 // wMEMO pool APY
 import timeStakingAbi from "@/utils/abi/timeStaking";
@@ -367,6 +368,13 @@ const getJlpYield = async (
 export const fetchTokenApy = async (pool) => {
   let chainId = store.getters.getChainId;
   let signer = store.getters.getSigner;
+
+  console.log("fetchTokenApy chainId", chainId);
+  console.log("fetchTokenApy signer", signer);
+
+  if (pool.id === 34 && chainId === 1) {
+    return await getLUSDApy(signer);
+  }
 
   if (pool.id === 5 && chainId === 250) {
     return await getXBOOApy();
