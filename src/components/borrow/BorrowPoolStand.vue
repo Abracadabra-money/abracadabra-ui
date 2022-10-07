@@ -381,6 +381,12 @@ export default {
             ),
             additional: "MIM Currently Borrowed in your Position",
           },
+          {
+            title: "TVL",
+
+            value: Vue.filter("formatUSD")(this.pool.tvl || 0),
+            additional: "Total Value Locked",
+          },
         ];
 
         if (this.pool.id === 10 && this.chainId === 1) {
