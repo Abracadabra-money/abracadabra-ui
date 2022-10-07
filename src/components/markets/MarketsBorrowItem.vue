@@ -83,9 +83,9 @@ export default {
         },
         {
           title: "TVL",
-          value: this.formatNumber(
+          value: `$ ${this.formatNumber(
             Vue.filter("formatTokenBalance")(this.pool.tvl)
-          ),
+          )}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
