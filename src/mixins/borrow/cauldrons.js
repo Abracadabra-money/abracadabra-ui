@@ -445,7 +445,7 @@ export default {
 
       const tvl = await this.parseCollatealTokenToBorrowToken(
         totalCollateralShare,
-        borrowTokenRate,
+        oracleExchangeRate,
         pool.token.decimals,
         masterContract,
         pool.token.address
