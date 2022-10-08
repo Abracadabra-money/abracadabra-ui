@@ -148,16 +148,20 @@ export default {
       }
     },
 
-    parseCollatealTokenToBorrowToken(
+    async parseCollatealTokenToBorrowToken(
       totalCollateralShare,
       oracleExchangeRate,
-      decimals
+      decimals,
+      bentoBox,
+      tokenAddr
     ) {
       const exchangeRate =
         1 / this.$ethers.utils.formatUnits(oracleExchangeRate, decimals);
 
+      const collateralAmount = await bentoBox.toAmount(tokenAddr, totalCollateralShare, false);
+
       const parsedCollateral = this.$ethers.utils.formatUnits(
-        totalCollateralShare,
+        collateralAmount,
         decimals
       );
 
@@ -439,10 +443,12 @@ export default {
         this.$ethers.utils.formatUnits(oracleExchangeRate, oracleDecimals)
       );
 
-      const tvl = this.parseCollatealTokenToBorrowToken(
+      const tvl = await this.parseCollatealTokenToBorrowToken(
         totalCollateralShare,
-        borrowTokenRate,
-        pool.token.decimals
+        oracleExchangeRate,
+        pool.token.decimals,
+        masterContract,
+        pool.token.address
       );
 
       // const priceUsd = this.pricesUsdCollateralToken.find(

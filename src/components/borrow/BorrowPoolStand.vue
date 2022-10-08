@@ -381,6 +381,13 @@ export default {
             ),
             additional: "MIM Currently Borrowed in your Position",
           },
+          {
+            title: "TVL",
+            value: `$ ${this.formatNumber(
+              Vue.filter("formatTokenBalance")(this.pool.tvl || 0)
+            )}`,
+            additional: "Total Value Locked",
+          },
         ];
 
         if (this.pool.id === 10 && this.chainId === 1) {
@@ -618,6 +625,27 @@ export default {
   },
 
   methods: {
+    formatNumber(value) {
+      if (isNaN(Number(value)) || Number(value) < 1) return 0;
+
+      const lookup = [
+        { value: 0, symbol: "" },
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: "k" },
+        { value: 1e6, symbol: "M" },
+      ];
+      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+      let item = lookup
+        .slice()
+        .reverse()
+        .find(function (item) {
+          return parseFloat(value) >= item.value;
+        });
+      return (
+        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
+        item.symbol
+      );
+    },
     async handleClaimCrvReward() {
       try {
         const estimateGas =

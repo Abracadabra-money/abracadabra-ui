@@ -242,6 +242,7 @@ export default {
         : [
             "COMPONENT",
             "TOTAL MIM BORROWED",
+            "TVL",
             "MIMS LEFT TO BORROW",
             "INTEREST",
             "LIQUIDATION FEE",
@@ -401,7 +402,7 @@ export default {
 
 .stats-list-header {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   padding: 0 20px;
   height: 60px;

@@ -82,6 +82,12 @@ export default {
           ),
         },
         {
+          title: "TVL",
+          value: `$ ${this.formatNumber(
+            Vue.filter("formatTokenBalance")(this.pool.tvl)
+          )}`,
+        },
+        {
           title: "MIMS LEFT TO BORROW",
           value: this.formatNumber(
             Vue.filter("formatTokenBalance")(this.pool.dynamicBorrowAmount)
@@ -209,7 +215,7 @@ export default {
   }
 
   .stats-item-wrap {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     align-items: center;
     grid-gap: 0;
     height: 36px;
