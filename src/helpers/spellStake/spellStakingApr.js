@@ -6,7 +6,6 @@ import { ethers, Contract } from "ethers";
 import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import SpellAbi from "@/utils/abi/tokensAbi/SPELL";
 import sSpellAbi from "@/utils/abi/tokensAbi/sSPELL";
-import moment from "moment";
 import axios from "axios";
 
 const getTokensRate = async () => {
@@ -30,27 +29,12 @@ const getTokensRate = async () => {
 
 const fetchSpellApr = async () => {
   try {
-    const response = await axios.get(
-      "https://analytics.back.popsicle.finance/api/v1/ethereum/SpellStakingInfo"
-    );
+    const response = await axios.get(process.env.SPELL_APR_URL);
     return response.data.apr;
   } catch (error) {
     console.log("fetchSpellApr err:", error);
     return "N/A";
   }
-};
-
-const getSpellApr = async () => {
-  const tokenRate = await getTokensRate();
-
-  const startDate = moment("2021-5-25");
-  const date = moment();
-
-  const dayDiff = date.diff(startDate, "days");
-
-  const apr = (((tokenRate - 1) * 100) / dayDiff) * 365;
-
-  return apr;
 };
 
 const getSpellStakingApr = async () => {
@@ -62,4 +46,4 @@ const getSpellStakingApr = async () => {
   };
 };
 
-export { getSpellStakingApr, getSpellApr, getTokensRate };
+export { getSpellStakingApr, getTokensRate };
