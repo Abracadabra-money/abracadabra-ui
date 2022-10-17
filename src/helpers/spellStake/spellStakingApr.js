@@ -29,7 +29,7 @@ const getTokensRate = async () => {
 
 const fetchSpellApr = async () => {
   try {
-    const response = await axios.get(process.env.SPELL_APR_URL);
+    const response = await axios.get(process.env.VUE_APP_SPELL_APR_URL);
     return response.data.apr;
   } catch (error) {
     console.log("fetchSpellApr err:", error);
