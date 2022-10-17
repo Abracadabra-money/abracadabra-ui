@@ -68,7 +68,6 @@ export default {
         const amount = this.$ethers.utils.parseEther(this.amount);
         const account = this.account;
         const tokenAddress = this.infoObject.mimContract.address;
-        console.log("AMOUNT", amount.toString());
 
         const estimateGas = await this.activeContract.estimateGas.withdraw(
           tokenAddress,
@@ -79,8 +78,6 @@ export default {
         );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.activeContract.withdraw(
           tokenAddress,
@@ -122,7 +119,6 @@ export default {
         const amount = this.$ethers.utils.parseEther(this.amount);
         const account = this.account;
         const tokenAddress = this.infoObject.mimContract.address;
-        console.log("AMOUNT", amount.toString());
 
         const estimateGas = await this.activeContract.estimateGas.deposit(
           tokenAddress,
@@ -133,8 +129,6 @@ export default {
         );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.activeContract.deposit(
           tokenAddress,

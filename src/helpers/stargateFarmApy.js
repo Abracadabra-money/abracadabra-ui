@@ -73,15 +73,11 @@ function getFarmApy(
     totalFarmLp,
     totalPoolLp
   );
-  console.log("apr: ", apr);
   const apy = Math.E ** apr - 1;
   return apy;
 }
 
 export const getStargateBasicApy = async (poolAddress, poolId, price) => {
-  console.log("poolAddress", poolAddress);
-  console.log("poolId", poolId);
-
   const lpStakingContract = new Contract(
     "0xB0D502E938ed5f4df2E681fE6E419ff29631d62b",
     lpStakingAbi,

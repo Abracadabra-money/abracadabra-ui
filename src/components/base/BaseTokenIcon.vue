@@ -20,7 +20,6 @@ export default {
     type: {
       type: String,
       default: "token",
-      // type = "select"
     },
     size: {
       type: String,

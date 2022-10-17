@@ -11,7 +11,7 @@ const chainCoinGeckoIds = {
 
 const config = {
   headers: {
-    "X-Cg-Pro-Api-Key": "CG-nguZHRFas4tyUdHhPHwVgN9T", //api key
+    "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY,
   },
 };
 
@@ -22,15 +22,13 @@ const getTokensArrayPrices = async (chainId, addressArr) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
+      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
       config
     );
 
     const respToArray = [];
 
     for (const property in pricesResponse.data) {
-      //   console.log(`${property}: ${pricesResponse.data[property].usd}`);
-
       respToArray.push({
         address: property.toLowerCase(),
         price: pricesResponse.data[property].usd,
@@ -51,19 +49,16 @@ const getTokenPriceByAddress = async (chainId, address) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
+      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
       config
     );
 
     let price = null;
 
     for (const property in pricesResponse.data) {
-      console.log(`${property}: ${pricesResponse.data[property].usd}`);
-
       price = pricesResponse.data[property]?.usd;
     }
 
-    console.log("pricesResponse", price);
     return price;
   } catch (e) {
     console.log("TOKEN PRICE ERR:", e);

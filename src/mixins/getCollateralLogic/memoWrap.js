@@ -78,8 +78,6 @@ export default {
         },
       };
 
-      console.log("MEMO WRAP:", stakeObject);
-
       return stakeObject;
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {
@@ -109,8 +107,6 @@ export default {
         );
 
         stakeToMain = MEMOTowMEMOParsed;
-
-        console.log("stakeToMain", stakeToMain);
 
         return stakeToMain;
       } catch (e) {

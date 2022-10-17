@@ -196,6 +196,22 @@ export default {
         : null;
     },
   },
+  watch: {
+    async address() {
+      if (this.address) {
+        await this.createFarmPools();
+      }
+    },
+    max() {
+      this.amount = "";
+    },
+    unstake: {
+      immediate: true,
+      handler(value) {
+        if (value) this.selectedTab = "unstake";
+      },
+    },
+  },
   methods: {
     selectPool(pool) {
       if (+pool.id !== +this.id)
@@ -286,8 +302,6 @@ export default {
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        console.log("gasLimit:", gasLimit);
-
         const tx = await this.selectedPool.stakingTokenContract.approve(
           this.selectedPool.contractAddress,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -311,22 +325,6 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
-    },
-  },
-  watch: {
-    async address() {
-      if (this.address) {
-        await this.createFarmPools();
-      }
-    },
-    max() {
-      this.amount = "";
-    },
-    unstake: {
-      immediate: true,
-      handler(value) {
-        if (value) this.selectedTab = "unstake";
-      },
     },
   },
   async created() {
@@ -479,13 +477,7 @@ export default {
   font-size: 14px;
   color: #63caf8;
 }
-/*
-.farm-link:hover {
-  background: -webkit-linear-gradient(#5282fd, #76c3f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-*/
+
 .switcher {
   margin-bottom: 27px;
 }

@@ -21,7 +21,6 @@ export default {
       const mimInfo = mimToken.find((item) => item.chainId === this.chainId);
 
       if (!mimInfo) {
-        console.log("no mimInfo");
         return false;
       }
 
@@ -30,7 +29,6 @@ export default {
       );
 
       if (!bridgeInfo) {
-        console.log("no bridgeInfo");
         return false;
       }
 
@@ -124,7 +122,6 @@ export default {
       }
     },
     async approveToken(tokenContract, spenderAddress) {
-      console.log(tokenContract, spenderAddress);
       try {
         const estimateGas = await tokenContract.estimateGas.approve(
           spenderAddress,
@@ -132,8 +129,6 @@ export default {
         );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await tokenContract.approve(
           spenderAddress,

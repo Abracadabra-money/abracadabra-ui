@@ -1,7 +1,5 @@
 <template>
-  <div class="locked-timer">
-    Unlock in {{ timerCount }}
-  </div>
+  <div class="locked-timer">Unlock in {{ timerCount }}</div>
 </template>
 
 <script>
@@ -10,7 +8,7 @@ import moment from "moment";
 export default {
   props: {
     finalTime: {
-      type: [String,Boolean],
+      type: [String, Boolean],
       required: true,
     },
   },
@@ -27,7 +25,6 @@ export default {
       }, 1000);
     },
     checkDuration() {
-      //console.log("CHECK DURR");
       let end = moment.unix(this.finalTime);
       if (!this.finalTime) {
         this.timerCount = 0;
@@ -58,4 +55,3 @@ export default {
   },
 };
 </script>
-

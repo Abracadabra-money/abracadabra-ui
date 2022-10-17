@@ -903,8 +903,6 @@ export default {
     },
 
     async addMultiBorrowHandler(data, notificationId) {
-      console.log("ADD COLL OR/AND BORROW -MULTI- HANDLER", data);
-
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,

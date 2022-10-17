@@ -136,7 +136,6 @@ export default {
     margin-top: 5px;
     font-size: 16px;
     letter-spacing: 0.025em;
-    /* #FFFFFF */
     color: rgba(255, 255, 255, 0.6);
   }
 }

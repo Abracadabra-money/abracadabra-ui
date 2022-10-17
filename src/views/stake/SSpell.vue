@@ -66,11 +66,6 @@
         </BaseButton>
       </div>
       <div class="profile-subscribtion">
-        <!-- <div class="profile-subscribtion__approximate" v-if="tokensInfo">
-          <div>Approximate staking APR</div>
-          <div>{{ tokensInfo.apr | formatPercent }}</div>
-        </div> -->
-
         <div class="text-wrap">
           <p>
             Make SPELL work for you! Stake your SPELL and gain sSPELL. No
@@ -240,11 +235,8 @@ export default {
         notification.pending
       );
 
-      console.log("STAKE");
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
-        console.log("AMOUNT", amount.toString());
 
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas.mint(
@@ -252,8 +244,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance.mint(
           amount,
@@ -288,11 +278,9 @@ export default {
         "notifications/new",
         notification.pending
       );
-      console.log("UNSTAKE");
+
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
-        console.log("AMOUNT", amount.toString());
 
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas.burn(
@@ -301,8 +289,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance.burn(
           this.account,
@@ -341,8 +327,6 @@ export default {
         );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await tokenContract.approve(
           approveAddr,

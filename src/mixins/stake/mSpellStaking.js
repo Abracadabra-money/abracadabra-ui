@@ -33,11 +33,6 @@ export default {
   },
   methods: {
     async createMSpellStaking() {
-      // if (!this.account) {
-      //   this.$store.commit("setLoadingMSpellStake", false);
-      //   return false;
-      // }
-
       const mSpellStakingAddr = this.stakingContracts[this.chainId];
 
       if (!mSpellStakingAddr) {
@@ -50,8 +45,6 @@ export default {
         JSON.stringify(mSpellStakingAbi),
         this.signer
       );
-
-      console.log("WFEF", this.signer);
 
       const spellAddr = await mSpellStakingContract.spell();
 
@@ -141,8 +134,6 @@ export default {
           icon: require("@/assets/images/mspell-icon.svg"),
         },
       };
-
-      console.log("mSpellStakingObj", mSpellStakingObj);
 
       this.$store.commit("setMSpellStakingObj", mSpellStakingObj);
       this.$store.commit("setLoadingMSpellStake", false);

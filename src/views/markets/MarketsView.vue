@@ -111,92 +111,15 @@ const sortKeys = {
 
 export default {
   name: "StatsView",
-  components: {
-    EmptyMarketsList,
-    BaseLoader,
-    DropdownWrap,
-    MarketsBorrowItem,
-    MarketsFarmItem,
-  },
   mixins: [farmPoolsMixin, cauldronsMixin],
   props: { isFarm: { type: Boolean, default: false } },
-  data: () => ({
-    selectedSort: sortKeys.name,
-    sortReverse: false,
-    search: "",
-    poolsInterval: null,
-  }),
-  methods: {
-    select(name) {
-      this.selectedSort = name;
-    },
-    filterBySearch(pools, search) {
-      return search
-        ? pools.filter(
-            (pool) =>
-              pool.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
-          )
-        : pools;
-    },
-    sortByTitle(pools) {
-      const sortedPools = [...pools];
-      if (this.selectedSortData !== null) {
-        const prepValue = (pool, sortData) => {
-          switch (sortData.name) {
-            case sortKeys.name:
-              return pool.name;
-
-            case sortKeys.yield:
-              return +pool.poolYield;
-
-            case sortKeys.roi:
-              return +pool.poolRoi;
-
-            case sortKeys.tvl:
-              return +pool.poolTvl;
-
-            case sortKeys.totalMim:
-              return +pool.totalBorrow;
-
-            case sortKeys.mimsLeft:
-              return +pool.dynamicBorrowAmount;
-
-            case sortKeys.interest:
-              return +pool.interest;
-
-            case sortKeys.liquidation:
-              return +pool.stabilityFee;
-          }
-
-          return null;
-        };
-        sortedPools.sort((aPool, bPool) => {
-          const a = prepValue(aPool, this.selectedSortData);
-          const b = prepValue(bPool, this.selectedSortData);
-
-          const factor = this.sortReverse ? -1 : 1;
-
-          if (this.selectedSort === sortKeys.name)
-            return a < b ? -factor : factor;
-
-          return a < b ? factor : -factor;
-        });
-      }
-
-      return sortedPools;
-    },
-    sortByDepreciate(pools = []) {
-      return pools.sort((a, b) => {
-        if (a?.cauldronSettings || b?.cauldronSettings) {
-          return (
-            +a.cauldronSettings.isDepreciated -
-            +b.cauldronSettings.isDepreciated
-          );
-        }
-
-        return +a.isDepreciated - +b.isDepreciated;
-      });
-    },
+  data() {
+    return {
+      selectedSort: sortKeys.name,
+      sortReverse: false,
+      search: "",
+      poolsInterval: null,
+    };
   },
   computed: {
     ...mapGetters({
@@ -272,17 +195,92 @@ export default {
       },
     },
   },
+  methods: {
+    select(name) {
+      this.selectedSort = name;
+    },
+    filterBySearch(pools, search) {
+      return search
+        ? pools.filter(
+            (pool) =>
+              pool.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+          )
+        : pools;
+    },
+    sortByTitle(pools) {
+      const sortedPools = [...pools];
+      if (this.selectedSortData !== null) {
+        const prepValue = (pool, sortData) => {
+          switch (sortData.name) {
+            case sortKeys.name:
+              return pool.name;
+
+            case sortKeys.yield:
+              return +pool.poolYield;
+
+            case sortKeys.roi:
+              return +pool.poolRoi;
+
+            case sortKeys.tvl:
+              return +pool.poolTvl;
+
+            case sortKeys.totalMim:
+              return +pool.totalBorrow;
+
+            case sortKeys.mimsLeft:
+              return +pool.dynamicBorrowAmount;
+
+            case sortKeys.interest:
+              return +pool.interest;
+
+            case sortKeys.liquidation:
+              return +pool.stabilityFee;
+          }
+
+          return null;
+        };
+        sortedPools.sort((aPool, bPool) => {
+          const a = prepValue(aPool, this.selectedSortData);
+          const b = prepValue(bPool, this.selectedSortData);
+
+          const factor = this.sortReverse ? -1 : 1;
+
+          if (this.selectedSort === sortKeys.name)
+            return a < b ? -factor : factor;
+
+          return a < b ? factor : -factor;
+        });
+      }
+
+      return sortedPools;
+    },
+    sortByDepreciate(pools = []) {
+      return pools.sort((a, b) => {
+        if (a?.cauldronSettings || b?.cauldronSettings) {
+          return (
+            +a.cauldronSettings.isDepreciated -
+            +b.cauldronSettings.isDepreciated
+          );
+        }
+
+        return +a.isDepreciated - +b.isDepreciated;
+      });
+    },
+  },
   beforeDestroy() {
     clearInterval(this.poolsInterval);
+  },
+  components: {
+    EmptyMarketsList,
+    BaseLoader,
+    DropdownWrap,
+    MarketsBorrowItem,
+    MarketsFarmItem,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-// .stats-wrap {
-//   padding: 0 16px 60px 16px;
-// }
-
 .tools-wrap {
   display: grid;
   grid-template-columns: 1fr;
@@ -434,9 +432,6 @@ export default {
 }
 
 @media (min-width: 1024px) {
-  // .stats-wrap {
-  //   padding: 0 0 60px 0;
-  // }
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;

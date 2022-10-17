@@ -308,13 +308,6 @@ export default {
       let defaultValue = +this.pool.userInfo?.userCollateralShare;
 
       if (this.collateralExpected && this.typeOperation === "borrow") {
-        // NETWORK VALUE FIX
-        // if (
-        //   this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) <
-        //   +this.collateralExpected
-        // )
-        //   return defaultValue;
-
         return +this.collateralExpected + defaultValue;
       }
 
@@ -345,21 +338,6 @@ export default {
     additionalInfo() {
       try {
         const borrowLeftParsed = this.borrowLeft;
-
-        // let liquidationDecimals = 4;
-        // let collateralDecimals = 4;
-
-        // if (this.pool.id === 20 && this.chainId === 1) liquidationDecimals = 6;
-
-        // const jlpPools = [4, 6, 7];
-
-        // if (
-        //   jlpPools.indexOf(this.pool.id) !== -1 &&
-        //   this.chainId === 43114 &&
-        //   +this.pool.userInfo.userCollateralShare
-        // )
-        // collateralDecimals = 9;
-
         const resultArray = [
           {
             title: "Collateral Deposited",
@@ -504,7 +482,6 @@ export default {
         return resultArray;
       } catch (e) {
         console.log("createCollateralInfo err: ", e);
-
         return [];
       }
     },
@@ -654,8 +631,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         await await this.pool.collateralToken.contract.getReward(this.account, {
           gasLimit,

@@ -75,8 +75,6 @@ export default {
         },
       };
 
-      console.log("DEPOSIT CRV REN:", stakeObject);
-
       return stakeObject;
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {

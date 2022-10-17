@@ -74,7 +74,6 @@ export default {
     font-size: 18px;
     line-height: 27px;
     text-align: left;
-    /* #FFFFFF */
     color: #ffffff;
   }
   &__img {
