@@ -17,7 +17,6 @@
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
           <span>{{ pool.name }}</span>
-          <!--<span class="network-new">New</span>-->
         </span>
       </span>
 
@@ -25,13 +24,7 @@
         <span class="column-title">{{ item.title }}</span>
         <span>{{ item.value }}</span>
       </span>
-      <span class="degenbox">
-        <!--<img
-          class="degenbox-img"
-          src="@/assets/images/degenbox.svg"
-          alt="DegenBox"
-        />-->
-      </span>
+      <span class="degenbox"> </span>
     </span>
   </router-link>
 </template>
@@ -80,6 +73,12 @@ export default {
           value: this.formatNumber(
             Vue.filter("formatTokenBalance")(this.pool.totalBorrow)
           ),
+        },
+        {
+          title: "TVL",
+          value: `$ ${this.formatNumber(
+            Vue.filter("formatTokenBalance")(this.pool.tvl)
+          )}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
@@ -209,7 +208,7 @@ export default {
   }
 
   .stats-item-wrap {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     align-items: center;
     grid-gap: 0;
     height: 36px;

@@ -6,6 +6,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import { getTokenPriceByAddress } from "../priceHelper";
 import { getStargateApy } from "@/helpers/borrow/stargateApyHelper";
+import { getLUSDApy } from "@/helpers/borrow/LUSDApy";
 
 // wMEMO pool APY
 import timeStakingAbi from "@/utils/abi/timeStaking";
@@ -60,7 +61,6 @@ const getMEMOApy = async (signer) => {
 };
 
 const getTokenXSushiAPY = async () => {
-  // thanks to sushi guys:)
   try {
     const results = await Promise.all([
       sushiData.bar.info(),
@@ -107,7 +107,6 @@ const fetchOHMApy = async () => {
     return false;
   } catch (e) {
     console.log("fetchOHMApy error:", e);
-
     return false;
   }
 };
@@ -121,11 +120,11 @@ const getCrvPoolApy = async (tokenRate, signer, chainId) => {
     );
 
     const rewardRate = await crvRewardPoolContract.rewardRate({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
 
     const totalSupply = await crvRewardPoolContract.totalSupply({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
 
     const tokenIn1000Usd = 1000 * tokenRate;
@@ -172,16 +171,16 @@ const convertCrvToCvx = async (amount, signer) => {
     );
 
     const supply = await cvxTokenContract.totalSupply({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
     const reductionPerCliff = await cvxTokenContract.reductionPerCliff({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
     const totalCliffs = await cvxTokenContract.totalCliffs({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
     const maxSupply = await cvxTokenContract.maxSupply({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
 
     const cliff = supply.div(reductionPerCliff);
@@ -191,13 +190,11 @@ const convertCrvToCvx = async (amount, signer) => {
       const reduction = totalCliffs.sub(cliff);
       //reduce
       _amount = _amount.mul(reduction).div(totalCliffs);
-
       //supply cap check
       const amtTillMax = maxSupply.sub(supply);
       if (_amount.gt(amtTillMax)) {
         _amount = amtTillMax;
       }
-
       //mint
       return _amount;
     }
@@ -216,11 +213,11 @@ const getCryptoPoolApy = async (tokenRate, signer, chainId) => {
     );
 
     const rewardRate = await crvRewardPoolContract.rewardRate({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
 
     const totalSupply = await crvRewardPoolContract.totalSupply({
-      gasLimit: 300000,
+      gasLimit: 3000000,
     });
 
     const tokenIn1000Usd = 1000 * tokenRate;
@@ -281,7 +278,7 @@ const getJLPApr = async (joeInfo, tokenPrice, tokenInstance, signer) => {
 
   try {
     poolInfo = await masterJoeContract.poolInfo(joeInfo.pid, {
-      gasLimit: 600000,
+      gasLimit: 6000000,
     });
   } catch (e) {
     console.log("pool infi err:", e);
@@ -291,7 +288,7 @@ const getJLPApr = async (joeInfo, tokenPrice, tokenInstance, signer) => {
 
   try {
     stakingTokenTotalAmount = await tokenInstance.balanceOf(joeInfo.address, {
-      gasLimit: 600000,
+      gasLimit: 6000000,
     });
   } catch (e) {
     console.log("pool infi err:", e);
@@ -374,6 +371,10 @@ export const fetchTokenApy = async (pool) => {
 
   console.log("fetchTokenApy chainId", chainId);
   console.log("fetchTokenApy signer", signer);
+
+  if (pool.id === 34 && chainId === 1) {
+    return await getLUSDApy(signer);
+  }
 
   if (pool.id === 5 && chainId === 250) {
     return await getXBOOApy();

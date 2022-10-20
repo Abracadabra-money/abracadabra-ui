@@ -129,6 +129,8 @@
             </a>
 
             <Discord />
+
+            <Lens/>
           </div>
         </div>
       </div>
@@ -144,6 +146,7 @@ const Docs = () => import("@/components/icons/Docs");
 const Medium = () => import("@/components/icons/Medium");
 const Twitter = () => import("@/components/icons/Twitter");
 const Discord = () => import("@/components/icons/Discord");
+const Lens = () => import("@/components/icons/Lens");
 export default {
   data() {
     return {
@@ -200,6 +203,7 @@ export default {
     Medium,
     Twitter,
     Discord,
+    Lens
   },
 };
 </script>

@@ -365,7 +365,7 @@ export default [
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:
-        "https://abracadabramoney.medium.com/our-spookyswap-lp-degenbox-strategy-3a2f35e1b643",
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/EORl4KYTfOLX7g9-Ypqi4mw_E_VZCsseZ5-ZcDKbPIE",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,

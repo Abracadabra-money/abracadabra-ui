@@ -76,7 +76,6 @@ export default {
     ...mapGetters({ account: "getAccount" }),
 
     fromToken() {
-      console.log("this.tokensInfo.stakeToken", this.tokensInfo.stakeToken);
       if (this.action === "Stake") return this.tokensInfo.stakeToken;
       if (this.action === "Unstake") return this.tokensInfo.mainToken;
 
@@ -106,8 +105,6 @@ export default {
     },
 
     actionBtnText() {
-      // if (!+this.amount || this.amountError) return "Nothing to do";
-
       if (!this.isTokenApprove) {
         return "Approve";
       }

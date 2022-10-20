@@ -111,21 +111,90 @@ const sortKeys = {
 
 export default {
   name: "StatsView",
-  components: {
-    EmptyMarketsList,
-    BaseLoader,
-    DropdownWrap,
-    MarketsBorrowItem,
-    MarketsFarmItem,
-  },
   mixins: [farmPoolsMixin, cauldronsMixin],
   props: { isFarm: { type: Boolean, default: false } },
-  data: () => ({
-    selectedSort: sortKeys.name,
-    sortReverse: false,
-    search: "",
-    poolsInterval: null,
-  }),
+  data() {
+    return {
+      selectedSort: sortKeys.name,
+      sortReverse: false,
+      search: "",
+      poolsInterval: null,
+    };
+  },
+  computed: {
+    ...mapGetters({
+      borrowPools: "getPools",
+      borrowLoading: "getLoadPoolsBorrow",
+      farmLoading: "getFarmPoolLoading",
+    }),
+    selectedSortData() {
+      return (
+        this.sortList.find(({ name }) => this.selectedSort === name) || null
+      );
+    },
+    sortList() {
+      return this.isFarm
+        ? [
+            { title: "Title", name: sortKeys.name },
+            { title: "Yield Per $1000", name: sortKeys.yield },
+            { title: "ROI Annually", name: sortKeys.roi },
+            { title: "TVL", name: sortKeys.tvl },
+          ]
+        : [
+            { title: "Title", name: sortKeys.name },
+            { title: "TVL", name: sortKeys.totalMim },
+            { title: "MIMs Left", name: sortKeys.mimsLeft },
+            { title: "Interest", name: sortKeys.interest },
+            { title: "Fee", name: sortKeys.liquidation },
+          ];
+    },
+    currentPools() {
+      return (this.isFarm ? this.pools : this.borrowPools) || [];
+    },
+    prepPools() {
+      return this.sortByDepreciate(
+        this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
+      );
+    },
+    loading() {
+      return this.isFarm ? this.farmLoading : this.borrowLoading;
+    },
+    headers() {
+      return this.isFarm
+        ? ["Pool", "~Yield per $1000", "ROI Annually", "TVL"]
+        : [
+            "COMPONENT",
+            "TOTAL MIM BORROWED",
+            "TVL",
+            "MIMS LEFT TO BORROW",
+            "INTEREST",
+            "LIQUIDATION FEE",
+          ];
+    },
+  },
+  watch: {
+    isFarm: {
+      immediate: true,
+      handler(isFarm) {
+        clearInterval(this.poolsInterval);
+
+        const poolsCallback = isFarm
+          ? async () => {
+              await this.createFarmPools();
+            }
+          : async () => {
+              await this.createPools();
+            };
+
+        if (!this.currentPools.length) poolsCallback();
+        this.poolsInterval = setInterval(poolsCallback, 5000);
+
+        this.search = "";
+        this.selectedSort = sortKeys.name;
+        this.sortReverse = false;
+      },
+    },
+  },
   methods: {
     select(name) {
       this.selectedSort = name;
@@ -198,90 +267,20 @@ export default {
       });
     },
   },
-  computed: {
-    ...mapGetters({
-      borrowPools: "getPools",
-      borrowLoading: "getLoadPoolsBorrow",
-      farmLoading: "getFarmPoolLoading",
-    }),
-    selectedSortData() {
-      return (
-        this.sortList.find(({ name }) => this.selectedSort === name) || null
-      );
-    },
-    sortList() {
-      return this.isFarm
-        ? [
-            { title: "Title", name: sortKeys.name },
-            { title: "Yield Per $1000", name: sortKeys.yield },
-            { title: "ROI Annually", name: sortKeys.roi },
-            { title: "TVL", name: sortKeys.tvl },
-          ]
-        : [
-            { title: "Title", name: sortKeys.name },
-            { title: "TVL", name: sortKeys.totalMim },
-            { title: "MIMs Left", name: sortKeys.mimsLeft },
-            { title: "Interest", name: sortKeys.interest },
-            { title: "Fee", name: sortKeys.liquidation },
-          ];
-    },
-    currentPools() {
-      return (this.isFarm ? this.pools : this.borrowPools) || [];
-    },
-    prepPools() {
-      return this.sortByDepreciate(
-        this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
-      );
-    },
-    loading() {
-      return this.isFarm ? this.farmLoading : this.borrowLoading;
-    },
-    headers() {
-      return this.isFarm
-        ? ["Pool", "~Yield per $1000", "ROI Annually", "TVL"]
-        : [
-            "COMPONENT",
-            "TOTAL MIM BORROWED",
-            "MIMS LEFT TO BORROW",
-            "INTEREST",
-            "LIQUIDATION FEE",
-          ];
-    },
-  },
-  watch: {
-    isFarm: {
-      immediate: true,
-      handler(isFarm) {
-        clearInterval(this.poolsInterval);
-
-        const poolsCallback = isFarm
-          ? async () => {
-              await this.createFarmPools();
-            }
-          : async () => {
-              await this.createPools();
-            };
-
-        if (!this.currentPools.length) poolsCallback();
-        this.poolsInterval = setInterval(poolsCallback, 5000);
-
-        this.search = "";
-        this.selectedSort = sortKeys.name;
-        this.sortReverse = false;
-      },
-    },
-  },
   beforeDestroy() {
     clearInterval(this.poolsInterval);
+  },
+  components: {
+    EmptyMarketsList,
+    BaseLoader,
+    DropdownWrap,
+    MarketsBorrowItem,
+    MarketsFarmItem,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-// .stats-wrap {
-//   padding: 0 16px 60px 16px;
-// }
-
 .tools-wrap {
   display: grid;
   grid-template-columns: 1fr;
@@ -401,7 +400,7 @@ export default {
 
 .stats-list-header {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 60px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   padding: 0 20px;
   height: 60px;
@@ -433,9 +432,6 @@ export default {
 }
 
 @media (min-width: 1024px) {
-  // .stats-wrap {
-  //   padding: 0 0 60px 0;
-  // }
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;

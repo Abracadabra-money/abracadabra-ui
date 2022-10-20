@@ -179,8 +179,6 @@ export default {
   overflow: visible;
 }
 
-/********** Range Input Styles **********/
-/*Range Reset*/
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -189,48 +187,39 @@ input[type="range"] {
   width: 100%;
 }
 
-/* Removes default focus */
 input[type="range"]:focus {
   outline: none;
 }
 
-/***** Chrome, Safari, Opera and Edge Chromium styles *****/
-/* slider track */
 input[type="range"]::-webkit-slider-runnable-track {
   background: transparent;
   border-radius: 20px;
   height: 8px;
 }
 
-/* slider thumb */
 input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
+  -webkit-appearance: none;
   appearance: none;
-  margin-top: -4px; /* Centers thumb on the track */
+  margin-top: -4px;
   border-radius: 20px;
   -webkit-box-shadow: 0 0 0 1px #ffffff;
   box-shadow: 0 0 0 1px #ffffff;
-  /*custom styles*/
   background-color: #181235;
   height: 16px;
   width: 16px;
 }
 
-/******** Firefox styles ********/
-/* slider track */
 input[type="range"]::-moz-range-track {
   background: transparent;
   border-radius: 20px;
   height: 8px;
 }
 
-/* slider thumb */
 input[type="range"]::-moz-range-thumb {
   border-radius: 20px;
   border: none;
   box-shadow: 0 0 0 1px #ffffff;
   -moz-box-shadow: 0 0 0 1px #ffffff;
-  /*custom styles*/
   background-color: #181235;
   height: 16px;
   width: 16px;

@@ -308,13 +308,6 @@ export default {
       let defaultValue = +this.pool.userInfo?.userCollateralShare;
 
       if (this.collateralExpected && this.typeOperation === "borrow") {
-        // NETWORK VALUE FIX
-        // if (
-        //   this.$ethers.utils.formatUnits(this.pool.userInfo.userBalance) <
-        //   +this.collateralExpected
-        // )
-        //   return defaultValue;
-
         return +this.collateralExpected + defaultValue;
       }
 
@@ -345,21 +338,6 @@ export default {
     additionalInfo() {
       try {
         const borrowLeftParsed = this.borrowLeft;
-
-        // let liquidationDecimals = 4;
-        // let collateralDecimals = 4;
-
-        // if (this.pool.id === 20 && this.chainId === 1) liquidationDecimals = 6;
-
-        // const jlpPools = [4, 6, 7];
-
-        // if (
-        //   jlpPools.indexOf(this.pool.id) !== -1 &&
-        //   this.chainId === 43114 &&
-        //   +this.pool.userInfo.userCollateralShare
-        // )
-        // collateralDecimals = 9;
-
         const resultArray = [
           {
             title: "Collateral Deposited",
@@ -380,6 +358,13 @@ export default {
               this.pool.userInfo?.userBorrowPart || 0
             ),
             additional: "MIM Currently Borrowed in your Position",
+          },
+          {
+            title: "TVL",
+            value: `$ ${this.formatNumber(
+              Vue.filter("formatTokenBalance")(this.pool.tvl || 0)
+            )}`,
+            additional: "Total Value Locked",
           },
         ];
 
@@ -497,7 +482,6 @@ export default {
         return resultArray;
       } catch (e) {
         console.log("createCollateralInfo err: ", e);
-
         return [];
       }
     },
@@ -618,6 +602,27 @@ export default {
   },
 
   methods: {
+    formatNumber(value) {
+      if (isNaN(Number(value)) || Number(value) < 1) return 0;
+
+      const lookup = [
+        { value: 0, symbol: "" },
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: "k" },
+        { value: 1e6, symbol: "M" },
+      ];
+      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+      let item = lookup
+        .slice()
+        .reverse()
+        .find(function (item) {
+          return parseFloat(value) >= item.value;
+        });
+      return (
+        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
+        item.symbol
+      );
+    },
     async handleClaimCrvReward() {
       try {
         const estimateGas =
@@ -626,8 +631,6 @@ export default {
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         await await this.pool.collateralToken.contract.getReward(this.account, {
           gasLimit,

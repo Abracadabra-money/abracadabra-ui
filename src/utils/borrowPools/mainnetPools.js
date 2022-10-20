@@ -3,7 +3,9 @@
 import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
+import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
+import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 
 export default [
   {
@@ -1544,7 +1546,7 @@ export default [
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:
-        "https://medium.com/@abracadabramoney/our-stargate-degenbox-strategy-4332349ccd71",
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/3tuTirZF2R57eg5S7K7P-2oiosuZsOcicO22HCLU9SY",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 10,
@@ -1595,7 +1597,7 @@ export default [
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:
-        "https://medium.com/@abracadabramoney/our-stargate-degenbox-strategy-4332349ccd71",
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/3tuTirZF2R57eg5S7K7P-2oiosuZsOcicO22HCLU9SY",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 10,
@@ -1681,6 +1683,59 @@ export default [
     reverseSwapContractInfo: {
       address: "0xCbd7FD48c7a2a095ce053D5998db12Ca0Ea65264",
       abi: reverseSwapAbi,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/LUSD.png`),
+    name: "LUSD",
+    contractChain: 1,
+    id: 34,
+    stabilityFee: 1,
+    interest: 0.5,
+    ltv: 95,
+    borrowFee: 0,
+    isSwappersActive: true,
+    is0xSwap: true,
+    executionPrice: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/BTQEafdHaQ2PnQznmXwXCcftAZT17zw7_AgH2FDyHGM",
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: true,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: 1000000,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
+    contract: {
+      name: "CauldronV3_2",
+      address: "0x8227965A7f42956549aFaEc319F4E444aa438Df5",
+      abi: poolsAbi.CauldronV3_2,
+    },
+    token: {
+      name: "LUSD",
+      decimals: 18,
+      address: "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+      abi: tokensAbi.LUSD,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
+      abi: zeroXLevSwapperAbi,
+    },
+    reverseSwapContractInfo: {
+      address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
+      abi: zeroXLiqSwapperAbi,
     },
   },
 ];

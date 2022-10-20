@@ -323,7 +323,6 @@ export default {
 
   async created() {
     if (this.popupData?.address) {
-      console.log("has addr");
       this.tokensInfo = await this.createCrvDeposit(this.popupData.address);
 
       this.updateInterval = setInterval(async () => {

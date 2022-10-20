@@ -145,6 +145,7 @@
               <Discord />
             </a>
           </div>
+          <Lens />
         </div>
       </div>
       <MimTokenBlock />
@@ -184,6 +185,7 @@ const Docs = () => import("@/components/icons/Docs");
 const Medium = () => import("@/components/icons/Medium");
 const Twitter = () => import("@/components/icons/Twitter");
 const Discord = () => import("@/components/icons/Discord");
+const Lens = () => import("@/components/icons/Lens");
 
 import chainSwitch from "@/mixins/chainSwitch";
 
@@ -317,6 +319,7 @@ export default {
     Medium,
     Twitter,
     Discord,
+    Lens,
   },
 };
 </script>
@@ -437,9 +440,6 @@ export default {
 
 .list-link:hover {
   color: #76c3f5;
-  // background: -webkit-linear-gradient(#5282fd, #76c3f5);
-  // -webkit-background-clip: text;
-  // -webkit-text-fill-color: transparent;
 }
 
 .list-link:last-child {

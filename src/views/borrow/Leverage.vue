@@ -82,6 +82,7 @@
           :emptyData="emptyData"
           :poolId="selectedPoolId"
         />
+
         <template v-if="selectedPool">
           <div class="btn-wrap">
             <BaseButton
@@ -95,6 +96,15 @@
               :disabled="actionBtnText === 'Nothing to do'"
               >{{ actionBtnText }}</BaseButton
             >
+          </div>
+
+          <div class="info-row-wrap">
+            <ExecutionPrice
+              v-if="isExecutionPrice"
+              :pool="selectedPool"
+              :sellAmount="sellAmount"
+              :slipage="slipage"
+            />
           </div>
 
           <div class="info-wrap">
@@ -117,7 +127,8 @@
         @close="isOpenPollPopup = false"
         :pools="filteredPool"
         popupType="cauldron"
-    /></LocalPopupWrap>
+      />
+    </LocalPopupWrap>
   </div>
 </template>
 
@@ -130,7 +141,9 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
+const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
+
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
@@ -571,6 +584,52 @@ export default {
       }
       return "0.0";
     },
+
+    isExecutionPrice() {
+      if (
+        this.selectedPool?.executionPrice &&
+        this.selectedPool &&
+        this.collateralValue &&
+        !this.collateralError
+      )
+        return true;
+
+      return false;
+    },
+
+    sellAmount() {
+      if (!this.collateralValue) return 0;
+
+      const amount = Vue.filter("formatToFixed")(
+        this.mimAmount,
+        this.selectedPool.borrowToken.decimals
+      );
+
+      const percentValue = parseFloat(this.percentValue);
+
+      const amountMultiplyer = percentValue / 100;
+
+      let startAmount = amount * 0.995;
+
+      let finalAmount = 0;
+
+      for (let i = this.multiplier; i > 0; i--) {
+        finalAmount += +startAmount;
+        startAmount = startAmount * amountMultiplyer;
+      }
+
+      const mimAmount = this.$ethers.utils
+        .parseUnits(
+          Vue.filter("formatToFixed")(
+            finalAmount,
+            this.selectedPool.borrowToken.decimals
+          ),
+          this.selectedPool.borrowToken.decimals
+        )
+        .toString();
+
+      return mimAmount;
+    },
   },
 
   watch: {
@@ -761,17 +820,13 @@ export default {
           this.selectedPool.borrowToken.decimals
         );
 
-        // ZeroXSwapHelper
         let payload = null;
 
         if (this.selectedPool.isZeroXSwappers) {
           payload = await getLeverageData(
             parsedMim,
-
             this.selectedPool,
-
             this.provider,
-
             this.slipage
           );
         } else {
@@ -780,6 +835,7 @@ export default {
             amount: parsedMim,
             updatePrice: this.selectedPool.askUpdatePrice,
             itsDefaultBalance: this.useDefaultBalance,
+            slipage: this.slipage,
           };
 
           payload.amount = Vue.filter("formatToFixed")(
@@ -884,8 +940,6 @@ export default {
     },
 
     async addMultiBorrowHandler(data, notificationId) {
-      console.log("ADD COLL OR/AND BORROW -MULTI- HANDLER", data);
-
       let isTokenToCookApprove = await isTokenApprowed(
         this.selectedPool.collateralToken.contract,
         this.selectedPool.masterContractInstance.address,
@@ -1002,6 +1056,7 @@ export default {
     BaseLoader,
     InfoBlock,
     LeftBorrow,
+    ExecutionPrice,
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
@@ -1086,6 +1141,10 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+}
+
+.info-row-wrap {
+  margin-bottom: 20px;
 }
 
 .btn-wrap {

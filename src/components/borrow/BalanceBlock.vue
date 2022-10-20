@@ -88,10 +88,6 @@ export default {
         name = "AVAX";
         icon = require("@/assets/images/tokens/AVAX.png");
       }
-      // if (this.chainId === 42161) {
-      //   name = "AETH";
-      //   icon = require("@/assets/images/tokens/AETH.png");
-      // }
       if (this.chainId === 137) {
         name = "MATIC";
         icon = require("@/assets/images/tokens/MATIC.png");

@@ -32,7 +32,6 @@ export default {
   methods: {
     ...mapMutations({ setLoadingPoolsFarm: "setLoadingPoolsFarm" }),
     async updateTokenPrices() {
-      console.log("get prices");
       const farmTokenPrices = {};
       try {
         for (const key of Object.keys(this.tokenAddresses)) {
@@ -59,8 +58,6 @@ export default {
         );
         this.setLoadingPoolsFarm(false);
 
-        console.log("FARMS:", pools);
-
         this.$store.commit("setFarmPools", pools);
       } catch (e) {
         console.log("createFarmPools err", e);
@@ -75,7 +72,7 @@ export default {
       );
 
       const poolInfo = await contractInstance.poolInfo(farmPoolInfo.poolId, {
-        gasLimit: 600000,
+        gasLimit: 6000000,
       });
 
       const stakingTokenContract = new this.$ethers.Contract(

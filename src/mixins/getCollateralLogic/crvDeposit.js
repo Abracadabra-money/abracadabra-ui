@@ -29,8 +29,6 @@ export default {
         this.signer
       );
 
-      console.log("CURRENT ADDR", collateralAddr || mainToken.address);
-
       let mainTokenBalance = await mainTokenInstance.balanceOf(this.account, {
         gasLimit: 1000000,
       });
@@ -80,8 +78,6 @@ export default {
           isTokenApprowed: isTokenDepositApprowed,
         },
       };
-
-      console.log("DEPOSIT CRV:", stakeObject);
 
       return stakeObject;
     },

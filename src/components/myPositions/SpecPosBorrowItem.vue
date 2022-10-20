@@ -173,14 +173,6 @@ export default {
 
       openedItems.push(repayLink);
 
-      // const removeLink = {
-      //   title: "Remove Collateral",
-      //   icon: require("@/assets/images/myposition/hammer.svg"),
-      //   name: "RepayId",
-      // };
-
-      // openedItems.push(removeLink);
-
       const deleverageLink = {
         title: "Deleverage",
         icon: require("@/assets/images/myposition/Deleverage.png"),
@@ -472,8 +464,6 @@ export default {
   .header {
     grid-template-columns: 1fr auto !important;
   }
-
-
 }
 
 @media (max-width: 640px) {

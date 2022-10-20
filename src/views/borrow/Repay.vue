@@ -388,20 +388,17 @@ export default {
   methods: {
     updateCollateralValue(value) {
       this.collateralValue = value;
-
       return false;
     },
 
     updateBorrowValue(value) {
       this.borrowValue = value;
-
       if (value === this.maxBorrowValue) {
         this.collateralValue = +this.maxCollateralValue
           ? this.maxCollateralValue
           : "";
         return false;
       }
-
       return false;
     },
 
@@ -636,8 +633,6 @@ export default {
 
       const itsMax =
         this.borrowValue === this.selectedPool.userInfo.userBorrowPart;
-
-      console.log("itsMax", itsMax);
 
       const parsedAmount = this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(

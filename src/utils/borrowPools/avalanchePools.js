@@ -122,7 +122,8 @@ export default [
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: false,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/6_muxupJqri_cmrPnO6ACAlmbCiR-bRuC5rIaYQeflU",
       isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
@@ -177,7 +178,8 @@ export default [
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: false,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/NihRy3MDIjy0GvYU3PtIVnapAT6B-Dj-fHhaTN21Z1E",
       isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
@@ -287,7 +289,8 @@ export default [
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: false,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/NihRy3MDIjy0GvYU3PtIVnapAT6B-Dj-fHhaTN21Z1E",
       isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
@@ -342,7 +345,8 @@ export default [
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: false,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/NihRy3MDIjy0GvYU3PtIVnapAT6B-Dj-fHhaTN21Z1E",
       isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,

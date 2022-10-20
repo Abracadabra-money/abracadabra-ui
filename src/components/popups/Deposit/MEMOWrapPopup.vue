@@ -216,16 +216,12 @@ export default {
           this.tokensInfo.depositToken.decimals
         );
 
-        console.log("AMOUNT", amount.toString());
-
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas[
             methodName
           ](amount);
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance[methodName](
           amount,
@@ -260,7 +256,6 @@ export default {
         "notifications/new",
         notification.pending
       );
-      console.log("Unwrap");
       try {
         let methodName = "unwrap";
 
@@ -269,16 +264,12 @@ export default {
           this.tokensInfo.mainToken.decimals
         );
 
-        console.log("AMOUNT", amount.toString());
-
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas[
             methodName
           ](amount);
 
         const gasLimit = 1000 + +estimateGas.toString();
-
-        console.log("gasLimit:", gasLimit);
 
         const tx = await this.tokensInfo.mainToken.contractInstance[methodName](
           amount,
@@ -317,7 +308,6 @@ export default {
     this.tokensInfo = await this.createMEMOWrapObj();
 
     this.updateInterval = setInterval(async () => {
-      console.log("stake interval");
       this.tokensInfo = await this.createMEMOWrapObj();
     }, 10000);
   },

@@ -38,7 +38,6 @@ export default {
       );
 
       if (!currentMim || !currentBento) {
-        console.log("No contracts on this chain!");
         return false;
       }
 
@@ -139,7 +138,6 @@ export default {
         degenAllowance,
       };
 
-      console.log("MIM IN BENTO OBJ", mimOnBentoDeposit);
       this.$store.commit("setMimInBentoDepositObject", mimOnBentoDeposit);
     },
   },

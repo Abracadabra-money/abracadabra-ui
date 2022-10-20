@@ -66,27 +66,25 @@
 
 <script>
 import Vue from "vue";
-import farmPoolsMixin from "@/mixins/farmPools";
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
 const SpecPos = () => import("@/components/myPositions/SpecPos");
 const BaseLoader = () => import("@/components/base/BaseLoader");
+const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
+
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
+import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
-
-const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
 
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
   data: () => ({
     activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-
     mimBentoInterval: null,
     farmPoolsTimer: null,
     borrowPoolsTimer: null,
   }),
-
   computed: {
     ...mapGetters({
       borrowPools: "getPools",
@@ -164,14 +162,6 @@ export default {
       );
     },
   },
-
-  components: {
-    EmptyPosList,
-    SpecPos,
-    NetworksList,
-    BalanceBoxes,
-    BaseLoader,
-  },
   async created() {
     if (!this.pools.length) {
       await this.createFarmPools();
@@ -181,10 +171,8 @@ export default {
       await this.createFarmPools();
     }, 10000);
 
-    console.log("TEXT 1");
     this.borrowPoolsTimer = setInterval(async () => {
       await this.createPools();
-      console.log("TEXT 2");
     }, 10000);
 
     await this.createMimBentoInfo();
@@ -192,11 +180,17 @@ export default {
       await this.createMimBentoInfo();
     }, 5000);
   },
-
   beforeDestroy() {
     clearInterval(this.farmPoolsTimer);
     clearInterval(this.mimBentoInterval);
     clearInterval(this.borrowPoolsTimer);
+  },
+  components: {
+    EmptyPosList,
+    SpecPos,
+    NetworksList,
+    BalanceBoxes,
+    BaseLoader,
   },
 };
 </script>
