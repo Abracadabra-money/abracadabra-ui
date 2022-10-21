@@ -2,6 +2,7 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+// import { getSwapStaticToken } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
@@ -262,8 +263,8 @@ export default {
     },
 
     async query0x(buyToken, sellToken, slippage = 0, amountSell, takerAddress) {
-      const url = "https://api.0x.org/swap/v1/quote";
       const slippagePercentage = slippage / 100;
+      const url = "https://api.0x.org/swap/v1/quote";
 
       const params = {
         buyToken: buyToken,
@@ -1589,7 +1590,20 @@ export default {
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      let swapStaticTx, swapCallByte, getCallEncode2;
+      let swapCallByte, getCallEncode2;
+
+      // TODO
+      // if (pool.is0xSwap) {
+      //   const { swapByte, callEncode } = await getSwapStaticToken(
+      //     pool,
+      //     slipage,
+      //     amount,
+      //     userAddr,
+      //     minExpected
+      //   );
+      //   swapCallByte = swapByte;
+      //   getCallEncode2 = callEncode;
+      // }
       if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.collateralToken.address,
@@ -1600,15 +1614,16 @@ export default {
         );
 
         const swapData = response.data;
-        swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
-          userAddr,
-          minExpected,
-          amount,
-          swapData,
-          {
-            gasLimit: 10000000,
-          }
-        );
+        const swapStaticTx =
+          await pool.levSwapperContract.populateTransaction.swap(
+            userAddr,
+            minExpected,
+            amount,
+            swapData,
+            {
+              gasLimit: 10000000,
+            }
+          );
         swapCallByte = swapStaticTx.data;
 
         //30
@@ -1617,14 +1632,15 @@ export default {
           [swapperAddres, swapCallByte, false, false, 2]
         );
       } else {
-        swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
-          userAddr,
-          minExpected,
-          0,
-          {
-            gasLimit: 10000000,
-          }
-        );
+        const swapStaticTx =
+          await pool.levSwapperContract.populateTransaction.swap(
+            userAddr,
+            minExpected,
+            0,
+            {
+              gasLimit: 10000000,
+            }
+          );
         swapCallByte = swapStaticTx.data.substr(0, 138);
 
         //30

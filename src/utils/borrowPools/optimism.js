@@ -68,6 +68,11 @@ export default [
       address: "0xB153FB3d196A8eB25522705560ac152eeEc57901",
       abi: tokensAbi.MIM,
     },
+    chainlinks: {
+      token0: "0x0d276fc14719f9292d5c1ea2198673d1f4269246",
+      token1: "0x16a9fa2fda030272ce99b29cf780dfa30361e0f3",
+      // abi: EACAggregatorProxyAbi,
+    },
     swapContractInfo: {
       address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
       abi: swapAbi,
