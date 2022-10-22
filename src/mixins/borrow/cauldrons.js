@@ -147,7 +147,11 @@ export default {
       const exchangeRate =
         1 / this.$ethers.utils.formatUnits(oracleExchangeRate, decimals);
 
-      const collateralAmount = await bentoBox.toAmount(tokenAddr, totalCollateralShare, false);
+      const collateralAmount = await bentoBox.toAmount(
+        tokenAddr,
+        totalCollateralShare,
+        false
+      );
 
       const parsedCollateral = this.$ethers.utils.formatUnits(
         collateralAmount,
@@ -755,6 +759,9 @@ export default {
         pool.contract.address,
         pool.pairToken.address
       );
+
+      if (pool.cauldronSettings.dynamicBorrowAmountLimit === 0)
+        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
 
       if (
         pool.cauldronSettings.dynamicBorrowAmountLimit &&
