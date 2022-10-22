@@ -1691,7 +1691,7 @@ export default [
     contractChain: 1,
     id: 34,
     stabilityFee: 1,
-    interest: 0.5,
+    interest: 1,
     ltv: 95,
     borrowFee: 0,
     isSwappersActive: true,
