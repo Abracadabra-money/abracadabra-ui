@@ -116,9 +116,9 @@
             <a
               target="_blank"
               rel="noreferrer noopener"
-              href="https://abracadabramoney.medium.com/"
+              href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9"
             >
-              <Medium
+              <Mirror
             /></a>
             <a
               target="_blank"
@@ -143,10 +143,11 @@ import { mapGetters } from "vuex";
 
 const ConnectButton = () => import("@/components/ui/ConnectButton");
 const Docs = () => import("@/components/icons/Docs");
-const Medium = () => import("@/components/icons/Medium");
+// const Medium = () => import("@/components/icons/Medium");
 const Twitter = () => import("@/components/icons/Twitter");
 const Discord = () => import("@/components/icons/Discord");
 const Lens = () => import("@/components/icons/Lens");
+const Mirror = () => import("@/components/icons/Mirror");
 export default {
   data() {
     return {
@@ -200,7 +201,7 @@ export default {
   components: {
     ConnectButton,
     Docs,
-    Medium,
+    Mirror,
     Twitter,
     Discord,
     Lens
