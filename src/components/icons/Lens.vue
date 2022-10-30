@@ -3,7 +3,7 @@
     href="https://www.lensfrens.xyz/magic.lens"
     target="_blank"
     rel="noreferrer noopener"
-    class="list-link"
+    :class="{'list-link': !isMobile}"
   >
     <svg
       width="28"
@@ -20,6 +20,16 @@
     </a
   >
 </template>
+
+<script>
+export default {
+  props: {
+    isMobile: {
+      default: false
+    }
+  }
+}
+</script>
 
 <style lang="scss" scoped>
 .list-link {

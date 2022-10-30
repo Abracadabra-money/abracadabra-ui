@@ -128,9 +128,17 @@
               <Twitter />
             </a>
 
-            <Discord />
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://discord.com/invite/mim"
+            >
+              <Discord />
+            </a>
 
-            <Lens/>
+            <!-- <Discord /> -->
+
+            <Lens :isMobile='true'/>
           </div>
         </div>
       </div>
