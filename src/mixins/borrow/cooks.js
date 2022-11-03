@@ -2,6 +2,7 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { getLiqZeroXswapperData } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
 // import { getSwapStaticToken } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
@@ -1631,6 +1632,13 @@ export default {
           ["address", "bytes", "bool", "bool", "uint8"],
           [swapperAddres, swapCallByte, false, false, 2]
         );
+      } else if (pool.is0xSwapLp) {
+        // TODO
+        console.log("YPPPPPPPAAAAAAAAAAAAA");
+        const data = await getLiqZeroXswapperData(amount, pool, slipage);
+
+        console.log("DATA", data);
+        //END TODO
       } else {
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(

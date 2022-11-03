@@ -37,18 +37,41 @@ const query0x = async (
 };
 
 const initializeProps = async (pool) => {
-  const Pair = pool.cauldronInfo.token.contract;
-  const MIM = pool.cauldronInfo.pairTokenContract;
-  const MimChainlink = pool.cauldronInfo.chainLinksContract.mim;
-  const mimPriceInUsd = await MimChainlink.latestAnswer();
-  const token0 = pool.token0.contractInstance;
-  const token0Chainlink = pool.cauldronInfo.chainLinksContract.token0;
+  // TODO
+  console.log("333333333333333333", pool);
+  // lpLogic LP 0x47029bc8f5CBe3b464004E87eF9c9419a48018cd
+  // const Pair = pool.cauldronInfo.token.contract;
+  const Pair = pool.lpLogic.lpContract;
+  console.log("Pair", Pair);
+
+  // pairToken MIM  0xB153FB3d196A8eB25522705560ac152eeEc57901
+  // const MIM = pool.cauldronInfo.pairTokenContract;
+  const MIM = pool.borrowToken.contract;
+  console.log("MIM", MIM);
+
+  // Chainlink немає(( потрібно думати
+  // const MimChainlink = pool.cauldronInfo.chainLinksContract.mim;
+  // console.log("MimChainlink", MimChainlink);
+  // const mimPriceInUsd = await MimChainlink.latestAnswer();
+  const mimPriceInUsd = "1.00";
+
+  // 0x4200000000000000000000000000000000000042
+  // pool.chainlinks.token0
+  // const token0 = pool.token0.contractInstance;
+  const token0 = pool.token0.contract;
+  // const token0Chainlink = pool.cauldronInfo.chainLinksContract.token0;
+  const token0Chainlink = pool.chainlinks.token0;
   const token0PriceInUsd = await token0Chainlink.latestAnswer();
+  console.log("token0PriceInUsd", token0PriceInUsd);
   const { _reserve0: token0Reserve, _reserve1: token1Reserve } =
     await Pair.getReserves();
-  const token1 = pool.token1.contractInstance;
-  const token1Chainlink = pool.cauldronInfo.chainLinksContract.token1;
+
+  // pool.chainlinks.token1
+  const token1 = pool.token1.contract;
+  // const token1Chainlink = pool.cauldronInfo.chainLinksContract.token1;
+  const token1Chainlink = pool.chainlinks.token1;
   const token1PriceInUsd = await token1Chainlink.latestAnswer();
+  console.log("token1PriceInUsd", token1PriceInUsd);
 
   return {
     Pair,

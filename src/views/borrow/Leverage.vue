@@ -243,10 +243,17 @@ export default {
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
         if (this.useDefaultBalance) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.networkBalance,
-            this.selectedPool.collateralToken.decimals
-          );
+          if (this.isLpLogic) {
+            return this.$ethers.utils.formatUnits(
+              this.selectedPool.userInfo.lpInfo.balance,
+              this.selectedPool.lpLogic.lpDecimals
+            );
+          } else {
+            return this.$ethers.utils.formatUnits(
+              this.selectedPool.userInfo.networkBalance,
+              this.selectedPool.collateralToken.decimals
+            );
+          }
         }
 
         return this.$ethers.utils.formatUnits(

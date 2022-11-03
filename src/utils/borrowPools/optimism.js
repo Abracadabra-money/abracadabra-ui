@@ -6,6 +6,8 @@ import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
 import lpAbi from "@/utils/abi/lp/lpAbi";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 
+import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
+
 export default [
   {
     icon: require(`@/assets/images/tokens/OP_USDC.png`),
@@ -18,6 +20,9 @@ export default [
     borrowFee: 0,
     isSwappersActive: true,
     isZeroXSwappers: true,
+    // TODO
+    is0xSwapLp: true,
+    //END TODO
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
@@ -71,7 +76,7 @@ export default [
     chainlinks: {
       token0: "0x0d276fc14719f9292d5c1ea2198673d1f4269246",
       token1: "0x16a9fa2fda030272ce99b29cf780dfa30361e0f3",
-      // abi: EACAggregatorProxyAbi,
+      abi: EACAggregatorProxyAbi,
     },
     swapContractInfo: {
       address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",

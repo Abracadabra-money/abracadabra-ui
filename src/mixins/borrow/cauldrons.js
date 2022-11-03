@@ -453,6 +453,9 @@ export default {
 
       let token0 = null;
       let token1 = null;
+      // TODO
+      let chainLinksContract = null;
+      //END TODO
 
       if (pool.isZeroXSwappers) {
         const token0Contract = new this.$ethers.Contract(
@@ -474,6 +477,26 @@ export default {
         token1 = {
           contract: token1Contract,
         };
+        // TODO
+        if (pool?.chainlinks) {
+          const token0Chainlink = new this.$ethers.Contract(
+            pool.chainlinks.token0,
+            JSON.stringify(pool.chainlinks.abi),
+            this.contractProvider
+          );
+
+          const token1Chainlink = new this.$ethers.Contract(
+            pool.chainlinks.token1,
+            JSON.stringify(pool.chainlinks.abi),
+            this.contractProvider
+          );
+
+          chainLinksContract = {
+            token0: token0Chainlink,
+            token1: token1Chainlink,
+          };
+        }
+        //END TODO
       }
 
       let poolData = {
@@ -483,6 +506,9 @@ export default {
         bentoBoxAddress,
         isSwappersActive: pool.isSwappersActive,
         is0xSwap: pool.is0xSwap,
+        // TODO
+        is0xSwapLp: pool.is0xSwapLp,
+        //END TODO
         executionPrice: pool.executionPrice,
         cauldronSettings: pool.cauldronSettings,
         contractInstance: poolContract,
@@ -520,6 +546,9 @@ export default {
         lpLogic,
         token0,
         token1,
+        // TODO
+        chainlinks: chainLinksContract,
+        //END TODO
       };
 
       if (this.account) {
