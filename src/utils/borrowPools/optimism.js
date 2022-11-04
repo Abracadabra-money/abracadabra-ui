@@ -45,11 +45,12 @@ export default [
       name: "wOP/USDC",
       decimals: 18,
       address: "0x6eb1709e0b562097bf1cc48bc6a378446c297c04",
+      // TODO ABI
       abi: tokensAbi.opUSDC,
-      oracleDatas: {
-        data: "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
-        decimals: 12,
-      },
+      // oracleDatas: {
+      //   data: "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
+      //   decimals: 12,
+      // },
     },
     token0: {
       address: "0x4200000000000000000000000000000000000042",
@@ -64,6 +65,7 @@ export default [
       lpAddress: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
       lpAbi,
       tokenWrapper: "0xF4B36812d1645dca9d562846E3aBf416D590349e",
+      // TODO ABI
       tokenWrapperAbi: lptokenWrapperAbi,
     },
     pairToken: {

@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
+import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
 
 const getBigNumber = (amount, decimals) => {
   return BigNumber.from(amount).mul(BigNumber.from(10).pow(decimals));
@@ -13,7 +14,8 @@ const query0x = async (
   takerAddress
 ) => {
   const slippagePercentage = slippage / 100;
-  const url = "https://api.0x.org/swap/v1/quote";
+  // const url = "https://api.0x.org/swap/v1/quote";
+  const url = "https://optimism.api.0x.org/swap/v1/quote";
 
   const params = {
     buyToken: buyToken,
@@ -37,98 +39,136 @@ const query0x = async (
 };
 
 const initializeProps = async (pool) => {
-  // TODO
-  console.log("333333333333333333", pool);
-  // lpLogic LP 0x47029bc8f5CBe3b464004E87eF9c9419a48018cd
-  // const Pair = pool.cauldronInfo.token.contract;
-  const Pair = pool.lpLogic.lpContract;
-  console.log("Pair", Pair);
-
-  // pairToken MIM  0xB153FB3d196A8eB25522705560ac152eeEc57901
-  // const MIM = pool.cauldronInfo.pairTokenContract;
   const MIM = pool.borrowToken.contract;
-  console.log("MIM", MIM);
-
-  // Chainlink немає(( потрібно думати
-  // const MimChainlink = pool.cauldronInfo.chainLinksContract.mim;
-  // console.log("MimChainlink", MimChainlink);
-  // const mimPriceInUsd = await MimChainlink.latestAnswer();
-  const mimPriceInUsd = "1.00";
-
-  // 0x4200000000000000000000000000000000000042
-  // pool.chainlinks.token0
-  // const token0 = pool.token0.contractInstance;
-  const token0 = pool.token0.contract;
-  // const token0Chainlink = pool.cauldronInfo.chainLinksContract.token0;
-  const token0Chainlink = pool.chainlinks.token0;
-  const token0PriceInUsd = await token0Chainlink.latestAnswer();
-  console.log("token0PriceInUsd", token0PriceInUsd);
+  const Pair = pool.lpLogic.lpContract;
   const { _reserve0: token0Reserve, _reserve1: token1Reserve } =
     await Pair.getReserves();
 
-  // pool.chainlinks.token1
-  const token1 = pool.token1.contract;
-  // const token1Chainlink = pool.cauldronInfo.chainLinksContract.token1;
-  const token1Chainlink = pool.chainlinks.token1;
-  const token1PriceInUsd = await token1Chainlink.latestAnswer();
-  console.log("token1PriceInUsd", token1PriceInUsd);
+  const token0Contract = pool.token0.contract;
+  const token0Desimals = await token0Contract.decimals();
+  const token0ChainlinkContract = pool.chainlinks.token0;
+  const token0PriceInUsd = await token0ChainlinkContract.latestAnswer();
+  const token0PriceDesimals = await token0ChainlinkContract.decimals();
+  // todo decimals price
+
+  const token1Contract = pool.token1.contract;
+  const token1Desimals = await token1Contract.decimals();
+  const token1ChainlinkContract = pool.chainlinks.token1;
+  const token1PriceInUsd = await token1ChainlinkContract.latestAnswer();
+  const token1PriceDesimals = await token1ChainlinkContract.decimals();
+
+  const token00 = {
+    contract: token0Contract,
+    decimals: token0Desimals,
+    priceInUsd: token0PriceInUsd,
+    priceDesimals: token0PriceDesimals,
+    reserve: token0Reserve,
+  };
+
+  const token11 = {
+    contract: token1Contract,
+    decimals: token1Desimals,
+    priceInUsd: token1PriceInUsd,
+    priceDesimals: token1PriceDesimals,
+    reserve: token1Reserve,
+  };
 
   return {
-    Pair,
     MIM,
-    mimPriceInUsd,
-    token0,
+    Pair,
+    token00,
+    token11,
+    // DELETE
+    token0: token0Contract,
     token0PriceInUsd,
     token0Reserve,
     token1Reserve,
-    token1,
+    token1: token1Contract,
     token1PriceInUsd,
   };
 };
 
+const getMimAmountInUsd = async (pool, mimAmount) => {
+  let mimPriceInUsd, mimPriceDecimals;
+
+  if (pool.chainlinks.mim) {
+    const mimChainlinkContract = pool.chainlinks.mim;
+    mimPriceInUsd = await mimChainlinkContract.latestAnswer();
+    mimPriceDecimals = await mimChainlinkContract.decimals();
+  } else {
+    const mimChainlinkContract = new ethers.Contract(
+      "0x7a364e8770418566e3eb2001a96116e6138eb32f",
+      JSON.stringify(EACAggregatorProxyAbi),
+      ethers.getDefaultProvider()
+    );
+
+    mimPriceInUsd = await mimChainlinkContract.latestAnswer();
+    mimPriceDecimals = await mimChainlinkContract.decimals();
+  }
+
+  return mimAmount
+    .mul(mimPriceInUsd)
+    .div(BigNumber.from(10).pow(mimPriceDecimals));
+};
+
+const getTokenValue = (decimals0, decimals1, value0, value1) => {
+  const totalDesimals = decimals0 + decimals1;
+
+  if (totalDesimals < 18) {
+    return value0.mul(value1).mul(BigNumber.from(10).pow(18 - totalDesimals));
+  } else if (totalDesimals > 18) {
+    return value0.mul(value1).div(BigNumber.from(10).pow(totalDesimals - 18));
+  } else {
+    return value0.mul(value1).div(BigNumber.from(10).pow(decimals1)); // 18 decimals
+  }
+};
+
 const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
-  const {
-    MIM,
-    mimPriceInUsd,
-    token0,
-    token0PriceInUsd,
-    token0Reserve,
-    token1Reserve,
-    token1,
-    token1PriceInUsd,
-  } = await initializeProps(pool);
+  const { MIM, token00, token11 } = await initializeProps(pool);
 
-  const mimValueInUsd = mimAmount.mul(mimPriceInUsd); // 26 decimals
+  const mimValueInUsd = await getMimAmountInUsd(pool, mimAmount); // 18 decimals
 
-  // Both 18 decimals
-  const token0ReserveTotalValueInUsd = token0Reserve.mul(token0PriceInUsd); // 36 decimals
+  const token0ReserveTotalValueInUsd = getTokenValue(
+    token00.decimals,
+    token00.priceDesimals,
+    token00.reserve,
+    token00.priceInUsd
+  ); // 18 decimals
 
-  const token1ReserveTotalValueInUsd = token1Reserve
-    .mul(token1PriceInUsd)
-    .mul(BigNumber.from(10).pow(10)); // 26 -> 36 decimals
+  const token1ReserveTotalValueInUsd = getTokenValue(
+    token11.decimals,
+    token11.priceDesimals,
+    token11.reserve,
+    token11.priceInUsd
+  ); // 18 decimals
 
   const lpTotalValueInUsd = token0ReserveTotalValueInUsd.add(
     token1ReserveTotalValueInUsd
-  ); // 36 decimals
+  ); // 18 decimals
 
   const lpFractionBuyingPower = mimValueInUsd
-    .mul(BigNumber.from(10).pow(28))
+    .mul(BigNumber.from(10).pow(18))
     .div(lpTotalValueInUsd); // 18 decimals
 
-  const token0BuyingPower = lpFractionBuyingPower
-    .mul(token0Reserve)
-    .div(BigNumber.from(10).pow(18)); // 18 decimals
+  const token0BuyingPower = getTokenValue(
+    18,
+    token00.decimals,
+    lpFractionBuyingPower,
+    token00.reserve
+  ); // 18 decimals
 
-  const token1BuyingPower = lpFractionBuyingPower
-    .mul(token1Reserve)
-    .div(BigNumber.from(10).pow(18)); // 18 decimals
+  const token1BuyingPower = getTokenValue(
+    18,
+    token11.decimals,
+    lpFractionBuyingPower,
+    token11.reserve
+  );
 
   // Query 0x to get how much MIM you get from swapping token0 and token1. No slipage is used
   // so that we get the quote only.
   // sell token0BuyingPower => buy MIM
-
   const queryMimAmountFromToken0 = await query0x(
-    token0.address,
+    token00.contract.address,
     MIM.address,
     0,
     token0BuyingPower
@@ -136,7 +176,7 @@ const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
 
   //sell  token1BuyingPower => buy MIM
   const queryMimAmountFromToken1 = await query0x(
-    token1.address,
+    token11.contract.address,
     MIM.address,
     0,
     token1BuyingPower
@@ -156,7 +196,7 @@ const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
   // sell MIM => buy token0BuyingPower
   const queryToken0AmountFromMim = await query0x(
     MIM.address,
-    token0.address,
+    token00.contract.address,
     slipage,
     mimAmountToSwapForToken0
   );
@@ -164,7 +204,7 @@ const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
   // sell MIM => buy token1BuyingPower
   const queryToken1AmountFromMim = await query0x(
     MIM.address,
-    token1.address,
+    token11.contract.address,
     slipage,
     mimAmountToSwapForToken1
   );
@@ -180,7 +220,6 @@ const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
   }
 
   const minimumToken0ToSwapAgainForMoreLp = getBigNumber(1, 16);
-
   const minimumToken1ToSwapAgainForMoreLp = getBigNumber(1, 16);
 
   const data = ethers.utils.defaultAbiCoder.encode(

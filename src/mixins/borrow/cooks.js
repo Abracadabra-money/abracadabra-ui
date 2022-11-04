@@ -2,7 +2,7 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getLiqZeroXswapperData } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
+import { getLevZeroXswapperData } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
 // import { getSwapStaticToken } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
@@ -1634,10 +1634,32 @@ export default {
         );
       } else if (pool.is0xSwapLp) {
         // TODO
-        console.log("YPPPPPPPAAAAAAAAAAAAA");
-        const data = await getLiqZeroXswapperData(amount, pool, slipage);
+        console.log("pool", pool);
+        console.log("pool", pool.levSwapperContract);
+        console.log("pool", pool.liqSwapperContract);
+        const data = await getLevZeroXswapperData(amount, pool, slipage);
 
         console.log("DATA", data);
+
+        const swapStaticTx =
+          await pool.liqSwapperContract.populateTransaction.swap(
+            userAddr,
+            minExpected,
+            amount,
+            data,
+            {
+              gasLimit: 10000000,
+            }
+          );
+
+        const swapCallByte = swapStaticTx.data;
+
+        //30
+        getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [swapperAddres, swapCallByte, false, false, 2]
+        );
+
         //END TODO
       } else {
         const swapStaticTx =

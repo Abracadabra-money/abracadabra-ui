@@ -479,6 +479,16 @@ export default {
         };
         // TODO
         if (pool?.chainlinks) {
+          let mimChainlink = null;
+
+          if (pool.chainlinks.mim) {
+            mimChainlink = new this.$ethers.Contract(
+              pool.chainlinks.mim,
+              JSON.stringify(pool.chainlinks.abi),
+              this.contractProvider
+            );
+          }
+
           const token0Chainlink = new this.$ethers.Contract(
             pool.chainlinks.token0,
             JSON.stringify(pool.chainlinks.abi),
@@ -492,6 +502,7 @@ export default {
           );
 
           chainLinksContract = {
+            mim: mimChainlink,
             token0: token0Chainlink,
             token1: token1Chainlink,
           };
