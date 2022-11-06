@@ -70,7 +70,7 @@
             >Swap</a
           >
           <a
-            href="https://tinyurl.com/abradashboardupdate"
+            href="https://analytics.abracadabra.money/fee-statistics"
             class="list-link"
             target="_blank"
             >Analytics</a

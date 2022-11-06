@@ -80,7 +80,7 @@
         <div class="popup-link-wrap" @click="closePopup">
           <a
             class="popup-link"
-            href="https://tinyurl.com/abradashboardupdate"
+            href="https://analytics.abracadabra.money/fee-statistics"
             target="_blank"
             >Analytics</a
           >
