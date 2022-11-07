@@ -3,7 +3,6 @@ import axios from "axios";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLevZeroXswapperData } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
-// import { getSwapStaticToken } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
@@ -1516,9 +1515,11 @@ export default {
       pool,
       notificationId
     ) {
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : pool.collateralToken.address;
+      let tokenAddr;
+      if (itsDefaultBalance) tokenAddr = this.defaultTokenAddress;
+      else if (pool.lpLogic.lpAddress) tokenAddr = pool.lpLogic.lpAddress;
+      else tokenAddr = pool.collateralToken.address;
+
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -1559,14 +1560,14 @@ export default {
         datasArray.push(whitelistedCallData);
       }
 
-      //10
-      const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+      //10 add collateral to caldron
+      let getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address", "bool"],
         ["-0x02", userAddr, false]
       );
 
       if (collateralAmount) {
-        //20
+        // 20 deposit in degenbox
         const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
           [tokenAddr, userAddr, collateralAmount, "0"]
@@ -1581,7 +1582,7 @@ export default {
         datasArray.push(getCollateralEncode2);
       }
 
-      //5
+      //5 Borrow MIM
       const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
         [amount, swapperAddres]
@@ -1593,18 +1594,6 @@ export default {
 
       let swapCallByte, getCallEncode2;
 
-      // TODO
-      // if (pool.is0xSwap) {
-      //   const { swapByte, callEncode } = await getSwapStaticToken(
-      //     pool,
-      //     slipage,
-      //     amount,
-      //     userAddr,
-      //     minExpected
-      //   );
-      //   swapCallByte = swapByte;
-      //   getCallEncode2 = callEncode;
-      // }
       if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.collateralToken.address,
@@ -1633,32 +1622,30 @@ export default {
           [swapperAddres, swapCallByte, false, false, 2]
         );
       } else if (pool.is0xSwapLp) {
-        // TODO
-        console.log("pool", pool);
-        console.log("pool", pool.levSwapperContract);
-        console.log("pool", pool.liqSwapperContract);
         const data = await getLevZeroXswapperData(amount, pool, slipage);
 
-        console.log("DATA", data);
+        try {
+          const swapStaticTx =
+            await pool.levSwapperContract.populateTransaction.swap(
+              userAddr,
+              minExpected,
+              amount,
+              data,
+              {
+                gasLimit: 10000000,
+              }
+            );
 
-        const swapStaticTx =
-          await pool.liqSwapperContract.populateTransaction.swap(
-            userAddr,
-            minExpected,
-            amount,
-            data,
-            {
-              gasLimit: 10000000,
-            }
+          const swapCallByte = swapStaticTx.data;
+
+          //30
+          getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "bytes", "bool", "bool", "uint8"],
+            [swapperAddres, swapCallByte, false, false, 2]
           );
-
-        const swapCallByte = swapStaticTx.data;
-
-        //30
-        getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [swapperAddres, swapCallByte, false, false, 2]
-        );
+        } catch (error) {
+          console.log("is0xSwapLp swapStaticTx", error);
+        }
 
         //END TODO
       } else {
@@ -1684,9 +1671,36 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCallEncode2);
 
-      eventsArray.push(10);
-      valuesArray.push(0);
-      datasArray.push(getCollateralEncode2);
+      //TODO Wrap Amount
+      if (pool.is0xSwapLp) {
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+            pool.bentoBoxAddress,
+            pool.collateralToken.address,
+            pool.contractInstance.address,
+            collateralAmount //???
+          );
+
+        const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [pool.lpLogic.tokenWrapper, swapStaticTx.data, true, false, 2]
+        );
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(lpCallEncode);
+
+        // 10
+        // add collateral
+        getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          ["-2", userAddr, true]
+        );
+      } else {
+        eventsArray.push(10);
+        valuesArray.push(0);
+        datasArray.push(getCollateralEncode2);
+      }
 
       const cookData = {
         events: eventsArray,

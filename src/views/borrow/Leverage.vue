@@ -159,8 +159,6 @@ import {
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
 
-import { getLeverageData } from "@/utils/zeroXSwap/ZeroXSwapHelper.js";
-
 export default {
   mixins: [cauldronsMixin, cookMixin],
 
@@ -827,29 +825,22 @@ export default {
           this.selectedPool.borrowToken.decimals
         );
 
-        let payload = null;
+        const itsDefaultBalance = this.selectedPool.lpLogic
+          ? this.selectedPool.lpLogic?.defaultToken
+          : this.useDefaultBalance;
 
-        if (this.selectedPool.isZeroXSwappers) {
-          payload = await getLeverageData(
-            parsedMim,
-            this.selectedPool,
-            this.provider,
-            this.slipage
-          );
-        } else {
-          payload = {
-            collateralAmount: parsedCollateral,
-            amount: parsedMim,
-            updatePrice: this.selectedPool.askUpdatePrice,
-            itsDefaultBalance: this.useDefaultBalance,
-            slipage: this.slipage,
-          };
+        let payload = {
+          collateralAmount: parsedCollateral,
+          amount: parsedMim,
+          updatePrice: this.selectedPool.askUpdatePrice,
+          itsDefaultBalance,
+          slipage: this.slipage,
+        };
 
-          payload.amount = Vue.filter("formatToFixed")(
-            this.mimAmount,
-            this.selectedPool.borrowToken.decimals
-          );
-        }
+        payload.amount = Vue.filter("formatToFixed")(
+          this.mimAmount,
+          this.selectedPool.borrowToken.decimals
+        );
 
         this.multiplierHandle(payload);
         return false;
@@ -947,28 +938,32 @@ export default {
     },
 
     async addMultiBorrowHandler(data, notificationId) {
+      const tokenContract = this.selectedPool.lpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        tokenContract,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.eq(0)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          tokenContract,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        tokenContract,
         this.selectedPool.levSwapperContract.address,
         this.account
       );
 
       if (isTokenToSwapApprove.eq(0)) {
         isTokenToSwapApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          tokenContract,
           this.selectedPool.levSwapperContract.address
         );
       }

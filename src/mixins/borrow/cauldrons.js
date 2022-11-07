@@ -453,13 +453,17 @@ export default {
 
       let token0 = null;
       let token1 = null;
-      // TODO
       let chainLinksContract = null;
-      //END TODO
 
-      if (pool.isZeroXSwappers) {
+      if (pool.is0xSwapLp) {
         const token0Contract = new this.$ethers.Contract(
           pool.token0.address,
+          JSON.stringify(pool.token0.abi),
+          this.contractProvider
+        );
+
+        const token1Contract = new this.$ethers.Contract(
+          pool.token1.address,
           JSON.stringify(pool.token0.abi),
           this.contractProvider
         );
@@ -468,16 +472,10 @@ export default {
           contract: token0Contract,
         };
 
-        const token1Contract = new this.$ethers.Contract(
-          pool.token1.address,
-          JSON.stringify(pool.token0.abi),
-          this.contractProvider
-        );
-
         token1 = {
           contract: token1Contract,
         };
-        // TODO
+
         if (pool?.chainlinks) {
           let mimChainlink = null;
 
@@ -507,7 +505,6 @@ export default {
             token1: token1Chainlink,
           };
         }
-        //END TODO
       }
 
       let poolData = {
@@ -517,9 +514,7 @@ export default {
         bentoBoxAddress,
         isSwappersActive: pool.isSwappersActive,
         is0xSwap: pool.is0xSwap,
-        // TODO
         is0xSwapLp: pool.is0xSwapLp,
-        //END TODO
         executionPrice: pool.executionPrice,
         cauldronSettings: pool.cauldronSettings,
         contractInstance: poolContract,
@@ -557,9 +552,7 @@ export default {
         lpLogic,
         token0,
         token1,
-        // TODO
         chainlinks: chainLinksContract,
-        //END TODO
       };
 
       if (this.account) {
@@ -863,8 +856,14 @@ export default {
     },
 
     async getLpLogic(pool) {
-      const { tokenWrapper, tokenWrapperAbi, lpAddress, lpAbi, name } =
-        pool.lpLogic;
+      const {
+        tokenWrapper,
+        tokenWrapperAbi,
+        lpAddress,
+        lpAbi,
+        name,
+        defaultToken,
+      } = pool.lpLogic;
 
       const tokenWrapperContract = new Contract(
         tokenWrapper,
@@ -883,6 +882,7 @@ export default {
         lpAddress,
         tokenWrapper,
         name,
+        defaultToken,
       };
     },
 

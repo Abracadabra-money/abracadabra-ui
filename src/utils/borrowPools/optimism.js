@@ -1,11 +1,10 @@
 import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
-import swapAbi from "@/utils/abi/swap";
-import reverseSwapAbi from "@/utils/abi/reverseSwap";
+import zeroXLevSwapper from "@/utils/abi/zeroXLevSwapper.js";
+import zeroXLiqSwapper from "@/utils/abi/zeroXLiqSwapper";
 import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
 import lpAbi from "@/utils/abi/lp/lpAbi";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
-
 import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
 
 export default [
@@ -19,10 +18,7 @@ export default [
     ltv: 70,
     borrowFee: 0,
     isSwappersActive: true,
-    isZeroXSwappers: true,
-    // TODO
     is0xSwapLp: true,
-    //END TODO
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
@@ -45,7 +41,6 @@ export default [
       name: "wOP/USDC",
       decimals: 18,
       address: "0x6eb1709e0b562097bf1cc48bc6a378446c297c04",
-      // TODO ABI
       abi: tokensAbi.opUSDC,
       // oracleDatas: {
       //   data: "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
@@ -62,10 +57,10 @@ export default [
     },
     lpLogic: {
       name: "OP/USDC",
+      defaultToken: false,
       lpAddress: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
       lpAbi,
       tokenWrapper: "0xF4B36812d1645dca9d562846E3aBf416D590349e",
-      // TODO ABI
       tokenWrapperAbi: lptokenWrapperAbi,
     },
     pairToken: {
@@ -82,11 +77,11 @@ export default [
     },
     swapContractInfo: {
       address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
-      abi: swapAbi,
+      abi: zeroXLevSwapper,
     },
     reverseSwapContractInfo: {
       address: "0x741A2378a8E003acbAdbc21506bC624062Ace36E",
-      abi: reverseSwapAbi,
+      abi: zeroXLiqSwapper,
     },
   },
   {
@@ -98,7 +93,7 @@ export default [
     interest: 0,
     ltv: 95,
     borrowFee: 0,
-    isSwappersActive: false,
+    isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
@@ -132,11 +127,11 @@ export default [
     },
     swapContractInfo: {
       address: "0x35467BBd152a0f4d9166E649728c101fe4806EAa",
-      abi: swapAbi,
+      abi: zeroXLevSwapper,
     },
     reverseSwapContractInfo: {
       address: "0x3e6ef9E97147C266c5bddeF03E7dfba7a167d853",
-      abi: reverseSwapAbi,
+      abi: zeroXLiqSwapper,
     },
   },
 ];
