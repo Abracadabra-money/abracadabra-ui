@@ -826,7 +826,7 @@ export default {
         );
 
         const itsDefaultBalance = this.selectedPool.lpLogic
-          ? this.selectedPool.lpLogic?.defaultToken
+          ? this.selectedPool.lpLogic?.defaultToken && this.useDefaultBalance
           : this.useDefaultBalance;
 
         let payload = {

@@ -1577,10 +1577,14 @@ export default {
         valuesArray.push(collateralValue);
         datasArray.push(getDepositEncode1);
 
+        // wrap
+
         eventsArray.push(10);
         valuesArray.push(0);
         datasArray.push(getCollateralEncode2);
       }
+
+      //
 
       //5 Borrow MIM
       const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1627,7 +1631,7 @@ export default {
         try {
           const swapStaticTx =
             await pool.levSwapperContract.populateTransaction.swap(
-              userAddr,
+              userAddr, // попробувати wrapper
               minExpected,
               amount,
               data,
@@ -1636,13 +1640,27 @@ export default {
               }
             );
 
-          const swapCallByte = swapStaticTx.data;
+          swapCallByte = swapStaticTx.data;
 
           //30
           getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
             ["address", "bytes", "bool", "bool", "uint8"],
             [swapperAddres, swapCallByte, false, false, 2]
           );
+
+          // actions[i] = 30;
+          // datas[i++] = abi.encode(
+          // tokenWrapper,
+          // abi.encodeWithSelector(DegenBoxERC20VaultWrapper.wrap.selector, degenBox, wrapper, cauldron),
+          // true,
+          // false,
+          // 2
+          // );
+
+          // або з 49
+          // // deposit in degenbox
+          // actions[i] = 20;
+          // datas[i++] = abi.encode(lp, alice, -2, 0);
         } catch (error) {
           console.log("is0xSwapLp swapStaticTx", error);
         }
@@ -1681,6 +1699,8 @@ export default {
             collateralAmount //???
           );
 
+        console.log("!!!!!!!!!!!!!!!!!!!!", swapStaticTx);
+
         const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
           [pool.lpLogic.tokenWrapper, swapStaticTx.data, true, false, 2]
@@ -1696,11 +1716,12 @@ export default {
           ["int256", "address", "bool"],
           ["-2", userAddr, true]
         );
-      } else {
-        eventsArray.push(10);
-        valuesArray.push(0);
-        datasArray.push(getCollateralEncode2);
       }
+      // else {
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode2);
+      // }
 
       const cookData = {
         events: eventsArray,
@@ -1709,16 +1730,16 @@ export default {
       };
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: collateralValue,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -1726,7 +1747,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit,
+            gasLimit: 1000000,
           }
         );
 
