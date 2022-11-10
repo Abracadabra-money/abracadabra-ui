@@ -827,6 +827,9 @@ export default {
         pool.pairToken.address
       );
 
+      if (pool.cauldronSettings.dynamicBorrowAmountLimit === 0)
+        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+
       if (
         pool.cauldronSettings.dynamicBorrowAmountLimit &&
         pool.cauldronSettings.dynamicBorrowAmountLimit < dynamicBorrowAmount
