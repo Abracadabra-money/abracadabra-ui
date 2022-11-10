@@ -128,6 +128,7 @@ const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
 
   const mimValueInUsd = await getMimAmountInUsd(pool, mimAmount); // 18 decimals
 
+  // TODO token00 token11
   const token0ReserveTotalValueInUsd = getTokenValue(
     token00.decimals,
     token00.priceDesimals,

@@ -1521,11 +1521,9 @@ export default {
       pool,
       notificationId
     ) {
-      let tokenAddr;
-      if (itsDefaultBalance) tokenAddr = this.defaultTokenAddress;
-      else if (pool.lpLogic.lpAddress) tokenAddr = pool.lpLogic.lpAddress;
-      else tokenAddr = pool.collateralToken.address;
-
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -1566,14 +1564,14 @@ export default {
         datasArray.push(whitelistedCallData);
       }
 
-      //10 add collateral to caldron
-      let getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+      //10
+      const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address", "bool"],
         ["-0x02", userAddr, false]
       );
 
       if (collateralAmount) {
-        // 20 deposit in degenbox
+        //20
         const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
           [tokenAddr, userAddr, collateralAmount, "0"]
@@ -1583,16 +1581,12 @@ export default {
         valuesArray.push(collateralValue);
         datasArray.push(getDepositEncode1);
 
-        // wrap
-
         eventsArray.push(10);
         valuesArray.push(0);
         datasArray.push(getCollateralEncode2);
       }
 
-      //
-
-      //5 Borrow MIM
+      //5
       const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
         [amount, swapperAddres]
@@ -1602,8 +1596,7 @@ export default {
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      let swapCallByte, getCallEncode2;
-
+      let swapStaticTx, swapCallByte, getCallEncode2;
       if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.collateralToken.address,
@@ -1614,16 +1607,15 @@ export default {
         );
 
         const swapData = response.data;
-        const swapStaticTx =
-          await pool.levSwapperContract.populateTransaction.swap(
-            userAddr,
-            minExpected,
-            amount,
-            swapData,
-            {
-              gasLimit: 10000000,
-            }
-          );
+        swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
+          userAddr,
+          minExpected,
+          amount,
+          swapData,
+          {
+            gasLimit: 10000000,
+          }
+        );
         swapCallByte = swapStaticTx.data;
 
         //30
@@ -1631,57 +1623,15 @@ export default {
           ["address", "bytes", "bool", "bool", "uint8"],
           [swapperAddres, swapCallByte, false, false, 2]
         );
-      } else if (pool.is0xSwapLp) {
-        const data = await getLevZeroXswapperData(amount, pool, slipage);
-
-        try {
-          const swapStaticTx =
-            await pool.levSwapperContract.populateTransaction.swap(
-              userAddr, // попробувати wrapper
-              minExpected,
-              amount,
-              data,
-              {
-                gasLimit: 10000000,
-              }
-            );
-
-          swapCallByte = swapStaticTx.data;
-
-          //30
-          getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "bytes", "bool", "bool", "uint8"],
-            [swapperAddres, swapCallByte, false, false, 2]
-          );
-
-          // actions[i] = 30;
-          // datas[i++] = abi.encode(
-          // tokenWrapper,
-          // abi.encodeWithSelector(DegenBoxERC20VaultWrapper.wrap.selector, degenBox, wrapper, cauldron),
-          // true,
-          // false,
-          // 2
-          // );
-
-          // або з 49
-          // // deposit in degenbox
-          // actions[i] = 20;
-          // datas[i++] = abi.encode(lp, alice, -2, 0);
-        } catch (error) {
-          console.log("is0xSwapLp swapStaticTx", error);
-        }
-
-        //END TODO
       } else {
-        const swapStaticTx =
-          await pool.levSwapperContract.populateTransaction.swap(
-            userAddr,
-            minExpected,
-            0,
-            {
-              gasLimit: 10000000,
-            }
-          );
+        swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
+          userAddr,
+          minExpected,
+          0,
+          {
+            gasLimit: 10000000,
+          }
+        );
         swapCallByte = swapStaticTx.data.substr(0, 138);
 
         //30
@@ -1695,39 +1645,326 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCallEncode2);
 
-      //TODO Wrap Amount
-      if (pool.is0xSwapLp) {
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode2);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookMultiBorrow ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    // leverage zeroXswapper
+    async cookMultiBorrowZeroXswapper(
+      {
+        collateralAmount,
+        amount,
+        updatePrice,
+        minExpected,
+        itsDefaultBalance,
+        slipage,
+      },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      // TODO Потрібна логіка itsDefaultBalance
+      // const tokenAddr = itsDefaultBalance
+      //   ? this.defaultTokenAddress
+      //   : pool.collateralToken.address;
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
+
+      const swapperAddres = pool.levSwapperContract.address;
+      const userAddr = this.account;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      if (this.needWhitelisterApprove) {
+        const whitelistedCallData = await this.getWhitelistCallData();
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(whitelistedCallData);
+      }
+      // ---------------------------------------------------------
+      const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+      //20 deposit in degenbox
+      const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, userAddr, collateralAmount, "0"]
+      );
+
+      eventsArray.push(20);
+      valuesArray.push(0);
+      datasArray.push(getDepositEncode1);
+
+      // TODO Потрібно переробити спросити у Степи про itsDefaultBalance
+      if (pool.lpLogic) {
+        //21 withdraw to token wrapper
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [lpAddress, tokenWrapper, collateralAmount, "0"]
+        );
+
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(bentoWithdrawEncode);
+
+        // 30 wrap and deposit to cauldron
         const swapStaticTx =
           await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
             pool.bentoBoxAddress,
             pool.collateralToken.address,
             pool.contractInstance.address,
-            collateralAmount //???
+            collateralAmount
           );
-
-        console.log("!!!!!!!!!!!!!!!!!!!!", swapStaticTx);
 
         const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
-          [pool.lpLogic.tokenWrapper, swapStaticTx.data, true, false, 2]
+          [tokenWrapper, swapStaticTx.data, true, false, 2]
+        );
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(lpCallEncode);
+      }
+
+      //10 add collateral
+      const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-2", userAddr, true]
+      );
+
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode2);
+
+      //5 Borrow
+      const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, swapperAddres]
+      );
+
+      eventsArray.push(5);
+      valuesArray.push(0);
+      datasArray.push(getBorrowSwapperEncode2);
+
+      // Swap
+      const data = await getLevZeroXswapperData(amount, pool, slipage);
+
+      try {
+        const swapStaticTx =
+          await pool.levSwapperContract.populateTransaction.swap(
+            userAddr, // попробувати wrapper
+            minExpected,
+            amount,
+            data,
+            {
+              gasLimit: 10000000,
+            }
+          );
+
+        //30
+        const getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [swapperAddres, swapStaticTx.data, false, false, 2] //??? tokenWrapper
+        );
+
+        // datas[i++] = abi.encode(
+        // tokenWrapper,
+        // abi.encodeWithSelector(DegenBoxERC20VaultWrapper.wrap.selector, degenBox, wrapper, cauldron),
+        // true,
+        // false,
+        // 2
+        // );
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(getCallEncode2);
+      } catch (error) {
+        console.log("is0xSwapLp swapStaticTx", error);
+      }
+
+      try {
+        const wrapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+            pool.bentoBoxAddress,
+            pool.collateralToken.address,
+            pool.contractInstance.address,
+            0 //todo ??? обрізать останні 64 символи
+          );
+
+        const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [pool.lpLogic.tokenWrapper, wrapStaticTx.data, true, false, 2]
         );
 
         eventsArray.push(30);
         valuesArray.push(0);
         datasArray.push(lpCallEncode);
 
-        // 10
-        // add collateral
-        getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address", "bool"],
-          ["-2", userAddr, true]
-        );
+        eventsArray.push(10);
+        valuesArray.push(0);
+        datasArray.push(getCollateralEncode2);
+      } catch (error) {
+        console.log("@@@@@@@", error);
       }
-      // else {
-      eventsArray.push(10);
-      valuesArray.push(0);
-      datasArray.push(getCollateralEncode2);
+
+      // ---------------------------------------------------------
+
+      //10
+      // const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+      //   ["int256", "address", "bool"],
+      //   ["-0x02", userAddr, false]
+      // );
+
+      // if (collateralAmount) {
+      //   //20
+      //   const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
+      //     ["address", "address", "int256", "int256"],
+      //     [tokenAddr, userAddr, collateralAmount, "0"]
+      //   );
+
+      //   eventsArray.push(20);
+      //   valuesArray.push(collateralValue);
+      //   datasArray.push(getDepositEncode1);
+
+      //   eventsArray.push(10);
+      //   valuesArray.push(0);
+      //   datasArray.push(getCollateralEncode2);
       // }
+
+      //5
+      // const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+      //   ["int256", "address"],
+      //   [amount, swapperAddres]
+      // );
+
+      // eventsArray.push(5);
+      // valuesArray.push(0);
+      // datasArray.push(getBorrowSwapperEncode2);
+
+      // let swapStaticTx, swapCallByte, getCallEncode2;
+      // if (pool.is0xSwap) {
+      //   const response = await this.query0x(
+      //     pool.collateralToken.address,
+      //     pool.borrowToken.address,
+      //     slipage,
+      //     amount,
+      //     pool.levSwapperContract.address
+      //   );
+
+      //   const swapData = response.data;
+      //   swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
+      //     userAddr,
+      //     minExpected,
+      //     amount,
+      //     swapData,
+      //     {
+      //       gasLimit: 10000000,
+      //     }
+      //   );
+      //   swapCallByte = swapStaticTx.data;
+
+      //   //30
+      //   getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+      //     ["address", "bytes", "bool", "bool", "uint8"],
+      //     [swapperAddres, swapCallByte, false, false, 2]
+      //   );
+      // } else {
+      //   swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
+      //     userAddr,
+      //     minExpected,
+      //     0,
+      //     {
+      //       gasLimit: 10000000,
+      //     }
+      //   );
+      //   swapCallByte = swapStaticTx.data.substr(0, 138);
+
+      //   //30
+      //   getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+      //     ["address", "bytes", "bool", "bool", "uint8"],
+      //     [swapperAddres, swapCallByte, false, true, 2]
+      //   );
+      // }
+
+      // eventsArray.push(30);
+      // valuesArray.push(0);
+      // datasArray.push(getCallEncode2);
+
+      // eventsArray.push(10);
+      // valuesArray.push(0);
+      // datasArray.push(getCollateralEncode2);
 
       const cookData = {
         events: eventsArray,
@@ -1753,7 +1990,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit: 1000000,
+            gasLimit: 5000000,
           }
         );
 
