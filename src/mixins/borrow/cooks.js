@@ -41,6 +41,12 @@ export default {
         (this.selectedPool.id === 19 || this.selectedPool.id === 26)
       )
         return true;
+
+      // if (this.chainId === 1 && this.selectedPool.id === 31) return true; // Stargate USDC
+      // if (this.chainId === 1 && this.selectedPool.id === 32) return true; // Stargate USDT
+
+      // if (this.chainId === 1 && this.selectedPool.id === 28) return true; // WBTC
+      // if (this.chainId === 1 && this.selectedPool.id === 27) return true; // WETH
       return false;
     },
   },

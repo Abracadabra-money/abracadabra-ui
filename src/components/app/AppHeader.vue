@@ -70,7 +70,7 @@
             >Swap</a
           >
           <a
-            href="https://tinyurl.com/abradashboardupdate"
+            href="https://analytics.abracadabra.money/fee-statistics"
             class="list-link"
             target="_blank"
             >Analytics</a
@@ -121,10 +121,10 @@
             <a
               target="_blank"
               rel="noreferrer noopener"
-              href="https://abracadabramoney.medium.com/"
+              href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9"
               class="list-link"
             >
-              <Medium />
+              <Mirror />
             </a>
           </div>
           <div class="list-row">
@@ -182,10 +182,11 @@ const MimTokenBlock = () => import("@/components/ui/MimTokenBlock");
 const NetworkPopup = () => import("@/components/popups/NetworkPopup");
 const MobileMenu = () => import("@/components/popups/MobileMenu");
 const Docs = () => import("@/components/icons/Docs");
-const Medium = () => import("@/components/icons/Medium");
+// const Medium = () => import("@/components/icons/Medium");
 const Twitter = () => import("@/components/icons/Twitter");
 const Discord = () => import("@/components/icons/Discord");
 const Lens = () => import("@/components/icons/Lens");
+const Mirror = () => import("@/components/icons/Mirror");
 
 import chainSwitch from "@/mixins/chainSwitch";
 
@@ -316,10 +317,11 @@ export default {
     NetworkPopup,
     MobileMenu,
     Docs,
-    Medium,
+    // Medium,
     Twitter,
     Discord,
     Lens,
+    Mirror
   },
 };
 </script>
