@@ -2,7 +2,10 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getLevZeroXswapperData } from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
+import {
+  getLevZeroXswapperData,
+  getLiqZeroXswapperData,
+} from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
 
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
@@ -798,8 +801,7 @@ export default {
       const lpRemoveCollateralValuesArray = [];
       const lpRemoveCollateralDatasArray = [];
 
-      //4
-      // remove collateral
+      //4 remove collateral
       const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
         [amount, userAddr]
@@ -809,8 +811,7 @@ export default {
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(removeCollateral);
 
-      // 21
-      // withdraw to token wrapper
+      // 21 withdraw to token wrapper
 
       const lpBentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
@@ -821,9 +822,7 @@ export default {
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(lpBentoWithdrawEncode);
 
-      // 30
-      // unwrap and deposit for alice in degenbox
-
+      // 30 unwrap and deposit for alice in degenbox
       const swapStaticTx =
         await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
           pool.bentoBoxAddress,
@@ -842,7 +841,7 @@ export default {
       lpRemoveCollateralDatasArray.push(lpCallEncode);
 
       // 21
-      // withdraw to token wrapper
+      // withdraw to  userAddr
       const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
         [lpAddress, userAddr, amount, "0"]
@@ -1973,16 +1972,16 @@ export default {
       };
 
       try {
-        // const estimateGas = await pool.contractInstance.estimateGas.cook(
-        //   cookData.events,
-        //   cookData.values,
-        //   cookData.datas,
-        //   {
-        //     value: collateralValue,
-        //   }
-        // );
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+          }
+        );
 
-        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -1990,7 +1989,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit: 5000000,
+            gasLimit,
           }
         );
 
@@ -2176,6 +2175,193 @@ export default {
         values: valuesArray,
         datas: datasArray,
       };
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+
+        const result = await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+            gasLimit,
+          }
+        );
+
+        console.log(result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookFlashRepay ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+    // deleverage Zero
+    async cookFlashRepayZero(
+      {
+        borrowAmount,
+        collateralAmount,
+        removeCollateralAmount,
+        updatePrice,
+        itsMax,
+        slipage,
+      },
+      isApprowed,
+      pool,
+      account,
+      notificationId
+    ) {
+      console.log("removeCollateralAmount", removeCollateralAmount);
+
+      const borrowTokenAddr = pool.borrowToken.address;
+      const collateralTokenAddr = pool.collateralToken.address;
+      const reverseSwapperAddr = pool.liqSwapperContract.address;
+      const userAddr = account;
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      //4 remove collateral to swapper
+      const removeCollateralToSwapper =
+        this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [collateralAmount, reverseSwapperAddr]
+        );
+
+      eventsArray.push(4);
+      valuesArray.push(0);
+      datasArray.push(removeCollateralToSwapper);
+
+      const swapData = await getLiqZeroXswapperData(
+        collateralAmount,
+        pool,
+        slipage
+      );
+
+      const swapStaticTx =
+        await pool.liqSwapperContract.populateTransaction.swap(
+          collateralTokenAddr,
+          borrowTokenAddr,
+          userAddr,
+          0,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 10000000,
+          }
+        );
+
+      const swapCallByte = swapStaticTx.data;
+
+      // 30 swap
+      const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [reverseSwapperAddr, swapCallByte, false, false, 2]
+      );
+
+      eventsArray.push(30);
+      valuesArray.push(0);
+      datasArray.push(callEncode);
+
+      // TODO
+      if (itsMax) {
+        // 2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          [userBorrowPart, userAddr, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      } else {
+        // 2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          [borrowAmount, userAddr, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      }
+
+      if (+removeCollateralAmount > 0) {
+        const {
+          lpRemoveCollateralEventsArray,
+          lpRemoveCollateralValuesArray,
+          lpRemoveCollateralDatasArray,
+        } = await this.getLpCookRemoveCollateralData(
+          pool,
+          removeCollateralAmount,
+          userAddr
+        );
+
+        eventsArray.push(...lpRemoveCollateralEventsArray);
+        valuesArray.push(...lpRemoveCollateralValuesArray);
+        datasArray.push(...lpRemoveCollateralDatasArray);
+      }
+
+      // TODO
+      if (this.isCookNeedReduceSupply) {
+        const callEncode = await this.getReduceSupplyEncode(pool);
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(callEncode);
+      }
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      console.log("cookData", cookData);
 
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(

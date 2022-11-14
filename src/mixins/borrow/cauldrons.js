@@ -431,8 +431,9 @@ export default {
         this.$ethers.utils.formatUnits(borrowTokenRate, oracleDecimals)
       );
 
-      const tokenOraclePrice = Number(
-        this.$ethers.utils.formatUnits(oracleExchangeRate, oracleDecimals)
+      const tokenOraclePrice = this.$ethers.utils.formatUnits(
+        oracleExchangeRate,
+        oracleDecimals
       );
 
       const tvl = await this.parseCollatealTokenToBorrowToken(

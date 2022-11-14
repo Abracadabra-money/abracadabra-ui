@@ -240,6 +240,10 @@ export default {
         this.chainId === 43114
       )
         return "0.00000001";
+
+      if (this.chainId === 10 && this.selectedPool.id === 1)
+        return "0.000000000000000001";
+
       if (this.selectedPool.collateralToken.decimals === 18) return "0.00001";
 
       return "0.0001";
@@ -625,15 +629,28 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        this.cookFlashRepay(
-          data,
-          isApproved,
-          this.selectedPool,
-          this.account,
-          notificationId
-        );
+        if (this.selectedPool.lpLogic) {
+          console.log("zeroXswapper");
+          this.cookFlashRepayZero(
+            data,
+            isApproved,
+            this.selectedPool,
+            this.account,
+            notificationId
+          );
 
-        return false;
+          return false;
+        } else {
+          this.cookFlashRepay(
+            data,
+            isApproved,
+            this.selectedPool,
+            this.account,
+            notificationId
+          );
+
+          return false;
+        }
       }
 
       await this.$store.commit("notifications/delete", notificationId);
