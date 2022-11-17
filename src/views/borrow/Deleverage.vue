@@ -59,7 +59,6 @@
             :step="+collateralStepRange"
             :parallelRange="flashRepayAmount"
           />
-
           <div class="repay-token">
             {{ repayToken | formatTokenBalance }}
             {{ selectedPool.collateralToken.name }}
@@ -372,8 +371,14 @@ export default {
     },
 
     finalRemoveCollateralAmount() {
+      const exponential = this.isExponential(this.flashRepayRemoveAmount);
+
+      const flashRepayRemoveAmount = exponential
+        ? this.noExponents(this.flashRepayRemoveAmount)
+        : this.flashRepayRemoveAmount;
+
       const removeCollateralAmount = Vue.filter("formatToFixed")(
-        this.flashRepayRemoveAmount,
+        flashRepayRemoveAmount,
         this.selectedPool.collateralToken.decimals
       );
 
@@ -462,7 +467,11 @@ export default {
       if (this.flashRepayRemoveAmount > this.maxFlashRepayRemoveAmount)
         return this.maxFlashRepayRemoveAmount;
 
-      return this.flashRepayRemoveAmount;
+      const exponential = this.isExponential(this.flashRepayRemoveAmount);
+
+      return exponential
+        ? this.noExponents(this.flashRepayRemoveAmount)
+        : this.flashRepayRemoveAmount;
     },
   },
 
@@ -629,9 +638,8 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        if (this.selectedPool.lpLogic) {
-          console.log("zeroXswapper");
-          this.cookFlashRepayZero(
+        if (this.selectedPool.is0xSwapLp) {
+          this.cookFlashRepayXswapper(
             data,
             isApproved,
             this.selectedPool,
@@ -677,6 +685,30 @@ export default {
     resetRange() {
       this.flashRepayRemoveAmount = 0;
       this.flashRepayAmount = 0;
+    },
+
+    isExponential(value) {
+      return String(value).includes("e") || String(value).includes("E");
+    },
+
+    noExponents(value) {
+      let data = String(value).split(/[eE]/);
+      if (data.length == 1) return data[0];
+
+      let result = "",
+        sign = value < 0 ? "-" : "",
+        str = data[0].replace(".", ""),
+        mag = Number(data[1]) + 1;
+
+      if (mag < 0) {
+        result = sign + "0.";
+        while (mag++) result += "0";
+        /*eslint-disable */
+        return result + str.replace(/^\-/, "");
+      }
+      mag -= str.length;
+      while (mag--) result += "0";
+      return str + result;
     },
   },
 

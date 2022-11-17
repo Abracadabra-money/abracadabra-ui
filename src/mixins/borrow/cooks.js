@@ -1,12 +1,7 @@
-import { mapGetters } from "vuex";
 import axios from "axios";
-
+import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import {
-  getLevZeroXswapperData,
-  getLiqZeroXswapperData,
-} from "@/utils/zeroXSwap/ZeroXSwapHelperV2";
-
+import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
 
@@ -1696,8 +1691,7 @@ export default {
       }
     },
 
-    // leverage zeroXswapper
-    async cookMultiBorrowZeroXswapper(
+    async cookMultiBorrowXswapper(
       {
         collateralAmount,
         amount,
@@ -1710,16 +1704,16 @@ export default {
       pool,
       notificationId
     ) {
-      // TODO Потрібна логіка itsDefaultBalance
+      // TODO-Q Потрібна логіка itsDefaultBalance якщо у нас лп то як може бути дефолтний баланс
       // const tokenAddr = itsDefaultBalance
       //   ? this.defaultTokenAddress
       //   : pool.collateralToken.address;
+
+      const { lpAddress, tokenWrapper } = pool.lpLogic;
+
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
-
-      const swapperAddres = pool.levSwapperContract.address;
-      const userAddr = this.account;
 
       const eventsArray = [];
       const valuesArray = [];
@@ -1753,33 +1747,30 @@ export default {
         valuesArray.push(0);
         datasArray.push(whitelistedCallData);
       }
-      // ---------------------------------------------------------
-      const { lpAddress, tokenWrapper } = pool.lpLogic;
 
       //20 deposit in degenbox
       const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
-        [lpAddress, userAddr, collateralAmount, "0"]
+        [lpAddress, this.account, collateralAmount, "0"]
       );
 
       eventsArray.push(20);
       valuesArray.push(0);
       datasArray.push(getDepositEncode1);
 
-      // TODO Потрібно переробити спросити у Степи про itsDefaultBalance
-      if (pool.lpLogic) {
-        //21 withdraw to token wrapper
-        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [lpAddress, tokenWrapper, collateralAmount, "0"]
-        );
+      //21 withdraw to token wrapper
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, tokenWrapper, collateralAmount, "0"]
+      );
 
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(bentoWithdrawEncode);
+      eventsArray.push(21);
+      valuesArray.push(0);
+      datasArray.push(bentoWithdrawEncode);
 
-        // 30 wrap and deposit to cauldron
-        const swapStaticTx =
+      // 30 wrap and deposit to cauldron
+      try {
+        const wrapStaticTx =
           await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
             pool.bentoBoxAddress,
             pool.collateralToken.address,
@@ -1789,18 +1780,20 @@ export default {
 
         const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
-          [tokenWrapper, swapStaticTx.data, true, false, 2]
+          [tokenWrapper, wrapStaticTx.data, true, false, 2]
         );
 
         eventsArray.push(30);
         valuesArray.push(0);
         datasArray.push(lpCallEncode);
+      } catch (error) {
+        console.log("Error wrap and deposit to cauldron", error);
       }
 
       //10 add collateral
       const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address", "bool"],
-        ["-2", userAddr, true]
+        ["-2", this.account, true]
       );
 
       eventsArray.push(10);
@@ -1810,56 +1803,49 @@ export default {
       //5 Borrow
       const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
-        [amount, swapperAddres]
+        [amount, pool.levSwapperContract.address]
       );
 
       eventsArray.push(5);
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
 
-      // Swap
-      const data = await getLevZeroXswapperData(amount, pool, slipage);
-
+      // Swap MIM
       try {
+        const swapData = await getLev0xData(amount, pool, slipage);
+
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
-            userAddr, // попробувати wrapper
+            this.account,
             minExpected,
             amount,
-            data,
+            swapData,
             {
               gasLimit: 10000000,
             }
           );
 
-        //30
+        //30 swap
         const getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
-          [swapperAddres, swapStaticTx.data, false, false, 2] //??? tokenWrapper
+          [pool.levSwapperContract.address, swapStaticTx.data, false, false, 2]
         );
-
-        // datas[i++] = abi.encode(
-        // tokenWrapper,
-        // abi.encodeWithSelector(DegenBoxERC20VaultWrapper.wrap.selector, degenBox, wrapper, cauldron),
-        // true,
-        // false,
-        // 2
-        // );
 
         eventsArray.push(30);
         valuesArray.push(0);
         datasArray.push(getCallEncode2);
       } catch (error) {
-        console.log("is0xSwapLp swapStaticTx", error);
+        console.log("Error swap", error);
       }
 
+      // Wrap collateralToken
       try {
         const wrapStaticTx =
           await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
             pool.bentoBoxAddress,
             pool.collateralToken.address,
             pool.contractInstance.address,
-            0 //todo ??? обрізать останні 64 символи
+            0
           );
 
         const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1875,95 +1861,8 @@ export default {
         valuesArray.push(0);
         datasArray.push(getCollateralEncode2);
       } catch (error) {
-        console.log("@@@@@@@", error);
+        console.log("Error wrap collateralToken", error);
       }
-
-      // ---------------------------------------------------------
-
-      //10
-      // const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-      //   ["int256", "address", "bool"],
-      //   ["-0x02", userAddr, false]
-      // );
-
-      // if (collateralAmount) {
-      //   //20
-      //   const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
-      //     ["address", "address", "int256", "int256"],
-      //     [tokenAddr, userAddr, collateralAmount, "0"]
-      //   );
-
-      //   eventsArray.push(20);
-      //   valuesArray.push(collateralValue);
-      //   datasArray.push(getDepositEncode1);
-
-      //   eventsArray.push(10);
-      //   valuesArray.push(0);
-      //   datasArray.push(getCollateralEncode2);
-      // }
-
-      //5
-      // const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-      //   ["int256", "address"],
-      //   [amount, swapperAddres]
-      // );
-
-      // eventsArray.push(5);
-      // valuesArray.push(0);
-      // datasArray.push(getBorrowSwapperEncode2);
-
-      // let swapStaticTx, swapCallByte, getCallEncode2;
-      // if (pool.is0xSwap) {
-      //   const response = await this.query0x(
-      //     pool.collateralToken.address,
-      //     pool.borrowToken.address,
-      //     slipage,
-      //     amount,
-      //     pool.levSwapperContract.address
-      //   );
-
-      //   const swapData = response.data;
-      //   swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
-      //     userAddr,
-      //     minExpected,
-      //     amount,
-      //     swapData,
-      //     {
-      //       gasLimit: 10000000,
-      //     }
-      //   );
-      //   swapCallByte = swapStaticTx.data;
-
-      //   //30
-      //   getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-      //     ["address", "bytes", "bool", "bool", "uint8"],
-      //     [swapperAddres, swapCallByte, false, false, 2]
-      //   );
-      // } else {
-      //   swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
-      //     userAddr,
-      //     minExpected,
-      //     0,
-      //     {
-      //       gasLimit: 10000000,
-      //     }
-      //   );
-      //   swapCallByte = swapStaticTx.data.substr(0, 138);
-
-      //   //30
-      //   getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-      //     ["address", "bytes", "bool", "bool", "uint8"],
-      //     [swapperAddres, swapCallByte, false, true, 2]
-      //   );
-      // }
-
-      // eventsArray.push(30);
-      // valuesArray.push(0);
-      // datasArray.push(getCallEncode2);
-
-      // eventsArray.push(10);
-      // valuesArray.push(0);
-      // datasArray.push(getCollateralEncode2);
 
       const cookData = {
         events: eventsArray,
@@ -1983,7 +1882,7 @@ export default {
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
-        const result = await pool.contractInstance.cook(
+        await pool.contractInstance.cook(
           cookData.events,
           cookData.values,
           cookData.datas,
@@ -1993,15 +1892,13 @@ export default {
           }
         );
 
-        console.log(result);
-
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
         });
       } catch (e) {
-        console.log("CookMultiBorrow ERR:", e);
+        console.log("cookMultiBorrowXswapper Error:", e);
 
         const errorNotification = {
           msg: await notificationErrorMsg(e),
@@ -2217,8 +2114,8 @@ export default {
         await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
-    // deleverage Zero
-    async cookFlashRepayZero(
+
+    async cookFlashRepayXswapper(
       {
         borrowAmount,
         collateralAmount,
@@ -2232,12 +2129,7 @@ export default {
       account,
       notificationId
     ) {
-      console.log("removeCollateralAmount", removeCollateralAmount);
-
-      const borrowTokenAddr = pool.borrowToken.address;
-      const collateralTokenAddr = pool.collateralToken.address;
       const reverseSwapperAddr = pool.liqSwapperContract.address;
-      const userAddr = account;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
 
       const eventsArray = [];
@@ -2276,17 +2168,13 @@ export default {
       valuesArray.push(0);
       datasArray.push(removeCollateralToSwapper);
 
-      const swapData = await getLiqZeroXswapperData(
-        collateralAmount,
-        pool,
-        slipage
-      );
+      const swapData = await getLiq0xData(collateralAmount, pool, slipage);
 
       const swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(
-          collateralTokenAddr,
-          borrowTokenAddr,
-          userAddr,
+          pool.collateralToken.address,
+          pool.borrowToken.address,
+          account,
           0,
           collateralAmount,
           swapData,
@@ -2307,12 +2195,11 @@ export default {
       valuesArray.push(0);
       datasArray.push(callEncode);
 
-      // TODO
       if (itsMax) {
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          [userBorrowPart, userAddr, false]
+          [userBorrowPart, account, false]
         );
 
         eventsArray.push(2);
@@ -2322,7 +2209,7 @@ export default {
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          [borrowAmount, userAddr, false]
+          [borrowAmount, account, false]
         );
 
         eventsArray.push(2);
@@ -2338,7 +2225,7 @@ export default {
         } = await this.getLpCookRemoveCollateralData(
           pool,
           removeCollateralAmount,
-          userAddr
+          account
         );
 
         eventsArray.push(...lpRemoveCollateralEventsArray);
@@ -2346,7 +2233,6 @@ export default {
         datasArray.push(...lpRemoveCollateralDatasArray);
       }
 
-      // TODO
       if (this.isCookNeedReduceSupply) {
         const callEncode = await this.getReduceSupplyEncode(pool);
 
@@ -2361,8 +2247,6 @@ export default {
         datas: datasArray,
       };
 
-      console.log("cookData", cookData);
-
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
           cookData.events,
@@ -2375,7 +2259,7 @@ export default {
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
-        const result = await pool.contractInstance.cook(
+        await pool.contractInstance.cook(
           cookData.events,
           cookData.values,
           cookData.datas,
@@ -2385,15 +2269,13 @@ export default {
           }
         );
 
-        console.log(result);
-
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
           type: "success",
           isShow: true,
         });
       } catch (e) {
-        console.log("CookFlashRepay ERR:", e);
+        console.log("cookFlashRepayXswapper Error:", e);
 
         const errorNotification = {
           msg: await notificationErrorMsg(e),

@@ -992,7 +992,7 @@ export default {
 
       if (isAllApproved) {
         if (this.selectedPool.is0xSwapLp) {
-          this.cookMultiBorrowZeroXswapper(
+          this.cookMultiBorrowXswapper(
             data,
             isApproved,
             this.selectedPool,

@@ -1,6 +1,5 @@
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
-// import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
 
 const getBigNumber = (amount, decimals) => {
   return BigNumber.from(amount).mul(BigNumber.from(10).pow(decimals));
@@ -50,7 +49,6 @@ const initializeProps = async (pool) => {
   const token0ChainlinkContract = pool.chainlinks.token0;
   const token0PriceInUsd = await token0ChainlinkContract.latestAnswer();
   const token0PriceDesimals = await token0ChainlinkContract.decimals();
-  // todo decimals price
 
   const token1Contract = pool.token1.contract;
   const token1Desimals = await token1Contract.decimals();
@@ -58,7 +56,7 @@ const initializeProps = async (pool) => {
   const token1PriceInUsd = await token1ChainlinkContract.latestAnswer();
   const token1PriceDesimals = await token1ChainlinkContract.decimals();
 
-  const token00 = {
+  const token0 = {
     contract: token0Contract,
     decimals: token0Desimals,
     priceInUsd: token0PriceInUsd,
@@ -66,7 +64,7 @@ const initializeProps = async (pool) => {
     reserve: token0Reserve,
   };
 
-  const token11 = {
+  const token1 = {
     contract: token1Contract,
     decimals: token1Desimals,
     priceInUsd: token1PriceInUsd,
@@ -77,15 +75,8 @@ const initializeProps = async (pool) => {
   return {
     MIM,
     Pair,
-    token00,
-    token11,
-    // DELETE
-    token0: token0Contract,
-    token0PriceInUsd,
-    token0Reserve,
-    token1Reserve,
-    token1: token1Contract,
-    token1PriceInUsd,
+    token0,
+    token1,
     totalSupply,
   };
 };
@@ -125,192 +116,74 @@ const getTokenValue = (decimals0, decimals1, value0, value1) => {
   }
 };
 
-// const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
-//   const { MIM, token00, token11 } = await initializeProps(pool);
-
-//   const mimValueInUsd = await getMimAmountInUsd(pool, mimAmount); // 18 decimals
-
-//   // TODO token00 token11
-//   const token0ReserveTotalValueInUsd = getTokenValue(
-//     token00.decimals,
-//     token00.priceDesimals,
-//     token00.reserve,
-//     token00.priceInUsd
-//   ); // 18 decimals
-
-//   const token1ReserveTotalValueInUsd = getTokenValue(
-//     token11.decimals,
-//     token11.priceDesimals,
-//     token11.reserve,
-//     token11.priceInUsd
-//   ); // 18 decimals
-
-//   const lpTotalValueInUsd = token0ReserveTotalValueInUsd.add(
-//     token1ReserveTotalValueInUsd
-//   ); // 18 decimals
-
-//   const lpFractionBuyingPower = mimValueInUsd
-//     .mul(BigNumber.from(10).pow(18))
-//     .div(lpTotalValueInUsd); // 18 decimals
-
-//   const token0BuyingPower = getTokenValue(
-//     18,
-//     token00.decimals,
-//     lpFractionBuyingPower,
-//     token00.reserve
-//   ); // 18 decimals
-
-//   const token1BuyingPower = getTokenValue(
-//     18,
-//     token11.decimals,
-//     lpFractionBuyingPower,
-//     token11.reserve
-//   );
-
-//   // Query 0x to get how much MIM you get from swapping token0 and token1. No slipage is used
-//   // so that we get the quote only.
-//   // sell token0BuyingPower => buy MIM
-//   const queryMimAmountFromToken0 = await query0x(
-//     token00.contract.address,
-//     MIM.address,
-//     0,
-//     token0BuyingPower
-//   );
-
-//   //sell  token1BuyingPower => buy MIM
-//   const queryMimAmountFromToken1 = await query0x(
-//     token11.contract.address,
-//     MIM.address,
-//     0,
-//     token1BuyingPower
-//   );
-
-//   // Now calculate how much % of the initial mim the returned mim value consist of
-//   // This extra step is just to make sure the total input amount of mim doesn't exceed
-//   // the `mimAmount`
-//   const mimAmountToSwapForToken0 = queryMimAmountFromToken0.buyAmount
-//     .mul(mimAmount)
-//     .div(mimAmount);
-
-//   const mimAmountToSwapForToken1 = queryMimAmountFromToken1.buyAmount
-//     .mul(mimAmount)
-//     .div(mimAmount);
-
-//   // sell MIM => buy token0BuyingPower
-//   const queryToken0AmountFromMim = await query0x(
-//     MIM.address,
-//     token00.contract.address,
-//     slipage,
-//     mimAmountToSwapForToken0
-//   );
-
-//   // sell MIM => buy token1BuyingPower
-//   const queryToken1AmountFromMim = await query0x(
-//     MIM.address,
-//     token11.contract.address,
-//     slipage,
-//     mimAmountToSwapForToken1
-//   );
-
-//   const totalMimAmountToSwap = queryToken0AmountFromMim.sellAmount.add(
-//     queryToken1AmountFromMim.sellAmount
-//   );
-
-//   if (totalMimAmountToSwap.gt(mimAmount)) {
-//     throw new Error(
-//       `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
-//     );
-//   }
-
-//   const minimumToken0ToSwapAgainForMoreLp = getBigNumber(1, 16);
-//   const minimumToken1ToSwapAgainForMoreLp = getBigNumber(1, 16);
-
-//   const data = ethers.utils.defaultAbiCoder.encode(
-//     ["bytes[]", "uint256", "uint256"],
-//     [
-//       [queryToken0AmountFromMim.data, queryToken1AmountFromMim.data],
-//       minimumToken0ToSwapAgainForMoreLp,
-//       minimumToken1ToSwapAgainForMoreLp,
-//     ]
-//   );
-
-//   return data;
-// };
-
-const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
-  const { MIM, token00, token11 } = await initializeProps(pool);
+const getLev0xData = async (mimAmount, pool, slipage = 1) => {
+  const { MIM, token0, token1 } = await initializeProps(pool);
 
   const token0ReserveTotalValueInUsd = getTokenValue(
-    token00.decimals,
-    token00.priceDesimals,
-    token00.reserve,
-    token00.priceInUsd
+    token0.decimals,
+    token0.priceDesimals,
+    token0.reserve,
+    token0.priceInUsd
   ); // 18 decimals
 
   const token1ReserveTotalValueInUsd = getTokenValue(
-    token11.decimals,
-    token11.priceDesimals,
-    token11.reserve,
-    token11.priceInUsd
+    token1.decimals,
+    token1.priceDesimals,
+    token1.reserve,
+    token1.priceInUsd
   ); // 18 decimals
 
   const lpTotalValueInUsd = token0ReserveTotalValueInUsd.add(
     token1ReserveTotalValueInUsd
   ); // 18 decimals
 
-  const testPersent0 = lpTotalValueInUsd
-    .mul(BigNumber.from(10).pow(18))
-    .div(token0ReserveTotalValueInUsd);
+  // TODO-Q
+  const errorValue = ethers.utils.parseUnits("0.000000000000000009", 18);
 
-  const testPersent0Value = mimAmount
+  const percentToken0 = lpTotalValueInUsd
     .mul(BigNumber.from(10).pow(18))
-    .div(testPersent0);
+    .div(token0ReserveTotalValueInUsd); // 18 decimals
 
-  const testPersent1 = lpTotalValueInUsd
+  const percentToken1 = lpTotalValueInUsd
     .mul(BigNumber.from(10).pow(18))
-    .div(token1ReserveTotalValueInUsd);
+    .div(token1ReserveTotalValueInUsd); // 18 decimals
 
-  const testPersent1Value = mimAmount
+  const queryMimAmountFromToken0 = mimAmount
     .mul(BigNumber.from(10).pow(18))
-    .div(testPersent1);
+    .div(percentToken0)
+    .sub(errorValue); // 18 decimals
+
+  const queryMimAmountFromToken1 = mimAmount
+    .mul(BigNumber.from(10).pow(18))
+    .div(percentToken1)
+    .sub(errorValue); // 18 decimals
 
   const queryToken0AmountFromMim = await query0x(
     MIM.address,
-    token00.contract.address,
+    token0.contract.address,
     slipage,
-    testPersent0Value
-  );
-
-  console.log(
-    "testPersent0Value",
-    ethers.utils.formatUnits(testPersent0Value, 18)
+    queryMimAmountFromToken0
   );
 
   const queryToken1AmountFromMim = await query0x(
     MIM.address,
-    token11.contract.address,
+    token1.contract.address,
     slipage,
-    testPersent1Value
+    queryMimAmountFromToken1
   );
 
-  console.log(
-    "testPersent0Value",
-    ethers.utils.formatUnits(testPersent1Value, 18)
-  );
-  console.log("mimAmount", ethers.utils.formatUnits(mimAmount, 18));
-  console.log(
-    "SUM",
-    +ethers.utils.formatUnits(testPersent0Value, 18) +
-      +ethers.utils.formatUnits(testPersent1Value, 18)
+  const totalMimAmountToSwap = queryMimAmountFromToken0.add(
+    queryMimAmountFromToken1
   );
 
-  // const totalMimAmountToSwap = testPersent0Value.add(testPersent1Value);
-
-  // if (totalMimAmountToSwap.gt(mimAmount)) {
-  //   throw new Error(
-  //     `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
-  //   );
-  // }
+  if (totalMimAmountToSwap.gt(mimAmount)) {
+    // throw new Error(
+    //   `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
+    // );
+    console.log(
+      `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
+    );
+  }
 
   const minimumToken0ToSwapAgainForMoreLp = getBigNumber(1, 16);
   const minimumToken1ToSwapAgainForMoreLp = getBigNumber(1, 16);
@@ -327,24 +200,25 @@ const getLevZeroXswapperData = async (mimAmount, pool, slipage = 1) => {
   return data;
 };
 
-const getLiqZeroXswapperData = async (lpAmount, pool, slipage = 1) => {
-  const { Pair, MIM, token0, token1 } = await initializeProps(pool);
+const getLiq0xData = async (lpAmount, pool, slipage = 1) => {
+  const { Pair, MIM, token0, token1, totalSupply } = await initializeProps(
+    pool
+  );
 
-  const totalSupply = await Pair.totalSupply();
-  const lpAmountToken0 = await token0.balanceOf(Pair.address);
-  const lpAmountToken1 = await token1.balanceOf(Pair.address);
+  const lpAmountToken0 = await token0.contract.balanceOf(Pair.address);
+  const lpAmountToken1 = await token1.contract.balanceOf(Pair.address);
   const amount0 = lpAmount.mul(lpAmountToken0).div(totalSupply);
   const amount1 = lpAmount.mul(lpAmountToken1).div(totalSupply);
 
   const queryToken0ToMim = await query0x(
-    token0.address,
+    token0.contract.address,
     MIM.address,
     slipage,
     amount0
   );
 
   const queryToken1ToMim = await query0x(
-    token1.address,
+    token1.contract.address,
     MIM.address,
     slipage,
     amount1
@@ -397,4 +271,4 @@ const getSwapStaticToken = async (
   return { swapByte, callEncode };
 };
 
-export { getLevZeroXswapperData, getLiqZeroXswapperData, getSwapStaticToken };
+export { getLev0xData, getLiq0xData, getSwapStaticToken };
