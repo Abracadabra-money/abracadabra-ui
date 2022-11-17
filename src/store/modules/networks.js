@@ -119,7 +119,7 @@ export default {
       },
       {
         chainId: 10,
-        name: "OPT",
+        name: "OP",
         rpc: null,
         icon: optimismIcon,
         switchData: {

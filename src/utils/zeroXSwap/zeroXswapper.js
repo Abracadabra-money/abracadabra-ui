@@ -137,26 +137,15 @@ const getLev0xData = async (mimAmount, pool, slipage = 1) => {
     token1ReserveTotalValueInUsd
   ); // 18 decimals
 
-  // TODO-Q
-  const errorValue = ethers.utils.parseUnits("0.000000000000000009", 18);
-
   const percentToken0 = lpTotalValueInUsd
     .mul(BigNumber.from(10).pow(18))
     .div(token0ReserveTotalValueInUsd); // 18 decimals
 
-  const percentToken1 = lpTotalValueInUsd
-    .mul(BigNumber.from(10).pow(18))
-    .div(token1ReserveTotalValueInUsd); // 18 decimals
-
   const queryMimAmountFromToken0 = mimAmount
     .mul(BigNumber.from(10).pow(18))
-    .div(percentToken0)
-    .sub(errorValue); // 18 decimals
+    .div(percentToken0); // 18 decimals
 
-  const queryMimAmountFromToken1 = mimAmount
-    .mul(BigNumber.from(10).pow(18))
-    .div(percentToken1)
-    .sub(errorValue); // 18 decimals
+  const queryMimAmountFromToken1 = mimAmount.sub(queryMimAmountFromToken0); // 18 decimals
 
   const queryToken0AmountFromMim = await query0x(
     MIM.address,
@@ -177,10 +166,7 @@ const getLev0xData = async (mimAmount, pool, slipage = 1) => {
   );
 
   if (totalMimAmountToSwap.gt(mimAmount)) {
-    // throw new Error(
-    //   `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
-    // );
-    console.log(
+    throw new Error(
       `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
     );
   }
