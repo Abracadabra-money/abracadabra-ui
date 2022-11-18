@@ -32,23 +32,23 @@
             :class="{ active: useDefaultBalance }"
             @click="toggleUseDefaultBalance"
           >
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/active.svg"
-              alt=""
-              v-if="useDefaultBalance"
-            />
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/default.svg"
-              alt=""
-              v-else
-            />
+            <template v-if="useDefaultBalance">
+              <img
+                class="checkbox-img"
+                src="@/assets/images/checkbox/active.svg"
+                alt=""
+              />
+              <p class="label-text">Use {{ networkValuteName }}</p></template
+            >
 
-            <p class="label-text" v-if="networkValuteName">
-              Use {{ networkValuteName }}
-            </p>
-            <p class="label-text" v-else-if="isLpLogic">Use {{ fromToken }}</p>
+            <template v-else-if="isLpDefaultToken">
+              <img
+                class="checkbox-img"
+                src="@/assets/images/checkbox/default.svg"
+                alt=""
+              />
+              <p class="label-text">Use {{ fromToken }}</p>
+            </template>
           </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
@@ -241,7 +241,7 @@ export default {
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
         if (this.useDefaultBalance) {
-          if (this.isLpLogic) {
+          if (this.selectedPool.lpLogic) {
             return this.$ethers.utils.formatUnits(
               this.selectedPool.userInfo.lpInfo.balance,
               this.selectedPool.lpLogic.lpDecimals
@@ -254,10 +254,17 @@ export default {
           }
         }
 
-        return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance,
-          this.selectedPool.collateralToken.decimals
-        );
+        if (this.selectedPool.lpLogic) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.lpInfo.balance,
+            this.selectedPool.lpLogic.lpDecimals
+          );
+        } else {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.userBalance,
+            this.selectedPool.collateralToken.decimals
+          );
+        }
       }
 
       return 0;
@@ -497,21 +504,21 @@ export default {
       return !!(this.$route.params.id && !this.pools.length);
     },
 
-    isLpLogic() {
-      return !!this.selectedPool.lpLogic;
+    isLpDefaultToken() {
+      return (
+        !!this.selectedPool.lpLogic && this.selectedPool.lpLogic.defaultToken
+      );
     },
 
     fromToken() {
-      if (this.selectedPool) {
-        return this.selectedPool.lpLogic.name;
-      }
+      if (this.selectedPool) return this.selectedPool.lpLogic.name;
 
       return "";
     },
 
     acceptUseDefaultBalance() {
       if (this.selectedPool) {
-        if (this.isLpLogic) {
+        if (this.isLpDefaultToken) {
           return true;
         }
 
@@ -553,8 +560,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic && this.useDefaultBalance)
-          return this.selectedPool.lpLogic.name;
+        if (this.selectedPool.lpLogic) return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }

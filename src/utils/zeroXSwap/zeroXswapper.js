@@ -1,6 +1,8 @@
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
 
+// import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
+
 const getBigNumber = (amount, decimals) => {
   return BigNumber.from(amount).mul(BigNumber.from(10).pow(decimals));
 };
@@ -116,6 +118,127 @@ const getTokenValue = (decimals0, decimals1, value0, value1) => {
   }
 };
 
+// const getLev0xData = async (mimAmount, pool, slipage = 1) => {
+//   const { MIM, token0, token1, totalSupply } = await initializeProps(pool);
+
+//   const mimValueInUsd = await getMimAmountInUsd(pool, mimAmount);
+//   // const mimValueInUsd = ethers.utils.parseUnits("1", 18);
+
+//   console.log("mimValueInUsd", ethers.utils.formatUnits(mimValueInUsd, 18));
+
+//   const token0ReserveTotalValueInUsd = getTokenValue(
+//     token0.decimals,
+//     token0.priceDesimals,
+//     token0.reserve,
+//     token0.priceInUsd
+//   ); // 18 decimals
+
+//   const token1ReserveTotalValueInUsd = getTokenValue(
+//     token1.decimals,
+//     token1.priceDesimals,
+//     token1.reserve,
+//     token1.priceInUsd
+//   ); // 18 decimals
+
+//   const lpTotalValueInUsd = token0ReserveTotalValueInUsd.add(
+//     token1ReserveTotalValueInUsd
+//   ); // 18 decimals
+
+//   const oneLpValueInUsd = lpTotalValueInUsd
+//     .mul(BigNumber.from(10).pow(18))
+//     .div(totalSupply); // 18 decimals
+
+//   console.log("oneLpValueInUsd", ethers.utils.formatUnits(oneLpValueInUsd, 18));
+
+//   const lpFractionBuyingPower = mimValueInUsd
+//     .mul(BigNumber.from(10).pow(18))
+//     .div(lpTotalValueInUsd); // 18 decimals
+
+//   const token0BuyingPower = getTokenValue(
+//     18,
+//     token0.decimals,
+//     lpFractionBuyingPower,
+//     token0.reserve
+//   ); // 18 decimals
+
+//   console.log("token1", ethers.utils.formatUnits(token0BuyingPower, 18));
+
+//   let token1BuyingPower = lpFractionBuyingPower
+//     .mul(token1.reserve)
+//     .div(BigNumber.from(10).pow(18)); // 6 decimals
+
+//   console.log("token1", ethers.utils.formatUnits(token1BuyingPower, 6));
+
+//   const queryMimAmountFromToken0 = await query0x(
+//     token0.contract.address,
+//     MIM.address,
+//     0,
+//     token0BuyingPower
+//   );
+
+//   //sell  wAvaxBuyingPower => buy MIM
+//   const queryMimAmountFromToken1 = await query0x(
+//     token1.contract.address,
+//     MIM.address,
+//     0,
+//     token1BuyingPower
+//   );
+
+//   const mimAmountToSwapForSavax = queryMimAmountFromToken0.buyAmount
+//     .mul(mimAmount)
+//     .div(mimAmount);
+
+//   const mimAmountToSwapForWavax = queryMimAmountFromToken1.buyAmount
+//     .mul(mimAmount)
+//     .div(mimAmount);
+
+//   const querySavaxAmountFromMim = await query0x(
+//     MIM.address,
+//     token0.contract.address,
+//     slipage,
+//     mimAmountToSwapForSavax
+//   );
+//   // sell MIM => buy wAvaxBuyingPower
+//   const queryWavaxAmountFromMim = await query0x(
+//     MIM.address,
+//     token1.contract.address,
+//     slipage,
+//     mimAmountToSwapForWavax
+//   );
+
+//   const totalMimAmountToSwap = querySavaxAmountFromMim.sellAmount.add(
+//     queryWavaxAmountFromMim.sellAmount
+//   );
+
+//   console.log(
+//     `Total MIM amount to swap: ${ethers.utils.formatEther(
+//       queryMimAmountFromToken0.buyAmount
+//     )}`
+//   );
+//   // if (totalMimAmountToSwap.gt(mimAmount)) {
+//   //   throw new Error(
+//   //     `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
+//   //   );
+//   // }
+
+//   console.log(
+//     `total mim amount to swap ${totalMimAmountToSwap.toString()} exceed ${mimAmount.toString()}`
+//   );
+
+//   const minimumToken0ToSwapAgainForMoreLp = getBigNumber(1, 16);
+//   const minimumToken1ToSwapAgainForMoreLp = getBigNumber(1, 16);
+
+//   const data = ethers.utils.defaultAbiCoder.encode(
+//     ["bytes[]", "uint256", "uint256"],
+//     [
+//       [querySavaxAmountFromMim.data, queryWavaxAmountFromMim.data],
+//       minimumToken0ToSwapAgainForMoreLp,
+//       minimumToken1ToSwapAgainForMoreLp,
+//     ]
+//   );
+
+//   return data;
+// };
 const getLev0xData = async (mimAmount, pool, slipage = 1) => {
   const { MIM, token0, token1 } = await initializeProps(pool);
 
