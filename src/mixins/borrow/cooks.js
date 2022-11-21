@@ -1591,6 +1591,7 @@ export default {
       datasArray.push(getBorrowSwapperEncode2);
 
       let swapStaticTx, swapCallByte, getCallEncode2;
+
       if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.collateralToken.address,
@@ -1838,31 +1839,14 @@ export default {
         console.log("Error swap", error);
       }
 
-      // Wrap collateralToken
-      try {
-        const wrapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-            pool.bentoBoxAddress,
-            pool.collateralToken.address,
-            pool.contractInstance.address,
-            0
-          );
+      const getCollateralEncode3 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-2", this.account, false]
+      );
 
-        const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [pool.lpLogic.tokenWrapper, wrapStaticTx.data, true, false, 2]
-        );
-
-        eventsArray.push(30);
-        valuesArray.push(0);
-        datasArray.push(lpCallEncode);
-
-        eventsArray.push(10);
-        valuesArray.push(0);
-        datasArray.push(getCollateralEncode2);
-      } catch (error) {
-        console.log("Error wrap collateralToken", error);
-      }
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode3);
 
       const cookData = {
         events: eventsArray,
