@@ -34,12 +34,12 @@ export default {
     },
 
     isCookNeedReduceSupply() {
-      if (this.chainId === 1 && this.selectedPool.id === 12) return true;
-      if (
-        this.chainId === 1 &&
-        (this.selectedPool.id === 19 || this.selectedPool.id === 26)
-      )
-        return true;
+      // if (this.chainId === 1 && this.selectedPool.id === 12) return true;
+      // if (
+      //   this.chainId === 1 &&
+      //   (this.selectedPool.id === 19 || this.selectedPool.id === 26)
+      // )
+      //   return true;
 
       // if (this.chainId === 1 && this.selectedPool.id === 31) return true; // Stargate USDC
       // if (this.chainId === 1 && this.selectedPool.id === 32) return true; // Stargate USDT
