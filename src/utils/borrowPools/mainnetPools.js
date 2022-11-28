@@ -880,7 +880,7 @@ export default [
     cauldronSettings: {
       isDegenBox: false,
       strategyLink: false,
-      isDepreciated: false,
+      isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
       hasAccountBorrowLimit: false,
@@ -1489,7 +1489,7 @@ export default [
     contractChain: 1,
     id: 30,
     stabilityFee: 0.5,
-    interest: 1,
+    interest: 1.75,
     ltv: 98,
     borrowFee: 0,
     isSwappersActive: true,
