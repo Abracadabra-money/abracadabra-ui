@@ -49,7 +49,6 @@
             <p class="label-text" v-if="networkValuteName">
               Use {{ networkValuteName }}
             </p>
-            <p class="label-text" v-else-if="isLpLogic">Use {{ fromToken }}</p>
           </div>
         </div>
         <div class="borrow-input underline">
@@ -179,7 +178,6 @@ export default {
       poolId: null,
       isOpenPollPopup: false,
       useDefaultBalance: false,
-      lpDefaultBalance: false,
       updateInterval: null,
       emptyData: {
         img: require(`@/assets/images/empty_borrow.png`),
@@ -256,24 +254,9 @@ export default {
       return !!this.selectedPool.lpLogic;
     },
 
-    fromToken() {
-      if (this.selectedPool) {
-        return this.selectedPool.lpLogic.name;
-      }
-
-      return "";
-    },
-
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
-        if (this.isLpLogic && !this.lpDefaultBalance) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.userBalance,
-            this.selectedPool.collateralToken.decimals
-          );
-        }
-
-        if (this.isLpLogic && this.lpDefaultBalance) {
+        if (this.isLpLogic) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.lpInfo.balance,
             this.selectedPool.lpLogic.lpDecimals
@@ -431,13 +414,8 @@ export default {
     },
 
     acceptUseDefaultBalance() {
-      if (this.selectedPool) {
-        if (this.isLpLogic) {
-          return true;
-        }
-
+      if (this.selectedPool)
         return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
-      }
 
       return false;
     },
@@ -471,8 +449,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic && this.useDefaultBalance)
-          return this.selectedPool.lpLogic.name;
+        if (this.selectedPool.lpLogic) return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -481,9 +458,8 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isLpLogic && this.lpDefaultBalance) {
-          return this.selectedPool.userInfo.lpInfo.isApprove;
-        }
+        if (this.isLpLogic) return this.selectedPool.userInfo.lpInfo.isApprove;
+
         return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
 
@@ -548,7 +524,7 @@ export default {
       );
       let approve;
 
-      if (this.isLpLogic && this.lpDefaultBalance) {
+      if (this.isLpLogic) {
         approve = await approveToken(
           this.selectedPool.lpLogic.lpContract,
           this.selectedPool.masterContractInstance.address
@@ -658,42 +634,18 @@ export default {
         +this.borrowValue > 0 &&
         +this.collateralValue > 0 &&
         !this.collateralError &&
-        !this.borrowError &&
-        !this.lpDefaultBalance
+        !this.borrowError
       ) {
         this.collateralAndBorrowHandler();
         return false;
       }
 
-      // LpLogic
-      if (
-        +this.borrowValue > 0 &&
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError &&
-        this.lpDefaultBalance
-      ) {
-        this.collateralAndBorrowLpHandler();
-        return false;
-      }
-
       if (
         +this.collateralValue > 0 &&
         !this.collateralError &&
-        !this.borrowError &&
-        !this.lpDefaultBalance
+        !this.borrowError
       ) {
         this.collateralHandler();
-        return false;
-      }
-      // LpLogic
-      if (
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError &&
-        this.lpDefaultBalance
-      ) {
-        this.collateralLpHandler();
         return false;
       }
 
@@ -709,9 +661,13 @@ export default {
         notification.pending
       );
 
+      const collateralDecimals = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpDecimals
+        : this.selectedPool.collateralToken.decimals;
+
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.collateralToken.decimals
+        collateralDecimals
       );
 
       if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
@@ -733,87 +689,24 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.collateralAmount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       let isApproved = await isApprowed(this.selectedPool, this.account);
-
-      if (+isTokenToCookApprove) {
-        await this.cookCollateralAndBorrow(
-          payload,
-          isApproved,
-          this.selectedPool,
-          notificationId
-        );
-
-        return false;
-      }
-
-      await this.$store.commit("notifications/delete", notificationId);
-      await this.$store.dispatch(
-        "notifications/new",
-        notification.approveError
-      );
-
-      return false;
-    },
-
-    async collateralAndBorrowLpHandler() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-
-      const parsedCollateral = this.$ethers.utils.parseUnits(
-        this.collateralValue.toString(),
-        this.selectedPool.lpLogic.lpDecimals
-      );
-
-      if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
-        return false;
-      }
-
-      const parsedBorrow = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
-          this.borrowValue,
-          this.selectedPool.borrowToken.decimals
-        ),
-        this.selectedPool.borrowToken.decimals
-      );
-
-      const payload = {
-        collateralAmount: parsedCollateral,
-        amount: parsedBorrow,
-        updatePrice: this.selectedPool.askUpdatePrice,
-        itsDefaultBalance: false,
-      };
-
-      let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.lpLogic.lpContract,
-        this.selectedPool.masterContractInstance.address,
-        this.account
-      );
-
-      if (isTokenToCookApprove.lt(payload.collateralAmount)) {
-        isTokenToCookApprove = await approveToken(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.masterContractInstance.address
-        );
-      }
-
-      let isApproved = await isApprowed(this.selectedPool, this.account);
-
-      const isLpLogic = true;
 
       if (+isTokenToCookApprove) {
         await this.cookCollateralAndBorrow(
@@ -821,7 +714,7 @@ export default {
           isApproved,
           this.selectedPool,
           notificationId,
-          isLpLogic
+          this.isLpLogic
         );
 
         return false;
@@ -842,9 +735,13 @@ export default {
         notification.pending
       );
 
+      const collateralDecimals = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpDecimals
+        : this.selectedPool.collateralToken.decimals;
+
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.collateralToken.decimals
+        collateralDecimals
       );
 
       const payload = {
@@ -853,73 +750,24 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.amount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       let isApproved = await isApprowed(this.selectedPool, this.account);
-
-      if (+isTokenToCookApprove) {
-        await this.cookAddCollateral(
-          payload,
-          isApproved,
-          this.selectedPool,
-          notificationId
-        );
-        return false;
-      }
-
-      await this.$store.commit("notifications/delete", notificationId);
-      await this.$store.dispatch(
-        "notifications/new",
-        notification.approveError
-      );
-
-      return false;
-    },
-
-    async collateralLpHandler() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-
-      const parsedCollateralValue = this.$ethers.utils.parseUnits(
-        this.collateralValue.toString(),
-        this.selectedPool.lpLogic.lpDecimals
-      );
-
-      const payload = {
-        amount: parsedCollateralValue,
-        updatePrice: this.selectedPool.askUpdatePrice,
-        // ???
-        itsDefaultBalance: false,
-      };
-
-      let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.lpLogic.lpContract,
-        this.selectedPool.masterContractInstance.address,
-        this.account
-      );
-
-      if (isTokenToCookApprove.lt(payload.amount)) {
-        isTokenToCookApprove = await approveToken(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.masterContractInstance.address
-        );
-      }
-
-      let isApproved = await isApprowed(this.selectedPool, this.account);
-      const isLpLogic = true;
 
       if (+isTokenToCookApprove) {
         await this.cookAddCollateral(
@@ -927,7 +775,7 @@ export default {
           isApproved,
           this.selectedPool,
           notificationId,
-          isLpLogic
+          this.isLpLogic
         );
         return false;
       }
@@ -1009,10 +857,6 @@ export default {
 
     toggleUseDefaultBalance() {
       this.clearData();
-
-      if (this.isLpLogic) {
-        this.lpDefaultBalance = !this.lpDefaultBalance;
-      }
 
       this.useDefaultBalance = !this.useDefaultBalance;
     },

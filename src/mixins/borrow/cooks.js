@@ -1705,11 +1705,6 @@ export default {
       pool,
       notificationId
     ) {
-      // TODO-Q Потрібна логіка itsDefaultBalance якщо у нас лп то як може бути дефолтний баланс
-      // const tokenAddr = itsDefaultBalance
-      //   ? this.defaultTokenAddress
-      //   : pool.collateralToken.address;
-
       const { lpAddress, tokenWrapper } = pool.lpLogic;
 
       const collateralValue = itsDefaultBalance

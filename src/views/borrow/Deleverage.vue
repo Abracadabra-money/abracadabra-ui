@@ -473,6 +473,10 @@ export default {
         ? this.noExponents(this.flashRepayRemoveAmount)
         : this.flashRepayRemoveAmount;
     },
+
+    isLpLogic() {
+      return !!this.selectedPool?.lpLogic;
+    },
   },
 
   watch: {
@@ -638,7 +642,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        if (this.selectedPool.is0xSwapLp) {
+        if (this.isLpLogic) {
           this.cookFlashRepayXswapper(
             data,
             isApproved,

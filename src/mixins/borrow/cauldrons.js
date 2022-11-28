@@ -456,7 +456,7 @@ export default {
       let token1 = null;
       let chainLinksContract = null;
 
-      if (pool.is0xSwapLp) {
+      if (pool.lpLogic) {
         const token0Contract = new this.$ethers.Contract(
           pool.token0.address,
           JSON.stringify(pool.token0.abi),
@@ -515,7 +515,6 @@ export default {
         bentoBoxAddress,
         isSwappersActive: pool.isSwappersActive,
         is0xSwap: pool.is0xSwap,
-        is0xSwapLp: pool.is0xSwapLp,
         executionPrice: pool.executionPrice,
         cauldronSettings: pool.cauldronSettings,
         contractInstance: poolContract,
