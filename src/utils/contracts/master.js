@@ -42,11 +42,4 @@ export default [
     address: "0x74c764D41B77DBbb4fe771daB1939B00b146894A",
     abi: bentoBoxAbi,
   },
-  {
-    chainId: 10,
-    name: "BentoBoxV1",
-    contractChain: "0x0a",
-    address: "0xa93C81f564579381116ee3E007C9fCFd2EBa1723",
-    abi: bentoBoxAbi,
-  },
 ];

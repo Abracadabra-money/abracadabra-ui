@@ -37,7 +37,7 @@ export default {
         (contract) => contract.chainId === this.chainId
       );
 
-      if (!currentMim || !currentBento) {
+      if (!currentMim) {
         return false;
       }
 
@@ -63,22 +63,27 @@ export default {
         );
       }
 
-      const bentoBoxContract = new this.$ethers.Contract(
-        currentBento.address,
-        JSON.stringify(currentBento.abi),
-        this.signer
-      );
+      let bentoBoxContract = null;
+      let mimInBentoBalance = null;
 
-      const mimInBentoShare = await bentoBoxContract.balanceOf(
-        currentMim.address,
-        this.account
-      );
+      if (currentBento) {
+        bentoBoxContract = new this.$ethers.Contract(
+          currentBento.address,
+          JSON.stringify(currentBento.abi),
+          this.signer
+        );
 
-      const mimInBentoBalance = await bentoBoxContract.toAmount(
-        currentMim.address,
-        mimInBentoShare,
-        false
-      );
+        const mimInBentoShare = await bentoBoxContract?.balanceOf(
+          currentMim.address,
+          this.account
+        );
+
+        mimInBentoBalance = await bentoBoxContract?.toAmount(
+          currentMim.address,
+          mimInBentoShare,
+          false
+        );
+      }
 
       const mimContract = new this.$ethers.Contract(
         currentMim.address,
@@ -89,11 +94,11 @@ export default {
       const mimBalance = await mimContract.balanceOf(this.account);
 
       const mimPrice = await getTokenPriceByAddress(
-        this.chainId,
-        this.mimInfo.address
+        1,
+        "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3"
       );
 
-      const bentoBalance = await bentoBoxContract.balanceOf(
+      const bentoBalance = await bentoBoxContract?.balanceOf(
         currentMim.address,
         this.account
       );
@@ -105,14 +110,14 @@ export default {
       );
       const degenExactBalance = degenBalance?.toString();
 
-      const bentoAddressApproved = await mimContract.allowance(
-        this.account,
-        bentoBoxContract.address,
-        {
-          gasLimit: 1000000,
-        }
-      );
-      const bentoAllowance = parseFloat(bentoAddressApproved.toString()) > 0;
+      const bentoAddressApproved = bentoBoxContract
+        ? await mimContract.allowance(this.account, bentoBoxContract.address, {
+            gasLimit: 1000000,
+          })
+        : null;
+      const bentoAllowance = bentoBoxContract
+        ? parseFloat(bentoAddressApproved.toString()) > 0
+        : false;
 
       const degenAddressApproved = degenBoxContract
         ? await mimContract.allowance(this.account, degenBoxContract.address, {
