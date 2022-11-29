@@ -377,8 +377,6 @@ export default {
       // wrap and deposit to cauldron
       const swapStaticTx =
         await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-          pool.bentoBoxAddress,
-          pool.collateralToken.address,
           pool.contractInstance.address,
           collateralAmount
         );
@@ -820,8 +818,6 @@ export default {
       // 30 unwrap and deposit for alice in degenbox
       const swapStaticTx =
         await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-          pool.bentoBoxAddress,
-          pool.collateralToken.address,
           userAddr,
           amount
         );
@@ -1773,8 +1769,6 @@ export default {
       try {
         const wrapStaticTx =
           await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-            pool.bentoBoxAddress,
-            pool.collateralToken.address,
             pool.contractInstance.address,
             collateralAmount
           );

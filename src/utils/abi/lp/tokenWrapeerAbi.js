@@ -3,14 +3,20 @@ export default [
     inputs: [
       {
         internalType: "contract IBentoBoxV1",
-        name: "degenBox",
+        name: "_degenBox",
         type: "address",
       },
       {
         internalType: "contract IERC20Vault",
-        name: "wrapper",
+        name: "_wrapper",
         type: "address",
       },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [
       { internalType: "address", name: "recipient", type: "address" },
       { internalType: "uint256", name: "amount", type: "uint256" },
     ],
@@ -24,16 +30,6 @@ export default [
   },
   {
     inputs: [
-      {
-        internalType: "contract IBentoBoxV1",
-        name: "degenBox",
-        type: "address",
-      },
-      {
-        internalType: "contract IERC20Vault",
-        name: "wrapper",
-        type: "address",
-      },
       { internalType: "address", name: "recipient", type: "address" },
       { internalType: "uint256", name: "amount", type: "uint256" },
     ],
