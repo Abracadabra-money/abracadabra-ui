@@ -33,12 +33,12 @@ export default {
     },
 
     isCookNeedReduceSupply() {
-      if (this.chainId === 1 && this.selectedPool.id === 12) return true;
-      if (
-        this.chainId === 1 &&
-        (this.selectedPool.id === 19 || this.selectedPool.id === 26)
-      )
-        return true;
+      // if (this.chainId === 1 && this.selectedPool.id === 12) return true;
+      // if (
+      //   this.chainId === 1 &&
+      //   (this.selectedPool.id === 19 || this.selectedPool.id === 26)
+      // )
+      //   return true;
 
       // if (this.chainId === 1 && this.selectedPool.id === 31) return true; // Stargate USDC
       // if (this.chainId === 1 && this.selectedPool.id === 32) return true; // Stargate USDT
@@ -1701,11 +1701,6 @@ export default {
       pool,
       notificationId
     ) {
-      // TODO-Q Потрібна логіка itsDefaultBalance якщо у нас лп то як може бути дефолтний баланс
-      // const tokenAddr = itsDefaultBalance
-      //   ? this.defaultTokenAddress
-      //   : pool.collateralToken.address;
-
       const { lpAddress, tokenWrapper } = pool.lpLogic;
 
       const collateralValue = itsDefaultBalance

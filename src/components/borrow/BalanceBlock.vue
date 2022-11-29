@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <div class="balance-item">
+    <div class="balance-item" v-if="!isLpLogic">
       <div class="balance-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.collateralToken.name" />
         <p>{{ pool.collateralToken.name }}</p>
@@ -36,7 +36,8 @@
         </p>
       </div>
     </div>
-    <div class="balance-item" v-if="isLpLogic">
+
+    <div class="balance-item" v-else>
       <div class="balance-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.lpLogic.name" />
         <p>{{ pool.lpLogic.name }}</p>

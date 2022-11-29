@@ -18,7 +18,6 @@ export default [
     ltv: 70,
     borrowFee: 0,
     isSwappersActive: true,
-    is0xSwapLp: true,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: "#",

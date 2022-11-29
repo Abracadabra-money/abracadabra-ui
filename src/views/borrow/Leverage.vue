@@ -32,23 +32,19 @@
             :class="{ active: useDefaultBalance }"
             @click="toggleUseDefaultBalance"
           >
-            <template v-if="useDefaultBalance">
-              <img
-                class="checkbox-img"
-                src="@/assets/images/checkbox/active.svg"
-                alt=""
-              />
-              <p class="label-text">Use {{ networkValuteName }}</p></template
-            >
-
-            <template v-else-if="isLpDefaultToken">
-              <img
-                class="checkbox-img"
-                src="@/assets/images/checkbox/default.svg"
-                alt=""
-              />
-              <p class="label-text">Use {{ fromToken }}</p>
-            </template>
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useDefaultBalance"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+            <p class="label-text">Use {{ networkValuteName }}</p>
           </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
@@ -241,20 +237,13 @@ export default {
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
         if (this.useDefaultBalance) {
-          if (this.selectedPool.lpLogic) {
-            return this.$ethers.utils.formatUnits(
-              this.selectedPool.userInfo.lpInfo.balance,
-              this.selectedPool.lpLogic.lpDecimals
-            );
-          } else {
-            return this.$ethers.utils.formatUnits(
-              this.selectedPool.userInfo.networkBalance,
-              this.selectedPool.collateralToken.decimals
-            );
-          }
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.networkBalance,
+            this.selectedPool.collateralToken.decimals
+          );
         }
 
-        if (this.selectedPool.lpLogic) {
+        if (this.isLpLogic) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.lpInfo.balance,
             this.selectedPool.lpLogic.lpDecimals
@@ -504,26 +493,9 @@ export default {
       return !!(this.$route.params.id && !this.pools.length);
     },
 
-    isLpDefaultToken() {
-      return (
-        !!this.selectedPool.lpLogic && this.selectedPool.lpLogic.defaultToken
-      );
-    },
-
-    fromToken() {
-      if (this.selectedPool) return this.selectedPool.lpLogic.name;
-
-      return "";
-    },
-
     acceptUseDefaultBalance() {
-      if (this.selectedPool) {
-        if (this.isLpDefaultToken) {
-          return true;
-        }
-
+      if (this.selectedPool)
         return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
-      }
 
       return false;
     },
@@ -560,7 +532,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic) return this.selectedPool.lpLogic.name;
+        if (this.isLpLogic) return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -640,6 +612,10 @@ export default {
         .toString();
 
       return mimAmount;
+    },
+
+    isLpLogic() {
+      return !!this.selectedPool?.lpLogic;
     },
   },
 
@@ -831,15 +807,11 @@ export default {
           this.selectedPool.borrowToken.decimals
         );
 
-        const itsDefaultBalance = this.selectedPool.lpLogic
-          ? this.selectedPool.lpLogic?.defaultToken && this.useDefaultBalance
-          : this.useDefaultBalance;
-
         let payload = {
           collateralAmount: parsedCollateral,
           amount: parsedMim,
           updatePrice: this.selectedPool.askUpdatePrice,
-          itsDefaultBalance,
+          itsDefaultBalance: this.useDefaultBalance,
           slipage: this.slipage,
         };
 
@@ -972,7 +944,8 @@ export default {
         !!isTokenToCookApprove && !!isTokenToSwapApprove;
 
       let isLpApproved;
-      if (this.selectedPool.is0xSwapLp) {
+
+      if (this.isLpLogic) {
         const isLpToCookApprove = await this.getTokenApprove(
           this.selectedPool.lpLogic.lpContract,
           this.selectedPool.masterContractInstance.address
@@ -987,8 +960,7 @@ export default {
       }
 
       let isAllApproved;
-
-      if (this.selectedPool.is0xSwapLp) {
+      if (this.isLpLogic) {
         isAllApproved = isCollateralApproved && isLpApproved;
       } else {
         isAllApproved = isCollateralApproved;
@@ -997,7 +969,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (isAllApproved) {
-        if (this.selectedPool.is0xSwapLp) {
+        if (this.isLpLogic) {
           this.cookMultiBorrowXswapper(
             data,
             isApproved,
