@@ -56,8 +56,8 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/sGLP.png`),
-    name: "StakedGlp (sGLP)",
+    icon: require(`@/assets/images/tokens/GLP.png`),
+    name: "GLP",
     contractChain: 42161,
     id: 2,
     stabilityFee: 7.5,
@@ -90,7 +90,7 @@ export default [
       abi: tokensAbi.abraWsGlp,
     },
     lpLogic: {
-      name: "sGLP",
+      name: "GLP",
       defaultToken: false,
       lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       lpAbi: tokensAbi.sGLP,
