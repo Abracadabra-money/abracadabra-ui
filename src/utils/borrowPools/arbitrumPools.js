@@ -54,4 +54,48 @@ export default [
       abi: reverseSwapAbi,
     },
   },
+  {
+    icon: require(`@/assets/images/tokens/sGLP.png`),
+    name: "StakedGlp (sGLP)",
+    contractChain: 42161,
+    id: 2,
+    stabilityFee: 7.5,
+    interest: 0,
+    ltv: 75,
+    borrowFee: 0,
+    isSwappersActive: false,
+    // --------------------------------
+    cauldronSettings: {
+      isDegenBox: false,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: 1000000,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
+    // --------------------------------
+    contract: {
+      name: "CauldronV4",
+      address: "0x6f0334e9d2cc1ac63a563e5b63cf172e3ab9ba7f",
+      abi: poolsAbi.CauldronV4,
+    },
+    token: {
+      name: "sGLP",
+      decimals: 18,
+      address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
+      abi: tokensAbi.sGLP,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+      abi: tokensAbi.MIM,
+    },
+  },
 ];
