@@ -80,13 +80,13 @@ export default [
     },
     contract: {
       name: "CauldronV4",
-      address: "0x6f0334e9d2cc1ac63a563e5b63cf172e3ab9ba7f",
+      address: "0xE09223bBdb85a20111DCD72299142a8626d5eA4b",
       abi: poolsAbi.CauldronV4,
     },
     token: {
       name: "abra-wsGlp",
       decimals: 18,
-      address: "0xD8Cbd5b22D7D37c978609e4e394cE8B9C003993b",
+      address: "0x3477Df28ce70Cecf61fFfa7a95be4BEC3B3c7e75",
       abi: tokensAbi.abraWsGlp,
     },
     lpLogic: {
@@ -94,7 +94,7 @@ export default [
       defaultToken: false,
       lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       lpAbi: tokensAbi.sGLP,
-      tokenWrapper: "0xd3a238d0e0f47aac26defd2afcf03ea41da263c7",
+      tokenWrapper: "0xDd45c6614305D705a444B3baB0405D68aC85DbA5",
       tokenWrapperAbi: degenBoxERC20VaultWrapper,
     },
     pairToken: {
