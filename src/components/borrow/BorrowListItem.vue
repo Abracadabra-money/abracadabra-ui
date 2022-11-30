@@ -14,7 +14,7 @@
       <div class="pool-balance">
         <p>{{ userBalance | formatTokenBalance }}</p>
         <p v-if="+userBalance">
-          {{ pool.userInfo.balanceUsd | formatUSD }}
+          {{ userBalanceUsd | formatUSD }}
         </p>
       </div>
     </button>
@@ -33,6 +33,12 @@ export default {
   },
   computed: {
     userBalance() {
+      if (this.pool?.lpLogic && this.pool.userInfo)
+        return this.$ethers.utils.formatUnits(
+          this.pool.userInfo.lpInfo.balance,
+          this.pool.lpLogic.lpDecimals
+        );
+
       if (this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.userBalance,
@@ -40,6 +46,12 @@ export default {
         );
 
       return 0;
+    },
+
+    userBalanceUsd() {
+      if (this.pool?.lpLogic) return this.pool.userInfo.lpInfo.balanceUsd;
+
+      return this.pool.userInfo.balanceUsd;
     },
   },
 

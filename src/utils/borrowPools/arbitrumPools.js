@@ -2,6 +2,7 @@ import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
+import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
 
 export default [
   {
@@ -64,9 +65,8 @@ export default [
     ltv: 75,
     borrowFee: 0,
     isSwappersActive: false,
-    // --------------------------------
     cauldronSettings: {
-      isDegenBox: false,
+      isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
       acceptUseDefaultBalance: false,
@@ -78,17 +78,24 @@ export default [
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
-    // --------------------------------
     contract: {
       name: "CauldronV4",
       address: "0x6f0334e9d2cc1ac63a563e5b63cf172e3ab9ba7f",
       abi: poolsAbi.CauldronV4,
     },
     token: {
-      name: "sGLP",
+      name: "abra-wsGlp",
       decimals: 18,
-      address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
-      abi: tokensAbi.sGLP,
+      address: "0xD8Cbd5b22D7D37c978609e4e394cE8B9C003993b",
+      abi: tokensAbi.abraWsGlp,
+    },
+    lpLogic: {
+      name: "sGLP",
+      defaultToken: false,
+      lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
+      lpAbi: tokensAbi.sGLP,
+      tokenWrapper: "0xd3a238d0e0f47aac26defd2afcf03ea41da263c7",
+      tokenWrapperAbi: degenBoxERC20VaultWrapper,
     },
     pairToken: {
       name: "MIM",

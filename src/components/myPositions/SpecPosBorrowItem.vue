@@ -8,9 +8,9 @@
           size="80px"
         />
         <div>
-          <p class="header-token-title">{{ pool.collateralToken.name }}</p>
+          <p class="header-token-title">{{ tokenName }}</p>
           <p class="header-token-price">
-            1 {{ pool.collateralToken.name }} =
+            1 {{ tokenName }} =
             {{ tokenToMim | formatToFixed(4) }}
             {{ pool.borrowToken.name }}
           </p>
@@ -54,11 +54,11 @@
           <div class="lp-data-wrap">
             <div class="lp-data-info">
               <BaseTokenIcon
-                :name="pool.collateralToken.name"
+                :name="tokenName"
                 :icon="initialIcon"
                 size="50px"
               />
-              <p class="lp-data-token">{{ pool.collateralToken.name }}</p>
+              <p class="lp-data-token">{{ tokenName }}</p>
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.userInfo">
               <p class="lp-data-balance">
@@ -151,6 +151,12 @@ export default {
     pool: { type: Object, required: true },
   },
   computed: {
+    tokenName() {
+      return this.pool?.lpLogic
+        ? this.pool.lpLogic.name
+        : this.pool.collateralToken.name;
+    },
+
     isDeleverageAccepted() {
       return this.pool.isSwappersActive && !!this.pool.liqSwapperContract;
     },

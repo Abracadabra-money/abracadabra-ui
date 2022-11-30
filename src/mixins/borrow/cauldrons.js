@@ -456,7 +456,7 @@ export default {
       let token1 = null;
       let chainLinksContract = null;
 
-      if (pool.lpLogic) {
+      if (pool.lpLogic && pool?.token0 && pool?.token1) {
         const token0Contract = new this.$ethers.Contract(
           pool.token0.address,
           JSON.stringify(pool.token0.abi),
