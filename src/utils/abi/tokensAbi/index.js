@@ -33,6 +33,7 @@ import ICE from "@/utils/abi/tokensAbi/ICE";
 import SLP from "@/utils/abi/tokensAbi/SLP";
 import xBOO from "@/utils/abi/tokensAbi/xBOO";
 import LUSD from "@/utils/abi/tokensAbi/LUSD";
+import sGLP from "@/utils/abi/tokensAbi/sGLP";
 
 export default {
   ALCX,
@@ -70,4 +71,5 @@ export default {
   SLP,
   xBOO,
   LUSD,
+  sGLP,
 };
