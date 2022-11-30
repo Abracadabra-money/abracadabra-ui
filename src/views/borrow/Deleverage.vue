@@ -59,7 +59,6 @@
             :step="+collateralStepRange"
             :parallelRange="flashRepayAmount"
           />
-
           <div class="repay-token">
             {{ repayToken | formatTokenBalance }}
             {{ selectedPool.collateralToken.name }}
@@ -240,6 +239,10 @@ export default {
         this.chainId === 43114
       )
         return "0.00000001";
+
+      if (this.chainId === 10 && this.selectedPool.id === 1)
+        return "0.000000000000000001";
+
       if (this.selectedPool.collateralToken.decimals === 18) return "0.00001";
 
       return "0.0001";
@@ -368,8 +371,14 @@ export default {
     },
 
     finalRemoveCollateralAmount() {
+      const exponential = this.isExponential(this.flashRepayRemoveAmount);
+
+      const flashRepayRemoveAmount = exponential
+        ? this.noExponents(this.flashRepayRemoveAmount)
+        : this.flashRepayRemoveAmount;
+
       const removeCollateralAmount = Vue.filter("formatToFixed")(
-        this.flashRepayRemoveAmount,
+        flashRepayRemoveAmount,
         this.selectedPool.collateralToken.decimals
       );
 
@@ -458,7 +467,15 @@ export default {
       if (this.flashRepayRemoveAmount > this.maxFlashRepayRemoveAmount)
         return this.maxFlashRepayRemoveAmount;
 
-      return this.flashRepayRemoveAmount;
+      const exponential = this.isExponential(this.flashRepayRemoveAmount);
+
+      return exponential
+        ? this.noExponents(this.flashRepayRemoveAmount)
+        : this.flashRepayRemoveAmount;
+    },
+
+    isLpLogic() {
+      return !!this.selectedPool?.lpLogic;
     },
   },
 
@@ -625,15 +642,27 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        this.cookFlashRepay(
-          data,
-          isApproved,
-          this.selectedPool,
-          this.account,
-          notificationId
-        );
+        if (this.isLpLogic) {
+          this.cookFlashRepayXswapper(
+            data,
+            isApproved,
+            this.selectedPool,
+            this.account,
+            notificationId
+          );
 
-        return false;
+          return false;
+        } else {
+          this.cookFlashRepay(
+            data,
+            isApproved,
+            this.selectedPool,
+            this.account,
+            notificationId
+          );
+
+          return false;
+        }
       }
 
       await this.$store.commit("notifications/delete", notificationId);
@@ -660,6 +689,30 @@ export default {
     resetRange() {
       this.flashRepayRemoveAmount = 0;
       this.flashRepayAmount = 0;
+    },
+
+    isExponential(value) {
+      return String(value).includes("e") || String(value).includes("E");
+    },
+
+    noExponents(value) {
+      let data = String(value).split(/[eE]/);
+      if (data.length == 1) return data[0];
+
+      let result = "",
+        sign = value < 0 ? "-" : "",
+        str = data[0].replace(".", ""),
+        mag = Number(data[1]) + 1;
+
+      if (mag < 0) {
+        result = sign + "0.";
+        while (mag++) result += "0";
+        /*eslint-disable */
+        return result + str.replace(/^\-/, "");
+      }
+      mag -= str.length;
+      while (mag--) result += "0";
+      return str + result;
     },
   },
 

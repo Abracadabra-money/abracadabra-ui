@@ -30,6 +30,7 @@ export default {
       setLoadingPoolsBorrow: "setLoadingPoolsBorrow",
       setCreatingPoolsBorrow: "setCreatingPoolsBorrow",
     }),
+
     async createPools() {
       const chainPools = poolsInfo.filter(
         (pool) => pool.contractChain === +this.chainId
@@ -115,7 +116,7 @@ export default {
           gasLimit: 6000000,
         });
       } catch (e) {
-        console.log("userBalance Err:", e);
+        console.log("getUserPairBalance Err:", e);
       }
       return userPairBalance;
     },
@@ -430,8 +431,9 @@ export default {
         this.$ethers.utils.formatUnits(borrowTokenRate, oracleDecimals)
       );
 
-      const tokenOraclePrice = Number(
-        this.$ethers.utils.formatUnits(oracleExchangeRate, oracleDecimals)
+      const tokenOraclePrice = this.$ethers.utils.formatUnits(
+        oracleExchangeRate,
+        oracleDecimals
       );
 
       const tvl = await this.parseCollatealTokenToBorrowToken(
@@ -447,6 +449,64 @@ export default {
         tokenCollateralContract,
         bentoBoxAddress
       );
+
+      const lpLogic = pool.lpLogic ? await this.getLpLogic(pool) : null;
+
+      let token0 = null;
+      let token1 = null;
+      let chainLinksContract = null;
+
+      if (pool.lpLogic) {
+        const token0Contract = new this.$ethers.Contract(
+          pool.token0.address,
+          JSON.stringify(pool.token0.abi),
+          this.contractProvider
+        );
+
+        const token1Contract = new this.$ethers.Contract(
+          pool.token1.address,
+          JSON.stringify(pool.token0.abi),
+          this.contractProvider
+        );
+
+        token0 = {
+          contract: token0Contract,
+        };
+
+        token1 = {
+          contract: token1Contract,
+        };
+
+        if (pool?.chainlinks) {
+          let mimChainlink = null;
+
+          if (pool.chainlinks.mim) {
+            mimChainlink = new this.$ethers.Contract(
+              pool.chainlinks.mim,
+              JSON.stringify(pool.chainlinks.abi),
+              this.contractProvider
+            );
+          }
+
+          const token0Chainlink = new this.$ethers.Contract(
+            pool.chainlinks.token0,
+            JSON.stringify(pool.chainlinks.abi),
+            this.contractProvider
+          );
+
+          const token1Chainlink = new this.$ethers.Contract(
+            pool.chainlinks.token1,
+            JSON.stringify(pool.chainlinks.abi),
+            this.contractProvider
+          );
+
+          chainLinksContract = {
+            mim: mimChainlink,
+            token0: token0Chainlink,
+            token1: token1Chainlink,
+          };
+        }
+      }
 
       let poolData = {
         name: pool.name,
@@ -489,6 +549,10 @@ export default {
         userInfo: null,
         levSwapperContract,
         liqSwapperContract,
+        lpLogic,
+        token0,
+        token1,
+        chainlinks: chainLinksContract,
       };
 
       if (this.account) {
@@ -579,6 +643,8 @@ export default {
           )
         : false;
 
+      const lpInfo = pool.lpLogic ? await this.getLpInfo(pool) : null;
+
       pool.userInfo = {
         userBorrowPart,
         contractBorrowPart,
@@ -598,6 +664,7 @@ export default {
         isApproveTokenBorrow,
         isApproveLevSwapper,
         isApproveLiqSwapper,
+        lpInfo,
       };
 
       return pool;
@@ -789,6 +856,59 @@ export default {
       }
 
       return { dynamicBorrowAmount };
+    },
+
+    async getLpLogic(pool) {
+      const {
+        tokenWrapper,
+        tokenWrapperAbi,
+        lpAddress,
+        lpAbi,
+        name,
+        defaultToken,
+      } = pool.lpLogic;
+
+      const tokenWrapperContract = new Contract(
+        tokenWrapper,
+        tokenWrapperAbi,
+        this.contractProvider
+      );
+
+      const lpContract = new Contract(lpAddress, lpAbi, this.contractProvider);
+
+      const lpDecimals = await lpContract.decimals();
+
+      return {
+        tokenWrapperContract,
+        lpContract,
+        lpDecimals,
+        lpAddress,
+        tokenWrapper,
+        name,
+        defaultToken,
+      };
+    },
+
+    async getLpInfo(pool) {
+      const isApprove = await this.isTokenApprow(
+        pool.lpLogic.lpContract,
+        pool.masterContractInstance.address
+      );
+      const balance = await this.getUserTokenBalance(pool.lpLogic.lpContract);
+
+      let balanceUsd =
+        balance > 0
+          ? this.$ethers.utils.formatUnits(
+              balance,
+              pool.collateralToken.decimals
+            ) / pool.borrowToken.exchangeRate
+          : "0.0";
+
+      return {
+        isApprove,
+        balance,
+        balanceUsd,
+      };
     },
   },
 

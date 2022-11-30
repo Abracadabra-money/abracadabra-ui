@@ -4,6 +4,7 @@ import polygonIcon from "@/assets/images/networks/polygon-icon.svg";
 import binanceIcon from "@/assets/images/networks/binance-icon.svg";
 import avalancheIcon from "@/assets/images/networks/avalanche-icon.png";
 import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
+import optimismIcon from "@/assets/images/networks/optimism-icon.svg";
 
 export default {
   state: {
@@ -114,6 +115,18 @@ export default {
             symbol: "MATIC",
             decimals: 18,
           },
+        },
+      },
+      {
+        chainId: 10,
+        name: "OP",
+        rpc: null,
+        icon: optimismIcon,
+        switchData: {
+          chainId: "0xa",
+          chainName: "Optimism (mainnet)",
+          rpcUrls: ["https://mainnet.optimism.io"],
+          blockExplorerUrls: ["https://optimistic.etherscan.io"],
         },
       },
     ],

@@ -46,7 +46,9 @@
               v-else
             />
 
-            <p class="label-text">Use {{ networkValuteName }}</p>
+            <p class="label-text" v-if="networkValuteName">
+              Use {{ networkValuteName }}
+            </p>
           </div>
         </div>
         <div class="borrow-input underline">
@@ -248,8 +250,19 @@ export default {
       return "";
     },
 
+    isLpLogic() {
+      return !!this.selectedPool.lpLogic;
+    },
+
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
+        if (this.isLpLogic) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.lpInfo.balance,
+            this.selectedPool.lpLogic.lpDecimals
+          );
+        }
+
         if (this.useDefaultBalance) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.networkBalance,
@@ -401,9 +414,8 @@ export default {
     },
 
     acceptUseDefaultBalance() {
-      if (this.selectedPool) {
+      if (this.selectedPool)
         return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
-      }
 
       return false;
     },
@@ -437,6 +449,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
+        if (this.selectedPool.lpLogic) return this.selectedPool.lpLogic.name;
+
         return this.selectedPool.collateralToken.name;
       }
       return "";
@@ -444,6 +458,8 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
+        if (this.isLpLogic) return this.selectedPool.userInfo.lpInfo.isApprove;
+
         return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
 
@@ -506,11 +522,19 @@ export default {
         "notifications/new",
         notification.approvePending
       );
+      let approve;
 
-      let approve = await approveToken(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.masterContractInstance.address
-      );
+      if (this.isLpLogic) {
+        approve = await approveToken(
+          this.selectedPool.lpLogic.lpContract,
+          this.selectedPool.masterContractInstance.address
+        );
+      } else {
+        approve = await approveToken(
+          this.selectedPool.collateralToken.contract,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
 
       if (approve) {
         await this.$store.commit("notifications/delete", notificationId);
@@ -637,9 +661,13 @@ export default {
         notification.pending
       );
 
+      const collateralDecimals = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpDecimals
+        : this.selectedPool.collateralToken.decimals;
+
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.collateralToken.decimals
+        collateralDecimals
       );
 
       if (!this.checkIsPoolAllowBorrow(+this.borrowValue, notificationId)) {
@@ -661,15 +689,19 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.collateralAmount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -681,7 +713,8 @@ export default {
           payload,
           isApproved,
           this.selectedPool,
-          notificationId
+          notificationId,
+          this.isLpLogic
         );
 
         return false;
@@ -702,9 +735,13 @@ export default {
         notification.pending
       );
 
+      const collateralDecimals = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpDecimals
+        : this.selectedPool.collateralToken.decimals;
+
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
-        this.selectedPool.collateralToken.decimals
+        collateralDecimals
       );
 
       const payload = {
@@ -713,15 +750,19 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.lt(payload.amount)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -733,7 +774,8 @@ export default {
           payload,
           isApproved,
           this.selectedPool,
-          notificationId
+          notificationId,
+          this.isLpLogic
         );
         return false;
       }

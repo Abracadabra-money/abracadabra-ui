@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <div class="balance-item">
+    <div class="balance-item" v-if="!isLpLogic">
       <div class="balance-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.collateralToken.name" />
         <p>{{ pool.collateralToken.name }}</p>
@@ -33,6 +33,19 @@
         <p>{{ userBalance | formatTokenBalance }}</p>
         <p v-if="+userBalance">
           {{ pool.userInfo.balanceUsd | formatUSD }}
+        </p>
+      </div>
+    </div>
+
+    <div class="balance-item" v-else>
+      <div class="balance-name">
+        <BaseTokenIcon :icon="pool.icon" :name="pool.lpLogic.name" />
+        <p>{{ pool.lpLogic.name }}</p>
+      </div>
+      <div class="balance">
+        <p>{{ lpBalance | formatTokenBalance }}</p>
+        <p v-if="+lpBalance">
+          {{ pool.userInfo.lpInfo.balanceUsd | formatUSD }}
         </p>
       </div>
     </div>
@@ -111,6 +124,22 @@ export default {
           this.pool.collateralToken.decimals
         );
 
+      return 0;
+    },
+
+    isLpLogic() {
+      return !!this.pool.lpLogic;
+    },
+
+    lpBalance() {
+      if (this.pool.userInfo) {
+        return this.pool.userInfo.lpInfo
+          ? this.$ethers.utils.formatUnits(
+              this.pool.userInfo.lpInfo.balance,
+              this.pool.lpLogic.lpDecimals
+            )
+          : 0;
+      }
       return 0;
     },
   },
