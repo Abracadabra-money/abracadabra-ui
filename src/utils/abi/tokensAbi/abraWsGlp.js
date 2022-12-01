@@ -58,6 +58,13 @@ export default [
     type: "event",
   },
   {
+    inputs: [],
+    name: "feePercent",
+    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     anonymous: false,
     inputs: [
       {

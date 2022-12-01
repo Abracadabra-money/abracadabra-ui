@@ -11,7 +11,9 @@
 
 <script>
 import { mapGetters } from "vuex";
-// import { ethers } from "ethers";
+// import { Contract } from "ethers";
+
+// import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 
 const NotificationContainer = () =>
   import("@/components/notifications/NotificationContainer");
@@ -20,34 +22,34 @@ const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
 
 export default {
   computed: {
-    ...mapGetters({ checkInProcess: "getWalletIsConnected" }),
+    ...mapGetters({
+      checkInProcess: "getWalletIsConnected",
+      signer: "getSigner",
+    }),
   },
   components: {
     AppHeader,
     NotificationContainer,
     PopupsWrapper,
   },
-  // methods: {
-  //   testWrapEncode() {
-  //     const degenBox = "0xF4B36812d1645dca9d562846E3aBf416D590349e";
-  //     const lp = "0x6Eb1709e0b562097BF1cc48Bc6A378446c297c04";
-  //     const cauldron = "0x68f498C230015254AFF0E1EB6F85Da558dFf2362";
+  methods: {
+    // async testWrapEncode() {
+    //   const wrapper = "0x3477Df28ce70Cecf61fFfa7a95be4BEC3B3c7e75";
 
-  //     const selector = ethers.utils.defaultAbiCoder.encode(
-  //       ["string"],
-  //       ["wrap(address,address,address,uint256)"]
-  //     );
-  //     const encodedData = ethers.utils.defaultAbiCoder.encode(
-  //       ["bytes", "address", "address", "address"],
-  //       [selector, degenBox, lp, cauldron]
-  //     );
+    //   const constract = new Contract(
+    //     wrapper,
+    //     abraWsGlp,
+    //     this.signer
+    //   );
 
-  //     console.log("selector", selector);
-  //     console.log("encodedData", encodedData);
-  //   },
-  // },
-  // created() {
-  //   this.testWrapEncode();
+    //   const fee = await constract.feePercent();
+
+    //   console.log("constract", constract)
+    //   console.log("fee", fee)
+    // },
+  },
+  // mounted() {
+  //   // this.testWrapEncode();
   // },
 };
 </script>
