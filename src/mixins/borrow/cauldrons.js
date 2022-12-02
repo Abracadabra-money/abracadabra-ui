@@ -11,6 +11,7 @@ import whitelisterAbi from "@/utils/abi/Whitelister";
 import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
+import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 
 export default {
   computed: {
@@ -878,6 +879,17 @@ export default {
 
       const lpDecimals = await lpContract.decimals();
 
+      let feePercent = null;
+      if (this.chainId === 42161 && pool.id === 2) {
+        const constract = new Contract(
+          pool.token.address,
+          abraWsGlp,
+          this.contractProvider
+        );
+
+        feePercent = await constract.feePercent();
+      }
+
       return {
         tokenWrapperContract,
         lpContract,
@@ -886,6 +898,7 @@ export default {
         tokenWrapper,
         name,
         defaultToken,
+        feePercent,
       };
     },
 

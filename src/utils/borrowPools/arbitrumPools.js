@@ -80,7 +80,7 @@ export default [
     },
     contract: {
       name: "CauldronV4",
-      address: "0xE09223bBdb85a20111DCD72299142a8626d5eA4b",
+      address: "0x5698135CA439f21a57bDdbe8b582C62f090406D5",
       abi: poolsAbi.CauldronV4,
     },
     token: {

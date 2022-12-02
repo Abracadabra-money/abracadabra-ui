@@ -335,6 +335,10 @@ export default {
       return +this.pool.userInfo?.userBorrowPart;
     },
 
+    isGlpPool() {
+      return this.pool.id === 2 && this.chainId === 42161;
+    },
+
     additionalInfo() {
       try {
         const borrowLeftParsed = this.borrowLeft;
@@ -448,17 +452,35 @@ export default {
         }
 
         if (this.tokenApy) {
-          const title = this.pool.cauldronSettings.strategyLink
-            ? "Your Position Approximate APY"
-            : "Your Position Apy";
+          let title;
+          if (this.isGlpPool) {
+            title = "Repayment Rate";
+          } else {
+            title = this.pool.cauldronSettings.strategyLink
+              ? "Your Position Approximate APY"
+              : "Your Position Apy";
+          }
+
+          const additional =
+            this.pool.id === 2 && this.chainId === 42161
+              ? "The approximate rate at which users borrowed MIM will diminsh, thanks to GLP rewards."
+              : "APY Delivered by the Open Position";
 
           const apyInfo = {
             title: title,
             value: Vue.filter("formatPercent")(this.tokenApy || 0),
-            additional: "APY Delivered by the Open Position",
+            additional: additional,
           };
 
           resultArray.splice(2, 0, apyInfo);
+        }
+
+        if (this.isGlpPool) {
+          resultArray.push({
+            title: "Management Fee",
+            value: this.pool.lpLogic.feePercent,
+            additional: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
+          });
         }
 
         if (this.pool.borrowlimit !== null) {
