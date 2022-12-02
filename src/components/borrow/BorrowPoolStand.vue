@@ -478,7 +478,7 @@ export default {
         if (this.isGlpPool) {
           resultArray.push({
             title: "Management Fee",
-            value: this.pool.lpLogic.feePercent,
+            value: `${this.pool.lpLogic.feePercent}%`,
             additional: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
           });
         }
