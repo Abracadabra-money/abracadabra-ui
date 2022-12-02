@@ -44,7 +44,6 @@
               alt=""
               v-else
             />
-
             <p class="label-text">Use {{ networkValuteName }}</p>
           </div>
         </div>
@@ -185,6 +184,8 @@ export default {
       chainId: "getChainId",
       pools: "getPools",
       account: "getAccount",
+      provider: "getProvider",
+      signer: "getSigner",
     }),
 
     filteredPool() {
@@ -242,10 +243,17 @@ export default {
           );
         }
 
-        return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance,
-          this.selectedPool.collateralToken.decimals
-        );
+        if (this.isLpLogic) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.lpInfo.balance,
+            this.selectedPool.lpLogic.lpDecimals
+          );
+        } else {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.userBalance,
+            this.selectedPool.collateralToken.decimals
+          );
+        }
       }
 
       return 0;
@@ -486,9 +494,8 @@ export default {
     },
 
     acceptUseDefaultBalance() {
-      if (this.selectedPool) {
+      if (this.selectedPool)
         return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
-      }
 
       return false;
     },
@@ -525,7 +532,9 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        return this.selectedPool.name;
+        if (this.isLpLogic) return this.selectedPool.lpLogic.name;
+
+        return this.selectedPool.collateralToken.name;
       }
       return "";
     },
@@ -603,6 +612,10 @@ export default {
         .toString();
 
       return mimAmount;
+    },
+
+    isLpLogic() {
+      return !!this.selectedPool?.lpLogic;
     },
   },
 
@@ -902,42 +915,75 @@ export default {
       this.addMultiBorrowHandler(payload, notificationId);
     },
 
-    async addMultiBorrowHandler(data, notificationId) {
-      let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.masterContractInstance.address,
+    async getTokenApprove(tokenContract, spenderAddress) {
+      let isTokenApprove = await isTokenApprowed(
+        tokenContract,
+        spenderAddress,
         this.account
       );
 
-      if (isTokenToCookApprove.eq(0)) {
-        isTokenToCookApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.masterContractInstance.address
-        );
+      if (isTokenApprove.eq(0)) {
+        isTokenApprove = await approveToken(tokenContract, spenderAddress);
       }
 
-      let isTokenToSwapApprove = await isTokenApprowed(
+      return isTokenApprove;
+    },
+
+    async addMultiBorrowHandler(data, notificationId) {
+      const isTokenToCookApprove = await this.getTokenApprove(
         this.selectedPool.collateralToken.contract,
-        this.selectedPool.levSwapperContract.address,
-        this.account
+        this.selectedPool.masterContractInstance.address
       );
 
-      if (isTokenToSwapApprove.eq(0)) {
-        isTokenToSwapApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+      const isTokenToSwapApprove = await this.getTokenApprove(
+        this.selectedPool.collateralToken.contract,
+        this.selectedPool.levSwapperContract.address
+      );
+
+      const isCollateralApproved =
+        !!isTokenToCookApprove && !!isTokenToSwapApprove;
+
+      let isLpApproved;
+
+      if (this.isLpLogic) {
+        const isLpToCookApprove = await this.getTokenApprove(
+          this.selectedPool.lpLogic.lpContract,
+          this.selectedPool.masterContractInstance.address
+        );
+
+        const isLpToSwapApprove = await this.getTokenApprove(
+          this.selectedPool.lpLogic.lpContract,
           this.selectedPool.levSwapperContract.address
         );
+
+        isLpApproved = !!isLpToCookApprove && !!isLpToSwapApprove;
+      }
+
+      let isAllApproved;
+      if (this.isLpLogic) {
+        isAllApproved = isCollateralApproved && isLpApproved;
+      } else {
+        isAllApproved = isCollateralApproved;
       }
 
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (+isTokenToCookApprove && +isTokenToSwapApprove) {
-        this.cookMultiBorrow(
-          data,
-          isApproved,
-          this.selectedPool,
-          notificationId
-        );
+      if (isAllApproved) {
+        if (this.isLpLogic) {
+          this.cookMultiBorrowXswapper(
+            data,
+            isApproved,
+            this.selectedPool,
+            notificationId
+          );
+        } else {
+          this.cookMultiBorrow(
+            data,
+            isApproved,
+            this.selectedPool,
+            notificationId
+          );
+        }
         return false;
       }
 

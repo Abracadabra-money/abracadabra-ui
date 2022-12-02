@@ -1,8 +1,7 @@
-import { mapGetters } from "vuex";
 import axios from "axios";
-
+import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-
+import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
 
@@ -268,8 +267,8 @@ export default {
     },
 
     async query0x(buyToken, sellToken, slippage = 0, amountSell, takerAddress) {
-      const url = "https://api.0x.org/swap/v1/quote";
       const slippagePercentage = slippage / 100;
+      const url = "https://api.0x.org/swap/v1/quote";
 
       const params = {
         buyToken: buyToken,
@@ -293,11 +292,128 @@ export default {
     },
 
     // Borrow
+    async getLpcookCollateralAndBorrowData(
+      pool,
+      borrowAmount,
+      collateralAmount,
+      userAddr,
+      pairToken
+    ) {
+      const lpCollateralAndBorrowEventsArray = [];
+      const lpCollateralAndBorrowValuesArray = [];
+      const lpCollateralAndBorrowDatasArray = [];
+
+      // 5
+      const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [borrowAmount, userAddr]
+      );
+
+      lpCollateralAndBorrowEventsArray.push(5);
+      lpCollateralAndBorrowValuesArray.push(0);
+      lpCollateralAndBorrowDatasArray.push(borrowEncode);
+
+      // 21
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pairToken, userAddr, borrowAmount.sub("1"), "0x0"]
+      );
+
+      lpCollateralAndBorrowEventsArray.push(21);
+      lpCollateralAndBorrowValuesArray.push(0);
+      lpCollateralAndBorrowDatasArray.push(bentoWithdrawEncode);
+
+      const {
+        lpCollateralEventsArray,
+        lpCollateralValuesArray,
+        lpCollateralDatasArray,
+      } = await this.getLpCookAddCollateralData(
+        pool,
+        collateralAmount,
+        userAddr
+      );
+
+      lpCollateralAndBorrowEventsArray.push(...lpCollateralEventsArray);
+      lpCollateralAndBorrowValuesArray.push(...lpCollateralValuesArray);
+      lpCollateralAndBorrowDatasArray.push(...lpCollateralDatasArray);
+
+      return {
+        lpCollateralAndBorrowEventsArray,
+        lpCollateralAndBorrowValuesArray,
+        lpCollateralAndBorrowDatasArray,
+      };
+    },
+
+    async getLpCookAddCollateralData(pool, collateralAmount, userAddr) {
+      const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+      const lpCollateralEventsArray = [];
+      const lpCollateralValuesArray = [];
+      const lpCollateralDatasArray = [];
+
+      // 20
+      // deposit in degenbox
+      const lpDepositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, userAddr, collateralAmount, "0"]
+      );
+
+      lpCollateralEventsArray.push(20);
+      lpCollateralValuesArray.push(0);
+      lpCollateralDatasArray.push(lpDepositEncode);
+
+      // 21
+      // withdraw to token wrapper
+      const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, tokenWrapper, collateralAmount, "0"]
+      );
+
+      lpCollateralEventsArray.push(21);
+      lpCollateralValuesArray.push(0);
+      lpCollateralDatasArray.push(lpWrapperEncode);
+
+      // 30
+      // wrap and deposit to cauldron
+      const swapStaticTx =
+        await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+          pool.contractInstance.address,
+          collateralAmount
+        );
+
+      const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [tokenWrapper, swapStaticTx.data, true, false, 2]
+      );
+
+      lpCollateralEventsArray.push(30);
+      lpCollateralValuesArray.push(0);
+      lpCollateralDatasArray.push(lpCallEncode);
+
+      // 10
+      // add collateral
+      const lpColateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-2", userAddr, true]
+      );
+
+      lpCollateralEventsArray.push(10);
+      lpCollateralValuesArray.push(0);
+      lpCollateralDatasArray.push(lpColateralEncode);
+
+      return {
+        lpCollateralEventsArray,
+        lpCollateralValuesArray,
+        lpCollateralDatasArray,
+      };
+    },
+
     async cookCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
-      notificationId
+      notificationId,
+      isLpLogic = false
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
@@ -334,45 +450,63 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      // 5
-      const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
+      if (isLpLogic) {
+        const {
+          lpCollateralAndBorrowEventsArray,
+          lpCollateralAndBorrowValuesArray,
+          lpCollateralAndBorrowDatasArray,
+        } = await this.getLpcookCollateralAndBorrowData(
+          pool,
+          amount,
+          collateralAmount,
+          userAddr,
+          pairToken
+        );
 
-      eventsArray.push(5);
-      valuesArray.push(0);
-      datasArray.push(borrowEncode);
+        eventsArray.push(...lpCollateralAndBorrowEventsArray);
+        valuesArray.push(...lpCollateralAndBorrowValuesArray);
+        datasArray.push(...lpCollateralAndBorrowDatasArray);
+      } else {
+        // 5
+        const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [amount, userAddr]
+        );
 
-      // 21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, amount.sub("1"), "0x0"]
-      );
+        eventsArray.push(5);
+        valuesArray.push(0);
+        datasArray.push(borrowEncode);
 
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
+        // 21
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [pairToken, userAddr, amount.sub("1"), "0x0"]
+        );
 
-      // 20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, collateralAmount, "0"]
-      );
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(bentoWithdrawEncode);
 
-      eventsArray.push(20);
-      valuesArray.push(collateralValue);
-      datasArray.push(depositEncode);
+        // 20
+        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [tokenAddr, userAddr, collateralAmount, "0"]
+        );
 
-      // 10
-      const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-2", userAddr, false]
-      );
+        eventsArray.push(20);
+        valuesArray.push(collateralValue);
+        datasArray.push(depositEncode);
 
-      eventsArray.push(10);
-      valuesArray.push(0);
-      datasArray.push(colateralEncode);
+        // 10
+        const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          ["-2", userAddr, false]
+        );
+
+        eventsArray.push(10);
+        valuesArray.push(0);
+        datasArray.push(colateralEncode);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -427,7 +561,8 @@ export default {
       { amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
-      notificationId
+      notificationId,
+      isLpLogic = false
     ) {
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
@@ -461,25 +596,37 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      // 20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, amount, "0"]
-      );
+      if (isLpLogic) {
+        const {
+          lpCollateralEventsArray,
+          lpCollateralValuesArray,
+          lpCollateralDatasArray,
+        } = await this.getLpCookAddCollateralData(pool, amount, userAddr);
 
-      eventsArray.push(20);
-      valuesArray.push(collateralValue);
-      datasArray.push(depositEncode);
+        eventsArray.push(...lpCollateralEventsArray);
+        valuesArray.push(...lpCollateralValuesArray);
+        datasArray.push(...lpCollateralDatasArray);
+      } else {
+        // 20
+        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [tokenAddr, userAddr, amount, "0"]
+        );
 
-      // 10
-      const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-2", userAddr, false]
-      );
+        eventsArray.push(20);
+        valuesArray.push(collateralValue);
+        datasArray.push(depositEncode);
 
-      eventsArray.push(10);
-      valuesArray.push(0);
-      datasArray.push(colateralEncode);
+        // 10
+        const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          ["-2", userAddr, false]
+        );
+
+        eventsArray.push(10);
+        valuesArray.push(0);
+        datasArray.push(colateralEncode);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -641,6 +788,125 @@ export default {
     },
 
     // Repay
+    async getLpCookRemoveCollateralData(pool, amount, userAddr) {
+      const { tokenWrapper, lpAddress } = pool.lpLogic;
+      const lpRemoveCollateralEventsArray = [];
+      const lpRemoveCollateralValuesArray = [];
+      const lpRemoveCollateralDatasArray = [];
+
+      //4 remove collateral
+      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, userAddr]
+      );
+
+      lpRemoveCollateralEventsArray.push(4);
+      lpRemoveCollateralValuesArray.push(0);
+      lpRemoveCollateralDatasArray.push(removeCollateral);
+
+      // 21 withdraw to token wrapper
+
+      const lpBentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pool.collateralToken.address, tokenWrapper, "0", amount]
+      );
+
+      lpRemoveCollateralEventsArray.push(21);
+      lpRemoveCollateralValuesArray.push(0);
+      lpRemoveCollateralDatasArray.push(lpBentoWithdrawEncode);
+
+      // 30 unwrap and deposit for alice in degenbox
+      const swapStaticTx =
+        await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
+          userAddr,
+          amount
+        );
+
+      const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [tokenWrapper, swapStaticTx.data, false, false, 2]
+      );
+
+      lpRemoveCollateralEventsArray.push(30);
+      lpRemoveCollateralValuesArray.push(0);
+      lpRemoveCollateralDatasArray.push(lpCallEncode);
+
+      // 21
+      // withdraw to  userAddr
+      const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, userAddr, amount, "0"]
+      );
+
+      lpRemoveCollateralEventsArray.push(21);
+      lpRemoveCollateralValuesArray.push(0);
+      lpRemoveCollateralDatasArray.push(lpWrapperEncode);
+
+      return {
+        lpRemoveCollateralEventsArray,
+        lpRemoveCollateralValuesArray,
+        lpRemoveCollateralDatasArray,
+      };
+    },
+
+    async getLpCookRemoveAndRepayData(
+      pool,
+      amount,
+      userAddr,
+      pairToken,
+      collateralAmount
+    ) {
+      const lpRemoveAndRepayEventsArray = [];
+      const lpRemoveAndRepayValuesArray = [];
+      const lpRemoveAndRepayDatasArray = [];
+
+      //20
+      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [pairToken, userAddr, collateralAmount, "0x0"]
+      );
+
+      lpRemoveAndRepayEventsArray.push(20);
+      lpRemoveAndRepayValuesArray.push(0);
+      lpRemoveAndRepayDatasArray.push(depositEncode);
+
+      //7
+      const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256"],
+        [collateralAmount.sub("1")]
+      );
+
+      lpRemoveAndRepayEventsArray.push(7);
+      lpRemoveAndRepayValuesArray.push(0);
+      lpRemoveAndRepayDatasArray.push(getRepayPartEncode);
+
+      //2
+      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-0x01", userAddr, false]
+      );
+
+      lpRemoveAndRepayEventsArray.push(2);
+      lpRemoveAndRepayValuesArray.push(0);
+      lpRemoveAndRepayDatasArray.push(repayEncode);
+
+      const {
+        lpRemoveCollateralEventsArray,
+        lpRemoveCollateralValuesArray,
+        lpRemoveCollateralDatasArray,
+      } = await this.getLpCookRemoveCollateralData(pool, amount, userAddr);
+
+      lpRemoveAndRepayEventsArray.push(...lpRemoveCollateralEventsArray);
+      lpRemoveAndRepayValuesArray.push(...lpRemoveCollateralValuesArray);
+      lpRemoveAndRepayDatasArray.push(...lpRemoveCollateralDatasArray);
+
+      return {
+        lpRemoveAndRepayEventsArray,
+        lpRemoveAndRepayValuesArray,
+        lpRemoveAndRepayDatasArray,
+      };
+    },
+
     async cookRemoveAndRepayMax(
       { amount, updatePrice },
       isApprowed,
@@ -707,32 +973,44 @@ export default {
       valuesArray.push(0);
       datasArray.push(repayEncode);
 
-      // 4
-      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
+      if (pool.lpLogic) {
+        const {
+          lpRemoveCollateralEventsArray,
+          lpRemoveCollateralValuesArray,
+          lpRemoveCollateralDatasArray,
+        } = await this.getLpCookRemoveCollateralData(pool, amount, userAddr);
 
-      eventsArray.push(4);
-      valuesArray.push(0);
-      datasArray.push(removeCollateral);
+        eventsArray.push(...lpRemoveCollateralEventsArray);
+        valuesArray.push(...lpRemoveCollateralValuesArray);
+        datasArray.push(...lpRemoveCollateralDatasArray);
+      } else {
+        // 4
+        const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [amount, userAddr]
+        );
 
-      // 21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, "0x00", amount]
-      );
-
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
-      if (this.isCookNeedReduceSupply) {
-        const callEncode = await this.getReduceSupplyEncode(pool);
-
-        eventsArray.push(30);
+        eventsArray.push(4);
         valuesArray.push(0);
-        datasArray.push(callEncode);
+        datasArray.push(removeCollateral);
+
+        // 21
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [tokenAddr, userAddr, "0x00", amount]
+        );
+
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(bentoWithdrawEncode);
+
+        if (this.isCookNeedReduceSupply) {
+          const callEncode = await this.getReduceSupplyEncode(pool);
+
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(callEncode);
+        }
       }
 
       const cookData = {
@@ -818,62 +1096,80 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      //20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, collateralAmount, "0x0"]
-      );
+      if (pool.lpLogic) {
+        const {
+          lpRemoveAndRepayEventsArray,
+          lpRemoveAndRepayValuesArray,
+          lpRemoveAndRepayDatasArray,
+        } = await this.getLpCookRemoveAndRepayData(
+          pool,
+          amount,
+          userAddr,
+          pairToken,
+          collateralAmount
+        );
 
-      eventsArray.push(20);
-      valuesArray.push(0);
-      datasArray.push(depositEncode);
+        eventsArray.push(...lpRemoveAndRepayEventsArray);
+        valuesArray.push(...lpRemoveAndRepayValuesArray);
+        datasArray.push(...lpRemoveAndRepayDatasArray);
+      } else {
+        //20
+        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [pairToken, userAddr, collateralAmount, "0x0"]
+        );
 
-      //7
-      const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256"],
-        [collateralAmount.sub("1")]
-      );
-
-      eventsArray.push(7);
-      valuesArray.push(0);
-      datasArray.push(getRepayPartEncode);
-
-      //2
-      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-0x01", userAddr, false]
-      );
-
-      eventsArray.push(2);
-      valuesArray.push(0);
-      datasArray.push(repayEncode);
-
-      // 4
-      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
-
-      eventsArray.push(4);
-      valuesArray.push(0);
-      datasArray.push(removeCollateral);
-
-      //21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, "0x00", amount]
-      );
-
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
-      if (this.isCookNeedReduceSupply) {
-        const callEncode = await this.getReduceSupplyEncode(pool);
-
-        eventsArray.push(30);
+        eventsArray.push(20);
         valuesArray.push(0);
-        datasArray.push(callEncode);
+        datasArray.push(depositEncode);
+
+        //7
+        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256"],
+          [collateralAmount.sub("1")]
+        );
+
+        eventsArray.push(7);
+        valuesArray.push(0);
+        datasArray.push(getRepayPartEncode);
+
+        //2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          ["-0x01", userAddr, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+
+        // 4
+        const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [amount, userAddr]
+        );
+
+        eventsArray.push(4);
+        valuesArray.push(0);
+        datasArray.push(removeCollateral);
+
+        //21
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [tokenAddr, userAddr, "0x00", amount]
+        );
+
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(bentoWithdrawEncode);
+
+        if (this.isCookNeedReduceSupply) {
+          const callEncode = await this.getReduceSupplyEncode(pool);
+
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(callEncode);
+        }
       }
 
       const cookData = {
@@ -957,25 +1253,38 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      //4
-      const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
+      if (pool.lpLogic) {
+        const {
+          lpRemoveCollateralEventsArray,
+          lpRemoveCollateralValuesArray,
+          lpRemoveCollateralDatasArray,
+        } = await this.getLpCookRemoveCollateralData(pool, amount, userAddr);
 
-      eventsArray.push(4);
-      valuesArray.push(0);
-      datasArray.push(removeCollateral);
+        eventsArray.push(...lpRemoveCollateralEventsArray);
+        valuesArray.push(...lpRemoveCollateralValuesArray);
+        datasArray.push(...lpRemoveCollateralDatasArray);
+      } else {
+        //4
+        // remove collateral
+        const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [amount, userAddr]
+        );
 
-      // 21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [tokenAddr, userAddr, "0x00", amount]
-      );
+        eventsArray.push(4);
+        valuesArray.push(0);
+        datasArray.push(removeCollateral);
 
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
+        // 21
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [tokenAddr, userAddr, "0x00", amount]
+        );
+
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(bentoWithdrawEncode);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -1278,6 +1587,7 @@ export default {
       datasArray.push(getBorrowSwapperEncode2);
 
       let swapStaticTx, swapCallByte, getCallEncode2;
+
       if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.collateralToken.address,
@@ -1367,6 +1677,201 @@ export default {
         });
       } catch (e) {
         console.log("CookMultiBorrow ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookMultiBorrowXswapper(
+      {
+        collateralAmount,
+        amount,
+        updatePrice,
+        minExpected,
+        itsDefaultBalance,
+        slipage,
+      },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      if (this.needWhitelisterApprove) {
+        const whitelistedCallData = await this.getWhitelistCallData();
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(whitelistedCallData);
+      }
+
+      //20 deposit in degenbox
+      const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, this.account, collateralAmount, "0"]
+      );
+
+      eventsArray.push(20);
+      valuesArray.push(0);
+      datasArray.push(getDepositEncode1);
+
+      //21 withdraw to token wrapper
+      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "int256", "int256"],
+        [lpAddress, tokenWrapper, collateralAmount, "0"]
+      );
+
+      eventsArray.push(21);
+      valuesArray.push(0);
+      datasArray.push(bentoWithdrawEncode);
+
+      // 30 wrap and deposit to cauldron
+      try {
+        const wrapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+            pool.contractInstance.address,
+            collateralAmount
+          );
+
+        const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [tokenWrapper, wrapStaticTx.data, true, false, 2]
+        );
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(lpCallEncode);
+      } catch (error) {
+        console.log("Error wrap and deposit to cauldron", error);
+      }
+
+      //10 add collateral
+      const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-2", this.account, true]
+      );
+
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode2);
+
+      //5 Borrow
+      const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, pool.levSwapperContract.address]
+      );
+
+      eventsArray.push(5);
+      valuesArray.push(0);
+      datasArray.push(getBorrowSwapperEncode2);
+
+      // Swap MIM
+      try {
+        const swapData = await getLev0xData(amount, pool, slipage);
+
+        const swapStaticTx =
+          await pool.levSwapperContract.populateTransaction.swap(
+            this.account,
+            minExpected,
+            amount,
+            swapData,
+            {
+              gasLimit: 10000000,
+            }
+          );
+
+        //30 swap
+        const getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [pool.levSwapperContract.address, swapStaticTx.data, false, false, 2]
+        );
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(getCallEncode2);
+      } catch (error) {
+        console.log("Error swap", error);
+      }
+
+      const getCollateralEncode3 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-2", this.account, false]
+      );
+
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode3);
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+
+        await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+            gasLimit,
+          }
+        );
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("cookMultiBorrowXswapper Error:", e);
 
         const errorNotification = {
           msg: await notificationErrorMsg(e),
@@ -1572,6 +2077,178 @@ export default {
         });
       } catch (e) {
         console.log("CookFlashRepay ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookFlashRepayXswapper(
+      {
+        borrowAmount,
+        collateralAmount,
+        removeCollateralAmount,
+        updatePrice,
+        itsMax,
+        slipage,
+      },
+      isApprowed,
+      pool,
+      account,
+      notificationId
+    ) {
+      const reverseSwapperAddr = pool.liqSwapperContract.address;
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
+
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+
+      if (!isApprowed) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+      }
+
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+
+      //4 remove collateral to swapper
+      const removeCollateralToSwapper =
+        this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address"],
+          [collateralAmount, reverseSwapperAddr]
+        );
+
+      eventsArray.push(4);
+      valuesArray.push(0);
+      datasArray.push(removeCollateralToSwapper);
+
+      const swapData = await getLiq0xData(collateralAmount, pool, slipage);
+
+      const swapStaticTx =
+        await pool.liqSwapperContract.populateTransaction.swap(
+          pool.collateralToken.address,
+          pool.borrowToken.address,
+          account,
+          0,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 10000000,
+          }
+        );
+
+      const swapCallByte = swapStaticTx.data;
+
+      // 30 swap
+      const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [reverseSwapperAddr, swapCallByte, false, false, 2]
+      );
+
+      eventsArray.push(30);
+      valuesArray.push(0);
+      datasArray.push(callEncode);
+
+      if (itsMax) {
+        // 2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          [userBorrowPart, account, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      } else {
+        // 2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          [borrowAmount, account, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      }
+
+      if (+removeCollateralAmount > 0) {
+        const {
+          lpRemoveCollateralEventsArray,
+          lpRemoveCollateralValuesArray,
+          lpRemoveCollateralDatasArray,
+        } = await this.getLpCookRemoveCollateralData(
+          pool,
+          removeCollateralAmount,
+          account
+        );
+
+        eventsArray.push(...lpRemoveCollateralEventsArray);
+        valuesArray.push(...lpRemoveCollateralValuesArray);
+        datasArray.push(...lpRemoveCollateralDatasArray);
+      }
+
+      if (this.isCookNeedReduceSupply) {
+        const callEncode = await this.getReduceSupplyEncode(pool);
+
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(callEncode);
+      }
+
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+
+      try {
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+
+        await pool.contractInstance.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+            gasLimit,
+          }
+        );
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("cookFlashRepayXswapper Error:", e);
 
         const errorNotification = {
           msg: await notificationErrorMsg(e),

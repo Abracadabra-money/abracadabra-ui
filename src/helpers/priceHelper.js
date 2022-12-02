@@ -2,6 +2,7 @@ import axios from "axios";
 
 const chainCoinGeckoIds = {
   1: "ethereum",
+  10: "optimistic-ethereum",
   56: "binance-smart-chain",
   137: "polygon-pos",
   250: "fantom",
@@ -11,7 +12,7 @@ const chainCoinGeckoIds = {
 
 const config = {
   headers: {
-    "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY_2,
+    "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY,
   },
 };
 
@@ -22,7 +23,7 @@ const getTokensArrayPrices = async (chainId, addressArr) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
+      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
       config
     );
 
@@ -49,7 +50,7 @@ const getTokenPriceByAddress = async (chainId, address) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://pro-api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
+      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
       config
     );
 
