@@ -12,6 +12,8 @@
     "@sushiswap/sushi-data": "^1.0.26",
     "@toruslabs/torus-embed": "^1.22.5",
     "@uniswap/sdk": "^3.0.3",
+    "@uniswap/sdk-core": "^3.1.0",
+    "@uniswap/v3-sdk": "^3.9.0",
     "@walletconnect/web3-provider": "^1.7.8",
     "axios": "^0.25.0",
     "babel-plugin-transform-remove-console": "^6.9.4",

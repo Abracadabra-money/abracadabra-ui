@@ -67,7 +67,8 @@ export default [
     isSwappersActive: false,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: "#",
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/u0vFLaZaHrstsu7V-pcs58ufFm7s6Sdw9coKgOfEkXM",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
@@ -80,7 +81,7 @@ export default [
     },
     contract: {
       name: "CauldronV4",
-      address: "0xE09223bBdb85a20111DCD72299142a8626d5eA4b",
+      address: "0x5698135CA439f21a57bDdbe8b582C62f090406D5",
       abi: poolsAbi.CauldronV4,
     },
     token: {
