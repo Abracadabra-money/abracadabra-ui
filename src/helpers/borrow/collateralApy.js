@@ -7,7 +7,6 @@ import { ethers } from "ethers";
 import { getTokenPriceByAddress } from "../priceHelper";
 import { getStargateApy } from "@/helpers/borrow/stargateApyHelper";
 import { getLUSDApy } from "@/helpers/borrow/LUSDApy";
-import { getGlpApr } from "@/helpers/glpApr";
 
 // wMEMO pool APY
 import timeStakingAbi from "@/utils/abi/timeStaking";
@@ -420,10 +419,6 @@ export const fetchTokenApy = async (pool) => {
 
   if ((pool.id === 2 || pool.id === 5) && chainId === 43114) {
     return await getMEMOApy(signer);
-  }
-
-  if (pool.id === 2 && chainId === 42161) {
-    return await getGlpApr();
   }
 
   if ((pool.id === 5 || pool.id === 8) && chainId === mainnetId) {
