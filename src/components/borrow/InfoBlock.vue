@@ -16,6 +16,8 @@
 
 <script>
 import Vue from "vue";
+import { mapGetters } from "vuex";
+import { getGlpApr } from "@/helpers/glpApr";
 export default {
   props: {
     infoArr: {
@@ -32,10 +34,16 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     infoData() {
       if (this.infoArr) return this.infoArr;
 
       return this.info;
+    },
+
+    isGlpPool() {
+      return this.pool.id === 2 && this.chainId === 42161;
     },
 
     info() {
@@ -65,6 +73,20 @@ export default {
         },
       ];
 
+      if (this.isGlpPool) {
+        info.push({
+          name: "Repayment Rate",
+          value: `${this.tokenApy || 0}`,
+          tooltip: `The approximate rate at which users borrowed MIM will diminsh, thanks to GLP rewards.`,
+        });
+
+        info.push({
+          name: "Management Fee",
+          value: `${this.pool.lpLogic.feePercent || 0}`,
+          tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
+        });
+      }
+
       if (this.price) {
         info.push({
           name: "Price",
@@ -75,6 +97,16 @@ export default {
 
       return info;
     },
+  },
+
+  watch: {
+    async pool() {
+      this.tokenApy = await getGlpApr();
+    },
+  },
+
+  async created() {
+    if (this.pool) this.tokenApy = await getGlpApr();
   },
 };
 </script>
