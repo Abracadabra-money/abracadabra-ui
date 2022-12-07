@@ -107,7 +107,7 @@
           >
           <div class="social">
             <a
-              href="https://wizard69.gitbook.io/abracadabra-money/"
+              href="https://abracadabramoney.gitbook.io/abracadabra-money-wiki/"
               target="_blank"
               rel="noreferrer noopener"
             >
@@ -138,7 +138,7 @@
 
             <!-- <Discord /> -->
 
-            <Lens :isMobile='true'/>
+            <Lens :isMobile="true" />
           </div>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default {
     Mirror,
     Twitter,
     Discord,
-    Lens
+    Lens,
   },
 };
 </script>

@@ -111,7 +111,7 @@
           >
           <div class="list-row">
             <a
-              href="https://docs.abracadabra.money/"
+              href="https://abracadabramoney.gitbook.io/abracadabra-money-wiki/"
               target="_blank"
               rel="noreferrer noopener"
               class="list-link"
