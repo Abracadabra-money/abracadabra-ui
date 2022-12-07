@@ -111,7 +111,7 @@
           >
           <div class="list-row">
             <a
-              href="https://wizard69.gitbook.io/abracadabra-money/"
+              href="https://docs.abracadabra.money/"
               target="_blank"
               rel="noreferrer noopener"
               class="list-link"
@@ -321,7 +321,7 @@ export default {
     Twitter,
     Discord,
     Lens,
-    Mirror
+    Mirror,
   },
 };
 </script>
