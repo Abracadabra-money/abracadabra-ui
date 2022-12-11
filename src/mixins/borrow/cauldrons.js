@@ -620,8 +620,12 @@ export default {
         whitelistedInfo = await this.checkPoolWhitelised(poolContract);
       }
 
+      const collateralToken = pool.lpLogic
+        ? pool.lpLogic.lpContract
+        : pool.collateralToken.contract;
+
       const isApproveTokenCollateral = await this.isTokenApprow(
-        pool.collateralToken.contract,
+        collateralToken,
         pool.masterContractInstance.address
       );
 
@@ -632,14 +636,14 @@ export default {
 
       const isApproveLevSwapper = pool.levSwapperContract
         ? await this.isTokenApprow(
-            pool.collateralToken.contract,
+            collateralToken,
             pool.levSwapperContract.address
           )
         : false;
 
       const isApproveLiqSwapper = pool.liqSwapperContract
         ? await this.isTokenApprow(
-            pool.collateralToken.contract,
+            collateralToken,
             pool.liqSwapperContract.address
           )
         : false;

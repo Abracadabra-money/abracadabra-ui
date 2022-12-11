@@ -665,16 +665,20 @@ export default {
 
       let approveSwap = this.selectedPool.userInfo?.isApproveLevSwapper;
 
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       if (!this.selectedPool.userInfo?.isApproveLevSwapper) {
         approveSwap = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.levSwapperContract.address
         );
       }
@@ -930,13 +934,17 @@ export default {
     },
 
     async addMultiBorrowHandler(data, notificationId) {
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       const isTokenToCookApprove = await this.getTokenApprove(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address
       );
 
       const isTokenToSwapApprove = await this.getTokenApprove(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.levSwapperContract.address
       );
 

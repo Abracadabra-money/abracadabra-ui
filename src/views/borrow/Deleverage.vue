@@ -514,16 +514,20 @@ export default {
       let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
       let approveSwap = this.selectedPool.userInfo?.isApproveLiqSwapper;
 
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       if (!this.selectedPool.userInfo?.isApproveLiqSwapper) {
         approveSwap = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.liqSwapperContract.address
         );
       }
@@ -563,9 +567,7 @@ export default {
 
     async actionHandler() {
       if (+this.flashRepayAmount) {
-        if (!this.slipage) {
-          return false;
-        }
+        if (!this.slipage) return false;
 
         let itsMax = this.itsMaxRepayMim;
 
@@ -613,28 +615,32 @@ export default {
         notification.pending
       );
 
+      const collateralToken = this.isLpLogic
+        ? this.selectedPool.lpLogic.lpContract
+        : this.selectedPool.collateralToken.contract;
+
       let isTokenToCookApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address,
         this.account
       );
 
       if (isTokenToCookApprove.eq(0)) {
         isTokenToCookApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
 
       let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.liqSwapperContract.address,
         this.account
       );
 
       if (isTokenToSwapApprove.lt(data.collateralAmount)) {
         isTokenToSwapApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.liqSwapperContract.address
         );
       }

@@ -4,6 +4,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
+import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
 
 export default {
   data() {
@@ -268,7 +269,8 @@ export default {
 
     async query0x(buyToken, sellToken, slippage = 0, amountSell, takerAddress) {
       const slippagePercentage = slippage / 100;
-      const url = "https://api.0x.org/swap/v1/quote";
+      // const url = "https://api.0x.org/swap/v1/quote";
+      const url = "https://arbitrum.api.0x.org/swap/v1/quote";
 
       const params = {
         buyToken: buyToken,
@@ -1802,7 +1804,21 @@ export default {
 
       // Swap MIM
       try {
-        const swapData = await getLev0xData(amount, pool, slipage);
+        // todo leverage
+        let swapData;
+
+        if (pool.is0xSwap) {
+          const response = await this.query0x(
+            // todo
+            "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+            pool.borrowToken.address,
+            slipage,
+            amount,
+            pool.levSwapperContract.address
+          );
+
+          swapData = response.data;
+        } else swapData = await getLev0xData(amount, pool, slipage);
 
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
@@ -1842,6 +1858,8 @@ export default {
         values: valuesArray,
         datas: datasArray,
       };
+
+      console.log("cookData", cookData);
 
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
@@ -2141,13 +2159,78 @@ export default {
       valuesArray.push(0);
       datasArray.push(removeCollateralToSwapper);
 
-      const swapData = await getLiq0xData(collateralAmount, pool, slipage);
+      let swapData;
+
+      // collateralAmount wGlp
+      //-----------------------------------------
+      // usdc chainLink 0x50834f3163758fcc1df9973b6e91f0f0f0434ad3
+      const usdcChainlink = new this.$ethers.Contract(
+        "0x50834f3163758fcc1df9973b6e91f0f0f0434ad3",
+        JSON.stringify(EACAggregatorProxyAbi),
+        this.signer
+      );
+
+      const usdcPriceInUsd = await usdcChainlink.latestAnswer();
+      const usdcPriceInUsdParce = this.$ethers.utils.formatUnits(
+        usdcPriceInUsd,
+        8
+      );
+
+      const collateralInUsd =
+        +this.$ethers.utils.formatUnits(collateralAmount, 18) /
+        pool.borrowToken.exchangeRate;
+
+      const buyUsdc = collateralInUsd / +usdcPriceInUsdParce;
+
+      const buyUsdcParse = this.$ethers.utils.parseUnits(String(buyUsdc), 8);
+
+      console.log("collateralInUsd", collateralInUsd);
+      console.log("usdcPriceInUsd", usdcPriceInUsdParce);
+      console.log("buyUsdc", buyUsdc);
+      console.log("buyUsdc", buyUsdcParse);
+
+      if (pool.is0xSwap) {
+        const response = await this.query0x(
+          pool.borrowToken.address,
+          "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+          slipage,
+          buyUsdcParse,
+          pool.liqSwapperContract.address
+        );
+
+        swapData = response.data;
+      } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
+
+      // usdc chainLink 0x50834f3163758fcc1df9973b6e91f0f0f0434ad3
+      // const mimChainlink = new this.$ethers.Contract(
+      //   "0x87121f6c9a9f6e90e59591e4cf4804873f54a95b",
+      //   JSON.stringify(EACAggregatorProxyAbi),
+      //   this.signer
+      // );
+
+      // const mimPriceInUsd = await mimChainlink.latestAnswer();
+
+      // console.log("mimPriceInUsd", mimPriceInUsd);
+
+      // const swapStaticTx =
+      //   await pool.liqSwapperContract.populateTransaction.swap(
+      //     // pool.collateralToken.address,
+      //     pool.borrowToken.address,
+      //     "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+      //     account,
+      //     0, //0
+      //     collateralAmount,
+      //     swapData,
+      //     {
+      //       gasLimit: 10000000,
+      //     }
+      //   );
 
       const swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(
           pool.collateralToken.address,
           pool.borrowToken.address,
-          account,
+          this.account,
           0,
           collateralAmount,
           swapData,
@@ -2221,16 +2304,16 @@ export default {
       };
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: 0,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -2238,7 +2321,7 @@ export default {
           cookData.datas,
           {
             value: 0,
-            gasLimit,
+            gasLimit: 5000000,
           }
         );
 
