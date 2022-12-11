@@ -37,6 +37,7 @@ import opUSDC from "@/utils/abi/tokensAbi/opUSDC";
 import sUSDC from "@/utils/abi/tokensAbi/sUSDC";
 import sGLP from "@/utils/abi/tokensAbi/sGLP";
 import abraWsGlp from "@/utils/abi/tokensAbi/sGLP";
+import CurveDAOToken from "@/utils/abi/tokensAbi/CurveDAOToken";
 
 export default {
   ALCX,
@@ -78,4 +79,5 @@ export default {
   sUSDC,
   sGLP,
   abraWsGlp,
+  CurveDAOToken,
 };
