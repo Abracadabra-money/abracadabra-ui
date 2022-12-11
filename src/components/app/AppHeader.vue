@@ -66,7 +66,7 @@
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
-          <a href="https://curve.fi/mim" class="list-link" target="_blank"
+          <a href="https://curve.fi/#/ethereum/pools/mim/swap" class="list-link" target="_blank"
             >Swap</a
           >
           <a
