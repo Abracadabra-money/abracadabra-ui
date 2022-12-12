@@ -4,7 +4,6 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
-import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
 
 export default {
   data() {
@@ -2108,7 +2107,8 @@ export default {
 
     async cookFlashRepayXswapper(
       {
-        borrowAmount,
+        // todo
+        // borrowAmount,
         collateralAmount,
         removeCollateralAmount,
         updatePrice,
@@ -2161,70 +2161,35 @@ export default {
 
       let swapData;
 
-      // collateralAmount wGlp
-      //-----------------------------------------
-      // usdc chainLink 0x50834f3163758fcc1df9973b6e91f0f0f0434ad3
-      const usdcChainlink = new this.$ethers.Contract(
-        "0x50834f3163758fcc1df9973b6e91f0f0f0434ad3",
-        JSON.stringify(EACAggregatorProxyAbi),
-        this.signer
-      );
+      if (this.chainId === 42161 && pool.id === 2) {
+        // 1.30504827644
+        const parseCollateralAmount = this.$ethers.utils.formatUnits(
+          collateralAmount,
+          18
+        );
 
-      const usdcPriceInUsd = await usdcChainlink.latestAnswer();
-      const usdcPriceInUsdParce = this.$ethers.utils.formatUnits(
-        usdcPriceInUsd,
-        8
-      );
+        const oracleExchangeRate =
+          1e18 / pool.collateralToken.oracleExchangeRate.toString();
 
-      const collateralInUsd =
-        +this.$ethers.utils.formatUnits(collateralAmount, 18) /
-        pool.borrowToken.exchangeRate;
+        const usdcAmount = oracleExchangeRate * parseCollateralAmount;
 
-      const buyUsdc = collateralInUsd / +usdcPriceInUsdParce;
+        const feeAmount = String((usdcAmount - usdcAmount * 0.0025).toFixed(6));
 
-      const buyUsdcParse = this.$ethers.utils.parseUnits(String(buyUsdc), 6);
+        const parseFeeAmount = this.$ethers.utils.parseUnits(feeAmount, 6);
 
-      console.log("collateralInUsd", collateralInUsd);
-      console.log("usdcPriceInUsd", usdcPriceInUsdParce);
-      console.log("buyUsdc", buyUsdc);
-      console.log("buyUsdc", buyUsdcParse);
+        console.log("CollateralAmount", parseCollateralAmount);
+        console.log("USDCAmountSell", feeAmount);
 
-      if (pool.is0xSwap) {
         const response = await this.query0x(
           pool.borrowToken.address,
           "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
           slipage,
-          buyUsdcParse,
+          parseFeeAmount,
           pool.liqSwapperContract.address
         );
 
         swapData = response.data;
       } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
-
-      // usdc chainLink 0x50834f3163758fcc1df9973b6e91f0f0f0434ad3
-      // const mimChainlink = new this.$ethers.Contract(
-      //   "0x87121f6c9a9f6e90e59591e4cf4804873f54a95b",
-      //   JSON.stringify(EACAggregatorProxyAbi),
-      //   this.signer
-      // );
-
-      // const mimPriceInUsd = await mimChainlink.latestAnswer();
-
-      // console.log("mimPriceInUsd", mimPriceInUsd);
-
-      // const swapStaticTx =
-      //   await pool.liqSwapperContract.populateTransaction.swap(
-      //     // pool.collateralToken.address,
-      //     pool.borrowToken.address,
-      //     "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
-      //     account,
-      //     0, //0
-      //     collateralAmount,
-      //     swapData,
-      //     {
-      //       gasLimit: 10000000,
-      //     }
-      //   );
 
       const swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(
@@ -2233,7 +2198,6 @@ export default {
           this.account,
           0,
           collateralAmount,
-          // buyUsdcParse,
           swapData,
           {
             gasLimit: 10000000,
@@ -2266,9 +2230,9 @@ export default {
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          [borrowAmount, account, false]
+          // Todo [borrowAmount, account, false]
+          ["-2", account, false]
         );
-
         eventsArray.push(2);
         valuesArray.push(0);
         datasArray.push(repayEncode);
