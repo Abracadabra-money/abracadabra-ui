@@ -33,8 +33,6 @@ const getTokensArrayPrices = async (chainId, addressArr) => {
       config
     );
 
-    console.log("WORK");
-
     const respToArray = [];
 
     for (const property in pricesResponse.data) {
@@ -61,8 +59,6 @@ const getTokenPriceByAddress = async (chainId, address) => {
       `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
       config
     );
-
-    console.log("WORK");
 
     let price = null;
 
