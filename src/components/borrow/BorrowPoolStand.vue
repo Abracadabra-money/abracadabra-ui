@@ -312,7 +312,7 @@ export default {
       }
 
       if (this.collateralExpected && this.typeOperation === "repay") {
-        if (defaultValue - +this.collateralExpected < 0) return defaultValue;
+        if (defaultValue - +this.collateralExpected < 0) return 0;
         return defaultValue - +this.collateralExpected;
       }
 

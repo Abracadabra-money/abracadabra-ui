@@ -61,7 +61,7 @@
           />
           <div class="repay-token">
             {{ repayToken | formatTokenBalance }}
-            {{ selectedPool.collateralToken.name }}
+            {{ repayTokenName }}
           </div>
         </div>
         <BaseButton
@@ -198,6 +198,13 @@ export default {
 
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
+        if (this.isLpLogic) {
+          return this.$ethers.utils.formatUnits(
+            this.selectedPool.userInfo.lpInfo.balance,
+            this.selectedPool.lpLogic.lpDecimals
+          );
+        }
+
         return this.$ethers.utils.formatUnits(
           this.selectedPool.userInfo.userBalance,
           this.selectedPool.collateralToken.decimals
@@ -476,6 +483,12 @@ export default {
 
     isLpLogic() {
       return !!this.selectedPool?.lpLogic;
+    },
+
+    repayTokenName() {
+      return this.isLpLogic
+        ? this.selectedPool.lpLogic.name
+        : this.selectedPool.collateralToken.name;
     },
   },
 

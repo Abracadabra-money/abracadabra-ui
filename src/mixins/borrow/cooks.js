@@ -2,8 +2,11 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
+import gmxLensAbi from "@/utils/abi/lp/GmxLens";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
+const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
+const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 
 export default {
   data() {
@@ -1803,13 +1806,10 @@ export default {
 
       // Swap MIM
       try {
-        // todo leverage
         let swapData;
-
-        if (pool.is0xSwap) {
+        if (this.chainId === 42161 && pool.id === 2) {
           const response = await this.query0x(
-            // todo
-            "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+            usdcAddress,
             pool.borrowToken.address,
             slipage,
             amount,
@@ -1857,8 +1857,6 @@ export default {
         values: valuesArray,
         datas: datasArray,
       };
-
-      console.log("cookData", cookData);
 
       try {
         const estimateGas = await pool.contractInstance.estimateGas.cook(
@@ -2107,8 +2105,7 @@ export default {
 
     async cookFlashRepayXswapper(
       {
-        // todo
-        // borrowAmount,
+        borrowAmount,
         collateralAmount,
         removeCollateralAmount,
         updatePrice,
@@ -2162,29 +2159,22 @@ export default {
       let swapData;
 
       if (this.chainId === 42161 && pool.id === 2) {
-        // 1.30504827644
-        const parseCollateralAmount = this.$ethers.utils.formatUnits(
-          collateralAmount,
-          18
+        const GmxLensContract = new this.$ethers.Contract(
+          gmxLensAddress,
+          JSON.stringify(gmxLensAbi),
+          this.signer
         );
 
-        const oracleExchangeRate =
-          1e18 / pool.collateralToken.oracleExchangeRate.toString();
-
-        const usdcAmount = oracleExchangeRate * parseCollateralAmount;
-
-        const feeAmount = String((usdcAmount - usdcAmount * 0.0025).toFixed(6));
-
-        const parseFeeAmount = this.$ethers.utils.parseUnits(feeAmount, 6);
-
-        console.log("CollateralAmount", parseCollateralAmount);
-        console.log("USDCAmountSell", feeAmount);
+        const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
+          usdcAddress,
+          collateralAmount
+        );
 
         const response = await this.query0x(
           pool.borrowToken.address,
-          "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+          usdcAddress,
           slipage,
-          parseFeeAmount,
+          usdcAmount,
           pool.liqSwapperContract.address
         );
 
@@ -2230,8 +2220,7 @@ export default {
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          // Todo [borrowAmount, account, false]
-          ["-2", account, false]
+          [borrowAmount, account, false]
         );
         eventsArray.push(2);
         valuesArray.push(0);
@@ -2269,16 +2258,16 @@ export default {
       };
 
       try {
-        // const estimateGas = await pool.contractInstance.estimateGas.cook(
-        //   cookData.events,
-        //   cookData.values,
-        //   cookData.datas,
-        //   {
-        //     value: 0,
-        //   }
-        // );
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
 
-        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -2286,7 +2275,7 @@ export default {
           cookData.datas,
           {
             value: 0,
-            gasLimit: 5000000,
+            gasLimit,
           }
         );
 
