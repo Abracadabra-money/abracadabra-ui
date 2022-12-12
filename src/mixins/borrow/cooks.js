@@ -2182,7 +2182,7 @@ export default {
 
       const buyUsdc = collateralInUsd / +usdcPriceInUsdParce;
 
-      const buyUsdcParse = this.$ethers.utils.parseUnits(String(buyUsdc), 8);
+      const buyUsdcParse = this.$ethers.utils.parseUnits(String(buyUsdc), 6);
 
       console.log("collateralInUsd", collateralInUsd);
       console.log("usdcPriceInUsd", usdcPriceInUsdParce);
@@ -2233,6 +2233,7 @@ export default {
           this.account,
           0,
           collateralAmount,
+          // buyUsdcParse,
           swapData,
           {
             gasLimit: 10000000,
