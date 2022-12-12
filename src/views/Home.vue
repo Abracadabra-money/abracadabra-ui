@@ -9,7 +9,7 @@
         autoplay
         muted
       >
-        <source src="../assets/videos/animation.snow.mp4" />
+        <source src="../assets/videos/home-animation.mp4" />
       </video>
 
       <transition name="fade">
