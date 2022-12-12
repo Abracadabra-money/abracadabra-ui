@@ -321,6 +321,9 @@ export default {
         );
       }
 
+      if (this.selectedPool.id === 2 && this.chainId === 42161)
+        return +maxFlashRepayRemoveAmount * 0.95;
+
       return +maxFlashRepayRemoveAmount;
     },
 

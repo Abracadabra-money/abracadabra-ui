@@ -541,10 +541,13 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        return (
-          this.selectedPool.userInfo.isApproveTokenCollateral &&
-          this.selectedPool.userInfo.isApproveLevSwapper
-        );
+        if (this.isGlp)
+          return this.selectedPool.userInfo.isApproveTokenCollateral;
+        else
+          return (
+            this.selectedPool.userInfo.isApproveTokenCollateral &&
+            this.selectedPool.userInfo.isApproveLevSwapper
+          );
       }
       return true;
     },
@@ -617,6 +620,10 @@ export default {
     isLpLogic() {
       return !!this.selectedPool?.lpLogic;
     },
+
+    isGlp() {
+      return this.chainId === 42161 && this.selectedPool.id === 2;
+    },
   },
 
   watch: {
@@ -676,14 +683,16 @@ export default {
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper) {
+      if (!this.selectedPool.userInfo?.isApproveLevSwapper && !this.isGlp) {
         approveSwap = await approveToken(
           collateralToken,
           this.selectedPool.levSwapperContract.address
         );
       }
 
-      if (approve && approveSwap) {
+      const isApprove = this.isGlp ? approve : approve && approveSwap;
+
+      if (isApprove) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
@@ -943,13 +952,17 @@ export default {
         this.selectedPool.masterContractInstance.address
       );
 
-      const isTokenToSwapApprove = await this.getTokenApprove(
-        collateralToken,
-        this.selectedPool.levSwapperContract.address
-      );
+      let isTokenToSwapApprove;
+      if (!this.isGlp) {
+        isTokenToSwapApprove = await this.getTokenApprove(
+          collateralToken,
+          this.selectedPool.levSwapperContract.address
+        );
+      }
 
-      const isCollateralApproved =
-        !!isTokenToCookApprove && !!isTokenToSwapApprove;
+      const isCollateralApproved = this.isGlp
+        ? !!isTokenToCookApprove
+        : !!isTokenToCookApprove && !!isTokenToSwapApprove;
 
       let isLpApproved;
 
@@ -959,12 +972,17 @@ export default {
           this.selectedPool.masterContractInstance.address
         );
 
-        const isLpToSwapApprove = await this.getTokenApprove(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.levSwapperContract.address
-        );
+        let isLpToSwapApprove;
+        if (!this.isGlp) {
+          isLpToSwapApprove = await this.getTokenApprove(
+            this.selectedPool.lpLogic.lpContract,
+            this.selectedPool.levSwapperContract.address
+          );
+        }
 
-        isLpApproved = !!isLpToCookApprove && !!isLpToSwapApprove;
+        isLpApproved = this.isGlp
+          ? !!isLpToCookApprove
+          : !!isLpToCookApprove && !!isLpToSwapApprove;
       }
 
       let isAllApproved;
