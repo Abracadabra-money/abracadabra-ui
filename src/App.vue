@@ -11,9 +11,6 @@
 
 <script>
 import { mapGetters } from "vuex";
-// import { Contract } from "ethers";
-
-// import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 
 const NotificationContainer = () =>
   import("@/components/notifications/NotificationContainer");
@@ -32,25 +29,6 @@ export default {
     NotificationContainer,
     PopupsWrapper,
   },
-  methods: {
-    // async testWrapEncode() {
-    //   const wrapper = "0x3477Df28ce70Cecf61fFfa7a95be4BEC3B3c7e75";
-
-    //   const constract = new Contract(
-    //     wrapper,
-    //     abraWsGlp,
-    //     this.signer
-    //   );
-
-    //   const fee = await constract.feePercent();
-
-    //   console.log("constract", constract)
-    //   console.log("fee", fee)
-    // },
-  },
-  // mounted() {
-  //   // this.testWrapEncode();
-  // },
 };
 </script>
 
