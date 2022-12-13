@@ -176,6 +176,7 @@ export default {
 
 .info-item {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
