@@ -75,15 +75,15 @@ export default {
 
       if (this.isGlpPool) {
         info.push({
-          name: "Repayment Rate",
+          name: "Self Repaying APY",
           value: `${this.tokenApy || 0}`,
-          tooltip: `The approximate rate at which users borrowed MIM will diminsh, thanks to GLP rewards.`,
+          tooltip: `Used to repay the borrowing, Up to 10%.`,
         });
 
         info.push({
           name: "Management Fee",
           value: `${this.pool.lpLogic.feePercent || 0}`,
-          tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
+          tooltip: `Fees when the APY outperform 10%`,
         });
       }
 
