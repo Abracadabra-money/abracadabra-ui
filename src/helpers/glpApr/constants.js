@@ -1,6 +1,6 @@
 const { Wallet } = require("ethers");
 
-module.exports.rpc = "https://rpc.ankr.com/arbitrum";
+module.exports.rpc = "https://arb1.arbitrum.io/rpc";
 
 module.exports.glpManagerAddress = "0x321F653eED006AD1C29D174e17d96351BDe22649";
 module.exports.rewardReaderAddress =

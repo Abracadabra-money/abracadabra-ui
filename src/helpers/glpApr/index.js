@@ -70,7 +70,13 @@ const getGlpApr = async () => {
   const caulronTargetApy = await getCaulronTargetApy()
   const targetApy = caulronTargetApy / 100;
 
-  return Math.min(targetApy, WETHApy);
+  const selfRepayingAPY =  Math.min(targetApy, WETHApy);
+
+  const managementFee = Math.max(WETHApy - targetApy, 0);
+
+  return {
+    selfRepayingAPY, managementFee
+  }
 };
 
 export { getGlpApr };

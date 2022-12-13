@@ -9,7 +9,10 @@
         />
         {{ item.name }}:</span
       >
-      <span>{{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span>
+      <span v-if="item.loading" class="loader"></span>
+      <span v-else>
+        {{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span
+      >
     </div>
   </div>
 </template>
@@ -31,6 +34,12 @@ export default {
     price: {
       type: [String, Number],
     },
+  },
+
+  data() {
+    return {
+      glpLoading: true
+    }
   },
 
   computed: {
@@ -75,14 +84,16 @@ export default {
 
       if (this.isGlpPool) {
         info.push({
+          loading: this.glpLoading,
           name: "Self Repaying APY",
-          value: `${this.tokenApy || 0}`,
+          value: `${this.selfRepayingAPY || "~"}`,
           tooltip: `Used to repay the borrowing, Up to 10%.`,
         });
 
         info.push({
+          loading: this.glpLoading,
           name: "Management Fee",
-          value: `${this.pool.lpLogic.feePercent || 0}`,
+          value: `${this.managementFee || "~"}`,
           tooltip: `Fees when the APY outperform 10%`,
         });
       }
@@ -101,17 +112,70 @@ export default {
 
   watch: {
     async pool() {
-      this.tokenApy = await getGlpApr();
+      this.glpLoading = true;
+      const { selfRepayingAPY, managementFee } = await getGlpApr();
+      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+      this.managementFee = parseFloat(managementFee).toFixed(2);
+      this.glpLoading = false;
     },
   },
 
   async created() {
-    if (this.pool) this.tokenApy = await getGlpApr();
+    if (this.pool) {
+      this.glpLoading = true;
+      const { selfRepayingAPY, managementFee } = await getGlpApr();
+      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+      this.managementFee = parseFloat(managementFee).toFixed(2);
+      this.glpLoading = false;
+    }
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.loader {
+  margin-right: 15px;
+  position: relative;
+  // top: 2px;
+  display: block;
+  width: 8px;
+  // height: 30px;
+  animation: rectangle infinite 1s ease-in-out -0.2s;
+  border-radius: 4px;
+  background-color: #fff;
+}
+.loader:before,
+.loader:after {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+
+  content: "";
+
+  background-color: #fff;
+}
+.loader:before {
+  left: -10px;
+  animation: rectangle infinite 1s ease-in-out -0.4s;
+}
+.loader:after {
+  right: -10px;
+  animation: rectangle infinite 1s ease-in-out;
+}
+
+@keyframes rectangle {
+  0%,
+  80%,
+  100% {
+    height: 6px;
+  }
+  40% {
+    height: 8px;
+  }
+}
+
 .info-item {
   display: flex;
   justify-content: space-between;
