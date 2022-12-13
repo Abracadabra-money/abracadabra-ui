@@ -90,12 +90,12 @@ export default {
           tooltip: `Used to repay the borrowing, Up to 10%.`,
         });
 
-        info.push({
-          loading: this.glpLoading,
-          name: "Management Fee",
-          value: `${this.managementFee || "~"}`,
-          tooltip: `Fees when the APY outperform 10%`,
-        });
+        // info.push({
+        //   loading: this.glpLoading,
+        //   name: "Management Fee",
+        //   value: `${this.managementFee || "~"}`,
+        //   tooltip: `Fees when the APY outperform 10%`,
+        // });
       }
 
       if (this.price) {
@@ -112,18 +112,16 @@ export default {
 
   watch: {
     async pool() {
-      const { selfRepayingAPY, managementFee } = await getGlpApr();
+      const selfRepayingAPY = await getGlpApr();
       this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
-      this.managementFee = parseFloat(managementFee).toFixed(2);
       this.glpLoading = false;
     },
   },
 
   async created() {
     if (this.pool) {
-      const { selfRepayingAPY, managementFee } = await getGlpApr();
+      const selfRepayingAPY = await getGlpApr();
       this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
-      this.managementFee = parseFloat(managementFee).toFixed(2);
       this.glpLoading = false;
     }
   },
