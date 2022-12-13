@@ -73,7 +73,7 @@
           >
         </div>
         <div class="popup-link-wrap" @click="closePopup">
-          <a class="popup-link" href="https://curve.fi/mim" target="_blank"
+          <a class="popup-link" href="https://curve.fi/#/ethereum/pools/mim/swap" target="_blank"
             >Swap</a
           >
         </div>

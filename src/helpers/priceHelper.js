@@ -10,9 +10,15 @@ const chainCoinGeckoIds = {
   43114: "avalanche",
 };
 
+const apiDomain =
+  process.env.VUE_APP_COINGECKO_API_KEY_2 &&
+  process.env.NODE_ENV === "production"
+    ? "pro-api.coingecko.com"
+    : "api.coingecko.com";
+
 const config = {
   headers: {
-    "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY,
+    "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY_2,
   },
 };
 
@@ -23,7 +29,7 @@ const getTokensArrayPrices = async (chainId, addressArr) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
+      `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
       config
     );
 
@@ -50,7 +56,7 @@ const getTokenPriceByAddress = async (chainId, address) => {
     if (!chainCoinGeckoId) return false;
 
     const pricesResponse = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
+      `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
       config
     );
 
