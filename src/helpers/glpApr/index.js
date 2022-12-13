@@ -13,6 +13,8 @@ const {
   getFeePercent,
 } = require("./helpers");
 
+import { getCaulronTargetApy } from "./getCaulronTargetApy";
+
 const { expandDecimals, formatAmount } = require("./utils");
 
 const getGlpApr = async () => {
@@ -62,7 +64,13 @@ const getGlpApr = async () => {
 
   const fee = feePercent / 100;
 
-  return parseAmount * (1 - fee);
+  const WETHApy = parseAmount * (1 - fee);
+
+
+  const caulronTargetApy = await getCaulronTargetApy()
+  const targetApy = caulronTargetApy / 100;
+
+  return Math.min(targetApy, WETHApy);
 };
 
 export { getGlpApr };
