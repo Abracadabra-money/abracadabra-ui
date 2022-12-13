@@ -112,7 +112,6 @@ export default {
 
   watch: {
     async pool() {
-      this.glpLoading = true;
       const { selfRepayingAPY, managementFee } = await getGlpApr();
       this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
       this.managementFee = parseFloat(managementFee).toFixed(2);
@@ -122,7 +121,6 @@ export default {
 
   async created() {
     if (this.pool) {
-      this.glpLoading = true;
       const { selfRepayingAPY, managementFee } = await getGlpApr();
       this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
       this.managementFee = parseFloat(managementFee).toFixed(2);
