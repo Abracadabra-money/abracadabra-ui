@@ -92,7 +92,6 @@ import { mapGetters } from "vuex";
 
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
-
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const MarketsBorrowItem = () =>
   import("@/components/markets/MarketsBorrowItem");
