@@ -107,6 +107,11 @@
           :emptyData="emptyData"
           :poolId="selectedPoolId"
         />
+
+        <div class="primary-api" :class="{ 'not-primary-api': !isGlp }">
+          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
+        </div>
+
         <template v-if="selectedPool">
           <div class="btn-wrap">
             <BaseButton
@@ -153,6 +158,7 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const BaseLoader = () => import("@/components/base/BaseLoader");
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
@@ -490,6 +496,10 @@ export default {
         return Vue.filter("formatToFixed")(tokenToMim, decimals);
       }
       return "0.0";
+    },
+
+    isGlp() {
+      return this.chainId === 42161 && this.selectedPool?.id === 2;
     },
   },
 
@@ -908,6 +918,7 @@ export default {
     BaseLoader,
     LocalPopupWrap,
     MarketsListPopup,
+    PrimaryAPYBlock,
   },
 };
 </script>
@@ -1004,11 +1015,18 @@ export default {
   margin-bottom: 30px;
 }
 
+.primary-api {
+  margin: 16px 0;
+}
+
+.not-primary-api {
+  margin: 0 0 90px;
+}
+
 .btn-wrap {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

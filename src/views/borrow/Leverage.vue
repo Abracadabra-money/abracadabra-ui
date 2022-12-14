@@ -79,7 +79,12 @@
           :poolId="selectedPoolId"
         />
 
-        <PrimaryAPYBlock/>
+        <div class="primary-api" :class="{ 'not-primary-api': !isGlp }">
+          <PrimaryAPYBlock
+            :expectedLeverage="expectedLeverage"
+            v-if="isGlp && selectedPool"
+          />
+        </div>
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -624,7 +629,7 @@ export default {
     },
 
     isGlp() {
-      return this.chainId === 42161 && this.selectedPool.id === 2;
+      return this.chainId === 42161 && this.selectedPool?.id === 2;
     },
   },
 
@@ -1097,7 +1102,7 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
-    PrimaryAPYBlock
+    PrimaryAPYBlock,
   },
 };
 </script>
@@ -1173,6 +1178,14 @@ export default {
   text-align: center;
 }
 
+.primary-api {
+  margin: 16px 0;
+}
+
+.not-primary-api {
+  margin: 0 0 90px;
+}
+
 .title {
   font-size: 24px;
   text-transform: uppercase;
@@ -1189,7 +1202,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

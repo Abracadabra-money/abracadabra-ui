@@ -87,6 +87,11 @@
           :emptyData="emptyData"
           :poolId="selectedPoolId"
         />
+
+        <div class="primary-api" :class="{ 'not-primary-api': !isGlp }">
+          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
+        </div>
+
         <template v-if="selectedPool">
           <div class="btn-wrap">
             <BaseButton
@@ -131,6 +136,7 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
@@ -493,6 +499,10 @@ export default {
         ? this.selectedPool.lpLogic.name
         : this.selectedPool.collateralToken.name;
     },
+
+    isGlp() {
+      return this.chainId === 42161 && this.selectedPool?.id === 2;
+    },
   },
 
   watch: {
@@ -761,6 +771,7 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
+    PrimaryAPYBlock,
   },
 };
 </script>
@@ -863,11 +874,18 @@ export default {
   margin-bottom: 30px;
 }
 
+.primary-api {
+  margin: 16px 0;
+}
+
+.not-primary-api {
+  margin: 0 0 90px;
+}
+
 .btn-wrap {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 
