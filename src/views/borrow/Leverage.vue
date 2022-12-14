@@ -79,6 +79,8 @@
           :poolId="selectedPoolId"
         />
 
+        <PrimaryAPYBlock/>
+
         <template v-if="selectedPool">
           <div class="btn-wrap">
             <BaseButton
@@ -139,7 +141,7 @@ const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
@@ -1095,6 +1097,7 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
+    PrimaryAPYBlock
   },
 };
 </script>
