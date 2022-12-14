@@ -20,7 +20,6 @@
 <script>
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { getGlpApr } from "@/helpers/glpApr";
 export default {
   props: {
     infoArr: {
@@ -34,12 +33,6 @@ export default {
     price: {
       type: [String, Number],
     },
-  },
-
-  data() {
-    return {
-      glpLoading: true
-    }
   },
 
   computed: {
@@ -82,22 +75,6 @@ export default {
         },
       ];
 
-      if (this.isGlpPool) {
-        info.push({
-          loading: this.glpLoading,
-          name: "Self Repaying APY",
-          value: `${this.selfRepayingAPY || "~"}`,
-          tooltip: `Used to repay the borrowing, Up to 10%.`,
-        });
-
-        // info.push({
-        //   loading: this.glpLoading,
-        //   name: "Management Fee",
-        //   value: `${this.managementFee || "~"}`,
-        //   tooltip: `Fees when the APY outperform 10%`,
-        // });
-      }
-
       if (this.price) {
         info.push({
           name: "Price",
@@ -108,22 +85,6 @@ export default {
 
       return info;
     },
-  },
-
-  watch: {
-    async pool() {
-      const selfRepayingAPY = await getGlpApr();
-      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
-      this.glpLoading = false;
-    },
-  },
-
-  async created() {
-    if (this.pool) {
-      const selfRepayingAPY = await getGlpApr();
-      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
-      this.glpLoading = false;
-    }
   },
 };
 </script>
