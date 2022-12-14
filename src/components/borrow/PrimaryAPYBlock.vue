@@ -35,9 +35,9 @@ export default {
   computed: {
     calculateApy() {
       if (+this.expectedLeverage)
-        return +this.selfRepayingAPY * +this.expectedLeverage;
+        return parseFloat(+this.selfRepayingAPY * +this.expectedLeverage).toFixed(2);
 
-      return this.selfRepayingAPY;
+      return parseFloat(this.selfRepayingAPY).toFixed(2);
     },
 
     isTilde() {
