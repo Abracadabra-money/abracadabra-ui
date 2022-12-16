@@ -17,6 +17,7 @@
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
           <span>{{ pool.name }}</span>
+          <MiniStatusTag v-if="isMigrated"/>
         </span>
       </span>
 
@@ -33,6 +34,7 @@
 import Vue from "vue";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
+const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
   name: "MarketsBorrowItem",
@@ -100,11 +102,19 @@ export default {
       }
       return null;
     },
+
+    isMigrated() {
+      if (this.activePool?.cauldronSettings)
+        return this.activePool.cauldronSettings.isMigrated;
+
+      return this.activePool?.isMigrated;
+    },
   },
 
   components: {
     BaseTokenIcon,
     StatusBar,
+    MiniStatusTag
   },
 };
 </script>
@@ -159,9 +169,9 @@ export default {
   margin-bottom: 6px;
   .network-name-wrap {
     position: relative;
-    display: flex;
-    align-items: center;
-    height: 32px;
+    // display: flex;
+    // align-items: center;
+    // height: 32px;
 
     .network-new {
       position: absolute;

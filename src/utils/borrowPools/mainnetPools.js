@@ -1803,6 +1803,7 @@ export default [
       dynamicBorrowAmountLimit: 0,
       isCollateralClaimable: false,
       claimCrvReward: false,
+      isMigrated: true
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1825,7 +1826,7 @@ export default [
   },
   {
     icon: require(`@/assets/images/tokens/crvSTETH.png`),
-    name: "yvSTETH3",
+    name: "yvcrvSTETH",
     contractChain: 1,
     id: 37,
     stabilityFee: 12.5,
@@ -1845,6 +1846,7 @@ export default [
       dynamicBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
+      isMigrated: true
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1852,7 +1854,7 @@ export default [
       abi: poolsAbi.PrivilegedCauldronV4,
     },
     token: {
-      name: "yvSTETH3",
+      name: "yvcrvSTETH",
       decimals: 18,
       address: "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
       abi: tokensAbi.yvcrvSTETH,
