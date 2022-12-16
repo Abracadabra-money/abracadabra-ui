@@ -14,6 +14,7 @@
         /></a>
 
         <LockedTimer :finalTime="isLockedTimer" v-if="isLockedTimer" />
+        <MiniStatusTag v-if="isMigrated"/>
       </div>
       <div class="deposit-wrap">
         <button
@@ -177,6 +178,7 @@ import Vue from "vue";
 import LockedTimer from "@/components/stake/LockedTimer.vue";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
+const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
   name: "BorrowPoolStand",
@@ -230,6 +232,13 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
     }),
+
+    isMigrated() {
+      if (this.pool?.cauldronSettings)
+        return this.pool.cauldronSettings.isMigrated;
+
+      return this.pool.isMigrated;
+    },
 
     tokenInUsd() {
       if (this.account && this.collateralDepositExpected >= 0) {
@@ -659,6 +668,7 @@ export default {
 
   components: {
     LockedTimer,
+    MiniStatusTag
   },
 };
 </script>
