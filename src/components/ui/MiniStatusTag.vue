@@ -1,11 +1,18 @@
 <template>
-  <div class="migrated-status">
+  <div class="migrated-status" :class="{rounded}">
     <p>Migrated</p>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  props: {
+    rounded: {
+      type: Boolean,
+      default: false
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -23,6 +30,10 @@ export default {};
   justify-content: center;
   max-width: max-content;
   margin-top: 4px;
+
+  &.rounded {
+    border-radius: 30px;
+  }
 
   p {
     color: #fff;
