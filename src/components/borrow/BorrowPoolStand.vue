@@ -237,7 +237,7 @@ export default {
       if (this.pool?.cauldronSettings)
         return this.pool.cauldronSettings.isMigrated;
 
-      return this.pool.isMigrated;
+      return this.pool?.isMigrated;
     },
 
     tokenInUsd() {
