@@ -125,7 +125,7 @@
             <a
               target="_blank"
               rel="noreferrer noopener"
-              href="https://github.com/Abracadabra-money/abracadabra-ui"
+              href="https://github.com/Abracadabra-money"
               class="list-link"
             >
               <GitHub />
