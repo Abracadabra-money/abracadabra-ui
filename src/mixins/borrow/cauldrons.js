@@ -404,7 +404,7 @@ export default {
       const totalBorrowResp = await poolContract.totalBorrow();
 
       const totalBorrow = this.$ethers.utils.formatUnits(
-        totalBorrowResp.base,
+        totalBorrowResp.elastic,
         pool.pairToken.decimals
       );
 

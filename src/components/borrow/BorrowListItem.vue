@@ -6,10 +6,13 @@
     <button @click="enterPool(pool)" class="pool-item">
       <div class="pool-name">
         <BaseTokenIcon :icon="pool.icon" :name="pool.name" />
-        <p>
-          {{ pool.name }}
-          <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
-        </p>
+        <div class="name-wrap">
+          <p>
+            {{ pool.name }}
+            <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
+          </p>
+          <MiniStatusTag v-if="isMigrated"/>
+        </div>
       </div>
       <div class="pool-balance">
         <p>{{ userBalance | formatTokenBalance }}</p>
@@ -24,6 +27,8 @@
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
+const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
+
 export default {
   props: {
     pool: {
@@ -53,6 +58,13 @@ export default {
 
       return this.pool.userInfo.balanceUsd;
     },
+
+    isMigrated() {
+      if (this.pool?.cauldronSettings)
+        return this.pool.cauldronSettings.isMigrated;
+
+      return this.pool.isMigrated;
+    },
   },
 
   methods: {
@@ -60,7 +72,7 @@ export default {
       this.$emit("enterPool", pool);
     },
   },
-  components: { BaseTokenIcon, StatusBar },
+  components: { BaseTokenIcon, StatusBar, MiniStatusTag },
 };
 </script>
 

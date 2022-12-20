@@ -66,7 +66,10 @@
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
-          <a href="https://curve.fi/#/ethereum/pools/mim/swap" class="list-link" target="_blank"
+          <a
+            href="https://curve.fi/#/ethereum/pools/mim/swap"
+            class="list-link"
+            target="_blank"
             >Swap</a
           >
           <a
@@ -118,13 +121,14 @@
             >
               <Docs />
             </a>
+
             <a
               target="_blank"
               rel="noreferrer noopener"
-              href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9"
+              href="https://github.com/Abracadabra-money"
               class="list-link"
             >
-              <Mirror />
+              <GitHub />
             </a>
           </div>
           <div class="list-row">
@@ -136,6 +140,18 @@
             >
               <Twitter />
             </a>
+
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9"
+              class="list-link"
+            >
+              <Mirror />
+            </a>
+          </div>
+          <div class="list-row">
+            <Lens />
             <a
               target="_blank"
               rel="noreferrer noopener"
@@ -145,7 +161,6 @@
               <Discord />
             </a>
           </div>
-          <Lens />
         </div>
       </div>
       <MimTokenBlock />
@@ -185,6 +200,7 @@ const Docs = () => import("@/components/icons/Docs");
 // const Medium = () => import("@/components/icons/Medium");
 const Twitter = () => import("@/components/icons/Twitter");
 const Discord = () => import("@/components/icons/Discord");
+const GitHub = () => import("@/components/icons/GitHub");
 const Lens = () => import("@/components/icons/Lens");
 const Mirror = () => import("@/components/icons/Mirror");
 
@@ -322,6 +338,7 @@ export default {
     Discord,
     Lens,
     Mirror,
+    GitHub,
   },
 };
 </script>

@@ -113,6 +113,15 @@
             >
               <Docs
             /></a>
+
+            <a
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://github.com/Abracadabra-money"
+            >
+              <GitHub />
+            </a>
+
             <a
               target="_blank"
               rel="noreferrer noopener"
@@ -156,6 +165,7 @@ const Twitter = () => import("@/components/icons/Twitter");
 const Discord = () => import("@/components/icons/Discord");
 const Lens = () => import("@/components/icons/Lens");
 const Mirror = () => import("@/components/icons/Mirror");
+const GitHub = () => import("@/components/icons/GitHub");
 export default {
   data() {
     return {
@@ -213,6 +223,7 @@ export default {
     Twitter,
     Discord,
     Lens,
+    GitHub
   },
 };
 </script>

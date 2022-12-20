@@ -9,6 +9,7 @@ import CauldronV3 from "@/utils/abi/borrowPoolsAbi/CauldronV3";
 import WhitelistedCauldronV3 from "@/utils/abi/borrowPoolsAbi/WhitelistedCauldronV3";
 import CauldronV3_2 from "@/utils/abi/borrowPoolsAbi/CauldronV3_2";
 import CauldronV4 from "@/utils/abi/borrowPoolsAbi/CauldronV4";
+import PrivilegedCauldronV4 from "@/utils/abi/borrowPoolsAbi/PrivilegedCauldronV4";
 import CauldronV4WithRewarder from "@/utils/abi/borrowPoolsAbi/CauldronV4WithRewarder";
 
 export default {
@@ -23,5 +24,6 @@ export default {
   WhitelistedCauldronV3,
   CauldronV3_2,
   CauldronV4,
+  PrivilegedCauldronV4,
   CauldronV4WithRewarder,
 };
