@@ -5,6 +5,7 @@ import zeroXLevSwapper from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import zeroXLiqSwapper from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
+import rewarderAbi from "@/utils/abi/lp/rewarder";
 
 export default [
   {
@@ -100,6 +101,68 @@ export default [
       lpAbi: tokensAbi.sGLP,
       tokenWrapper: "0xDd45c6614305D705a444B3baB0405D68aC85DbA5",
       tokenWrapperAbi: degenBoxERC20VaultWrapper,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0xACB2E2748221345C6F64CFCf9f3F6cF28ba4BE05",
+      abi: zeroXLevSwapper,
+    },
+    reverseSwapContractInfo: {
+      address: "0x66893197b8A95c5c1FdfCbfaaEAE807ca620B8fe",
+      abi: zeroXLiqSwapper,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/GLP.png`),
+    name: "GLP",
+    contractChain: 42161,
+    id: 3,
+    stabilityFee: 7.5,
+    interest: 0,
+    ltv: 75,
+    borrowFee: 0,
+    isSwappersActive: true,
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/u0vFLaZaHrstsu7V-pcs58ufFm7s6Sdw9coKgOfEkXM",
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
+    contract: {
+      name: "CauldronV4WithRewarder",
+      address: "0xdCA1514b98bec62aBA0610f23F579F36c79e6ed2",
+      abi: poolsAbi.CauldronV4WithRewarder,
+    },
+    token: {
+      name: "abra-wsGlp",
+      decimals: 18,
+      address: "0x3477Df28ce70Cecf61fFfa7a95be4BEC3B3c7e75",
+      abi: tokensAbi.abraWsGlp,
+    },
+    lpLogic: {
+      name: "GLP",
+      defaultToken: false,
+      lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
+      lpAbi: tokensAbi.sGLP,
+      tokenWrapper: "0xDd45c6614305D705a444B3baB0405D68aC85DbA5",
+      tokenWrapperAbi: degenBoxERC20VaultWrapper,
+      rewardContract: "0x3BAB7207D4E27b5DE4A15D540B7297281B45Ed2a",
+      rewardContractAbi: rewarderAbi,
     },
     pairToken: {
       name: "MIM",

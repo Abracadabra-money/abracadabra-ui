@@ -509,6 +509,17 @@ export default {
         }
       }
 
+      if (pool.lpLogic && pool.lpLogic?.rewardContract) {
+        const rewardContract = new this.$ethers.Contract(
+          pool.lpLogic.rewardContract,
+          JSON.stringify(pool.lpLogic.rewardContractAbi),
+          this.contractProvider
+        );
+
+        lpLogic.isUserRewarder = true;
+        lpLogic.userRewarder = await rewardContract.pendingReward(this.account);
+      }
+
       let poolData = {
         name: pool.name,
         icon: pool.icon,

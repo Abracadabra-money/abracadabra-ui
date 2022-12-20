@@ -271,8 +271,11 @@ export default {
 
     async query0x(buyToken, sellToken, slippage = 0, amountSell, takerAddress) {
       const slippagePercentage = slippage / 100;
-      // const url = "https://api.0x.org/swap/v1/quote";
-      const url = "https://arbitrum.api.0x.org/swap/v1/quote";
+
+      const url =
+        this.chainId === 42161
+          ? "https://arbitrum.api.0x.org/swap/v1/quote"
+          : "https://api.0x.org/swap/v1/quote";
 
       const params = {
         buyToken: buyToken,
@@ -307,6 +310,20 @@ export default {
       const lpCollateralAndBorrowValuesArray = [];
       const lpCollateralAndBorrowDatasArray = [];
 
+      const isUserReward = !!pool.lpLogic?.isUserRewarder;
+
+      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [this.account]
+      );
+
+      //34
+      if (isUserReward) {
+        lpCollateralAndBorrowEventsArray.push(34);
+        lpCollateralAndBorrowValuesArray.push(0);
+        lpCollateralAndBorrowDatasArray.push(userAddrEncode);
+      }
+
       // 5
       const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
@@ -316,6 +333,13 @@ export default {
       lpCollateralAndBorrowEventsArray.push(5);
       lpCollateralAndBorrowValuesArray.push(0);
       lpCollateralAndBorrowDatasArray.push(borrowEncode);
+
+      // 34
+      if (isUserReward) {
+        lpCollateralAndBorrowEventsArray.push(34);
+        lpCollateralAndBorrowValuesArray.push(0);
+        lpCollateralAndBorrowDatasArray.push(userAddrEncode);
+      }
 
       // 21
       const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -689,6 +713,7 @@ export default {
     ) {
       const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
+      const isUserReward = !!pool.lpLogic?.isUserRewarder;
 
       const eventsArray = [];
       const valuesArray = [];
@@ -723,6 +748,18 @@ export default {
         datasArray.push(whitelistedCallData);
       }
 
+      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [this.account]
+      );
+
+      // 34
+      if (isUserReward) {
+        eventsArray.push(34);
+        valuesArray.push(0);
+        datasArray.push(userAddrEncode);
+      }
+
       // 5
       const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
@@ -732,6 +769,13 @@ export default {
       eventsArray.push(5);
       valuesArray.push(0);
       datasArray.push(borrowEncode);
+
+      // 34
+      if (isUserReward) {
+        eventsArray.push(34);
+        valuesArray.push(0);
+        datasArray.push(userAddrEncode);
+      }
 
       //21
       const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -794,9 +838,22 @@ export default {
     // Repay
     async getLpCookRemoveCollateralData(pool, amount, userAddr) {
       const { tokenWrapper, lpAddress } = pool.lpLogic;
+      const isUserReward = !!pool.lpLogic?.isUserRewarder;
       const lpRemoveCollateralEventsArray = [];
       const lpRemoveCollateralValuesArray = [];
       const lpRemoveCollateralDatasArray = [];
+
+      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [userAddr]
+      );
+
+      // 34
+      if (isUserReward) {
+        lpRemoveCollateralEventsArray.push(34);
+        lpRemoveCollateralValuesArray.push(0);
+        lpRemoveCollateralDatasArray.push(userAddrEncode);
+      }
 
       //4 remove collateral
       const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
@@ -808,8 +865,14 @@ export default {
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(removeCollateral);
 
-      // 21 withdraw to token wrapper
+      // 34
+      if (isUserReward) {
+        lpRemoveCollateralEventsArray.push(34);
+        lpRemoveCollateralValuesArray.push(0);
+        lpRemoveCollateralDatasArray.push(userAddrEncode);
+      }
 
+      // 21 withdraw to token wrapper
       const lpBentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
         [pool.collateralToken.address, tokenWrapper, "0", amount]
@@ -834,6 +897,13 @@ export default {
       lpRemoveCollateralEventsArray.push(30);
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(lpCallEncode);
+
+      // 34
+      if (isUserReward) {
+        lpRemoveCollateralEventsArray.push(34);
+        lpRemoveCollateralValuesArray.push(0);
+        lpRemoveCollateralDatasArray.push(userAddrEncode);
+      }
 
       // 21
       // withdraw to  userAddr
@@ -864,6 +934,14 @@ export default {
       const lpRemoveAndRepayValuesArray = [];
       const lpRemoveAndRepayDatasArray = [];
 
+      const isUserReward = !!pool.lpLogic?.isUserRewarder;
+
+      // 34
+      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [this.account]
+      );
+
       //20
       const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
@@ -883,6 +961,13 @@ export default {
       lpRemoveAndRepayEventsArray.push(7);
       lpRemoveAndRepayValuesArray.push(0);
       lpRemoveAndRepayDatasArray.push(getRepayPartEncode);
+
+      // 34
+      if (isUserReward) {
+        lpRemoveAndRepayEventsArray.push(34);
+        lpRemoveAndRepayValuesArray.push(0);
+        lpRemoveAndRepayDatasArray.push(userAddrEncode);
+      }
 
       //2
       const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1356,7 +1441,7 @@ export default {
     ) {
       const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
-
+      const isUserReward = !!pool.lpLogic?.isUserRewarder;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
 
       const eventsArray = [];
@@ -1384,6 +1469,11 @@ export default {
         datasArray.push(updateEncode);
       }
 
+      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [this.account]
+      );
+
       if (itsMax) {
         // 6
         const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1404,6 +1494,13 @@ export default {
         eventsArray.push(20);
         valuesArray.push(0);
         datasArray.push(depositEncode);
+
+        // 34
+        if (isUserReward) {
+          eventsArray.push(34);
+          valuesArray.push(0);
+          datasArray.push(userAddrEncode);
+        }
 
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1434,6 +1531,13 @@ export default {
         eventsArray.push(7);
         valuesArray.push(0);
         datasArray.push(getRepayPartEncode);
+
+        // 34
+        if (isUserReward) {
+          eventsArray.push(34);
+          valuesArray.push(0);
+          datasArray.push(userAddrEncode);
+        }
 
         //2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1706,6 +1810,7 @@ export default {
       notificationId
     ) {
       const { lpAddress, tokenWrapper } = pool.lpLogic;
+      const isUserReward = !!pool.lpLogic?.isUserRewarder;
 
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
@@ -1714,6 +1819,12 @@ export default {
       const eventsArray = [];
       const valuesArray = [];
       const datasArray = [];
+
+      //34
+      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [this.account]
+      );
 
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
@@ -1753,6 +1864,13 @@ export default {
       eventsArray.push(20);
       valuesArray.push(0);
       datasArray.push(getDepositEncode1);
+
+      // 34
+      if (isUserReward) {
+        eventsArray.push(34);
+        valuesArray.push(0);
+        datasArray.push(userAddrEncode);
+      }
 
       //21 withdraw to token wrapper
       const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1794,6 +1912,13 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCollateralEncode2);
 
+      // 34
+      if (isUserReward) {
+        eventsArray.push(34);
+        valuesArray.push(0);
+        datasArray.push(userAddrEncode);
+      }
+
       //5 Borrow
       const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
         ["int256", "address"],
@@ -1807,7 +1932,7 @@ export default {
       // Swap MIM
       try {
         let swapData;
-        if (this.chainId === 42161 && pool.id === 2) {
+        if (this.chainId === 42161 && (pool.id === 2 || pool.id === 3)) {
           const response = await this.query0x(
             usdcAddress,
             pool.borrowToken.address,
@@ -2119,10 +2244,17 @@ export default {
     ) {
       const reverseSwapperAddr = pool.liqSwapperContract.address;
       const userBorrowPart = pool.userInfo.contractBorrowPart;
+      const isUserReward = !!pool.lpLogic?.isUserRewarder;
 
       const eventsArray = [];
       const valuesArray = [];
       const datasArray = [];
+
+      //34
+      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [this.account]
+      );
 
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
@@ -2145,6 +2277,13 @@ export default {
         datasArray.push(updateEncode);
       }
 
+      // 34
+      if (isUserReward) {
+        eventsArray.push(34);
+        valuesArray.push(0);
+        datasArray.push(userAddrEncode);
+      }
+
       //4 remove collateral to swapper
       const removeCollateralToSwapper =
         this.$ethers.utils.defaultAbiCoder.encode(
@@ -2158,7 +2297,7 @@ export default {
 
       let swapData;
 
-      if (this.chainId === 42161 && pool.id === 2) {
+      if (this.chainId === 42161 && (pool.id === 2 || pool.id === 3)) {
         const GmxLensContract = new this.$ethers.Contract(
           gmxLensAddress,
           JSON.stringify(gmxLensAbi),
@@ -2205,6 +2344,13 @@ export default {
       eventsArray.push(30);
       valuesArray.push(0);
       datasArray.push(callEncode);
+
+      // 34
+      if (isUserReward) {
+        eventsArray.push(34);
+        valuesArray.push(0);
+        datasArray.push(userAddrEncode);
+      }
 
       if (itsMax) {
         // 2
