@@ -1,5 +1,5 @@
 const { BigNumber, providers, Contract } = require("ethers");
-const url = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
+const url = `https://mainnet.infura.io/v3/${process.env.VUE_APP_WEB3_INFURA_PROJECT_ID}`;
 const { Percent, CurrencyAmount, Token } = require("@uniswap/sdk");
 
 import lpStakingAbi from "@/utils/abi/StargateLPStaking";

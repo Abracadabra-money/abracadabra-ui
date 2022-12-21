@@ -12,7 +12,7 @@ export default {
       {
         chainId: 1,
         name: "ETH",
-        rpc: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+        rpc: `https://mainnet.infura.io/v3/${process.env.VUE_APP_WEB3_INFURA_PROJECT_ID}`,
         icon: ethIcon,
         switchData: {
           chainId: "0x01",
