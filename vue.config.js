@@ -13,10 +13,7 @@ module.exports = {
       },
     },
   },
-
-  // Add polyfill (webpack 5 doesn't import it automatically)
   transpileDependencies: true,
-  lintOnSave: false,
   configureWebpack: {
     plugins: [ new NodePolyfillPlugin() ],
     optimization: {
