@@ -838,22 +838,9 @@ export default {
     // Repay
     async getLpCookRemoveCollateralData(pool, amount, userAddr) {
       const { tokenWrapper, lpAddress } = pool.lpLogic;
-      const isUserReward = !!pool.lpLogic?.isUserRewarder;
       const lpRemoveCollateralEventsArray = [];
       const lpRemoveCollateralValuesArray = [];
       const lpRemoveCollateralDatasArray = [];
-
-      const userAddrEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address"],
-        [userAddr]
-      );
-
-      // 34
-      if (isUserReward) {
-        lpRemoveCollateralEventsArray.push(34);
-        lpRemoveCollateralValuesArray.push(0);
-        lpRemoveCollateralDatasArray.push(userAddrEncode);
-      }
 
       //4 remove collateral
       const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
@@ -864,13 +851,6 @@ export default {
       lpRemoveCollateralEventsArray.push(4);
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(removeCollateral);
-
-      // 34
-      if (isUserReward) {
-        lpRemoveCollateralEventsArray.push(34);
-        lpRemoveCollateralValuesArray.push(0);
-        lpRemoveCollateralDatasArray.push(userAddrEncode);
-      }
 
       // 21 withdraw to token wrapper
       const lpBentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -897,13 +877,6 @@ export default {
       lpRemoveCollateralEventsArray.push(30);
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(lpCallEncode);
-
-      // 34
-      if (isUserReward) {
-        lpRemoveCollateralEventsArray.push(34);
-        lpRemoveCollateralValuesArray.push(0);
-        lpRemoveCollateralDatasArray.push(userAddrEncode);
-      }
 
       // 21
       // withdraw to  userAddr
@@ -2275,13 +2248,6 @@ export default {
         eventsArray.push(11);
         valuesArray.push(0);
         datasArray.push(updateEncode);
-      }
-
-      // 34
-      if (isUserReward) {
-        eventsArray.push(34);
-        valuesArray.push(0);
-        datasArray.push(userAddrEncode);
       }
 
       //4 remove collateral to swapper

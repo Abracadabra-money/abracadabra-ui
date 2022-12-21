@@ -1,6 +1,6 @@
 <template>
-  <div class="migrated-status" :class="{rounded}">
-    <p>Migrated</p>
+  <div class="migrated-status" :class="{ rounded }">
+    <p>{{ text }}</p>
   </div>
 </template>
 
@@ -9,9 +9,13 @@ export default {
   props: {
     rounded: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+    text: {
+      type: String,
+      default: "Migrated",
+    },
+  },
 };
 </script>
 

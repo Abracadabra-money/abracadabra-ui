@@ -17,7 +17,8 @@
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
           <span>{{ pool.name }}</span>
-          <MiniStatusTag v-if="isMigrated"/>
+          <MiniStatusTag v-if="isMigrated" />
+          <MiniStatusTag v-if="isGlp" text="Leverage" />
         </span>
       </span>
 
@@ -32,6 +33,7 @@
 
 <script>
 import Vue from "vue";
+import { mapGetters } from "vuex";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
 const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
@@ -68,6 +70,8 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     items() {
       return [
         {
@@ -109,12 +113,16 @@ export default {
 
       return this.activePool?.isMigrated;
     },
+
+    isGlp() {
+      return this.activePool.id === 3 && this.chainId === 42161;
+    },
   },
 
   components: {
     BaseTokenIcon,
     StatusBar,
-    MiniStatusTag
+    MiniStatusTag,
   },
 };
 </script>
