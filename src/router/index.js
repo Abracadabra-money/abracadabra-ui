@@ -82,7 +82,6 @@ const routes = [
   },
   {
     path: "/markets",
-    name: "Markets",
     component: () => import("@/views/markets/Markets"),
     children: [
       {
