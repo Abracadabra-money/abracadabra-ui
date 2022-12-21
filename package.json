@@ -44,7 +44,7 @@
     "node-polyfill-webpack-plugin": "^2.0.1",
     "prettier": "^2.8.1",
     "sass": "^1.57.1",
-    "sass-loader": "^8.0.2"
+    "sass-loader": "^13.2.0"
   },
   "eslintConfig": {
     "root": true,
