@@ -5,6 +5,11 @@
 npm install
 ```
 
+### Setting environment variables
+The file .env.example will help you to set the env variables needed for the project.
+
+Rename the ".env.example" file to ".env" and fill the environment variables required.
+
 ### Compiles and hot-reloads for development
 ```
 npm run serve
