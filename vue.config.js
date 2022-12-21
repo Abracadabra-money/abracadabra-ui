@@ -6,7 +6,7 @@ module.exports = {
     sourceMap: true,
     loaderOptions: {
       sass: {
-        prependData: `
+        additionalData: `
             @use "sass:math";
             @import "@/assets/styles/_variables.scss";
           `,
