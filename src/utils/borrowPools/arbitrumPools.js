@@ -145,7 +145,7 @@ export default [
     },
     contract: {
       name: "CauldronV4WithRewarder",
-      address: "0xdCA1514b98bec62aBA0610f23F579F36c79e6ed2",
+      address: "0xACEbCF3b2342dedF02a1908c9694B7DBCd0edBE6",
       abi: poolsAbi.CauldronV4WithRewarder,
     },
     token: {
