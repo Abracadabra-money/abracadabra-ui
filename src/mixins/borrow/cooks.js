@@ -50,6 +50,15 @@ export default {
       // if (this.chainId === 1 && this.selectedPool.id === 27) return true; // WETH
       return false;
     },
+
+    isGlpPool() {
+      return (
+        this.chainId === 42161 &&
+        (this.selectedPool.id === 2 ||
+          this.selectedPool.id === 3 ||
+          this.selectedPool.id === 4)
+      );
+    },
   },
   methods: {
     async getApprovalEncode(pool) {
@@ -1905,7 +1914,8 @@ export default {
       // Swap MIM
       try {
         let swapData;
-        if (this.chainId === 42161 && (pool.id === 2 || pool.id === 3)) {
+
+        if (this.isGlpPool) {
           const response = await this.query0x(
             usdcAddress,
             pool.borrowToken.address,
@@ -2263,7 +2273,7 @@ export default {
 
       let swapData;
 
-      if (this.chainId === 42161 && (pool.id === 2 || pool.id === 3)) {
+      if (this.isGlpPool) {
         const GmxLensContract = new this.$ethers.Contract(
           gmxLensAddress,
           JSON.stringify(gmxLensAbi),

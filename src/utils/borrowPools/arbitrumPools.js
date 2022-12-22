@@ -5,6 +5,7 @@ import zeroXLevSwapper from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import zeroXLiqSwapper from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
+import degenBoxERC4626Wrapper from "@/utils/abi/lp/degenBoxERC4626Wrapper";
 import rewarderAbi from "@/utils/abi/lp/rewarder";
 
 export default [
@@ -177,6 +178,66 @@ export default [
     },
     reverseSwapContractInfo: {
       address: "0x66893197b8A95c5c1FdfCbfaaEAE807ca620B8fe",
+      abi: zeroXLiqSwapper,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/GLP.png`),
+    name: "MagicGLP",
+    contractChain: 42161,
+    id: 4,
+    stabilityFee: 7.5,
+    interest: 0,
+    ltv: 75,
+    borrowFee: 0,
+    isSwappersActive: true,
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/u0vFLaZaHrstsu7V-pcs58ufFm7s6Sdw9coKgOfEkXM",
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x1b46870c3706bbc3c2c7af3d057109ceae9ece2a",
+      abi: poolsAbi.CauldronV4,
+    },
+    token: {
+      name: "mGLP",
+      decimals: 18,
+      address: "0x8833C3438Ff37DA7d472502c3d8D2aD8fE42225c",
+      abi: tokensAbi.mGLP,
+    },
+    lpLogic: {
+      name: "MagicGLP",
+      defaultToken: false,
+      lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
+      lpAbi: tokensAbi.sGLP,
+      tokenWrapper: "0xda93e1da68cb257b4ae7548dc2e4256d8684bcc5",
+      tokenWrapperAbi: degenBoxERC4626Wrapper,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0x9b27A40586AC7C4d283D0B07a749fC05f315fb45",
+      abi: zeroXLevSwapper,
+    },
+    reverseSwapContractInfo: {
+      address: "0x535c8F9bc1f988588756714D265121d8CFE8CCfb",
       abi: zeroXLiqSwapper,
     },
   },

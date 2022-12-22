@@ -14,7 +14,8 @@
         /></a>
 
         <LockedTimer :finalTime="isLockedTimer" v-if="isLockedTimer" />
-        <MiniStatusTag :rounded="true" v-if="isMigrated"/>
+        <MiniStatusTag :rounded="true" v-if="isMigrated" />
+        <MiniStatusTag :rounded="true" v-if="isGlp" text="Leverage" />
       </div>
       <div class="deposit-wrap">
         <button
@@ -238,6 +239,10 @@ export default {
         return this.pool.cauldronSettings.isMigrated;
 
       return this.pool?.isMigrated;
+    },
+
+    isGlp() {
+      return this.pool.id === 3 && this.chainId === 42161;
     },
 
     tokenInUsd() {
@@ -668,7 +673,7 @@ export default {
 
   components: {
     LockedTimer,
-    MiniStatusTag
+    MiniStatusTag,
   },
 };
 </script>
