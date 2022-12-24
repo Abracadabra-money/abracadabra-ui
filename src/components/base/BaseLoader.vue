@@ -46,12 +46,12 @@ i {
 
 @for $i from 1 through $particles {
   i:nth-child(#{$i}) {
-    $angle: ($i / $particles) * 360;
+    $angle: math.div($i, $particles) * 360;
 
     transform: rotate(#{$angle}deg) translate3d(#{$radius}px, 0, 0);
 
     b {
-      animation-delay: $i * ($lapDuration / ($particles - 2));
+      animation-delay: $i * math.div($lapDuration, ($particles - 2));
     }
   }
 }
@@ -61,7 +61,7 @@ i {
     transform: scale(1);
   }
   15% {
-    transform: translate(-$particleSize/2, -$particleSize/2) scale(3);
+    transform: translate(math.div(-$particleSize,2), math.div(-$particleSize,2)) scale(3);
   }
   50% {
     transform: scale(1);
