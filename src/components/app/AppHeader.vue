@@ -81,7 +81,7 @@
         </div>
       </div>
       <div class="header-link networks-btn" @click="openNetworkPopup">
-        <img v-if="!!networcIcon" :src="networcIcon" alt="" />
+        <img v-if="chainId" :src="getCurrentNetwork().icon" :alt="getCurrentNetwork().name" />
       </div>
       <div class="header-link header-connect">
         <ConnectButton />
@@ -206,6 +206,8 @@ const Mirror = () => import("@/components/icons/Mirror");
 
 import chainSwitch from "@/mixins/chainSwitch";
 
+import { getNetworks, getCurrentNetwork } from "@/utils/networks";
+
 export default {
   mixins: [chainSwitch],
   data() {
@@ -222,27 +224,13 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      networksArr: "getAvailableNetworks",
     }),
 
     popupNetworksArr() {
-      return this.networksArr.map((chain) => {
-        if (chain?.title) return chain;
-        chain.title = chain.name;
-        return chain;
-      });
-    },
-
-    networcIcon() {
-      if (this.popupNetworksArr.length && this.chainId) {
-        const chain = this.popupNetworksArr.find((chain) => {
-          if (chain.chainId === this.chainId) return chain;
-        });
-
-        return chain.icon;
-      }
-
-      return "";
+      return getNetworks().map(({ name, ...otherProperties }) => ({
+        title: name,
+        ...otherProperties
+      }));
     },
   },
 
@@ -257,6 +245,7 @@ export default {
   },
 
   methods: {
+    getCurrentNetwork,
     toHome() {
       this.$router.push({ name: "Home" });
     },
