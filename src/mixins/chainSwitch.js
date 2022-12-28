@@ -1,18 +1,12 @@
-import { mapGetters } from "vuex";
+import { getNetworkByChainId } from "@/utils/networks";
+
 export default {
-  data() {
-    return {};
-  },
-  computed: {
-    ...mapGetters({ networks: "getAvailableNetworks" }),
-  },
   methods: {
     async switchNetwork(chainId) {
       const provider = this.$store.getters.getProvider;
       const isCoinbase = this.$store.getters.getIsCoinbase;
-      const data = this.networks.find(
-        (item) => item.chainId === chainId
-      )?.switchData;
+      const data = getNetworkByChainId(chainId)?.switchData;
+
       try {
         await provider.provider.request({
           method: "wallet_switchEthereumChain",

@@ -37,6 +37,7 @@
 import { mapGetters } from "vuex";
 
 import chainSwitch from "@/mixins/chainSwitch";
+import { getNetworks } from "@/utils/networks";
 const NetworkChip = () => import("@/components/ui/NetworkChip");
 
 export default {
@@ -68,31 +69,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      availableNetworks: "getAvailableNetworks",
       chainId: "getChainId",
       account: "getAccount",
     }),
-    networks() {
-      return this.activeChain
-        ? [
-            this.activeChain,
-            ...this.availableNetworks.filter(
-              ({ chainId }) => chainId !== this.chainId
-            ),
-          ]
-        : this.availableNetworks;
-    },
     activeNetworks() {
-      return !this.activeList.length
-        ? this.networks
-        : this.networks.filter(({ chainId }) =>
-            this.activeList.includes(chainId)
-          );
-    },
-    activeChain() {
-      return this.availableNetworks.find(
-        ({ chainId }) => chainId === this.chainId
-      );
+      if (!this.activeList.length) return getNetworks();
+
+      return getNetworks().filter(({ chainId }) => this.activeList.includes(chainId));
     },
     listMaxHeight() {
       const lines = Math.ceil(this.activeNetworks.length / this.items);
