@@ -27,9 +27,7 @@ const AETH = {
   switchData: {
     chainId: "0xa4b1",
     chainName: "Arbitrum One",
-
     rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-
     blockExplorerUrls: ["https://arbiscan.io"],
   },
 };
@@ -42,9 +40,7 @@ const AVAX = {
   switchData: {
     chainId: "0xa86a",
     chainName: "Avalanche Mainnet",
-
     rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"],
-
     blockExplorerUrls: ["https://cchain.explorer.avax.network/"],
   },
 };
@@ -57,13 +53,9 @@ const FTM = {
   switchData: {
     chainId: "0xfa",
     chainName: "Fantom Opera Mainnet",
-
     rpcUrls: ["https://rpcapi.fantom.network/", "https://rpc.fantom.network/"],
-
     iconUrls: ["https://ftmscan.com/images/logo-ftmscan.svg?v=0.0.2"],
-
     blockExplorerUrls: ["https://ftmscan.com/"],
-
     nativeCurrency: {
       name: "Fantom",
       symbol: "FTM",
@@ -105,13 +97,9 @@ const MATIC = {
   switchData: {
     chainId: "0x89",
     chainName: "Polygon Mainnet",
-
     rpcUrls: ["https://polygon-rpc.com/"],
-
     iconUrls: ["https://polygonscan.com/images/svg/brands/polygon.svg"],
-
     blockExplorerUrls: ["https://polygonscan.com/"],
-
     nativeCurrency: {
       name: "Polygon",
       symbol: "MATIC",
