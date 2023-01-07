@@ -74,7 +74,7 @@ export default {
       img: require(`@/assets/images/empty_borrow.png`),
       text: "Some text 4 empty view!",
       bottom: "If you want to learn more read our docs",
-      link: "https://docs.abracadabra.money/",
+      link: process.env.VUE_APP_BASE_DOCS_URL,
     },
   }),
   computed: {

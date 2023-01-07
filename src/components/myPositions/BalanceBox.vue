@@ -67,9 +67,9 @@ export default {
   computed: {
     link() {
       if (this.isBento)
-        return "https://docs.abracadabra.money/intro/the-dashboard#mim-balance-on-bentobox";
+        return (process.env.VUE_APP_BASE_DOCS_URL + "/intro/the-dashboard#mim-balance-on-bentobox-degenbox");
 
-      return "https://docs.abracadabra.money/our-ecosystem/our-contracts#our-degenbox-contracts";
+      return (process.env.VUE_APP_BASE_DOCS_URL + "/our-ecosystem/our-contracts#our-degenbox-contracts");
     },
     parsedBalance() {
       return this.$ethers.utils.formatEther(this.balance);

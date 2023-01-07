@@ -123,7 +123,7 @@ export default {
         img: require(`@/assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Repay",
         bottom: "If you want to learn more read our docs",
-        link: "https://docs.abracadabra.money/",
+        link: process.env.VUE_APP_BASE_DOCS_URL,
       },
     };
   },

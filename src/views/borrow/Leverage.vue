@@ -174,7 +174,7 @@ export default {
         img: require(`@/assets/images/empty_leverage.png`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
         bottom: "Read more about it",
-        link: "https://docs.abracadabra.money/intro/lending-markets",
+        link: process.env.VUE_APP_BASE_DOCS_URL + "/intro/lending-markets"
       },
     };
   },
