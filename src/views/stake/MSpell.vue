@@ -82,7 +82,7 @@
             sharing mechanism of Abracadabra and earn MIM! Find out more
             <a
               target="_blank"
-              href="https://docs.abracadabra.money/intro/stake/mspell"
+              :href="baseDocsUrl + '/intro/stake/mspell'"
               class="empty-link"
               >here</a
             >!
@@ -121,6 +121,9 @@ export default {
     };
   },
   computed: {
+    baseDocsUrl () {
+      return process.env.VUE_APP_BASE_DOCS_URL;
+    },
     account() {
       return this.$store.getters.getAccount;
     },

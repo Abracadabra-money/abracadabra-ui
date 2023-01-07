@@ -163,7 +163,7 @@ export default {
         img: require(`@/assets/images/empty_leverage.png`),
         text: "Deleverage your position using our built-in Flash repay function.",
         bottom: "Read more about it",
-        link: "https://docs.abracadabra.money/intro/lending-markets",
+        link: process.env.VUE_APP_BASE_DOCS_URL + "/intro/lending-markets",
       },
     };
   },
