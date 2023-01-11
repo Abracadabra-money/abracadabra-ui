@@ -2,6 +2,7 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
+        <MiniStatusTag :rounded="true" v-if="isGlp" text="Leverage" />
         <a
           target="_blank"
           rel="noreferrer noopener"
@@ -15,7 +16,6 @@
 
         <LockedTimer :finalTime="isLockedTimer" v-if="isLockedTimer" />
         <MiniStatusTag :rounded="true" v-if="isMigrated" />
-        <MiniStatusTag :rounded="true" v-if="isGlp" text="Leverage" />
       </div>
       <div class="deposit-wrap">
         <button
@@ -720,6 +720,12 @@ export default {
   justify-content: space-between;
   padding: 9px 30px 7px 30px;
   min-height: 40px;
+}
+
+.strategy {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .strategy a {
