@@ -10,7 +10,7 @@ const {
   getStakingData,
   getBalanceAndSupplyData,
   bigNumberify,
-  getFeePercent,
+  // getFeePercent,
 } = require("./helpers");
 
 import { getCaulronTargetApy } from "./getCaulronTargetApy";
@@ -59,18 +59,17 @@ const getGlpApr = async () => {
       : bigNumberify(0);
 
   const glpAprTotal = glpAprForNativeToken.add(glpAprForEsGmx);
-  const parseAmount = formatAmount(glpAprTotal, 2, 2, true);
-  const feePercent = await getFeePercent();
+  const WETHApy = formatAmount(glpAprTotal, 2, 2, true);
 
-  const fee = feePercent / 100;
-
-  const WETHApy = parseAmount * (1 - fee);
-
+  // const feePercent = await getFeePercent();
+  // const fee = feePercent / 100;
 
   const caulronTargetApy = await getCaulronTargetApy()
   const targetApy = caulronTargetApy / 100;
 
-  return Math.min(targetApy, WETHApy);
+  return WETHApy >= targetApy ? targetApy : WETHApy
+
+  // return Math.min(targetApy, WETHApy);
 
   // const managementFee = Math.max(WETHApy - targetApy, 0);
 
