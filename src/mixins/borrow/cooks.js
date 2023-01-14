@@ -49,7 +49,7 @@ export default {
     },
   },
   methods: {
-    async getApprovalEncode(pool) {
+    async getApprovalEncode(pool, approved = true, firstSignAdded = false) {
       if (!this.itsMetamask) return "ledger";
 
       const account = this.account;
@@ -76,13 +76,15 @@ export default {
         ],
       };
 
+      const warning = approved ? "Give FULL access to funds in (and approved to) BentoBox?" : "Revoke access to BentoBox?";
+
       // The data to sign
       const value = {
-        warning: "Give FULL access to funds in (and approved to) BentoBox?",
+        warning,
         user: account,
         masterContract,
-        approved: true,
-        nonce,
+        approved,
+        nonce: firstSignAdded ? +nonce + 1 : nonce,
       };
 
       let signature;
@@ -113,7 +115,7 @@ export default {
         [
           account,
           masterContract,
-          true,
+          approved,
           parsedSignature.v,
           parsedSignature.r,
           parsedSignature.s,
@@ -127,39 +129,6 @@ export default {
       } catch (e) {
         console.log("getVerifyingContract err:", e);
       }
-    },
-
-    async testMC(pool) {
-      if (this.chainId !== 1 && this.chainId !== 42161) return false;
-
-      const mn = [
-        "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3".toLowerCase(),
-        "0x43243F7BdDCb850acB687c42BBf5066c224054a5".toLowerCase(),
-      ];
-      const ar = ["0x303A59A1020807B6FD78D3BB0e3c8B6a26Bbc0B9".toLowerCase()];
-
-      const activeArr =
-        this.chainId === 1 ? mn : this.chainId === 42161 ? ar : [];
-
-      const masterContract = await this.getMasterContract(pool);
-
-      const iss = activeArr.indexOf(masterContract.toLowerCase()) !== -1;
-
-      if (iss) {
-        return this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
-          [
-            this.account,
-            masterContract,
-            false,
-            this.$ethers.utils.formatBytes32String(""),
-            this.$ethers.utils.formatBytes32String(""),
-            this.$ethers.utils.formatBytes32String(""),
-          ]
-        );
-      }
-
-      return false;
     },
 
     async approveMasterContract(pool) {
@@ -462,6 +431,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -472,6 +443,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -541,11 +514,11 @@ export default {
         datasArray.push(colateralEncode);
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -615,6 +588,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -625,6 +600,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -668,11 +645,11 @@ export default {
         datasArray.push(colateralEncode);
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -682,16 +659,16 @@ export default {
       };
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: collateralValue,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst + +estimateGas.toString();
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -699,7 +676,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit,
+            gasLimit: 5000000,
           }
         );
 
@@ -737,6 +714,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -747,6 +726,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -786,11 +767,11 @@ export default {
       valuesArray.push(0);
       datasArray.push(bentoWithdrawEncode);
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -976,6 +957,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -986,6 +969,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1067,11 +1052,11 @@ export default {
         }
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -1136,6 +1121,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1146,6 +1133,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1233,11 +1222,11 @@ export default {
         }
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -1300,6 +1289,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1310,6 +1301,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1354,11 +1347,11 @@ export default {
         datasArray.push(bentoWithdrawEncode);
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -1434,6 +1427,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1444,6 +1439,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1525,11 +1522,11 @@ export default {
         datasArray.push(callEncode);
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -1607,6 +1604,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1617,6 +1616,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1722,11 +1723,11 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCollateralEncode2);
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -1800,6 +1801,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1810,6 +1813,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1926,11 +1931,11 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCollateralEncode3);
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -2004,6 +2009,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -2014,6 +2021,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -2136,11 +2145,11 @@ export default {
         datasArray.push(callEncode);
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -2212,6 +2221,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -2222,6 +2233,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -2317,11 +2330,11 @@ export default {
         datasArray.push(callEncode);
       }
 
-      const iss = await this.testMC(pool);
-      if (iss) {
+      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
-        datasArray.push(iss);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
