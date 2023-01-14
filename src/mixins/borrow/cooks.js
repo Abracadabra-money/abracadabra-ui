@@ -129,6 +129,39 @@ export default {
       }
     },
 
+    async testMC(pool) {
+      if (this.chainId !== 1 && this.chainId !== 42161) return false;
+
+      const mn = [
+        "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3".toLowerCase(),
+        "0x43243F7BdDCb850acB687c42BBf5066c224054a5".toLowerCase(),
+      ];
+      const ar = ["0x303A59A1020807B6FD78D3BB0e3c8B6a26Bbc0B9".toLowerCase()];
+
+      const activeArr =
+        this.chainId === 1 ? mn : this.chainId === 42161 ? ar : [];
+
+      const masterContract = await this.getMasterContract(pool);
+
+      const iss = activeArr.indexOf(masterContract.toLowerCase()) !== -1;
+
+      if (iss) {
+        return this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
+          [
+            this.account,
+            masterContract,
+            false,
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String(""),
+          ]
+        );
+      }
+
+      return false;
+    },
+
     async approveMasterContract(pool) {
       try {
         const masterContract = await this.getMasterContract(pool);
@@ -508,6 +541,13 @@ export default {
         datasArray.push(colateralEncode);
       }
 
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -628,6 +668,13 @@ export default {
         datasArray.push(colateralEncode);
       }
 
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -738,6 +785,13 @@ export default {
       eventsArray.push(21);
       valuesArray.push(0);
       datasArray.push(bentoWithdrawEncode);
+
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -1013,6 +1067,13 @@ export default {
         }
       }
 
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -1172,6 +1233,13 @@ export default {
         }
       }
 
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -1284,6 +1352,13 @@ export default {
         eventsArray.push(21);
         valuesArray.push(0);
         datasArray.push(bentoWithdrawEncode);
+      }
+
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
       }
 
       const cookData = {
@@ -1448,6 +1523,13 @@ export default {
         eventsArray.push(30);
         valuesArray.push(0);
         datasArray.push(callEncode);
+      }
+
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
       }
 
       const cookData = {
@@ -1639,6 +1721,13 @@ export default {
       eventsArray.push(10);
       valuesArray.push(0);
       datasArray.push(getCollateralEncode2);
+
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -1836,6 +1925,13 @@ export default {
       eventsArray.push(10);
       valuesArray.push(0);
       datasArray.push(getCollateralEncode3);
+
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -2040,6 +2136,13 @@ export default {
         datasArray.push(callEncode);
       }
 
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -2212,6 +2315,13 @@ export default {
         eventsArray.push(30);
         valuesArray.push(0);
         datasArray.push(callEncode);
+      }
+
+      const iss = await this.testMC(pool);
+      if (iss) {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(iss);
       }
 
       const cookData = {
