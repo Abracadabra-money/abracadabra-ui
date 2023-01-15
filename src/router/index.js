@@ -98,6 +98,11 @@ const routes = [
     ],
   },
   {
+    path: "/claim",
+    name: "Claim",
+    component: () => import("@/views/Claim"),
+  },
+  {
     path: "*",
     redirect: "/",
   },
