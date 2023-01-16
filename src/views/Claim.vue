@@ -163,7 +163,7 @@
           src="@/assets/images/claim/coin.png"
           alt="Coin"
         />
-        <p class="claimed-text">All tokens have been claimed</p>
+        <p class="claimed-text">{{ claimTokensText }}</p>
       </div>
     </div>
 
@@ -324,7 +324,7 @@
           src="@/assets/images/claim/coin.png"
           alt="Coin"
         />
-        <p class="claimed-text">All tokens have been claimed</p>
+        <p class="claimed-text">{{ claimTokensText }}</p>
       </div>
     </div>
 
@@ -492,6 +492,12 @@ export default {
       userSigner: "getSigner",
       defaultProvider: "getProvider",
     }),
+
+    claimTokensText() {
+      if(this.isClaimed) return "All tokens have been claimed";
+
+      return "No tokens to be Claimed"
+    },
 
     btnText() {
       if (this.account) {
