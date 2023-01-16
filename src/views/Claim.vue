@@ -545,7 +545,7 @@ export default {
     },
 
     isClaimedAeth() {
-      return true //+this.sGlpBalance > 0 || +this.mimBalance > 0;
+      return +this.sGlpBalance > 0 || +this.mimBalance > 0;
     },
 
     isAffected() {
