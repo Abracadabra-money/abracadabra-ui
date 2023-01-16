@@ -232,7 +232,8 @@
 
     <div class="wrapper info-block">
       <!-- <h3 class="claim-title">Connected address affected</h3> -->
-      <h3 class="claim-title">Your address may have been affected</h3>
+      <h3 class="claim-title" v-if="!isApproveMasterContracts && account">Your Address is not affected</h3>
+      <h3 class="claim-title" v-else>Your address may have been affected</h3>
       <template v-if="account">
         <div class="info info-claim" v-if="isApproveMasterContracts">
           <p class="info-text">Revoke Master Contract Approval</p>
