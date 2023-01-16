@@ -43,7 +43,7 @@
     </div>
 
     <div class="wrapper" v-if="account">
-      <h4>Choose Chain</h4>
+      <h4>Check Both Chains</h4>
       <NetworksList :items="2" :activeList="activeNetworks" />
     </div>
 
@@ -230,10 +230,14 @@
       </div>
     </div>
 
-    <div class="wrapper info-block">
+    <div class="wrapper info-block" v-if="account && checkChain">
       <!-- <h3 class="claim-title">Connected address affected</h3> -->
-      <h3 class="claim-title" v-if="!account">Connect your wallet to check if you have been affected</h3>
-      <h3 class="claim-title" v-else-if="!isApproveMasterContracts && account">Your Address is not affected</h3>
+      <h3 class="claim-title" v-if="!account">
+        Connect your wallet to check if you have been affected
+      </h3>
+      <h3 class="claim-title" v-else-if="!isApproveMasterContracts && account">
+        Your Address is not affected
+      </h3>
       <h3 class="claim-title" v-else>Your address may have been affected</h3>
       <template v-if="account">
         <div class="info info-claim" v-if="isApproveMasterContracts">
@@ -343,7 +347,7 @@ export default {
   data() {
     return {
       bg,
-      activeNetworks: [1, 42161],
+      activeNetworks: [42161, 1],
       mainnet: {
         id: 1,
         degen: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
@@ -388,6 +392,10 @@ export default {
 
     contractProvider() {
       return this.userSigner ? this.userSigner : this.defaultProvider;
+    },
+
+    checkChain() {
+      return this.chainId === 1 || this.chainId === 42161;
     },
   },
 
