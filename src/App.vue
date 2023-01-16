@@ -6,6 +6,7 @@
     </div>
     <NotificationContainer />
     <PopupsWrapper />
+    <Banner />
   </div>
 </template>
 
@@ -16,6 +17,7 @@ const NotificationContainer = () =>
   import("@/components/notifications/NotificationContainer");
 const AppHeader = () => import("@/components/app/AppHeader");
 const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
+const Banner = () => import("@/components/ui/Banner");
 
 export default {
   computed: {
@@ -28,6 +30,7 @@ export default {
     AppHeader,
     NotificationContainer,
     PopupsWrapper,
+    Banner,
   },
 };
 </script>
