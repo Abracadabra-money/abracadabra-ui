@@ -6,7 +6,7 @@
       contract.
     </div> -->
 
-    <div class="banner" v-if="false">
+    <div class="banner" v-if="isAffected">
       <img
         class="banner-img"
         src="@/assets/images/claim/skull.png"
@@ -17,23 +17,8 @@
           Your address is affected by a vulnerability!
         </h3>
         <p class="banner-text">
-          Follow the Steps
-          <a
-            class="banner-link"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            >here</a
-          >
-          to get back your secured funds.
+          Follow the Steps to get back your secured funds.
         </p>
-        <a
-          class="banner-link"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Read more about it here</a
-        >
       </div>
       <img
         class="banner-img"
@@ -553,6 +538,10 @@ export default {
     isClaimedAeth() {
       return +this.sGlpBalance > 0 || +this.mimBalance > 0;
     },
+
+    isAffected() {
+      return this.isClaimedAeth || this.isClaimedEth;
+    }
   },
 
   methods: {
