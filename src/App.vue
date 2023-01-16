@@ -7,6 +7,7 @@
     <NotificationContainer />
     <PopupsWrapper />
     <Banner />
+    <SkullBanner />
   </div>
 </template>
 
@@ -18,6 +19,7 @@ const NotificationContainer = () =>
 const AppHeader = () => import("@/components/app/AppHeader");
 const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
 const Banner = () => import("@/components/ui/Banner");
+const SkullBanner = () => import("@/components/ui/SkullBanner");
 
 export default {
   computed: {
@@ -31,6 +33,7 @@ export default {
     NotificationContainer,
     PopupsWrapper,
     Banner,
+    SkullBanner
   },
 };
 </script>
