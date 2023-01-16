@@ -481,7 +481,7 @@ export default {
       sGlpBalanceUsd: 0,
       mimBalance: null,
       mimBalanceUsd: 0,
-      isClaimed: null
+      isClaimed: null,
     };
   },
 
@@ -494,9 +494,9 @@ export default {
     }),
 
     claimTokensText() {
-      if(this.isClaimed) return "All tokens have been claimed";
+      if (this.isClaimed) return "All tokens have been claimed";
 
-      return "No tokens to be Claimed"
+      return "No tokens to be Claimed";
     },
 
     btnText() {
@@ -547,7 +547,7 @@ export default {
 
     isAffected() {
       return this.isClaimedAeth || this.isClaimedEth;
-    }
+    },
   },
 
   methods: {
@@ -565,7 +565,10 @@ export default {
           });
         }
 
-        if (this.isClaimedEth) this.claimContract.claim();
+        if (this.isClaimedEth || this.isClaimedAeth) {
+          this.claimContract.claim();
+          return false;
+        }
       }
     },
 
