@@ -26,7 +26,7 @@ const BaseButton = () => import("@/components/base/BaseButton");
 export default {
   data() {
     return {
-      isBanner: true,
+      isBanner: false,
     };
   },
 

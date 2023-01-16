@@ -1,6 +1,12 @@
 <template>
   <div class="claim-view">
-    <div class="banner">
+    <div class="wrapper check-content" :style="`background-image: url(${bg})`">
+      The front end claiming process is being finalised, please check back
+      later. While being developed, funds have already been secured in the claim
+      contract.
+    </div>
+
+    <div class="banner" v-if="false">
       <img
         class="banner-img"
         src="@/assets/images/claim/skull.png"
@@ -36,14 +42,16 @@
       />
     </div>
 
-    <div class="wrapper">
+    <div class="wrapper" v-if="account">
       <h4>Choose Chain</h4>
-      <NetworksList items="6" />
+      <NetworksList :items="2" :activeList="activeNetworks" />
     </div>
 
-    <h3 class="claim-title">Claimable funds on: Ethereum & Arbitrum</h3>
+    <h3 class="claim-title" v-if="false">
+      Claimable funds on: Ethereum & Arbitrum
+    </h3>
 
-    <div class="claim-table">
+    <div class="claim-table" v-if="false">
       <div class="table-header">
         <div class="header-item">Status</div>
         <div class="header-item">Token</div>
@@ -122,7 +130,7 @@
       </div>
     </div>
 
-    <div class="table-mobile">
+    <div class="table-mobile" v-if="false">
       <div v-if="false" class="not-claimed">No tokens to be Claimed</div>
 
       <template v-else>
@@ -223,94 +231,102 @@
     </div>
 
     <div class="wrapper info-block">
-      <h3 class="claim-title">Connected address affected</h3>
-      <div class="info info-claim">
-        <p class="info-text">Connected address affected</p>
-        <img
-          class="info-img"
-          v-if="true"
-          src="@/assets/images/claim/not-check.png"
-          alt=""
-        />
-        <img
-          class="info-img"
-          v-else
-          src="@/assets/images/claim/check.png"
-          alt=""
-        />
-      </div>
-      <div class="info info-claim">
-        <p class="info-text">Claim secured funds</p>
-        <img
-          class="info-img"
-          v-if="true"
-          src="@/assets/images/claim/not-check.png"
-          alt=""
-        />
-        <img
-          class="info-img"
-          v-else
-          src="@/assets/images/claim/check.png"
-          alt=""
-        />
-      </div>
-      <div class="info info-claimed">
-        <p class="info-text">Connected address not affected</p>
-        <img
-          class="info-img"
-          v-if="false"
-          src="@/assets/images/claim/not-check.png"
-          alt=""
-        />
-        <img
-          class="info-img"
-          v-else
-          src="@/assets/images/claim/check.png"
-          alt=""
-        />
-      </div>
-      <div class="info info-claimed">
-        <p class="info-text">MasterContract Approval revoked</p>
-        <img
-          class="info-img"
-          v-if="false"
-          src="@/assets/images/claim/not-check.png"
-          alt=""
-        />
-        <img
-          class="info-img"
-          v-else
-          src="@/assets/images/claim/check.png"
-          alt=""
-        />
-      </div>
-      <div class="info info-claimed">
-        <p class="info-text">Funds claimed</p>
-        <img
-          class="info-img"
-          v-if="false"
-          src="@/assets/images/claim/not-check.png"
-          alt=""
-        />
-        <img
-          class="info-img"
-          v-else
-          src="@/assets/images/claim/check.png"
-          alt=""
-        />
-      </div>
+      <!-- <h3 class="claim-title">Connected address affected</h3> -->
+      <h3 class="claim-title">Your address may have been affected</h3>
+      <template v-if="account">
+        <div class="info info-claim" v-if="isApproveMasterContracts">
+          <p class="info-text">Revoke Master Contract Approval</p>
+          <img
+            class="info-img"
+            v-if="true"
+            src="@/assets/images/claim/not-check.png"
+            alt=""
+          />
+          <img
+            class="info-img"
+            v-else
+            src="@/assets/images/claim/check.png"
+            alt=""
+          />
+        </div>
+
+        <div class="info info-claimed" v-else>
+          <p class="info-text">MasterContract Approval revoked</p>
+          <img
+            class="info-img"
+            v-if="false"
+            src="@/assets/images/claim/not-check.png"
+            alt=""
+          />
+          <img
+            class="info-img"
+            v-else
+            src="@/assets/images/claim/check.png"
+            alt=""
+          />
+        </div>
+
+        <!-- <div class="info info-claim">
+          <p class="info-text">Claim secured funds</p>
+          <img
+            class="info-img"
+            v-if="true"
+            src="@/assets/images/claim/not-check.png"
+            alt=""
+          />
+          <img
+            class="info-img"
+            v-else
+            src="@/assets/images/claim/check.png"
+            alt=""
+          />
+        </div>
+        <div class="info info-claimed">
+          <p class="info-text">Connected address not affected</p>
+          <img
+            class="info-img"
+            v-if="false"
+            src="@/assets/images/claim/not-check.png"
+            alt=""
+          />
+          <img
+            class="info-img"
+            v-else
+            src="@/assets/images/claim/check.png"
+            alt=""
+          />
+        </div>
+        <div class="info info-claimed">
+          <p class="info-text">MasterContract Approval revoked</p>
+          <img
+            class="info-img"
+            v-if="false"
+            src="@/assets/images/claim/not-check.png"
+            alt=""
+          />
+          <img
+            class="info-img"
+            v-else
+            src="@/assets/images/claim/check.png"
+            alt=""
+          />
+        </div> -->
+      </template>
 
       <div class="btn-wrap">
-        <BaseButton primary> Revoke Contract & Claim Funds </BaseButton>
+        <!-- <BaseButton primary @click="actionHandler" >{{ -->
+        <BaseButton primary @click="actionHandler" :disabled="disabledBtn">{{
+          btnText
+        }}</BaseButton>
       </div>
     </div>
 
-    <p class="claim-text">
+    <!-- <p class="claim-text">
       Read more about post mortem
       <a class="banner-link" href="#" target="_blank" rel="noopener noreferrer"
         >Here</a
       >
-    </p>
+    </p> -->
   </div>
 </template>
 
@@ -318,7 +334,147 @@
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const BaseButton = () => import("@/components/base/BaseButton");
+import bg from "@/assets/images/claim/checkBg.png";
+import degenBoxAbi from "@/utils/abi/degenBox.js";
+import { mapGetters } from "vuex";
 export default {
+  data() {
+    return {
+      bg,
+      activeNetworks: [1, 42161],
+      mainnet: {
+        id: 1,
+        degen: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
+        masterContract: [
+          "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3",
+          "0x43243F7BdDCb850acB687c42BBf5066c224054a5",
+        ],
+      },
+
+      mainnetMasterContract: [
+        // "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3",
+        "0x43243F7BdDCb850acB687c42BBf5066c224054a5",
+      ],
+
+      aethMasterContract: ["0x303A59A1020807B6FD78D3BB0e3c8B6a26Bbc0B9"],
+
+      degenContract: null,
+      isApproveMasterContracts: false,
+      gasLimitConst: 1000,
+    };
+  },
+
+  computed: {
+    ...mapGetters({
+      account: "getAccount",
+      chainId: "getChainId",
+      userSigner: "getSigner",
+      defaultProvider: "getProvider",
+    }),
+
+    btnText() {
+      if (this.account) {
+        return !this.isApproveMasterContracts
+          ? "No further actions required"
+          : "Revoke Contract";
+      } else return "Connect wallet";
+    },
+
+    disabledBtn() {
+      return this.btnText === "No further actions required" ? true : false;
+    },
+
+    contractProvider() {
+      return this.userSigner ? this.userSigner : this.defaultProvider;
+    },
+  },
+
+  methods: {
+    async actionHandler() {
+      if (!this.account) await this.$connectWallet();
+      else {
+        const arr =
+          this.chainId === 1
+            ? this.mainnetMasterContract
+            : this.aethMasterContract;
+
+        arr.forEach(async (masterContract) => {
+          await this.revokeMasterContract(masterContract);
+        });
+      }
+    },
+
+    async revokeMasterContract(masterContract) {
+      try {
+        const estimateGas =
+          await this.degenContract.estimateGas.setMasterContractApproval(
+            this.account,
+            masterContract,
+            false,
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String("")
+          );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        const tx = await this.degenContract.setMasterContractApproval(
+          this.account,
+          masterContract,
+          false,
+          this.$ethers.utils.formatBytes32String(""),
+          this.$ethers.utils.formatBytes32String(""),
+          this.$ethers.utils.formatBytes32String(""),
+          { gasLimit }
+        );
+
+        const receipt = await tx.wait();
+        return receipt;
+      } catch (e) {
+        console.log("approveMasterContract err:", masterContract);
+        return false;
+      }
+    },
+  },
+
+  async created() {
+    if (this.account && (this.chainId === 1 || this.chainId === 42161)) {
+      const address =
+        this.chainId === 1
+          ? "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce"
+          : "0x7c8fef8ea9b1fe46a7689bfb8149341c90431d38";
+
+      this.degenContract = new this.$ethers.Contract(
+        address,
+        JSON.stringify(degenBoxAbi),
+        this.contractProvider
+      );
+
+      if (this.chainId === 1) {
+        const isApproveOne = await this.degenContract.masterContractApproved(
+          "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3",
+          this.account
+        );
+
+        const isApproveTwo = await this.degenContract.masterContractApproved(
+          "0x43243F7BdDCb850acB687c42BBf5066c224054a5",
+          this.account
+        );
+
+        this.isApproveMasterContracts = isApproveOne || isApproveTwo;
+      }
+
+      if (this.chainId === 42161) {
+        const isApprove = await this.degenContract.masterContractApproved(
+          "0x303A59A1020807B6FD78D3BB0e3c8B6a26Bbc0B9",
+          this.account
+        );
+
+        this.isApproveMasterContracts = isApprove;
+      }
+    }
+  },
+
   components: {
     NetworksList,
     BaseTokenIcon,
@@ -688,6 +844,28 @@ export default {
   line-height: 20px;
 }
 
+.check-block {
+  padding: 100px 0;
+}
+
+.check-content {
+  max-width: 780px;
+  margin: 0 auto;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 36px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  min-height: 320px;
+  padding: 90px 70px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 @media screen and (max-width: 768px) {
   .claim-view {
     margin: 0 5px;
@@ -696,6 +874,10 @@ export default {
   .claim-title {
     font-size: 22px;
     line-height: 32px;
+  }
+
+  .check-content {
+    margin: 0 10px;
   }
 }
 
@@ -719,6 +901,11 @@ export default {
 
   .table-mobile {
     display: flex;
+  }
+
+  .check-content {
+    padding: 30px 15px;
+    font-size: 18px;
   }
 }
 
