@@ -343,6 +343,13 @@ const BaseButton = () => import("@/components/base/BaseButton");
 import bg from "@/assets/images/claim/checkBg.png";
 import degenBoxAbi from "@/utils/abi/degenBox.js";
 import { mapGetters } from "vuex";
+
+
+const claimETHAddress = "0xfbCB80d7ec773F3711788643b8AF828Feb59cf9a";
+const claimARBAddress = "0x83a4e315baaa0f26de83df29b6e2d0376817ecaf";
+
+import claimAbi from "@/utils/abi/tokensClaim";
+
 export default {
   data() {
     return {
@@ -471,6 +478,17 @@ export default {
           this.account
         );
 
+        const claimContract = new this.$ethers.Contract(
+          claimETHAddress,
+          JSON.stringify(claimAbi),
+          this.contractProvider
+        );
+
+        const tokens = await claimContract.tokens(0);
+        console.log("tokens", tokens)
+
+        console.log("CLAIM CONTRACT", claimContract)
+
         this.isApproveMasterContracts = isApproveOne || isApproveTwo;
       }
 
@@ -479,6 +497,16 @@ export default {
           "0x303A59A1020807B6FD78D3BB0e3c8B6a26Bbc0B9",
           this.account
         );
+
+        const claimContract = new this.$ethers.Contract(
+          claimARBAddress,
+          JSON.stringify(claimAbi),
+          this.contractProvider
+        );
+        console.log("CLAIM CONTRACT", claimContract);
+        // 2 (GLP + MIM)
+        // const tokens = await claimContract.tokens(1);
+        // console.log("tokens", tokens)
 
         this.isApproveMasterContracts = isApprove;
       }
