@@ -51,76 +51,104 @@
       Claimable funds on: Ethereum & Arbitrum
     </h3>
 
-    <div class="claim-table" v-if="false">
+    <div class="claim-table">
       <div class="table-header">
         <div class="header-item">Status</div>
         <div class="header-item">Token</div>
         <div class="header-item">Network</div>
       </div>
 
-      <div v-if="false" class="not-claimed">No tokens to be Claimed</div>
+      <!-- <div v-if="false" class="not-claimed">No tokens to be Claimed</div> -->
 
-      <template v-else>
+      <div class="table-item" v-if="isEthChain">
+        <div class="item-status">! unclaimed</div>
+        <div class="item-token">
+          <BaseTokenIcon
+            size="50px"
+            :icon="require('@/assets/images/tokens/CRV.png')"
+          />
+          <div class="token-info">
+            <div class="info">CRV</div>
+
+            <div class="info">{{ crvBalance | formatTokenBalance }}</div>
+            <div class="info-usd">
+              {{ (crvBalance * crvBalanceUsd) | formatUSD }}
+            </div>
+          </div>
+        </div>
+        <div class="item-network">
+          <img
+            class="network-icon"
+            src="@/assets/images/networks/ethereum-icon.svg"
+            alt=""
+          />
+          ETH
+        </div>
+      </div>
+
+      <template v-if="isAETHChain">
         <div class="table-item">
           <div class="item-status">! unclaimed</div>
           <div class="item-token">
-            <BaseTokenIcon size="50px" />
+            <BaseTokenIcon
+              size="50px"
+              :icon="require('@/assets/images/tokens/GLP.png')"
+            />
             <div class="token-info">
-              <div class="info">sGLP</div>
-              <div class="info">0.0</div>
-              <div class="info-usd">$ 0.0</div>
+              <div class="info">sGlp</div>
+
+              <div class="info">{{ sGlpBalance | formatTokenBalance }}</div>
+              <div class="info-usd">
+                {{ (sGlpBalance * sGlpBalanceUsd) | formatUSD }}
+              </div>
             </div>
           </div>
           <div class="item-network">
             <img
               class="network-icon"
-              src="@/assets/images/networks/ethereum-icon.svg"
+              src="@/assets/images/networks/arbitrum-icon.svg"
               alt=""
             />
-            ETH
+            AETH
           </div>
         </div>
         <div class="table-item">
           <div class="item-status">! unclaimed</div>
           <div class="item-token">
-            <BaseTokenIcon size="50px" />
+            <BaseTokenIcon
+              size="50px"
+              :icon="require('@/assets/images/tokens/MIM.png')"
+            />
             <div class="token-info">
-              <div class="info">sGLP</div>
-              <div class="info">0.0</div>
-              <div class="info-usd">$ 0.0</div>
+              <div class="info">MIM</div>
+
+              <div class="info">{{ mimBalance | formatTokenBalance }}</div>
+              <div class="info-usd">
+                {{ (mimBalance * mimBalanceUsd) | formatUSD }}
+              </div>
             </div>
           </div>
           <div class="item-network">
             <img
               class="network-icon"
-              src="@/assets/images/networks/ethereum-icon.svg"
+              src="@/assets/images/networks/arbitrum-icon.svg"
               alt=""
             />
-            ETH
-          </div>
-        </div>
-        <div class="table-item">
-          <div class="item-status">! unclaimed</div>
-          <div class="item-token">
-            <BaseTokenIcon size="50px" />
-            <div class="token-info">
-              <div class="info">sGLP</div>
-              <div class="info">0.0</div>
-              <div class="info-usd">$ 0.0</div>
-            </div>
-          </div>
-          <div class="item-network">
-            <img
-              class="network-icon"
-              src="@/assets/images/networks/ethereum-icon.svg"
-              alt=""
-            />
-            ETH
+            AETH
           </div>
         </div>
       </template>
 
-      <div class="table-claimed" v-if="false">
+      <div class="table-claimed" v-if="!isClaimedEth && chainId === 1">
+        <img
+          class="claimed-img"
+          src="@/assets/images/claim/coin.png"
+          alt="Coin"
+        />
+        <p class="claimed-text">All tokens have been claimed</p>
+      </div>
+
+      <div class="table-claimed" v-if="!isClaimedAeth && chainId === 42161">
         <img
           class="claimed-img"
           src="@/assets/images/claim/coin.png"
@@ -130,10 +158,45 @@
       </div>
     </div>
 
-    <div class="table-mobile" v-if="false">
-      <div v-if="false" class="not-claimed">No tokens to be Claimed</div>
+    <div class="table-mobile">
+      <!-- <div v-if="false" class="not-claimed">No tokens to be Claimed</div> -->
 
-      <template v-else>
+      <div class="mobile-item" v-if="isEthChain">
+        <p class="mobile-status">
+          Status <span class="unclaimed">! unclaimed</span>
+        </p>
+        <div>
+          <p class="mobile-title">Token</p>
+          <div class="mobile-token">
+            <div class="mobile-token-icon">
+              <BaseTokenIcon
+                size="50px"
+                :icon="require('@/assets/images/tokens/CRV.png')"
+              />
+              CRV
+            </div>
+            <div class="mobile-info">
+              <div>{{ crvBalance | formatTokenBalance }}</div>
+              <div class="mobile-info-usd">
+                {{ (crvBalance * crvBalanceUsd) | formatUSD }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-network">
+          <p>Network</p>
+          <div class="item-network">
+            <img
+              class="network-icon"
+              src="@/assets/images/networks/ethereum-icon.svg"
+              alt=""
+            />
+            ETH
+          </div>
+        </div>
+      </div>
+
+      <template v-if="isAETHChain">
         <div class="mobile-item">
           <p class="mobile-status">
             Status <span class="unclaimed">! unclaimed</span>
@@ -142,11 +205,17 @@
             <p class="mobile-title">Token</p>
             <div class="mobile-token">
               <div class="mobile-token-icon">
-                <BaseTokenIcon size="50px" name="MIM" /> MIM
+                <BaseTokenIcon
+                  size="50px"
+                  :icon="require('@/assets/images/tokens/GLP.png')"
+                />
+                sGlp
               </div>
               <div class="mobile-info">
-                <div>0.0</div>
-                <div class="mobile-info-usd">$ 0.0</div>
+                <div>{{ sGlpBalance | formatTokenBalance }}</div>
+                <div class="mobile-info-usd">
+                  {{ (sGlpBalance * sGlpBalanceUsd) | formatUSD }}
+                </div>
               </div>
             </div>
           </div>
@@ -155,10 +224,10 @@
             <div class="item-network">
               <img
                 class="network-icon"
-                src="@/assets/images/networks/ethereum-icon.svg"
+                src="@/assets/images/networks/arbitrum-icon.svg"
                 alt=""
               />
-              ETH
+              AETH
             </div>
           </div>
         </div>
@@ -170,11 +239,17 @@
             <p class="mobile-title">Token</p>
             <div class="mobile-token">
               <div class="mobile-token-icon">
-                <BaseTokenIcon size="50px" name="MIM" /> MIM
+                <BaseTokenIcon
+                  size="50px"
+                  :icon="require('@/assets/images/tokens/MIM.png')"
+                />
+                MIM
               </div>
               <div class="mobile-info">
-                <div>0.0</div>
-                <div class="mobile-info-usd">$ 0.0</div>
+                <div>{{ mimBalance | formatTokenBalance }}</div>
+                <div class="mobile-info-usd">
+                  {{ (mimBalance * mimBalanceUsd) | formatUSD }}
+                </div>
               </div>
             </div>
           </div>
@@ -183,44 +258,16 @@
             <div class="item-network">
               <img
                 class="network-icon"
-                src="@/assets/images/networks/ethereum-icon.svg"
+                src="@/assets/images/networks/arbitrum-icon.svg"
                 alt=""
               />
-              ETH
-            </div>
-          </div>
-        </div>
-        <div class="mobile-item">
-          <p class="mobile-status">
-            Status <span class="unclaimed">! unclaimed</span>
-          </p>
-          <div>
-            <p class="mobile-title">Token</p>
-            <div class="mobile-token">
-              <div class="mobile-token-icon">
-                <BaseTokenIcon size="50px" name="MIM" /> MIM
-              </div>
-              <div class="mobile-info">
-                <div>0.0</div>
-                <div class="mobile-info-usd">$ 0.0</div>
-              </div>
-            </div>
-          </div>
-          <div class="mobile-network">
-            <p>Network</p>
-            <div class="item-network">
-              <img
-                class="network-icon"
-                src="@/assets/images/networks/ethereum-icon.svg"
-                alt=""
-              />
-              ETH
+              AETH
             </div>
           </div>
         </div>
       </template>
 
-      <div class="table-claimed" v-if="false">
+      <div class="table-claimed" v-if="!isClaimedEth">
         <img
           class="claimed-img"
           src="@/assets/images/claim/coin.png"
@@ -240,6 +287,25 @@
       </h3>
       <h3 class="claim-title" v-else>Your address may have been affected</h3>
       <template v-if="account">
+        <div
+          class="info info-claimed"
+          v-if="!isApproveMasterContracts && isConnectedAddress"
+        >
+          <p class="info-text">Connected address not affected</p>
+          <img
+            class="info-img"
+            v-if="false"
+            src="@/assets/images/claim/not-check.png"
+            alt=""
+          />
+          <img
+            class="info-img"
+            v-else
+            src="@/assets/images/claim/check.png"
+            alt=""
+          />
+        </div>
+
         <div class="info info-claim" v-if="isApproveMasterContracts">
           <p class="info-text">Revoke Master Contract Approval</p>
           <img
@@ -272,7 +338,7 @@
           />
         </div>
 
-        <!-- <div class="info info-claim">
+        <div class="info info-claim" v-if="!isConnectedAddress">
           <p class="info-text">Claim secured funds</p>
           <img
             class="info-img"
@@ -287,8 +353,9 @@
             alt=""
           />
         </div>
-        <div class="info info-claimed">
-          <p class="info-text">Connected address not affected</p>
+
+        <div class="info info-claimed" v-else>
+          <p class="info-text">Funds claimed</p>
           <img
             class="info-img"
             v-if="false"
@@ -302,25 +369,9 @@
             alt=""
           />
         </div>
-        <div class="info info-claimed">
-          <p class="info-text">MasterContract Approval revoked</p>
-          <img
-            class="info-img"
-            v-if="false"
-            src="@/assets/images/claim/not-check.png"
-            alt=""
-          />
-          <img
-            class="info-img"
-            v-else
-            src="@/assets/images/claim/check.png"
-            alt=""
-          />
-        </div> -->
       </template>
 
       <div class="btn-wrap">
-        <!-- <BaseButton primary @click="actionHandler" >{{ -->
         <BaseButton primary @click="actionHandler" :disabled="disabledBtn">{{
           btnText
         }}</BaseButton>
@@ -340,13 +391,16 @@
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const BaseButton = () => import("@/components/base/BaseButton");
+import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import bg from "@/assets/images/claim/checkBg.png";
 import degenBoxAbi from "@/utils/abi/degenBox.js";
 import { mapGetters } from "vuex";
 
-
 const claimETHAddress = "0xfbCB80d7ec773F3711788643b8AF828Feb59cf9a";
 const claimARBAddress = "0x83a4e315baaa0f26de83df29b6e2d0376817ecaf";
+const crvAddress = "0xD533a949740bb3306d119CC777fa900bA034cd52";
+const sGlpAddress = "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf";
+const mimAddress = "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A";
 
 import claimAbi from "@/utils/abi/tokensClaim";
 
@@ -374,6 +428,14 @@ export default {
       degenContract: null,
       isApproveMasterContracts: false,
       gasLimitConst: 1000,
+      // ------------
+      crvBalance: null,
+      crvBalanceUsd: 0,
+      claimContract: null,
+      sGlpBalance: null,
+      sGlpBalanceUsd: 0,
+      mimBalance: null,
+      mimBalanceUsd: 0,
     };
   },
 
@@ -387,9 +449,14 @@ export default {
 
     btnText() {
       if (this.account) {
-        return !this.isApproveMasterContracts
-          ? "No further actions required"
-          : "Revoke Contract";
+        if (this.isApproveMasterContracts && !this.isConnectedAddress)
+          return "Revoke Contract & Claim Funds";
+
+        if (this.isApproveMasterContracts) return "Revoke Contract";
+
+        if (!this.isConnectedAddress) return "Claim Funds";
+
+        return "No further actions required";
       } else return "Connect wallet";
     },
 
@@ -404,20 +471,46 @@ export default {
     checkChain() {
       return this.chainId === 1 || this.chainId === 42161;
     },
+
+    isEthChain() {
+      return this.chainId === 1;
+    },
+
+    isConnectedAddress() {
+      if (this.chainId === 1) return !this.isClaimedEth;
+      else return !this.isClaimedAeth;
+    },
+
+    isClaimedEth() {
+      return this.crvBalance > 0;
+    },
+
+    isAETHChain() {
+      return this.chainId === 42161;
+    },
+
+    isClaimedAeth() {
+      // todo mimBalance
+      return this.sGlpBalance > 0 || 1 > 0;
+    },
   },
 
   methods: {
     async actionHandler() {
       if (!this.account) await this.$connectWallet();
       else {
-        const arr =
-          this.chainId === 1
-            ? this.mainnetMasterContract
-            : this.aethMasterContract;
+        if (this.isApproveMasterContracts) {
+          const arr =
+            this.chainId === 1
+              ? this.mainnetMasterContract
+              : this.aethMasterContract;
 
-        arr.forEach(async (masterContract) => {
-          await this.revokeMasterContract(masterContract);
-        });
+          arr.forEach(async (masterContract) => {
+            await this.revokeMasterContract(masterContract);
+          });
+        }
+
+        if (this.isClaimedEth) this.claimContract.claim();
       }
     },
 
@@ -484,10 +577,22 @@ export default {
           this.contractProvider
         );
 
-        const tokens = await claimContract.tokens(0);
-        console.log("tokens", tokens)
+        this.claimContract = claimContract;
 
-        console.log("CLAIM CONTRACT", claimContract)
+        const crvBalance = await claimContract.amounts(
+          this.account,
+          crvAddress
+        );
+
+        this.crvBalance = this.$ethers.utils.formatUnits(crvBalance, 18);
+
+        this.crvBalanceUsd = await getTokenPriceByAddress(
+          this.chainId,
+          crvAddress
+        );
+
+        console.log("claimContract000", await claimContract.tokens(0));
+        console.log("claimContract1111", await claimContract.tokens(1));
 
         this.isApproveMasterContracts = isApproveOne || isApproveTwo;
       }
@@ -503,10 +608,30 @@ export default {
           JSON.stringify(claimAbi),
           this.contractProvider
         );
-        console.log("CLAIM CONTRACT", claimContract);
-        // 2 (GLP + MIM)
-        // const tokens = await claimContract.tokens(1);
-        // console.log("tokens", tokens)
+
+        const sGlpBalance = await claimContract.amounts(
+          this.account,
+          sGlpAddress
+        );
+
+        this.sGlpBalance = this.$ethers.utils.formatUnits(sGlpBalance, 18);
+
+        this.sGlpBalanceUsd = await getTokenPriceByAddress(
+          this.chainId,
+          sGlpAddress
+        );
+
+        const mimBalance = await claimContract.amounts(
+          this.account,
+          mimAddress
+        );
+
+        this.mimBalance = this.$ethers.utils.formatUnits(mimBalance, 18);
+
+        this.mimBalanceUsd = await getTokenPriceByAddress(
+          this.chainId,
+          mimAddress
+        );
 
         this.isApproveMasterContracts = isApprove;
       }
@@ -743,7 +868,7 @@ export default {
   font-weight: 600;
   font-size: 18px;
   line-height: 27px;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 14px;
   letter-spacing: 0.025em;
@@ -816,12 +941,12 @@ export default {
   max-width: 540px;
   width: 100%;
   margin: 0 auto;
-  height: 40px;
+  // height: 40px;
   border-radius: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  // padding: 10px;
 }
 
 .info-text {
@@ -835,6 +960,8 @@ export default {
 .info-claim {
   background: rgba(229, 67, 105, 0.1);
   border: 1px solid #e54369;
+  height: 40px;
+  padding: 10px;
 
   .info-text::before {
     content: "";
@@ -852,6 +979,8 @@ export default {
 .info-claimed {
   background: rgba(99, 255, 123, 0.1);
   border: 1px solid #63ff7b;
+  height: 40px;
+  padding: 10px;
 
   .info-text::before {
     content: "";
