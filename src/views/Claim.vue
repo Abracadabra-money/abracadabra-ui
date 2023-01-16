@@ -913,7 +913,7 @@ export default {
 
 .table-claimed {
   position: absolute;
-  background: rgba(64, 58, 92, 0.8);
+  background: rgba(64, 58, 92, 0.95);
   border: 1px solid #63ff7b;
   box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(10px);
