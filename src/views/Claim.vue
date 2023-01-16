@@ -95,7 +95,7 @@
               :icon="require('@/assets/images/tokens/GLP.png')"
             />
             <div class="token-info">
-              <div class="info">sGlp</div>
+              <div class="info">sGLP</div>
 
               <div class="info">{{ sGlpBalance | formatTokenBalance }}</div>
               <div class="info-usd">
@@ -139,16 +139,13 @@
         </div>
       </template>
 
-      <div class="table-claimed" v-if="!isClaimedEth && chainId === 1">
-        <img
-          class="claimed-img"
-          src="@/assets/images/claim/coin.png"
-          alt="Coin"
-        />
-        <p class="claimed-text">All tokens have been claimed</p>
-      </div>
-
-      <div class="table-claimed" v-if="!isClaimedAeth && chainId === 42161">
+      <div
+        class="table-claimed"
+        v-if="
+          (!isClaimedEth && chainId === 1) ||
+          (!isClaimedAeth && chainId === 42161)
+        "
+      >
         <img
           class="claimed-img"
           src="@/assets/images/claim/coin.png"
@@ -209,7 +206,7 @@
                   size="50px"
                   :icon="require('@/assets/images/tokens/GLP.png')"
                 />
-                sGlp
+                sGLP
               </div>
               <div class="mobile-info">
                 <div>{{ sGlpBalance | formatTokenBalance }}</div>
@@ -267,7 +264,13 @@
         </div>
       </template>
 
-      <div class="table-claimed" v-if="!isClaimedEth">
+      <div
+        class="table-claimed"
+        v-if="
+          (!isClaimedEth && chainId === 1) ||
+          (!isClaimedAeth && chainId === 42161)
+        "
+      >
         <img
           class="claimed-img"
           src="@/assets/images/claim/coin.png"
@@ -409,26 +412,14 @@ export default {
     return {
       bg,
       activeNetworks: [42161, 1],
-      mainnet: {
-        id: 1,
-        degen: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce",
-        masterContract: [
-          "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3",
-          "0x43243F7BdDCb850acB687c42BBf5066c224054a5",
-        ],
-      },
-
       mainnetMasterContract: [
         // "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3",
         "0x43243F7BdDCb850acB687c42BBf5066c224054a5",
       ],
-
       aethMasterContract: ["0x303A59A1020807B6FD78D3BB0e3c8B6a26Bbc0B9"],
-
       degenContract: null,
       isApproveMasterContracts: false,
       gasLimitConst: 1000,
-      // ------------
       crvBalance: null,
       crvBalanceUsd: 0,
       claimContract: null,
@@ -490,8 +481,7 @@ export default {
     },
 
     isClaimedAeth() {
-      // todo mimBalance
-      return this.sGlpBalance > 0 || 1 > 0;
+      return this.sGlpBalance > 0 || this.mimBalance > 0;
     },
   },
 
@@ -591,9 +581,6 @@ export default {
           crvAddress
         );
 
-        console.log("claimContract000", await claimContract.tokens(0));
-        console.log("claimContract1111", await claimContract.tokens(1));
-
         this.isApproveMasterContracts = isApproveOne || isApproveTwo;
       }
 
@@ -618,7 +605,7 @@ export default {
 
         this.sGlpBalanceUsd = await getTokenPriceByAddress(
           this.chainId,
-          sGlpAddress
+          "0x1aDDD80E6039594eE970E5872D247bf0414C8903"
         );
 
         const mimBalance = await claimContract.amounts(
@@ -801,7 +788,6 @@ export default {
   font-weight: 400;
   font-size: 20px;
   line-height: 20px;
-  text-transform: uppercase;
 }
 
 .info-usd {
@@ -839,8 +825,8 @@ export default {
   backdrop-filter: blur(5px);
   border-radius: 20px;
   width: 96%;
-  height: 96%;
-  top: 2%;
+  height: 90%;
+  top: 5%;
   left: 0;
   right: 0;
   margin: 0 auto;
