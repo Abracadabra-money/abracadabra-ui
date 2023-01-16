@@ -545,7 +545,7 @@ export default {
     },
 
     isClaimedAeth() {
-      return +this.sGlpBalance > 0 || +this.mimBalance > 0;
+      return true //+this.sGlpBalance > 0 || +this.mimBalance > 0;
     },
 
     isAffected() {
@@ -691,6 +691,8 @@ export default {
           JSON.stringify(claimAbi),
           this.contractProvider
         );
+
+        this.claimContract = claimContract;
 
         const sGlpBalance = await claimContract.amounts(
           this.account,
