@@ -336,7 +336,12 @@
       <h3 class="claim-title" v-else-if="!isApproveMasterContracts && account">
         Your Address is not affected
       </h3>
-      <h3 class="claim-title" v-else-if="isApproveMasterContracts && isAffected">YOUR ADDRESS IS AFFECTED</h3>
+      <h3
+        class="claim-title"
+        v-else-if="isApproveMasterContracts && isAffected"
+      >
+        YOUR ADDRESS IS AFFECTED
+      </h3>
       <h3 class="claim-title" v-else>Your address may have been affected</h3>
       <template v-if="account">
         <div
@@ -499,8 +504,6 @@ export default {
 
       return "No tokens to be Claimed";
     },
-
-
 
     btnText() {
       if (this.account) {

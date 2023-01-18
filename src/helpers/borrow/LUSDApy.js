@@ -49,11 +49,11 @@ const getLUSDApy = async (signer) => {
       (lqtyIssuanceOneDayInUSD * (365 * 100)) / lusdInStabilityPool;
 
     const apr = aprPercentageBase * 0.95;
-    
+
     return apr;
   } catch (error) {
     console.log("getLUSDApy error:", error);
-    return false
+    return false;
   }
 };
 

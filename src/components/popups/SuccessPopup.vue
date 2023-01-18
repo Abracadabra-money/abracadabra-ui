@@ -53,7 +53,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 15px;
 }
 

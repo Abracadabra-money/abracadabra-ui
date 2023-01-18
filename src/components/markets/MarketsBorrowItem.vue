@@ -17,7 +17,7 @@
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
           <span>{{ pool.name }}</span>
-          <MiniStatusTag v-if="isMigrated"/>
+          <MiniStatusTag v-if="isMigrated" />
         </span>
       </span>
 
@@ -114,7 +114,7 @@ export default {
   components: {
     BaseTokenIcon,
     StatusBar,
-    MiniStatusTag
+    MiniStatusTag,
   },
 };
 </script>

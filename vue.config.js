@@ -15,7 +15,7 @@ module.exports = {
   },
   transpileDependencies: true,
   configureWebpack: {
-    plugins: [ new NodePolyfillPlugin() ],
+    plugins: [new NodePolyfillPlugin()],
     optimization: {
       splitChunks: {
         chunks: "all",

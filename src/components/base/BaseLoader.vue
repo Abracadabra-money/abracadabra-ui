@@ -61,7 +61,11 @@ i {
     transform: scale(1);
   }
   15% {
-    transform: translate(math.div(-$particleSize,2), math.div(-$particleSize,2)) scale(3);
+    transform: translate(
+        math.div(-$particleSize, 2),
+        math.div(-$particleSize, 2)
+      )
+      scale(3);
   }
   50% {
     transform: scale(1);

@@ -14,7 +14,7 @@
         /></a>
 
         <LockedTimer :finalTime="isLockedTimer" v-if="isLockedTimer" />
-        <MiniStatusTag :rounded="true" v-if="isMigrated"/>
+        <MiniStatusTag :rounded="true" v-if="isMigrated" />
       </div>
       <div class="deposit-wrap">
         <button
@@ -668,7 +668,7 @@ export default {
 
   components: {
     LockedTimer,
-    MiniStatusTag
+    MiniStatusTag,
   },
 };
 </script>
