@@ -33,7 +33,7 @@ export default {
     NotificationContainer,
     PopupsWrapper,
     Banner,
-    SkullBanner
+    SkullBanner,
   },
 };
 </script>

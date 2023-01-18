@@ -11,7 +11,7 @@
             {{ pool.name }}
             <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
           </p>
-          <MiniStatusTag v-if="isMigrated"/>
+          <MiniStatusTag v-if="isMigrated" />
         </div>
       </div>
       <div class="pool-balance">

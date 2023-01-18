@@ -1,6 +1,12 @@
 import { ethers } from "ethers";
 
-const getApprovalEncode = async (signer, bentoContract, account, chain, masterContract) => {
+const getApprovalEncode = async (
+  signer,
+  bentoContract,
+  account,
+  chain,
+  masterContract
+) => {
   const verifyingContract = bentoContract.address;
   const nonce = await bentoContract.nonces(account);
   const chainId = ethers.utils.hexlify(chain);

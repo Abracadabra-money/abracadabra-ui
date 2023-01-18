@@ -28,8 +28,8 @@ export default {};
 
 <style lang="scss" scoped>
 svg {
-    width: 20px;
-    height: auto;
+  width: 20px;
+  height: auto;
 }
 svg:hover path {
   fill: #76c3f5;

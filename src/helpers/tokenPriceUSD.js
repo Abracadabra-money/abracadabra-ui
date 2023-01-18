@@ -14,4 +14,4 @@ const mimPrice = async () => {
   return await mimChainLinkContract.latestAnswer();
 };
 
-export { tokenPriceUSD, mimPrice };
+export { mimPrice };
