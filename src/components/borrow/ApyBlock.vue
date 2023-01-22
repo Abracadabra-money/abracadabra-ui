@@ -33,7 +33,7 @@ export default {
   },
   data() {
     return {
-      title: "Self repaying APY",
+      title: "Collateral APY",
       selfRepayingAPY: "",
     };
   },

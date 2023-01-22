@@ -52,21 +52,6 @@ const getVeloApy = async (pool, signer) => {
 
     const apy = (APYVault * farmingPercentage) * (1 - managementFee);
 
-
-    // const apyLp = 0.2; // idk yet how to get this one
-    // const apyFarm = 0.25; // should get it from velodrome api ?
-    // // from degenbox strategyData call with (0xA3372CD2178c52fdCB1f6e4c4E93014B4dB3B20d), currently 0% allocation as setStrategyTargetPercentage as not be called on degenBox yet
-    // const strategyAllocation = 0.9;
-
-    // let allocatedApyLp =  apyLp * (1 - strategyAllocation);
-    // allocatedApyLp -= allocatedApyLp * managementFee;
-    // let allocatedApyFarm = apyFarm * strategyAllocation;
-    // allocatedApyFarm -= allocatedApyFarm * stratPercentage;
-
-    // const secondaApy = allocatedApyLp + allocatedApyFarm;
-
-    // console.log("secondaApy", secondaApy);
-
     return apy;
   } catch (error) {
     console.log(error);
