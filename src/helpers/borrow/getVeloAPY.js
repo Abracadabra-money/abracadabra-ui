@@ -37,33 +37,23 @@ const getVeloApy = async (pool, signer) => {
 
     console.log("APYVault", APYVault);
 
-    const strategyAddress = await pool.masterContractInstance.strategy(
-      pool.collateralToken.address
-    );
-
     const strategyData = await pool.masterContractInstance.strategyData(
-      strategyAddress
+      pool.collateralToken.address
     );
 
     const targetPercentage = strategyData.targetPercentage / 100;
 
-    console.log("strategyAddress", strategyAddress);
     console.log("strategyData", strategyData);
 
     const stratPercentage = (await getVeloManagementFee(pool, signer)) / 100;
 
-    // const managementFee =
-    //   (await pool.collateralToken.contract.feePercent()) / 100;
 
     console.log("stratPercentage", stratPercentage);
     // console.log("managementFee", managementFee);
 
     console.log("targetPercentage", targetPercentage);
 
-
-    const farmingPercentage = 1 - targetPercentage;
-
-    const apy = APYVault * farmingPercentage * (1 - stratPercentage);
+    const apy = APYVault * targetPercentage * (1 - stratPercentage);
 
     return apy;
   } catch (error) {
