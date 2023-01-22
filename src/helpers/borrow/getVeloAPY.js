@@ -52,15 +52,18 @@ const getVeloApy = async (pool, signer) => {
 
     const stratPercentage = (await getVeloManagementFee(pool, signer)) / 100;
 
-    const managementFee =
-      (await pool.collateralToken.contract.feePercent()) / 100;
+    // const managementFee =
+    //   (await pool.collateralToken.contract.feePercent()) / 100;
 
     console.log("stratPercentage", stratPercentage);
-    console.log("managementFee", managementFee);
+    // console.log("managementFee", managementFee);
+
+    console.log("targetPercentage", targetPercentage);
+
 
     const farmingPercentage = 1 - targetPercentage;
 
-    const apy = APYVault * farmingPercentage * (1 - managementFee);
+    const apy = APYVault * farmingPercentage * (1 - stratPercentage);
 
     return apy;
   } catch (error) {
