@@ -3,6 +3,23 @@ import axios from "axios";
 
 import SolidlyGaugeVolatileLPStrategy from "@/utils/abi/SolidlyGaugeVolatileLPStrategy";
 
+const getVeloManagementFee = async (pool, signer) => {
+  try {
+    const strategyAddress = await pool.masterContractInstance.strategy(
+      pool.collateralToken.address
+    );
+
+    const strategy = new ethers.Contract(
+      strategyAddress,
+      JSON.stringify(SolidlyGaugeVolatileLPStrategy),
+      signer
+    );
+
+    return await strategy.feePercent();
+  } catch (error) {
+    console.log("getVeloManadgmentFee error:", error);
+  }
+};
 
 const getVeloApy = async (pool, signer) => {
   try {
@@ -24,7 +41,6 @@ const getVeloApy = async (pool, signer) => {
       pool.collateralToken.address
     );
 
-
     const strategyData = await pool.masterContractInstance.strategyData(
       strategyAddress
     );
@@ -34,13 +50,7 @@ const getVeloApy = async (pool, signer) => {
     console.log("strategyAddress", strategyAddress);
     console.log("strategyData", strategyData);
 
-    const strategy = new ethers.Contract(
-      strategyAddress,
-      JSON.stringify(SolidlyGaugeVolatileLPStrategy),
-      signer
-    );
-
-    const stratPercentage = (await strategy.feePercent()) / 100;
+    const stratPercentage = (await getVeloManagementFee(pool, signer)) / 100;
 
     const managementFee =
       (await pool.collateralToken.contract.feePercent()) / 100;
@@ -48,9 +58,9 @@ const getVeloApy = async (pool, signer) => {
     console.log("stratPercentage", stratPercentage);
     console.log("managementFee", managementFee);
 
-    const farmingPercentage =  1 - targetPercentage;
+    const farmingPercentage = 1 - targetPercentage;
 
-    const apy = (APYVault * farmingPercentage) * (1 - managementFee);
+    const apy = APYVault * farmingPercentage * (1 - managementFee);
 
     return apy;
   } catch (error) {
@@ -59,4 +69,4 @@ const getVeloApy = async (pool, signer) => {
   }
 };
 
-export { getVeloApy };
+export { getVeloApy, getVeloManagementFee };

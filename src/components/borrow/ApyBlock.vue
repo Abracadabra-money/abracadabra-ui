@@ -4,7 +4,7 @@
     <div class="wrapper">
       <img class="coins-img" src="@/assets/images/coins.png" alt="" />
       <div>
-        <p class="title">{{ title }}</p>
+        <p class="title" v-tooltip="tooltipText">{{ title }}</p>
         <p class="value" v-if="selfRepayingAPY">
           {{ isTilde }} {{ calculateApy }} %
         </p>
@@ -35,6 +35,7 @@ export default {
     return {
       title: "Collateral APY",
       selfRepayingAPY: "",
+      tooltipText: "Yield produced by your collateral through the Degenbox strategy."
     };
   },
   computed: {
