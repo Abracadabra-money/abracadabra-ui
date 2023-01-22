@@ -3,6 +3,7 @@ import axios from "axios";
 
 import SolidlyGaugeVolatileLPStrategy from "@/utils/abi/SolidlyGaugeVolatileLPStrategy";
 
+
 const getVeloApy = async (pool, signer) => {
   try {
     const response = await axios.get(
@@ -23,7 +24,15 @@ const getVeloApy = async (pool, signer) => {
       pool.collateralToken.address
     );
 
+
+    const strategyData = await pool.masterContractInstance.strategyData(
+      strategyAddress
+    );
+
+    const targetPercentage = strategyData.targetPercentage / 100;
+
     console.log("strategyAddress", strategyAddress);
+    console.log("strategyData", strategyData);
 
     const strategy = new ethers.Contract(
       strategyAddress,
@@ -31,17 +40,32 @@ const getVeloApy = async (pool, signer) => {
       signer
     );
 
-    const stratPercentage = (await strategy.feePercent()) / 10;
+    const stratPercentage = (await strategy.feePercent()) / 100;
 
     const managementFee =
-      (await pool.collateralToken.contract.feePercent()) / 10;
+      (await pool.collateralToken.contract.feePercent()) / 100;
 
     console.log("stratPercentage", stratPercentage);
     console.log("managementFee", managementFee);
 
-    const apy = (APYVault * stratPercentage) * (1 - managementFee);
+    const farmingPercentage =  1 - targetPercentage;
 
-    console.log("apy", apy);
+    const apy = (APYVault * farmingPercentage) * (1 - managementFee);
+
+
+    // const apyLp = 0.2; // idk yet how to get this one
+    // const apyFarm = 0.25; // should get it from velodrome api ?
+    // // from degenbox strategyData call with (0xA3372CD2178c52fdCB1f6e4c4E93014B4dB3B20d), currently 0% allocation as setStrategyTargetPercentage as not be called on degenBox yet
+    // const strategyAllocation = 0.9;
+
+    // let allocatedApyLp =  apyLp * (1 - strategyAllocation);
+    // allocatedApyLp -= allocatedApyLp * managementFee;
+    // let allocatedApyFarm = apyFarm * strategyAllocation;
+    // allocatedApyFarm -= allocatedApyFarm * stratPercentage;
+
+    // const secondaApy = allocatedApyLp + allocatedApyFarm;
+
+    // console.log("secondaApy", secondaApy);
 
     return apy;
   } catch (error) {

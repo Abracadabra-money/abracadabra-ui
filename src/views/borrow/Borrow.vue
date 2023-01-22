@@ -107,6 +107,11 @@
           :emptyData="emptyData"
           :poolId="selectedPoolId"
         />
+
+        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
+          <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
+        </div>
+
         <template v-if="selectedPool">
           <div class="btn-wrap">
             <BaseButton
@@ -155,6 +160,7 @@ const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+const ApyBlock = () => import("@/components/borrow/ApyBlock");
 
 import Vue from "vue";
 
@@ -195,6 +201,10 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
+
+    isVelodrome() {
+      return this.chainId === 10 && this.selectedPool?.id === 1;
+    },
 
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
@@ -908,6 +918,7 @@ export default {
     BaseLoader,
     LocalPopupWrap,
     MarketsListPopup,
+    ApyBlock,
   },
 };
 </script>
@@ -921,6 +932,13 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
+}
+
+.primary-api {
+  margin: 16px 0;
+}
+.not-primary-api {
+  margin: 0 0 90px;
 }
 
 .borrow-loading {
