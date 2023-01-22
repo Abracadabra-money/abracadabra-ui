@@ -31,11 +31,7 @@ const getVeloApy = async (pool, signer) => {
       (pair) => pair.symbol === "vAMM-OP/USDC"
     );
 
-    console.log("opusdcPair", opusdcPair);
-
     const APYVault = opusdcPair.apr;
-
-    console.log("APYVault", APYVault);
 
     const strategyData = await pool.masterContractInstance.strategyData(
       pool.collateralToken.address
@@ -43,15 +39,7 @@ const getVeloApy = async (pool, signer) => {
 
     const targetPercentage = strategyData.targetPercentage / 100;
 
-    console.log("strategyData", strategyData);
-
     const stratPercentage = (await getVeloManagementFee(pool, signer)) / 100;
-
-
-    console.log("stratPercentage", stratPercentage);
-    // console.log("managementFee", managementFee);
-
-    console.log("targetPercentage", targetPercentage);
 
     const apy = APYVault * targetPercentage * (1 - stratPercentage);
 
