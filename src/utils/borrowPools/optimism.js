@@ -20,7 +20,7 @@ export default [
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: "#",
+      strategyLink: "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/Z9bhlbcfDTByubuwSzCahPMhpvYxnOaC0sBYU12Eh_Y",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,

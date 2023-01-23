@@ -18,6 +18,8 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import { getGlpApr } from "@/helpers/glpApr";
+import { getVeloManagementFee } from "@/helpers/borrow/getVeloAPY";
+
 export default {
   props: {
     infoArr: {
@@ -33,8 +35,14 @@ export default {
     },
   },
 
+  data(){
+    return {
+      veloManagementFee: null
+    }
+  },
+
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", signer: "getSigner" }),
 
     infoData() {
       if (this.infoArr) return this.infoArr;
@@ -43,7 +51,11 @@ export default {
     },
 
     isGlpPool() {
-      return this.pool.id === 2 && this.chainId === 42161;
+      return this.pool?.id === 2 && this.chainId === 42161;
+    },
+
+    isVelodrome() {
+      return this.chainId === 10 && this.pool?.id === 1;
     },
 
     info() {
@@ -60,18 +72,31 @@ export default {
           tooltip:
             "This is the discount a liquidator gets when buying collateral flagged for liquidation.",
         },
-        {
-          name: "Borrow fee",
-          value: this.pool.borrowFee,
-          tooltip: "This fee is added to your debt every time you borrow MIM.",
-        },
-        {
-          name: "Interest",
-          value: this.pool.interest,
-          tooltip:
-            "This is the annualized percent that your debt will increase each year.",
-        },
       ];
+
+      const borrowFee = {
+        name: "Borrow fee",
+        value: this.pool.borrowFee,
+        tooltip: "This fee is added to your debt every time you borrow MIM.",
+      };
+
+      if (this.isVelodrome && this.veloManagementFee) {
+        info.push({
+          name: "Management fee",
+          value: this.veloManagementFee,
+          tooltip:
+            "Percentage taken from rewards farmed through the Degenbox Strategy, as autocompounding fee.",
+        });
+      } else {
+        info.push(borrowFee);
+      }
+
+      info.push({
+        name: "Interest",
+        value: this.pool.interest,
+        tooltip:
+          "This is the annualized percent that your debt will increase each year.",
+      });
 
       if (this.isGlpPool) {
         info.push({
@@ -106,7 +131,9 @@ export default {
   },
 
   async created() {
-    if (this.pool) this.tokenApy = await getGlpApr();
+    if (this.isGlpPool) this.tokenApy = await getGlpApr();
+
+    if(this.isVelodrome) this.veloManagementFee = await getVeloManagementFee(this.pool, this.signer)
   },
 };
 </script>
