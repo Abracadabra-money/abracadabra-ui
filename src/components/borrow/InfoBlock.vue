@@ -20,6 +20,9 @@
 <script>
 import Vue from "vue";
 import { mapGetters } from "vuex";
+import { getGlpApr } from "@/helpers/glpApr";
+import { getVeloManagementFee } from "@/helpers/borrow/getVeloAPY";
+
 export default {
   props: {
     infoArr: {
@@ -35,8 +38,14 @@ export default {
     },
   },
 
+  data() {
+    return {
+      veloManagementFee: null,
+    };
+  },
+
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", signer: "getSigner" }),
 
     infoData() {
       if (this.infoArr) return this.infoArr;
@@ -45,7 +54,11 @@ export default {
     },
 
     isGlpPool() {
-      return this.pool.id === 2 && this.chainId === 42161;
+      return this.pool?.id === 2 && this.chainId === 42161;
+    },
+
+    isVelodrome() {
+      return this.chainId === 10 && this.pool?.id === 1;
     },
 
     info() {
@@ -62,18 +75,45 @@ export default {
           tooltip:
             "This is the discount a liquidator gets when buying collateral flagged for liquidation.",
         },
-        {
-          name: "Borrow fee",
-          value: this.pool.borrowFee,
-          tooltip: "This fee is added to your debt every time you borrow MIM.",
-        },
-        {
-          name: "Interest",
-          value: this.pool.interest,
-          tooltip:
-            "This is the annualized percent that your debt will increase each year.",
-        },
       ];
+
+      const borrowFee = {
+        name: "Borrow fee",
+        value: this.pool.borrowFee,
+        tooltip: "This fee is added to your debt every time you borrow MIM.",
+      };
+
+      if (this.isVelodrome && this.veloManagementFee) {
+        info.push({
+          name: "Management fee",
+          value: this.veloManagementFee,
+          tooltip:
+            "Percentage taken from rewards farmed through the Degenbox Strategy, as autocompounding fee.",
+        });
+      } else {
+        info.push(borrowFee);
+      }
+
+      info.push({
+        name: "Interest",
+        value: this.pool.interest,
+        tooltip:
+          "This is the annualized percent that your debt will increase each year.",
+      });
+
+      if (this.isGlpPool) {
+        info.push({
+          name: "Repayment Rate",
+          value: `${this.tokenApy || 0}`,
+          tooltip: `The approximate rate at which users borrowed MIM will diminsh, thanks to GLP rewards.`,
+        });
+
+        info.push({
+          name: "Management Fee",
+          value: `${this.pool.lpLogic.feePercent || 0}`,
+          tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
+        });
+      }
 
       if (this.price) {
         info.push({
@@ -85,6 +125,22 @@ export default {
 
       return info;
     },
+  },
+
+  watch: {
+    async pool() {
+      this.tokenApy = await getGlpApr();
+    },
+  },
+
+  async created() {
+    if (this.isGlpPool) this.tokenApy = await getGlpApr();
+
+    if (this.isVelodrome)
+      this.veloManagementFee = await getVeloManagementFee(
+        this.pool,
+        this.signer
+      );
   },
 };
 </script>

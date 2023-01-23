@@ -82,7 +82,6 @@ const routes = [
   },
   {
     path: "/markets",
-    name: "Markets",
     component: () => import("@/views/markets/Markets"),
     children: [
       {
@@ -99,13 +98,18 @@ const routes = [
     ],
   },
   {
+    path: "/claim",
+    name: "Claim",
+    component: () => import("@/views/Claim"),
+  },
+  {
     path: "*",
     redirect: "/",
   },
 ];
 
 const router = new VueRouter({
-  mode: "history",
+  mode: "hash",
   base: process.env.BASE_URL,
   routes,
   scrollBehavior() {

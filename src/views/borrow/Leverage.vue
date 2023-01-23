@@ -79,10 +79,18 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isGlp }">
+        <div
+          class="primary-api"
+          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
+        >
           <PrimaryAPYBlock
             :expectedLeverage="expectedLeverage"
             v-if="isGlp && selectedPool"
+          />
+          <ApyBlock
+            v-if="isVelodrome && selectedPool"
+            :expectedLeverage="expectedLeverage"
+            :pool="selectedPool"
           />
         </div>
 
@@ -147,6 +155,7 @@ const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
+const ApyBlock = () => import("@/components/borrow/ApyBlock");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
@@ -194,6 +203,10 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+
+    isVelodrome() {
+      return this.chainId === 10 && this.selectedPool?.id === 1;
+    },
 
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
@@ -1106,6 +1119,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     PrimaryAPYBlock,
+    ApyBlock,
   },
 };
 </script>
@@ -1119,6 +1133,13 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
+}
+
+.primary-api {
+  margin: 16px 0;
+}
+.not-primary-api {
+  margin: 0 0 90px;
 }
 
 .borrow-loading {

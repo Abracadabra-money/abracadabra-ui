@@ -63,7 +63,7 @@
           <a
             target="_blank"
             rel="noreferrer noopener"
-            href="https://docs.abracadabra.money/intro/lending-markets"
+            href="https://abracadabramoney.gitbook.io/learn/intro/lending-markets"
             class="link"
             >Read more</a
           >
@@ -107,7 +107,7 @@
           <a
             target="_blank"
             rel="noreferrer noopener"
-            href="https://docs.abracadabra.money/tokens/tokenomics#the-mim-token"
+            href="https://abracadabramoney.gitbook.io/learn/tokens/tokenomics#the-mim-token"
             class="link"
             >Read more</a
           >
@@ -132,7 +132,7 @@
           <a
             rel="noreferrer noopener"
             target="_blank"
-            href="https://docs.abracadabra.money/intro/leveraged-positions"
+            href="https://abracadabramoney.gitbook.io/learn/intro/leveraged-positions"
             class="link"
             >Read more about Abracadabra Ecosystem</a
           >

@@ -61,7 +61,7 @@ export default {
     },
   },
   methods: {
-    async getApprovalEncode(pool) {
+    async getApprovalEncode(pool, approved = true, firstSignAdded = false) {
       if (!this.itsMetamask) return "ledger";
 
       const account = this.account;
@@ -88,13 +88,17 @@ export default {
         ],
       };
 
+      const warning = approved
+        ? "Give FULL access to funds in (and approved to) BentoBox?"
+        : "Revoke access to BentoBox?";
+
       // The data to sign
       const value = {
-        warning: "Give FULL access to funds in (and approved to) BentoBox?",
+        warning,
         user: account,
         masterContract,
-        approved: true,
-        nonce,
+        approved,
+        nonce: firstSignAdded ? +nonce + 1 : nonce,
       };
 
       let signature;
@@ -125,7 +129,7 @@ export default {
         [
           account,
           masterContract,
-          true,
+          approved,
           parsedSignature.v,
           parsedSignature.r,
           parsedSignature.s,
@@ -466,6 +470,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -476,6 +482,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -545,6 +553,17 @@ export default {
         datasArray.push(colateralEncode);
       }
 
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -612,6 +631,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -622,6 +643,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -663,6 +686,17 @@ export default {
         eventsArray.push(10);
         valuesArray.push(0);
         datasArray.push(colateralEncode);
+      }
+
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -728,6 +762,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -738,6 +774,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -795,6 +833,17 @@ export default {
       eventsArray.push(21);
       valuesArray.push(0);
       datasArray.push(bentoWithdrawEncode);
+
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
 
       const cookData = {
         events: eventsArray,
@@ -993,6 +1042,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1003,6 +1054,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1084,6 +1137,17 @@ export default {
         }
       }
 
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -1146,6 +1210,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1156,6 +1222,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1243,6 +1311,17 @@ export default {
         }
       }
 
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -1303,6 +1382,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1313,6 +1394,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1355,6 +1438,17 @@ export default {
         eventsArray.push(21);
         valuesArray.push(0);
         datasArray.push(bentoWithdrawEncode);
+      }
+
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {
@@ -1430,6 +1524,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1440,6 +1536,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1540,6 +1638,17 @@ export default {
         datasArray.push(callEncode);
       }
 
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -1615,6 +1724,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1625,6 +1736,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1730,6 +1843,17 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCollateralEncode2);
 
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -1808,6 +1932,8 @@ export default {
         [this.account]
       );
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1818,6 +1944,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -1960,6 +2088,17 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCollateralEncode3);
 
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -2031,6 +2170,8 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -2041,6 +2182,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -2163,6 +2306,17 @@ export default {
         datasArray.push(callEncode);
       }
 
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
+      }
+
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -2239,6 +2393,8 @@ export default {
         [this.account]
       );
 
+      let firstSignAdded = false;
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -2249,6 +2405,8 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
+
+          firstSignAdded = true;
         }
       }
 
@@ -2371,6 +2529,17 @@ export default {
         eventsArray.push(30);
         valuesArray.push(0);
         datasArray.push(callEncode);
+      }
+
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(removeApprovalEncode);
       }
 
       const cookData = {

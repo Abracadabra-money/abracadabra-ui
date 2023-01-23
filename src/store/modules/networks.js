@@ -19,27 +19,31 @@ export default {
         },
       },
       {
-        chainId: 56,
-        name: "BSC",
-        rpc: "https://bsc-dataseed.binance.org/",
-        icon: binanceIcon,
+        chainId: 42161,
+        name: "AETH",
+        rpc: "https://arb1.arbitrum.io/rpc",
+        icon: arbitrumIcon,
         switchData: {
-          chainId: "0x38",
-          chainName: "Binance Smart Chain",
-          nativeCurrency: {
-            name: "BNB",
-            symbol: "BNB",
-            decimals: 18,
-          },
-          rpcUrls: [
-            "https://bsc-dataseed.binance.org/",
-            "https://bsc-dataseed1.defibit.io/",
-            "https://bsc-dataseed1.ninicoin.io/",
-          ],
-          blockExplorerUrls: ["https://bscscan.com"],
-          iconUrls: [
-            "https://s2.coinmarketcap.com/static/img/coins/200x200/1839.png",
-          ],
+          chainId: "0xa4b1",
+          chainName: "Arbitrum One",
+
+          rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+
+          blockExplorerUrls: ["https://arbiscan.io"],
+        },
+      },
+      {
+        chainId: 43114,
+        name: "AVAX",
+        rpc: "https://api.avax.network/ext/bc/C/rpc",
+        icon: avalancheIcon,
+        switchData: {
+          chainId: "0xa86a",
+          chainName: "Avalanche Mainnet",
+
+          rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"],
+
+          blockExplorerUrls: ["https://cchain.explorer.avax.network/"],
         },
       },
       {
@@ -68,31 +72,27 @@ export default {
         },
       },
       {
-        chainId: 43114,
-        name: "AVAX",
-        rpc: "https://api.avax.network/ext/bc/C/rpc",
-        icon: avalancheIcon,
+        chainId: 56,
+        name: "BSC",
+        rpc: "https://bsc-dataseed.binance.org/",
+        icon: binanceIcon,
         switchData: {
-          chainId: "0xa86a",
-          chainName: "Avalanche Mainnet",
-
-          rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"],
-
-          blockExplorerUrls: ["https://cchain.explorer.avax.network/"],
-        },
-      },
-      {
-        chainId: 42161,
-        name: "AETH",
-        rpc: "https://arb1.arbitrum.io/rpc",
-        icon: arbitrumIcon,
-        switchData: {
-          chainId: "0xa4b1",
-          chainName: "Arbitrum One",
-
-          rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-
-          blockExplorerUrls: ["https://arbiscan.io"],
+          chainId: "0x38",
+          chainName: "Binance Smart Chain",
+          nativeCurrency: {
+            name: "BNB",
+            symbol: "BNB",
+            decimals: 18,
+          },
+          rpcUrls: [
+            "https://bsc-dataseed.binance.org/",
+            "https://bsc-dataseed1.defibit.io/",
+            "https://bsc-dataseed1.ninicoin.io/",
+          ],
+          blockExplorerUrls: ["https://bscscan.com"],
+          iconUrls: [
+            "https://s2.coinmarketcap.com/static/img/coins/200x200/1839.png",
+          ],
         },
       },
       {
