@@ -227,7 +227,6 @@ export default {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
         if (pool) return pool;
-        return null;
       }
       return null;
     },
@@ -508,10 +507,12 @@ export default {
     },
 
     isGlp() {
-      return (
-        this.chainId === 42161 &&
-        (this.selectedPool?.id === 2 || this.selectedPool?.id === 3)
-      );
+      if (this.selectedPool)
+        return (
+          this.chainId === 42161 &&
+          (this.selectedPool.id === 2 || this.selectedPool.id === 3)
+        );
+      return false;
     },
   },
 
@@ -907,7 +908,7 @@ export default {
   },
 
   created() {
-    this.poolId = this.$route.params.id;
+    this.poolId = this.$route.params?.id;
 
     this.updateInterval = setInterval(async () => {
       this.createPools();

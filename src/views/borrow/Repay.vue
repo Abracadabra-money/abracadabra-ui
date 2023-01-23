@@ -385,10 +385,12 @@ export default {
     },
 
     isGlp() {
-      return (
-        this.chainId === 42161 &&
-        (this.selectedPool?.id === 2 || this.selectedPool?.id === 3)
-      );
+      if (this.selectedPool)
+        return (
+          this.chainId === 42161 &&
+          (this.selectedPool.id === 2 || this.selectedPool.id === 3)
+        );
+      return false;
     },
   },
 

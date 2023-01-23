@@ -71,7 +71,8 @@ export default {
     },
 
     isGlp() {
-      return this.pool.id === 3 && this.chainId === 42161;
+      if (this.pool) return this.pool.id === 3 && this.chainId === 42161;
+      return false;
     },
   },
 
