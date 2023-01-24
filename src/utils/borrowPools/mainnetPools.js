@@ -6,6 +6,8 @@ import swapAbi from "@/utils/abi/swap";
 import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
+import zeroXStargateLPLevSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
+import zeroXStargateLPSwapperAbi from "@/utils/abi/ZeroXStargateLPSwapper";
 
 export default [
   {
@@ -1876,7 +1878,8 @@ export default [
     interest: 0,
     ltv: 98,
     borrowFee: 0,
-    isSwappersActive: false,
+    is0xSwap: true,
+    isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
@@ -1908,13 +1911,13 @@ export default [
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
     },
-    // swapContractInfo: {
-    //   address: "0x39abc0483046D7Ad4957C8AdA6E0787824a7C21d",
-    //   abi: swapAbi,
-    // },
-    // reverseSwapContractInfo: {
-    //   address: "0xCbd7FD48c7a2a095ce053D5998db12Ca0Ea65264",
-    //   abi: reverseSwapAbi,
-    // },
+    swapContractInfo: {
+      address: "0x88650a9A0F8894C0bc0d6AE833A64f7E34644935",
+      abi: zeroXStargateLPLevSwapperAbi,
+    },
+    reverseSwapContractInfo: {
+      address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
+      abi: zeroXStargateLPSwapperAbi,
+    },
   },
 ];
