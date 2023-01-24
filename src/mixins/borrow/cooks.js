@@ -156,8 +156,9 @@ export default {
       }
     },
 
-    async getRepayPartEncode(toAddress, cauldronAddress, part) {
+    async getRepayPartEncode(toAddress, cauldronAddress, part, useValue1 = false) {
       try {
+
         const repayPartTx = await this.cookHelper.populateTransaction.repayPart(
           toAddress,
           cauldronAddress,
@@ -167,12 +168,12 @@ export default {
           }
         );
 
-        const repayPartByte = repayPartTx.data;
+        const repayPartByte = useValue1 ? repayPartTx.data.substr(0, 138) : repayPartByte;
 
         // 30
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
-          [this.cookHelper.address, repayPartByte, true, false, 0]
+          [this.cookHelper.address, repayPartByte, useValue1, false, 0]
         );
 
         return callEncode;
@@ -1245,10 +1246,22 @@ export default {
         lpRemoveAndRepayValuesArray.push(0);
         lpRemoveAndRepayDatasArray.push(depositEncode);
 
+
+        //7
+        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256"],
+          [collateralAmount.sub("1")]
+        );
+
+        lpRemoveAndRepayEventsArray.push(7);
+        lpRemoveAndRepayValuesArray.push(0);
+        lpRemoveAndRepayDatasArray.push(getRepayPartEncode);
+
         const repayEncode = await this.getRepayPartEncode(
           userAddr,
           pool.contractInstance.address,
-          collateralAmount
+          collateralAmount,
+          true
         );
 
         lpRemoveAndRepayEventsArray.push(30);
@@ -1600,10 +1613,21 @@ export default {
           valuesArray.push(0);
           datasArray.push(depositEncode);
 
+          //7
+          const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256"],
+            [collateralAmount.sub("1")]
+          );
+
+          eventsArray.push(7);
+          valuesArray.push(0);
+          datasArray.push(getRepayPartEncode);
+
           const repayEncode = await this.getRepayPartEncode(
             userAddr,
             pool.contractInstance.address,
-            collateralAmount
+            collateralAmount,
+            true
           );
 
           eventsArray.push(30);
@@ -2026,10 +2050,21 @@ export default {
           valuesArray.push(0);
           datasArray.push(depositEncode);
 
+          //7
+          const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256"],
+            [amount.sub("1")]
+          );
+
+          eventsArray.push(7);
+          valuesArray.push(0);
+          datasArray.push(getRepayPartEncode);
+
           const repayEncode = await this.getRepayPartEncode(
             userAddr,
             pool.contractInstance.address,
-            amount
+            amount,
+            true
           );
 
           eventsArray.push(30);
