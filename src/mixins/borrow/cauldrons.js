@@ -617,7 +617,11 @@ export default {
 
       let whitelistedInfo;
       if ((pool.id === 33 || pool.id === 38) && this.chainId === 1) {
-        whitelistedInfo = await this.checkPoolWhitelised(poolContract);
+        const itsTesting = pool.id === 38;
+        whitelistedInfo = await this.checkPoolWhitelised(
+          poolContract,
+          itsTesting
+        );
       }
 
       const isApproveTokenCollateral = await this.isTokenApprow(
@@ -694,7 +698,7 @@ export default {
       }
     },
 
-    async checkPoolWhitelised(cauldronContract) {
+    async checkPoolWhitelised(cauldronContract, itsTesting) {
       try {
         const userAddress = this.account;
 
@@ -709,6 +713,27 @@ export default {
           userAddress,
           { gasLimit: 5000000 }
         );
+
+        const amountAllowedParsed = this.$ethers.utils.formatUnits(
+          amountAllowed,
+          18
+        );
+
+        if (itsTesting && +amountAllowedParsed > 0) {
+          return {
+            isUserWhitelisted: true,
+            amountAllowedParsed,
+            userBorrowPart: amountAllowedParsed,
+            userWhitelistedInfo: {
+              userBorrowPart: amountAllowedParsed,
+            },
+            whitelisterContract,
+          };
+        } else if (itsTesting) {
+          return {
+            isUserWhitelisted: false,
+          };
+        }
 
         const fetchingUrl = await whitelisterContract.ipfsMerkleProofs({
           gasLimit: 5000000,
@@ -733,10 +758,6 @@ export default {
             isUserWhitelisted: false,
           };
 
-        const amountAllowedParsed = this.$ethers.utils.formatUnits(
-          amountAllowed,
-          18
-        );
         const userBorrowPart = this.$ethers.utils.formatUnits(
           userWhitelistedInfo.userBorrowPart,
           18
