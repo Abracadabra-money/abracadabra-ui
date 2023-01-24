@@ -616,7 +616,7 @@ export default {
         ) / pool.borrowToken.exchangeRate;
 
       let whitelistedInfo;
-      if (pool.id === 33 && this.chainId === 1) {
+      if ((pool.id === 33 || pool.id === 38) && this.chainId === 1) {
         whitelistedInfo = await this.checkPoolWhitelised(poolContract);
       }
 

@@ -1803,7 +1803,7 @@ export default [
       dynamicBorrowAmountLimit: 0,
       isCollateralClaimable: false,
       claimCrvReward: false,
-      isMigrated: true
+      isMigrated: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1822,7 +1822,7 @@ export default [
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
-    }
+    },
   },
   {
     icon: require(`@/assets/images/tokens/crvSTETH.png`),
@@ -1846,7 +1846,7 @@ export default [
       dynamicBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
-      isMigrated: true
+      isMigrated: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1866,5 +1866,55 @@ export default [
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
     },
+  },
+  {
+    icon: require(`@/assets/images/tokens/Stargate-USDT.png`),
+    name: "Stargate USDT",
+    contractChain: 1,
+    id: 38,
+    stabilityFee: 0.25,
+    interest: 0,
+    ltv: 98,
+    borrowFee: 0,
+    isSwappersActive: false,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
+    contract: {
+      name: "WhitelistedCauldronV4",
+      address: "0x1062eB452f8C7A94276437ec1F4aAca9b1495B72",
+      abi: poolsAbi.WhitelistedCauldronV4,
+    },
+    token: {
+      name: "Stargate USDT",
+      decimals: 6,
+      address: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
+      abi: tokensAbi.StargateUSDT,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      abi: tokensAbi.MIM,
+    },
+    // swapContractInfo: {
+    //   address: "0x39abc0483046D7Ad4957C8AdA6E0787824a7C21d",
+    //   abi: swapAbi,
+    // },
+    // reverseSwapContractInfo: {
+    //   address: "0xCbd7FD48c7a2a095ce053D5998db12Ca0Ea65264",
+    //   abi: reverseSwapAbi,
+    // },
   },
 ];
