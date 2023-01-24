@@ -2316,13 +2316,28 @@ export default {
       let swapStaticTx, swapCallByte, getCallEncode2;
 
       if (pool.is0xSwap) {
-        const response = await this.query0x(
-          pool.collateralToken.address,
-          pool.borrowToken.address,
-          slipage,
-          amount,
-          pool.levSwapperContract.address
-        );
+        let response;
+
+        if (pool.id === 38 && this.chainId === 1) {
+          const totalLiquidity = await pool.collateralToken.totalLiquidity();
+          const totalSupply = await pool.collateralToken.totalSupply();
+          const calculateAmount = amount * (totalLiquidity / totalSupply);
+          response = await this.query0x(
+            "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+            pool.borrowToken.address,
+            slipage,
+            calculateAmount,
+            pool.levSwapperContract.address
+          );
+        } else {
+          response = await this.query0x(
+            pool.collateralToken.address,
+            pool.borrowToken.address,
+            slipage,
+            amount,
+            pool.levSwapperContract.address
+          );
+        }
 
         const swapData = response.data;
         swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
@@ -2699,13 +2714,28 @@ export default {
 
       let swapStaticTx;
       if (pool.is0xSwap) {
-        const response = await this.query0x(
-          pool.borrowToken.address,
-          pool.collateralToken.address,
-          slipage,
-          collateralAmount,
-          pool.liqSwapperContract.address
-        );
+        let response;
+        if (pool.id === 38 && this.chainId === 1) {
+          const totalLiquidity = await pool.collateralToken.totalLiquidity();
+          const totalSupply = await pool.collateralToken.totalSupply();
+          const calculateAmount =
+            collateralAmount * (totalLiquidity / totalSupply);
+          response = await this.query0x(
+            pool.borrowToken.address,
+            "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+            slipage,
+            calculateAmount,
+            pool.levSwapperContract.address
+          );
+        } else {
+          response = await this.query0x(
+            pool.borrowToken.address,
+            pool.collateralToken.address,
+            slipage,
+            collateralAmount,
+            pool.liqSwapperContract.address
+          );
+        }
 
         const swapData = response.data;
 
