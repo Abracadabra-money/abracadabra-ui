@@ -5,6 +5,8 @@ import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
 
+import cookHelperAbi from "@/utils/abi/cookHelperAbi";
+
 export default {
   data() {
     return {
@@ -32,6 +34,29 @@ export default {
       return false;
     },
 
+    cookHelper() {
+      if (
+        this.chainId === 1 &&
+        (this.selectedPool.id === 35 ||
+          this.selectedPool.id === 36 ||
+          this.selectedPool.id === 37)
+      )
+        return new this.$ethers.Contract(
+          "0x3AeCB01be778fAA795f156B9D3627c0E05f700a1",
+          JSON.stringify(cookHelperAbi),
+          this.signer
+        );
+
+      if (this.chainId === 42161 && this.selectedPool.id === 2)
+        return new this.$ethers.Contract(
+          "0x129149DC63F5778a41f619Bb36212566ac54eA45",
+          JSON.stringify(cookHelperAbi),
+          this.signer
+        );
+
+      return false;
+    },
+
     isCookNeedReduceSupply() {
       // if (this.chainId === 1 && this.selectedPool.id === 12) return true;
       // if (
@@ -49,13 +74,123 @@ export default {
     },
   },
   methods: {
+    async getDegenBoxDepositEncode(
+      tokenAddress,
+      toAddress,
+      amount,
+      share,
+      useValue1 = false,
+      useValue2 = false,
+      returnValues = 0
+    ) {
+      try {
+        const degenBoxDepositTx =
+          await this.cookHelper.populateTransaction.degenBoxDeposit(
+            tokenAddress,
+            toAddress,
+            amount,
+            share,
+            {
+              gasLimit: 10000000,
+            }
+          );
+
+        const degenBoxDepositByte = degenBoxDepositTx.data;
+
+        // 30
+        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            this.cookHelper.address,
+            degenBoxDepositByte,
+            useValue1,
+            useValue2,
+            returnValues,
+          ]
+        );
+
+        return callEncode;
+      } catch (error) {
+        console.log("getDegenBoxDepositEncode err:", error);
+      }
+    },
+
+    async degenBoxWithdrawEncode(
+      tokenAddress,
+      toAddress,
+      amount,
+      share,
+      useValue1 = false,
+      useValue2 = false,
+      returnValues = 0
+    ) {
+      try {
+        const degenBoxWithdrawTx =
+          await this.cookHelper.populateTransaction.degenBoxWithdraw(
+            tokenAddress,
+            toAddress,
+            amount,
+            share,
+            {
+              gasLimit: 10000000,
+            }
+          );
+
+        const degenBoxWithdrawByte = degenBoxWithdrawTx.data;
+
+        // 30
+        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [
+            this.cookHelper.address,
+            degenBoxWithdrawByte,
+            useValue1,
+            useValue2,
+            returnValues,
+          ]
+        );
+
+        return callEncode;
+      } catch (error) {
+        console.log("degenBoxWithdrawEncode err:", error);
+      }
+    },
+
+    async getRepayPartEncode(toAddress, cauldronAddress, part) {
+      try {
+        const repayPartTx = await this.cookHelper.populateTransaction.repayPart(
+          toAddress,
+          cauldronAddress,
+          part,
+          {
+            gasLimit: 10000000,
+          }
+        );
+
+        const repayPartByte = repayPartTx.data;
+
+        // 30
+        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [this.cookHelper.address, repayPartByte, true, false, 0]
+        );
+
+        return callEncode;
+      } catch (error) {
+        console.log("getRepayPartEncode err:", error);
+      }
+    },
+
     async getApprovalEncode(pool, approved = true, firstSignAdded = false) {
       if (!this.itsMetamask) return "ledger";
 
       const account = this.account;
 
       const verifyingContract = await this.getVerifyingContract(pool);
-      const masterContract = await this.getMasterContract(pool);
+      const masterContract =
+        this.cookHelper && !firstSignAdded
+          ? this.cookHelper.address
+          : await this.getMasterContract(pool);
       const nonce = await this.getNonce(pool);
       const chainId = this.$ethers.utils.hexlify(this.chainId);
 
@@ -76,7 +211,9 @@ export default {
         ],
       };
 
-      const warning = approved ? "Give FULL access to funds in (and approved to) BentoBox?" : "Revoke access to BentoBox?";
+      const warning = approved
+        ? "Give FULL access to funds in (and approved to) BentoBox?"
+        : "Revoke access to BentoBox?";
 
       // The data to sign
       const value = {
@@ -315,15 +452,28 @@ export default {
       lpCollateralAndBorrowValuesArray.push(0);
       lpCollateralAndBorrowDatasArray.push(borrowEncode);
 
-      // 21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, borrowAmount.sub("1"), "0x0"]
-      );
+      if (this.cookHelper) {
+        const withdrawEncode = await this.degenBoxWithdrawEncode(
+          pairToken,
+          userAddr,
+          borrowAmount.sub("1"),
+          "0x0"
+        );
 
-      lpCollateralAndBorrowEventsArray.push(21);
-      lpCollateralAndBorrowValuesArray.push(0);
-      lpCollateralAndBorrowDatasArray.push(bentoWithdrawEncode);
+        lpCollateralAndBorrowEventsArray.push(30);
+        lpCollateralAndBorrowValuesArray.push(0);
+        lpCollateralAndBorrowDatasArray.push(withdrawEncode);
+      } else {
+        // 21
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [pairToken, userAddr, borrowAmount.sub("1"), "0x0"]
+        );
+
+        lpCollateralAndBorrowEventsArray.push(21);
+        lpCollateralAndBorrowValuesArray.push(0);
+        lpCollateralAndBorrowDatasArray.push(bentoWithdrawEncode);
+      }
 
       const {
         lpCollateralEventsArray,
@@ -353,27 +503,57 @@ export default {
       const lpCollateralValuesArray = [];
       const lpCollateralDatasArray = [];
 
-      // 20
-      // deposit in degenbox
-      const lpDepositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [lpAddress, userAddr, collateralAmount, "0"]
-      );
+      if (this.cookHelper) {
+        const collateralToShare = await pool.masterContractInstance.toShare(
+          lpAddress,
+          collateralAmount,
+          false
+        );
 
-      lpCollateralEventsArray.push(20);
-      lpCollateralValuesArray.push(0);
-      lpCollateralDatasArray.push(lpDepositEncode);
+        const depositEncode = await this.getDegenBoxDepositEncode(
+          lpAddress,
+          userAddr,
+          "0",
+          collateralToShare
+        );
 
-      // 21
-      // withdraw to token wrapper
-      const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [lpAddress, tokenWrapper, collateralAmount, "0"]
-      );
+        lpCollateralEventsArray.push(30);
+        lpCollateralValuesArray.push(0);
+        lpCollateralDatasArray.push(depositEncode);
 
-      lpCollateralEventsArray.push(21);
-      lpCollateralValuesArray.push(0);
-      lpCollateralDatasArray.push(lpWrapperEncode);
+        const withdrawEncode = await this.degenBoxWithdrawEncode(
+          lpAddress,
+          tokenWrapper,
+          "0",
+          collateralToShare
+        );
+
+        lpCollateralEventsArray.push(30);
+        lpCollateralValuesArray.push(0);
+        lpCollateralDatasArray.push(withdrawEncode);
+      } else {
+        // 20
+        // deposit in degenbox
+        const lpDepositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [lpAddress, userAddr, collateralAmount, "0"]
+        );
+
+        lpCollateralEventsArray.push(20);
+        lpCollateralValuesArray.push(0);
+        lpCollateralDatasArray.push(lpDepositEncode);
+
+        // 21
+        // withdraw to token wrapper
+        const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [lpAddress, tokenWrapper, collateralAmount, "0"]
+        );
+
+        lpCollateralEventsArray.push(21);
+        lpCollateralValuesArray.push(0);
+        lpCollateralDatasArray.push(lpWrapperEncode);
+      }
 
       // 30
       // wrap and deposit to cauldron
@@ -433,7 +613,15 @@ export default {
 
       let firstSignAdded = false;
 
-      if (!isApprowed) {
+      if (this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+        
+        firstSignAdded = true;
+      } else if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -483,42 +671,93 @@ export default {
         valuesArray.push(0);
         datasArray.push(borrowEncode);
 
-        // 21
-        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pairToken, userAddr, amount.sub("1"), "0x0"]
-        );
+        if (this.cookHelper) {
+          const withdrawEncode = await this.degenBoxWithdrawEncode(
+            pairToken,
+            userAddr,
+            amount.sub("1"),
+            "0x0"
+          );
 
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(bentoWithdrawEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(withdrawEncode);
+        } else {
+          // 21
+          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [pairToken, userAddr, amount.sub("1"), "0x0"]
+          );
 
-        // 20
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [tokenAddr, userAddr, collateralAmount, "0"]
-        );
+          eventsArray.push(21);
+          valuesArray.push(0);
+          datasArray.push(bentoWithdrawEncode);
+        }
 
-        eventsArray.push(20);
-        valuesArray.push(collateralValue);
-        datasArray.push(depositEncode);
+        if (this.cookHelper) {
+          const collateralToShare = await pool.masterContractInstance.toShare(
+            tokenAddr,
+            collateralAmount,
+            false
+          );
 
-        // 10
-        const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address", "bool"],
-          ["-2", userAddr, false]
-        );
+          const depositEncode = await this.getDegenBoxDepositEncode(
+            tokenAddr,
+            pool.contractInstance.address,
+            "0",
+            collateralToShare,
+            false,
+            false,
+            0
+          );
 
-        eventsArray.push(10);
-        valuesArray.push(0);
-        datasArray.push(colateralEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
+
+          // 10
+          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            [collateralToShare, userAddr, true]
+          );
+
+          eventsArray.push(10);
+          valuesArray.push(0);
+          datasArray.push(colateralEncode);
+        } else {
+          // 20
+          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [tokenAddr, userAddr, collateralAmount, "0"]
+          );
+
+          eventsArray.push(20);
+          valuesArray.push(collateralValue);
+          datasArray.push(depositEncode);
+
+          // 10
+          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            ["-2", userAddr, false]
+          );
+
+          eventsArray.push(10);
+          valuesArray.push(0);
+          datasArray.push(colateralEncode);
+        }
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(removeApprovalEncode);
+      if (isApprowed && this.cookHelper) {
+        const removeApprovalEncode = await this.getApprovalEncode(
+          pool,
+          false,
+          firstSignAdded
+        );
+        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(removeApprovalEncode);
+        }
       }
 
       const cookData = {
@@ -590,7 +829,15 @@ export default {
 
       let firstSignAdded = false;
 
-      if (!isApprowed) {
+      if (this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+
+        firstSignAdded = true;
+      } else if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -624,32 +871,70 @@ export default {
         valuesArray.push(...lpCollateralValuesArray);
         datasArray.push(...lpCollateralDatasArray);
       } else {
-        // 20
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [tokenAddr, userAddr, amount, "0"]
-        );
+        if (this.cookHelper) {
+          const collateralToShare = await pool.masterContractInstance.toShare(
+            tokenAddr,
+            amount,
+            false
+          );
 
-        eventsArray.push(20);
-        valuesArray.push(collateralValue);
-        datasArray.push(depositEncode);
+          const depositEncode = await this.getDegenBoxDepositEncode(
+            tokenAddr,
+            pool.contractInstance.address,
+            "0",
+            collateralToShare,
+            false,
+            false,
+            0
+          );
 
-        // 10
-        const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address", "bool"],
-          ["-2", userAddr, false]
-        );
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
 
-        eventsArray.push(10);
-        valuesArray.push(0);
-        datasArray.push(colateralEncode);
+          // 10
+          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            [collateralToShare, userAddr, true]
+          );
+
+          eventsArray.push(10);
+          valuesArray.push(0);
+          datasArray.push(colateralEncode);
+        } else {
+          // 20
+          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [tokenAddr, userAddr, amount, "0"]
+          );
+
+          eventsArray.push(20);
+          valuesArray.push(collateralValue);
+          datasArray.push(depositEncode);
+
+          // 10
+          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            ["-2", userAddr, false]
+          );
+
+          eventsArray.push(10);
+          valuesArray.push(0);
+          datasArray.push(colateralEncode);
+        }
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(removeApprovalEncode);
+      if (isApprowed && this.cookHelper) {
+        const removeApprovalEncode = await this.getApprovalEncode(
+          pool,
+          false,
+          firstSignAdded
+        );
+        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(removeApprovalEncode);
+        }
       }
 
       const cookData = {
@@ -716,7 +1001,15 @@ export default {
 
       let firstSignAdded = false;
 
-      if (!isApprowed) {
+      if (this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+        
+        firstSignAdded = true;
+      } else if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -757,21 +1050,40 @@ export default {
       valuesArray.push(0);
       datasArray.push(borrowEncode);
 
-      //21
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, amount.sub("1"), "0x0"]
-      );
+      if (this.cookHelper) {
+        const withdrawEncode = await this.degenBoxWithdrawEncode(
+          pairToken,
+          userAddr,
+          amount.sub("1"),
+          "0x0"
+        );
 
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        eventsArray.push(24);
+        eventsArray.push(30);
         valuesArray.push(0);
-        datasArray.push(removeApprovalEncode);
+        datasArray.push(withdrawEncode);
+      } else {
+        // 21
+        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [pairToken, userAddr, amount.sub("1"), "0x0"]
+        );
+
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(bentoWithdrawEncode);
+      }
+
+      if (isApprowed && this.cookHelper) {
+        const removeApprovalEncode = await this.getApprovalEncode(
+          pool,
+          false,
+          firstSignAdded
+        );
+        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(removeApprovalEncode);
+        }
       }
 
       const cookData = {
@@ -790,7 +1102,7 @@ export default {
           }
         );
 
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+        const gasLimit = this.gasLimitConst * 1000 + +estimateGas.toString();
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -839,16 +1151,29 @@ export default {
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(removeCollateral);
 
-      // 21 withdraw to token wrapper
+      if (this.cookHelper) {
+        const withdrawEncode = await this.degenBoxWithdrawEncode(
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          amount
+        );
 
-      const lpBentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pool.collateralToken.address, tokenWrapper, "0", amount]
-      );
+        lpRemoveCollateralEventsArray.push(30);
+        lpRemoveCollateralValuesArray.push(0);
+        lpRemoveCollateralDatasArray.push(withdrawEncode);
+      } else {
+        // 21 withdraw to token wrapper
 
-      lpRemoveCollateralEventsArray.push(21);
-      lpRemoveCollateralValuesArray.push(0);
-      lpRemoveCollateralDatasArray.push(lpBentoWithdrawEncode);
+        const lpBentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [pool.collateralToken.address, tokenWrapper, "0", amount]
+        );
+
+        lpRemoveCollateralEventsArray.push(21);
+        lpRemoveCollateralValuesArray.push(0);
+        lpRemoveCollateralDatasArray.push(lpBentoWithdrawEncode);
+      }
 
       // 30 unwrap and deposit for alice in degenbox
       const swapStaticTx =
@@ -866,16 +1191,29 @@ export default {
       lpRemoveCollateralValuesArray.push(0);
       lpRemoveCollateralDatasArray.push(lpCallEncode);
 
-      // 21
-      // withdraw to  userAddr
-      const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [lpAddress, userAddr, amount, "0"]
-      );
+      if (this.cookHelper) {
+        const withdrawEncode = await this.degenBoxWithdrawEncode(
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
 
-      lpRemoveCollateralEventsArray.push(21);
-      lpRemoveCollateralValuesArray.push(0);
-      lpRemoveCollateralDatasArray.push(lpWrapperEncode);
+        lpRemoveCollateralEventsArray.push(30);
+        lpRemoveCollateralValuesArray.push(0);
+        lpRemoveCollateralDatasArray.push(withdrawEncode);
+      } else {
+        // 21
+        // withdraw to  userAddr
+        const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [lpAddress, userAddr, amount, "0"]
+        );
+
+        lpRemoveCollateralEventsArray.push(21);
+        lpRemoveCollateralValuesArray.push(0);
+        lpRemoveCollateralDatasArray.push(lpWrapperEncode);
+      }
 
       return {
         lpRemoveCollateralEventsArray,
@@ -895,35 +1233,58 @@ export default {
       const lpRemoveAndRepayValuesArray = [];
       const lpRemoveAndRepayDatasArray = [];
 
-      //20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, collateralAmount, "0x0"]
-      );
+      if (this.cookHelper) {
+        const depositEncode = await this.getDegenBoxDepositEncode(
+          pairToken,
+          userAddr,
+          collateralAmount,
+          "0"
+        );
 
-      lpRemoveAndRepayEventsArray.push(20);
-      lpRemoveAndRepayValuesArray.push(0);
-      lpRemoveAndRepayDatasArray.push(depositEncode);
+        lpRemoveAndRepayEventsArray.push(30);
+        lpRemoveAndRepayValuesArray.push(0);
+        lpRemoveAndRepayDatasArray.push(depositEncode);
 
-      //7
-      const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256"],
-        [collateralAmount.sub("1")]
-      );
+        const repayEncode = await this.getRepayPartEncode(
+          userAddr,
+          pool.contractInstance.address,
+          collateralAmount
+        );
 
-      lpRemoveAndRepayEventsArray.push(7);
-      lpRemoveAndRepayValuesArray.push(0);
-      lpRemoveAndRepayDatasArray.push(getRepayPartEncode);
+        lpRemoveAndRepayEventsArray.push(30);
+        lpRemoveAndRepayValuesArray.push(0);
+        lpRemoveAndRepayDatasArray.push(repayEncode);
+      } else {
+        //20
+        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [pairToken, userAddr, collateralAmount, "0x0"]
+        );
 
-      //2
-      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-0x01", userAddr, false]
-      );
+        lpRemoveAndRepayEventsArray.push(20);
+        lpRemoveAndRepayValuesArray.push(0);
+        lpRemoveAndRepayDatasArray.push(depositEncode);
 
-      lpRemoveAndRepayEventsArray.push(2);
-      lpRemoveAndRepayValuesArray.push(0);
-      lpRemoveAndRepayDatasArray.push(repayEncode);
+        //7
+        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256"],
+          [collateralAmount.sub("1")]
+        );
+
+        lpRemoveAndRepayEventsArray.push(7);
+        lpRemoveAndRepayValuesArray.push(0);
+        lpRemoveAndRepayDatasArray.push(getRepayPartEncode);
+
+        //2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          ["-0x01", userAddr, false]
+        );
+
+        lpRemoveAndRepayEventsArray.push(2);
+        lpRemoveAndRepayValuesArray.push(0);
+        lpRemoveAndRepayDatasArray.push(repayEncode);
+      }
 
       const {
         lpRemoveCollateralEventsArray,
@@ -959,7 +1320,15 @@ export default {
 
       let firstSignAdded = false;
 
-      if (!isApprowed) {
+      if (this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+        
+        firstSignAdded = true;
+      } else if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -982,35 +1351,64 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      // 6
-      const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256"],
-        [userBorrowPart]
-      );
+      if (this.cookHelper) {
+        const userBorrowShare = await pool.masterContractInstance.toShare(
+          pairToken,
+          userBorrowPart,
+          false
+        );
 
-      eventsArray.push(6);
-      valuesArray.push(0);
-      datasArray.push(getRepayShareEncode);
+        const depositEncode = await this.getDegenBoxDepositEncode(
+          pairToken,
+          userAddr,
+          "0x00",
+          userBorrowShare
+        );
 
-      // 20
-      const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [pairToken, userAddr, "0x00", "-0x01"]
-      );
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(depositEncode);
 
-      eventsArray.push(20);
-      valuesArray.push(0);
-      datasArray.push(depositEncode);
+        const repayEncode = await this.getRepayPartEncode(
+          userAddr,
+          pool.contractInstance.address,
+          userBorrowPart
+        );
 
-      // 2
-      const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        [userBorrowPart, userAddr, false]
-      );
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      } else {
+        // 6
+        const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256"],
+          [userBorrowPart]
+        );
 
-      eventsArray.push(2);
-      valuesArray.push(0);
-      datasArray.push(repayEncode);
+        eventsArray.push(6);
+        valuesArray.push(0);
+        datasArray.push(getRepayShareEncode);
+
+        // 20
+        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [pairToken, userAddr, "0x00", "-0x01"]
+        );
+
+        eventsArray.push(20);
+        valuesArray.push(0);
+        datasArray.push(depositEncode);
+
+        // 2
+        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          [userBorrowPart, userAddr, false]
+        );
+
+        eventsArray.push(2);
+        valuesArray.push(0);
+        datasArray.push(repayEncode);
+      }
 
       if (pool.lpLogic) {
         const {
@@ -1033,15 +1431,28 @@ export default {
         valuesArray.push(0);
         datasArray.push(removeCollateral);
 
-        // 21
-        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [tokenAddr, userAddr, "0x00", amount]
-        );
+        if (this.cookHelper) {
+          const withdrawEncode = await this.degenBoxWithdrawEncode(
+            tokenAddr,
+            userAddr,
+            "0x00",
+            amount
+          );
 
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(bentoWithdrawEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(withdrawEncode);
+        } else {
+          // 21
+          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [tokenAddr, userAddr, "0x00", amount]
+          );
+
+          eventsArray.push(21);
+          valuesArray.push(0);
+          datasArray.push(bentoWithdrawEncode);
+        }
 
         if (this.isCookNeedReduceSupply) {
           const callEncode = await this.getReduceSupplyEncode(pool);
@@ -1052,11 +1463,17 @@ export default {
         }
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(removeApprovalEncode);
+      if (isApprowed && this.cookHelper) {
+        const removeApprovalEncode = await this.getApprovalEncode(
+          pool,
+          false,
+          firstSignAdded
+        );
+        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(removeApprovalEncode);
+        }
       }
 
       const cookData = {
@@ -1123,7 +1540,15 @@ export default {
 
       let firstSignAdded = false;
 
-      if (!isApprowed) {
+      if (this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+        
+        firstSignAdded = true;
+      } else if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1163,35 +1588,58 @@ export default {
         valuesArray.push(...lpRemoveAndRepayValuesArray);
         datasArray.push(...lpRemoveAndRepayDatasArray);
       } else {
-        //20
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pairToken, userAddr, collateralAmount, "0x0"]
-        );
+        if (this.cookHelper) {
+          const depositEncode = await this.getDegenBoxDepositEncode(
+            pairToken,
+            userAddr,
+            collateralAmount,
+            "0"
+          );
 
-        eventsArray.push(20);
-        valuesArray.push(0);
-        datasArray.push(depositEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
 
-        //7
-        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256"],
-          [collateralAmount.sub("1")]
-        );
+          const repayEncode = await this.getRepayPartEncode(
+            userAddr,
+            pool.contractInstance.address,
+            collateralAmount
+          );
 
-        eventsArray.push(7);
-        valuesArray.push(0);
-        datasArray.push(getRepayPartEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(repayEncode);
+        } else {
+          //20
+          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [pairToken, userAddr, collateralAmount, "0x0"]
+          );
 
-        //2
-        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address", "bool"],
-          ["-0x01", userAddr, false]
-        );
+          eventsArray.push(20);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
 
-        eventsArray.push(2);
-        valuesArray.push(0);
-        datasArray.push(repayEncode);
+          //7
+          const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256"],
+            [collateralAmount.sub("1")]
+          );
+
+          eventsArray.push(7);
+          valuesArray.push(0);
+          datasArray.push(getRepayPartEncode);
+
+          //2
+          const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            ["-0x01", userAddr, false]
+          );
+
+          eventsArray.push(2);
+          valuesArray.push(0);
+          datasArray.push(repayEncode);
+        }
 
         // 4
         const removeCollateral = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1203,15 +1651,28 @@ export default {
         valuesArray.push(0);
         datasArray.push(removeCollateral);
 
-        //21
-        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [tokenAddr, userAddr, "0x00", amount]
-        );
+        if (this.cookHelper) {
+          const withdrawEncode = await this.degenBoxWithdrawEncode(
+            tokenAddr,
+            userAddr,
+            "0x00",
+            amount
+          );
 
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(bentoWithdrawEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(withdrawEncode);
+        } else {
+          //21
+          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [tokenAddr, userAddr, "0x00", amount]
+          );
+
+          eventsArray.push(21);
+          valuesArray.push(0);
+          datasArray.push(bentoWithdrawEncode);
+        }
 
         if (this.isCookNeedReduceSupply) {
           const callEncode = await this.getReduceSupplyEncode(pool);
@@ -1222,11 +1683,17 @@ export default {
         }
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(removeApprovalEncode);
+      if (isApprowed && this.cookHelper) {
+        const removeApprovalEncode = await this.getApprovalEncode(
+          pool,
+          false,
+          firstSignAdded
+        );
+        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(removeApprovalEncode);
+        }
       }
 
       const cookData = {
@@ -1291,7 +1758,15 @@ export default {
 
       let firstSignAdded = false;
 
-      if (!isApprowed) {
+      if (this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+        
+        firstSignAdded = true;
+      } else if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1336,22 +1811,41 @@ export default {
         valuesArray.push(0);
         datasArray.push(removeCollateral);
 
-        // 21
-        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [tokenAddr, userAddr, "0x00", amount]
-        );
+        if (this.cookHelper) {
+          const withdrawEncode = await this.degenBoxWithdrawEncode(
+            tokenAddr,
+            userAddr,
+            "0x00",
+            amount
+          );
 
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(bentoWithdrawEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(withdrawEncode);
+        } else {
+          // 21
+          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [tokenAddr, userAddr, "0x00", amount]
+          );
+
+          eventsArray.push(21);
+          valuesArray.push(0);
+          datasArray.push(bentoWithdrawEncode);
+        }
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(removeApprovalEncode);
+      if (isApprowed && this.cookHelper) {
+        const removeApprovalEncode = await this.getApprovalEncode(
+          pool,
+          false,
+          firstSignAdded
+        );
+        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(removeApprovalEncode);
+        }
       }
 
       const cookData = {
@@ -1429,7 +1923,15 @@ export default {
 
       let firstSignAdded = false;
 
-      if (!isApprowed) {
+      if (this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+        
+        firstSignAdded = true;
+      } else if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1453,65 +1955,117 @@ export default {
       }
 
       if (itsMax) {
-        // 6
-        const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256"],
-          [userBorrowPart]
-        );
+        if (this.cookHelper) {
+          const userBorrowShare = await pool.masterContractInstance.toShare(
+            pairToken,
+            userBorrowPart,
+            false
+          );
 
-        eventsArray.push(6);
-        valuesArray.push(0);
-        datasArray.push(getRepayShareEncode);
+          const depositEncode = await this.getDegenBoxDepositEncode(
+            pairToken,
+            userAddr,
+            "0x00",
+            userBorrowShare
+          );
 
-        // 20
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pairToken, userAddr, "0x00", "-0x01"]
-        );
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
 
-        eventsArray.push(20);
-        valuesArray.push(0);
-        datasArray.push(depositEncode);
+          const repayEncode = await this.getRepayPartEncode(
+            userAddr,
+            pool.contractInstance.address,
+            userBorrowPart
+          );
 
-        // 2
-        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address", "bool"],
-          [userBorrowPart, userAddr, false]
-        );
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(repayEncode);
+        } else {
+          // 6
+          const getRepayShareEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256"],
+            [userBorrowPart]
+          );
 
-        eventsArray.push(2);
-        valuesArray.push(0);
-        datasArray.push(repayEncode);
+          eventsArray.push(6);
+          valuesArray.push(0);
+          datasArray.push(getRepayShareEncode);
+
+          // 20
+          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [pairToken, userAddr, "0x00", "-0x01"]
+          );
+
+          eventsArray.push(20);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
+
+          // 2
+          const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            [userBorrowPart, userAddr, false]
+          );
+
+          eventsArray.push(2);
+          valuesArray.push(0);
+          datasArray.push(repayEncode);
+        }
       } else {
-        // 20
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pairToken, userAddr, amount, "0x0"]
-        );
+        if (this.cookHelper) {
+          const depositEncode = await this.getDegenBoxDepositEncode(
+            pairToken,
+            userAddr,
+            amount,
+            "0"
+          );
 
-        eventsArray.push(20);
-        valuesArray.push(0);
-        datasArray.push(depositEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
 
-        //7
-        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256"],
-          [amount.sub("1")]
-        );
+          const repayEncode = await this.getRepayPartEncode(
+            userAddr,
+            pool.contractInstance.address,
+            amount
+          );
 
-        eventsArray.push(7);
-        valuesArray.push(0);
-        datasArray.push(getRepayPartEncode);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(repayEncode);
+        } else {
+          // 20
+          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [pairToken, userAddr, amount, "0x0"]
+          );
 
-        //2
-        const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address", "bool"],
-          ["-0x01", userAddr, false]
-        );
+          eventsArray.push(20);
+          valuesArray.push(0);
+          datasArray.push(depositEncode);
 
-        eventsArray.push(2);
-        valuesArray.push(0);
-        datasArray.push(repayEncode);
+          //7
+          const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256"],
+            [amount.sub("1")]
+          );
+
+          eventsArray.push(7);
+          valuesArray.push(0);
+          datasArray.push(getRepayPartEncode);
+
+          //2
+          const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            ["-0x01", userAddr, false]
+          );
+
+          eventsArray.push(2);
+          valuesArray.push(0);
+          datasArray.push(repayEncode);
+        }
       }
 
       if (this.isCookNeedReduceSupply) {
@@ -1522,11 +2076,17 @@ export default {
         datasArray.push(callEncode);
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(removeApprovalEncode);
+      if (isApprowed && this.cookHelper) {
+        const removeApprovalEncode = await this.getApprovalEncode(
+          pool,
+          false,
+          firstSignAdded
+        );
+        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(removeApprovalEncode);
+        }
       }
 
       const cookData = {
@@ -1723,7 +2283,11 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCollateralEncode2);
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
       if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
@@ -1931,7 +2495,11 @@ export default {
       valuesArray.push(0);
       datasArray.push(getCollateralEncode3);
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
       if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
@@ -2145,7 +2713,11 @@ export default {
         datasArray.push(callEncode);
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
       if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
@@ -2330,7 +2902,11 @@ export default {
         datasArray.push(callEncode);
       }
 
-      const removeApprovalEncode = await this.getApprovalEncode(pool, false, firstSignAdded);
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        firstSignAdded
+      );
       if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
         eventsArray.push(24);
         valuesArray.push(0);
