@@ -156,9 +156,13 @@ export default {
       }
     },
 
-    async getRepayPartEncode(toAddress, cauldronAddress, part, useValue1 = false) {
+    async getRepayPartEncode(
+      toAddress,
+      cauldronAddress,
+      part,
+      useValue1 = false
+    ) {
       try {
-
         const repayPartTx = await this.cookHelper.populateTransaction.repayPart(
           toAddress,
           cauldronAddress,
@@ -168,7 +172,9 @@ export default {
           }
         );
 
-        const repayPartByte = useValue1 ? repayPartTx.data.substr(0, 138) : repayPartByte;
+        const repayPartByte = useValue1
+          ? repayPartTx.data.substr(0, 138)
+          : repayPartByte;
 
         // 30
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -179,6 +185,22 @@ export default {
         return callEncode;
       } catch (error) {
         console.log("getRepayPartEncode err:", error);
+      }
+    },
+
+    async isCookHelperApprowed(pool) {
+      try {
+        const masterContract = this.cookHelper.address;
+
+        const addressApprowed =
+          await pool.masterContractInstance.masterContractApproved(
+            masterContract,
+            this.account
+          );
+
+        return addressApprowed;
+      } catch (e) {
+        console.log("isApprowed err:", e);
       }
     },
 
@@ -614,15 +636,19 @@ export default {
 
       let firstSignAdded = false;
 
-      if (this.cookHelper) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         eventsArray.push(24);
         valuesArray.push(0);
         datasArray.push(approvalEncode);
-        
+
         firstSignAdded = true;
-      } else if (!isApprowed) {
+      } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -830,7 +856,11 @@ export default {
 
       let firstSignAdded = false;
 
-      if (this.cookHelper) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         eventsArray.push(24);
@@ -838,7 +868,7 @@ export default {
         datasArray.push(approvalEncode);
 
         firstSignAdded = true;
-      } else if (!isApprowed) {
+      } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1002,15 +1032,19 @@ export default {
 
       let firstSignAdded = false;
 
-      if (this.cookHelper) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         eventsArray.push(24);
         valuesArray.push(0);
         datasArray.push(approvalEncode);
-        
+
         firstSignAdded = true;
-      } else if (!isApprowed) {
+      } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1246,7 +1280,6 @@ export default {
         lpRemoveAndRepayValuesArray.push(0);
         lpRemoveAndRepayDatasArray.push(depositEncode);
 
-
         //7
         const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256"],
@@ -1333,15 +1366,19 @@ export default {
 
       let firstSignAdded = false;
 
-      if (this.cookHelper) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         eventsArray.push(24);
         valuesArray.push(0);
         datasArray.push(approvalEncode);
-        
+
         firstSignAdded = true;
-      } else if (!isApprowed) {
+      } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1553,15 +1590,19 @@ export default {
 
       let firstSignAdded = false;
 
-      if (this.cookHelper) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         eventsArray.push(24);
         valuesArray.push(0);
         datasArray.push(approvalEncode);
-        
+
         firstSignAdded = true;
-      } else if (!isApprowed) {
+      } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1782,15 +1823,19 @@ export default {
 
       let firstSignAdded = false;
 
-      if (this.cookHelper) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         eventsArray.push(24);
         valuesArray.push(0);
         datasArray.push(approvalEncode);
-        
+
         firstSignAdded = true;
-      } else if (!isApprowed) {
+      } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -1947,15 +1992,19 @@ export default {
 
       let firstSignAdded = false;
 
-      if (this.cookHelper) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         eventsArray.push(24);
         valuesArray.push(0);
         datasArray.push(approvalEncode);
-        
+
         firstSignAdded = true;
-      } else if (!isApprowed) {
+      } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
