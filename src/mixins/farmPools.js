@@ -1,6 +1,6 @@
 import farmPools from "@/utils/farmPools/pools";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
-import { mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 
 import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
 
@@ -16,17 +16,25 @@ export default {
     };
   },
   computed: {
-    chainId() {
-      return this.$store.getters.getChainId;
-    },
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+      pools: "getFarmPools",
+      networks: "getAvailableNetworks",
+      provider: "getSigner",
+    }),
     signer() {
-      return this.$store.getters.getSigner || this.$ethers.getDefaultProvider();
-    },
-    account() {
-      return this.$store.getters.getAccount;
-    },
-    pools() {
-      return this.$store.getters.getFarmPools;
+      if (this.provider) return this.provider;
+      let networkRpc =
+        "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
+
+      if (this.chainId !== 1) {
+        this.networks.forEach((network) => {
+          if (network.chainId === this.chainId) networkRpc = network.rpc;
+        });
+      }
+
+      return new this.$ethers.providers.JsonRpcProvider(networkRpc);
     },
   },
   methods: {
