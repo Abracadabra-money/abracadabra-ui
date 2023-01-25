@@ -4,7 +4,6 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
-
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
 
 export default {
@@ -2327,9 +2326,10 @@ export default {
         let response;
 
         if (pool.id === 38 && this.chainId === 1) {
-          const totalLiquidity = await pool.collateralToken.totalLiquidity();
-          const totalSupply = await pool.collateralToken.totalSupply();
-          const calculateAmount = amount * (totalLiquidity / totalSupply);
+          const totalLiquidity =
+            await pool.collateralToken.contract.totalLiquidity();
+          const totalSupply = await pool.collateralToken.contract.totalSupply();
+          const calculateAmount = amount.div(totalLiquidity.div(totalSupply));
           response = await this.query0x(
             "0xdAC17F958D2ee523a2206206994597C13D831ec7",
             pool.borrowToken.address,
@@ -2657,7 +2657,7 @@ export default {
       const eventsArray = [];
       const valuesArray = [];
       const datasArray = [];
-      
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -2694,10 +2694,12 @@ export default {
       if (pool.is0xSwap) {
         let response;
         if (pool.id === 38 && this.chainId === 1) {
-          const totalLiquidity = await pool.collateralToken.totalLiquidity();
-          const totalSupply = await pool.collateralToken.totalSupply();
-          const calculateAmount =
-            collateralAmount * (totalLiquidity / totalSupply);
+          const totalLiquidity =
+            await pool.collateralToken.contract.totalLiquidity();
+          const totalSupply = await pool.collateralToken.contract.totalSupply();
+          const calculateAmount = collateralAmount.div(
+            totalLiquidity.div(totalSupply)
+          );
           response = await this.query0x(
             pool.borrowToken.address,
             "0xdAC17F958D2ee523a2206206994597C13D831ec7",

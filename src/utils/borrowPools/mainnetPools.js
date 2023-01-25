@@ -6,7 +6,7 @@ import swapAbi from "@/utils/abi/swap";
 import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
-import zeroXStargateLPLevSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
+import zeroXStargateLPLevSwapperAbi from "@/utils/abi/ZeroXStargateLPLevSwapper";
 import zeroXStargateLPSwapperAbi from "@/utils/abi/ZeroXStargateLPSwapper";
 
 export default [
