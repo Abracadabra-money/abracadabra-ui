@@ -518,6 +518,7 @@ export default {
         is0xSwap: pool.is0xSwap,
         executionPrice: pool.executionPrice,
         cauldronSettings: pool.cauldronSettings,
+        cauldronContractAbi: pool.contract.abi,
         contractInstance: poolContract,
         masterContractInstance: masterContract,
         totalCollateralShare,
@@ -539,6 +540,7 @@ export default {
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
         collateralToken: {
+          abi: pool.token.abi,
           contract: tokenCollateralContract,
           name: pool.token.name,
           address: pool.token.address,
@@ -548,6 +550,9 @@ export default {
         },
         maxWithdrawAmount,
         userInfo: null,
+        levSwapper: {
+          abi: pool?.swapContractInfo?.abi,
+        },
         levSwapperContract,
         liqSwapperContract,
         lpLogic,

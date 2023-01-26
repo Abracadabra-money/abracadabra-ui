@@ -3,7 +3,15 @@ import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
+import {
+  createFork,
+  fundGasToken,
+  fundCollateralToken,
+} from "../../utils/tenderly";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
+import { ethers, Contract } from "ethers";
+import bentoBoxAbi from "@/utils/abi/bentoBox";
+import { approveToken } from "@/utils/approveHelpers.js";
 
 export default {
   data() {
@@ -49,14 +57,14 @@ export default {
     },
   },
   methods: {
-    async getApprovalEncode(pool) {
+    async getApprovalEncode(pool, signer, forkedNonce) {
       if (!this.itsMetamask) return "ledger";
 
-      const account = this.account;
+      const account = (await signer.getAddress()) || this.account;
 
       const verifyingContract = await this.getVerifyingContract(pool);
       const masterContract = await this.getMasterContract(pool);
-      const nonce = await this.getNonce(pool);
+      const nonce = forkedNonce || (await this.getNonce(pool));
       const chainId = this.$ethers.utils.hexlify(this.chainId);
 
       const domain = {
@@ -87,7 +95,9 @@ export default {
 
       let signature;
       try {
-        signature = await this.signer._signTypedData(domain, types, value);
+        signature = await (signer
+          ? signer._signTypedData(domain, types, value)
+          : this.signer._signTypedData(domain, types, value));
       } catch (e) {
         console.log("SIG ERR:", e.code);
 
@@ -1497,6 +1507,297 @@ export default {
       }
     },
 
+    async tenderlySimCookMultiBorrow(
+      {
+        collateralAmount,
+        amount,
+        updatePrice,
+        minExpected,
+        itsDefaultBalance,
+        slipage,
+      },
+      pool,
+      chainId
+    ) {
+      console.log("slipage", slipage);
+      //1. CREATE FORK
+      const forkRes = await createFork(chainId);
+      const forkId = forkRes.data.simulation_fork.id;
+      const forkRPC = `https://rpc.tenderly.co/fork/${forkId}`;
+
+      const provider = new ethers.providers.JsonRpcProvider(forkRPC);
+      const userWallet = new ethers.Wallet(
+        "0xd273a2a4f3377bcc0de92830b8aca056064d9b53257b26c492197c98169f1513",
+        provider
+      );
+      const signer = userWallet.connect(provider);
+      const signerAddress = await signer.getAddress();
+
+      //2. FUND GAS TOKEN
+      await fundGasToken(signerAddress, provider);
+      console.log("successfully funded wallet with native token");
+
+      const tokenCollateralContractOnForkedNet = new Contract(
+        pool.collateralToken.address,
+        pool.collateralToken.abi,
+        signer
+      );
+
+      console.log(
+        "collateral token on forked net",
+        tokenCollateralContractOnForkedNet
+      );
+
+      //3. FUND COLLATERAL TOKEN
+      await fundCollateralToken(
+        tokenCollateralContractOnForkedNet,
+        collateralAmount.toString(),
+        signerAddress,
+        provider,
+        this.gasLimitConst
+      );
+      console.log("successfully funded wallet with collateral token");
+
+      await approveToken(
+        tokenCollateralContractOnForkedNet,
+        pool.masterContractInstance.address
+      );
+      console.log(
+        "approved collateral token for spend by bento contract",
+        pool
+      );
+      //5. SWAP APPROVAL
+      const levSwapperContractContractOnForkedNet = new Contract(
+        pool.levSwapperContract.address,
+        pool.levSwapper.abi,
+        signer
+      );
+      await approveToken(
+        tokenCollateralContractOnForkedNet,
+        levSwapperContractContractOnForkedNet.address
+      );
+      console.log("approved swap contract spend");
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.collateralToken.address;
+      console.log("tokenAddr", this.defaultTokenAddress);
+
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
+      const swapperAddres = pool.levSwapperContract.address;
+      const eventsArray = [];
+      const valuesArray = [];
+      const datasArray = [];
+      const forkedNetBentoContract = new Contract(
+        pool.bentoBoxAddress,
+        bentoBoxAbi,
+        signer
+      );
+      const nonce = await forkedNetBentoContract.nonces(signerAddress);
+      console.log("retrieved nonce", nonce);
+      const approvalEncode = await this.getApprovalEncode(pool, signer, nonce);
+      console.log("approval encode", approvalEncode);
+      if (approvalEncode === "ledger") {
+        const approvalMaster = await this.approveMasterContract(pool);
+        if (!approvalMaster) return false;
+      } else {
+        eventsArray.push(24);
+        valuesArray.push(0);
+        datasArray.push(approvalEncode);
+      }
+      console.log("update price", updatePrice);
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+      console.log("need whitelister approve", this.needWhitelisterApprove);
+      if (this.needWhitelisterApprove) {
+        const whitelistedCallData = await this.getWhitelistCallData();
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(whitelistedCallData);
+      }
+      console.log("update price", updatePrice);
+      if (updatePrice) {
+        const updateEncode = this.getUpdateRateEncode();
+        eventsArray.push(11);
+        valuesArray.push(0);
+        datasArray.push(updateEncode);
+      }
+      console.log("need whitelister approve", this.needWhitelisterApprove);
+      if (this.needWhitelisterApprove) {
+        const whitelistedCallData = await this.getWhitelistCallData();
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(whitelistedCallData);
+      }
+      //10
+      const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address", "bool"],
+        ["-0x02", signerAddress, false]
+      );
+      console.log("collateral amount", collateralAmount.toString());
+      if (collateralAmount) {
+        //20
+        const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [tokenAddr, signerAddress, collateralAmount, "0"]
+        );
+        //DEPOSIT COLLATERAL
+        eventsArray.push(20);
+        valuesArray.push(collateralValue);
+        datasArray.push(getDepositEncode1);
+        //ADD COLLATERAL
+        eventsArray.push(10);
+        valuesArray.push(0);
+        datasArray.push(getCollateralEncode2);
+      }
+      //5
+      const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        ["int256", "address"],
+        [amount, swapperAddres]
+      );
+      console.log("get borrow swapper"), getBorrowSwapperEncode2;
+      eventsArray.push(5);
+      valuesArray.push(0);
+      datasArray.push(getBorrowSwapperEncode2);
+      let swapStaticTx, swapCallByte, getCallEncode2;
+      if (pool.is0xSwap) {
+        console.log("0x swap pool", pool.is0xSwap);
+        // const response = await this.query0x(
+        //   pool.collateralToken.address,
+        //   pool.borrowToken.address,
+        //   slipage,
+        //   amount,
+        //   pool.levSwapperContract.address
+        // );
+        // console.log("queried 0x", response);
+        // const swapData = response.data;
+        // swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
+        //   userAddr,
+        //   minExpected,
+        //   amount,
+        //   swapData,
+        //   {
+        //     gasLimit: 10000000,
+        //   }
+        // );
+        // console.log("swap response", swapStaticTx);
+        // swapCallByte = swapStaticTx.data;
+        // //30
+        // getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+        //   ["address", "bytes", "bool", "bool", "uint8"],
+        //   [swapperAddres, swapCallByte, false, false, 2]
+        // );
+      } else {
+        swapStaticTx =
+          await levSwapperContractContractOnForkedNet.populateTransaction.swap(
+            signerAddress,
+            minExpected,
+            0,
+            {
+              gasLimit: 10000000,
+            }
+          );
+        console.log("normal pool swap response", swapStaticTx);
+        swapCallByte = swapStaticTx.data.substr(0, 138);
+        //30
+        getCallEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [swapperAddres, swapCallByte, false, true, 2]
+        );
+      }
+      eventsArray.push(30);
+      valuesArray.push(0);
+      datasArray.push(getCallEncode2);
+      eventsArray.push(10);
+      valuesArray.push(0);
+      datasArray.push(getCollateralEncode2);
+      const cookData = {
+        events: eventsArray,
+        values: valuesArray,
+        datas: datasArray,
+      };
+      try {
+        const cauldronContractOnForkedNet = new Contract(
+          pool.contractInstance.address,
+          pool.cauldronContractAbi,
+          signer
+        );
+
+        const estimateGasForCookTx =
+          await cauldronContractOnForkedNet.estimateGas.cook(
+            cookData.events,
+            cookData.values,
+            cookData.datas,
+            {
+              value: collateralValue,
+            }
+          );
+        const gasLimitForCookTx =
+          this.gasLimitConst + +estimateGasForCookTx.toString();
+
+        const unsignedCookTx =
+          await cauldronContractOnForkedNet.populateTransaction.cook(
+            cookData.events,
+            cookData.values,
+            cookData.datas,
+            {
+              gasLimit: gasLimitForCookTx,
+              value: collateralValue,
+            }
+          );
+        const transactionParametersForForkedCook = [
+          {
+            to: cauldronContractOnForkedNet.address,
+            from: signerAddress,
+            data: unsignedCookTx.data,
+            gas: ethers.utils.hexValue(1000000),
+            gasPrice: ethers.utils.hexValue(1),
+          },
+        ];
+        console.log(
+          "transactionParametersForForkedCook",
+          transactionParametersForForkedCook
+        );
+        const txHashForForkedCook = await provider.send(
+          "eth_sendTransaction",
+          transactionParametersForForkedCook
+        );
+
+        const tx = await provider.getTransactionReceipt(txHashForForkedCook);
+
+        if (!tx.status) {
+          return;
+        }
+
+        const userCollateralShare =
+          await cauldronContractOnForkedNet.userCollateralShare(signerAddress);
+        console.log(
+          "user collateral share after cook",
+          userCollateralShare.toString()
+        );
+        const userBorrowPart = await cauldronContractOnForkedNet.userBorrowPart(
+          signerAddress
+        );
+
+        return {
+          userCollateralShare,
+          userBorrowPart,
+        };
+      } catch (e) {
+        console.log("SimulateCookMultiBorrow ERR:", e);
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
     // leverage
     async cookMultiBorrow(
       {
@@ -1511,15 +1812,20 @@ export default {
       pool,
       notificationId
     ) {
+      console.log("cook multi borrow");
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
         : pool.collateralToken.address;
+      console.log("token address", tokenAddr);
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
+      console.log("collateral value", collateralValue);
 
       const swapperAddres = pool.levSwapperContract.address;
+      console.log("swapper address", swapperAddres);
       const userAddr = this.account;
+      console.log("userAddress", userAddr);
 
       const eventsArray = [];
       const valuesArray = [];
@@ -1532,12 +1838,13 @@ export default {
           const approvalMaster = await this.approveMasterContract(pool);
           if (!approvalMaster) return false;
         } else {
+          console.log("approved", isApprowed);
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
         }
       }
-
+      console.log("update price", updatePrice);
       if (updatePrice) {
         const updateEncode = this.getUpdateRateEncode();
 
@@ -1546,6 +1853,7 @@ export default {
         datasArray.push(updateEncode);
       }
 
+      console.log("need whitelister approve", this.needWhitelisterApprove);
       if (this.needWhitelisterApprove) {
         const whitelistedCallData = await this.getWhitelistCallData();
 
@@ -1559,7 +1867,7 @@ export default {
         ["int256", "address", "bool"],
         ["-0x02", userAddr, false]
       );
-
+      console.log("collateral amount", collateralAmount);
       if (collateralAmount) {
         //20
         const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1582,6 +1890,8 @@ export default {
         [amount, swapperAddres]
       );
 
+      console.log("get borrow swapper"), getBorrowSwapperEncode2;
+
       eventsArray.push(5);
       valuesArray.push(0);
       datasArray.push(getBorrowSwapperEncode2);
@@ -1589,6 +1899,7 @@ export default {
       let swapStaticTx, swapCallByte, getCallEncode2;
 
       if (pool.is0xSwap) {
+        console.log("0x swap pool", pool.is0xSwap);
         const response = await this.query0x(
           pool.collateralToken.address,
           pool.borrowToken.address,
@@ -1596,6 +1907,7 @@ export default {
           amount,
           pool.levSwapperContract.address
         );
+        console.log("queried 0x", response);
 
         const swapData = response.data;
         swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
@@ -1607,6 +1919,7 @@ export default {
             gasLimit: 10000000,
           }
         );
+        console.log("swap response", swapStaticTx);
         swapCallByte = swapStaticTx.data;
 
         //30
@@ -1615,6 +1928,7 @@ export default {
           [swapperAddres, swapCallByte, false, false, 2]
         );
       } else {
+        console.log("normal pool");
         swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
           userAddr,
           minExpected,
@@ -1623,6 +1937,7 @@ export default {
             gasLimit: 10000000,
           }
         );
+        console.log("normal pool swap response", swapStaticTx);
         swapCallByte = swapStaticTx.data.substr(0, 138);
 
         //30
@@ -1655,9 +1970,13 @@ export default {
             value: collateralValue,
           }
         );
+        console.log("estimated gas", estimateGas);
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
+        console.log("cook data", cookData);
+        console.log("value", collateralValue);
+        console.log("gas limit", gasLimit);
         const result = await pool.contractInstance.cook(
           cookData.events,
           cookData.values,
@@ -1668,7 +1987,7 @@ export default {
           }
         );
 
-        console.log(result);
+        console.log("leverage and cook results", result);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
@@ -1701,6 +2020,7 @@ export default {
       pool,
       notificationId
     ) {
+      console.log("cook multi borrow x swapper");
       const { lpAddress, tokenWrapper } = pool.lpLogic;
 
       const collateralValue = itsDefaultBalance
