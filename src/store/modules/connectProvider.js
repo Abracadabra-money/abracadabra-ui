@@ -46,7 +46,7 @@ export default {
     async checkENSName({ commit }, address) {
       try {
         const ensName = await new ethers.providers.StaticJsonRpcProvider(
-          "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+          `https://mainnet.infura.io/v3/${process.env.VUE_APP_WEB3_INFURA_PROJECT_ID}`
         ).lookupAddress(address);
 
         if (ensName) {
