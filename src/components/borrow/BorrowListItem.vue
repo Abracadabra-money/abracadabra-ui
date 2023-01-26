@@ -12,6 +12,7 @@
             <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
           </p>
           <MiniStatusTag v-if="isMigrated" />
+          <MiniStatusTag v-if="isGlp" text="Leverage" />
         </div>
       </div>
       <div class="pool-balance">
@@ -64,6 +65,10 @@ export default {
         return this.pool.cauldronSettings.isMigrated;
 
       return this.pool.isMigrated;
+    },
+
+    isGlp() {
+      return this.chainId === 42161 && this.pool?.id === 3;
     },
   },
 

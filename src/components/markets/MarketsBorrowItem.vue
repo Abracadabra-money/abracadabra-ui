@@ -18,6 +18,7 @@
         <span class="network-name-wrap">
           <span>{{ pool.name }}</span>
           <MiniStatusTag v-if="isMigrated" />
+          <MiniStatusTag v-if="isGlp" text="Leverage" />
         </span>
       </span>
 
@@ -108,6 +109,10 @@ export default {
         return this.activePool.cauldronSettings.isMigrated;
 
       return this.activePool?.isMigrated;
+    },
+
+    isGlp() {
+      return this.activePool?.id === 3 && this.chainId === 42161;
     },
   },
 

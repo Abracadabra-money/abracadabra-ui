@@ -88,7 +88,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
+        <div
+          class="primary-api"
+          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
+        >
+          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
           <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
         </div>
 
@@ -151,6 +155,7 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -183,6 +188,10 @@ export default {
 
     isVelodrome() {
       return this.chainId === 10 && this.selectedPool?.id === 1;
+    },
+
+    isGlp() {
+      return this.chainId === 42161 && this.selectedPool?.id === 3;
     },
 
     filteredPool() {
@@ -750,6 +759,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     ApyBlock,
+    PrimaryAPYBlock,
   },
 };
 </script>

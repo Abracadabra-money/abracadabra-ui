@@ -108,7 +108,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
+        <div
+          class="primary-api"
+          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
+        >
+          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
           <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
         </div>
 
@@ -172,6 +176,7 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 
 import { mapGetters } from "vuex";
 
@@ -193,6 +198,7 @@ export default {
       },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
+      glpPoolsId: [2, 3],
     };
   },
 
@@ -204,6 +210,13 @@ export default {
 
     isVelodrome() {
       return this.chainId === 10 && this.selectedPool?.id === 1;
+    },
+
+    isGlp() {
+      return (
+        this.chainId === 42161 &&
+        this.glpPoolsId.includes(+this.selectedPool?.id)
+      );
     },
 
     filteredPool() {
@@ -919,6 +932,7 @@ export default {
     LocalPopupWrap,
     MarketsListPopup,
     ApyBlock,
+    PrimaryAPYBlock,
   },
 };
 </script>

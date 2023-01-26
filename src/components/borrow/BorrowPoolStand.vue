@@ -2,6 +2,7 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
+        <MiniStatusTag :rounded="true" v-if="isGlp" text="Leverage" />
         <a
           target="_blank"
           rel="noreferrer noopener"
@@ -238,6 +239,10 @@ export default {
         return this.pool.cauldronSettings.isMigrated;
 
       return this.pool?.isMigrated;
+    },
+
+    isGlp() {
+      return this.chainId === 42161 && this.pool?.id === 3;
     },
 
     tokenInUsd() {

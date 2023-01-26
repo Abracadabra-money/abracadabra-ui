@@ -35,10 +35,10 @@ export default {
     },
   },
 
-  data(){
+  data() {
     return {
-      veloManagementFee: null
-    }
+      veloManagementFee: null,
+    };
   },
 
   computed: {
@@ -51,7 +51,7 @@ export default {
     },
 
     isGlpPool() {
-      return this.pool?.id === 2 && this.chainId === 42161;
+      return this.chainId === 42161 && this.pool?.id === 2;
     },
 
     isVelodrome() {
@@ -133,7 +133,11 @@ export default {
   async created() {
     if (this.isGlpPool) this.tokenApy = await getGlpApr();
 
-    if(this.isVelodrome) this.veloManagementFee = await getVeloManagementFee(this.pool, this.signer)
+    if (this.isVelodrome)
+      this.veloManagementFee = await getVeloManagementFee(
+        this.pool,
+        this.signer
+      );
   },
 };
 </script>

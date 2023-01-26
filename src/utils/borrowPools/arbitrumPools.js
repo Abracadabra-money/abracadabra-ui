@@ -3,6 +3,9 @@ import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
+import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
+import GLPVaultLevSwapper from "@/utils/abi/lp/GLPVaultLevSwapper";
+import GLPVaultSwapper from "@/utils/abi/lp/GLPVaultSwapper";
 
 export default [
   {
@@ -104,6 +107,66 @@ export default [
       decimals: 18,
       address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
       abi: tokensAbi.MIM,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/GLP.png`),
+    name: "MagicGLP",
+    contractChain: 42161,
+    id: 3,
+    stabilityFee: 7.5,
+    interest: 0,
+    ltv: 75,
+    borrowFee: 0,
+    isSwappersActive: true,
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/u0vFLaZaHrstsu7V-pcs58ufFm7s6Sdw9coKgOfEkXM",
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x556D120697A1147b9F13EbCFA42203F0f0ff417e",
+      abi: poolsAbi.CauldronV4,
+    },
+    token: {
+      name: "magicGLP",
+      decimals: 18,
+      address: "0x51B2BAB4D45BDe8e0A7A85aED712569094556173",
+      abi: tokensAbi.magicGLP,
+    },
+    lpLogic: {
+      name: "MagicGLP",
+      defaultToken: false,
+      lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
+      lpAbi: tokensAbi.sGLP,
+      tokenWrapper: "0x920A01FD1309fd58A68385C0aB8338F9DA4DD8AF",
+      tokenWrapperAbi: degenBoxERC4626Wrapper,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0x8e266f8310E047B9900b60132E4767FfDD0878bC",
+      abi: GLPVaultLevSwapper,
+    },
+    reverseSwapContractInfo: {
+      address: "0xEf05d8747a6Fc81509fb37EcF6b1a2D39290d881",
+      abi: GLPVaultSwapper,
     },
   },
 ];

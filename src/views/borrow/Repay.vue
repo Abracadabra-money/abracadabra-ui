@@ -55,7 +55,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
+        <div
+          class="primary-api"
+          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
+        >
+          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
           <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
         </div>
 
@@ -101,6 +105,7 @@ const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
 const ApyBlock = () => import("@/components/borrow/ApyBlock");
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 
 import Vue from "vue";
 
@@ -130,6 +135,7 @@ export default {
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Repay",
         bottom: "If you want to learn more read our docs",
         link: "https://docs.abracadabra.money/",
+        glpPoolsId: [2, 3],
       },
     };
   },
@@ -377,6 +383,13 @@ export default {
       if (this.selectedPool) return this.selectedPool.id;
 
       return null;
+    },
+
+    isGlp() {
+      return (
+        this.chainId === 42161 &&
+        this.glpPoolsId.includes(+this.selectedPool?.id)
+      );
     },
   },
 
@@ -717,6 +730,7 @@ export default {
     LocalPopupWrap,
     MarketsListPopup,
     ApyBlock,
+    PrimaryAPYBlock,
   },
 };
 </script>

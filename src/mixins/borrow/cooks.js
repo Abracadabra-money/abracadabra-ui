@@ -4,14 +4,17 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
-
+const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
+const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
+import gmxLensAbi from "@/utils/abi/lp/GmxLens";
 
 export default {
   data() {
     return {
       gasLimitConst: 1000,
       defaultTokenAddress: "0x0000000000000000000000000000000000000000",
+      glpPoolsId: [2, 3],
     };
   },
   computed: {
@@ -71,6 +74,13 @@ export default {
       // if (this.chainId === 1 && this.selectedPool.id === 28) return true; // WBTC
       // if (this.chainId === 1 && this.selectedPool.id === 27) return true; // WETH
       return false;
+    },
+
+    isGlp() {
+      return (
+        this.chainId === 42161 &&
+        this.glpPoolsId.includes(+this.selectedPool?.id)
+      );
     },
   },
   methods: {
@@ -2537,7 +2547,19 @@ export default {
 
       // Swap MIM
       try {
-        const swapData = await getLev0xData(amount, pool, slipage);
+        let swapData;
+
+        if (this.isGlp) {
+          const response = await this.query0x(
+            usdcAddress,
+            pool.borrowToken.address,
+            slipage,
+            amount,
+            pool.levSwapperContract.address
+          );
+
+          swapData = response.data;
+        } else swapData = await getLev0xData(amount, pool, slipage);
 
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
@@ -2642,7 +2664,7 @@ export default {
       const eventsArray = [];
       const valuesArray = [];
       const datasArray = [];
-      
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -2876,7 +2898,30 @@ export default {
       valuesArray.push(0);
       datasArray.push(removeCollateralToSwapper);
 
-      const swapData = await getLiq0xData(collateralAmount, pool, slipage);
+      let swapData;
+
+      if (this.isGlp) {
+        const GmxLensContract = new this.$ethers.Contract(
+          gmxLensAddress,
+          JSON.stringify(gmxLensAbi),
+          this.signer
+        );
+
+        const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
+          usdcAddress,
+          collateralAmount
+        );
+
+        const response = await this.query0x(
+          pool.borrowToken.address,
+          usdcAddress,
+          slipage,
+          usdcAmount,
+          pool.liqSwapperContract.address
+        );
+
+        swapData = response.data;
+      } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
 
       const swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(
