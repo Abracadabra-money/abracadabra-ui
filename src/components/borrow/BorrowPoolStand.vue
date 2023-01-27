@@ -722,6 +722,12 @@ export default {
   min-height: 40px;
 }
 
+.strategy {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .strategy a {
   color: #fff;
   display: grid;

@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
 const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
@@ -38,6 +39,8 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     userBalance() {
       if (this.pool?.lpLogic && this.pool.userInfo)
         return this.$ethers.utils.formatUnits(

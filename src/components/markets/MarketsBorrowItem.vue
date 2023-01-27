@@ -33,6 +33,7 @@
 
 <script>
 import Vue from "vue";
+import { mapGetters } from "vuex";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
 const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
@@ -69,6 +70,8 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     items() {
       return [
         {

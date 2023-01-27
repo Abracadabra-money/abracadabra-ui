@@ -4,8 +4,8 @@ import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
-import GLPVaultLevSwapper from "@/utils/abi/lp/GLPVaultLevSwapper";
-import GLPVaultSwapper from "@/utils/abi/lp/GLPVaultSwapper";
+import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
+import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
 
 export default [
   {
@@ -115,7 +115,7 @@ export default [
     contractChain: 42161,
     id: 3,
     stabilityFee: 7.5,
-    interest: 0,
+    interest: 6,
     ltv: 75,
     borrowFee: 0,
     isSwappersActive: true,
@@ -136,13 +136,13 @@ export default [
     },
     contract: {
       name: "CauldronV4",
-      address: "0x556D120697A1147b9F13EbCFA42203F0f0ff417e",
+      address: "0x726413d7402fF180609d0EBc79506df8633701B1",
       abi: poolsAbi.CauldronV4,
     },
     token: {
       name: "magicGLP",
       decimals: 18,
-      address: "0x51B2BAB4D45BDe8e0A7A85aED712569094556173",
+      address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
       abi: tokensAbi.magicGLP,
     },
     lpLogic: {
@@ -150,7 +150,7 @@ export default [
       defaultToken: false,
       lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       lpAbi: tokensAbi.sGLP,
-      tokenWrapper: "0x920A01FD1309fd58A68385C0aB8338F9DA4DD8AF",
+      tokenWrapper: "0x3c34bC7c7461fc9AF1E5511C0636c07F129B4187",
       tokenWrapperAbi: degenBoxERC4626Wrapper,
     },
     pairToken: {
@@ -161,12 +161,12 @@ export default [
       abi: tokensAbi.MIM,
     },
     swapContractInfo: {
-      address: "0x8e266f8310E047B9900b60132E4767FfDD0878bC",
-      abi: GLPVaultLevSwapper,
+      address: "0x49Bd7dB43695c38661067765BE9484F8177B13f3",
+      abi: magicGlpLevSwapperAbi,
     },
     reverseSwapContractInfo: {
-      address: "0xEf05d8747a6Fc81509fb37EcF6b1a2D39290d881",
-      abi: GLPVaultSwapper,
+      address: "0x08a47F1F14292b0655B70588C76b614f64074db4",
+      abi: magicGlpSwapperAbi,
     },
   },
 ];
