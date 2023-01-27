@@ -40,6 +40,11 @@ const routes = [
     component: () => import("@/views/stake/MSpell"),
   },
   {
+    path: "/mGLP",
+    name: "mGLP",
+    component: () => import("@/views/stake/MGLP"),
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/borrow/Leverage"),

@@ -37,6 +37,9 @@
           <router-link class="list-link" :to="{ name: 'mStake' }"
             >mSpell</router-link
           >
+          <router-link class="list-link" :to="{ name: 'mGLP' }"
+            >mGLP</router-link
+          >
         </div>
       </div>
 
