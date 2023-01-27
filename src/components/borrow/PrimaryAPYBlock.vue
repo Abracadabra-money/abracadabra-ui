@@ -18,6 +18,7 @@
 
 <script>
 import { getGlpApr } from "@/helpers/glpApr";
+import { mapGetters } from "vuex";
 export default {
   props: {
     expectedLeverage: {
@@ -27,21 +28,31 @@ export default {
   },
   data() {
     return {
-      title: "Self repaying APY",
+      title: "Collateral APY",
       selfRepayingAPY: "",
     };
   },
 
   computed: {
-    calculateApy() {
-      if (+this.expectedLeverage)
-        return parseFloat(+this.selfRepayingAPY * +this.expectedLeverage).toFixed(2);
+    ...mapGetters({ chainId: "getChainId" }),
 
-      return parseFloat(this.selfRepayingAPY).toFixed(2);
+    calculateApy() {
+      let apy = null;
+      if (+this.expectedLeverage)
+        apy = parseFloat(
+          +this.selfRepayingAPY * +this.expectedLeverage
+        ).toFixed(2);
+      else apy = parseFloat(this.selfRepayingAPY).toFixed(2);
+
+      return this.isMagicGlp ? apy - 1 : apy;
     },
 
     isTilde() {
       return this.selfRepayingAPY < this.calculateApy ? "~" : "";
+    },
+
+    isMagicGlp() {
+      return +this.$route?.params?.id === 3 && this.chainId === 42161;
     },
   },
 

@@ -110,7 +110,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/GLP.png`),
+    icon: require(`@/assets/images/tokens/mGLP.png`),
     name: "MagicGLP",
     contractChain: 42161,
     id: 3,

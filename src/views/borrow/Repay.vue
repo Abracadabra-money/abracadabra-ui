@@ -749,8 +749,9 @@ export default {
 .primary-api {
   margin: 16px 0;
 }
+
 .not-primary-api {
-  margin: 0 0 90px;
+  margin: 30px 0 30px;
 }
 
 .borrow-loading {
