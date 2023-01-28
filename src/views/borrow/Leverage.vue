@@ -591,9 +591,11 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isGlp)
-          return this.selectedPool.userInfo.isApproveTokenCollateral;
-        else
+        if (this.isGlp) {
+          if (this.useCheckBox)
+            return this.selectedPool.userInfo.isApproveTokenCollateral;
+          return this.selectedPool.userInfo.lpInfo.isApprove;
+        } else
           return (
             this.selectedPool.userInfo.isApproveTokenCollateral &&
             this.selectedPool.userInfo.isApproveLevSwapper
