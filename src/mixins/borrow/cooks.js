@@ -2444,7 +2444,8 @@ export default {
       },
       isApprowed,
       pool,
-      notificationId
+      notificationId,
+      isWrap
     ) {
       const { lpAddress, tokenWrapper } = pool.lpLogic;
 
@@ -2506,23 +2507,25 @@ export default {
       datasArray.push(bentoWithdrawEncode);
 
       // 30 wrap and deposit to cauldron
-      try {
-        const wrapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-            pool.contractInstance.address,
-            collateralAmount
+      if (isWrap) {
+        try {
+          const wrapStaticTx =
+            await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+              pool.contractInstance.address,
+              collateralAmount
+            );
+
+          const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "bytes", "bool", "bool", "uint8"],
+            [tokenWrapper, wrapStaticTx.data, true, false, 2]
           );
 
-        const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [tokenWrapper, wrapStaticTx.data, true, false, 2]
-        );
-
-        eventsArray.push(30);
-        valuesArray.push(0);
-        datasArray.push(lpCallEncode);
-      } catch (error) {
-        console.log("Error wrap and deposit to cauldron", error);
+          eventsArray.push(30);
+          valuesArray.push(0);
+          datasArray.push(lpCallEncode);
+        } catch (error) {
+          console.log("Error wrap and deposit to cauldron", error);
+        }
       }
 
       //10 add collateral

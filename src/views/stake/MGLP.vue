@@ -2,8 +2,6 @@
   <div class="stake">
     <div class="input-block">
       <h4>Choose Chain</h4>
-      {{ this.isGlpApproved }}
-      {{ this.isUserLocked }}
       <div class="underline">
         <NetworksList :active-list="[42161]" />
       </div>
@@ -56,6 +54,18 @@
             {{ action }}
           </BaseButton>
         </div>
+
+        <div class="profile-subscribtion">
+          <p>
+            Enjoi amplified yield though abracadabra leverage
+            <router-link
+              class="link"
+              :to="{ name: 'Leverage', params: { id: 3 } }"
+              >here</router-link
+            >
+          </p>
+        </div>
+        <div></div>
       </div>
     </div>
 
@@ -286,7 +296,7 @@ export default {
     },
 
     isGlpApproved() {
-      return !!this.tokensInfo.stakeToken.isTokenApprowed;
+      return !!this.tokensInfo?.stakeToken?.isTokenApprowed;
     },
 
     mGlpInfo() {
@@ -294,7 +304,7 @@ export default {
     },
 
     fromToken() {
-      if (this.action === "Stake") return this.tokensInfo.stakeToken;
+      if (this.action === "Stake") return this.tokensInfo?.stakeToken;
       return this.tokensInfo.mainToken;
     },
 
@@ -673,7 +683,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 30px;
+  margin: 30px 0;
 }
 
 .stake {
@@ -985,6 +995,14 @@ export default {
 .loader:after {
   right: -10px;
   animation: rectangle infinite 1s ease-in-out;
+}
+
+.link {
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 @keyframes rectangle {

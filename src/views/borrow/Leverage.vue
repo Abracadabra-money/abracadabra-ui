@@ -46,6 +46,27 @@
             />
             <p class="label-text">Use {{ networkValuteName }}</p>
           </div>
+
+          <div
+            class="checkbox-wrap"
+            v-if="isCheckBox"
+            :class="{ active: useCheckBox }"
+            @click="toggleCheckBox"
+          >
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useCheckBox"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+            <p class="label-text">Use magicGLP</p>
+          </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
           <div class="settings-wrap">
@@ -193,6 +214,7 @@ export default {
         bottom: "Read more about it",
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
+      useCheckBox: false,
     };
   },
 
@@ -268,7 +290,7 @@ export default {
           );
         }
 
-        if (this.isLpLogic) {
+        if (this.isLpLogic && !this.useCheckBox) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.lpInfo.balance,
             this.selectedPool.lpLogic.lpDecimals
@@ -544,6 +566,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
+        if (!this.useCheckBox) return require(`@/assets/images/tokens/GLP.png`);
+
         return this.selectedPool.icon;
       }
       return "";
@@ -557,7 +581,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.isLpLogic) return this.selectedPool.lpLogic.name;
+        if (this.isLpLogic && !this.useCheckBox)
+          return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -645,6 +670,10 @@ export default {
     isLpLogic() {
       return !!this.selectedPool?.lpLogic;
     },
+
+    isCheckBox() {
+      return this.chainId === 42161 && this.selectedPool?.id === 3;
+    },
   },
 
   watch: {
@@ -693,9 +722,10 @@ export default {
 
       let approveSwap = this.selectedPool.userInfo?.isApproveLevSwapper;
 
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
@@ -964,9 +994,10 @@ export default {
     },
 
     async addMultiBorrowHandler(data, notificationId) {
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       const isTokenToCookApprove = await this.getTokenApprove(
         collateralToken,
@@ -987,7 +1018,7 @@ export default {
 
       let isLpApproved;
 
-      if (this.isLpLogic) {
+      if (this.isLpLogic && !this.useCheckBox) {
         const isLpToCookApprove = await this.getTokenApprove(
           this.selectedPool.lpLogic.lpContract,
           this.selectedPool.masterContractInstance.address
@@ -1007,7 +1038,7 @@ export default {
       }
 
       let isAllApproved;
-      if (this.isLpLogic) {
+      if (this.isLpLogic && !this.useCheckBox) {
         isAllApproved = isCollateralApproved && isLpApproved;
       } else {
         isAllApproved = isCollateralApproved;
@@ -1021,7 +1052,8 @@ export default {
             data,
             isApproved,
             this.selectedPool,
-            notificationId
+            notificationId,
+            !this.useCheckBox
           );
         } else {
           this.cookMultiBorrow(
@@ -1086,6 +1118,11 @@ export default {
 
       this.slipage = 1;
       return false;
+    },
+
+    toggleCheckBox() {
+      this.clearData();
+      this.useCheckBox = !this.useCheckBox;
     },
   },
 

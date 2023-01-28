@@ -146,7 +146,7 @@ export default [
       abi: tokensAbi.magicGLP,
     },
     lpLogic: {
-      name: "MagicGLP",
+      name: "sGLP",
       defaultToken: false,
       lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       lpAbi: tokensAbi.sGLP,
