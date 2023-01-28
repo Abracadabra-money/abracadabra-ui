@@ -18,7 +18,7 @@
           <BaseTokenInput
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :disabled="tokensInfo.lockedUntil && action === 'Unstake'"
+            :disabled="action === 'Unstake'"
             :value="amount"
             @input="updateMainValue"
             :max="fromToken.balance"
@@ -54,28 +54,24 @@
             {{ action }}
           </BaseButton>
         </div>
-
-        <div class="profile-subscribtion">
-          <p>
-            Enjoi amplified yield though abracadabra leverage
-            <router-link
-              class="link"
-              :to="{ name: 'Leverage', params: { id: 3 } }"
-              >here</router-link
-            >
-          </p>
-        </div>
-        <div></div>
+        <p class="profile-subscribtion">
+          Enjoi amplified yield though abracadabra leverage
+          <router-link
+            class="link"
+            :to="{ name: 'Leverage', params: { id: 3 } }"
+            >here</router-link
+          >
+        </p>
       </div>
     </div>
 
     <div class="profile">
-      <h1 class="title">magicGLP dashboard</h1>
+      <h1 class="title">MagicGLP Dashboard</h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
       </div>
 
-      <EmptyBlock v-else-if="!isLoading && !tokensInfo" />
+      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mglp'" />
 
       <template v-else>
         <div class="wrap wrap-chart" v-if="chartData">
@@ -98,6 +94,13 @@
           <div class="chart-btns">
             <button
               class="chart-btn btn-3"
+              :class="{ 'chart-btn-active': chartActiveBtn === 1 }"
+              @click="changeChartTime(1)"
+            >
+              1m
+            </button>
+            <button
+              class="chart-btn"
               :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
               @click="changeChartTime(3)"
             >
@@ -129,7 +132,7 @@
           <BaseLoader />
         </div>
 
-        <div class="balance-block wrap" v-if="glpInfo && mGlpInfo">
+        <div class="balance-block wrap" v-if="stakeToken && mainToken">
           <div class="balance-top">
             <h4 class="balance-title">Your balance</h4>
             <div class="balance-ratio">
@@ -153,9 +156,11 @@
               <div>
                 <p class="token-title">sGLP</p>
                 <p class="token-balance">
-                  {{ glpInfo.balance | formatTokenBalance }}
+                  {{ stakeToken.balance | formatTokenBalance }}
                 </p>
-                <p class="token-price">{{ glpInfo.balanceUsd | formatUSD }}</p>
+                <p class="token-price">
+                  {{ stakeToken.balanceUsd | formatUSD }}
+                </p>
               </div>
             </div>
             <div class="balance-token">
@@ -169,9 +174,11 @@
               <div>
                 <p class="token-title">mGLP</p>
                 <p class="token-balance">
-                  {{ mGlpInfo.balance | formatTokenBalance }}
+                  {{ mainToken.balance | formatTokenBalance }}
                 </p>
-                <p class="token-price">{{ mGlpInfo.balanceUsd | formatUSD }}</p>
+                <p class="token-price">
+                  {{ mainToken.balanceUsd | formatUSD }}
+                </p>
               </div>
             </div>
           </div>
@@ -190,10 +197,10 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  mGlpInfo.totalSupply | formatTokenBalance
+                  mainToken.totalSupply | formatTokenBalance
                 }}</span>
                 <span class="info-usd">{{
-                  mGlpInfo.totalSupplyUsd | formatUSD
+                  mainToken.totalSupplyUsd | formatUSD
                 }}</span>
               </div>
             </div>
@@ -216,35 +223,31 @@
             </div>
           </div>
         </div>
-        <div class="profile-subscribtion">
-          <div class="text-wrap">
-            <p>
-              Enjoy the benefits of compounding without having to worry about
-              the tedious work! Simply deposit your sGLP into MagicGLP and let
-              it do its magic!
-            </p>
-          </div>
-          <div class="links-wrap">
-            <a
-              class="deposit"
-              href="#"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
-                Get sGLP</span
-              ></a
-            >
-            <a
-              class="deposit"
-              href="#"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <img src="@/assets/images/deposit.svg" alt="Deposit" />
-              <span>Sell sGLP</span></a
-            >
-          </div>
+        <p class="profile-subscribtion">
+          Enjoy the benefits of compounding without having to worry about the
+          tedious work! Simply deposit your sGLP into MagicGLP and let it do its
+          magic!
+        </p>
+        <div class="links-wrap">
+          <a
+            class="deposit"
+            href="https://app.gmx.io/#/buy_glp"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
+              Buy GLP</span
+            ></a
+          >
+          <a
+            class="deposit"
+            href="https://app.gmx.io/#/buy_glp#redeem"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <img src="@/assets/images/deposit.svg" alt="Deposit" />
+            <span>Sell GLP</span></a
+          >
         </div>
       </template>
     </div>
@@ -252,22 +255,21 @@
 </template>
 <script>
 import Vue from "vue";
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const TickChart = () => import("@/components/ui/TickChart");
 import moment from "moment";
-import getGlpAprChart from "@/helpers/glpAprChart";
-import { getGlpApr } from "@/helpers/glpApr";
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseButton = () => import("@/components/base/BaseButton");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-
-import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
-
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
+const NetworksList = () => import("@/components/ui/NetworksList");
+const BaseLoader = () => import("@/components/base/BaseLoader");
+const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
+const BaseButton = () => import("@/components/base/BaseButton");
+const EmptyBlock = () => import("@/components/stake/EmptyBlock");
+const TickChart = () => import("@/components/ui/TickChart");
+const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import { getGlpApr } from "@/helpers/glpApr";
+import { approveToken } from "@/utils/approveHelpers";
+import getGlpAprChart from "@/helpers/glpAprChart";
+import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
+import notification from "@/helpers/notification/notification.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   mixins: [mGlpTokenMixin],
@@ -278,7 +280,7 @@ export default {
       amountError: "",
       chartData: null,
       spellUpdateInterval: null,
-      chartActiveBtn: 3,
+      chartActiveBtn: 1,
       chartInterval: null,
       selfRepayingAPY: "",
       gasLimitConst: 1000,
@@ -291,15 +293,15 @@ export default {
       tokensInfo: "getMGlpObject",
     }),
 
-    glpInfo() {
+    stakeToken() {
       return this.tokensInfo?.stakeToken;
     },
 
-    isGlpApproved() {
-      return !!this.tokensInfo?.stakeToken?.isTokenApprowed;
+    isWrapperApproved() {
+      return !!this.tokensInfo?.wrapper?.approved;
     },
 
-    mGlpInfo() {
+    mainToken() {
       return this.tokensInfo?.mainToken;
     },
 
@@ -315,7 +317,7 @@ export default {
 
     disableApproveBtn() {
       if (this.action === "Unstake") return true;
-      return this.isGlpApproved;
+      return this.isWrapperApproved;
     },
 
     toTokenAmount() {
@@ -327,15 +329,8 @@ export default {
       return Vue.filter("formatToFixed")(this.amount, 6);
     },
 
-    // -------------------------------
-    // todo isUserLocked
-    isUserLocked() {
-      return this.tokensInfo.lockedUntil && this.action === "Unstake";
-    },
-
     disableActionBtn() {
-      // if (this.isUserLocked) return true;
-      if (!this.isGlpApproved) return true;
+      if (!this.isWrapperApproved) return true;
       return !!(!+this.amount || this.amountError);
     },
   },
@@ -369,9 +364,9 @@ export default {
         notification.approvePending
       );
 
-      let approve = await this.approveToken(
-        this.glpInfo.contractInstance,
-        this.mGlpInfo.contractInstance.address
+      const approve = await approveToken(
+        this.stakeToken.contractInstance,
+        this.tokensInfo.wrapper.address
       );
 
       if (approve) {
@@ -388,9 +383,9 @@ export default {
     },
 
     async actionHandler() {
-      if (this.isUserLocked || !+this.amount || this.amountError) return false;
-      if (this.action === "Stake" && this.isGlpApproved) await this.wrap();
-      if (this.action === "Unstake") await this.unstake();
+      if (!+this.amount || this.amountError) return false;
+      if (this.action === "Stake" && this.isWrapperApproved) await this.wrap();
+      if (this.action === "Unstake") await this.unWrap();
     },
 
     async wrap() {
@@ -399,17 +394,17 @@ export default {
         notification.pending
       );
       try {
+        const { wrapper } = this.tokensInfo;
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const estimateGas =
-          await this.tokensInfo.wrapperContract.estimateGas.wrap(
-            this.account,
-            amount
-          );
+        const estimateGas = await wrapper.contract.estimateGas.wrap(
+          this.account,
+          amount
+        );
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
-        await this.tokensInfo.wrapperContract.wrap(this.account, amount, {
+        await wrapper.contract.wrap(this.account, amount, {
           gasLimit,
         });
 
@@ -434,16 +429,16 @@ export default {
         notification.pending
       );
       try {
+        const { wrapper } = this.tokensInfo;
         const amount = this.$ethers.utils.parseEther(this.amount);
-        const estimateGas =
-          await this.tokensInfo.wrapperContract.estimateGas.unwrap(
-            this.account,
-            amount
-          );
+        const estimateGas = await wrapper.contract.estimateGas.unwrap(
+          this.account,
+          amount
+        );
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
-        await this.tokensInfo.wrapperContract.unwrap(this.account, amount, {
+        await wrapper.contract.unwrap(this.account, amount, {
           gasLimit,
         });
 
@@ -462,94 +457,16 @@ export default {
       }
     },
 
-    // ------------------------ TODO tyt
-
-    async unstake() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.burn(
-            this.account,
-            amount
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.tokensInfo.mainToken.contractInstance.burn(
-          this.account,
-          amount,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (e) {
-        console.log("stake err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-    async approveToken(tokenContract, approveAddr) {
-      try {
-        const estimateGas = await tokenContract.estimateGas.approve(
-          approveAddr,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-        );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await tokenContract.approve(
-          approveAddr,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
-        console.log("APPROVE RESP:", receipt);
-        return true;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-        return false;
-      }
-    },
-    // -----------------------
     async createChartData(time = 3) {
-      const result = {
-        labels: [],
-        tickUpper: [],
-      };
-
+      const labels = [];
+      const tickUpper = [];
       const data = await getGlpAprChart(time);
-
       data.forEach((element) => {
-        result.labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        result.tickUpper.push(element.glpApr);
+        labels.push(moment.unix(element.timestamp).format("DD.MM"));
+        tickUpper.push(element.glpApr);
       });
 
-      this.chartData = result;
-      console.log("this.chartData", this.chartData);
+      this.chartData = { labels, tickUpper };
     },
 
     async changeChartTime(time) {
@@ -564,18 +481,16 @@ export default {
       await this.createStakePool();
     }, 15000);
 
-    // ------------------new
-
     await this.createChartData(this.chartActiveBtn);
 
     const selfRepayingAPY = await getGlpApr();
     this.selfRepayingAPY = parseFloat(selfRepayingAPY - 1).toFixed(2);
 
-    // this.chartInterval = setInterval(async () => {
-    //   await this.createChartData(this.chartActiveBtn);
-    //   const selfRepayingAPY = await getGlpApr();
-    //   this.selfRepayingAPY = parseFloat(selfRepayingAPY - 1).toFixed(2);
-    // }, 60000);
+    this.chartInterval = setInterval(async () => {
+      await this.createChartData(this.chartActiveBtn);
+      const selfRepayingAPY = await getGlpApr();
+      this.selfRepayingAPY = parseFloat(selfRepayingAPY - 1).toFixed(2);
+    }, 60000);
   },
 
   beforeDestroy() {
@@ -641,28 +556,10 @@ export default {
 }
 
 .profile-subscribtion {
-  font-weight: normal;
-  font-size: 16px;
   line-height: 24px;
-  align-items: center;
   color: rgba(255, 255, 255, 0.6);
-
-  .text-wrap {
-    margin-top: 30px;
-  }
-
-  &__approximate {
-    margin-top: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  & p {
-    margin-bottom: 20px;
-    text-align: center;
-  }
+  margin-bottom: 24px;
+  text-align: center;
 }
 
 .profile {
@@ -696,8 +593,6 @@ export default {
 
   padding: 100px 0;
 }
-
-// new style
 
 .chart-row {
   display: flex;
