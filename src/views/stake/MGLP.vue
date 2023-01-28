@@ -2,12 +2,11 @@
   <div class="stake">
     <div class="input-block">
       <h4>Choose Chain</h4>
+      {{ this.isGlpApproved }}
+      {{ this.isUserLocked }}
       <div class="underline">
         <NetworksList :active-list="[42161]" />
       </div>
-
-      <button @click="wrap">111111</button>
-
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
       </div>
@@ -68,154 +67,176 @@
 
       <EmptyBlock v-else-if="!isLoading && !tokensInfo" />
 
-      <div class="wrap">
-        <div class="chart-row">
-          <h1 class="chart-title">APR Chart</h1>
-          <div class="chart-apt-wrap">
-            <div class="chart-apt">
-              <img src="@/assets/images/glp/chart-apr.png" alt="" />
-              <span class="chart-apt-text">est. APR</span>
-              <span class="chart-apt-percent" v-if="selfRepayingAPY"
-                >{{ selfRepayingAPY }}%</span
-              >
-              <div class="loader-wrap" v-else>
-                <p class="loader"></p>
+      <template v-else>
+        <div class="wrap wrap-chart" v-if="chartData">
+          <div class="chart-row">
+            <h1 class="chart-title">APR Chart</h1>
+            <div class="chart-apt-wrap">
+              <div class="chart-apt">
+                <img src="@/assets/images/glp/chart-apr.png" alt="" />
+                <span class="chart-apt-text">est. APR</span>
+                <span class="chart-apt-percent" v-if="selfRepayingAPY"
+                  >{{ selfRepayingAPY }}%</span
+                >
+                <div class="loader-wrap-mini" v-else>
+                  <p class="loader"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-btns">
+            <button
+              class="chart-btn btn-3"
+              :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
+              @click="changeChartTime(3)"
+            >
+              3m
+            </button>
+            <button
+              class="chart-btn"
+              :class="{ 'chart-btn-active': chartActiveBtn === 6 }"
+              @click="changeChartTime(6)"
+            >
+              6m
+            </button>
+            <button
+              class="chart-btn btn-1y"
+              :class="{ 'chart-btn-active': chartActiveBtn === 12 }"
+              @click="changeChartTime(12)"
+            >
+              1y
+            </button>
+          </div>
+          <TickChart
+            v-if="chartData"
+            :labels="chartData.labels"
+            :tickUpper="chartData.tickUpper"
+          />
+        </div>
+
+        <div class="loader-wrap" v-if="!chartData">
+          <BaseLoader />
+        </div>
+
+        <div class="balance-block wrap" v-if="glpInfo && mGlpInfo">
+          <div class="balance-top">
+            <h4 class="balance-title">Your balance</h4>
+            <div class="balance-ratio">
+              <img
+                class="balance-ratio-icon"
+                src="@/assets/images/glp/mGlp.png"
+                alt="mGlp icon"
+              />
+              <span>1 mGLP = 1 sGLP</span>
+            </div>
+          </div>
+          <div class="balance-row">
+            <div class="balance-token">
+              <div class="token-icon">
+                <BaseTokenIcon
+                  :icon="require('@/assets/images/tokens/GLP.png')"
+                  size="60px"
+                />
+                <span class="token-icon-name">sGLP</span>
+              </div>
+              <div>
+                <p class="token-title">sGLP</p>
+                <p class="token-balance">
+                  {{ glpInfo.balance | formatTokenBalance }}
+                </p>
+                <p class="token-price">{{ glpInfo.balanceUsd | formatUSD }}</p>
+              </div>
+            </div>
+            <div class="balance-token">
+              <div class="token-icon">
+                <BaseTokenIcon
+                  :icon="require('@/assets/images/tokens/mGLP.png')"
+                  size="60px"
+                />
+                <span class="token-icon-name">mGLP</span>
+              </div>
+              <div>
+                <p class="token-title">mGLP</p>
+                <p class="token-balance">
+                  {{ mGlpInfo.balance | formatTokenBalance }}
+                </p>
+                <p class="token-price">{{ mGlpInfo.balanceUsd | formatUSD }}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="chart-btns">
-          <button
-            class="chart-btn btn-3"
-            :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
-            @click="changeChartTime(3)"
-          >
-            3m
-          </button>
-          <button
-            class="chart-btn"
-            :class="{ 'chart-btn-active': chartActiveBtn === 6 }"
-            @click="changeChartTime(6)"
-          >
-            6m
-          </button>
-          <button
-            class="chart-btn btn-1y"
-            :class="{ 'chart-btn-active': chartActiveBtn === 12 }"
-            @click="changeChartTime(12)"
-          >
-            1y
-          </button>
-        </div>
-        <TickChart
-          v-if="chartData"
-          :labels="chartData.labels"
-          :tickUpper="chartData.tickUpper"
-        />
-      </div>
-
-      <div class="balance-block wrap" v-if="glpInfo && mGlpInfo">
-        <div class="balance-top">
-          <h4 class="balance-title">Your balance</h4>
-          <div class="balance-ratio">
-            <img
-              class="balance-ratio-icon"
-              src="@/assets/images/glp/mGlp.png"
-              alt="mGlp icon"
-            />
-            <span>1 mGLP = 1 GLP</span>
-          </div>
-        </div>
-        <div class="balance-row">
-          <div class="balance-token">
-            <BaseTokenIcon
-              :icon="require('@/assets/images/tokens/GLP.png')"
-              size="60px"
-            />
-            <div>
-              <p class="token-title">GLP</p>
-              <p class="token-balance">
-                {{ glpInfo.balance | formatTokenBalance }}
-              </p>
-              <p class="token-price">{{ glpInfo.balanceUsd | formatUSD }}</p>
+        <div class="info-block wrap">
+          <div>
+            <h5 class="info-title">Total Supply</h5>
+            <div class="info-item">
+              <div class="info-icon">
+                <BaseTokenIcon
+                  :icon="require('@/assets/images/tokens/mGLP.png')"
+                  size="40px"
+                />
+                <span>mGLP</span>
+              </div>
+              <div class="info-balance">
+                <span class="info-value">{{
+                  mGlpInfo.totalSupply | formatTokenBalance
+                }}</span>
+                <span class="info-usd">{{
+                  mGlpInfo.totalSupplyUsd | formatUSD
+                }}</span>
+              </div>
             </div>
           </div>
-          <div class="balance-token">
-            <BaseTokenIcon
-              :icon="require('@/assets/images/tokens/mGLP.png')"
-              size="60px"
-            />
-            <div>
-              <p class="token-title">mGLP</p>
-              <p class="token-balance">
-                {{ mGlpInfo.balance | formatTokenBalance }}
-              </p>
-              <p class="token-price">{{ mGlpInfo.balanceUsd | formatUSD }}</p>
+          <div class="info-line"></div>
+          <div>
+            <h5 class="info-title">Total Rewards Earned</h5>
+            <div class="info-item">
+              <div class="info-icon">
+                <BaseTokenIcon
+                  :icon="require('@/assets/images/tokens/ETH2.png')"
+                  size="40px"
+                />
+                <span>ETH</span>
+              </div>
+              <div class="info-balance">
+                <span class="info-value">45,096.44</span>
+                <span class="info-usd">$3,223,111.33</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="info-block wrap">
-        <div>
-          <h5 class="info-title">Total Supply</h5>
-          <div class="info-item">
-            <div class="info-icon">
-              <BaseTokenIcon
-                :icon="require('@/assets/images/tokens/mGLP.png')"
-                size="40px"
-              />
-              <span>mGLP</span>
-            </div>
-            <div class="info-balance">
-              <span class="info-value">{{
-                mGlpInfo.totalSupply | formatTokenBalance
-              }}</span>
-              <span class="info-usd">{{
-                mGlpInfo.totalSupplyUsd | formatUSD
-              }}</span>
-            </div>
+        <div class="profile-subscribtion">
+          <div class="text-wrap">
+            <p>
+              Enjoy the benefits of compounding without having to worry about
+              the tedious work! Simply deposit your sGLP into MagicGLP and let
+              it do its magic!
+            </p>
+          </div>
+          <div class="links-wrap">
+            <a
+              class="deposit"
+              href="#"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
+                Get sGLP</span
+              ></a
+            >
+            <a
+              class="deposit"
+              href="#"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <img src="@/assets/images/deposit.svg" alt="Deposit" />
+              <span>Sell sGLP</span></a
+            >
           </div>
         </div>
-        <div class="info-line"></div>
-        <div>
-          <h5 class="info-title">Total Rewards Earned</h5>
-          <div class="info-item">
-            <div class="info-icon">
-              <BaseTokenIcon
-                :icon="require('@/assets/images/tokens/ETH2.png')"
-                size="40px"
-              />
-              <span>ETH</span>
-            </div>
-            <div class="info-balance">
-              <span class="info-value">45,096.44</span>
-              <span class="info-usd">$3,223,111.33</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="profile-subscribtion">
-        <div class="text-wrap">
-          <p>
-            Enjoy the benefits of compounding without having to worry about the
-            tedious work! Simply deposit your GLP into MagicGLP and let it do
-            its magic!
-          </p>
-        </div>
-        <div class="links-wrap">
-          <a class="deposit" href="#" target="_blank" rel="noreferrer noopener">
-            <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
-              Get GLP</span
-            ></a
-          >
-          <a class="deposit" href="#" target="_blank" rel="noreferrer noopener">
-            <img src="@/assets/images/deposit.svg" alt="Deposit" />
-            <span>Sell GLP</span></a
-          >
-        </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -226,10 +247,6 @@ const TickChart = () => import("@/components/ui/TickChart");
 import moment from "moment";
 import getGlpAprChart from "@/helpers/glpAprChart";
 import { getGlpApr } from "@/helpers/glpApr";
-
-// ---------------------------------
-
-// ------------
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const NetworksList = () => import("@/components/ui/NetworksList");
@@ -249,7 +266,6 @@ export default {
       action: "Stake",
       amount: "",
       amountError: "",
-      // ----------------new
       chartData: null,
       spellUpdateInterval: null,
       chartActiveBtn: 3,
@@ -270,7 +286,7 @@ export default {
     },
 
     isGlpApproved() {
-      return this.tokensInfo.stakeToken.isTokenApprowed;
+      return !!this.tokensInfo.stakeToken.isTokenApprowed;
     },
 
     mGlpInfo() {
@@ -289,7 +305,7 @@ export default {
 
     disableApproveBtn() {
       if (this.action === "Unstake") return true;
-      return !!this.tokensInfo.stakeToken.isTokenApprowed;
+      return this.isGlpApproved;
     },
 
     toTokenAmount() {
@@ -308,8 +324,8 @@ export default {
     },
 
     disableActionBtn() {
-      // todo isUserLocked
-      if (this.isUserLocked) return true;
+      // if (this.isUserLocked) return true;
+      if (!this.isGlpApproved) return true;
       return !!(!+this.amount || this.amountError);
     },
   },
@@ -374,21 +390,18 @@ export default {
       );
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
+
         const estimateGas =
           await this.tokensInfo.wrapperContract.estimateGas.wrap(
-            this.glpInfo.contractInstance.address,
+            this.account,
             amount
           );
 
         const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
-        await this.tokensInfo.wrapperContract.wrap(
-          this.glpInfo.contractInstance.address,
-          amount,
-          {
-            gasLimit,
-          }
-        );
+        await this.tokensInfo.wrapperContract.wrap(this.account, amount, {
+          gasLimit,
+        });
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
@@ -561,8 +574,6 @@ export default {
   components: {
     BaseTokenIcon,
     TickChart,
-    // -----------------------
-    // -----------------------
     BaseButton,
     BaseTokenInput,
     NetworksList,
@@ -823,6 +834,15 @@ export default {
   font-size: 18px;
 }
 
+.token-icon {
+  display: flex;
+  align-items: center;
+}
+
+.token-icon-name {
+  display: none;
+}
+
 .token-balance {
   font-weight: 700;
   font-size: 24px;
@@ -930,7 +950,7 @@ export default {
   }
 }
 
-.loader-wrap {
+.loader-wrap-mini {
   height: 30px;
   display: flex;
   align-items: center;
@@ -1007,6 +1027,44 @@ export default {
 
   .profile {
     padding: 30px 10px;
+  }
+
+  .balance-top {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .info-block,
+  .balance-row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .balance-row {
+    gap: 10px;
+  }
+
+  .balance-token {
+    justify-content: space-between;
+  }
+
+  .info-line,
+  .token-title {
+    display: none;
+  }
+
+  .token-icon-name {
+    display: block;
+  }
+
+  .chart-row {
+    flex-direction: column;
+  }
+
+  .wrap-chart {
+    max-width: 88vw;
+    margin: 0 auto;
   }
 }
 </style>

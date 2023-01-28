@@ -38,11 +38,17 @@ export default {
     createOptionsObject() {
       return {
         responsive: true,
-        // borderColor: "#2BD2F7",
         plugins: {
           tooltip: {
             mode: "index",
             intersect: false,
+            callbacks: {
+              label: function (context) {
+                const { dataset, dataIndex } = context;
+                const { label, data } = dataset;
+                return ` ${label} ${data[dataIndex].toFixed(2)}%`;
+              },
+            },
           },
           legend: {
             display: false,
@@ -54,16 +60,19 @@ export default {
         scales: {
           y: {
             ticks: {
-              color: "#ababab",
+              color: "rgba(255, 255, 255, 0.5)",
               font: {
                 size: 10,
                 weight: "light",
+              },
+              callback: function (value) {
+                return `${value}%`;
               },
             },
           },
           x: {
             ticks: {
-              color: "#ababab",
+              color: "rgba(255, 255, 255, 0.5)",
               font: {
                 size: 10,
                 weight: "light",
@@ -86,24 +95,6 @@ export default {
             pointRadius: 0,
             borderWidth: 2,
           },
-          // {
-          //   label: "Current Tick",
-          //   data: this.currentTick,
-          //   borderColor: "#0E54F8",
-          //   pointBackgroundColor: "#0E54F8",
-          //   pointBorderColor: "#0E54F8",
-          //   pointRadius: 0,
-          //   borderWidth: 0.5,
-          // },
-          // {
-          //   label: "Tick Lower",
-          //   data: this.tickLower,
-          //   borderColor: "#ff94ce",
-          //   pointBackgroundColor: "#ff94ce",
-          //   pointBorderColor: "#ff94ce",
-          //   pointRadius: 0,
-          //   borderWidth: 0.5,
-          // },
         ],
       };
     },

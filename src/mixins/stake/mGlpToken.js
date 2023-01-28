@@ -18,7 +18,7 @@ export default {
           wrapperAddress: "0x3c34bC7c7461fc9AF1E5511C0636c07F129B4187",
         },
         stakeToken: {
-          name: "GLP",
+          name: "sGLP",
           address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
           decimals: 18,
           abi: tokensAbi.sGLP,
