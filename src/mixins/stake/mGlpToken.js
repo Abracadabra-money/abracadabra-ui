@@ -102,7 +102,7 @@ export default {
         this.price = this.$ethers.utils.formatUnits(price, 18);
       }
 
-      const { mainTokenBalance, stakeTokenBalance, isDegenboxApproved } =
+      const { mainTokenBalance, stakeTokenBalance, isDegenboxApproved, stakeTokenApproved, mainTokenApproved } =
         await this.getUserInfo(
           stakeTokenInstance,
           mainTokenInstance,
@@ -124,6 +124,7 @@ export default {
           balanceUsd: mainTokenBalanceUsd,
           totalSupply,
           totalSupplyUsd,
+          isApproved: mainTokenApproved
         },
         stakeToken: {
           ...stakeToken,
@@ -131,6 +132,7 @@ export default {
           balance: stakeTokenBalance,
           price: this.price,
           balanceUsd: stakeTokenBalanceUsd,
+          isApproved: stakeTokenApproved
         },
         wrapper: {
           address: wrapperAddress,
@@ -152,10 +154,10 @@ export default {
       this.setLoadingMGlpStake(false);
     },
 
-    async getUserInfo(stakeInstance, mainInstance, wrapperAddress) {
+    async getUserInfo(stakeInstance, mainInstance, degenBoxAddress) {
       let stakeTokenBalance = 0;
       let mainTokenBalance = 0;
-      let isDegenboxApproved = false;
+      let isDegenboxApproved, stakeTokenApproved, mainTokenApproved = false;
 
       if (this.account) {
         const stakeTokenBalanceHex = await stakeInstance.balanceOf(
@@ -172,13 +174,27 @@ export default {
 
         isDegenboxApproved = await isTokenApprowed(
           stakeInstance,
-          wrapperAddress,
+          degenBoxAddress,
+          this.account,
+          true
+        );
+
+        stakeTokenApproved = await isTokenApprowed(
+          stakeInstance,
+          degenBoxAddress,
+          this.account,
+          true
+        );
+
+        mainTokenApproved = await isTokenApprowed(
+          mainInstance,
+          degenBoxAddress,
           this.account,
           true
         );
       }
 
-      return { mainTokenBalance, stakeTokenBalance, isDegenboxApproved };
+      return { mainTokenBalance, stakeTokenBalance, isDegenboxApproved, stakeTokenApproved, mainTokenApproved };
     },
   },
 };

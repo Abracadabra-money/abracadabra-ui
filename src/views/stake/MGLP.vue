@@ -18,7 +18,6 @@
           <BaseTokenInput
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :disabled="action === 'Unstake'"
             :value="amount"
             @input="updateMainValue"
             :max="fromToken.balance"
@@ -55,7 +54,7 @@
           </BaseButton>
         </div>
         <p class="profile-subscribtion">
-          Enjoi amplified yield though abracadabra leverage
+          Enjoy amplified yield though abracadabra leverage
           <router-link
             class="link"
             :to="{ name: 'Leverage', params: { id: 3 } }"
@@ -303,8 +302,8 @@ export default {
       return this.tokensInfo?.mainToken;
     },
 
-    isDegenboxApproved() {
-      return !!this.tokensInfo?.degenbox?.approved;
+    isActionApproved() {
+      return !!this.fromToken.isApproved;
     },
 
     fromToken() {
@@ -318,8 +317,7 @@ export default {
     },
 
     disableApproveBtn() {
-      if (this.action === "Unstake") return true;
-      return this.isDegenboxApproved;
+      return this.isActionApproved;
     },
 
     toTokenAmount() {
@@ -332,7 +330,7 @@ export default {
     },
 
     disableActionBtn() {
-      if (!this.isDegenboxApproved) return true;
+      if (!this.isActionApproved) return true;
       return !!(!+this.amount || this.amountError);
     },
   },
@@ -374,7 +372,7 @@ export default {
       const notificationId = await this.createNotification(approvePending);
 
       const approve = await approveToken(
-        this.stakeToken.contractInstance,
+        this.fromToken.contractInstance,
         this.tokensInfo.degenbox.address
       );
 
@@ -386,14 +384,13 @@ export default {
     },
 
     async actionHandler() {
-      if (!+this.amount || this.amountError) return false;
-      if (this.action === "Stake" && this.isDegenboxApproved) await this.wrap();
-      if (this.action === "Unstake") await this.unWrap();
+      if (!+this.amount || this.amountError || !this.isActionApproved) return false;
+      await this.createCook();
     },
 
-    async wrap() {
+    async createCook() {
       const { pending, success } = notification;
-      const notificationId = this.createNotification(pending);
+      const notificationId = await this.createNotification(pending);
 
       try {
         const eventsArray = [];
@@ -401,6 +398,8 @@ export default {
         const datasArray = [];
         const { wrapper, cauldron } = this.tokensInfo;
         const amount = this.$ethers.utils.parseEther(this.amount);
+
+        const methodName = this.action === "Stake" ? "wrap" : "unwrap";
 
         const approvalEncode = await this.getApprovalEncode();
 
@@ -416,7 +415,7 @@ export default {
         // 20 deposit in degenbox
         const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
-          [this.stakeToken.address, this.account, amount, "0"]
+          [this.fromToken.address, this.account, amount, "0"]
         );
 
         eventsArray.push(20);
@@ -426,52 +425,53 @@ export default {
         // 21 withdraw to token wrapper // wrapper.address => userAddress
         const wrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
-          [this.stakeToken.address, wrapper.address, amount, "0"]
+          [this.fromToken.address, wrapper.address, amount, "0"]
         );
 
         eventsArray.push(21);
         valuesArray.push(0);
         datasArray.push(wrapperEncode);
 
-        // 30 wrap and deposit to cauldron
-        const swapStaticTx = await wrapper.contract.populateTransaction.wrap(
-          // this.account,
-          cauldron.address,
+        // const share = await degenbox.contract.toShare(this.fromToken.address, amount, false);
+
+        // 30 wrap or unwrap and deposit to cauldron
+        const swapStaticTx = await wrapper.contract.populateTransaction[methodName](
+          this.account,
           amount
         );
 
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
-          [wrapper.address, swapStaticTx.data, true, false, 2]
+          [wrapper.address, swapStaticTx.data, false, false, 2]
         );
 
         eventsArray.push(30);
         valuesArray.push(0);
         datasArray.push(callEncode);
 
-        // // 10 add collateral
-        // const ColateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        //   ["int256", "address", "bool"],
-        //   ["-2", this.account, true]
-        // );
+        //21 withdraw to user wallet
+        const withdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [this.toToken.address, this.account, amount, "0"]
+        );
 
-        // eventsArray.push(10);
-        // valuesArray.push(0);
-        // datasArray.push(ColateralEncode);
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(withdrawEncode);
 
         const estimateGas = await cauldron.contract.estimateGas.cook(
           eventsArray,
           valuesArray,
           datasArray,
           {
-            value: amount,
+            value: 0,
           }
         );
 
         const gasLimit = this.gasLimitConst + +estimateGas.toString();
 
         await cauldron.contract.cook(eventsArray, valuesArray, datasArray, {
-          value: amount,
+          value: 0,
           gasLimit,
         });
 
@@ -487,40 +487,6 @@ export default {
 
         this.deleteNotification(notificationId);
         this.createNotification(errorNotification);
-      }
-    },
-
-    async unWrap() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-      try {
-        const { wrapper } = this.tokensInfo;
-        const amount = this.$ethers.utils.parseEther(this.amount);
-        const estimateGas = await wrapper.contract.estimateGas.unwrap(
-          this.account,
-          amount
-        );
-
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
-
-        await wrapper.contract.unwrap(this.account, amount, {
-          gasLimit,
-        });
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (error) {
-        console.log("Wrap GLP error:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
 
