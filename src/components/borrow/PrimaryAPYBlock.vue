@@ -56,8 +56,16 @@ export default {
     },
   },
 
+  watch: {
+    async $route() {
+      this.selfRepayingAPY = "";
+      const selfRepayingAPY = await getGlpApr(this.isMagicGlp);
+      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+    }
+  },
+
   async created() {
-    const selfRepayingAPY = await getGlpApr();
+    const selfRepayingAPY = await getGlpApr(this.isMagicGlp);
     this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
   },
 };

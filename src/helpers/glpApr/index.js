@@ -15,7 +15,7 @@ const {
 
 const { expandDecimals, formatAmount } = require("./utils");
 
-const getGlpApr = async () => {
+const getGlpApr = async (whithoutFee = false) => {
   const stakingData = await getStakingData();
   const aum = await getAum();
   const gmxPrice = await getGmxPrice();
@@ -58,6 +58,9 @@ const getGlpApr = async () => {
 
   const glpAprTotal = glpAprForNativeToken.add(glpAprForEsGmx);
   const parseAmount = formatAmount(glpAprTotal, 2, 2, true);
+
+  if(whithoutFee) return parseAmount;
+
   const feePercent = await getFeePercent();
 
   const fee = feePercent / 100;

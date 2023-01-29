@@ -80,8 +80,8 @@
               <div class="chart-apt">
                 <img src="@/assets/images/glp/chart-apr.png" alt="" />
                 <span class="chart-apt-text">est. APR</span>
-                <span class="chart-apt-percent" v-if="selfRepayingAPY"
-                  >{{ selfRepayingAPY }}%</span
+                <span class="chart-apt-percent" v-if="apy"
+                  >{{ apy }}%</span
                 >
                 <div class="loader-wrap-mini" v-else>
                   <p class="loader"></p>
@@ -281,7 +281,7 @@ export default {
       updateInterval: null,
       chartActiveBtn: 1,
       chartInterval: null,
-      selfRepayingAPY: "",
+      apy: "",
       gasLimitConst: 1000,
     };
   },
@@ -661,13 +661,13 @@ export default {
 
     await this.createChartData(this.chartActiveBtn);
 
-    const selfRepayingAPY = await getGlpApr();
-    this.selfRepayingAPY = parseFloat(selfRepayingAPY - 1).toFixed(2);
+    const apy = await getGlpApr(true);
+    this.apy = parseFloat(apy - 1).toFixed(2);
 
     this.chartInterval = setInterval(async () => {
       await this.createChartData(this.chartActiveBtn);
-      const selfRepayingAPY = await getGlpApr();
-      this.selfRepayingAPY = parseFloat(selfRepayingAPY - 1).toFixed(2);
+      const apy = await getGlpApr(true);
+      this.apy = parseFloat(apy - 1).toFixed(2);
     }, 60000);
   },
 
