@@ -1,8 +1,10 @@
 import oracleAbi from "@/utils/abi/oracle";
 import { mapGetters, mapMutations } from "vuex";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
+import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import { isTokenApprowed } from "@/utils/approveHelpers";
 import degenBoxERC4626WrapperAbi from "@/utils/abi/DegenBoxERC4626Wrapper";
+import degenBoxAbi from "@/utils/abi/degenBox";
 
 export default {
   data() {
@@ -27,7 +29,8 @@ export default {
           address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
           abi: oracleAbi,
         },
-        wrapperAddress: "0xA30093cfa74cAB1da6Bd275218296d561557e743",
+        cauldronAddress: "0x726413d7402fF180609d0EBc79506df8633701B1",
+        wrapperAddress: "0x72dB7051a79260F65a2aFF5Bdb5B658C29E5760d",
       },
     };
   },
@@ -51,7 +54,8 @@ export default {
     async createStakePool() {
       if (this.chainId !== 42161) return !!this.setLoadingMGlpStake(false);
 
-      const { mainToken, stakeToken, oracle, wrapperAddress } = this.stakeInfo;
+      const { mainToken, stakeToken, oracle, wrapperAddress, cauldronAddress } =
+        this.stakeInfo;
 
       const mainTokenInstance = await new this.$ethers.Contract(
         mainToken.address,
@@ -71,22 +75,38 @@ export default {
         this.userSigner
       );
 
+      const cauldronContract = await new this.$ethers.Contract(
+        cauldronAddress,
+        JSON.stringify(poolsAbi.CauldronV4),
+        this.userSigner
+      );
+
       const wrapperContract = await new this.$ethers.Contract(
         wrapperAddress,
         JSON.stringify(degenBoxERC4626WrapperAbi),
         this.userSigner
       );
 
+      const degenBoxAddress = await cauldronContract.bentoBox();
+
+      const degenBoxContract = await new this.$ethers.Contract(
+        degenBoxAddress,
+        JSON.stringify(degenBoxAbi),
+        this.userSigner
+      );
+
+      const masterContractAddress = await cauldronContract.masterContract();
+
       if (!this.price) {
         const price = await oracleContract.peekSpot("0x");
         this.price = this.$ethers.utils.formatUnits(price, 18);
       }
 
-      const { mainTokenBalance, stakeTokenBalance, isWrapperApprowed } =
+      const { mainTokenBalance, stakeTokenBalance, isDegenboxApproved } =
         await this.getUserInfo(
           stakeTokenInstance,
           mainTokenInstance,
-          wrapperAddress
+          degenBoxAddress
         );
 
       const mainTokenBalanceUsd = mainTokenBalance * this.price;
@@ -115,8 +135,17 @@ export default {
         wrapper: {
           address: wrapperAddress,
           contract: wrapperContract,
-          approved: isWrapperApprowed,
         },
+        degenbox: {
+          address: degenBoxAddress,
+          contract: degenBoxContract,
+          approved: isDegenboxApproved,
+        },
+        cauldron: {
+          address: cauldronAddress,
+          contract: cauldronContract,
+        },
+        masterContractAddress,
       };
 
       this.setMGlpStakingObj(stakeObject);
@@ -126,7 +155,7 @@ export default {
     async getUserInfo(stakeInstance, mainInstance, wrapperAddress) {
       let stakeTokenBalance = 0;
       let mainTokenBalance = 0;
-      let isWrapperApprowed = false;
+      let isDegenboxApproved = false;
 
       if (this.account) {
         const stakeTokenBalanceHex = await stakeInstance.balanceOf(
@@ -141,7 +170,7 @@ export default {
           mainTokenBalanceHex.toString()
         );
 
-        isWrapperApprowed = await isTokenApprowed(
+        isDegenboxApproved = await isTokenApprowed(
           stakeInstance,
           wrapperAddress,
           this.account,
@@ -149,7 +178,7 @@ export default {
         );
       }
 
-      return { mainTokenBalance, stakeTokenBalance, isWrapperApprowed };
+      return { mainTokenBalance, stakeTokenBalance, isDegenboxApproved };
     },
   },
 };

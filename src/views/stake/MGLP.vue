@@ -279,45 +279,47 @@ export default {
       amount: "",
       amountError: "",
       chartData: null,
-      spellUpdateInterval: null,
+      updateInterval: null,
       chartActiveBtn: 1,
       chartInterval: null,
       selfRepayingAPY: "",
       gasLimitConst: 1000,
     };
   },
+
   computed: {
     ...mapGetters({
       isLoading: "getLoadingMGlpStake",
       account: "getAccount",
       tokensInfo: "getMGlpObject",
+      itsMetamask: "getMetamaskActive",
     }),
 
     stakeToken() {
       return this.tokensInfo?.stakeToken;
     },
 
-    isWrapperApproved() {
-      return !!this.tokensInfo?.wrapper?.approved;
-    },
-
     mainToken() {
       return this.tokensInfo?.mainToken;
     },
 
+    isDegenboxApproved() {
+      return !!this.tokensInfo?.degenbox?.approved;
+    },
+
     fromToken() {
-      if (this.action === "Stake") return this.tokensInfo?.stakeToken;
-      return this.tokensInfo.mainToken;
+      if (this.action === "Stake") return this.stakeToken;
+      return this.mainToken;
     },
 
     toToken() {
-      if (this.action === "Stake") return this.tokensInfo.mainToken;
-      return this.tokensInfo.stakeToken;
+      if (this.action === "Stake") return this.mainToken;
+      return this.stakeToken;
     },
 
     disableApproveBtn() {
       if (this.action === "Unstake") return true;
-      return this.isWrapperApproved;
+      return this.isDegenboxApproved;
     },
 
     toTokenAmount() {
@@ -330,7 +332,7 @@ export default {
     },
 
     disableActionBtn() {
-      if (!this.isWrapperApproved) return true;
+      if (!this.isDegenboxApproved) return true;
       return !!(!+this.amount || this.amountError);
     },
   },
@@ -342,74 +344,139 @@ export default {
   },
 
   methods: {
-    toggleAction() {
-      this.amount = "";
+    updateValue(amount) {
+      this.amount = amount ? amount : "";
       this.amountError = "";
+    },
+
+    toggleAction() {
+      this.updateValue();
       this.action = this.action === "Stake" ? "Unstake" : "Stake";
     },
 
-    updateMainValue(value) {
-      if (+value > +this.fromToken.balance) {
+    updateMainValue(amount) {
+      if (+amount > +this.fromToken.balance)
         this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
-        return false;
-      }
+      else this.updateValue(amount);
+    },
 
-      this.amountError = "";
-      this.amount = value;
+    async createNotification(msg) {
+      return await this.$store.dispatch("notifications/new", msg);
+    },
+
+    async deleteNotification(id) {
+      await this.$store.commit("notifications/delete", id);
     },
 
     async approveTokenHandler() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.approvePending
-      );
+      const { approvePending, approveError } = notification;
+
+      const notificationId = await this.createNotification(approvePending);
 
       const approve = await approveToken(
         this.stakeToken.contractInstance,
-        this.tokensInfo.wrapper.address
+        this.tokensInfo.degenbox.address
       );
 
-      if (approve) {
-        await this.$store.commit("notifications/delete", notificationId);
-      } else {
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch(
-          "notifications/new",
-          notification.approveError
-        );
-      }
+      await this.deleteNotification(notificationId);
+
+      if (!approve) await this.createNotification(approveError);
 
       return false;
     },
 
     async actionHandler() {
       if (!+this.amount || this.amountError) return false;
-      if (this.action === "Stake" && this.isWrapperApproved) await this.wrap();
+      if (this.action === "Stake" && this.isDegenboxApproved) await this.wrap();
       if (this.action === "Unstake") await this.unWrap();
     },
 
     async wrap() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
+      const { pending, success } = notification;
+      const notificationId = this.createNotification(pending);
+
       try {
-        const { wrapper } = this.tokensInfo;
+        const eventsArray = [];
+        const valuesArray = [];
+        const datasArray = [];
+        const { wrapper, cauldron } = this.tokensInfo;
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const estimateGas = await wrapper.contract.estimateGas.wrap(
-          this.account,
+        const approvalEncode = await this.getApprovalEncode();
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract();
+          if (!approvalMaster) return false;
+        } else {
+          eventsArray.push(24);
+          valuesArray.push(0);
+          datasArray.push(approvalEncode);
+        }
+
+        // 20 deposit in degenbox
+        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [this.stakeToken.address, this.account, amount, "0"]
+        );
+
+        eventsArray.push(20);
+        valuesArray.push(0);
+        datasArray.push(depositEncode);
+
+        // 21 withdraw to token wrapper // wrapper.address => userAddress
+        const wrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [this.stakeToken.address, wrapper.address, amount, "0"]
+        );
+
+        eventsArray.push(21);
+        valuesArray.push(0);
+        datasArray.push(wrapperEncode);
+
+        // 30 wrap and deposit to cauldron
+        const swapStaticTx = await wrapper.contract.populateTransaction.wrap(
+          // this.account,
+          cauldron.address,
           amount
         );
 
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [wrapper.address, swapStaticTx.data, true, false, 2]
+        );
 
-        await wrapper.contract.wrap(this.account, amount, {
+        eventsArray.push(30);
+        valuesArray.push(0);
+        datasArray.push(callEncode);
+
+        // // 10 add collateral
+        // const ColateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        //   ["int256", "address", "bool"],
+        //   ["-2", this.account, true]
+        // );
+
+        // eventsArray.push(10);
+        // valuesArray.push(0);
+        // datasArray.push(ColateralEncode);
+
+        const estimateGas = await cauldron.contract.estimateGas.cook(
+          eventsArray,
+          valuesArray,
+          datasArray,
+          {
+            value: amount,
+          }
+        );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        await cauldron.contract.cook(eventsArray, valuesArray, datasArray, {
+          value: amount,
           gasLimit,
         });
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
+        this.deleteNotification(notificationId);
+        this.createNotification(success);
       } catch (error) {
         console.log("Wrap GLP error:", error);
 
@@ -418,8 +485,8 @@ export default {
           type: "error",
         };
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
       }
     },
 
@@ -473,11 +540,156 @@ export default {
       this.chartActiveBtn = time;
       await this.createChartData(time);
     },
+
+    // --------------------
+    async getApprovalEncode(
+      approved = true,
+      // useHelper = false,
+      firstSignAdded = false
+    ) {
+      if (!this.itsMetamask) return "ledger";
+
+      const account = this.account;
+
+      const masterContract = this.tokensInfo?.masterContractAddress;
+
+      // const verifyingContract = await this.getVerifyingContract(pool);
+      const verifyingContract = this.tokensInfo?.degenbox.address;
+
+      // const nonce = await this.getNonce(pool);
+      const nonce = await this.getNonce();
+      const chainId = this.$ethers.utils.hexlify(this.chainId);
+
+      const domain = {
+        name: "BentoBox V1",
+        chainId,
+        verifyingContract,
+      };
+
+      // The named list of all type definitions
+      const types = {
+        SetMasterContractApproval: [
+          { name: "warning", type: "string" },
+          { name: "user", type: "address" },
+          { name: "masterContract", type: "address" },
+          { name: "approved", type: "bool" },
+          { name: "nonce", type: "uint256" },
+        ],
+      };
+
+      const warning = approved
+        ? "Give FULL access to funds in (and approved to) BentoBox?"
+        : "Revoke access to BentoBox?";
+
+      // The data to sign
+      const value = {
+        warning,
+        user: account,
+        masterContract,
+        approved,
+        nonce: firstSignAdded ? +nonce + 1 : nonce,
+      };
+
+      let signature;
+      try {
+        signature = await this.signer._signTypedData(domain, types, value);
+      } catch (e) {
+        console.log("SIG ERR:", e.code);
+
+        if (e.code === -32603) {
+          console.log("signature ERROR LEGER HERE", e.code);
+          return "ledger";
+        }
+        return false;
+      }
+
+      const parsedSignature = this.parseSignature(signature);
+
+      if (parsedSignature.v === 0) {
+        parsedSignature.v = 27;
+      }
+
+      if (parsedSignature.v === 1) {
+        parsedSignature.v = 28;
+      }
+
+      return this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
+        [
+          account,
+          masterContract,
+          approved,
+          parsedSignature.v,
+          parsedSignature.r,
+          parsedSignature.s,
+        ]
+      );
+    },
+
+    parseSignature(signature) {
+      const parsedSignature = signature.substring(2);
+
+      var r = parsedSignature.substring(0, 64);
+      var s = parsedSignature.substring(64, 128);
+      var v = parsedSignature.substring(128, 130);
+
+      return {
+        r: "0x" + r,
+        s: "0x" + s,
+        v: parseInt(v, 16),
+      };
+    },
+
+    async getNonce() {
+      try {
+        const nonces = await this.tokensInfo?.degenbox.contract.nonces(
+          this.account
+        );
+        return nonces.toString();
+      } catch (e) {
+        console.log("getNonce err:", e);
+      }
+    },
+
+    async approveMasterContract() {
+      try {
+        const masterContract = this.tokensInfo?.masterContractAddress;
+
+        const estimateGas =
+          await this.tokensInfo.degenbox.contract.estimateGas.setMasterContractApproval(
+            this.account,
+            masterContract,
+            true,
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String("")
+          );
+
+        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+
+        const tx =
+          await this.tokensInfo.degenbox.contract.setMasterContractApproval(
+            this.account,
+            masterContract,
+            true,
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String(""),
+            this.$ethers.utils.formatBytes32String(""),
+            { gasLimit }
+          );
+
+        const receipt = await tx.wait();
+        return receipt;
+      } catch (e) {
+        console.log("approveMasterContract err:", e);
+        return false;
+      }
+    },
   },
 
   async created() {
     await this.createStakePool();
-    this.spellUpdateInterval = setInterval(async () => {
+    this.updateInterval = setInterval(async () => {
       await this.createStakePool();
     }, 15000);
 
@@ -494,7 +706,7 @@ export default {
   },
 
   beforeDestroy() {
-    clearInterval(this.spellUpdateInterval);
+    clearInterval(this.updateInterval);
   },
   components: {
     BaseTokenIcon,
