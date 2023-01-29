@@ -5,7 +5,7 @@ const { Percent, CurrencyAmount, Token } = require("@uniswap/sdk");
 import lpStakingAbi from "@/utils/abi/StargateLPStaking";
 import poolAbi from "@/utils/abi/StargatePool";
 
-const provider = new providers.JsonRpcProvider(url);
+const provider = new providers.StaticJsonRpcProvider(url);
 const YEAR = 31536000;
 
 const stgToken = new Token(1, "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6", 18);

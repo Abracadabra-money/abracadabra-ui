@@ -34,7 +34,7 @@ export default {
         });
       }
 
-      return new this.$ethers.providers.JsonRpcProvider(networkRpc);
+      return new this.$ethers.providers.StaticJsonRpcProvider(networkRpc);
     },
   },
   methods: {

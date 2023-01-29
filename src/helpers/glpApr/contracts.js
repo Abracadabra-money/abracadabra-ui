@@ -17,7 +17,7 @@ const {
   GmxGlpWrapperAddress,
 } = require("./constants");
 
-const provider = new providers.JsonRpcProvider(rpc);
+const provider = new providers.StaticJsonRpcProvider(rpc);
 
 module.exports.getGlpManagerContract = () =>
   new Contract(glpManagerAddress, GlpManager.abi, provider);
