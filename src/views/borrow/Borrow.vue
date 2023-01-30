@@ -496,7 +496,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic) return this.selectedPool.lpLogic.name;
+        if (this.selectedPool.lpLogic && !this.useCheckBox) return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
