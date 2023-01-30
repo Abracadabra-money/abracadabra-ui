@@ -1,4 +1,3 @@
-// const axios = require("axios");
 const getCoingeckoPrice = require("./get-coingecko-price");
 
 function getImpermanentLoss(change) {
@@ -10,6 +9,7 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
   const ethPrices = await getCoingeckoPrice("ETH", { from });
   const avaxPrices = await getCoingeckoPrice("AVAX", { from });
 
+  console.log(glpData);
   const glpDataById = glpData.reduce((memo, item) => {
     memo[item.timestamp] = item;
     return memo;
@@ -56,6 +56,7 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
 
     const timestampGroup = parseInt(btcPrices[i].timestamp / 86400) * 86400;
 
+    console.log(glpDataById);
     const glpItem = glpDataById[timestampGroup] || lastGlpItem;
     lastGlpItem = glpItem;
 
@@ -107,11 +108,18 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
     let glpApr;
     let glpPlusDistributedUsd;
     let glpPlusDistributedEth;
+    let glpApy;
     if (glpItem) {
       if (glpItem.cumulativeDistributedUsdPerGlp) {
         glpPlusDistributedUsd =
           glpPrice + glpItem.cumulativeDistributedUsdPerGlp;
         glpApr = (glpItem.distributedUsdPerGlp / glpPrice) * 365 * 100; // incorrect?
+        let glpComponded = glpItem.distributedUsdPerGlp * glpPrice;
+        let UsdPerCompound = glpComponded * glpItem.distributedUsdPerGlp;
+        glpApy =
+          ((UsdPerCompound + glpItem.distributedUsdPerGlp) / glpPrice) *
+          365 *
+          100; // incorrect?
       }
       if (glpItem.cumulativeDistributedEthPerGlp) {
         glpPlusDistributedEth =
@@ -179,6 +187,7 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
       ).toFixed(2),
 
       glpApr,
+      glpApy,
     });
   }
 
