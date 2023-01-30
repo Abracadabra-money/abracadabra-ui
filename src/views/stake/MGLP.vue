@@ -517,7 +517,7 @@ export default {
       const data = await getGlpChartApr(time);
       data.forEach((element) => {
         labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        tickUpper.push(element.glpApr);
+        tickUpper.push(element.glpApy);
       });
 
       this.chartData = { labels, tickUpper };
