@@ -305,7 +305,8 @@ export default {
     },
 
     isActionApproved() {
-      return !!this.fromToken.isApproved;
+      if (this.action === "Stake") return !!this.tokensInfo?.stakeToken.isApproved;
+      return true;
     },
 
     fromToken() {
@@ -384,8 +385,8 @@ export default {
       const notificationId = await this.createNotification(approvePending);
 
       const approve = await approveToken(
-        this.fromToken.contractInstance,
-        this.tokensInfo.degenbox.address
+        this.stakeToken.contractInstance,
+        this.mainToken.address
       );
 
       await this.deleteNotification(notificationId);
@@ -394,108 +395,103 @@ export default {
 
       return false;
     },
-
+    
     async actionHandler() {
       if (!+this.amount || this.amountError || !this.isActionApproved)
         return false;
-      await this.createCook();
+
+      if (this.action === "Stake") {
+        await this.stake();
+      }
+      if (this.action === "Unstake") {
+        await this.unstake();
+      }
     },
 
-    async createCook() {
+    async stake() {
       const { pending, success } = notification;
       const notificationId = await this.createNotification(pending);
-
+      
       try {
-        const eventsArray = [];
-        const valuesArray = [];
-        const datasArray = [];
-        const { wrapper, cauldron, mcApproved } = this.tokensInfo;
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const methodName = this.action === "Stake" ? "wrap" : "unwrap";
+        const estimateGas =
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
+            amount,
+            this.account
+          );
 
-        if (!mcApproved) {
-          const approvalEncode = await this.getApprovalEncode();
+        const gasLimit = 1000 + +estimateGas.toString();
 
-          if (approvalEncode === "ledger") {
-            const approvalMaster = await this.approveMasterContract();
-            if (!approvalMaster) return false;
-          } else {
-            eventsArray.push(24);
-            valuesArray.push(0);
-            datasArray.push(approvalEncode);
-          }
-        }
-
-        // 20 deposit in degenbox
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [this.fromToken.address, this.account, amount, "0"]
-        );
-
-        eventsArray.push(20);
-        valuesArray.push(0);
-        datasArray.push(depositEncode);
-
-        // 21 withdraw to token wrapper // wrapper.address => userAddress
-        const wrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [this.fromToken.address, wrapper.address, amount, "0"]
-        );
-
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(wrapperEncode);
-
-        // const share = await degenbox.contract.toShare(this.fromToken.address, amount, false);
-
-        // 30 wrap or unwrap and deposit to cauldron
-        const swapStaticTx = await wrapper.contract.populateTransaction[
-          methodName
-        ](this.account, amount);
-
-        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [wrapper.address, swapStaticTx.data, false, false, 2]
-        );
-
-        eventsArray.push(30);
-        valuesArray.push(0);
-        datasArray.push(callEncode);
-
-        //21 withdraw to user wallet
-        const withdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [this.toToken.address, this.account, amount, "0"]
-        );
-
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(withdrawEncode);
-
-        const estimateGas = await cauldron.contract.estimateGas.cook(
-          eventsArray,
-          valuesArray,
-          datasArray,
+        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
+          amount,
+          this.account,
           {
-            value: 0,
+            gasLimit,
           }
         );
 
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+        this.amount = "";
+        this.amountError = "";
 
-        await cauldron.contract.cook(eventsArray, valuesArray, datasArray, {
-          value: 0,
-          gasLimit,
-        });
+        const receipt = await tx.wait();
+
+        console.log("stake", receipt);
 
         this.deleteNotification(notificationId);
         this.createNotification(success);
-      } catch (error) {
-        console.log("Wrap GLP error:", error);
+      } catch (e) {
+        console.log("stake err:", e);
 
         const errorNotification = {
-          msg: await notificationErrorMsg(error),
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
+    },
+
+    async unstake() {
+      const { pending, success } = notification;
+      const notificationId = await this.createNotification(pending);
+      
+      try {
+        const amount = this.$ethers.utils.parseEther(this.amount);
+
+        const estimateGas =
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
+            amount,
+            this.account,
+            this.account
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
+        const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
+          amount,
+          this.account,
+          this.account,
+          {
+            gasLimit,
+          }
+        );
+
+        this.amount = "";
+        this.amountError = "";
+
+        const receipt = await tx.wait();
+
+        console.log("stake", receipt);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(success);
+      } catch (e) {
+        console.log("stake err:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
           type: "error",
         };
 

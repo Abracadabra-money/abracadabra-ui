@@ -1,10 +1,7 @@
 import oracleAbi from "@/utils/abi/oracle";
 import { mapGetters, mapMutations } from "vuex";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
-import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import { isTokenApprowed } from "@/utils/approveHelpers";
-import degenBoxERC4626WrapperAbi from "@/utils/abi/DegenBoxERC4626Wrapper";
-import degenBoxAbi from "@/utils/abi/degenBox";
 import chainLinkAbi from "@/utils/abi/chainLink";
 
 export default {
@@ -30,8 +27,6 @@ export default {
           address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
           abi: oracleAbi,
         },
-        cauldronAddress: "0x726413d7402fF180609d0EBc79506df8633701B1",
-        wrapperAddress: "0x72dB7051a79260F65a2aFF5Bdb5B658C29E5760d",
         ethChainLinkAddress: "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
       },
     };
@@ -56,7 +51,7 @@ export default {
     async createStakePool() {
       if (this.chainId !== 42161) return !!this.setLoadingMGlpStake(false);
 
-      const { mainToken, stakeToken, oracle, wrapperAddress, cauldronAddress } =
+      const { mainToken, stakeToken, oracle } =
         this.stakeInfo;
 
       const mainTokenInstance = await new this.$ethers.Contract(
@@ -77,28 +72,6 @@ export default {
         this.userSigner
       );
 
-      const cauldronContract = await new this.$ethers.Contract(
-        cauldronAddress,
-        JSON.stringify(poolsAbi.CauldronV4),
-        this.userSigner
-      );
-
-      const wrapperContract = await new this.$ethers.Contract(
-        wrapperAddress,
-        JSON.stringify(degenBoxERC4626WrapperAbi),
-        this.userSigner
-      );
-
-      const degenBoxAddress = await cauldronContract.bentoBox();
-
-      const degenBoxContract = await new this.$ethers.Contract(
-        degenBoxAddress,
-        JSON.stringify(degenBoxAbi),
-        this.userSigner
-      );
-
-      const masterContractAddress = await cauldronContract.masterContract();
-
       const ethChainLinkContract = await new this.$ethers.Contract(
         this.stakeInfo.ethChainLinkAddress,
         JSON.stringify(chainLinkAbi),
@@ -116,16 +89,10 @@ export default {
       const {
         mainTokenBalance,
         stakeTokenBalance,
-        isDegenboxApproved,
         stakeTokenApproved,
-        mainTokenApproved,
-        mcApproved
       } = await this.getUserInfo(
         stakeTokenInstance,
-        mainTokenInstance,
-        degenBoxAddress,
-        degenBoxContract,
-        masterContractAddress
+        mainTokenInstance
       );
 
       const mainTokenBalanceUsd = mainTokenBalance * this.price;
@@ -143,7 +110,6 @@ export default {
           balanceUsd: mainTokenBalanceUsd,
           totalSupply,
           totalSupplyUsd,
-          isApproved: mainTokenApproved,
         },
         stakeToken: {
           ...stakeToken,
@@ -153,21 +119,6 @@ export default {
           balanceUsd: stakeTokenBalanceUsd,
           isApproved: stakeTokenApproved,
         },
-        wrapper: {
-          address: wrapperAddress,
-          contract: wrapperContract,
-        },
-        degenbox: {
-          address: degenBoxAddress,
-          contract: degenBoxContract,
-          approved: isDegenboxApproved,
-        },
-        cauldron: {
-          address: cauldronAddress,
-          contract: cauldronContract,
-        },
-        masterContractAddress,
-        mcApproved,
         ethPrice,
       };
 
@@ -175,13 +126,10 @@ export default {
       this.setLoadingMGlpStake(false);
     },
 
-    async getUserInfo(stakeInstance, mainInstance, degenBoxAddress, degenBoxContract, masterContract) {
+    async getUserInfo(stakeInstance, mainInstance) {
       let stakeTokenBalance = 0;
       let mainTokenBalance = 0;
-      let isDegenboxApproved,
-        stakeTokenApproved,
-        mainTokenApproved,
-        mcApproved = false;
+      let stakeTokenApproved = false;
 
       if (this.account) {
         const stakeTokenBalanceHex = await stakeInstance.balanceOf(
@@ -196,40 +144,18 @@ export default {
           mainTokenBalanceHex.toString()
         );
 
-        isDegenboxApproved = await isTokenApprowed(
-          stakeInstance,
-          degenBoxAddress,
-          this.account,
-          true
-        );
-
         stakeTokenApproved = await isTokenApprowed(
           stakeInstance,
-          degenBoxAddress,
+          mainInstance.address,
           this.account,
           true
-        );
-
-        mainTokenApproved = await isTokenApprowed(
-          mainInstance,
-          degenBoxAddress,
-          this.account,
-          true
-        );
-
-        mcApproved = await degenBoxContract.masterContractApproved(
-          masterContract,
-          this.account
         );
       }
 
       return {
         mainTokenBalance,
         stakeTokenBalance,
-        isDegenboxApproved,
-        stakeTokenApproved,
-        mainTokenApproved,
-        mcApproved
+        stakeTokenApproved
       };
     },
   },
