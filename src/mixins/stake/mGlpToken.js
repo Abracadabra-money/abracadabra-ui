@@ -66,6 +66,8 @@ export default {
         this.userSigner
       );
 
+      const tokensRate = await this.getTokensRate(mainTokenInstance, stakeTokenInstance);
+
       const oracleContract = await new this.$ethers.Contract(
         oracle.address,
         JSON.stringify(oracle.abi),
@@ -102,6 +104,7 @@ export default {
       const totalSupplyUsd = totalSupply * this.price;
 
       const stakeObject = {
+        tokensRate,
         mainToken: {
           ...mainToken,
           contractInstance: mainTokenInstance,
@@ -124,6 +127,19 @@ export default {
 
       this.setMGlpStakingObj(stakeObject);
       this.setLoadingMGlpStake(false);
+    },
+
+    async getTokensRate(mainTokenInstance, stakeTokenInstance) {
+    
+      const mGlpBalance = await stakeTokenInstance.balanceOf(mainTokenInstance.address);
+      const totalSupply = await mainTokenInstance.totalSupply();
+    
+      const parsedBalance = this.$ethers.utils.formatEther(mGlpBalance.toString());
+      const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
+    
+      const tokenRate = parsedBalance / parsedTotalSupply;
+    
+      return tokenRate;
     },
 
     async getUserInfo(stakeInstance, mainInstance) {

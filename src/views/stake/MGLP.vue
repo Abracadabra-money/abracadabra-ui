@@ -138,7 +138,7 @@
                 src="@/assets/images/glp/mGlpNew.png"
                 alt="mGlp icon"
               />
-              <span>1 magicGLP = 1 GLP</span>
+              <span>1 magicGLP = {{ tokensRate }} GLP</span>
             </div>
           </div>
           <div class="balance-row">
@@ -326,13 +326,21 @@ export default {
       return this.isActionApproved;
     },
 
+    tokensRate() {
+      const amount = 1 / this.tokensInfo.tokensRate;
+      return Vue.filter("formatToFixed")(amount, 2);
+    },
+
     toTokenAmount() {
       if (!this.amount || !this.tokensInfo) return "";
 
-      if (this.action === "Stake")
-        return Vue.filter("formatToFixed")(this.amount, 6);
-
-      return Vue.filter("formatToFixed")(this.amount, 6);
+      if (this.action === "Stake") {
+        const amount = this.amount / this.tokensInfo.tokensRate;
+        return Vue.filter("formatToFixed")(amount, 6);
+      }
+        
+      const amount = this.amount * this.tokensInfo.tokensRate;
+        return Vue.filter("formatToFixed")(amount, 6);
     },
 
     disableActionBtn() {
