@@ -54,11 +54,11 @@
           </BaseButton>
         </div>
         <p class="profile-subscribtion">
-          Enjoy amplified yield though abracadabra leverage
+          Enjoy Amplified Yield through Abracadabra Leverage Engine
           <router-link
             class="link"
             :to="{ name: 'Leverage', params: { id: 3 } }"
-            >here</router-link
+            >here.</router-link
           >
         </p>
       </div>
