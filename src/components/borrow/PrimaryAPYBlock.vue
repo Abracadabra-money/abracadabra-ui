@@ -5,7 +5,9 @@
       <img class="coins-img" src="@/assets/images/coins.png" alt="" />
       <div>
         <p class="title">{{ title }}</p>
-        <p class="value" v-if="apy">{{ isTilde }} {{ calculateApy }} %</p>
+        <p class="value" v-if="selfRepayingAPY">
+          {{ isTilde }} {{ calculateApy }} %
+        </p>
         <div class="loader-wrap" v-else>
           <p class="loader"></p>
         </div>
@@ -15,9 +17,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { getGlpApr } from "@/helpers/glpApr";
-import { getGlpApy } from "@/helpers/glpAprChart";
+import { mapGetters } from "vuex";
 export default {
   props: {
     expectedLeverage: {
@@ -28,7 +29,7 @@ export default {
   data() {
     return {
       title: "Collateral APY",
-      apy: "",
+      selfRepayingAPY: "",
     };
   },
 
@@ -36,13 +37,18 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     calculateApy() {
+      let apy = null;
       if (+this.expectedLeverage)
-        return parseFloat(+this.apy * +this.expectedLeverage).toFixed(2);
-      else return parseFloat(this.apy).toFixed(2);
+        apy = parseFloat(
+          +this.selfRepayingAPY * +this.expectedLeverage
+        ).toFixed(2);
+      else apy = parseFloat(this.selfRepayingAPY).toFixed(2);
+
+      return apy;
     },
 
     isTilde() {
-      return this.apy < this.calculateApy ? "~" : "";
+      return this.selfRepayingAPY < this.calculateApy ? "~" : "";
     },
 
     isMagicGlp() {
@@ -50,25 +56,17 @@ export default {
     },
   },
 
-  methods: {
-    async getApy() {
-      this.apy = "";
-      const apy = this.isMagicGlp
-        ? await getGlpApy()
-        : await getGlpApr(this.isMagicGlp);
-
-      this.apy = parseFloat(apy).toFixed(2);
-    },
-  },
-
   watch: {
     async $route() {
-      await this.getApy();
-    },
+      this.selfRepayingAPY = "";
+      const selfRepayingAPY = await getGlpApr(this.isMagicGlp);
+      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+    }
   },
 
   async created() {
-    await this.getApy();
+    const selfRepayingAPY = await getGlpApr(this.isMagicGlp);
+    this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
   },
 };
 </script>

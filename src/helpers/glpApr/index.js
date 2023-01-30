@@ -59,7 +59,7 @@ const getGlpApr = async (whithoutFee = false) => {
   const glpAprTotal = glpAprForNativeToken.add(glpAprForEsGmx);
   const parseAmount = formatAmount(glpAprTotal, 2, 2, true);
 
-  if(whithoutFee) return parseAmount;
+  if(whithoutFee) return parseAmount - 1;
 
   const feePercent = await getFeePercent();
 
