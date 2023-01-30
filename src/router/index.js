@@ -40,8 +40,8 @@ const routes = [
     component: () => import("@/views/stake/MSpell"),
   },
   {
-    path: "/mGLP",
-    name: "mGLP",
+    path: "/magicGLP",
+    name: "magicGLP",
     component: () => import("@/views/stake/MGLP"),
   },
   {

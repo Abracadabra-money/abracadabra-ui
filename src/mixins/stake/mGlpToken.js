@@ -10,7 +10,7 @@ export default {
       price: null,
       stakeInfo: {
         mainToken: {
-          name: "mGLP",
+          name: "magicGLP",
           address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
           decimals: 18,
           abi: tokensAbi.magicGLP,

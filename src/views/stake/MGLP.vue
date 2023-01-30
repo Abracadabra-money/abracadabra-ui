@@ -138,7 +138,7 @@
                 src="@/assets/images/glp/mGlp.png"
                 alt="mGlp icon"
               />
-              <span>1 mGLP = 1 sGLP</span>
+              <span>1 magicGLP = 1 sGLP</span>
             </div>
           </div>
           <div class="balance-row">
@@ -166,10 +166,10 @@
                   :icon="require('@/assets/images/tokens/mGLP.png')"
                   size="60px"
                 />
-                <span class="token-icon-name">mGLP</span>
+                <span class="token-icon-name">magicGLP</span>
               </div>
               <div>
-                <p class="token-title">mGLP</p>
+                <p class="token-title">magicGLP</p>
                 <p class="token-balance">
                   {{ mainToken.balance | formatTokenBalance }}
                 </p>
@@ -190,7 +190,7 @@
                   :icon="require('@/assets/images/tokens/mGLP.png')"
                   size="40px"
                 />
-                <span>mGLP</span>
+                <span>magicGLP</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
@@ -395,7 +395,7 @@ export default {
 
       return false;
     },
-    
+
     async actionHandler() {
       if (!+this.amount || this.amountError || !this.isActionApproved)
         return false;
