@@ -445,7 +445,11 @@ export default {
 
     async query0x(buyToken, sellToken, slippage = 0, amountSell, takerAddress) {
       const slippagePercentage = slippage / 100;
-      const url = "https://api.0x.org/swap/v1/quote";
+
+      const url =
+        this.chainId === 42161
+          ? "https://arbitrum.api.0x.org/swap/v1/quote"
+          : "https://api.0x.org/swap/v1/quote";
 
       const params = {
         buyToken: buyToken,
@@ -2449,6 +2453,10 @@ export default {
     ) {
       const { lpAddress, tokenWrapper } = pool.lpLogic;
 
+      const collateralAddr = isWrap ? lpAddress : pool.collateralToken.address;
+      console.log("isWRAP", isWrap);
+      console.log("collateralAddr", collateralAddr);
+
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -2489,26 +2497,26 @@ export default {
       //20 deposit in degenbox
       const getDepositEncode1 = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "int256", "int256"],
-        [lpAddress, this.account, collateralAmount, "0"]
+        [collateralAddr, this.account, collateralAmount, "0"]
       );
 
       eventsArray.push(20);
       valuesArray.push(0);
       datasArray.push(getDepositEncode1);
 
-      //21 withdraw to token wrapper
-      const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "int256", "int256"],
-        [lpAddress, tokenWrapper, collateralAmount, "0"]
-      );
-
-      eventsArray.push(21);
-      valuesArray.push(0);
-      datasArray.push(bentoWithdrawEncode);
-
       // 30 wrap and deposit to cauldron
       if (isWrap) {
         try {
+          //21 withdraw to token wrapper
+          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [collateralAddr, tokenWrapper, collateralAmount, "0"]
+          );
+
+          eventsArray.push(21);
+          valuesArray.push(0);
+          datasArray.push(bentoWithdrawEncode);
+
           const wrapStaticTx =
             await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
               pool.contractInstance.address,
@@ -2604,16 +2612,16 @@ export default {
       };
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: collateralValue,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -2621,7 +2629,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit,
+            gasLimit: 5000000,
           }
         );
 
