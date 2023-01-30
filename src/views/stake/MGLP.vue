@@ -80,7 +80,9 @@
               <div class="chart-apt">
                 <img src="@/assets/images/glp/chart-apr.png" alt="" />
                 <span class="chart-apt-text">est. APR</span>
-                <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
+                <span class="chart-apt-percent" v-if="apy"
+                  >{{ chartApr }}%</span
+                >
                 <div class="loader-wrap-mini" v-else>
                   <p class="loader"></p>
                 </div>
@@ -264,9 +266,8 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const TickChart = () => import("@/components/ui/TickChart");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-import { getGlpApr } from "@/helpers/glpApr";
 import { approveToken } from "@/utils/approveHelpers";
-import getGlpAprChart from "@/helpers/glpAprChart";
+import { getGlpChartApr } from "@/helpers/glpAprChart";
 import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -344,6 +345,10 @@ export default {
       return this.totalRewards
         ? +this.totalRewardsEarned * +this.tokensInfo.ethPrice
         : 0;
+    },
+
+    chartApr() {
+      return this.apy ? parseFloat(this.apy).toFixed(2) : null;
     },
   },
 
@@ -505,13 +510,14 @@ export default {
     async createChartData(time = 3) {
       const labels = [];
       const tickUpper = [];
-      const data = await getGlpAprChart(time);
+      const data = await getGlpChartApr(time);
       data.forEach((element) => {
         labels.push(moment.unix(element.timestamp).format("DD.MM"));
         tickUpper.push(element.glpApr);
       });
 
       this.chartData = { labels, tickUpper };
+      this.apy = this.chartData.tickUpper[this.chartData.tickUpper.length - 1];
     },
 
     async changeChartTime(time) {
@@ -686,13 +692,8 @@ export default {
 
     await this.createChartData(this.chartActiveBtn);
 
-    const apy = await getGlpApr(true);
-    this.apy = parseFloat(apy - 1).toFixed(2);
-
     this.chartInterval = setInterval(async () => {
       await this.createChartData(this.chartActiveBtn);
-      const apy = await getGlpApr(true);
-      this.apy = parseFloat(apy - 1).toFixed(2);
     }, 60000);
   },
 
