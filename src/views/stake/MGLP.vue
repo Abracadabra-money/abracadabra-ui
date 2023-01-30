@@ -80,9 +80,7 @@
               <div class="chart-apt">
                 <img src="@/assets/images/glp/chart-apr.png" alt="" />
                 <span class="chart-apt-text">est. APR</span>
-                <span class="chart-apt-percent" v-if="apy"
-                  >{{ apy }}%</span
-                >
+                <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
                 <div class="loader-wrap-mini" v-else>
                   <p class="loader"></p>
                 </div>
@@ -216,8 +214,10 @@
                 <span>ETH</span>
               </div>
               <div class="info-balance">
-                <span class="info-value">45,096.44</span>
-                <span class="info-usd">$3,223,111.33</span>
+                <span class="info-value">{{
+                  totalRewardsEarned | formatTokenBalance
+                }}</span>
+                <span class="info-usd">${{ totalRewardsUsd }}</span>
               </div>
             </div>
           </div>
@@ -254,6 +254,7 @@
 </template>
 <script>
 import Vue from "vue";
+import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
 const NetworksList = () => import("@/components/ui/NetworksList");
@@ -283,6 +284,7 @@ export default {
       chartInterval: null,
       apy: "",
       gasLimitConst: 1000,
+      totalRewards: null,
     };
   },
 
@@ -332,6 +334,16 @@ export default {
     disableActionBtn() {
       if (!this.isActionApproved) return true;
       return !!(!+this.amount || this.amountError);
+    },
+
+    totalRewardsEarned() {
+      return this.totalRewards ? this.totalRewards?.total : 0;
+    },
+
+    totalRewardsUsd() {
+      return this.totalRewards
+        ? +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+        : 0;
     },
   },
 
@@ -384,7 +396,8 @@ export default {
     },
 
     async actionHandler() {
-      if (!+this.amount || this.amountError || !this.isActionApproved) return false;
+      if (!+this.amount || this.amountError || !this.isActionApproved)
+        return false;
       await this.createCook();
     },
 
@@ -435,10 +448,9 @@ export default {
         // const share = await degenbox.contract.toShare(this.fromToken.address, amount, false);
 
         // 30 wrap or unwrap and deposit to cauldron
-        const swapStaticTx = await wrapper.contract.populateTransaction[methodName](
-          this.account,
-          amount
-        );
+        const swapStaticTx = await wrapper.contract.populateTransaction[
+          methodName
+        ](this.account, amount);
 
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
@@ -507,7 +519,6 @@ export default {
       await this.createChartData(time);
     },
 
-    // --------------------
     async getApprovalEncode(
       approved = true,
       // useHelper = false,
@@ -651,9 +662,23 @@ export default {
         return false;
       }
     },
+
+    async getTotalRewards() {
+      try {
+        const response = await axios.get(
+          "https://analytics.abracadabra.money/api/mglp"
+        );
+
+        this.totalRewards = response.data;
+      } catch (error) {
+        console.log("Get Total Rewards Error", error);
+      }
+    },
   },
 
   async created() {
+    await this.getTotalRewards();
+
     await this.createStakePool();
     this.updateInterval = setInterval(async () => {
       await this.createStakePool();
@@ -906,8 +931,12 @@ export default {
 .balance-row,
 .info-block {
   display: grid;
-  grid-template-columns: 1fr 33px 1fr;
+  grid-template-columns: 1fr 1fr;
   text-align: left;
+}
+
+.info-block {
+  grid-template-columns: 1fr 33px 1fr;
 }
 
 .balance-token {

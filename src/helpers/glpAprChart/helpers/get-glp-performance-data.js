@@ -9,7 +9,6 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
   const ethPrices = await getCoingeckoPrice("ETH", { from });
   const avaxPrices = await getCoingeckoPrice("AVAX", { from });
 
-  console.log(glpData);
   const glpDataById = glpData.reduce((memo, item) => {
     memo[item.timestamp] = item;
     return memo;
@@ -56,7 +55,6 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
 
     const timestampGroup = parseInt(btcPrices[i].timestamp / 86400) * 86400;
 
-    console.log(glpDataById);
     const glpItem = glpDataById[timestampGroup] || lastGlpItem;
     lastGlpItem = glpItem;
 
