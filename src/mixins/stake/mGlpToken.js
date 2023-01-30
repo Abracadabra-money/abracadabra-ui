@@ -14,7 +14,7 @@ export default {
           address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
           decimals: 18,
           abi: tokensAbi.magicGLP,
-          icon: require("@/assets/images/tokens/mGLP.png"),
+          icon: require("@/assets/images/tokens/mGlpToken.png"),
         },
         stakeToken: {
           name: "GLP",

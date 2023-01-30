@@ -135,7 +135,7 @@
             <div class="balance-ratio">
               <img
                 class="balance-ratio-icon"
-                src="@/assets/images/glp/mGlp.png"
+                src="@/assets/images/glp/mGlpNew.png"
                 alt="mGlp icon"
               />
               <span>1 magicGLP = 1 GLP</span>
@@ -163,7 +163,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGLP.png')"
+                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">magicGLP</span>
@@ -187,7 +187,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGLP.png')"
+                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
                   size="40px"
                 />
                 <span>magicGLP</span>
