@@ -75,11 +75,11 @@
       <template v-else>
         <div class="wrap wrap-chart" v-if="chartData">
           <div class="chart-row">
-            <h1 class="chart-title">APR Chart</h1>
+            <h1 class="chart-title">APY Chart</h1>
             <div class="chart-apt-wrap">
               <div class="chart-apt">
                 <img src="@/assets/images/glp/chart-apr.png" alt="" />
-                <span class="chart-apt-text">est. APR</span>
+                <span class="chart-apt-text">est. APY</span>
                 <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
                 <div class="loader-wrap-mini" v-else>
                   <p class="loader"></p>
@@ -349,12 +349,12 @@ export default {
     },
 
     totalRewardsEarned() {
-      return this.totalRewards ? this.totalRewards?.total : 0;
+      return this.totalRewards ? this.$ethers.utils.formatEther(this.totalRewards?.total) : 0;
     },
 
     totalRewardsUsd() {
       return this.totalRewards
-        ? +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+        ? parseFloat(+this.totalRewardsEarned * +this.tokensInfo.ethPrice).toFixed(2)
         : 0;
     },
   },
