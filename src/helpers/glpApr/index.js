@@ -61,8 +61,7 @@ const getGlpApr = async (itsMagic = false) => {
   const parseAmount = formatAmount(glpAprTotal, 2, 2, true);
 
   if(itsMagic) {
-    const fee = await getMagicFeePercent() / 10000;;
-    console.log("here", fee)
+    const fee = await getMagicFeePercent() / 10000;
     return ((Math.pow((1 + ((parseAmount/100) / 730)), 730) -1) * 100) * (1 - fee);
   } 
 

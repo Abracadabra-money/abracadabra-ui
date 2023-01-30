@@ -87,7 +87,7 @@ export default {
         labels: this.labels,
         datasets: [
           {
-            label: "APR",
+            label: "APY",
             data: this.tickUpper,
             borderColor: "#73b6f6 ",
             pointBackgroundColor: "#73b6f6",
