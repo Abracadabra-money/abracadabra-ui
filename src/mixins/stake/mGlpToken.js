@@ -119,10 +119,13 @@ export default {
         isDegenboxApproved,
         stakeTokenApproved,
         mainTokenApproved,
+        mcApproved
       } = await this.getUserInfo(
         stakeTokenInstance,
         mainTokenInstance,
-        degenBoxAddress
+        degenBoxAddress,
+        degenBoxContract,
+        masterContractAddress
       );
 
       const mainTokenBalanceUsd = mainTokenBalance * this.price;
@@ -164,6 +167,7 @@ export default {
           contract: cauldronContract,
         },
         masterContractAddress,
+        mcApproved,
         ethPrice,
       };
 
@@ -171,12 +175,13 @@ export default {
       this.setLoadingMGlpStake(false);
     },
 
-    async getUserInfo(stakeInstance, mainInstance, degenBoxAddress) {
+    async getUserInfo(stakeInstance, mainInstance, degenBoxAddress, degenBoxContract, masterContract) {
       let stakeTokenBalance = 0;
       let mainTokenBalance = 0;
       let isDegenboxApproved,
         stakeTokenApproved,
-        mainTokenApproved = false;
+        mainTokenApproved,
+        mcApproved = false;
 
       if (this.account) {
         const stakeTokenBalanceHex = await stakeInstance.balanceOf(
@@ -211,6 +216,11 @@ export default {
           this.account,
           true
         );
+
+        mcApproved = await degenBoxContract.masterContractApproved(
+          masterContract,
+          this.account
+        );
       }
 
       return {
@@ -219,6 +229,7 @@ export default {
         isDegenboxApproved,
         stakeTokenApproved,
         mainTokenApproved,
+        mcApproved
       };
     },
   },

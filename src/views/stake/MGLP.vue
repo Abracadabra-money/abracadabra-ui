@@ -414,20 +414,22 @@ export default {
         const eventsArray = [];
         const valuesArray = [];
         const datasArray = [];
-        const { wrapper, cauldron } = this.tokensInfo;
+        const { wrapper, cauldron, mcApproved } = this.tokensInfo;
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         const methodName = this.action === "Stake" ? "wrap" : "unwrap";
 
-        const approvalEncode = await this.getApprovalEncode();
+        if (!mcApproved) {
+          const approvalEncode = await this.getApprovalEncode();
 
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract();
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
+          if (approvalEncode === "ledger") {
+            const approvalMaster = await this.approveMasterContract();
+            if (!approvalMaster) return false;
+          } else {
+            eventsArray.push(24);
+            valuesArray.push(0);
+            datasArray.push(approvalEncode);
+          }
         }
 
         // 20 deposit in degenbox
