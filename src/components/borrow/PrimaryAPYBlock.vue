@@ -5,9 +5,7 @@
       <img class="coins-img" src="@/assets/images/coins.png" alt="" />
       <div>
         <p class="title">{{ title }}</p>
-        <p class="value" v-if="selfRepayingAPY">
-          {{ isTilde }} {{ selfRepayingAPY }} %
-        </p>
+        <p class="value" v-if="apy">{{ isTilde }} {{ calculateApy }} %</p>
         <div class="loader-wrap" v-else>
           <p class="loader"></p>
         </div>
@@ -17,8 +15,9 @@
 </template>
 
 <script>
-import { getGlpApy } from "@/helpers/glpAprChart";
 import { mapGetters } from "vuex";
+import { getGlpApr } from "@/helpers/glpApr";
+import { getGlpApy } from "@/helpers/glpAprChart";
 export default {
   props: {
     expectedLeverage: {
@@ -29,15 +28,21 @@ export default {
   data() {
     return {
       title: "Collateral APY",
-      selfRepayingAPY: "",
+      apy: "",
     };
   },
 
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
 
+    calculateApy() {
+      if (+this.expectedLeverage)
+        return parseFloat(+this.apy * +this.expectedLeverage).toFixed(2);
+      else return parseFloat(this.apy).toFixed(2);
+    },
+
     isTilde() {
-      return this.selfRepayingAPY < this.calculateApy ? "~" : "";
+      return this.apy < this.calculateApy ? "~" : "";
     },
 
     isMagicGlp() {
@@ -45,17 +50,25 @@ export default {
     },
   },
 
+  methods: {
+    async getApy() {
+      this.apy = "";
+      const apy = this.isMagicGlp
+        ? await getGlpApy()
+        : await getGlpApr(this.isMagicGlp);
+
+      this.apy = parseFloat(apy).toFixed(2);
+    },
+  },
+
   watch: {
     async $route() {
-      this.selfRepayingAPY = "";
-      const selfRepayingAPY = await getGlpApy();
-      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+      await this.getApy();
     },
   },
 
   async created() {
-    const selfRepayingAPY = await getGlpApy();
-    this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+    await this.getApy();
   },
 };
 </script>
