@@ -150,7 +150,7 @@ export default [
       defaultToken: false,
       lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       lpAbi: tokensAbi.sGLP,
-      tokenWrapper: "0x3c34bC7c7461fc9AF1E5511C0636c07F129B4187",
+      tokenWrapper: "0x565adE5536Ab84018e00d6d7f56E7a300717c10b",
       tokenWrapperAbi: degenBoxERC4626Wrapper,
     },
     pairToken: {

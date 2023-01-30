@@ -640,13 +640,9 @@ export default {
       isLpLogic = false,
       isWrap = false
     ) {
-
-      const lpAddress = pool?.lpLogic?.lpAddress;
-      const collateralAddr = isWrap ? lpAddress : pool.collateralToken.address;
-
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : collateralAddr;
+        : pool.collateralToken.address;
 
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
@@ -870,13 +866,9 @@ export default {
       isLpLogic = false,
       isWrap = false
     ) {
-
-      const lpAddress = pool?.lpLogic?.lpAddress;
-      const collateralAddr = isWrap ? lpAddress : pool.collateralToken.address;
-
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : collateralAddr;
+        : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance ? amount.toString() : 0;
 
       const userAddr = this.account;
@@ -2542,20 +2534,30 @@ export default {
           eventsArray.push(30);
           valuesArray.push(0);
           datasArray.push(lpCallEncode);
+
+          //10 add collateral
+          const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+            ["int256", "address", "bool"],
+            ["-2", this.account, true]
+          );
+
+          eventsArray.push(10);
+          valuesArray.push(0);
+          datasArray.push(getCollateralEncode2);
         } catch (error) {
           console.log("Error wrap and deposit to cauldron", error);
         }
+      } else {
+        //10 add collateral
+        const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256", "address", "bool"],
+          ["-2", this.account, false]
+        );
+
+        eventsArray.push(10);
+        valuesArray.push(0);
+        datasArray.push(getCollateralEncode2);
       }
-
-      //10 add collateral
-      const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address", "bool"],
-        ["-2", this.account, true]
-      );
-
-      eventsArray.push(10);
-      valuesArray.push(0);
-      datasArray.push(getCollateralEncode2);
 
       //5 Borrow
       const getBorrowSwapperEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
