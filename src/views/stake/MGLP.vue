@@ -224,8 +224,10 @@
         </div>
         <p class="profile-subscribtion">
           Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your GLP into MagicGLP and let it do its
+          tedious work! Simply deposit your sGLP into MagicGLP and let it do its
           magic!
+          <br />
+          Note: A protocol 1% fee it taken on the profits.
         </p>
         <div class="links-wrap">
           <a
@@ -305,7 +307,8 @@ export default {
     },
 
     isActionApproved() {
-      if (this.action === "Stake") return !!this.tokensInfo?.stakeToken.isApproved;
+      if (this.action === "Stake")
+        return !!this.tokensInfo?.stakeToken.isApproved;
       return true;
     },
 
@@ -411,7 +414,7 @@ export default {
     async stake() {
       const { pending, success } = notification;
       const notificationId = await this.createNotification(pending);
-      
+
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
@@ -456,7 +459,7 @@ export default {
     async unstake() {
       const { pending, success } = notification;
       const notificationId = await this.createNotification(pending);
-      
+
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
