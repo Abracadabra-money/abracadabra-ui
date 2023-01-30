@@ -327,8 +327,8 @@ export default {
     },
 
     tokensRate() {
-      const amount = 1 / this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 2);
+      const amount = 1 * this.tokensInfo.tokensRate;
+      return Vue.filter("formatToFixed")(amount, 4);
     },
 
     toTokenAmount() {
