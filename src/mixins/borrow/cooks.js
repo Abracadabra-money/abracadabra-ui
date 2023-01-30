@@ -637,11 +637,17 @@ export default {
       isApprowed,
       pool,
       notificationId,
-      isLpLogic = false
+      isLpLogic = false,
+      isWrap = false
     ) {
+
+      const lpAddress = pool?.lpLogic?.lpAddress;
+      const collateralAddr = isWrap ? lpAddress : pool.collateralToken.address;
+
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.collateralToken.address;
+        : collateralAddr;
+
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -690,7 +696,7 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      if (isLpLogic) {
+      if (isLpLogic && isWrap) {
         const {
           lpCollateralAndBorrowEventsArray,
           lpCollateralAndBorrowValuesArray,
@@ -861,11 +867,16 @@ export default {
       isApprowed,
       pool,
       notificationId,
-      isLpLogic = false
+      isLpLogic = false,
+      isWrap = false
     ) {
+
+      const lpAddress = pool?.lpLogic?.lpAddress;
+      const collateralAddr = isWrap ? lpAddress : pool.collateralToken.address;
+
       const tokenAddr = itsDefaultBalance
         ? this.defaultTokenAddress
-        : pool.collateralToken.address;
+        : collateralAddr;
       const collateralValue = itsDefaultBalance ? amount.toString() : 0;
 
       const userAddr = this.account;
@@ -911,7 +922,7 @@ export default {
         datasArray.push(updateEncode);
       }
 
-      if (isLpLogic) {
+      if (isLpLogic && isWrap) {
         const {
           lpCollateralEventsArray,
           lpCollateralValuesArray,
