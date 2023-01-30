@@ -11,11 +11,12 @@ const {
   getBalanceAndSupplyData,
   bigNumberify,
   getFeePercent,
+  getMagicFeePercent
 } = require("./helpers");
 
 const { expandDecimals, formatAmount } = require("./utils");
 
-const getGlpApr = async (whithoutFee = false) => {
+const getGlpApr = async (itsMagic = false) => {
   const stakingData = await getStakingData();
   const aum = await getAum();
   const gmxPrice = await getGmxPrice();
@@ -59,7 +60,11 @@ const getGlpApr = async (whithoutFee = false) => {
   const glpAprTotal = glpAprForNativeToken.add(glpAprForEsGmx);
   const parseAmount = formatAmount(glpAprTotal, 2, 2, true);
 
-  if(whithoutFee) return ((Math.pow((1 + ((parseAmount/100) / 730)), 730) -1) * 100) * 0.99;
+  if(itsMagic) {
+    const fee = await getMagicFeePercent() / 10000;;
+    console.log("here", fee)
+    return ((Math.pow((1 + ((parseAmount/100) / 730)), 730) -1) * 100) * (1 - fee);
+  } 
 
   const feePercent = await getFeePercent();
 

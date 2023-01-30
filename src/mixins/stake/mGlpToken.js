@@ -3,12 +3,17 @@ import { mapGetters, mapMutations } from "vuex";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import { isTokenApprowed } from "@/utils/approveHelpers";
 import chainLinkAbi from "@/utils/abi/chainLink";
+import MagicGlpHarvestorAbi from "@/utils/abi/MagicGlpHarvestor";
 
 export default {
   data() {
     return {
       price: null,
       stakeInfo: {
+        harvester: {
+          address: "0x588d402C868aDD9053f8F0098c2DC3443c991d17",
+          abi: MagicGlpHarvestorAbi
+        },
         mainToken: {
           name: "magicGLP",
           address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
@@ -51,7 +56,7 @@ export default {
     async createStakePool() {
       if (this.chainId !== 42161) return !!this.setLoadingMGlpStake(false);
 
-      const { mainToken, stakeToken, oracle } =
+      const { mainToken, stakeToken, oracle, harvester } =
         this.stakeInfo;
 
       const mainTokenInstance = await new this.$ethers.Contract(
@@ -67,6 +72,14 @@ export default {
       );
 
       const tokensRate = await this.getTokensRate(mainTokenInstance, stakeTokenInstance);
+
+      const harvesterInstance = await new this.$ethers.Contract(
+        harvester.address,
+        JSON.stringify(harvester.abi),
+        this.userSigner
+      );
+
+      const feePercent = await harvesterInstance.feePercentBips() / 10000; // to percent
 
       const oracleContract = await new this.$ethers.Contract(
         oracle.address,
@@ -105,6 +118,7 @@ export default {
 
       const stakeObject = {
         tokensRate,
+        feePercent,
         mainToken: {
           ...mainToken,
           contractInstance: mainTokenInstance,

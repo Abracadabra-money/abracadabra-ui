@@ -13,6 +13,8 @@ module.exports.weth = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
 module.exports.nativeToken = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
 module.exports.GmxGlpWrapperAddress =
   "0x3477Df28ce70Cecf61fFfa7a95be4BEC3B3c7e75";
+module.exports.MagicGlpHarvestorAddress =
+  "0x588d402C868aDD9053f8F0098c2DC3443c991d17";
 
 module.exports.rewardTrackersForStakingInfo = [
   "0x908C4D94D34924765f1eDc22A1DD098397c59dD4",
