@@ -17,7 +17,7 @@ export default {
           icon: require("@/assets/images/tokens/mGLP.png"),
         },
         stakeToken: {
-          name: "sGLP",
+          name: "GLP",
           address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
           decimals: 18,
           abi: tokensAbi.sGLP,

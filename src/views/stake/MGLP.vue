@@ -138,7 +138,7 @@
                 src="@/assets/images/glp/mGlp.png"
                 alt="mGlp icon"
               />
-              <span>1 magicGLP = 1 sGLP</span>
+              <span>1 magicGLP = 1 GLP</span>
             </div>
           </div>
           <div class="balance-row">
@@ -148,10 +148,10 @@
                   :icon="require('@/assets/images/tokens/GLP.png')"
                   size="60px"
                 />
-                <span class="token-icon-name">sGLP</span>
+                <span class="token-icon-name">GLP</span>
               </div>
               <div>
-                <p class="token-title">sGLP</p>
+                <p class="token-title">GLP</p>
                 <p class="token-balance">
                   {{ stakeToken.balance | formatTokenBalance }}
                 </p>
@@ -224,7 +224,7 @@
         </div>
         <p class="profile-subscribtion">
           Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your sGLP into MagicGLP and let it do its
+          tedious work! Simply deposit your GLP into MagicGLP and let it do its
           magic!
         </p>
         <div class="links-wrap">
