@@ -227,7 +227,7 @@
           tedious work! Simply deposit your sGLP into MagicGLP and let it do its
           magic!
           <br />
-          Note: A protocol 1% fee it taken on the profits.
+          Note: A 1% protocol fee is taken on the profits.
         </p>
         <div class="links-wrap">
           <a
