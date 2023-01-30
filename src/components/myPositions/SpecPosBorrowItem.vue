@@ -151,8 +151,11 @@ export default {
     pool: { type: Object, required: true },
   },
   computed: {
+    chainId() {
+      return this.$store.getChainId;
+    },
     tokenName() {
-      return this.pool?.lpLogic
+      return this.chainId === 42161 && this.pool?.id === 2
         ? this.pool.lpLogic.name
         : this.pool.collateralToken.name;
     },

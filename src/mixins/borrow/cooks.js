@@ -2623,16 +2623,16 @@ export default {
       };
 
       try {
-        // const estimateGas = await pool.contractInstance.estimateGas.cook(
-        //   cookData.events,
-        //   cookData.values,
-        //   cookData.datas,
-        //   {
-        //     value: collateralValue,
-        //   }
-        // );
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: collateralValue,
+          }
+        );
 
-        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -2640,7 +2640,7 @@ export default {
           cookData.datas,
           {
             value: collateralValue,
-            gasLimit: 5000000,
+            gasLimit,
           }
         );
 
