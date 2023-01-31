@@ -1109,28 +1109,6 @@ export default {
           ["address", "address", "int256", "int256"],
           [pairToken, userAddr, amount.sub("1"), "0x0"]
         );
-<<<<<<< HEAD
-=======
-
-        eventsArray.push(21);
-        valuesArray.push(0);
-        datasArray.push(bentoWithdrawEncode);
-      }
-
-      if (isApprowed && this.cookHelper) {
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          firstSignAdded
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(removeApprovalEncode);
-        }
-      }
->>>>>>> 71bcade74b1878676cf0293d28672d3ae8d54571
 
         eventsArray.push(21);
         valuesArray.push(0);
@@ -1223,7 +1201,6 @@ export default {
           "0",
           amount
         );
-<<<<<<< HEAD
 
         lpRemoveCollateralEventsArray.push(30);
         lpRemoveCollateralValuesArray.push(0);
@@ -1236,20 +1213,6 @@ export default {
           [pool.collateralToken.address, tokenWrapper, "0", amount]
         );
 
-=======
-
-        lpRemoveCollateralEventsArray.push(30);
-        lpRemoveCollateralValuesArray.push(0);
-        lpRemoveCollateralDatasArray.push(withdrawEncode);
-      } else {
-        // 21 withdraw to token wrapper
-
-        const lpBentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pool.collateralToken.address, tokenWrapper, "0", amount]
-        );
-
->>>>>>> 71bcade74b1878676cf0293d28672d3ae8d54571
         lpRemoveCollateralEventsArray.push(21);
         lpRemoveCollateralValuesArray.push(0);
         lpRemoveCollateralDatasArray.push(lpBentoWithdrawEncode);
@@ -2679,7 +2642,7 @@ export default {
       const eventsArray = [];
       const valuesArray = [];
       const datasArray = [];
-      
+
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
