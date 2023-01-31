@@ -40,6 +40,15 @@ export const notificationErrorMsg = (e) => {
       "Looks like your transaction is likely to fail due to slippage settings, please increase your slippage!";
   }
 
+  if (
+    String(e).indexOf("RewardTracker: burn amount exceeds balance") !== -1 ||
+    e?.data?.message === "execution reverted: RewardTracker: burn amount exceeds balance" ||
+    e?.message === "execution reverted: RewardTracker: burn amount exceeds balance"
+  ) {
+    msg =
+      "Some of your GLP tokens are reserved for vesting on gmx. Please insert the amount that is not reserved for vesting";
+  }
+
   if (!msg) msg = "Transaction encountered an Error";
 
   console.log(msg);
