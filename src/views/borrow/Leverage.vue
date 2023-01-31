@@ -70,9 +70,8 @@
       </div>
       <div class="info-block">
         <h1 class="title">Leverage farm</h1>
-
         <SimulationComparisonChart
-          v-if="isDevelopmentEnv"
+          v-if="true"
           :itsDefaultBalance="useDefaultBalance"
           :poolId="poolId"
           :pool="selectedPool"
@@ -158,6 +157,7 @@ const ApyBlock = () => import("@/components/borrow/ApyBlock");
 
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+const SimulationComparisonChart = () => import("@/components/leverage/SimulationComparisonChart");
 
 import Vue from "vue";
 
@@ -205,6 +205,7 @@ export default {
     }),
 
     isDevelopmentEnv() {
+      console.log(process.env.NODE_ENV === 'development');
       return process.env.NODE_ENV === "development";
     },
 
@@ -1094,6 +1095,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     ApyBlock,
+    SimulationComparisonChart,
   },
 };
 </script>
