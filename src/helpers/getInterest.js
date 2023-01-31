@@ -1,5 +1,3 @@
-import Vue from "vue";
-
 const getInterest = async (cauldron, interest) => {
   if (cauldron.accrueInfo) {
     const secondsInYear = 316880878;
@@ -8,7 +6,7 @@ const getInterest = async (cauldron, interest) => {
 
     if (!interesPerSecond) return interest;
 
-    return Vue.filter("formatToFixed")(interesPerSecond / secondsInYear, 2);
+    return +parseFloat(interesPerSecond / secondsInYear).toFixed(2);
   }
 
   return interest;
