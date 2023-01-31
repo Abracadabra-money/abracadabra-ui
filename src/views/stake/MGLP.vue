@@ -54,7 +54,7 @@
           </BaseButton>
         </div>
         <p class="profile-subscribtion">
-          Enjoy Amplified Yield through Abracadabra Leverage Engine
+          Amplify your yield with the Abracadabra Leverage Engine
           <router-link
             class="link"
             :to="{ name: 'Leverage', params: { id: 3 } }"
@@ -65,7 +65,7 @@
     </div>
 
     <div class="profile">
-      <h1 class="title">MagicGLP Dashboard</h1>
+      <h1 class="title">magicGLP</h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
       </div>
