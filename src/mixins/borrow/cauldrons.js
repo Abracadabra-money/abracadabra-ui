@@ -12,6 +12,7 @@ import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
+import { getInterest } from "@/helpers/getInterest";
 
 export default {
   computed: {
@@ -509,6 +510,11 @@ export default {
         }
       }
 
+      let interest = 0;
+      const poolInterest = await getInterest(poolContract);
+      if (poolInterest) interest = poolInterest;
+      if (!poolInterest && pool?.interest) interest = pool?.interest;
+
       let poolData = {
         name: pool.name,
         icon: pool.icon,
@@ -523,7 +529,7 @@ export default {
         totalCollateralShare,
         totalBorrow,
         stabilityFee: pool.stabilityFee,
-        interest: pool.interest,
+        interest,
         ltv: pool.ltv,
         tvl,
         borrowFee: pool.borrowFee,
