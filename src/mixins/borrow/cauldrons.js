@@ -510,7 +510,10 @@ export default {
         }
       }
 
-      const interest = await getInterest(poolContract, pool.interest);
+      let interest = 0;
+      const poolInterest = await getInterest(poolContract);
+      if (poolInterest) interest = poolInterest;
+      if (!poolInterest && pool?.interest) interest = pool?.interest;
 
       let poolData = {
         name: pool.name,
