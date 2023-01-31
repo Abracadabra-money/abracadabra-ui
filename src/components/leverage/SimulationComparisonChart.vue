@@ -1,161 +1,24 @@
 <template>
   <div class="stable-info">
-    <div class="info-wrap">
-      <div class="strategy">
-        <a
-          target="_blank"
-          rel="noreferrer noopener"
-          v-if="!!strategyLink"
-          :href="strategyLink"
-        >
-          <img src="@/assets/images/degenbox.svg" alt="degenbox" />
-          <span>Degenbox strategy</span>
-          <img src="@/assets/images/arrow_right.svg" alt="degenbox"
-        /></a>
-
-        <LockedTimer :finalTime="isLockedTimer" v-if="isLockedTimer" />
-        <MiniStatusTag :rounded="true" v-if="isMigrated"/>
-      </div>
-      <div class="deposit-wrap">
-        <button
-          class="deposit"
-          v-if="showCollateralLogicBtn"
-          @click="showCollateralPopup"
-        >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" />
-          {{ collateralTitle }}
-        </button>
-
-        <button
-          class="deposit"
-          v-if="showClaimCrvReward"
-          @click="handleClaimCrvReward"
-        >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Claim
-        </button>
-
-        <a
-          class="deposit"
-          href="https://app.sushi.com/add/ETH/0x130966628846BFd36ff31a822705796e8cb8C18D"
-          target="_blank"
-          rel="noreferrer noopener"
-          v-if="showAvaxSlpLink"
-        >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Get SLP
-          Tokens</a
-        >
-
-        <a
-          class="deposit"
-          href="https://stargate.finance/pool/USDC-ETH/add"
-          target="_blank"
-          rel="noreferrer noopener"
-          v-if="showStargateUSDC"
-        >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Get Stargate
-          USDC</a
-        >
-
-        <a
-          class="deposit"
-          href="https://stargate.finance/pool/USDT-ETH/add"
-          target="_blank"
-          rel="noreferrer noopener"
-          v-if="showStargateUSDT"
-        >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Stargate
-          USDT</a
-        >
-
-        <a
-          class="deposit"
-          href="https://yearn.finance/#/vault/0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E"
-          target="_blank"
-          rel="noreferrer noopener"
-          v-if="showyvcrvSTETHConcentrated"
-        >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Yearn
-          Tokens</a
-        >
-
-        <div
-          v-if="!!pool"
-          class="info-btn"
-          @click="isInfoPressed = !isInfoPressed"
-        >
-          <img class="info-icon" src="@/assets/images/info.svg" alt="info" />
-        </div>
-      </div>
-    </div>
-    <div class="stable-data">
-      <template v-if="!pool">
-        <div class="empty-wrap">
-          <img :src="emptyData.img" v-if="emptyData.img" alt="info" />
-          <div class="empty-text">
-            <p v-if="emptyData.text">
-              {{ emptyData.text }}
-            </p>
-            <p class="empty-bottom" v-if="emptyData.bottom">
-              {{ emptyData.bottom }}
-              <a
-                class="empty-link"
-                :href="emptyData.link"
-                v-if="emptyData.link"
-                target="_blank"
-                >here</a
+    <template>
+      <table class="stable-preview-table">
+        <thead>
+          <tr>
+            <td></td>
+            <td>Expected</td>
+            <td>
+              <button
+                v-tooltip="this.getToolTipMessage"
+                class="simulate-btn"
+                :class="{
+                  error: this.isSimulationError,
+                  disabled: this.isSimulateBtnDisabled,
+                }"
+                @click="simulateBtnClickHandler"
               >
-            </p>
-          </div>
-        </div>
-      </template>
-      <template v-else>
-        <table v-if="!isInfoPressed" class="stable-preview-table">
-          <thead>
-            <tr>
-              <td></td>
-              <td>Expected</td>
-              <td>
-                <button
-                  v-tooltip="this.getToolTipMessage"
-                  class="simulate-btn"
-                  :class="{
-                    error: this.isSimulationError,
-                    disabled: this.isSimulateBtnDisabled,
-                  }"
-                  @click="handleSimulate"
-                >
-                  <!-- <img src="@/assets/images/deposit.svg" alt="Deposit" /> -->
-                  Simulate
-                  <div v-if="isSimulationSuccess" class="success"></div>
-                  <div
-                    v-else-if="isSimulationLoading"
-                    class="simulation-loading"
-                  >
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                  </div>
-                </button>
-              </td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Collateral Desposit</td>
-              <td>
-                {{ collateralDeposit }}
-              </td>
-              <td>
-                <div v-if="isSimulationLoading" class="simulation-loading">
+                Simulate
+                <div v-if="isSimulationSuccess" class="success"></div>
+                <div v-else-if="isSimulationLoading" class="simulation-loading">
                   <div></div>
                   <div></div>
                   <div></div>
@@ -169,165 +32,153 @@
                   <div></div>
                   <div></div>
                 </div>
-                <span class="error" v-else-if="isSimulationError">!</span>
-                <span v-else>
-                  {{
-                    simulatedTotalCollateralDeposited
-                      ? expectedCollateralDeposit
-                      : "-"
-                  }}
-                  <i
-                    v-if="this.isSimulationSuccess"
-                    class="arrow"
-                    :class="{ up: this.isCollateralMoreThanExpected }"
-                  ></i>
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td>MIM Borrowed</td>
-              <td>
-                {{ mimBorrowed }}
-              </td>
-              <td>
-                <div v-if="isSimulationLoading" class="simulation-loading">
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                </div>
-                <span class="error" v-else-if="isSimulationError">!</span>
-                <span v-else>
-                  {{ simulatedMIMBorrowed ? expectedMIMBorrowed : "-" }}
-                  <i
-                    v-if="this.isSimulationSuccess"
-                    class="arrow"
-                    :class="{ up: this.isLoanMoreThanExpected }"
-                  ></i>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>Liquidation Price</td>
-              <td colspan="2" :class="liquidationRiskClass">
-                {{ calculateLiquidationPrice }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-        <div v-else class="info-list-wrap">
-          <div class="info-list">
-            <div
-              v-for="(item, i) in additionalInfo"
-              :key="i"
-              class="info-list-item"
-            >
-              <img
-                class="info-list-icon"
-                src="@/assets/images/info.svg"
-                v-tooltip="item.additional"
-                alt="info"
-              />
-
-              <span class="info-list-name">{{ item.title }}:</span>
-              <span class="info-list-value">{{ item.value }}</span>
-            </div>
-          </div>
-          <div class="info-list-bottom">
-            <div class="info-bottom">
-              <div class="info-list-subitem">
-                <span class="info-list-name">1 MIM</span>
-                <span class="info-list-value">1 USD</span>
+              </button>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Collateral Deposit</td>
+            <td>
+              {{ readableEstTotalCollateralTokensToDeposit }}
+            </td>
+            <td>
+              <div v-if="isSimulationLoading" class="simulation-loading">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
               </div>
-              <div class="info-list-subitem">
-                <span class="info-list-name">1 {{ pool.name }}</span>
-                <span class="info-list-value">{{ tokenToMim }} MIM</span>
+              <span class="error" v-else-if="isSimulationError">!</span>
+              <span v-else>
+                {{
+                  simulatedCollateralDeposited
+                    ? readableSimulatedCollateralDeposit
+                    : "-"
+                }}
+                <i
+                  v-if="this.isSimulationSuccess"
+                  class="arrow"
+                  :class="{ up: this.isCollateralMoreThanExpected }"
+                ></i>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>MIM Borrowed</td>
+            <td>
+              {{ readableEstTotalMIMToBorrow }}
+            </td>
+            <td>
+              <div v-if="isSimulationLoading" class="simulation-loading">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
               </div>
-            </div>
-          </div>
-        </div>
-      </template>
-    </div>
+              <span class="error" v-else-if="isSimulationError">!</span>
+              <span v-else>
+                {{ simulatedMIMBorrowed ? readableSimulatedMIMBorrowed : "-" }}
+                <i
+                  v-if="this.isSimulationSuccess"
+                  class="arrow"
+                  :class="{ up: this.isLoanMoreThanExpected }"
+                ></i>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Liquidation Price</td>
+            <td colspan="2" :class="liquidationRiskClass">
+              {{ calculateLiquidationPrice }}
+            </td>
+          </tr>
+          <tr>
+            <td>Collateral Value</td>
+            <td colspan="2">
+              {{ collateralValuedInUsdToReadableValue }}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </template>
+    <p class="warning">
+      * To reduce unnecessary failed transactions, you are encouraged to run a simulation for better results.
+      <span v-if="this.transactionLink">
+        <a class="simulation-link" :href="transactionLink" target="_blank">
+          Verify transaction here.
+        </a>
+      </span>
+    </p>
   </div>
 </template>
 
 <script>
 import Vue from "vue";
-import LockedTimer from "@/components/stake/LockedTimer.vue";
 import { mapGetters } from "vuex";
-import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
-const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
+import {
+  prepareFork,
+  deleteFork,
+  tenderlySimCookMultiBorrow,
+  prepareContractsAndApprove,
+  TENDERLY_BASE_URL,
+} from "@/utils/tenderly";
+import notification from "@/helpers/notification/notification.js";
 
 export default {
   name: "SimulationComparisonChart",
   props: {
+    itsDefaultBalance: {
+      type: Boolean,
+    },
+
+    baseCollateralToDeposit: {
+      type: [Number, String],
+      default: "",
+    },
+
+    poolId: {
+      type: [Number, String],
+      default: 0,
+    },
+
     pool: {
       type: Object,
     },
 
-    emptyData: {
-      type: Object,
-      require: true,
-    },
-
-    typeOperation: {
-      type: String,
-      default: "borrow",
-    },
-
-    collateralExpected: {
-      type: [Number, String],
-      default: 0,
-    },
-
-    simulationState: {
-      type: [String],
-      default: undefined,
-    },
-
-    simulatedTotalCollateralDeposited: {
-      type: [Number, String],
-      default: 0,
-    },
-
-    simulatedMIMBorrowed: {
-      type: [Number, String],
-      default: 0,
-    },
-
-    mimExpected: {
-      type: [Number, String],
-    },
-
-    liquidationPrice: {
+    slippage: {
       type: [String, Number],
     },
 
-    itsMaxRepayMim: {
-      type: Boolean,
-      default: false,
-    },
-
-    poolId: {
-      type: Number,
-      default: 0,
+    numOfTimesToLeverageBaseCollateral: {
+      type: [Number, String],
+      default: 1,
     },
   },
   data: () => ({
-    isInfoPressed: false,
-    collateralDecimals: 4,
-    wOHMTosOHM: null,
-    tokenApy: null,
+    simulatedCollateralDeposited: 0,
+    simulatedMIMBorrowed: 0,
+    simulationState: undefined,
+    forkId: undefined,
+    transactionLink: undefined,
   }),
 
   computed: {
@@ -336,16 +187,69 @@ export default {
       account: "getAccount",
     }),
 
+    estTotalMIMToBorrowOnLeverage() {
+      const baseCollateralToDeposit = this.baseCollateralToDeposit;
+
+      if (this.pool && baseCollateralToDeposit) {
+        const ROUNDING_BUFFER = 0.01;
+        const ltvFactor = this.pool.ltv / 100;
+        const mimCollateralTokenExchangeRate =
+          this.pool.borrowToken.exchangeRate;
+        const valueOfBaseCollateralInMIM =
+          baseCollateralToDeposit / mimCollateralTokenExchangeRate;
+        const borrowFeeFactor = 1 - this.pool.borrowFee / 100;
+        const numOfTimesToLeverageBaseCollateral =
+          +this.numOfTimesToLeverageBaseCollateral;
+
+        let totalMimToBorrow = 0;
+        //NOTE: Check what the value 1 is for and remove and replace with ltvRatio if it's a bug. Should the rounding buffer be applied on every single loop instead on just the base collateral
+        let mimToBorrowBeforeSlippage =
+          valueOfBaseCollateralInMIM *
+          borrowFeeFactor *
+          (ltvFactor - ROUNDING_BUFFER);
+
+        for (let i = numOfTimesToLeverageBaseCollateral; i > 0; i--) {
+          totalMimToBorrow += +mimToBorrowBeforeSlippage;
+          mimToBorrowBeforeSlippage = mimToBorrowBeforeSlippage * ltvFactor;
+        }
+
+        return totalMimToBorrow;
+      }
+      return 0;
+    },
+
+    estTotalCollateralTokensToDeposit() {
+      const estTotalMIMToBorrowOnLeverage = this.estTotalMIMToBorrowOnLeverage;
+      if (this.pool && estTotalMIMToBorrowOnLeverage) {
+        const slippageFactor = 1 - this.slippage / 100;
+        const estimatedTotalCollateralReceivedBasedOnBaseCollateral =
+          estTotalMIMToBorrowOnLeverage *
+          this.pool.tokenOraclePrice *
+          slippageFactor;
+        return (
+          +estimatedTotalCollateralReceivedBasedOnBaseCollateral +
+          +this.baseCollateralToDeposit
+        );
+      }
+      return 0;
+    },
+
     isSimulateBtnDisabled() {
-      return +this.collateralExpected === 0;
+      return +this.estTotalCollateralTokensToDeposit === 0;
     },
 
     isCollateralMoreThanExpected() {
-      return +this.expectedCollateralDeposit > +this.collateralDeposit;
+      return (
+        +this.simulatedCollateralDepositedWholeBN.toString() >
+        +this.estTotalCollateralTokensToDeposit
+      );
     },
 
     isLoanMoreThanExpected() {
-      return +this.expectedMIMBorrowed > +this.mimBorrowed;
+      return (
+        +this.simulatedMIMBorrowedWholeBN.toString() >
+        +this.estTotalMIMToBorrowOnLeverage
+      );
     },
 
     getToolTipMessage() {
@@ -377,67 +281,87 @@ export default {
       return this.simulationState === "error";
     },
 
-    isMigrated() {
-      if (this.pool?.cauldronSettings)
-        return this.pool.cauldronSettings.isMigrated;
-
-      return this.pool?.isMigrated;
+    readableEstTotalCollateralTokensToDeposit() {
+      return (
+        Vue.filter("formatTokenBalance")(
+          this.estTotalCollateralTokensToDeposit
+        ) || "0.0"
+      );
     },
 
-    tokenInUsd() {
-      if (this.account && this.collateralDepositExpected >= 0) {
-        return (
-          this.collateralDepositExpected / this.pool.borrowToken.exchangeRate
-        );
+    readableEstTotalMIMToBorrow() {
+      return Vue.filter("formatTokenBalance")(
+        this.estTotalMIMToBorrowOnLeverage
+      );
+    },
+
+    simulatedCollateralDepositedWholeBN() {
+      return this.$ethers.utils.formatUnits(
+        this.simulatedCollateralDeposited?.toString(),
+        this.pool.collateralToken.decimals
+      );
+    },
+
+    simulatedMIMBorrowedWholeBN() {
+      return this.$ethers.utils.formatUnits(
+        this.simulatedMIMBorrowed?.toString(),
+        this.pool.collateralToken.decimals
+      );
+    },
+
+    readableSimulatedCollateralDeposit() {
+      return (
+        Vue.filter("formatTokenBalance")(
+          this.simulatedCollateralDepositedWholeBN
+        ) || "0.0"
+      );
+    },
+
+    readableSimulatedMIMBorrowed() {
+      return (
+        Vue.filter("formatTokenBalance")(this.simulatedMIMBorrowedWholeBN) || "0.0"
+      );
+    },
+
+    collateralValuedInUsdToReadableValue() {
+      if (this.pool) {
+        const collateralValuedInUsd =
+          this.account && this.estTotalCollateralTokensToDeposit >= 0
+            ? this.estTotalCollateralTokensToDeposit /
+              this.pool.borrowToken.exchangeRate
+            : 0;
+        return Vue.filter("formatUSD")(collateralValuedInUsd);
       }
       return 0;
     },
 
-    collateralInUsd() {
-      if (this.pool.userInfo) {
-        return (
-          this.pool.userInfo?.userCollateralShare /
-          this.pool.borrowToken.exchangeRate
-        );
+    liquidationPrice() {
+      if (this.pool?.userInfo && this.account) {
+        const defaultLiquidationPrice =
+          this.pool?.userInfo?.liquidationPrice || 0;
+        const liquidationDecimals = this.pool.name === "SHIB" ? 6 : 4;
+
+        if (!this.baseCollateralToDeposit) return defaultLiquidationPrice;
+
+        const totalMIMBorrowedFromBento =
+          this.estTotalMIMToBorrowOnLeverage +
+          +this.pool.userInfo.userBorrowPart;
+
+        const totalCollateralDepositedInBento =
+          this.estTotalCollateralTokensToDeposit +
+          +this.pool.userInfo.userCollateralShare;
+        const liquidationMultiplier = this.pool.ltv / 100;
+        const liquidationPrice =
+          +totalMIMBorrowedFromBento /
+            +totalCollateralDepositedInBento /
+            liquidationMultiplier || 0;
+        //NOTE: Figure this out
+        const expectedLiquidationPrice =
+          (liquidationPrice / 100) * this.slippage + liquidationPrice;
+
+        return expectedLiquidationPrice.toFixed(liquidationDecimals);
       }
-
       return 0;
-    },
-
-    borrowLeft() {
-      const maxMimBorrow = (this.collateralInUsd / 100) * (this.pool.ltv - 1);
-      const leftBorrow = maxMimBorrow - this.pool.userInfo?.userBorrowPart;
-
-      if (+leftBorrow < 0) return "0";
-
-      return leftBorrow;
-    },
-
-    expectedCollateralDeposit() {
-      return Vue.filter("formatTokenBalance")(+this.simulatedTotalCollateralDeposited) || "0.0";
-    },
-
-    collateralDeposit() {
-      const collateralDeposited = this.account
-        ? this.collateralDepositExpected
-        : 0;
-
-
-      return Vue.filter("formatTokenBalance")(collateralDeposited) || "0.0";
-    },
-
-    collateralValue() {
-      return Vue.filter("formatUSD")(this.tokenInUsd);
-    },
-
-    mimBorrowed() {
-      const mimBorrowed = this.account ? this.mimBorrowedExpected : 0;
-
-      return Vue.filter("formatTokenBalance")(mimBorrowed);
-    },
-
-    expectedMIMBorrowed() {
-      return Vue.filter("formatTokenBalance")(+this.simulatedMIMBorrowed) || "0.0";
     },
 
     calculateLiquidationPrice() {
@@ -466,370 +390,250 @@ export default {
       return "";
     },
 
-    collateralDepositExpected() {
-      let defaultValue = +this.pool.userInfo?.userCollateralShare;
-
-      if (this.typeOperation === "borrow") {
-        return +this.collateralExpected;
-      }
-
-      if (this.collateralExpected && this.typeOperation === "repay") {
-        if (defaultValue - +this.collateralExpected < 0) return defaultValue;
-        return defaultValue - +this.collateralExpected;
-      }
-
-      return defaultValue;
-    },
-
-    mimBorrowedExpected() {
-      if (this.itsMaxRepayMim) {
-        return 0;
-      }
-
-      if (this.typeOperation === "borrow") {
-        return +this.mimExpected;
-      }
-
-      if (this.mimExpected && this.typeOperation === "repay") {
-        return +this.pool.userInfo?.userBorrowPart - +this.mimExpected;
-      }
-
-      return +this.pool.userInfo?.userBorrowPart;
-    },
-
-    additionalInfo() {
-      try {
-        const borrowLeftParsed = this.borrowLeft;
-        const resultArray = [
-          {
-            title: "Collateral Deposited",
-            value: Vue.filter("formatTokenBalance")(
-              this.pool.userInfo?.userCollateralShare || 0
-            ),
-            additional: "Amount of Tokens Deposited as Collaterals",
-          },
-          {
-            title: "Collateral Value",
-            value: Vue.filter("formatUSD")(this.collateralInUsd || 0),
-            additional:
-              "USD Value of the Collateral Deposited in your Position",
-          },
-          {
-            title: "MIM Borrowed",
-            value: Vue.filter("formatTokenBalance")(
-              this.pool.userInfo?.userBorrowPart || 0
-            ),
-            additional: "MIM Currently Borrowed in your Position",
-          },
-          {
-            title: "TVL",
-            value: `$ ${this.formatNumber(
-              Vue.filter("formatTokenBalance")(this.pool.tvl || 0)
-            )}`,
-            additional: "Total Value Locked",
-          },
-        ];
-
-        if (this.pool.id === 10 && this.chainId === 1) {
-          resultArray.push({
-            title: "Liquidation Price",
-            value: Vue.filter("formatExactPrice")(
-              this.pool.userInfo?.liquidationPrice || 0
-            ),
-            additional:
-              "This is the liquidation price of wsOHM, check the current price of wsOHM at the bottom right of the page!",
-          });
-        } else if (
-          (this.pool.id === 2 || this.pool.id === 5) &&
-          this.chainId === 43114
-        ) {
-          resultArray.push({
-            title: "wMEMO Liquidation Price",
-            value: Vue.filter("formatExactPrice")(
-              this.pool.userInfo?.liquidationPrice || 0
-            ),
-            additional:
-              "Collateral Price at which your Position will be Liquidated",
-          });
-        } else {
-          resultArray.push({
-            title: "Liquidation Price",
-            value: Vue.filter("formatExactPrice")(
-              this.pool.userInfo?.liquidationPrice || 0
-            ),
-            additional:
-              "Collateral Price at which your Position will be Liquidated",
-          });
-        }
-
-        if (this.pool.id === 10 && this.ohmPrice && this.chainId === 1) {
-          const ohmLiquidationPrice =
-            this.pool.userInfo?.liquidationPrice / this.wOHMTosOHM;
-
-          resultArray.push({
-            title: "OHM Liquidation Price",
-            value: Vue.filter("formatExactPrice")(ohmLiquidationPrice || 0),
-            additional:
-              "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
-          });
-        }
-
-        if (
-          (this.pool.id === 2 || this.pool.id === 5) &&
-          this.timePrice &&
-          this.chainId === 43114
-        ) {
-          const ohmLiquidationPrice =
-            this.pool.userInfo?.liquidationPrice * this.MEMOTowMEMO;
-
-          resultArray.push({
-            title: "MEMO Liquidation Price",
-            value: Vue.filter("formatExactPrice")(ohmLiquidationPrice || 0),
-            additional:
-              "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
-          });
-        }
-
-        resultArray.push({
-          title: "MIM Left To Borrow",
-          value: Vue.filter("formatTokenBalance")(borrowLeftParsed || 0),
-          additional: "MIM Borrowable Given the Collateral Deposited",
-        });
-
-        if (
-          this.pool.cauldronSettings.hasWithdrawableLimit &&
-          this.pool.maxWithdrawAmount
-        ) {
-          resultArray.push({
-            title: "Withdrawable Amount",
-            value: Vue.filter("formatTokenBalance")(
-              this.pool.maxWithdrawAmount || 0
-            ),
-            additional: `Maximum Current Amount of ${this.pool.collateralToken.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
-          });
-        }
-
-        if (this.tokenApy) {
-          const title = this.pool.cauldronSettings.strategyLink
-            ? "Your Position Approximate APY"
-            : "Your Position Apy";
-
-          const apyInfo = {
-            title: title,
-            value: Vue.filter("formatPercent")(this.tokenApy || 0),
-            additional: "APY Delivered by the Open Position",
-          };
-
-          resultArray.splice(2, 0, apyInfo);
-        }
-
-        if (this.pool.borrowlimit !== null) {
-          resultArray.push({
-            title: "Maximum Borrowable MIM",
-            value: this.pool.borrowlimit,
-            additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
-          });
-        }
-
-        if (this.pool.userInfo?.whitelistedInfo) {
-          resultArray.push({
-            title: "Maximum Borrowable MIM",
-            value: this.pool.userInfo?.whitelistedInfo?.isUserWhitelisted
-              ? this.pool.userInfo?.whitelistedInfo?.userBorrowPart
-              : "0.0",
-            additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
-          });
-        }
-
-        return resultArray;
-      } catch (e) {
-        console.log("createCollateralInfo err: ", e);
-        return [];
-      }
-    },
-
-    showClaimCrvReward() {
-      return (
-        this.pool?.cauldronSettings.claimCrvReward &&
-        this.isUserHasClaimableReward
-      );
-    },
-
-    showAvaxSlpLink() {
-      if (this.pool) return this.pool.id === 8 && this.chainId === 43114;
-
-      return false;
-    },
-
-    showStargateUSDC() {
-      if (this.pool) return this.pool.id === 31 && this.chainId === 1;
-
-      return false;
-    },
-
-    showStargateUSDT() {
-      if (this.pool) return this.pool.id === 32 && this.chainId === 1;
-
-      return false;
-    },
-
-    showyvcrvSTETHConcentrated() {
-      if (this.pool) return this.pool.id === 33 && this.chainId === 1;
-
-      return false;
-    },
-
-    isUserHasClaimableReward() {
-      return +this.pool.userInfo?.claimableReward;
-    },
-
-    showCollateralLogicBtn() {
-      return this.pool?.collateralToken?.additionalLogic && this.account;
-    },
-
-    collateralTitle() {
-      if (this.pool?.collateralToken?.additionalLogic) {
-        return this.pool.collateralToken.additionalLogic.title;
-      }
-      return "";
-    },
-
     liquidationRisk() {
       if (this.pool) {
-        const riskPersent =
-          this.priceDifferens *
+        const percentagePriceDifference =
+          this.priceDifference *
           this.healthMultiplier *
           this.pool.borrowToken.exchangeRate *
           100;
 
-        if (riskPersent > 100) {
+        if (percentagePriceDifference > 100) {
           return 100;
         }
 
-        if (riskPersent <= 0) {
+        if (percentagePriceDifference <= 0) {
           return 0;
         }
 
-        return parseFloat(riskPersent).toFixed(2); // xx of 100%
+        return parseFloat(percentagePriceDifference).toFixed(2); // xx of 100%
       }
 
       return 0;
     },
 
-    priceDifferens() {
-      const priceDifferens =
+    priceDifference() {
+      const priceDifference =
         1 / this.pool.borrowToken.exchangeRate - this.liquidationPrice;
 
-      return priceDifferens;
+      return priceDifference;
     },
 
     healthMultiplier() {
       return this.pool?.cauldronSettings.healthMultiplier;
     },
-
-    isLockedTimer() {
-      if (this.pool?.userInfo?.userLockedTimestamp) {
-        return this.pool.userInfo.userLockedTimestamp;
-      }
-
-      return 0;
-    },
-
-    strategyLink() {
-      return this.pool?.cauldronSettings.strategyLink;
-    },
-
-    tokenToMim() {
-      if (this.pool) {
-        const tokenToMim = 1 / this.pool.borrowToken.exchangeRate;
-
-        let decimals = 4;
-
-        if (this.pool.name === "SHIB") decimals = 6;
-
-        return Vue.filter("formatToFixed")(tokenToMim, decimals);
-      }
-      return "0.0";
-    },
   },
 
   watch: {
-    async pool() {
-      this.tokenApy = await fetchTokenApy(this.pool);
-    },
-
-    poolId() {
-      this.tokenApy = null;
+    async poolId() {
+      if (this.pool) {
+        await prepareContractsAndApprove(this.pool);
+      }
     },
   },
 
   methods: {
-    async handleSimulate() {
-      if (!this.isSimulateBtnDisabled) this.$emit("click");
-    },
-    formatNumber(value) {
-      if (isNaN(Number(value)) || Number(value) < 1) return 0;
+    checkIsPoolAllowBorrow(amount) {
+      let dynamicBorrowAmount;
+      let borrowlimit;
 
-      const lookup = [
-        { value: 0, symbol: "" },
-        { value: 1, symbol: "" },
-        { value: 1e3, symbol: "k" },
-        { value: 1e6, symbol: "M" },
-      ];
-      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-      let item = lookup
-        .slice()
-        .reverse()
-        .find(function (item) {
-          return parseFloat(value) >= item.value;
-        });
-      return (
-        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
-        item.symbol
-      );
-    },
-    async handleClaimCrvReward() {
-      try {
-        const estimateGas =
-          await this.pool.collateralToken.contract.estimateGas.getReward(
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        await await this.pool.collateralToken.contract.getReward(this.account, {
-          gasLimit,
-        });
-      } catch (e) {
-        console.log("handleClaimCrvReward err:", e);
+      if (+this.pool.borrowlimit) {
+        borrowlimit = +amount < +this.pool.borrowlimit;
+      } else {
+        borrowlimit = true;
       }
-    },
 
-    showCollateralPopup() {
-      if (this.pool.collateralToken.additionalLogic) {
-        this.$store.commit("setPopupState", {
-          type: this.pool.collateralToken.additionalLogic.type,
-          isShow: true,
-          data: this.pool.collateralToken.additionalLogic.data,
-        });
+      dynamicBorrowAmount = +amount < +this.pool.dynamicBorrowAmount;
+
+      if (dynamicBorrowAmount && borrowlimit) return true;
+
+      if (!dynamicBorrowAmount) {
+        this.$store.dispatch("notifications/new", notification.allowBorrow);
+      } else {
+        this.$store.dispatch("notifications/new", notification.borrowLimit);
       }
 
       return false;
     },
+
+    checkIsUserWhitelistedBorrow() {
+      if (!this.pool.userInfo?.whitelistedInfo) return true;
+
+      if (!this.pool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
+        const notification = {
+          msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
+          type: "error",
+        };
+
+        this.$store.dispatch("notifications/new", notification);
+
+        return false;
+      }
+
+      return true;
+    },
+
+    checkIsAcceptNewYvcrvSTETHBorrow() {
+      if (this.pool.id === 33 && this.chainId === 1) {
+        const oldYvCrvSTETH = this.$store.getters.getPoolById(12);
+        const hasOpenedBorrowPosition = +oldYvCrvSTETH.userBorrowPart > 50;
+
+        if (hasOpenedBorrowPosition) {
+          const notification = {
+            msg: "Please close down your old yvcrvSTETH position before opening a new one.",
+            type: "error",
+          };
+
+          this.$store.dispatch("notifications/new", notification);
+
+          return false;
+        }
+
+        return true;
+      }
+
+      return true;
+    },
+
+    checkIsLiquidationPriceHit() {
+      if (this.liquidationPrice > 1 / this.pool.tokenOraclePrice) {
+        this.$store.dispatch("notifications/new", notification.liquidation);
+
+        return false;
+      }
+      return true;
+    },
+
+    runChecks() {
+      const passedAllChecks =
+        this.checkIsPoolAllowBorrow(this.estTotalMIMToBorrowOnLeverage) &&
+        this.checkIsUserWhitelistedBorrow() &&
+        this.checkIsAcceptNewYvcrvSTETHBorrow() &&
+        this.checkIsLiquidationPriceHit();
+      return passedAllChecks;
+    },
+    async simulateTransaction() {
+      this.simulationState = "loading";
+      setTimeout(async () => {
+        const collateralAmount = this.baseCollateralToDeposit;
+        const parsedCollateral = this.$ethers.utils.parseUnits(
+          collateralAmount.toString(),
+          this.pool.collateralToken.decimals
+        );
+        const mimToBorrow = this.estTotalMIMToBorrowOnLeverage;
+        const mimToBorrowParsed = this.$ethers.utils.parseUnits(
+          Vue.filter("formatToFixed")(
+            mimToBorrow,
+            this.pool.borrowToken.decimals
+          ),
+          this.pool.borrowToken.decimals
+        );
+        const minValue =
+          +this.estTotalCollateralTokensToDeposit - +collateralAmount;
+        const minValueParsed = this.$ethers.utils.parseUnits(
+          Vue.filter("formatToFixed")(
+            minValue,
+            this.pool.collateralToken.decimals
+          ),
+          this.pool.collateralToken.decimals
+        );
+        const minExpected = await this.pool.masterContractInstance.toShare(
+          this.pool.collateralToken.address,
+          minValueParsed,
+          true
+        );
+        const payload = {
+          collateralAmount: parsedCollateral,
+          amount: mimToBorrowParsed,
+          minExpected: minExpected,
+          updatePrice: this.pool.askUpdatePrice,
+          itsDefaultBalance: this.itsDefaultBalance,
+          slipage: this.slippage,
+        };
+        const simulationRes = await tenderlySimCookMultiBorrow(
+          payload,
+          this.pool,
+          this.chainId,
+          this.forkId
+        );
+
+        if (
+          simulationRes?.userCollateralShare &&
+          simulationRes?.userBorrowPart
+        ) {
+          this.simulationState = "success";
+          this.simulatedCollateralDeposited =
+            simulationRes?.userCollateralShare?.toString();
+          this.simulatedMIMBorrowed = simulationRes?.userBorrowPart?.toString();
+        } else {
+          this.simulationState = "error";
+          this.simulatedTotalCollateralDeposited = 0;
+          this.simulatedMIMBorrowed = 0;
+        }
+
+        if (simulationRes?.lastTxnId) {
+          this.transactionLink = `${TENDERLY_BASE_URL}/fork/${this.forkId}/simulation/${simulationRes?.lastTxnId}`;
+        }
+      }, 5000);
+    },
+    async simulateBtnClickHandler() {
+      const hasPassedChecks = this.runChecks();
+      if (hasPassedChecks === true) {
+        this.simulateTransaction();
+      }
+    },
+
+    deleteTenderlyFork(forkId) {
+      return async (e) => {
+        e?.preventDefault();
+        if (forkId) {
+          await deleteFork(forkId);
+        }
+      };
+    },
   },
 
   async created() {
-    if (this.pool) this.tokenApy = await fetchTokenApy(this.pool);
+    if (this.forkId) {
+      window.removeEventListener(
+        "beforeunload",
+        this.deleteTenderlyFork(this.forkId)
+      );
+    }
+
+    const { forkId } = await prepareFork(this.chainId);
+    this.forkId = forkId;
+    window.addEventListener(
+      "beforeunload",
+      this.deleteTenderlyFork(this.forkId)
+    );
+
+    if (this.pool) {
+      await prepareContractsAndApprove(this.pool);
+    }
   },
 
-  components: {
-    LockedTimer,
-    MiniStatusTag
+  async beforeDestroy() {
+    await this.deleteTenderlyFork(this.forkId)();
   },
+
+  components: {},
 };
 </script>
 
 <style lang="scss" scoped>
+
+.warning {
+  text-align: left;
+  padding: 15px;
+  font-size: 15px;
+}
+
+.simulation-link {
+  color: #648fcc;
+  text-decoration: underline;
+}
+
 .stable-info {
   background-color: rgba(35, 33, 45, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.06);

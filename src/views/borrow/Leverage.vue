@@ -54,7 +54,6 @@
             </button>
           </div>
           <Range
-            @input="leverageChangeHandler"
             v-model="multiplier"
             :max="maxLeverage"
             :min="1"
@@ -72,29 +71,14 @@
       <div class="info-block">
         <h1 class="title">Leverage farm</h1>
         <SimulationComparisonChart
-          :simulationState="simulationState"
-          @click="simulateHandler"
-          :simulatedTotalCollateralDeposited="simulatedTotalCollateralDeposited"
-          :simulatedMIMBorrowed="simulatedMIMBorrowed"
+          v-if="isDevelopmentEnv"
+          :itsDefaultBalance="useDefaultBalance"
+          :poolId="poolId"
           :pool="selectedPool"
-          :collateralExpected="collateralExpected"
-          :mimExpected="multiplyMimExpected"
-          :liquidationPrice="liquidationPriceExpected"
-          :emptyData="emptyData"
-          :poolId="selectedPoolId"
+          :baseCollateralToDeposit="collateralValue"
+          :numOfTimesToLeverageBaseCollateral="multiplier"
+          :slippage="slipage"
         />
-        <p class="warning">
-          * To reduce unnecessary failed transactions, you are encouraged to run a simulation for better results.
-          <span v-if="this.simulationState === 'success'">
-            <a
-              class="simulation-link"
-              href="https://google.com"
-              target="_blank"
-            >
-              Verify transaction here.
-            </a>
-          </span>
-        </p>
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -178,9 +162,6 @@ export default {
 
   data() {
     return {
-      simulationState: undefined,
-      simulatedTotalCollateralDeposited: 0,
-      simulatedMIMBorrowed: 0,
       collateralValue: "",
       poolId: null,
       isOpenPollPopup: false,
@@ -208,6 +189,10 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+
+    isDevelopmentEnv() {
+      return process.env.NODE_ENV === "development";
+    },
 
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
@@ -665,23 +650,7 @@ export default {
   },
 
   methods: {
-    setSimulationToDefault() {
-      this.simulatedTotalCollateralDeposited = 0;
-      this.simulatedMIMBorrowed = 0;
-      this.simulationState = undefined;
-    },
-
-    async simulateHandler() {
-      this.simulationState = "loading";
-      await this.runSimulateTxn();
-    },
-
-    leverageChangeHandler() {
-      this.setSimulationToDefault();
-    },
-
     updateCollateralValue(value) {
-      this.setSimulationToDefault();
       this.collateralValue = value;
 
       this.updatePercentValue();
@@ -815,102 +784,6 @@ export default {
       }
 
       return true;
-    },
-
-    async simulateTxn() {
-      if (this.collateralValue && +this.collateralValue > 0) {
-        if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
-          return false;
-        }
-
-        if (!this.checkIsUserWhitelistedBorrow()) {
-          return false;
-        }
-
-        if (!this.checkIsAcceptNewYvcrvSTETHBorrow()) {
-          return false;
-        }
-
-        const parsedCollateral = this.$ethers.utils.parseUnits(
-          this.collateralValue.toString(),
-          this.selectedPool.collateralToken.decimals
-        );
-
-        const parsedMim = this.$ethers.utils.parseUnits(
-          Vue.filter("formatToFixed")(
-            this.mimAmount,
-            this.selectedPool.borrowToken.decimals
-          ),
-          this.selectedPool.borrowToken.decimals
-        );
-
-        let payload = {
-          collateralAmount: parsedCollateral,
-          amount: parsedMim,
-          updatePrice: this.selectedPool.askUpdatePrice,
-          itsDefaultBalance: this.useDefaultBalance,
-          slipage: this.slipage,
-        };
-
-        payload.amount = Vue.filter("formatToFixed")(
-          this.mimAmount,
-          this.selectedPool.borrowToken.decimals
-        );
-
-        const percentValue = parseFloat(this.percentValue);
-
-        const slipageMutiplier = (100 - this.slipage) / 100;
-
-        const amountMultiplyer = percentValue / 100;
-
-        let startAmount = payload.amount * 0.995;
-
-        let finalAmount = 0;
-
-        for (let i = this.multiplier; i > 0; i--) {
-          finalAmount += +startAmount;
-          startAmount = startAmount * amountMultiplyer;
-        }
-
-        const mimAmount = this.$ethers.utils.parseUnits(
-          Vue.filter("formatToFixed")(
-            finalAmount,
-            this.selectedPool.borrowToken.decimals
-          ),
-          this.selectedPool.borrowToken.decimals
-        );
-
-        const minValue = finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
-
-        const minValueParsed = this.$ethers.utils.parseUnits(
-          Vue.filter("formatToFixed")(
-            minValue,
-            this.selectedPool.collateralToken.decimals
-          ),
-          this.selectedPool.collateralToken.decimals
-        );
-
-        const finalRemoveCollateralAmountToShare =
-          await this.selectedPool.masterContractInstance.toShare(
-            this.selectedPool.collateralToken.address,
-            minValueParsed,
-            true
-          );
-
-        payload = {
-          ...payload,
-          amount: mimAmount,
-          minExpected: finalRemoveCollateralAmountToShare,
-        };
-
-        return this.tenderlySimCookMultiBorrow(
-          payload,
-          this.selectedPool,
-          this.chainId
-        );
-      }
-
-      return false;
     },
 
     async actionHandler() {
@@ -1173,34 +1046,6 @@ export default {
       this.slipage = 1;
       return false;
     },
-
-    async runSimulateTxn() {
-      const sim = await this.simulateTxn();
-      console.log("sim", sim);
-
-      if (sim) {
-        const totalNumOfWholeCollateralTokensDepositedInBN =
-          this.$ethers.utils.formatUnits(
-            sim?.userCollateralShare?.toString(),
-            this.selectedPool.collateralToken.decimals
-          );
-        this.simulatedTotalCollateralDeposited =
-          totalNumOfWholeCollateralTokensDepositedInBN.toString();
-
-        const totalNumOfWholeLoanTokensReceivedInBN =
-          this.$ethers.utils.formatUnits(
-            sim?.userBorrowPart?.toString(),
-            this.selectedPool.collateralToken.decimals
-          );
-        this.simulatedMIMBorrowed =
-          totalNumOfWholeLoanTokensReceivedInBN.toString();
-        this.simulationState = "success";
-      } else {
-        this.simulationState = "error";
-        this.simulatedTotalCollateralDeposited = 0;
-        this.simulatedMIMBorrowed = 0;
-      }
-    },
   },
 
   async created() {
@@ -1303,17 +1148,6 @@ export default {
   border-radius: 30px;
   background-color: $clrBg2;
   text-align: center;
-}
-
-.warning {
-  text-align: left;
-  padding: 15px;
-  font-size: 15px;
-}
-
-.simulation-link {
-  color: #648fcc;
-  text-decoration: underline;
 }
 
 .title {
