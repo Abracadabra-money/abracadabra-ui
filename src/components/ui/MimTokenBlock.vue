@@ -16,8 +16,9 @@
 <script>
 import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { mapGetters } from "vuex";
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
+
 export default {
   data() {
     return {
@@ -32,10 +33,6 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
     }),
-
-    signer() {
-      return this.$store.getters.getSigner || this.$ethers.getDefaultProvider();
-    },
 
     mimInfo() {
       let id = 1;
@@ -90,10 +87,14 @@ export default {
     },
 
     async initContract() {
+      const defaultProvider = new providers.JsonRpcProvider(
+        "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+      );
+
       this.contract = new ethers.Contract(
         "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
         JSON.stringify(priceAbi),
-        this.signer
+        defaultProvider
       );
     },
   },

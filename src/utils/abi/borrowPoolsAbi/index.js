@@ -23,5 +23,5 @@ export default {
   WhitelistedCauldronV3,
   CauldronV3_2,
   CauldronV4,
-  PrivilegedCauldronV4
+  PrivilegedCauldronV4,
 };

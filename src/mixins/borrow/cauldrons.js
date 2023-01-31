@@ -715,15 +715,7 @@ export default {
           { gasLimit: 5000000 }
         );
 
-        const fetchingUrl = await whitelisterContract.ipfsMerkleProofs({
-          gasLimit: 5000000,
-        });
-
-        const whitelist = await this.fetchWhitelist(fetchingUrl);
-
-        const yvcrvSTETHWhitelist = whitelist
-          ? whitelist
-          : yvcrvSTETHWhitelistLocal;
+        const yvcrvSTETHWhitelist = yvcrvSTETHWhitelistLocal;
 
         let userWhitelistedInfo = null;
 

@@ -91,7 +91,7 @@
         />
 
         <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
-          <ApyBlock   v-if="isVelodrome && selectedPool" :expectedLeverage="expectedLeverage" :pool="selectedPool" />
+          <ApyBlock v-if="isVelodrome && selectedPool" :expectedLeverage="expectedLeverage" :pool="selectedPool" />
         </div>
 
         <template v-if="selectedPool">

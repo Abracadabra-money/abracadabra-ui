@@ -2642,7 +2642,7 @@ export default {
       const eventsArray = [];
       const valuesArray = [];
       const datasArray = [];
-
+      
       if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
