@@ -484,7 +484,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
-        if (!this.useCheckBox) return require(`@/assets/images/tokens/GLP.png`);
+        if (!this.useCheckBox && this.isCheckBox) return require(`@/assets/images/tokens/GLP.png`);
 
         return this.selectedPool.icon;
       }
