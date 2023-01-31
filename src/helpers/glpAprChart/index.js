@@ -5,10 +5,11 @@ const getGlpPerformanceData = require("./helpers/get-glp-performance-data");
 
 const getGlpChartApr = async (month = 3) => {
   const pastMonths = moment().subtract(month, "month").toDate();
+  const pastDay = moment().subtract(1, "day").toDate();
   const groupPeriod = 86400;
 
   const from = Math.floor(+new Date(pastMonths) / 1000);
-  const to = Math.floor(Date.now() / 1000);
+  const to = Math.floor(new Date(pastDay) / 1000);
 
   const params = { from, to, groupPeriod };
 
