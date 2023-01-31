@@ -110,7 +110,7 @@ export default {
         mainTokenInstance
       );
 
-      const mainTokenBalanceUsd = mainTokenBalance * this.price;
+      const mainTokenBalanceUsd = mainTokenBalance * this.price * tokensRate;
       const stakeTokenBalanceUsd = stakeTokenBalance * this.price;
       const totalSupplyHex = await mainTokenInstance.totalSupply();
       const totalSupply = this.$ethers.utils.formatUnits(totalSupplyHex, 18);
@@ -123,7 +123,7 @@ export default {
           ...mainToken,
           contractInstance: mainTokenInstance,
           balance: mainTokenBalance,
-          price: this.price,
+          price: this.price * tokensRate,
           balanceUsd: mainTokenBalanceUsd,
           totalSupply,
           totalSupplyUsd,
