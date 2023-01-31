@@ -5,6 +5,7 @@ const {
   getRewardReaderContract,
   getReaderContract,
   getGmxGlpWrapperContract,
+  getMagicGlpHarvestorContract
 } = require("./contracts");
 const {
   weth,
@@ -113,4 +114,9 @@ module.exports.getBalanceAndSupplyData = async () => {
 module.exports.getFeePercent = async () => {
   const GmxGlpWrapperContract = await getGmxGlpWrapperContract();
   return await GmxGlpWrapperContract.feePercent();
+};
+
+module.exports.getMagicFeePercent = async () => {
+  const MagicGlpHarvestorContrac = await getMagicGlpHarvestorContract();
+  return await MagicGlpHarvestorContrac.feePercentBips();
 };

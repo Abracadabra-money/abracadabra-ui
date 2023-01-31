@@ -40,11 +40,18 @@ export default {
       bottom: "If you want to learn more read our docs",
       link: "https://docs.abracadabra.money/intro/stake/mspell",
     },
+    emptyDataMGlp: {
+      img: require(`@/assets/images/empty_borrow.png`),
+      text: "Please use Arbitrum Mainnet to obtain magicGLP",
+      bottom: "If you want to learn more read our docs",
+      link: "#",
+    },
   }),
   computed: {
     selectedData() {
       if (this.warningType === "sspell") return this.emptyDataSSpell;
       if (this.warningType === "mspell") return this.emptyDataMSpell;
+      if (this.warningType === "mglp") return this.emptyDataMGlp;
       return false;
     },
   },

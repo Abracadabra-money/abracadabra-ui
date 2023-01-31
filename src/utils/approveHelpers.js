@@ -1,7 +1,8 @@
 export const isTokenApprowed = async (
   tokenContract,
   spenderAddress,
-  account
+  account,
+  parsed = false
 ) => {
   try {
     const addressApprowed = await tokenContract.allowance(
@@ -12,6 +13,7 @@ export const isTokenApprowed = async (
       }
     );
 
+    if (parsed) return parseFloat(addressApprowed.toString()) > 0;
     return addressApprowed;
   } catch (e) {
     console.log("isApprowed err:", e);
@@ -37,9 +39,8 @@ export const approveToken = async (tokenContract, spenderAddress) => {
         gasLimit,
       }
     );
-    const receipt = await tx.wait();
 
-    console.log("APPROVE RESP:", receipt);
+    await tx.wait();
 
     return true;
   } catch (e) {

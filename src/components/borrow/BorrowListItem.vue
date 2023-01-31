@@ -12,6 +12,7 @@
             <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
           </p>
           <MiniStatusTag v-if="isMigrated" />
+          <MiniStatusTag v-if="isGlp" text="Leverage" />
         </div>
       </div>
       <div class="pool-balance">
@@ -25,6 +26,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const StatusBar = () => import("@/components/ui/StatusBar");
 const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
@@ -37,8 +39,10 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     userBalance() {
-      if (this.pool?.lpLogic && this.pool.userInfo)
+      if (this.chainId === 42161 && this.pool?.id === 2 && this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.lpInfo.balance,
           this.pool.lpLogic.lpDecimals
@@ -54,7 +58,7 @@ export default {
     },
 
     userBalanceUsd() {
-      if (this.pool?.lpLogic) return this.pool.userInfo.lpInfo.balanceUsd;
+      if (this.chainId === 42161 && this.pool?.id === 2 ) return this.pool.userInfo.lpInfo.balanceUsd;
 
       return this.pool.userInfo.balanceUsd;
     },
@@ -64,6 +68,10 @@ export default {
         return this.pool.cauldronSettings.isMigrated;
 
       return this.pool.isMigrated;
+    },
+
+    isGlp() {
+      return this.chainId === 42161 && this.pool?.id === 3;
     },
   },
 

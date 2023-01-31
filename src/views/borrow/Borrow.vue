@@ -50,6 +50,27 @@
               Use {{ networkValuteName }}
             </p>
           </div>
+
+          <div
+            class="checkbox-wrap"
+            v-if="isCheckBox"
+            :class="{ active: useCheckBox }"
+            @click="toggleCheckBox"
+          >
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useCheckBox"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+            <p class="label-text">Use magicGLP</p>
+          </div>
         </div>
         <div class="borrow-input underline">
           <div class="header-balance">
@@ -108,7 +129,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
+        <div
+          class="primary-api"
+          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
+        >
+          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
           <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
         </div>
 
@@ -172,6 +197,7 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 
 import { mapGetters } from "vuex";
 
@@ -193,6 +219,8 @@ export default {
       },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
+      glpPoolsId: [2, 3],
+      useCheckBox: false,
     };
   },
 
@@ -204,6 +232,13 @@ export default {
 
     isVelodrome() {
       return this.chainId === 10 && this.selectedPool?.id === 1;
+    },
+
+    isGlp() {
+      return (
+        this.chainId === 42161 &&
+        this.glpPoolsId.includes(+this.selectedPool?.id)
+      );
     },
 
     filteredPool() {
@@ -266,7 +301,7 @@ export default {
 
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
-        if (this.isLpLogic) {
+        if (this.isLpLogic && !this.useCheckBox) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.lpInfo.balance,
             this.selectedPool.lpLogic.lpDecimals
@@ -449,6 +484,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
+        if (!this.useCheckBox && this.isCheckBox) return require(`@/assets/images/tokens/GLP.png`);
+
         return this.selectedPool.icon;
       }
       return "";
@@ -459,7 +496,7 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic) return this.selectedPool.lpLogic.name;
+        if (this.selectedPool.lpLogic && !this.useCheckBox) return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -468,7 +505,8 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isLpLogic) return this.selectedPool.userInfo.lpInfo.isApprove;
+        if (this.isLpLogic && !this.useCheckBox)
+          return this.selectedPool.userInfo.lpInfo.isApprove;
 
         return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
@@ -500,6 +538,10 @@ export default {
         return Vue.filter("formatToFixed")(tokenToMim, decimals);
       }
       return "0.0";
+    },
+
+    isCheckBox() {
+      return this.chainId === 42161 && this.selectedPool?.id === 3;
     },
   },
 
@@ -534,14 +576,19 @@ export default {
       );
       let approve;
 
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
       if (this.isLpLogic) {
         approve = await approveToken(
-          this.selectedPool.lpLogic.lpContract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       } else {
         approve = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -671,9 +718,10 @@ export default {
         notification.pending
       );
 
-      const collateralDecimals = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpDecimals
-        : this.selectedPool.collateralToken.decimals;
+      const collateralDecimals =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpDecimals
+          : this.selectedPool.collateralToken.decimals;
 
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
@@ -699,9 +747,10 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       let isTokenToCookApprove = await isTokenApprowed(
         collateralToken,
@@ -724,7 +773,8 @@ export default {
           isApproved,
           this.selectedPool,
           notificationId,
-          this.isLpLogic
+          this.isLpLogic,
+          !this.useCheckBox
         );
 
         return false;
@@ -745,9 +795,10 @@ export default {
         notification.pending
       );
 
-      const collateralDecimals = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpDecimals
-        : this.selectedPool.collateralToken.decimals;
+      const collateralDecimals =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpDecimals
+          : this.selectedPool.collateralToken.decimals;
 
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
@@ -760,9 +811,10 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       let isTokenToCookApprove = await isTokenApprowed(
         collateralToken,
@@ -785,7 +837,8 @@ export default {
           isApproved,
           this.selectedPool,
           notificationId,
-          this.isLpLogic
+          this.isLpLogic,
+          !this.useCheckBox
         );
         return false;
       }
@@ -830,9 +883,10 @@ export default {
         updatePrice: this.selectedPool.askUpdatePrice,
       };
 
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       let isTokenToCookApprove = await isTokenApprowed(
         collateralToken,
@@ -892,6 +946,11 @@ export default {
         this.borrowValue = "";
       }
     },
+
+    toggleCheckBox() {
+      this.clearData();
+      this.useCheckBox = !this.useCheckBox;
+    },
   },
 
   created() {
@@ -919,6 +978,7 @@ export default {
     LocalPopupWrap,
     MarketsListPopup,
     ApyBlock,
+    PrimaryAPYBlock,
   },
 };
 </script>
@@ -937,8 +997,9 @@ export default {
 .primary-api {
   margin: 16px 0;
 }
+
 .not-primary-api {
-  margin: 0 0 90px;
+  margin: 30px 0 30px;
 }
 
 .borrow-loading {

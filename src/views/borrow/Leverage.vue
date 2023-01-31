@@ -46,6 +46,27 @@
             />
             <p class="label-text">Use {{ networkValuteName }}</p>
           </div>
+
+          <div
+            class="checkbox-wrap"
+            v-if="isCheckBox"
+            :class="{ active: useCheckBox }"
+            @click="toggleCheckBox"
+          >
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useCheckBox"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+            <p class="label-text">Use magicGLP</p>
+          </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
           <div class="settings-wrap">
@@ -79,8 +100,20 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
-          <ApyBlock v-if="isVelodrome && selectedPool" :expectedLeverage="expectedLeverage" :pool="selectedPool" />
+        <div
+          class="primary-api"
+          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
+        >
+          <PrimaryAPYBlock
+            :expectedLeverage="expectedLeverage"
+            v-if="isGlp && selectedPool"
+          />
+
+          <ApyBlock
+            v-if="isVelodrome && selectedPool"
+            :expectedLeverage="expectedLeverage"
+            :pool="selectedPool"
+          />
         </div>
 
         <template v-if="selectedPool">
@@ -144,7 +177,7 @@ const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const ApyBlock = () => import("@/components/borrow/ApyBlock");
-
+const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 
@@ -181,6 +214,7 @@ export default {
         bottom: "Read more about it",
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
+      useCheckBox: false,
     };
   },
 
@@ -195,6 +229,10 @@ export default {
 
     isVelodrome() {
       return this.chainId === 10 && this.selectedPool?.id === 1;
+    },
+
+    isGlp() {
+      return this.chainId === 42161 && this.selectedPool?.id === 3;
     },
 
     filteredPool() {
@@ -252,7 +290,7 @@ export default {
           );
         }
 
-        if (this.isLpLogic) {
+        if (this.isLpLogic && !this.useCheckBox) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.lpInfo.balance,
             this.selectedPool.lpLogic.lpDecimals
@@ -528,6 +566,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
+          if (!this.useCheckBox && this.isCheckBox) return require(`@/assets/images/tokens/GLP.png`);
+
         return this.selectedPool.icon;
       }
       return "";
@@ -541,7 +581,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.isLpLogic) return this.selectedPool.lpLogic.name;
+        if (this.isLpLogic && !this.useCheckBox)
+          return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -550,10 +591,15 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        return (
-          this.selectedPool.userInfo.isApproveTokenCollateral &&
-          this.selectedPool.userInfo.isApproveLevSwapper
-        );
+        if (this.isGlp) {
+          if (this.useCheckBox)
+            return this.selectedPool.userInfo.isApproveTokenCollateral;
+          return this.selectedPool.userInfo.lpInfo.isApprove;
+        } else
+          return (
+            this.selectedPool.userInfo.isApproveTokenCollateral &&
+            this.selectedPool.userInfo.isApproveLevSwapper
+          );
       }
       return true;
     },
@@ -626,6 +672,10 @@ export default {
     isLpLogic() {
       return !!this.selectedPool?.lpLogic;
     },
+
+    isCheckBox() {
+      return this.chainId === 42161 && this.selectedPool?.id === 3;
+    },
   },
 
   watch: {
@@ -674,21 +724,28 @@ export default {
 
       let approveSwap = this.selectedPool.userInfo?.isApproveLevSwapper;
 
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper) {
+      if (!this.selectedPool.userInfo?.isApproveLevSwapper && !this.isGlp) {
         approveSwap = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.levSwapperContract.address
         );
       }
 
-      if (approve && approveSwap) {
+      const isApprove = this.isGlp ? approve : approve && approveSwap;
+
+      if (isApprove) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
@@ -939,37 +996,51 @@ export default {
     },
 
     async addMultiBorrowHandler(data, notificationId) {
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
       const isTokenToCookApprove = await this.getTokenApprove(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address
       );
 
-      const isTokenToSwapApprove = await this.getTokenApprove(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.levSwapperContract.address
-      );
+      let isTokenToSwapApprove;
+      if (!this.isGlp) {
+        isTokenToSwapApprove = await this.getTokenApprove(
+          collateralToken,
+          this.selectedPool.levSwapperContract.address
+        );
+      }
 
-      const isCollateralApproved =
-        !!isTokenToCookApprove && !!isTokenToSwapApprove;
+      const isCollateralApproved = this.isGlp
+        ? !!isTokenToCookApprove
+        : !!isTokenToCookApprove && !!isTokenToSwapApprove;
 
       let isLpApproved;
 
-      if (this.isLpLogic) {
+      if (this.isLpLogic && !this.useCheckBox) {
         const isLpToCookApprove = await this.getTokenApprove(
           this.selectedPool.lpLogic.lpContract,
           this.selectedPool.masterContractInstance.address
         );
 
-        const isLpToSwapApprove = await this.getTokenApprove(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.levSwapperContract.address
-        );
+        let isLpToSwapApprove;
+        if (!this.isGlp) {
+          isLpToSwapApprove = await this.getTokenApprove(
+            this.selectedPool.lpLogic.lpContract,
+            this.selectedPool.levSwapperContract.address
+          );
+        }
 
-        isLpApproved = !!isLpToCookApprove && !!isLpToSwapApprove;
+        isLpApproved = this.isGlp
+          ? !!isLpToCookApprove
+          : !!isLpToCookApprove && !!isLpToSwapApprove;
       }
 
       let isAllApproved;
-      if (this.isLpLogic) {
+      if (this.isLpLogic && !this.useCheckBox) {
         isAllApproved = isCollateralApproved && isLpApproved;
       } else {
         isAllApproved = isCollateralApproved;
@@ -983,7 +1054,8 @@ export default {
             data,
             isApproved,
             this.selectedPool,
-            notificationId
+            notificationId,
+            !this.useCheckBox
           );
         } else {
           this.cookMultiBorrow(
@@ -1049,6 +1121,11 @@ export default {
       this.slipage = 1;
       return false;
     },
+
+    toggleCheckBox() {
+      this.clearData();
+      this.useCheckBox = !this.useCheckBox;
+    },
   },
 
   async created() {
@@ -1079,6 +1156,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     ApyBlock,
+    PrimaryAPYBlock,
   },
 };
 </script>
@@ -1097,8 +1175,9 @@ export default {
 .primary-api {
   margin: 16px 0;
 }
+
 .not-primary-api {
-  margin: 0 0 90px;
+  margin: 30px 0 30px;
 }
 
 .borrow-loading {

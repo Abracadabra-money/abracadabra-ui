@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
-      <img src="@/assets/images/cr.logo.gif" alt="" class="main-logo" />
+      <img src="@/assets/images/magic-crystal.png" alt="" class="main-logo" />
     </router-link>
 
     <nav class="nav">
@@ -36,6 +36,9 @@
           >
           <router-link class="list-link" :to="{ name: 'mStake' }"
             >mSpell</router-link
+          >
+          <router-link class="list-link" :to="{ name: 'magicGLP' }"
+            >magicGLP</router-link
           >
         </div>
       </div>
