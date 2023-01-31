@@ -3,7 +3,7 @@
     href="https://www.lensfrens.xyz/magic.lens"
     target="_blank"
     rel="noreferrer noopener"
-    :class="{'list-link': !isMobile}"
+    :class="{ 'list-link': !isMobile }"
   >
     <svg
       width="28"
@@ -17,18 +17,17 @@
         fill="white"
       ></path>
     </svg>
-    </a
-  >
+  </a>
 </template>
 
 <script>
 export default {
   props: {
     isMobile: {
-      default: false
-    }
-  }
-}
+      default: false,
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

@@ -18,7 +18,6 @@
 </template>
 
 <style lang="scss" scoped>
-
 svg {
   width: 24px;
   height: 18px;

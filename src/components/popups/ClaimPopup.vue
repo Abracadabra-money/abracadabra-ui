@@ -1,7 +1,7 @@
 <template>
-  <div class="popup">
+  <div class="popup" :style="`background-image: url(${bg})`">
     <div class="popup-header">
-      <p class="title">Success</p>
+      <p class="title">Important Notice</p>
       <img
         class="close"
         @click="closePopup"
@@ -11,19 +11,30 @@
     </div>
 
     <div class="popup-content">
-      <img src="@/assets/images/sucess-popup-img.png" alt="" class="main-img" />
-
-      <p class="info-title">The transaction has been successfully confirmed!</p>
-      <p class="info-subtitle">Head over to my position to view it.</p>
+      <p class="popup-text">
+        Your address is affected by a Smart Contract Vulnerability.
+      </p>
+      <p class="popup-text">
+        Follow the Steps here to get back your secured funds.
+      </p>
+      <a class="link" href="http://" target="_blank" rel="noopener noreferrer"
+        >Read more about it here</a
+      >
     </div>
 
-    <BaseButton @click="toMyPosition">My Position</BaseButton>
+    <BaseButton primary>Secure Funds</BaseButton>
   </div>
 </template>
 
 <script>
 const BaseButton = () => import("@/components/base/BaseButton");
+import bg from "@/assets/images/claim/popupBg.png";
 export default {
+  data() {
+    return {
+      bg,
+    };
+  },
   methods: {
     closePopup() {
       this.$store.commit("closePopups");
@@ -51,7 +62,6 @@ export default {
 .popup-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding-bottom: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 15px;
@@ -62,7 +72,6 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 0 10px 25px 10px;
-  text-align: center;
 
   .main-img {
     width: 135px;
@@ -95,5 +104,36 @@ export default {
   width: 14px;
   height: 14px;
   cursor: pointer;
+}
+
+// ------------
+.popup-text,
+.link {
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 27px;
+  letter-spacing: 0.005em;
+  margin-bottom: 15px;
+  text-shadow: 0px 2px 6px #302e38;
+}
+
+.link {
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  position: relative;
+  margin-bottom: 0;
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
 }
 </style>

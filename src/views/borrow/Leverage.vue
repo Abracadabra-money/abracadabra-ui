@@ -91,7 +91,7 @@
         />
 
         <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
-          <ApyBlock   v-if="isVelodrome && selectedPool" :expectedLeverage="expectedLeverage" :pool="selectedPool" />
+          <ApyBlock v-if="isVelodrome && selectedPool" :expectedLeverage="expectedLeverage" :pool="selectedPool" />
         </div>
 
         <template v-if="selectedPool">
@@ -204,10 +204,13 @@ export default {
       signer: "getSigner",
     }),
 
+<<<<<<< HEAD
     isDevelopmentEnv() {
       return process.env.NODE_ENV === "development";
     },
 
+=======
+>>>>>>> 71bcade74b1878676cf0293d28672d3ae8d54571
     isVelodrome() {
       return this.chainId === 10 && this.selectedPool?.id === 1;
     },
