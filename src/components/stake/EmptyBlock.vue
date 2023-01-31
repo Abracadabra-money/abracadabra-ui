@@ -44,7 +44,7 @@ export default {
       img: require(`@/assets/images/empty_borrow.png`),
       text: "Please use Arbitrum Mainnet to obtain magicGLP",
       bottom: "If you want to learn more read our docs",
-      link: "#",
+      link: "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
     },
   }),
   computed: {

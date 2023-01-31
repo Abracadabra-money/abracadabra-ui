@@ -123,7 +123,7 @@ export default [
     cauldronSettings: {
       isDegenBox: true,
       strategyLink:
-        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/u0vFLaZaHrstsu7V-pcs58ufFm7s6Sdw9coKgOfEkXM",
+        "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
