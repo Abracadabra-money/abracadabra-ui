@@ -139,7 +139,6 @@ import {
   deleteFork,
   tenderlySimCookMultiBorrow,
   prepareContractsAndApprove,
-  TENDERLY_BASE_URL,
 } from "@/utils/tenderly";
 import notification from "@/helpers/notification/notification.js";
 
@@ -263,7 +262,7 @@ export default {
           break;
         case "error":
           toolTipMsg =
-            "Your transaction will likely fail. Please try again with lower slippage or leverage settings";
+            "Your transaction has failed. Verify transaction using link b below.";
           break;
         default:
           toolTipMsg = "Set collateral and leverage to simulate a transaction";
@@ -512,7 +511,7 @@ export default {
         this.checkIsLiquidationPriceHit();
       return passedAllChecks;
     },
-    async simulateTransaction() {
+    async simulateTransaction() { 
       this.simulationState = "loading";
       setTimeout(async () => {
         const collateralAmount = this.baseCollateralToDeposit;
@@ -572,7 +571,7 @@ export default {
         }
 
         if (simulationRes?.lastTxnId) {
-          this.transactionLink = `${TENDERLY_BASE_URL}/fork/${this.forkId}/simulation/${simulationRes?.lastTxnId}`;
+          this.transactionLink = `https://dashboard.tenderly.co/abracadabra/magic-internet-money/fork/${this.forkId}/simulation/${simulationRes?.lastTxnId}`;
         }
       }, 5000);
     },

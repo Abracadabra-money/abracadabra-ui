@@ -504,36 +504,32 @@ async function tenderlySimCookMultiBorrow(
         gasPrice: ethers.utils.hexValue(1),
       },
     ];
-    const beforeCook = await provider.send("evm_snapshot", []);
-    const txHashForForkedCook = await provider.send(
+    await provider.send(
       "eth_sendTransaction",
       transactionParametersForForkedCook
     );
 
-    const tx = await provider.getTransactionReceipt(txHashForForkedCook);
     const lastTxnId = await provider.send("evm_snapshot", []);
     const lastTxn = await getSimulationDetails(forkId, lastTxnId);
-    console.log("last txn", lastTxn);
-    if (!tx.status) {
+    const txnStatus = lastTxn.data.simulation.status;
+    if (!txnStatus) {
       return {
         lastTxnId,
       };
     }
 
-    const userCollateralShare =
-      await cauldronContractOnForkedNet.userCollateralShare(signerAddress);
-    console.log(
-      "user collateral share after cook",
-      userCollateralShare.toString()
-    );
-    const userBorrowPart = await cauldronContractOnForkedNet.userBorrowPart(
-      signerAddress
-    );
-
-    await provider.send("evm_revert", [beforeCook]);
+    const userBorrowPart =
+      lastTxn.data.transaction.transaction_info.logs[7].inputs[2].value;
+    const userCollateralDeposited =
+      lastTxn.data.transaction.transaction_info.logs[4].inputs[2].value;
+    const userCollateralBorrwed =
+      lastTxn.data.transaction.transaction_info.logs[24].inputs[2].value;
+    const userCollateralShare = ethers.BigNumber.from(
+      userCollateralBorrwed
+    ).add(userCollateralDeposited);
 
     return {
-      userCollateralShare,
+      userCollateralShare: userCollateralShare.toString(),
       userBorrowPart,
       lastTxnId,
     };
@@ -543,9 +539,4 @@ async function tenderlySimCookMultiBorrow(
   }
 }
 
-export {
-  prepareFork,
-  tenderlySimCookMultiBorrow,
-  prepareContractsAndApprove,
-  TENDERLY_BASE_URL,
-};
+export { prepareFork, tenderlySimCookMultiBorrow, prepareContractsAndApprove };
