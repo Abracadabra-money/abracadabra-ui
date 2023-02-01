@@ -13,6 +13,7 @@ import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
+import { getTotalBorrow } from "@/helpers/getTotalBorrow";
 
 export default {
   computed: {
@@ -80,7 +81,7 @@ export default {
       }
     },
 
-    async getMaxBorrow(bentoContract, poolAddr, tokenAddr) {
+    async getMimCauldronBalance(bentoContract, poolAddr, tokenAddr) {
       try {
         const poolBalance = await bentoContract.balanceOf(tokenAddr, poolAddr, {
           gasLimit: 1000000,
@@ -95,7 +96,7 @@ export default {
         const parsedAmount = this.$ethers.utils.formatUnits(toAmount, 18);
         return parsedAmount;
       } catch (e) {
-        console.log("getMaxBorrow err:", e);
+        console.log("Get Mim Cauldron Balance Error:", e);
         return false;
       }
     },
@@ -402,24 +403,20 @@ export default {
 
       const totalCollateralShare = await poolContract.totalCollateralShare();
 
-      const totalBorrowResp = await poolContract.totalBorrow();
-
-      const totalBorrow = this.$ethers.utils.formatUnits(
-        totalBorrowResp.elastic,
+      const totalBorrow = await getTotalBorrow(
+        poolContract,
         pool.pairToken.decimals
       );
 
-      const { borrowlimit, globalBorrowlimit } = await this.getBorrowlimit(
-        pool,
-        poolContract
-      );
+      const { borrowPartPerAddress, totalBorrowlimit } =
+        await this.getBorrowlimit(pool, poolContract);
 
       const { dynamicBorrowAmount } = await this.getDynamicBorrowAmount(
         pool,
         masterContract,
-        borrowlimit,
+        borrowPartPerAddress,
         totalBorrow,
-        globalBorrowlimit
+        totalBorrowlimit
       );
 
       let oracleDecimals = pool.token.decimals;
@@ -541,7 +538,7 @@ export default {
           exchangeRate: borrowTokenExchangeRate,
         },
         dynamicBorrowAmount,
-        borrowlimit,
+        borrowlimit: borrowPartPerAddress,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
         collateralToken: {
@@ -793,66 +790,63 @@ export default {
     },
 
     async getBorrowlimit(pool, poolContract) {
-      let borrowlimit = null;
-      let globalBorrowlimit = null;
+      let borrowPartPerAddress = null;
+      let totalBorrowlimit = null;
 
       if (pool.cauldronSettings.hasAccountBorrowLimit) {
         const borrowLimitResp = await poolContract.borrowLimit();
 
-        borrowlimit = this.$ethers.utils.formatUnits(
+        borrowPartPerAddress = this.$ethers.utils.formatUnits(
           borrowLimitResp.borrowPartPerAddress.toString(),
           pool.pairToken.decimals
         );
 
-        globalBorrowlimit = this.$ethers.utils.formatUnits(
+        totalBorrowlimit = this.$ethers.utils.formatUnits(
           borrowLimitResp.total.toString(),
           pool.pairToken.decimals
         );
       }
 
-      return { borrowlimit, globalBorrowlimit };
+      return { borrowPartPerAddress, totalBorrowlimit };
     },
 
     async getDynamicBorrowAmount(
       pool,
       masterContract,
-      borrowlimit,
+      borrowPartPerAddress,
       totalBorrow,
-      globalBorrowlimit
+      totalBorrowlimit
     ) {
-      let dynamicBorrowAmount = await this.getMaxBorrow(
+      const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
+        pool.cauldronSettings;
+
+      let dynamicBorrowAmount = await this.getMimCauldronBalance(
         masterContract,
         pool.contract.address,
         pool.pairToken.address
       );
 
-      if (pool.cauldronSettings.dynamicBorrowAmountLimit === 0)
-        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+      if (dynamicBorrowAmountLimit === 0 || isDepreciated)
+        dynamicBorrowAmount = 0;
 
       if (
-        pool.cauldronSettings.dynamicBorrowAmountLimit &&
-        pool.cauldronSettings.dynamicBorrowAmountLimit < dynamicBorrowAmount
+        dynamicBorrowAmountLimit &&
+        dynamicBorrowAmountLimit < dynamicBorrowAmount
       )
-        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+        dynamicBorrowAmount = dynamicBorrowAmountLimit;
 
+      if (hasAccountBorrowLimit && dynamicBorrowAmount > borrowPartPerAddress)
+        dynamicBorrowAmount = borrowPartPerAddress;
+
+      // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
       if (
-        pool.cauldronSettings.hasAccountBorrowLimit &&
-        dynamicBorrowAmount > borrowlimit
+        totalBorrowlimit &&
+        +totalBorrowlimit - +totalBorrow < dynamicBorrowAmount
       )
-        dynamicBorrowAmount = borrowlimit;
-
-      if (pool.cauldronSettings.isDepreciated) dynamicBorrowAmount = 0;
-
-      if (
-        globalBorrowlimit &&
-        +globalBorrowlimit - +totalBorrow < dynamicBorrowAmount
-      ) {
-        // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
         dynamicBorrowAmount =
-          +globalBorrowlimit - +totalBorrow < 1000
+          +totalBorrowlimit - +totalBorrow < 1000
             ? 0
-            : +globalBorrowlimit - +totalBorrow;
-      }
+            : +totalBorrowlimit - +totalBorrow;
 
       return { dynamicBorrowAmount };
     },

@@ -1755,7 +1755,7 @@ export default [
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 10,
-      hasAccountBorrowLimit: false,
+      hasAccountBorrowLimit: true,
       hasWithdrawableLimit: true,
       leverageMax: 15,
       dynamicBorrowAmountLimit: false,
@@ -1803,7 +1803,7 @@ export default [
       dynamicBorrowAmountLimit: 0,
       isCollateralClaimable: false,
       claimCrvReward: false,
-      isMigrated: true
+      isMigrated: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1822,7 +1822,7 @@ export default [
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
-    }
+    },
   },
   {
     icon: require(`@/assets/images/tokens/crvSTETH.png`),
@@ -1846,7 +1846,7 @@ export default [
       dynamicBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
-      isMigrated: true
+      isMigrated: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
