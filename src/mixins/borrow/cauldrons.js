@@ -13,6 +13,7 @@ import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
+import { getTotalBorrow } from "@/helpers/getTotalBorrow";
 
 export default {
   computed: {
@@ -80,7 +81,7 @@ export default {
       }
     },
 
-    async getMaxBorrow(bentoContract, poolAddr, tokenAddr) {
+    async getMimCauldronBalance(bentoContract, poolAddr, tokenAddr) {
       try {
         const poolBalance = await bentoContract.balanceOf(tokenAddr, poolAddr, {
           gasLimit: 1000000,
@@ -95,7 +96,7 @@ export default {
         const parsedAmount = this.$ethers.utils.formatUnits(toAmount, 18);
         return parsedAmount;
       } catch (e) {
-        console.log("getMaxBorrow err:", e);
+        console.log("Get Mim Cauldron Balance Error:", e);
         return false;
       }
     },
@@ -402,10 +403,8 @@ export default {
 
       const totalCollateralShare = await poolContract.totalCollateralShare();
 
-      const totalBorrowResp = await poolContract.totalBorrow();
-
-      const totalBorrow = this.$ethers.utils.formatUnits(
-        totalBorrowResp.elastic,
+      const totalBorrow = await getTotalBorrow(
+        poolContract,
         pool.pairToken.decimals
       );
 
@@ -818,11 +817,10 @@ export default {
       totalBorrow,
       totalBorrowlimit
     ) {
-      const leftToBorrow = +totalBorrowlimit - +totalBorrow;
       const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
         pool.cauldronSettings;
 
-      let dynamicBorrowAmount = await this.getMaxBorrow(
+      let dynamicBorrowAmount = await this.getMimCauldronBalance(
         masterContract,
         pool.contract.address,
         pool.pairToken.address
@@ -841,8 +839,14 @@ export default {
         dynamicBorrowAmount = borrowPartPerAddress;
 
       // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
-      if (totalBorrowlimit && leftToBorrow < dynamicBorrowAmount)
-        dynamicBorrowAmount = leftToBorrow < 1000 ? 0 : leftToBorrow;
+      if (
+        totalBorrowlimit &&
+        +totalBorrowlimit - +totalBorrow < dynamicBorrowAmount
+      )
+        dynamicBorrowAmount =
+          +totalBorrowlimit - +totalBorrow < 1000
+            ? 0
+            : +totalBorrowlimit - +totalBorrow;
 
       return { dynamicBorrowAmount };
     },
