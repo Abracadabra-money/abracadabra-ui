@@ -224,7 +224,7 @@
         </div>
         <p class="profile-subscribtion">
           Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your sGLP into MagicGLP and let it do its
+          tedious work! Simply deposit your GLP into MagicGLP and let it do its
           magic!
           <br />
           Note: A 1% protocol fee is taken on the yields.
@@ -338,9 +338,9 @@ export default {
         const amount = this.amount / this.tokensInfo.tokensRate;
         return Vue.filter("formatToFixed")(amount, 6);
       }
-        
+
       const amount = this.amount * this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+      return Vue.filter("formatToFixed")(amount, 6);
     },
 
     disableActionBtn() {
@@ -349,12 +349,16 @@ export default {
     },
 
     totalRewardsEarned() {
-      return this.totalRewards ? this.$ethers.utils.formatEther(this.totalRewards?.total) : 0;
+      return this.totalRewards
+        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
+        : 0;
     },
 
     totalRewardsUsd() {
       return this.totalRewards
-        ? parseFloat(+this.totalRewardsEarned * +this.tokensInfo.ethPrice).toFixed(2)
+        ? parseFloat(
+            +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+          ).toFixed(2)
         : 0;
     },
   },
