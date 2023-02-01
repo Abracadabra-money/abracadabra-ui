@@ -915,14 +915,33 @@ export default {
             ) / pool.borrowToken.exchangeRate
           : "0.0";
 
+      if(pool.id === 3 && this.chainId === 42161) {
+        const rate = await this.getTokensRate(pool.collateralToken.contract ,pool.lpLogic.lpContract);
+
+        balanceUsd =
+        +balanceUsd > 0
+          ? balanceUsd / rate
+          : "0.0";
+      }
+
       return {
         isApprove,
         balance,
         balanceUsd,
       };
     },
+    async getTokensRate(mainTokenInstance, stakeTokenInstance) {
+      const mGlpBalance = await stakeTokenInstance.balanceOf(mainTokenInstance.address);
+      const totalSupply = await mainTokenInstance.totalSupply();
+    
+      const parsedBalance = this.$ethers.utils.formatEther(mGlpBalance.toString());
+      const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
+    
+      const tokenRate = parsedBalance / parsedTotalSupply;
+    
+      return tokenRate;
+    },
   },
-
   created() {
     this.createPools();
   },
