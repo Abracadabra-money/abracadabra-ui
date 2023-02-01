@@ -83,9 +83,7 @@ export default {
 
     async getMimCauldronBalance(bentoContract, poolAddr, tokenAddr) {
       try {
-        const poolBalance = await bentoContract.balanceOf(tokenAddr, poolAddr, {
-          gasLimit: 1000000,
-        });
+        const poolBalance = await bentoContract.balanceOf(tokenAddr, poolAddr);
 
         const toAmount = await bentoContract.toAmount(
           tokenAddr,
