@@ -615,20 +615,6 @@ export default {
         pool.masterContractInstance.address
       );
 
-      const isApproveLevSwapper = pool.levSwapperContract
-        ? await this.isTokenApprow(
-            pool.collateralToken.contract,
-            pool.levSwapperContract.address
-          )
-        : false;
-
-      const isApproveLiqSwapper = pool.liqSwapperContract
-        ? await this.isTokenApprow(
-            pool.collateralToken.contract,
-            pool.liqSwapperContract.address
-          )
-        : false;
-
       const lpInfo = pool.lpLogic ? await this.getLpInfo(pool) : null;
 
       pool.userInfo = {
@@ -648,8 +634,6 @@ export default {
         whitelistedInfo,
         isApproveTokenCollateral,
         isApproveTokenBorrow,
-        isApproveLevSwapper,
-        isApproveLiqSwapper,
         lpInfo,
       };
 

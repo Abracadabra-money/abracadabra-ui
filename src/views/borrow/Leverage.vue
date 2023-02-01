@@ -363,9 +363,6 @@ export default {
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
         return "Approve Token";
 
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper)
-        return "Approve Leverage";
-
       return "Approve";
     },
 
@@ -613,8 +610,7 @@ export default {
           return this.selectedPool.userInfo.lpInfo.isApprove;
         } else
           return (
-            this.selectedPool.userInfo.isApproveTokenCollateral &&
-            this.selectedPool.userInfo.isApproveLevSwapper
+            this.selectedPool.userInfo.isApproveTokenCollateral
           );
       }
       return true;
@@ -738,8 +734,6 @@ export default {
 
       let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
 
-      let approveSwap = this.selectedPool.userInfo?.isApproveLevSwapper;
-
       const collateralToken =
         this.isLpLogic && !this.useCheckBox
           ? this.selectedPool.lpLogic.lpContract
@@ -752,16 +746,7 @@ export default {
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper && !this.isGlp) {
-        approveSwap = await approveToken(
-          collateralToken,
-          this.selectedPool.levSwapperContract.address
-        );
-      }
-
-      const isApprove = this.isGlp ? approve : approve && approveSwap;
-
-      if (isApprove) {
+      if (approve) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
