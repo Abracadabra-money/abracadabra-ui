@@ -94,7 +94,7 @@
                   'Abracadabra routes leverage through USDC when interacting with GLP. These fees are not included in the slippage tollerance.'
                 "
               />
-              <a target="_blank" href="https://app.gmx.io/#/buy_glp">Current USDC Mint Fee</a>
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp">Check current USDC Mint Fee</a>
               </span
             >
           </div>
