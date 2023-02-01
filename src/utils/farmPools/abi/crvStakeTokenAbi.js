@@ -163,7 +163,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 470049,
   },
   {
     name: "decimals",
@@ -171,7 +170,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 291,
   },
   {
     name: "transfer",
@@ -182,7 +180,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 75402,
   },
   {
     name: "transferFrom",
@@ -194,7 +191,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 112037,
   },
   {
     name: "approve",
@@ -205,7 +201,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37854,
   },
   {
     name: "get_previous_balances",
@@ -213,7 +208,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2254,
   },
   {
     name: "get_balances",
@@ -221,7 +215,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2284,
   },
   {
     name: "get_twap_balances",
@@ -233,7 +226,6 @@ export default [
     ],
     stateMutability: "view",
     type: "function",
-    gas: 1522,
   },
   {
     name: "get_price_cumulative_last",
@@ -241,7 +233,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2344,
   },
   {
     name: "admin_fee",
@@ -249,7 +240,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 621,
   },
   {
     name: "A",
@@ -257,7 +247,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 5859,
   },
   {
     name: "A_precise",
@@ -265,7 +254,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 5821,
   },
   {
     name: "get_virtual_price",
@@ -273,7 +261,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1011891,
   },
   {
     name: "calc_token_amount",
@@ -508,7 +495,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 152464,
   },
   {
     name: "stop_ramp_A",
@@ -516,7 +502,6 @@ export default [
     inputs: [],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 149225,
   },
   {
     name: "admin_balances",
@@ -524,7 +509,6 @@ export default [
     inputs: [{ type: "uint256", name: "i" }],
     stateMutability: "view",
     type: "function",
-    gas: 3601,
   },
   {
     name: "withdraw_admin_fees",
@@ -532,7 +516,6 @@ export default [
     inputs: [],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 11347,
   },
   {
     name: "admin",
@@ -540,7 +523,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2141,
   },
   {
     name: "coins",
@@ -548,7 +530,6 @@ export default [
     inputs: [{ type: "uint256", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 2280,
   },
   {
     name: "balances",
@@ -556,7 +537,6 @@ export default [
     inputs: [{ type: "uint256", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 2310,
   },
   {
     name: "fee",
@@ -564,7 +544,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2231,
   },
   {
     name: "block_timestamp_last",
@@ -572,7 +551,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2261,
   },
   {
     name: "initial_A",
@@ -580,7 +558,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2291,
   },
   {
     name: "future_A",
@@ -588,7 +565,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2321,
   },
   {
     name: "initial_A_time",
@@ -596,7 +572,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2351,
   },
   {
     name: "future_A_time",
@@ -604,7 +579,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2381,
   },
   {
     name: "name",
@@ -612,7 +586,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 8813,
   },
   {
     name: "symbol",
@@ -620,7 +593,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 7866,
   },
   {
     name: "balanceOf",
@@ -628,7 +600,6 @@ export default [
     inputs: [{ type: "address", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 2686,
   },
   {
     name: "allowance",
@@ -639,7 +610,6 @@ export default [
     ],
     stateMutability: "view",
     type: "function",
-    gas: 2931,
   },
   {
     name: "totalSupply",
@@ -647,6 +617,5 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2531,
   },
 ];

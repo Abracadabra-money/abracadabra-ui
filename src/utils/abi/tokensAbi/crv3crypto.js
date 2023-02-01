@@ -47,7 +47,6 @@ export default [
     name: "decimals",
     inputs: [],
     outputs: [{ name: "", type: "uint256" }],
-    gas: 288,
   },
   {
     stateMutability: "nonpayable",
@@ -58,7 +57,6 @@ export default [
       { name: "_value", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
-    gas: 77340,
   },
   {
     stateMutability: "nonpayable",
@@ -70,7 +68,6 @@ export default [
       { name: "_value", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
-    gas: 115282,
   },
   {
     stateMutability: "nonpayable",
@@ -81,7 +78,6 @@ export default [
       { name: "_value", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
-    gas: 37821,
   },
   {
     stateMutability: "nonpayable",
@@ -92,7 +88,6 @@ export default [
       { name: "_added_value", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
-    gas: 40365,
   },
   {
     stateMutability: "nonpayable",
@@ -103,7 +98,6 @@ export default [
       { name: "_subtracted_value", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
-    gas: 40389,
   },
   {
     stateMutability: "nonpayable",
@@ -114,7 +108,6 @@ export default [
       { name: "_value", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
-    gas: 79579,
   },
   {
     stateMutability: "nonpayable",
@@ -125,7 +118,6 @@ export default [
       { name: "frac", type: "uint256" },
     ],
     outputs: [{ name: "", type: "uint256" }],
-    gas: 79983,
   },
   {
     stateMutability: "nonpayable",
@@ -136,7 +128,6 @@ export default [
       { name: "_value", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
-    gas: 79627,
   },
   {
     stateMutability: "nonpayable",
@@ -144,7 +135,6 @@ export default [
     name: "set_minter",
     inputs: [{ name: "_minter", type: "address" }],
     outputs: [],
-    gas: 37815,
   },
   {
     stateMutability: "nonpayable",
@@ -155,7 +145,6 @@ export default [
       { name: "_symbol", type: "string" },
     ],
     outputs: [],
-    gas: 226002,
   },
   {
     stateMutability: "view",
@@ -163,7 +152,6 @@ export default [
     name: "name",
     inputs: [],
     outputs: [{ name: "", type: "string" }],
-    gas: 13020,
   },
   {
     stateMutability: "view",
@@ -171,7 +159,6 @@ export default [
     name: "symbol",
     inputs: [],
     outputs: [{ name: "", type: "string" }],
-    gas: 10773,
   },
   {
     stateMutability: "view",
@@ -179,7 +166,6 @@ export default [
     name: "balanceOf",
     inputs: [{ name: "arg0", type: "address" }],
     outputs: [{ name: "", type: "uint256" }],
-    gas: 2993,
   },
   {
     stateMutability: "view",
@@ -190,7 +176,6 @@ export default [
       { name: "arg1", type: "address" },
     ],
     outputs: [{ name: "", type: "uint256" }],
-    gas: 3238,
   },
   {
     stateMutability: "view",
@@ -198,7 +183,6 @@ export default [
     name: "totalSupply",
     inputs: [],
     outputs: [{ name: "", type: "uint256" }],
-    gas: 2838,
   },
   {
     stateMutability: "view",
@@ -206,6 +190,5 @@ export default [
     name: "minter",
     inputs: [],
     outputs: [{ name: "", type: "address" }],
-    gas: 2868,
   },
 ];

@@ -7,10 +7,7 @@ export const isTokenApprowed = async (
   try {
     const addressApprowed = await tokenContract.allowance(
       account,
-      spenderAddress,
-      {
-        gasLimit: 100000000,
-      }
+      spenderAddress
     );
 
     if (parsed) return parseFloat(addressApprowed.toString()) > 0;

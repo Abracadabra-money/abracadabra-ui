@@ -38,7 +38,6 @@ export default [
     constant: false,
     payable: false,
     type: "function",
-    gas: 36247,
   },
   {
     name: "totalSupply",
@@ -47,7 +46,6 @@ export default [
     constant: true,
     payable: false,
     type: "function",
-    gas: 1181,
   },
   {
     name: "allowance",
@@ -59,7 +57,6 @@ export default [
     constant: true,
     payable: false,
     type: "function",
-    gas: 1519,
   },
   {
     name: "transfer",
@@ -71,7 +68,6 @@ export default [
     constant: false,
     payable: false,
     type: "function",
-    gas: 74802,
   },
   {
     name: "transferFrom",
@@ -84,7 +80,6 @@ export default [
     constant: false,
     payable: false,
     type: "function",
-    gas: 111953,
   },
   {
     name: "approve",
@@ -96,7 +91,6 @@ export default [
     constant: false,
     payable: false,
     type: "function",
-    gas: 39012,
   },
   {
     name: "mint",
@@ -108,7 +102,6 @@ export default [
     constant: false,
     payable: false,
     type: "function",
-    gas: 75733,
   },
   {
     name: "burn",
@@ -117,7 +110,6 @@ export default [
     constant: false,
     payable: false,
     type: "function",
-    gas: 76623,
   },
   {
     name: "burnFrom",
@@ -129,7 +121,6 @@ export default [
     constant: false,
     payable: false,
     type: "function",
-    gas: 76696,
   },
   {
     name: "name",
@@ -138,7 +129,6 @@ export default [
     constant: true,
     payable: false,
     type: "function",
-    gas: 7853,
   },
   {
     name: "symbol",
@@ -147,7 +137,6 @@ export default [
     constant: true,
     payable: false,
     type: "function",
-    gas: 6906,
   },
   {
     name: "decimals",
@@ -156,7 +145,6 @@ export default [
     constant: true,
     payable: false,
     type: "function",
-    gas: 1511,
   },
   {
     name: "balanceOf",
@@ -165,6 +153,5 @@ export default [
     constant: true,
     payable: false,
     type: "function",
-    gas: 1695,
   },
 ];

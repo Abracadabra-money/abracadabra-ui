@@ -203,7 +203,6 @@ export default [
     inputs: [],
     stateMutability: "pure",
     type: "function",
-    gas: 4519,
   },
   {
     name: "setName",
@@ -211,7 +210,6 @@ export default [
     inputs: [{ type: "string", name: "name" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 107017,
   },
   {
     name: "setSymbol",
@@ -219,7 +217,6 @@ export default [
     inputs: [{ type: "string", name: "symbol" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 71867,
   },
   {
     name: "setGovernance",
@@ -227,7 +224,6 @@ export default [
     inputs: [{ type: "address", name: "governance" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 36338,
   },
   {
     name: "acceptGovernance",
@@ -235,7 +231,6 @@ export default [
     inputs: [],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37610,
   },
   {
     name: "setManagement",
@@ -243,7 +238,6 @@ export default [
     inputs: [{ type: "address", name: "management" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37748,
   },
   {
     name: "setGuestList",
@@ -251,7 +245,6 @@ export default [
     inputs: [{ type: "address", name: "guestList" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37778,
   },
   {
     name: "setRewards",
@@ -259,7 +252,6 @@ export default [
     inputs: [{ type: "address", name: "rewards" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37808,
   },
   {
     name: "setLockedProfitDegration",
@@ -267,7 +259,6 @@ export default [
     inputs: [{ type: "uint256", name: "degration" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 36516,
   },
   {
     name: "setDepositLimit",
@@ -275,7 +266,6 @@ export default [
     inputs: [{ type: "uint256", name: "limit" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37768,
   },
   {
     name: "setPerformanceFee",
@@ -283,7 +273,6 @@ export default [
     inputs: [{ type: "uint256", name: "fee" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37902,
   },
   {
     name: "setManagementFee",
@@ -291,7 +280,6 @@ export default [
     inputs: [{ type: "uint256", name: "fee" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37932,
   },
   {
     name: "setGuardian",
@@ -299,7 +287,6 @@ export default [
     inputs: [{ type: "address", name: "guardian" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 39176,
   },
   {
     name: "setEmergencyShutdown",
@@ -307,7 +294,6 @@ export default [
     inputs: [{ type: "bool", name: "active" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 39247,
   },
   {
     name: "setWithdrawalQueue",
@@ -315,7 +301,6 @@ export default [
     inputs: [{ type: "address[20]", name: "queue" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 763923,
   },
   {
     name: "transfer",
@@ -326,7 +311,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 76913,
   },
   {
     name: "transferFrom",
@@ -338,7 +322,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 116676,
   },
   {
     name: "approve",
@@ -349,7 +332,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 38334,
   },
   {
     name: "increaseAllowance",
@@ -360,7 +342,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 40375,
   },
   {
     name: "decreaseAllowance",
@@ -371,7 +352,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 40399,
   },
   {
     name: "permit",
@@ -385,7 +365,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 81327,
   },
   {
     name: "totalAssets",
@@ -393,7 +372,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 4303,
   },
   {
     name: "deposit",
@@ -425,7 +403,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 379843,
   },
   {
     name: "withdraw",
@@ -468,7 +445,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 17509,
   },
   {
     name: "addStrategy",
@@ -482,7 +458,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 1486241,
   },
   {
     name: "updateStrategyDebtRatio",
@@ -493,7 +468,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 115406,
   },
   {
     name: "updateStrategyMinDebtPerHarvest",
@@ -504,7 +478,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 42654,
   },
   {
     name: "updateStrategyMaxDebtPerHarvest",
@@ -515,7 +488,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 42684,
   },
   {
     name: "updateStrategyPerformanceFee",
@@ -526,7 +498,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 41464,
   },
   {
     name: "migrateStrategy",
@@ -537,7 +508,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 1141973,
   },
   {
     name: "revokeStrategy",
@@ -559,7 +529,6 @@ export default [
     inputs: [{ type: "address", name: "strategy" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 1197130,
   },
   {
     name: "removeStrategyFromQueue",
@@ -567,7 +536,6 @@ export default [
     inputs: [{ type: "address", name: "strategy" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 23093586,
   },
   {
     name: "debtOutstanding",
@@ -603,7 +571,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 10108,
   },
   {
     name: "expectedReturn",
@@ -629,7 +596,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 1009335,
   },
   {
     name: "sweep",
@@ -654,7 +620,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 9143,
   },
   {
     name: "symbol",
@@ -662,7 +627,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 8196,
   },
   {
     name: "decimals",
@@ -670,7 +634,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2801,
   },
   {
     name: "balanceOf",
@@ -678,7 +641,6 @@ export default [
     inputs: [{ type: "address", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 3046,
   },
   {
     name: "allowance",
@@ -689,7 +651,6 @@ export default [
     ],
     stateMutability: "view",
     type: "function",
-    gas: 3291,
   },
   {
     name: "totalSupply",
@@ -697,7 +658,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2891,
   },
   {
     name: "token",
@@ -705,7 +665,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2921,
   },
   {
     name: "governance",
@@ -713,7 +672,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2951,
   },
   {
     name: "management",
@@ -721,7 +679,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 2981,
   },
   {
     name: "guardian",
@@ -729,7 +686,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3011,
   },
   {
     name: "guestList",
@@ -737,7 +693,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3041,
   },
   {
     name: "strategies",
@@ -755,7 +710,6 @@ export default [
     inputs: [{ type: "address", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 11394,
   },
   {
     name: "withdrawalQueue",
@@ -763,7 +717,6 @@ export default [
     inputs: [{ type: "uint256", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 3210,
   },
   {
     name: "emergencyShutdown",
@@ -771,7 +724,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3131,
   },
   {
     name: "depositLimit",
@@ -779,7 +731,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3161,
   },
   {
     name: "debtRatio",
@@ -787,7 +738,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3191,
   },
   {
     name: "totalDebt",
@@ -795,7 +745,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3221,
   },
   {
     name: "lastReport",
@@ -803,7 +752,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3251,
   },
   {
     name: "activation",
@@ -811,7 +759,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3281,
   },
   {
     name: "lockedProfit",
@@ -819,7 +766,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3311,
   },
   {
     name: "lockedProfitDegration",
@@ -827,7 +773,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3341,
   },
   {
     name: "rewards",
@@ -835,7 +780,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3371,
   },
   {
     name: "managementFee",
@@ -843,7 +787,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3401,
   },
   {
     name: "performanceFee",
@@ -851,7 +794,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3431,
   },
   {
     name: "nonces",
@@ -859,7 +801,6 @@ export default [
     inputs: [{ type: "address", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 3676,
   },
   {
     name: "DOMAIN_SEPARATOR",
@@ -867,6 +808,5 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 3491,
   },
 ];

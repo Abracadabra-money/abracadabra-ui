@@ -104,10 +104,7 @@ export default {
       try {
         const addressApprowed = await tokenContract.allowance(
           userAddr,
-          approveAddr,
-          {
-            gasLimit: 100000000,
-          }
+          approveAddr
         );
 
         return parseFloat(addressApprowed.toString()) > 0;

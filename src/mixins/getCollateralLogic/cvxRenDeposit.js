@@ -25,9 +25,7 @@ export default {
         this.signer
       );
 
-      let mainTokenBalance = await mainTokenInstance.balanceOf(this.account, {
-        gasLimit: 100000000,
-      });
+      let mainTokenBalance = await mainTokenInstance.balanceOf(this.account);
 
       mainTokenBalance = this.$ethers.utils.formatUnits(
         mainTokenBalance.toString(),
@@ -41,10 +39,7 @@ export default {
       );
 
       let depositTokenBalance = await depositTokenInstance.balanceOf(
-        this.account,
-        {
-          gasLimit: 100000000,
-        }
+        this.account
       );
 
       depositTokenBalance = this.$ethers.utils.formatUnits(
@@ -81,10 +76,7 @@ export default {
       try {
         const addressApprowed = await tokenContract.allowance(
           userAddr,
-          approveAddr,
-          {
-            gasLimit: 100000000,
-          }
+          approveAddr
         );
 
         return parseFloat(addressApprowed.toString()) > 0;
