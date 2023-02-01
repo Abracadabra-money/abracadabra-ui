@@ -61,7 +61,6 @@
               />
               <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem">Current USDC Redeem Fee:</a></span
             >
-            <span>3 %</span>
           </div>
 
           <div :class="{ glp: isGlp }" class="range-underline underline"></div>
