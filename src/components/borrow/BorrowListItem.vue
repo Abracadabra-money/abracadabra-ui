@@ -15,9 +15,16 @@
           <MiniStatusTag v-if="isGlp" text="Leverage" />
         </div>
       </div>
-      <div class="pool-balance">
+      <div class="pool-balance" v-if="isGlp">
+        <p>{{ userBalance | formatTokenBalance }} magicGLP</p>
+        <p>{{ userLpBalance | formatTokenBalance }} GLP</p>
+        <p v-if="+userTotalBalance" class="price">
+          Total amount: {{ userTotalBalance | formatUSD }}
+        </p>
+      </div>
+      <div class="pool-balance" v-else>
         <p>{{ userBalance | formatTokenBalance }}</p>
-        <p v-if="+userBalance">
+        <p v-if="+userBalance" class="price">
           {{ userBalanceUsd | formatUSD }}
         </p>
       </div>
@@ -63,6 +70,24 @@ export default {
       return this.pool.userInfo.balanceUsd;
     },
 
+    userLpBalance() {
+      if (this.isGlp && this.pool.userInfo)
+        return this.$ethers.utils.formatUnits(
+          this.pool.userInfo.lpInfo.balance,
+          this.pool.lpLogic.lpDecimals
+        );
+
+      return 0;
+    },
+
+    userLpBalanceUsd() {
+      return this.pool.userInfo.lpInfo.balanceUsd;
+    },
+
+    userTotalBalance() {
+      return +this.userBalanceUsd + this.userLpBalanceUsd;
+    },
+
     isMigrated() {
       if (this.pool?.cauldronSettings)
         return this.pool.cauldronSettings.isMigrated;
@@ -85,6 +110,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.price {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  line-height: 21px;
+}
+
 .popup-item-wrap {
   padding: 10px 12px;
 
