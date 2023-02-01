@@ -84,7 +84,22 @@
             tooltipText="Allows users to leverage their position. Read more about this in the documents!"
           />
           <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
+
+          <div class="info-item" v-if="isGlp">
+            <span>
+              <img
+                src="@/assets/images/info.svg"
+                alt="info"
+                v-tooltip="
+                  'Abracadabra routes leverage through USDC when interacting with GLP. These fees are not included in the slippage tollerance.'
+                "
+              />
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp">Current USDC Mint Fee</a>
+              </span
+            >
+          </div>
         </div>
+
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
         >
@@ -566,7 +581,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
-          if (!this.useCheckBox && this.isCheckBox) return require(`@/assets/images/tokens/GLP.png`);
+        if (!this.useCheckBox && this.isCheckBox)
+          return require(`@/assets/images/tokens/GLP.png`);
 
         return this.selectedPool.icon;
       }
@@ -1162,6 +1178,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 25px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  a {
+    color: #fff;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+  }
+
+  img {
+    margin-right: 5px;
+    cursor: pointer;
+  }
+}
 .borrow {
   display: grid;
   grid-template-columns: 1fr;

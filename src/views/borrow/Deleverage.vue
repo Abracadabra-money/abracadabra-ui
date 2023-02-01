@@ -50,7 +50,21 @@
             {{ selectedPool.borrowToken.name }}
           </div>
 
-          <div class="range-underline underline"></div>
+          <div class="info-item" v-if="isGlp">
+            <span>
+              <img
+                src="@/assets/images/info.svg"
+                alt="info"
+                v-tooltip="
+                  'Abracadabra routes leverage through USDC when interacting with GLP.These fees are not included in the slippage tollerance.'
+                "
+              />
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem">Current USDC Redeem Fee:</a></span
+            >
+            <span>3 %</span>
+          </div>
+
+          <div :class="{ glp: isGlp }" class="range-underline underline"></div>
 
           <Range
             title="Choose the amount of collateral you want to remove"
@@ -765,6 +779,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 25px;
+  padding: 12px 0;
+
+  a {
+    color: #fff;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+  }
+
+  img {
+    margin-right: 5px;
+    cursor: pointer;
+  }
+}
 .borrow {
   display: grid;
   grid-template-columns: 1fr;
@@ -833,6 +872,10 @@ export default {
 
 .range-underline {
   margin: 30px 0;
+
+  &.glp {
+    margin-top: 0;
+  }
 }
 
 .settings-wrap {
