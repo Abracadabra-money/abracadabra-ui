@@ -87,7 +87,7 @@ export default {
     },
 
     async initContract() {
-      const defaultProvider = new providers.JsonRpcProvider(
+      const defaultProvider = new providers.StaticJsonRpcProvider(
         "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
       );
 
