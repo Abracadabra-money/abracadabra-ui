@@ -111,7 +111,7 @@ export default {
           userAddr,
           approveAddr,
           {
-            gasLimit: 1000000,
+            gasLimit: 100000000,
           }
         );
 

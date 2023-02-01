@@ -9,7 +9,7 @@ export const isTokenApprowed = async (
       account,
       spenderAddress,
       {
-        gasLimit: 1000000,
+        gasLimit: 100000000,
       }
     );
 

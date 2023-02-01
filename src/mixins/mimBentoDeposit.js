@@ -112,7 +112,7 @@ export default {
 
       const bentoAddressApproved = bentoBoxContract
         ? await mimContract.allowance(this.account, bentoBoxContract.address, {
-            gasLimit: 1000000,
+            gasLimit: 100000000,
           })
         : null;
       const bentoAllowance = bentoBoxContract
@@ -121,7 +121,7 @@ export default {
 
       const degenAddressApproved = degenBoxContract
         ? await mimContract.allowance(this.account, degenBoxContract.address, {
-            gasLimit: 1000000,
+            gasLimit: 100000000,
           })
         : null;
       const degenAllowance = degenBoxContract

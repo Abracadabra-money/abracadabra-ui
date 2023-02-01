@@ -26,7 +26,7 @@ export default {
       );
 
       let mainTokenBalance = await mainTokenInstance.balanceOf(this.account, {
-        gasLimit: 1000000,
+        gasLimit: 100000000,
       });
 
       mainTokenBalance = this.$ethers.utils.formatUnits(
@@ -43,7 +43,7 @@ export default {
       let depositTokenBalance = await depositTokenInstance.balanceOf(
         this.account,
         {
-          gasLimit: 1000000,
+          gasLimit: 100000000,
         }
       );
 
@@ -59,7 +59,7 @@ export default {
       );
 
       let stakeTokenBalance = await stakeTokenInstance.balanceOf(this.account, {
-        gasLimit: 1000000,
+        gasLimit: 100000000,
       });
 
       stakeTokenBalance = this.$ethers.utils.formatUnits(
@@ -111,7 +111,7 @@ export default {
           userAddr,
           approveAddr,
           {
-            gasLimit: 1000000,
+            gasLimit: 100000000,
           }
         );
 

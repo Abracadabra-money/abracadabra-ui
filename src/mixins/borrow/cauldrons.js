@@ -127,7 +127,7 @@ export default {
         const reward = await contractInstance.cvx_claimable_reward(
           this.account,
           {
-            gasLimit: 1000000,
+            gasLimit: 100000000,
           }
         );
 
@@ -203,7 +203,7 @@ export default {
     async checkIsUserCollateralLocked(contractInstance) {
       try {
         const infoResp = await contractInstance.users(this.account, {
-          gasLimit: 1000000,
+          gasLimit: 100000000,
         });
 
         const lockTimestamp = infoResp.lockedUntil.toString();
@@ -324,7 +324,7 @@ export default {
           this.account,
           spenderAddress,
           {
-            gasLimit: 1000000,
+            gasLimit: 100000000,
           }
         );
 

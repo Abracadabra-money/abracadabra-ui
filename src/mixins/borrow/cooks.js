@@ -101,7 +101,7 @@ export default {
             amount,
             share,
             {
-              gasLimit: 10000000,
+              gasLimit: 1000000000,
             }
           );
 
@@ -142,7 +142,7 @@ export default {
             amount,
             share,
             {
-              gasLimit: 10000000,
+              gasLimit: 1000000000,
             }
           );
 
@@ -178,7 +178,7 @@ export default {
           cauldronAddress,
           part,
           {
-            gasLimit: 10000000,
+            gasLimit: 1000000000,
           }
         );
 
@@ -425,7 +425,7 @@ export default {
           await yvSETHHelperContract.populateTransaction.reduceCompletely(
             pool.contractInstance.address,
             {
-              gasLimit: 10000000,
+              gasLimit: 1000000000,
             }
           );
 
@@ -2356,7 +2356,7 @@ export default {
           amount,
           swapData,
           {
-            gasLimit: 10000000,
+            gasLimit: 1000000000,
           }
         );
         swapCallByte = swapStaticTx.data;
@@ -2372,7 +2372,7 @@ export default {
           minExpected,
           0,
           {
-            gasLimit: 10000000,
+            gasLimit: 1000000000,
           }
         );
         swapCallByte = swapStaticTx.data.substr(0, 138);
@@ -2592,7 +2592,7 @@ export default {
             amount,
             swapData,
             {
-              gasLimit: 10000000,
+              gasLimit: 1000000000,
             }
           );
 
@@ -2741,7 +2741,7 @@ export default {
           collateralAmount,
           swapData,
           {
-            gasLimit: 10000000,
+            gasLimit: 1000000000,
           }
         );
       } else {
@@ -2752,7 +2752,7 @@ export default {
           0,
           collateralAmount,
           {
-            gasLimit: 10000000,
+            gasLimit: 1000000000,
           }
         );
       }
@@ -2956,7 +2956,7 @@ export default {
           collateralAmount,
           swapData,
           {
-            gasLimit: 10000000,
+            gasLimit: 1000000000,
           }
         );
 
