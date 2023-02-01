@@ -59,7 +59,7 @@
                   'Abracadabra routes leverage through USDC when interacting with GLP.These fees are not included in the slippage tollerance.'
                 "
               />
-              <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem">Current USDC Redeem Fee:</a></span
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem">Current USDC Redeem Fee</a></span
             >
           </div>
 
