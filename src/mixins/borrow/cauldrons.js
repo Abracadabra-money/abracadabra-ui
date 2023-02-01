@@ -409,17 +409,15 @@ export default {
         pool.pairToken.decimals
       );
 
-      const { borrowlimit, globalBorrowlimit } = await this.getBorrowlimit(
-        pool,
-        poolContract
-      );
+      const { borrowPartPerAddress, totalBorrowlimit } =
+        await this.getBorrowlimit(pool, poolContract);
 
       const { dynamicBorrowAmount } = await this.getDynamicBorrowAmount(
         pool,
         masterContract,
-        borrowlimit,
+        borrowPartPerAddress,
         totalBorrow,
-        globalBorrowlimit
+        totalBorrowlimit
       );
 
       let oracleDecimals = pool.token.decimals;
@@ -541,7 +539,7 @@ export default {
           exchangeRate: borrowTokenExchangeRate,
         },
         dynamicBorrowAmount,
-        borrowlimit,
+        borrowlimit: borrowPartPerAddress,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
         collateralToken: {
@@ -793,66 +791,58 @@ export default {
     },
 
     async getBorrowlimit(pool, poolContract) {
-      let borrowlimit = null;
-      let globalBorrowlimit = null;
+      let borrowPartPerAddress = null;
+      let totalBorrowlimit = null;
 
       if (pool.cauldronSettings.hasAccountBorrowLimit) {
         const borrowLimitResp = await poolContract.borrowLimit();
 
-        borrowlimit = this.$ethers.utils.formatUnits(
+        borrowPartPerAddress = this.$ethers.utils.formatUnits(
           borrowLimitResp.borrowPartPerAddress.toString(),
           pool.pairToken.decimals
         );
 
-        globalBorrowlimit = this.$ethers.utils.formatUnits(
+        totalBorrowlimit = this.$ethers.utils.formatUnits(
           borrowLimitResp.total.toString(),
           pool.pairToken.decimals
         );
       }
 
-      return { borrowlimit, globalBorrowlimit };
+      return { borrowPartPerAddress, totalBorrowlimit };
     },
 
     async getDynamicBorrowAmount(
       pool,
       masterContract,
-      borrowlimit,
+      borrowPartPerAddress,
       totalBorrow,
-      globalBorrowlimit
+      totalBorrowlimit
     ) {
+      const leftToBorrow = +totalBorrowlimit - +totalBorrow;
+      const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
+        pool.cauldronSettings;
+
       let dynamicBorrowAmount = await this.getMaxBorrow(
         masterContract,
         pool.contract.address,
         pool.pairToken.address
       );
 
-      if (pool.cauldronSettings.dynamicBorrowAmountLimit === 0)
-        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+      if (dynamicBorrowAmountLimit === 0 || isDepreciated)
+        dynamicBorrowAmount = 0;
 
       if (
-        pool.cauldronSettings.dynamicBorrowAmountLimit &&
-        pool.cauldronSettings.dynamicBorrowAmountLimit < dynamicBorrowAmount
+        dynamicBorrowAmountLimit &&
+        dynamicBorrowAmountLimit < dynamicBorrowAmount
       )
-        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+        dynamicBorrowAmount = dynamicBorrowAmountLimit;
 
-      if (
-        pool.cauldronSettings.hasAccountBorrowLimit &&
-        dynamicBorrowAmount > borrowlimit
-      )
-        dynamicBorrowAmount = borrowlimit;
+      if (hasAccountBorrowLimit && dynamicBorrowAmount > borrowPartPerAddress)
+        dynamicBorrowAmount = borrowPartPerAddress;
 
-      if (pool.cauldronSettings.isDepreciated) dynamicBorrowAmount = 0;
-
-      if (
-        globalBorrowlimit &&
-        +globalBorrowlimit - +totalBorrow < dynamicBorrowAmount
-      ) {
-        // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
-        dynamicBorrowAmount =
-          +globalBorrowlimit - +totalBorrow < 1000
-            ? 0
-            : +globalBorrowlimit - +totalBorrow;
-      }
+      // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
+      if (totalBorrowlimit && leftToBorrow < dynamicBorrowAmount)
+        dynamicBorrowAmount = leftToBorrow < 1000 ? 0 : leftToBorrow;
 
       return { dynamicBorrowAmount };
     },
