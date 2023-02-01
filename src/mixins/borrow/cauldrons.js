@@ -59,9 +59,7 @@ export default {
       );
 
       try {
-        const rate = await oracleContract.peekSpot(oracleData, {
-          gasLimit: 3000000,
-        });
+        const rate = await oracleContract.peekSpot(oracleData);
 
         return rate;
       } catch (e) {
@@ -71,9 +69,7 @@ export default {
 
     async getContractExchangeRate(contract) {
       try {
-        const rate = await contract.exchangeRate({
-          gasLimit: 3000000,
-        });
+        const rate = await contract.exchangeRate();
 
         return rate;
       } catch (e) {
@@ -101,9 +97,7 @@ export default {
 
     async getUserTokenBalance(contract, decimals) {
       try {
-        return await contract.balanceOf(this.account, {
-          gasLimit: 6000000,
-        });
+        return await contract.balanceOf(this.account);
       } catch (e) {
         console.log("userBalance Err:", e);
         return this.$ethers.utils.parseUnits("0", decimals);
@@ -113,9 +107,7 @@ export default {
     async getUserPairBalance(tokenBorrowContract) {
       let userPairBalance;
       try {
-        userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
-          gasLimit: 6000000,
-        });
+        userPairBalance = await tokenBorrowContract.balanceOf(this.account);
       } catch (e) {
         console.log("getUserPairBalance Err:", e);
       }
@@ -125,10 +117,7 @@ export default {
     async getClaimableReward(contractInstance, decimals) {
       try {
         const reward = await contractInstance.cvx_claimable_reward(
-          this.account,
-          {
-            gasLimit: 100000000,
-          }
+          this.account
         );
 
         const parsedReward = this.$ethers.utils.formatUnits(reward, decimals);
@@ -202,9 +191,7 @@ export default {
 
     async checkIsUserCollateralLocked(contractInstance) {
       try {
-        const infoResp = await contractInstance.users(this.account, {
-          gasLimit: 100000000,
-        });
+        const infoResp = await contractInstance.users(this.account);
 
         const lockTimestamp = infoResp.lockedUntil.toString();
         const currentTimestamp = moment().unix().toString();
@@ -322,10 +309,7 @@ export default {
       try {
         const addressApprowed = await contract.allowance(
           this.account,
-          spenderAddress,
-          {
-            gasLimit: 100000000,
-          }
+          spenderAddress
         );
 
         return addressApprowed.toString() > 0;
@@ -707,8 +691,7 @@ export default {
         );
 
         const amountAllowed = await whitelisterContract.amountAllowed(
-          userAddress,
-          { gasLimit: 5000000 }
+          userAddress
         );
 
         const yvcrvSTETHWhitelist = yvcrvSTETHWhitelistLocal;
@@ -774,9 +757,7 @@ export default {
       let maxWithdrawAmount = -1;
 
       if (pool.cauldronSettings.hasWithdrawableLimit) {
-        const tokenWithdrawAmount = await contract.balanceOf(bentoBoxAddress, {
-          gasLimit: 5000000,
-        });
+        const tokenWithdrawAmount = await contract.balanceOf(bentoBoxAddress);
 
         maxWithdrawAmount = this.$ethers.utils.formatUnits(
           tokenWithdrawAmount,

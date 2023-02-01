@@ -57,7 +57,6 @@ export default [
     inputs: [],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 148748,
   },
   {
     name: "start_epoch_time_write",
@@ -65,7 +64,6 @@ export default [
     inputs: [],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 149603,
   },
   {
     name: "future_epoch_time_write",
@@ -73,7 +71,6 @@ export default [
     inputs: [],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 149806,
   },
   {
     name: "available_supply",
@@ -81,7 +78,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 4018,
   },
   {
     name: "mintable_in_timeframe",
@@ -92,7 +88,6 @@ export default [
     ],
     stateMutability: "view",
     type: "function",
-    gas: 2216141,
   },
   {
     name: "set_minter",
@@ -100,7 +95,6 @@ export default [
     inputs: [{ type: "address", name: "_minter" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 38698,
   },
   {
     name: "set_admin",
@@ -108,7 +102,6 @@ export default [
     inputs: [{ type: "address", name: "_admin" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 37837,
   },
   {
     name: "totalSupply",
@@ -116,7 +109,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1421,
   },
   {
     name: "allowance",
@@ -127,7 +119,6 @@ export default [
     ],
     stateMutability: "view",
     type: "function",
-    gas: 1759,
   },
   {
     name: "transfer",
@@ -138,7 +129,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 75139,
   },
   {
     name: "transferFrom",
@@ -150,7 +140,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 111433,
   },
   {
     name: "approve",
@@ -161,7 +150,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 39288,
   },
   {
     name: "mint",
@@ -172,7 +160,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 228030,
   },
   {
     name: "burn",
@@ -180,7 +167,6 @@ export default [
     inputs: [{ type: "uint256", name: "_value" }],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 74999,
   },
   {
     name: "set_name",
@@ -191,7 +177,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 178270,
   },
   {
     name: "name",
@@ -199,7 +184,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 8063,
   },
   {
     name: "symbol",
@@ -207,7 +191,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 7116,
   },
   {
     name: "decimals",
@@ -215,7 +198,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1721,
   },
   {
     name: "balanceOf",
@@ -223,7 +205,6 @@ export default [
     inputs: [{ type: "address", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 1905,
   },
   {
     name: "minter",
@@ -231,7 +212,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1781,
   },
   {
     name: "admin",
@@ -239,7 +219,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1811,
   },
   {
     name: "mining_epoch",
@@ -247,7 +226,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1841,
   },
   {
     name: "start_epoch_time",
@@ -255,7 +233,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1871,
   },
   {
     name: "rate",
@@ -263,6 +240,5 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1901,
   },
 ];

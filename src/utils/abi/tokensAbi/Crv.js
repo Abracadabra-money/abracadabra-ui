@@ -35,8 +35,7 @@ export default [
     outputs: [],
     inputs: [{ type: "address", name: "_minter" }],
     stateMutability: "nonpayable",
-    type: "function",
-    gas: 36247,
+    type: "function"
   },
   {
     name: "set_name",
@@ -47,7 +46,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 178069,
   },
   {
     name: "totalSupply",
@@ -55,7 +53,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1211,
   },
   {
     name: "allowance",
@@ -66,7 +63,6 @@ export default [
     ],
     stateMutability: "view",
     type: "function",
-    gas: 1549,
   },
   {
     name: "transfer",
@@ -77,7 +73,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 74832,
   },
   {
     name: "transferFrom",
@@ -89,7 +84,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 111983,
   },
   {
     name: "approve",
@@ -100,7 +94,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 39078,
   },
   {
     name: "mint",
@@ -111,7 +104,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 75808,
   },
   {
     name: "burnFrom",
@@ -122,7 +114,6 @@ export default [
     ],
     stateMutability: "nonpayable",
     type: "function",
-    gas: 75826,
   },
   {
     name: "name",
@@ -130,7 +121,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 7823,
   },
   {
     name: "symbol",
@@ -138,7 +128,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 6876,
   },
   {
     name: "decimals",
@@ -146,7 +135,6 @@ export default [
     inputs: [],
     stateMutability: "view",
     type: "function",
-    gas: 1481,
   },
   {
     name: "balanceOf",
@@ -154,6 +142,5 @@ export default [
     inputs: [{ type: "address", name: "arg0" }],
     stateMutability: "view",
     type: "function",
-    gas: 1665,
   },
 ];

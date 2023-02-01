@@ -120,13 +120,9 @@ const getCrvPoolApy = async (tokenRate, signer, chainId) => {
       signer
     );
 
-    const rewardRate = await crvRewardPoolContract.rewardRate({
-      gasLimit: 3000000,
-    });
+    const rewardRate = await crvRewardPoolContract.rewardRate();
 
-    const totalSupply = await crvRewardPoolContract.totalSupply({
-      gasLimit: 3000000,
-    });
+    const totalSupply = await crvRewardPoolContract.totalSupply();
 
     const tokenIn1000Usd = 1000 * tokenRate;
 
@@ -171,18 +167,10 @@ const convertCrvToCvx = async (amount, signer) => {
       signer
     );
 
-    const supply = await cvxTokenContract.totalSupply({
-      gasLimit: 3000000,
-    });
-    const reductionPerCliff = await cvxTokenContract.reductionPerCliff({
-      gasLimit: 3000000,
-    });
-    const totalCliffs = await cvxTokenContract.totalCliffs({
-      gasLimit: 3000000,
-    });
-    const maxSupply = await cvxTokenContract.maxSupply({
-      gasLimit: 3000000,
-    });
+    const supply = await cvxTokenContract.totalSupply();
+    const reductionPerCliff = await cvxTokenContract.reductionPerCliff();
+    const totalCliffs = await cvxTokenContract.totalCliffs();
+    const maxSupply = await cvxTokenContract.maxSupply();
 
     const cliff = supply.div(reductionPerCliff);
     //mint if below total cliffs
@@ -213,13 +201,9 @@ const getCryptoPoolApy = async (tokenRate, signer, chainId) => {
       signer
     );
 
-    const rewardRate = await crvRewardPoolContract.rewardRate({
-      gasLimit: 3000000,
-    });
+    const rewardRate = await crvRewardPoolContract.rewardRate();
 
-    const totalSupply = await crvRewardPoolContract.totalSupply({
-      gasLimit: 3000000,
-    });
+    const totalSupply = await crvRewardPoolContract.totalSupply();
 
     const tokenIn1000Usd = 1000 * tokenRate;
 
@@ -278,9 +262,7 @@ const getJLPApr = async (joeInfo, tokenPrice, tokenInstance, signer) => {
   let poolInfo;
 
   try {
-    poolInfo = await masterJoeContract.poolInfo(joeInfo.pid, {
-      gasLimit: 6000000,
-    });
+    poolInfo = await masterJoeContract.poolInfo(joeInfo.pid);
   } catch (e) {
     console.log("pool infi err:", e);
   }
@@ -288,9 +270,7 @@ const getJLPApr = async (joeInfo, tokenPrice, tokenInstance, signer) => {
   let stakingTokenTotalAmount;
 
   try {
-    stakingTokenTotalAmount = await tokenInstance.balanceOf(joeInfo.address, {
-      gasLimit: 6000000,
-    });
+    stakingTokenTotalAmount = await tokenInstance.balanceOf(joeInfo.address);
   } catch (e) {
     console.log("pool infi err:", e);
   }
