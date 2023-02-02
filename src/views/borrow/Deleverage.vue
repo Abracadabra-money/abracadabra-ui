@@ -646,22 +646,9 @@ export default {
         );
       }
 
-      let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.liqSwapperContract.address,
-        this.account
-      );
-
-      if (isTokenToSwapApprove.lt(data.collateralAmount)) {
-        isTokenToSwapApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.liqSwapperContract.address
-        );
-      }
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (+isTokenToCookApprove && +isTokenToSwapApprove) {
+      if (+isTokenToCookApprove) {
         if (this.isLpLogic) {
           this.cookFlashRepayXswapper(
             data,

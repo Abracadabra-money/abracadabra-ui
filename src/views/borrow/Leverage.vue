@@ -94,9 +94,10 @@
                   'Abracadabra routes leverage through USDC when interacting with GLP. These fees are not included in the slippage tollerance.'
                 "
               />
-              <a target="_blank" href="https://app.gmx.io/#/buy_glp">Check current USDC Mint Fee</a>
-              </span
-            >
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp"
+                >Check current USDC Mint Fee</a
+              >
+            </span>
           </div>
         </div>
 
@@ -608,10 +609,7 @@ export default {
           if (this.useCheckBox)
             return this.selectedPool.userInfo.isApproveTokenCollateral;
           return this.selectedPool.userInfo.lpInfo.isApprove;
-        } else
-          return (
-            this.selectedPool.userInfo.isApproveTokenCollateral
-          );
+        } else return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
       return true;
     },
@@ -1007,49 +1005,9 @@ export default {
         this.selectedPool.masterContractInstance.address
       );
 
-      let isTokenToSwapApprove;
-      if (!this.isGlp) {
-        isTokenToSwapApprove = await this.getTokenApprove(
-          collateralToken,
-          this.selectedPool.levSwapperContract.address
-        );
-      }
-
-      const isCollateralApproved = this.isGlp
-        ? !!isTokenToCookApprove
-        : !!isTokenToCookApprove && !!isTokenToSwapApprove;
-
-      let isLpApproved;
-
-      if (this.isLpLogic && !this.useCheckBox) {
-        const isLpToCookApprove = await this.getTokenApprove(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.masterContractInstance.address
-        );
-
-        let isLpToSwapApprove;
-        if (!this.isGlp) {
-          isLpToSwapApprove = await this.getTokenApprove(
-            this.selectedPool.lpLogic.lpContract,
-            this.selectedPool.levSwapperContract.address
-          );
-        }
-
-        isLpApproved = this.isGlp
-          ? !!isLpToCookApprove
-          : !!isLpToCookApprove && !!isLpToSwapApprove;
-      }
-
-      let isAllApproved;
-      if (this.isLpLogic && !this.useCheckBox) {
-        isAllApproved = isCollateralApproved && isLpApproved;
-      } else {
-        isAllApproved = isCollateralApproved;
-      }
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isAllApproved) {
+      if (isTokenToCookApprove) {
         if (this.isLpLogic) {
           this.cookMultiBorrowXswapper(
             data,
