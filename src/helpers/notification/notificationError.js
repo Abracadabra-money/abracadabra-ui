@@ -1,6 +1,9 @@
 export const notificationErrorMsg = (e) => {
   let msg = null;
 
+  if (e?.simulationId) {
+    msg = `https://dashboard.tenderly.co/abracadabra/magic-internet-money/simulator/${e.simulationId}`;
+  }
   if (
     e?.message === "MetaMask Tx Signature: User denied transaction signature."
   ) {
@@ -42,8 +45,10 @@ export const notificationErrorMsg = (e) => {
 
   if (
     String(e).indexOf("RewardTracker: burn amount exceeds balance") !== -1 ||
-    e?.data?.message === "execution reverted: RewardTracker: burn amount exceeds balance" ||
-    e?.message === "execution reverted: RewardTracker: burn amount exceeds balance"
+    e?.data?.message ===
+      "execution reverted: RewardTracker: burn amount exceeds balance" ||
+    e?.message ===
+      "execution reverted: RewardTracker: burn amount exceeds balance"
   ) {
     msg =
       "Some of your GLP tokens are reserved for vesting on gmx. Please insert the amount that is not reserved for vesting";

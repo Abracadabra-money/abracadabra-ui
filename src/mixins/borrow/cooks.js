@@ -8,6 +8,7 @@ const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
 import gmxLensAbi from "@/utils/abi/lp/GmxLens";
+import { configTenderly } from "../../utils/tenderly/simulation";
 
 export default {
   data() {
@@ -24,6 +25,10 @@ export default {
       chainId: "getChainId",
       signer: "getSigner",
     }),
+
+    async isDev() {
+      return process.env.NODE_ENV === "development";
+    },
 
     needWhitelisterApprove() {
       if (!(this.selectedPool.id === 33 && this.chainId === 1)) return false;
@@ -83,6 +88,11 @@ export default {
       );
     },
   },
+
+  async created() {
+    if (this.isDev) configTenderly(this.account, this.chainId);
+  },
+
   methods: {
     async getDegenBoxDepositEncode(
       tokenAddress,
@@ -2535,11 +2545,11 @@ export default {
           valuesArray.push(0);
           datasArray.push(lpCallEncode);
 
-          //10 add collateral
-          const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            ["-2", this.account, true]
-          );
+          const getCollateralEncode2 =
+            this.$ethers.utils.defaultAbiCoder.encode(
+              ["int256", "address", "bool"],
+              ["-2", this.account, true]
+            );
 
           eventsArray.push(10);
           valuesArray.push(0);

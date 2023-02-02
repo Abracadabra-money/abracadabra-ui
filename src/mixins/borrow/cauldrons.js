@@ -1,7 +1,8 @@
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 import axios from "axios";
-import { Contract } from "ethers";
+import { Contract as EthersContract } from "ethers";
+import AbraContract from "../../../lib/AbraContract";
 
 import poolsInfo from "@/utils/borrowPools/pools";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
@@ -14,6 +15,9 @@ import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
 import { getTotalBorrow } from "@/helpers/getTotalBorrow";
+
+const Contract =
+  process.env.NODE_ENV === "development" ? AbraContract : EthersContract;
 
 export default {
   computed: {
@@ -488,7 +492,6 @@ export default {
           };
         }
       }
-
       let interest = 0;
       const poolInterest = await getInterest(poolContract);
       if (poolInterest) interest = poolInterest;
@@ -888,13 +891,13 @@ export default {
             ) / pool.borrowToken.exchangeRate
           : "0.0";
 
-      if(pool.id === 3 && this.chainId === 42161) {
-        const rate = await this.getTokensRate(pool.collateralToken.contract ,pool.lpLogic.lpContract);
+      if (pool.id === 3 && this.chainId === 42161) {
+        const rate = await this.getTokensRate(
+          pool.collateralToken.contract,
+          pool.lpLogic.lpContract
+        );
 
-        balanceUsd =
-        +balanceUsd > 0
-          ? balanceUsd / rate
-          : "0.0";
+        balanceUsd = +balanceUsd > 0 ? balanceUsd / rate : "0.0";
       }
 
       return {
@@ -904,14 +907,18 @@ export default {
       };
     },
     async getTokensRate(mainTokenInstance, stakeTokenInstance) {
-      const mGlpBalance = await stakeTokenInstance.balanceOf(mainTokenInstance.address);
+      const mGlpBalance = await stakeTokenInstance.balanceOf(
+        mainTokenInstance.address
+      );
       const totalSupply = await mainTokenInstance.totalSupply();
-    
-      const parsedBalance = this.$ethers.utils.formatEther(mGlpBalance.toString());
+
+      const parsedBalance = this.$ethers.utils.formatEther(
+        mGlpBalance.toString()
+      );
       const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
-    
+
       const tokenRate = parsedBalance / parsedTotalSupply;
-    
+
       return tokenRate;
     },
   },
