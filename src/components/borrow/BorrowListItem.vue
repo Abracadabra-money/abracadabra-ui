@@ -65,9 +65,9 @@ export default {
     },
 
     userBalanceUsd() {
-      if (this.chainId === 42161 && this.pool?.id === 2 ) return this.pool.userInfo.lpInfo.balanceUsd;
+      if (this.chainId === 42161 && this.pool?.id === 2 ) return this.pool.userInfo?.lpInfo.balanceUsd;
 
-      return this.pool.userInfo.balanceUsd;
+      return this.pool.userInfo?.balanceUsd;
     },
 
     userLpBalance() {
@@ -81,7 +81,7 @@ export default {
     },
 
     userLpBalanceUsd() {
-      return this.pool.userInfo.lpInfo.balanceUsd;
+      return this.pool.userInfo?.lpInfo.balanceUsd;
     },
 
     userTotalBalance() {
