@@ -253,9 +253,6 @@ export default {
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
         return "Approve Token";
 
-      if (!this.selectedPool.userInfo?.isApproveLiqSwapper)
-        return "Approve Flash Repay";
-
       return "Approve";
     },
 
@@ -468,8 +465,7 @@ export default {
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
         return (
-          this.selectedPool.userInfo.isApproveTokenCollateral &&
-          this.selectedPool.userInfo.isApproveLiqSwapper
+          this.selectedPool.userInfo.isApproveTokenCollateral
         );
       }
 
@@ -544,7 +540,6 @@ export default {
       );
 
       let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
-      let approveSwap = this.selectedPool.userInfo?.isApproveLiqSwapper;
 
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
@@ -553,14 +548,7 @@ export default {
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLiqSwapper) {
-        approveSwap = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.liqSwapperContract.address
-        );
-      }
-
-      if (approve && approveSwap) {
+      if (approve) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
@@ -658,22 +646,9 @@ export default {
         );
       }
 
-      let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.liqSwapperContract.address,
-        this.account
-      );
-
-      if (isTokenToSwapApprove.lt(data.collateralAmount)) {
-        isTokenToSwapApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.liqSwapperContract.address
-        );
-      }
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (+isTokenToCookApprove && +isTokenToSwapApprove) {
+      if (+isTokenToCookApprove) {
         if (this.isLpLogic) {
           this.cookFlashRepayXswapper(
             data,
