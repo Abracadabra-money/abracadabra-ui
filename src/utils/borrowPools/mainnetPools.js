@@ -1352,7 +1352,7 @@ export default [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 30,
-      dynamicBorrowAmountLimit: 0,
+      dynamicBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
