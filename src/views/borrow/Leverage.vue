@@ -107,6 +107,7 @@
       </div>
       <div class="info-block">
         <h1 class="title">Leverage farm</h1>
+        <GLPPriceChart v-if="isCheckBox" />
         <BorrowPoolStand
           :pool="selectedPool"
           :collateralExpected="collateralExpected"
@@ -196,6 +197,7 @@ const ApyBlock = () => import("@/components/borrow/ApyBlock");
 const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+const GLPPriceChart = () => import("@/components/leverage/GLPPriceChart");
 
 import Vue from "vue";
 
@@ -1116,6 +1118,7 @@ export default {
     MarketsListPopup,
     ApyBlock,
     PrimaryAPYBlock,
+    GLPPriceChart,
   },
 };
 </script>

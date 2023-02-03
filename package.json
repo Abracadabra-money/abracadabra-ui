@@ -20,6 +20,7 @@
     "chart.js": "^4.2.0",
     "core-js": "^3.26.1",
     "ethers": "^5.7.2",
+    "lightweight-charts": "^3.8.0",
     "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
     "v-tooltip": "^2.1.3",
