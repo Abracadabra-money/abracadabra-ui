@@ -126,7 +126,7 @@
           />
 
           <ApyBlock
-            v-if="isVelodrome && selectedPool"
+            v-if="(isVelodrome && selectedPool) || isTricrypto"
             :expectedLeverage="expectedLeverage"
             :pool="selectedPool"
           />
@@ -249,6 +249,10 @@ export default {
 
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
+    },
+
+    isTricrypto() {
+      return this.chainId === 1 && this.selectedPool?.id === 38;
     },
 
     filteredPool() {

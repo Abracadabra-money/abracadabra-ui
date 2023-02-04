@@ -134,7 +134,7 @@
           :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
         >
           <PrimaryAPYBlock v-if="isGlp && selectedPool" />
-          <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
+          <ApyBlock v-if="(isVelodrome && selectedPool) || isTricrypto" :pool="selectedPool" />
         </div>
 
         <template v-if="selectedPool">
@@ -239,6 +239,10 @@ export default {
         this.chainId === 42161 &&
         this.glpPoolsId.includes(+this.selectedPool?.id)
       );
+    },
+
+    isTricrypto() {
+      return this.chainId === 1 && this.selectedPool?.id === 38;
     },
 
     filteredPool() {

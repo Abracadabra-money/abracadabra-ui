@@ -1869,7 +1869,7 @@ export default [
   },
   {
     icon: require(`@/assets/images/tokens/Convex-Curve3.png`),
-    name: "Tricrypto",
+    name: "yv-3Crypto",
     contractChain: 1,
     id: 38,
     stabilityFee: 4,
@@ -1896,7 +1896,7 @@ export default [
       abi: poolsAbi.CauldronV4,
     },
     token: {
-      name: "Tricrypto",
+      name: "yv-3Crypto",
       decimals: 18,
       address: "0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3",
       abi: tokensAbi.yvcrvSTETH,
