@@ -55,7 +55,7 @@ export default [
       defaultToken: false,
       lpAddress: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
       lpAbi,
-      tokenWrapper: "0x19C08F59c4D75407652A6a970078e79D117d0fD7",
+      tokenWrapper: "0x1fff78fd2e139bc1315711dd3ea176bc7028635a",
       tokenWrapperAbi: lptokenWrapperAbi,
     },
     pairToken: {

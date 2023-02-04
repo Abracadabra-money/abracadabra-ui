@@ -2536,10 +2536,11 @@ export default {
           datasArray.push(lpCallEncode);
 
           //10 add collateral
-          const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            ["-2", this.account, true]
-          );
+          const getCollateralEncode2 =
+            this.$ethers.utils.defaultAbiCoder.encode(
+              ["int256", "address", "bool"],
+              ["-2", this.account, true]
+            );
 
           eventsArray.push(10);
           valuesArray.push(0);
@@ -2947,6 +2948,10 @@ export default {
         swapData = response.data;
       } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
 
+      // const collateral = this.$ethers.utils.formatUnits(collateralAmount);
+      // console.log("collateral", collateral)
+      // console.log("amount usd", collateral * (1/pool.tokenOraclePrice))
+
       const swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(
           pool.collateralToken.address,
@@ -2973,20 +2978,44 @@ export default {
       datasArray.push(callEncode);
 
       if (itsMax) {
+        console.log("userBorrowPart", userBorrowPart.toString());
+
+        // 7
+        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256"],
+          ["-0x02"]
+        );
+
+        eventsArray.push(7);
+        valuesArray.push(0);
+        datasArray.push(getRepayPartEncode);
+
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          [userBorrowPart, account, false]
+          ["-0x01", account, false]
         );
 
         eventsArray.push(2);
         valuesArray.push(0);
         datasArray.push(repayEncode);
       } else {
+        console.log("borrow amount", borrowAmount.toString());
+
+        //7
+        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["int256"],
+          ["-0x02"]
+        );
+
+        eventsArray.push(7);
+        valuesArray.push(0);
+        datasArray.push(getRepayPartEncode);
+
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          [borrowAmount, account, false]
+          ["-0x01", account, false]
         );
 
         eventsArray.push(2);
@@ -3025,16 +3054,16 @@ export default {
       };
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: 0,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -3042,7 +3071,7 @@ export default {
           cookData.datas,
           {
             value: 0,
-            gasLimit,
+            gasLimit: 5000000,
           }
         );
 

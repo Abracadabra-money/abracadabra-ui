@@ -29,5 +29,6 @@ export default {
   },
   getters: {
     getAll: (state) => state.notifications,
+    getLastId: (state) => state.lastId
   },
 };

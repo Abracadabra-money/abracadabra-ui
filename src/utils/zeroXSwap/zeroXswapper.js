@@ -1,4 +1,5 @@
 import { BigNumber, ethers } from "ethers";
+import store from "@/store";
 import axios from "axios";
 
 // import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
@@ -27,16 +28,31 @@ const query0x = async (
     takerAddress,
   };
 
-  const response = await axios.get(url, { params: params });
+  try {
+    const response = await axios.get(url, { params: params });
 
-  const { data, buyAmount, sellAmount, estimatedGas } = response.data;
+    const { data, buyAmount, sellAmount, estimatedGas } = response.data;
+  
+    return {
+      data: data,
+      buyAmount: ethers.BigNumber.from(buyAmount),
+      sellAmount: ethers.BigNumber.from(sellAmount),
+      estimatedGas: ethers.BigNumber.from(estimatedGas),
+    };
+  } catch (error) {
+    const lastNotificationId = store.getters["notifications/getLastId"];
+    await store.commit("notifications/delete", lastNotificationId);
 
-  return {
-    data: data,
-    buyAmount: ethers.BigNumber.from(buyAmount),
-    sellAmount: ethers.BigNumber.from(sellAmount),
-    estimatedGas: ethers.BigNumber.from(estimatedGas),
-  };
+    const message = error.response?.data?.reason
+    const errorNotification = {
+      msg: `0x error: ${message ? message : error.message}`,
+      type: "error",
+    };
+
+    await store.dispatch("notifications/new", errorNotification);
+
+    return false;
+  }
 };
 
 const initializeProps = async (pool) => {
@@ -326,12 +342,16 @@ const getLiq0xData = async (lpAmount, pool, slipage = 1) => {
     amount0
   );
 
+  if(!queryToken0ToMim) return false;
+
   const queryToken1ToMim = await query0x(
     token1.contract.address,
     MIM.address,
     slipage,
     amount1
   );
+
+  if(!queryToken1ToMim) return false;
 
   const data = ethers.utils.defaultAbiCoder.encode(
     ["bytes[]"],
