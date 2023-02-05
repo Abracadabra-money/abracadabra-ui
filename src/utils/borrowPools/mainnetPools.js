@@ -1868,7 +1868,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Convex-Curve3.png`),
+    icon: require(`@/assets/images/tokens/yv-3crypto.png`),
     name: "yv-3Crypto",
     contractChain: 1,
     id: 38,
@@ -1882,7 +1882,7 @@ export default [
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
-      hasAccountBorrowLimit: false,
+      hasAccountBorrowLimit: true,
       hasWithdrawableLimit: false,
       leverageMax: 15,
       dynamicBorrowAmountLimit: false,
