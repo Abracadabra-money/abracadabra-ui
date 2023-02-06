@@ -546,9 +546,10 @@ export default {
   },
 
   async created() {
+    await this.createStakePool();    
+    
+    if (this.chainId !== 42161) return false;
     await this.getTotalRewards();
-
-    await this.createStakePool();
     this.updateInterval = setInterval(async () => {
       await this.createStakePool();
     }, 15000);
