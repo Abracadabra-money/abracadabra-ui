@@ -399,7 +399,7 @@ export default {
         pool.pairToken.address
       );
 
-      const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
+      const { localBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
         pool.cauldronSettings;
 
       const dynamicBorrowAmount = await this.getMIMsLeftToBorrow(
@@ -407,7 +407,7 @@ export default {
         totalBorrow,
         totalBorrowlimit,
         mimCauldronBalance,
-        dynamicBorrowAmountLimit,
+        localBorrowAmountLimit,
         hasAccountBorrowLimit,
         isDepreciated
       );
@@ -789,17 +789,17 @@ export default {
       totalBorrow,
       totalBorrowlimit,
       mimCauldronBalance,
-      dynamicBorrowAmountLimit,
+      localBorrowAmountLimit,
       hasAccountBorrowLimit,
       isDepreciated
     ) {
-      if (dynamicBorrowAmountLimit === 0 || isDepreciated) return 0;
+      if (localBorrowAmountLimit === 0 || isDepreciated) return 0;
 
       const values = [];
 
       values.push(+mimCauldronBalance);
 
-      if (dynamicBorrowAmountLimit) values.push(+dynamicBorrowAmountLimit);
+      if (localBorrowAmountLimit) values.push(+localBorrowAmountLimit);
 
       if (hasAccountBorrowLimit) {
         values.push(+borrowPartPerAddress);
