@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'not-apy': !apy }">
+  <div :class="{ 'no-apy': !apy }">
     <div class="apy" v-if="apy">
       <img class="apy-bg" src="@/assets/images/primary-apy-bg.png" alt="" />
       <div class="apy-content">
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
+import { fetchTokenApy } from "@/helpers/collateralsApy";
 
 export default {
   props: {
@@ -49,7 +49,9 @@ export default {
   },
 
   watch: {
-    async pool() {
+    async pool(val, oldVal) {
+      if(val.id === oldVal.id) return false;
+      this.apy = ""
       this.apy = await fetchTokenApy(this.pool);
     },
   },
@@ -61,8 +63,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.not-apy {
-  margin-bottom: 132px;
+.no-apy {
+  margin-bottom: 32px;
 }
 
 .apy {

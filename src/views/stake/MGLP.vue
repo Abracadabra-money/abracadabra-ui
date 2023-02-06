@@ -266,7 +266,7 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const TickChart = () => import("@/components/ui/TickChart");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-import { getGlpApr } from "@/helpers/glpApr";
+import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
 import { getGlpChartApr } from "@/helpers/glpAprChart";
 import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
@@ -555,12 +555,12 @@ export default {
 
     await this.createChartData(this.chartActiveBtn);
 
-    const apy = await getGlpApr(true);
+    const apy = await getGlpApy(true);
     this.apy = parseFloat(apy).toFixed(2);
 
     this.chartInterval = setInterval(async () => {
       await this.createChartData(this.chartActiveBtn);
-      const apy = await getGlpApr(true);
+      const apy = await getGlpApy(true);
       this.apy = parseFloat(apy).toFixed(2);
     }, 60000);
   },

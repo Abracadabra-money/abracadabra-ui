@@ -129,7 +129,7 @@
           :poolId="selectedPoolId"
         />
 
-        <CollateralApyBlock :pool="selectedPool" />
+        <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">

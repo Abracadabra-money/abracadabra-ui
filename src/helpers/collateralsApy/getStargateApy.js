@@ -3,7 +3,6 @@ import { getTokenPriceByAddress } from "../priceHelper";
 import { getStargateBasicApy } from "@/helpers/stargateFarmApy";
 
 const DegenBoxAddress = "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce";
-
 import DegenBoxAbi from "@/utils/abi/degenBox";
 import mainnetStargateLPStrategyAbi from "@/utils/abi/MainnetStargateLPStrategy";
 import stargatePoolAbi from "@/utils/abi/StargatePool";
@@ -27,7 +26,10 @@ const fetchBasicApy = async (signer, collateralAddress) => {
   return await getStargateBasicApy(collateralAddress, poolId, price.toString());
 };
 
-export const getStargateApy = async (collateralAddress, signer) => {
+export const getStargateApy = async (pool, signer) => {
+
+  const collateralAddress = pool.collateralToken.contract.address
+
   const DegenBoxContract = new ethers.Contract(
     DegenBoxAddress,
     JSON.stringify(DegenBoxAbi),

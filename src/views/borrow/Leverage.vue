@@ -117,6 +117,7 @@
         />
 
         <CollateralApyBlock
+          v-if="selectedPool"
           :pool="selectedPool"
           :expectedLeverage="expectedLeverage"
         />
