@@ -402,7 +402,7 @@ export default {
       const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
         pool.cauldronSettings;
 
-      const dynamicBorrowAmount = await this.getDynamicBorrowAmount(
+      const dynamicBorrowAmount = await this.getMIMsLeftToBorrow(
         borrowPartPerAddress,
         totalBorrow,
         totalBorrowlimit,
@@ -784,7 +784,7 @@ export default {
       return { borrowPartPerAddress, totalBorrowlimit };
     },
 
-    async getDynamicBorrowAmount(
+    async getMIMsLeftToBorrow(
       borrowPartPerAddress,
       totalBorrow,
       totalBorrowlimit,
@@ -795,25 +795,22 @@ export default {
     ) {
       if (dynamicBorrowAmountLimit === 0 || isDepreciated) return 0;
 
-      if (
-        dynamicBorrowAmountLimit &&
-        +dynamicBorrowAmountLimit < +mimCauldronBalance
-      )
-        return dynamicBorrowAmountLimit;
+      const values = [];
 
-      if (hasAccountBorrowLimit && +mimCauldronBalance > +borrowPartPerAddress)
-        return borrowPartPerAddress;
+      values.push(+mimCauldronBalance);
 
-      // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
-      if (
-        totalBorrowlimit &&
-        +totalBorrowlimit - +totalBorrow < mimCauldronBalance
-      )
-        return +totalBorrowlimit - +totalBorrow < 1000
-          ? 0
-          : +totalBorrowlimit - +totalBorrow;
+      if (dynamicBorrowAmountLimit) values.push(+dynamicBorrowAmountLimit);
 
-      return mimCauldronBalance;
+      if (hasAccountBorrowLimit) {
+        values.push(+borrowPartPerAddress);
+        values.push(+totalBorrowlimit);
+
+        const availableLimit = +totalBorrowlimit - +totalBorrow;
+        if (availableLimit < 1000) return 0;
+        values.push(availableLimit);
+      }
+
+      return Math.min(...values);
     },
 
     async getLpLogic(pool) {
