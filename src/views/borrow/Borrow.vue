@@ -129,13 +129,7 @@
           :poolId="selectedPoolId"
         />
 
-        <div
-          class="primary-api"
-          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
-        >
-          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
-          <ApyBlock v-if="(isVelodrome && selectedPool) || isTricrypto" :pool="selectedPool" />
-        </div>
+        <CollateralApyBlock :pool="selectedPool" />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -185,7 +179,8 @@ const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
 
 import Vue from "vue";
 
@@ -197,7 +192,6 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
-const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 
 import { mapGetters } from "vuex";
 
@@ -229,21 +223,6 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
-
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
-    },
-
-    isGlp() {
-      return (
-        this.chainId === 42161 &&
-        this.glpPoolsId.includes(+this.selectedPool?.id)
-      );
-    },
-
-    isTricrypto() {
-      return this.chainId === 1 && this.selectedPool?.id === 38;
-    },
 
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
@@ -488,7 +467,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
-        if (!this.useCheckBox && this.isCheckBox) return require(`@/assets/images/tokens/GLP.png`);
+        if (!this.useCheckBox && this.isCheckBox)
+          return require(`@/assets/images/tokens/GLP.png`);
 
         return this.selectedPool.icon;
       }
@@ -500,7 +480,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic && !this.useCheckBox) return this.selectedPool.lpLogic.name;
+        if (this.selectedPool.lpLogic && !this.useCheckBox)
+          return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -981,8 +962,7 @@ export default {
     BaseLoader,
     LocalPopupWrap,
     MarketsListPopup,
-    ApyBlock,
-    PrimaryAPYBlock,
+    CollateralApyBlock,
   },
 };
 </script>
@@ -1000,10 +980,6 @@ export default {
 
 .primary-api {
   margin: 16px 0;
-}
-
-.not-primary-api {
-  margin: 30px 0 30px;
 }
 
 .borrow-loading {
@@ -1091,7 +1067,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 
