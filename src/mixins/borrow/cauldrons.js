@@ -393,12 +393,23 @@ export default {
       const { borrowPartPerAddress, totalBorrowlimit } =
         await this.getBorrowlimit(pool, poolContract);
 
-      const { dynamicBorrowAmount } = await this.getDynamicBorrowAmount(
-        pool,
+      const mimCauldronBalance = await this.getMimCauldronBalance(
         masterContract,
+        pool.contract.address,
+        pool.pairToken.address
+      );
+
+      const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
+        pool.cauldronSettings;
+
+      const dynamicBorrowAmount = await this.getDynamicBorrowAmount(
         borrowPartPerAddress,
         totalBorrow,
-        totalBorrowlimit
+        totalBorrowlimit,
+        mimCauldronBalance,
+        dynamicBorrowAmountLimit,
+        hasAccountBorrowLimit,
+        isDepreciated
       );
 
       let oracleDecimals = pool.token.decimals;
@@ -774,44 +785,35 @@ export default {
     },
 
     async getDynamicBorrowAmount(
-      pool,
-      masterContract,
       borrowPartPerAddress,
       totalBorrow,
-      totalBorrowlimit
+      totalBorrowlimit,
+      mimCauldronBalance,
+      dynamicBorrowAmountLimit,
+      hasAccountBorrowLimit,
+      isDepreciated
     ) {
-      const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
-        pool.cauldronSettings;
-
-      let dynamicBorrowAmount = await this.getMimCauldronBalance(
-        masterContract,
-        pool.contract.address,
-        pool.pairToken.address
-      );
-
-      if (dynamicBorrowAmountLimit === 0 || isDepreciated)
-        dynamicBorrowAmount = 0;
+      if (dynamicBorrowAmountLimit === 0 || isDepreciated) return 0;
 
       if (
         dynamicBorrowAmountLimit &&
-        dynamicBorrowAmountLimit < dynamicBorrowAmount
+        +dynamicBorrowAmountLimit < +mimCauldronBalance
       )
-        dynamicBorrowAmount = dynamicBorrowAmountLimit;
+        return dynamicBorrowAmountLimit;
 
-      if (hasAccountBorrowLimit && dynamicBorrowAmount > borrowPartPerAddress)
-        dynamicBorrowAmount = borrowPartPerAddress;
+      if (hasAccountBorrowLimit && +mimCauldronBalance > +borrowPartPerAddress)
+        return borrowPartPerAddress;
 
       // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
       if (
         totalBorrowlimit &&
-        +totalBorrowlimit - +totalBorrow < dynamicBorrowAmount
+        +totalBorrowlimit - +totalBorrow < mimCauldronBalance
       )
-        dynamicBorrowAmount =
-          +totalBorrowlimit - +totalBorrow < 1000
-            ? 0
-            : +totalBorrowlimit - +totalBorrow;
+        return +totalBorrowlimit - +totalBorrow < 1000
+          ? 0
+          : +totalBorrowlimit - +totalBorrow;
 
-      return { dynamicBorrowAmount };
+      return mimCauldronBalance;
     },
 
     async getLpLogic(pool) {
@@ -872,13 +874,13 @@ export default {
             ) / pool.borrowToken.exchangeRate
           : "0.0";
 
-      if(pool.id === 3 && this.chainId === 42161) {
-        const rate = await this.getTokensRate(pool.collateralToken.contract ,pool.lpLogic.lpContract);
+      if (pool.id === 3 && this.chainId === 42161) {
+        const rate = await this.getTokensRate(
+          pool.collateralToken.contract,
+          pool.lpLogic.lpContract
+        );
 
-        balanceUsd =
-        +balanceUsd > 0
-          ? balanceUsd / rate
-          : "0.0";
+        balanceUsd = +balanceUsd > 0 ? balanceUsd / rate : "0.0";
       }
 
       return {
@@ -888,14 +890,18 @@ export default {
       };
     },
     async getTokensRate(mainTokenInstance, stakeTokenInstance) {
-      const mGlpBalance = await stakeTokenInstance.balanceOf(mainTokenInstance.address);
+      const mGlpBalance = await stakeTokenInstance.balanceOf(
+        mainTokenInstance.address
+      );
       const totalSupply = await mainTokenInstance.totalSupply();
-    
-      const parsedBalance = this.$ethers.utils.formatEther(mGlpBalance.toString());
+
+      const parsedBalance = this.$ethers.utils.formatEther(
+        mGlpBalance.toString()
+      );
       const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
-    
+
       const tokenRate = parsedBalance / parsedTotalSupply;
-    
+
       return tokenRate;
     },
   },
