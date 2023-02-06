@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import axios from "axios";
 
-const getJlpApy = async (pool, signer) => {
+const getJlpApy = async (pool, provider) => {
 
     const joeInfo = pool.joeInfo;
     const tokenPrice = 1 / pool.borrowToken.exchangeRate;
@@ -10,7 +10,7 @@ const getJlpApy = async (pool, signer) => {
   const masterJoeContract = new ethers.Contract(
     joeInfo.address,
     JSON.stringify(joeInfo.abi),
-    signer
+    provider
   );
 
   let poolInfo;

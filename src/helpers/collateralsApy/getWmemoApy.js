@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import timeStakingAbi from "@/utils/abi/timeStaking";
 import memoTokenAbi from "@/utils/abi/tokensAbi/MEMO";
 
-export const getWmemoApy = async (signer) => {
+export const getWmemoApy = async (provider) => {
   try {
     const STAKING_ADDRESS = "0x4456B87Af11e87E329AB7d7C7A246ed1aC2168B9";
     const MEMO_ADDRESS = "0x136Acd46C134E8269052c62A67042D6bDeDde3C9";
@@ -10,12 +10,12 @@ export const getWmemoApy = async (signer) => {
     const stakingContract = new ethers.Contract(
       STAKING_ADDRESS,
       JSON.stringify(timeStakingAbi),
-      signer
+      provider
     );
     const memoContract = new ethers.Contract(
       MEMO_ADDRESS,
       JSON.stringify(memoTokenAbi),
-      signer
+      provider
     );
 
     const epoch = await stakingContract.epoch();

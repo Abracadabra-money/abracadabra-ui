@@ -7,18 +7,18 @@ import communityIssuanceAbi from "@/utils/abi/communityIssuacneLUSD";
 const stabilityPoolAddress = "0x66017D22b0f8556afDd19FC67041899Eb65a21bb";
 import stabilityPoolAbi from "@/utils/abi/StabilityPoolLUSD";
 
-const getLUSDApy = async (signer) => {
+const getLUSDApy = async (provider) => {
   try {
     const communityIssuanceContract = new ethers.Contract(
       communityIssuanceAddress,
       JSON.stringify(communityIssuanceAbi),
-      signer
+      provider
     );
 
     const stabilityPoolContract = new ethers.Contract(
       stabilityPoolAddress,
       JSON.stringify(stabilityPoolAbi),
-      signer
+      provider
     );
 
     const lqtyPrice = await getTokenPriceByAddress(

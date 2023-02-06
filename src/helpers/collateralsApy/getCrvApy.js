@@ -6,14 +6,14 @@ import tokenCVXAbi from "@/utils/abi/tokensAbi/CVX";
 let crvTokenPrice = null;
 let cvxTokenPrice = null;
 
-const getCrvApy = async (pool, baseRewardPool, signer) => {
+const getCrvApy = async (pool, baseRewardPool, provider) => {
   try {
     const tokenRate = pool.borrowToken.exchangeRate;
 
     const crvRewardPoolContract = new ethers.Contract(
         baseRewardPool,
       JSON.stringify(crvRewardPoolAbi),
-      signer
+      provider
     );
 
     const rewardRate = await crvRewardPoolContract.rewardRate();
@@ -27,7 +27,7 @@ const getCrvApy = async (pool, baseRewardPool, signer) => {
     const crvReward =
       (+rewardRate / +totalSupply) * tokenIn1000Usd * secondsPerYear;
 
-    const cvxReward = await convertCrvToCvx(crvReward, signer);
+    const cvxReward = await convertCrvToCvx(crvReward, provider);
 
     const parsedCvxReward = ethers.utils.formatEther(cvxReward);
 
@@ -65,14 +65,14 @@ const convexFinanceTokenPrice = async (
   return await getTokenPriceByAddress(1, address);
 };
 
-const convertCrvToCvx = async (amount, signer) => {
+const convertCrvToCvx = async (amount, provider) => {
   try {
     let _amount = ethers.utils.parseUnits(parseFloat(amount).toFixed(18), 18);
 
     const cvxTokenContract = new ethers.Contract(
       "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b",
       JSON.stringify(tokenCVXAbi),
-      signer
+      provider
     );
 
     const supply = await cvxTokenContract.totalSupply();

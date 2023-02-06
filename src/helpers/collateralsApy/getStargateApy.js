@@ -7,11 +7,11 @@ import DegenBoxAbi from "@/utils/abi/degenBox";
 import mainnetStargateLPStrategyAbi from "@/utils/abi/MainnetStargateLPStrategy";
 import stargatePoolAbi from "@/utils/abi/StargatePool";
 
-const fetchBasicApy = async (signer, collateralAddress) => {
+const fetchBasicApy = async (provider, collateralAddress) => {
   const poolContract = new ethers.Contract(
     collateralAddress,
     JSON.stringify(stargatePoolAbi),
-    signer
+    provider
   );
 
   const poolId = (await poolContract.poolId()) - 1;
@@ -26,17 +26,17 @@ const fetchBasicApy = async (signer, collateralAddress) => {
   return await getStargateBasicApy(collateralAddress, poolId, price.toString());
 };
 
-export const getStargateApy = async (pool, signer) => {
+export const getStargateApy = async (pool, provider) => {
 
   const collateralAddress = pool.collateralToken.contract.address
 
   const DegenBoxContract = new ethers.Contract(
     DegenBoxAddress,
     JSON.stringify(DegenBoxAbi),
-    signer
+    provider
   );
 
-  const basicApy = (await fetchBasicApy(signer, collateralAddress)) * 100;
+  const basicApy = (await fetchBasicApy(provider, collateralAddress)) * 100;
 
   const { targetPercentage } = await DegenBoxContract.strategyData(
     collateralAddress
@@ -48,7 +48,7 @@ export const getStargateApy = async (pool, signer) => {
   const strategyContract = new ethers.Contract(
     strategyAddress,
     JSON.stringify(mainnetStargateLPStrategyAbi),
-    signer
+    provider
   );
 
   const fee = (await strategyContract.feePercent()) / 100;
