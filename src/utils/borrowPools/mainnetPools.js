@@ -1882,7 +1882,7 @@ export default [
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
-      hasAccountBorrowLimit: true,
+      hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 15,
       dynamicBorrowAmountLimit: false,
