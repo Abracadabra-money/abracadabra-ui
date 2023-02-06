@@ -18,6 +18,7 @@
 
 <script>
 import { getVeloApy } from "@/helpers/borrow/getVeloAPY";
+import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
 import { mapGetters } from "vuex";
 
 export default {
@@ -30,6 +31,9 @@ export default {
       type: Object,
       required: true,
     },
+    apy: {
+      default: null
+    }
   },
   data() {
     return {
@@ -41,6 +45,7 @@ export default {
   computed: {
     ...mapGetters({
       signer: "getSigner",
+      chainId: "getChainId",
     }),
     calculateApy() {
       if (+this.expectedLeverage)
@@ -54,8 +59,14 @@ export default {
     },
   },
   async created() {
-    const selfRepayingAPY = await getVeloApy(this.pool, this.signer);
-    this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+    if(this.chainId === 1 && this.pool.id === 38) {
+      this.tooltipText = ""
+      this.selfRepayingAPY = await fetchTokenApy(this.pool);;
+    } else {
+      // temp
+      const selfRepayingAPY = await getVeloApy(this.pool, this.signer);
+      this.selfRepayingAPY = parseFloat(selfRepayingAPY).toFixed(2);
+    }
   },
 };
 </script>

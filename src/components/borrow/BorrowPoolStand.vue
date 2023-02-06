@@ -79,6 +79,17 @@
           Tokens</a
         >
 
+        <a
+          class="deposit"
+          href="https://yearn.finance/vaults/1/0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3"
+          target="_blank"
+          rel="noreferrer noopener"
+          v-if="isTricrypto"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Yearn
+          Tokens</a
+        >
+
         <div
           v-if="!!pool"
           class="info-btn"
@@ -243,6 +254,10 @@ export default {
 
     isGlp() {
       return this.chainId === 42161 && this.pool?.id === 3;
+    },
+
+    isTricrypto() {
+      return this.chainId === 1 && this.pool?.id === 38;
     },
 
     tokenInUsd() {
