@@ -4,20 +4,32 @@ import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
-import { getXbooApy } from "@/helpers/collateralsApy/getXbooApy";
-import { getJlpApy } from "@/helpers/collateralsApy/getJlpApy";
-// import { getOhmApy } from "@/helpers/collateralsApy/getOhmApy";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
-import { getWmemoApy } from "@/helpers/collateralsApy/getWmemoApy";
-import { getXsushiApy } from "@/helpers/collateralsApy/getXsushiApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
+
+export const isApyCalcExist = (chainId, poolId) => {
+  let cauldronsIds = [];
+
+  if (chainId === 1) {
+    cauldronsIds = [15, 16, 24, 25, 31, 32, 34];
+  }
+
+  if (chainId === 10) {
+    cauldronsIds = [1];
+  }
+
+  if (chainId === 42161) {
+    cauldronsIds = [2, 3];
+  }
+
+  return cauldronsIds.indexOf(poolId !== -1);
+};
 
 export const fetchTokenApy = async (pool) => {
   let chainId = store.getters.getChainId;
   let provider = store.getters.getProvider;
 
   if (chainId === 1) {
-    // if (pool.id === 10) return await getOhmApy(); out of date
     if (pool.id === 34) return await getLUSDApy(provider);
     if (pool.id === 15 || pool.id === 24 || pool.id === 25)
       return await getCrvApy(
@@ -33,28 +45,14 @@ export const fetchTokenApy = async (pool) => {
       );
     if (pool.id === 31 || pool.id === 32)
       return await getStargateApy(pool, provider);
-
-    if (pool.id === 5 || pool.id === 8) return await getXsushiApy(); // out of date
   }
 
   if (chainId === 10) {
     if (pool.id === 1) return await getVeloApy(pool, provider);
   }
 
-  if (chainId === 250) {
-    if (pool.id === 5) return await getXbooApy(); // out of date
-  }
-
   if (chainId === 42161) {
     if (pool.id === 2 || pool.id === 3) return await getGlpApy(pool.id === 3);
-  }
-
-  if (chainId === 43114) {
-    if (pool.id === 2 || pool.id === 5) return await getWmemoApy(provider);
-
-    if (pool.joeInfo) {
-      return await getJlpApy(pool, provider); // out of date
-    }
   }
 
   return await getYearnVaultsApy(pool);

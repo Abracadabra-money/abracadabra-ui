@@ -1,12 +1,15 @@
 <template>
-  <div :class="{ 'no-apy': !apy }">
-    <div class="apy" v-if="apy">
+  <div :class="{ 'no-apy': !isCalcExist }">
+    <div class="apy" v-if="isCalcExist">
       <img class="apy-bg" src="@/assets/images/primary-apy-bg.png" alt="" />
       <div class="apy-content">
         <img class="coins-img" src="@/assets/images/coins.png" alt="" />
         <div>
           <p class="title" v-tooltip="tooltipText">{{ title }}</p>
-          <p class="percent">{{ isTilde }} {{ calculateApy }} %</p>
+          <div class="loader-wrap" v-if="loading">
+            <p class="loader"></p>
+          </div>
+          <p class="percent" v-else>{{ isTilde }} {{ calculateApy }} %</p>
         </div>
       </div>
     </div>
@@ -14,7 +17,7 @@
 </template>
 
 <script>
-import { fetchTokenApy } from "@/helpers/collateralsApy";
+import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 
 export default {
   props: {
@@ -33,10 +36,15 @@ export default {
       title: "Collateral APY",
       apy: "",
       tooltipText: "",
+      isCalcExist: false,
+      loading: false
     };
   },
 
   computed: {
+    chainId() {
+      return this.$store.getters.getChainId;
+    },
     calculateApy() {
       if (+this.expectedLeverage)
         return parseFloat(+this.apy * +this.expectedLeverage).toFixed(2);
@@ -51,13 +59,25 @@ export default {
   watch: {
     async pool(val, oldVal) {
       if(val.id === oldVal.id) return false;
-      this.apy = ""
-      this.apy = await fetchTokenApy(this.pool);
+      await this.init();
     },
   },
 
+  methods: {
+    async getApy() {
+      this.loading = true;
+      this.apy = await fetchTokenApy(this.pool);
+      this.loading = false;
+    },
+    async init() {
+      console.log("init")
+      this.isCalcExist = isApyCalcExist(this.chainId, this.pool.id);
+      if(!this.isCalcExist) return false;
+      await this.getApy();
+    }
+  },
   async created() {
-    this.apy = await fetchTokenApy(this.pool);
+    await this.init();
   },
 };
 </script>
@@ -110,6 +130,40 @@ export default {
   line-height: 30px;
 }
 
+.loader-wrap {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loader {
+  margin-right: 15px;
+  margin-top: 10px;
+  position: relative;
+  display: block;
+  width: 8px;
+  animation: rectangle infinite 1s ease-in-out -0.2s;
+  border-radius: 4px;
+  background-color: #fff;
+}
+.loader:before,
+.loader:after {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  content: "";
+  background-color: #fff;
+}
+.loader:before {
+  left: -10px;
+  animation: rectangle infinite 1s ease-in-out -0.4s;
+}
+.loader:after {
+  right: -10px;
+  animation: rectangle infinite 1s ease-in-out;
+}
+
 @media screen and (max-width: 1220px) {
   .primary-apy-block {
     max-width: 100%;
@@ -134,6 +188,17 @@ export default {
   .percent {
     font-size: 16px;
     line-height: 18px;
+  }
+}
+
+@keyframes rectangle {
+  0%,
+  80%,
+  100% {
+    height: 6px;
+  }
+  40% {
+    height: 8px;
   }
 }
 </style>
