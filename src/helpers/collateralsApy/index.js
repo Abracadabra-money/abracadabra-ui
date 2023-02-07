@@ -6,7 +6,7 @@ import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getXbooApy } from "@/helpers/collateralsApy/getXbooApy";
 import { getJlpApy } from "@/helpers/collateralsApy/getJlpApy";
-import { getOhmApy } from "@/helpers/collateralsApy/getOhmApy";
+// import { getOhmApy } from "@/helpers/collateralsApy/getOhmApy";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getWmemoApy } from "@/helpers/collateralsApy/getWmemoApy";
 import { getXsushiApy } from "@/helpers/collateralsApy/getXsushiApy";
@@ -17,7 +17,7 @@ export const fetchTokenApy = async (pool) => {
   let provider = store.getters.getProvider;
 
   if (chainId === 1) {
-    if (pool.id === 10) return await getOhmApy();
+    // if (pool.id === 10) return await getOhmApy(); out of date
     if (pool.id === 34) return await getLUSDApy(provider);
     if (pool.id === 15 || pool.id === 24 || pool.id === 25)
       return await getCrvApy(
