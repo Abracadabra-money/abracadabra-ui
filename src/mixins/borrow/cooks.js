@@ -2,8 +2,6 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
-import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
-const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
@@ -57,22 +55,6 @@ export default {
           this.signer
         );
 
-      return false;
-    },
-
-    isCookNeedReduceSupply() {
-      // if (this.chainId === 1 && this.selectedPool.id === 12) return true;
-      // if (
-      //   this.chainId === 1 &&
-      //   (this.selectedPool.id === 19 || this.selectedPool.id === 26)
-      // )
-      //   return true;
-
-      // if (this.chainId === 1 && this.selectedPool.id === 31) return true; // Stargate USDC
-      // if (this.chainId === 1 && this.selectedPool.id === 32) return true; // Stargate USDT
-
-      // if (this.chainId === 1 && this.selectedPool.id === 28) return true; // WBTC
-      // if (this.chainId === 1 && this.selectedPool.id === 27) return true; // WETH
       return false;
     },
 
@@ -410,36 +392,6 @@ export default {
         return callEncode;
       } catch (e) {
         console.log("getWhitelistCallData error:", e);
-      }
-    },
-
-    async getReduceSupplyEncode(pool) {
-      try {
-        const yvSETHHelperContract = new this.$ethers.Contract(
-          yvSETHHelperAddr,
-          JSON.stringify(yvSETHHelperAbi),
-          this.signer
-        );
-
-        const reduceCompletelyStaticTx =
-          await yvSETHHelperContract.populateTransaction.reduceCompletely(
-            pool.contractInstance.address,
-            {
-              gasLimit: 1000000000,
-            }
-          );
-
-        const reduceCompletelyCallByte = reduceCompletelyStaticTx.data;
-
-        // 30
-        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [yvSETHHelperAddr, reduceCompletelyCallByte, false, false, 0]
-        );
-
-        return callEncode;
-      } catch (e) {
-        console.log("Error getReduceSupplyEncode:", e);
       }
     },
 
@@ -1528,14 +1480,6 @@ export default {
           valuesArray.push(0);
           datasArray.push(bentoWithdrawEncode);
         }
-
-        if (this.isCookNeedReduceSupply) {
-          const callEncode = await this.getReduceSupplyEncode(pool);
-
-          eventsArray.push(30);
-          valuesArray.push(0);
-          datasArray.push(callEncode);
-        }
       }
 
       if (isApprowed && this.cookHelper) {
@@ -1763,14 +1707,6 @@ export default {
           eventsArray.push(21);
           valuesArray.push(0);
           datasArray.push(bentoWithdrawEncode);
-        }
-
-        if (this.isCookNeedReduceSupply) {
-          const callEncode = await this.getReduceSupplyEncode(pool);
-
-          eventsArray.push(30);
-          valuesArray.push(0);
-          datasArray.push(callEncode);
         }
       }
 
@@ -2178,14 +2114,6 @@ export default {
           valuesArray.push(0);
           datasArray.push(repayEncode);
         }
-      }
-
-      if (this.isCookNeedReduceSupply) {
-        const callEncode = await this.getReduceSupplyEncode(pool);
-
-        eventsArray.push(30);
-        valuesArray.push(0);
-        datasArray.push(callEncode);
       }
 
       if (isApprowed && this.cookHelper) {
@@ -2813,14 +2741,6 @@ export default {
         datasArray.push(bentoWithdrawEncode);
       }
 
-      if (this.isCookNeedReduceSupply) {
-        const callEncode = await this.getReduceSupplyEncode(pool);
-
-        eventsArray.push(30);
-        valuesArray.push(0);
-        datasArray.push(callEncode);
-      }
-
       const cookData = {
         events: eventsArray,
         values: valuesArray,
@@ -3008,14 +2928,6 @@ export default {
         eventsArray.push(...lpRemoveCollateralEventsArray);
         valuesArray.push(...lpRemoveCollateralValuesArray);
         datasArray.push(...lpRemoveCollateralDatasArray);
-      }
-
-      if (this.isCookNeedReduceSupply) {
-        const callEncode = await this.getReduceSupplyEncode(pool);
-
-        eventsArray.push(30);
-        valuesArray.push(0);
-        datasArray.push(callEncode);
       }
 
       const cookData = {
