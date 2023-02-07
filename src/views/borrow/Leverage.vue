@@ -116,21 +116,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div
-          class="primary-api"
-          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
-        >
-          <PrimaryAPYBlock
-            :expectedLeverage="expectedLeverage"
-            v-if="isGlp && selectedPool"
-          />
-
-          <ApyBlock
-            v-if="(isVelodrome && selectedPool) || isTricrypto"
-            :expectedLeverage="expectedLeverage"
-            :pool="selectedPool"
-          />
-        </div>
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :expectedLeverage="expectedLeverage"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -192,10 +182,10 @@ const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
-const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
 
 import Vue from "vue";
 
@@ -243,16 +233,8 @@ export default {
       signer: "getSigner",
     }),
 
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
-    },
-
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
-    },
-
-    isTricrypto() {
-      return this.chainId === 1 && this.selectedPool?.id === 38;
     },
 
     filteredPool() {
@@ -1118,8 +1100,7 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
-    ApyBlock,
-    PrimaryAPYBlock,
+    CollateralApyBlock,
   },
 };
 </script>
@@ -1159,14 +1140,6 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
-}
-
-.primary-api {
-  margin: 16px 0;
-}
-
-.not-primary-api {
-  margin: 30px 0 30px;
 }
 
 .borrow-loading {
@@ -1245,7 +1218,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

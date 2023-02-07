@@ -189,7 +189,7 @@
 import Vue from "vue";
 import LockedTimer from "@/components/stake/LockedTimer.vue";
 import { mapGetters } from "vuex";
-import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
+import { fetchTokenApy } from "@/helpers/collateralsApy";
 const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
