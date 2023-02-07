@@ -3,6 +3,7 @@ import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
+import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
@@ -206,73 +207,27 @@ export default {
     ) {
       if (!this.itsMetamask) return "ledger";
 
-      const account = this.account;
-
+      const user = this.account;
       const masterContract = useHelper
         ? this.cookHelper.address
         : await pool.contractInstance.masterContract();
-
       const verifyingContract = await pool.contractInstance.bentoBox();
-      const nonce = await pool.masterContractInstance.nonces(this.account);
-      const chainId = this.$ethers.utils.hexlify(this.chainId);
+      const nonce = await pool.masterContractInstance.nonces(user);
 
-      const domain = {
-        name: "BentoBox V1",
-        chainId,
+      const parsedSignature = await signMasterContract(
+        this.signer,
+        this.chainId,
         verifyingContract,
-      };
-
-      // The named list of all type definitions
-      const types = {
-        SetMasterContractApproval: [
-          { name: "warning", type: "string" },
-          { name: "user", type: "address" },
-          { name: "masterContract", type: "address" },
-          { name: "approved", type: "bool" },
-          { name: "nonce", type: "uint256" },
-        ],
-      };
-
-      const warning = approved
-        ? "Give FULL access to funds in (and approved to) BentoBox?"
-        : "Revoke access to BentoBox?";
-
-      // The data to sign
-      const value = {
-        warning,
-        user: account,
+        user,
         masterContract,
         approved,
-        nonce: firstSignAdded ? +nonce + 1 : nonce,
-      };
-
-      let signature;
-      try {
-        signature = await this.signer._signTypedData(domain, types, value);
-      } catch (e) {
-        console.log("SIG ERR:", e.code);
-
-        if (e.code === -32603) {
-          console.log("signature ERROR LEGER HERE", e.code);
-          return "ledger";
-        }
-        return false;
-      }
-
-      const parsedSignature = this.parseSignature(signature);
-
-      if (parsedSignature.v === 0) {
-        parsedSignature.v = 27;
-      }
-
-      if (parsedSignature.v === 1) {
-        parsedSignature.v = 28;
-      }
+        firstSignAdded ? +nonce + 1 : nonce
+      );
 
       return this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
         [
-          account,
+          user,
           masterContract,
           approved,
           parsedSignature.v,
@@ -305,24 +260,9 @@ export default {
       );
     },
 
-    parseSignature(signature) {
-      const parsedSignature = signature.substring(2);
-
-      var r = parsedSignature.substring(0, 64);
-      var s = parsedSignature.substring(64, 128);
-      var v = parsedSignature.substring(128, 130);
-
-      return {
-        r: "0x" + r,
-        s: "0x" + s,
-        v: parseInt(v, 16),
-      };
-    },
-
     async getWhitelistCallData() {
       try {
-        const whitelistedInfo =
-          this.selectedPool.userInfo?.whitelistedInfo;
+        const whitelistedInfo = this.selectedPool.userInfo?.whitelistedInfo;
 
         const data = await getSetMaxBorrowData(
           whitelistedInfo.whitelisterContract,
