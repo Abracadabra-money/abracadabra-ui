@@ -1,4 +1,4 @@
-const getSetMaxBorrowData = async (
+export const getSetMaxBorrowData = async (
   contract,
   account,
   userBorrowPart,

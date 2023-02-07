@@ -3,6 +3,7 @@ import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
+import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
@@ -285,30 +286,12 @@ export default {
       try {
         const masterContract = await pool.contractInstance.masterContract();
 
-        const estimateGas =
-          await pool.masterContractInstance.estimateGas.setMasterContractApproval(
-            this.account,
-            masterContract,
-            true,
-            this.$ethers.utils.formatBytes32String(""),
-            this.$ethers.utils.formatBytes32String(""),
-            this.$ethers.utils.formatBytes32String("")
-          );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const tx = await pool.masterContractInstance.setMasterContractApproval(
+        return await setMasterContractApproval(
+          pool.masterContractInstance,
           this.account,
           masterContract,
-          true,
-          this.$ethers.utils.formatBytes32String(""),
-          this.$ethers.utils.formatBytes32String(""),
-          this.$ethers.utils.formatBytes32String(""),
-          { gasLimit }
+          true
         );
-
-        const receipt = await tx.wait();
-        return receipt;
       } catch (e) {
         console.log("approveMasterContract err:", e);
         return false;
@@ -338,20 +321,20 @@ export default {
 
     async getWhitelistCallData() {
       try {
-        const { whitelisterContract, userWhitelistedInfo } =
+        const whitelistedInfo =
           this.selectedPool.userInfo?.whitelistedInfo;
 
         const data = await getSetMaxBorrowData(
-          whitelisterContract,
+          whitelistedInfo.whitelisterContract,
           this.account,
-          userWhitelistedInfo.userBorrowPart,
-          userWhitelistedInfo.proof
+          whitelistedInfo.userWhitelistedInfo.userBorrowPart,
+          whitelistedInfo.userWhitelistedInfo.proof
         );
 
         // 30
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
-          [whitelisterContract.address, data, false, false, 0]
+          [whitelistedInfo.whitelisterContract.address, data, false, false, 0]
         );
 
         return callEncode;
@@ -2817,7 +2800,9 @@ export default {
           this.signer
         );
 
-        const glpAmount = await pool.collateralToken.contract.convertToAssets(collateralAmount);
+        const glpAmount = await pool.collateralToken.contract.convertToAssets(
+          collateralAmount
+        );
 
         const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
           usdcAddress,
