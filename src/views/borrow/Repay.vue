@@ -55,13 +55,7 @@
           :poolId="selectedPoolId"
         />
 
-        <div
-          class="primary-api"
-          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
-        >
-          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
-          <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
-        </div>
+        <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -104,8 +98,8 @@ const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
-const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
 
 import Vue from "vue";
 
@@ -145,10 +139,6 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
-
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
-    },
 
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
@@ -383,13 +373,6 @@ export default {
       if (this.selectedPool) return this.selectedPool.id;
 
       return null;
-    },
-
-    isGlp() {
-      return (
-        this.chainId === 42161 &&
-        this.glpPoolsId.includes(+this.selectedPool?.id)
-      );
     },
   },
 
@@ -729,8 +712,7 @@ export default {
     InfoBlock,
     LocalPopupWrap,
     MarketsListPopup,
-    ApyBlock,
-    PrimaryAPYBlock,
+    CollateralApyBlock,
   },
 };
 </script>
@@ -744,14 +726,6 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
-}
-
-.primary-api {
-  margin: 16px 0;
-}
-
-.not-primary-api {
-  margin: 30px 0 30px;
 }
 
 .borrow-loading {
@@ -803,7 +777,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

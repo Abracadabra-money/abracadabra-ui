@@ -94,9 +94,10 @@
                   'Abracadabra routes leverage through USDC when interacting with GLP. These fees are not included in the slippage tollerance.'
                 "
               />
-              <a target="_blank" href="https://app.gmx.io/#/buy_glp">Check current USDC Mint Fee</a>
-              </span
-            >
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp"
+                >Check current USDC Mint Fee</a
+              >
+            </span>
           </div>
         </div>
 
@@ -115,21 +116,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div
-          class="primary-api"
-          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
-        >
-          <PrimaryAPYBlock
-            :expectedLeverage="expectedLeverage"
-            v-if="isGlp && selectedPool"
-          />
-
-          <ApyBlock
-            v-if="isVelodrome && selectedPool"
-            :expectedLeverage="expectedLeverage"
-            :pool="selectedPool"
-          />
-        </div>
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :expectedLeverage="expectedLeverage"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -191,10 +182,10 @@ const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
-const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
 
 import Vue from "vue";
 
@@ -241,10 +232,6 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
-
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
-    },
 
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
@@ -362,9 +349,6 @@ export default {
     actionApproveTokenText() {
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
         return "Approve Token";
-
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper)
-        return "Approve Leverage";
 
       return "Approve";
     },
@@ -611,11 +595,7 @@ export default {
           if (this.useCheckBox)
             return this.selectedPool.userInfo.isApproveTokenCollateral;
           return this.selectedPool.userInfo.lpInfo.isApprove;
-        } else
-          return (
-            this.selectedPool.userInfo.isApproveTokenCollateral &&
-            this.selectedPool.userInfo.isApproveLevSwapper
-          );
+        } else return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
       return true;
     },
@@ -738,8 +718,6 @@ export default {
 
       let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
 
-      let approveSwap = this.selectedPool.userInfo?.isApproveLevSwapper;
-
       const collateralToken =
         this.isLpLogic && !this.useCheckBox
           ? this.selectedPool.lpLogic.lpContract
@@ -752,16 +730,7 @@ export default {
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper && !this.isGlp) {
-        approveSwap = await approveToken(
-          collateralToken,
-          this.selectedPool.levSwapperContract.address
-        );
-      }
-
-      const isApprove = this.isGlp ? approve : approve && approveSwap;
-
-      if (isApprove) {
+      if (approve) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
@@ -1022,49 +991,9 @@ export default {
         this.selectedPool.masterContractInstance.address
       );
 
-      let isTokenToSwapApprove;
-      if (!this.isGlp) {
-        isTokenToSwapApprove = await this.getTokenApprove(
-          collateralToken,
-          this.selectedPool.levSwapperContract.address
-        );
-      }
-
-      const isCollateralApproved = this.isGlp
-        ? !!isTokenToCookApprove
-        : !!isTokenToCookApprove && !!isTokenToSwapApprove;
-
-      let isLpApproved;
-
-      if (this.isLpLogic && !this.useCheckBox) {
-        const isLpToCookApprove = await this.getTokenApprove(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.masterContractInstance.address
-        );
-
-        let isLpToSwapApprove;
-        if (!this.isGlp) {
-          isLpToSwapApprove = await this.getTokenApprove(
-            this.selectedPool.lpLogic.lpContract,
-            this.selectedPool.levSwapperContract.address
-          );
-        }
-
-        isLpApproved = this.isGlp
-          ? !!isLpToCookApprove
-          : !!isLpToCookApprove && !!isLpToSwapApprove;
-      }
-
-      let isAllApproved;
-      if (this.isLpLogic && !this.useCheckBox) {
-        isAllApproved = isCollateralApproved && isLpApproved;
-      } else {
-        isAllApproved = isCollateralApproved;
-      }
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isAllApproved) {
+      if (isTokenToCookApprove) {
         if (this.isLpLogic) {
           this.cookMultiBorrowXswapper(
             data,
@@ -1171,8 +1100,7 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
-    ApyBlock,
-    PrimaryAPYBlock,
+    CollateralApyBlock,
   },
 };
 </script>
@@ -1212,14 +1140,6 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
-}
-
-.primary-api {
-  margin: 16px 0;
-}
-
-.not-primary-api {
-  margin: 30px 0 30px;
 }
 
 .borrow-loading {
@@ -1298,7 +1218,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

@@ -59,7 +59,9 @@
                   'Abracadabra routes leverage through USDC when interacting with GLP.These fees are not included in the slippage tollerance.'
                 "
               />
-              <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem">Check current USDC Burn Fee</a></span
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem"
+                >Check current USDC Burn Fee</a
+              ></span
             >
           </div>
 
@@ -101,13 +103,7 @@
           :poolId="selectedPoolId"
         />
 
-        <div
-          class="primary-api"
-          :class="{ 'not-primary-api': !isGlp || !isVelodrome }"
-        >
-          <PrimaryAPYBlock v-if="isGlp && selectedPool" />
-          <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
-        </div>
+        <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -155,7 +151,8 @@ const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
 
 import Vue from "vue";
 
@@ -168,7 +165,6 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
-const PrimaryAPYBlock = () => import("@/components/borrow/PrimaryAPYBlock");
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -198,10 +194,6 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
-
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
-    },
 
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
@@ -252,9 +244,6 @@ export default {
     actionApproveTokenText() {
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
         return "Approve Token";
-
-      if (!this.selectedPool.userInfo?.isApproveLiqSwapper)
-        return "Approve Flash Repay";
 
       return "Approve";
     },
@@ -467,10 +456,7 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        return (
-          this.selectedPool.userInfo.isApproveTokenCollateral &&
-          this.selectedPool.userInfo.isApproveLiqSwapper
-        );
+        return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
 
       return true;
@@ -544,7 +530,6 @@ export default {
       );
 
       let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
-      let approveSwap = this.selectedPool.userInfo?.isApproveLiqSwapper;
 
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
@@ -553,14 +538,7 @@ export default {
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLiqSwapper) {
-        approveSwap = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.liqSwapperContract.address
-        );
-      }
-
-      if (approve && approveSwap) {
+      if (approve) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
@@ -658,22 +636,9 @@ export default {
         );
       }
 
-      let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.liqSwapperContract.address,
-        this.account
-      );
-
-      if (isTokenToSwapApprove.lt(data.collateralAmount)) {
-        isTokenToSwapApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.liqSwapperContract.address
-        );
-      }
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (+isTokenToCookApprove && +isTokenToSwapApprove) {
+      if (+isTokenToCookApprove) {
         if (this.isLpLogic) {
           this.cookFlashRepayXswapper(
             data,
@@ -771,8 +736,7 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
-    ApyBlock,
-    PrimaryAPYBlock,
+    CollateralApyBlock,
   },
 };
 </script>
@@ -811,13 +775,6 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
-}
-
-.primary-api {
-  margin: 16px 0;
-}
-.not-primary-api {
-  margin: 30px 0 30px;
 }
 
 .borrow-loading {
@@ -915,7 +872,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

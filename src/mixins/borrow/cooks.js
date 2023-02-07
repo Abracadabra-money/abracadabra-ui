@@ -2817,9 +2817,11 @@ export default {
           this.signer
         );
 
+        const glpAmount = await pool.collateralToken.contract.convertToAssets(collateralAmount);
+
         const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
           usdcAddress,
-          collateralAmount
+          glpAmount
         );
 
         const response = await this.query0x(

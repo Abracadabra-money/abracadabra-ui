@@ -17,8 +17,8 @@
 <script>
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { getGlpApr } from "@/helpers/glpApr";
-import { getVeloManagementFee } from "@/helpers/borrow/getVeloAPY";
+import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
+import { getVeloManagementFee } from "@/helpers/collateralsApy/getVeloApy";
 
 export default {
   props: {
@@ -126,12 +126,12 @@ export default {
 
   watch: {
     async pool() {
-      this.tokenApy = await getGlpApr();
+      if (this.isGlpPool) this.tokenApy = await getGlpApy();
     },
   },
 
   async created() {
-    if (this.isGlpPool) this.tokenApy = await getGlpApr();
+    if (this.isGlpPool) this.tokenApy = await getGlpApy();
 
     if (this.isVelodrome)
       this.veloManagementFee = await getVeloManagementFee(
