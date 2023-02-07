@@ -1,10 +1,10 @@
-import axios from "axios";
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
+import { swap0xRequest } from "@/helpers/0x"
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
@@ -281,35 +281,6 @@ export default {
       } catch (e) {
         console.log("getWhitelistCallData error:", e);
       }
-    },
-
-    async query0x(buyToken, sellToken, slippage = 0, amountSell, takerAddress) {
-      const slippagePercentage = slippage / 100;
-
-      const url =
-        this.chainId === 42161
-          ? "https://arbitrum.api.0x.org/swap/v1/quote"
-          : "https://api.0x.org/swap/v1/quote";
-
-      const params = {
-        buyToken: buyToken,
-        sellToken: sellToken,
-        sellAmount: amountSell.toString(),
-        slippagePercentage,
-        skipValidation: true,
-        takerAddress,
-      };
-
-      const response = await axios.get(url, { params: params });
-
-      const { data, buyAmount, sellAmount, estimatedGas } = response.data;
-
-      return {
-        data: data,
-        buyAmount: this.$ethers.BigNumber.from(buyAmount),
-        sellAmount: this.$ethers.BigNumber.from(sellAmount),
-        estimatedGas: this.$ethers.BigNumber.from(estimatedGas),
-      };
     },
 
     // Borrow
@@ -2157,7 +2128,8 @@ export default {
       let swapStaticTx, swapCallByte, getCallEncode2;
 
       if (pool.is0xSwap) {
-        const response = await this.query0x(
+        const response = await swap0xRequest(
+          this.chainId,
           pool.collateralToken.address,
           pool.borrowToken.address,
           slipage,
@@ -2391,7 +2363,8 @@ export default {
         let swapData;
 
         if (this.isGlp) {
-          const response = await this.query0x(
+          const response = await swap0xRequest(
+            this.chainId,
             usdcAddress,
             pool.borrowToken.address,
             slipage,
@@ -2540,7 +2513,8 @@ export default {
 
       let swapStaticTx;
       if (pool.is0xSwap) {
-        const response = await this.query0x(
+        const response = await swap0xRequest(
+          this.chainId,
           pool.borrowToken.address,
           pool.collateralToken.address,
           slipage,
@@ -2749,7 +2723,8 @@ export default {
           glpAmount
         );
 
-        const response = await this.query0x(
+        const response = await swap0xRequest(
+          this.chainId,
           pool.borrowToken.address,
           usdcAddress,
           slipage,
