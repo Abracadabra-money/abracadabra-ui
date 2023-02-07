@@ -2,6 +2,7 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
+import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
@@ -208,10 +209,10 @@ export default {
 
       const masterContract = useHelper
         ? this.cookHelper.address
-        : await this.getMasterContract(pool);
+        : await pool.contractInstance.masterContract();
 
-      const verifyingContract = await this.getVerifyingContract(pool);
-      const nonce = await this.getNonce(pool);
+      const verifyingContract = await pool.contractInstance.bentoBox();
+      const nonce = await pool.masterContractInstance.nonces(this.account);
       const chainId = this.$ethers.utils.hexlify(this.chainId);
 
       const domain = {
@@ -280,17 +281,9 @@ export default {
       );
     },
 
-    async getVerifyingContract(pool) {
-      try {
-        return await pool.contractInstance.bentoBox();
-      } catch (e) {
-        console.log("getVerifyingContract err:", e);
-      }
-    },
-
     async approveMasterContract(pool) {
       try {
-        const masterContract = await this.getMasterContract(pool);
+        const masterContract = await pool.contractInstance.masterContract();
 
         const estimateGas =
           await pool.masterContractInstance.estimateGas.setMasterContractApproval(
@@ -343,50 +336,22 @@ export default {
       };
     },
 
-    async getNonce(pool) {
-      try {
-        const nonces = await pool.masterContractInstance.nonces(this.account);
-        return nonces.toString();
-      } catch (e) {
-        console.log("getNonce err:", e);
-      }
-    },
-
-    async getMasterContract(pool) {
-      try {
-        return await pool.contractInstance.masterContract();
-      } catch (e) {
-        console.log("getMasterContract err:", e);
-      }
-    },
-
     async getWhitelistCallData() {
       try {
-        const setMaxBorrowStaticTx =
-          await this.selectedPool.userInfo?.whitelistedInfo.whitelisterContract.populateTransaction.setMaxBorrow(
-            this.account,
-            this.selectedPool.userInfo?.whitelistedInfo.userWhitelistedInfo
-              .userBorrowPart,
-            this.selectedPool.userInfo?.whitelistedInfo.userWhitelistedInfo
-              .proof,
-            {
-              gasLimit: 50000000,
-            }
-          );
+        const { whitelisterContract, userWhitelistedInfo } =
+          this.selectedPool.userInfo?.whitelistedInfo;
 
-        const setMaxBorrowCallByte = setMaxBorrowStaticTx.data;
+        const data = await getSetMaxBorrowData(
+          whitelisterContract,
+          this.account,
+          userWhitelistedInfo.userBorrowPart,
+          userWhitelistedInfo.proof
+        );
 
         // 30
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "bytes", "bool", "bool", "uint8"],
-          [
-            this.selectedPool.userInfo?.whitelistedInfo.whitelisterContract
-              .address,
-            setMaxBorrowCallByte,
-            false,
-            false,
-            0,
-          ]
+          [whitelisterContract.address, data, false, false, 0]
         );
 
         return callEncode;
@@ -2464,10 +2429,11 @@ export default {
           datasArray.push(lpCallEncode);
 
           //10 add collateral
-          const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            ["-2", this.account, true]
-          );
+          const getCollateralEncode2 =
+            this.$ethers.utils.defaultAbiCoder.encode(
+              ["int256", "address", "bool"],
+              ["-2", this.account, true]
+            );
 
           eventsArray.push(10);
           valuesArray.push(0);

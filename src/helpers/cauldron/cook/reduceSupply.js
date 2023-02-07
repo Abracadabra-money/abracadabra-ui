@@ -11,12 +11,12 @@ export const getReduceSupplyData = async (cauldron, provider) => {
       provider
     );
 
-    const reduceCompletelyStaticTx =
+    const reduceCompletelyTx =
       await MasterContractOwnerContract.populateTransaction.reduceCompletely(
         cauldron
       );
 
-    return reduceCompletelyStaticTx.data;
+    return reduceCompletelyTx.data;
   } catch (e) {
     console.log("getReduceSupplyData error:", e);
   }
