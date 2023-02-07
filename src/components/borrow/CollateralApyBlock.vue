@@ -37,7 +37,7 @@ export default {
       apy: "",
       tooltipText: "",
       isCalcExist: false,
-      loading: false
+      loading: false,
     };
   },
 
@@ -58,7 +58,7 @@ export default {
 
   watch: {
     async pool(val, oldVal) {
-      if(val.id === oldVal.id) return false;
+      if (val.id === oldVal.id) return false;
       await this.init();
     },
   },
@@ -70,11 +70,10 @@ export default {
       this.loading = false;
     },
     async init() {
-      console.log("init")
       this.isCalcExist = isApyCalcExist(this.chainId, this.pool.id);
-      if(!this.isCalcExist) return false;
+      if (!this.isCalcExist) return false;
       await this.getApy();
-    }
+    },
   },
   async created() {
     await this.init();
