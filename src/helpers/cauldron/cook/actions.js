@@ -87,8 +87,8 @@ const addCollateral = (cookData, share, to, skim, value = 0) => {
 const updateExchangeRate = (
   cookData,
   mustUpdate,
-  minRate,
-  maxRate,
+  minRate= "0x00",
+  maxRate = "0x00",
   value = 0
 ) => {
   const methodId = 11;
