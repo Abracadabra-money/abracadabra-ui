@@ -4,7 +4,7 @@ import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
-import { swap0xRequest } from "@/helpers/0x"
+import { swap0xRequest } from "@/helpers/0x";
 // import { actions } from "@/helpers/cauldron/cook/actions"
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
@@ -253,7 +253,7 @@ export default {
         return false;
       }
     },
- 
+
     async getWhitelistCallData() {
       try {
         const whitelistedInfo = this.selectedPool.userInfo?.whitelistedInfo;
@@ -437,6 +437,38 @@ export default {
       };
     },
 
+    async temporaryApprovalBlockHelper(
+      pool,
+      isApprowed,
+      cookData = { events: [], values: [], datas: [] }
+    ) {
+      const isCookHelperApproved = this.cookHelper
+        ? await this.isCookHelperApprowed(pool)
+        : false;
+
+      if (this.cookHelper && !isCookHelperApproved) {
+        const approvalEncode = await this.getApprovalEncode(pool, true, true);
+
+        cookData.events.push(24);
+        cookData.values.push(0);
+        cookData.datas.push(approvalEncode);
+      } else if (!isApprowed && !this.cookHelper) {
+        const approvalEncode = await this.getApprovalEncode(pool);
+
+        if (approvalEncode === "ledger") {
+          const approvalMaster = await this.approveMasterContract(pool);
+          if (!approvalMaster) return false; // TODO: update
+          return cookData;
+        } else {
+          cookData.events.push(24);
+          cookData.values.push(0);
+          cookData.datas.push(approvalEncode);
+        }
+      }
+
+      return cookData;
+    },
+
     async cookCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
@@ -460,30 +492,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
-
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(approvalEncode);
-
-      } else if (!isApprowed && !this.cookHelper) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      eventsArray.push(approvalResult.events);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -600,7 +616,7 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
-        const addNonce = eventsArray.filter(value => value === 24).length;
+        const addNonce = eventsArray.filter((value) => value === 24).length;
 
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
@@ -683,30 +699,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(approvalEncode);
-
-      } else if (!isApprowed && !this.cookHelper) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -784,7 +784,7 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
-        const addNonce = eventsArray.filter(value => value === 24).length;
+        const addNonce = eventsArray.filter((value) => value === 24).length;
 
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
@@ -861,30 +861,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(approvalEncode);
-
-      } else if (!isApprowed && !this.cookHelper) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -939,7 +923,7 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
-        const addNonce = eventsArray.filter(value => value === 24).length;
+        const addNonce = eventsArray.filter((value) => value === 24).length;
 
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
@@ -1197,30 +1181,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(approvalEncode);
-
-      } else if (!isApprowed && !this.cookHelper) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1338,7 +1306,7 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
-        const addNonce = eventsArray.filter(value => value === 24).length;
+        const addNonce = eventsArray.filter((value) => value === 24).length;
 
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
@@ -1415,30 +1383,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(approvalEncode);
-
-      } else if (!isApprowed && !this.cookHelper) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1567,7 +1519,7 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
-        const addNonce = eventsArray.filter(value => value === 24).length;
+        const addNonce = eventsArray.filter((value) => value === 24).length;
 
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
@@ -1642,29 +1594,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(approvalEncode);
-
-      } else if (!isApprowed && !this.cookHelper) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1724,7 +1661,7 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
-        const addNonce = eventsArray.filter(value => value === 24).length;
+        const addNonce = eventsArray.filter((value) => value === 24).length;
 
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
@@ -1812,29 +1749,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        eventsArray.push(24);
-        valuesArray.push(0);
-        datasArray.push(approvalEncode);
-
-      } else if (!isApprowed && !this.cookHelper) {
-        const approvalEncode = await this.getApprovalEncode(pool);
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1973,7 +1895,7 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
-        const addNonce = eventsArray.filter(value => value === 24).length;
+        const addNonce = eventsArray.filter((value) => value === 24).length;
 
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
@@ -2063,18 +1985,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -2258,18 +2176,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -2484,18 +2398,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -2681,18 +2591,14 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
+      const approvalResult = await this.temporaryApprovalBlockHelper(
+        pool,
+        isApprowed
+      );
 
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false;
-        } else {
-          eventsArray.push(24);
-          valuesArray.push(0);
-          datasArray.push(approvalEncode);
-        }
-      }
+      eventsArray.push(approvalResult.events);
+      valuesArray.push(approvalResult.values);
+      datasArray.push(approvalResult.datas);
 
       if (updatePrice) {
         const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
