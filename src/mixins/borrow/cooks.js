@@ -252,14 +252,7 @@ export default {
         return false;
       }
     },
-
-    getUpdateRateEncode() {
-      return this.$ethers.utils.defaultAbiCoder.encode(
-        ["bool", "uint256", "uint256"],
-        [true, "0x00", "0x00"]
-      );
-    },
-
+ 
     async getWhitelistCallData() {
       try {
         const whitelistedInfo = this.selectedPool.userInfo?.whitelistedInfo;
@@ -496,7 +489,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -718,7 +714,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -895,7 +894,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -1230,7 +1232,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -1447,7 +1452,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -1673,7 +1681,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -1843,7 +1854,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -2078,7 +2092,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -2270,7 +2287,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -2493,7 +2513,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
@@ -2687,7 +2710,10 @@ export default {
       }
 
       if (updatePrice) {
-        const updateEncode = this.getUpdateRateEncode();
+        const updateEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["bool", "uint256", "uint256"],
+          [true, "0x00", "0x00"]
+        );
 
         eventsArray.push(11);
         valuesArray.push(0);
