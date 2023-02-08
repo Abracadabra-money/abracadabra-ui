@@ -5,6 +5,7 @@ import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x"
+// import { actions } from "@/helpers/cauldron/cook/actions"
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
@@ -203,7 +204,7 @@ export default {
       pool,
       approved = true,
       useHelper = false,
-      firstSignAdded = false
+      addNonce = 0
     ) {
       if (!this.itsMetamask) return "ledger";
 
@@ -221,7 +222,7 @@ export default {
         user,
         masterContract,
         approved,
-        firstSignAdded ? +nonce + 1 : nonce
+        +nonce + addNonce
       );
 
       return this.$ethers.utils.defaultAbiCoder.encode(
@@ -459,7 +460,6 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      let firstSignAdded = false;
 
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
@@ -472,7 +472,6 @@ export default {
         valuesArray.push(0);
         datasArray.push(approvalEncode);
 
-        firstSignAdded = true;
       } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -483,8 +482,6 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
-
-          firstSignAdded = true;
         }
       }
 
@@ -603,11 +600,13 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
+        const addNonce = eventsArray.filter(value => value === 24).length;
+
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
           false,
           false,
-          firstSignAdded
+          addNonce
         );
         if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
           eventsArray.push(24);
@@ -684,8 +683,6 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      let firstSignAdded = false;
-
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
         : false;
@@ -697,7 +694,6 @@ export default {
         valuesArray.push(0);
         datasArray.push(approvalEncode);
 
-        firstSignAdded = true;
       } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -709,7 +705,6 @@ export default {
           valuesArray.push(0);
           datasArray.push(approvalEncode);
 
-          firstSignAdded = true;
         }
       }
 
@@ -789,11 +784,13 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
+        const addNonce = eventsArray.filter(value => value === 24).length;
+
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
           false,
           false,
-          firstSignAdded
+          addNonce
         );
         if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
           eventsArray.push(24);
@@ -864,8 +861,6 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      let firstSignAdded = false;
-
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
         : false;
@@ -877,7 +872,6 @@ export default {
         valuesArray.push(0);
         datasArray.push(approvalEncode);
 
-        firstSignAdded = true;
       } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -889,7 +883,6 @@ export default {
           valuesArray.push(0);
           datasArray.push(approvalEncode);
 
-          firstSignAdded = true;
         }
       }
 
@@ -946,11 +939,13 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
+        const addNonce = eventsArray.filter(value => value === 24).length;
+
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
           false,
           false,
-          firstSignAdded
+          addNonce
         );
         if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
           eventsArray.push(24);
@@ -1202,8 +1197,6 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      let firstSignAdded = false;
-
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
         : false;
@@ -1215,7 +1208,6 @@ export default {
         valuesArray.push(0);
         datasArray.push(approvalEncode);
 
-        firstSignAdded = true;
       } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1227,7 +1219,6 @@ export default {
           valuesArray.push(0);
           datasArray.push(approvalEncode);
 
-          firstSignAdded = true;
         }
       }
 
@@ -1347,11 +1338,13 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
+        const addNonce = eventsArray.filter(value => value === 24).length;
+
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
           false,
           false,
-          firstSignAdded
+          addNonce
         );
         if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
           eventsArray.push(24);
@@ -1422,8 +1415,6 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      let firstSignAdded = false;
-
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
         : false;
@@ -1435,7 +1426,6 @@ export default {
         valuesArray.push(0);
         datasArray.push(approvalEncode);
 
-        firstSignAdded = true;
       } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1447,7 +1437,6 @@ export default {
           valuesArray.push(0);
           datasArray.push(approvalEncode);
 
-          firstSignAdded = true;
         }
       }
 
@@ -1578,11 +1567,13 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
+        const addNonce = eventsArray.filter(value => value === 24).length;
+
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
           false,
           false,
-          firstSignAdded
+          addNonce
         );
         if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
           eventsArray.push(24);
@@ -1651,8 +1642,6 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      let firstSignAdded = false;
-
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
         : false;
@@ -1664,7 +1653,6 @@ export default {
         valuesArray.push(0);
         datasArray.push(approvalEncode);
 
-        firstSignAdded = true;
       } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1675,8 +1663,6 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
-
-          firstSignAdded = true;
         }
       }
 
@@ -1738,11 +1724,13 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
+        const addNonce = eventsArray.filter(value => value === 24).length;
+
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
           false,
           false,
-          firstSignAdded
+          addNonce
         );
         if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
           eventsArray.push(24);
@@ -1824,8 +1812,6 @@ export default {
       const valuesArray = [];
       const datasArray = [];
 
-      let firstSignAdded = false;
-
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
         : false;
@@ -1837,7 +1823,6 @@ export default {
         valuesArray.push(0);
         datasArray.push(approvalEncode);
 
-        firstSignAdded = true;
       } else if (!isApprowed && !this.cookHelper) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
@@ -1848,8 +1833,6 @@ export default {
           eventsArray.push(24);
           valuesArray.push(0);
           datasArray.push(approvalEncode);
-
-          firstSignAdded = true;
         }
       }
 
@@ -1990,11 +1973,13 @@ export default {
       }
 
       if (isApprowed && this.cookHelper) {
+        const addNonce = eventsArray.filter(value => value === 24).length;
+
         const removeApprovalEncode = await this.getApprovalEncode(
           pool,
           false,
           false,
-          firstSignAdded
+          addNonce
         );
         if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
           eventsArray.push(24);
