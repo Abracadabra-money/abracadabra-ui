@@ -1889,6 +1889,7 @@ export default [
       isCollateralClaimable: false,
       claimCrvReward: false,
       isMigrated: false,
+      isNew: true
     },
     contract: {
       name: "CauldronV4",

@@ -133,6 +133,7 @@ export default [
       localBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
+      isNew: true
     },
     contract: {
       name: "CauldronV4",

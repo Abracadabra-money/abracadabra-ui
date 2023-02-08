@@ -189,7 +189,7 @@ export default {
         this.poolsInterval = setInterval(poolsCallback, 5000);
 
         this.search = "";
-        this.selectedSort = sortKeys.name;
+        this.selectedSort = isFarm ? sortKeys.name : sortKeys.mimsLeft;
         this.sortReverse = false;
       },
     },
