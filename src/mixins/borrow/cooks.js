@@ -5,7 +5,8 @@ import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
-import { actions } from "@/helpers/cauldron/cook/actions"
+import { actions } from "@/helpers/cauldron/cook/actions";
+import { cook } from "@/helpers/cauldron/cauldron";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
 import cookHelperAbi from "@/utils/abi/cookHelperAbi";
@@ -469,6 +470,24 @@ export default {
       return cookData;
     },
 
+    async temporaryRevokeApprovalBlockHelper(pool, cookData) {
+      const addNonce = cookData.events.filter((value) => value === 24).length;
+
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        false,
+        false,
+        addNonce
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        cookData.events.push(24);
+        cookData.values.push(0);
+        cookData.datas.push(removeApprovalEncode);
+      }
+
+      return cookData;
+    },
+
     async cookCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
@@ -491,8 +510,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -503,8 +522,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.events);
 
-
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (isLpLogic && isWrap) {
         const {
@@ -523,15 +542,7 @@ export default {
         cookData.values.push(...lpCollateralAndBorrowValuesArray);
         cookData.datas.push(...lpCollateralAndBorrowDatasArray);
       } else {
-        // 5
-        const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256", "address"],
-          [amount, userAddr]
-        );
-
-        cookData.events.push(5);
-        cookData.values.push(0);
-        cookData.datas.push(borrowEncode);
+        cookData = await actions.borrow(cookData, amount, userAddr);
 
         if (this.cookHelper) {
           const withdrawEncode = await this.degenBoxWithdrawEncode(
@@ -545,15 +556,13 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(withdrawEncode);
         } else {
-          // 21
-          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [pairToken, userAddr, amount.sub("1"), "0x0"]
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            pairToken,
+            userAddr,
+            amount.sub("1"),
+            "0x0"
           );
-
-          cookData.events.push(21);
-          cookData.values.push(0);
-          cookData.datas.push(bentoWithdrawEncode);
         }
 
         if (this.cookHelper) {
@@ -577,77 +586,35 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(depositEncode);
 
-          // 10
-          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            [collateralToShare, userAddr, true]
+          cookData = await actions.addCollateral(
+            cookData,
+            collateralToShare,
+            userAddr,
+            true
           );
-
-          cookData.events.push(10);
-          cookData.values.push(0);
-          cookData.datas.push(colateralEncode);
         } else {
-          // 20
-          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [tokenAddr, userAddr, collateralAmount, "0"]
+          cookData = await actions.bentoDeposit(
+            cookData,
+            tokenAddr,
+            userAddr,
+            collateralAmount,
+            "0"
           );
 
-          cookData.events.push(20);
-          cookData.values.push(collateralValue);
-          cookData.datas.push(depositEncode);
-
-          // 10
-          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            ["-2", userAddr, false]
+          cookData = await actions.addCollateral(
+            cookData,
+            "-2",
+            userAddr,
+            false
           );
-
-          cookData.events.push(10);
-          cookData.values.push(0);
-          cookData.datas.push(colateralEncode);
         }
       }
 
-      if (isApprowed && this.cookHelper) {
-        const addNonce = cookData.events.filter((value) => value === 24).length;
-
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          addNonce
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(removeApprovalEncode);
-        }
-      }
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
+        await cook(pool.contractInstance, cookData, collateralValue);
 
         await this.$store.commit("notifications/delete", notificationId);
 
@@ -686,8 +653,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -698,7 +665,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (isLpLogic && isWrap) {
         const {
@@ -732,77 +700,35 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(depositEncode);
 
-          // 10
-          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            [collateralToShare, userAddr, true]
+          cookData = await actions.addCollateral(
+            cookData,
+            collateralToShare,
+            userAddr,
+            true
           );
-
-          cookData.events.push(10);
-          cookData.values.push(0);
-          cookData.datas.push(colateralEncode);
         } else {
-          // 20
-          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [tokenAddr, userAddr, amount, "0"]
+          cookData = await actions.bentoDeposit(
+            cookData,
+            tokenAddr,
+            userAddr,
+            amount,
+            "0"
           );
 
-          cookData.events.push(20);
-          cookData.values.push(collateralValue);
-          cookData.datas.push(depositEncode);
-
-          // 10
-          const colateralEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            ["-2", userAddr, false]
+          cookData = await actions.addCollateral(
+            cookData,
+            "-2",
+            userAddr,
+            false
           );
-
-          cookData.events.push(10);
-          cookData.values.push(0);
-          cookData.datas.push(colateralEncode);
         }
       }
 
-      if (isApprowed && this.cookHelper) {
-        const addNonce = cookData.events.filter((value) => value === 24).length;
-
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          addNonce
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(removeApprovalEncode);
-        }
-      }
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
+        await cook(pool.contractInstance, cookData, collateralValue);
 
         await this.$store.commit("notifications/delete", notificationId);
 
@@ -835,8 +761,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -847,7 +773,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.needWhitelisterApprove) {
         const whitelistedCallData = await this.getWhitelistCallData();
@@ -857,15 +784,7 @@ export default {
         cookData.datas.push(whitelistedCallData);
       }
 
-      // 5
-      const borrowEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["int256", "address"],
-        [amount, userAddr]
-      );
-
-      cookData.events.push(5);
-      cookData.values.push(0);
-      cookData.datas.push(borrowEncode);
+      cookData = await actions.borrow(cookData, amount, userAddr);
 
       if (this.cookHelper) {
         const withdrawEncode = await this.degenBoxWithdrawEncode(
@@ -879,56 +798,20 @@ export default {
         cookData.values.push(0);
         cookData.datas.push(withdrawEncode);
       } else {
-        // 21
-        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pairToken, userAddr, amount.sub("1"), "0x0"]
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          pairToken,
+          userAddr,
+          amount.sub("1"),
+          "0x0"
         );
-
-        cookData.events.push(21);
-        cookData.values.push(0);
-        cookData.datas.push(bentoWithdrawEncode);
       }
 
-      if (isApprowed && this.cookHelper) {
-        const addNonce = cookData.events.filter((value) => value === 24).length;
-
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          addNonce
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(removeApprovalEncode);
-        }
-      }
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst * 1000 + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
+        await cook(pool.contractInstance, cookData, 0);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
@@ -1142,8 +1025,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -1154,7 +1037,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.cookHelper) {
         const userBorrowShare = await pool.masterContractInstance.toShare(
@@ -1194,15 +1078,13 @@ export default {
         cookData.values.push(0);
         cookData.datas.push(getRepayShareEncode);
 
-        // 20
-        const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [pairToken, userAddr, "0x00", "-0x01"]
+        cookData = await actions.bentoDeposit(
+          cookData,
+          pairToken,
+          userAddr,
+          "0x00",
+          "-0x01"
         );
-
-        cookData.events.push(20);
-        cookData.values.push(0);
-        cookData.datas.push(depositEncode);
 
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1248,57 +1130,21 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(withdrawEncode);
         } else {
-          // 21
-          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [tokenAddr, userAddr, "0x00", amount]
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            tokenAddr,
+            userAddr,
+            "0x00",
+            amount
           );
-
-          cookData.events.push(21);
-          cookData.values.push(0);
-          cookData.datas.push(bentoWithdrawEncode);
         }
       }
 
-      if (isApprowed && this.cookHelper) {
-        const addNonce = cookData.events.filter((value) => value === 24).length;
-
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          addNonce
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(removeApprovalEncode);
-        }
-      }
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
+        await cook(pool.contractInstance, cookData, 0);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
@@ -1331,8 +1177,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -1343,7 +1189,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (pool.lpLogic) {
         const {
@@ -1395,15 +1242,13 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(repayEncode);
         } else {
-          //20
-          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [pairToken, userAddr, collateralAmount, "0x0"]
+          cookData = await actions.bentoDeposit(
+            cookData,
+            pairToken,
+            userAddr,
+            collateralAmount,
+            "0x0"
           );
-
-          cookData.events.push(20);
-          cookData.values.push(0);
-          cookData.datas.push(depositEncode);
 
           //7
           const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1448,57 +1293,22 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(withdrawEncode);
         } else {
-          //21
-          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [tokenAddr, userAddr, "0x00", amount]
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            tokenAddr,
+            userAddr,
+            "0x00",
+            amount
           );
-
-          cookData.events.push(21);
-          cookData.values.push(0);
-          cookData.datas.push(bentoWithdrawEncode);
         }
       }
 
-      if (isApprowed && this.cookHelper) {
-        const addNonce = cookData.events.filter((value) => value === 24).length;
-
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          addNonce
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(removeApprovalEncode);
-        }
-      }
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
+        await cook(pool.contractInstance, cookData, 0);
 
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
           type: "success",
@@ -1529,8 +1339,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -1541,7 +1351,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (pool.lpLogic) {
         const {
@@ -1577,33 +1388,18 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(withdrawEncode);
         } else {
-          // 21
-          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [tokenAddr, userAddr, "0x00", amount]
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            tokenAddr,
+            userAddr,
+            "0x00",
+            amount
           );
-
-          cookData.events.push(21);
-          cookData.values.push(0);
-          cookData.datas.push(bentoWithdrawEncode);
         }
       }
 
-      if (isApprowed && this.cookHelper) {
-        const addNonce = cookData.events.filter((value) => value === 24).length;
-
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          addNonce
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(removeApprovalEncode);
-        }
-      }
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
       const swapStaticTx = await pool.contractInstance.populateTransaction.cook(
         cookData.events,
@@ -1617,28 +1413,8 @@ export default {
       console.log("populkated", swapStaticTx);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
+        await cook(pool.contractInstance, cookData, 0);
 
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
           type: "success",
@@ -1671,8 +1447,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -1683,7 +1459,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (itsMax) {
         if (this.cookHelper) {
@@ -1724,15 +1501,13 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(getRepayShareEncode);
 
-          // 20
-          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [pairToken, userAddr, "0x00", "-0x01"]
+          cookData = await actions.bentoDeposit(
+            cookData,
+            pairToken,
+            userAddr,
+            "0x00",
+            "-0x01"
           );
-
-          cookData.events.push(20);
-          cookData.values.push(0);
-          cookData.datas.push(depositEncode);
 
           // 2
           const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1778,15 +1553,13 @@ export default {
           cookData.values.push(0);
           cookData.datas.push(repayEncode);
         } else {
-          // 20
-          const depositEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [pairToken, userAddr, amount, "0x0"]
+          cookData = await actions.bentoDeposit(
+            cookData,
+            pairToken,
+            userAddr,
+            amount,
+            "0x0"
           );
-
-          cookData.events.push(20);
-          cookData.values.push(0);
-          cookData.datas.push(depositEncode);
 
           //7
           const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -1810,45 +1583,11 @@ export default {
         }
       }
 
-      if (isApprowed && this.cookHelper) {
-        const addNonce = cookData.events.filter((value) => value === 24).length;
-
-        const removeApprovalEncode = await this.getApprovalEncode(
-          pool,
-          false,
-          false,
-          addNonce
-        );
-        if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(removeApprovalEncode);
-        }
-      }
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
+        await cook(pool.contractInstance, cookData, 0);
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
           type: "success",
@@ -1894,8 +1633,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -1906,7 +1645,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.needWhitelisterApprove) {
         const whitelistedCallData = await this.getWhitelistCallData();
@@ -2004,28 +1744,7 @@ export default {
       cookData.datas.push(getCollateralEncode2);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
+        await cook(pool.contractInstance, cookData, collateralValue);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
@@ -2069,11 +1788,11 @@ export default {
         ? collateralAmount.toString()
         : 0;
 
-        let cookData = {
-          events: [],
-          values: [],
-          datas: []
-        }
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -2084,7 +1803,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.needWhitelisterApprove) {
         const whitelistedCallData = await this.getWhitelistCallData();
@@ -2107,15 +1827,13 @@ export default {
       // 30 wrap and deposit to cauldron
       if (isWrap) {
         try {
-          //21 withdraw to token wrapper
-          const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [collateralAddr, tokenWrapper, collateralAmount, "0"]
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            collateralAddr,
+            tokenWrapper,
+            collateralAmount,
+            "0"
           );
-
-          cookData.events.push(21);
-          cookData.values.push(0);
-          cookData.datas.push(bentoWithdrawEncode);
 
           const wrapStaticTx =
             await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
@@ -2218,26 +1936,7 @@ export default {
       cookData.datas.push(getCollateralEncode3);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
-
-        await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: collateralValue,
-            gasLimit,
-          }
-        );
+        await cook(pool.contractInstance, cookData, collateralValue);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
@@ -2281,8 +1980,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -2293,7 +1992,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       // 4
       const removeCollateralToSwapper =
@@ -2388,40 +2088,17 @@ export default {
         cookData.values.push(0);
         cookData.datas.push(removeCollateralFinal);
 
-        // 21
-        const bentoWithdrawEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [collateralTokenAddr, userAddr, "0x00", removeCollateralAmount]
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          collateralTokenAddr,
+          userAddr,
+          "0x00",
+          removeCollateralAmount
         );
-
-        cookData.events.push(21);
-        cookData.values.push(0);
-        cookData.datas.push(bentoWithdrawEncode);
       }
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
-
-        const result = await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
-
-        console.log(result);
+        await cook(pool.contractInstance, cookData, 0);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
@@ -2461,8 +2138,8 @@ export default {
       let cookData = {
         events: [],
         values: [],
-        datas: []
-      }
+        datas: [],
+      };
 
       const approvalResult = await this.temporaryApprovalBlockHelper(
         pool,
@@ -2473,7 +2150,8 @@ export default {
       cookData.values.push(approvalResult.values);
       cookData.datas.push(approvalResult.datas);
 
-      if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       //4 remove collateral to swapper
       const removeCollateralToSwapper =
@@ -2580,26 +2258,7 @@ export default {
       }
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
-
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
-
-        await pool.contractInstance.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-            gasLimit,
-          }
-        );
+        await cook(pool.contractInstance, cookData, 0);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
