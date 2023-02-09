@@ -45,6 +45,11 @@ const routes = [
     component: () => import("@/views/stake/MGLP"),
   },
   {
+    path: "/magicAPE",
+    name: "magicAPE",
+    component: () => import("@/views/stake/MAPE"),
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/borrow/Leverage"),
