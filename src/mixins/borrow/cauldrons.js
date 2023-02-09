@@ -306,6 +306,9 @@ export default {
     },
 
     async isTokenApprow(contract, spenderAddress) {
+      console.log("contract address", contract.address);
+      console.log("allowance", this.account);
+      console.log("spender addres", spenderAddress);
       try {
         const addressApprowed = await contract.allowance(
           this.account,
@@ -606,9 +609,13 @@ export default {
       }
 
       const isApproveTokenCollateral = await this.isTokenApprow(
-        pool.collateralToken.contract,
+        pool?.lpLogic?.lpContract
+          ? pool.lpLogic.lpContract
+          : pool.collateralToken.contract,
         pool.masterContractInstance.address
       );
+
+      console.log("IS APPROVED MAH?????", isApproveTokenBorrow);
 
       const isApproveTokenBorrow = await this.isTokenApprow(
         pool.borrowToken.contract,
