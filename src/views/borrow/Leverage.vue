@@ -65,7 +65,7 @@
               alt=""
               v-else
             />
-            <p class="label-text">Use magicGLP</p>
+            <p class="label-text">Use {{ selectedPool.name }}</p>
           </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
@@ -235,6 +235,13 @@ export default {
 
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
+    },
+
+    isMagicPool() {
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
     },
 
     filteredPool() {
@@ -566,7 +573,7 @@ export default {
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
         if (!this.useCheckBox && this.isCheckBox)
-          return require(`@/assets/images/tokens/GLP.png`);
+          return this.selectedPool.lpLogic.icon;
 
         return this.selectedPool.icon;
       }
@@ -591,7 +598,7 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isGlp) {
+        if (this.isMagicPool) {
           if (this.useCheckBox)
             return this.selectedPool.userInfo.isApproveTokenCollateral;
           return this.selectedPool.userInfo.lpInfo.isApprove;
@@ -670,7 +677,10 @@ export default {
     },
 
     isCheckBox() {
-      return this.chainId === 42161 && this.selectedPool?.id === 3;
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
     },
   },
 

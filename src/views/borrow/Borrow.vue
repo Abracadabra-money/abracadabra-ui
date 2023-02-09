@@ -69,7 +69,7 @@
               alt=""
               v-else
             />
-            <p class="label-text">Use magicGLP</p>
+            <p class="label-text">Use {{ selectedPool.name }}</p>
           </div>
         </div>
         <div class="borrow-input underline">
@@ -468,7 +468,7 @@ export default {
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
         if (!this.useCheckBox && this.isCheckBox)
-          return require(`@/assets/images/tokens/GLP.png`);
+          return this.selectedPool.lpLogic.icon;
 
         return this.selectedPool.icon;
       }
@@ -526,7 +526,10 @@ export default {
     },
 
     isCheckBox() {
-      return this.chainId === 42161 && this.selectedPool?.id === 3;
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
     },
   },
 

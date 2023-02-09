@@ -6,6 +6,9 @@ import swapAbi from "@/utils/abi/swap";
 import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
+import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
+import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
+import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 
 export default [
   {
@@ -1889,7 +1892,7 @@ export default [
       isCollateralClaimable: false,
       claimCrvReward: false,
       isMigrated: false,
-      isNew: true
+      isNew: true,
     },
     contract: {
       name: "CauldronV4",
@@ -1916,6 +1919,67 @@ export default [
     reverseSwapContractInfo: {
       address: "0x720310D711455F032FcBB3fEADf858534Fb257c8",
       abi: reverseSwapAbi,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/mAPE.png`),
+    name: "magicAPE",
+    contractChain: 1,
+    id: 39,
+    stabilityFee: 7.5,
+    interest: 6,
+    ltv: 75,
+    borrowFee: 0,
+    isSwappersActive: true,
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      localBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+      isNew: true,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x70f2c66db34d9127E4d81Af83911Df8403c65c2f",
+      abi: poolsAbi.CauldronV4,
+    },
+    token: {
+      name: "magicAPE",
+      decimals: 18,
+      address: "0x713Ead803DeA8D18cD25215C92dFEe9C92718140",
+      abi: tokensAbi.magicApe,
+    },
+    lpLogic: {
+      name: "APE",
+      icon: require(`@/assets/images/tokens/APE.png`),
+      defaultToken: false,
+      lpAddress: "0x4d224452801ACEd8B2F0aebE155379bb5D594381",
+      lpAbi: tokensAbi.APE,
+      tokenWrapper: "0x3f6Ec97e20D9e70De441873aC4B1809867238ac0",
+      tokenWrapperAbi: degenBoxERC4626Wrapper,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0xb9143aAEd04166cf0Ea83Bee1A9624a6c8108E7c",
+      abi: ERC4626LevSwapper,
+    },
+    reverseSwapContractInfo: {
+      address: "0xcFEC59ef026D3c1D8C8D179d4E3e493b794428A5",
+      abi: ERC4626LiqSwapper,
     },
   },
 ];
