@@ -574,10 +574,10 @@ export default {
       }
 
       const userCollateralShare = await this.getUserCollateralShare(
-        pool.masterContractInstance,
+        // pool.masterContractInstance,
         pool.contractInstance,
-        pool.collateralToken.decimals,
-        pool.collateralToken.address
+        pool.collateralToken.decimals
+        // pool.collateralToken.address
       );
 
       const liquidationPrice = this.getLiquidationPrice(
