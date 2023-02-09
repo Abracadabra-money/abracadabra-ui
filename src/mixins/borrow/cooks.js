@@ -230,49 +230,16 @@ export default {
       return cookData;
     },
 
-    async cookCollateralAndBorrow(
-      { collateralAmount, amount, updatePrice, itsDefaultBalance },
-      isApprowed,
+    async baseAddCollateralBlock(
+      cookData,
       pool,
-      notificationId,
-      isLpLogic = false,
-      isWrap = false
+      tokenAddr,
+      isWrap,
+      userAddr,
+      collateralAmount,
+      collateralValue
     ) {
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : pool.collateralToken.address;
-
-      const collateralValue = itsDefaultBalance
-        ? collateralAmount.toString()
-        : 0;
-
-      const pairToken = pool.borrowToken.address;
-      const userAddr = this.account;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      cookData = await actions.borrow(cookData, amount, userAddr);
-
-      cookData = await actions.bentoWithdraw(
-        cookData,
-        pairToken,
-        userAddr,
-        amount.sub("1"),
-        "0x0"
-      );
-
-      if (isLpLogic && isWrap) {
+      if (isWrap) {
         const { lpAddress, tokenWrapper } = pool.lpLogic;
 
         cookData = await actions.bentoDeposit(
@@ -306,7 +273,6 @@ export default {
           false,
           2
         );
-        cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
       } else {
         cookData = await actions.bentoDeposit(
           cookData,
@@ -316,86 +282,31 @@ export default {
           "0",
           collateralValue
         );
-
-        cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
       }
 
-      if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+      cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
 
-      try {
-        await cook(pool.contractInstance, cookData, collateralValue);
-
-        await this.$store.commit("notifications/delete", notificationId);
-
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookCollateralAndBorrow ERR:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
+      return cookData;
     },
 
-    async cookAddCollateral(
-      { amount, updatePrice, itsDefaultBalance },
-      isApprowed,
-      pool,
-      notificationId,
-      isLpLogic = false,
-      isWrap = false
-    ) {
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : pool.collateralToken.address;
-      const collateralValue = itsDefaultBalance ? amount.toString() : 0;
+    async baseRemoveCollateral(cookData, pool, amount, userAddr, tokenAddr) {
+      if (pool.lpLogic) {
+        const { tokenWrapper, lpAddress } = pool.lpLogic;
 
-      const userAddr = this.account;
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
 
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      if (isLpLogic && isWrap) {
-        const { lpAddress, tokenWrapper } = pool.lpLogic;
-
-        cookData = await actions.bentoDeposit(
-          cookData,
-          lpAddress,
-          userAddr,
-          amount,
-          "0"
-        );
         cookData = await actions.bentoWithdraw(
           cookData,
-          lpAddress,
+          pool.collateralToken.address,
           tokenWrapper,
-          amount,
-          "0"
+          "0",
+          amount
         );
 
-        // 30
-        // wrap and deposit to cauldron
+        // 30 unwrap and deposit for alice in degenbox
         const swapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-            pool.contractInstance.address,
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
+            userAddr,
             amount
           );
 
@@ -403,75 +314,34 @@ export default {
           cookData,
           tokenWrapper,
           swapStaticTx.data,
-          true,
+          false,
           false,
           2
         );
-        cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
+
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
       } else {
-        cookData = await actions.bentoDeposit(
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
+
+        cookData = await actions.bentoWithdraw(
           cookData,
           tokenAddr,
           userAddr,
-          amount,
-          "0",
-          collateralValue
+          "0x00",
+          amount
         );
-
-        cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
       }
 
-      if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
-
-      try {
-        await cook(pool.contractInstance, cookData, collateralValue);
-
-        await this.$store.commit("notifications/delete", notificationId);
-
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookAddCollateral ERR:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
+      return cookData;
     },
 
-    async cookBorrow(
-      { amount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const pairToken = pool.borrowToken.address;
-      const userAddr = this.account;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      if (this.needWhitelisterApprove) {
-        cookData = await this.getWhitelistCallData(cookData);
-      }
-
+    async baseBorrow(cookData, amount, userAddr, pairToken) {
       cookData = await actions.borrow(cookData, amount, userAddr);
 
       cookData = await actions.bentoWithdraw(
@@ -482,378 +352,14 @@ export default {
         "0x0"
       );
 
-      if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
-
-      try {
-        await cook(pool.contractInstance, cookData, 0);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookBorrow ERR:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
+      return cookData;
     },
 
-    async cookRemoveAndRepayMax(
-      { amount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const tokenAddr = pool.collateralToken.address;
-      const pairToken = pool.borrowToken.address;
-      const userAddr = this.account;
-      const userBorrowPart = pool.userInfo.contractBorrowPart;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      cookData = await actions.getRepayShare(cookData, userBorrowPart);
-
-      cookData = await actions.bentoDeposit(
-        cookData,
-        pairToken,
-        userAddr,
-        "0x00",
-        "-0x01"
-      );
-
-      cookData = await actions.repay(cookData, userBorrowPart, userAddr, false);
-
-      if (pool.lpLogic) {
-        const { tokenWrapper, lpAddress } = pool.lpLogic;
-
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          pool.collateralToken.address,
-          tokenWrapper,
-          "0",
-          amount
-        );
-
-        // 30 unwrap and deposit for alice in degenbox
-        const swapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-            userAddr,
-            amount
-          );
-
-        cookData = await actions.call(
-          cookData,
-          tokenWrapper,
-          swapStaticTx.data,
-          false,
-          false,
-          2
-        );
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          lpAddress,
-          userAddr,
-          amount,
-          "0"
-        );
-      } else {
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          tokenAddr,
-          userAddr,
-          "0x00",
-          amount
-        );
-      }
-
-      if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
-
-      try {
-        await cook(pool.contractInstance, cookData, 0);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookRemoveAndRepayMax ERR:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-
-    async cookRemoveAndRepay(
-      { amount, collateralAmount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const pairToken = pool.borrowToken.address;
-      const tokenAddr = pool.collateralToken.address;
-      const userAddr = this.account;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      if (pool.lpLogic) {
-        cookData = await actions.bentoDeposit(
-          cookData,
-          pairToken,
-          userAddr,
-          collateralAmount,
-          "0x0"
-        );
-        cookData = await actions.getRepayPart(
-          cookData,
-          collateralAmount.sub("1")
-        );
-        cookData = await actions.repay(cookData, "-0x01", userAddr, false);
-
-        const { tokenWrapper, lpAddress } = pool.lpLogic;
-
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          pool.collateralToken.address,
-          tokenWrapper,
-          "0",
-          amount
-        );
-
-        // 30 unwrap and deposit for alice in degenbox
-        const swapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-            userAddr,
-            amount
-          );
-
-        cookData = await actions.call(
-          cookData,
-          tokenWrapper,
-          swapStaticTx.data,
-          false,
-          false,
-          2
-        );
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          lpAddress,
-          userAddr,
-          amount,
-          "0"
-        );
-      } else {
-        cookData = await actions.bentoDeposit(
-          cookData,
-          pairToken,
-          userAddr,
-          collateralAmount,
-          "0x0"
-        );
-
-        cookData = await actions.getRepayPart(
-          cookData,
-          collateralAmount.sub("1")
-        );
-
-        cookData = await actions.repay(cookData, "-0x01", userAddr, false);
-
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          tokenAddr,
-          userAddr,
-          "0x00",
-          amount
-        );
-      }
-
-      if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
-
-      try {
-        await cook(pool.contractInstance, cookData, 0);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookRemoveAndRepay ERR:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-
-    async cookRemoveCollateral(
-      { amount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const tokenAddr = pool.collateralToken.address;
-      const userAddr = this.account;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      if (pool.lpLogic) {
-        const { tokenWrapper, lpAddress } = pool.lpLogic;
-
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          pool.collateralToken.address,
-          tokenWrapper,
-          "0",
-          amount
-        );
-
-        // 30 unwrap and deposit for alice in degenbox
-        const swapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-            userAddr,
-            amount
-          );
-
-        cookData = await actions.call(
-          cookData,
-          tokenWrapper,
-          swapStaticTx.data,
-          false,
-          false,
-          2
-        );
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          lpAddress,
-          userAddr,
-          amount,
-          "0"
-        );
-      } else {
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          tokenAddr,
-          userAddr,
-          "0x00",
-          amount
-        );
-      }
-
-      if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
-
-      try {
-        await cook(pool.contractInstance, cookData, 0);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookRemoveCollateral ERR:", e.code);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-
-    async cookRepayMim(
-      { amount, updatePrice, itsMax },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
+    async baseRepay(cookData, pool, itsMax, amount) {
       const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       const userBorrowPart = pool.userInfo.contractBorrowPart;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
 
       if (itsMax) {
         cookData = await actions.getRepayShare(cookData, userBorrowPart);
@@ -886,27 +392,262 @@ export default {
         cookData = await actions.repay(cookData, "-0x01", userAddr, false);
       }
 
-      if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+      return cookData;
+    },
 
-      try {
-        await cook(pool.contractInstance, cookData, 0);
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookRepayMim ERR:", e);
+    async cookCollateralAndBorrow(
+      { collateralAmount, amount, updatePrice, itsDefaultBalance },
+      isApprowed,
+      pool,
+      notificationId,
+      isLpLogic = false,
+      isWrap = false
+    ) {
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.collateralToken.address;
 
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
+      const pairToken = pool.borrowToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      cookData = await this.baseBorrow(cookData, amount, userAddr, pairToken);
+
+      cookData = await this.baseAddCollateralBlock(
+        cookData,
+        pool,
+        tokenAddr,
+        isLpLogic && isWrap,
+        userAddr,
+        collateralAmount,
+        collateralValue
+      );
+
+      await this.sendCook(
+        pool.contractInstance,
+        cookData,
+        collateralValue,
+        notificationId
+      );
+    },
+
+    async cookAddCollateral(
+      { amount, updatePrice, itsDefaultBalance },
+      isApprowed,
+      pool,
+      notificationId,
+      isLpLogic = false,
+      isWrap = false
+    ) {
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.collateralToken.address;
+      const collateralValue = itsDefaultBalance ? amount.toString() : 0;
+
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      cookData = await this.baseAddCollateralBlock(
+        cookData,
+        pool,
+        tokenAddr,
+        isLpLogic && isWrap,
+        userAddr,
+        amount,
+        collateralValue
+      );
+
+      await this.sendCook(
+        pool.contractInstance,
+        cookData,
+        collateralValue,
+        notificationId
+      );
+    },
+
+    async cookBorrow(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const pairToken = pool.borrowToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      if (this.needWhitelisterApprove) {
+        cookData = await this.getWhitelistCallData(cookData);
       }
+
+      cookData = await this.baseBorrow(cookData, amount, userAddr, pairToken);
+
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
+    },
+
+    async cookRemoveAndRepayMax(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = pool.collateralToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      cookData = await this.baseRepay(cookData, pool, true);
+      cookData = await this.baseRemoveCollateral(
+        cookData,
+        pool,
+        amount,
+        userAddr,
+        tokenAddr
+      );
+
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
+    },
+
+    async cookRemoveAndRepay(
+      { amount, collateralAmount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = pool.collateralToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      cookData = await this.baseRepay(cookData, pool, false, collateralAmount);
+
+      cookData = await this.baseRemoveCollateral(
+        cookData,
+        pool,
+        amount,
+        userAddr,
+        tokenAddr
+      );
+
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
+    },
+
+    async cookRemoveCollateral(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = pool.collateralToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      cookData = await this.baseRemoveCollateral(
+        cookData,
+        pool,
+        amount,
+        userAddr,
+        tokenAddr
+      );
+
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
+    },
+
+    async cookRepayMim(
+      { amount, updatePrice, itsMax },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      cookData = await this.baseRepay(cookData, pool, itsMax, amount);
+
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
 
     async cookMultiBorrow(
@@ -949,23 +690,15 @@ export default {
         cookData = await this.getWhitelistCallData(cookData);
       }
 
-      if (collateralAmount) {
-        cookData = await actions.bentoDeposit(
-          cookData,
-          tokenAddr,
-          userAddr,
-          collateralAmount,
-          "0",
-          collateralValue
-        );
-
-        cookData = await actions.addCollateral(
-          cookData,
-          "-0x02",
-          userAddr,
-          false
-        );
-      }
+      cookData = await this.baseAddCollateralBlock(
+        cookData,
+        pool,
+        tokenAddr,
+        false,
+        userAddr,
+        collateralAmount,
+        collateralValue
+      );
 
       cookData = await actions.borrow(cookData, amount, swapperAddres);
 
@@ -1029,25 +762,12 @@ export default {
         false
       );
 
-      try {
-        await cook(pool.contractInstance, cookData, collateralValue);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookMultiBorrow ERR:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
+      await this.sendCook(
+        pool.contractInstance,
+        cookData,
+        collateralValue,
+        notificationId
+      );
     },
 
     async cookMultiBorrowXswapper(
@@ -1064,10 +784,6 @@ export default {
       notificationId,
       isWrap
     ) {
-      const { lpAddress, tokenWrapper } = pool.lpLogic;
-
-      const collateralAddr = isWrap ? lpAddress : pool.collateralToken.address;
-
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -1089,56 +805,15 @@ export default {
         cookData = await this.getWhitelistCallData(cookData);
       }
 
-      cookData = await actions.bentoDeposit(
+      cookData = await this.baseAddCollateralBlock(
         cookData,
-        collateralAddr,
+        pool,
+        pool.collateralToken.address,
+        isWrap,
         this.account,
         collateralAmount,
-        "0"
+        collateralValue
       );
-
-      // 30 wrap and deposit to cauldron
-      if (isWrap) {
-        try {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            collateralAddr,
-            tokenWrapper,
-            collateralAmount,
-            "0"
-          );
-
-          const wrapStaticTx =
-            await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-              pool.contractInstance.address,
-              collateralAmount
-            );
-
-          cookData = await actions.call(
-            cookData,
-            tokenWrapper,
-            wrapStaticTx.data,
-            true,
-            false,
-            2
-          );
-          cookData = await actions.addCollateral(
-            cookData,
-            "-2",
-            this.account,
-            true
-          );
-        } catch (error) {
-          console.log("Error wrap and deposit to cauldron", error);
-        }
-      } else {
-        cookData = await actions.addCollateral(
-          cookData,
-          "-0x02",
-          this.account,
-          false
-        );
-      }
 
       cookData = await actions.borrow(
         cookData,
@@ -1193,25 +868,12 @@ export default {
         false
       );
 
-      try {
-        await cook(pool.contractInstance, cookData, collateralValue);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("cookMultiBorrowXswapper Error:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
+      await this.sendCook(
+        pool.contractInstance,
+        cookData,
+        collateralValue,
+        notificationId
+      );
     },
 
     async cookFlashRepay(
@@ -1313,40 +975,16 @@ export default {
       }
 
       if (+removeCollateralAmount > 0) {
-        cookData = await actions.removeCollateral(
+        cookData = await this.baseRemoveCollateral(
           cookData,
+          pool,
           removeCollateralAmount,
-          userAddr
-        );
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          collateralTokenAddr,
           userAddr,
-          "0x00",
-          removeCollateralAmount
+          collateralTokenAddr
         );
       }
 
-      try {
-        await cook(pool.contractInstance, cookData, 0);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("CookFlashRepay ERR:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
 
     async cookFlashRepayXswapper(
@@ -1451,49 +1089,21 @@ export default {
       }
 
       if (+removeCollateralAmount > 0) {
-        const { tokenWrapper, lpAddress } = pool.lpLogic;
-
-        cookData = await actions.removeCollateral(
+        cookData = await this.baseRemoveCollateral(
           cookData,
+          pool,
           removeCollateralAmount,
-          account
-        );
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          pool.collateralToken.address,
-          tokenWrapper,
-          "0",
-          removeCollateralAmount
-        );
-
-        // 30 unwrap and deposit for alice in degenbox
-        const swapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-            account,
-            removeCollateralAmount
-          );
-
-        cookData = await actions.call(
-          cookData,
-          tokenWrapper,
-          swapStaticTx.data,
-          false,
-          false,
-          2
-        );
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          lpAddress,
           account,
-          removeCollateralAmount,
-          "0"
+          pool.collateralToken.address
         );
       }
 
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
+    },
+
+    async sendCook(cauldron, cookData, value, notificationId) {
       try {
-        await cook(pool.contractInstance, cookData, 0);
+        await cook(cauldron, cookData, value);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {
