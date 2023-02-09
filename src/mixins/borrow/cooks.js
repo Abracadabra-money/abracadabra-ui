@@ -298,113 +298,6 @@ export default {
       }
     },
 
-    // Borrow
-    async getLpcookCollateralAndBorrowData(
-      cookData,
-      pool,
-      borrowAmount,
-      collateralAmount,
-      userAddr,
-      pairToken
-    ) {
-      cookData = await actions.borrow(cookData, borrowAmount, userAddr);
-
-      if (this.cookHelper) {
-        cookData = await this.degenBoxWithdrawEncode(
-          cookData,
-          pairToken,
-          userAddr,
-          borrowAmount.sub("1"),
-          "0x0"
-        );
-      } else {
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          pairToken,
-          userAddr,
-          borrowAmount.sub("1"),
-          "0x0"
-        );
-      }
-
-      cookData = await this.getLpCookAddCollateralData(
-        cookData,
-        pool,
-        collateralAmount,
-        userAddr
-      );
-
-      return cookData;
-    },
-
-    async getLpCookAddCollateralData(
-      cookData,
-      pool,
-      collateralAmount,
-      userAddr
-    ) {
-      const { lpAddress, tokenWrapper } = pool.lpLogic;
-
-      if (this.cookHelper) {
-        const collateralToShare = await pool.masterContractInstance.toShare(
-          lpAddress,
-          collateralAmount,
-          false
-        );
-
-        cookData = await this.getDegenBoxDepositEncode(
-          cookData,
-          lpAddress,
-          userAddr,
-          "0",
-          collateralToShare
-        );
-
-        cookData = await this.degenBoxWithdrawEncode(
-          cookData,
-          lpAddress,
-          tokenWrapper,
-          "0",
-          collateralToShare
-        );
-      } else {
-        cookData = await actions.bentoDeposit(
-          cookData,
-          lpAddress,
-          userAddr,
-          collateralAmount,
-          "0"
-        );
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          lpAddress,
-          tokenWrapper,
-          collateralAmount,
-          "0"
-        );
-      }
-
-      // 30
-      // wrap and deposit to cauldron
-      const swapStaticTx =
-        await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-          pool.contractInstance.address,
-          collateralAmount
-        );
-
-      cookData = await actions.call(
-        cookData,
-        tokenWrapper,
-        swapStaticTx.data,
-        true,
-        false,
-        2
-      );
-      cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
-
-      return cookData;
-    },
-
     async temporaryApprovalBlockHelper(cookData, pool, isApprowed) {
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
@@ -484,14 +377,84 @@ export default {
       );
 
       if (isLpLogic && isWrap) {
-        cookData = await this.getLpcookCollateralAndBorrowData(
+        cookData = await actions.borrow(cookData, amount, userAddr);
+
+        if (this.cookHelper) {
+          cookData = await this.degenBoxWithdrawEncode(
+            cookData,
+            pairToken,
+            userAddr,
+            amount.sub("1"),
+            "0x0"
+          );
+        } else {
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            pairToken,
+            userAddr,
+            amount.sub("1"),
+            "0x0"
+          );
+        }
+
+        const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+        if (this.cookHelper) {
+          const collateralToShare = await pool.masterContractInstance.toShare(
+            lpAddress,
+            collateralAmount,
+            false
+          );
+  
+          cookData = await this.getDegenBoxDepositEncode(
+            cookData,
+            lpAddress,
+            userAddr,
+            "0",
+            collateralToShare
+          );
+  
+          cookData = await this.degenBoxWithdrawEncode(
+            cookData,
+            lpAddress,
+            tokenWrapper,
+            "0",
+            collateralToShare
+          );
+        } else {
+          cookData = await actions.bentoDeposit(
+            cookData,
+            lpAddress,
+            userAddr,
+            collateralAmount,
+            "0"
+          );
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            lpAddress,
+            tokenWrapper,
+            collateralAmount,
+            "0"
+          );
+        }
+  
+        // 30
+        // wrap and deposit to cauldron
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+            pool.contractInstance.address,
+            collateralAmount
+          );
+  
+        cookData = await actions.call(
           cookData,
-          pool,
-          amount,
-          collateralAmount,
-          userAddr,
-          pairToken
+          tokenWrapper,
+          swapStaticTx.data,
+          true,
+          false,
+          2
         );
+        cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
       } else {
         cookData = await actions.borrow(cookData, amount, userAddr);
 
@@ -610,12 +573,64 @@ export default {
       );
 
       if (isLpLogic && isWrap) {
-        cookData = await this.getLpCookAddCollateralData(
+        const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+        if (this.cookHelper) {
+          const collateralToShare = await pool.masterContractInstance.toShare(
+            lpAddress,
+            amount,
+            false
+          );
+  
+          cookData = await this.getDegenBoxDepositEncode(
+            cookData,
+            lpAddress,
+            userAddr,
+            "0",
+            collateralToShare
+          );
+  
+          cookData = await this.degenBoxWithdrawEncode(
+            cookData,
+            lpAddress,
+            tokenWrapper,
+            "0",
+            collateralToShare
+          );
+        } else {
+          cookData = await actions.bentoDeposit(
+            cookData,
+            lpAddress,
+            userAddr,
+            amount,
+            "0"
+          );
+          cookData = await actions.bentoWithdraw(
+            cookData,
+            lpAddress,
+            tokenWrapper,
+            amount,
+            "0"
+          );
+        }
+  
+        // 30
+        // wrap and deposit to cauldron
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+            pool.contractInstance.address,
+            amount
+          );
+  
+        cookData = await actions.call(
           cookData,
-          pool,
-          amount,
-          userAddr
+          tokenWrapper,
+          swapStaticTx.data,
+          true,
+          false,
+          2
         );
+        cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
       } else {
         if (this.cookHelper) {
           const collateralToShare = await pool.masterContractInstance.toShare(
