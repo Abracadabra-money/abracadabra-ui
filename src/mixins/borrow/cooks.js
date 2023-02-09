@@ -379,64 +379,30 @@ export default {
       if (isLpLogic && isWrap) {
         cookData = await actions.borrow(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            pairToken,
-            userAddr,
-            amount.sub("1"),
-            "0x0"
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            pairToken,
-            userAddr,
-            amount.sub("1"),
-            "0x0"
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          pairToken,
+          userAddr,
+          amount.sub("1"),
+          "0x0"
+        );
 
         const { lpAddress, tokenWrapper } = pool.lpLogic;
 
-        if (this.cookHelper) {
-          const collateralToShare = await pool.masterContractInstance.toShare(
-            lpAddress,
-            collateralAmount,
-            false
-          );
-
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            lpAddress,
-            userAddr,
-            "0",
-            collateralToShare
-          );
-
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            lpAddress,
-            tokenWrapper,
-            "0",
-            collateralToShare
-          );
-        } else {
-          cookData = await actions.bentoDeposit(
-            cookData,
-            lpAddress,
-            userAddr,
-            collateralAmount,
-            "0"
-          );
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            lpAddress,
-            tokenWrapper,
-            collateralAmount,
-            "0"
-          );
-        }
+        cookData = await actions.bentoDeposit(
+          cookData,
+          lpAddress,
+          userAddr,
+          collateralAmount,
+          "0"
+        );
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          tokenWrapper,
+          collateralAmount,
+          "0"
+        );
 
         // 30
         // wrap and deposit to cauldron
@@ -458,65 +424,169 @@ export default {
       } else {
         cookData = await actions.borrow(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            pairToken,
-            userAddr,
-            amount.sub("1"),
-            "0x0"
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            pairToken,
-            userAddr,
-            amount.sub("1"),
-            "0x0"
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          pairToken,
+          userAddr,
+          amount.sub("1"),
+          "0x0"
+        );
 
-        if (this.cookHelper) {
-          const collateralToShare = await pool.masterContractInstance.toShare(
-            tokenAddr,
-            collateralAmount,
-            false
-          );
+        cookData = await actions.bentoDeposit(
+          cookData,
+          tokenAddr,
+          userAddr,
+          collateralAmount,
+          "0",
+          collateralValue
+        );
 
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            tokenAddr,
+        cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
+      }
+
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+
+      try {
+        await cook(pool.contractInstance, cookData, collateralValue);
+
+        await this.$store.commit("notifications/delete", notificationId);
+
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookCollateralAndBorrow ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookCollateralAndBorrowSpecial(
+      { collateralAmount, amount, updatePrice, itsDefaultBalance },
+      isApprowed,
+      pool,
+      notificationId,
+      isLpLogic = false,
+      isWrap = false
+    ) {
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.collateralToken.address;
+
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
+
+      const pairToken = pool.borrowToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      if (isLpLogic && isWrap) {
+        cookData = await actions.borrow(cookData, amount, userAddr);
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          pairToken,
+          userAddr,
+          amount.sub("1"),
+          "0x0"
+        );
+
+        const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+        const collateralToShare = await pool.masterContractInstance.toShare(
+          lpAddress,
+          collateralAmount,
+          false
+        );
+
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          lpAddress,
+          userAddr,
+          "0",
+          collateralToShare
+        );
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          lpAddress,
+          tokenWrapper,
+          "0",
+          collateralToShare
+        );
+
+        // 30
+        // wrap and deposit to cauldron
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
             pool.contractInstance.address,
-            "0",
-            collateralToShare,
-            false,
-            false,
-            0
+            collateralAmount
           );
 
-          cookData = await actions.addCollateral(
-            cookData,
-            collateralToShare,
-            userAddr,
-            true
-          );
-        } else {
-          cookData = await actions.bentoDeposit(
-            cookData,
-            tokenAddr,
-            userAddr,
-            collateralAmount,
-            "0",
-            collateralValue
-          );
+        cookData = await actions.call(
+          cookData,
+          tokenWrapper,
+          swapStaticTx.data,
+          true,
+          false,
+          2
+        );
+        cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
+      } else {
+        cookData = await actions.borrow(cookData, amount, userAddr);
 
-          cookData = await actions.addCollateral(
-            cookData,
-            "-2",
-            userAddr,
-            false
-          );
-        }
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          pairToken,
+          userAddr,
+          amount.sub("1"),
+          "0x0"
+        );
+
+        const collateralToShare = await pool.masterContractInstance.toShare(
+          tokenAddr,
+          collateralAmount,
+          false
+        );
+
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          tokenAddr,
+          pool.contractInstance.address,
+          "0",
+          collateralToShare,
+          false,
+          false,
+          0
+        );
+
+        cookData = await actions.addCollateral(
+          cookData,
+          collateralToShare,
+          userAddr,
+          true
+        );
       }
 
       if (isApprowed && this.cookHelper)
@@ -575,44 +645,20 @@ export default {
       if (isLpLogic && isWrap) {
         const { lpAddress, tokenWrapper } = pool.lpLogic;
 
-        if (this.cookHelper) {
-          const collateralToShare = await pool.masterContractInstance.toShare(
-            lpAddress,
-            amount,
-            false
-          );
-
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            lpAddress,
-            userAddr,
-            "0",
-            collateralToShare
-          );
-
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            lpAddress,
-            tokenWrapper,
-            "0",
-            collateralToShare
-          );
-        } else {
-          cookData = await actions.bentoDeposit(
-            cookData,
-            lpAddress,
-            userAddr,
-            amount,
-            "0"
-          );
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            lpAddress,
-            tokenWrapper,
-            amount,
-            "0"
-          );
-        }
+        cookData = await actions.bentoDeposit(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          tokenWrapper,
+          amount,
+          "0"
+        );
 
         // 30
         // wrap and deposit to cauldron
@@ -632,47 +678,137 @@ export default {
         );
         cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
       } else {
-        if (this.cookHelper) {
-          const collateralToShare = await pool.masterContractInstance.toShare(
-            tokenAddr,
-            amount,
-            false
-          );
+        cookData = await actions.bentoDeposit(
+          cookData,
+          tokenAddr,
+          userAddr,
+          amount,
+          "0",
+          collateralValue
+        );
 
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            tokenAddr,
+        cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
+      }
+
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+
+      try {
+        await cook(pool.contractInstance, cookData, collateralValue);
+
+        await this.$store.commit("notifications/delete", notificationId);
+
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookAddCollateral ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookAddCollateralSpecial(
+      { amount, updatePrice, itsDefaultBalance },
+      isApprowed,
+      pool,
+      notificationId,
+      isLpLogic = false,
+      isWrap = false
+    ) {
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.collateralToken.address;
+      const collateralValue = itsDefaultBalance ? amount.toString() : 0;
+
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      if (isLpLogic && isWrap) {
+        const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+        const collateralToShare = await pool.masterContractInstance.toShare(
+          lpAddress,
+          amount,
+          false
+        );
+
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          lpAddress,
+          userAddr,
+          "0",
+          collateralToShare
+        );
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          lpAddress,
+          tokenWrapper,
+          "0",
+          collateralToShare
+        );
+
+        // 30
+        // wrap and deposit to cauldron
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
             pool.contractInstance.address,
-            "0",
-            collateralToShare,
-            false,
-            false,
-            0
+            amount
           );
 
-          cookData = await actions.addCollateral(
-            cookData,
-            collateralToShare,
-            userAddr,
-            true
-          );
-        } else {
-          cookData = await actions.bentoDeposit(
-            cookData,
-            tokenAddr,
-            userAddr,
-            amount,
-            "0",
-            collateralValue
-          );
+        cookData = await actions.call(
+          cookData,
+          tokenWrapper,
+          swapStaticTx.data,
+          true,
+          false,
+          2
+        );
+        cookData = await actions.addCollateral(cookData, "-2", userAddr, true);
+      } else {
+        const collateralToShare = await pool.masterContractInstance.toShare(
+          tokenAddr,
+          amount,
+          false
+        );
 
-          cookData = await actions.addCollateral(
-            cookData,
-            "-2",
-            userAddr,
-            false
-          );
-        }
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          tokenAddr,
+          pool.contractInstance.address,
+          "0",
+          collateralToShare,
+          false,
+          false,
+          0
+        );
+
+        cookData = await actions.addCollateral(
+          cookData,
+          collateralToShare,
+          userAddr,
+          true
+        );
       }
 
       if (isApprowed && this.cookHelper)
@@ -728,23 +864,73 @@ export default {
 
       cookData = await actions.borrow(cookData, amount, userAddr);
 
-      if (this.cookHelper) {
-        cookData = await this.degenBoxWithdrawEncode(
-          cookData,
-          pairToken,
-          userAddr,
-          amount.sub("1"),
-          "0x0"
-        );
-      } else {
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          pairToken,
-          userAddr,
-          amount.sub("1"),
-          "0x0"
-        );
+      cookData = await actions.bentoWithdraw(
+        cookData,
+        pairToken,
+        userAddr,
+        amount.sub("1"),
+        "0x0"
+      );
+
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+
+      try {
+        await cook(pool.contractInstance, cookData, 0);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookBorrow ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
       }
+    },
+
+    async cookBorrowSpecial(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const pairToken = pool.borrowToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      if (this.needWhitelisterApprove) {
+        cookData = await this.getWhitelistCallData(cookData);
+      }
+
+      cookData = await actions.borrow(cookData, amount, userAddr);
+
+      cookData = await this.degenBoxWithdrawEncode(
+        cookData,
+        pairToken,
+        userAddr,
+        amount.sub("1"),
+        "0x0"
+      );
 
       if (isApprowed && this.cookHelper)
         cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
@@ -794,68 +980,30 @@ export default {
         updatePrice
       );
 
-      if (this.cookHelper) {
-        const userBorrowShare = await pool.masterContractInstance.toShare(
-          pairToken,
-          userBorrowPart,
-          false
-        );
+      cookData = await actions.getRepayShare(cookData, userBorrowPart);
 
-        cookData = await this.getDegenBoxDepositEncode(
-          cookData,
-          pairToken,
-          userAddr,
-          "0x00",
-          userBorrowShare
-        );
+      cookData = await actions.bentoDeposit(
+        cookData,
+        pairToken,
+        userAddr,
+        "0x00",
+        "-0x01"
+      );
 
-        cookData = await this.getRepayPartEncode(
-          cookData,
-          userAddr,
-          pool.contractInstance.address,
-          userBorrowPart
-        );
-      } else {
-        cookData = await actions.getRepayShare(cookData, userBorrowPart);
-
-        cookData = await actions.bentoDeposit(
-          cookData,
-          pairToken,
-          userAddr,
-          "0x00",
-          "-0x01"
-        );
-
-        cookData = await actions.repay(
-          cookData,
-          userBorrowPart,
-          userAddr,
-          false
-        );
-      }
+      cookData = await actions.repay(cookData, userBorrowPart, userAddr, false);
 
       if (pool.lpLogic) {
         const { tokenWrapper, lpAddress } = pool.lpLogic;
 
         cookData = await actions.removeCollateral(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            pool.collateralToken.address,
-            tokenWrapper,
-            "0",
-            amount
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            pool.collateralToken.address,
-            tokenWrapper,
-            "0",
-            amount
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          amount
+        );
 
         // 30 unwrap and deposit for alice in degenbox
         const swapStaticTx =
@@ -873,43 +1021,140 @@ export default {
           2
         );
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            lpAddress,
-            userAddr,
-            amount,
-            "0"
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            lpAddress,
-            userAddr,
-            amount,
-            "0"
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
       } else {
         cookData = await actions.removeCollateral(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            tokenAddr,
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          tokenAddr,
+          userAddr,
+          "0x00",
+          amount
+        );
+      }
+
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+
+      try {
+        await cook(pool.contractInstance, cookData, 0);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookRemoveAndRepayMax ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookRemoveAndRepayMaxSpecial(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = pool.collateralToken.address;
+      const pairToken = pool.borrowToken.address;
+      const userAddr = this.account;
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      const userBorrowShare = await pool.masterContractInstance.toShare(
+        pairToken,
+        userBorrowPart,
+        false
+      );
+
+      cookData = await this.getDegenBoxDepositEncode(
+        cookData,
+        pairToken,
+        userAddr,
+        "0x00",
+        userBorrowShare
+      );
+
+      cookData = await this.getRepayPartEncode(
+        cookData,
+        userAddr,
+        pool.contractInstance.address,
+        userBorrowPart
+      );
+
+      if (pool.lpLogic) {
+        const { tokenWrapper, lpAddress } = pool.lpLogic;
+
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          amount
+        );
+
+        // 30 unwrap and deposit for alice in degenbox
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
             userAddr,
-            "0x00",
             amount
           );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            tokenAddr,
-            userAddr,
-            "0x00",
-            amount
-          );
-        }
+
+        cookData = await actions.call(
+          cookData,
+          tokenWrapper,
+          swapStaticTx.data,
+          false,
+          false,
+          2
+        );
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
+      } else {
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          tokenAddr,
+          userAddr,
+          "0x00",
+          amount
+        );
       }
 
       if (isApprowed && this.cookHelper)
@@ -960,63 +1205,30 @@ export default {
       );
 
       if (pool.lpLogic) {
-        if (this.cookHelper) {
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            pairToken,
-            userAddr,
-            collateralAmount,
-            "0"
-          );
-
-          cookData = await actions.getRepayPart(
-            cookData,
-            collateralAmount.sub("1")
-          );
-
-          cookData = await this.getRepayPartEncode(
-            cookData,
-            userAddr,
-            pool.contractInstance.address,
-            collateralAmount,
-            true
-          );
-        } else {
-          cookData = await actions.bentoDeposit(
-            cookData,
-            pairToken,
-            userAddr,
-            collateralAmount,
-            "0x0"
-          );
-          cookData = await actions.getRepayPart(
-            cookData,
-            collateralAmount.sub("1")
-          );
-          cookData = await actions.repay(cookData, "-0x01", userAddr, false);
-        }
+        cookData = await actions.bentoDeposit(
+          cookData,
+          pairToken,
+          userAddr,
+          collateralAmount,
+          "0x0"
+        );
+        cookData = await actions.getRepayPart(
+          cookData,
+          collateralAmount.sub("1")
+        );
+        cookData = await actions.repay(cookData, "-0x01", userAddr, false);
 
         const { tokenWrapper, lpAddress } = pool.lpLogic;
 
         cookData = await actions.removeCollateral(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            pool.collateralToken.address,
-            tokenWrapper,
-            "0",
-            amount
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            pool.collateralToken.address,
-            tokenWrapper,
-            "0",
-            amount
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          amount
+        );
 
         // 30 unwrap and deposit for alice in degenbox
         const swapStaticTx =
@@ -1034,81 +1246,175 @@ export default {
           2
         );
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            lpAddress,
-            userAddr,
-            amount,
-            "0"
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            lpAddress,
-            userAddr,
-            amount,
-            "0"
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
       } else {
-        if (this.cookHelper) {
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            pairToken,
-            userAddr,
-            collateralAmount,
-            "0"
-          );
+        cookData = await actions.bentoDeposit(
+          cookData,
+          pairToken,
+          userAddr,
+          collateralAmount,
+          "0x0"
+        );
 
-          cookData = await actions.getRepayPart(
-            cookData,
-            collateralAmount.sub("1")
-          );
+        cookData = await actions.getRepayPart(
+          cookData,
+          collateralAmount.sub("1")
+        );
 
-          cookData = await this.getRepayPartEncode(
-            cookData,
-            userAddr,
-            pool.contractInstance.address,
-            collateralAmount,
-            true
-          );
-        } else {
-          cookData = await actions.bentoDeposit(
-            cookData,
-            pairToken,
-            userAddr,
-            collateralAmount,
-            "0x0"
-          );
-
-          cookData = await actions.getRepayPart(
-            cookData,
-            collateralAmount.sub("1")
-          );
-
-          cookData = await actions.repay(cookData, "-0x01", userAddr, false);
-        }
+        cookData = await actions.repay(cookData, "-0x01", userAddr, false);
 
         cookData = await actions.removeCollateral(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            tokenAddr,
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          tokenAddr,
+          userAddr,
+          "0x00",
+          amount
+        );
+      }
+
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+
+      try {
+        await cook(pool.contractInstance, cookData, 0);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookRemoveAndRepay ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookRemoveAndRepaySpecial(
+      { amount, collateralAmount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const pairToken = pool.borrowToken.address;
+      const tokenAddr = pool.collateralToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      if (pool.lpLogic) {
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          pairToken,
+          userAddr,
+          collateralAmount,
+          "0"
+        );
+
+        cookData = await actions.getRepayPart(
+          cookData,
+          collateralAmount.sub("1")
+        );
+
+        cookData = await this.getRepayPartEncode(
+          cookData,
+          userAddr,
+          pool.contractInstance.address,
+          collateralAmount,
+          true
+        );
+
+        const { tokenWrapper, lpAddress } = pool.lpLogic;
+
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          amount
+        );
+
+        // 30 unwrap and deposit for alice in degenbox
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
             userAddr,
-            "0x00",
             amount
           );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            tokenAddr,
-            userAddr,
-            "0x00",
-            amount
-          );
-        }
+
+        cookData = await actions.call(
+          cookData,
+          tokenWrapper,
+          swapStaticTx.data,
+          false,
+          false,
+          2
+        );
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
+      } else {
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          pairToken,
+          userAddr,
+          collateralAmount,
+          "0"
+        );
+
+        cookData = await actions.getRepayPart(
+          cookData,
+          collateralAmount.sub("1")
+        );
+
+        cookData = await this.getRepayPartEncode(
+          cookData,
+          userAddr,
+          pool.contractInstance.address,
+          collateralAmount,
+          true
+        );
+
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          tokenAddr,
+          userAddr,
+          "0x00",
+          amount
+        );
       }
 
       if (isApprowed && this.cookHelper)
@@ -1162,23 +1468,13 @@ export default {
 
         cookData = await actions.removeCollateral(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            pool.collateralToken.address,
-            tokenWrapper,
-            "0",
-            amount
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            pool.collateralToken.address,
-            tokenWrapper,
-            "0",
-            amount
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          amount
+        );
 
         // 30 unwrap and deposit for alice in degenbox
         const swapStaticTx =
@@ -1196,43 +1492,117 @@ export default {
           2
         );
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            lpAddress,
-            userAddr,
-            amount,
-            "0"
-          );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            lpAddress,
-            userAddr,
-            amount,
-            "0"
-          );
-        }
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
       } else {
         cookData = await actions.removeCollateral(cookData, amount, userAddr);
 
-        if (this.cookHelper) {
-          cookData = await this.degenBoxWithdrawEncode(
-            cookData,
-            tokenAddr,
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          tokenAddr,
+          userAddr,
+          "0x00",
+          amount
+        );
+      }
+
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
+
+      try {
+        await cook(pool.contractInstance, cookData, 0);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookRemoveCollateral ERR:", e.code);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+
+    async cookRemoveCollateralSpecial(
+      { amount, updatePrice },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = pool.collateralToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      if (pool.lpLogic) {
+        const { tokenWrapper, lpAddress } = pool.lpLogic;
+
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          amount
+        );
+
+        // 30 unwrap and deposit for alice in degenbox
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
             userAddr,
-            "0x00",
             amount
           );
-        } else {
-          cookData = await actions.bentoWithdraw(
-            cookData,
-            tokenAddr,
-            userAddr,
-            "0x00",
-            amount
-          );
-        }
+
+        cookData = await actions.call(
+          cookData,
+          tokenWrapper,
+          swapStaticTx.data,
+          false,
+          false,
+          2
+        );
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          lpAddress,
+          userAddr,
+          amount,
+          "0"
+        );
+      } else {
+        cookData = await actions.removeCollateral(cookData, amount, userAddr);
+
+        cookData = await this.degenBoxWithdrawEncode(
+          cookData,
+          tokenAddr,
+          userAddr,
+          "0x00",
+          amount
+        );
       }
 
       if (isApprowed && this.cookHelper)
@@ -1284,77 +1654,121 @@ export default {
       );
 
       if (itsMax) {
-        if (this.cookHelper) {
-          const userBorrowShare = await pool.masterContractInstance.toShare(
-            pairToken,
-            userBorrowPart,
-            false
-          );
+        cookData = await actions.getRepayShare(cookData, userBorrowPart);
 
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            pairToken,
-            userAddr,
-            "0x00",
-            userBorrowShare
-          );
+        cookData = await actions.bentoDeposit(
+          cookData,
+          pairToken,
+          userAddr,
+          "0x00",
+          "-0x01"
+        );
 
-          cookData = await this.getRepayPartEncode(
-            cookData,
-            userAddr,
-            pool.contractInstance.address,
-            userBorrowPart
-          );
-        } else {
-          cookData = await actions.getRepayShare(cookData, userBorrowPart);
-
-          cookData = await actions.bentoDeposit(
-            cookData,
-            pairToken,
-            userAddr,
-            "0x00",
-            "-0x01"
-          );
-
-          cookData = await actions.repay(
-            cookData,
-            userBorrowPart,
-            userAddr,
-            false
-          );
-        }
+        cookData = await actions.repay(
+          cookData,
+          userBorrowPart,
+          userAddr,
+          false
+        );
       } else {
-        if (this.cookHelper) {
-          cookData = await this.getDegenBoxDepositEncode(
-            cookData,
-            pairToken,
-            userAddr,
-            amount,
-            "0"
-          );
+        cookData = await actions.bentoDeposit(
+          cookData,
+          pairToken,
+          userAddr,
+          amount,
+          "0x0"
+        );
 
-          cookData = await actions.getRepayPart(cookData, amount.sub("1"));
+        cookData = await actions.getRepayPart(cookData, amount.sub("1"));
 
-          cookData = await this.getRepayPartEncode(
-            cookData,
-            userAddr,
-            pool.contractInstance.address,
-            amount,
-            true
-          );
-        } else {
-          cookData = await actions.bentoDeposit(
-            cookData,
-            pairToken,
-            userAddr,
-            amount,
-            "0x0"
-          );
+        cookData = await actions.repay(cookData, "-0x01", userAddr, false);
+      }
 
-          cookData = await actions.getRepayPart(cookData, amount.sub("1"));
+      if (isApprowed && this.cookHelper)
+        cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
 
-          cookData = await actions.repay(cookData, "-0x01", userAddr, false);
-        }
+      try {
+        await cook(pool.contractInstance, cookData, 0);
+        await this.$store.commit("notifications/delete", notificationId);
+        this.$store.commit("setPopupState", {
+          type: "success",
+          isShow: true,
+        });
+      } catch (e) {
+        console.log("CookRepayMim ERR:", e);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(e),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
+    },
+    async cookRepayMimSpecial(
+      { amount, updatePrice, itsMax },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const pairToken = pool.borrowToken.address;
+      const userAddr = this.account;
+
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      if (itsMax) {
+        const userBorrowShare = await pool.masterContractInstance.toShare(
+          pairToken,
+          userBorrowPart,
+          false
+        );
+
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          pairToken,
+          userAddr,
+          "0x00",
+          userBorrowShare
+        );
+
+        cookData = await this.getRepayPartEncode(
+          cookData,
+          userAddr,
+          pool.contractInstance.address,
+          userBorrowPart
+        );
+      } else {
+        cookData = await this.getDegenBoxDepositEncode(
+          cookData,
+          pairToken,
+          userAddr,
+          amount,
+          "0"
+        );
+
+        cookData = await actions.getRepayPart(cookData, amount.sub("1"));
+
+        cookData = await this.getRepayPartEncode(
+          cookData,
+          userAddr,
+          pool.contractInstance.address,
+          amount,
+          true
+        );
       }
 
       if (isApprowed && this.cookHelper)
@@ -1380,7 +1794,6 @@ export default {
       }
     },
 
-    // leverage
     async cookMultiBorrow(
       {
         collateralAmount,
