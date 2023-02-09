@@ -201,6 +201,24 @@ export default {
       }
     },
 
+    async temporaryGetCookCommonBaseData(
+      cookData,
+      pool,
+      isApprowed,
+      updatePrice
+    ) {
+      cookData = await this.temporaryApprovalBlockHelper(
+        cookData,
+        pool,
+        isApprowed
+      );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
+
+      return cookData;
+    },
+
     async getApprovalEncode(
       pool,
       approved = true,
@@ -255,7 +273,7 @@ export default {
       }
     },
 
-    async getWhitelistCallData() {
+    async getWhitelistCallData(cookData) {
       try {
         const whitelistedInfo = this.selectedPool.userInfo?.whitelistedInfo;
 
@@ -266,13 +284,15 @@ export default {
           whitelistedInfo.userWhitelistedInfo.proof
         );
 
-        // 30
-        const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [whitelistedInfo.whitelisterContract.address, data, false, false, 0]
+        cookData = await actions.call(
+          cookData,
+          whitelistedInfo.whitelisterContract.address,
+          data,
+          false,
+          false,
+          0
         );
-
-        return callEncode;
+        return cookData;
       } catch (e) {
         console.log("getWhitelistCallData error:", e);
       }
@@ -385,11 +405,7 @@ export default {
       return cookData;
     },
 
-    async temporaryApprovalBlockHelper(
-      pool,
-      isApprowed,
-      cookData = { events: [], values: [], datas: [] }
-    ) {
+    async temporaryApprovalBlockHelper(cookData, pool, isApprowed) {
       const isCookHelperApproved = this.cookHelper
         ? await this.isCookHelperApprowed(pool)
         : false;
@@ -460,17 +476,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.events);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (isLpLogic && isWrap) {
         cookData = await this.getLpcookCollateralAndBorrowData(
@@ -591,17 +602,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (isLpLogic && isWrap) {
         cookData = await this.getLpCookAddCollateralData(
@@ -694,24 +700,15 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
 
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
-
       if (this.needWhitelisterApprove) {
-        const whitelistedCallData = await this.getWhitelistCallData();
-
-        cookData.events.push(30);
-        cookData.values.push(0);
-        cookData.datas.push(whitelistedCallData);
+        cookData = await this.getWhitelistCallData(cookData);
       }
 
       cookData = await actions.borrow(cookData, amount, userAddr);
@@ -890,17 +887,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.cookHelper) {
         const userBorrowShare = await pool.masterContractInstance.toShare(
@@ -1011,17 +1003,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (pool.lpLogic) {
         cookData = await this.getLpCookRemoveAndRepayData(
@@ -1131,17 +1118,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (pool.lpLogic) {
         cookData = await this.getLpCookRemoveCollateralData(
@@ -1174,17 +1156,6 @@ export default {
 
       if (isApprowed && this.cookHelper)
         cookData = await this.temporaryRevokeApprovalBlockHelper(pool.cookData);
-
-      const swapStaticTx = await pool.contractInstance.populateTransaction.cook(
-        cookData.events,
-        cookData.values,
-        cookData.datas,
-        {
-          value: 0,
-        }
-      );
-
-      console.log("populkated", swapStaticTx);
 
       try {
         await cook(pool.contractInstance, cookData, 0);
@@ -1224,17 +1195,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (itsMax) {
         if (this.cookHelper) {
@@ -1363,24 +1329,15 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
 
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
-
       if (this.needWhitelisterApprove) {
-        const whitelistedCallData = await this.getWhitelistCallData();
-
-        cookData.events.push(30);
-        cookData.values.push(0);
-        cookData.datas.push(whitelistedCallData);
+        cookData = await this.getWhitelistCallData(cookData);
       }
 
       if (collateralAmount) {
@@ -1512,24 +1469,15 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
 
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
-
       if (this.needWhitelisterApprove) {
-        const whitelistedCallData = await this.getWhitelistCallData();
-
-        cookData.events.push(30);
-        cookData.values.push(0);
-        cookData.datas.push(whitelistedCallData);
+        cookData = await this.getWhitelistCallData(cookData);
       }
 
       cookData = await actions.bentoDeposit(
@@ -1684,17 +1632,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await actions.removeCollateral(
         cookData,
@@ -1821,17 +1764,12 @@ export default {
         datas: [],
       };
 
-      const approvalResult = await this.temporaryApprovalBlockHelper(
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
         pool,
-        isApprowed
+        isApprowed,
+        updatePrice
       );
-
-      cookData.events.push(approvalResult.events);
-      cookData.values.push(approvalResult.values);
-      cookData.datas.push(approvalResult.datas);
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await actions.removeCollateral(
         cookData,
