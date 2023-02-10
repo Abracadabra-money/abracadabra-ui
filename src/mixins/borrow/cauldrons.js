@@ -153,24 +153,24 @@ export default {
     },
 
     async getUserCollateralShare(
-      // masterContract,
+      masterContract,
       poolContract,
-      decimals
-      // tokenAddr
+      decimals,
+      tokenAddr
     ) {
       try {
         const userCollateralShare = await poolContract.userCollateralShare(
           this.account
         );
 
-        // const toShare = await masterContract.toAmount(
-        //   tokenAddr,
-        //   userCollateralShare,
-        //   false
-        // );
+        const toShare = await masterContract.toAmount(
+          tokenAddr,
+          userCollateralShare,
+          false
+        );
 
         const parsedCollateral = this.$ethers.utils.formatUnits(
-          userCollateralShare.toString(),
+          toShare.toString(),
           decimals
         );
 
@@ -297,6 +297,8 @@ export default {
         );
 
         return {
+          toSharesMultiplier: multiplyer,
+          totalInterestAccruedByUser: mimFromLastAccrueToInt,
           contractBorrowPart: userBorrowPart,
           userBorrowPart: parsedBorrowed,
         };
@@ -306,9 +308,6 @@ export default {
     },
 
     async isTokenApprow(contract, spenderAddress) {
-      console.log("contract address", contract.address);
-      console.log("allowance", this.account);
-      console.log("spender addres", spenderAddress);
       try {
         const addressApprowed = await contract.allowance(
           this.account,
@@ -552,8 +551,12 @@ export default {
     },
 
     async getUserInfo(pool, poolContract) {
-      const { userBorrowPart, contractBorrowPart } =
-        await this.getUserBorrowPart(pool.contractInstance);
+      const {
+        userBorrowPart,
+        contractBorrowPart,
+        toSharesMultiplier,
+        totalInterestAccruedByUser,
+      } = await this.getUserBorrowPart(pool.contractInstance);
 
       let userBalance = await this.getUserTokenBalance(
         pool.collateralToken.contract,
@@ -577,10 +580,10 @@ export default {
       }
 
       const userCollateralShare = await this.getUserCollateralShare(
-        // pool.masterContractInstance,
+        pool.masterContractInstance,
         pool.contractInstance,
-        pool.collateralToken.decimals
-        // pool.collateralToken.address
+        pool.collateralToken.decimals,
+        pool.collateralToken.address
       );
 
       const liquidationPrice = this.getLiquidationPrice(
@@ -615,8 +618,6 @@ export default {
         pool.masterContractInstance.address
       );
 
-      console.log("IS APPROVED MAH?????", isApproveTokenBorrow);
-
       const isApproveTokenBorrow = await this.isTokenApprow(
         pool.borrowToken.contract,
         pool.masterContractInstance.address
@@ -634,6 +635,8 @@ export default {
         userCollateralShare,
         liquidationPrice,
         userLockedTimestamp: collateralLockTimestamp,
+        toSharesMultiplier,
+        totalInterestAccruedByUser,
         contractBorrowPartParsed: this.$ethers.utils.formatUnits(
           contractBorrowPart.toString()
         ),

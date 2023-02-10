@@ -199,6 +199,16 @@ export default {
       chainId: "getChainId",
     }),
 
+    sliderPercent() {
+      return (
+        this.flashRepayAmount /
+        Vue.filter("formatToFixed")(
+          this.selectedPool.userInfo.userBorrowPart,
+          4
+        )
+      );
+    },
+
     isVelodrome() {
       return this.chainId === 10 && this.selectedPool?.id === 1;
     },
@@ -280,7 +290,7 @@ export default {
     maxFlashRepayAmount() {
       if (this.selectedPool && this.account) {
         return Vue.filter("formatToFixed")(
-          this.selectedPool.userInfo.contractBorrowPartParsed,
+          this.selectedPool.userInfo.userBorrowPart,
           4
         );
       }
@@ -289,7 +299,7 @@ export default {
 
     isDisabledClosePosition() {
       if (this.selectedPool && this.account) {
-        return this.selectedPool?.userInfo?.contractBorrowPartParsed > 0
+        return this.selectedPool?.userInfo?.userBorrowPart > 0
           ? false
           : true;
       }
@@ -385,11 +395,28 @@ export default {
 
     finalCollateralAmount() {
       const slipageMutiplier = (100 + +this.slipage) / 100;
+      const amountOfMimTokensUserWantsToPayOff = +this.borrowAmount;
+
+      const sharesOfMimTokensUserWantsToPayOff =
+        amountOfMimTokensUserWantsToPayOff *
+        +this.selectedPool.userInfo.toSharesMultiplier;
+
+      const sharesOfMimInterestToClear =
+        +this.sliderPercent *
+        this.$ethers.utils.formatUnits(
+          this.selectedPool.userInfo.totalInterestAccruedByUser
+        );
+
+      const totalSharesOfMimRequiredFromSale =
+        sharesOfMimTokensUserWantsToPayOff + sharesOfMimInterestToClear;
+
+      const sharesOfCollateralRequired =
+        slipageMutiplier *
+        this.selectedPool.tokenOraclePrice *
+        totalSharesOfMimRequiredFromSale;
 
       const collateralAmount = Vue.filter("formatToFixed")(
-        this.borrowAmount *
-          this.selectedPool.tokenOraclePrice *
-          slipageMutiplier,
+        sharesOfCollateralRequired,
         this.selectedPool.collateralToken.decimals
       );
 
