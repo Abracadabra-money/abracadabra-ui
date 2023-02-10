@@ -17,7 +17,6 @@ import gmxLensAbi from "@/utils/abi/lp/GmxLens";
 export default {
   data() {
     return {
-      gasLimitConst: 1000,
       defaultTokenAddress: "0x0000000000000000000000000000000000000000",
       glpPoolsId: [2, 3],
     };
@@ -93,16 +92,13 @@ export default {
 
     async getApprovalEncode(
       pool,
+      masterContract,
       approved = true,
-      useHelper = false,
       addNonce = 0
     ) {
       if (!this.itsMetamask) return "ledger";
 
       const user = this.account;
-      const masterContract = useHelper
-        ? this.cookHelper.address
-        : await pool.contractInstance.masterContract();
       const verifyingContract = await pool.contractInstance.bentoBox();
       const nonce = await pool.masterContractInstance.nonces(user);
 
@@ -171,8 +167,10 @@ export default {
     },
 
     async temporaryApprovalBlockHelper(cookData, pool, isApprowed) {
+      const masterContract = await pool.contractInstance.masterContract();
+
       if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool);
+        const approvalEncode = await this.getApprovalEncode(pool, masterContract);
 
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
@@ -190,10 +188,11 @@ export default {
 
     async temporaryRevokeApprovalBlockHelper(pool, cookData) {
       const addNonce = cookData.events.filter((value) => value === 24).length;
+      const masterContract = await pool.contractInstance.masterContract();
 
       const removeApprovalEncode = await this.getApprovalEncode(
         pool,
-        false,
+        masterContract,
         false,
         addNonce
       );
