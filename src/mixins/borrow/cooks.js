@@ -1,6 +1,9 @@
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
+
+// need to integrate pair tokens, now only for op - refatoring later(!)
+// import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
+import { getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
@@ -395,6 +398,69 @@ export default {
       return cookData;
     },
 
+    async baseLeverage(cookData, pool, amount, minExpected, slipage, is0x) {
+      const swapperAddres = pool.levSwapperContract.address;
+      const userAddr = this.account;
+
+      let buyToken = pool.collateralToken.address;
+      if (this.isGLP) buyToken = usdcAddress;
+
+      if (is0x) {
+        const response = await swap0xRequest(
+          this.chainId,
+          buyToken,
+          pool.borrowToken.address,
+          slipage,
+          amount,
+          pool.levSwapperContract.address
+        );
+
+        const swapData = response.data;
+        const swapStaticTx =
+          await pool.levSwapperContract.populateTransaction.swap(
+            userAddr,
+            minExpected,
+            amount,
+            swapData,
+            {
+              gasLimit: 1000000000,
+            }
+          );
+        const swapCallByte = swapStaticTx.data;
+
+        cookData = await actions.call(
+          cookData,
+          swapperAddres,
+          swapCallByte,
+          false,
+          false,
+          2
+        );
+      } else {
+        const swapStaticTx =
+          await pool.levSwapperContract.populateTransaction.swap(
+            userAddr,
+            minExpected,
+            0,
+            {
+              gasLimit: 1000000000,
+            }
+          );
+        const swapCallByte = swapStaticTx.data.substr(0, 138);
+
+        cookData = await actions.call(
+          cookData,
+          swapperAddres,
+          swapCallByte,
+          false,
+          true,
+          2
+        );
+      }
+
+      return cookData;
+    },
+
     async cookCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
@@ -702,58 +768,14 @@ export default {
 
       cookData = await actions.borrow(cookData, amount, swapperAddres);
 
-      if (pool.is0xSwap) {
-        const response = await swap0xRequest(
-          this.chainId,
-          pool.collateralToken.address,
-          pool.borrowToken.address,
-          slipage,
-          amount,
-          pool.levSwapperContract.address
-        );
-
-        const swapData = response.data;
-        const swapStaticTx =
-          await pool.levSwapperContract.populateTransaction.swap(
-            userAddr,
-            minExpected,
-            amount,
-            swapData,
-            {
-              gasLimit: 1000000000,
-            }
-          );
-        const swapCallByte = swapStaticTx.data;
-
-        cookData = await actions.call(
-          cookData,
-          swapperAddres,
-          swapCallByte,
-          false,
-          false,
-          2
-        );
-      } else {
-        const swapStaticTx =
-          await pool.levSwapperContract.populateTransaction.swap(
-            userAddr,
-            minExpected,
-            0,
-            {
-              gasLimit: 1000000000,
-            }
-          );
-        const swapCallByte = swapStaticTx.data.substr(0, 138);
-
-        cookData = await actions.call(
-          cookData,
-          swapperAddres,
-          swapCallByte,
-          false,
-          true,
-          2
-        );
-      }
+      cookData = await this.baseLeverage(
+        cookData,
+        pool,
+        amount,
+        minExpected,
+        slipage,
+        pool.is0xSwap
+      );
 
       cookData = await actions.addCollateral(
         cookData,
@@ -821,45 +843,14 @@ export default {
         pool.levSwapperContract.address
       );
 
-      // Swap MIM
-      try {
-        let swapData;
-
-        if (this.isGlp) {
-          const response = await swap0xRequest(
-            this.chainId,
-            usdcAddress,
-            pool.borrowToken.address,
-            slipage,
-            amount,
-            pool.levSwapperContract.address
-          );
-
-          swapData = response.data;
-        } else swapData = await getLev0xData(amount, pool, slipage);
-
-        const swapStaticTx =
-          await pool.levSwapperContract.populateTransaction.swap(
-            this.account,
-            minExpected,
-            amount,
-            swapData,
-            {
-              gasLimit: 1000000000,
-            }
-          );
-
-        cookData = await actions.call(
-          cookData,
-          pool.levSwapperContract.address,
-          swapStaticTx.data,
-          false,
-          false,
-          2
-        );
-      } catch (error) {
-        console.log("Error swap", error);
-      }
+      cookData = await this.baseLeverage(
+        cookData,
+        pool,
+        amount,
+        minExpected,
+        slipage,
+        true
+      );
 
       cookData = await actions.addCollateral(
         cookData,
