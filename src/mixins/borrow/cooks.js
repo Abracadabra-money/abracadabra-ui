@@ -73,22 +73,6 @@ export default {
     },
   },
   methods: {
-    async isCookHelperApprowed(pool) {
-      try {
-        const masterContract = this.cookHelper.address;
-
-        const addressApprowed =
-          await pool.masterContractInstance.masterContractApproved(
-            masterContract,
-            this.account
-          );
-
-        return addressApprowed;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-      }
-    },
-
     async temporaryGetCookCommonBaseData(
       cookData,
       pool,
@@ -187,17 +171,7 @@ export default {
     },
 
     async temporaryApprovalBlockHelper(cookData, pool, isApprowed) {
-      const isCookHelperApproved = this.cookHelper
-        ? await this.isCookHelperApprowed(pool)
-        : false;
-
-      if (this.cookHelper && !isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, true, true);
-
-        cookData.events.push(24);
-        cookData.values.push(0);
-        cookData.datas.push(approvalEncode);
-      } else if (!isApprowed && !this.cookHelper) {
+      if (!isApprowed) {
         const approvalEncode = await this.getApprovalEncode(pool);
 
         if (approvalEncode === "ledger") {
@@ -350,8 +324,8 @@ export default {
         cookData,
         pairToken,
         userAddr,
-        amount.sub("1"),
-        "0x0"
+        "0",
+        "-0x02"
       );
 
       return cookData;
@@ -362,37 +336,24 @@ export default {
       const userAddr = this.account;
 
       const userBorrowPart = pool.userInfo.contractBorrowPart;
+      const repayPart = itsMax ? userBorrowPart : amount;
 
-      if (itsMax) {
-        cookData = await actions.getRepayShare(cookData, userBorrowPart);
+      cookData = await actions.getRepayShare(cookData, repayPart);
 
-        cookData = await actions.bentoDeposit(
-          cookData,
-          pairToken,
-          userAddr,
-          "0x00",
-          "-0x01"
-        );
+      cookData = await actions.bentoDeposit(
+        cookData,
+        pairToken,
+        userAddr,
+        "0x00",
+        "-0x01"
+      );
 
-        cookData = await actions.repay(
-          cookData,
-          userBorrowPart,
-          userAddr,
-          false
-        );
-      } else {
-        cookData = await actions.bentoDeposit(
-          cookData,
-          pairToken,
-          userAddr,
-          amount,
-          "0x0"
-        );
-
-        cookData = await actions.getRepayPart(cookData, amount.sub("1"));
-
-        cookData = await actions.repay(cookData, "-0x01", userAddr, false);
-      }
+      cookData = await actions.repay(
+        cookData,
+        "-0x01",
+        userAddr,
+        false
+      );
 
       return cookData;
     },

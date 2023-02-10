@@ -2,6 +2,34 @@
 
 export default {
   methods: {
+    async isCookHelperApprowed(pool) {
+      try {
+        const masterContract = this.cookHelper.address;
+
+        const addressApprowed =
+          await pool.masterContractInstance.masterContractApproved(
+            masterContract,
+            this.account
+          );
+
+        return addressApprowed;
+      } catch (e) {
+        console.log("isApprowed err:", e);
+      }
+    },
+    async temporaryApprovalBlockHelperSpecial(cookData, pool) {
+      const isCookHelperApproved = await this.isCookHelperApprowed(pool);
+
+      if (!isCookHelperApproved) {
+        const approvalEncode = await this.getApprovalEncode(pool, true, true);
+
+        cookData.events.push(24);
+        cookData.values.push(0);
+        cookData.datas.push(approvalEncode);
+      }
+
+      return cookData;
+    },
     async getDegenBoxDepositEncode(
       cookData,
       tokenAddress,
@@ -141,12 +169,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.temporaryApprovalBlockHelperSpecial(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (isLpLogic && isWrap) {
         cookData = await actions.borrow(cookData, amount, userAddr);
@@ -282,12 +312,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.temporaryApprovalBlockHelperSpecial(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (isLpLogic && isWrap) {
         const { lpAddress, tokenWrapper } = pool.lpLogic;
@@ -397,12 +429,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.temporaryApprovalBlockHelperSpecial(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.needWhitelisterApprove) {
         cookData = await this.getWhitelistCallData(cookData);
@@ -459,12 +493,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.temporaryApprovalBlockHelperSpecial(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       const userBorrowShare = await pool.masterContractInstance.toShare(
         pairToken,
@@ -575,12 +611,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.temporaryApprovalBlockHelperSpecial(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (pool.lpLogic) {
         cookData = await this.getDegenBoxDepositEncode(
@@ -711,12 +749,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.temporaryApprovalBlockHelperSpecial(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (pool.lpLogic) {
         const { tokenWrapper, lpAddress } = pool.lpLogic;
@@ -807,12 +847,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.temporaryApprovalBlockHelperSpecial(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       if (itsMax) {
         const userBorrowShare = await pool.masterContractInstance.toShare(

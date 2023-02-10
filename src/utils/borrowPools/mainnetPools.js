@@ -1352,7 +1352,7 @@ export default [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 30,
-      localBorrowAmountLimit: 0,
+      localBorrowAmountLimit: false, // test
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
@@ -1402,7 +1402,7 @@ export default [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 15,
-      localBorrowAmountLimit: 0,
+      localBorrowAmountLimit: false, // test
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
