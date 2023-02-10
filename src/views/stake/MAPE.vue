@@ -247,7 +247,7 @@
 <script>
 import Vue from "vue";
 import axios from "axios";
-import moment from "moment";
+// import moment from "moment";
 import { mapGetters } from "vuex";
 const NetworksList = () => import("@/components/ui/NetworksList");
 const BaseLoader = () => import("@/components/base/BaseLoader");
@@ -258,7 +258,7 @@ const TickChart = () => import("@/components/ui/TickChart");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
-import { getGlpChartApr } from "@/helpers/glpAprChart";
+// import { getGlpChartApr } from "@/helpers/glpAprChart";
 import mAPETokenMixin from "@/mixins/stake/mAPEToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -505,21 +505,21 @@ export default {
       }
     },
 
-    async createChartData(time = 3) {
-      const labels = [];
-      const tickUpper = [];
-      const data = await getGlpChartApr(time);
-      data.forEach((element) => {
-        labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        tickUpper.push(element.glpApy * (1 - this.tokensInfo.feePercent));
-      });
+    // async createChartData(time = 3) {
+    //   const labels = [];
+    //   const tickUpper = [];
+    //   const data = await getGlpChartApr(time);
+    //   data.forEach((element) => {
+    //     labels.push(moment.unix(element.timestamp).format("DD.MM"));
+    //     tickUpper.push(element.glpApy * (1 - this.tokensInfo.feePercent));
+    //   });
 
-      this.chartData = { labels, tickUpper };
-    },
+    //   this.chartData = { labels, tickUpper };
+    // },
 
     async changeChartTime(time) {
       this.chartActiveBtn = time;
-      await this.createChartData(time);
+      // await this.createChartData(time);
     },
 
     async getTotalRewards() {
@@ -538,19 +538,19 @@ export default {
   async created() {
     await this.createStakePool();
 
-    if (this.chainId !== 42161) return false;
+    if (this.chainId !== 1) return false;
     await this.getTotalRewards();
     this.updateInterval = setInterval(async () => {
       await this.createStakePool();
     }, 15000);
 
-    await this.createChartData(this.chartActiveBtn);
+    // await this.createChartData(this.chartActiveBtn);
 
     const apy = await getGlpApy(true);
     this.apy = parseFloat(apy).toFixed(2);
 
     this.chartInterval = setInterval(async () => {
-      await this.createChartData(this.chartActiveBtn);
+      // await this.createChartData(this.chartActiveBtn);
       const apy = await getGlpApy(true);
       this.apy = parseFloat(apy).toFixed(2);
     }, 60000);
