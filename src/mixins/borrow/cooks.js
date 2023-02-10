@@ -3,7 +3,6 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 
 // need to integrate pair tokens, now only for op - refatoring later(!)
 // import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
-import { getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
@@ -461,6 +460,87 @@ export default {
       return cookData;
     },
 
+    async baseDeleverage(cookData, pool, collateralAmount, slipage, is0x) {
+      const collateralTokenAddr = pool.collateralToken.address;
+      const borrowTokenAddr = pool.borrowToken.address;
+      const reverseSwapperAddr = pool.liqSwapperContract.address;
+      const userAddr = this.account;
+      let swapStaticTx;
+
+      let selToken = pool.collateralToken.address;
+      let selAmount = collateralAmount;
+
+      if (is0x) {
+        if (this.isGlp) {
+          selToken = usdcAddress;
+
+          const GmxLensContract = new this.$ethers.Contract(
+            gmxLensAddress,
+            JSON.stringify(gmxLensAbi),
+            this.signer
+          );
+
+          const glpAmount = await pool.collateralToken.contract.convertToAssets(
+            collateralAmount
+          );
+
+          const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
+            usdcAddress,
+            glpAmount
+          );
+
+          selAmount = usdcAmount;
+        }
+
+        const response = await swap0xRequest(
+          this.chainId,
+          pool.borrowToken.address,
+          selToken,
+          slipage,
+          selAmount,
+          pool.liqSwapperContract.address
+        );
+
+        const swapData = response.data;
+
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
+          collateralTokenAddr,
+          borrowTokenAddr,
+          userAddr,
+          0,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 1000000000,
+          }
+        );
+      } else {
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
+          collateralTokenAddr,
+          borrowTokenAddr,
+          userAddr,
+          0,
+          collateralAmount,
+          {
+            gasLimit: 1000000000,
+          }
+        );
+      }
+
+      const swapCallByte = swapStaticTx.data;
+
+      cookData = await actions.call(
+        cookData,
+        reverseSwapperAddr,
+        swapCallByte,
+        false,
+        false,
+        2
+      );
+
+      return cookData;
+    },
+
     async cookCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
@@ -881,7 +961,6 @@ export default {
       account,
       notificationId
     ) {
-      const borrowTokenAddr = pool.borrowToken.address;
       const collateralTokenAddr = pool.collateralToken.address;
       const reverseSwapperAddr = pool.liqSwapperContract.address;
       const userAddr = account;
@@ -906,52 +985,12 @@ export default {
         reverseSwapperAddr
       );
 
-      let swapStaticTx;
-      if (pool.is0xSwap) {
-        const response = await swap0xRequest(
-          this.chainId,
-          pool.borrowToken.address,
-          pool.collateralToken.address,
-          slipage,
-          collateralAmount,
-          pool.liqSwapperContract.address
-        );
-
-        const swapData = response.data;
-
-        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
-          collateralTokenAddr,
-          borrowTokenAddr,
-          userAddr,
-          0,
-          collateralAmount,
-          swapData,
-          {
-            gasLimit: 1000000000,
-          }
-        );
-      } else {
-        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
-          collateralTokenAddr,
-          borrowTokenAddr,
-          userAddr,
-          0,
-          collateralAmount,
-          {
-            gasLimit: 1000000000,
-          }
-        );
-      }
-
-      const swapCallByte = swapStaticTx.data;
-
-      cookData = await actions.call(
+      cookData = await this.baseDeleverage(
         cookData,
-        reverseSwapperAddr,
-        swapCallByte,
-        false,
-        false,
-        2
+        pool,
+        collateralAmount,
+        slipage,
+        pool.is0xSwap
       );
 
       if (itsMax) {
@@ -1014,58 +1053,12 @@ export default {
         reverseSwapperAddr
       );
 
-      let swapData;
-
-      if (this.isGlp) {
-        const GmxLensContract = new this.$ethers.Contract(
-          gmxLensAddress,
-          JSON.stringify(gmxLensAbi),
-          this.signer
-        );
-
-        const glpAmount = await pool.collateralToken.contract.convertToAssets(
-          collateralAmount
-        );
-
-        const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
-          usdcAddress,
-          glpAmount
-        );
-
-        const response = await swap0xRequest(
-          this.chainId,
-          pool.borrowToken.address,
-          usdcAddress,
-          slipage,
-          usdcAmount,
-          pool.liqSwapperContract.address
-        );
-
-        swapData = response.data;
-      } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
-
-      const swapStaticTx =
-        await pool.liqSwapperContract.populateTransaction.swap(
-          pool.collateralToken.address,
-          pool.borrowToken.address,
-          account,
-          0,
-          collateralAmount,
-          swapData,
-          {
-            gasLimit: 1000000000,
-          }
-        );
-
-      const swapCallByte = swapStaticTx.data;
-
-      cookData = await actions.call(
+      cookData = await this.baseDeleverage(
         cookData,
-        reverseSwapperAddr,
-        swapCallByte,
-        false,
-        false,
-        2
+        pool,
+        collateralAmount,
+        slipage,
+        true
       );
 
       if (itsMax) {
