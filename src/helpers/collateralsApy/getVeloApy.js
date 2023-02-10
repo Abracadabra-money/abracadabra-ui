@@ -3,7 +3,7 @@ import axios from "axios";
 
 import SolidlyGaugeVolatileLPStrategy from "@/utils/abi/SolidlyGaugeVolatileLPStrategy";
 
-const getVeloManagementFee = async (pool, signer) => {
+const getVeloManagementFee = async (pool, provider) => {
   try {
     const strategyAddress = await pool.masterContractInstance.strategy(
       pool.collateralToken.address
@@ -12,7 +12,7 @@ const getVeloManagementFee = async (pool, signer) => {
     const strategy = new ethers.Contract(
       strategyAddress,
       JSON.stringify(SolidlyGaugeVolatileLPStrategy),
-      signer
+      provider
     );
 
     return await strategy.feePercent();
@@ -21,7 +21,7 @@ const getVeloManagementFee = async (pool, signer) => {
   }
 };
 
-const getVeloApy = async (pool, signer) => {
+const getVeloApy = async (pool, provider) => {
   try {
     const response = await axios.get(
       "https://api.velodrome.finance/api/v1/pairs"
@@ -39,7 +39,7 @@ const getVeloApy = async (pool, signer) => {
 
     const targetPercentage = strategyData.targetPercentage / 100;
 
-    const stratPercentage = (await getVeloManagementFee(pool, signer)) / 100;
+    const stratPercentage = (await getVeloManagementFee(pool, provider)) / 100;
 
     const apy = APYVault * targetPercentage * (1 - stratPercentage);
 
