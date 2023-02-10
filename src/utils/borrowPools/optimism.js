@@ -20,7 +20,8 @@ export default [
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/Z9bhlbcfDTByubuwSzCahPMhpvYxnOaC0sBYU12Eh_Y",
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/Z9bhlbcfDTByubuwSzCahPMhpvYxnOaC0sBYU12Eh_Y",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
@@ -55,7 +56,7 @@ export default [
       defaultToken: false,
       lpAddress: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
       lpAbi,
-      tokenWrapper: "0x1fff78fd2e139bc1315711dd3ea176bc7028635a",
+      tokenWrapper: "0xF4B36812d1645dca9d562846E3aBf416D590349e",
       tokenWrapperAbi: lptokenWrapperAbi,
     },
     pairToken: {
