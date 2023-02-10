@@ -16,7 +16,7 @@ const {
 
 const { expandDecimals, formatAmount } = require("./utils");
 
-const getGlpApr = async (itsMagic = false) => {
+const getGlpApy = async (itsMagic = false) => {
   const stakingData = await getStakingData();
   const aum = await getAum();
   const gmxPrice = await getGmxPrice();
@@ -72,4 +72,4 @@ const getGlpApr = async (itsMagic = false) => {
   return parseAmount * (1 - fee);
 };
 
-export { getGlpApr };
+export { getGlpApy };

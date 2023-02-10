@@ -27,7 +27,7 @@ export default [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 15,
-      dynamicBorrowAmountLimit: 1000000,
+      localBorrowAmountLimit: 1000000,
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
@@ -78,7 +78,7 @@ export default [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 15,
-      dynamicBorrowAmountLimit: false,
+      localBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
@@ -130,9 +130,10 @@ export default [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 15,
-      dynamicBorrowAmountLimit: false,
+      localBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
+      isNew: true
     },
     contract: {
       name: "CauldronV4",
@@ -165,7 +166,7 @@ export default [
       abi: magicGlpLevSwapperAbi,
     },
     reverseSwapContractInfo: {
-      address: "0x08a47F1F14292b0655B70588C76b614f64074db4",
+      address: "0x2386937474eD353ccA2b0531CEE31228A7E56a46",
       abi: magicGlpSwapperAbi,
     },
   },

@@ -395,12 +395,23 @@ export default {
       const { borrowPartPerAddress, totalBorrowlimit } =
         await this.getBorrowlimit(pool, poolContract);
 
-      const { dynamicBorrowAmount } = await this.getDynamicBorrowAmount(
-        pool,
+      const mimCauldronBalance = await this.getMimCauldronBalance(
         masterContract,
+        pool.contract.address,
+        pool.pairToken.address
+      );
+
+      const { localBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
+        pool.cauldronSettings;
+
+      const dynamicBorrowAmount = await this.getMIMsLeftToBorrow(
         borrowPartPerAddress,
         totalBorrow,
-        totalBorrowlimit
+        totalBorrowlimit,
+        mimCauldronBalance,
+        localBorrowAmountLimit,
+        hasAccountBorrowLimit,
+        isDepreciated
       );
 
       let oracleDecimals = pool.token.decimals;
@@ -783,45 +794,33 @@ export default {
       return { borrowPartPerAddress, totalBorrowlimit };
     },
 
-    async getDynamicBorrowAmount(
-      pool,
-      masterContract,
+    async getMIMsLeftToBorrow(
       borrowPartPerAddress,
       totalBorrow,
-      totalBorrowlimit
+      totalBorrowlimit,
+      mimCauldronBalance,
+      localBorrowAmountLimit,
+      hasAccountBorrowLimit,
+      isDepreciated
     ) {
-      const { dynamicBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
-        pool.cauldronSettings;
+      if (localBorrowAmountLimit === 0 || isDepreciated) return 0;
 
-      let dynamicBorrowAmount = await this.getMimCauldronBalance(
-        masterContract,
-        pool.contract.address,
-        pool.pairToken.address
-      );
+      const values = [];
 
-      if (dynamicBorrowAmountLimit === 0 || isDepreciated)
-        dynamicBorrowAmount = 0;
+      values.push(+mimCauldronBalance);
 
-      if (
-        dynamicBorrowAmountLimit &&
-        dynamicBorrowAmountLimit < dynamicBorrowAmount
-      )
-        dynamicBorrowAmount = dynamicBorrowAmountLimit;
+      if (localBorrowAmountLimit) values.push(+localBorrowAmountLimit);
 
-      if (hasAccountBorrowLimit && dynamicBorrowAmount > borrowPartPerAddress)
-        dynamicBorrowAmount = borrowPartPerAddress;
+      if (hasAccountBorrowLimit) {
+        values.push(+borrowPartPerAddress);
+        values.push(+totalBorrowlimit);
 
-      // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
-      if (
-        totalBorrowlimit &&
-        +totalBorrowlimit - +totalBorrow < dynamicBorrowAmount
-      )
-        dynamicBorrowAmount =
-          +totalBorrowlimit - +totalBorrow < 1000
-            ? 0
-            : +totalBorrowlimit - +totalBorrow;
+        const availableLimit = +totalBorrowlimit - +totalBorrow;
+        if (availableLimit < 1000) return 0;
+        values.push(availableLimit);
+      }
 
-      return { dynamicBorrowAmount };
+      return Math.min(...values);
     },
 
     async getLpLogic(pool) {
