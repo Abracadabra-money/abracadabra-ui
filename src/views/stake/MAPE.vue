@@ -339,17 +339,19 @@ export default {
     },
 
     totalRewardsEarned() {
-      return this.totalRewards
-        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-        : 0;
+      // return this.totalRewards
+      //   ? this.$ethers.utils.formatEther(this.totalRewards?.total)
+      //   : 0;
+      return 0;
     },
 
     totalRewardsUsd() {
-      return this.totalRewards
-        ? parseFloat(
-            +this.totalRewardsEarned * +this.tokensInfo.ethPrice
-          ).toFixed(2)
-        : 0;
+      // return this.totalRewards
+      //   ? parseFloat(
+      //       +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+      //     ).toFixed(2)
+      //   : 0;
+      return 0;
     },
   },
 
