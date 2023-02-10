@@ -1,19 +1,15 @@
+import { ethers } from "ethers";
 import oracleAbi from "@/utils/abi/oracle";
 import { mapGetters, mapMutations } from "vuex";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import { isTokenApprowed } from "@/utils/approveHelpers";
 import chainLinkAbi from "@/utils/abi/chainLink";
-import MagicGlpHarvestorAbi from "@/utils/abi/MagicGlpHarvestor";
 
 export default {
   data() {
     return {
       price: null,
       stakeInfo: {
-        harvester: {
-          address: "0x588d402C868aDD9053f8F0098c2DC3443c991d17",
-          abi: MagicGlpHarvestorAbi,
-        },
         mainToken: {
           name: "magicAPE",
           address: "0x713Ead803DeA8D18cD25215C92dFEe9C92718140",
@@ -56,7 +52,6 @@ export default {
     async createStakePool() {
       if (this.chainId !== 1) return !!this.setLoadingMApeStake(false);
 
-      // const { mainToken, stakeToken, oracle, harvester } = this.stakeInfo;
       const { mainToken, stakeToken, oracle } = this.stakeInfo;
 
       const mainTokenInstance = await new this.$ethers.Contract(
@@ -71,19 +66,9 @@ export default {
         this.userSigner
       );
 
-      const tokensRate = await this.getTokensRate(
-        mainTokenInstance,
-        stakeTokenInstance
-      );
+      const tokensRate = await this.getTokensRate(mainTokenInstance);
 
-      // const harvesterInstance = await new this.$ethers.Contract(
-      //   harvester.address,
-      //   JSON.stringify(harvester.abi),
-      //   this.userSigner
-      // );
-
-      // const feePercent = (await harvesterInstance.feePercentBips()) / 10000; // to percent
-      const feePercent = 0.01;
+      const feePercent = (await mainTokenInstance.feePercentBips()) / 10000; // to percent
 
       const oracleContract = await new this.$ethers.Contract(
         oracle.address,
@@ -102,7 +87,7 @@ export default {
 
       if (!this.price) {
         const price = await oracleContract.peekSpot("0x");
-        this.price = this.$ethers.utils.formatUnits(price, 18);
+        this.price = 1 / this.$ethers.utils.formatUnits(price, 18);
       }
 
       const { mainTokenBalance, stakeTokenBalance, stakeTokenApproved } =
@@ -112,7 +97,7 @@ export default {
       const stakeTokenBalanceUsd = stakeTokenBalance * this.price;
       const totalSupplyHex = await mainTokenInstance.totalSupply();
       const totalSupply = this.$ethers.utils.formatUnits(totalSupplyHex, 18);
-      const totalSupplyUsd = totalSupply * this.price;
+      const totalSupplyUsd = totalSupply * this.price * tokensRate;
 
       const stakeObject = {
         tokensRate,
@@ -141,19 +126,24 @@ export default {
       this.setLoadingMApeStake(false);
     },
 
-    async getTokensRate(mainTokenInstance, stakeTokenInstance) {
-      const mainTokenBalance = await stakeTokenInstance.balanceOf(
-        mainTokenInstance.address
+    async getTokensRate(stakeTokenInstance) {
+      const rate = await stakeTokenInstance.convertToAssets(
+        "1000000000000000000"
       );
+      return ethers.utils.formatUnits(rate);
 
-      const totalSupply = await mainTokenInstance.totalSupply();
+      // const mainTokenBalance = await stakeTokenInstance.balanceOf(
+      //   mainTokenInstance.address
+      // );
 
-      const parsedMainTokenBalance = this.$ethers.utils.formatEther(
-        mainTokenBalance.toString()
-      );
-      const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
+      // const totalSupply = await mainTokenInstance.totalSupply();
 
-      return parsedMainTokenBalance / parsedTotalSupply;
+      // const parsedMainTokenBalance = this.$ethers.utils.formatEther(
+      //   mainTokenBalance.toString()
+      // );
+      // const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
+
+      // return parsedMainTokenBalance / parsedTotalSupply;
     },
 
     async getUserInfo(stakeInstance, mainInstance) {

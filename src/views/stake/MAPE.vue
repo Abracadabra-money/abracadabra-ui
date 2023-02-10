@@ -65,7 +65,7 @@
     </div>
 
     <div class="profile">
-      <h1 class="title">magicGLP</h1>
+      <h1 class="title">magicAPE</h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
       </div>
@@ -230,22 +230,12 @@
           Note: A 1% protocol fee is taken on the yields.
         </p>
         <div class="links-wrap">
-          <a
-            class="deposit"
-            href="https://app.gmx.io/#/buy_glp"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
+          <a class="deposit" href="#" target="_blank" rel="noreferrer noopener">
             <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
               Buy APE</span
             ></a
           >
-          <a
-            class="deposit"
-            href="https://app.gmx.io/#/buy_glp#redeem"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
+          <a class="deposit" href="#" target="_blank" rel="noreferrer noopener">
             <img src="@/assets/images/deposit.svg" alt="Deposit" />
             <span>Sell APE</span></a
           >
