@@ -126,8 +126,8 @@ export default {
       this.setLoadingMApeStake(false);
     },
 
-    async getTokensRate(stakeTokenInstance) {
-      const rate = await stakeTokenInstance.convertToAssets(
+    async getTokensRate(mainTokenInstance) {
+      const rate = await mainTokenInstance.convertToAssets(
         "1000000000000000000"
       );
       return ethers.utils.formatUnits(rate);

@@ -208,10 +208,10 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/ETH2.png')"
+                  :icon="require('@/assets/images/tokens/APE.png')"
                   size="40px"
                 />
-                <span>ETH</span>
+                <span>APE</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
@@ -421,7 +421,6 @@ export default {
 
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
             amount,
@@ -466,9 +465,8 @@ export default {
 
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
         const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.redeem(
             amount,
             this.account,
             this.account
@@ -476,7 +474,7 @@ export default {
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
+        const tx = await this.tokensInfo.mainToken.contractInstance.redeem(
           amount,
           this.account,
           this.account,
