@@ -298,7 +298,6 @@ export default {
 
         return {
           toSharesMultiplier: multiplyer,
-          totalInterestAccruedByUser: mimFromLastAccrueToInt,
           contractBorrowPart: userBorrowPart,
           userBorrowPart: parsedBorrowed,
         };
@@ -562,12 +561,8 @@ export default {
     },
 
     async getUserInfo(pool, poolContract) {
-      const {
-        userBorrowPart,
-        contractBorrowPart,
-        toSharesMultiplier,
-        totalInterestAccruedByUser,
-      } = await this.getUserBorrowPart(pool.contractInstance);
+      const { userBorrowPart, contractBorrowPart, toSharesMultiplier } =
+        await this.getUserBorrowPart(pool.contractInstance);
 
       let userBalance = await this.getUserTokenBalance(
         pool.collateralToken.contract,
@@ -647,7 +642,6 @@ export default {
         liquidationPrice,
         userLockedTimestamp: collateralLockTimestamp,
         toSharesMultiplier,
-        totalInterestAccruedByUser,
         contractBorrowPartParsed: this.$ethers.utils.formatUnits(
           contractBorrowPart.toString()
         ),

@@ -9,6 +9,7 @@ const getBigNumber = (amount, decimals) => {
 };
 
 const query0x = async (
+  tokenName,
   sellToken,
   buyToken,
   slippage = 0,
@@ -22,7 +23,7 @@ const query0x = async (
   const params = {
     buyToken: buyToken,
     sellToken: sellToken,
-    sellAmount: amountSell.toString(),
+    sellAmount: amountSell?.toString(),
     slippagePercentage,
     skipValidation: true,
     takerAddress,
@@ -32,7 +33,6 @@ const query0x = async (
     const response = await axios.get(url, { params: params });
 
     const { data, buyAmount, sellAmount, estimatedGas } = response.data;
-  
     return {
       data: data,
       buyAmount: ethers.BigNumber.from(buyAmount),
@@ -43,9 +43,18 @@ const query0x = async (
     const lastNotificationId = store.getters["notifications/getLastId"];
     await store.commit("notifications/delete", lastNotificationId);
 
-    const message = error.response?.data?.reason
+    const message = error.response?.data?.reason;
+    const isInsufficientLiquity =
+      error.response?.data?.validationErrors[0]?.reason ===
+      "INSUFFICIENT_ASSET_LIQUIDITY";
     const errorNotification = {
-      msg: `0x error: ${message ? message : error.message}`,
+      msg: `0x error: ${
+        message
+          ? isInsufficientLiquity
+            ? `Not enough liqudity for ${tokenName}`
+            : message
+          : error.message
+      }`,
       type: "error",
     };
 
@@ -287,6 +296,7 @@ const getLev0xData = async (mimAmount, pool, slipage = 1) => {
   const queryMimAmountFromToken1 = mimAmount.sub(queryMimAmountFromToken0); // 18 decimals
 
   const queryToken0AmountFromMim = await query0x(
+    "TOKEN 0",
     MIM.address,
     token0.contract.address,
     slipage,
@@ -294,6 +304,7 @@ const getLev0xData = async (mimAmount, pool, slipage = 1) => {
   );
 
   const queryToken1AmountFromMim = await query0x(
+    "TOKEN 1",
     MIM.address,
     token1.contract.address,
     slipage,
@@ -336,22 +347,24 @@ const getLiq0xData = async (lpAmount, pool, slipage = 1) => {
   const amount1 = lpAmount.mul(lpAmountToken1).div(totalSupply);
 
   const queryToken0ToMim = await query0x(
+    "TOKEN 0",
     token0.contract.address,
     MIM.address,
     slipage,
     amount0
   );
 
-  if(!queryToken0ToMim) return false;
+  if (!queryToken0ToMim) return false;
 
   const queryToken1ToMim = await query0x(
+    "TOKEN 1",
     token1.contract.address,
     MIM.address,
     slipage,
     amount1
   );
 
-  if(!queryToken1ToMim) return false;
+  if (!queryToken1ToMim) return false;
 
   const data = ethers.utils.defaultAbiCoder.encode(
     ["bytes[]"],

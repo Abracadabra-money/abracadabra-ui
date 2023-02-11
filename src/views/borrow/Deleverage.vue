@@ -103,7 +103,7 @@
           :poolId="selectedPoolId"
         />
 
-        <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
+       <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -195,20 +195,9 @@ export default {
       chainId: "getChainId",
     }),
 
-    sliderPercent() {
-      return (
-        this.flashRepayAmount /
-        Vue.filter("formatToFixed")(
-          this.selectedPool.userInfo.userBorrowPart,
-          4
-        )
-      );
-    },
-
     isVelodrome() {
       return this.chainId === 10 && this.selectedPool?.id === 1;
     },
-    
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
     },
@@ -308,7 +297,7 @@ export default {
       const persent =
         this.flashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
 
-      const slipageMutiplier = (100 + +this.slipage) / 100;
+      const slipageMutiplier = 100 / (100 - +this.slipage);
 
       const expectedToRepayCollateral =
         this.flashRepayAmount *
@@ -390,29 +379,17 @@ export default {
     },
 
     finalCollateralAmount() {
-      const slipageMutiplier = (100 + +this.slipage) / 100;
-      const amountOfMimTokensUserWantsToPayOff = +this.borrowAmount;
+      const slipageMutiplier = 100 / (100 - +this.slipage);
+      //amount of loan tokens is what we will receive from the swapper and converted to shares to be recorded in the bento box
+      const amountOfLoanTokensUserWantsToPayOff = +this.borrowAmount;
 
-      const sharesOfMimTokensUserWantsToPayOff =
-        amountOfMimTokensUserWantsToPayOff *
-        +this.selectedPool.userInfo.toSharesMultiplier;
-
-      const sharesOfMimInterestToClear =
-        +this.sliderPercent *
-        this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.totalInterestAccruedByUser
-        );
-
-      const totalSharesOfMimRequiredFromSale =
-        sharesOfMimTokensUserWantsToPayOff + sharesOfMimInterestToClear;
-
-      const sharesOfCollateralRequired =
+      const sharesOfCollateralRequiredToPayOfLoan =
         slipageMutiplier *
         this.selectedPool.tokenOraclePrice *
-        totalSharesOfMimRequiredFromSale;
+        amountOfLoanTokensUserWantsToPayOff;
 
       const collateralAmount = Vue.filter("formatToFixed")(
-        sharesOfCollateralRequired,
+        sharesOfCollateralRequiredToPayOfLoan,
         this.selectedPool.collateralToken.decimals
       );
 
@@ -609,9 +586,11 @@ export default {
         }
 
         let itsMax = this.itsMaxRepayMim;
-
+        ///we need to convert the borrow amount into parts because it's what is used by the smart contract during repay
+        const finalBorrowPart =
+          +this.borrowAmount / this.selectedPool.userInfo.toSharesMultiplier;
         const finalBorrowAmount = this.$ethers.utils.parseUnits(
-          this.borrowAmount,
+          finalBorrowPart.toString(),
           this.selectedPool.borrowToken.decimals
         );
 

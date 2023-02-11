@@ -2932,7 +2932,9 @@ export default {
           this.signer
         );
 
-        const glpAmount = await pool.collateralToken.contract.convertToAssets(collateralAmount);
+        const glpAmount = await pool.collateralToken.contract.convertToAssets(
+          collateralAmount
+        );
 
         const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
           usdcAddress,
@@ -2980,44 +2982,20 @@ export default {
       datasArray.push(callEncode);
 
       if (itsMax) {
-        console.log("userBorrowPart", userBorrowPart.toString());
-
-        // 7
-        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256"],
-          ["-0x02"]
-        );
-
-        eventsArray.push(7);
-        valuesArray.push(0);
-        datasArray.push(getRepayPartEncode);
-
-        // 2
+        console.log("user borrow part", userBorrowPart.toString());
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          ["-0x01", account, false]
+          [userBorrowPart, account, false]
         );
 
         eventsArray.push(2);
         valuesArray.push(0);
         datasArray.push(repayEncode);
       } else {
-        console.log("borrow amount", borrowAmount.toString());
-
-        //7
-        const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["int256"],
-          ["-0x02"]
-        );
-
-        eventsArray.push(7);
-        valuesArray.push(0);
-        datasArray.push(getRepayPartEncode);
-
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["int256", "address", "bool"],
-          ["-0x01", account, false]
+          [borrowAmount, account, false]
         );
 
         eventsArray.push(2);
@@ -3067,7 +3045,7 @@ export default {
 
         // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
-        await pool.contractInstance.cook(
+        const cookTx = await pool.contractInstance.cook(
           cookData.events,
           cookData.values,
           cookData.datas,
@@ -3076,6 +3054,8 @@ export default {
             gasLimit: 5000000,
           }
         );
+
+        await cookTx.wait();
 
         await this.$store.commit("notifications/delete", notificationId);
         this.$store.commit("setPopupState", {

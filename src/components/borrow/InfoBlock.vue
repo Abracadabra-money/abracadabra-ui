@@ -9,7 +9,7 @@
         />
         {{ item.name }}:</span
       >
-      <span>{{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span>
+      <span>{{ item.value }}{{ ["Price", "Withdrawable Amount"].indexOf(item.name) === -1 ? "%" : "" }}</span>
     </div>
   </div>
 </template>
@@ -60,6 +60,11 @@ export default {
 
     info() {
       let info = [
+        {
+          name: "Withdrawable Amount",
+          value: this.pool.maxWithdrawAmount,
+          tooltip: `Maximum Current Amount of ${this.pool.collateralToken.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
+        },
         {
           name: "Maximum collateral ratio",
           value: this.pool.ltv,
