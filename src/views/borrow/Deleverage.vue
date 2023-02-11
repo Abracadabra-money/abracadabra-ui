@@ -642,6 +642,9 @@ export default {
             false
           );
 
+        console.log("START:", amountFrom.toString())
+        console.log("FINAL:", amountFrom.add(testSlippageValue).toString())
+
         const payload = {
           borrowAmount: itsMax
             ? this.selectedPool.userInfo.contractBorrowPart

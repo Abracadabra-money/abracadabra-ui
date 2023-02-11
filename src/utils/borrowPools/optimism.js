@@ -75,7 +75,7 @@ export default [
       abi: zeroXLevSwapper,
     },
     reverseSwapContractInfo: {
-      address: "0x741A2378a8E003acbAdbc21506bC624062Ace36E",
+      address: "0x601C5634C8435ceeA8E87D0b5404C206f1E305Db",
       abi: zeroXLiqSwapper,
     },
   },
