@@ -82,6 +82,12 @@ export default {
         this.glpPoolsId.includes(+this.selectedPool?.id)
       );
     },
+
+    isVelo() {
+      return (
+        this.chainId === 10 && this.selectedPool.id === 1
+      )
+    },
   },
   methods: {
     async getDegenBoxDepositEncode(
@@ -2949,7 +2955,30 @@ export default {
         swapData = response.data;
       } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
 
-      const swapStaticTx =
+
+      let swapStaticTx;
+
+      if(this.isVelo) {
+        const minOutShare = await pool.masterContractInstance.toShare(
+          pool.borrowToken.address,
+          borrowAmount,
+          true
+        );
+
+        swapStaticTx =
+        await pool.liqSwapperContract.populateTransaction.swap(
+          pool.collateralToken.address,
+          pool.borrowToken.address,
+          account,
+          minOutShare,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 1000000000,
+          }
+        );
+      } else {
+        swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(
           pool.collateralToken.address,
           pool.borrowToken.address,
@@ -2961,6 +2990,9 @@ export default {
             gasLimit: 1000000000,
           }
         );
+      }
+
+
 
       const swapCallByte = swapStaticTx.data;
 
@@ -2973,6 +3005,16 @@ export default {
       eventsArray.push(30);
       valuesArray.push(0);
       datasArray.push(callEncode);
+
+      //7
+      // const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+      //   ["int256"],
+      //   ["-2"]
+      // );
+
+      // eventsArray.push(7);
+      // valuesArray.push(0);
+      // datasArray.push(getRepayPartEncode);
 
       if (itsMax) {
         // 2
