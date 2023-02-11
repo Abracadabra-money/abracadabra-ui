@@ -314,12 +314,12 @@ const getLiq0xData = async (lpAmount, pool, slipage = 1) => {
     pool
   );
 
-  const shareAmount = await pool.collateralToken.contract.toAmount(lpAmount);
+  const pairAmount = await pool.collateralToken.contract.toAmount(lpAmount);
 
   const lpAmountToken0 = await token0.contract.balanceOf(Pair.address);
   const lpAmountToken1 = await token1.contract.balanceOf(Pair.address);
-  const amount0 = shareAmount.mul(lpAmountToken0).div(totalSupply);
-  const amount1 = shareAmount.mul(lpAmountToken1).div(totalSupply);
+  const amount0 = pairAmount.mul(lpAmountToken0).div(totalSupply);
+  const amount1 = pairAmount.mul(lpAmountToken1).div(totalSupply);
 
   const queryToken0ToMim = await query0x(
     token0.contract.address,
