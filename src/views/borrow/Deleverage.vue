@@ -633,7 +633,7 @@ export default {
 
         const amountFrom = repayAmount.div(rate);
 
-        const testSlippageValue = amountFrom.div(100).mul(parseFloat(this.slipage * 100).toFixed(0)).div(100);
+        const testSlippageValue = amountFrom.div(100).mul(this.slipage);
 
         const shareFrom =
           await this.selectedPool.masterContractInstance.toShare(
