@@ -617,6 +617,7 @@ export default {
       return false;
     },
 
+    // leave for future implementation - a more accurate calculation
     async alternativeActionHandler() {
       if (+this.flashRepayAmount) {
         if (!this.slipage) {
