@@ -1242,11 +1242,16 @@ export default {
       }
 
       // 30 unwrap and deposit for alice in degenbox
-      const swapStaticTx =
-        await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-          userAddr,
-          amount
-        );
+      let bentoBoxAmount = await pool.masterContractInstance.toAmount(
+        pool.collateralToken.address,
+        amount.toString(),
+        false
+      );
+
+      const swapStaticTx = await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
+        userAddr,
+        bentoBoxAmount.sub("1")
+      );
 
       const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes", "bool", "bool", "uint8"],
@@ -1271,9 +1276,11 @@ export default {
       } else {
         // 21
         // withdraw to  userAddr
+        let unwrappedAmount = await pool.collateralToken.contract.toAmount(bentoBoxAmount)
+
         const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
-          [lpAddress, userAddr, amount, "0"]
+          [lpAddress, userAddr, unwrappedAmount, "0"]
         );
 
         lpRemoveCollateralEventsArray.push(21);
