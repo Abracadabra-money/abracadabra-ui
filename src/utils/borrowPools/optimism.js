@@ -71,11 +71,11 @@ export default [
       abi: EACAggregatorProxyAbi,
     },
     swapContractInfo: {
-      address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
+      address: "0xf76DA2D3656E1cC5Ca2Fbb9663C89f7d8AAe20Fc",
       abi: zeroXLevSwapper,
     },
     reverseSwapContractInfo: {
-      address: "0x601C5634C8435ceeA8E87D0b5404C206f1E305Db",
+      address: "0x79533F85479e04d2214305638B6586b724beC951",
       abi: zeroXLiqSwapper,
     },
   },

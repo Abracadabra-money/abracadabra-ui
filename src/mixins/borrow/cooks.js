@@ -1,7 +1,7 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
+// import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
@@ -2589,7 +2589,7 @@ export default {
           );
 
           swapData = response.data;
-        } else swapData = await getLev0xData(amount, pool, slipage);
+        } else swapData = "0x00";
 
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
@@ -2953,7 +2953,7 @@ export default {
         );
 
         swapData = response.data;
-      } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
+      } else swapData = "0x00";
 
 
       let swapStaticTx;
@@ -3069,16 +3069,16 @@ export default {
       };
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: 0,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -3086,7 +3086,7 @@ export default {
           cookData.datas,
           {
             value: 0,
-            gasLimit,
+            gasLimit: 10000000,
           }
         );
 
