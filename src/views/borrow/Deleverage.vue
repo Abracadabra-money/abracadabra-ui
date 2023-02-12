@@ -115,7 +115,7 @@
             >
 
             <BaseButton
-              @click="actionHandler"
+              @click="alternativeActionHandler"
               :disabled="actionBtnText === 'Nothing to do'"
               >{{ actionBtnText }}</BaseButton
             >
