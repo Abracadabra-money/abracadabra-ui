@@ -115,7 +115,7 @@
             >
 
             <BaseButton
-              @click="alternativeActionHandler"
+              @click="actionHandler"
               :disabled="actionBtnText === 'Nothing to do'"
               >{{ actionBtnText }}</BaseButton
             >
@@ -608,62 +608,6 @@ export default {
           );
 
         payload.collateralAmount = finalCollateralToShare;
-        payload.removeCollateralAmount = finalRemoveCollateralAmountToShare;
-
-        this.flashRepayHandler(payload);
-        return false;
-      }
-
-      return false;
-    },
-
-    // leave for future implementation - a more accurate calculation
-    async alternativeActionHandler() {
-      if (+this.flashRepayAmount) {
-        if (!this.slipage) {
-          return false;
-        }
-
-        let itsMax = this.itsMaxRepayMim;
-
-        const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
-
-        const rate = this.$ethers.utils
-          .parseUnits("1")
-          .div(this.selectedPool.collateralToken.oracleExchangeRate);
-
-        const amountFrom = repayAmount.div(rate);
-
-        const testSlippageValue = amountFrom.div(100).mul(this.slipage);
-
-        const shareFrom =
-          await this.selectedPool.masterContractInstance.toShare(
-            this.selectedPool.collateralToken.address,
-            amountFrom.add(testSlippageValue),
-            false
-          );
-
-        console.log("START:", amountFrom.toString())
-        console.log("FINAL:", amountFrom.add(testSlippageValue).toString())
-
-        const payload = {
-          borrowAmount: itsMax
-            ? this.selectedPool.userInfo.contractBorrowPart
-            : repayAmount,
-          collateralAmount: shareFrom,
-          removeCollateralAmount: this.finalRemoveCollateralAmount,
-          updatePrice: this.selectedPool.askUpdatePrice,
-          itsMax,
-          slipage: this.slipage,
-        };
-
-        const finalRemoveCollateralAmountToShare =
-          await this.selectedPool.masterContractInstance.toShare(
-            this.selectedPool.collateralToken.address,
-            this.finalRemoveCollateralAmount,
-            true
-          );
-
         payload.removeCollateralAmount = finalRemoveCollateralAmountToShare;
 
         this.flashRepayHandler(payload);
