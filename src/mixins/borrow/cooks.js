@@ -1,7 +1,7 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
+// import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
@@ -81,6 +81,10 @@ export default {
         this.chainId === 42161 &&
         this.glpPoolsId.includes(+this.selectedPool?.id)
       );
+    },
+
+    isVelo() {
+      return this.chainId === 10 && this.selectedPool.id === 1;
     },
   },
   methods: {
@@ -1242,10 +1246,20 @@ export default {
           amount
         );
 
-      const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "bytes", "bool", "bool", "uint8"],
-        [tokenWrapper, swapStaticTx.data, false, false, 2]
-      );
+      let lpCallEncode;
+      if (this.isVelo) {
+        const data = swapStaticTx.data.substring(0, 74);
+
+        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [tokenWrapper, data, true, false, 2]
+        );
+      } else {
+        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [tokenWrapper, swapStaticTx.data, false, false, 2]
+        );
+      }
 
       lpRemoveCollateralEventsArray.push(30);
       lpRemoveCollateralValuesArray.push(0);
@@ -1263,12 +1277,19 @@ export default {
         lpRemoveCollateralValuesArray.push(0);
         lpRemoveCollateralDatasArray.push(withdrawEncode);
       } else {
-        // 21
-        // withdraw to  userAddr
-        const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [lpAddress, userAddr, amount, "0"]
-        );
+        let lpWrapperEncode;
+
+        if (this.isVelo) {
+          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [lpAddress, userAddr, "0", "-2"]
+          );
+        } else {
+          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [lpAddress, userAddr, amount, "0"]
+          );
+        }
 
         lpRemoveCollateralEventsArray.push(21);
         lpRemoveCollateralValuesArray.push(0);
@@ -2536,10 +2557,11 @@ export default {
           datasArray.push(lpCallEncode);
 
           //10 add collateral
-          const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            ["-2", this.account, true]
-          );
+          const getCollateralEncode2 =
+            this.$ethers.utils.defaultAbiCoder.encode(
+              ["int256", "address", "bool"],
+              ["-2", this.account, true]
+            );
 
           eventsArray.push(10);
           valuesArray.push(0);
@@ -2583,7 +2605,7 @@ export default {
           );
 
           swapData = response.data;
-        } else swapData = await getLev0xData(amount, pool, slipage);
+        } else swapData = "0x00";
 
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
@@ -2931,7 +2953,9 @@ export default {
           this.signer
         );
 
-        const glpAmount = await pool.collateralToken.contract.convertToAssets(collateralAmount);
+        const glpAmount = await pool.collateralToken.contract.convertToAssets(
+          collateralAmount
+        );
 
         const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
           usdcAddress,
@@ -2947,10 +2971,30 @@ export default {
         );
 
         swapData = response.data;
-      } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
+      } else swapData = "0x00";
 
-      const swapStaticTx =
-        await pool.liqSwapperContract.populateTransaction.swap(
+      let swapStaticTx;
+
+      if (this.isVelo) {
+        const minOutShare = await pool.masterContractInstance.toShare(
+          pool.borrowToken.address,
+          borrowAmount,
+          true
+        );
+
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
+          pool.collateralToken.address,
+          pool.borrowToken.address,
+          account,
+          minOutShare,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 1000000000,
+          }
+        );
+      } else {
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
           pool.collateralToken.address,
           pool.borrowToken.address,
           account,
@@ -2961,6 +3005,7 @@ export default {
             gasLimit: 1000000000,
           }
         );
+      }
 
       const swapCallByte = swapStaticTx.data;
 
