@@ -98,7 +98,7 @@ export default {
 
       if (!this.price) {
         const price = await oracleContract.peekSpot("0x");
-        this.price = this.$ethers.utils.formatUnits(price, 18);
+        this.price = 1 / this.$ethers.utils.formatUnits(price, 18);
       }
 
       const {
@@ -114,7 +114,7 @@ export default {
       const stakeTokenBalanceUsd = stakeTokenBalance * this.price;
       const totalSupplyHex = await mainTokenInstance.totalSupply();
       const totalSupply = this.$ethers.utils.formatUnits(totalSupplyHex, 18);
-      const totalSupplyUsd = totalSupply * this.price;
+      const totalSupplyUsd = totalSupply * this.price * tokensRate;
 
       const stakeObject = {
         tokensRate,
