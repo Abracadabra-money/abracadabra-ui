@@ -730,7 +730,7 @@ export default {
 
       this.flashRepayRemoveAmount = this.maxFlashRepayRemoveAmount;
 
-      setTimeout(this.actionHandler(), 100);
+      setTimeout(this.alternativeActionHandler(), 100);
     },
 
     clearRepayToken() {
