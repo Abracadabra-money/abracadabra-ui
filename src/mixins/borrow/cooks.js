@@ -1241,6 +1241,8 @@ export default {
         lpRemoveCollateralDatasArray.push(lpBentoWithdrawEncode);
       }
 
+
+
       // 30 unwrap and deposit for alice in degenbox
       const swapStaticTx =
         await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
@@ -1248,9 +1250,11 @@ export default {
           amount
         );
 
+      const data = swapStaticTx.data.substring(0, 74);
+
       const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes", "bool", "bool", "uint8"],
-        [tokenWrapper, swapStaticTx.data, false, false, 1]
+        [tokenWrapper, data, true, false, 2]
       );
 
       lpRemoveCollateralEventsArray.push(30);
@@ -1269,9 +1273,10 @@ export default {
         lpRemoveCollateralValuesArray.push(0);
         lpRemoveCollateralDatasArray.push(withdrawEncode);
       } else {
+
         const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
-          [lpAddress, userAddr, "-1", "0"]
+          [lpAddress, userAddr, "0", "-2"]
         );
 
         lpRemoveCollateralEventsArray.push(21);
