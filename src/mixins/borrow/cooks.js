@@ -1250,7 +1250,7 @@ export default {
 
       const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes", "bool", "bool", "uint8"],
-        [tokenWrapper, swapStaticTx.data, false, false, 2]
+        [tokenWrapper, swapStaticTx.data, false, false, 1]
       );
 
       lpRemoveCollateralEventsArray.push(30);
