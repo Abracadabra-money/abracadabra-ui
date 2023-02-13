@@ -1246,20 +1246,12 @@ export default {
           amount
         );
 
-      let lpCallEncode;
-      if (this.isVelo) {
-        const data = swapStaticTx.data.substring(0, 74);
+      const data = swapStaticTx.data.substring(0, 74);
 
-        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [tokenWrapper, data, true, false, 2]
-        );
-      } else {
-        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "bytes", "bool", "bool", "uint8"],
-          [tokenWrapper, swapStaticTx.data, false, false, 2]
-        );
-      }
+      const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes", "bool", "bool", "uint8"],
+        [tokenWrapper, data, true, false, 2]
+      );
 
       lpRemoveCollateralEventsArray.push(30);
       lpRemoveCollateralValuesArray.push(0);
@@ -1277,19 +1269,10 @@ export default {
         lpRemoveCollateralValuesArray.push(0);
         lpRemoveCollateralDatasArray.push(withdrawEncode);
       } else {
-        let lpWrapperEncode;
-
-        if (this.isVelo) {
-          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [lpAddress, userAddr, "0", "-2"]
-          );
-        } else {
-          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-            ["address", "address", "int256", "int256"],
-            [lpAddress, userAddr, amount, "0"]
-          );
-        }
+        const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "int256", "int256"],
+          [lpAddress, userAddr, "0", "-2"]
+        );
 
         lpRemoveCollateralEventsArray.push(21);
         lpRemoveCollateralValuesArray.push(0);
