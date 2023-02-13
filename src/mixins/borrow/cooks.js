@@ -1,7 +1,7 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
+// import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import yvSETHHelperAbi from "@/utils/abi/MasterContractOwner";
 const yvSETHHelperAddr = "0x16ebACab63581e69d6F7594C9Eb1a05dF808ea75";
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
@@ -81,6 +81,12 @@ export default {
         this.chainId === 42161 &&
         this.glpPoolsId.includes(+this.selectedPool?.id)
       );
+    },
+
+    isVelo() {
+      return (
+        this.chainId === 10 && this.selectedPool.id === 1
+      )
     },
   },
   methods: {
@@ -1236,11 +1242,16 @@ export default {
       }
 
       // 30 unwrap and deposit for alice in degenbox
-      const swapStaticTx =
-        await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-          userAddr,
-          amount
-        );
+      let bentoBoxAmount = await pool.masterContractInstance.toAmount(
+        pool.collateralToken.address,
+        amount.toString(),
+        false
+      );
+
+      const swapStaticTx = await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
+        userAddr,
+        bentoBoxAmount.sub("1")
+      );
 
       const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes", "bool", "bool", "uint8"],
@@ -1265,9 +1276,11 @@ export default {
       } else {
         // 21
         // withdraw to  userAddr
+        let unwrappedAmount = await pool.collateralToken.contract.toAmount(bentoBoxAmount)
+
         const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
-          [lpAddress, userAddr, amount, "0"]
+          [lpAddress, userAddr, unwrappedAmount, "0"]
         );
 
         lpRemoveCollateralEventsArray.push(21);
@@ -2583,7 +2596,7 @@ export default {
           );
 
           swapData = response.data;
-        } else swapData = await getLev0xData(amount, pool, slipage);
+        } else swapData = "0x00";
 
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
@@ -2947,9 +2960,32 @@ export default {
         );
 
         swapData = response.data;
-      } else swapData = await getLiq0xData(collateralAmount, pool, slipage);
+      } else swapData = "0x00";
 
-      const swapStaticTx =
+
+      let swapStaticTx;
+
+      if(this.isVelo) {
+        const minOutShare = await pool.masterContractInstance.toShare(
+          pool.borrowToken.address,
+          borrowAmount,
+          true
+        );
+
+        swapStaticTx =
+        await pool.liqSwapperContract.populateTransaction.swap(
+          pool.collateralToken.address,
+          pool.borrowToken.address,
+          account,
+          minOutShare,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 1000000000,
+          }
+        );
+      } else {
+        swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(
           pool.collateralToken.address,
           pool.borrowToken.address,
@@ -2961,6 +2997,9 @@ export default {
             gasLimit: 1000000000,
           }
         );
+      }
+
+
 
       const swapCallByte = swapStaticTx.data;
 
@@ -2973,6 +3012,16 @@ export default {
       eventsArray.push(30);
       valuesArray.push(0);
       datasArray.push(callEncode);
+
+      //7
+      // const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
+      //   ["int256"],
+      //   ["-2"]
+      // );
+
+      // eventsArray.push(7);
+      // valuesArray.push(0);
+      // datasArray.push(getRepayPartEncode);
 
       if (itsMax) {
         // 2
@@ -3027,16 +3076,16 @@ export default {
       };
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: 0,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -3044,7 +3093,7 @@ export default {
           cookData.datas,
           {
             value: 0,
-            gasLimit,
+            gasLimit: 10000000,
           }
         );
 
