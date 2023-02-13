@@ -1269,13 +1269,9 @@ export default {
         lpRemoveCollateralValuesArray.push(0);
         lpRemoveCollateralDatasArray.push(withdrawEncode);
       } else {
-        // 21
-        // withdraw to  userAddr
-        let unwrappedAmount = await pool.collateralToken.contract.toAmount(amount)
-
         const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],
-          [lpAddress, userAddr, unwrappedAmount, "0"]
+          [lpAddress, userAddr, "-1", "0"]
         );
 
         lpRemoveCollateralEventsArray.push(21);
