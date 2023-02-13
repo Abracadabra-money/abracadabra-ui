@@ -115,7 +115,7 @@
             >
 
             <BaseButton
-              @click="actionHandler"
+              @click="alternativeActionHandler"
               :disabled="actionBtnText === 'Nothing to do'"
               >{{ actionBtnText }}</BaseButton
             >
@@ -616,6 +616,58 @@ export default {
 
       return false;
     },
+    async alternativeActionHandler() {
+      if (+this.flashRepayAmount) {
+        if (!this.slipage) {
+          return false;
+        }
+
+        let itsMax = this.itsMaxRepayMim;
+
+        const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
+
+        const rate = this.$ethers.utils
+          .parseUnits("1")
+          .div(this.selectedPool.collateralToken.oracleExchangeRate);
+
+        const amountFrom = repayAmount.div(rate);
+
+        const slipage = this.$ethers.BigNumber.from(parseFloat(this.slipage * 1e10).toFixed(0));
+        const testSlippageValue = amountFrom.div(100).mul(slipage).div(1e10);
+
+        const shareFrom =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.collateralToken.address,
+            amountFrom.add(testSlippageValue),
+            false
+          );
+
+        const payload = {
+          borrowAmount: itsMax
+            ? this.selectedPool.userInfo.contractBorrowPart
+            : repayAmount,
+          collateralAmount: shareFrom,
+          removeCollateralAmount: this.finalRemoveCollateralAmount,
+          updatePrice: this.selectedPool.askUpdatePrice,
+          itsMax,
+          slipage: this.slipage,
+        };
+
+        const finalRemoveCollateralAmountToShare =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.collateralToken.address,
+            this.finalRemoveCollateralAmount,
+            true
+          );
+
+        payload.removeCollateralAmount = finalRemoveCollateralAmountToShare;
+
+        this.flashRepayHandler(payload);
+        return false;
+      }
+
+      return false;
+    },
 
     async flashRepayHandler(data) {
       const notificationId = await this.$store.dispatch(
@@ -676,7 +728,7 @@ export default {
 
       this.flashRepayRemoveAmount = this.maxFlashRepayRemoveAmount;
 
-      setTimeout(this.actionHandler(), 100);
+      setTimeout(this.alternativeActionHandler(), 100);
     },
 
     clearRepayToken() {
