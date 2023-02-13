@@ -84,9 +84,7 @@ export default {
     },
 
     isVelo() {
-      return (
-        this.chainId === 10 && this.selectedPool.id === 1
-      )
+      return this.chainId === 10 && this.selectedPool.id === 1;
     },
   },
   methods: {
@@ -1241,8 +1239,6 @@ export default {
         lpRemoveCollateralDatasArray.push(lpBentoWithdrawEncode);
       }
 
-
-
       // 30 unwrap and deposit for alice in degenbox
       const swapStaticTx =
         await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
@@ -1250,12 +1246,20 @@ export default {
           amount
         );
 
-      const data = swapStaticTx.data.substring(0, 74);
+      let lpCallEncode;
+      if (this.isVelo) {
+        const data = swapStaticTx.data.substring(0, 74);
 
-      const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "bytes", "bool", "bool", "uint8"],
-        [tokenWrapper, data, true, false, 2]
-      );
+        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [tokenWrapper, data, true, false, 2]
+        );
+      } else {
+        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [tokenWrapper, swapStaticTx.data, false, false, 2]
+        );
+      }
 
       lpRemoveCollateralEventsArray.push(30);
       lpRemoveCollateralValuesArray.push(0);
@@ -1273,11 +1277,19 @@ export default {
         lpRemoveCollateralValuesArray.push(0);
         lpRemoveCollateralDatasArray.push(withdrawEncode);
       } else {
+        let lpWrapperEncode;
 
-        const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [lpAddress, userAddr, "0", "-2"]
-        );
+        if (this.isVelo) {
+          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [lpAddress, userAddr, "0", "-2"]
+          );
+        } else {
+          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [lpAddress, userAddr, amount, "0"]
+          );
+        }
 
         lpRemoveCollateralEventsArray.push(21);
         lpRemoveCollateralValuesArray.push(0);
@@ -2545,10 +2557,11 @@ export default {
           datasArray.push(lpCallEncode);
 
           //10 add collateral
-          const getCollateralEncode2 = this.$ethers.utils.defaultAbiCoder.encode(
-            ["int256", "address", "bool"],
-            ["-2", this.account, true]
-          );
+          const getCollateralEncode2 =
+            this.$ethers.utils.defaultAbiCoder.encode(
+              ["int256", "address", "bool"],
+              ["-2", this.account, true]
+            );
 
           eventsArray.push(10);
           valuesArray.push(0);
@@ -2940,7 +2953,9 @@ export default {
           this.signer
         );
 
-        const glpAmount = await pool.collateralToken.contract.convertToAssets(collateralAmount);
+        const glpAmount = await pool.collateralToken.contract.convertToAssets(
+          collateralAmount
+        );
 
         const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
           usdcAddress,
@@ -2958,18 +2973,16 @@ export default {
         swapData = response.data;
       } else swapData = "0x00";
 
-
       let swapStaticTx;
 
-      if(this.isVelo) {
+      if (this.isVelo) {
         const minOutShare = await pool.masterContractInstance.toShare(
           pool.borrowToken.address,
           borrowAmount,
           true
         );
 
-        swapStaticTx =
-        await pool.liqSwapperContract.populateTransaction.swap(
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
           pool.collateralToken.address,
           pool.borrowToken.address,
           account,
@@ -2981,8 +2994,7 @@ export default {
           }
         );
       } else {
-        swapStaticTx =
-        await pool.liqSwapperContract.populateTransaction.swap(
+        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
           pool.collateralToken.address,
           pool.borrowToken.address,
           account,
@@ -2994,8 +3006,6 @@ export default {
           }
         );
       }
-
-
 
       const swapCallByte = swapStaticTx.data;
 
