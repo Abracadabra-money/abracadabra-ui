@@ -294,7 +294,7 @@ export default {
       const persent =
         this.flashRepayAmount / this.selectedPool.userInfo.userBorrowPart;
 
-      const slipageMutiplier = (100 + +this.slipage) / 100;
+      const slipageMutiplier = 100 / (100 - +this.slipage);
 
       const expectedToRepayCollateral =
         this.flashRepayAmount *
@@ -344,7 +344,7 @@ export default {
 
       if (!+this.flashRepayAmount) return defaultLiquidationPrice;
 
-      const slipageMutiplier = (100 + +this.slipage) / 100;
+      const slipageMutiplier = 100 / (100 - +this.slipage);
 
       const accruedMultiplyer =
         this.maxFlashRepayAmount / +this.selectedPool.userInfo.userBorrowPart;
@@ -376,7 +376,7 @@ export default {
     },
 
     finalCollateralAmount() {
-      const slipageMutiplier = (100 + +this.slipage) / 100;
+      const slipageMutiplier = 100 / (100 - +this.slipage);
 
       const collateralAmount = Vue.filter("formatToFixed")(
         this.borrowAmount *
@@ -634,7 +634,7 @@ export default {
 
         const amountFrom = repayAmount.div(rate);
 
-        const testSlippageValue = amountFrom.div(100).mul(this.slipage);
+        const testSlippageValue = amountFrom.mul(100).div(100 - this.slipage);
 
         const shareFrom =
           await this.selectedPool.masterContractInstance.toShare(
@@ -732,7 +732,7 @@ export default {
 
       this.flashRepayRemoveAmount = this.maxFlashRepayRemoveAmount;
 
-      setTimeout(this.actionHandler(), 100);
+      setTimeout(this.alternativeActionHandler(), 100);
     },
 
     clearRepayToken() {
