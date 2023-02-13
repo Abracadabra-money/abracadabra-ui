@@ -626,13 +626,19 @@ export default {
 
         const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
 
-        const rate = this.$ethers.utils
-          .parseUnits("1")
-          .div(this.selectedPool.collateralToken.oracleExchangeRate);
+        let amountFrom = Vue.filter("formatToFixed")(
+          this.borrowAmount * this.selectedPool.tokenOraclePrice,
+          this.selectedPool.collateralToken.decimals
+        );
 
-        const amountFrom = repayAmount.div(rate);
+        amountFrom = this.$ethers.utils.parseUnits(
+          amountFrom,
+          this.selectedPool.collateralToken.decimals
+        );
 
-        const slipage = this.$ethers.BigNumber.from(parseFloat(this.slipage * 1e10).toFixed(0));
+        const slipage = this.$ethers.BigNumber.from(
+          parseFloat(this.slipage * 1e10).toFixed(0)
+        );
         const testSlippageValue = amountFrom.div(100).mul(slipage).div(1e10);
 
         const shareFrom =
