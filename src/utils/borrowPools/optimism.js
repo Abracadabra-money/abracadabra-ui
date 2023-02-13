@@ -55,7 +55,7 @@ export default [
       defaultToken: false,
       lpAddress: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
       lpAbi,
-      tokenWrapper: "0x1fff78fd2e139bc1315711dd3ea176bc7028635a",
+      tokenWrapper: "0x19C08F59c4D75407652A6a970078e79D117d0fD7",
       tokenWrapperAbi: lptokenWrapperAbi,
     },
     pairToken: {
@@ -71,11 +71,11 @@ export default [
       abi: EACAggregatorProxyAbi,
     },
     swapContractInfo: {
-      address: "0xf76DA2D3656E1cC5Ca2Fbb9663C89f7d8AAe20Fc",
+      address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
       abi: zeroXLevSwapper,
     },
     reverseSwapContractInfo: {
-      address: "0x79533F85479e04d2214305638B6586b724beC951",
+      address: "0x741A2378a8E003acbAdbc21506bC624062Ace36E",
       abi: zeroXLiqSwapper,
     },
   },
