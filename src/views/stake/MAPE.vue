@@ -58,7 +58,7 @@
           <router-link
             class="link"
             :to="{ name: 'Leverage', params: { id: 39 } }"
-            >here.</router-link
+            >this.</router-link
           >
         </p>
       </div>
@@ -249,15 +249,21 @@
           <br />
           Note: A 1% protocol fee is taken on the yields.
         </p>
-        <div class="links-wrap">
-          <a class="deposit" href="#" target="_blank" rel="noreferrer noopener">
-            <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
-              Buy APE</span
-            ></a
-          >
-          <a class="deposit" href="#" target="_blank" rel="noreferrer noopener">
-            <img src="@/assets/images/deposit.svg" alt="Deposit" />
-            <span>Sell APE</span></a
+        <div class="btns-wrap">
+          <BaseButton @click="goBorrow">
+            <div class="btn-ape-wrap">
+              <img
+                class="btn-ape-img"
+                src="@/assets/images/ape/ape.b.png"
+                alt=""
+              />
+              <span class="btn-ape-text">Borrow against MAGIC APE</span>
+            </div>
+          </BaseButton>
+          <BaseButton @click="goLeverage">
+            <span class="btn-ape-text"
+              >Leverage your Yield (up to XXX%)</span
+            ></BaseButton
           >
         </div>
       </template>
@@ -566,6 +572,14 @@ export default {
       } catch (error) {
         console.log("Get Total Rewards Error", error);
       }
+    },
+
+    goBorrow() {
+      this.$router.push({ name: "Borrow", params: { id: 39 } });
+    },
+
+    goLeverage() {
+      this.$router.push({ name: "Leverage", params: { id: 39 } });
     },
   },
 
@@ -926,10 +940,34 @@ export default {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.links-wrap {
+.btns-wrap {
   display: flex;
   justify-content: center;
   gap: 24px;
+}
+
+.btn-ape-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.btn-ape-img {
+  max-width: 22px;
+  margin-right: 10px;
+}
+
+.btn-ape-text {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.025em;
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 .deposit {
@@ -1088,6 +1126,14 @@ export default {
   .wrap-chart {
     max-width: 88vw;
     margin: 0 auto;
+  }
+
+  .btns-wrap {
+    flex-direction: column;
+  }
+
+  .btn-ape-text {
+    font-size: 14px;
   }
 }
 </style>
