@@ -1,17 +1,14 @@
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-
-// need to integrate pair tokens, now only for op - refatoring later(!)
-// import { getLev0xData, getLiq0xData } from "@/utils/zeroXSwap/zeroXswapper";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
+
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const gmxLensAddress = "0xF6939A5D9081799041294B05f1939A06A0AdB75c";
-import cookHelperAbi from "@/utils/abi/cookHelperAbi";
 import gmxLensAbi from "@/utils/abi/lp/GmxLens";
 
 export default {
@@ -37,29 +34,6 @@ export default {
         +this.selectedPool.userInfo?.whitelistedInfo.userBorrowPart
       )
         return true;
-
-      return false;
-    },
-
-    cookHelper() {
-      if (
-        this.chainId === 1 &&
-        (this.selectedPool.id === 35 ||
-          this.selectedPool.id === 36 ||
-          this.selectedPool.id === 37)
-      )
-        return new this.$ethers.Contract(
-          "0x3AeCB01be778fAA795f156B9D3627c0E05f700a1",
-          JSON.stringify(cookHelperAbi),
-          this.signer
-        );
-
-      if (this.chainId === 42161 && this.selectedPool.id === 2)
-        return new this.$ethers.Contract(
-          "0x129149DC63F5778a41f619Bb36212566ac54eA45",
-          JSON.stringify(cookHelperAbi),
-          this.signer
-        );
 
       return false;
     },
@@ -141,9 +115,9 @@ export default {
       }
     },
 
-    async getWhitelistCallData(cookData) {
+    async getWhitelistCallData(cookData, pool) {
       try {
-        const whitelistedInfo = this.selectedPool.userInfo?.whitelistedInfo;
+        const whitelistedInfo = pool.userInfo?.whitelistedInfo;
 
         const data = await getSetMaxBorrowData(
           whitelistedInfo.whitelisterContract,
@@ -170,7 +144,10 @@ export default {
       const masterContract = await pool.contractInstance.masterContract();
 
       if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(pool, masterContract);
+        const approvalEncode = await this.getApprovalEncode(
+          pool,
+          masterContract
+        );
 
         if (approvalEncode === "ledger") {
           const approvalMaster = await this.approveMasterContract(pool);
@@ -186,186 +163,12 @@ export default {
       return cookData;
     },
 
-    async temporaryRevokeApprovalBlockHelper(pool, cookData) {
-      const addNonce = cookData.events.filter((value) => value === 24).length;
-      const masterContract = await pool.contractInstance.masterContract();
+    async get0xLeverageSwapData(pool, amount, slipage) {
+      try {
+        let buyToken = pool.collateralToken.address;
+        if (this.isGLP) buyToken = usdcAddress;
 
-      const removeApprovalEncode = await this.getApprovalEncode(
-        pool,
-        masterContract,
-        false,
-        addNonce
-      );
-      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
-        cookData.events.push(24);
-        cookData.values.push(0);
-        cookData.datas.push(removeApprovalEncode);
-      }
-
-      return cookData;
-    },
-
-    async baseAddCollateralBlock(
-      cookData,
-      pool,
-      tokenAddr,
-      isWrap,
-      userAddr,
-      collateralAmount,
-      collateralValue
-    ) {
-      if (isWrap) {
-        const { lpAddress, tokenWrapper } = pool.lpLogic;
-
-        cookData = await actions.bentoDeposit(
-          cookData,
-          lpAddress,
-          userAddr,
-          collateralAmount,
-          "0"
-        );
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          lpAddress,
-          tokenWrapper,
-          collateralAmount,
-          "0"
-        );
-
-        // 30
-        // wrap and deposit to cauldron
-        const swapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-            pool.contractInstance.address,
-            collateralAmount
-          );
-
-        cookData = await actions.call(
-          cookData,
-          tokenWrapper,
-          swapStaticTx.data,
-          true,
-          false,
-          2
-        );
-      } else {
-        cookData = await actions.bentoDeposit(
-          cookData,
-          tokenAddr,
-          userAddr,
-          collateralAmount,
-          "0",
-          collateralValue
-        );
-      }
-
-      cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
-
-      return cookData;
-    },
-
-    async baseRemoveCollateral(cookData, pool, amount, userAddr, tokenAddr) {
-      if (pool.lpLogic) {
-        const { tokenWrapper, lpAddress } = pool.lpLogic;
-
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          pool.collateralToken.address,
-          tokenWrapper,
-          "0",
-          amount
-        );
-
-        // 30 unwrap and deposit for alice in degenbox
-        const swapStaticTx =
-          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
-            userAddr,
-            amount
-          );
-
-        cookData = await actions.call(
-          cookData,
-          tokenWrapper,
-          swapStaticTx.data,
-          false,
-          false,
-          2
-        );
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          lpAddress,
-          userAddr,
-          amount,
-          "0"
-        );
-      } else {
-        cookData = await actions.removeCollateral(cookData, amount, userAddr);
-
-        cookData = await actions.bentoWithdraw(
-          cookData,
-          tokenAddr,
-          userAddr,
-          "0x00",
-          amount
-        );
-      }
-
-      return cookData;
-    },
-
-    async baseBorrow(cookData, amount, userAddr, pairToken) {
-      cookData = await actions.borrow(cookData, amount, userAddr);
-
-      cookData = await actions.bentoWithdraw(
-        cookData,
-        pairToken,
-        userAddr,
-        "0",
-        "-0x02"
-      );
-
-      return cookData;
-    },
-
-    async baseRepay(cookData, pool, itsMax, amount) {
-      const pairToken = pool.borrowToken.address;
-      const userAddr = this.account;
-
-      const userBorrowPart = pool.userInfo.contractBorrowPart;
-      const repayPart = itsMax ? userBorrowPart : amount;
-
-      cookData = await actions.getRepayShare(cookData, repayPart);
-
-      cookData = await actions.bentoDeposit(
-        cookData,
-        pairToken,
-        userAddr,
-        "0x00",
-        "-0x01"
-      );
-
-      cookData = await actions.repay(
-        cookData,
-        "-0x01",
-        userAddr,
-        false
-      );
-
-      return cookData;
-    },
-
-    async baseLeverage(cookData, pool, amount, minExpected, slipage, is0x) {
-      const swapperAddres = pool.levSwapperContract.address;
-      const userAddr = this.account;
-
-      let buyToken = pool.collateralToken.address;
-      if (this.isGLP) buyToken = usdcAddress;
-
-      if (is0x) {
-        const response = await swap0xRequest(
+        const swapResponse = await swap0xRequest(
           this.chainId,
           buyToken,
           pool.borrowToken.address,
@@ -374,28 +177,199 @@ export default {
           pool.levSwapperContract.address
         );
 
-        const swapData = response.data;
-        const swapStaticTx =
-          await pool.levSwapperContract.populateTransaction.swap(
-            userAddr,
-            minExpected,
-            amount,
-            swapData,
-            {
-              gasLimit: 1000000000,
-            }
+        return swapResponse.data;
+      } catch (error) {
+        console.log("get0xLeverageSwapData error: ", error);
+      }
+    },
+
+    async get0xDeleverageSwapData(pool, collateralAmount, slipage) {
+      try {
+        const swapper = pool.liqSwapperContract.address;
+        const mim = pool.borrowToken.address;
+        let selToken = pool.collateralToken.address;
+        let selAmount = collateralAmount;
+
+          if (this.isGlp) {
+            selToken = usdcAddress;
+  
+            const GmxLensContract = new this.$ethers.Contract(
+              gmxLensAddress,
+              JSON.stringify(gmxLensAbi),
+              this.signer
+            );
+  
+            const glpAmount = await pool.collateralToken.contract.convertToAssets(
+              collateralAmount
+            );
+  
+            const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
+              usdcAddress,
+              glpAmount
+            );
+  
+            selAmount = usdcAmount;
+          }
+  
+          const response = await swap0xRequest(
+            this.chainId,
+            mim,
+            selToken,
+            slipage,
+            selAmount,
+            swapper
           );
-        const swapCallByte = swapStaticTx.data;
+  
+          return response.data;
+      } catch (error) {
+        console.log("get0xDeleverageSwapData error: ", error);
+      }
+    },
+
+    async recipeAddCollatral(
+      cookData,
+      pool,
+      token,
+      isWrap,
+      to,
+      amount,
+      collateralValue
+    ) {
+      if (isWrap) {
+        const { lpAddress, tokenWrapper } = pool.lpLogic;
+
+        cookData = await actions.bentoDeposit(
+          cookData,
+          lpAddress,
+          to,
+          amount,
+          "0"
+        );
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          tokenWrapper,
+          "-1",
+          "0"
+        );
+
+        // 30
+        // wrap and deposit to cauldron
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
+            pool.contractInstance.address,
+            amount
+          );
+
+        const data = swapStaticTx.data.substring(0, 74);
 
         cookData = await actions.call(
           cookData,
-          swapperAddres,
-          swapCallByte,
-          false,
+          tokenWrapper,
+          data,
+          true,
           false,
           2
         );
       } else {
+        cookData = await actions.bentoDeposit(
+          cookData,
+          token,
+          to,
+          amount,
+          "0",
+          collateralValue
+        );
+      }
+
+      cookData = await actions.addCollateral(cookData, "-2", to, false);
+
+      return cookData;
+    },
+
+    async recipeRemoveCollateral(cookData, pool, share, userAddr, tokenAddr) {
+      if (pool.lpLogic) {
+        const { tokenWrapper, lpAddress } = pool.lpLogic;
+
+        cookData = await actions.removeCollateral(cookData, share, userAddr);
+
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          pool.collateralToken.address,
+          tokenWrapper,
+          "0",
+          share
+        );
+
+        // 30 unwrap and deposit for alice in degenbox
+        const swapStaticTx =
+          await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
+            userAddr,
+            share
+          );
+
+        const data = swapStaticTx.data.substring(0, 74);
+
+        cookData = await actions.call(
+          cookData,
+          tokenWrapper,
+          data,
+          true,
+          false,
+          2
+        );
+
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          lpAddress,
+          userAddr,
+          "-1",
+          "0"
+        );
+      } else {
+        cookData = await actions.removeCollateral(cookData, share, userAddr);
+
+        cookData = await actions.bentoWithdraw(
+          cookData,
+          tokenAddr,
+          userAddr,
+          "0x00",
+          share
+        );
+      }
+
+      return cookData;
+    },
+
+    async recipeBorrow(cookData, part, to, mim) {
+      cookData = await actions.borrow(cookData, part, to);
+
+      cookData = await actions.bentoWithdraw(cookData, mim, to, "0", "-0x02");
+
+      return cookData;
+    },
+
+    async recipeRepay(cookData, pool, itsMax, part) {
+      const mim = pool.borrowToken.address;
+      const to = this.account;
+
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
+      const repayPart = itsMax ? userBorrowPart : part;
+
+      cookData = await actions.getRepayShare(cookData, repayPart);
+
+      cookData = await actions.bentoDeposit(cookData, mim, to, "0x00", "-1");
+
+      cookData = await actions.repay(cookData, "-1", to, false);
+
+      return cookData;
+    },
+
+    async recipeLeverage(cookData, pool, amount, minExpected, slipage, is0x = false) {
+      const swapperAddres = pool.levSwapperContract.address;
+      const userAddr = this.account;
+
+      if (!is0x) {
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
             userAddr,
@@ -405,6 +379,7 @@ export default {
               gasLimit: 1000000000,
             }
           );
+
         const swapCallByte = swapStaticTx.data.substr(0, 138);
 
         cookData = await actions.call(
@@ -415,69 +390,49 @@ export default {
           true,
           2
         );
+
+        return cookData;
       }
 
-      return cookData;
-    },
+      const swapData = await this.get0xLeverageSwapData(
+        pool,
+        amount,
+        slipage
+      );
 
-    async baseDeleverage(cookData, pool, collateralAmount, slipage, is0x) {
-      const collateralTokenAddr = pool.collateralToken.address;
-      const borrowTokenAddr = pool.borrowToken.address;
-      const reverseSwapperAddr = pool.liqSwapperContract.address;
-      const userAddr = this.account;
-      let swapStaticTx;
-
-      let selToken = pool.collateralToken.address;
-      let selAmount = collateralAmount;
-
-      if (is0x) {
-        if (this.isGlp) {
-          selToken = usdcAddress;
-
-          const GmxLensContract = new this.$ethers.Contract(
-            gmxLensAddress,
-            JSON.stringify(gmxLensAbi),
-            this.signer
-          );
-
-          const glpAmount = await pool.collateralToken.contract.convertToAssets(
-            collateralAmount
-          );
-
-          const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
-            usdcAddress,
-            glpAmount
-          );
-
-          selAmount = usdcAmount;
-        }
-
-        const response = await swap0xRequest(
-          this.chainId,
-          pool.borrowToken.address,
-          selToken,
-          slipage,
-          selAmount,
-          pool.liqSwapperContract.address
-        );
-
-        const swapData = response.data;
-
-        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
-          collateralTokenAddr,
-          borrowTokenAddr,
+      const swapStaticTx =
+        await pool.levSwapperContract.populateTransaction.swap(
           userAddr,
-          0,
-          collateralAmount,
+          minExpected,
+          amount,
           swapData,
           {
             gasLimit: 1000000000,
           }
         );
-      } else {
-        swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
+
+      cookData = await actions.call(
+        cookData,
+        swapperAddres,
+        swapStaticTx.data,
+        false,
+        false,
+        2
+      );
+
+      return cookData;
+    },
+
+    async recipeDeleverage(cookData, pool, collateralAmount, slipage, is0x) {
+      const collateralTokenAddr = pool.collateralToken.address;
+      const mim = pool.borrowToken.address;
+      const swapper = pool.liqSwapperContract.address;
+      const userAddr = this.account;
+
+      if(!is0x) {
+        const swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
           collateralTokenAddr,
-          borrowTokenAddr,
+          mim,
           userAddr,
           0,
           collateralAmount,
@@ -485,13 +440,40 @@ export default {
             gasLimit: 1000000000,
           }
         );
+
+        const swapCallByte = swapStaticTx.data;
+
+        cookData = await actions.call(
+          cookData,
+          swapper,
+          swapCallByte,
+          false,
+          false,
+          2
+        );
+
+        return cookData;
       }
+
+      const swapData = await this.get0xDeleverageSwapData(pool, collateralAmount, slipage)
+
+      const swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
+        collateralTokenAddr,
+        mim,
+        userAddr,
+        0,
+        collateralAmount,
+        swapData,
+        {
+          gasLimit: 1000000000,
+        }
+      );
 
       const swapCallByte = swapStaticTx.data;
 
       cookData = await actions.call(
         cookData,
-        reverseSwapperAddr,
+        swapper,
         swapCallByte,
         false,
         false,
@@ -501,7 +483,7 @@ export default {
       return cookData;
     },
 
-    async cookCollateralAndBorrow(
+    async cookAddCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
@@ -533,9 +515,9 @@ export default {
         updatePrice
       );
 
-      cookData = await this.baseBorrow(cookData, amount, userAddr, pairToken);
+      cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
 
-      cookData = await this.baseAddCollateralBlock(
+      cookData = await this.recipeAddCollatral(
         cookData,
         pool,
         tokenAddr,
@@ -581,7 +563,7 @@ export default {
         updatePrice
       );
 
-      cookData = await this.baseAddCollateralBlock(
+      cookData = await this.recipeAddCollatral(
         cookData,
         pool,
         tokenAddr,
@@ -622,16 +604,16 @@ export default {
       );
 
       if (this.needWhitelisterApprove) {
-        cookData = await this.getWhitelistCallData(cookData);
+        cookData = await this.getWhitelistCallData(cookData, pool);
       }
 
-      cookData = await this.baseBorrow(cookData, amount, userAddr, pairToken);
+      cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
 
-    async cookRemoveAndRepayMax(
-      { amount, updatePrice },
+    async cookRemoveCollateralAndRepay(
+      { amount, collateralAmount, updatePrice, itsMax },
       isApprowed,
       pool,
       notificationId
@@ -652,43 +634,14 @@ export default {
         updatePrice
       );
 
-      cookData = await this.baseRepay(cookData, pool, true);
-      cookData = await this.baseRemoveCollateral(
+      cookData = await this.recipeRepay(
         cookData,
         pool,
-        amount,
-        userAddr,
-        tokenAddr
+        itsMax,
+        collateralAmount
       );
 
-      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
-    },
-
-    async cookRemoveAndRepay(
-      { amount, collateralAmount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const tokenAddr = pool.collateralToken.address;
-      const userAddr = this.account;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      cookData = await this.baseRepay(cookData, pool, false, collateralAmount);
-
-      cookData = await this.baseRemoveCollateral(
+      cookData = await this.recipeRemoveCollateral(
         cookData,
         pool,
         amount,
@@ -721,7 +674,7 @@ export default {
         updatePrice
       );
 
-      cookData = await this.baseRemoveCollateral(
+      cookData = await this.recipeRemoveCollateral(
         cookData,
         pool,
         amount,
@@ -732,7 +685,7 @@ export default {
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
 
-    async cookRepayMim(
+    async cookRepay(
       { amount, updatePrice, itsMax },
       isApprowed,
       pool,
@@ -751,88 +704,12 @@ export default {
         updatePrice
       );
 
-      cookData = await this.baseRepay(cookData, pool, itsMax, amount);
+      cookData = await this.recipeRepay(cookData, pool, itsMax, amount);
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
 
-    async cookMultiBorrow(
-      {
-        collateralAmount,
-        amount,
-        updatePrice,
-        minExpected,
-        itsDefaultBalance,
-        slipage,
-      },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : pool.collateralToken.address;
-      const collateralValue = itsDefaultBalance
-        ? collateralAmount.toString()
-        : 0;
-
-      const swapperAddres = pool.levSwapperContract.address;
-      const userAddr = this.account;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      if (this.needWhitelisterApprove) {
-        cookData = await this.getWhitelistCallData(cookData);
-      }
-
-      cookData = await this.baseAddCollateralBlock(
-        cookData,
-        pool,
-        tokenAddr,
-        false,
-        userAddr,
-        collateralAmount,
-        collateralValue
-      );
-
-      cookData = await actions.borrow(cookData, amount, swapperAddres);
-
-      cookData = await this.baseLeverage(
-        cookData,
-        pool,
-        amount,
-        minExpected,
-        slipage,
-        pool.is0xSwap
-      );
-
-      cookData = await actions.addCollateral(
-        cookData,
-        "-0x02",
-        userAddr,
-        false
-      );
-
-      await this.sendCook(
-        pool.contractInstance,
-        cookData,
-        collateralValue,
-        notificationId
-      );
-    },
-
-    async cookMultiBorrowXswapper(
+    async cookLeverage(
       {
         collateralAmount,
         amount,
@@ -864,10 +741,10 @@ export default {
       );
 
       if (this.needWhitelisterApprove) {
-        cookData = await this.getWhitelistCallData(cookData);
+        cookData = await this.getWhitelistCallData(cookData, pool);
       }
 
-      cookData = await this.baseAddCollateralBlock(
+      cookData = await this.recipeAddCollatral(
         cookData,
         pool,
         pool.collateralToken.address,
@@ -883,13 +760,13 @@ export default {
         pool.levSwapperContract.address
       );
 
-      cookData = await this.baseLeverage(
+      cookData = await this.recipeLeverage(
         cookData,
         pool,
         amount,
         minExpected,
         slipage,
-        true
+        pool.is0xSwap
       );
 
       cookData = await actions.addCollateral(
@@ -907,7 +784,7 @@ export default {
       );
     },
 
-    async cookFlashRepay(
+    async cookDeleverage(
       {
         borrowAmount,
         collateralAmount,
@@ -945,7 +822,7 @@ export default {
         reverseSwapperAddr
       );
 
-      cookData = await this.baseDeleverage(
+      cookData = await this.recipeDeleverage(
         cookData,
         pool,
         collateralAmount,
@@ -965,80 +842,12 @@ export default {
       }
 
       if (+removeCollateralAmount > 0) {
-        cookData = await this.baseRemoveCollateral(
+        cookData = await this.recipeRemoveCollateral(
           cookData,
           pool,
           removeCollateralAmount,
           userAddr,
           collateralTokenAddr
-        );
-      }
-
-      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
-    },
-
-    async cookFlashRepayXswapper(
-      {
-        borrowAmount,
-        collateralAmount,
-        removeCollateralAmount,
-        updatePrice,
-        itsMax,
-        slipage,
-      },
-      isApprowed,
-      pool,
-      account,
-      notificationId
-    ) {
-      const reverseSwapperAddr = pool.liqSwapperContract.address;
-      const userBorrowPart = pool.userInfo.contractBorrowPart;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      cookData = await actions.removeCollateral(
-        cookData,
-        collateralAmount,
-        reverseSwapperAddr
-      );
-
-      cookData = await this.baseDeleverage(
-        cookData,
-        pool,
-        collateralAmount,
-        slipage,
-        true
-      );
-
-      if (itsMax) {
-        cookData = await actions.repay(
-          cookData,
-          userBorrowPart,
-          account,
-          false
-        );
-      } else {
-        cookData = await actions.repay(cookData, borrowAmount, account, false);
-      }
-
-      if (+removeCollateralAmount > 0) {
-        cookData = await this.baseRemoveCollateral(
-          cookData,
-          pool,
-          removeCollateralAmount,
-          account,
-          pool.collateralToken.address
         );
       }
 

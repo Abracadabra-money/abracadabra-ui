@@ -1,7 +1,50 @@
 // WARNING: can only be used inside cook.js
+import cookHelperAbi from "@/utils/abi/cookHelperAbi";
 
 export default {
+  computed: {
+    cookHelper() {
+      if (
+        this.chainId === 1 &&
+        (this.selectedPool.id === 35 ||
+          this.selectedPool.id === 36 ||
+          this.selectedPool.id === 37)
+      )
+        return new this.$ethers.Contract(
+          "0x3AeCB01be778fAA795f156B9D3627c0E05f700a1",
+          JSON.stringify(cookHelperAbi),
+          this.signer
+        );
+
+      if (this.chainId === 42161 && this.selectedPool.id === 2)
+        return new this.$ethers.Contract(
+          "0x129149DC63F5778a41f619Bb36212566ac54eA45",
+          JSON.stringify(cookHelperAbi),
+          this.signer
+        );
+
+      return false;
+    },
+  },
   methods: {
+    async temporaryRevokeApprovalBlockHelper(pool, cookData) {
+      const addNonce = cookData.events.filter((value) => value === 24).length;
+      const masterContract = await pool.contractInstance.masterContract();
+
+      const removeApprovalEncode = await this.getApprovalEncode(
+        pool,
+        masterContract,
+        false,
+        addNonce
+      );
+      if (removeApprovalEncode && removeApprovalEncode !== "ledger") {
+        cookData.events.push(24);
+        cookData.values.push(0);
+        cookData.datas.push(removeApprovalEncode);
+      }
+
+      return cookData;
+    },
     async isCookHelperApprowed(pool) {
       try {
         const masterContract = this.cookHelper.address;
@@ -22,7 +65,10 @@ export default {
       const masterContract = this.cookHelper.address;
 
       if (!isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(pool, masterContract);
+        const approvalEncode = await this.getApprovalEncode(
+          pool,
+          masterContract
+        );
 
         cookData.events.push(24);
         cookData.values.push(0);
@@ -268,7 +314,10 @@ export default {
       }
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool, cookData);
+        cookData = await this.temporaryRevokeApprovalBlockHelper(
+          pool,
+          cookData
+        );
 
       try {
         await cook(pool.contractInstance, cookData, collateralValue);
@@ -391,7 +440,10 @@ export default {
       }
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool, cookData);
+        cookData = await this.temporaryRevokeApprovalBlockHelper(
+          pool,
+          cookData
+        );
 
       try {
         await cook(pool.contractInstance, cookData, collateralValue);
@@ -454,7 +506,10 @@ export default {
       );
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool, cookData);
+        cookData = await this.temporaryRevokeApprovalBlockHelper(
+          pool,
+          cookData
+        );
 
       try {
         await cook(pool.contractInstance, cookData, 0);
@@ -573,7 +628,10 @@ export default {
       }
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool, cookData);
+        cookData = await this.temporaryRevokeApprovalBlockHelper(
+          pool,
+          cookData
+        );
 
       try {
         await cook(pool.contractInstance, cookData, 0);
@@ -712,7 +770,10 @@ export default {
       }
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool, cookData);
+        cookData = await this.temporaryRevokeApprovalBlockHelper(
+          pool,
+          cookData
+        );
 
       try {
         await cook(pool.contractInstance, cookData, 0);
@@ -808,7 +869,10 @@ export default {
       }
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool, cookData);
+        cookData = await this.temporaryRevokeApprovalBlockHelper(
+          pool,
+          cookData
+        );
 
       try {
         await cook(pool.contractInstance, cookData, 0);
@@ -899,7 +963,10 @@ export default {
       }
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.temporaryRevokeApprovalBlockHelper(pool, cookData);
+        cookData = await this.temporaryRevokeApprovalBlockHelper(
+          pool,
+          cookData
+        );
 
       try {
         await cook(pool.contractInstance, cookData, 0);
