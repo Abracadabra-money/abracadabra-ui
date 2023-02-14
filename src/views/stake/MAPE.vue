@@ -251,6 +251,7 @@ import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import inputBlockBg from "@/assets/images/ape/bg.png";
 import profileBg from "@/assets/images/ape/bg-info.png";
+import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
 
 export default {
   mixins: [mAPETokenMixin],
@@ -277,6 +278,7 @@ export default {
       account: "getAccount",
       tokensInfo: "getMApeObject",
       itsMetamask: "getMetamaskActive",
+      provider: "getProvider",
     }),
 
     stakeToken() {
@@ -499,7 +501,8 @@ export default {
       const response = await axios.get(
         "https://analytics.abracadabra.money/api/mape"
       );
-      this.apy = response.data[0].apy.toFixed(2);
+      const apy = await getApeApy(this.provider);
+      this.apy = apy.toFixed(2);
       const data = response.data.slice(0, time * 31).reverse();
 
       data.forEach((element) => {
