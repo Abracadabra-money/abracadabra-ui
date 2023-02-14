@@ -38,9 +38,7 @@ export default {
     const location = response.data.country;
 
     if (location === "United States")
-      // document.location.href = "https://abracadabra.money/location";
-      document.location.href =
-        "https://abracadabra-money-git-location-abracadabramoney.vercel.app/location";
+      document.location.href = "https://abracadabra.money/location";
   },
 
   components: {
