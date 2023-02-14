@@ -262,7 +262,7 @@
           </BaseButton>
           <BaseButton @click="goLeverage">
             <span class="btn-ape-text"
-              >Leverage your Yield (up to XXX%)</span
+              >Leverage your Yield (up to ≈{{ expectedApy }}%)</span
             ></BaseButton
           >
         </div>
@@ -382,6 +382,16 @@ export default {
             +this.totalRewardsEarned * +this.tokensInfo.stakeToken.price
           ).toFixed(2)
         : 0;
+    },
+
+    expectedApy() {
+      const multiplier = 15;
+      const percentMultiplier = 0.7;
+      const expectedLevearage =
+        (1 - Math.pow(percentMultiplier, multiplier + 1)) /
+        (1 - percentMultiplier);
+
+      return Math.floor(parseFloat(expectedLevearage * this.apy).toFixed(2));
     },
   },
 
