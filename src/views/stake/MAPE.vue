@@ -301,7 +301,7 @@ export default {
       profileBg,
       fetchData: null,
       chatrTime: 1,
-      chartActive: "APY",
+      chartActive: "apy",
     };
   },
 
@@ -536,7 +536,7 @@ export default {
       this.changeChart();
     },
 
-    changeChart(type = "apr") {
+    changeChart(type = "apy") {
       this.chartActive = type;
       const labels = [];
       const tickUpper = [];
