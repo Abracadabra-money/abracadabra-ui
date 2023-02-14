@@ -67,7 +67,7 @@
     <div class="profile" :style="`background-image: url(${profileBg})`">
       <h1 class="title">
         magic
-        <img class="title-img" src="@/assets/images/stake/ape.png" alt="" /> Ape
+        <img class="title-img" src="@/assets/images/ape/ape.png" alt="" /> Ape
       </h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -81,7 +81,7 @@
             <h1 class="chart-title">APY Chart</h1>
             <div class="chart-apt-wrap">
               <div class="chart-apt">
-                <img src="@/assets/images/stake/mape-apr.png" alt="" />
+                <img src="@/assets/images/ape/apr.png" alt="" />
                 <span class="chart-apt-text">est. APY</span>
                 <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
                 <div class="loader-wrap-mini" v-else>
@@ -245,13 +245,12 @@ const BaseButton = () => import("@/components/base/BaseButton");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const TickChart = () => import("@/components/ui/TickChart");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
 import mAPETokenMixin from "@/mixins/stake/mAPEToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import inputBlockBg from "@/assets/images/stake/mape_bg.png";
-import profileBg from "@/assets/images/stake/mape_bg_info.png";
+import inputBlockBg from "@/assets/images/ape/bg.png";
+import profileBg from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [mAPETokenMixin],
@@ -399,12 +398,9 @@ export default {
       if (!+this.amount || this.amountError || !this.isActionApproved)
         return false;
 
-      if (this.action === "Stake") {
-        await this.stake();
-      }
-      if (this.action === "Unstake") {
-        await this.unstake();
-      }
+      if (this.action === "Stake") await this.stake();
+
+      if (this.action === "Unstake") await this.unstake();
     },
 
     async stake() {
@@ -503,7 +499,8 @@ export default {
       const response = await axios.get(
         "https://analytics.abracadabra.money/api/mape"
       );
-      const data = response.data.slice(0, time * 31);
+      this.apy = response.data[0].apy.toFixed(2);
+      const data = response.data.slice(0, time * 31).reverse();
 
       data.forEach((element) => {
         labels.push(moment(element.date).format("DD.MM"));
@@ -542,13 +539,8 @@ export default {
 
     await this.createChartData(this.chartActiveBtn);
 
-    const apy = await getGlpApy(true);
-    this.apy = parseFloat(apy).toFixed(2);
-
     this.chartInterval = setInterval(async () => {
       await this.createChartData(this.chartActiveBtn);
-      const apy = await getGlpApy(true);
-      this.apy = parseFloat(apy).toFixed(2);
     }, 60000);
   },
 

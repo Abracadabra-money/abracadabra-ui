@@ -1289,9 +1289,16 @@ export default {
       } else {
         // 21
         // withdraw to  userAddr
-        let unwrappedAmount = await pool.collateralToken.contract.toAmount(
-          bentoBoxAmount
-        );
+        let unwrappedAmount;
+        if (pool.collateralToken.contract.toAmount) {
+          unwrappedAmount = await pool.collateralToken.contract.toAmount(
+            bentoBoxAmount
+          );
+        } else {
+          unwrappedAmount = await pool.collateralToken.contract.convertToAssets(
+            bentoBoxAmount
+          );
+        }
 
         const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
           ["address", "address", "int256", "int256"],

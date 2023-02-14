@@ -1,7 +1,11 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="deposit-block">
+      <div
+        class="deposit-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApe"
+      >
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -43,8 +47,21 @@
           <BalanceBlock :pool="selectedPool" />
         </div>
       </div>
-      <div class="info-block">
-        <h1 class="title">Repay MIM</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Repay
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+          MIM
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           typeOperation="repay"
@@ -55,7 +72,11 @@
           :poolId="selectedPoolId"
         />
 
-        <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :isApe="isMagicApe"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -114,6 +135,8 @@ import {
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -131,6 +154,8 @@ export default {
         link: "https://docs.abracadabra.money/",
         glpPoolsId: [2, 3],
       },
+      bg,
+      bgInfo,
     };
   },
 
@@ -373,6 +398,18 @@ export default {
       if (this.selectedPool) return this.selectedPool.id;
 
       return null;
+    },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
     },
   },
 
@@ -743,6 +780,11 @@ export default {
   overflow: hidden;
 }
 
+.ape-bg {
+  background-position: center;
+  background-size: cover;
+}
+
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -771,6 +813,14 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .btn-wrap {

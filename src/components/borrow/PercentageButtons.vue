@@ -136,7 +136,7 @@ export default {
   }
 
   .percent-item {
-    background: rgba(255, 255, 255, 0.06);
+    background: #373541;
     border-radius: 20px;
     height: 40px;
     padding: 0 20px;

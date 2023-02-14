@@ -114,7 +114,7 @@ export default {
 .val-input {
   display: flex;
   align-items: center;
-  background: rgba(129, 126, 166, 0.2);
+  background: #3c394b;
   border: 1px solid #494661;
   border-radius: 20px;
   flex-wrap: wrap;
