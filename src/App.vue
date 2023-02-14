@@ -32,7 +32,7 @@ export default {
 
   async beforeCreate() {
     const response = await axios.get(
-      `http://ipwhois.pro/?key=${process.env.VUE_APP_IPWHOIS_API_KEY}`
+      `https://ipwhois.pro/?key=${process.env.VUE_APP_IPWHOIS_API_KEY}`
     );
 
     const location = response.data.country;
