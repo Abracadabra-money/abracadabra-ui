@@ -1254,22 +1254,26 @@ export default {
       }
 
       // 30 unwrap and deposit for alice in degenbox
-      let bentoBoxAmount = await pool.masterContractInstance.toAmount(
-        pool.collateralToken.address,
-        amount.toString(),
-        false
-      );
-
       const swapStaticTx =
         await pool.lpLogic.tokenWrapperContract.populateTransaction.unwrap(
           userAddr,
-          bentoBoxAmount.sub("1")
+          amount
         );
 
-      const lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "bytes", "bool", "bool", "uint8"],
-        [tokenWrapper, swapStaticTx.data, false, false, 2]
-      );
+      let lpCallEncode;
+      if (this.isVelo) {
+        const data = swapStaticTx.data.substring(0, 74);
+
+        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [tokenWrapper, data, true, false, 2]
+        );
+      } else {
+        lpCallEncode = this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "bytes", "bool", "bool", "uint8"],
+          [tokenWrapper, swapStaticTx.data, false, false, 2]
+        );
+      }
 
       lpRemoveCollateralEventsArray.push(30);
       lpRemoveCollateralValuesArray.push(0);
@@ -1287,23 +1291,19 @@ export default {
         lpRemoveCollateralValuesArray.push(0);
         lpRemoveCollateralDatasArray.push(withdrawEncode);
       } else {
-        // 21
-        // withdraw to  userAddr
-        let unwrappedAmount;
-        if (pool.collateralToken.contract.toAmount) {
-          unwrappedAmount = await pool.collateralToken.contract.toAmount(
-            bentoBoxAmount
+        let lpWrapperEncode;
+
+        if (this.isVelo) {
+          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [lpAddress, userAddr, "0", "-2"]
           );
         } else {
-          unwrappedAmount = await pool.collateralToken.contract.convertToAssets(
-            bentoBoxAmount
+          lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
+            ["address", "address", "int256", "int256"],
+            [lpAddress, userAddr, amount, "0"]
           );
         }
-
-        const lpWrapperEncode = this.$ethers.utils.defaultAbiCoder.encode(
-          ["address", "address", "int256", "int256"],
-          [lpAddress, userAddr, unwrappedAmount, "0"]
-        );
 
         lpRemoveCollateralEventsArray.push(21);
         lpRemoveCollateralValuesArray.push(0);
@@ -3040,16 +3040,6 @@ export default {
       valuesArray.push(0);
       datasArray.push(callEncode);
 
-      //7
-      // const getRepayPartEncode = this.$ethers.utils.defaultAbiCoder.encode(
-      //   ["int256"],
-      //   ["-2"]
-      // );
-
-      // eventsArray.push(7);
-      // valuesArray.push(0);
-      // datasArray.push(getRepayPartEncode);
-
       if (itsMax) {
         // 2
         const repayEncode = this.$ethers.utils.defaultAbiCoder.encode(
@@ -3103,16 +3093,16 @@ export default {
       };
 
       try {
-        // const estimateGas = await pool.contractInstance.estimateGas.cook(
-        //   cookData.events,
-        //   cookData.values,
-        //   cookData.datas,
-        //   {
-        //     value: 0,
-        //   }
-        // );
+        const estimateGas = await pool.contractInstance.estimateGas.cook(
+          cookData.events,
+          cookData.values,
+          cookData.datas,
+          {
+            value: 0,
+          }
+        );
 
-        // const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
+        const gasLimit = this.gasLimitConst * 100 + +estimateGas.toString();
 
         await pool.contractInstance.cook(
           cookData.events,
@@ -3120,7 +3110,7 @@ export default {
           cookData.datas,
           {
             value: 0,
-            gasLimit: 10000000,
+            gasLimit,
           }
         );
 

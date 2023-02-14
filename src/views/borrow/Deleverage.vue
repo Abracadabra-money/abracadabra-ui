@@ -648,8 +648,6 @@ export default {
 
       return false;
     },
-
-    // leave for future implementation - a more accurate calculation
     async alternativeActionHandler() {
       if (+this.flashRepayAmount) {
         if (!this.slipage) {
@@ -660,13 +658,20 @@ export default {
 
         const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
 
-        const rate = this.$ethers.utils
-          .parseUnits("1")
-          .div(this.selectedPool.collateralToken.oracleExchangeRate);
+        let amountFrom = Vue.filter("formatToFixed")(
+          this.borrowAmount * this.selectedPool.tokenOraclePrice,
+          this.selectedPool.collateralToken.decimals
+        );
 
-        const amountFrom = repayAmount.div(rate);
+        amountFrom = this.$ethers.utils.parseUnits(
+          amountFrom,
+          this.selectedPool.collateralToken.decimals
+        );
 
-        const testSlippageValue = amountFrom.div(100).mul(this.slipage);
+        const slipage = this.$ethers.BigNumber.from(
+          parseFloat(this.slipage * 1e10).toFixed(0)
+        );
+        const testSlippageValue = amountFrom.div(100).mul(slipage).div(1e10);
 
         const shareFrom =
           await this.selectedPool.masterContractInstance.toShare(
@@ -674,9 +679,6 @@ export default {
             amountFrom.add(testSlippageValue),
             false
           );
-
-        console.log("START:", amountFrom.toString());
-        console.log("FINAL:", amountFrom.add(testSlippageValue).toString());
 
         const payload = {
           borrowAmount: itsMax
@@ -764,7 +766,7 @@ export default {
 
       this.flashRepayRemoveAmount = this.maxFlashRepayRemoveAmount;
 
-      setTimeout(this.actionHandler(), 100);
+      setTimeout(this.alternativeActionHandler(), 100);
     },
 
     clearRepayToken() {
