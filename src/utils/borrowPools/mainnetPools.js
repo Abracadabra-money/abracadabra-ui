@@ -1927,8 +1927,8 @@ export default [
     contractChain: 1,
     id: 39,
     stabilityFee: 7.5,
-    interest: 6,
-    ltv: 75,
+    interest: 18,
+    ltv: 70,
     borrowFee: 0,
     isSwappersActive: true,
     is0xSwap: true,
@@ -1948,7 +1948,7 @@ export default [
     },
     contract: {
       name: "CauldronV4",
-      address: "0x70f2c66db34d9127E4d81Af83911Df8403c65c2f",
+      address: "0xd8F21A2D152D21C960807ABF49F5c38B046FE073",
       abi: poolsAbi.CauldronV4,
     },
     token: {

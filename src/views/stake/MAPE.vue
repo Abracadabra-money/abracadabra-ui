@@ -92,23 +92,54 @@
           </div>
 
           <div class="chart-btns">
-            <button
-              class="chart-btn btn-start"
-              :class="{ 'chart-btn-active': chartActiveBtn === 1 }"
-              @click="changeChartTime(1)"
-            >
-              1m
-            </button>
-            <button
-              class="chart-btn btn-last"
-              :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
-              @click="changeChartTime(3)"
-            >
-              3m
-            </button>
+            <div>
+              <button
+                class="chart-btn btn-start"
+                :class="{ 'chart-btn-active': chartActive === 'apy' }"
+                @click="changeChart('apy')"
+              >
+                APY
+              </button>
+              <button
+                class="chart-btn"
+                :class="{ 'chart-btn-active': chartActive === 'apr' }"
+                @click="changeChart('apr')"
+              >
+                APR
+              </button>
+              <!-- <button
+                class="chart-btn"
+                :class="{ 'chart-btn-active': chartActive === 'tvl' }"
+              >
+                TVL
+              </button>
+              <button
+                class="chart-btn btn-last"
+                :class="{ 'chart-btn-active': chartActive === 'price' }"
+              >
+                Price
+              </button> -->
+            </div>
+            <div>
+              <button
+                class="chart-btn btn-start"
+                :class="{ 'chart-btn-active': chatrTime === 1 }"
+                @click="changeChartTime(1)"
+              >
+                1m
+              </button>
+              <button
+                class="chart-btn btn-last"
+                :class="{ 'chart-btn-active': chatrTime === 3 }"
+                @click="changeChartTime(3)"
+              >
+                3m
+              </button>
+            </div>
           </div>
           <TickChart
             v-if="chartData"
+            :label="chartActive.toUpperCase()"
             :labels="chartData.labels"
             :tickUpper="chartData.tickUpper"
           />
@@ -262,13 +293,15 @@ export default {
       amountError: "",
       chartData: null,
       updateInterval: null,
-      chartActiveBtn: 1,
       chartInterval: null,
       apy: "",
       gasLimitConst: 1000,
       totalRewards: null,
       inputBlockBg,
       profileBg,
+      fetchData: null,
+      chatrTime: 1,
+      chartActive: "APY",
     };
   },
 
@@ -332,19 +365,17 @@ export default {
     },
 
     totalRewardsEarned() {
-      // return this.totalRewards
-      //   ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-      //   : 0;
-      return 0;
+      return this.totalRewards
+        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
+        : 0;
     },
 
     totalRewardsUsd() {
-      // return this.totalRewards
-      //   ? parseFloat(
-      //       +this.totalRewardsEarned * +this.tokensInfo.ethPrice
-      //     ).toFixed(2)
-      //   : 0;
-      return 0;
+      return this.totalRewards
+        ? parseFloat(
+            +this.totalRewardsEarned * +this.tokensInfo.stakeToken.price
+          ).toFixed(2)
+        : 0;
     },
   },
 
@@ -495,33 +526,40 @@ export default {
       }
     },
 
-    async createChartData(time = 1) {
-      const labels = [];
-      const tickUpper = [];
+    async fetchChartData() {
       const response = await axios.get(
         "https://analytics.abracadabra.money/api/mape"
       );
       const apy = await getApeApy(this.provider);
       this.apy = apy.toFixed(2);
-      const data = response.data.slice(0, time * 31).reverse();
+      this.fetchData = response.data;
+      this.changeChart();
+    },
+
+    changeChart(type = "apr") {
+      this.chartActive = type;
+      const labels = [];
+      const tickUpper = [];
+
+      const data = this.fetchData.slice(0, this.chatrTime * 31).reverse();
 
       data.forEach((element) => {
         labels.push(moment(element.date).format("DD.MM"));
-        tickUpper.push(element.apy);
+        tickUpper.push(element[type]);
       });
 
       this.chartData = { labels, tickUpper };
     },
 
     async changeChartTime(time) {
-      this.chartActiveBtn = time;
-      await this.createChartData(time);
+      this.chatrTime = time;
+      this.changeChart(this.chartActive);
     },
 
     async getTotalRewards() {
       try {
         const response = await axios.get(
-          "https://analytics.abracadabra.money/api/mglp"
+          "https://analytics.abracadabra.money/api/mape/rewards"
         );
 
         this.totalRewards = response.data;
@@ -540,10 +578,10 @@ export default {
       await this.createStakePool();
     }, 15000);
 
-    await this.createChartData(this.chartActiveBtn);
+    await this.fetchChartData();
 
     this.chartInterval = setInterval(async () => {
-      await this.createChartData(this.chartActiveBtn);
+      await this.fetchChartData();
     }, 60000);
   },
 
@@ -721,12 +759,12 @@ export default {
 
 .chart-btns {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
 .chart-btn {
-  width: 32px;
+  max-width: 60px;
   background: #2a2835;
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.06);

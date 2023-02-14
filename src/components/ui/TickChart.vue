@@ -9,6 +9,11 @@ import Chart from "chart.js/auto";
 
 export default {
   props: {
+    label: {
+      type: String,
+      required: true,
+      default: "APR",
+    },
     labels: {
       type: Array,
       required: true,
@@ -46,6 +51,7 @@ export default {
               label: function (context) {
                 const { dataset, dataIndex } = context;
                 const { label, data } = dataset;
+                // if (label === "APY" || label === "APR")
                 return ` ${label} ${data[dataIndex].toFixed(2)}%`;
               },
             },
@@ -87,7 +93,7 @@ export default {
         labels: this.labels,
         datasets: [
           {
-            label: "APY",
+            label: this.label,
             data: this.tickUpper,
             borderColor: "#73b6f6 ",
             pointBackgroundColor: "#73b6f6",
