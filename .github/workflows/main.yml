@@ -14,5 +14,6 @@ jobs:
       - uses: tgymnich/fork-sync@v1.8
         with:
           token: ${{ secrets.REPO_PUBLIC_ROXX3R }}
+          owner: Abracadabra-money
           base: main
           head: main
