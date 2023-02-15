@@ -95,17 +95,10 @@
             <div>
               <button
                 class="chart-btn btn-start"
-                :class="{ 'chart-btn-active': chartActive === 'apy' }"
-                @click="changeChart('apy')"
+                :class="{ 'chart-btn-active': chartActive === 'yield' }"
+                @click="changeChart('yield')"
               >
-                APY
-              </button>
-              <button
-                class="chart-btn"
-                :class="{ 'chart-btn-active': chartActive === 'apr' }"
-                @click="changeChart('apr')"
-              >
-                APR
+                Yield
               </button>
               <button
                 class="chart-btn"
@@ -142,8 +135,8 @@
           <TickChart
             v-if="chartData"
             :label="chartActive.toUpperCase()"
-            :labels="chartData.labels"
-            :tickUpper="chartData.tickUpper"
+            :labels="labels"
+            :datasets="chartData"
           />
         </div>
 
@@ -314,6 +307,7 @@ export default {
       chartActive: "apy",
       priceData: null,
       priceIntervalL: null,
+      labels: [],
     };
   },
 
@@ -594,10 +588,12 @@ export default {
       return this.priceData;
     },
 
-    async changeChart(type = "apy") {
+    async changeChart(type = "yield") {
+      this.labels = [];
+      this.chartData = [];
       this.chartActive = type;
-      const labels = [];
       const tickUpper = [];
+      const tickUpper2 = [];
 
       let typeData = this.fetchData;
 
@@ -613,12 +609,52 @@ export default {
 
       const data = typeData.slice(0, this.chatrTime * 31).reverse();
 
-      data.forEach((element) => {
-        labels.push(moment(element.date).format("DD.MM"));
-        tickUpper.push(element[type]);
-      });
+      if (type === "yield") {
+        data.forEach((element) => {
+          this.labels.push(moment(element.date).format("DD.MM"));
+          tickUpper.push(element.apy);
+          tickUpper2.push(element.apr);
+        });
 
-      this.chartData = { labels, tickUpper };
+        const dataset1 = {
+          label: "APY",
+          data: tickUpper,
+          borderColor: "#c0c53f",
+          pointBackgroundColor: "#c0c53f",
+          pointBorderColor: "#c0c53f",
+          pointRadius: 0,
+          borderWidth: 2,
+        };
+
+        const dataset2 = {
+          label: "APR",
+          data: tickUpper2,
+          borderColor: "#73b6f6",
+          pointBackgroundColor: "#73b6f6",
+          pointBorderColor: "#73b6f6",
+          pointRadius: 0,
+          borderWidth: 2,
+        };
+
+        this.chartData.push(dataset1, dataset2);
+      } else {
+        data.forEach((element) => {
+          this.labels.push(moment(element.date).format("DD.MM"));
+          tickUpper.push(element[type]);
+        });
+
+        const dataset = {
+          label: this.chartActive.toUpperCase(),
+          data: tickUpper,
+          borderColor: "#73b6f6",
+          pointBackgroundColor: "#73b6f6",
+          pointBorderColor: "#73b6f6",
+          pointRadius: 0,
+          borderWidth: 2,
+        };
+
+        this.chartData.push(dataset);
+      }
     },
 
     async changeChartTime(time) {

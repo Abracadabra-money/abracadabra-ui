@@ -18,7 +18,7 @@ export default {
       type: Array,
       required: true,
     },
-    tickUpper: {
+    datasets: {
       type: Array,
       required: true,
     },
@@ -51,12 +51,11 @@ export default {
               label: function (context) {
                 const { dataset, dataIndex } = context;
                 const { label, data } = dataset;
-                if (label === "APY" || label === "APR")
-                  return ` ${label} ${data[dataIndex].toFixed(2)}%`;
                 if (label === "TVL")
                   return ` ${label} ${data[dataIndex].toFixed(4)}$`;
                 if (label === "PRICE")
                   return ` ${label} ${data[dataIndex].toFixed(2)}$`;
+                return ` ${label} ${data[dataIndex].toFixed(2)}%`;
               },
             },
           },
@@ -104,17 +103,7 @@ export default {
     createDataObject() {
       return {
         labels: this.labels,
-        datasets: [
-          {
-            label: this.label,
-            data: this.tickUpper,
-            borderColor: "#73b6f6 ",
-            pointBackgroundColor: "#73b6f6",
-            pointBorderColor: "#73b6f6",
-            pointRadius: 0,
-            borderWidth: 2,
-          },
-        ],
+        datasets: this.datasets,
       };
     },
   },
