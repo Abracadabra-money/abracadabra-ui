@@ -26,11 +26,11 @@ jobs:
       # build assets
       - name: build
         run: |
-          npm ci
+          npm i
           npm run build
           
       # invalidate cache
-      - name: Invalidate CloudFront
+      - name: invalidate cloudfront
         uses: chetan/invalidate-cloudfront-action@v2
         env:
           DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
