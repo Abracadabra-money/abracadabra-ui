@@ -188,7 +188,7 @@ export default {
 
         const repayPartByte = useValue1
           ? repayPartTx.data.substr(0, 138)
-          : repayPartByte;
+          : repayPartTx.data;
 
         // 30
         const callEncode = this.$ethers.utils.defaultAbiCoder.encode(
