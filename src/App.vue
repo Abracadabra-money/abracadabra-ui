@@ -20,7 +20,7 @@ const AppHeader = () => import("@/components/app/AppHeader");
 const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
 const Banner = () => import("@/components/ui/Banner");
 const SkullBanner = () => import("@/components/ui/SkullBanner");
-import axios from "axios";
+// import axios from "axios";
 
 export default {
   computed: {
@@ -30,16 +30,16 @@ export default {
     }),
   },
 
-  async beforeCreate() {
-    const response = await axios.get(
-      `https://ipwhois.pro/?key=${process.env.VUE_APP_IPWHOIS_API_KEY}`
-    );
-
-    const location = response.data.country;
-
-    if (location === "United States")
-      document.location.href = "https://abracadabra.money/location";
-  },
+//  async beforeCreate() {
+//    const response = await axios.get(
+//      `https://ipwhois.pro/?key=${process.env.VUE_APP_IPWHOIS_API_KEY}`
+//    );
+//
+//    const location = response.data.country;
+//
+//    if (location === "United States")
+//      document.location.href = "https://abracadabra.money/location";
+//  },
 
   components: {
     AppHeader,
