@@ -23,11 +23,22 @@ jobs:
         with:
           node-version: 16
 
-      # build assets
-      - name: build
+      # build
+      - name: build assets
         run: |
           npm i
           npm run build
+      
+      # upload
+      - name: upload to s3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: 'dist'
           
       # invalidate cache
       - name: invalidate cloudfront
