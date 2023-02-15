@@ -1220,7 +1220,10 @@ export default {
           pool.collateralToken.address,
           tokenWrapper,
           "0",
-          amount
+          amount,
+          false,
+          false,
+          1
         );
 
         lpRemoveCollateralEventsArray.push(30);
@@ -1967,16 +1970,16 @@ export default {
       console.log("populkated", swapStaticTx);
 
       try {
-        const estimateGas = await pool.contractInstance.estimateGas.cook(
-          cookData.events,
-          cookData.values,
-          cookData.datas,
-          {
-            value: 0,
-          }
-        );
+        // const estimateGas = await pool.contractInstance.estimateGas.cook(
+        //   cookData.events,
+        //   cookData.values,
+        //   cookData.datas,
+        //   {
+        //     value: 0,
+        //   }
+        // );
 
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
+        // const gasLimit = this.gasLimitConst + +estimateGas.toString();
 
         const result = await pool.contractInstance.cook(
           cookData.events,
@@ -1984,7 +1987,7 @@ export default {
           cookData.datas,
           {
             value: 0,
-            gasLimit,
+            gasLimit: 5000000,
           }
         );
 
