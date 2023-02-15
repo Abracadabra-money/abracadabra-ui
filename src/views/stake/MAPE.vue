@@ -617,7 +617,7 @@ export default {
         });
 
         const dataset1 = {
-          label: "APY",
+          label: "MagicAPE",
           data: tickUpper,
           borderColor: "#c0c53f",
           pointBackgroundColor: "#c0c53f",
@@ -627,7 +627,7 @@ export default {
         };
 
         const dataset2 = {
-          label: "APR",
+          label: "APE",
           data: tickUpper2,
           borderColor: "#73b6f6",
           pointBackgroundColor: "#73b6f6",
