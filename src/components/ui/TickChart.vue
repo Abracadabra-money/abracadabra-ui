@@ -54,7 +54,7 @@ export default {
                 if (label === "APY" || label === "APR")
                   return ` ${label} ${data[dataIndex].toFixed(2)}%`;
                 if (label === "TVL")
-                  return ` ${label} ${data[dataIndex].toFixed(4)}%`;
+                  return ` ${label} ${data[dataIndex].toFixed(4)}$`;
                 if (label === "PRICE")
                   return ` ${label} ${data[dataIndex].toFixed(2)}$`;
               },
@@ -76,8 +76,16 @@ export default {
                 weight: "light",
               },
               callback: function (value) {
-                if (value < 1) return `${value.toFixed(4)}%`;
-                return `${value}%`;
+                const classes =
+                  this.$context.scale.ctx.canvas.offsetParent.classList;
+
+                const chartValue = value < 1 ? value.toFixed(4) : value;
+
+                if (classes.contains("apy") || classes.contains("apr")) {
+                  return `${chartValue}%`;
+                }
+
+                return `${chartValue}$`;
               },
             },
           },

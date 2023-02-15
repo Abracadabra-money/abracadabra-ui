@@ -76,7 +76,7 @@
       <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mape'" />
 
       <template v-else>
-        <div class="wrap wrap-chart" v-if="chartData">
+        <div class="wrap wrap-chart" :class="[chartActive]" v-if="chartData">
           <div class="chart-row">
             <h1 class="chart-title">APY Chart</h1>
             <div class="chart-apt-wrap">
