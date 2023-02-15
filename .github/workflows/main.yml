@@ -7,13 +7,34 @@ on:
 
 jobs:
   sync:
-
     runs-on: ubuntu-latest
-
     steps:
+      # check for fork updates
       - uses: tgymnich/fork-sync@v1.8
         with:
           token: ${{ secrets.REPO_PUBLIC_ROXX3R }}
           owner: Abracadabra-money
           base: main
           head: main
+      
+      # setup environment
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # build assets
+      - name: build
+        run: |
+          npm ci
+          npm run build
+          
+      # invalidate cache
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
+          PATHS: "/*"
+          AWS_REGION: "us-east-1"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
