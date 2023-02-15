@@ -23,6 +23,34 @@ const SkullBanner = () => import("@/components/ui/SkullBanner");
 import axios from "axios";
 
 export default {
+  data() {
+    return {
+      country: [
+        "United States",
+        "Myanmar [Burma]",
+        "Ivory Coast",
+        "Cuba",
+        "Congo",
+        "Iran",
+        "Iraq",
+        "Libya",
+        "Mali",
+        "Nicaragua",
+        "North Korea",
+        "Somalia",
+        "Sudan",
+        "Syria",
+        "Yemen",
+        "Zimbabwe",
+      ],
+      region: [
+        "Crimea",
+        "Republic of Crimea",
+        "Bakhchysarai Raion",
+        "Sevastopol",
+      ],
+    };
+  },
   computed: {
     ...mapGetters({
       checkInProcess: "getWalletIsConnected",
@@ -31,13 +59,14 @@ export default {
   },
 
   async beforeCreate() {
-    const response = await axios.get(
+    const location = await axios.get(
       `https://ipwhois.pro/?key=${process.env.VUE_APP_IPWHOIS_API_KEY}`
     );
 
-    const location = response.data.country;
-
-    if (location === "United States")
+    if (
+      this.country.includes(location.data.country) ||
+      this.region.includes(location.data.region)
+    )
       document.location.href = "https://abracadabra.money/location";
   },
 
