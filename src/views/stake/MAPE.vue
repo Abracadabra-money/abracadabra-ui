@@ -107,18 +107,20 @@
               >
                 APR
               </button>
-              <!-- <button
+              <button
                 class="chart-btn"
                 :class="{ 'chart-btn-active': chartActive === 'tvl' }"
+                @click="changeChart('tvl')"
               >
                 TVL
               </button>
               <button
                 class="chart-btn btn-last"
                 :class="{ 'chart-btn-active': chartActive === 'price' }"
+                @click="changeChart('price')"
               >
                 Price
-              </button> -->
+              </button>
             </div>
             <div>
               <button
@@ -306,8 +308,12 @@ export default {
       inputBlockBg,
       profileBg,
       fetchData: null,
+      tvlData: null,
+      tvlInterval: null,
       chatrTime: 1,
       chartActive: "apy",
+      priceData: null,
+      priceIntervalL: null,
     };
   },
 
@@ -552,12 +558,60 @@ export default {
       this.changeChart();
     },
 
-    changeChart(type = "apy") {
+    async fetchTvl() {
+      const response = await axios.get(
+        "https://analytics.abracadabra.money/api/mape/tvl"
+      );
+
+      return response.data;
+    },
+
+    async createChartTvlData() {
+      this.tvlData = await this.fetchTvl();
+
+      this.tvlInterval = setInterval(async () => {
+        this.tvlData = await this.fetchTvl();
+      }, 60000);
+
+      return this.tvlData;
+    },
+
+    async fetchPrice() {
+      const response = await axios.get(
+        "https://analytics.abracadabra.money/api/mape/price"
+      );
+
+      return response.data;
+    },
+
+    async createChartPriceData() {
+      this.priceData = await this.fetchPrice();
+
+      this.priceInterval = setInterval(async () => {
+        this.priceData = await this.fetchPrice();
+      }, 60000);
+
+      return this.priceData;
+    },
+
+    async changeChart(type = "apy") {
       this.chartActive = type;
       const labels = [];
       const tickUpper = [];
 
-      const data = this.fetchData.slice(0, this.chatrTime * 31).reverse();
+      let typeData = this.fetchData;
+
+      if (type === "tvl") {
+        if (!this.tvlData) typeData = await this.createChartTvlData();
+        else typeData = this.tvlData;
+      }
+
+      if (type === "price") {
+        if (!this.priceData) typeData = await this.createChartPriceData();
+        else typeData = this.priceData;
+      }
+
+      const data = typeData.slice(0, this.chatrTime * 31).reverse();
 
       data.forEach((element) => {
         labels.push(moment(element.date).format("DD.MM"));
@@ -611,6 +665,9 @@ export default {
 
   beforeDestroy() {
     clearInterval(this.updateInterval);
+    clearInterval(this.chartInterval);
+    clearInterval(this.tvlInterval);
+    clearInterval(this.priceIntervalL);
   },
   components: {
     BaseTokenIcon,

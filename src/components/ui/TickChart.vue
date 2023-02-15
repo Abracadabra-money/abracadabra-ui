@@ -51,8 +51,12 @@ export default {
               label: function (context) {
                 const { dataset, dataIndex } = context;
                 const { label, data } = dataset;
-                // if (label === "APY" || label === "APR")
-                return ` ${label} ${data[dataIndex].toFixed(2)}%`;
+                if (label === "APY" || label === "APR")
+                  return ` ${label} ${data[dataIndex].toFixed(2)}%`;
+                if (label === "TVL")
+                  return ` ${label} ${data[dataIndex].toFixed(4)}%`;
+                if (label === "PRICE")
+                  return ` ${label} ${data[dataIndex].toFixed(2)}$`;
               },
             },
           },
@@ -72,6 +76,7 @@ export default {
                 weight: "light",
               },
               callback: function (value) {
+                if (value < 1) return `${value.toFixed(4)}%`;
                 return `${value}%`;
               },
             },
