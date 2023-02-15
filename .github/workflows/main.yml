@@ -11,11 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: tgymnich/fork-sync@v1.3
+      - uses: tgymnich/fork-sync@v1.8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          personal_token: ${{ secrets.REPO_PUBLIC_ROXX3R }}
+          token: ${{ secrets.REPO_PUBLIC_ROXX3R }}
           base: main
           head: main
-          merge_method: merge
-          auto_approve: true
