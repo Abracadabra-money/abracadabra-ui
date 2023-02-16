@@ -190,37 +190,37 @@ export default {
         let selToken = pool.collateralToken.address;
         let selAmount = collateralAmount;
 
-          if (this.isGlp) {
-            selToken = usdcAddress;
-  
-            const GmxLensContract = new this.$ethers.Contract(
-              gmxLensAddress,
-              JSON.stringify(gmxLensAbi),
-              this.signer
-            );
-  
-            const glpAmount = await pool.collateralToken.contract.convertToAssets(
-              collateralAmount
-            );
-  
-            const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
-              usdcAddress,
-              glpAmount
-            );
-  
-            selAmount = usdcAmount;
-          }
-  
-          const response = await swap0xRequest(
-            this.chainId,
-            mim,
-            selToken,
-            slipage,
-            selAmount,
-            swapper
+        if (this.isGlp) {
+          selToken = usdcAddress;
+
+          const GmxLensContract = new this.$ethers.Contract(
+            gmxLensAddress,
+            JSON.stringify(gmxLensAbi),
+            this.signer
           );
-  
-          return response.data;
+
+          const glpAmount = await pool.collateralToken.contract.convertToAssets(
+            collateralAmount
+          );
+
+          const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
+            usdcAddress,
+            glpAmount
+          );
+
+          selAmount = usdcAmount;
+        }
+
+        const response = await swap0xRequest(
+          this.chainId,
+          mim,
+          selToken,
+          slipage,
+          selAmount,
+          swapper
+        );
+
+        return response.data;
       } catch (error) {
         console.log("get0xDeleverageSwapData error: ", error);
       }
@@ -245,6 +245,7 @@ export default {
           amount,
           "0"
         );
+        
         cookData = await actions.bentoWithdraw(
           cookData,
           lpAddress,
@@ -343,29 +344,38 @@ export default {
 
     async recipeBorrow(cookData, part, to, mim) {
       cookData = await actions.borrow(cookData, part, to);
-
       cookData = await actions.bentoWithdraw(cookData, mim, to, "0", "-0x02");
-
       return cookData;
     },
 
     async recipeRepay(cookData, pool, itsMax, part) {
       const mim = pool.borrowToken.address;
       const to = this.account;
+      const userBorrowPart = pool.userInfo.contractBorrowPart
 
-      const userBorrowPart = pool.userInfo.contractBorrowPart;
-      const repayPart = itsMax ? userBorrowPart : part;
+      if(!itsMax) {
+        cookData = await actions.bentoDeposit(cookData, mim, to, part, "0x00");
+        cookData = await actions.getRepayPart(cookData, "-2");
+        cookData = await actions.repay(cookData, '-1', to, false);
+  
+        return cookData;
+      }
 
-      cookData = await actions.getRepayShare(cookData, repayPart);
-
+      cookData = await actions.getRepayShare(cookData, userBorrowPart);
       cookData = await actions.bentoDeposit(cookData, mim, to, "0x00", "-1");
-
-      cookData = await actions.repay(cookData, "-1", to, false);
-
+      cookData = await actions.repay(cookData, userBorrowPart, to, false);
+      
       return cookData;
     },
 
-    async recipeLeverage(cookData, pool, amount, minExpected, slipage, is0x = false) {
+    async recipeLeverage(
+      cookData,
+      pool,
+      amount,
+      minExpected,
+      slipage,
+      is0x = false
+    ) {
       const swapperAddres = pool.levSwapperContract.address;
       const userAddr = this.account;
 
@@ -394,11 +404,7 @@ export default {
         return cookData;
       }
 
-      const swapData = await this.get0xLeverageSwapData(
-        pool,
-        amount,
-        slipage
-      );
+      const swapData = await this.get0xLeverageSwapData(pool, amount, slipage);
 
       const swapStaticTx =
         await pool.levSwapperContract.populateTransaction.swap(
@@ -429,17 +435,18 @@ export default {
       const swapper = pool.liqSwapperContract.address;
       const userAddr = this.account;
 
-      if(!is0x) {
-        const swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
-          collateralTokenAddr,
-          mim,
-          userAddr,
-          0,
-          collateralAmount,
-          {
-            gasLimit: 1000000000,
-          }
-        );
+      if (!is0x) {
+        const swapStaticTx =
+          await pool.liqSwapperContract.populateTransaction.swap(
+            collateralTokenAddr,
+            mim,
+            userAddr,
+            0,
+            collateralAmount,
+            {
+              gasLimit: 1000000000,
+            }
+          );
 
         const swapCallByte = swapStaticTx.data;
 
@@ -455,19 +462,24 @@ export default {
         return cookData;
       }
 
-      const swapData = await this.get0xDeleverageSwapData(pool, collateralAmount, slipage)
-
-      const swapStaticTx = await pool.liqSwapperContract.populateTransaction.swap(
-        collateralTokenAddr,
-        mim,
-        userAddr,
-        0,
+      const swapData = await this.get0xDeleverageSwapData(
+        pool,
         collateralAmount,
-        swapData,
-        {
-          gasLimit: 1000000000,
-        }
+        slipage
       );
+
+      const swapStaticTx =
+        await pool.liqSwapperContract.populateTransaction.swap(
+          collateralTokenAddr,
+          mim,
+          userAddr,
+          0,
+          collateralAmount,
+          swapData,
+          {
+            gasLimit: 1000000000,
+          }
+        );
 
       const swapCallByte = swapStaticTx.data;
 
@@ -483,58 +495,6 @@ export default {
       return cookData;
     },
 
-    async cookAddCollateralAndBorrow(
-      { collateralAmount, amount, updatePrice, itsDefaultBalance },
-      isApprowed,
-      pool,
-      notificationId,
-      isLpLogic = false,
-      isWrap = false
-    ) {
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : pool.collateralToken.address;
-
-      const collateralValue = itsDefaultBalance
-        ? collateralAmount.toString()
-        : 0;
-
-      const pairToken = pool.borrowToken.address;
-      const userAddr = this.account;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await this.temporaryGetCookCommonBaseData(
-        cookData,
-        pool,
-        isApprowed,
-        updatePrice
-      );
-
-      cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
-
-      cookData = await this.recipeAddCollatral(
-        cookData,
-        pool,
-        tokenAddr,
-        isLpLogic && isWrap,
-        userAddr,
-        collateralAmount,
-        collateralValue
-      );
-
-      await this.sendCook(
-        pool.contractInstance,
-        cookData,
-        collateralValue,
-        notificationId
-      );
-    },
-
     async cookAddCollateral(
       { amount, updatePrice, itsDefaultBalance },
       isApprowed,
@@ -547,7 +507,6 @@ export default {
         ? this.defaultTokenAddress
         : pool.collateralToken.address;
       const collateralValue = itsDefaultBalance ? amount.toString() : 0;
-
       const userAddr = this.account;
 
       let cookData = {
@@ -612,13 +571,23 @@ export default {
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
 
-    async cookRemoveCollateralAndRepay(
-      { amount, collateralAmount, updatePrice, itsMax },
+    async cookAddCollateralAndBorrow(
+      { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
-      notificationId
+      notificationId,
+      isLpLogic = false,
+      isWrap = false
     ) {
-      const tokenAddr = pool.collateralToken.address;
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : pool.collateralToken.address;
+
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
+
+      const pairToken = pool.borrowToken.address;
       const userAddr = this.account;
 
       let cookData = {
@@ -634,22 +603,24 @@ export default {
         updatePrice
       );
 
-      cookData = await this.recipeRepay(
-        cookData,
-        pool,
-        itsMax,
-        collateralAmount
-      );
+      cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
 
-      cookData = await this.recipeRemoveCollateral(
+      cookData = await this.recipeAddCollatral(
         cookData,
         pool,
-        amount,
+        tokenAddr,
+        isLpLogic && isWrap,
         userAddr,
-        tokenAddr
+        collateralAmount,
+        collateralValue
       );
 
-      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
+      await this.sendCook(
+        pool.contractInstance,
+        cookData,
+        collateralValue,
+        notificationId
+      );
     },
 
     async cookRemoveCollateral(
@@ -705,6 +676,48 @@ export default {
       );
 
       cookData = await this.recipeRepay(cookData, pool, itsMax, amount);
+
+      await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
+    },
+
+    async cookRemoveCollateralAndRepay(
+      { amount, collateralAmount, updatePrice, itsMax },
+      isApprowed,
+      pool,
+      notificationId
+    ) {
+      const tokenAddr = pool.collateralToken.address;
+      const userAddr = this.account;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.temporaryGetCookCommonBaseData(
+        cookData,
+        pool,
+        isApprowed,
+        updatePrice
+      );
+
+      console.log("itsMAx", itsMax)
+
+      cookData = await this.recipeRepay(
+        cookData,
+        pool,
+        itsMax,
+        collateralAmount
+      );
+
+      cookData = await this.recipeRemoveCollateral(
+        cookData,
+        pool,
+        amount,
+        userAddr,
+        tokenAddr
+      );
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
@@ -864,7 +877,7 @@ export default {
           isShow: true,
         });
       } catch (e) {
-        console.log("cookFlashRepayXswapper Error:", e);
+        console.log("cook Error:", e);
 
         const errorNotification = {
           msg: await notificationErrorMsg(e),

@@ -516,6 +516,7 @@ export default {
         );
 
         payload = {
+          itsMax: true,
           collateralAmount: parsedAmount,
           amount: parsedPair,
           updatePrice: this.selectedPool.askUpdatePrice,
@@ -543,7 +544,7 @@ export default {
         let isApproved = await isApprowed(this.selectedPool, this.account);
 
         if (+isTokenToCookApprove) {
-          this.cookRemoveAndRepayMax(
+          this.cookRemoveCollateralAndRepay(
             payload,
             isApproved,
             this.selectedPool,
@@ -577,7 +578,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        await this.cookRemoveAndRepay(
+        await this.cookRemoveCollateralAndRepay(
           payload,
           isApproved,
           this.selectedPool,
@@ -670,7 +671,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        await this.cookRepayMim(
+        await this.cookRepay(
           payload,
           isApproved,
           this.selectedPool,

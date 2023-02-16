@@ -753,7 +753,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        await this.cookCollateralAndBorrow(
+        await this.cookAddCollateralAndBorrow(
           payload,
           isApproved,
           this.selectedPool,
