@@ -67,9 +67,7 @@ export default {
       this.country.includes(location.data.country) ||
       this.region.includes(location.data.region)
     )
-      // document.location.href = "https://abracadabra.money/location";
-      document.location.href =
-        "https://abracadabra-money-git-location-abracadabramoney.vercel.app/";
+      document.location.href = "https://abracadabra.money/location";
   },
 
   components: {
