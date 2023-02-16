@@ -41,6 +41,8 @@ export default {
       return this.$store.getters.getChainId;
     },
     showBanner() {
+      if(this.chainId !== 1) return false;
+
       return this.routes.indexOf(this.$route.name) !== -1 && this.ids.indexOf(this.$route.params.id) !== -1;
     }
   },
