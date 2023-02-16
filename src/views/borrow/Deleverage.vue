@@ -640,7 +640,7 @@ export default {
 
       if (+isTokenToCookApprove) {
         if (this.isLpLogic) {
-          this.cookFlashRepayXswapper(
+          this.cookDeleverage(
             data,
             isApproved,
             this.selectedPool,
@@ -650,7 +650,7 @@ export default {
 
           return false;
         } else {
-          this.cookFlashRepay(
+          this.cookDeleverage(
             data,
             isApproved,
             this.selectedPool,

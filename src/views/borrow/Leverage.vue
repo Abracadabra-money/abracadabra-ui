@@ -995,7 +995,7 @@ export default {
 
       if (isTokenToCookApprove) {
         if (this.isLpLogic) {
-          this.cookMultiBorrowXswapper(
+          this.cookLeverage(
             data,
             isApproved,
             this.selectedPool,
@@ -1003,7 +1003,7 @@ export default {
             !this.useCheckBox
           );
         } else {
-          this.cookMultiBorrow(
+          this.cookLeverage(
             data,
             isApproved,
             this.selectedPool,
