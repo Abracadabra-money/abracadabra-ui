@@ -1,5 +1,5 @@
 <template>
-  <div class="banner" v-if="isBanner">
+  <div class="banner" v-if="showBanner && !closeClicked">
     <img
       class="banner-close"
       src="@/assets/images/close.svg"
@@ -14,30 +14,50 @@
     />
 
     <div class="banner-text">
-      Metamask currently does not support signatures using Ledger/Trezor devices
+      Attention! As per
+      <a
+        href="https://forum.abracadabra.money/t/aip-12-increase-weth-and-wbtc-cauldrons-interest/3992"
+        target="_blank"
+        class="banner-link"
+        >AIP #12</a
+      >, all interest fees for this cauldron will be applied to your collateral
+      rather than your borrowed amount.
     </div>
-
-    <BaseButton :width="'112px'"> Button </BaseButton>
   </div>
 </template>
 
 <script>
-const BaseButton = () => import("@/components/base/BaseButton");
 export default {
   data() {
     return {
-      isBanner: false,
+      routes: ["BorrowId", "RepayId", "LeverageId", "DeleverageId"],
+      ids: ["28", "27"],
+      closeClicked: false,
     };
+  },
+
+  computed: {
+    chainId() {
+      return this.$store.getters.getChainId;
+    },
+    showBanner() {
+      return this.routes.indexOf(this.$route.name) !== -1 && this.ids.indexOf(this.$route.params.id) !== -1;
+    }
+  },
+
+  watch: {
+    $route(val) {
+      console.log(val)
+    },
   },
 
   methods: {
     closeBanner() {
-      this.isBanner = false;
+      this.closeClicked = true;
     },
   },
 
   components: {
-    BaseButton,
   },
 };
 </script>
@@ -58,10 +78,42 @@ export default {
   justify-content: space-between;
   align-items: center;
   position: fixed;
-  bottom: 10px;
-  left: 0;
+  top: 100px;
+  left: 50%;
   right: 0;
   z-index: 10;
+  transform: translateX(-50%);
+}
+
+.banner-text,
+.banner-link {
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: 0.035em;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.banner-text {
+  text-align: center;
+}
+
+.banner-link {
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  position: relative;
+}
+
+.banner-link::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
 }
 
 .banner-close {
