@@ -78,7 +78,7 @@
       <template v-else>
         <div class="wrap wrap-chart" :class="[chartActive]" v-if="chartData">
           <div class="chart-row">
-            <h1 class="chart-title">APY Chart</h1>
+            <h1 class="chart-title">Statistics</h1>
             <div class="chart-apt-wrap">
               <div class="chart-apt">
                 <img src="@/assets/images/ape/apr.png" alt="" />
@@ -150,7 +150,7 @@
             <div class="balance-ratio">
               <img
                 class="balance-ratio-icon"
-                src="@/assets/images/tokens/mAPE.png"
+                src="@/assets/images/ape/ape.png"
                 alt="mApe icon"
               />
               <span>1 magicAPE = {{ tokensRate }} APE</span>
@@ -160,7 +160,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/APE.png')"
+                  :icon="require('@/assets/images/ape/ape-circle.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">APE</span>
@@ -178,7 +178,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mAPE.png')"
+                  :icon="require('@/assets/images/ape/mape-circle.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">magicAPE</span>
@@ -202,7 +202,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mAPE.png')"
+                  :icon="require('@/assets/images/ape/mape-circle.png')"
                   size="40px"
                 />
                 <span>magicAPE</span>
@@ -223,7 +223,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/APE.png')"
+                  :icon="require('@/assets/images/ape/ape-circle.png')"
                   size="40px"
                 />
                 <span>APE</span>
@@ -252,7 +252,7 @@
                 src="@/assets/images/ape/ape.b.png"
                 alt=""
               />
-              <span class="btn-ape-text">Borrow against MAGIC APE</span>
+              <span class="btn-ape-text">Borrow Against MagicAPE</span>
             </div>
           </BaseButton>
           <BaseButton @click="goLeverage">
@@ -304,7 +304,7 @@ export default {
       tvlData: null,
       tvlInterval: null,
       chatrTime: 1,
-      chartActive: "apy",
+      chartActive: "yield",
       priceData: null,
       priceIntervalL: null,
       labels: [],
@@ -549,7 +549,7 @@ export default {
       const apy = await getApeApy(this.provider);
       this.apy = apy.toFixed(2);
       this.fetchData = response.data;
-      this.changeChart();
+      this.changeChart(this.chartActive);
     },
 
     async fetchTvl() {
@@ -623,15 +623,15 @@ export default {
           pointBackgroundColor: "#c0c53f",
           pointBorderColor: "#c0c53f",
           pointRadius: 0,
-          borderWidth: 2,
+          borderWidth: 4,
         };
 
         const dataset2 = {
           label: "APE",
           data: tickUpper2,
-          borderColor: "#73b6f6",
-          pointBackgroundColor: "#73b6f6",
-          pointBorderColor: "#73b6f6",
+          borderColor: "#495B7C",
+          pointBackgroundColor: "#495B7C",
+          pointBorderColor: "#495B7C",
           pointRadius: 0,
           borderWidth: 2,
         };
@@ -646,9 +646,9 @@ export default {
         const dataset = {
           label: this.chartActive.toUpperCase(),
           data: tickUpper,
-          borderColor: "#73b6f6",
-          pointBackgroundColor: "#73b6f6",
-          pointBorderColor: "#73b6f6",
+          borderColor: "#c0c53f",
+          pointBackgroundColor: "#c0c53f",
+          pointBorderColor: "#c0c53f",
           pointRadius: 0,
           borderWidth: 2,
         };
@@ -944,8 +944,8 @@ export default {
 }
 
 .balance-ratio-icon {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
 }
 
 .balance-row,

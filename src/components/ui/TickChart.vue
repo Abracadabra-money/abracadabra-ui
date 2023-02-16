@@ -33,7 +33,6 @@ export default {
   watch: {
     labels() {
       const data = this.createDataObject();
-
       this.chart.data = data;
       this.chart.update();
     },
@@ -80,7 +79,7 @@ export default {
 
                 const chartValue = value < 1 ? value.toFixed(4) : value;
 
-                if (classes.contains("apy") || classes.contains("apr")) {
+                if (classes.contains("yield")){
                   return `${chartValue}%`;
                 }
 
