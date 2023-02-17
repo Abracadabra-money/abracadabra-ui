@@ -44,6 +44,12 @@ export default {
         this.glpPoolsId.includes(+this.selectedPool?.id)
       );
     },
+    isVelo() {
+      return this.chainId === 10 && this.selectedPool.id === 1;
+    },
+    isApe() {
+      return this.chainId === 1 && this.selectedPool.id === 39;
+    }
   },
   methods: {
     async signAndGetData(
@@ -101,8 +107,11 @@ export default {
 
     async get0xLeverageSwapData(pool, amount, slipage) {
       try {
+        if (this.isVelo) return "0x00";
+
         let buyToken = pool.collateralToken.address;
         if (this.isGlp) buyToken = usdcAddress;
+        if (this.isApe) buyToken = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
         const swapResponse = await swap0xRequest(
           this.chainId,
@@ -121,6 +130,8 @@ export default {
 
     async get0xDeleverageSwapData(pool, collateralAmount, slipage) {
       try {
+        if (this.isVelo) return "0x00";
+
         const swapper = pool.liqSwapperContract.address;
         const mim = pool.borrowToken.address;
         let selToken = pool.collateralToken.address;
@@ -131,6 +142,13 @@ export default {
           selAmount = await this.getGlpTokenOutAmount(
             pool.collateralToken,
             selAmount
+          );
+        }
+
+        if (this.isApe) {
+          selToken = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
+          selAmount = await pool.collateralToken.contract.convertToAssets(
+            collateralAmount
           );
         }
 
