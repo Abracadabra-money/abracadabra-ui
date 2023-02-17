@@ -232,7 +232,7 @@
                 <span class="info-value">{{
                   totalRewardsEarned | formatTokenBalance
                 }}</span>
-                <span class="info-usd">${{ totalRewardsUsd }}</span>
+                <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
               </div>
             </div>
           </div>
