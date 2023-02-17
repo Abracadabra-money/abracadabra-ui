@@ -58,6 +58,10 @@ export default {
       return this.chainId === 10 && this.pool?.id === 1;
     },
 
+    isCollateralInterest() {
+      return this.chainId === 1 && (this.pool?.id === 28 || this.pool?.id === 27);
+    },
+
     info() {
       let info = [
         {
@@ -91,11 +95,13 @@ export default {
         info.push(borrowFee);
       }
 
+      let interestText = "This is the annualized percent that your debt will increase each year."
+      if(this.isCollateralInterest) interestText = "This is the annualized percent that your collateral will decrease each year."
+
       info.push({
         name: "Interest",
         value: this.pool.interest,
-        tooltip:
-          "This is the annualized percent that your debt will increase each year.",
+        tooltip: interestText,
       });
 
       if (this.isGlpPool) {
