@@ -243,7 +243,7 @@ export default {
 
         const swapStaticTx =
           await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-            pool.contractInstance.address,
+            to,
             amount
           );
 
@@ -268,7 +268,7 @@ export default {
         );
       }
 
-      cookData = await actions.addCollateral(cookData, "-2", to, isWrap);
+      cookData = await actions.addCollateral(cookData, "-2", to, false);
 
       return cookData;
     },
