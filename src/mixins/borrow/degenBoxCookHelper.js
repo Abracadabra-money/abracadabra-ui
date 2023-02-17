@@ -40,6 +40,7 @@ export default {
     ) {
       if (!this.cookHelper)
         return await actions.repay(cookData, part, to, skim);
+      console.log("cook helper");
       return await this.getRepayPartEncode(
         cookData,
         to,
@@ -57,12 +58,21 @@ export default {
       to,
       amount,
       share,
+      value = "0",
       useValue1 = false,
       useValue2 = false,
       returnValues = 0
     ) {
       if (!this.cookHelper)
-        await actions.bentoWithdraw(cookData, token, to, amount, share);
+        return await actions.bentoDeposit(
+          cookData,
+          token,
+          to,
+          amount,
+          share,
+          value
+        );
+      console.log("cook helper");
       return await this.getDegenBoxDepositEncode(
         cookData,
         token,
@@ -86,7 +96,8 @@ export default {
       returnValues = 0
     ) {
       if (!this.cookHelper)
-        await actions.bentoDeposit(cookData, token, to, amount, share);
+        return await actions.bentoWithdraw(cookData, token, to, amount, share);
+      console.log("cook helper");
       return await this.degenBoxWithdrawEncode(
         cookData,
         token,
@@ -110,17 +121,18 @@ export default {
       returnValues = 0
     ) {
       try {
+        const useReturnValue = useValue1 || useValue2;
         const degenBoxDepositTx =
           await this.cookHelper.populateTransaction.degenBoxDeposit(
             tokenAddress,
             toAddress,
-            amount,
-            share
+            useReturnValue ? "0" : amount,
+            useReturnValue ? "0" : share
           );
 
-        const degenBoxDepositByte = degenBoxDepositTx.data;
-
-        console.log("data", degenBoxDepositByte);
+        const degenBoxDepositByte = useReturnValue
+        ? degenBoxDepositTx.data.substr(0, 202)
+        : degenBoxDepositTx.data;
 
         cookData = await actions.call(
           cookData,
@@ -148,17 +160,19 @@ export default {
       returnValues = 0
     ) {
       try {
+        const useReturnValue = useValue1 || useValue2;
+
         const degenBoxWithdrawTx =
           await this.cookHelper.populateTransaction.degenBoxWithdraw(
             tokenAddress,
             toAddress,
-            amount,
-            share
+            useReturnValue ? "0" : amount,
+            useReturnValue ? "0" : share
           );
 
-        const degenBoxWithdrawByte = degenBoxWithdrawTx.data;
-
-        console.log("data", degenBoxWithdrawByte);
+        const degenBoxWithdrawByte = useReturnValue
+        ? degenBoxWithdrawTx.data.substr(0, 202)
+        : degenBoxWithdrawTx.data;
 
         cookData = await actions.call(
           cookData,
@@ -185,14 +199,15 @@ export default {
       returnValues = 0
     ) {
       try {
+        const useReturnValue = useValue1 || useValue2;
+
         const repayPartTx = await this.cookHelper.populateTransaction.repayPart(
           toAddress,
           cauldronAddress,
-          part
+          useReturnValue ? "0" : part
         );
 
-        const repayPartByte =
-          useValue1 || useValue2
+        const repayPartByte = useReturnValue
             ? repayPartTx.data.substr(0, 138)
             : repayPartTx.data;
 

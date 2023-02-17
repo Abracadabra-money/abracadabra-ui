@@ -8,13 +8,13 @@ import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
-import cookHelperMixin from "@/mixins/borrow/cookHelper.js";
+import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
 export default {
-  mixins: [cookHelperMixin],
+  mixins: [degenBoxCookHelperMixin],
   data() {
     return {
       defaultTokenAddress: "0x0000000000000000000000000000000000000000",
@@ -209,20 +209,27 @@ export default {
       if (isWrap) {
         const { lpAddress, tokenWrapper } = pool.lpLogic;
 
-        cookData = await actions.bentoDeposit(
+        cookData = await this.bentoDepositEncodeHandler(
           cookData,
           lpAddress,
           to,
           amount,
-          "0"
+          "0",
+          collateralValue,
+          false,
+          false,
+          2
         );
 
-        cookData = await actions.bentoWithdraw(
+        cookData = await this.bentoWithdrawEncodeHandler(
           cookData,
           lpAddress,
           tokenWrapper,
-          "-1",
-          "0"
+          "0",
+          "-2",
+          false,
+          true,
+          1
         );
 
         const swapStaticTx =
@@ -242,13 +249,16 @@ export default {
           2
         );
       } else {
-        cookData = await actions.bentoDeposit(
+        cookData = await this.bentoDepositEncodeHandler(
           cookData,
           token,
           to,
           amount,
           "0",
-          collateralValue
+          collateralValue,
+          false,
+          false,
+          2
         );
       }
 
@@ -263,12 +273,15 @@ export default {
 
         cookData = await actions.removeCollateral(cookData, share, userAddr);
 
-        cookData = await actions.bentoWithdraw(
+        cookData = await this.bentoWithdrawEncodeHandler(
           cookData,
           pool.collateralToken.address,
           tokenWrapper,
           "0",
-          share
+          share,
+          false,
+          false,
+          1
         );
 
         // 30 unwrap and deposit for alice in degenbox
@@ -289,17 +302,19 @@ export default {
           2
         );
 
-        cookData = await actions.bentoWithdraw(
+        cookData = await this.bentoWithdrawEncodeHandler(
           cookData,
           lpAddress,
           userAddr,
           "0",
-          "-2"
+          "-2",
+          false,
+          true
         );
       } else {
         cookData = await actions.removeCollateral(cookData, share, userAddr);
 
-        cookData = await actions.bentoWithdraw(
+        cookData = await this.bentoWithdrawEncodeHandler(
           cookData,
           tokenAddr,
           userAddr,
@@ -313,7 +328,15 @@ export default {
 
     async recipeBorrow(cookData, part, to, mim) {
       cookData = await actions.borrow(cookData, part, to);
-      cookData = await actions.bentoWithdraw(cookData, mim, to, "0", "-0x02");
+      cookData = await this.bentoWithdrawEncodeHandler(
+        cookData,
+        mim,
+        to,
+        "0",
+        "-0x02",
+        false,
+        true
+      );
       return cookData;
     },
 
@@ -323,7 +346,17 @@ export default {
       const userBorrowPart = pool.userInfo.contractBorrowPart;
 
       if (!itsMax) {
-        cookData = await actions.bentoDeposit(cookData, mim, to, part, "0x00");
+        cookData = await this.bentoDepositEncodeHandler(
+          cookData,
+          mim,
+          to,
+          part,
+          "0",
+          "0",
+          false,
+          false,
+          2
+        );
         cookData = await actions.getRepayPart(cookData, "-2");
         cookData = await this.repayEncodeHandler(
           cookData,
@@ -340,12 +373,22 @@ export default {
       }
 
       cookData = await actions.getRepayShare(cookData, userBorrowPart);
-      cookData = await actions.bentoDeposit(cookData, mim, to, "0x00", "-1");
+      cookData = await this.bentoDepositEncodeHandler(
+        cookData,
+        mim,
+        to,
+        "0",
+        "-1",
+        "0",
+        true,
+        false,
+        0
+      );
       cookData = await this.repayEncodeHandler(
         cookData,
         pool.contractInstance.address,
         userBorrowPart,
-        to,
+        to
       );
 
       return cookData;
@@ -846,14 +889,14 @@ export default {
           cookData,
           pool.contractInstance.address,
           userBorrowPart,
-          userAddr,
+          userAddr
         );
       } else {
         cookData = await actions.getRepayPart(cookData, "-2");
         cookData = await this.repayEncodeHandler(
           cookData,
           pool.contractInstance.address,
-           "-1",
+          "-1",
           userAddr,
           false,
           true
