@@ -46,25 +46,8 @@ export default {
     },
   },
   methods: {
-    async temporaryGetCookCommonBaseData(
+    async signAndGetData(
       cookData,
-      pool,
-      isApprowed,
-      updatePrice
-    ) {
-      cookData = await this.temporaryApprovalBlockHelper(
-        cookData,
-        pool,
-        isApprowed
-      );
-
-      if (updatePrice)
-        cookData = await actions.updateExchangeRate(cookData, true);
-
-      return cookData;
-    },
-
-    async getApprovalEncode(
       pool,
       masterContract,
       approved = true,
@@ -86,79 +69,15 @@ export default {
         +nonce + addNonce
       );
 
-      return this.$ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
-        [
-          user,
-          masterContract,
-          approved,
-          parsedSignature.v,
-          parsedSignature.r,
-          parsedSignature.s,
-        ]
+      cookData = actions.bentoSetApproval(
+        cookData,
+        user,
+        masterContract,
+        approved,
+        parsedSignature.v,
+        parsedSignature.r,
+        parsedSignature.s
       );
-    },
-
-    async approveMasterContract(pool) {
-      try {
-        const masterContract = await pool.contractInstance.masterContract();
-
-        return await setMasterContractApproval(
-          pool.masterContractInstance,
-          this.account,
-          masterContract,
-          true
-        );
-      } catch (e) {
-        console.log("approveMasterContract err:", e);
-        return false;
-      }
-    },
-
-    async getWhitelistCallData(cookData, pool) {
-      try {
-        const whitelistedInfo = pool.userInfo?.whitelistedInfo;
-
-        const data = await getSetMaxBorrowData(
-          whitelistedInfo.whitelisterContract,
-          this.account,
-          whitelistedInfo.userWhitelistedInfo.userBorrowPart,
-          whitelistedInfo.userWhitelistedInfo.proof
-        );
-
-        cookData = await actions.call(
-          cookData,
-          whitelistedInfo.whitelisterContract.address,
-          data,
-          false,
-          false,
-          0
-        );
-        return cookData;
-      } catch (e) {
-        console.log("getWhitelistCallData error:", e);
-      }
-    },
-
-    async temporaryApprovalBlockHelper(cookData, pool, isApprowed) {
-      const masterContract = await pool.contractInstance.masterContract();
-
-      if (!isApprowed) {
-        const approvalEncode = await this.getApprovalEncode(
-          pool,
-          masterContract
-        );
-
-        if (approvalEncode === "ledger") {
-          const approvalMaster = await this.approveMasterContract(pool);
-          if (!approvalMaster) return false; // TODO: update
-          return cookData;
-        } else {
-          cookData.events.push(24);
-          cookData.values.push(0);
-          cookData.datas.push(approvalEncode);
-        }
-      }
 
       return cookData;
     },
@@ -166,7 +85,7 @@ export default {
     async get0xLeverageSwapData(pool, amount, slipage) {
       try {
         let buyToken = pool.collateralToken.address;
-        if (this.isGLP) buyToken = usdcAddress;
+        if (this.isGlp) buyToken = usdcAddress;
 
         const swapResponse = await swap0xRequest(
           this.chainId,
@@ -226,6 +145,55 @@ export default {
       }
     },
 
+    async recipeSetMaxBorrow(cookData, pool) {
+      try {
+        const whitelistedInfo = pool.userInfo?.whitelistedInfo;
+
+        const data = await getSetMaxBorrowData(
+          whitelistedInfo.whitelisterContract,
+          this.account,
+          whitelistedInfo.userWhitelistedInfo.userBorrowPart,
+          whitelistedInfo.userWhitelistedInfo.proof
+        );
+
+        cookData = await actions.call(
+          cookData,
+          whitelistedInfo.whitelisterContract.address,
+          data,
+          false,
+          false,
+          0
+        );
+        return cookData;
+      } catch (e) {
+        console.log("recipeSetMaxBorrow error:", e);
+      }
+    },
+
+    async recipeApproveMC(cookData, pool, isApprowed) {
+      try {
+        if (isApprowed) return cookData;
+        const masterContract = await pool.contractInstance.masterContract();
+
+        if (!this.itsMetamask) {
+          const approvalMaster = await setMasterContractApproval(
+            pool.masterContractInstance,
+            this.account,
+            masterContract,
+            true
+          );
+          if (!approvalMaster) return false; // TODO: update
+          return cookData;
+        }
+
+        cookData = await this.signAndGetData(cookData, pool, masterContract);
+
+        return cookData;
+      } catch (error) {
+        console.log("recipeApproveMC error:", error);
+      }
+    },
+
     async recipeAddCollatral(
       cookData,
       pool,
@@ -245,7 +213,7 @@ export default {
           amount,
           "0"
         );
-        
+
         cookData = await actions.bentoWithdraw(
           cookData,
           lpAddress,
@@ -283,7 +251,7 @@ export default {
         );
       }
 
-      cookData = await actions.addCollateral(cookData, "-2", to, false);
+      cookData = await actions.addCollateral(cookData, "-2", to, isWrap);
 
       return cookData;
     },
@@ -351,20 +319,20 @@ export default {
     async recipeRepay(cookData, pool, itsMax, part) {
       const mim = pool.borrowToken.address;
       const to = this.account;
-      const userBorrowPart = pool.userInfo.contractBorrowPart
+      const userBorrowPart = pool.userInfo.contractBorrowPart;
 
-      if(!itsMax) {
+      if (!itsMax) {
         cookData = await actions.bentoDeposit(cookData, mim, to, part, "0x00");
         cookData = await actions.getRepayPart(cookData, "-2");
-        cookData = await actions.repay(cookData, '-1', to, false);
-  
+        cookData = await actions.repay(cookData, "-1", to, false);
+
         return cookData;
       }
 
       cookData = await actions.getRepayShare(cookData, userBorrowPart);
       cookData = await actions.bentoDeposit(cookData, mim, to, "0x00", "-1");
       cookData = await actions.repay(cookData, userBorrowPart, to, false);
-      
+
       return cookData;
     },
 
@@ -429,7 +397,14 @@ export default {
       return cookData;
     },
 
-    async recipeDeleverage(cookData, pool, collateralAmount, slipage, is0x) {
+    async recipeDeleverage(
+      cookData,
+      pool,
+      shareFrom,
+      shareToMin,
+      slipage,
+      is0x
+    ) {
       const collateralTokenAddr = pool.collateralToken.address;
       const mim = pool.borrowToken.address;
       const swapper = pool.liqSwapperContract.address;
@@ -441,8 +416,8 @@ export default {
             collateralTokenAddr,
             mim,
             userAddr,
-            0,
-            collateralAmount,
+            shareToMin,
+            shareFrom,
             {
               gasLimit: 1000000000,
             }
@@ -464,7 +439,7 @@ export default {
 
       const swapData = await this.get0xDeleverageSwapData(
         pool,
-        collateralAmount,
+        shareFrom,
         slipage
       );
 
@@ -473,8 +448,8 @@ export default {
           collateralTokenAddr,
           mim,
           userAddr,
-          0,
-          collateralAmount,
+          shareToMin,
+          shareFrom,
           swapData,
           {
             gasLimit: 1000000000,
@@ -509,18 +484,22 @@ export default {
       const collateralValue = itsDefaultBalance ? amount.toString() : 0;
       const userAddr = this.account;
 
+      console.log("itsWrap", isWrap);
+
       let cookData = {
         events: [],
         values: [],
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await this.recipeAddCollatral(
         cookData,
@@ -555,15 +534,17 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
 
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
+
       if (this.needWhitelisterApprove) {
-        cookData = await this.getWhitelistCallData(cookData, pool);
+        cookData = await this.recipeSetMaxBorrow(cookData, pool);
       }
 
       cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
@@ -596,12 +577,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
 
@@ -638,12 +621,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await this.recipeRemoveCollateral(
         cookData,
@@ -668,12 +653,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await this.recipeRepay(cookData, pool, itsMax, amount);
 
@@ -695,14 +682,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
 
-      console.log("itsMAx", itsMax)
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await this.recipeRepay(
         cookData,
@@ -746,15 +733,17 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
 
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
+
       if (this.needWhitelisterApprove) {
-        cookData = await this.getWhitelistCallData(cookData, pool);
+        cookData = await this.recipeSetMaxBorrow(cookData, pool);
       }
 
       cookData = await this.recipeAddCollatral(
@@ -822,12 +811,14 @@ export default {
         datas: [],
       };
 
-      cookData = await this.temporaryGetCookCommonBaseData(
+      cookData = await this.recipeApproveMC(
         cookData,
         pool,
-        isApprowed,
-        updatePrice
+        isApprowed
       );
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await actions.removeCollateral(
         cookData,
@@ -839,6 +830,7 @@ export default {
         cookData,
         pool,
         collateralAmount,
+        borrowAmount,
         slipage,
         pool.is0xSwap
       );
@@ -851,7 +843,8 @@ export default {
           false
         );
       } else {
-        cookData = await actions.repay(cookData, borrowAmount, userAddr, false);
+        cookData = await actions.getRepayPart(cookData, "-2");
+        cookData = await actions.repay(cookData, "-1", userAddr, false);
       }
 
       if (+removeCollateralAmount > 0) {

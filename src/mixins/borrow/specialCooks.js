@@ -30,8 +30,7 @@ export default {
     async temporaryRevokeApprovalBlockHelper(pool, cookData) {
       const addNonce = cookData.events.filter((value) => value === 24).length;
       const masterContract = await pool.contractInstance.masterContract();
-
-      const removeApprovalEncode = await this.getApprovalEncode(
+      const removeApprovalEncode = await this.signAndGetData(
         pool,
         masterContract,
         false,
@@ -65,7 +64,7 @@ export default {
       const masterContract = this.cookHelper.address;
 
       if (!isCookHelperApproved) {
-        const approvalEncode = await this.getApprovalEncode(
+        const approvalEncode = await this.signAndGetData(
           pool,
           masterContract
         );
@@ -492,7 +491,7 @@ export default {
         cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.needWhitelisterApprove) {
-        cookData = await this.getWhitelistCallData(cookData);
+        cookData = await this.recipeSetMaxBorrow(cookData);
       }
 
       cookData = await actions.borrow(cookData, amount, userAddr);
