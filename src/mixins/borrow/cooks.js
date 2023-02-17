@@ -61,6 +61,17 @@ export default {
     },
   },
   methods: {
+    async isCookHelperApproved(pool) {
+      try {
+        console.log("hererrer")
+        return await pool.masterContractInstance.masterContractApproved(
+          this.cookHelper.address,
+          this.account
+        );
+      } catch (e) {
+        console.log("isApprowed err:", e);
+      }
+    },
     async signAndGetData(
       cookData,
       pool,
@@ -170,9 +181,32 @@ export default {
       return cookData;
     },
 
-    async recipeApproveMC(cookData, pool, approved = true) {
+    async checkAndSetMcApprove(cookData, pool, baseApproved) {
+      const isApproved = this.cookHelper
+        ? await this.isCookHelperApproved(pool)
+        : baseApproved;
+
+      const masterContract = this.cookHelper
+        ? this.cookHelper.address
+        : await pool.contractInstance.masterContract();
+
+
+      console.log("isApproved", isApproved)
+      console.log("masterContract", masterContract)
+      if (!isApproved) {
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          true,
+          masterContract
+        );
+      }
+
+      return cookData;
+    },
+
+    async recipeApproveMC(cookData, pool, approved = true, masterContract) {
       const addNonce = cookData.events.filter((value) => value === 24).length;
-      const masterContract = await pool.contractInstance.masterContract();
 
       // [leger issue] out of date?
       if (!this.itsMetamask && !approved) {
@@ -234,7 +268,7 @@ export default {
 
         const swapStaticTx =
           await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
-            to,
+            pool.contractInstance.address,
             amount
           );
 
@@ -252,7 +286,7 @@ export default {
         cookData = await this.bentoDepositEncodeHandler(
           cookData,
           token,
-          to,
+          pool.contractInstance.address,
           amount,
           "0",
           collateralValue,
@@ -262,7 +296,7 @@ export default {
         );
       }
 
-      cookData = await actions.addCollateral(cookData, "-2", to, false);
+      cookData = await actions.addCollateral(cookData, "-2", to, true);
 
       return cookData;
     },
@@ -543,7 +577,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -559,7 +593,12 @@ export default {
       );
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(
         pool.contractInstance,
@@ -584,7 +623,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -600,7 +639,12 @@ export default {
       cookData = await this.recipeBorrow(cookData, amount, userAddr, mim);
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
@@ -630,7 +674,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -648,7 +692,12 @@ export default {
       );
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(
         pool.contractInstance,
@@ -673,7 +722,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -687,7 +736,12 @@ export default {
       );
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
@@ -704,7 +758,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -712,7 +766,12 @@ export default {
       cookData = await this.recipeRepay(cookData, pool, itsMax, amount);
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
@@ -732,7 +791,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -753,7 +812,12 @@ export default {
       );
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
@@ -783,7 +847,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -829,7 +893,12 @@ export default {
       );
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(
         pool.contractInstance,
@@ -864,7 +933,7 @@ export default {
         datas: [],
       };
 
-      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -914,7 +983,12 @@ export default {
       }
 
       if (isApprowed && this.cookHelper)
-        cookData = await this.recipeApproveMC(cookData, pool, false);
+        cookData = await this.recipeApproveMC(
+          cookData,
+          pool,
+          false,
+          await pool.contractInstance.masterContract()
+        );
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
