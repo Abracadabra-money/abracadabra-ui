@@ -82,7 +82,7 @@ export default {
       return cookData;
     },
 
-    async getGlpTokenOutAmount(collateralToken, amountFrom){
+    async getGlpTokenOutAmount(collateralToken, amountFrom) {
       const GmxLensContract = new this.$ethers.Contract(
         gmxLensAddress,
         JSON.stringify(gmxLensAbi),
@@ -128,7 +128,10 @@ export default {
 
         if (this.isGlp) {
           selToken = usdcAddress;
-          selAmount = await this.getGlpTokenOutAmount(pool.collateralToken, selAmount);
+          selAmount = await this.getGlpTokenOutAmount(
+            pool.collateralToken,
+            selAmount
+          );
         }
 
         const response = await swap0xRequest(
@@ -146,13 +149,11 @@ export default {
       }
     },
 
-    async recipeSetMaxBorrow(cookData, pool) {
+    async recipeSetMaxBorrow(cookData, whitelistedInfo, user) {
       try {
-        const whitelistedInfo = pool.userInfo?.whitelistedInfo;
-
         const data = await getSetMaxBorrowData(
           whitelistedInfo.whitelisterContract,
-          this.account,
+          user,
           whitelistedInfo.userWhitelistedInfo.userBorrowPart,
           whitelistedInfo.userWhitelistedInfo.proof
         );
@@ -171,9 +172,8 @@ export default {
       }
     },
 
-    async recipeApproveMC(cookData, pool, isApprowed) {
+    async recipeApproveMC(cookData, pool) {
       try {
-        if (isApprowed) return cookData;
         const masterContract = await pool.contractInstance.masterContract();
 
         if (!this.itsMetamask) {
@@ -223,8 +223,6 @@ export default {
           "0"
         );
 
-        // 30
-        // wrap and deposit to cauldron
         const swapStaticTx =
           await pool.lpLogic.tokenWrapperContract.populateTransaction.wrap(
             pool.contractInstance.address,
@@ -477,15 +475,14 @@ export default {
       pool,
       notificationId,
       isLpLogic = false,
-      isWrap = false
+      wrap = false
     ) {
-      const tokenAddr = itsDefaultBalance
+      const token = itsDefaultBalance
         ? this.defaultTokenAddress
         : pool.collateralToken.address;
-      const collateralValue = itsDefaultBalance ? amount.toString() : 0;
-      const userAddr = this.account;
-
-      console.log("itsWrap", isWrap);
+      const value = itsDefaultBalance ? amount.toString() : 0;
+      const to = this.account;
+      const isWrap = wrap && isLpLogic;
 
       let cookData = {
         events: [],
@@ -493,11 +490,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -505,17 +498,17 @@ export default {
       cookData = await this.recipeAddCollatral(
         cookData,
         pool,
-        tokenAddr,
-        isLpLogic && isWrap,
-        userAddr,
+        token,
+        isWrap,
+        to,
         amount,
-        collateralValue
+        value
       );
 
       await this.sendCook(
         pool.contractInstance,
         cookData,
-        collateralValue,
+        value,
         notificationId
       );
     },
@@ -526,7 +519,7 @@ export default {
       pool,
       notificationId
     ) {
-      const pairToken = pool.borrowToken.address;
+      const mim = pool.borrowToken.address;
       const userAddr = this.account;
 
       let cookData = {
@@ -535,20 +528,20 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.needWhitelisterApprove) {
-        cookData = await this.recipeSetMaxBorrow(cookData, pool);
+        cookData = await this.recipeSetMaxBorrow(
+          cookData,
+          pool.userInfo?.whitelistedInfo,
+          userAddr
+        );
       }
 
-      cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
+      cookData = await this.recipeBorrow(cookData, amount, userAddr, mim);
 
       await this.sendCook(pool.contractInstance, cookData, 0, notificationId);
     },
@@ -578,11 +571,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -622,11 +611,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -654,11 +639,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -683,11 +664,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -724,6 +701,7 @@ export default {
       notificationId,
       isWrap
     ) {
+      const userAddr = this.account;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
@@ -734,17 +712,17 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
       if (this.needWhitelisterApprove) {
-        cookData = await this.recipeSetMaxBorrow(cookData, pool);
+        cookData = await this.recipeSetMaxBorrow(
+          cookData,
+          pool.userInfo?.whitelistedInfo,
+          userAddr
+        );
       }
 
       cookData = await this.recipeAddCollatral(
@@ -812,11 +790,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.recipeApproveMC(
-        cookData,
-        pool,
-        isApprowed
-      );
+      if (!isApprowed) cookData = await this.recipeApproveMC(cookData, pool);
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
