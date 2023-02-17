@@ -82,6 +82,23 @@ export default {
       return cookData;
     },
 
+    async getGlpTokenOutAmount(collateralToken, amountFrom){
+      const GmxLensContract = new this.$ethers.Contract(
+        gmxLensAddress,
+        JSON.stringify(gmxLensAbi),
+        this.signer
+      );
+
+      const glpAmount = await collateralToken.contract.convertToAssets(
+        amountFrom
+      );
+
+      return await GmxLensContract.getTokenOutFromBurningGlp(
+        usdcAddress,
+        glpAmount
+      );
+    },
+
     async get0xLeverageSwapData(pool, amount, slipage) {
       try {
         let buyToken = pool.collateralToken.address;
@@ -111,23 +128,7 @@ export default {
 
         if (this.isGlp) {
           selToken = usdcAddress;
-
-          const GmxLensContract = new this.$ethers.Contract(
-            gmxLensAddress,
-            JSON.stringify(gmxLensAbi),
-            this.signer
-          );
-
-          const glpAmount = await pool.collateralToken.contract.convertToAssets(
-            collateralAmount
-          );
-
-          const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
-            usdcAddress,
-            glpAmount
-          );
-
-          selAmount = usdcAmount;
+          selAmount = await this.getGlpTokenOutAmount(pool.collateralToken, selAmount);
         }
 
         const response = await swap0xRequest(
