@@ -61,17 +61,6 @@ export default {
     },
   },
   methods: {
-    async isCookHelperApproved(pool) {
-      try {
-        console.log("hererrer")
-        return await pool.masterContractInstance.masterContractApproved(
-          this.cookHelper.address,
-          this.account
-        );
-      } catch (e) {
-        console.log("isApprowed err:", e);
-      }
-    },
     async signAndGetData(
       cookData,
       pool,
@@ -181,18 +170,15 @@ export default {
       return cookData;
     },
 
-    async checkAndSetMcApprove(cookData, pool, baseApproved) {
+    async checkAndSetMcApprove(cookData, pool, mcApproved) {
       const isApproved = this.cookHelper
         ? await this.isCookHelperApproved(pool)
-        : baseApproved;
+        : mcApproved;
 
       const masterContract = this.cookHelper
         ? this.cookHelper.address
         : await pool.contractInstance.masterContract();
 
-
-      console.log("isApproved", isApproved)
-      console.log("masterContract", masterContract)
       if (!isApproved) {
         cookData = await this.recipeApproveMC(
           cookData,

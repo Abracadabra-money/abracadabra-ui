@@ -28,6 +28,12 @@ export default {
     },
   },
   methods: {
+    async isCookHelperApproved(pool) {
+      return await pool.masterContractInstance.masterContractApproved(
+        this.cookHelper.address,
+        this.account
+      );
+    },
     async repayEncodeHandler(
       cookData,
       cauldron,
@@ -131,8 +137,8 @@ export default {
           );
 
         const degenBoxDepositByte = useReturnValue
-        ? degenBoxDepositTx.data.substr(0, 202)
-        : degenBoxDepositTx.data;
+          ? degenBoxDepositTx.data.substr(0, 202)
+          : degenBoxDepositTx.data;
 
         cookData = await actions.call(
           cookData,
@@ -171,8 +177,8 @@ export default {
           );
 
         const degenBoxWithdrawByte = useReturnValue
-        ? degenBoxWithdrawTx.data.substr(0, 202)
-        : degenBoxWithdrawTx.data;
+          ? degenBoxWithdrawTx.data.substr(0, 202)
+          : degenBoxWithdrawTx.data;
 
         cookData = await actions.call(
           cookData,
@@ -208,8 +214,8 @@ export default {
         );
 
         const repayPartByte = useReturnValue
-            ? repayPartTx.data.substr(0, 138)
-            : repayPartTx.data;
+          ? repayPartTx.data.substr(0, 138)
+          : repayPartTx.data;
 
         cookData = await actions.call(
           cookData,
