@@ -264,7 +264,7 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/TickChart");
+const TickChart = () => import("@/components/ui/charts/TickChart");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";

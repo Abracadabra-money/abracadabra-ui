@@ -275,7 +275,7 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/TickChart");
+const TickChart = () => import("@/components/ui/charts/TickChartMagicAPE");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 import { approveToken } from "@/utils/approveHelpers";
 import mAPETokenMixin from "@/mixins/stake/mAPEToken";
