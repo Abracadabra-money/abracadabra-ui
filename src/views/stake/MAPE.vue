@@ -53,14 +53,6 @@
             {{ action }}
           </BaseButton>
         </div>
-        <p class="profile-subscribtion">
-          Amplify your yield with the Abracadabra Leverage Engine
-          <router-link
-            class="link"
-            :to="{ name: 'Leverage', params: { id: 39 } }"
-            >this.</router-link
-          >
-        </p>
       </div>
     </div>
 
