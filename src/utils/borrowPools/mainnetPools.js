@@ -1948,13 +1948,13 @@ export default [
     },
     contract: {
       name: "CauldronV4",
-      address: "0xd8F21A2D152D21C960807ABF49F5c38B046FE073",
+      address: "0x692887E8877C6Dd31593cda44c382DB5b289B684",
       abi: poolsAbi.CauldronV4,
     },
     token: {
       name: "magicAPE",
       decimals: 18,
-      address: "0x713Ead803DeA8D18cD25215C92dFEe9C92718140",
+      address: "0xf35b31B941D94B249EaDED041DB1b05b7097fEb6",
       abi: tokensAbi.magicApe,
     },
     lpLogic: {
@@ -1963,7 +1963,7 @@ export default [
       defaultToken: false,
       lpAddress: "0x4d224452801ACEd8B2F0aebE155379bb5D594381",
       lpAbi: tokensAbi.APE,
-      tokenWrapper: "0x3f6Ec97e20D9e70De441873aC4B1809867238ac0",
+      tokenWrapper: "0x35843535220182E89E3a99fCEb5348dFe0Bd4eb2",
       tokenWrapperAbi: degenBoxERC4626Wrapper,
     },
     pairToken: {
@@ -1974,11 +1974,11 @@ export default [
       abi: tokensAbi.MIM,
     },
     swapContractInfo: {
-      address: "0xb9143aAEd04166cf0Ea83Bee1A9624a6c8108E7c",
+      address: "0xF236c2e05296F7E086A218e0EfcD6c3Dc5C2f923",
       abi: ERC4626LevSwapper,
     },
     reverseSwapContractInfo: {
-      address: "0xcFEC59ef026D3c1D8C8D179d4E3e493b794428A5",
+      address: "0x93Ef8EcF4d9cBc602806C85E0D990856775407CD",
       abi: ERC4626LiqSwapper,
     },
   },

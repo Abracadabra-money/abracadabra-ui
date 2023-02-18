@@ -12,7 +12,7 @@ export default {
       stakeInfo: {
         mainToken: {
           name: "magicAPE",
-          address: "0x713Ead803DeA8D18cD25215C92dFEe9C92718140",
+          address: "0xf35b31B941D94B249EaDED041DB1b05b7097fEb6",
           decimals: 18,
           abi: tokensAbi.magicApe,
           icon: require(`@/assets/images/tokens/mAPE.png`),
@@ -25,7 +25,7 @@ export default {
           icon: require(`@/assets/images/tokens/APE.png`),
         },
         oracle: {
-          address: "0x3E8171E4A64052E3A14f5100d3DdaD9C9368D317",
+          address: "0x64422a1337082Bf99E6052fF52684374Eb1A7fB7",
           abi: oracleAbi,
         },
         ethChainLinkAddress: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
