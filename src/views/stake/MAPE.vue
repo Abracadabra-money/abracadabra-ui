@@ -209,7 +209,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  mainToken.totalSupply | formatTokenBalance
+                  mainToken.totalSupply | localAmountFilter
                 }}</span>
                 <span class="info-usd">{{
                   mainToken.totalSupplyUsd | formatUSD
@@ -230,7 +230,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  totalRewardsEarned | formatTokenBalance
+                  totalRewardsEarned | localAmountFilter
                 }}</span>
                 <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
               </div>
@@ -699,6 +699,12 @@ export default {
     }, 60000);
   },
 
+  filters: {
+    localAmountFilter(val) {
+      return Number(val).toLocaleString()
+    }
+  },
+
   beforeDestroy() {
     clearInterval(this.updateInterval);
     clearInterval(this.chartInterval);
@@ -1034,6 +1040,7 @@ export default {
   font-weight: 700;
   font-size: 18px;
   line-height: 27px;
+  letter-spacing: 0.4px;
 }
 
 .info-usd {
