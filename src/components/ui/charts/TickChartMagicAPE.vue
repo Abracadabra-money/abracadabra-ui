@@ -53,7 +53,7 @@ export default {
                 if (label === "TVL")
                   return ` ${label} $ ${data[dataIndex].toFixed(4)}`;
                 if (label === "PRICE")
-                  return ` ${label} $ ${data[dataIndex].toFixed(2)}`;
+                  return ` $ ${data[dataIndex].toFixed(2)} mAPE`;
                 return ` ${label} ${data[dataIndex].toFixed(2)}%`;
               },
             },
