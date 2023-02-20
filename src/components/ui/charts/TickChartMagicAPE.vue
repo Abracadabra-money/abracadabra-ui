@@ -9,11 +9,16 @@ import Chart from "chart.js/auto";
 
 export default {
   props: {
+    label: {
+      type: String,
+      required: true,
+      default: "APR",
+    },
     labels: {
       type: Array,
       required: true,
     },
-    tickUpper: {
+    datasets: {
       type: Array,
       required: true,
     },
@@ -28,13 +33,12 @@ export default {
   watch: {
     labels() {
       const data = this.createDataObject();
-
       this.chart.data = data;
       this.chart.update();
     },
   },
   methods: {
-    updateChart() {},
+    updateChart() { },
     createOptionsObject() {
       return {
         responsive: true,
@@ -46,6 +50,10 @@ export default {
               label: function (context) {
                 const { dataset, dataIndex } = context;
                 const { label, data } = dataset;
+                if (label === "TVL")
+                  return ` ${label} $ ${data[dataIndex].toFixed(4)}`;
+                if (label === "PRICE")
+                  return ` $ ${data[dataIndex].toFixed(2)} mAPE`;
                 return ` ${label} ${data[dataIndex].toFixed(2)}%`;
               },
             },
@@ -66,7 +74,16 @@ export default {
                 weight: "light",
               },
               callback: function (value) {
-                return `${value}%`;
+                const classes =
+                  this.$context.scale.ctx.canvas.offsetParent.classList;
+
+                const chartValue = value < 1 ? value.toFixed(4) : value;
+
+                if (classes.contains("yield")) {
+                  return `${chartValue}%`;
+                }
+
+                return `$ ${Number(chartValue).toFixed(2)}`;
               },
             },
           },
@@ -85,17 +102,7 @@ export default {
     createDataObject() {
       return {
         labels: this.labels,
-        datasets: [
-          {
-            label: "APY",
-            data: this.tickUpper,
-            borderColor: "#73b6f6 ",
-            pointBackgroundColor: "#73b6f6",
-            pointBorderColor: "#73b6f6",
-            pointRadius: 0,
-            borderWidth: 2,
-          },
-        ],
+        datasets: this.datasets,
       };
     },
   },

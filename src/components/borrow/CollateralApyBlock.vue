@@ -1,9 +1,31 @@
 <template>
   <div :class="{ 'no-apy': !isCalcExist }">
     <div class="apy" v-if="isCalcExist">
-      <img class="apy-bg" src="@/assets/images/primary-apy-bg.png" alt="" />
+      <img
+        v-if="isApe"
+        class="apy-bg"
+        src="@/assets/images/ape/apy-bg.png"
+        alt=""
+      />
+      <img
+        v-else
+        class="apy-bg"
+        src="@/assets/images/primary-apy-bg.png"
+        alt=""
+      />
       <div class="apy-content">
-        <img class="coins-img" src="@/assets/images/coins.png" alt="" />
+        <img
+          v-if="isApe"
+          class="coins-img coins-ape"
+          src="@/assets/images/ape/coins-ape.png"
+          alt="Coins ape"
+        />
+        <img
+          v-else
+          class="coins-img"
+          src="@/assets/images/coins.png"
+          alt="Coins"
+        />
         <div>
           <p class="title" v-tooltip="tooltipText">{{ title }}</p>
           <div class="loader-wrap" v-if="loading">
@@ -28,6 +50,10 @@ export default {
     pool: {
       type: Object,
       required: true,
+    },
+    isApe: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -89,13 +115,13 @@ export default {
 .apy {
   max-width: 680px;
   width: 100%;
-  height: 100px;
+  height: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 16px auto;
-  padding: 15px 5px;
+  margin: 0 auto;
+  padding: 16px 5px;
   position: relative;
 }
 
@@ -107,21 +133,30 @@ export default {
   height: 100%;
   object-fit: contain;
 }
+
 .apy-content {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 .coins-img {
   max-width: 38px;
   margin-right: 8px;
 }
+
+.coins-ape {
+  max-width: 60px;
+  width: 100%;
+}
+
 .title {
   font-weight: 400;
   font-size: 18px;
   line-height: 1.3;
   position: relative;
 }
+
 .percent {
   position: relative;
   font-weight: 700;
@@ -135,6 +170,7 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 .loader {
   margin-right: 15px;
   margin-top: 10px;
@@ -145,6 +181,7 @@ export default {
   border-radius: 4px;
   background-color: #fff;
 }
+
 .loader:before,
 .loader:after {
   position: absolute;
@@ -154,10 +191,12 @@ export default {
   content: "";
   background-color: #fff;
 }
+
 .loader:before {
   left: -10px;
   animation: rectangle infinite 1s ease-in-out -0.4s;
 }
+
 .loader:after {
   right: -10px;
   animation: rectangle infinite 1s ease-in-out;

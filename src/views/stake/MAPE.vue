@@ -1,9 +1,9 @@
 <template>
   <div class="stake">
-    <div class="input-block">
+    <div class="input-block" :style="`background-image: url(${inputBlockBg})`">
       <h4>Choose Chain</h4>
       <div class="underline">
-        <NetworksList :active-list="[42161]" />
+        <NetworksList :active-list="[1]" />
       </div>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -53,32 +53,27 @@
             {{ action }}
           </BaseButton>
         </div>
-        <p class="profile-subscribtion">
-          Amplify your yield with the Abracadabra Leverage Engine
-          <router-link
-            class="link"
-            :to="{ name: 'Leverage', params: { id: 3 } }"
-            >here.</router-link
-          >
-        </p>
       </div>
     </div>
 
-    <div class="profile">
-      <h1 class="title">magicGLP</h1>
+    <div class="profile" :style="`background-image: url(${profileBg})`">
+      <h1 class="title">
+        magic
+        <img class="title-img" src="@/assets/images/ape/ape.png" alt="" /> Ape
+      </h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
       </div>
 
-      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mglp'" />
+      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mape'" />
 
       <template v-else>
-        <div class="wrap wrap-chart" v-if="chartData">
+        <div class="wrap wrap-chart" :class="[chartActive]" v-if="chartData">
           <div class="chart-row">
-            <h1 class="chart-title">APY Chart</h1>
+            <h1 class="chart-title">Statistics</h1>
             <div class="chart-apt-wrap">
               <div class="chart-apt">
-                <img src="@/assets/images/glp/chart-apr.png" alt="" />
+                <img src="@/assets/images/ape/apr.png" alt="" />
                 <span class="chart-apt-text">est. APY</span>
                 <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
                 <div class="loader-wrap-mini" v-else>
@@ -89,39 +84,51 @@
           </div>
 
           <div class="chart-btns">
-            <button
-              class="chart-btn btn-3"
-              :class="{ 'chart-btn-active': chartActiveBtn === 1 }"
-              @click="changeChartTime(1)"
-            >
-              1m
-            </button>
-            <button
-              class="chart-btn"
-              :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
-              @click="changeChartTime(3)"
-            >
-              3m
-            </button>
-            <button
-              class="chart-btn"
-              :class="{ 'chart-btn-active': chartActiveBtn === 6 }"
-              @click="changeChartTime(6)"
-            >
-              6m
-            </button>
-            <button
-              class="chart-btn btn-1y"
-              :class="{ 'chart-btn-active': chartActiveBtn === 12 }"
-              @click="changeChartTime(12)"
-            >
-              1y
-            </button>
+            <div>
+              <button
+                class="chart-btn btn-start"
+                :class="{ 'chart-btn-active': chartActive === 'yield' }"
+                @click="changeChart('yield')"
+              >
+                Yield
+              </button>
+              <button
+                class="chart-btn"
+                :class="{ 'chart-btn-active': chartActive === 'tvl' }"
+                @click="changeChart('tvl')"
+              >
+                TVL
+              </button>
+              <button
+                class="chart-btn btn-last"
+                :class="{ 'chart-btn-active': chartActive === 'price' }"
+                @click="changeChart('price')"
+              >
+                Price
+              </button>
+            </div>
+            <div>
+              <button
+                class="chart-btn btn-start"
+                :class="{ 'chart-btn-active': chatrTime === 1 }"
+                @click="changeChartTime(1)"
+              >
+                1m
+              </button>
+              <button
+                class="chart-btn btn-last"
+                :class="{ 'chart-btn-active': chatrTime === 3 }"
+                @click="changeChartTime(3)"
+              >
+                3m
+              </button>
+            </div>
           </div>
           <TickChart
             v-if="chartData"
-            :labels="chartData.labels"
-            :tickUpper="chartData.tickUpper"
+            :label="chartActive.toUpperCase()"
+            :labels="labels"
+            :datasets="chartData"
           />
         </div>
 
@@ -135,23 +142,23 @@
             <div class="balance-ratio">
               <img
                 class="balance-ratio-icon"
-                src="@/assets/images/glp/mGlpNew.png"
-                alt="mGlp icon"
+                src="@/assets/images/ape/ape.png"
+                alt="mApe icon"
               />
-              <span>1 magicGLP = {{ tokensRate }} GLP</span>
+              <span>1 magicAPE = {{ tokensRate }} APE</span>
             </div>
           </div>
           <div class="balance-row">
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/GLP.png')"
+                  :icon="require('@/assets/images/ape/ape-circle.png')"
                   size="60px"
                 />
-                <span class="token-icon-name">GLP</span>
+                <span class="token-icon-name">APE</span>
               </div>
               <div>
-                <p class="token-title">GLP</p>
+                <p class="token-title">APE</p>
                 <p class="token-balance">
                   {{ stakeToken.balance | formatTokenBalance }}
                 </p>
@@ -163,13 +170,13 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="require('@/assets/images/ape/mape-circle.png')"
                   size="60px"
                 />
-                <span class="token-icon-name">magicGLP</span>
+                <span class="token-icon-name">magicAPE</span>
               </div>
               <div>
-                <p class="token-title">magicGLP</p>
+                <p class="token-title">magicAPE</p>
                 <p class="token-balance">
                   {{ mainToken.balance | formatTokenBalance }}
                 </p>
@@ -187,10 +194,10 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="require('@/assets/images/ape/mape-circle.png')"
                   size="40px"
                 />
-                <span>magicGLP</span>
+                <span>magicAPE</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
@@ -208,10 +215,10 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/ETH2.png')"
+                  :icon="require('@/assets/images/ape/ape-circle.png')"
                   size="40px"
                 />
-                <span>ETH</span>
+                <span>APE</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
@@ -224,30 +231,26 @@
         </div>
         <p class="profile-subscribtion">
           Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your GLP into MagicGLP and let it do its
+          tedious work! Simply deposit your APE into MagicAPE and let it do its
           magic!
           <br />
           Note: A 1% protocol fee is taken on the yields.
         </p>
-        <div class="links-wrap">
-          <a
-            class="deposit"
-            href="https://app.gmx.io/#/buy_glp"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
-              Buy GLP</span
-            ></a
-          >
-          <a
-            class="deposit"
-            href="https://app.gmx.io/#/buy_glp#redeem"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <img src="@/assets/images/deposit.svg" alt="Deposit" />
-            <span>Sell GLP</span></a
+        <div class="btns-wrap">
+          <BaseButton @click="goBorrow">
+            <div class="btn-ape-wrap">
+              <img
+                class="btn-ape-img"
+                src="@/assets/images/ape/ape.b.png"
+                alt=""
+              />
+              <span class="btn-ape-text">Borrow Against MagicAPE</span>
+            </div>
+          </BaseButton>
+          <BaseButton @click="goLeverage">
+            <span class="btn-ape-text"
+              >Leverage your Yield (up to ≈{{ expectedApy }}%)</span
+            ></BaseButton
           >
         </div>
       </template>
@@ -264,17 +267,18 @@ const BaseLoader = () => import("@/components/base/BaseLoader");
 const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/charts/TickChart");
+const TickChart = () => import("@/components/ui/charts/TickChartMagicAPE");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
-import { getGlpChartApr } from "@/helpers/glpAprChart";
-import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
+import mAPETokenMixin from "@/mixins/stake/mAPEToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import inputBlockBg from "@/assets/images/ape/bg.png";
+import profileBg from "@/assets/images/ape/bg-info.png";
+import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
 
 export default {
-  mixins: [mGlpTokenMixin],
+  mixins: [mAPETokenMixin],
   data() {
     return {
       action: "Stake",
@@ -282,20 +286,30 @@ export default {
       amountError: "",
       chartData: null,
       updateInterval: null,
-      chartActiveBtn: 1,
       chartInterval: null,
       apy: "",
       gasLimitConst: 1000,
       totalRewards: null,
+      inputBlockBg,
+      profileBg,
+      fetchData: null,
+      tvlData: null,
+      tvlInterval: null,
+      chatrTime: 1,
+      chartActive: "yield",
+      priceData: null,
+      priceIntervalL: null,
+      labels: [],
     };
   },
 
   computed: {
     ...mapGetters({
-      isLoading: "getLoadingMGlpStake",
+      isLoading: "getLoadingMApeStake",
       account: "getAccount",
-      tokensInfo: "getMGlpObject",
+      tokensInfo: "getMApeObject",
       itsMetamask: "getMetamaskActive",
+      provider: "getProvider",
     }),
 
     stakeToken() {
@@ -357,9 +371,19 @@ export default {
     totalRewardsUsd() {
       return this.totalRewards
         ? parseFloat(
-            +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+            +this.totalRewardsEarned * +this.tokensInfo.stakeToken.price
           ).toFixed(2)
         : 0;
+    },
+
+    expectedApy() {
+      const multiplier = 15;
+      const percentMultiplier = 0.7;
+      const expectedLevearage =
+        (1 - Math.pow(percentMultiplier, multiplier + 1)) /
+        (1 - percentMultiplier);
+
+      return Math.floor(parseFloat(expectedLevearage * this.apy).toFixed(2));
     },
   },
 
@@ -415,12 +439,9 @@ export default {
       if (!+this.amount || this.amountError || !this.isActionApproved)
         return false;
 
-      if (this.action === "Stake") {
-        await this.stake();
-      }
-      if (this.action === "Unstake") {
-        await this.unstake();
-      }
+      if (this.action === "Stake") await this.stake();
+
+      if (this.action === "Unstake") await this.unstake();
     },
 
     async stake() {
@@ -429,7 +450,6 @@ export default {
 
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
         const estimateGas =
           await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
             amount,
@@ -474,9 +494,8 @@ export default {
 
       try {
         const amount = this.$ethers.utils.parseEther(this.amount);
-
         const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.redeem(
             amount,
             this.account,
             this.account
@@ -484,7 +503,7 @@ export default {
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
+        const tx = await this.tokensInfo.mainToken.contractInstance.redeem(
           amount,
           this.account,
           this.account,
@@ -515,27 +534,130 @@ export default {
       }
     },
 
-    async createChartData(time = 3) {
-      const labels = [];
-      const tickUpper = [];
-      const data = await getGlpChartApr(time);
-      data.forEach((element) => {
-        labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        tickUpper.push(element.glpApy * (1 - this.tokensInfo.feePercent));
-      });
+    async fetchChartData() {
+      const response = await axios.get(
+        "https://analytics.abracadabra.money/api/mape"
+      );
+      const apy = await getApeApy(this.provider);
+      this.apy = apy.toFixed(2);
+      this.fetchData = response.data;
+      this.changeChart(this.chartActive);
+    },
 
-      this.chartData = { labels, tickUpper };
+    async fetchTvl() {
+      const response = await axios.get(
+        "https://analytics.abracadabra.money/api/mape/tvl"
+      );
+
+      return response.data;
+    },
+
+    async createChartTvlData() {
+      this.tvlData = await this.fetchTvl();
+
+      this.tvlInterval = setInterval(async () => {
+        this.tvlData = await this.fetchTvl();
+      }, 60000);
+
+      return this.tvlData;
+    },
+
+    async fetchPrice() {
+      const response = await axios.get(
+        "https://analytics.abracadabra.money/api/mape/price"
+      );
+
+      return response.data;
+    },
+
+    async createChartPriceData() {
+      this.priceData = await this.fetchPrice();
+
+      this.priceInterval = setInterval(async () => {
+        this.priceData = await this.fetchPrice();
+      }, 60000);
+
+      return this.priceData;
+    },
+
+    async changeChart(type = "yield") {
+      this.labels = [];
+      this.chartData = [];
+      this.chartActive = type;
+      const tickUpper = [];
+      const tickUpper2 = [];
+
+      let typeData = this.fetchData;
+
+      if (type === "tvl") {
+        if (!this.tvlData) typeData = await this.createChartTvlData();
+        else typeData = this.tvlData;
+      }
+
+      if (type === "price") {
+        if (!this.priceData) typeData = await this.createChartPriceData();
+        else typeData = this.priceData;
+      }
+
+      const data = typeData.slice(0, this.chatrTime * 31).reverse();
+
+      if (type === "yield") {
+        data.forEach((element) => {
+          this.labels.push(moment(element.date).format("DD.MM"));
+          tickUpper.push(element.apy);
+          tickUpper2.push(element.apr);
+        });
+
+        const dataset1 = {
+          label: "MagicAPE",
+          data: tickUpper,
+          borderColor: "#c0c53f",
+          pointBackgroundColor: "#c0c53f",
+          pointBorderColor: "#c0c53f",
+          pointRadius: 0,
+          borderWidth: 4,
+        };
+
+        const dataset2 = {
+          label: "APE",
+          data: tickUpper2,
+          borderColor: "#495B7C",
+          pointBackgroundColor: "#495B7C",
+          pointBorderColor: "#495B7C",
+          pointRadius: 0,
+          borderWidth: 2,
+        };
+
+        this.chartData.push(dataset1, dataset2);
+      } else {
+        data.forEach((element) => {
+          this.labels.push(moment(element.date).format("DD.MM"));
+          tickUpper.push(element[type]);
+        });
+
+        const dataset = {
+          label: this.chartActive.toUpperCase(),
+          data: tickUpper,
+          borderColor: "#c0c53f",
+          pointBackgroundColor: "#c0c53f",
+          pointBorderColor: "#c0c53f",
+          pointRadius: 0,
+          borderWidth: 2,
+        };
+
+        this.chartData.push(dataset);
+      }
     },
 
     async changeChartTime(time) {
-      this.chartActiveBtn = time;
-      await this.createChartData(time);
+      this.chatrTime = time;
+      this.changeChart(this.chartActive);
     },
 
     async getTotalRewards() {
       try {
         const response = await axios.get(
-          "https://analytics.abracadabra.money/api/mglp"
+          "https://analytics.abracadabra.money/api/mape/rewards"
         );
 
         this.totalRewards = response.data;
@@ -543,36 +665,43 @@ export default {
         console.log("Get Total Rewards Error", error);
       }
     },
+
+    goBorrow() {
+      this.$router.push({ name: "Borrow", params: { id: 39 } });
+    },
+
+    goLeverage() {
+      this.$router.push({ name: "Leverage", params: { id: 39 } });
+    },
   },
+
+  async created() {
+    await this.createStakePool();
+
+    if (this.chainId !== 1) return false;
+    await this.getTotalRewards();
+    this.updateInterval = setInterval(async () => {
+      await this.createStakePool();
+    }, 15000);
+
+    await this.fetchChartData();
+
+    this.chartInterval = setInterval(async () => {
+      await this.fetchChartData();
+    }, 60000);
+  },
+
   filters: {
     localAmountFilter(val) {
       return Number(val).toLocaleString()
     }
   },
 
-  async created() {
-    await this.createStakePool();    
-    
-    if (this.chainId !== 42161) return false;
-    await this.getTotalRewards();
-    this.updateInterval = setInterval(async () => {
-      await this.createStakePool();
-    }, 15000);
-
-    await this.createChartData(this.chartActiveBtn);
-
-    const apy = await getGlpApy(true);
-    this.apy = parseFloat(apy).toFixed(2);
-
-    this.chartInterval = setInterval(async () => {
-      await this.createChartData(this.chartActiveBtn);
-      const apy = await getGlpApy(true);
-      this.apy = parseFloat(apy).toFixed(2);
-    }, 60000);
-  },
-
   beforeDestroy() {
     clearInterval(this.updateInterval);
+    clearInterval(this.chartInterval);
+    clearInterval(this.tvlInterval);
+    clearInterval(this.priceIntervalL);
   },
   components: {
     BaseTokenIcon,
@@ -622,6 +751,8 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
+  background-position: center;
+  background-size: cover;
 }
 
 .token-input {
@@ -645,13 +776,26 @@ export default {
   border-radius: 30px;
   background-color: $clrBg2;
   text-align: center;
+  background-position: center;
+  background-size: cover;
 }
 
 .title {
-  font-size: 24px;
   font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 30px;
+  font-size: 24px;
+  line-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  margin: 0 0 30px;
+  text-transform: uppercase;
+}
+
+.title-img {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .profile-actions {
@@ -686,23 +830,23 @@ export default {
 }
 
 .chart-apt-wrap {
-  width: 178px;
+  width: 190px;
   height: 32px;
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
+  background: #c0c53f;
   display: flex;
   align-items: center;
   border-radius: 0px 30px 30px 0px;
 }
 
 .chart-apt {
-  width: 176px;
+  width: 188px;
   height: 30px;
   background: #23212d;
   border-radius: 0px 30px 30px 0px;
   position: relative;
   display: flex;
   align-items: center;
-  padding-left: 30px;
+  padding: 0 10px 0 30px;
 
   img {
     width: 44px;
@@ -718,25 +862,24 @@ export default {
   font-weight: 400;
   font-size: 18px;
   line-height: 27px;
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .chart-apt-percent {
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 27px;
+  color: #c0c53f;
 }
 
 .chart-btns {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
 .chart-btn {
-  width: 32px;
+  max-width: 60px;
   background: #2a2835;
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -751,11 +894,11 @@ export default {
   background: #343141;
 }
 
-.btn-3 {
+.btn-start {
   border-radius: 4px 0 0 4px;
 }
 
-.btn-1y {
+.btn-last {
   border-radius: 0 4px 4px 0;
 }
 
@@ -799,8 +942,8 @@ export default {
 }
 
 .balance-ratio-icon {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
 }
 
 .balance-row,
@@ -899,10 +1042,34 @@ export default {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.links-wrap {
+.btns-wrap {
   display: flex;
   justify-content: center;
   gap: 24px;
+}
+
+.btn-ape-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.btn-ape-img {
+  max-width: 22px;
+  margin-right: 10px;
+}
+
+.btn-ape-text {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.025em;
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 .deposit {
@@ -1061,6 +1228,14 @@ export default {
   .wrap-chart {
     max-width: 88vw;
     margin: 0 auto;
+  }
+
+  .btns-wrap {
+    flex-direction: column;
+  }
+
+  .btn-ape-text {
+    font-size: 14px;
   }
 }
 </style>

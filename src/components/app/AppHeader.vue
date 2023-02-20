@@ -40,6 +40,9 @@
           <router-link class="list-link" :to="{ name: 'magicGLP' }"
             >magicGLP</router-link
           >
+          <router-link class="list-link" :to="{ name: 'magicAPE' }"
+            >magicAPE</router-link
+          >
         </div>
       </div>
 

@@ -18,7 +18,7 @@
         <span class="network-name-wrap">
           <span>{{ pool.name }}</span>
           <MiniStatusTag v-if="isMigrated" />
-          <MiniStatusTag v-if="isGlp" text="Leverage" />
+          <MiniStatusTag v-if="isLeverageTag" text="Leverage" />
         </span>
       </span>
 
@@ -114,8 +114,11 @@ export default {
       return this.activePool?.isMigrated;
     },
 
-    isGlp() {
-      return this.activePool?.id === 3 && this.chainId === 42161;
+    isLeverageTag() {
+      return (
+        (this.chainId === 42161 && this.activePool?.id === 3) ||
+        (this.chainId === 1 && this.activePool?.id === 39)
+      );
     },
   },
 

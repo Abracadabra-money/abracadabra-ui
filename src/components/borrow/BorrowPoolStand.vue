@@ -2,7 +2,7 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
-        <MiniStatusTag :rounded="true" v-if="isGlp" text="Leverage" />
+        <MiniStatusTag :rounded="true" v-if="isLeverageTag" text="Leverage" />
         <a
           target="_blank"
           rel="noreferrer noopener"
@@ -252,8 +252,11 @@ export default {
       return this.pool?.isMigrated;
     },
 
-    isGlp() {
-      return this.chainId === 42161 && this.pool?.id === 3;
+    isLeverageTag() {
+      return (
+        (this.chainId === 42161 && this.pool?.id === 3) ||
+        (this.chainId === 1 && this.pool?.id === 39)
+      );
     },
 
     isTricrypto() {

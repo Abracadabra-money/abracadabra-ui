@@ -1,7 +1,7 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="choose">
+      <div class="choose" :class="{ 'ape-bg': isMagicApe }" :style="bgApe">
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -90,8 +90,20 @@
           >Go to Positions</router-link
         >
       </div>
-      <div class="info-block">
-        <h1 class="title">Deleverage</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Deleverage
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           typeOperation="repay"
@@ -103,7 +115,11 @@
           :poolId="selectedPoolId"
         />
 
-        <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :isApe="isMagicApe"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -165,6 +181,8 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -185,6 +203,8 @@ export default {
         bottom: "Read more about it",
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
+      bg,
+      bgInfo,
     };
   },
 
@@ -494,6 +514,18 @@ export default {
 
     isLpLogic() {
       return !!this.selectedPool?.lpLogic;
+    },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
     },
   },
 
@@ -851,6 +883,11 @@ export default {
   position: relative;
 }
 
+.ape-bg {
+  background-position: center;
+  background-size: cover;
+}
+
 .first-input {
   padding-top: 27px;
   padding-bottom: 24px;
@@ -924,6 +961,14 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .btn-wrap {
