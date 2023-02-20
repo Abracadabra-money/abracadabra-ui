@@ -12,12 +12,12 @@
             <span v-tooltip="'Interest'">{{ pool.interest }}%</span>
           </p>
           <MiniStatusTag v-if="isMigrated" />
-          <MiniStatusTag v-if="isGlp" text="Leverage" />
+          <MiniStatusTag v-if="isMagicPool" text="Leverage" />
         </div>
       </div>
-      <div class="pool-balance" v-if="isGlp">
-        <p>{{ userBalance | formatTokenBalance }} magicGLP</p>
-        <p>{{ userLpBalance | formatTokenBalance }} GLP</p>
+      <div class="pool-balance" v-if="isMagicPool">
+        <p>{{ userBalance | formatTokenBalance }} {{ pool.name }}</p>
+        <p>{{ userLpBalance | formatTokenBalance }} {{ pool.lpLogic.name }}</p>
         <p v-if="+userTotalBalance" class="price">
           Total amount: {{ userTotalBalance | formatUSD }}
         </p>
@@ -65,13 +65,14 @@ export default {
     },
 
     userBalanceUsd() {
-      if (this.chainId === 42161 && this.pool?.id === 2 ) return this.pool.userInfo?.lpInfo.balanceUsd;
+      if (this.chainId === 42161 && this.pool?.id === 2)
+        return this.pool.userInfo?.lpInfo.balanceUsd;
 
       return this.pool.userInfo?.balanceUsd;
     },
 
     userLpBalance() {
-      if (this.isGlp && this.pool.userInfo)
+      if (this.isMagicPool && this.pool.userInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.lpInfo.balance,
           this.pool.lpLogic.lpDecimals
@@ -95,8 +96,11 @@ export default {
       return this.pool.isMigrated;
     },
 
-    isGlp() {
-      return this.chainId === 42161 && this.pool?.id === 3;
+    isMagicPool() {
+      return (
+        (this.chainId === 42161 && this.pool?.id === 3) ||
+        (this.chainId === 1 && this.pool?.id === 39)
+      );
     },
   },
 
