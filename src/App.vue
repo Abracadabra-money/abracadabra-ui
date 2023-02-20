@@ -59,6 +59,8 @@ export default {
   },
 
   async beforeCreate() {
+    return
+
     const location = await axios.get(
       `https://ipwhois.pro/?key=${process.env.VUE_APP_IPWHOIS_API_KEY}`
     );
@@ -67,7 +69,7 @@ export default {
       this.country.includes(location.data.country) ||
       this.region.includes(location.data.region)
     )
-      // document.location.href = "https://abracadabra.money/location";
+      document.location.href = "https://abracadabra.money/location";
   },
 
   components: {
