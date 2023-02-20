@@ -38,7 +38,7 @@ export default {
     },
   },
   methods: {
-    updateChart() {},
+    updateChart() { },
     createOptionsObject() {
       return {
         responsive: true,
@@ -51,9 +51,9 @@ export default {
                 const { dataset, dataIndex } = context;
                 const { label, data } = dataset;
                 if (label === "TVL")
-                  return ` ${label} ${data[dataIndex].toFixed(4)}$`;
+                  return ` ${label} $ ${data[dataIndex].toFixed(4)}`;
                 if (label === "PRICE")
-                  return ` ${label} ${data[dataIndex].toFixed(2)}$`;
+                  return ` ${label} $ ${data[dataIndex].toFixed(2)}`;
                 return ` ${label} ${data[dataIndex].toFixed(2)}%`;
               },
             },
@@ -79,11 +79,11 @@ export default {
 
                 const chartValue = value < 1 ? value.toFixed(4) : value;
 
-                if (classes.contains("yield")){
+                if (classes.contains("yield")) {
                   return `${chartValue}%`;
                 }
 
-                return `${chartValue}$`;
+                return `$ ${Number(chartValue).toFixed(2)}`;
               },
             },
           },
