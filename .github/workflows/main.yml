@@ -9,13 +9,6 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      # check for fork updates
-      - uses: tgymnich/fork-sync@v1.8
-        with:
-          token: ${{ secrets.REPO_PUBLIC_ROXX3R }}
-          owner: Abracadabra-money
-          base: main
-          head: main
       
       # setup environment
       - uses: actions/checkout@v3
