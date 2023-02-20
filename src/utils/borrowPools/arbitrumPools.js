@@ -133,7 +133,7 @@ export default [
       localBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
-      isNew: true
+      isNew: true,
     },
     contract: {
       name: "CauldronV4",
@@ -148,6 +148,7 @@ export default [
     },
     lpLogic: {
       name: "GLP",
+      icon: require(`@/assets/images/tokens/GLP.png`),
       defaultToken: false,
       lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       lpAbi: tokensAbi.sGLP,

@@ -853,6 +853,7 @@ export default {
         name,
         defaultToken,
         feePercent,
+        icon: pool.lpLogic?.icon || null,
       };
     },
 

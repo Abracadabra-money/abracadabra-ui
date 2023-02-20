@@ -67,8 +67,8 @@ export default {
             90deg,
             ${this.colors[risk]} 0%,
             ${this.colors[risk]} ${this.gradientPercent}%,
-            rgba(255, 255, 255, 0.1) ${this.gradientPercent}%,
-            rgba(255, 255, 255, 0.1) 100%
+            rgb(63,61,73) ${this.gradientPercent}%,
+            rgb(63,61,73) 100%
           )
           `;
     },

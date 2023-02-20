@@ -1,7 +1,11 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="deposit-block">
+      <div
+        class="deposit-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApe"
+      >
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -69,7 +73,7 @@
               alt=""
               v-else
             />
-            <p class="label-text">Use magicGLP</p>
+            <p class="label-text">Use {{ selectedPool.name }}</p>
           </div>
         </div>
         <div class="borrow-input underline">
@@ -118,8 +122,21 @@
         >
       </div>
 
-      <div class="info-block">
-        <h1 class="title">Borrow MIM</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Borrow
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+          MIM
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           :collateralExpected="collateralValue"
@@ -129,7 +146,11 @@
           :poolId="selectedPoolId"
         />
 
-        <CollateralApyBlock v-if="selectedPool" :pool="selectedPool" />
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :isApe="isMagicApe"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -194,6 +215,8 @@ import {
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -215,6 +238,8 @@ export default {
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
       glpPoolsId: [2, 3],
       useCheckBox: false,
+      bg,
+      bgInfo,
     };
   },
 
@@ -468,7 +493,7 @@ export default {
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
         if (!this.useCheckBox && this.isCheckBox)
-          return require(`@/assets/images/tokens/GLP.png`);
+          return this.selectedPool.lpLogic.icon;
 
         return this.selectedPool.icon;
       }
@@ -526,7 +551,22 @@ export default {
     },
 
     isCheckBox() {
-      return this.chainId === 42161 && this.selectedPool?.id === 3;
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
+    },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
     },
   },
 
@@ -998,6 +1038,11 @@ export default {
   position: relative;
 }
 
+.ape-bg {
+  background-position: center;
+  background-size: cover;
+}
+
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -1061,6 +1106,14 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .btn-wrap {
@@ -1071,7 +1124,7 @@ export default {
 }
 
 .checkbox-wrap {
-  background: rgba(129, 126, 166, 0.1);
+  background: #333141;
   border-radius: 20px;
   padding: 8px 16px;
   display: inline-flex;

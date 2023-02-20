@@ -1,7 +1,7 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="choose">
+      <div class="choose" :class="{ 'ape-bg': isMagicApe }" :style="bgApe">
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -65,7 +65,7 @@
               alt=""
               v-else
             />
-            <p class="label-text">Use magicGLP</p>
+            <p class="label-text">Use {{ selectedPool.name }}</p>
           </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
@@ -105,8 +105,21 @@
           >Go to Positions</router-link
         >
       </div>
-      <div class="info-block">
-        <h1 class="title">Leverage farm</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Leverage
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+          farm
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           :collateralExpected="collateralExpected"
@@ -120,6 +133,7 @@
           v-if="selectedPool"
           :pool="selectedPool"
           :expectedLeverage="expectedLeverage"
+          :isApe="isMagicApe"
         />
 
         <template v-if="selectedPool">
@@ -198,6 +212,8 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -221,6 +237,8 @@ export default {
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
       useCheckBox: false,
+      bg,
+      bgInfo,
     };
   },
 
@@ -235,6 +253,13 @@ export default {
 
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
+    },
+
+    isMagicPool() {
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
     },
 
     filteredPool() {
@@ -566,7 +591,7 @@ export default {
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
         if (!this.useCheckBox && this.isCheckBox)
-          return require(`@/assets/images/tokens/GLP.png`);
+          return this.selectedPool.lpLogic.icon;
 
         return this.selectedPool.icon;
       }
@@ -591,7 +616,7 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isGlp) {
+        if (this.isMagicPool) {
           if (this.useCheckBox)
             return this.selectedPool.userInfo.isApproveTokenCollateral;
           return this.selectedPool.userInfo.lpInfo.isApprove;
@@ -670,7 +695,22 @@ export default {
     },
 
     isCheckBox() {
-      return this.chainId === 42161 && this.selectedPool?.id === 3;
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
+    },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
     },
   },
 
@@ -1074,6 +1114,11 @@ export default {
   },
 
   async created() {
+    if(this.$route.params.id === "magicAPE") {
+      this.$router.push({ name: "magicAPE" });
+      return false;
+    }
+    
     this.poolId = this.$route.params.id;
 
     this.changeSlipage(this.poolId, this.chainId);
@@ -1158,6 +1203,11 @@ export default {
   position: relative;
 }
 
+.ape-bg {
+  background-position: center;
+  background-size: cover;
+}
+
 .first-input {
   padding-top: 27px;
   padding-bottom: 24px;
@@ -1208,6 +1258,14 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .info-row-wrap {
@@ -1230,7 +1288,7 @@ export default {
 }
 
 .checkbox-wrap {
-  background: rgba(129, 126, 166, 0.1);
+  background: #333141;
   border-radius: 20px;
   padding: 8px 16px;
   display: inline-flex;

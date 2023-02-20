@@ -6,12 +6,13 @@ import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
+import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
 
 export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
 
   if (chainId === 1) {
-    cauldronsIds = [6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38];
+    cauldronsIds = [6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39];
   }
 
   if (chainId === 10) {
@@ -45,6 +46,8 @@ export const fetchTokenApy = async (pool) => {
       );
     if (pool.id === 31 || pool.id === 32)
       return await getStargateApy(pool, provider);
+
+    if (pool.id === 39) return await getApeApy(provider);
   }
 
   if (chainId === 10) {

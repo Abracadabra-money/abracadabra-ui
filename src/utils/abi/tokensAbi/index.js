@@ -39,6 +39,8 @@ import sGLP from "@/utils/abi/tokensAbi/sGLP";
 import abraWsGlp from "@/utils/abi/tokensAbi/sGLP";
 import CurveDAOToken from "@/utils/abi/tokensAbi/CurveDAOToken";
 import magicGLP from "@/utils/abi/tokensAbi/magicGLP";
+import APE from "@/utils/abi/tokensAbi/ape";
+import magicApe from "@/utils/abi/tokensAbi/magicApe";
 
 export default {
   ALCX,
@@ -82,4 +84,6 @@ export default {
   abraWsGlp,
   CurveDAOToken,
   magicGLP,
+  APE,
+  magicApe,
 };

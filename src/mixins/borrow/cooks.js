@@ -83,6 +83,20 @@ export default {
       );
     },
 
+    isMagicPool() {
+      return (
+        (this.chainId === 42161 &&
+          this.glpPoolsId.includes(+this.selectedPool?.id)) ||
+        (this.chainId === 1 && +this.selectedPool?.id === 39)
+      );
+    },
+
+    magicPoolQuery0xAddress() {
+      return this.chainId === 1 && +this.selectedPool?.id === 39
+        ? this.selectedPool.lpLogic.lpAddress
+        : usdcAddress;
+    },
+
     isVelo() {
       return this.chainId === 10 && this.selectedPool.id === 1;
     },
@@ -2581,9 +2595,9 @@ export default {
       try {
         let swapData;
 
-        if (this.isGlp) {
+        if (this.isMagicPool) {
           const response = await this.query0x(
-            usdcAddress,
+            this.magicPoolQuery0xAddress,
             pool.borrowToken.address,
             slipage,
             amount,
@@ -2932,27 +2946,34 @@ export default {
 
       let swapData;
 
-      if (this.isGlp) {
-        const GmxLensContract = new this.$ethers.Contract(
-          gmxLensAddress,
-          JSON.stringify(gmxLensAbi),
-          this.signer
-        );
+      if (this.isMagicPool) {
+        let amount = "";
+        if (this.isGlp) {
+          const GmxLensContract = new this.$ethers.Contract(
+            gmxLensAddress,
+            JSON.stringify(gmxLensAbi),
+            this.signer
+          );
 
-        const glpAmount = await pool.collateralToken.contract.convertToAssets(
-          collateralAmount
-        );
+          const glpAmount = await pool.collateralToken.contract.convertToAssets(
+            collateralAmount
+          );
 
-        const usdcAmount = await GmxLensContract.getTokenOutFromBurningGlp(
-          usdcAddress,
-          glpAmount
-        );
+          amount = await GmxLensContract.getTokenOutFromBurningGlp(
+            usdcAddress,
+            glpAmount
+          );
+        } else {
+          amount = await pool.collateralToken.contract.convertToAssets(
+            collateralAmount
+          );
+        }
 
         const response = await this.query0x(
           pool.borrowToken.address,
-          usdcAddress,
+          this.magicPoolQuery0xAddress,
           slipage,
-          usdcAmount,
+          amount,
           pool.liqSwapperContract.address
         );
 
