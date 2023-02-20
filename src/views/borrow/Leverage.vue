@@ -1114,6 +1114,11 @@ export default {
   },
 
   async created() {
+    if(this.$route.params.id === "magicAPE") {
+      this.$router.push({ name: "magicAPE" });
+      return false;
+    }
+    
     this.poolId = this.$route.params.id;
 
     this.changeSlipage(this.poolId, this.chainId);
