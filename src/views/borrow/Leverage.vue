@@ -204,7 +204,7 @@ const CollateralApyBlock = () =>
 import Vue from "vue";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import cookMixin from "@/mixins/borrow/cooks.js";
+import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters } from "vuex";
 import {
   approveToken,
@@ -1035,7 +1035,7 @@ export default {
 
       if (isTokenToCookApprove) {
         if (this.isLpLogic) {
-          this.cookMultiBorrowXswapper(
+          this.cookLeverage(
             data,
             isApproved,
             this.selectedPool,
@@ -1043,7 +1043,7 @@ export default {
             !this.useCheckBox
           );
         } else {
-          this.cookMultiBorrow(
+          this.cookLeverage(
             data,
             isApproved,
             this.selectedPool,
