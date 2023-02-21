@@ -38,7 +38,6 @@ export default {
     },
   },
   methods: {
-    updateChart() { },
     createOptionsObject() {
       return {
         responsive: true,
@@ -54,6 +53,9 @@ export default {
                   return ` ${label} $ ${data[dataIndex].toFixed(4)}`;
                 if (label === "PRICE")
                   return ` $ ${data[dataIndex].toFixed(2)} mAPE`;
+                if (label === "APE") {
+                  return ` ${label}           ${data[dataIndex].toFixed(2)}%`;
+                }
                 return ` ${label} ${data[dataIndex].toFixed(2)}%`;
               },
             },
