@@ -206,7 +206,7 @@ const CollateralApyBlock = () =>
 import Vue from "vue";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import cookMixin from "@/mixins/borrow/cooks.js";
+import cookMixin from "@/mixins/borrow/cooksV2.js";
 import {
   approveToken,
   isApprowed,
@@ -793,7 +793,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        await this.cookCollateralAndBorrow(
+        await this.cookAddCollateralAndBorrow(
           payload,
           isApproved,
           this.selectedPool,

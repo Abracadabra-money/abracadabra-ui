@@ -17,6 +17,7 @@ export default [
     interest: 2,
     ltv: 70,
     borrowFee: 0,
+    is0xSwap: true,
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
