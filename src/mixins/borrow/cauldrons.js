@@ -524,6 +524,7 @@ export default {
         tvl,
         borrowFee: pool.borrowFee,
         askUpdatePrice,
+        oracleExchangeRate,
         borrowToken: {
           ...pool.pairToken,
           contract: tokenBorrowContract,
