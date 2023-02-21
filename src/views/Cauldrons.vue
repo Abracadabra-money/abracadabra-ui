@@ -1,6 +1,7 @@
 <template>
   <div class="wrapper">
-    <h2 class="title">Available MIM Farms</h2>
+    <h2 class="title">Available MIM Cauldrons</h2>
+
     <EmptyMarketsList v-if="!currentPools.length && !loading" />
     <div v-else-if="!currentPools.length && loading" class="loader-wrap">
       <BaseLoader />
@@ -76,7 +77,6 @@
               :pool="pool"
           /></template>
           <template v-else>
-            <h1>fkldkgkldfjkhkjfghkfghjk</h1>
             <MarketsBorrowItem
               v-for="pool in prepPools"
               :key="pool.id"
@@ -115,14 +115,13 @@ const sortKeys = {
 export default {
   name: "StatsView",
   mixins: [farmPoolsMixin, cauldronsMixin],
-  // props: { isFarm: { type: Boolean, default: false } },
+  props: { isFarm: { type: Boolean, default: false } },
   data() {
     return {
       selectedSort: sortKeys.name,
       sortReverse: false,
       search: "",
       poolsInterval: null,
-      isFarm: true,
     };
   },
   computed: {
@@ -299,7 +298,7 @@ export default {
   text-transform: uppercase;
   margin-bottom: 40px;
 }
-// -----
+// ------
 .tools-wrap {
   display: grid;
   grid-template-columns: 1fr;
