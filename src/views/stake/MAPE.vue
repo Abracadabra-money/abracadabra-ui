@@ -220,9 +220,6 @@
                 />
                 <span>APE</span>
               </div>
-              <!-- <div class="info-balance">
-                <span class="info-value">Gathering Data</span>
-              </div> -->
               <div class="info-balance">
                 <span class="info-value">{{
                   totalRewardsEarned | localAmountFilter
