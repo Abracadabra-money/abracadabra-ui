@@ -220,15 +220,15 @@
                 />
                 <span>APE</span>
               </div>
-              <div class="info-balance">
-                <span class="info-value">Gathering Data</span>
-              </div>
               <!-- <div class="info-balance">
+                <span class="info-value">Gathering Data</span>
+              </div> -->
+              <div class="info-balance">
                 <span class="info-value">{{
                   totalRewardsEarned | localAmountFilter
                 }}</span>
                 <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
-              </div> -->
+              </div>
             </div>
           </div>
         </div>
@@ -682,7 +682,7 @@ export default {
     await this.createStakePool();
 
     if (this.chainId !== 1) return false;
-    // await this.getTotalRewards();
+    await this.getTotalRewards();
     this.updateInterval = setInterval(async () => {
       await this.createStakePool();
     }, 15000);
@@ -696,8 +696,8 @@ export default {
 
   filters: {
     localAmountFilter(val) {
-      return Number(val).toLocaleString()
-    }
+      return Number(val).toLocaleString();
+    },
   },
 
   beforeDestroy() {
