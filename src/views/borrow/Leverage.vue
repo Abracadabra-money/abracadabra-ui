@@ -465,10 +465,10 @@ export default {
         let expectedDeposit = this.collateralExpected;
 
         const borrowPart =
-          this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
+          +this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
 
         const expectedCollateralPart =
-          expectedDeposit +
+          +expectedDeposit +
           +this.selectedPool.userInfo.userCollateralShare;
 
         const liquidationPrice =
