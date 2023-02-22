@@ -1,5 +1,12 @@
 <template>
   <div class="wrapper">
+    <img
+      class="button-up"
+      src="@/assets/images/button-up.svg"
+      @click="scrollToTop"
+      v-if="showButtonUp"
+      alt=""
+    />
     <h2 class="title">Farming Opportunities</h2>
     <EmptyMarketsList v-if="!currentPools.length && !farmLoading" />
     <div v-else-if="!currentPools.length && farmLoading" class="loader-wrap">
@@ -85,13 +92,11 @@
 <script>
 import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
-
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const MarketsFarmItem = () => import("@/components/markets/FarmItem");
 const CheckBox = () => import("@/components/ui/CheckBox");
-
 const sortKeys = {
   name: "name",
   yield: "yield",
@@ -105,6 +110,7 @@ const sortKeys = {
 
 export default {
   mixins: [farmPoolsMixin],
+
   data() {
     return {
       selectedSort: sortKeys.name,
@@ -112,12 +118,18 @@ export default {
       search: "",
       poolsInterval: null,
       isActiveMarkets: true,
+      scrollPosition: 0,
     };
   },
+
   computed: {
     ...mapGetters({
       farmLoading: "getFarmPoolLoading",
     }),
+
+    showButtonUp() {
+      return this.currentPools.length && this.scrollPosition !== 0;
+    },
 
     selectedSortData() {
       return (
@@ -235,15 +247,25 @@ export default {
     toggleActiveMarkets() {
       this.isActiveMarkets = !this.isActiveMarkets;
     },
+
+    scrollToTop() {
+      window.scrollTo(0, 0);
+    },
+
+    onScroll() {
+      this.scrollPosition = window.scrollY;
+    },
   },
 
   async created() {
     await this.createFarmPools();
     this.poolsInterval = setInterval(await this.createFarmPools(), 5000);
+    window.addEventListener("scroll", this.onScroll);
   },
 
   beforeDestroy() {
     clearInterval(this.poolsInterval);
+    window.removeEventListener("scroll", this.onScroll);
   },
   components: {
     EmptyMarketsList,
@@ -256,6 +278,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.button-up {
+  position: fixed;
+  right: 10%;
+  bottom: 10%;
+  z-index: 9;
+  cursor: pointer;
+}
 .wrapper {
   padding-top: 160px;
   padding-bottom: 100px;

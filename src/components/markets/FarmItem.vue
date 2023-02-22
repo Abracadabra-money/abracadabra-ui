@@ -1,13 +1,5 @@
 <template>
-  <router-link
-    :to="goToPage"
-    class="markets-link"
-    :class="{ strategy: isStrategyLink }"
-  >
-    <div class="status-wrap">
-      <StatusBar v-if="activePool" :isFarm="true" :pool="activePool" />
-    </div>
-
+  <router-link :to="goToPage" class="markets-link">
     <div class="stats-wrap">
       <div>
         <p class="chain-title">CHAIN</p>
@@ -32,7 +24,6 @@
 <script>
 import Vue from "vue";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusBar = () => import("@/components/ui/StatusBar");
 
 export default {
   props: {
@@ -44,10 +35,6 @@ export default {
   computed: {
     goToPage() {
       return { name: "FarmPool", params: { id: this.pool.id } };
-    },
-
-    isStrategyLink() {
-      return this.activePool ? this.activePool?.strategyLink : false;
     },
 
     stats() {
@@ -62,13 +49,6 @@ export default {
         },
         { title: "TVL", value: Vue.filter("formatUSD")(this.pool.poolTvl) },
       ];
-    },
-
-    activePool() {
-      if (this.pool) {
-        return this.$store.getters.getFarmPoolById(+this.pool.id) || null;
-      }
-      return null;
     },
 
     getChainIcon() {
@@ -102,7 +82,6 @@ export default {
 
   components: {
     BaseTokenIcon,
-    StatusBar,
   },
 };
 </script>
@@ -125,19 +104,9 @@ export default {
   box-shadow: 0 0 0 1px transparent;
   transition: all 0.2s;
 
-  &.strategy {
-    box-shadow: 0 0 0 1px #8180ff;
-  }
-
   &:hover {
     background: #343141;
   }
-}
-
-.status-wrap {
-  position: absolute;
-  right: 12px;
-  top: 13px;
 }
 
 .stats-wrap {
@@ -180,7 +149,7 @@ export default {
     padding: 0 20px;
     font-size: 16px;
     border-radius: 30px;
-    height: 100px;
+    height: 70px;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   }
 
@@ -204,10 +173,6 @@ export default {
 
   .pool-name {
     height: 28px;
-  }
-
-  .status-wrap {
-    top: 8px;
   }
 }
 </style>

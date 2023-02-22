@@ -1,13 +1,5 @@
 <template>
-  <router-link
-    :to="goToPage"
-    class="markets-link"
-    :class="{ strategy: isStrategyLink }"
-  >
-    <div class="status-wrap">
-      <StatusBar v-if="activePool" :pool="activePool" />
-    </div>
-
+  <router-link :to="goToPage" class="markets-link">
     <div class="stats-wrap">
       <div>
         <p class="chain-title">Chain</p>
@@ -17,30 +9,19 @@
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <div class="pool-description">
           <span>{{ pool.name }}</span>
-          <MiniStatusTag v-if="isMigrated" />
-          <MiniStatusTag v-if="isLeverageTag" text="Leverage" />
+          <span class="pool-new" v-if="isPoolNew">New</span>
         </div>
       </div>
       <div v-for="(item, i) in items" :key="i">
         <span class="mobile-title">{{ item.title }}</span>
         <span>{{ item.value }}</span>
       </div>
-      <div class="links-wrap">
+      <div class="links-wrap" v-if="isDepreciated">
         <div class="link-wrap">
-          <router-link
-            :to="goToBorrowPage"
-            :class="{ disabled: !isDepreciated }"
-          >
-            Borrow
-          </router-link>
+          <router-link :to="goToBorrowPage"> Borrow </router-link>
         </div>
         <div class="link-wrap">
-          <router-link
-            :to="goToLeveragePage"
-            :class="{ disabled: !isDepreciated }"
-          >
-            Leverage
-          </router-link>
+          <router-link :to="goToLeveragePage"> Leverage </router-link>
         </div>
       </div>
     </div>
@@ -51,8 +32,6 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusBar = () => import("@/components/ui/StatusBar");
-const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
   props: {
@@ -65,16 +44,17 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     goToPage() {
+      if (this.pool?.cauldronSettings?.isDepreciated) {
+        return {
+          name: "RepayId",
+          params: { id: this.pool.id },
+        };
+      }
+
       return {
         name: "BorrowId",
         params: { id: this.pool.id },
       };
-    },
-
-    isStrategyLink() {
-      return this.activePool
-        ? this.activePool?.cauldronSettings?.strategyLink
-        : false;
     },
 
     items() {
@@ -93,27 +73,6 @@ export default {
         },
         { title: "INTEREST", value: `${this.pool.interest}%` },
       ];
-    },
-
-    activePool() {
-      if (this.pool) {
-        return this.$store.getters.getPoolById(+this.pool.id) || null;
-      }
-      return null;
-    },
-
-    isMigrated() {
-      if (this.activePool?.cauldronSettings)
-        return this.activePool.cauldronSettings.isMigrated;
-
-      return this.activePool?.isMigrated;
-    },
-
-    isLeverageTag() {
-      return (
-        (this.chainId === 42161 && this.activePool?.id === 3) ||
-        (this.chainId === 1 && this.activePool?.id === 39)
-      );
     },
 
     getChainIcon() {
@@ -157,12 +116,14 @@ export default {
     goToLeveragePage() {
       return { name: "LeverageId", params: { id: this.pool.id } };
     },
+
+    isPoolNew() {
+      return this.pool.cauldronSettings.isNew;
+    },
   },
 
   components: {
     BaseTokenIcon,
-    StatusBar,
-    MiniStatusTag,
   },
 };
 </script>
@@ -185,19 +146,9 @@ export default {
   box-shadow: 0 0 0 1px transparent;
   transition: all 0.2s;
 
-  &.strategy {
-    box-shadow: 0 0 0 1px #8180ff;
-  }
-
   &:hover {
     background: #343141;
   }
-}
-
-.status-wrap {
-  position: absolute;
-  right: 12px;
-  top: 13px;
 }
 
 .stats-wrap {
@@ -227,6 +178,17 @@ export default {
 
 .pool-description {
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.pool-new {
+  width: 45px;
+  background: #6372f8;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  padding: 0 10px;
 }
 
 .mobile-title {
@@ -269,7 +231,7 @@ export default {
     padding: 0 20px;
     font-size: 16px;
     border-radius: 30px;
-    height: 100px;
+    height: 70px;
   }
 
   .stats-wrap {
@@ -277,10 +239,6 @@ export default {
     align-items: center;
     grid-gap: 0;
     height: 36px;
-  }
-
-  .status-wrap {
-    top: 8px;
   }
 
   .mobile-title {

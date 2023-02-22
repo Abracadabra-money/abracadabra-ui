@@ -4,7 +4,7 @@
       class="button-up"
       src="@/assets/images/button-up.svg"
       @click="scrollToTop"
-      v-if="borrowPools.length"
+      v-if="showButtonUp"
       alt=""
     />
     <h2 class="title">Available MIM Cauldrons</h2>
@@ -118,13 +118,19 @@ export default {
       search: "",
       poolsInterval: null,
       isActiveMarkets: true,
+      scrollPosition: 0,
     };
   },
+
   computed: {
     ...mapGetters({
       borrowPools: "getPools",
       borrowLoading: "getLoadPoolsBorrow",
     }),
+
+    showButtonUp() {
+      return this.borrowPools.length && this.scrollPosition !== 0;
+    },
 
     selectedSortData() {
       return (
@@ -254,14 +260,20 @@ export default {
     scrollToTop() {
       window.scrollTo(0, 0);
     },
+
+    onScroll() {
+      this.scrollPosition = window.scrollY;
+    },
   },
 
   async created() {
     this.poolsInterval = setInterval(await this.createPools(), 5000);
+    window.addEventListener("scroll", this.onScroll);
   },
 
   beforeDestroy() {
     clearInterval(this.poolsInterval);
+    window.removeEventListener("scroll", this.onScroll);
   },
   components: {
     EmptyMarketsList,
