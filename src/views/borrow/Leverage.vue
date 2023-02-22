@@ -225,7 +225,7 @@ export default {
       poolId: null,
       isOpenPollPopup: false,
       isSettingsOpened: false,
-      multiplier: 1.5,
+      multiplier: 1.1,
       percentValue: "",
       mimAmount: 0,
       slipage: 1,
@@ -770,6 +770,8 @@ export default {
     },
     updateCollateralValue(value) {
       this.collateralValue = value;
+
+      if(!value) this.multiplier = 1.1;
 
       this.updatePercentValue();
 
