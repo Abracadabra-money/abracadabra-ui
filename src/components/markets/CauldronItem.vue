@@ -28,12 +28,18 @@
       </span>
       <div class="links-wrap">
         <div class="link-wrap">
-          <router-link :to="{ name: 'BorrowId', params: { id: pool.id } }">
+          <router-link
+            :to="{ name: 'BorrowId', params: { id: pool.id } }"
+            :class="{ disabled: !isDepreciated }"
+          >
             Borrow
           </router-link>
         </div>
         <div class="link-wrap">
-          <router-link :to="{ name: 'LeverageId', params: { id: pool.id } }">
+          <router-link
+            :to="{ name: 'LeverageId', params: { id: pool.id } }"
+            :class="{ disabled: !isDepreciated }"
+          >
             Leverage
           </router-link>
         </div>
@@ -85,6 +91,7 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     items() {
+      console.log(this.pool);
       return [
         {
           title: "TOTAL MIM BORROWED",
@@ -155,6 +162,12 @@ export default {
       }
 
       return require("@/assets/images/networks/ethereum-icon.svg");
+    },
+
+    isDepreciated() {
+      if (this.pool?.cauldronSettings)
+        return !this.pool.cauldronSettings.isDepreciated;
+      return !this.pool.isDepreciated;
     },
   },
 
@@ -280,6 +293,13 @@ export default {
   max-width: 26px;
   width: 100%;
   max-height: 26px;
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  text-decoration: none;
+  pointer-events: none;
 }
 
 @media (min-width: 1024px) {
