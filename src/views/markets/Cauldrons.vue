@@ -1,5 +1,12 @@
 <template>
   <div class="wrapper">
+    <img
+      class="button-up"
+      src="@/assets/images/button-up.svg"
+      @click="scrollToTop"
+      v-if="borrowPools.length"
+      alt=""
+    />
     <h2 class="title">Available MIM Cauldrons</h2>
 
     <EmptyMarketsList v-if="!borrowPools.length && !loading" />
@@ -279,6 +286,10 @@ export default {
     depreciatedPools() {
       return this.pools.filter((pool) => pool.isDepreciated);
     },
+
+    scrollToTop() {
+      window.scrollTo(0, 0);
+    },
   },
   beforeDestroy() {
     clearInterval(this.poolsInterval);
@@ -294,6 +305,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.button-up {
+  position: fixed;
+  right: 10%;
+  bottom: 10%;
+  z-index: 9;
+  cursor: pointer;
+}
 .wrapper {
   padding-top: 160px;
   padding-bottom: 100px;
@@ -301,6 +319,7 @@ export default {
   width: 940px;
   max-width: calc(100% - 20px);
   box-sizing: border-box;
+  scroll-behavior: smooth;
 }
 
 .title {

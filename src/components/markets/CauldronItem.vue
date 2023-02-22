@@ -91,7 +91,6 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     items() {
-      console.log(this.pool);
       return [
         {
           title: "TOTAL MIM BORROWED",
