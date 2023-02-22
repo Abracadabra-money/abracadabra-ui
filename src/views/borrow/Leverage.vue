@@ -133,7 +133,7 @@
         <CollateralApyBlock
           v-if="selectedPool"
           :pool="selectedPool"
-          :expectedLeverage="expectedLeverage"
+          :expectedLeverage="multiplier"
           :isApe="isMagicApe"
         />
 
@@ -493,16 +493,6 @@ export default {
     percentMultiplier() {
       if (this.percentValue) return this.percentValue / 100;
       return false;
-    },
-
-    expectedLeverage() {
-      if (!this.collateralValue) return "0.00";
-      if (!this.percentMultiplier) return "0.00";
-
-      const expectedLevearage =
-        (1 - Math.pow(+this.percentMultiplier, +this.multiplier + 1)) /
-        (1 - +this.percentMultiplier);
-      return parseFloat(expectedLevearage).toFixed(2);
     },
 
     leverageLiquidationRisk() {
@@ -1055,7 +1045,7 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.multiplier = 1;
+      this.multiplier = 1.1;
       this.changeSlipage(this.selectedPool.id, this.chainId);
       this.percentValue = this.selectedPool.ltv;
     },
