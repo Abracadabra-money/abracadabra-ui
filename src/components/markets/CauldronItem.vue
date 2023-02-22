@@ -20,7 +20,7 @@
         <div class="link-wrap">
           <router-link :to="goToBorrowPage"> Borrow </router-link>
         </div>
-        <div class="link-wrap">
+        <div class="link-wrap" v-if="isLeverage">
           <router-link :to="goToLeveragePage"> Leverage </router-link>
         </div>
       </div>
@@ -107,6 +107,10 @@ export default {
       if (this.pool?.cauldronSettings)
         return !this.pool.cauldronSettings.isDepreciated;
       return !this.pool.isDepreciated;
+    },
+
+    isLeverage() {
+      return this.pool.isSwappersActive && !!this.pool.levSwapperContract;
     },
 
     goToBorrowPage() {
