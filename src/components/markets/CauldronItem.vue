@@ -179,6 +179,7 @@ export default {
 .pool-description {
   position: relative;
   display: flex;
+  justify-content: center;
   flex-direction: column;
 }
 
