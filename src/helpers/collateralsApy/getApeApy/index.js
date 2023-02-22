@@ -12,7 +12,7 @@ const getApeApy = async (provider) => {
 
   const apeCoinInfo = await magicApeLensContract.getApeCoinInfo();
   const apr = apeCoinInfo[0] / 100;
-  return (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100;
+  return (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100 * 0.99;
 };
 
 export { getApeApy };
