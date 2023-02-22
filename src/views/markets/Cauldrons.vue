@@ -7,7 +7,7 @@
       v-if="showButtonUp"
       alt=""
     />
-    <h2 class="title">Available MIM Cauldrons</h2>
+    <h2 class="title">Available Cauldrons</h2>
 
     <EmptyMarketsList v-if="!borrowPools.length && !borrowLoading" />
     <div v-else-if="!borrowPools.length && borrowLoading" class="loader-wrap">
@@ -157,7 +157,7 @@ export default {
     headers() {
       return [
         "CHAIN",
-        "COMPONENT",
+        "COLLATERAL",
         "TOTAL MIM BORROWED",
         "TVL",
         "MIMS LEFT TO BORROW",
@@ -431,9 +431,10 @@ export default {
   align-items: center;
   padding: 0 20px;
   height: 60px;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 30px;
   background-color: #2a2835;
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
 
   &-farm {

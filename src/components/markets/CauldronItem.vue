@@ -10,6 +10,7 @@
         <div class="pool-description">
           <span>{{ pool.name }}</span>
           <span class="pool-new" v-if="isPoolNew">New</span>
+          <span class="pool-deprecated" v-if="!isDepreciated">Deprecated</span>
         </div>
       </div>
       <div v-for="(item, i) in items" :key="i">
@@ -18,10 +19,10 @@
       </div>
       <div class="links-wrap" v-if="isDepreciated">
         <div class="link-wrap">
-          <router-link :to="goToBorrowPage"> Borrow </router-link>
+          <router-link :to="goToBorrowPage">Borrow</router-link>
         </div>
         <div class="link-wrap" v-if="isLeverage">
-          <router-link :to="goToLeveragePage"> Leverage </router-link>
+          <router-link :to="goToLeveragePage">Leverage</router-link>
         </div>
       </div>
     </div>
@@ -196,6 +197,15 @@ export default {
   padding: 0 10px;
 }
 
+.pool-deprecated {
+  width: max-content;
+  background: #D94844;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  padding: 0 10px;
+}
+
 .mobile-title {
   display: block;
   color: rgba(255, 255, 255, 0.6);
@@ -204,6 +214,7 @@ export default {
 
 .links-wrap {
   display: flex;
+  justify-content: flex-end;
   gap: 10px;
 }
 
