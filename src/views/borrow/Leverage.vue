@@ -387,7 +387,9 @@ export default {
     },
 
     maxLeverage() {
-      return this.selectedPool.cauldronSettings.leverageMax;
+      if(this.selectedPool) return this.getMaxLeverageMultiplier(this.selectedPool);
+
+      return 5;
     },
 
     liquidationMultiplier() {
@@ -410,14 +412,20 @@ export default {
         parseFloat(this.slipage * 1e10).toFixed(0)
       );
 
-      const expectedToSwapAmount = collateralAmount.mul(leverageMultiplyer).div(1e10).sub(collateralAmount);
+      const expectedToSwapAmount = collateralAmount
+        .mul(leverageMultiplyer)
+        .div(1e10)
+        .sub(collateralAmount);
       const slippageAmount = expectedToSwapAmount
         .div(100)
         .mul(leverageSlippage)
         .div(1e10);
       const minToSwapExpected = expectedToSwapAmount.sub(slippageAmount);
 
-      return this.$ethers.utils.formatUnits(collateralAmount.add(minToSwapExpected), this.selectedPool.collateralToken.decimals)
+      return this.$ethers.utils.formatUnits(
+        collateralAmount.add(minToSwapExpected),
+        this.selectedPool.collateralToken.decimals
+      );
     },
 
     multiplyMimExpected() {
@@ -435,22 +443,23 @@ export default {
         parseFloat(this.multiplier * 1e10).toFixed(0)
       );
 
-      const expectedAmount = collateralAmount.mul(leverageMultiplyer).div(1e10).sub(collateralAmount);
+      const expectedAmount = collateralAmount
+        .mul(leverageMultiplyer)
+        .div(1e10)
+        .sub(collateralAmount);
       const borrowPart = expectedAmount
         .mul(String(1e18))
-        .div(oracleExchangeRate)
+        .div(oracleExchangeRate);
 
-      if(+this.selectedPool.borrowFee === 0) return this.$ethers.utils.formatUnits(borrowPart)
+      if (+this.selectedPool.borrowFee === 0)
+        return this.$ethers.utils.formatUnits(borrowPart);
       const borrowFee = this.$ethers.BigNumber.from(
         parseFloat(this.selectedPool.borrowFee * 1e10).toFixed(0)
       );
-      
-      const borrowFeePart = borrowPart
-          .div(100)
-          .mul(borrowFee)
-          .div(1e10);
 
-      return this.$ethers.utils.formatUnits(borrowPart.add(borrowFeePart))
+      const borrowFeePart = borrowPart.div(100).mul(borrowFee).div(1e10);
+
+      return this.$ethers.utils.formatUnits(borrowPart.add(borrowFeePart));
     },
 
     liquidationPriceExpected() {
@@ -465,20 +474,17 @@ export default {
         let expectedDeposit = this.collateralExpected;
 
         const borrowPart =
-          +this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
+          +this.multiplyMimExpected +
+          +this.selectedPool.userInfo.userBorrowPart;
 
         const expectedCollateralPart =
-          +expectedDeposit +
-          +this.selectedPool.userInfo.userCollateralShare;
+          +expectedDeposit + +this.selectedPool.userInfo.userCollateralShare;
 
         const liquidationPrice =
           +borrowPart / +expectedCollateralPart / this.liquidationMultiplier ||
           0;
 
-        const expectedLiquidationPrice =
-          (liquidationPrice / 100) * this.slipage + liquidationPrice;
-
-        return expectedLiquidationPrice.toFixed(liquidationDecimals);
+        return liquidationPrice.toFixed(liquidationDecimals);
       }
       return 0;
     },
@@ -771,7 +777,7 @@ export default {
     updateCollateralValue(value) {
       this.collateralValue = value;
 
-      if(!value) this.multiplier = 1.1;
+      if (!value) this.multiplier = 1.1;
 
       this.updatePercentValue();
 
@@ -1070,14 +1076,45 @@ export default {
       this.clearData();
       this.useCheckBox = !this.useCheckBox;
     },
+
+    getMaxLeverageMultiplier(pool) {
+      const instantLiquidationPrice = 1 / pool.tokenOraclePrice;
+      const liquidationMultiplier = pool.ltv / 100
+      const testCollateralAmount = 1;
+
+      const testSlippage = 1;
+      let multiplier = 3;
+      let isLiquidation = false;
+
+      while(!isLiquidation) {
+        const expectedAmount = (testCollateralAmount * multiplier) - testCollateralAmount;
+        const slippageAmount = expectedAmount / 100 * testSlippage;
+        const minExpected = expectedAmount - slippageAmount;
+        const finalCollateralAmount = testCollateralAmount + minExpected
+        const borrowPart = expectedAmount / pool.tokenOraclePrice
+      
+        const liquidationPrice =
+          borrowPart / finalCollateralAmount / liquidationMultiplier ||
+          0;
+
+        if(+liquidationPrice >= instantLiquidationPrice) {
+          isLiquidation = true;
+          break;
+        }
+
+        multiplier += 0.1
+      }
+
+      return multiplier;
+    },
   },
 
   async created() {
-    if(this.$route.params.id === "magicAPE") {
+    if (this.$route.params.id === "magicAPE") {
       this.$router.push({ name: "magicAPE" });
       return false;
     }
-    
+
     this.poolId = this.$route.params.id;
 
     this.changeSlipage(this.poolId, this.chainId);
