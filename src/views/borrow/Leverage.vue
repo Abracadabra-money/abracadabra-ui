@@ -387,7 +387,8 @@ export default {
     },
 
     maxLeverage() {
-      if(this.selectedPool) return this.getMaxLeverageMultiplier(this.selectedPool);
+      if (this.selectedPool)
+        return this.getMaxLeverageMultiplier(this.selectedPool);
 
       return 5;
     },
@@ -744,22 +745,26 @@ export default {
           parseFloat(slippage * 1e10).toFixed(0)
         );
 
-        const expectedAmount = collateralAmount.mul(leverageMultiplyer).div(1e10).sub(collateralAmount);
+        const expectedAmount = collateralAmount
+          .mul(leverageMultiplyer)
+          .div(1e10)
+          .sub(collateralAmount);
         const slippageAmount = expectedAmount
           .div(100)
           .mul(leverageSlippage)
           .div(1e10);
         const minExpected = expectedAmount.sub(slippageAmount);
 
-        const shareToMin = await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.collateralToken.address,
-          minExpected,
-          true
-        );
+        const shareToMin =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.collateralToken.address,
+            minExpected,
+            true
+          );
 
         const borrowPart = expectedAmount
           .mul(String(1e18))
-          .div(oracleExchangeRate)
+          .div(oracleExchangeRate);
 
         const leveragePayload = {
           collateralAmount: collateralAmount.toString(),
@@ -954,11 +959,14 @@ export default {
         return false;
       }
 
-      if (!this.checkIsPoolAllowBorrow(this.multiplyMimExpected, notificationId)) {
+      if (
+        !this.checkIsPoolAllowBorrow(this.multiplyMimExpected, notificationId)
+      ) {
         return false;
       }
 
-      const {collateralAmount, borrowPart, shareToMin} = await this.alternativeLeverageHandler(this.multiplier, this.slipage);
+      const { collateralAmount, borrowPart, shareToMin } =
+        await this.alternativeLeverageHandler(this.multiplier, this.slipage);
 
       const payload = {
         collateralAmount,
@@ -1079,30 +1087,39 @@ export default {
 
     getMaxLeverageMultiplier(pool) {
       const instantLiquidationPrice = 1 / pool.tokenOraclePrice;
-      const liquidationMultiplier = pool.ltv / 100
+      const liquidationMultiplier = pool.ltv / 100;
       const testCollateralAmount = 1;
 
       const testSlippage = 1;
       let multiplier = 3;
       let isLiquidation = false;
 
-      while(!isLiquidation) {
-        const expectedAmount = (testCollateralAmount * multiplier) - testCollateralAmount;
-        const slippageAmount = expectedAmount / 100 * testSlippage;
+      while (!isLiquidation) {
+        const expectedAmount =
+          testCollateralAmount * multiplier - testCollateralAmount;
+        const slippageAmount = (expectedAmount / 100) * testSlippage;
         const minExpected = expectedAmount - slippageAmount;
-        const finalCollateralAmount = testCollateralAmount + minExpected
-        const borrowPart = expectedAmount / pool.tokenOraclePrice
-      
-        const liquidationPrice =
-          borrowPart / finalCollateralAmount / liquidationMultiplier ||
-          0;
+        const leverageCollateralAmount = testCollateralAmount + minExpected;
+        const leverageBorrowPart = expectedAmount / pool.tokenOraclePrice;
 
-        if(+liquidationPrice >= instantLiquidationPrice) {
+        const finalBorrowPart =
+          leverageBorrowPart + +pool.userInfo.userBorrowPart;
+
+        const finalCollateralAmount =
+          +leverageCollateralAmount +
+          +pool.userInfo.userCollateralShare;
+
+        const liquidationPrice =
+        finalBorrowPart /
+        finalCollateralAmount /
+            liquidationMultiplier || 0;
+
+        if (+liquidationPrice >= instantLiquidationPrice) {
           isLiquidation = true;
           break;
         }
 
-        multiplier += 0.1
+        multiplier += 0.1;
       }
 
       return multiplier;
