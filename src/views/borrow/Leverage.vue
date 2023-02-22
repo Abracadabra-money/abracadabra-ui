@@ -77,7 +77,7 @@
           <Range
             v-model="multiplier"
             :max="maxLeverage"
-            :min="1.1"
+            :min="1"
             :step="0.01"
             :risk="leverageRisk"
             :collateralValue="collateralValue"
@@ -225,7 +225,7 @@ export default {
       poolId: null,
       isOpenPollPopup: false,
       isSettingsOpened: false,
-      multiplier: 1.1,
+      multiplier: 1,
       percentValue: "",
       mimAmount: 0,
       slipage: 1,
@@ -366,8 +366,11 @@ export default {
 
       if (this.collateralError) return "Nothing to do";
 
-      if (+this.collateralValue > 0 && !this.collateralError)
+      if (+this.collateralValue > 0 && this.multiplier > 1)
         return "Leverage Up";
+
+      if (+this.collateralValue > 0)
+        return "Add collateral";
 
       return "Nothing to do";
     },
@@ -772,7 +775,7 @@ export default {
     updateCollateralValue(value) {
       this.collateralValue = value;
 
-      if (!value) this.multiplier = 1.1;
+      if (!value) this.multiplier = 1;
 
       this.updatePercentValue();
 
@@ -913,9 +916,71 @@ export default {
           return false;
         }
 
-        this.multiplierHandle();
+        if (this.multiplier > 1) return await this.multiplierHandle(); // leverage
+        return await this.collateralHandler(); // add collateral
+      }
+
+      return false;
+    },
+    async collateralHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.pending
+      );
+
+      const collateralDecimals =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpDecimals
+          : this.selectedPool.collateralToken.decimals;
+
+      const parsedCollateralValue = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
+        collateralDecimals
+      );
+
+      const payload = {
+        amount: parsedCollateralValue,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.useDefaultBalance,
+      };
+
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
+      let isTokenToCookApprove = await isTokenApprowed(
+        collateralToken,
+        this.selectedPool.masterContractInstance.address,
+        this.account
+      );
+
+      if (isTokenToCookApprove.lt(payload.amount)) {
+        isTokenToCookApprove = await approveToken(
+          collateralToken,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      let isApproved = await isApprowed(this.selectedPool, this.account);
+
+      if (+isTokenToCookApprove) {
+        await this.cookAddCollateral(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId,
+          this.isLpLogic,
+          !this.useCheckBox
+        );
         return false;
       }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approveError
+      );
 
       return false;
     },
@@ -1045,7 +1110,7 @@ export default {
 
     clearData() {
       this.collateralValue = "";
-      this.multiplier = 1.1;
+      this.multiplier = 1;
       this.changeSlipage(this.selectedPool.id, this.chainId);
       this.percentValue = this.selectedPool.ltv;
     },
