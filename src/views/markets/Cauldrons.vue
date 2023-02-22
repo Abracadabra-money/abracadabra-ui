@@ -2,8 +2,8 @@
   <div class="wrapper">
     <h2 class="title">Available MIM Cauldrons</h2>
 
-    <EmptyMarketsList v-if="!currentPools.length && !loading" />
-    <div v-else-if="!currentPools.length && loading" class="loader-wrap">
+    <EmptyMarketsList v-if="!borrowPools.length && !loading" />
+    <div v-else-if="!borrowPools.length && loading" class="loader-wrap">
       <BaseLoader />
     </div>
     <div v-else class="stats-wrap">
@@ -60,6 +60,10 @@
             </button>
           </template>
         </DropdownWrap>
+        <div class="active-markets">
+          active markets only
+          <CheckBox @update="toggleActiveMarkets" :value="isActiveMarkets" />
+        </div>
       </div>
       <div class="stats-list-wrap">
         <div
@@ -70,18 +74,7 @@
         </div>
 
         <template v-if="prepPools.length">
-          <template v-if="isFarm">
-            <MarketsFarmItem
-              v-for="pool in prepPools"
-              :key="pool.id"
-              :pool="pool"
-          /></template>
-          <template v-else>
-            <MarketsBorrowItem
-              v-for="pool in prepPools"
-              :key="pool.id"
-              :pool="pool"
-          /></template>
+          <CauldronItem v-for="pool in prepPools" :key="pool.id" :pool="pool" />
         </template>
         <EmptyMarketsList v-else />
       </div>
@@ -97,9 +90,8 @@ import { mapGetters } from "vuex";
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
-const MarketsBorrowItem = () =>
-  import("@/components/markets/MarketsBorrowItem");
-const MarketsFarmItem = () => import("@/components/markets/MarketsFarmItem");
+const CauldronItem = () => import("@/components/markets/CauldronItem");
+const CheckBox = () => import("@/components/ui/CheckBox");
 
 const sortKeys = {
   name: "name",
@@ -122,6 +114,7 @@ export default {
       sortReverse: false,
       search: "",
       poolsInterval: null,
+      isActiveMarkets: true,
     };
   },
   computed: {
@@ -151,12 +144,12 @@ export default {
             { title: "Fee", name: sortKeys.liquidation },
           ];
     },
-    currentPools() {
-      return (this.isFarm ? this.pools : this.borrowPools) || [];
-    },
+    // currentPools() {
+    //   return (this.isFarm ? this.pools : this.borrowPools) || [];
+    // },
     prepPools() {
       return this.sortByDepreciate(
-        this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
+        this.sortByTitle(this.filterBySearch(this.borrowPools, this.search))
       );
     },
     loading() {
@@ -166,12 +159,12 @@ export default {
       return this.isFarm
         ? ["Pool", "~Yield per $1000", "ROI Annually", "TVL"]
         : [
+            "CHAIN",
             "COMPONENT",
             "TOTAL MIM BORROWED",
             "TVL",
             "MIMS LEFT TO BORROW",
             "INTEREST",
-            "LIQUIDATION FEE",
           ];
     },
   },
@@ -189,7 +182,7 @@ export default {
               await this.createPools();
             };
 
-        if (!this.currentPools.length) poolsCallback();
+        if (!this.borrowPools.length) poolsCallback();
         this.poolsInterval = setInterval(poolsCallback, 5000);
 
         this.search = "";
@@ -257,17 +250,34 @@ export default {
 
       return sortedPools;
     },
-    sortByDepreciate(pools = []) {
-      return pools.sort((a, b) => {
-        if (a?.cauldronSettings || b?.cauldronSettings) {
-          return (
-            +a.cauldronSettings.isDepreciated -
-            +b.cauldronSettings.isDepreciated
-          );
-        }
 
-        return +a.isDepreciated - +b.isDepreciated;
-      });
+    sortByDepreciate(pools = []) {
+      if (this.isActiveMarkets) {
+        return pools.filter((pool) => {
+          if (pool?.cauldronSettings)
+            return !pool.cauldronSettings.isDepreciated;
+          return !pool.isDepreciated;
+        });
+      } else {
+        return pools.sort((a, b) => {
+          if (a?.cauldronSettings || b?.cauldronSettings) {
+            return (
+              +a.cauldronSettings.isDepreciated -
+              +b.cauldronSettings.isDepreciated
+            );
+          }
+
+          return +a.isDepreciated - +b.isDepreciated;
+        });
+      }
+    },
+
+    toggleActiveMarkets() {
+      this.isActiveMarkets = !this.isActiveMarkets;
+    },
+
+    depreciatedPools() {
+      return this.pools.filter((pool) => pool.isDepreciated);
     },
   },
   beforeDestroy() {
@@ -277,8 +287,8 @@ export default {
     EmptyMarketsList,
     BaseLoader,
     DropdownWrap,
-    MarketsBorrowItem,
-    MarketsFarmItem,
+    CauldronItem,
+    CheckBox,
   },
 };
 </script>
@@ -418,7 +428,7 @@ export default {
 
 .stats-list-header {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 180px;
   align-items: center;
   padding: 0 20px;
   height: 60px;
@@ -437,12 +447,29 @@ export default {
   justify-content: center;
 }
 
+// new
+.active-markets {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
 @media (min-width: 768px) {
   .dropdown {
-    grid-column: auto / span 4;
+    grid-column: auto / span 5;
   }
   .search-wrap {
     grid-column: auto / span 3;
+  }
+  .active-markets {
+    grid-column: auto / span 4;
   }
   .tools-wrap {
     grid-template-columns: repeat(12, 1fr);
@@ -450,12 +477,27 @@ export default {
 }
 
 @media (min-width: 1024px) {
+  .dropdown {
+    grid-column: auto / span 5;
+  }
+  .search-wrap {
+    grid-column: auto / span 4;
+  }
+  .active-markets {
+    grid-column: auto / span 3;
+  }
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;
   }
   .stats-list-header {
     display: grid;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .active-markets {
+    justify-content: center;
   }
 }
 </style>

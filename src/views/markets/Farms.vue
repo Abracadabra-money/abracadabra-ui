@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <h2 class="title">Available MIM Farms</h2>
+    <h2 class="title">Farming Opportunities</h2>
     <EmptyMarketsList v-if="!currentPools.length && !loading" />
     <div v-else-if="!currentPools.length && loading" class="loader-wrap">
       <BaseLoader />
@@ -59,29 +59,22 @@
             </button>
           </template>
         </DropdownWrap>
+        <div class="active-markets">
+          active markets only
+          <CheckBox @update="toggleActiveMarkets" :value="isActiveMarkets" />
+        </div>
       </div>
       <div class="stats-list-wrap">
-        <div
-          class="stats-list-header"
-          :class="{ 'stats-list-header-farm': isFarm }"
-        >
+        <div class="stats-list-header">
           <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
         </div>
 
         <template v-if="prepPools.length">
-          <template v-if="isFarm">
-            <MarketsFarmItem
-              v-for="pool in prepPools"
-              :key="pool.id"
-              :pool="pool"
-          /></template>
-          <template v-else>
-            <h1>fkldkgkldfjkhkjfghkfghjk</h1>
-            <MarketsBorrowItem
-              v-for="pool in prepPools"
-              :key="pool.id"
-              :pool="pool"
-          /></template>
+          <MarketsFarmItem
+            v-for="pool in prepPools"
+            :key="pool.id"
+            :pool="pool"
+          />
         </template>
         <EmptyMarketsList v-else />
       </div>
@@ -97,9 +90,8 @@ import { mapGetters } from "vuex";
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
-const MarketsBorrowItem = () =>
-  import("@/components/markets/MarketsBorrowItem");
-const MarketsFarmItem = () => import("@/components/markets/MarketsFarmItem");
+const MarketsFarmItem = () => import("@/components/markets/FarmItem");
+const CheckBox = () => import("@/components/ui/CheckBox");
 
 const sortKeys = {
   name: "name",
@@ -123,6 +115,7 @@ export default {
       search: "",
       poolsInterval: null,
       isFarm: true,
+      isActiveMarkets: true,
     };
   },
   computed: {
@@ -165,7 +158,7 @@ export default {
     },
     headers() {
       return this.isFarm
-        ? ["Pool", "~Yield per $1000", "ROI Annually", "TVL"]
+        ? ["CHAIN", "Pool", "~Yield per $1000", "ROI Annually", "TVL"]
         : [
             "COMPONENT",
             "TOTAL MIM BORROWED",
@@ -259,16 +252,27 @@ export default {
       return sortedPools;
     },
     sortByDepreciate(pools = []) {
-      return pools.sort((a, b) => {
-        if (a?.cauldronSettings || b?.cauldronSettings) {
-          return (
-            +a.cauldronSettings.isDepreciated -
-            +b.cauldronSettings.isDepreciated
-          );
-        }
+      if (this.isActiveMarkets) {
+        return pools.filter((pool) => {
+          if (pool?.cauldronSettings)
+            return !pool.cauldronSettings.isDepreciated;
+          return !pool.isDepreciated;
+        });
+      } else {
+        return pools.sort((a, b) => {
+          if (a?.cauldronSettings || b?.cauldronSettings) {
+            return (
+              +a.cauldronSettings.isDepreciated -
+              +b.cauldronSettings.isDepreciated
+            );
+          }
 
-        return +a.isDepreciated - +b.isDepreciated;
-      });
+          return +a.isDepreciated - +b.isDepreciated;
+        });
+      }
+    },
+    toggleActiveMarkets() {
+      this.isActiveMarkets = !this.isActiveMarkets;
     },
   },
   beforeDestroy() {
@@ -278,8 +282,8 @@ export default {
     EmptyMarketsList,
     BaseLoader,
     DropdownWrap,
-    MarketsBorrowItem,
     MarketsFarmItem,
+    CheckBox,
   },
 };
 </script>
@@ -299,7 +303,6 @@ export default {
   text-transform: uppercase;
   margin-bottom: 40px;
 }
-// -----
 .tools-wrap {
   display: grid;
   grid-template-columns: 1fr;
@@ -419,7 +422,7 @@ export default {
 
 .stats-list-header {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   padding: 0 20px;
   height: 60px;
@@ -438,12 +441,29 @@ export default {
   justify-content: center;
 }
 
+// new
+.active-markets {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
 @media (min-width: 768px) {
   .dropdown {
-    grid-column: auto / span 4;
+    grid-column: auto / span 5;
   }
   .search-wrap {
     grid-column: auto / span 3;
+  }
+  .active-markets {
+    grid-column: auto / span 4;
   }
   .tools-wrap {
     grid-template-columns: repeat(12, 1fr);
@@ -451,12 +471,27 @@ export default {
 }
 
 @media (min-width: 1024px) {
+  .dropdown {
+    grid-column: auto / span 5;
+  }
+  .search-wrap {
+    grid-column: auto / span 4;
+  }
+  .active-markets {
+    grid-column: auto / span 3;
+  }
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;
   }
   .stats-list-header {
     display: grid;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .active-markets {
+    justify-content: center;
   }
 }
 </style>

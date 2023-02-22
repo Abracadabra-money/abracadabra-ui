@@ -13,6 +13,7 @@
       ><StatusBar v-if="activePool" :pool="activePool"
     /></span>
     <span class="stats-item-wrap">
+      <img class="chain-icon" :src="getChainIcon" alt="" />
       <span class="network-data" :class="{ 'network-data-new': false }">
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
@@ -21,11 +22,22 @@
           <MiniStatusTag v-if="isLeverageTag" text="Leverage" />
         </span>
       </span>
-
       <span v-for="(item, i) in items" :key="i">
         <span class="column-title">{{ item.title }}</span>
         <span>{{ item.value }}</span>
       </span>
+      <div class="links-wrap">
+        <div class="link-wrap">
+          <router-link :to="{ name: 'BorrowId', params: { id: pool.id } }">
+            Borrow
+          </router-link>
+        </div>
+        <div class="link-wrap">
+          <router-link :to="{ name: 'LeverageId', params: { id: pool.id } }">
+            Leverage
+          </router-link>
+        </div>
+      </div>
       <span class="degenbox"> </span>
     </span>
   </router-link>
@@ -93,10 +105,6 @@ export default {
           ),
         },
         { title: "INTEREST", value: `${this.pool.interest}%` },
-        {
-          title: "LIQUIDATION FEE",
-          value: `${this.pool.stabilityFee}%`,
-        },
       ];
     },
 
@@ -119,6 +127,34 @@ export default {
         (this.chainId === 42161 && this.activePool?.id === 3) ||
         (this.chainId === 1 && this.activePool?.id === 39)
       );
+    },
+
+    getChainIcon() {
+      if (this.chainId === 56) {
+        return require("@/assets/images/networks/binance-icon.svg");
+      }
+
+      if (this.chainId === 250) {
+        return require("@/assets/images/networks/fantom-icon.svg");
+      }
+
+      if (this.chainId === 43114) {
+        return require("@/assets/images/networks/avalanche-icon.png");
+      }
+
+      if (this.chainId === 137) {
+        return require("@/assets/images/networks/polygon-icon.svg");
+      }
+
+      if (this.chainId === 42161) {
+        return require("@/assets/images/networks/arbitrum-icon.svg");
+      }
+
+      if (this.chainId === 10) {
+        return require("@/assets/images/networks/optimism-icon.svg");
+      }
+
+      return require("@/assets/images/networks/ethereum-icon.svg");
     },
   },
 
@@ -220,6 +256,32 @@ export default {
   }
 }
 
+.links-wrap {
+  display: flex;
+  gap: 10px;
+}
+
+.link-wrap {
+  text-decoration: none;
+  width: 84px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  align-items: center;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  a {
+    color: #fff;
+  }
+}
+.chain-icon {
+  max-width: 26px;
+  width: 100%;
+  max-height: 26px;
+}
+
 @media (min-width: 1024px) {
   .stats-item {
     padding: 0 20px;
@@ -229,7 +291,7 @@ export default {
   }
 
   .stats-item-wrap {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 180px;
     align-items: center;
     grid-gap: 0;
     height: 36px;

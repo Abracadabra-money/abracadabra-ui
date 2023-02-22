@@ -11,6 +11,7 @@
       ><StatusBar v-if="activePool" :isFarm="true" :pool="activePool"
     /></span>
     <span class="stats-item-wrap">
+      <img class="chain-icon" :src="getChainIcon" alt="" />
       <span class="network-data" :class="{ 'network-data-new': false }">
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
         <span class="network-name-wrap">
@@ -59,6 +60,34 @@ export default {
         return this.$store.getters.getFarmPoolById(+this.pool.id) || null;
       }
       return null;
+    },
+
+    getChainIcon() {
+      if (this.chainId === 56) {
+        return require("@/assets/images/networks/BNB.svg");
+      }
+
+      if (this.chainId === 250) {
+        return require("@/assets/images/networks/fantom-icon.svg");
+      }
+
+      if (this.chainId === 43114) {
+        return require("@/assets/images/networks/avalanche-icon.png");
+      }
+
+      if (this.chainId === 137) {
+        return require("@/assets/images/networks/polygon-icon.svg");
+      }
+
+      if (this.chainId === 42161) {
+        return require("@/assets/images/networks/Arbitrum.svg");
+      }
+
+      if (this.chainId === 10) {
+        return require("@/assets/images/networks/optimism-icon.svg");
+      }
+
+      return require("@/assets/images/networks/ethereum-icon.svg");
     },
   },
 
@@ -159,18 +188,23 @@ export default {
   }
 }
 
+.chain-icon {
+  max-width: 26px;
+  width: 100%;
+  max-height: 26px;
+}
+
 @media (min-width: 1024px) {
   .stats-item {
     padding: 0 20px;
     font-size: 16px;
     border-radius: 30px;
     height: 100px;
-
-    grid-template-columns: 1fr 1fr 1fr 1fr 60px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   }
 
   .stats-item-wrap {
-    grid-template-columns: 1fr 1fr 1fr 1fr 60px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     align-items: center;
     grid-gap: 0;
     height: 36px;

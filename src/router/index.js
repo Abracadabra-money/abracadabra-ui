@@ -93,12 +93,12 @@ const routes = [
   {
     path: "/markets",
     name: "Cauldrons",
-    component: () => import("@/views/Cauldrons"),
+    component: () => import("@/views/markets/Cauldrons"),
   },
   {
     path: "farms",
     name: "MarketsFarm",
-    component: () => import("@/views/markets/MarketsView"),
+    component: () => import("@/views/markets/Farms"),
     props: { isFarm: true },
   },
   {
