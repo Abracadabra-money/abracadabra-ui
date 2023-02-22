@@ -1,8 +1,8 @@
 <template>
   <div class="wrapper">
     <h2 class="title">Farming Opportunities</h2>
-    <EmptyMarketsList v-if="!currentPools.length && !loading" />
-    <div v-else-if="!currentPools.length && loading" class="loader-wrap">
+    <EmptyMarketsList v-if="!currentPools.length && !farmLoading" />
+    <div v-else-if="!currentPools.length && farmLoading" class="loader-wrap">
       <BaseLoader />
     </div>
     <div v-else class="stats-wrap">
@@ -69,9 +69,9 @@
           <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
         </div>
 
-        <template v-if="prepPools.length">
+        <template v-if="filteredPools.length">
           <MarketsFarmItem
-            v-for="pool in prepPools"
+            v-for="pool in filteredPools"
             :key="pool.id"
             :pool="pool"
           />
@@ -84,7 +84,6 @@
 
 <script>
 import farmPoolsMixin from "@/mixins/farmPools";
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import { mapGetters } from "vuex";
 
 const BaseLoader = () => import("@/components/base/BaseLoader");
@@ -105,97 +104,56 @@ const sortKeys = {
 };
 
 export default {
-  name: "StatsView",
-  mixins: [farmPoolsMixin, cauldronsMixin],
-  // props: { isFarm: { type: Boolean, default: false } },
+  mixins: [farmPoolsMixin],
   data() {
     return {
       selectedSort: sortKeys.name,
       sortReverse: false,
       search: "",
       poolsInterval: null,
-      isFarm: true,
       isActiveMarkets: true,
     };
   },
   computed: {
     ...mapGetters({
-      borrowPools: "getPools",
-      borrowLoading: "getLoadPoolsBorrow",
       farmLoading: "getFarmPoolLoading",
     }),
+
     selectedSortData() {
       return (
         this.sortList.find(({ name }) => this.selectedSort === name) || null
       );
     },
+
     sortList() {
-      return this.isFarm
-        ? [
-            { title: "Title", name: sortKeys.name },
-            { title: "Yield Per $1000", name: sortKeys.yield },
-            { title: "ROI Annually", name: sortKeys.roi },
-            { title: "TVL", name: sortKeys.tvl },
-          ]
-        : [
-            { title: "Title", name: sortKeys.name },
-            { title: "TVL", name: sortKeys.totalMim },
-            { title: "MIMs Left", name: sortKeys.mimsLeft },
-            { title: "Interest", name: sortKeys.interest },
-            { title: "Fee", name: sortKeys.liquidation },
-          ];
+      return [
+        { title: "Title", name: sortKeys.name },
+        { title: "Yield Per $1000", name: sortKeys.yield },
+        { title: "ROI Annually", name: sortKeys.roi },
+        { title: "TVL", name: sortKeys.tvl },
+      ];
     },
+
     currentPools() {
-      return (this.isFarm ? this.pools : this.borrowPools) || [];
+      return this.pools || [];
     },
-    prepPools() {
+
+    filteredPools() {
       return this.sortByDepreciate(
         this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
       );
     },
-    loading() {
-      return this.isFarm ? this.farmLoading : this.borrowLoading;
-    },
+
     headers() {
-      return this.isFarm
-        ? ["CHAIN", "Pool", "~Yield per $1000", "ROI Annually", "TVL"]
-        : [
-            "COMPONENT",
-            "TOTAL MIM BORROWED",
-            "TVL",
-            "MIMS LEFT TO BORROW",
-            "INTEREST",
-            "LIQUIDATION FEE",
-          ];
+      return ["CHAIN", "Pool", "~Yield per $1000", "ROI Annually", "TVL"];
     },
   },
-  watch: {
-    isFarm: {
-      immediate: true,
-      handler(isFarm) {
-        clearInterval(this.poolsInterval);
 
-        const poolsCallback = isFarm
-          ? async () => {
-              await this.createFarmPools();
-            }
-          : async () => {
-              await this.createPools();
-            };
-
-        if (!this.currentPools.length) poolsCallback();
-        this.poolsInterval = setInterval(poolsCallback, 5000);
-
-        this.search = "";
-        this.selectedSort = isFarm ? sortKeys.name : sortKeys.mimsLeft;
-        this.sortReverse = false;
-      },
-    },
-  },
   methods: {
     select(name) {
       this.selectedSort = name;
     },
+
     filterBySearch(pools, search) {
       return search
         ? pools.filter(
@@ -204,6 +162,7 @@ export default {
           )
         : pools;
     },
+
     sortByTitle(pools) {
       const sortedPools = [...pools];
       if (this.selectedSortData !== null) {
@@ -251,6 +210,7 @@ export default {
 
       return sortedPools;
     },
+
     sortByDepreciate(pools = []) {
       if (this.isActiveMarkets) {
         return pools.filter((pool) => {
@@ -271,10 +231,17 @@ export default {
         });
       }
     },
+
     toggleActiveMarkets() {
       this.isActiveMarkets = !this.isActiveMarkets;
     },
   },
+
+  async created() {
+    await this.createFarmPools();
+    this.poolsInterval = setInterval(await this.createFarmPools(), 5000);
+  },
+
   beforeDestroy() {
     clearInterval(this.poolsInterval);
   },

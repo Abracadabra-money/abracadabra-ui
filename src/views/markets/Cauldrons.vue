@@ -9,8 +9,8 @@
     />
     <h2 class="title">Available MIM Cauldrons</h2>
 
-    <EmptyMarketsList v-if="!borrowPools.length && !loading" />
-    <div v-else-if="!borrowPools.length && loading" class="loader-wrap">
+    <EmptyMarketsList v-if="!borrowPools.length && !borrowLoading" />
+    <div v-else-if="!borrowPools.length && borrowLoading" class="loader-wrap">
       <BaseLoader />
     </div>
     <div v-else class="stats-wrap">
@@ -73,15 +73,16 @@
         </div>
       </div>
       <div class="stats-list-wrap">
-        <div
-          class="stats-list-header"
-          :class="{ 'stats-list-header-farm': isFarm }"
-        >
+        <div class="stats-list-header">
           <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
         </div>
 
-        <template v-if="prepPools.length">
-          <CauldronItem v-for="pool in prepPools" :key="pool.id" :pool="pool" />
+        <template v-if="filteredPools.length">
+          <CauldronItem
+            v-for="pool in filteredPools"
+            :key="pool.id"
+            :pool="pool"
+          />
         </template>
         <EmptyMarketsList v-else />
       </div>
@@ -90,16 +91,13 @@
 </template>
 
 <script>
-import farmPoolsMixin from "@/mixins/farmPools";
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import { mapGetters } from "vuex";
-
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const CauldronItem = () => import("@/components/markets/CauldronItem");
 const CheckBox = () => import("@/components/ui/CheckBox");
-
 const sortKeys = {
   name: "name",
   yield: "yield",
@@ -112,12 +110,10 @@ const sortKeys = {
 };
 
 export default {
-  name: "StatsView",
-  mixins: [farmPoolsMixin, cauldronsMixin],
-  props: { isFarm: { type: Boolean, default: false } },
+  mixins: [cauldronsMixin],
   data() {
     return {
-      selectedSort: sortKeys.name,
+      selectedSort: sortKeys.mimsLeft,
       sortReverse: false,
       search: "",
       poolsInterval: null,
@@ -128,80 +124,47 @@ export default {
     ...mapGetters({
       borrowPools: "getPools",
       borrowLoading: "getLoadPoolsBorrow",
-      farmLoading: "getFarmPoolLoading",
     }),
+
     selectedSortData() {
       return (
         this.sortList.find(({ name }) => this.selectedSort === name) || null
       );
     },
+
     sortList() {
-      return this.isFarm
-        ? [
-            { title: "Title", name: sortKeys.name },
-            { title: "Yield Per $1000", name: sortKeys.yield },
-            { title: "ROI Annually", name: sortKeys.roi },
-            { title: "TVL", name: sortKeys.tvl },
-          ]
-        : [
-            { title: "Title", name: sortKeys.name },
-            { title: "TVL", name: sortKeys.totalMim },
-            { title: "MIMs Left", name: sortKeys.mimsLeft },
-            { title: "Interest", name: sortKeys.interest },
-            { title: "Fee", name: sortKeys.liquidation },
-          ];
+      return [
+        { title: "Title", name: sortKeys.name },
+        { title: "TVL", name: sortKeys.totalMim },
+        { title: "MIMs Left", name: sortKeys.mimsLeft },
+        { title: "Interest", name: sortKeys.interest },
+        { title: "Fee", name: sortKeys.liquidation },
+      ];
     },
-    // currentPools() {
-    //   return (this.isFarm ? this.pools : this.borrowPools) || [];
-    // },
-    prepPools() {
+
+    filteredPools() {
       return this.sortByDepreciate(
         this.sortByTitle(this.filterBySearch(this.borrowPools, this.search))
       );
     },
-    loading() {
-      return this.isFarm ? this.farmLoading : this.borrowLoading;
-    },
+
     headers() {
-      return this.isFarm
-        ? ["Pool", "~Yield per $1000", "ROI Annually", "TVL"]
-        : [
-            "CHAIN",
-            "COMPONENT",
-            "TOTAL MIM BORROWED",
-            "TVL",
-            "MIMS LEFT TO BORROW",
-            "INTEREST",
-          ];
+      return [
+        "CHAIN",
+        "COMPONENT",
+        "TOTAL MIM BORROWED",
+        "TVL",
+        "MIMS LEFT TO BORROW",
+        "INTEREST",
+      ];
     },
   },
-  watch: {
-    isFarm: {
-      immediate: true,
-      handler(isFarm) {
-        clearInterval(this.poolsInterval);
 
-        const poolsCallback = isFarm
-          ? async () => {
-              await this.createFarmPools();
-            }
-          : async () => {
-              await this.createPools();
-            };
-
-        if (!this.borrowPools.length) poolsCallback();
-        this.poolsInterval = setInterval(poolsCallback, 5000);
-
-        this.search = "";
-        this.selectedSort = isFarm ? sortKeys.name : sortKeys.mimsLeft;
-        this.sortReverse = false;
-      },
-    },
-  },
   methods: {
     select(name) {
       this.selectedSort = name;
     },
+
     filterBySearch(pools, search) {
       return search
         ? pools.filter(
@@ -210,6 +173,7 @@ export default {
           )
         : pools;
     },
+
     sortByTitle(pools) {
       const sortedPools = [...pools];
       if (this.selectedSortData !== null) {
@@ -291,6 +255,11 @@ export default {
       window.scrollTo(0, 0);
     },
   },
+
+  async created() {
+    this.poolsInterval = setInterval(await this.createPools(), 5000);
+  },
+
   beforeDestroy() {
     clearInterval(this.poolsInterval);
   },
@@ -327,7 +296,6 @@ export default {
   text-transform: uppercase;
   margin-bottom: 40px;
 }
-// ------
 .tools-wrap {
   display: grid;
   grid-template-columns: 1fr;
@@ -466,7 +434,6 @@ export default {
   justify-content: center;
 }
 
-// new
 .active-markets {
   background: rgba(255, 255, 255, 0.06);
   border-radius: 20px;

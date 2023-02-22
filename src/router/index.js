@@ -96,7 +96,7 @@ const routes = [
     component: () => import("@/views/markets/Cauldrons"),
   },
   {
-    path: "farms",
+    path: "/farms",
     name: "MarketsFarm",
     component: () => import("@/views/markets/Farms"),
     props: { isFarm: true },

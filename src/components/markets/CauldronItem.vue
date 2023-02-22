@@ -1,35 +1,34 @@
 <template>
   <router-link
-    :to="{
-      name: 'BorrowId',
-      params: { id: pool.id },
-    }"
-    class="stats-item"
-    :class="{
-      strategy: activePool ? activePool.cauldronSettings.strategyLink : false,
-    }"
+    :to="goToPage"
+    class="markets-link"
+    :class="{ strategy: isStrategyLink }"
   >
-    <span class="status-wrap"
-      ><StatusBar v-if="activePool" :pool="activePool"
-    /></span>
-    <span class="stats-item-wrap">
-      <img class="chain-icon" :src="getChainIcon" alt="" />
-      <span class="network-data" :class="{ 'network-data-new': false }">
+    <div class="status-wrap">
+      <StatusBar v-if="activePool" :pool="activePool" />
+    </div>
+
+    <div class="stats-wrap">
+      <div>
+        <p class="chain-title">Chain</p>
+        <img class="chain-icon" :src="getChainIcon" alt="" />
+      </div>
+      <div class="pool-info">
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
-        <span class="network-name-wrap">
+        <div class="pool-description">
           <span>{{ pool.name }}</span>
           <MiniStatusTag v-if="isMigrated" />
           <MiniStatusTag v-if="isLeverageTag" text="Leverage" />
-        </span>
-      </span>
-      <span v-for="(item, i) in items" :key="i">
-        <span class="column-title">{{ item.title }}</span>
+        </div>
+      </div>
+      <div v-for="(item, i) in items" :key="i">
+        <span class="mobile-title">{{ item.title }}</span>
         <span>{{ item.value }}</span>
-      </span>
+      </div>
       <div class="links-wrap">
         <div class="link-wrap">
           <router-link
-            :to="{ name: 'BorrowId', params: { id: pool.id } }"
+            :to="goToBorrowPage"
             :class="{ disabled: !isDepreciated }"
           >
             Borrow
@@ -37,15 +36,14 @@
         </div>
         <div class="link-wrap">
           <router-link
-            :to="{ name: 'LeverageId', params: { id: pool.id } }"
+            :to="goToLeveragePage"
             :class="{ disabled: !isDepreciated }"
           >
             Leverage
           </router-link>
         </div>
       </div>
-      <span class="degenbox"> </span>
-    </span>
+    </div>
   </router-link>
 </template>
 
@@ -57,58 +55,41 @@ const StatusBar = () => import("@/components/ui/StatusBar");
 const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
-  name: "MarketsBorrowItem",
-
   props: {
     pool: {
       type: Object,
     },
   },
-  methods: {
-    formatNumber(value) {
-      if (isNaN(Number(value)) || Number(value) < 1) return 0;
 
-      const lookup = [
-        { value: 0, symbol: "" },
-        { value: 1, symbol: "" },
-        { value: 1e3, symbol: "k" },
-        { value: 1e6, symbol: "M" },
-      ];
-      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-      let item = lookup
-        .slice()
-        .reverse()
-        .find(function (item) {
-          return parseFloat(value) >= item.value;
-        });
-      return (
-        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
-        item.symbol
-      );
-    },
-  },
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
+
+    goToPage() {
+      return {
+        name: "BorrowId",
+        params: { id: this.pool.id },
+      };
+    },
+
+    isStrategyLink() {
+      return this.activePool
+        ? this.activePool?.cauldronSettings?.strategyLink
+        : false;
+    },
 
     items() {
       return [
         {
           title: "TOTAL MIM BORROWED",
-          value: this.formatNumber(
-            Vue.filter("formatTokenBalance")(this.pool.totalBorrow)
-          ),
+          value: Vue.filter("formatLargeSum")(this.pool.totalBorrow),
         },
         {
           title: "TVL",
-          value: `$ ${this.formatNumber(
-            Vue.filter("formatTokenBalance")(this.pool.tvl)
-          )}`,
+          value: `$ ${Vue.filter("formatLargeSum")(this.pool.tvl)}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
-          value: this.formatNumber(
-            Vue.filter("formatTokenBalance")(this.pool.dynamicBorrowAmount)
-          ),
+          value: Vue.filter("formatLargeSum")(this.pool.dynamicBorrowAmount),
         },
         { title: "INTEREST", value: `${this.pool.interest}%` },
       ];
@@ -168,6 +149,14 @@ export default {
         return !this.pool.cauldronSettings.isDepreciated;
       return !this.pool.isDepreciated;
     },
+
+    goToBorrowPage() {
+      return { name: "BorrowId", params: { id: this.pool.id } };
+    },
+
+    goToLeveragePage() {
+      return { name: "LeverageId", params: { id: this.pool.id } };
+    },
   },
 
   components: {
@@ -179,24 +168,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.stats-item {
+.markets-link {
   position: relative;
   display: flex;
   align-items: center;
-
   background-color: #2a2835;
   line-height: 21px;
   border-radius: 26px;
   padding: 10px;
   height: auto;
-
   font-size: 14px;
   border: none;
   cursor: pointer;
   color: white;
   text-align: left;
   box-shadow: 0 0 0 1px transparent;
-
   transition: all 0.2s;
 
   &.strategy {
@@ -214,58 +200,39 @@ export default {
   top: 13px;
 }
 
-.stats-item-wrap {
+.stats-wrap {
   display: grid;
   grid-gap: 4px;
   width: 100%;
 }
 
-.network-data {
+.chain-title {
+  display: block;
+  text-transform: uppercase;
+}
+
+.chain-icon {
+  max-width: 26px;
+  width: 100%;
+  max-height: 26px;
+}
+
+.pool-info {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   font-size: 16px;
   margin-bottom: 6px;
-  .network-name-wrap {
-    position: relative;
-    // display: flex;
-    // align-items: center;
-    // height: 32px;
-
-    .network-new {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      top: 100%;
-      background-color: #6372f8;
-      padding: 0 10px;
-      border-radius: 32px;
-      font-size: 12px;
-      line-height: 16px;
-    }
-  }
 }
 
-.network-data-new {
-  margin-bottom: 21px;
+.pool-description {
+  position: relative;
 }
 
-.column-title {
+.mobile-title {
   display: block;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
-}
-
-.degenbox {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  justify-content: center;
-
-  .degenbox-img {
-    width: 32px;
-  }
 }
 
 .links-wrap {
@@ -284,14 +251,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+
   a {
     color: #fff;
   }
-}
-.chain-icon {
-  max-width: 26px;
-  width: 100%;
-  max-height: 26px;
 }
 
 .disabled {
@@ -302,39 +265,38 @@ export default {
 }
 
 @media (min-width: 1024px) {
-  .stats-item {
+  .markets-link {
     padding: 0 20px;
     font-size: 16px;
     border-radius: 30px;
     height: 100px;
   }
 
-  .stats-item-wrap {
+  .stats-wrap {
     grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 180px;
     align-items: center;
     grid-gap: 0;
     height: 36px;
   }
 
-  .network-data {
-    margin-bottom: 0;
-    .network-name-wrap {
-      height: 28px;
-    }
+  .status-wrap {
+    top: 8px;
   }
-  .column-title {
+
+  .mobile-title {
     display: none;
   }
 
-  .degenbox {
-    position: static;
-    .degenbox-img {
-      width: 40px;
-    }
+  .chain-title {
+    display: none;
   }
 
-  .status-wrap {
-    top: 8px;
+  .pool-info {
+    margin-bottom: 0;
+  }
+
+  .pool-description {
+    height: 28px;
   }
 }
 </style>
