@@ -8,9 +8,12 @@
 
       <div class="pool-info">
         <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
-        <span class="pool-name">
-          {{ pool.name }}
-        </span>
+        <div>
+          <span class="pool-name">
+            {{ pool.name }}
+          </span>
+          <span class="pool-deprecated" v-if="pool.isDepreciated">Deprecated</span>
+        </div>
       </div>
 
       <div v-for="(item, i) in stats" :key="i">
@@ -87,6 +90,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.pool-deprecated {
+  width: max-content;
+  background: #d94844;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  padding: 0 10px;
+}
+
 .markets-link {
   position: relative;
   display: flex;
@@ -149,7 +161,7 @@ export default {
     padding: 0 20px;
     font-size: 16px;
     border-radius: 30px;
-    height: 70px;
+    min-height: 70px;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   }
 
@@ -157,7 +169,6 @@ export default {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     align-items: center;
     grid-gap: 0;
-    height: 36px;
   }
 
   .chain-title {

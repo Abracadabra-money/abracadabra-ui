@@ -422,9 +422,10 @@ export default {
   align-items: center;
   padding: 0 20px;
   height: 60px;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 30px;
   background-color: #2a2835;
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
 
   &-farm {
