@@ -5,6 +5,9 @@
     </router-link>
 
     <nav class="nav">
+      <router-link class="header-link" :to="{ name: 'Cauldrons' }"
+        >Cauldrons</router-link
+      >
       <router-link class="header-link" :to="{ name: 'Borrow' }"
         >Borrow</router-link
       >
@@ -61,8 +64,8 @@
           />
         </div>
         <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" :to="{ name: 'MarketsBorrow' }"
-            >Markets</router-link
+          <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
+            >Farms</router-link
           >
 
           <router-link class="list-link" :to="{ name: 'Farm' }"
