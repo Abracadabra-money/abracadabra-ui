@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       routes: ["BorrowId", "RepayId", "LeverageId", "DeleverageId"],
-      ids: ["28", "27"],
+      ids: [28, 27],
       closeClicked: false,
     };
   },
@@ -43,7 +43,7 @@ export default {
     showBanner() {
       if(this.chainId !== 1) return false;
 
-      return this.routes.indexOf(this.$route.name) !== -1 && this.ids.indexOf(this.$route.params.id) !== -1;
+      return this.routes.indexOf(this.$route.name) !== -1 && this.ids.indexOf(+this.$route.params.id) !== -1;
     }
   },
 
