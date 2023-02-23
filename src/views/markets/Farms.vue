@@ -418,7 +418,7 @@ export default {
 
 .stats-list-header {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   padding: 0 20px;
   height: 60px;

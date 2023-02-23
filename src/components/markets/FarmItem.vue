@@ -12,13 +12,20 @@
           <span class="pool-name">
             {{ pool.name }}
           </span>
-          <span class="pool-deprecated" v-if="pool.isDepreciated">Deprecated</span>
+          <span class="pool-deprecated" v-if="pool.isDepreciated"
+            >Deprecated</span
+          >
         </div>
       </div>
 
       <div v-for="(item, i) in stats" :key="i">
         <span class="mobile-title">{{ item.title }}</span>
         <span>{{ item.value }}</span>
+      </div>
+      <div class="links-wrap">
+        <div class="link-wrap" v-if="!pool.isDepreciated">
+          <router-link :to="goToPage">Join</router-link>
+        </div>
       </div>
     </div>
   </router-link>
@@ -156,6 +163,29 @@ export default {
   text-transform: uppercase;
 }
 
+.links-wrap {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.link-wrap {
+  text-decoration: none;
+  max-width: 120px;
+  width: 100%;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  align-items: center;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  a {
+    color: #fff;
+  }
+}
+
 @media (min-width: 1024px) {
   .markets-link {
     padding: 0 20px;
@@ -166,7 +196,7 @@ export default {
   }
 
   .stats-wrap {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     align-items: center;
     grid-gap: 0;
   }
@@ -184,6 +214,9 @@ export default {
 
   .pool-name {
     height: 28px;
+  }
+  .link-wrap {
+    max-width: 100%;
   }
 }
 </style>

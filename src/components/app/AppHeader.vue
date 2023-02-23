@@ -65,13 +65,8 @@
         </div>
         <div class="list" v-if="isDropdownTools">
           <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
-            >Farms</router-link
+            >Join farms</router-link
           >
-
-          <router-link class="list-link" :to="{ name: 'Farm' }"
-            >Farm</router-link
-          >
-
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
@@ -545,7 +540,7 @@ export default {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1110px) {
   .header-link {
     display: none;
   }

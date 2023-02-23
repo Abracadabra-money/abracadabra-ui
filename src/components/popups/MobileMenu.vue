@@ -73,13 +73,7 @@
     <div class="tools-popup" v-if="showTools" @click="closeInnerPopup('tools')">
       <div class="tools">
         <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'MarketsBorrow' }"
-            >Markets</router-link
-          >
-        </div>
-
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'Farm' }"
+          <router-link class="popup-link" :to="{ name: 'MarketsFarm' }"
             >Farm</router-link
           >
         </div>
