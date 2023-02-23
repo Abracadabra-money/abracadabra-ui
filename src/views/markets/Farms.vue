@@ -1,102 +1,102 @@
 <template>
-  <EmptyMarketsList v-if="!currentPools.length && !loading" />
-  <div v-else-if="!currentPools.length && loading" class="loader-wrap">
-    <BaseLoader />
-  </div>
-  <div v-else class="stats-wrap">
-    <div class="tools-wrap">
-      <div class="search-wrap">
-        <img
-          class="search-icon"
-          src="@/assets/images/search.svg"
-          alt="search"
-        />
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search"
-          class="search-input"
-        />
-      </div>
-
-      <DropdownWrap class="dropdown">
-        <template slot="btn">
-          <button class="sort-btn open-btn">
-            <span class="sort-title-wrap">
-              <button
-                @click.stop="sortReverse = !sortReverse"
-                @mousedown.prevent.stop=""
-                class="sort-icon-wrap"
-              >
-                <img
-                  class="sort-icon"
-                  :class="{ 'sort-icon-reverse': sortReverse }"
-                  src="@/assets/images/filter.svg"
-                  alt="filter"
-                />
-              </button>
-              <span>{{ `Sorted by ${selectedSortData.title}` }}</span>
-            </span>
-            <img
-              class="arrow-icon"
-              src="@/assets/images/arrow-down.svg"
-              alt="filter"
-            />
-          </button>
-        </template>
-        <template slot="list">
-          <button
-            class="sort-btn sort-item"
-            v-for="(titleData, i) in sortList.filter(
-              ({ name }) => name !== selectedSort
-            )"
-            :key="i"
-            @click="select(titleData.name)"
-          >
-            {{ titleData.title }}
-          </button>
-        </template>
-      </DropdownWrap>
+  <div class="wrapper">
+    <img
+      class="button-up"
+      src="@/assets/images/button-up.svg"
+      @click="scrollToTop"
+      v-if="showButtonUp"
+      alt=""
+    />
+    <h2 class="title">Farming Opportunities</h2>
+    <EmptyMarketsList v-if="!currentPools.length && !farmLoading" />
+    <div v-else-if="!currentPools.length && farmLoading" class="loader-wrap">
+      <BaseLoader />
     </div>
-    <div class="stats-list-wrap">
-      <div
-        class="stats-list-header"
-        :class="{ 'stats-list-header-farm': isFarm }"
-      >
-        <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
-      </div>
+    <div v-else class="stats-wrap">
+      <div class="tools-wrap">
+        <div class="search-wrap">
+          <img
+            class="search-icon"
+            src="@/assets/images/search.svg"
+            alt="search"
+          />
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search"
+            class="search-input"
+          />
+        </div>
 
-      <template v-if="prepPools.length">
-        <template v-if="isFarm">
+        <DropdownWrap class="dropdown">
+          <template slot="btn">
+            <button class="sort-btn open-btn">
+              <span class="sort-title-wrap">
+                <button
+                  @click.stop="sortReverse = !sortReverse"
+                  @mousedown.prevent.stop=""
+                  class="sort-icon-wrap"
+                >
+                  <img
+                    class="sort-icon"
+                    :class="{ 'sort-icon-reverse': sortReverse }"
+                    src="@/assets/images/filter.svg"
+                    alt="filter"
+                  />
+                </button>
+                <span>{{ `Sorted by ${selectedSortData.title}` }}</span>
+              </span>
+              <img
+                class="arrow-icon"
+                src="@/assets/images/arrow-down.svg"
+                alt="filter"
+              />
+            </button>
+          </template>
+          <template slot="list">
+            <button
+              class="sort-btn sort-item"
+              v-for="(titleData, i) in sortList.filter(
+                ({ name }) => name !== selectedSort
+              )"
+              :key="i"
+              @click="select(titleData.name)"
+            >
+              {{ titleData.title }}
+            </button>
+          </template>
+        </DropdownWrap>
+        <div class="active-markets">
+          active markets only
+          <CheckBox @update="toggleActiveMarkets" :value="isActiveMarkets" />
+        </div>
+      </div>
+      <div class="stats-list-wrap">
+        <div class="stats-list-header">
+          <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
+        </div>
+
+        <template v-if="filteredPools.length">
           <MarketsFarmItem
-            v-for="pool in prepPools"
+            v-for="pool in filteredPools"
             :key="pool.id"
             :pool="pool"
-        /></template>
-        <template v-else>
-          <MarketsBorrowItem
-            v-for="pool in prepPools"
-            :key="pool.id"
-            :pool="pool"
-        /></template>
-      </template>
-      <EmptyMarketsList v-else />
+          />
+        </template>
+        <EmptyMarketsList v-else />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import farmPoolsMixin from "@/mixins/farmPools";
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import { mapGetters } from "vuex";
-
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
-const MarketsBorrowItem = () =>
-  import("@/components/markets/MarketsBorrowItem");
-const MarketsFarmItem = () => import("@/components/markets/MarketsFarmItem");
-
+const MarketsFarmItem = () => import("@/components/markets/FarmItem");
+const CheckBox = () => import("@/components/ui/CheckBox");
 const sortKeys = {
   name: "name",
   yield: "yield",
@@ -109,95 +109,63 @@ const sortKeys = {
 };
 
 export default {
-  name: "StatsView",
-  mixins: [farmPoolsMixin, cauldronsMixin],
-  props: { isFarm: { type: Boolean, default: false } },
+  mixins: [farmPoolsMixin],
+
   data() {
     return {
       selectedSort: sortKeys.name,
       sortReverse: false,
       search: "",
       poolsInterval: null,
+      isActiveMarkets: true,
+      scrollPosition: 0,
     };
   },
+
   computed: {
     ...mapGetters({
-      borrowPools: "getPools",
-      borrowLoading: "getLoadPoolsBorrow",
       farmLoading: "getFarmPoolLoading",
     }),
+
+    showButtonUp() {
+      return this.currentPools.length && this.scrollPosition !== 0;
+    },
+
     selectedSortData() {
       return (
         this.sortList.find(({ name }) => this.selectedSort === name) || null
       );
     },
+
     sortList() {
-      return this.isFarm
-        ? [
-            { title: "Title", name: sortKeys.name },
-            { title: "Yield Per $1000", name: sortKeys.yield },
-            { title: "ROI Annually", name: sortKeys.roi },
-            { title: "TVL", name: sortKeys.tvl },
-          ]
-        : [
-            { title: "Title", name: sortKeys.name },
-            { title: "TVL", name: sortKeys.totalMim },
-            { title: "MIMs Left", name: sortKeys.mimsLeft },
-            { title: "Interest", name: sortKeys.interest },
-            { title: "Fee", name: sortKeys.liquidation },
-          ];
+      return [
+        { title: "Title", name: sortKeys.name },
+        { title: "Yield Per $1000", name: sortKeys.yield },
+        { title: "ROI Annually", name: sortKeys.roi },
+        { title: "TVL", name: sortKeys.tvl },
+      ];
     },
+
     currentPools() {
-      return (this.isFarm ? this.pools : this.borrowPools) || [];
+      return this.pools || [];
     },
-    prepPools() {
+
+    filteredPools() {
       return this.sortByDepreciate(
         this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
       );
     },
-    loading() {
-      return this.isFarm ? this.farmLoading : this.borrowLoading;
-    },
+
     headers() {
-      return this.isFarm
-        ? ["Pool", "~Yield per $1000", "ROI Annually", "TVL"]
-        : [
-            "COMPONENT",
-            "TOTAL MIM BORROWED",
-            "TVL",
-            "MIMS LEFT TO BORROW",
-            "INTEREST",
-            "LIQUIDATION FEE",
-          ];
+      return ["CHAIN", "Pool", "~Yield per $1000", "ROI Annually", "TVL"];
     },
   },
-  watch: {
-    isFarm: {
-      immediate: true,
-      handler(isFarm) {
-        clearInterval(this.poolsInterval);
 
-        const poolsCallback = isFarm
-          ? async () => {
-              await this.createFarmPools();
-            }
-          : async () => {
-              await this.createPools();
-            };
-
-        if (!this.currentPools.length) poolsCallback();
-        this.poolsInterval = setInterval(poolsCallback, 5000);
-
-        this.search = "";
-        this.selectedSort = isFarm ? sortKeys.name : sortKeys.mimsLeft;
-        this.sortReverse = false;
-      },
-    },
-  },
   methods: {
     select(name) {
       this.selectedSort = name;
     },
+
     filterBySearch(pools, search) {
       return search
         ? pools.filter(
@@ -206,6 +174,7 @@ export default {
           )
         : pools;
     },
+
     sortByTitle(pools) {
       const sortedPools = [...pools];
       if (this.selectedSortData !== null) {
@@ -253,33 +222,83 @@ export default {
 
       return sortedPools;
     },
-    sortByDepreciate(pools = []) {
-      return pools.sort((a, b) => {
-        if (a?.cauldronSettings || b?.cauldronSettings) {
-          return (
-            +a.cauldronSettings.isDepreciated -
-            +b.cauldronSettings.isDepreciated
-          );
-        }
 
-        return +a.isDepreciated - +b.isDepreciated;
-      });
+    sortByDepreciate(pools = []) {
+      if (this.isActiveMarkets) {
+        return pools.filter((pool) => {
+          if (pool?.cauldronSettings)
+            return !pool.cauldronSettings.isDepreciated;
+          return !pool.isDepreciated;
+        });
+      } else {
+        return pools.sort((a, b) => {
+          if (a?.cauldronSettings || b?.cauldronSettings) {
+            return (
+              +a.cauldronSettings.isDepreciated -
+              +b.cauldronSettings.isDepreciated
+            );
+          }
+
+          return +a.isDepreciated - +b.isDepreciated;
+        });
+      }
+    },
+
+    toggleActiveMarkets() {
+      this.isActiveMarkets = !this.isActiveMarkets;
+    },
+
+    scrollToTop() {
+      window.scrollTo(0, 0);
+    },
+
+    onScroll() {
+      this.scrollPosition = window.scrollY;
     },
   },
+
+  async created() {
+    await this.createFarmPools();
+    this.poolsInterval = setInterval(await this.createFarmPools(), 5000);
+    window.addEventListener("scroll", this.onScroll);
+  },
+
   beforeDestroy() {
     clearInterval(this.poolsInterval);
+    window.removeEventListener("scroll", this.onScroll);
   },
   components: {
     EmptyMarketsList,
     BaseLoader,
     DropdownWrap,
-    MarketsBorrowItem,
     MarketsFarmItem,
+    CheckBox,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.button-up {
+  position: fixed;
+  right: 10%;
+  bottom: 10%;
+  z-index: 9;
+  cursor: pointer;
+}
+.wrapper {
+  padding-top: 160px;
+  padding-bottom: 100px;
+  margin: 0 auto;
+  width: 940px;
+  max-width: calc(100% - 20px);
+  box-sizing: border-box;
+}
+
+.title {
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
 .tools-wrap {
   display: grid;
   grid-template-columns: 1fr;
@@ -399,13 +418,14 @@ export default {
 
 .stats-list-header {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   align-items: center;
   padding: 0 20px;
   height: 60px;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 30px;
   background-color: #2a2835;
+  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
 
   &-farm {
@@ -418,12 +438,29 @@ export default {
   justify-content: center;
 }
 
+// new
+.active-markets {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
 @media (min-width: 768px) {
   .dropdown {
-    grid-column: auto / span 4;
+    grid-column: auto / span 5;
   }
   .search-wrap {
     grid-column: auto / span 3;
+  }
+  .active-markets {
+    grid-column: auto / span 4;
   }
   .tools-wrap {
     grid-template-columns: repeat(12, 1fr);
@@ -431,12 +468,27 @@ export default {
 }
 
 @media (min-width: 1024px) {
+  .dropdown {
+    grid-column: auto / span 5;
+  }
+  .search-wrap {
+    grid-column: auto / span 4;
+  }
+  .active-markets {
+    grid-column: auto / span 3;
+  }
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;
   }
   .stats-list-header {
     display: grid;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .active-markets {
+    justify-content: center;
   }
 }
 </style>
