@@ -116,7 +116,7 @@ export default {
       const stakeTokenBalanceUsd = stakeTokenBalance * stakeTokenPrice;
       const totalSupplyHex = await mainTokenInstance.totalSupply();
       const totalSupply = this.$ethers.utils.formatUnits(totalSupplyHex, 18);
-      const totalSupplyUsd = totalSupply * this.price * tokensRate;
+      const totalSupplyUsd = totalSupply * this.price;
 
       const stakeObject = {
         tokensRate,
