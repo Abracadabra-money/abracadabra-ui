@@ -110,8 +110,10 @@ export default {
         mainTokenInstance
       );
 
-      const mainTokenBalanceUsd = mainTokenBalance * this.price * tokensRate;
-      const stakeTokenBalanceUsd = stakeTokenBalance * this.price;
+      const stakeTokenPrice = this.price / tokensRate;
+
+      const mainTokenBalanceUsd = mainTokenBalance * this.price;
+      const stakeTokenBalanceUsd = stakeTokenBalance * stakeTokenPrice;
       const totalSupplyHex = await mainTokenInstance.totalSupply();
       const totalSupply = this.$ethers.utils.formatUnits(totalSupplyHex, 18);
       const totalSupplyUsd = totalSupply * this.price * tokensRate;
@@ -123,7 +125,7 @@ export default {
           ...mainToken,
           contractInstance: mainTokenInstance,
           balance: mainTokenBalance,
-          price: this.price * tokensRate,
+          price: this.price,
           balanceUsd: mainTokenBalanceUsd,
           totalSupply,
           totalSupplyUsd,
@@ -132,7 +134,7 @@ export default {
           ...stakeToken,
           contractInstance: stakeTokenInstance,
           balance: stakeTokenBalance,
-          price: this.price,
+          price: stakeTokenPrice,
           balanceUsd: stakeTokenBalanceUsd,
           isApproved: stakeTokenApproved,
         },
@@ -144,15 +146,15 @@ export default {
     },
 
     async getTokensRate(mainTokenInstance, stakeTokenInstance) {
-    
+
       const mGlpBalance = await stakeTokenInstance.balanceOf(mainTokenInstance.address);
       const totalSupply = await mainTokenInstance.totalSupply();
-    
+
       const parsedBalance = this.$ethers.utils.formatEther(mGlpBalance.toString());
       const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
-    
+
       const tokenRate = parsedBalance / parsedTotalSupply;
-    
+
       return tokenRate;
     },
 
