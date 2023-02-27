@@ -76,8 +76,8 @@ const routes = [
   },
   {
     path: "/farm",
-    name: "Farm",
-    component: () => import("@/views/Farm"),
+    name: "MarketsFarm",
+    component: () => import("@/views/markets/Farms"),
   },
   {
     path: "/farm/:id",
@@ -99,12 +99,6 @@ const routes = [
     path: "/markets",
     name: "Markets",
     component: () => import("@/views/markets/Cauldrons"),
-  },
-  {
-    path: "/farms",
-    name: "MarketsFarm",
-    component: () => import("@/views/markets/Farms"),
-    props: { isFarm: true },
   },
   {
     path: "/claim",
