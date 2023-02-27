@@ -7,6 +7,7 @@
       <OHMPopup v-if="popupActiveType === 'olimpus'" />
       <MEMOWrapPopup v-if="popupActiveType === 'memo-wrap'" />
       <SucessPopup v-if="popupActiveType === 'success'" />
+      <TestPopup v-if="popupActiveType === 'test'"  />
       <ClaimPopup v-if="popupActiveType === 'claim'" />
     </div>
   </div>
@@ -22,6 +23,7 @@ const ThreeCryptoPopup = () =>
 const OHMPopup = () => import("@/components/popups/Deposit/OHMPopup/index");
 const MEMOWrapPopup = () => import("@/components/popups/Deposit/MEMOWrapPopup");
 const SucessPopup = () => import("@/components/popups/SuccessPopup");
+const TestPopup = () => import("@/components/popups/TestPopup");
 const ClaimPopup = () => import("@/components/popups/ClaimPopup");
 
 export default {
@@ -38,6 +40,7 @@ export default {
   },
 
   components: {
+    TestPopup,
     CrvPoolPopup,
     CrvRenPoolPopup,
     ThreeCryptoPopup,

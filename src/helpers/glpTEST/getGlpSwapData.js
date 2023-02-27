@@ -6,17 +6,26 @@ import gmxLensAbi from "@/helpers/glpTEST/abi/gmxLens";
 const gmxVaultAddress = "0x489ee077994B6658eAfA855C308275EAd8097C4A";
 const gmxLensAddress = "0xe121904194eB69e5b589b58EDCbc5B74069787C3";
 
+import store from "@/store";
+
 const blacklis = [
   "0x17fc002b466eec40dae837fc4be5c67993ddbd6f",
   "0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a",
-  // "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f", // wbtc
-  // "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // weth
-  // "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8", // usdc
-  // "0xf97f4df75117a78c1a5a0dbb814af92458539fb4", // link
-  // "0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0", // uni
-  // "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9", // usdt
-  // "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1", // dai
 ];
+
+const getNameFromAddress = (address) => {
+  return {
+    '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f': 'WBTC',
+    '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1': 'WETH',
+    '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8': 'USDC',
+    '0xf97f4df75117a78c1A5a0DBb814Af92458539FB4': 'LINK',
+    '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0': 'UNI',
+    '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9': 'USDT',
+    '0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A': 'MIM',
+    '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F': 'FRAX',
+    '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1': 'DAI',
+  }[address];
+}
 
 const maxGlpAmount = (a, b) => {
   return +a.glpOutAmount > +b.glpOutAmount ? a : b;
@@ -47,6 +56,12 @@ const getTokens = async (provider) => {
 };
 
 const getGlpLevData = async (provider, pool, sellAmount, chainId, slipage) => {
+  store.commit("updateRouteData", []);
+  store.commit("setPopupState", {
+    type: "test",
+    isShow: true,
+  });
+
   const results = [];
   const { borrowToken } = pool;
 
@@ -79,18 +94,33 @@ const getGlpLevData = async (provider, pool, sellAmount, chainId, slipage) => {
     );
 
     results.push({
+      tokenName: getNameFromAddress(token),
       token,
       glpOutAmount: resp[0].toString(),
       feesPoints: resp[1].toString(),
       swapDataEncode: getSwapDataEncode,
     });
+
+    store.commit("updateRouteData", results);
   }
   const result = results.reduce(maxGlpAmount);
-  console.log("result", result)
+
+  const notification = {
+    msg: `Token: ${getNameFromAddress(result.token)}; feesPoints: ${result.feesPoints}`,
+    type: "warning",
+  };
+  await store.dispatch("notifications/new", notification);
+
   return result;
 };
 
 const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
+  store.commit("updateRouteData", []);
+  store.commit("setPopupState", {
+    type: "test",
+    isShow: true,
+  });
+
   const { borrowToken, collateralToken } = pool;
   const gmxLensContract = await new ethers.Contract(
     gmxLensAddress,
@@ -130,15 +160,24 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
     );
 
     results.push({
+      tokenName: getNameFromAddress(token),
       token,
       tokenOutAmount: resp[0].toString(),
       buyAmount,
       feesPoints: resp[1].toString(),
       swapDataEncode: getSwapDataEncode,
     });
+
+    store.commit("updateRouteData", results);
   }
 
   const result = results.reduce(maxBuyAmount);
+
+  const notification = {
+    msg: `Token: ${getNameFromAddress(result.token)}; feesPoints: ${result.feesPoints}`,
+    type: "warning",
+  };
+  await store.dispatch("notifications/new", notification);
   console.log("result", result)
   return result;
 };

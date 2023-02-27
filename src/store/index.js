@@ -13,6 +13,17 @@ import farms from "@/store/modules/farms";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  state: {
+    routeData: []
+  },
+  mutations: {
+    updateRouteData(state, payload) {
+      state.routeData = [...payload];
+    }
+  },
+  getters: {
+    getRouteData: (state) => state.routeData,
+  },
   modules: {
     connectProvider,
     networks,
