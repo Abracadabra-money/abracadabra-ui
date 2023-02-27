@@ -44,7 +44,7 @@ import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 export default {
   props: {
     expectedLeverage: {
-      type: String,
+      type: [String, Number],
       default: "",
     },
     pool: {
