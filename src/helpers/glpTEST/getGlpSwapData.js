@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
-import axios from "axios";
+import { swap0xRequest } from "@/helpers/0x";
+
 import gmxVaultAbi from "@/helpers/glpTEST/abi/gmxVault";
 import gmxLensAbi from "@/helpers/glpTEST/abi/gmxLens";
 const gmxVaultAddress = "0x489ee077994B6658eAfA855C308275EAd8097C4A";
@@ -45,42 +46,6 @@ const getTokens = async (provider) => {
   return tokens;
 };
 
-const query0x = async (buyToken, sellToken, sellAmount, chainId, slipage) => {
-  const slippagePercentage = slipage / 100;
-  const url = getBaseUrl(chainId);
-  const params = {
-    buyToken: buyToken,
-    sellToken: sellToken,
-    sellAmount: sellAmount.toString(),
-    slippagePercentage
-  };
-
-  const { data } = await axios.get(url, { params: params });
-
-  return data;
-};
-
-const getBaseUrl = (chainId) => {
-  switch (chainId) {
-    case 1:
-      return "https://api.0x.org/swap/v1/quote";
-    case 137:
-      return "https://polygon.api.0x.org/swap/v1/quote";
-    case 42161:
-      return "https://arbitrum.api.0x.org/swap/v1/quote";
-    case 10:
-      return "https://optimism.api.0x.org/swap/v1/quote";
-    case 250:
-      return "https://fantom.api.0x.org/swap/v1/quote";
-    case 56:
-      return "https://bsc.api.0x.org/swap/v1/quote";
-    case 43114:
-      return "https://avalanche.api.0x.org/swap/v1/quote";
-    default:
-      throw new Error(`Unsupported chainId: ${chainId}`);
-  }
-};
-
 const getGlpLevData = async (provider, pool, sellAmount, chainId, slipage) => {
   const results = [];
   const { borrowToken } = pool;
@@ -92,12 +57,12 @@ const getGlpLevData = async (provider, pool, sellAmount, chainId, slipage) => {
   );
 
   for (let token of await getTokens(provider)) {
-    const { buyAmount, data } = await query0x(
+    const { buyAmount, data } = await swap0xRequest(
+      chainId,
       token,
       borrowToken.address,
+      slipage,
       sellAmount,
-      chainId,
-      slipage
     );
 
     const resp = await gmxLensContract.getMintedGlpFromTokenIn(
@@ -146,12 +111,13 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
       token,
       glpAmount
     );
-    const { buyAmount, data } = await query0x(
+
+    const { buyAmount, data } = await swap0xRequest(
+      chainId,
       borrowToken.address,
       token,
+      slipage,
       resp[0].toString(),
-      chainId,
-      slipage
     );
 
     console.log("outAmount", resp[0].toString())
