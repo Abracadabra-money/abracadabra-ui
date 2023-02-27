@@ -163,11 +163,11 @@ export default [
       abi: tokensAbi.MIM,
     },
     swapContractInfo: {
-      address: "0x49Bd7dB43695c38661067765BE9484F8177B13f3",
+      address: "0xDe36DEf82F9da4493925407e37E6548d5D9bd7eD",
       abi: magicGlpLevSwapperAbi,
     },
     reverseSwapContractInfo: {
-      address: "0x2386937474eD353ccA2b0531CEE31228A7E56a46",
+      address: "0xeB07b275dCe4b32FA3bbF505104C26E9A3B478d9",
       abi: magicGlpSwapperAbi,
     },
   },

@@ -6,10 +6,14 @@ export default [
         name: "_bentoBox",
         type: "address",
       },
-      { internalType: "contract IERC20", name: "_glpVault", type: "address" },
+      {
+        internalType: "contract IGmxVault",
+        name: "_gmxVault",
+        type: "address",
+      },
+      { internalType: "contract IERC20", name: "_magicGLP", type: "address" },
       { internalType: "contract IERC20", name: "_mim", type: "address" },
       { internalType: "contract IERC20", name: "_sGLP", type: "address" },
-      { internalType: "contract IERC20", name: "_usdc", type: "address" },
       { internalType: "address", name: "glpManager", type: "address" },
       {
         internalType: "contract IGmxGlpRewardRouter",
@@ -21,7 +25,18 @@ export default [
     stateMutability: "nonpayable",
     type: "constructor",
   },
+  { inputs: [], name: "ErrApproveFailed", type: "error" },
+  {
+    inputs: [{ internalType: "bytes", name: "data", type: "bytes" }],
+    name: "ErrApproveFailedWithData",
+    type: "error",
+  },
   { inputs: [], name: "ErrSwapFailed", type: "error" },
+  {
+    inputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
+    name: "ErrTokenNotSupported",
+    type: "error",
+  },
   {
     inputs: [],
     name: "bentoBox",
@@ -46,7 +61,16 @@ export default [
   },
   {
     inputs: [],
-    name: "glpVault",
+    name: "gmxVault",
+    outputs: [
+      { internalType: "contract IGmxVault", name: "", type: "address" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "magicGLP",
     outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
@@ -70,7 +94,7 @@ export default [
       { internalType: "address", name: "recipient", type: "address" },
       { internalType: "uint256", name: "shareToMin", type: "uint256" },
       { internalType: "uint256", name: "shareFrom", type: "uint256" },
-      { internalType: "bytes", name: "swapData", type: "bytes" },
+      { internalType: "bytes", name: "data", type: "bytes" },
     ],
     name: "swap",
     outputs: [
@@ -78,13 +102,6 @@ export default [
       { internalType: "uint256", name: "shareReturned", type: "uint256" },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "usdc",
-    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
-    stateMutability: "view",
     type: "function",
   },
   {
