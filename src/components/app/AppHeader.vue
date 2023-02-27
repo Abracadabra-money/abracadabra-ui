@@ -65,7 +65,7 @@
         </div>
         <div class="list" v-if="isDropdownTools">
           <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
-            >Join farms</router-link
+            >Farms</router-link
           >
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link

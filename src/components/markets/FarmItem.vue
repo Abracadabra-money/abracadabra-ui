@@ -24,7 +24,7 @@
       </div>
       <div class="links-wrap">
         <div class="link-wrap" v-if="!pool.isDepreciated">
-          <router-link :to="goToPage">Join</router-link>
+          <router-link :to="goToPage">Join farm</router-link>
         </div>
       </div>
     </div>
