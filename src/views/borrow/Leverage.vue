@@ -1143,7 +1143,7 @@ export default {
     getMaxLeverageMultiplier(pool) {
       const instantLiquidationPrice = 1 / pool.tokenOraclePrice;
       const liquidationMultiplier = pool.ltv / 100;
-      const testCollateralAmount = 1;
+      const testCollateralAmount = instantLiquidationPrice < 1 ? 10 : 1;
 
       const testSlippage = 1;
       let multiplier = 3;
