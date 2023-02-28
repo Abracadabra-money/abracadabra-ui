@@ -127,7 +127,7 @@ export default [
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
-      hasAccountBorrowLimit: false,
+      hasAccountBorrowLimit: true,
       hasWithdrawableLimit: false,
       leverageMax: 15,
       localBorrowAmountLimit: false,
