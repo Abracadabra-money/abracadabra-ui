@@ -29,7 +29,7 @@ const usdt = {
   137: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
   250: "0x049d68029688eabf473097a2fc38ef61633a3c7a",
   42161: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
-  43114: "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7"
+  43114: "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7",
 };
 
 export default {
@@ -64,13 +64,19 @@ export default {
     //   return `${this.price} ${this.lpAmount}`;
     // },
     chainId() {
-      return this.$store.getters.getChainId
+      return this.$store.getters.getChainId;
     },
     lpAmount() {
       if (!this.price) return false;
-      return `$ ${parseFloat(this.amount - this.price * this.amount).toFixed(
+
+      const estimateAmount = parseFloat(this.amount - this.price * this.amount).toFixed(
         2
-      )}`;
+      );
+      const percent = parseFloat(100 - (this.price * this.amount / this.amount) * 100).toFixed(
+        2
+      );
+
+      return `$ ${estimateAmount} / ${percent} %`;
     },
     titleText() {
       if (this.itsOut) return "Estimated Profit for Closing";
@@ -130,7 +136,7 @@ export default {
 }
 
 .wrap {
-    padding: 5px 0;
+  padding: 5px 0;
 }
 .info {
   padding: 10px 16px;
