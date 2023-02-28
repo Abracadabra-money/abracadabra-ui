@@ -222,6 +222,7 @@ export default {
   data() {
     return {
       collateralValue: "",
+      maxLeverage: 5, // default
       poolId: null,
       isOpenPollPopup: false,
       isSettingsOpened: false,
@@ -369,8 +370,7 @@ export default {
       if (+this.collateralValue > 0 && this.multiplier > 1)
         return "Leverage Up";
 
-      if (+this.collateralValue > 0)
-        return "Add collateral";
+      if (+this.collateralValue > 0) return "Add collateral";
 
       return "Nothing to do";
     },
@@ -387,13 +387,6 @@ export default {
         this.selectedPool.userInfo?.userLockedTimestamp &&
         Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
       );
-    },
-
-    maxLeverage() {
-      if (this.selectedPool)
-        return this.getMaxLeverageMultiplier(this.selectedPool);
-
-      return 5;
     },
 
     liquidationMultiplier() {
@@ -718,6 +711,14 @@ export default {
       }
 
       return false;
+    },
+
+    collateralValue(val, oldVal) {
+      if (+val && val !== oldVal) {
+        const result = this.getMaxLeverageMultiplier(this.selectedPool, +val);
+        if (result < this.multiplier) this.multiplier = result;
+        this.maxLeverage = result;
+      }
     },
   },
 
@@ -1140,13 +1141,13 @@ export default {
       this.useCheckBox = !this.useCheckBox;
     },
 
-    getMaxLeverageMultiplier(pool) {
+    getMaxLeverageMultiplier(pool, collateralAmount = 10) {
       const instantLiquidationPrice = 1 / pool.tokenOraclePrice;
       const liquidationMultiplier = pool.ltv / 100;
-      const testCollateralAmount = instantLiquidationPrice < 1 ? 10 : 1;
+      const testCollateralAmount = collateralAmount;
 
       const testSlippage = 1;
-      let multiplier = 3;
+      let multiplier = 2;
       let isLiquidation = false;
 
       while (!isLiquidation) {
@@ -1161,13 +1162,10 @@ export default {
           leverageBorrowPart + +pool.userInfo.userBorrowPart;
 
         const finalCollateralAmount =
-          +leverageCollateralAmount +
-          +pool.userInfo.userCollateralShare;
+          +leverageCollateralAmount + +pool.userInfo.userCollateralShare;
 
         const liquidationPrice =
-        finalBorrowPart /
-        finalCollateralAmount /
-            liquidationMultiplier || 0;
+          finalBorrowPart / finalCollateralAmount / liquidationMultiplier || 0;
 
         if (+liquidationPrice >= instantLiquidationPrice) {
           isLiquidation = true;
@@ -1177,7 +1175,9 @@ export default {
         multiplier += 0.1;
       }
 
-      return multiplier;
+      const result = Math.min(multiplier, 100);
+
+      return +parseFloat(result).toFixed(2)
     },
   },
 
