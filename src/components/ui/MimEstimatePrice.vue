@@ -79,12 +79,12 @@ export default {
       return `$ ${estimateAmount} / ${percent} %`;
     },
     titleText() {
-      if (this.itsOut) return "Estimated Profit for Closing";
-      return "Estimated Fees to LP";
+      // if (this.itsOut) return "Dynamic Opening Fee";
+      return "Dynamic Opening Fee";
     },
 
     tooltipText() {
-      return `Tooltip text`;
+      return `Opening Fees may vary depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading at peg, the lower the fee.`;
     },
     buyToken() {
       return usdt[this.chainId];
