@@ -40,7 +40,7 @@
 
           <Range
             v-model="flashRepayAmount"
-            :max="+maxFlashRepayAmount"
+            :max="33434433"
             :step="+borrowStepRange"
             title="Choose the amount of MIM you want to repay"
           />
@@ -64,6 +64,13 @@
               ></span
             >
           </div>
+
+          <MimEstimatePrice
+            v-if="selectedPool"
+            :itsOut="true"
+            :mim="selectedPool.borrowToken.address"
+            :amount="flashRepayAmount"
+          />
 
           <div :class="{ glp: isGlp }" class="range-underline underline"></div>
 
@@ -169,6 +176,7 @@ const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 const CollateralApyBlock = () =>
   import("@/components/borrow/CollateralApyBlock");
+const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
 
 import Vue from "vue";
 
@@ -827,6 +835,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     CollateralApyBlock,
+    MimEstimatePrice,
   },
 };
 </script>

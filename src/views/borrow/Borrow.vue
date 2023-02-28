@@ -90,6 +90,8 @@
             :disabled="!selectedPool"
             @input="updateBorrowValue"
           />
+
+          <MimEstimatePrice v-if="selectedPool" :mim="selectedPool.borrowToken.address" :amount="borrowValue"/>
         </div>
         <template v-if="selectedPool">
           <div class="deposit-info underline">
@@ -202,6 +204,7 @@ const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const CollateralApyBlock = () =>
   import("@/components/borrow/CollateralApyBlock");
+const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
 
 import Vue from "vue";
 
@@ -1003,6 +1006,7 @@ export default {
     LocalPopupWrap,
     MarketsListPopup,
     CollateralApyBlock,
+    MimEstimatePrice
   },
 };
 </script>
