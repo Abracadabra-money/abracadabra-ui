@@ -10,7 +10,7 @@
         {{ titleText }}
       </span>
       <span v-if="fetching">Fetching...</span>
-      <span v-else-if="!price || !amount">~</span>
+      <span v-else-if="!+price || !+amount">~</span>
       <span v-else class="price" :class="{ yellow: !itsOut, blue: itsOut }">{{
         lpAmount
       }}</span>
@@ -67,7 +67,7 @@ export default {
       return this.$store.getters.getChainId;
     },
     lpAmount() {
-      if (!this.price) return false;
+      if (!this.price || !+this.amount) return false;
 
       const estimateAmount = parseFloat(this.amount - this.price * this.amount).toFixed(
         2
@@ -76,7 +76,7 @@ export default {
         2
       );
 
-      return `$ ${estimateAmount} / ${percent} %`;
+      return `$${estimateAmount} / ${percent}%`;
     },
     titleText() {
       // if (this.itsOut) return "Dynamic Opening Fee";
