@@ -142,7 +142,7 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
       glpAmount
     );
 
-    const { buyAmount, data } = await swap0xRequest(
+    const { buyAmount, sellAmount, data } = await swap0xRequest(
       chainId,
       borrowToken.address,
       token,
@@ -150,9 +150,9 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
       resp[0].toString(),
     );
 
-    console.log("outAmount", resp[0].toString())
-    console.log("buyAmount", buyAmount)
-    console.log("feesPoints", resp[1].toString())
+    // console.log("outAmount", resp[0].toString())
+    // console.log("buyAmount", buyAmount)
+    // console.log("feesPoints", resp[1].toString())
 
     const getSwapDataEncode = ethers.utils.defaultAbiCoder.encode(
       ["bytes", "address"],
@@ -166,6 +166,7 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
       buyAmount,
       feesPoints: resp[1].toString(),
       swapDataEncode: getSwapDataEncode,
+      sellAmount
     });
 
     store.commit("updateRouteData", results);
@@ -174,11 +175,12 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
   const result = results.reduce(maxBuyAmount);
 
   const notification = {
-    msg: `Token: ${getNameFromAddress(result.token)}; feesPoints: ${result.feesPoints}`,
+    msg: `0x sell amount: ${result.sellAmount}; OutFromBurningGlp amount: ${result.tokenOutAmount}`,
     type: "warning",
   };
   await store.dispatch("notifications/new", notification);
-  console.log("result", result)
+  console.log("tokenOutAmount", result.tokenOutAmount)
+  console.log("sellAmount", result.sellAmount.toString())
   return result;
 };
 
