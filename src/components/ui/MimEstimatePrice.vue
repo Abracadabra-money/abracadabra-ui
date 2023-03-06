@@ -15,7 +15,7 @@
         v-else
         class="price"
         :class="{ yellow: !itsProfit, blue: itsProfit }"
-        >{{ lpAmount }}</span
+        >{{ paramsText }}</span
       >
     </div>
   </div>
@@ -80,6 +80,7 @@ export default {
       price: null,
       updateInterval: null,
       fetching: false,
+      itsProfit: false
     };
   },
 
@@ -87,17 +88,40 @@ export default {
     chainId() {
       return this.$store.getters.getChainId;
     },
-    lpAmount() {
+    paramsText() {
+      if (!this.price || !+this.amount) return false;
+
+      return `$${this.estimateAmount} / ${this.estimatePercent}%`;
+    },
+
+    paramsTextColor() {
+      if(this.itsProfit) return "blue";
+
+      if(+this.estimatePercent) {
+        if(+this.estimatePercent <= 0.1) return "blue";
+        if(+this.estimatePercent <= 1) return "yellow";
+        return "red"
+      } 
+
+      return ""
+    },
+
+    estimateAmount() {
       if (!this.price || !+this.amount) return false;
 
       const estimateAmount = parseFloat(
         Math.abs(this.amount - this.price * this.amount)
       ).toFixed(2);
+
+      return estimateAmount;
+    },
+    estimatePercent() {
+      if (!this.price || !+this.amount) return false;
       const percent = parseFloat(
         Math.abs(100 - ((this.price * this.amount) / this.amount) * 100)
       ).toFixed(2);
 
-      return `$${estimateAmount} / ${percent}%`;
+      return percent;
     },
 
     titleText() {
@@ -168,7 +192,11 @@ export default {
 }
 
 .blue {
-  color: #75c9ee;
+  color: #75C9EE;
+}
+
+.red {
+  color: #FE1842;
 }
 
 .wrap {
