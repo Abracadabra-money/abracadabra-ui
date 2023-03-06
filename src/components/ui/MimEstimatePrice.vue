@@ -137,7 +137,7 @@ export default {
     tooltipText() {
       return this.itsProfit
         ? "Dynamic Bonus may vary depending on current $MIM liquidity and will result in a profit when opening/closing a position."
-        : "Dynamic Fees may very depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading to $1, the lower the fee.";
+        : "Dynamic Fees may vary depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading to $1, the lower the fee.";
     },
     buyToken() {
       if (!this.itsClose) return usdc[this.chainId].address;
