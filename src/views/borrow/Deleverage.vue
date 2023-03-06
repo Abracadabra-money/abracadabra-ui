@@ -67,7 +67,7 @@
 
           <MimEstimatePrice
             v-if="selectedPool"
-            :itsOut="true"
+            :itsClose="true"
             :mim="selectedPool.borrowToken.address"
             :amount="flashRepayAmount"
           />

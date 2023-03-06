@@ -46,7 +46,7 @@
           <MimEstimatePrice
             v-if="selectedPool"
             :mim="selectedPool.borrowToken.address"
-            :itsOut="true"
+            :itsClose="true"
             :amount="borrowValue"
           />
         </div>
