@@ -17,7 +17,8 @@ export const swap0xRequest = async (
   sellToken,
   slippage = 0,
   amountSell,
-  takerAddress
+  takerAddress,
+  amountBuy
 ) => {
   try {
     const slippagePercentage = slippage / 100;
@@ -27,7 +28,8 @@ export const swap0xRequest = async (
     const params = {
       buyToken: buyToken,
       sellToken: sellToken,
-      sellAmount: amountSell.toString(),
+      sellAmount: amountSell?.toString(),
+      buyAmount: amountBuy?.toString(),
       slippagePercentage,
       skipValidation: true,
       takerAddress,

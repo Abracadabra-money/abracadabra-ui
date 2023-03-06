@@ -155,8 +155,8 @@ export default {
       if (!this.amount) return false;
 
       return this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(this.amount, this.sellTokenDecimals),
-        this.sellTokenDecimals
+        Vue.filter("formatToFixed")(this.amount, 18),
+        18
       );
     },
   },
@@ -171,15 +171,18 @@ export default {
       if (this.fetching) return false;
 
       this.fetching = true;
+
       const { price } = await swap0xRequest(
         this.chainId,
         this.buyToken,
         this.sellToken,
         this.slipage,
-        this.parsedAmount.toString()
+        this.itsClose ? null : this.parsedAmount.toString(), // sell amount
+        null,
+        this.itsClose ? this.parsedAmount.toString() : null // buy amount
       );
 
-      this.itsProfit = this.itsClose ? price <= 1 : price >= 1;
+      this.itsProfit = price > 1;
       this.price = price;
       this.fetching = false;
     },
