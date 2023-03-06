@@ -148,12 +148,12 @@ export default {
       return usdc[this.chainId].address;
     },
     sellTokenDecimals() {
-      if (this.itsClose) return 18; // mim
-      return usdc[this.chainId].decimals;
+      return 18; // mim
     },
     parsedAmount() {
       if (!this.amount) return false;
 
+      // TODO: weird expansion
       return this.$ethers.utils.parseUnits(
         Vue.filter("formatToFixed")(this.amount, this.sellTokenDecimals),
         this.sellTokenDecimals
@@ -172,16 +172,33 @@ export default {
       if (this.fetching) return false;
 
       this.fetching = true;
-      const { price } = await swap0xRequest(
+      let priceIntermediate;
+      if (this.itsClose) {
+        console.log("amount", this.amount, this.parsedAmount.toString())
+        const { price } = await swap0xRequest(
         this.chainId,
         this.buyToken,
         this.sellToken,
         this.slipage,
+        0,
+        undefined,
         this.parsedAmount.toString()
-      );
+        );
+        priceIntermediate = price
+      } else {
+        const { price } = await swap0xRequest(
+          this.chainId,
+          this.buyToken,
+          this.sellToken,
+          this.slipage,
+          this.parsedAmount.toString()
+        );
+        priceIntermediate = price
+      }
+      
 
-      this.itsProfit = this.itsClose ? price >= 1 : price <= 1;
-      this.price = price;
+      this.itsProfit = this.itsClose ? priceIntermediate <= 1 : priceIntermediate >= 1;
+      this.price = priceIntermediate;
       this.fetching = false;
     },
   },
