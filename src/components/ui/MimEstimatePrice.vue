@@ -140,11 +140,11 @@ export default {
         : "Dynamic Fees may very depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading to $1, the lower the fee.";
     },
     buyToken() {
-      if (this.itsClose) return usdc[this.chainId].address;
+      if (!this.itsClose) return usdc[this.chainId].address;
       return this.mim;
     },
     sellToken() {
-      if (this.itsClose) return this.mim;
+      if (!this.itsClose) return this.mim;
       return usdc[this.chainId].address;
     },
     sellTokenDecimals() {
