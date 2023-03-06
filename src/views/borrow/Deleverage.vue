@@ -40,7 +40,7 @@
 
           <Range
             v-model="flashRepayAmount"
-            :max="33434433"
+            :max="+maxFlashRepayAmount"
             :step="+borrowStepRange"
             title="Choose the amount of MIM you want to repay"
           />
