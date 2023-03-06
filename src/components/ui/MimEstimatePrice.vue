@@ -25,36 +25,36 @@
 import Vue from "vue";
 import { swap0xRequest } from "@/helpers/0x";
 
-const usdt = {
+const usdc = {
   1: {
-    address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    decimals: 6,
-  },
+    address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    decimals: 6
+  } ,
   10: {
-    address: "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
-    decimals: 6,
-  },
+    address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+    decimals: 6
+  } ,
   56: {
-    address: "0x55d398326f99059ff775485246999027b3197955",
-    decimals: 18,
-  },
+    address:"0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+    decimals: 18
+  } ,
   137: {
-    address: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
-    decimals: 6,
-  },
+    address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+    decimals: 6
+  } ,
   250: {
-    address: "0x049d68029688eabf473097a2fc38ef61633a3c7a",
-    decimals: 6,
-  },
+    address: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+    decimals: 6
+  } ,
   42161: {
-    address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
-    decimals: 6,
-  },
+    address: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+    decimals: 6
+  } ,
   43114: {
-    address: "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7",
-    decimals: 6,
-  },
-};
+    address:  "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+    decimals: 6
+  }
+}
 
 export default {
   props: {
@@ -139,16 +139,16 @@ export default {
       return `Dynamic ${this.statusText} may vary depending on current $MIM liquidity and will result in a profit when opening/closing a position. ${endLine}`;
     },
     buyToken() {
-      if (this.itsClose) return usdt[this.chainId].address;
+      if (this.itsClose) return usdc[this.chainId].address;
       return this.mim;
     },
     sellToken() {
       if (this.itsClose) return this.mim;
-      return usdt[this.chainId].address;
+      return usdc[this.chainId].address;
     },
     sellTokenDecimals() {
       if (this.itsClose) return 18; // mim
-      return usdt[this.chainId].decimals;
+      return usdc[this.chainId].decimals;
     },
     parsedAmount() {
       if (!this.amount) return false;
