@@ -11,9 +11,12 @@
       </span>
       <span v-if="fetching">Fetching...</span>
       <span v-else-if="!+price || !+amount">~</span>
-      <span v-else class="price" :class="{ yellow: !itsClose, blue: itsClose }">{{
-        lpAmount
-      }}</span>
+      <span
+        v-else
+        class="price"
+        :class="{ yellow: !itsProfit, blue: itsProfit }"
+        >{{ lpAmount }}</span
+      >
     </div>
   </div>
 </template>
@@ -88,27 +91,27 @@ export default {
       if (!this.price || !+this.amount) return false;
 
       const estimateAmount = parseFloat(
-        this.amount - this.price * this.amount
+        Math.abs(this.amount - this.price * this.amount)
       ).toFixed(2);
       const percent = parseFloat(
-        100 - ((this.price * this.amount) / this.amount) * 100
+        Math.abs(100 - ((this.price * this.amount) / this.amount) * 100)
       ).toFixed(2);
 
       return `$${estimateAmount} / ${percent}%`;
     },
 
-    // - Dynamic Opening Fee
-    // - Dynamic Opening Bonus
-    // - Dynamic Closing Fee
-    // - Dynamic Closing Bonus
-
     titleText() {
-      if (this.itsClose) return "Dynamic Closing Fee/Bonus";
-      return "Dynamic Opening Fee/Bonus";
+      if (this.itsClose) return `Dynamic Closing ${this.statusText}`;
+      return `Dynamic Opening ${this.statusText}`;
+    },
+
+    statusText() {
+      if (this.itsProfit) return "Bonus";
+      return "Fee";
     },
 
     tooltipText() {
-      return `Opening Fees may vary depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading at peg, the lower the fee.`;
+      return `Dynamic Fees may vary depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading at peg, the lower the fee.`;
     },
     buyToken() {
       if (this.itsClose) return usdt[this.chainId].address;
@@ -151,9 +154,7 @@ export default {
         this.parsedAmount.toString()
       );
 
-      // if !itsClose & price > 1 user in profit else its fee
-      // if itsClose & price > 1 user in profit else its fee
-
+      this.itsProfit = this.itsClose ? price >= 1 : price <= 1;
       this.price = price;
       this.fetching = false;
     },
