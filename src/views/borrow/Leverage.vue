@@ -100,6 +100,8 @@
               >
             </span>
           </div>
+
+          <MimEstimatePrice v-if="selectedPool" :mim="selectedPool.borrowToken.address" :amount="multiplyMimExpected"/>
         </div>
 
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
@@ -201,6 +203,7 @@ const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const CollateralApyBlock = () =>
   import("@/components/borrow/CollateralApyBlock");
+const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
 
 import Vue from "vue";
 
@@ -1214,6 +1217,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     CollateralApyBlock,
+    MimEstimatePrice
   },
 };
 </script>
