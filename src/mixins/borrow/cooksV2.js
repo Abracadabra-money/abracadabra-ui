@@ -427,6 +427,8 @@ export default {
       const swapperAddres = pool.levSwapperContract.address;
       const userAddr = this.account;
 
+      if(this.isGlp) return await getGlpLevData(cookData, this.signer, pool, amount, 42161, slipage)
+
       if (!is0x) {
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
@@ -449,8 +451,6 @@ export default {
         return cookData;
       }
 
-      console.log("sel amount:", amount.toString())
-      console.log("min expected:", minExpected.toString())
 
       const swapData = await this.get0xLeverageSwapData(pool, amount, slipage);
 
@@ -880,7 +880,7 @@ export default {
 
       cookData = await actions.addCollateral(
         cookData,
-        "-2",
+        minExpected, // test
         this.account,
         false
       );

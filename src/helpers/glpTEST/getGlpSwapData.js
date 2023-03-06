@@ -1,10 +1,10 @@
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
 import gmxVaultAbi from "@/helpers/glpTEST/abi/gmxVault";
 import gmxLensAbi from "@/helpers/glpTEST/abi/gmxLens";
-// import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
+import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 const gmxVaultAddress = "0x489ee077994B6658eAfA855C308275EAd8097C4A";
 const gmxLensAddress = "0x9f8fB63ef774A496cd9aD3Cc29c1e81Ae947FC2e";
 import store from "@/store";
@@ -12,25 +12,27 @@ import store from "@/store";
 const blacklis = [
   "0x17fc002b466eec40dae837fc4be5c67993ddbd6f",
   "0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a",
+  "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+  "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
 ];
 
-// const getMimOraclePrice = async () => {
-//   try {
-//     const defaultProvider = new providers.StaticJsonRpcProvider(
-//       "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
-//     );
+const getMimOraclePrice = async () => {
+  try {
+    const defaultProvider = new providers.StaticJsonRpcProvider(
+      "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+    );
 
-//     const oracle = new ethers.Contract(
-//       "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
-//       JSON.stringify(priceAbi),
-//       defaultProvider
-//     );
+    const oracle = new ethers.Contract(
+      "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
+      JSON.stringify(priceAbi),
+      defaultProvider
+    );
 
-//     return await oracle.latestAnswer();
-//   } catch (error) {
-//     console.log("getMimOraclePrice err:", error);
-//   }
-// };
+    return await oracle.latestAnswer();
+  } catch (error) {
+    console.log("getMimOraclePrice err:", error);
+  }
+};
 
 const getNameFromAddress = (address) => {
   return {
@@ -54,8 +56,8 @@ const maxBuyAmount = (a, b) => {
   return +a.buyAmount > +b.buyAmount ? a : b;
 };
 
-const getTokens = async (provider) => {
-  // const mimOraclePrice = await getMimOraclePrice();
+const getTokens = async (provider, lensContract) => {
+  const mimOraclePrice = await getMimOraclePrice();
 
   const gmxVaultContract = await new ethers.Contract(
     gmxVaultAddress,
@@ -71,11 +73,15 @@ const getTokens = async (provider) => {
     const address = await gmxVaultContract.allWhitelistedTokens(i);
     // Exclude FRAX and MIM.
     if (blacklis.indexOf(address.toLowerCase()) === -1) {
-      // const maxAmountIn = await lensContract.getMaxAmountIn(address);
-      // const maxAmountInToMIM = maxAmountIn.div(mimOraclePrice).mul(1e8);
+      const maxAmountIn = await lensContract.getMaxAmountIn(address);
+      const maxAmountInToMIM = maxAmountIn.div(mimOraclePrice).mul(1e8);
       tokens.push({
         address: address,
-        maxAmountInToMIM: ethers.BigNumber.from("1000000000000000000000"),
+        maxAmountInToMIM: maxAmountInToMIM.gt(
+          ethers.BigNumber.from("1000000000000000000000")
+        )
+          ? ethers.BigNumber.from("1000000000000000000000")
+          : maxAmountInToMIM,
       });
     }
   }
@@ -83,7 +89,14 @@ const getTokens = async (provider) => {
   return tokens;
 };
 
-const getGlpLevData = async (cookData, provider, pool, sellAmount, chainId, slipage) => {
+const getGlpLevData = async (
+  cookData,
+  provider,
+  pool,
+  sellAmount,
+  chainId,
+  slipage
+) => {
   store.commit("updateRouteData", []);
   store.commit("setPopupState", {
     type: "test",
@@ -156,9 +169,6 @@ const getGlpLevData = async (cookData, provider, pool, sellAmount, chainId, slip
     const awailableToSwap = itsAmountEnough
       ? mimLeftToSwap
       : info.maxAmountInToMIM;
-
-      1000000000000000000000
-      246470378101902042544
 
     // add cook call info block
     if (itsAmountEnough && cookInfo.length === 0) {
