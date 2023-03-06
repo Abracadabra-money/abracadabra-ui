@@ -28,33 +28,33 @@ import { swap0xRequest } from "@/helpers/0x";
 const usdc = {
   1: {
     address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    decimals: 6
-  } ,
+    decimals: 6,
+  },
   10: {
     address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-    decimals: 6
-  } ,
+    decimals: 6,
+  },
   56: {
-    address:"0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
-    decimals: 18
-  } ,
+    address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+    decimals: 18,
+  },
   137: {
     address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-    decimals: 6
-  } ,
+    decimals: 6,
+  },
   250: {
     address: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
-    decimals: 6
-  } ,
+    decimals: 6,
+  },
   42161: {
     address: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
-    decimals: 6
-  } ,
+    decimals: 6,
+  },
   43114: {
-    address:  "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
-    decimals: 6
-  }
-}
+    address: "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+    decimals: 6,
+  },
+};
 
 export default {
   props: {
@@ -80,7 +80,7 @@ export default {
       price: null,
       updateInterval: null,
       fetching: false,
-      itsProfit: false
+      itsProfit: false,
     };
   },
 
@@ -95,15 +95,15 @@ export default {
     },
 
     paramsTextColor() {
-      if(this.itsProfit) return "blue";
+      if (this.itsProfit) return "blue";
 
-      if(+this.estimatePercent) {
-        if(+this.estimatePercent <= 0.1) return "blue";
-        if(+this.estimatePercent <= 1) return "yellow";
-        return "red"
-      } 
+      if (+this.estimatePercent) {
+        if (+this.estimatePercent <= 0.1) return "blue";
+        if (+this.estimatePercent <= 1) return "yellow";
+        return "red";
+      }
 
-      return ""
+      return "";
     },
 
     estimateAmount() {
@@ -140,16 +140,16 @@ export default {
         : "Dynamic Fees may very depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading to $1, the lower the fee.";
     },
     buyToken() {
-      if (this.itsClose) return usdc[this.chainId].address;
-      return this.mim;
-    },
-    sellToken() {
       if (this.itsClose) return this.mim;
       return usdc[this.chainId].address;
     },
+    sellToken() {
+      if (this.itsClose) return usdc[this.chainId].address;
+      return this.mim;
+    },
     sellTokenDecimals() {
-      if (this.itsClose) return 18; // mim
-      return usdc[this.chainId].decimals;
+      if (this.itsClose) return usdc[this.chainId].decimals;
+      return 18; // mim
     },
     parsedAmount() {
       if (!this.amount) return false;
@@ -166,7 +166,6 @@ export default {
       if (+val) this.getPrice();
     },
   },
-
   methods: {
     async getPrice() {
       if (this.fetching) return false;
@@ -180,7 +179,7 @@ export default {
         this.parsedAmount.toString()
       );
 
-      this.itsProfit = this.itsClose ? price >= 1 : price <= 1;
+      this.itsProfit = this.itsClose ? price <= 1 : price >= 1;
       this.price = price;
       this.fetching = false;
     },
@@ -194,11 +193,11 @@ export default {
 }
 
 .blue {
-  color: #75C9EE;
+  color: #75c9ee;
 }
 
 .red {
-  color: #FE1842;
+  color: #fe1842;
 }
 
 .wrap {
