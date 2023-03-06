@@ -135,7 +135,8 @@ export default {
     },
 
     tooltipText() {
-      return `Dynamic ${this.statusText} may vary depending on current $MIM liquidity and will result in a profit when opening/closing a position.`;
+      const endLine = this.itsProfit? "" : "The closer $MIM is trading at peg, the lower the fee."
+      return `Dynamic ${this.statusText} may vary depending on current $MIM liquidity and will result in a profit when opening/closing a position. ${endLine}`;
     },
     buyToken() {
       if (this.itsClose) return usdt[this.chainId].address;
