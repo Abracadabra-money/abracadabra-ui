@@ -1991,7 +1991,7 @@ export default [
     id: 40,
     stabilityFee: 0.25,
     interest: 0,
-    ltv: 98,
+    ltv: 99,
     borrowFee: 0,
     is0xSwap: true,
     isSwappersActive: true,
