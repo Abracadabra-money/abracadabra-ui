@@ -7,11 +7,13 @@ import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
+import { getSusdtDeLevSwapAmount } from "@/helpers/getSusdtDeLevSwapAmount";
 
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
 const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
+const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
 export default {
   mixins: [degenBoxCookHelperMixin],
@@ -59,6 +61,11 @@ export default {
     isApe() {
       return this.chainId === 1 && this.selectedPool.id === 39;
     },
+
+    // TODO: move to config
+    isSusdt() {
+      return this.chainId === 1 && this.selectedPool.id === 40;
+    },
   },
   methods: {
     async signAndGetData(
@@ -101,6 +108,7 @@ export default {
       let buyToken = pool.collateralToken.address;
       if (this.isGlp) buyToken = usdcAddress;
       if (this.isApe) buyToken = apeAddress;
+      if (this.isSusdt) buyToken = usdtAddress;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -137,6 +145,11 @@ export default {
         selAmount = await pool.collateralToken.contract.convertToAssets(
           collateralAmount
         );
+      }
+
+      if (this.isSusdt) {
+        selToken = usdtAddress;
+        selAmount = getSusdtDeLevSwapAmount(pool, collateralAmount);
       }
 
       const response = await swap0xRequest(

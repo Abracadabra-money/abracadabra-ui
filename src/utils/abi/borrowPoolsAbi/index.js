@@ -10,6 +10,7 @@ import WhitelistedCauldronV3 from "@/utils/abi/borrowPoolsAbi/WhitelistedCauldro
 import CauldronV3_2 from "@/utils/abi/borrowPoolsAbi/CauldronV3_2";
 import CauldronV4 from "@/utils/abi/borrowPoolsAbi/CauldronV4";
 import PrivilegedCauldronV4 from "@/utils/abi/borrowPoolsAbi/PrivilegedCauldronV4";
+import WhitelistedCauldronV4 from "@/utils/abi/borrowPoolsAbi/WhitelistedCauldronV4";
 
 export default {
   CauldronLowRiskV1,
@@ -24,4 +25,5 @@ export default {
   CauldronV3_2,
   CauldronV4,
   PrivilegedCauldronV4,
+  WhitelistedCauldronV4,
 };

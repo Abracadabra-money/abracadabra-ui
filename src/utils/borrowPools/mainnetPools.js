@@ -9,6 +9,8 @@ import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
+import zeroXStargateLPLevSwapperAbi from "@/utils/abi/zeroXStargateLPLevSwapper";
+import zeroXStargateLPSLiqwapperAbi from "@/utils/abi/zeroXStargateLPSLiqwapper";
 
 export default [
   {
@@ -1980,6 +1982,57 @@ export default [
     reverseSwapContractInfo: {
       address: "0x93Ef8EcF4d9cBc602806C85E0D990856775407CD",
       abi: ERC4626LiqSwapper,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/Stargate-USDT.png`),
+    name: "Stargate USDT",
+    contractChain: 1,
+    id: 40,
+    stabilityFee: 0.25,
+    interest: 0,
+    ltv: 98,
+    borrowFee: 0,
+    is0xSwap: true,
+    isSwappersActive: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      dynamicBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+    },
+    contract: {
+      name: "WhitelistedCauldronV4",
+      address: "0x1062eB452f8C7A94276437ec1F4aAca9b1495B72",
+      abi: poolsAbi.WhitelistedCauldronV4,
+    },
+    token: {
+      name: "Stargate USDT",
+      decimals: 6,
+      address: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
+      abi: tokensAbi.StargateUSDT,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0x88650a9A0F8894C0bc0d6AE833A64f7E34644935",
+      abi: zeroXStargateLPLevSwapperAbi,
+    },
+    reverseSwapContractInfo: {
+      address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
+      abi: zeroXStargateLPSLiqwapperAbi,
     },
   },
 ];

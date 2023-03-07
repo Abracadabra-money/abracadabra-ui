@@ -613,8 +613,12 @@ export default {
         ) / pool.borrowToken.exchangeRate;
 
       let whitelistedInfo;
-      if (pool.id === 33 && this.chainId === 1) {
-        whitelistedInfo = await this.checkPoolWhitelised(poolContract);
+      if ((pool.id === 33 || pool.id === 40) && this.chainId === 1) {
+        const itsTesting = pool.id === 40;
+        whitelistedInfo = await this.checkPoolWhitelised(
+          poolContract,
+          itsTesting
+        );
       }
 
       const isApproveTokenCollateral = await this.isTokenApprow(
@@ -675,7 +679,7 @@ export default {
       }
     },
 
-    async checkPoolWhitelised(cauldronContract) {
+    async checkPoolWhitelised(cauldronContract, itsTesting) {
       try {
         const userAddress = this.account;
 
@@ -690,7 +694,36 @@ export default {
           userAddress
         );
 
-        const yvcrvSTETHWhitelist = yvcrvSTETHWhitelistLocal;
+        const amountAllowedParsed = this.$ethers.utils.formatUnits(
+          amountAllowed,
+          18
+        );
+
+        if (itsTesting && +amountAllowedParsed > 0) {
+          return {
+            isUserWhitelisted: true,
+            amountAllowedParsed,
+            userBorrowPart: amountAllowedParsed,
+            userWhitelistedInfo: {
+              userBorrowPart: amountAllowedParsed,
+            },
+            whitelisterContract,
+          };
+        } else if (itsTesting) {
+          return {
+            isUserWhitelisted: false,
+          };
+        }
+
+        const fetchingUrl = await whitelisterContract.ipfsMerkleProofs({
+          gasLimit: 5000000,
+        });
+
+        const whitelist = await this.fetchWhitelist(fetchingUrl);
+
+        const yvcrvSTETHWhitelist = whitelist
+          ? whitelist
+          : yvcrvSTETHWhitelistLocal;
 
         let userWhitelistedInfo = null;
 
@@ -705,10 +738,6 @@ export default {
             isUserWhitelisted: false,
           };
 
-        const amountAllowedParsed = this.$ethers.utils.formatUnits(
-          amountAllowed,
-          18
-        );
         const userBorrowPart = this.$ethers.utils.formatUnits(
           userWhitelistedInfo.userBorrowPart,
           18

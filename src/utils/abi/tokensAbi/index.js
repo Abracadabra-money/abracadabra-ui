@@ -41,6 +41,7 @@ import CurveDAOToken from "@/utils/abi/tokensAbi/CurveDAOToken";
 import magicGLP from "@/utils/abi/tokensAbi/magicGLP";
 import APE from "@/utils/abi/tokensAbi/ape";
 import magicApe from "@/utils/abi/tokensAbi/magicApe";
+import StargateUSDT from "@/utils/abi/tokensAbi/StargateUSDT";
 
 export default {
   ALCX,
@@ -86,4 +87,5 @@ export default {
   magicGLP,
   APE,
   magicApe,
+  StargateUSDT,
 };
