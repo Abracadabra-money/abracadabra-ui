@@ -129,9 +129,7 @@ export default {
     },
     async getUserLocked(contractInstance) {
       try {
-        const infoResp = await contractInstance.users(this.account, {
-          gasLimit: 1000000,
-        });
+        const infoResp = await contractInstance.users(this.account);
 
         const lockTimestamp = infoResp.lockedUntil.toString();
         const currentTimestamp = moment().unix().toString();
@@ -148,10 +146,7 @@ export default {
       try {
         const addressApprowed = await tokenContract.allowance(
           userAddr,
-          approveAddr,
-          {
-            gasLimit: 1000000,
-          }
+          approveAddr
         );
 
         return parseFloat(addressApprowed.toString()) > 0;

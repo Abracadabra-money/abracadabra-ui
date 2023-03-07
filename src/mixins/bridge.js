@@ -96,9 +96,7 @@ export default {
     },
     async getUserBalance(tokenContract) {
       try {
-        const userBalance = await tokenContract.balanceOf(this.account, {
-          gasLimit: 6000000,
-        });
+        const userBalance = await tokenContract.balanceOf(this.account);
 
         return this.$ethers.utils.formatUnits(userBalance, 18);
       } catch (e) {
@@ -109,10 +107,7 @@ export default {
       try {
         const addressApprowed = await tokenContract.allowance(
           userAddr,
-          approveAddr,
-          {
-            gasLimit: 1000000,
-          }
+          approveAddr
         );
 
         return parseFloat(addressApprowed.toString()) > 0;

@@ -29,7 +29,7 @@
       :class="{ small }"
       src="@/assets/images/info-bar/new.png"
       alt="New"
-      v-if="false"
+      v-if="isNew"
       v-tooltip="'New'"
     />
     <img
@@ -65,7 +65,7 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     hasSomething() {
-      return this.hasStrategy || this.isDeprecated;
+      return this.hasStrategy || this.isDeprecated || this.isNew;
     },
     hasStrategy() {
       if (this.pool?.cauldronSettings)
@@ -78,6 +78,13 @@ export default {
         return this.pool.cauldronSettings.isDepreciated;
 
       return this.pool.isDepreciated;
+    },
+
+    isNew() {
+      if (this.pool?.cauldronSettings)
+        return this.pool.cauldronSettings.isNew;
+
+      return false;
     },
 
     isSpookySwap() {

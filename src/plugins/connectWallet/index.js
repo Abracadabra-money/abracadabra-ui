@@ -85,7 +85,7 @@ const subscribeProvider = async (provider, isCoinbase) => {
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
-  const provider = new ethers.providers.JsonRpcProvider(
+  const provider = new ethers.providers.StaticJsonRpcProvider(
     walletconnect.options.rpc[chainId]
   );
 
@@ -98,7 +98,7 @@ const initWithoutConnect = async () => {
 };
 
 const checkSanctionAddress = async (address) => {
-  const provider = new ethers.providers.JsonRpcProvider(
+  const provider = new ethers.providers.StaticJsonRpcProvider(
     "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
   );
 

@@ -40,6 +40,16 @@ const routes = [
     component: () => import("@/views/stake/MSpell"),
   },
   {
+    path: "/magicGLP",
+    name: "magicGLP",
+    component: () => import("@/views/stake/MGLP"),
+  },
+  {
+    path: "/magicAPE",
+    name: "magicAPE",
+    component: () => import("@/views/stake/MAPE"),
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/borrow/Leverage"),
@@ -66,8 +76,8 @@ const routes = [
   },
   {
     path: "/farm",
-    name: "Farm",
-    component: () => import("@/views/Farm"),
+    name: "MarketsFarm",
+    component: () => import("@/views/markets/Farms"),
   },
   {
     path: "/farm/:id",
@@ -81,21 +91,14 @@ const routes = [
     component: () => import("@/views/MyPositions"),
   },
   {
+    path: "/cauldrons",
+    name: "Cauldrons",
+    component: () => import("@/views/markets/Cauldrons"),
+  },
+  {
     path: "/markets",
-    component: () => import("@/views/markets/Markets"),
-    children: [
-      {
-        path: "",
-        name: "MarketsBorrow",
-        component: () => import("@/views/markets/MarketsView"),
-      },
-      {
-        path: "farm",
-        name: "MarketsFarm",
-        component: () => import("@/views/markets/MarketsView"),
-        props: { isFarm: true },
-      },
-    ],
+    name: "Markets",
+    component: () => import("@/views/markets/Cauldrons"),
   },
   {
     path: "/claim",

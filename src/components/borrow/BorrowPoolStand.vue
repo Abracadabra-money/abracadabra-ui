@@ -2,6 +2,7 @@
   <div class="stable-info">
     <div class="info-wrap">
       <div class="strategy">
+        <MiniStatusTag :rounded="true" v-if="isLeverageTag" text="Leverage" />
         <a
           target="_blank"
           rel="noreferrer noopener"
@@ -73,6 +74,17 @@
           target="_blank"
           rel="noreferrer noopener"
           v-if="showyvcrvSTETHConcentrated"
+        >
+          <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Yearn
+          Tokens</a
+        >
+
+        <a
+          class="deposit"
+          href="https://yearn.finance/vaults/1/0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3"
+          target="_blank"
+          rel="noreferrer noopener"
+          v-if="isTricrypto"
         >
           <img src="@/assets/images/deposit.svg" alt="Deposit" />Get Yearn
           Tokens</a
@@ -177,7 +189,7 @@
 import Vue from "vue";
 import LockedTimer from "@/components/stake/LockedTimer.vue";
 import { mapGetters } from "vuex";
-import { fetchTokenApy } from "@/helpers/borrow/collateralApy";
+import { fetchTokenApy } from "@/helpers/collateralsApy";
 const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
@@ -238,6 +250,17 @@ export default {
         return this.pool.cauldronSettings.isMigrated;
 
       return this.pool?.isMigrated;
+    },
+
+    isLeverageTag() {
+      return (
+        (this.chainId === 42161 && this.pool?.id === 3) ||
+        (this.chainId === 1 && this.pool?.id === 39)
+      );
+    },
+
+    isTricrypto() {
+      return this.chainId === 1 && this.pool?.id === 38;
     },
 
     tokenInUsd() {
@@ -715,6 +738,12 @@ export default {
   justify-content: space-between;
   padding: 9px 30px 7px 30px;
   min-height: 40px;
+}
+
+.strategy {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .strategy a {

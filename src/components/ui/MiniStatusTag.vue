@@ -1,6 +1,6 @@
 <template>
   <div class="migrated-status" :class="{ rounded }">
-    <p>Migrated</p>
+    <p>{{ text }}</p>
   </div>
 </template>
 
@@ -10,6 +10,10 @@ export default {
     rounded: {
       type: Boolean,
       default: false,
+    },
+    text: {
+      type: String,
+      default: "Migrated",
     },
   },
 };

@@ -1,7 +1,11 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="deposit-block">
+      <div
+        class="deposit-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApe"
+      >
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -50,6 +54,27 @@
               Use {{ networkValuteName }}
             </p>
           </div>
+
+          <div
+            class="checkbox-wrap"
+            v-if="isCheckBox"
+            :class="{ active: useCheckBox }"
+            @click="toggleCheckBox"
+          >
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useCheckBox"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+            <p class="label-text">Use {{ selectedPool.name }}</p>
+          </div>
         </div>
         <div class="borrow-input underline">
           <div class="header-balance">
@@ -97,8 +122,21 @@
         >
       </div>
 
-      <div class="info-block">
-        <h1 class="title">Borrow MIM</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Borrow
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+          MIM
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           :collateralExpected="collateralValue"
@@ -108,9 +146,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
-          <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
-        </div>
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :isApe="isMagicApe"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -160,12 +200,13 @@ const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
 
 import Vue from "vue";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import cookMixin from "@/mixins/borrow/cooks.js";
+import cookMixin from "@/mixins/borrow/cooksV2.js";
 import {
   approveToken,
   isApprowed,
@@ -174,6 +215,8 @@ import {
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -193,6 +236,10 @@ export default {
       },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
+      glpPoolsId: [2, 3],
+      useCheckBox: false,
+      bg,
+      bgInfo,
     };
   },
 
@@ -201,10 +248,6 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
-
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
-    },
 
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
@@ -266,7 +309,7 @@ export default {
 
     maxCollateralValue() {
       if (this.selectedPool?.userInfo && this.account) {
-        if (this.isLpLogic) {
+        if (this.isLpLogic && !this.useCheckBox) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.lpInfo.balance,
             this.selectedPool.lpLogic.lpDecimals
@@ -449,6 +492,9 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
+        if (!this.useCheckBox && this.isCheckBox)
+          return this.selectedPool.lpLogic.icon;
+
         return this.selectedPool.icon;
       }
       return "";
@@ -459,7 +505,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic) return this.selectedPool.lpLogic.name;
+        if (this.selectedPool.lpLogic && !this.useCheckBox)
+          return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -468,7 +515,8 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isLpLogic) return this.selectedPool.userInfo.lpInfo.isApprove;
+        if (this.isLpLogic && !this.useCheckBox)
+          return this.selectedPool.userInfo.lpInfo.isApprove;
 
         return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
@@ -500,6 +548,25 @@ export default {
         return Vue.filter("formatToFixed")(tokenToMim, decimals);
       }
       return "0.0";
+    },
+
+    isCheckBox() {
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
+    },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
     },
   },
 
@@ -534,14 +601,19 @@ export default {
       );
       let approve;
 
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
       if (this.isLpLogic) {
         approve = await approveToken(
-          this.selectedPool.lpLogic.lpContract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       } else {
         approve = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
@@ -671,9 +743,10 @@ export default {
         notification.pending
       );
 
-      const collateralDecimals = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpDecimals
-        : this.selectedPool.collateralToken.decimals;
+      const collateralDecimals =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpDecimals
+          : this.selectedPool.collateralToken.decimals;
 
       const parsedCollateral = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
@@ -699,9 +772,10 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       let isTokenToCookApprove = await isTokenApprowed(
         collateralToken,
@@ -719,12 +793,13 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        await this.cookCollateralAndBorrow(
+        await this.cookAddCollateralAndBorrow(
           payload,
           isApproved,
           this.selectedPool,
           notificationId,
-          this.isLpLogic
+          this.isLpLogic,
+          !this.useCheckBox
         );
 
         return false;
@@ -745,9 +820,10 @@ export default {
         notification.pending
       );
 
-      const collateralDecimals = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpDecimals
-        : this.selectedPool.collateralToken.decimals;
+      const collateralDecimals =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpDecimals
+          : this.selectedPool.collateralToken.decimals;
 
       const parsedCollateralValue = this.$ethers.utils.parseUnits(
         this.collateralValue.toString(),
@@ -760,9 +836,10 @@ export default {
         itsDefaultBalance: this.useDefaultBalance,
       };
 
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       let isTokenToCookApprove = await isTokenApprowed(
         collateralToken,
@@ -785,7 +862,8 @@ export default {
           isApproved,
           this.selectedPool,
           notificationId,
-          this.isLpLogic
+          this.isLpLogic,
+          !this.useCheckBox
         );
         return false;
       }
@@ -830,9 +908,10 @@ export default {
         updatePrice: this.selectedPool.askUpdatePrice,
       };
 
-      const collateralToken = this.isLpLogic
-        ? this.selectedPool.lpLogic.lpContract
-        : this.selectedPool.collateralToken.contract;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       let isTokenToCookApprove = await isTokenApprowed(
         collateralToken,
@@ -892,6 +971,11 @@ export default {
         this.borrowValue = "";
       }
     },
+
+    toggleCheckBox() {
+      this.clearData();
+      this.useCheckBox = !this.useCheckBox;
+    },
   },
 
   created() {
@@ -918,7 +1002,7 @@ export default {
     BaseLoader,
     LocalPopupWrap,
     MarketsListPopup,
-    ApyBlock,
+    CollateralApyBlock,
   },
 };
 </script>
@@ -937,9 +1021,6 @@ export default {
 .primary-api {
   margin: 16px 0;
 }
-.not-primary-api {
-  margin: 0 0 90px;
-}
 
 .borrow-loading {
   display: flex;
@@ -955,6 +1036,11 @@ export default {
   max-width: 100%;
   overflow: hidden;
   position: relative;
+}
+
+.ape-bg {
+  background-position: center;
+  background-size: cover;
 }
 
 .underline {
@@ -1020,18 +1106,25 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .btn-wrap {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 
 .checkbox-wrap {
-  background: rgba(129, 126, 166, 0.1);
+  background: #333141;
   border-radius: 20px;
   padding: 8px 16px;
   display: inline-flex;

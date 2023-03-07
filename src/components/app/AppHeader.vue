@@ -1,10 +1,13 @@
 <template>
   <header class="header">
     <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
-      <img src="@/assets/images/cr.logo.gif" alt="" class="main-logo" />
+      <img src="@/assets/images/magic-crystal.png" alt="" class="main-logo" />
     </router-link>
 
     <nav class="nav">
+      <router-link class="header-link" :to="{ name: 'Cauldrons' }"
+        >Cauldrons</router-link
+      >
       <router-link class="header-link" :to="{ name: 'Borrow' }"
         >Borrow</router-link
       >
@@ -37,6 +40,12 @@
           <router-link class="list-link" :to="{ name: 'mStake' }"
             >mSpell</router-link
           >
+          <router-link class="list-link" :to="{ name: 'magicGLP' }"
+            >magicGLP</router-link
+          >
+          <router-link class="list-link" :to="{ name: 'magicAPE' }"
+            >magicAPE</router-link
+          >
         </div>
       </div>
 
@@ -55,14 +64,9 @@
           />
         </div>
         <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" :to="{ name: 'MarketsBorrow' }"
-            >Markets</router-link
+          <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
+            >Farms</router-link
           >
-
-          <router-link class="list-link" :to="{ name: 'Farm' }"
-            >Farm</router-link
-          >
-
           <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
           >
@@ -536,7 +540,7 @@ export default {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1110px) {
   .header-link {
     display: none;
   }

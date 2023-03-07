@@ -35,4 +35,11 @@ export default [
     address: "0xa93C81f564579381116ee3E007C9fCFd2EBa1723",
     abi: degenBoxAbi,
   },
+  {
+    chainId: 42161,
+    name: "DegenBox",
+    contractChain: "0xa4b1",
+    address: "0x7C8FeF8eA9b1fE46A7689bfb8149341C90431D38",
+    abi: degenBoxAbi,
+  },
 ];

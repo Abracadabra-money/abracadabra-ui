@@ -2,6 +2,11 @@
   <div class="popup-wrap" :class="{ inner: isOpenInnerPopup }">
     <div class="popup">
       <div class="popup-link-wrap" @click="closePopup">
+        <router-link class="popup-link" :to="{ name: 'Cauldrons' }"
+          >Cauldrons</router-link
+        >
+      </div>
+      <div class="popup-link-wrap" @click="closePopup">
         <router-link class="popup-link" :to="{ name: 'Borrow' }"
           >Borrow</router-link
         >
@@ -51,19 +56,25 @@
             >mSpell</router-link
           >
         </div>
+
+        <div class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'magicGLP' }"
+            >magicGLP</router-link
+          >
+        </div>
+
+        <div class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'magicAPE' }"
+            >magicAPE</router-link
+          >
+        </div>
       </div>
     </div>
     <div class="tools-popup" v-if="showTools" @click="closeInnerPopup('tools')">
       <div class="tools">
         <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'MarketsBorrow' }"
-            >Markets</router-link
-          >
-        </div>
-
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'Farm' }"
-            >Farm</router-link
+          <router-link class="popup-link" :to="{ name: 'MarketsFarm' }"
+            >Farms</router-link
           >
         </div>
 

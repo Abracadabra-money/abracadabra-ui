@@ -3,6 +3,9 @@ import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
+import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
+import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
+import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
 
 export default [
   {
@@ -24,7 +27,7 @@ export default [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 15,
-      dynamicBorrowAmountLimit: 1000000,
+      localBorrowAmountLimit: 1000000,
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
@@ -69,13 +72,13 @@ export default [
       isDegenBox: true,
       strategyLink:
         "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/u0vFLaZaHrstsu7V-pcs58ufFm7s6Sdw9coKgOfEkXM",
-      isDepreciated: false,
+      isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       leverageMax: 15,
-      dynamicBorrowAmountLimit: false,
+      localBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
     },
@@ -104,6 +107,68 @@ export default [
       decimals: 18,
       address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
       abi: tokensAbi.MIM,
+    },
+  },
+  {
+    icon: require(`@/assets/images/tokens/mGlpToken.png`),
+    name: "MagicGLP",
+    contractChain: 42161,
+    id: 3,
+    stabilityFee: 7.5,
+    interest: 6,
+    ltv: 75,
+    borrowFee: 0,
+    isSwappersActive: true,
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink:
+        "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      localBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+      isNew: true,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x726413d7402fF180609d0EBc79506df8633701B1",
+      abi: poolsAbi.CauldronV4,
+    },
+    token: {
+      name: "magicGLP",
+      decimals: 18,
+      address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
+      abi: tokensAbi.magicGLP,
+    },
+    lpLogic: {
+      name: "GLP",
+      icon: require(`@/assets/images/tokens/GLP.png`),
+      defaultToken: false,
+      lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
+      lpAbi: tokensAbi.sGLP,
+      tokenWrapper: "0x565adE5536Ab84018e00d6d7f56E7a300717c10b",
+      tokenWrapperAbi: degenBoxERC4626Wrapper,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: require(`@/assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0x49Bd7dB43695c38661067765BE9484F8177B13f3",
+      abi: magicGlpLevSwapperAbi,
+    },
+    reverseSwapContractInfo: {
+      address: "0x2386937474eD353ccA2b0531CEE31228A7E56a46",
+      abi: magicGlpSwapperAbi,
     },
   },
 ];

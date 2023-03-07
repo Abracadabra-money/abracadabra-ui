@@ -12,6 +12,8 @@ import yvcrvSTETHWhitelistLocal from "@/utils/yvcrvSTETHWhitelist";
 
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
+import { getInterest } from "@/helpers/getInterest";
+import { getTotalBorrow } from "@/helpers/getTotalBorrow";
 
 export default {
   computed: {
@@ -57,9 +59,7 @@ export default {
       );
 
       try {
-        const rate = await oracleContract.peekSpot(oracleData, {
-          gasLimit: 3000000,
-        });
+        const rate = await oracleContract.peekSpot(oracleData);
 
         return rate;
       } catch (e) {
@@ -69,9 +69,7 @@ export default {
 
     async getContractExchangeRate(contract) {
       try {
-        const rate = await contract.exchangeRate({
-          gasLimit: 3000000,
-        });
+        const rate = await contract.exchangeRate();
 
         return rate;
       } catch (e) {
@@ -79,11 +77,9 @@ export default {
       }
     },
 
-    async getMaxBorrow(bentoContract, poolAddr, tokenAddr) {
+    async getMimCauldronBalance(bentoContract, poolAddr, tokenAddr) {
       try {
-        const poolBalance = await bentoContract.balanceOf(tokenAddr, poolAddr, {
-          gasLimit: 1000000,
-        });
+        const poolBalance = await bentoContract.balanceOf(tokenAddr, poolAddr);
 
         const toAmount = await bentoContract.toAmount(
           tokenAddr,
@@ -94,16 +90,14 @@ export default {
         const parsedAmount = this.$ethers.utils.formatUnits(toAmount, 18);
         return parsedAmount;
       } catch (e) {
-        console.log("getMaxBorrow err:", e);
+        console.log("Get Mim Cauldron Balance Error:", e);
         return false;
       }
     },
 
     async getUserTokenBalance(contract, decimals) {
       try {
-        return await contract.balanceOf(this.account, {
-          gasLimit: 6000000,
-        });
+        return await contract.balanceOf(this.account);
       } catch (e) {
         console.log("userBalance Err:", e);
         return this.$ethers.utils.parseUnits("0", decimals);
@@ -113,9 +107,7 @@ export default {
     async getUserPairBalance(tokenBorrowContract) {
       let userPairBalance;
       try {
-        userPairBalance = await tokenBorrowContract.balanceOf(this.account, {
-          gasLimit: 6000000,
-        });
+        userPairBalance = await tokenBorrowContract.balanceOf(this.account);
       } catch (e) {
         console.log("getUserPairBalance Err:", e);
       }
@@ -125,10 +117,7 @@ export default {
     async getClaimableReward(contractInstance, decimals) {
       try {
         const reward = await contractInstance.cvx_claimable_reward(
-          this.account,
-          {
-            gasLimit: 1000000,
-          }
+          this.account
         );
 
         const parsedReward = this.$ethers.utils.formatUnits(reward, decimals);
@@ -202,9 +191,7 @@ export default {
 
     async checkIsUserCollateralLocked(contractInstance) {
       try {
-        const infoResp = await contractInstance.users(this.account, {
-          gasLimit: 1000000,
-        });
+        const infoResp = await contractInstance.users(this.account);
 
         const lockTimestamp = infoResp.lockedUntil.toString();
         const currentTimestamp = moment().unix().toString();
@@ -322,10 +309,7 @@ export default {
       try {
         const addressApprowed = await contract.allowance(
           this.account,
-          spenderAddress,
-          {
-            gasLimit: 1000000,
-          }
+          spenderAddress
         );
 
         return addressApprowed.toString() > 0;
@@ -401,24 +385,31 @@ export default {
 
       const totalCollateralShare = await poolContract.totalCollateralShare();
 
-      const totalBorrowResp = await poolContract.totalBorrow();
-
-      const totalBorrow = this.$ethers.utils.formatUnits(
-        totalBorrowResp.elastic,
+      const totalBorrow = await getTotalBorrow(
+        poolContract,
         pool.pairToken.decimals
       );
 
-      const { borrowlimit, globalBorrowlimit } = await this.getBorrowlimit(
-        pool,
-        poolContract
+      const { borrowPartPerAddress, totalBorrowlimit } =
+        await this.getBorrowlimit(pool, poolContract);
+
+      const mimCauldronBalance = await this.getMimCauldronBalance(
+        masterContract,
+        pool.contract.address,
+        pool.pairToken.address
       );
 
-      const { dynamicBorrowAmount } = await this.getDynamicBorrowAmount(
-        pool,
-        masterContract,
-        borrowlimit,
+      const { localBorrowAmountLimit, hasAccountBorrowLimit, isDepreciated } =
+        pool.cauldronSettings;
+
+      const dynamicBorrowAmount = await this.getMIMsLeftToBorrow(
+        borrowPartPerAddress,
         totalBorrow,
-        globalBorrowlimit
+        totalBorrowlimit,
+        mimCauldronBalance,
+        localBorrowAmountLimit,
+        hasAccountBorrowLimit,
+        isDepreciated
       );
 
       let oracleDecimals = pool.token.decimals;
@@ -509,6 +500,11 @@ export default {
         }
       }
 
+      let interest = 0;
+      const poolInterest = await getInterest(poolContract);
+      if (poolInterest) interest = poolInterest;
+      if (!poolInterest && pool?.interest) interest = pool?.interest;
+
       let poolData = {
         name: pool.name,
         icon: pool.icon,
@@ -523,11 +519,12 @@ export default {
         totalCollateralShare,
         totalBorrow,
         stabilityFee: pool.stabilityFee,
-        interest: pool.interest,
+        interest,
         ltv: pool.ltv,
         tvl,
         borrowFee: pool.borrowFee,
         askUpdatePrice,
+        oracleExchangeRate,
         borrowToken: {
           ...pool.pairToken,
           contract: tokenBorrowContract,
@@ -535,7 +532,7 @@ export default {
           exchangeRate: borrowTokenExchangeRate,
         },
         dynamicBorrowAmount,
-        borrowlimit,
+        borrowlimit: borrowPartPerAddress,
         tokenOraclePrice,
         joeInfo: pool.joeInfo,
         collateralToken: {
@@ -634,20 +631,6 @@ export default {
         pool.masterContractInstance.address
       );
 
-      const isApproveLevSwapper = pool.levSwapperContract
-        ? await this.isTokenApprow(
-            pool.collateralToken.contract,
-            pool.levSwapperContract.address
-          )
-        : false;
-
-      const isApproveLiqSwapper = pool.liqSwapperContract
-        ? await this.isTokenApprow(
-            pool.collateralToken.contract,
-            pool.liqSwapperContract.address
-          )
-        : false;
-
       const lpInfo = pool.lpLogic ? await this.getLpInfo(pool) : null;
 
       pool.userInfo = {
@@ -667,8 +650,6 @@ export default {
         whitelistedInfo,
         isApproveTokenCollateral,
         isApproveTokenBorrow,
-        isApproveLevSwapper,
-        isApproveLiqSwapper,
         lpInfo,
       };
 
@@ -710,8 +691,7 @@ export default {
         );
 
         const amountAllowed = await whitelisterContract.amountAllowed(
-          userAddress,
-          { gasLimit: 5000000 }
+          userAddress
         );
 
         const amountAllowedParsed = this.$ethers.utils.formatUnits(
@@ -802,9 +782,7 @@ export default {
       let maxWithdrawAmount = -1;
 
       if (pool.cauldronSettings.hasWithdrawableLimit) {
-        const tokenWithdrawAmount = await contract.balanceOf(bentoBoxAddress, {
-          gasLimit: 5000000,
-        });
+        const tokenWithdrawAmount = await contract.balanceOf(bentoBoxAddress);
 
         maxWithdrawAmount = this.$ethers.utils.formatUnits(
           tokenWithdrawAmount,
@@ -816,68 +794,53 @@ export default {
     },
 
     async getBorrowlimit(pool, poolContract) {
-      let borrowlimit = null;
-      let globalBorrowlimit = null;
+      let borrowPartPerAddress = null;
+      let totalBorrowlimit = null;
 
       if (pool.cauldronSettings.hasAccountBorrowLimit) {
         const borrowLimitResp = await poolContract.borrowLimit();
 
-        borrowlimit = this.$ethers.utils.formatUnits(
+        borrowPartPerAddress = this.$ethers.utils.formatUnits(
           borrowLimitResp.borrowPartPerAddress.toString(),
           pool.pairToken.decimals
         );
 
-        globalBorrowlimit = this.$ethers.utils.formatUnits(
+        totalBorrowlimit = this.$ethers.utils.formatUnits(
           borrowLimitResp.total.toString(),
           pool.pairToken.decimals
         );
       }
 
-      return { borrowlimit, globalBorrowlimit };
+      return { borrowPartPerAddress, totalBorrowlimit };
     },
 
-    async getDynamicBorrowAmount(
-      pool,
-      masterContract,
-      borrowlimit,
+    async getMIMsLeftToBorrow(
+      borrowPartPerAddress,
       totalBorrow,
-      globalBorrowlimit
+      totalBorrowlimit,
+      mimCauldronBalance,
+      localBorrowAmountLimit,
+      hasAccountBorrowLimit,
+      isDepreciated
     ) {
-      let dynamicBorrowAmount = await this.getMaxBorrow(
-        masterContract,
-        pool.contract.address,
-        pool.pairToken.address
-      );
+      if (localBorrowAmountLimit === 0 || isDepreciated) return 0;
 
-      if (pool.cauldronSettings.dynamicBorrowAmountLimit === 0)
-        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+      const values = [];
 
-      if (
-        pool.cauldronSettings.dynamicBorrowAmountLimit &&
-        pool.cauldronSettings.dynamicBorrowAmountLimit < dynamicBorrowAmount
-      )
-        dynamicBorrowAmount = pool.cauldronSettings.dynamicBorrowAmountLimit;
+      values.push(+mimCauldronBalance);
 
-      if (
-        pool.cauldronSettings.hasAccountBorrowLimit &&
-        dynamicBorrowAmount > borrowlimit
-      )
-        dynamicBorrowAmount = borrowlimit;
+      if (localBorrowAmountLimit) values.push(+localBorrowAmountLimit);
 
-      if (pool.cauldronSettings.isDepreciated) dynamicBorrowAmount = 0;
+      if (hasAccountBorrowLimit) {
+        values.push(+borrowPartPerAddress);
+        values.push(+totalBorrowlimit);
 
-      if (
-        globalBorrowlimit &&
-        +globalBorrowlimit - +totalBorrow < dynamicBorrowAmount
-      ) {
-        // this difference is how much can be borrowed and if it is less than 1000$ it should show MIM borrowable = 0
-        dynamicBorrowAmount =
-          +globalBorrowlimit - +totalBorrow < 1000
-            ? 0
-            : +globalBorrowlimit - +totalBorrow;
+        const availableLimit = +totalBorrowlimit - +totalBorrow;
+        if (availableLimit < 1000) return 0;
+        values.push(availableLimit);
       }
 
-      return { dynamicBorrowAmount };
+      return Math.min(...values);
     },
 
     async getLpLogic(pool) {
@@ -920,6 +883,7 @@ export default {
         name,
         defaultToken,
         feePercent,
+        icon: pool.lpLogic?.icon || null,
       };
     },
 
@@ -938,14 +902,37 @@ export default {
             ) / pool.borrowToken.exchangeRate
           : "0.0";
 
+      if (pool.id === 3 && this.chainId === 42161) {
+        const rate = await this.getTokensRate(
+          pool.collateralToken.contract,
+          pool.lpLogic.lpContract
+        );
+
+        balanceUsd = +balanceUsd > 0 ? balanceUsd / rate : "0.0";
+      }
+
       return {
         isApprove,
         balance,
         balanceUsd,
       };
     },
-  },
+    async getTokensRate(mainTokenInstance, stakeTokenInstance) {
+      const mGlpBalance = await stakeTokenInstance.balanceOf(
+        mainTokenInstance.address
+      );
+      const totalSupply = await mainTokenInstance.totalSupply();
 
+      const parsedBalance = this.$ethers.utils.formatEther(
+        mGlpBalance.toString()
+      );
+      const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
+
+      const tokenRate = parsedBalance / parsedTotalSupply;
+
+      return tokenRate;
+    },
+  },
   created() {
     this.createPools();
   },

@@ -1,7 +1,11 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="deposit-block">
+      <div
+        class="deposit-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApe"
+      >
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -38,13 +42,33 @@
             :disabled="!selectedPool"
             @input="updateBorrowValue"
           />
+
+          <MimEstimatePrice
+            v-if="selectedPool"
+            :mim="selectedPool.borrowToken.address"
+            :itsClose="true"
+            :amount="borrowValue"
+          />
         </div>
         <div class="balance-wrap" v-if="selectedPool">
           <BalanceBlock :pool="selectedPool" />
         </div>
       </div>
-      <div class="info-block">
-        <h1 class="title">Repay MIM</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Repay
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+          MIM
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           typeOperation="repay"
@@ -55,9 +79,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
-          <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
-        </div>
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :isApe="isMagicApe"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -100,12 +126,14 @@ const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
+const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
 
 import Vue from "vue";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import cookMixin from "@/mixins/borrow/cooks.js";
+import cookMixin from "@/mixins/borrow/cooksV2.js";
 
 import {
   approveToken,
@@ -115,6 +143,8 @@ import {
 import notification from "@/helpers/notification/notification.js";
 
 import { mapGetters } from "vuex";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -130,7 +160,10 @@ export default {
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Repay",
         bottom: "If you want to learn more read our docs",
         link: "https://docs.abracadabra.money/",
+        glpPoolsId: [2, 3],
       },
+      bg,
+      bgInfo,
     };
   },
 
@@ -139,10 +172,6 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
-
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
-    },
 
     filteredPool() {
       if (this.account && this.pools[0]?.userInfo) {
@@ -378,6 +407,18 @@ export default {
 
       return null;
     },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
+    },
   },
 
   watch: {
@@ -520,6 +561,7 @@ export default {
         );
 
         payload = {
+          itsMax: true,
           collateralAmount: parsedAmount,
           amount: parsedPair,
           updatePrice: this.selectedPool.askUpdatePrice,
@@ -547,7 +589,7 @@ export default {
         let isApproved = await isApprowed(this.selectedPool, this.account);
 
         if (+isTokenToCookApprove) {
-          this.cookRemoveAndRepayMax(
+          this.cookRemoveCollateralAndRepay(
             payload,
             isApproved,
             this.selectedPool,
@@ -581,7 +623,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        await this.cookRemoveAndRepay(
+        await this.cookRemoveCollateralAndRepay(
           payload,
           isApproved,
           this.selectedPool,
@@ -674,7 +716,7 @@ export default {
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
       if (+isTokenToCookApprove) {
-        await this.cookRepayMim(
+        await this.cookRepay(
           payload,
           isApproved,
           this.selectedPool,
@@ -716,7 +758,8 @@ export default {
     InfoBlock,
     LocalPopupWrap,
     MarketsListPopup,
-    ApyBlock,
+    CollateralApyBlock,
+    MimEstimatePrice,
   },
 };
 </script>
@@ -732,13 +775,6 @@ export default {
   padding: 100px 0;
 }
 
-.primary-api {
-  margin: 16px 0;
-}
-.not-primary-api {
-  margin: 0 0 90px;
-}
-
 .borrow-loading {
   display: flex;
   justify-content: center;
@@ -752,6 +788,11 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
+}
+
+.ape-bg {
+  background-position: center;
+  background-size: cover;
 }
 
 .underline {
@@ -782,13 +823,20 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .btn-wrap {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

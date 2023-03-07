@@ -34,7 +34,7 @@ export default {
         });
       }
 
-      return new this.$ethers.providers.JsonRpcProvider(networkRpc);
+      return new this.$ethers.providers.StaticJsonRpcProvider(networkRpc);
     },
   },
   methods: {
@@ -79,9 +79,7 @@ export default {
         this.signer
       );
 
-      const poolInfo = await contractInstance.poolInfo(farmPoolInfo.poolId, {
-        gasLimit: 6000000,
-      });
+      const poolInfo = await contractInstance.poolInfo(farmPoolInfo.poolId);
 
       const stakingTokenContract = new this.$ethers.Contract(
         poolInfo.stakingToken,
@@ -158,8 +156,7 @@ export default {
         : null;
 
       const accountBalance = await farmPoolItem.stakingTokenContract.balanceOf(
-        this.account,
-        { gasLimit: 5000000 }
+        this.account
       );
 
       const balance = this.$ethers.utils.formatEther(accountBalance.toString());
@@ -395,8 +392,7 @@ export default {
       try {
         const result = await contractInstance.allowance(
           this.account,
-          allowAddrr,
-          { gasLimit: 3000000 }
+          allowAddrr
         );
 
         return +result > 0;

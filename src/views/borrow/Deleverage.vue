@@ -1,7 +1,7 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="choose">
+      <div class="choose" :class="{ 'ape-bg': isMagicApe }" :style="bgApe">
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -50,7 +50,29 @@
             {{ selectedPool.borrowToken.name }}
           </div>
 
-          <div class="range-underline underline"></div>
+          <div class="info-item" v-if="isGlp">
+            <span>
+              <img
+                src="@/assets/images/info.svg"
+                alt="info"
+                v-tooltip="
+                  'Abracadabra routes leverage through USDC when interacting with GLP.These fees are not included in the slippage tollerance.'
+                "
+              />
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem"
+                >Check current USDC Burn Fee</a
+              ></span
+            >
+          </div>
+
+          <MimEstimatePrice
+            v-if="selectedPool"
+            :itsClose="true"
+            :mim="selectedPool.borrowToken.address"
+            :amount="flashRepayAmount"
+          />
+
+          <div :class="{ glp: isGlp }" class="range-underline underline"></div>
 
           <Range
             title="Choose the amount of collateral you want to remove"
@@ -75,8 +97,20 @@
           >Go to Positions</router-link
         >
       </div>
-      <div class="info-block">
-        <h1 class="title">Deleverage</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Deleverage
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           typeOperation="repay"
@@ -88,9 +122,11 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
-          <ApyBlock v-if="isVelodrome && selectedPool" :pool="selectedPool" />
-        </div>
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :isApe="isMagicApe"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -102,7 +138,7 @@
             >
 
             <BaseButton
-              @click="actionHandler"
+              @click="alternativeActionHandler"
               :disabled="actionBtnText === 'Nothing to do'"
               >{{ actionBtnText }}</BaseButton
             >
@@ -138,12 +174,14 @@ const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
+const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
 
 import Vue from "vue";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import cookMixin from "@/mixins/borrow/cooks.js";
+import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters } from "vuex";
 import {
   approveToken,
@@ -151,6 +189,8 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -171,6 +211,8 @@ export default {
         bottom: "Read more about it",
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
+      bg,
+      bgInfo,
     };
   },
 
@@ -181,8 +223,8 @@ export default {
       chainId: "getChainId",
     }),
 
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
+    isGlp() {
+      return this.chainId === 42161 && this.selectedPool?.id === 3;
     },
 
     filteredPool() {
@@ -230,9 +272,6 @@ export default {
     actionApproveTokenText() {
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
         return "Approve Token";
-
-      if (!this.selectedPool.userInfo?.isApproveLiqSwapper)
-        return "Approve Flash Repay";
 
       return "Approve";
     },
@@ -445,10 +484,7 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        return (
-          this.selectedPool.userInfo.isApproveTokenCollateral &&
-          this.selectedPool.userInfo.isApproveLiqSwapper
-        );
+        return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
 
       return true;
@@ -487,6 +523,18 @@ export default {
     isLpLogic() {
       return !!this.selectedPool?.lpLogic;
     },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
+    },
   },
 
   watch: {
@@ -522,7 +570,6 @@ export default {
       );
 
       let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
-      let approveSwap = this.selectedPool.userInfo?.isApproveLiqSwapper;
 
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
@@ -531,14 +578,7 @@ export default {
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLiqSwapper) {
-        approveSwap = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.liqSwapperContract.address
-        );
-      }
-
-      if (approve && approveSwap) {
+      if (approve) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
@@ -616,6 +656,64 @@ export default {
 
       return false;
     },
+    async alternativeActionHandler() {
+      if (+this.flashRepayAmount) {
+        if (!this.slipage) {
+          return false;
+        }
+
+        let itsMax = this.itsMaxRepayMim;
+
+        const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
+
+        let amountFrom = Vue.filter("formatToFixed")(
+          this.borrowAmount * this.selectedPool.tokenOraclePrice,
+          this.selectedPool.collateralToken.decimals
+        );
+
+        amountFrom = this.$ethers.utils.parseUnits(
+          amountFrom,
+          this.selectedPool.collateralToken.decimals
+        );
+
+        const slipage = this.$ethers.BigNumber.from(
+          parseFloat(this.slipage * 1e10).toFixed(0)
+        );
+        const testSlippageValue = amountFrom.div(100).mul(slipage).div(1e10);
+
+        const shareFrom =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.collateralToken.address,
+            amountFrom.add(testSlippageValue),
+            false
+          );
+
+        const payload = {
+          borrowAmount: itsMax
+            ? this.selectedPool.userInfo.contractBorrowPart
+            : repayAmount,
+          collateralAmount: shareFrom,
+          removeCollateralAmount: this.finalRemoveCollateralAmount,
+          updatePrice: this.selectedPool.askUpdatePrice,
+          itsMax,
+          slipage: this.slipage,
+        };
+
+        const finalRemoveCollateralAmountToShare =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.collateralToken.address,
+            this.finalRemoveCollateralAmount,
+            true
+          );
+
+        payload.removeCollateralAmount = finalRemoveCollateralAmountToShare;
+
+        this.flashRepayHandler(payload);
+        return false;
+      }
+
+      return false;
+    },
 
     async flashRepayHandler(data) {
       const notificationId = await this.$store.dispatch(
@@ -636,24 +734,11 @@ export default {
         );
       }
 
-      let isTokenToSwapApprove = await isTokenApprowed(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.liqSwapperContract.address,
-        this.account
-      );
-
-      if (isTokenToSwapApprove.lt(data.collateralAmount)) {
-        isTokenToSwapApprove = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.liqSwapperContract.address
-        );
-      }
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (+isTokenToCookApprove && +isTokenToSwapApprove) {
+      if (+isTokenToCookApprove) {
         if (this.isLpLogic) {
-          this.cookFlashRepayXswapper(
+          this.cookDeleverage(
             data,
             isApproved,
             this.selectedPool,
@@ -663,7 +748,7 @@ export default {
 
           return false;
         } else {
-          this.cookFlashRepay(
+          this.cookDeleverage(
             data,
             isApproved,
             this.selectedPool,
@@ -689,7 +774,7 @@ export default {
 
       this.flashRepayRemoveAmount = this.maxFlashRepayRemoveAmount;
 
-      setTimeout(this.actionHandler(), 100);
+      setTimeout(this.alternativeActionHandler(), 100);
     },
 
     clearRepayToken() {
@@ -749,12 +834,38 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
-    ApyBlock,
+    CollateralApyBlock,
+    MimEstimatePrice,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 25px;
+  padding: 12px 0;
+
+  a {
+    color: #fff;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+  }
+
+  img {
+    margin-right: 5px;
+    cursor: pointer;
+  }
+}
 .borrow {
   display: grid;
   grid-template-columns: 1fr;
@@ -763,13 +874,6 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
-}
-
-.primary-api {
-  margin: 16px 0;
-}
-.not-primary-api {
-  margin: 0 0 90px;
 }
 
 .borrow-loading {
@@ -786,6 +890,11 @@ export default {
   max-width: 100%;
   overflow: hidden;
   position: relative;
+}
+
+.ape-bg {
+  background-position: center;
+  background-size: cover;
 }
 
 .first-input {
@@ -823,6 +932,10 @@ export default {
 
 .range-underline {
   margin: 30px 0;
+
+  &.glp {
+    margin-top: 0;
+  }
 }
 
 .settings-wrap {
@@ -857,13 +970,20 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .btn-wrap {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 

@@ -111,18 +111,14 @@ export default {
       const degenExactBalance = degenBalance?.toString();
 
       const bentoAddressApproved = bentoBoxContract
-        ? await mimContract.allowance(this.account, bentoBoxContract.address, {
-            gasLimit: 1000000,
-          })
+        ? await mimContract.allowance(this.account, bentoBoxContract.address)
         : null;
       const bentoAllowance = bentoBoxContract
         ? parseFloat(bentoAddressApproved.toString()) > 0
         : false;
 
       const degenAddressApproved = degenBoxContract
-        ? await mimContract.allowance(this.account, degenBoxContract.address, {
-            gasLimit: 1000000,
-          })
+        ? await mimContract.allowance(this.account, degenBoxContract.address)
         : null;
       const degenAllowance = degenBoxContract
         ? parseFloat(degenAddressApproved.toString()) > 0

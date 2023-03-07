@@ -366,7 +366,7 @@ const getSwapStaticToken = async (
     amount,
     swapData,
     {
-      gasLimit: 10000000,
+      gasLimit: 1000000000,
     }
   );
   const swapByte = swapStaticTx.data;

@@ -46,7 +46,7 @@ export default {
   cursor: pointer;
   position: relative;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #403e4a;
   height: 50px;
   padding: 0 20px;
   display: flex;
@@ -68,12 +68,7 @@ export default {
     border: none;
 
     &:hover {
-      background: linear-gradient(
-          0deg,
-          rgba(255, 255, 255, 0.2),
-          rgba(255, 255, 255, 0.2)
-        ),
-        rgba(255, 255, 255, 0.1);
+      background: #616068;
     }
   }
 
@@ -85,25 +80,17 @@ export default {
       background: linear-gradient(90deg, #7c82fd 0%, #8ec2f9 100%);
     }
     &.disabled {
-      background: linear-gradient(
-        90deg,
-        rgba(85, 82, 253, 0.2) 0%,
-        rgba(118, 195, 245, 0.2) 100%
-      );
+      background: #40557e;
+      background: linear-gradient(107.5deg, #393b80 -3.19%, #435e7e 101.2%);
     }
   }
   &:not(.primary, .borderless) {
     &:hover:not(.disabled) {
       border: 2px solid #62a5d3;
-      background: linear-gradient(
-          0deg,
-          rgba(255, 255, 255, 0.2),
-          rgba(255, 255, 255, 0.2)
-        ),
-        rgba(255, 255, 255, 0.1);
+      background: #616068;
     }
     &.disabled {
-      background: rgba(255, 255, 255, 0.04);
+      background: #403e4a;
       color: rgba(255, 255, 255, 0.6);
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div class="choose">
+      <div class="choose" :class="{ 'ape-bg': isMagicApe }" :style="bgApe">
         <h4>Choose Chain</h4>
         <div class="underline">
           <NetworksList />
@@ -46,6 +46,27 @@
             />
             <p class="label-text">Use {{ networkValuteName }}</p>
           </div>
+
+          <div
+            class="checkbox-wrap"
+            v-if="isCheckBox"
+            :class="{ active: useCheckBox }"
+            @click="toggleCheckBox"
+          >
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/active.svg"
+              alt=""
+              v-if="useCheckBox"
+            />
+            <img
+              class="checkbox-img"
+              src="@/assets/images/checkbox/default.svg"
+              alt=""
+              v-else
+            />
+            <p class="label-text">Use {{ selectedPool.name }}</p>
+          </div>
         </div>
         <div class="leverage-range" v-if="selectedPool">
           <div class="settings-wrap">
@@ -57,19 +78,51 @@
             v-model="multiplier"
             :max="maxLeverage"
             :min="1"
+            :step="0.01"
             :risk="leverageRisk"
             :collateralValue="collateralValue"
             :disabled="!collateralValue"
             tooltipText="Allows users to leverage their position. Read more about this in the documents!"
           />
-          <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
+          <div class="leverage-percent">( {{ multiplier }}x)</div>
+
+          <div class="info-item" v-if="isGlp">
+            <span>
+              <img
+                src="@/assets/images/info.svg"
+                alt="info"
+                v-tooltip="
+                  'Abracadabra routes leverage through USDC when interacting with GLP. These fees are not included in the slippage tollerance.'
+                "
+              />
+              <a target="_blank" href="https://app.gmx.io/#/buy_glp"
+                >Check current USDC Mint Fee</a
+              >
+            </span>
+          </div>
+
+          <MimEstimatePrice v-if="selectedPool" :mim="selectedPool.borrowToken.address" :amount="multiplyMimExpected"/>
         </div>
+
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
         >
       </div>
-      <div class="info-block">
-        <h1 class="title">Leverage farm</h1>
+      <div
+        class="info-block"
+        :class="{ 'ape-bg': isMagicApe }"
+        :style="bgApeInfo"
+      >
+        <h1 class="title">
+          Leverage
+          <img
+            class="title-ape"
+            src="@/assets/images/ape/ape.png"
+            v-if="isMagicApe"
+            alt=""
+          />
+          farm
+        </h1>
         <BorrowPoolStand
           :pool="selectedPool"
           :collateralExpected="collateralExpected"
@@ -79,9 +132,12 @@
           :poolId="selectedPoolId"
         />
 
-        <div class="primary-api" :class="{ 'not-primary-api': !isVelodrome }">
-          <ApyBlock v-if="isVelodrome && selectedPool" :expectedLeverage="expectedLeverage" :pool="selectedPool" />
-        </div>
+        <CollateralApyBlock
+          v-if="selectedPool"
+          :pool="selectedPool"
+          :expectedLeverage="multiplier"
+          :isApe="isMagicApe"
+        />
 
         <template v-if="selectedPool">
           <div class="btn-wrap">
@@ -143,15 +199,16 @@ const InfoBlock = () => import("@/components/borrow/InfoBlock");
 const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
 const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
 const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const ApyBlock = () => import("@/components/borrow/ApyBlock");
-
 const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
+const CollateralApyBlock = () =>
+  import("@/components/borrow/CollateralApyBlock");
+const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
 
 import Vue from "vue";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import cookMixin from "@/mixins/borrow/cooks.js";
+import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters } from "vuex";
 import {
   approveToken,
@@ -159,6 +216,8 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
+import bg from "@/assets/images/ape/bg.png";
+import bgInfo from "@/assets/images/ape/bg-info.png";
 
 export default {
   mixins: [cauldronsMixin, cookMixin],
@@ -166,6 +225,7 @@ export default {
   data() {
     return {
       collateralValue: "",
+      maxLeverage: 5, // default
       poolId: null,
       isOpenPollPopup: false,
       isSettingsOpened: false,
@@ -181,6 +241,9 @@ export default {
         bottom: "Read more about it",
         link: "https://docs.abracadabra.money/intro/lending-markets",
       },
+      useCheckBox: false,
+      bg,
+      bgInfo,
     };
   },
 
@@ -193,8 +256,15 @@ export default {
       signer: "getSigner",
     }),
 
-    isVelodrome() {
-      return this.chainId === 10 && this.selectedPool?.id === 1;
+    isGlp() {
+      return this.chainId === 42161 && this.selectedPool?.id === 3;
+    },
+
+    isMagicPool() {
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
     },
 
     filteredPool() {
@@ -252,7 +322,7 @@ export default {
           );
         }
 
-        if (this.isLpLogic) {
+        if (this.isLpLogic && !this.useCheckBox) {
           return this.$ethers.utils.formatUnits(
             this.selectedPool.userInfo.lpInfo.balance,
             this.selectedPool.lpLogic.lpDecimals
@@ -300,8 +370,10 @@ export default {
 
       if (this.collateralError) return "Nothing to do";
 
-      if (+this.collateralValue > 0 && !this.collateralError)
+      if (+this.collateralValue > 0 && this.multiplier > 1)
         return "Leverage Up";
+
+      if (+this.collateralValue > 0) return "Add collateral";
 
       return "Nothing to do";
     },
@@ -309,9 +381,6 @@ export default {
     actionApproveTokenText() {
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral)
         return "Approve Token";
-
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper)
-        return "Approve Leverage";
 
       return "Approve";
     },
@@ -323,67 +392,40 @@ export default {
       );
     },
 
-    maxLeverage() {
-      return this.selectedPool.cauldronSettings.leverageMax;
-    },
-
-    depositExpectedBorrowed() {
-      if (this.collateralError)
-        return +this.selectedPool.userInfo.userBorrowPart;
-      return +this.mimAmount + +this.selectedPool.userInfo.userBorrowPart;
-    },
-
-    depositExpectedCollateral() {
-      if (this.selectedPool?.userInfo) {
-        if (this.collateralError)
-          return +this.selectedPool.userInfo.userCollateralShare;
-        return (
-          +this.collateralValue +
-          +this.selectedPool.userInfo.userCollateralShare
-        );
-      }
-      return 0;
-    },
-
     liquidationMultiplier() {
       return this.selectedPool ? this.selectedPool.ltv / 100 : 0;
-    },
-
-    depositExpectedLiquidationPrice() {
-      return (
-        +this.depositExpectedBorrowed /
-          +this.depositExpectedCollateral /
-          this.liquidationMultiplier || 0
-      );
     },
 
     collateralExpected() {
       if (!this.collateralValue) return 0;
 
-      let amount = Vue.filter("formatToFixed")(
-        this.mimAmount,
+      const collateralAmount = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
         this.selectedPool.collateralToken.decimals
       );
 
-      const percentValue = parseFloat(this.percentValue);
+      const leverageMultiplyer = this.$ethers.BigNumber.from(
+        parseFloat(this.multiplier * 1e10).toFixed(0)
+      );
 
-      const slipageMutiplier = (100 - this.slipage) / 100;
+      const leverageSlippage = this.$ethers.BigNumber.from(
+        parseFloat(this.slipage * 1e10).toFixed(0)
+      );
 
-      const amountMultiplyer = percentValue / 100;
+      const expectedToSwapAmount = collateralAmount
+        .mul(leverageMultiplyer)
+        .div(1e10)
+        .sub(collateralAmount);
+      const slippageAmount = expectedToSwapAmount
+        .div(100)
+        .mul(leverageSlippage)
+        .div(1e10);
+      const minToSwapExpected = expectedToSwapAmount.sub(slippageAmount);
 
-      let startAmount = amount * 0.995;
-
-      let finalAmount = 0;
-
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
-
-      const minValue =
-        finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
-
-      return +minValue + +this.collateralValue;
+      return this.$ethers.utils.formatUnits(
+        collateralAmount.add(minToSwapExpected),
+        this.selectedPool.collateralToken.decimals
+      );
     },
 
     multiplyMimExpected() {
@@ -391,19 +433,33 @@ export default {
       if (!this.mimAmount) return 0;
       if (!this.percentValue) return 0;
 
-      const percentValue = parseFloat(this.percentValue);
+      const collateralAmount = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
+        this.selectedPool.collateralToken.decimals
+      );
+      const oracleExchangeRate = this.selectedPool.oracleExchangeRate;
 
-      const amountMultiplyer = percentValue / 100;
+      const leverageMultiplyer = this.$ethers.BigNumber.from(
+        parseFloat(this.multiplier * 1e10).toFixed(0)
+      );
 
-      let startAmount = this.mimAmount * 0.995;
-      let finalAmount = 0;
+      const expectedAmount = collateralAmount
+        .mul(leverageMultiplyer)
+        .div(1e10)
+        .sub(collateralAmount);
+      const borrowPart = expectedAmount
+        .mul(String(1e18))
+        .div(oracleExchangeRate);
 
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
+      if (+this.selectedPool.borrowFee === 0)
+        return this.$ethers.utils.formatUnits(borrowPart);
+      const borrowFee = this.$ethers.BigNumber.from(
+        parseFloat(this.selectedPool.borrowFee * 1e10).toFixed(0)
+      );
 
-      return finalAmount;
+      const borrowFeePart = borrowPart.div(100).mul(borrowFee).div(1e10);
+
+      return this.$ethers.utils.formatUnits(borrowPart.add(borrowFeePart));
     },
 
     liquidationPriceExpected() {
@@ -415,25 +471,20 @@ export default {
 
         if (!this.collateralValue) return defaultLiquidationPrice;
 
-        let expectedDeposit =
-          this.multiplyMimExpected * this.selectedPool.tokenOraclePrice;
+        let expectedDeposit = this.collateralExpected;
 
         const borrowPart =
-          this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
+          +this.multiplyMimExpected +
+          +this.selectedPool.userInfo.userBorrowPart;
 
         const expectedCollateralPart =
-          expectedDeposit +
-          +this.selectedPool.userInfo.userCollateralShare +
-          +this.collateralValue;
+          +expectedDeposit + +this.selectedPool.userInfo.userCollateralShare;
 
         const liquidationPrice =
           +borrowPart / +expectedCollateralPart / this.liquidationMultiplier ||
           0;
 
-        const expectedLiquidationPrice =
-          (liquidationPrice / 100) * this.slipage + liquidationPrice;
-
-        return expectedLiquidationPrice.toFixed(liquidationDecimals);
+        return liquidationPrice.toFixed(liquidationDecimals);
       }
       return 0;
     },
@@ -441,16 +492,6 @@ export default {
     percentMultiplier() {
       if (this.percentValue) return this.percentValue / 100;
       return false;
-    },
-
-    expectedLeverage() {
-      if (!this.collateralValue) return "0.00";
-      if (!this.percentMultiplier) return "0.00";
-
-      const expectedLevearage =
-        (1 - Math.pow(+this.percentMultiplier, +this.multiplier + 1)) /
-        (1 - +this.percentMultiplier);
-      return parseFloat(expectedLevearage).toFixed(2);
     },
 
     leverageLiquidationRisk() {
@@ -528,6 +569,9 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
 
+        if (!this.useCheckBox && this.isCheckBox)
+          return this.selectedPool.lpLogic.icon;
+
         return this.selectedPool.icon;
       }
       return "";
@@ -541,7 +585,8 @@ export default {
         if (this.networkValuteName && this.useDefaultBalance)
           return this.networkValuteName;
 
-        if (this.isLpLogic) return this.selectedPool.lpLogic.name;
+        if (this.isLpLogic && !this.useCheckBox)
+          return this.selectedPool.lpLogic.name;
 
         return this.selectedPool.collateralToken.name;
       }
@@ -550,10 +595,11 @@ export default {
 
     isTokenApprove() {
       if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        return (
-          this.selectedPool.userInfo.isApproveTokenCollateral &&
-          this.selectedPool.userInfo.isApproveLevSwapper
-        );
+        if (this.isMagicPool) {
+          if (this.useCheckBox)
+            return this.selectedPool.userInfo.isApproveTokenCollateral;
+          return this.selectedPool.userInfo.lpInfo.isApprove;
+        } else return this.selectedPool.userInfo.isApproveTokenCollateral;
       }
       return true;
     },
@@ -626,6 +672,25 @@ export default {
     isLpLogic() {
       return !!this.selectedPool?.lpLogic;
     },
+
+    isCheckBox() {
+      return (
+        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+        (this.chainId === 1 && this.selectedPool?.id === 39)
+      );
+    },
+
+    isMagicApe() {
+      return this.selectedPool?.id === 39;
+    },
+
+    bgApe() {
+      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    },
+
+    bgApeInfo() {
+      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
+    },
   },
 
   watch: {
@@ -650,11 +715,71 @@ export default {
 
       return false;
     },
+
+    collateralValue(val, oldVal) {
+      if (+val && val !== oldVal) {
+        const result = this.getMaxLeverageMultiplier(this.selectedPool, +val);
+        if (result < this.multiplier) this.multiplier = result;
+        this.maxLeverage = result;
+      }
+    },
   },
 
   methods: {
+    async alternativeLeverageHandler(multiplyer, slippage) {
+      try {
+        const collateralAmount = this.$ethers.utils.parseUnits(
+          this.collateralValue.toString(),
+          this.selectedPool.collateralToken.decimals
+        );
+
+        const oracleExchangeRate = this.selectedPool.oracleExchangeRate;
+
+        const leverageMultiplyer = this.$ethers.BigNumber.from(
+          parseFloat(multiplyer * 1e10).toFixed(0)
+        );
+        const leverageSlippage = this.$ethers.BigNumber.from(
+          parseFloat(slippage * 1e10).toFixed(0)
+        );
+
+        const expectedAmount = collateralAmount
+          .mul(leverageMultiplyer)
+          .div(1e10)
+          .sub(collateralAmount);
+        const slippageAmount = expectedAmount
+          .div(100)
+          .mul(leverageSlippage)
+          .div(1e10);
+        const minExpected = expectedAmount.sub(slippageAmount);
+
+        const shareToMin =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.collateralToken.address,
+            minExpected,
+            true
+          );
+
+        const borrowPart = expectedAmount
+          .mul(String(1e18))
+          .div(oracleExchangeRate);
+
+        const leveragePayload = {
+          collateralAmount: collateralAmount.toString(),
+          borrowPart: borrowPart.toString(),
+          shareToMin: shareToMin.toString(),
+        };
+
+        console.log("new leveragePayload:", leveragePayload);
+
+        return leveragePayload;
+      } catch (error) {
+        console.log("alternativeLeverageHandler err:", error);
+      }
+    },
     updateCollateralValue(value) {
       this.collateralValue = value;
+
+      if (!value) this.multiplier = 1;
 
       this.updatePercentValue();
 
@@ -672,23 +797,19 @@ export default {
 
       let approve = this.selectedPool.userInfo?.isApproveTokenCollateral;
 
-      let approveSwap = this.selectedPool.userInfo?.isApproveLevSwapper;
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
 
       if (!this.selectedPool.userInfo?.isApproveTokenCollateral) {
         approve = await approveToken(
-          this.selectedPool.collateralToken.contract,
+          collateralToken,
           this.selectedPool.masterContractInstance.address
         );
       }
 
-      if (!this.selectedPool.userInfo?.isApproveLevSwapper) {
-        approveSwap = await approveToken(
-          this.selectedPool.collateralToken.contract,
-          this.selectedPool.levSwapperContract.address
-        );
-      }
-
-      if (approve && approveSwap) {
+      if (approve) {
         await this.$store.commit("notifications/delete", notificationId);
       } else {
         await this.$store.commit("notifications/delete", notificationId);
@@ -791,10 +912,6 @@ export default {
 
     async actionHandler() {
       if (this.collateralValue && +this.collateralValue > 0) {
-        if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
-          return false;
-        }
-
         if (!this.checkIsUserWhitelistedBorrow()) {
           return false;
         }
@@ -803,40 +920,76 @@ export default {
           return false;
         }
 
-        const parsedCollateral = this.$ethers.utils.parseUnits(
-          this.collateralValue.toString(),
-          this.selectedPool.collateralToken.decimals
-        );
-
-        const parsedMim = this.$ethers.utils.parseUnits(
-          Vue.filter("formatToFixed")(
-            this.mimAmount,
-            this.selectedPool.borrowToken.decimals
-          ),
-          this.selectedPool.borrowToken.decimals
-        );
-
-        let payload = {
-          collateralAmount: parsedCollateral,
-          amount: parsedMim,
-          updatePrice: this.selectedPool.askUpdatePrice,
-          itsDefaultBalance: this.useDefaultBalance,
-          slipage: this.slipage,
-        };
-
-        payload.amount = Vue.filter("formatToFixed")(
-          this.mimAmount,
-          this.selectedPool.borrowToken.decimals
-        );
-
-        this.multiplierHandle(payload);
-        return false;
+        if (this.multiplier > 1) return await this.multiplierHandle(); // leverage
+        return await this.collateralHandler(); // add collateral
       }
 
       return false;
     },
+    async collateralHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.pending
+      );
 
-    async multiplierHandle(data) {
+      const collateralDecimals =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpDecimals
+          : this.selectedPool.collateralToken.decimals;
+
+      const parsedCollateralValue = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
+        collateralDecimals
+      );
+
+      const payload = {
+        amount: parsedCollateralValue,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.useDefaultBalance,
+      };
+
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
+      let isTokenToCookApprove = await isTokenApprowed(
+        collateralToken,
+        this.selectedPool.masterContractInstance.address,
+        this.account
+      );
+
+      if (isTokenToCookApprove.lt(payload.amount)) {
+        isTokenToCookApprove = await approveToken(
+          collateralToken,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      let isApproved = await isApprowed(this.selectedPool, this.account);
+
+      if (+isTokenToCookApprove) {
+        await this.cookAddCollateral(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId,
+          this.isLpLogic,
+          !this.useCheckBox
+        );
+        return false;
+      }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approveError
+      );
+
+      return false;
+    },
+
+    async multiplierHandle() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.pending
@@ -865,61 +1018,22 @@ export default {
         return false;
       }
 
-      const slipageMutiplier = (100 - this.slipage) / 100;
-
-      const amountMultiplyer = percentValue / 100;
-
-      let startAmount = data.amount * 0.995;
-
-      let finalAmount = 0;
-
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
-
-      if (!this.checkIsPoolAllowBorrow(finalAmount, notificationId)) {
+      if (
+        !this.checkIsPoolAllowBorrow(this.multiplyMimExpected, notificationId)
+      ) {
         return false;
       }
 
-      if (!this.checkIsUserWhitelistedBorrow()) {
-        return false;
-      }
-
-      if (!this.checkIsAcceptNewYvcrvSTETHBorrow()) {
-        return false;
-      }
-
-      const mimAmount = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
-          finalAmount,
-          this.selectedPool.borrowToken.decimals
-        ),
-        this.selectedPool.borrowToken.decimals
-      );
-
-      const minValue =
-        finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
-
-      const minValueParsed = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
-          minValue,
-          this.selectedPool.collateralToken.decimals
-        ),
-        this.selectedPool.collateralToken.decimals
-      );
-
-      const finalRemoveCollateralAmountToShare =
-        await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.collateralToken.address,
-          minValueParsed,
-          true
-        );
+      const { collateralAmount, borrowPart, shareToMin } =
+        await this.alternativeLeverageHandler(this.multiplier, this.slipage);
 
       const payload = {
-        ...data,
-        amount: mimAmount,
-        minExpected: finalRemoveCollateralAmountToShare,
+        collateralAmount,
+        amount: borrowPart,
+        minExpected: shareToMin,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.useDefaultBalance,
+        slipage: this.slipage,
       };
       this.addMultiBorrowHandler(payload, notificationId);
     },
@@ -939,54 +1053,29 @@ export default {
     },
 
     async addMultiBorrowHandler(data, notificationId) {
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
       const isTokenToCookApprove = await this.getTokenApprove(
-        this.selectedPool.collateralToken.contract,
+        collateralToken,
         this.selectedPool.masterContractInstance.address
       );
 
-      const isTokenToSwapApprove = await this.getTokenApprove(
-        this.selectedPool.collateralToken.contract,
-        this.selectedPool.levSwapperContract.address
-      );
-
-      const isCollateralApproved =
-        !!isTokenToCookApprove && !!isTokenToSwapApprove;
-
-      let isLpApproved;
-
-      if (this.isLpLogic) {
-        const isLpToCookApprove = await this.getTokenApprove(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.masterContractInstance.address
-        );
-
-        const isLpToSwapApprove = await this.getTokenApprove(
-          this.selectedPool.lpLogic.lpContract,
-          this.selectedPool.levSwapperContract.address
-        );
-
-        isLpApproved = !!isLpToCookApprove && !!isLpToSwapApprove;
-      }
-
-      let isAllApproved;
-      if (this.isLpLogic) {
-        isAllApproved = isCollateralApproved && isLpApproved;
-      } else {
-        isAllApproved = isCollateralApproved;
-      }
-
       let isApproved = await isApprowed(this.selectedPool, this.account);
 
-      if (isAllApproved) {
+      if (isTokenToCookApprove) {
         if (this.isLpLogic) {
-          this.cookMultiBorrowXswapper(
+          this.cookLeverage(
             data,
             isApproved,
             this.selectedPool,
-            notificationId
+            notificationId,
+            !this.useCheckBox
           );
         } else {
-          this.cookMultiBorrow(
+          this.cookLeverage(
             data,
             isApproved,
             this.selectedPool,
@@ -1049,9 +1138,58 @@ export default {
       this.slipage = 1;
       return false;
     },
+
+    toggleCheckBox() {
+      this.clearData();
+      this.useCheckBox = !this.useCheckBox;
+    },
+
+    getMaxLeverageMultiplier(pool, collateralAmount = 10) {
+      const instantLiquidationPrice = 1 / pool.tokenOraclePrice;
+      const liquidationMultiplier = pool.ltv / 100;
+      const testCollateralAmount = collateralAmount;
+
+      const testSlippage = 1;
+      let multiplier = 2;
+      let isLiquidation = false;
+
+      while (!isLiquidation) {
+        const expectedAmount =
+          testCollateralAmount * multiplier - testCollateralAmount;
+        const slippageAmount = (expectedAmount / 100) * testSlippage;
+        const minExpected = expectedAmount - slippageAmount;
+        const leverageCollateralAmount = testCollateralAmount + minExpected;
+        const leverageBorrowPart = expectedAmount / pool.tokenOraclePrice;
+
+        const finalBorrowPart =
+          leverageBorrowPart + +pool.userInfo.userBorrowPart;
+
+        const finalCollateralAmount =
+          +leverageCollateralAmount + +pool.userInfo.userCollateralShare;
+
+        const liquidationPrice =
+          finalBorrowPart / finalCollateralAmount / liquidationMultiplier || 0;
+
+        if (+liquidationPrice >= instantLiquidationPrice) {
+          isLiquidation = true;
+          break;
+        }
+
+        multiplier += 0.1;
+      }
+
+      const result = Math.min(multiplier, 100);
+
+      return +parseFloat(result).toFixed(2)
+    },
   },
 
   async created() {
+    if (this.$route.params.id === "magicAPE") {
+      this.$router.push({ name: "magicAPE" });
+      return false;
+    }
+
     this.poolId = this.$route.params.id;
 
     this.changeSlipage(this.poolId, this.chainId);
@@ -1078,12 +1216,39 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     MarketsListPopup,
-    ApyBlock,
+    CollateralApyBlock,
+    MimEstimatePrice
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 25px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  a {
+    color: #fff;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+  }
+
+  img {
+    margin-right: 5px;
+    cursor: pointer;
+  }
+}
 .borrow {
   display: grid;
   grid-template-columns: 1fr;
@@ -1092,13 +1257,6 @@ export default {
   max-width: calc(100% - 20px);
   width: 95%;
   padding: 100px 0;
-}
-
-.primary-api {
-  margin: 16px 0;
-}
-.not-primary-api {
-  margin: 0 0 90px;
 }
 
 .borrow-loading {
@@ -1115,6 +1273,11 @@ export default {
   max-width: 100%;
   overflow: hidden;
   position: relative;
+}
+
+.ape-bg {
+  background-position: center;
+  background-size: cover;
 }
 
 .first-input {
@@ -1167,6 +1330,14 @@ export default {
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-ape {
+  max-width: 27px;
+  margin: 0 10px;
 }
 
 .info-row-wrap {
@@ -1177,7 +1348,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-  margin-top: 92px;
   margin-bottom: 30px;
 }
 
@@ -1190,7 +1360,7 @@ export default {
 }
 
 .checkbox-wrap {
-  background: rgba(129, 126, 166, 0.1);
+  background: #333141;
   border-radius: 20px;
   padding: 8px 16px;
   display: inline-flex;
