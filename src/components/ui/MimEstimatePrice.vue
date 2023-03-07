@@ -99,7 +99,7 @@ export default {
 
       if (+this.estimatePercent) {
         if (+this.estimatePercent <= 0.1) return "blue";
-        if (+this.estimatePercent <= 1) return "yellow";
+        if (+this.estimatePercent <= 2.5) return "yellow";
         return "red";
       }
 
