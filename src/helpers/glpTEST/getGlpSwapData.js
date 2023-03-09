@@ -15,24 +15,6 @@ const blacklist = [
   "0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0", // UNI
 ];
 
-const getMimOraclePrice = async () => {
-  try {
-    const defaultProvider = new providers.StaticJsonRpcProvider(
-      "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
-    );
-
-    const oracle = new ethers.Contract(
-      "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
-      JSON.stringify(priceAbi),
-      defaultProvider
-    );
-
-    return await oracle.latestAnswer();
-  } catch (error) {
-    console.log("getMimOraclePrice err:", error);
-  }
-};
-
 const getNameFromAddress = (address) => {
   return {
     "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f": "WBTC",
@@ -56,7 +38,6 @@ const maxBuyAmount = (a, b) => {
 };
 
 const getTokens = async (provider, lensContract) => {
-  const mimOraclePrice = await getMimOraclePrice();
 
   const gmxVaultContract = await new ethers.Contract(
     gmxVaultAddress,
@@ -73,14 +54,13 @@ const getTokens = async (provider, lensContract) => {
     // Exclude FRAX and MIM.
     if (blacklist.indexOf(address.toLowerCase()) === -1) {
       const maxAmountIn = await lensContract.getMaxAmountIn(address);
-      const maxAmountInToMIM = maxAmountIn.div(mimOraclePrice).mul(1e8);
       tokens.push({
         address: address,
-        maxAmountInToMIM: maxAmountInToMIM.gt(
+        maxAmountIn: maxAmountIn.gt(
           ethers.BigNumber.from("1000000000000000000000")
         )
           ? ethers.BigNumber.from("1000000000000000000000")
-          : maxAmountInToMIM,
+          : maxAmountIn,
       });
     }
   }
@@ -148,7 +128,7 @@ const getGlpLevData = async (
 
   let globalLimit = ethers.BigNumber.from(0);
   tokenInfoArray.forEach((item) => {
-    globalLimit = globalLimit.add(item.maxAmountInToMIM);
+    globalLimit = globalLimit.add(item.maxAmountIn);
   });
   console.log("globalLimit", globalLimit.toString());
 
@@ -161,13 +141,13 @@ const getGlpLevData = async (
     if (mimLeftToSwap.eq(0)) break;
     console.log("info", info);
     console.log("mimLeftToSwap", mimLeftToSwap.toString());
-    console.log("maxAmountInToMIM", info.maxAmountInToMIM.toString());
+    console.log("maxAmountIn", info.maxAmountIn.toString());
     const itsAmountEnough =
-      info.maxAmountInToMIM.gt(mimLeftToSwap) ||
-      info.maxAmountInToMIM.eq(mimLeftToSwap);
+      info.maxAmountIn.gt(mimLeftToSwap) ||
+      info.maxAmountIn.eq(mimLeftToSwap);
     const awailableToSwap = itsAmountEnough
       ? mimLeftToSwap
-      : info.maxAmountInToMIM;
+      : info.maxAmountIn;
 
     // add cook call info block
     if (itsAmountEnough && cookInfo.length === 0) {
