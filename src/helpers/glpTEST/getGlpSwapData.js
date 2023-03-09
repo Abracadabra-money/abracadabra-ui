@@ -9,11 +9,10 @@ const gmxVaultAddress = "0x489ee077994B6658eAfA855C308275EAd8097C4A";
 const gmxLensAddress = "0x9f8fB63ef774A496cd9aD3Cc29c1e81Ae947FC2e";
 import store from "@/store";
 
-const blacklis = [
-  "0x17fc002b466eec40dae837fc4be5c67993ddbd6f",
-  "0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a",
-  "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
-  "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1"
+const blacklist = [
+  "0x17fc002b466eec40dae837fc4be5c67993ddbd6f", // FRAX
+  "0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a", // MIM
+  "0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0", // UNI
 ];
 
 const getMimOraclePrice = async () => {
@@ -72,7 +71,7 @@ const getTokens = async (provider, lensContract) => {
   for (let i = 0; i < whitelistedTokensLength; i++) {
     const address = await gmxVaultContract.allWhitelistedTokens(i);
     // Exclude FRAX and MIM.
-    if (blacklis.indexOf(address.toLowerCase()) === -1) {
+    if (blacklist.indexOf(address.toLowerCase()) === -1) {
       const maxAmountIn = await lensContract.getMaxAmountIn(address);
       const maxAmountInToMIM = maxAmountIn.div(mimOraclePrice).mul(1e8);
       tokens.push({
