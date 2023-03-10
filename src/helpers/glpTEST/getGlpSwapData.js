@@ -1,10 +1,9 @@
-import { ethers, providers } from "ethers";
+import { ethers } from "ethers";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
 import gmxVaultAbi from "@/helpers/glpTEST/abi/gmxVault";
 import gmxLensAbi from "@/helpers/glpTEST/abi/gmxLens";
-import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 const gmxVaultAddress = "0x489ee077994B6658eAfA855C308275EAd8097C4A";
 const gmxLensAddress = "0x9f8fB63ef774A496cd9aD3Cc29c1e81Ae947FC2e";
 import store from "@/store";
@@ -92,6 +91,14 @@ const getGlpLevData = async (
   );
 
   const tokensArr = await getTokens(provider, gmxLensContract);
+
+  // const respData = await Promise.all(tokensArr.map(token => swap0xRequest(
+  //   chainId,
+  //   token.address,
+  //   borrowToken.address,
+  //   slipage,
+  //   sellAmount
+  // )))
 
   for (let token of tokensArr) {
     const { buyAmount, data } = await swap0xRequest(
