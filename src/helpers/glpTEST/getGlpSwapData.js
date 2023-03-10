@@ -193,13 +193,11 @@ const getGlpLevData = async (
       gmxLensContract.getMintedGlpFromTokenIn(info.buyToken, info.buyAmount)
     )
   );
-
   const minExpectedArr = await Promise.all(
     mintedGlpFromTokenInArrFinal.map((mintedGlpFromTokenIn) =>
-      collateralToken.contract.convertToShares(mintedGlpFromTokenIn.glpAmount)
+      collateralToken.contract.convertToShares(mintedGlpFromTokenIn.amountOut)
     )
   );
-
   const swapperAddres = pool.levSwapperContract.address;
   const userAddr = store.getters.getAccount;
 
