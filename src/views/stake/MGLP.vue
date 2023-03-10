@@ -476,7 +476,7 @@ export default {
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
+          await this.tokensInfo.mainToken.contractInstance.estimateGas.redeem(
             amount,
             this.account,
             this.account
@@ -484,7 +484,7 @@ export default {
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
+        const tx = await this.tokensInfo.mainToken.contractInstance.redeem(
           amount,
           this.account,
           this.account,
@@ -546,13 +546,13 @@ export default {
   },
   filters: {
     localAmountFilter(val) {
-      return Number(val).toLocaleString()
-    }
+      return Number(val).toLocaleString();
+    },
   },
 
   async created() {
-    await this.createStakePool();    
-    
+    await this.createStakePool();
+
     if (this.chainId !== 42161) return false;
     await this.getTotalRewards();
     this.updateInterval = setInterval(async () => {
