@@ -1,6 +1,8 @@
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
+import { MulticallProvider } from "ethers-multicall-provider";
+import axios from "axios";
 
 import gmxVaultAbi from "@/helpers/glpTEST/abi/gmxVault";
 import gmxLensAbi from "@/helpers/glpTEST/abi/gmxLens";
@@ -36,9 +38,10 @@ const maxBuyAmount = (a, b) => {
   return +a.buyAmount > +b.buyAmount ? a : b;
 };
 
-const getTokens = async (provider, lensContract) => {
+const getWhitelistedTokens = async (provider, lensContract) => {
+  const testLimit = ethers.BigNumber.from("1000000000000000000000");
 
-  const gmxVaultContract = await new ethers.Contract(
+  const gmxVaultContract = new ethers.Contract(
     gmxVaultAddress,
     JSON.stringify(gmxVaultAbi),
     provider
@@ -47,24 +50,30 @@ const getTokens = async (provider, lensContract) => {
   const whitelistedTokensLength =
     await gmxVaultContract.allWhitelistedTokensLength();
 
-  const tokens = [];
-  for (let i = 0; i < whitelistedTokensLength; i++) {
-    const address = await gmxVaultContract.allWhitelistedTokens(i);
-    // Exclude FRAX and MIM.
-    if (blacklist.indexOf(address.toLowerCase()) === -1) {
-      const maxAmountIn = await lensContract.getMaxAmountIn(address);
-      tokens.push({
-        address: address,
-        maxAmountIn: maxAmountIn.gt(
-          ethers.BigNumber.from("1000000000000000000000")
-        )
-          ? ethers.BigNumber.from("1000000000000000000000")
-          : maxAmountIn,
-      });
-    }
-  }
+  const tokensAddresses = await Promise.all(
+    Array.from(Array(Number(whitelistedTokensLength)).keys()).map((_, idx) =>
+      gmxVaultContract.allWhitelistedTokens(idx)
+    )
+  );
 
-  return tokens;
+  const filteredTokens = tokensAddresses.filter(
+    (token) => blacklist.indexOf(token.toLowerCase()) === -1
+  );
+
+  const maxAmountInArr = await Promise.all(
+    filteredTokens.map((token) => lensContract.getMaxAmountIn(token))
+  );
+
+  const tokensInfo = filteredTokens.map((token, idx) => {
+    return {
+      address: token,
+      maxAmountIn: maxAmountInArr[idx].gt(testLimit)
+        ? testLimit
+        : maxAmountInArr[idx],
+    };
+  });
+
+  return tokensInfo;
 };
 
 const getGlpLevData = async (
@@ -84,21 +93,41 @@ const getGlpLevData = async (
   const results = [];
   const { borrowToken } = pool;
 
-  const gmxLensContract = await new ethers.Contract(
-    gmxLensAddress,
-    JSON.stringify(gmxLensAbi),
-    provider
+  const staticProvider = new providers.StaticJsonRpcProvider(
+    "https://arb1.arbitrum.io/rpc"
   );
 
-  const tokensArr = await getTokens(provider, gmxLensContract);
+  const multicalProvider = MulticallProvider.wrap(staticProvider);
 
-  // const respData = await Promise.all(tokensArr.map(token => swap0xRequest(
-  //   chainId,
-  //   token.address,
-  //   borrowToken.address,
-  //   slipage,
-  //   sellAmount
-  // )))
+  const gmxLensContract = new ethers.Contract(
+    gmxLensAddress,
+    JSON.stringify(gmxLensAbi),
+    multicalProvider
+  );
+
+  const tokensArr = await getWhitelistedTokens(multicalProvider, gmxLensContract);
+
+  const respData = await axios.all(
+    tokensArr.map((token) =>
+      swap0xRequest(
+        chainId,
+        token.address,
+        borrowToken.address,
+        slipage,
+        sellAmount
+      )
+    )
+  );
+
+  console.log("axios all", respData);
+
+  const multicallresp = await Promise.all(
+    respData.map((data) =>
+      gmxLensContract.getMintedGlpFromTokenIn(data.buyToken, data.buyAmount)
+    )
+  );
+
+  console.log("multicallresp", multicallresp);
 
   for (let token of tokensArr) {
     const { buyAmount, data } = await swap0xRequest(
@@ -150,11 +179,8 @@ const getGlpLevData = async (
     console.log("mimLeftToSwap", mimLeftToSwap.toString());
     console.log("maxAmountIn", info.maxAmountIn.toString());
     const itsAmountEnough =
-      info.maxAmountIn.gt(mimLeftToSwap) ||
-      info.maxAmountIn.eq(mimLeftToSwap);
-    const awailableToSwap = itsAmountEnough
-      ? mimLeftToSwap
-      : info.maxAmountIn;
+      info.maxAmountIn.gt(mimLeftToSwap) || info.maxAmountIn.eq(mimLeftToSwap);
+    const awailableToSwap = itsAmountEnough ? mimLeftToSwap : info.maxAmountIn;
 
     // add cook call info block
     if (itsAmountEnough && cookInfo.length === 0) {
@@ -239,11 +265,17 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
     isShow: true,
   });
 
+  const staticProvider = new providers.StaticJsonRpcProvider(
+    "https://arb1.arbitrum.io/rpc"
+  );
+
+  const multicalProvider = MulticallProvider.wrap(staticProvider);
+
   const { borrowToken, collateralToken } = pool;
   const gmxLensContract = await new ethers.Contract(
     gmxLensAddress,
     JSON.stringify(gmxLensAbi),
-    provider
+    multicalProvider
   );
 
   const results = [];
@@ -253,8 +285,8 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
     false
   );
   const glpAmount = await collateralToken.contract.convertToAssets(mGlpAmount);
-  console.log("glpAmount", glpAmount.toString());
-  for (let token of await getTokens(provider)) {
+
+  for (let token of await getWhitelistedTokens(multicalProvider, gmxLensContract)) {
     const resp = await gmxLensContract.getTokenOutFromBurningGlp(
       token,
       glpAmount

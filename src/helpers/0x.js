@@ -41,6 +41,8 @@ export const swap0xRequest = async (
 
     return {
       data: data,
+      buyToken,
+      sellToken,
       buyAmount: BigNumber.from(buyAmount),
       sellAmount: BigNumber.from(sellAmount),
       estimatedGas: BigNumber.from(estimatedGas),
