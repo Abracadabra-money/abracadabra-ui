@@ -632,7 +632,7 @@ export default {
       pool.userInfo = {
         userBorrowPart,
         contractBorrowPart,
-        userBalance: "3333333555555555555555555",
+        userBalance,
         userPairBalance,
         networkBalance,
         claimableReward,
