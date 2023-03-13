@@ -16,33 +16,48 @@ export const swap0xRequest = async (
   buyToken,
   sellToken,
   slippage = 0,
-  amountSell,
-  takerAddress
+  amountSell = 0,
+  takerAddress,
+  amountBuy = 0
 ) => {
   try {
     const slippagePercentage = slippage / 100;
 
     const endpoint = endpoints[chainId];
 
-    const params = {
-      buyToken: buyToken,
-      sellToken: sellToken,
-      sellAmount: amountSell.toString(),
-      slippagePercentage,
-      skipValidation: true,
-      takerAddress,
-    };
+    let params;
+
+    if (amountSell > 0) {
+      params = {
+        buyToken: buyToken,
+        sellToken: sellToken,
+        sellAmount: amountSell.toString(),
+        slippagePercentage,
+        skipValidation: true,
+        takerAddress,
+      };
+    } else {
+      params = {
+        buyToken: buyToken,
+        sellToken: sellToken,
+        buyAmount: amountBuy.toString(),
+        slippagePercentage,
+        skipValidation: true,
+        takerAddress,
+      };
+    }
 
     const response = await axios.get(`${endpoint}/swap/v1/quote`, {
       params: params,
     });
 
-    const { data, buyAmount, sellAmount, estimatedGas } = response.data;
+    const { data, buyAmount, sellAmount, estimatedGas, price } = response.data;
 
     return {
       data: data,
       buyToken,
       sellToken,
+      price,
       buyAmount: BigNumber.from(buyAmount),
       sellAmount: BigNumber.from(sellAmount),
       estimatedGas: BigNumber.from(estimatedGas),

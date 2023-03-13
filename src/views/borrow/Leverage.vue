@@ -78,12 +78,13 @@
             v-model="multiplier"
             :max="maxLeverage"
             :min="1"
+            :step="0.01"
             :risk="leverageRisk"
             :collateralValue="collateralValue"
             :disabled="!collateralValue"
             tooltipText="Allows users to leverage their position. Read more about this in the documents!"
           />
-          <div class="leverage-percent">( {{ expectedLeverage }}x)</div>
+          <div class="leverage-percent">( {{ multiplier }}x)</div>
 
           <div class="info-item" v-if="isGlp">
             <span>
@@ -99,6 +100,8 @@
               >
             </span>
           </div>
+
+          <MimEstimatePrice v-if="selectedPool" :mim="selectedPool.borrowToken.address" :amount="multiplyMimExpected"/>
         </div>
 
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
@@ -132,7 +135,7 @@
         <CollateralApyBlock
           v-if="selectedPool"
           :pool="selectedPool"
-          :expectedLeverage="expectedLeverage"
+          :expectedLeverage="multiplier"
           :isApe="isMagicApe"
         />
 
@@ -200,6 +203,7 @@ const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
 const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
 const CollateralApyBlock = () =>
   import("@/components/borrow/CollateralApyBlock");
+const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
 
 import Vue from "vue";
 
@@ -221,6 +225,7 @@ export default {
   data() {
     return {
       collateralValue: "",
+      maxLeverage: 5, // default
       poolId: null,
       isOpenPollPopup: false,
       isSettingsOpened: false,
@@ -365,8 +370,10 @@ export default {
 
       if (this.collateralError) return "Nothing to do";
 
-      if (+this.collateralValue > 0 && !this.collateralError)
+      if (+this.collateralValue > 0 && this.multiplier > 1)
         return "Leverage Up";
+
+      if (+this.collateralValue > 0) return "Add collateral";
 
       return "Nothing to do";
     },
@@ -385,67 +392,40 @@ export default {
       );
     },
 
-    maxLeverage() {
-      return this.selectedPool.cauldronSettings.leverageMax;
-    },
-
-    depositExpectedBorrowed() {
-      if (this.collateralError)
-        return +this.selectedPool.userInfo.userBorrowPart;
-      return +this.mimAmount + +this.selectedPool.userInfo.userBorrowPart;
-    },
-
-    depositExpectedCollateral() {
-      if (this.selectedPool?.userInfo) {
-        if (this.collateralError)
-          return +this.selectedPool.userInfo.userCollateralShare;
-        return (
-          +this.collateralValue +
-          +this.selectedPool.userInfo.userCollateralShare
-        );
-      }
-      return 0;
-    },
-
     liquidationMultiplier() {
       return this.selectedPool ? this.selectedPool.ltv / 100 : 0;
-    },
-
-    depositExpectedLiquidationPrice() {
-      return (
-        +this.depositExpectedBorrowed /
-          +this.depositExpectedCollateral /
-          this.liquidationMultiplier || 0
-      );
     },
 
     collateralExpected() {
       if (!this.collateralValue) return 0;
 
-      let amount = Vue.filter("formatToFixed")(
-        this.mimAmount,
+      const collateralAmount = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
         this.selectedPool.collateralToken.decimals
       );
 
-      const percentValue = parseFloat(this.percentValue);
+      const leverageMultiplyer = this.$ethers.BigNumber.from(
+        parseFloat(this.multiplier * 1e10).toFixed(0)
+      );
 
-      const slipageMutiplier = (100 - this.slipage) / 100;
+      const leverageSlippage = this.$ethers.BigNumber.from(
+        parseFloat(this.slipage * 1e10).toFixed(0)
+      );
 
-      const amountMultiplyer = percentValue / 100;
+      const expectedToSwapAmount = collateralAmount
+        .mul(leverageMultiplyer)
+        .div(1e10)
+        .sub(collateralAmount);
+      const slippageAmount = expectedToSwapAmount
+        .div(100)
+        .mul(leverageSlippage)
+        .div(1e10);
+      const minToSwapExpected = expectedToSwapAmount.sub(slippageAmount);
 
-      let startAmount = amount * 0.995;
-
-      let finalAmount = 0;
-
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
-
-      const minValue =
-        finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
-
-      return +minValue + +this.collateralValue;
+      return this.$ethers.utils.formatUnits(
+        collateralAmount.add(minToSwapExpected),
+        this.selectedPool.collateralToken.decimals
+      );
     },
 
     multiplyMimExpected() {
@@ -453,19 +433,33 @@ export default {
       if (!this.mimAmount) return 0;
       if (!this.percentValue) return 0;
 
-      const percentValue = parseFloat(this.percentValue);
+      const collateralAmount = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
+        this.selectedPool.collateralToken.decimals
+      );
+      const oracleExchangeRate = this.selectedPool.oracleExchangeRate;
 
-      const amountMultiplyer = percentValue / 100;
+      const leverageMultiplyer = this.$ethers.BigNumber.from(
+        parseFloat(this.multiplier * 1e10).toFixed(0)
+      );
 
-      let startAmount = this.mimAmount * 0.995;
-      let finalAmount = 0;
+      const expectedAmount = collateralAmount
+        .mul(leverageMultiplyer)
+        .div(1e10)
+        .sub(collateralAmount);
+      const borrowPart = expectedAmount
+        .mul(String(1e18))
+        .div(oracleExchangeRate);
 
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
+      if (+this.selectedPool.borrowFee === 0)
+        return this.$ethers.utils.formatUnits(borrowPart);
+      const borrowFee = this.$ethers.BigNumber.from(
+        parseFloat(this.selectedPool.borrowFee * 1e10).toFixed(0)
+      );
 
-      return finalAmount;
+      const borrowFeePart = borrowPart.div(100).mul(borrowFee).div(1e10);
+
+      return this.$ethers.utils.formatUnits(borrowPart.add(borrowFeePart));
     },
 
     liquidationPriceExpected() {
@@ -477,25 +471,20 @@ export default {
 
         if (!this.collateralValue) return defaultLiquidationPrice;
 
-        let expectedDeposit =
-          this.multiplyMimExpected * this.selectedPool.tokenOraclePrice;
+        let expectedDeposit = this.collateralExpected;
 
         const borrowPart =
-          this.multiplyMimExpected + +this.selectedPool.userInfo.userBorrowPart;
+          +this.multiplyMimExpected +
+          +this.selectedPool.userInfo.userBorrowPart;
 
         const expectedCollateralPart =
-          expectedDeposit +
-          +this.selectedPool.userInfo.userCollateralShare +
-          +this.collateralValue;
+          +expectedDeposit + +this.selectedPool.userInfo.userCollateralShare;
 
         const liquidationPrice =
           +borrowPart / +expectedCollateralPart / this.liquidationMultiplier ||
           0;
 
-        const expectedLiquidationPrice =
-          (liquidationPrice / 100) * this.slipage + liquidationPrice;
-
-        return expectedLiquidationPrice.toFixed(liquidationDecimals);
+        return liquidationPrice.toFixed(liquidationDecimals);
       }
       return 0;
     },
@@ -503,16 +492,6 @@ export default {
     percentMultiplier() {
       if (this.percentValue) return this.percentValue / 100;
       return false;
-    },
-
-    expectedLeverage() {
-      if (!this.collateralValue) return "0.00";
-      if (!this.percentMultiplier) return "0.00";
-
-      const expectedLevearage =
-        (1 - Math.pow(+this.percentMultiplier, +this.multiplier + 1)) /
-        (1 - +this.percentMultiplier);
-      return parseFloat(expectedLevearage).toFixed(2);
     },
 
     leverageLiquidationRisk() {
@@ -736,11 +715,71 @@ export default {
 
       return false;
     },
+
+    collateralValue(val, oldVal) {
+      if (+val && val !== oldVal) {
+        const result = this.getMaxLeverageMultiplier(this.selectedPool, +val);
+        if (result < this.multiplier) this.multiplier = result;
+        this.maxLeverage = result;
+      }
+    },
   },
 
   methods: {
+    async alternativeLeverageHandler(multiplyer, slippage) {
+      try {
+        const collateralAmount = this.$ethers.utils.parseUnits(
+          this.collateralValue.toString(),
+          this.selectedPool.collateralToken.decimals
+        );
+
+        const oracleExchangeRate = this.selectedPool.oracleExchangeRate;
+
+        const leverageMultiplyer = this.$ethers.BigNumber.from(
+          parseFloat(multiplyer * 1e10).toFixed(0)
+        );
+        const leverageSlippage = this.$ethers.BigNumber.from(
+          parseFloat(slippage * 1e10).toFixed(0)
+        );
+
+        const expectedAmount = collateralAmount
+          .mul(leverageMultiplyer)
+          .div(1e10)
+          .sub(collateralAmount);
+        const slippageAmount = expectedAmount
+          .div(100)
+          .mul(leverageSlippage)
+          .div(1e10);
+        const minExpected = expectedAmount.sub(slippageAmount);
+
+        const shareToMin =
+          await this.selectedPool.masterContractInstance.toShare(
+            this.selectedPool.collateralToken.address,
+            minExpected,
+            true
+          );
+
+        const borrowPart = expectedAmount
+          .mul(String(1e18))
+          .div(oracleExchangeRate);
+
+        const leveragePayload = {
+          collateralAmount: collateralAmount.toString(),
+          borrowPart: borrowPart.toString(),
+          shareToMin: shareToMin.toString(),
+        };
+
+        console.log("new leveragePayload:", leveragePayload);
+
+        return leveragePayload;
+      } catch (error) {
+        console.log("alternativeLeverageHandler err:", error);
+      }
+    },
     updateCollateralValue(value) {
       this.collateralValue = value;
+
+      if (!value) this.multiplier = 1;
 
       this.updatePercentValue();
 
@@ -873,10 +912,6 @@ export default {
 
     async actionHandler() {
       if (this.collateralValue && +this.collateralValue > 0) {
-        if (!this.checkIsPoolAllowBorrow(this.mimAmount)) {
-          return false;
-        }
-
         if (!this.checkIsUserWhitelistedBorrow()) {
           return false;
         }
@@ -885,40 +920,76 @@ export default {
           return false;
         }
 
-        const parsedCollateral = this.$ethers.utils.parseUnits(
-          this.collateralValue.toString(),
-          this.selectedPool.collateralToken.decimals
-        );
-
-        const parsedMim = this.$ethers.utils.parseUnits(
-          Vue.filter("formatToFixed")(
-            this.mimAmount,
-            this.selectedPool.borrowToken.decimals
-          ),
-          this.selectedPool.borrowToken.decimals
-        );
-
-        let payload = {
-          collateralAmount: parsedCollateral,
-          amount: parsedMim,
-          updatePrice: this.selectedPool.askUpdatePrice,
-          itsDefaultBalance: this.useDefaultBalance,
-          slipage: this.slipage,
-        };
-
-        payload.amount = Vue.filter("formatToFixed")(
-          this.mimAmount,
-          this.selectedPool.borrowToken.decimals
-        );
-
-        this.multiplierHandle(payload);
-        return false;
+        if (this.multiplier > 1) return await this.multiplierHandle(); // leverage
+        return await this.collateralHandler(); // add collateral
       }
 
       return false;
     },
+    async collateralHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.pending
+      );
 
-    async multiplierHandle(data) {
+      const collateralDecimals =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpDecimals
+          : this.selectedPool.collateralToken.decimals;
+
+      const parsedCollateralValue = this.$ethers.utils.parseUnits(
+        this.collateralValue.toString(),
+        collateralDecimals
+      );
+
+      const payload = {
+        amount: parsedCollateralValue,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.useDefaultBalance,
+      };
+
+      const collateralToken =
+        this.isLpLogic && !this.useCheckBox
+          ? this.selectedPool.lpLogic.lpContract
+          : this.selectedPool.collateralToken.contract;
+
+      let isTokenToCookApprove = await isTokenApprowed(
+        collateralToken,
+        this.selectedPool.masterContractInstance.address,
+        this.account
+      );
+
+      if (isTokenToCookApprove.lt(payload.amount)) {
+        isTokenToCookApprove = await approveToken(
+          collateralToken,
+          this.selectedPool.masterContractInstance.address
+        );
+      }
+
+      let isApproved = await isApprowed(this.selectedPool, this.account);
+
+      if (+isTokenToCookApprove) {
+        await this.cookAddCollateral(
+          payload,
+          isApproved,
+          this.selectedPool,
+          notificationId,
+          this.isLpLogic,
+          !this.useCheckBox
+        );
+        return false;
+      }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch(
+        "notifications/new",
+        notification.approveError
+      );
+
+      return false;
+    },
+
+    async multiplierHandle() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.pending
@@ -947,61 +1018,22 @@ export default {
         return false;
       }
 
-      const slipageMutiplier = (100 - this.slipage) / 100;
-
-      const amountMultiplyer = percentValue / 100;
-
-      let startAmount = data.amount * 0.995;
-
-      let finalAmount = 0;
-
-      for (let i = this.multiplier; i > 0; i--) {
-        finalAmount += +startAmount;
-        startAmount = startAmount * amountMultiplyer;
-      }
-
-      if (!this.checkIsPoolAllowBorrow(finalAmount, notificationId)) {
+      if (
+        !this.checkIsPoolAllowBorrow(this.multiplyMimExpected, notificationId)
+      ) {
         return false;
       }
 
-      if (!this.checkIsUserWhitelistedBorrow()) {
-        return false;
-      }
-
-      if (!this.checkIsAcceptNewYvcrvSTETHBorrow()) {
-        return false;
-      }
-
-      const mimAmount = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
-          finalAmount,
-          this.selectedPool.borrowToken.decimals
-        ),
-        this.selectedPool.borrowToken.decimals
-      );
-
-      const minValue =
-        finalAmount * this.selectedPool.tokenOraclePrice * slipageMutiplier;
-
-      const minValueParsed = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
-          minValue,
-          this.selectedPool.collateralToken.decimals
-        ),
-        this.selectedPool.collateralToken.decimals
-      );
-
-      const finalRemoveCollateralAmountToShare =
-        await this.selectedPool.masterContractInstance.toShare(
-          this.selectedPool.collateralToken.address,
-          minValueParsed,
-          true
-        );
+      const { collateralAmount, borrowPart, shareToMin } =
+        await this.alternativeLeverageHandler(this.multiplier, this.slipage);
 
       const payload = {
-        ...data,
-        amount: mimAmount,
-        minExpected: finalRemoveCollateralAmountToShare,
+        collateralAmount,
+        amount: borrowPart,
+        minExpected: shareToMin,
+        updatePrice: this.selectedPool.askUpdatePrice,
+        itsDefaultBalance: this.useDefaultBalance,
+        slipage: this.slipage,
       };
       this.addMultiBorrowHandler(payload, notificationId);
     },
@@ -1111,14 +1143,53 @@ export default {
       this.clearData();
       this.useCheckBox = !this.useCheckBox;
     },
+
+    getMaxLeverageMultiplier(pool, collateralAmount = 10) {
+      const instantLiquidationPrice = 1 / pool.tokenOraclePrice;
+      const liquidationMultiplier = pool.ltv / 100;
+      const testCollateralAmount = collateralAmount;
+
+      const testSlippage = 1;
+      let multiplier = 2;
+      let isLiquidation = false;
+
+      while (!isLiquidation) {
+        const expectedAmount =
+          testCollateralAmount * multiplier - testCollateralAmount;
+        const slippageAmount = (expectedAmount / 100) * testSlippage;
+        const minExpected = expectedAmount - slippageAmount;
+        const leverageCollateralAmount = testCollateralAmount + minExpected;
+        const leverageBorrowPart = expectedAmount / pool.tokenOraclePrice;
+
+        const finalBorrowPart =
+          leverageBorrowPart + +pool.userInfo.userBorrowPart;
+
+        const finalCollateralAmount =
+          +leverageCollateralAmount + +pool.userInfo.userCollateralShare;
+
+        const liquidationPrice =
+          finalBorrowPart / finalCollateralAmount / liquidationMultiplier || 0;
+
+        if (+liquidationPrice >= instantLiquidationPrice) {
+          isLiquidation = true;
+          break;
+        }
+
+        multiplier += 0.1;
+      }
+
+      const result = Math.min(multiplier, 100);
+
+      return +parseFloat(result).toFixed(2)
+    },
   },
 
   async created() {
-    if(this.$route.params.id === "magicAPE") {
+    if (this.$route.params.id === "magicAPE") {
       this.$router.push({ name: "magicAPE" });
       return false;
     }
-    
+
     this.poolId = this.$route.params.id;
 
     this.changeSlipage(this.poolId, this.chainId);
@@ -1146,6 +1217,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     CollateralApyBlock,
+    MimEstimatePrice
   },
 };
 </script>
