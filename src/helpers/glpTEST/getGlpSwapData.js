@@ -274,7 +274,7 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
       ...tokenOutFromBurningGlpArr[idx],
       swapDataEncode: ethers.utils.defaultAbiCoder.encode(
         ["bytes", "address"],
-        [resp.data, resp.selToken]
+        [resp.data, resp.sellToken]
       ),
     };
   });
