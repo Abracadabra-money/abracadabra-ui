@@ -194,7 +194,13 @@ const getGlpLevData = async (
   })
 
   console.log("cook info", cookInfo)
-  store.commit("updateRouteData", cookInfo);
+  store.commit("updateRouteData", cookInfo.map((item) => {
+    return {
+      address: item.address,
+      feeBasisPoints: item.feeBasisPoints,
+      amount: item.minExpected
+    };
+  }));
 
   const swapperAddres = pool.levSwapperContract.address;
   const userAddr = store.getters.getAccount;
@@ -228,11 +234,11 @@ const getGlpLevData = async (
 };
 
 const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
-  // store.commit("updateRouteData", []);
-  // store.commit("setPopupState", {
-  //   type: "test",
-  //   isShow: true,
-  // });
+  store.commit("updateRouteData", []);
+  store.commit("setPopupState", {
+    type: "mglp-route",
+    isShow: true,
+  });
 
   const { borrowToken, collateralToken } = pool;
 
@@ -277,7 +283,17 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
     };
   });
 
+  store.commit("updateRouteData", results.sort(maxBuyAmount).reverse().map((item) => {
+    return {
+      address: item.address,
+      feeBasisPoints: item.feeBasisPoints,
+      amount: item.buyAmount
+    };
+  }));
+
   const result = results.reduce(maxBuyAmount);
+
+  console.log("result", result)
   return result;
 };
 

@@ -24,9 +24,10 @@
       <div class="header-item list-item">
         <p class="header-title">Token</p>
         <p class="header-title">Fees</p>
-        <p class="header-title">Leveraged Amount of GLP</p>
+        <p class="header-title">{{ amountTitle }}</p>
       </div>
-      <div class="list-item" v-for="item in routeDatas" :key="item.address">
+      <div class="list-item" v-for="(item, idx) of routeDatas" :key="item.address"
+      :class="{accent: itsDeleverage && idx === 0 || !itsDeleverage}">
         <div class="token-icon">
           <BaseTokenIcon :icon="item.icon" />
           <p>{{ item.name }}</p>
@@ -74,20 +75,27 @@ const getInfoFromAddress = (address) => {
 export default {
   props: {},
   computed: {
+    itsDeleverage() {
+      return this.$route.name === "DeleverageId";
+    },
+    amountTitle() {
+      if(this.itsDeleverage) return  "Buy Amount of MIM"
+      return "Leveraged Amount of GLP"
+    },
     routeDatas() {
       const data = this.$store.getters.getRouteData;
       if (!data.length) return false;
 
       return data.map((item) => {
-        const { name, icon } = getInfoFromAddress(item.buyToken.toLowerCase());
+        const { name, icon } = getInfoFromAddress(item.address.toLowerCase());
         return {
           name,
           icon,
           address: item.address,
           fees: item.feeBasisPoints / 100,
           amount: parseFloat(
-            this.$ethers.utils.formatUnits(item.minExpected)
-          ).toFixed(4),
+            this.$ethers.utils.formatUnits(item.amount)
+          ).toFixed(2),
         };
       });
     },
@@ -162,12 +170,15 @@ export default {
 .list-item {
   padding: 8px;
   background: rgba(35, 33, 45, 0.4);
-  box-shadow: 0px 0px 10px rgba(84, 234, 255, 0.2);
   backdrop-filter: blur(4px);
   border-radius: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
+
+  &.accent {
+    box-shadow: 0px 0px 10px rgba(84, 234, 255, 0.2);
+  }
 }
 
 .token-icon {
