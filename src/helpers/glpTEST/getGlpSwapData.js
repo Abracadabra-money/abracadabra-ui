@@ -34,20 +34,6 @@ const blacklist = [
   "0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0", // UNI
 ];
 
-// const getNameFromAddress = (address) => {
-//   return {
-//     "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f": "WBTC",
-//     "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1": "WETH",
-//     "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8": "USDC",
-//     "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4": "LINK",
-//     "0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0": "UNI",
-//     "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9": "USDT",
-//     "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A": "MIM",
-//     "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F": "FRAX",
-//     "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1": "DAI",
-//   }[address];
-// };
-
 const maxGlpAmount = (a, b) => {
   return +b.amountOut - +a.amountOut;
 };
@@ -79,7 +65,7 @@ const getWhitelistedTokens = async () => {
   const tokensInfo = filteredTokens.map((token, idx) => {
     return {
       address: token,
-      maxAmountIn: maxAmountInArr[idx].gt(testLimit)
+      maxAmountInTEST: maxAmountInArr[idx].gt(testLimit)
         ? testLimit
         : maxAmountInArr[idx],
     };
@@ -96,15 +82,17 @@ const getGlpLevData = async (
   chainId,
   slipage
 ) => {
-  // store.commit("updateRouteData", []);
-  // store.commit("setPopupState", {
-  //   type: "test",
-  //   isShow: true,
-  // });
+  store.commit("updateRouteData", []);
+  store.commit("setPopupState", {
+    type: "mglp-route",
+    isShow: true,
+  });
 
   const { borrowToken, collateralToken } = pool;
 
   const tokensArr = await getWhitelistedTokens();
+
+  console.log("tokensArr", tokensArr)
 
   // 0x to many request
   // const initialRequestsArr = await axios.all(
@@ -143,12 +131,11 @@ const getGlpLevData = async (
     return {
       ...resp,
       ...mintedGlpFromTokenInArr[idx],
+      ...tokensArr[idx]
     };
   });
 
   const tokenInfoArray = initialResults.sort(maxGlpAmount);
-
-  store.commit("updateRouteData", tokenInfoArray);
 
   let globalLimit = ethers.BigNumber.from(0);
   tokenInfoArray.forEach((item) => {
@@ -158,14 +145,14 @@ const getGlpLevData = async (
   if (sellAmount.gt(globalLimit)) console.log("to much mim to swap"); // TODO: add notification
 
   let mimLeftToSwap = sellAmount;
-  const cookInfo = [];
+  let cookInfo = [];
 
   for (let info of tokenInfoArray) {
     if (mimLeftToSwap.eq(0)) break;
 
     const itsAmountEnough =
-      info.maxAmountIn.gt(mimLeftToSwap) || info.maxAmountIn.eq(mimLeftToSwap);
-    const awailableToSwap = itsAmountEnough ? mimLeftToSwap : info.maxAmountIn;
+      info.maxAmountInTEST.gt(mimLeftToSwap) || info.maxAmountInTEST.eq(mimLeftToSwap);
+    const awailableToSwap = itsAmountEnough ? mimLeftToSwap : info.maxAmountInTEST;
 
     if (itsAmountEnough && cookInfo.length === 0) {
       cookInfo.push(info);
@@ -198,12 +185,23 @@ const getGlpLevData = async (
       collateralToken.contract.convertToShares(mintedGlpFromTokenIn.amountOut)
     )
   );
+
+  cookInfo = cookInfo.map(info => {
+    return {
+      ...info,
+      minExpected: minExpectedArr[cookInfo.indexOf(info)]
+    }
+  })
+
+  console.log("cook info", cookInfo)
+  store.commit("updateRouteData", cookInfo);
+
   const swapperAddres = pool.levSwapperContract.address;
   const userAddr = store.getters.getAccount;
 
   for (let info of cookInfo) {
     const swapAmount = info.sellAmount;
-    const minExpected = minExpectedArr[cookInfo.indexOf(info)];
+    const minExpected = info.minExpected;
     const swapData = ethers.utils.defaultAbiCoder.encode(
       ["bytes", "address"],
       [info.data, info.buyToken]

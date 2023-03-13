@@ -16,23 +16,22 @@
       />
     </div>
 
-    <div class="header-item list-item">
-      <p class="header-title">Token</p>
-      <p class="header-title">Fees</p>
-      <p class="header-title">Leveraged Amount of GLP</p>
-    </div>
-
-    <div v-if="!tokenInfo.length" class="loader-wrap">
+    <div v-if="!routeDatas.length" class="loader-wrap">
       <BaseLoader />
     </div>
 
-    <div v-else-if="tokenInfo.length" class="tokens-list">
-      <div class="list-item" v-for="item in tokenInfo" :key="item.id">
+    <div v-else class="tokens-list">
+      <div class="header-item list-item">
+        <p class="header-title">Token</p>
+        <p class="header-title">Fees</p>
+        <p class="header-title">Leveraged Amount of GLP</p>
+      </div>
+      <div class="list-item" v-for="item in routeDatas" :key="item.address">
         <div class="token-icon">
-          <BaseTokenIcon />
+          <BaseTokenIcon :icon="item.icon" />
           <p>{{ item.name }}</p>
         </div>
-        <p>{{ item.fees }}</p>
+        <p>{{ item.fees }}%</p>
         <p>{{ item.amount }}</p>
       </div>
     </div>
@@ -43,108 +42,59 @@
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
+const getInfoFromAddress = (address) => {
+  return {
+    "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f": {
+      name: "WBTC",
+      icon: require("@/assets/images/tokens/BTC.png"),
+    },
+    "0x82af49447d8a07e3bd95bd0d56f35241523fbab1": {
+      name: "WETH",
+      icon: require("@/assets/images/tokens/WETH.png"),
+    },
+    "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": {
+      name: "USDC",
+      icon: require("@/assets/images/tokens/USDC.png"),
+    },
+    "0xf97f4df75117a78c1a5a0dbb814af92458539fb4": {
+      name: "LINK",
+      icon: require("@/assets/images/tokens/LINK.png"),
+    },
+    "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9": {
+      name: "USDT",
+      icon: require("@/assets/images/tokens/USDT.png"),
+    },
+    "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1": {
+      name: "DAI",
+      icon: require("@/assets/images/tokens/DAI.png"),
+    },
+  }[address];
+};
+
 export default {
   props: {},
+  computed: {
+    routeDatas() {
+      const data = this.$store.getters.getRouteData;
+      if (!data.length) return false;
+
+      return data.map((item) => {
+        const { name, icon } = getInfoFromAddress(item.buyToken.toLowerCase());
+        return {
+          name,
+          icon,
+          address: item.address,
+          fees: item.feeBasisPoints / 100,
+          amount: parseFloat(
+            this.$ethers.utils.formatUnits(item.minExpected)
+          ).toFixed(4),
+        };
+      });
+    },
+  },
   methods: {
     closePopup() {
       this.$store.commit("closePopups");
-    },
-  },
-  computed: {
-    tokenInfo() {
-      return [
-        {
-          id: 1,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "0.0",
-          amount: "0.0",
-        },
-        {
-          id: 2,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "2.0",
-          amount: "3.0",
-        },
-        {
-          id: 3,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 4,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 5,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 6,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 7,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 7,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 7,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 7,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 7,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 7,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-        {
-          id: 7,
-          icon: require("@/assets/images/base_token_icon.png"),
-          name: "ETH",
-          fees: "1.0",
-          amount: "1.0",
-        },
-      ];
     },
   },
   components: {
@@ -158,8 +108,8 @@ export default {
 .popup {
   display: grid;
   grid-template-rows: auto 1fr;
-  max-width: 400px;
-  width: 100%;
+  max-width: 95%;
+  width: 400px;
   height: 566px;
   max-height: 80vh;
   position: relative;
@@ -169,6 +119,7 @@ export default {
   border: 4px solid #3e4282;
   filter: drop-shadow(0px 4px 40px rgba(150, 149, 248, 0.4))
     drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.25));
+  margin: 0 auto;
 }
 
 .popup-header {
@@ -198,9 +149,6 @@ export default {
 
 .popup-close {
   cursor: pointer;
-}
-.header-item {
-  margin: 0 14px 12px;
 }
 
 .header-title {
@@ -233,6 +181,7 @@ export default {
   overflow-y: auto;
   gap: 12px;
   padding: 6px 14px;
+  width: 100%;
 }
 
 .loader-wrap {

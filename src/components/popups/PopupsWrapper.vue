@@ -9,7 +9,7 @@
       <SucessPopup v-if="popupActiveType === 'success'" />
       <TestPopup v-if="popupActiveType === 'test'" />
       <ClaimPopup v-if="popupActiveType === 'claim'" />
-      <RouteOptimisationPopup v-if="popupActiveType === 'route'" />
+      <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
     </div>
   </div>
 </template>
