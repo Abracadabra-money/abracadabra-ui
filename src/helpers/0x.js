@@ -35,6 +35,7 @@ export const swap0xRequest = async (
         slippagePercentage,
         skipValidation: true,
         takerAddress,
+        enableSlippageProtection: true
       };
     } else {
       params = {
@@ -44,6 +45,7 @@ export const swap0xRequest = async (
         slippagePercentage,
         skipValidation: true,
         takerAddress,
+        enableSlippageProtection: true
       };
     }
 
