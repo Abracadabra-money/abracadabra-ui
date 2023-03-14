@@ -43,7 +43,7 @@ const maxBuyAmount = (a, b) => {
 };
 
 const getWhitelistedTokens = async () => {
-  const testLimit = ethers.BigNumber.from("20000000000000000000");
+  const testLimit = ethers.BigNumber.from("2000000000000000000000");
 
   const whitelistedTokensLength =
     await gmxVaultContract.allWhitelistedTokensLength();
