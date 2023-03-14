@@ -1,14 +1,14 @@
 export const cook = async (contract, cookData, value) => {
-    // const estimateGas = await contract.estimateGas.cook(
-    //   cookData.events,
-    //   cookData.values,
-    //   cookData.datas,
-    //   {
-    //     value,
-    //   }
-    // );
+    const estimateGas = await contract.estimateGas.cook(
+      cookData.events,
+      cookData.values,
+      cookData.datas,
+      {
+        value,
+      }
+    );
   
-    // const gasLimit = estimateGas.add(1000);
+    const gasLimit = estimateGas.add(1000);
   
     const tx = await contract.cook(
       cookData.events,
@@ -16,7 +16,7 @@ export const cook = async (contract, cookData, value) => {
       cookData.datas,
       {
         value,
-        gasLimit: 20000000,
+        gasLimit,
       }
     );
   

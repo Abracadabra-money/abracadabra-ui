@@ -43,7 +43,7 @@ const maxBuyAmount = (a, b) => {
 };
 
 const getWhitelistedTokens = async () => {
-  const testLimit = ethers.BigNumber.from("2000000000000000000000");
+  // const testLimit = ethers.BigNumber.from("1000000000000000000000");
 
   const whitelistedTokensLength =
     await gmxVaultContract.allWhitelistedTokensLength();
@@ -65,9 +65,7 @@ const getWhitelistedTokens = async () => {
   const tokensInfo = filteredTokens.map((token, idx) => {
     return {
       address: token,
-      maxAmountInTEST: maxAmountInArr[idx].gt(testLimit)
-        ? testLimit
-        : maxAmountInArr[idx],
+      maxAmountIn: maxAmountInArr[idx],
     };
   });
 
@@ -150,11 +148,8 @@ const getGlpLevData = async (
     if (mimLeftToSwap.eq(ethers.BigNumber.from(0))) break;
 
     const itsAmountEnough =
-      info.maxAmountInTEST.gt(mimLeftToSwap) ||
-      info.maxAmountInTEST.eq(mimLeftToSwap);
-    const awailableToSwap = itsAmountEnough
-      ? mimLeftToSwap
-      : info.maxAmountInTEST;
+      info.maxAmountIn.gt(mimLeftToSwap) || info.maxAmountIn.eq(mimLeftToSwap);
+    const awailableToSwap = itsAmountEnough ? mimLeftToSwap : info.maxAmountIn;
 
     if (itsAmountEnough && cookInfo.length === 0) {
       cookInfo.push(info);
