@@ -43,7 +43,7 @@ const maxBuyAmount = (a, b) => {
 };
 
 const getWhitelistedTokens = async () => {
-  // const testLimit = ethers.BigNumber.from("1000000000000000000000");
+  const testLimit = ethers.BigNumber.from("20000000000000000000");
 
   const whitelistedTokensLength =
     await gmxVaultContract.allWhitelistedTokensLength();
@@ -65,7 +65,9 @@ const getWhitelistedTokens = async () => {
   const tokensInfo = filteredTokens.map((token, idx) => {
     return {
       address: token,
-      maxAmountIn: maxAmountInArr[idx]
+      maxAmountInTEST: maxAmountInArr[idx].gt(testLimit)
+        ? testLimit
+        : maxAmountInArr[idx],
     };
   });
 
@@ -127,7 +129,7 @@ const getGlpLevData = async (
     return {
       ...resp,
       ...mintedGlpFromTokenInArr[idx],
-      ...tokensArr[idx]
+      ...tokensArr[idx],
     };
   });
 
@@ -138,7 +140,8 @@ const getGlpLevData = async (
     globalLimit = globalLimit.add(item.maxAmountIn);
   });
 
-  if (ethers.BigNumber.from(sellAmount).gt(globalLimit)) console.log("to much mim to swap"); // TODO: add notification
+  if (ethers.BigNumber.from(sellAmount).gt(globalLimit))
+    console.log("to much mim to swap"); // TODO: add notification
 
   let mimLeftToSwap = ethers.BigNumber.from(sellAmount);
   let cookInfo = [];
@@ -147,23 +150,27 @@ const getGlpLevData = async (
     if (mimLeftToSwap.eq(ethers.BigNumber.from(0))) break;
 
     const itsAmountEnough =
-      info.maxAmountIn.gt(mimLeftToSwap) || info.maxAmountIn.eq(mimLeftToSwap);
-    const awailableToSwap = itsAmountEnough ? mimLeftToSwap : info.maxAmountIn;
+      info.maxAmountInTEST.gt(mimLeftToSwap) ||
+      info.maxAmountInTEST.eq(mimLeftToSwap);
+    const awailableToSwap = itsAmountEnough
+      ? mimLeftToSwap
+      : info.maxAmountInTEST;
 
     if (itsAmountEnough && cookInfo.length === 0) {
       cookInfo.push(info);
     } else {
-      const { data, buyAmount, sellAmount, buyAmountWithSlippage } = await swap0xRequest(
-        chainId,
-        info.buyToken,
-        borrowToken.address,
-        slipage,
-        awailableToSwap
-      );
+      const { data, buyAmount, sellAmount, buyAmountWithSlippage } =
+        await swap0xRequest(
+          chainId,
+          info.buyToken,
+          borrowToken.address,
+          slipage,
+          awailableToSwap
+        );
 
       info.data = data;
       info.buyAmount = buyAmount;
-      info.buyAmountWithSlippage = buyAmountWithSlippage
+      info.buyAmountWithSlippage = buyAmountWithSlippage;
       info.sellAmount = sellAmount;
 
       cookInfo.push(info);
@@ -174,7 +181,10 @@ const getGlpLevData = async (
 
   const mintedGlpFromTokenInArrFinal = await Promise.all(
     cookInfo.map((info) =>
-      gmxLensContract.getMintedGlpFromTokenIn(info.buyToken, info.buyAmountWithSlippage)
+      gmxLensContract.getMintedGlpFromTokenIn(
+        info.buyToken,
+        info.buyAmountWithSlippage
+      )
     )
   );
   const minExpectedArr = await Promise.all(
@@ -183,20 +193,23 @@ const getGlpLevData = async (
     )
   );
 
-  cookInfo = cookInfo.map(info => {
+  cookInfo = cookInfo.map((info) => {
     return {
       ...info,
-      minExpected: minExpectedArr[cookInfo.indexOf(info)]
-    }
-  })
-
-  store.commit("updateRouteData", cookInfo.map((item) => {
-    return {
-      address: item.address,
-      feeBasisPoints: item.feeBasisPoints,
-      amount: item.minExpected
+      minExpected: minExpectedArr[cookInfo.indexOf(info)],
     };
-  }));
+  });
+
+  store.commit(
+    "updateRouteData",
+    cookInfo.map((item) => {
+      return {
+        address: item.address,
+        feeBasisPoints: item.feeBasisPoints,
+        amount: item.minExpected,
+      };
+    })
+  );
 
   const swapperAddres = pool.levSwapperContract.address;
   const userAddr = store.getters.getAccount;
@@ -279,17 +292,23 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
     };
   });
 
-  store.commit("updateRouteData", results.sort(maxBuyAmount).reverse().map((item) => {
-    return {
-      address: item.address,
-      feeBasisPoints: item.feeBasisPoints,
-      amount: item.buyAmount
-    };
-  }));
+  store.commit(
+    "updateRouteData",
+    results
+      .sort(maxBuyAmount)
+      .reverse()
+      .map((item) => {
+        return {
+          address: item.address,
+          feeBasisPoints: item.feeBasisPoints,
+          amount: item.buyAmount,
+        };
+      })
+  );
 
   const result = results.reduce(maxBuyAmount);
 
-  console.log("result", result)
+  console.log("result", result);
   return result;
 };
 
