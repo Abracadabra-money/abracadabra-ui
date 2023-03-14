@@ -153,7 +153,7 @@ const getGlpLevData = async (
     if (itsAmountEnough && cookInfo.length === 0) {
       cookInfo.push(info);
     } else {
-      const { data, buyAmount, sellAmount } = await swap0xRequest(
+      const { data, buyAmount, sellAmount, buyAmountWithSlippage } = await swap0xRequest(
         chainId,
         info.buyToken,
         borrowToken.address,
@@ -163,6 +163,7 @@ const getGlpLevData = async (
 
       info.data = data;
       info.buyAmount = buyAmount;
+      info.buyAmountWithSlippage = buyAmountWithSlippage
       info.sellAmount = sellAmount;
 
       cookInfo.push(info);
@@ -173,7 +174,7 @@ const getGlpLevData = async (
 
   const mintedGlpFromTokenInArrFinal = await Promise.all(
     cookInfo.map((info) =>
-      gmxLensContract.getMintedGlpFromTokenIn(info.buyToken, info.buyAmount)
+      gmxLensContract.getMintedGlpFromTokenIn(info.buyToken, info.buyAmountWithSlippage)
     )
   );
   const minExpectedArr = await Promise.all(
