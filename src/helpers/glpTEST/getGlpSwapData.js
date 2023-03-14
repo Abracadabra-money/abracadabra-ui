@@ -90,8 +90,6 @@ const getGlpLevData = async (
 
   const tokensArr = await getWhitelistedTokens();
 
-  console.log("tokensArr", tokensArr)
-
   // 0x to many request
   // const initialRequestsArr = await axios.all(
   //   tokensArr.map((token) =>
@@ -140,13 +138,13 @@ const getGlpLevData = async (
     globalLimit = globalLimit.add(item.maxAmountIn);
   });
 
-  if (sellAmount.gt(globalLimit)) console.log("to much mim to swap"); // TODO: add notification
+  if (ethers.BigNumber.from(sellAmount).gt(globalLimit)) console.log("to much mim to swap"); // TODO: add notification
 
-  let mimLeftToSwap = sellAmount;
+  let mimLeftToSwap = ethers.BigNumber.from(sellAmount);
   let cookInfo = [];
 
   for (let info of tokenInfoArray) {
-    if (mimLeftToSwap.eq(0)) break;
+    if (mimLeftToSwap.eq(ethers.BigNumber.from(0))) break;
 
     const itsAmountEnough =
       info.maxAmountIn.gt(mimLeftToSwap) || info.maxAmountIn.eq(mimLeftToSwap);
@@ -191,7 +189,6 @@ const getGlpLevData = async (
     }
   })
 
-  console.log("cook info", cookInfo)
   store.commit("updateRouteData", cookInfo.map((item) => {
     return {
       address: item.address,
