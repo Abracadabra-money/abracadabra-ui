@@ -232,6 +232,13 @@ const getGlpLevData = async (
       false,
       2
     );
+
+    const infoIndex = cookInfo.indexOf(info);
+    const itsLast = infoIndex === cookInfo.length - 1
+
+    if (!itsLast) {
+      cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
+    }
   }
 
   return cookData;

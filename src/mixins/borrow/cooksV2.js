@@ -880,7 +880,7 @@ export default {
 
       cookData = await actions.addCollateral(
         cookData,
-        minExpected, // test
+        "-2",
         this.account,
         false
       );
