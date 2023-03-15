@@ -51,6 +51,8 @@ export default {
         let minutes = Math.floor(this.timeValue / 60);
         let seconds = this.timeValue % 60;
 
+        if (seconds < 10) seconds = `0${this.timeValue % 60}`;
+
         return `${minutes} : ${seconds} `;
       }
 
