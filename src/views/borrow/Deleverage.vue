@@ -56,11 +56,11 @@
                 src="@/assets/images/info.svg"
                 alt="info"
                 v-tooltip="
-                  'Abracadabra routes leverage through USDC when interacting with GLP.These fees are not included in the slippage tollerance.'
+                  'Abracadabra leverage engine optmises the best route to join/leave GLP. These fees are not included in the slippgae tollerance'
                 "
               />
               <a target="_blank" href="https://app.gmx.io/#/buy_glp#redeem"
-                >Check current USDC Burn Fee</a
+                >Check current Burn Fees</a
               ></span
             >
           </div>

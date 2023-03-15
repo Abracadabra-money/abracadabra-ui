@@ -35,6 +35,7 @@ export const swap0xRequest = async (
         slippagePercentage,
         skipValidation: true,
         takerAddress,
+        enableSlippageProtection: true
       };
     } else {
       params = {
@@ -44,6 +45,7 @@ export const swap0xRequest = async (
         slippagePercentage,
         skipValidation: true,
         takerAddress,
+        enableSlippageProtection: true
       };
     }
 
@@ -55,10 +57,18 @@ export const swap0xRequest = async (
 
     return {
       data: data,
+      buyToken,
+      sellToken,
       price,
       buyAmount: BigNumber.from(buyAmount),
       sellAmount: BigNumber.from(sellAmount),
       estimatedGas: BigNumber.from(estimatedGas),
+      buyAmountWithSlippage: BigNumber.from(buyAmount)
+        .mul(BigNumber.from(100 - slippage))
+        .div(BigNumber.from(100)),
+      sellAmountWithSlippage: BigNumber.from(sellAmount)
+        .mul(BigNumber.from(100 - slippage))
+        .div(BigNumber.from(100)),
     };
   } catch (error) {
     console.log("swap0xRequest error:", error);

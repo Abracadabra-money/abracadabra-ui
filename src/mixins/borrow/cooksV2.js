@@ -1,16 +1,17 @@
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
-import { getGlpTokenOutAmount } from "@/helpers/gmxLens";
+import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
+
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
-const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
+// const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
 export default {
@@ -99,7 +100,10 @@ export default {
       if (this.isVelo) return "0x00";
 
       let buyToken = pool.collateralToken.address;
-      if (this.isGlp) buyToken = usdcAddress;
+      if (this.isGlp) {
+        const leverageResp = await getGlpLevData(this.signer, pool, amount, 42161, slipage)
+        return leverageResp.swapDataEncode;
+      } 
       if (this.isApe) buyToken = apeAddress;
 
       const swapResponse = await swap0xRequest(
@@ -122,15 +126,12 @@ export default {
       let selToken = pool.collateralToken.address;
       let selAmount = collateralAmount;
 
+      console.log("collateralAmount", collateralAmount.toString())
+
       if (this.isGlp) {
-        selToken = usdcAddress;
-        selAmount = await getGlpTokenOutAmount(
-          pool.collateralToken,
-          selAmount,
-          usdcAddress,
-          this.signer
-        );
-      }
+        const deleverageResp = await getGlpLiqData(this.signer, pool, collateralAmount, 42161, slipage)
+        return deleverageResp.swapDataEncode;
+      } 
 
       if (this.isApe) {
         selToken = apeAddress;
@@ -425,6 +426,8 @@ export default {
       const swapperAddres = pool.levSwapperContract.address;
       const userAddr = this.account;
 
+      if(this.isGlp) return await getGlpLevData(cookData, this.signer, pool, amount, 42161, slipage)
+
       if (!is0x) {
         const swapStaticTx =
           await pool.levSwapperContract.populateTransaction.swap(
@@ -446,6 +449,7 @@ export default {
 
         return cookData;
       }
+
 
       const swapData = await this.get0xLeverageSwapData(pool, amount, slipage);
 
