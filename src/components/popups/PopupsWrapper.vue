@@ -8,6 +8,7 @@
       <MEMOWrapPopup v-if="popupActiveType === 'memo-wrap'" />
       <SucessPopup v-if="popupActiveType === 'success'" />
       <ClaimPopup v-if="popupActiveType === 'claim'" />
+      <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
     </div>
   </div>
 </template>
@@ -23,6 +24,8 @@ const OHMPopup = () => import("@/components/popups/Deposit/OHMPopup/index");
 const MEMOWrapPopup = () => import("@/components/popups/Deposit/MEMOWrapPopup");
 const SucessPopup = () => import("@/components/popups/SuccessPopup");
 const ClaimPopup = () => import("@/components/popups/ClaimPopup");
+const RouteOptimisationPopup = () =>
+  import("@/components/popups/RouteOptimisationPopup");
 
 export default {
   computed: {
@@ -45,6 +48,7 @@ export default {
     MEMOWrapPopup,
     SucessPopup,
     ClaimPopup,
+    RouteOptimisationPopup,
   },
 };
 </script>
