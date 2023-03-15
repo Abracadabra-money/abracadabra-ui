@@ -8,7 +8,7 @@ import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
-import { getGlpLevData, getGlpLiqData } from "@/helpers/glpTEST/getGlpSwapData"; // ready to test
+import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData"; // ready to test
 
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
@@ -519,8 +519,6 @@ export default {
         shareFrom,
         slipage
       );
-
-      console.log("shareToMin", shareToMin.toString())
 
       const swapStaticTx =
         await pool.liqSwapperContract.populateTransaction.swap(

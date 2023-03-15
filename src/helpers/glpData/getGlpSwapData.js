@@ -3,7 +3,6 @@ import { MulticallProvider } from "ethers-multicall-provider";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import store from "@/store";
-// import axios from "axios";
 
 const staticProvider = new providers.StaticJsonRpcProvider(
   "https://arb1.arbitrum.io/rpc"
@@ -11,8 +10,8 @@ const staticProvider = new providers.StaticJsonRpcProvider(
 
 const multicalProvider = MulticallProvider.wrap(staticProvider);
 
-import gmxVaultAbi from "@/helpers/glpTEST/abi/gmxVault";
-import gmxLensAbi from "@/helpers/glpTEST/abi/gmxLens";
+import gmxVaultAbi from "@/helpers/glpData/abi/gmxVault";
+import gmxLensAbi from "@/helpers/glpData/abi/gmxLens";
 const gmxVaultAddress = "0x489ee077994B6658eAfA855C308275EAd8097C4A";
 const gmxLensAddress = "0x9f8fB63ef774A496cd9aD3Cc29c1e81Ae947FC2e";
 
@@ -43,8 +42,6 @@ const maxBuyAmount = (a, b) => {
 };
 
 const getWhitelistedTokens = async () => {
-  // const testLimit = ethers.BigNumber.from("1000000000000000000000");
-
   const whitelistedTokensLength =
     await gmxVaultContract.allWhitelistedTokensLength();
 
@@ -89,19 +86,6 @@ const getGlpLevData = async (
   const { borrowToken, collateralToken } = pool;
 
   const tokensArr = await getWhitelistedTokens();
-
-  // 0x to many request
-  // const initialRequestsArr = await axios.all(
-  //   tokensArr.map((token) =>
-  //     swap0xRequest(
-  //       chainId,
-  //       token.address,
-  //       borrowToken.address,
-  //       slipage,
-  //       sellAmount
-  //     )
-  //   )
-  // );
 
   const initialRequestsArr = [];
 
