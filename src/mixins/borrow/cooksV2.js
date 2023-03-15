@@ -1,14 +1,13 @@
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
-// import { getGlpTokenOutAmount } from "@/helpers/gmxLens";
+import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
-import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData"; // ready to test
 
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
