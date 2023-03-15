@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import moment from "moment";
 export default {
   props: {
     notification: {
@@ -41,24 +42,11 @@ export default {
   data() {
     return {
       timerInterval: null,
-      timeValue: 0,
+      parsedTime: "00:00",
     };
   },
 
   computed: {
-    parsedTime() {
-      if (this.timeValue >= 60) {
-        let minutes = Math.floor(this.timeValue / 60);
-        let seconds = this.timeValue % 60;
-
-        if (seconds < 10) seconds = `0${this.timeValue % 60}`;
-
-        return `${minutes} : ${seconds} `;
-      }
-
-      return `${this.timeValue} `;
-    },
-
     notificationTitle() {
       if (this.notification?.title) return this.notification.title;
 
@@ -81,8 +69,10 @@ export default {
   },
 
   created() {
+    const startTime = moment(new Date());
     this.timerInterval = setInterval(() => {
-      this.timeValue++;
+      const end = moment(new Date());
+      this.parsedTime = moment(end.diff(startTime)).format("mm:ss");
     }, 1000);
 
     if (this.notification.type !== "pending") {
