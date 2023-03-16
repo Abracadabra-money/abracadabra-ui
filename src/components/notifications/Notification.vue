@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       timerInterval: null,
-      parsedTime: "00:00",
+      timeValue: 0,
     };
   },
 
@@ -51,6 +51,10 @@ export default {
       if (this.notification?.title) return this.notification.title;
 
       return this.notification.type;
+    },
+
+    parsedTime() {
+      return moment(this.timeValue * 1000).format("mm:ss");
     },
   },
 
@@ -69,10 +73,8 @@ export default {
   },
 
   created() {
-    const startTime = moment(new Date());
     this.timerInterval = setInterval(() => {
-      const end = moment(new Date());
-      this.parsedTime = moment(end.diff(startTime)).format("mm:ss");
+      this.timeValue++;
     }, 1000);
 
     if (this.notification.type !== "pending") {
