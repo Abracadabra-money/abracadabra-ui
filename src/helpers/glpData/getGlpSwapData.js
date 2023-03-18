@@ -13,7 +13,7 @@ const multicalProvider = MulticallProvider.wrap(staticProvider);
 import gmxVaultAbi from "@/helpers/glpData/abi/gmxVault";
 import gmxLensAbi from "@/helpers/glpData/abi/gmxLens";
 const gmxVaultAddress = "0x489ee077994B6658eAfA855C308275EAd8097C4A";
-const gmxLensAddress = "0x9f8fB63ef774A496cd9aD3Cc29c1e81Ae947FC2e";
+const gmxLensAddress = "0x714085Ea0880Fa247FBed8C29937392BEEa2cD74";
 
 const gmxLensContract = new ethers.Contract(
   gmxLensAddress,
@@ -31,7 +31,6 @@ const blacklist = [
   "0x17fc002b466eec40dae837fc4be5c67993ddbd6f", // FRAX
   "0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a", // MIM
   "0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0", // UNI
-  "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f", // WBTC
 ];
 
 const maxGlpAmount = (a, b) => {
@@ -86,8 +85,7 @@ const getGlpLevData = async (
 
   const { borrowToken, collateralToken } = pool;
 
-  const tokensArr = await getWhitelistedTokens();
-
+  const tokensArr = (await getWhitelistedTokens()).filter(info => !info.maxAmountIn.eq(0));
   const initialRequestsArr = [];
 
   for (let token of tokensArr) {
