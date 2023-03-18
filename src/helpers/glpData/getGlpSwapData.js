@@ -31,6 +31,7 @@ const blacklist = [
   "0x17fc002b466eec40dae837fc4be5c67993ddbd6f", // FRAX
   "0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a", // MIM
   "0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0", // UNI
+  "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f", // WBTC
 ];
 
 const maxGlpAmount = (a, b) => {
