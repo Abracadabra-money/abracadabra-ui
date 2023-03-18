@@ -36,7 +36,6 @@ export default [
     outputs: [
       { internalType: "uint256", name: "amountOut", type: "uint256" },
       { internalType: "uint256", name: "feeBasisPoints", type: "uint256" },
-      { internalType: "uint256", name: "maxAmountIn", type: "uint256" },
     ],
     stateMutability: "view",
     type: "function",
