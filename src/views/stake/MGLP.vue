@@ -3,7 +3,7 @@
     <div class="input-block">
       <h4>Choose Chain</h4>
       <div class="underline">
-        <NetworksList :active-list="[42161]" />
+        <NetworksList :active-list="acceptChain" />
       </div>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -287,6 +287,7 @@ export default {
       apy: "",
       gasLimitConst: 1000,
       totalRewards: null,
+      acceptChain: [42161, 43114],
     };
   },
 
@@ -553,7 +554,7 @@ export default {
   async created() {
     await this.createStakePool();
 
-    if (this.chainId !== 42161) return false;
+    if (!this.acceptChain.includes(this.chainId)) return false;
     await this.getTotalRewards();
     this.updateInterval = setInterval(async () => {
       await this.createStakePool();
