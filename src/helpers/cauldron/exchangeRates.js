@@ -20,23 +20,18 @@ export const getCauldronOracleRates = async (cauldron, provider) => {
   }
 };
 
-export const getBestExchangeRate = async ({oracleRate, cauldronRate}) => {
+export const getIsUpdateRate = async ({oracleRate, cauldronRate}) => {
   try {
-    let exchangeRate;
-    let updatePrice = false;
+    let updateRate = false;
 
     if (oracleRate.gt(cauldronRate) && !cauldronRate.eq(0)) {
-      exchangeRate = cauldronRate;
-      updatePrice = true;
+      updateRate = true;
     } else if (cauldronRate.eq(0)) {
-      exchangeRate = oracleRate;
-      updatePrice = true;
-    } else {
-      exchangeRate = oracleRate;
+      updateRate = true;
     }
 
-    return { exchangeRate, updatePrice };
+    return updateRate;
   } catch (error) {
-    console.log("getBestExchangeRate error:", error);
+    console.log("getIsUpdateRate error:", error);
   }
 };

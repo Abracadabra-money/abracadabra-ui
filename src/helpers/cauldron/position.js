@@ -1,4 +1,4 @@
-import { BigNumber, utils } from "ethers";
+import { BigNumber } from "ethers";
 import moment from "moment";
 
 export const getUserCollateralAmount = async (
@@ -42,29 +42,31 @@ export const getUserBorrowPart = async (cauldron, user) => {
     if (!INTEREST_PER_SECOND || INTEREST_PER_SECOND.eq(0) || !lastAccrued) {
       return {
         contractBorrowPart: userBorrowPart,
-        userBorrowPart: utils.formatUnits(userBorrowFixed),
+        userBorrowPart: userBorrowFixed,
       };
     }
 
     const secondsInYear = BigNumber.from(31536000);
-    const interestPercent = INTEREST_PER_SECOND.mul(secondsInYear).div(1e16);
+    const interestPercent = INTEREST_PER_SECOND.mul(secondsInYear).div(
+      BigNumber.from("10000000000000000")
+    );
     const mimPerSecond = userBorrowFixed
       .mul(interestPercent)
       .div(100)
       .div(secondsInYear)
-      .div(1e16);
+      .div(BigNumber.from("10000000000000000"));
 
     const startTimestamp = moment.unix(lastAccrued);
     const currentTimestamp = moment.unix(new Date().getTime() / 1000);
 
-    const duration = moment
-      .duration(currentTimestamp.diff(startTimestamp))
-      .asSeconds();
+    const duration = Math.floor(
+      moment.duration(currentTimestamp.diff(startTimestamp)).asSeconds()
+    );
 
     if (!duration) {
       return {
         contractBorrowPart: userBorrowPart,
-        userBorrowPart: utils.formatUnits(userBorrowFixed),
+        userBorrowPart: userBorrowFixed,
       };
     }
 
@@ -72,9 +74,20 @@ export const getUserBorrowPart = async (cauldron, user) => {
 
     return {
       contractBorrowPart: userBorrowPart,
-      userBorrowPart: utils.formatUnits(userBorrowFixed.add(mimFromLastAccrue)),
+      userBorrowPart: userBorrowFixed.add(mimFromLastAccrue),
     };
   } catch (error) {
     console.log("getUserBorrowPart error:", error);
   }
+};
+
+export const getLiquidationPrice = (
+  userCollateralShare,
+  userBorrowPart,
+  mcr
+) => {
+  const liquidationPrice =
+    userBorrowPart / userCollateralShare / (mcr / 100) || 0;
+
+  return liquidationPrice;
 };
