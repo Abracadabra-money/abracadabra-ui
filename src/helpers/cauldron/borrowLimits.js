@@ -1,28 +1,28 @@
-import { formatUnits } from "ethers/lib/utils";
+import { utils } from "ethers";
 
 export const getMimCauldronBalance = async (bentoBox, cauldron, mim) => {
   try {
-    const shares = await bentoBox.balanceOf(tokenAddr, cauldron);
+    const shares = await bentoBox.balanceOf(mim, cauldron);
     const amount = await bentoBox.toAmount(mim, shares, false);
 
-    return formatUnits(amount);
+    return utils.formatUnits(amount);
   } catch (error) {
-    console.log("getMimCauldronBalance error:", e);
+    console.log("getMimCauldronBalance error:", error);
   }
 };
 
 export const getBorrowlimit = async (cauldron) => {
   try {
-    if (!cauldron.hasOwnProperty("borrowLimit")) return false;
+    if (!Object.prototype.hasOwnProperty.call(cauldron, "borrowLimit")) return false;
 
-    const borrowLimit = await poolContract.borrowLimit();
+    const borrowLimit = await cauldron.borrowLimit();
 
     return {
-      borrowPartPerAddressLimit: formatUnits(borrowLimit.borrowPartPerAddress),
-      totalLimit: formatUnits(borrowLimit.total),
+      borrowPartPerAddressLimit: utils.formatUnits(borrowLimit.borrowPartPerAddress),
+      totalLimit: utils.formatUnits(borrowLimit.total),
     };
   } catch (error) {
-    console.log("getBorrowlimit error:", e);
+    console.log("getBorrowlimit error:", error);
   }
 };
 

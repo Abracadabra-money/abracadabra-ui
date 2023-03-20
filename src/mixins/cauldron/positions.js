@@ -3,7 +3,6 @@ import { Contract, utils } from "ethers";
 
 import cauldronsConfig from "@/utils/borrowPools/pools";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
-import degenBoxAbi from "@/utils/abi/degenBox";
 
 import { getCauldronOracleRates } from "@/helpers/cauldron/exchangeRates";
 
@@ -44,6 +43,7 @@ export default {
           info.borrowPart.contractBorrowPart.gt(0)
         );
       });
+
       console.log("userPositions", position);
     },
     async checkIndividualPosition(config) {
@@ -57,7 +57,7 @@ export default {
 
       const bentoBox = new Contract(
         bentoBoxAddress,
-        config.cauldronSettings.isDegenBox ? degenBoxAbi : bentoBoxAbi,
+        bentoBoxAbi,
         this.contractProvider
       );
 
