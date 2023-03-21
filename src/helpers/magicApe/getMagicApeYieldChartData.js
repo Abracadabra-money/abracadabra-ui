@@ -1,0 +1,40 @@
+const axios = require("axios");
+const moment = require("moment");
+
+const getMagicApeYieldChartData = async (month) => {
+  const secondsPerDay = 60 * 60 * 24;
+  const days = 30 * month;
+  const to = Math.floor(Date.now() / 1000 / secondsPerDay);
+  const from = to - days;
+
+  const url =
+    "https://api.studio.thegraph.com/query/4540/abra-test-mainnet/v0.0.1";
+  const query = `{
+        magicApeYieldDailySnapshots(
+            first: ${days}
+            where: {id_gte: ${from}, id_lte: ${to}}
+            orderBy: id
+            orderDirection: desc
+        ) {
+            id
+            apr
+            apy
+        }
+    }`;
+  const { data } = await axios.default.post(url, { query });
+  const snapshots = data.data?.magicApeYieldDailySnapshots;
+
+  const result = [];
+
+  snapshots.forEach((snapshot) => {
+    result.push({
+      apr: snapshot.apr,
+      apy: snapshot.apy,
+      date: moment.unix(snapshot.id * secondsPerDay).format("YYYY-MM-DD"),
+    });
+  });
+
+  return result;
+};
+
+export { getMagicApeYieldChartData };

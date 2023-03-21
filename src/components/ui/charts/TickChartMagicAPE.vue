@@ -49,14 +49,13 @@ export default {
               label: function (context) {
                 const { dataset, dataIndex } = context;
                 const { label, data } = dataset;
-                if (label === "TVL")
-                  return ` ${label} $ ${data[dataIndex].toFixed(4)}`;
-                if (label === "PRICE")
-                  return ` $ ${data[dataIndex].toFixed(2)} mAPE`;
+                let value = +data[dataIndex];
+                if (label === "TVL") return ` ${label} $ ${value.toFixed(4)}`;
+                if (label === "PRICE") return ` $ ${value.toFixed(2)} mAPE`;
                 if (label === "APE") {
-                  return ` ${label}           ${data[dataIndex].toFixed(2)}%`;
+                  return ` ${label}           ${value.toFixed(2)}%`;
                 }
-                return ` ${label} ${data[dataIndex].toFixed(2)}%`;
+                return ` ${label} ${value.toFixed(2)}%`;
               },
             },
           },

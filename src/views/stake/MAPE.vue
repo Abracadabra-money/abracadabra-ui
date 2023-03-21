@@ -276,6 +276,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import inputBlockBg from "@/assets/images/ape/bg.png";
 import profileBg from "@/assets/images/ape/bg-info.png";
 import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
+import { getMagicApeYieldChartData } from "@/helpers/magicApe/getMagicApeYieldChartData";
 
 export default {
   mixins: [mAPETokenMixin],
@@ -535,12 +536,12 @@ export default {
     },
 
     async fetchChartData() {
-      const response = await axios.get(
-        "https://analytics.abracadabra.money/api/mape"
-      );
+      const response = await getMagicApeYieldChartData(1);
+      this.fetchData = response;
+
       const apy = await getApeApy(this.provider);
       this.apy = apy.toFixed(2);
-      this.fetchData = response.data;
+
       this.changeChart(this.chartActive);
     },
 
