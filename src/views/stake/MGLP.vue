@@ -256,7 +256,6 @@
 </template>
 <script>
 import Vue from "vue";
-import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
 const NetworksList = () => import("@/components/ui/NetworksList");
@@ -268,10 +267,11 @@ const TickChart = () => import("@/components/ui/charts/TickChart");
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
-import { getGlpChartApr } from "@/helpers/glpAprChart";
 import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { getMagicGlpTotalRewards } from "@/helpers/magicGlp/getMagicGlpTotalRewards";
+import { getMagicGlpChartData } from "@/helpers/magicGlp/getMagicGlpChartData";
 
 export default {
   mixins: [mGlpTokenMixin],
@@ -297,6 +297,7 @@ export default {
       account: "getAccount",
       tokensInfo: "getMGlpObject",
       itsMetamask: "getMetamaskActive",
+      chainId: "getChainId",
     }),
 
     stakeToken() {
@@ -350,9 +351,7 @@ export default {
     },
 
     totalRewardsEarned() {
-      return this.totalRewards
-        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-        : 0;
+      return this.totalRewards ? this.totalRewards : 0;
     },
 
     totalRewardsUsd() {
@@ -516,35 +515,40 @@ export default {
       }
     },
 
-    async createChartData(time = 3) {
+    async createChartData() {
       const labels = [];
       const tickUpper = [];
-      const data = await getGlpChartApr(time);
+
+      const data = await getMagicGlpChartData(
+        this.chainId,
+        this.chartActiveBtn
+      );
+
       data.forEach((element) => {
         labels.push(moment.unix(element.timestamp).format("DD.MM"));
         tickUpper.push(element.glpApy * (1 - this.tokensInfo.feePercent));
       });
 
       this.chartData = { labels, tickUpper };
+
+      return data;
     },
 
     async changeChartTime(time) {
       this.chartActiveBtn = time;
-      await this.createChartData(time);
+      await this.createChartData();
     },
 
-    async getTotalRewards() {
-      try {
-        const response = await axios.get(
-          "https://analytics.abracadabra.money/api/mglp"
-        );
+    async getEstApy(chartData) {
+      let apy = 0;
+      if (this.chainId === 42161) apy = await getGlpApy(true);
 
-        this.totalRewards = response.data;
-      } catch (error) {
-        console.log("Get Total Rewards Error", error);
-      }
+      const currentApy = chartData[chartData.length - 1].glpApy;
+      apy = currentApy * (1 - this.tokensInfo.feePercent);
+      return parseFloat(apy).toFixed(2);
     },
   },
+
   filters: {
     localAmountFilter(val) {
       return Number(val).toLocaleString();
@@ -555,20 +559,18 @@ export default {
     await this.createStakePool();
 
     if (!this.acceptChain.includes(this.chainId)) return false;
-    await this.getTotalRewards();
+    this.totalRewards = await getMagicGlpTotalRewards(this.chainId);
+
     this.updateInterval = setInterval(async () => {
       await this.createStakePool();
     }, 15000);
 
-    await this.createChartData(this.chartActiveBtn);
-
-    const apy = await getGlpApy(true);
-    this.apy = parseFloat(apy).toFixed(2);
+    const chartData = await this.createChartData();
+    this.apy = await this.getEstApy(chartData);
 
     this.chartInterval = setInterval(async () => {
-      await this.createChartData(this.chartActiveBtn);
-      const apy = await getGlpApy(true);
-      this.apy = parseFloat(apy).toFixed(2);
+      const chartData = await this.createChartData();
+      this.apy = await this.getEstApy(chartData);
     }, 60000);
   },
 
@@ -717,7 +719,7 @@ export default {
 
 .chart-apt-text {
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 27px;
   margin-right: 10px;
 }
