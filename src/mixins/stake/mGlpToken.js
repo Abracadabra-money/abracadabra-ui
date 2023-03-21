@@ -34,7 +34,7 @@ export default {
             address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
             abi: oracleAbi,
           },
-          ethChainLinkAddress: "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
+          chainLinkAddress: "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
         },
         43114: {
           harvester: {
@@ -59,47 +59,7 @@ export default {
             address: "0x3Cc89EA432c36c8F96731765997722192202459D",
             abi: oracleAbi,
           },
-          ethChainLinkAddress: "0x976b3d034e162d8bd72d6b9c989d545b839003b0",
-        },
-      },
-      stakeInfo2: {
-        harvester: {
-          address: {
-            42161: "0x588d402C868aDD9053f8F0098c2DC3443c991d17",
-            43114: "0xDcB9Bd145B5A31DBbF30428247D1bE8659fa0bF1",
-          },
-          abi: MagicGlpHarvestorAbi,
-        },
-        mainToken: {
-          name: "magicGLP",
-          address: {
-            42161: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
-            43114: "0x5EFC10C353FA30C5758037fdF0A233e971ECc2e0",
-          },
-          decimals: 18,
-          abi: tokensAbi.magicGLP,
-          icon: require("@/assets/images/tokens/mGlpToken.png"),
-        },
-        stakeToken: {
-          name: "GLP",
-          address: {
-            42161: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
-            43114: "0xae64d55a6f09e4263421737397d1fdfa71896a69",
-          },
-          decimals: 18,
-          abi: tokensAbi.sGLP,
-          icon: require(`@/assets/images/tokens/GLP.png`),
-        },
-        oracle: {
-          address: {
-            42161: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
-            43114: "0x3Cc89EA432c36c8F96731765997722192202459D",
-          },
-          abi: oracleAbi,
-        },
-        ethChainLinkAddress: {
-          42161: "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
-          43114: "0x976b3d034e162d8bd72d6b9c989d545b839003b0",
+          chainLinkAddress: "0x0a77230d17318075983913bc2145db16c7366156",
         },
       },
     };
@@ -125,7 +85,7 @@ export default {
       if (!this.acceptChain.includes(this.chainId))
         return !!this.setLoadingMGlpStake(false);
 
-      const { mainToken, stakeToken, oracle, harvester, ethChainLinkAddress } =
+      const { mainToken, stakeToken, oracle, harvester, chainLinkAddress } =
         this.stakeInfo[this.chainId];
 
       const mainTokenInstance = await new this.$ethers.Contract(
@@ -159,14 +119,17 @@ export default {
         this.userSigner
       );
 
-      const ethChainLinkContract = await new this.$ethers.Contract(
-        ethChainLinkAddress,
+      const chainLinkContract = await new this.$ethers.Contract(
+        chainLinkAddress,
         JSON.stringify(chainLinkAbi),
         this.userSigner
       );
 
-      const ethPriceHex = await ethChainLinkContract.latestAnswer();
-      const ethPrice = this.$ethers.utils.formatUnits(ethPriceHex, 8);
+      const rewardsTokenPriceHex = await chainLinkContract.latestAnswer();
+      const rewardsTokenPrice = this.$ethers.utils.formatUnits(
+        rewardsTokenPriceHex,
+        8
+      );
 
       if (!this.price) {
         const price = await oracleContract.peekSpot("0x");
@@ -204,7 +167,7 @@ export default {
           balanceUsd: stakeTokenBalanceUsd,
           isApproved: stakeTokenApproved,
         },
-        ethPrice,
+        rewardsTokenPrice,
       };
 
       this.setMGlpStakingObj(stakeObject);

@@ -207,11 +207,8 @@
             <h5 class="info-title">Total Rewards Earned</h5>
             <div class="info-item">
               <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/ETH2.png')"
-                  size="40px"
-                />
-                <span>ETH</span>
+                <BaseTokenIcon :icon="rewardsTokenIcon" size="40px" />
+                <span>{{ rewardsTokenSymbol }}</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
@@ -357,9 +354,19 @@ export default {
     totalRewardsUsd() {
       return this.totalRewards
         ? parseFloat(
-            +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+            +this.totalRewardsEarned * +this.tokensInfo.rewardsTokenPrice
           ).toFixed(2)
         : 0;
+    },
+
+    rewardsTokenSymbol() {
+      return this.chainId === 43114 ? "AVAX" : "ETH";
+    },
+
+    rewardsTokenIcon() {
+      return this.chainId === 43114
+        ? require("@/assets/images/tokens/AVAX.png")
+        : require("@/assets/images/tokens/ETH2.png");
     },
   },
 
