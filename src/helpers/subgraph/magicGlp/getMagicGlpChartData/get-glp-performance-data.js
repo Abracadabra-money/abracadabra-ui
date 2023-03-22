@@ -125,11 +125,15 @@ const getGlpPerformanceData = async (
       if (glpItem.cumulativeDistributedUsdPerGlp) {
         glpPlusDistributedUsd =
           glpPrice + glpItem.cumulativeDistributedUsdPerGlp;
-        // glpApr = (glpItem.distributedUsdPerGlp / glpPrice) * 365 * 100; // incorrect?
-        glpApr =
-          (((glpItem.distributedUsdPerGlp / 100) * avaxPrice) / glpPrice) *
-          365 *
-          100;
+
+        if (chainId === 42161) {
+          glpApr = (glpItem.distributedUsdPerGlp / glpPrice) * 365 * 100; // incorrect?
+        } else {
+          glpApr =
+            (((glpItem.distributedUsdPerGlp / 100) * avaxPrice) / glpPrice) *
+            365 *
+            100;
+        }
 
         // let glpComponded = glpItem.distributedUsdPerGlp * glpPrice;
         // let UsdPerCompound = glpComponded * glpItem.distributedUsdPerGlp;
