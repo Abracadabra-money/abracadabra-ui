@@ -267,8 +267,8 @@ import { approveToken } from "@/utils/approveHelpers";
 import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getMagicGlpTotalRewards } from "@/helpers/magicGlp/getMagicGlpTotalRewards";
-import { getMagicGlpChartData } from "@/helpers/magicGlp/getMagicGlpChartData";
+import { getMagicGlpTotalRewards } from "@/helpers/subgraph/magicGlp/getMagicGlpTotalRewards";
+import { getMagicGlpChartData } from "@/helpers/subgraph/magicGlp/getMagicGlpChartData";
 import { getGlpApyAvaxChain } from "@/helpers/collateralsApy/getGlpApyAvaxChain";
 
 export default {
