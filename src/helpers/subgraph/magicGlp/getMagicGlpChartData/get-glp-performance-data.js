@@ -125,7 +125,12 @@ const getGlpPerformanceData = async (
       if (glpItem.cumulativeDistributedUsdPerGlp) {
         glpPlusDistributedUsd =
           glpPrice + glpItem.cumulativeDistributedUsdPerGlp;
-        glpApr = (glpItem.distributedUsdPerGlp / glpPrice) * 365 * 100; // incorrect?
+        // glpApr = (glpItem.distributedUsdPerGlp / glpPrice) * 365 * 100; // incorrect?
+        glpApr =
+          (((glpItem.distributedUsdPerGlp / 100) * avaxPrice) / glpPrice) *
+          365 *
+          100;
+
         // let glpComponded = glpItem.distributedUsdPerGlp * glpPrice;
         // let UsdPerCompound = glpComponded * glpItem.distributedUsdPerGlp;
         glpApy = (Math.pow(1 + glpApr / 100 / 730, 730) - 1) * 100;
