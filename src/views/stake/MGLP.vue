@@ -269,6 +269,7 @@ import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getMagicGlpTotalRewards } from "@/helpers/magicGlp/getMagicGlpTotalRewards";
 import { getMagicGlpChartData } from "@/helpers/magicGlp/getMagicGlpChartData";
+import { getGlpApyAvaxChain } from "@/helpers/collateralsApy/getGlpApyAvaxChain";
 
 export default {
   mixins: [mGlpTokenMixin],
@@ -537,8 +538,6 @@ export default {
       });
 
       this.chartData = { labels, tickUpper };
-
-      return data;
     },
 
     async changeChartTime(time) {
@@ -546,12 +545,10 @@ export default {
       await this.createChartData();
     },
 
-    async getEstApy(chartData) {
+    async getEstApy() {
       let apy = 0;
       if (this.chainId === 42161) apy = await getGlpApy(true);
-
-      const currentApy = chartData[chartData.length - 1].glpApy;
-      apy = currentApy * (1 - this.tokensInfo.feePercent);
+      if (this.chainId === 43114) apy = await getGlpApyAvaxChain(true);
       return parseFloat(apy).toFixed(2);
     },
   },
@@ -572,12 +569,12 @@ export default {
       await this.createStakePool();
     }, 15000);
 
-    const chartData = await this.createChartData();
-    this.apy = await this.getEstApy(chartData);
+    await this.createChartData();
+    this.apy = await this.getEstApy();
 
     this.chartInterval = setInterval(async () => {
-      const chartData = await this.createChartData();
-      this.apy = await this.getEstApy(chartData);
+      await this.createChartData();
+      this.apy = await this.getEstApy();
     }, 60000);
   },
 
