@@ -1,14 +1,15 @@
-const axios = require("axios");
-const moment = require("moment");
+import axios from "axios";
+import moment from "moment";
+import { getGraphUrl } from "@/helpers/subgraph/utils";
 
-const getMagicApeYieldChartData = async (month) => {
+const getMagicApeYieldChartData = async (month = 1, chainId = 1) => {
   const secondsPerDay = 60 * 60 * 24;
   const days = 30 * month;
   const to = Math.floor(Date.now() / 1000 / secondsPerDay);
   const from = to - days;
 
-  const url =
-    "https://api.studio.thegraph.com/query/4540/abra-test-mainnet/v0.0.1";
+  const url = getGraphUrl(chainId);
+
   const query = `{
         magicApeYieldDailySnapshots(
             first: ${days}
