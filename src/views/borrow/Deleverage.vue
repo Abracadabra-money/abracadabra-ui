@@ -209,7 +209,7 @@ export default {
         img: require(`@/assets/images/empty_leverage.png`),
         text: "Deleverage your position using our built-in Flash repay function.",
         bottom: "Read more about it",
-        link: "https://docs.abracadabra.money/intro/lending-markets",
+        link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
       },
       bg,
       bgInfo,
