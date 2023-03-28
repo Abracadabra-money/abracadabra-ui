@@ -46,7 +46,7 @@ export default {
         )
       );
 
-      console.log("cauldrons", cauldrons);
+      console.log("init new cauldrons", cauldrons);
     },
     async createCauldronItem(config, user = null) {
       const contracts = await this.createContracts(config);
@@ -112,6 +112,22 @@ export default {
             )
           : null;
 
+        const wrapper = config.lpLogic?.tokenWrapper
+          ? new Contract(
+              config.lpLogic.tokenWrapper,
+              config.lpLogic.tokenWrapperAbi,
+              this.contractProvider
+            )
+          : null;
+
+        const unwrappedToken = config.lpLogic?.tokenWrapper
+          ? new Contract(
+              config.lpLogic.lpAddress,
+              config.lpLogic.lpAbi,
+              this.contractProvider
+            )
+          : null;
+
         return {
           cauldron,
           bentoBox,
@@ -119,6 +135,8 @@ export default {
           mim,
           leverageSwapper,
           liquidationSwapper,
+          unwrappedToken,
+          wrapper,
         };
       } catch (error) {
         console.log("createContracts error:", error);
@@ -163,7 +181,7 @@ export default {
 
         const maxWithdrawableAmount = await getMaxWithdrawableAmount(
           config,
-          contracts.cauldron,
+          contracts.collateral,
           contracts.bentoBox.address
         );
 
@@ -208,8 +226,18 @@ export default {
     async getUserTokensInfo(contracts, user) {
       try {
         const collateralBalance = await contracts.collateral.balanceOf(user);
-        const mimBalance = await contracts.mim.blanaceog(user);
+        const mimBalance = await contracts.mim.balanceOf(user);
         const nativeTokenBalance = await this.contractProvider.getBalance();
+
+        const unwrappedTokenBalance = contracts.unwrappedToken
+          ? await contracts.unwrappedToken.balanceOf(user)
+          : null;
+        const unwrappedTokenAllowance = contracts.unwrappedToken
+          ? await contracts.unwrappedToken.allowance(
+              user,
+              contracts.bentoBox.address
+            )
+          : null;
 
         const collateralAllowance = await contracts.collateral.allowance(
           user,
@@ -227,6 +255,8 @@ export default {
           nativeTokenBalance,
           collateralAllowance,
           mimAllowance,
+          unwrappedTokenBalance,
+          unwrappedTokenAllowance,
         };
       } catch (error) {
         console.log("getUserTokensInfo error:", error);
