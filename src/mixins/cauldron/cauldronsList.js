@@ -1,7 +1,7 @@
 import { mapGetters } from "vuex";
 import { Contract } from "ethers";
 
-import cauldronsConfig from "@/utils/borrowPools/pools";
+import cauldronsConfig from "@/utils/cauldronsConfig";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 
 import { getInterest } from "@/helpers/cauldron/interest";
@@ -26,9 +26,9 @@ export default {
     },
   },
   methods: {
-    async checkCauldronPositions() {
+    async initCauldronsList() {
       const filteredByChain = cauldronsConfig.filter(
-        (config) => config.contractChain === +this.chainId
+        (config) => config.chainId === +this.chainId
       );
 
       const cauldrons = await Promise.all(
@@ -56,7 +56,7 @@ export default {
 
       const totalCollateralShare = await cauldron.totalCollateralShare();
       const totalCollateralAmount = await bentoBox.toAmount(
-        config.token.address,
+        config.collateralInfo.address,
         totalCollateralShare,
         false
       );
@@ -75,7 +75,7 @@ export default {
       const cauldronMIMBalance = await getMimCauldronBalance(
         bentoBox,
         config.contract.address,
-        config.pairToken.address
+        config.mimInfo.address
       );
       const borrowLimit = await getBorrowlimit(cauldron);
 
@@ -83,7 +83,7 @@ export default {
         cauldronMIMBalance,
         borrowLimit,
         totalBorrowed,
-        config
+        config.cauldronSettings
       );
 
       return {

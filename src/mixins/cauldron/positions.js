@@ -1,7 +1,7 @@
 import { mapGetters } from "vuex";
 import { Contract, utils, BigNumber } from "ethers";
 
-import cauldronsConfig from "@/utils/borrowPools/pools";
+import cauldronsConfig from "@/utils/cauldronsConfig";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 
 import { getCauldronOracleRates } from "@/helpers/cauldron/exchangeRates";
@@ -28,7 +28,7 @@ export default {
   methods: {
     async checkCauldronPositions() {
       const filteredByChain = cauldronsConfig.filter(
-        (config) => config.contractChain === +this.chainId
+        (config) => config.chainId === +this.chainId
       );
 
       const cauldrons = await Promise.all(
@@ -96,15 +96,15 @@ export default {
         this.account,
         bentoBox,
         cauldron,
-        config.token.address
+        config.collateralInfo.address
       );
 
       const borrowPart = await getUserBorrowPart(cauldron, this.account);
 
       const liquidationPrice = getLiquidationPrice(
-        utils.formatUnits(collateralAmount, config.token.decimals),
+        utils.formatUnits(collateralAmount, config.collateralInfo.decimals),
         utils.formatUnits(borrowPart.userBorrowPart),
-        config.ltv
+        config.mcr
       );
 
       return {

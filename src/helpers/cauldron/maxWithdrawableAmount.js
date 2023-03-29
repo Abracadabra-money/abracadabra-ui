@@ -13,7 +13,7 @@ export const getMaxWithdrawableAmount = async (
 
     maxWithdrawableAmount = utils.formatUnits(
       collateralBalance,
-      config.token.decimals
+      config.collateralInfo.decimals
     );
   }
 

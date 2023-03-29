@@ -1,7 +1,7 @@
 import { mapGetters } from "vuex";
 import { Contract, utils } from "ethers";
 
-import cauldronsConfig from "@/utils/borrowPools/pools";
+import cauldronsConfig from "@/utils/cauldronsConfig";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 
 import { getInterest } from "@/helpers/cauldron/interest";
@@ -35,7 +35,7 @@ export default {
   methods: {
     async initCauldrons() {
       const filteredByChain = cauldronsConfig.filter(
-        (config) => config.contractChain === +this.chainId
+        (config) => config.chainId === +this.chainId
       );
 
       const user = this.account;
@@ -85,45 +85,45 @@ export default {
         );
 
         const collateral = new Contract(
-          config.token.address,
-          config.token.abi,
+          config.collateralInfo.address,
+          config.collateralInfo.abi,
           this.contractProvider
         );
 
         const mim = new Contract(
-          config.pairToken.address,
-          config.pairToken.abi,
+          config.mimInfo.address,
+          config.mimInfo.abi,
           this.contractProvider
         );
 
-        const leverageSwapper = config.swapContractInfo
+        const leverageSwapper = config.leverageInfo
           ? new Contract(
-              config.swapContractInfo.address,
-              config.swapContractInfo.abi,
+              config.leverageInfo.address,
+              config.leverageInfo.abi,
               this.contractProvider
             )
           : null;
 
-        const liquidationSwapper = config.reverseSwapContractInfo
+        const liquidationSwapper = config.deleverageInfo
           ? new Contract(
-              config.reverseSwapContractInfo.address,
-              config.reverseSwapContractInfo.abi,
+              config.deleverageInfo.address,
+              config.deleverageInfo.abi,
               this.contractProvider
             )
           : null;
 
-        const wrapper = config.lpLogic?.tokenWrapper
+        const wrapper = config.wrapInfo?.wrapper
           ? new Contract(
-              config.lpLogic.tokenWrapper,
-              config.lpLogic.tokenWrapperAbi,
+              config.wrapInfo.wrapper.address,
+              config.wrapInfo.wrapper.abi,
               this.contractProvider
             )
           : null;
 
-        const unwrappedToken = config.lpLogic?.tokenWrapper
+        const unwrappedToken = config.wrapInfo?.unwrappedToken
           ? new Contract(
-              config.lpLogic.lpAddress,
-              config.lpLogic.lpAbi,
+              config.wrapInfo.unwrappedToken.address,
+              config.wrapInfo.unwrappedToken.abi,
               this.contractProvider
             )
           : null;
@@ -150,7 +150,7 @@ export default {
           await contracts.cauldron.totalCollateralShare();
 
         const totalCollateralAmount = await contracts.bentoBox.toAmount(
-          config.token.address,
+          config.collateralInfo.address,
           totalCollateralShare,
           false
         );
@@ -167,7 +167,7 @@ export default {
         const cauldronMIMBalance = await getMimCauldronBalance(
           contracts.bentoBox,
           config.contract.address,
-          config.pairToken.address
+          config.mimInfo.address
         );
 
         const borrowLimit = await getBorrowlimit(contracts.cauldron);
@@ -176,7 +176,7 @@ export default {
           cauldronMIMBalance,
           borrowLimit,
           totalBorrowed,
-          config
+          config.cauldronSettings
         );
 
         const maxWithdrawableAmount = await getMaxWithdrawableAmount(
@@ -203,15 +203,15 @@ export default {
           user,
           contracts.bentoBox,
           contracts.cauldron,
-          config.token.address
+          config.collateralInfo.address
         );
 
         const borrowPart = await getUserBorrowPart(contracts.cauldron, user);
 
         const liquidationPrice = getLiquidationPrice(
-          utils.formatUnits(collateralAmount, config.token.decimals),
+          utils.formatUnits(collateralAmount, config.collateralInfo.decimals),
           utils.formatUnits(borrowPart.userBorrowPart),
-          config.ltv
+          config.mcr
         );
 
         return {
