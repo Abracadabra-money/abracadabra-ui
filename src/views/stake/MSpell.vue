@@ -82,7 +82,7 @@
             sharing mechanism of Abracadabra and earn MIM! Find out more
             <a
               target="_blank"
-              href="https://docs.abracadabra.money/intro/stake/mspell"
+              href="https://abracadabramoney.gitbook.io/intro/stake/mspell"
               class="empty-link"
               >here</a
             >!
