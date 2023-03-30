@@ -36,6 +36,8 @@ export default {
       );
 
       console.log("cauldrons", cauldrons);
+
+      return cauldrons;
     },
     async createCauldronItem(config) {
       const cauldron = new Contract(
@@ -68,9 +70,7 @@ export default {
 
       const tvl = totalCollateralAmount.div(oracleRate);
 
-      const totalBorrowed = await getTotalBorrow(
-        cauldron
-      );
+      const totalBorrowed = await getTotalBorrow(cauldron);
 
       const cauldronMIMBalance = await getMimCauldronBalance(
         bentoBox,

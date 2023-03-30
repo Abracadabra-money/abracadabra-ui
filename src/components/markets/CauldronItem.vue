@@ -6,9 +6,12 @@
         <img class="chain-icon" :src="getChainIcon" alt="" />
       </div>
       <div class="pool-info">
-        <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
+        <BaseTokenIcon
+          :name="cauldronConfig.name"
+          :icon="cauldronConfig.icon"
+        />
         <div class="pool-description">
-          <span>{{ pool.name }}</span>
+          <span>{{ cauldronConfig.name }}</span>
           <span class="pool-new" v-if="isPoolNew">New</span>
           <span class="pool-deprecated" v-if="!isDepreciated">Deprecated</span>
         </div>
@@ -36,7 +39,7 @@ const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 
 export default {
   props: {
-    pool: {
+    cauldron: {
       type: Object,
     },
   },
@@ -45,16 +48,16 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     goToPage() {
-      if (this.pool?.cauldronSettings?.isDepreciated) {
+      if (this.cauldronSettings?.isDepreciated) {
         return {
           name: "RepayId",
-          params: { id: this.pool.id },
+          params: { id: this.cauldronConfig.id },
         };
       }
 
       return {
         name: "BorrowId",
-        params: { id: this.pool.id },
+        params: { id: this.cauldronConfig.id },
       };
     },
 
@@ -62,17 +65,17 @@ export default {
       return [
         {
           title: "TOTAL MIM BORROWED",
-          value: Vue.filter("formatLargeSum")(this.pool.totalBorrow),
+          value: Vue.filter("formatLargeSum")(this.cauldron.totalBorrowed),
         },
         {
           title: "TVL",
-          value: `$ ${Vue.filter("formatLargeSum")(this.pool.tvl)}`,
+          value: `$ ${Vue.filter("formatLargeSum")(this.cauldron.tvl)}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
-          value: Vue.filter("formatLargeSum")(this.pool.dynamicBorrowAmount),
+          value: Vue.filter("formatLargeSum")(this.cauldron.MIMsLeftToBorrow),
         },
-        { title: "INTEREST", value: `${this.pool.interest}%` },
+        { title: "INTEREST", value: `${this.cauldron.interest}%` },
       ];
     },
 
@@ -105,25 +108,35 @@ export default {
     },
 
     isDepreciated() {
-      if (this.pool?.cauldronSettings)
-        return !this.pool.cauldronSettings.isDepreciated;
-      return !this.pool.isDepreciated;
+      if (this.cauldronSettings) return !this.cauldronSettings.isDepreciated;
+      return !this.cauldronSettings.isDepreciated;
     },
 
     isLeverage() {
-      return this.pool.isSwappersActive && !!this.pool.levSwapperContract;
+      return (
+        this.cauldronSettings.isSwappersActive &&
+        !!this.cauldronConfig.leverageInfo
+      );
     },
 
     goToBorrowPage() {
-      return { name: "BorrowId", params: { id: this.pool.id } };
+      return { name: "BorrowId", params: { id: this.cauldronConfig.id } };
     },
 
     goToLeveragePage() {
-      return { name: "LeverageId", params: { id: this.pool.id } };
+      return { name: "LeverageId", params: { id: this.cauldronConfig.id } };
     },
 
     isPoolNew() {
-      return this.pool.cauldronSettings.isNew;
+      return this.cauldronSettings.isNew;
+    },
+
+    cauldronConfig() {
+      return this.cauldron?.config;
+    },
+
+    cauldronSettings() {
+      return this.cauldron.config.cauldronSettings;
     },
   },
 
@@ -199,7 +212,7 @@ export default {
 
 .pool-deprecated {
   width: max-content;
-  background: #D94844;
+  background: #d94844;
   border-radius: 8px;
   font-size: 12px;
   line-height: 18px;

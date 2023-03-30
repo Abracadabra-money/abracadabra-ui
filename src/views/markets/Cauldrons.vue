@@ -1,7 +1,6 @@
 <template>
   <div class="wrapper">
     <h2 class="title">Available Cauldrons</h2>
-
     <EmptyMarketsList v-if="!borrowPools.length && !borrowLoading" />
     <div v-else-if="!borrowPools.length && borrowLoading" class="loader-wrap">
       <BaseLoader />
@@ -74,7 +73,7 @@
           <CauldronItem
             v-for="pool in filteredPools"
             :key="pool.id"
-            :pool="pool"
+            :cauldron="pool"
           />
         </template>
         <EmptyMarketsList v-else />
@@ -87,9 +86,8 @@
 
 <script>
 const ScrollToTop = () => import("@/components/ui/ScrollToTop");
+import cauldronsListMixin from "@/mixins/cauldron/cauldronsList.js";
 
-import { mapGetters } from "vuex";
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
@@ -107,7 +105,7 @@ const sortKeys = {
 };
 
 export default {
-  mixins: [cauldronsMixin],
+  mixins: [cauldronsListMixin],
   data() {
     return {
       selectedSort: sortKeys.mimsLeft,
@@ -115,15 +113,12 @@ export default {
       search: "",
       poolsInterval: null,
       isActiveMarkets: true,
+      borrowPools: [],
+      borrowLoading: true,
     };
   },
 
   computed: {
-    ...mapGetters({
-      borrowPools: "getPools",
-      borrowLoading: "getLoadPoolsBorrow",
-    }),
-
     selectedSortData() {
       return (
         this.sortList.find(({ name }) => this.selectedSort === name) || null
@@ -167,7 +162,8 @@ export default {
       return search
         ? pools.filter(
             (pool) =>
-              pool.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+              pool.config.name.toLowerCase().indexOf(search.toLowerCase()) !==
+              -1
           )
         : pools;
     },
@@ -178,22 +174,16 @@ export default {
         const prepValue = (pool, sortData) => {
           switch (sortData.name) {
             case sortKeys.name:
-              return pool.name;
-
-            case sortKeys.yield:
-              return +pool.poolYield;
-
-            case sortKeys.roi:
-              return +pool.poolRoi;
+              return pool.config.name;
 
             case sortKeys.tvl:
-              return +pool.poolTvl;
+              return +pool.tvl;
 
             case sortKeys.totalMim:
-              return +pool.totalBorrow;
+              return +pool.totalBorrowed;
 
             case sortKeys.mimsLeft:
-              return +pool.dynamicBorrowAmount;
+              return +pool.MIMsLeftToBorrow;
 
             case sortKeys.interest:
               return +pool.interest;
@@ -204,6 +194,7 @@ export default {
 
           return null;
         };
+
         sortedPools.sort((aPool, bPool) => {
           const a = prepValue(aPool, this.selectedSortData);
           const b = prepValue(bPool, this.selectedSortData);
@@ -223,20 +214,23 @@ export default {
     sortByDepreciate(pools = []) {
       if (this.isActiveMarkets) {
         return pools.filter((pool) => {
-          if (pool?.cauldronSettings)
-            return !pool.cauldronSettings.isDepreciated;
-          return !pool.isDepreciated;
+          if (pool?.config?.cauldronSettings)
+            return !pool.config?.cauldronSettings.isDepreciated;
+          return !pool.config?.cauldronSettings.isDepreciated;
         });
       } else {
         return pools.sort((a, b) => {
-          if (a?.cauldronSettings || b?.cauldronSettings) {
+          if (a?.config?.cauldronSettings || b?.config?.cauldronSettings) {
             return (
-              +a.cauldronSettings.isDepreciated -
-              +b.cauldronSettings.isDepreciated
+              +a.config?.cauldronSettings.isDepreciated -
+              +b.config?.cauldronSettings.isDepreciated
             );
           }
 
-          return +a.isDepreciated - +b.isDepreciated;
+          return (
+            +a.config?.cauldronSettings.isDepreciated -
+            +b.config?.cauldronSettings.isDepreciated
+          );
         });
       }
     },
@@ -245,13 +239,16 @@ export default {
       this.isActiveMarkets = !this.isActiveMarkets;
     },
 
-    depreciatedPools() {
-      return this.pools.filter((pool) => pool.isDepreciated);
+    async createPoolsCauldronsList() {
+      this.borrowPools = await this.initCauldronsList();
+      this.borrowLoading = false;
+
+      this.poolsInterval = setInterval(await this.initCauldronsList(), 60000);
     },
   },
 
   async created() {
-    this.poolsInterval = setInterval(await this.createPools(), 5000);
+    this.createPoolsCauldronsList();
   },
 
   beforeDestroy() {
