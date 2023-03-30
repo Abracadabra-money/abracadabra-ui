@@ -34,9 +34,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusBar = () => import("@/components/ui/StatusBar");
-const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
+import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
@@ -109,7 +107,11 @@ export default {
       this.$emit("enterPool", pool);
     },
   },
-  components: { BaseTokenIcon, StatusBar, MiniStatusTag },
+  components: {
+    BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")),
+    StatusBar: defineAsyncComponent(() => import("@/components/ui/StatusBar.vue")),
+    MiniStatusTag: defineAsyncComponent(() => import("@/components/ui/MiniStatusTag.vue")),
+  },
 };
 </script>
 

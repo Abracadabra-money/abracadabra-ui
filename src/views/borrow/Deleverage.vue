@@ -164,19 +164,18 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const Range = () => import("@/components/ui/Range");
-const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const BaseButton = () => import("@/components/base/BaseButton");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const InfoBlock = () => import("@/components/borrow/InfoBlock");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
-const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const CollateralApyBlock = () =>
-  import("@/components/borrow/CollateralApyBlock");
-const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import Range from "@/components/ui/Range.vue";
+import BorrowPoolStand from "@/components/borrow/BorrowPoolStand.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import InfoBlock from "@/components/borrow/InfoBlock.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import SettingsPopup from "@/components/leverage/SettingsPopup.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
+import MimEstimatePrice from "@/components/ui/MimEstimatePrice.vue";
 
 import Vue from "vue";
 

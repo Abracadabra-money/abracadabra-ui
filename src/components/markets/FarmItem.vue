@@ -33,7 +33,7 @@
 
 <script>
 import Vue from "vue";
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
   props: {

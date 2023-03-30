@@ -47,7 +47,7 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
@@ -106,7 +106,7 @@ export default {
       this.currentValue = val;
     },
   },
-  components: { BaseTokenIcon },
+  components: { BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue"))  },
 };
 </script>
 

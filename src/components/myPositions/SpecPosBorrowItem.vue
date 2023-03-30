@@ -137,11 +137,11 @@
 
 <script>
 import Vue from "vue";
-import HealthWrap from "@/components/ui/HealthWrap";
-const HealthLine = () => import("@/components/ui/HealthLine");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusName = () => import("@/components/ui/StatusName");
-const mimIcon = require("@/assets/images/tokens/MIM.png");
+import HealthWrap from "@/components/ui/HealthWrap.vue";
+import HealthLine from "@/components/ui/HealthLine.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import StatusName from "@/components/ui/StatusName.vue";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 
 export default {
   name: "SpecPosBorrowItem",

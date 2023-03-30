@@ -98,14 +98,14 @@
 </template>
 <script>
 import Vue from "vue";
-const InfoBlock = () => import("@/components/stake/InfoBlock");
-const ClaimInfo = () => import("@/components/stake/ClaimInfo");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseButton = () => import("@/components/base/BaseButton");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-import mSpellStaking from "@/mixins/stake/mSpellStaking";
+import InfoBlock from "@/components/stake/InfoBlock.vue";
+import ClaimInfo from "@/components/stake/ClaimInfo.vue";
+import EmptyBlock from "@/components/stake/EmptyBlock.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import mSpellStaking from "@/mixins/stake/mSpellStaking.vue";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";

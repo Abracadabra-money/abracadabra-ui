@@ -47,9 +47,9 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const BaseButton = () => import("@/components/base/BaseButton");
-const mimIcon = require("@/assets/images/tokens/MIM.png");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 
 export default {
   name: "BalanceBox",

@@ -53,7 +53,7 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import { defineAsyncComponent } from "vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { mapGetters } from "vuex";
 export default {
@@ -144,7 +144,7 @@ export default {
     },
   },
 
-  components: { BaseTokenIcon },
+  components: { BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")) },
 };
 </script>
 

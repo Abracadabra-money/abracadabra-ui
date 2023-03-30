@@ -61,8 +61,8 @@
 
 <script>
 import Vue from "vue";
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
 import crvDeposit from "@/mixins/getCollateralLogic/cvxRenDeposit";
 import { mapGetters } from "vuex";
 

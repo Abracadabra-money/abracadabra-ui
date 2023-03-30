@@ -17,7 +17,7 @@
           <p class="values-list-title">{{ item.title }}</p>
           <p class="values-list-value">{{ item.value }}</p>
         </router-link>
-        <div v-else :key="i" class="values-list-item">
+        <div v-else :key="`${i}-ff`" class="values-list-item">
           <p class="values-list-title">{{ item.title }}</p>
           <p class="values-list-value">{{ item.value }}</p>
         </div>
@@ -66,11 +66,11 @@
 
 <script>
 import Vue from "vue";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
-const SpecPos = () => import("@/components/myPositions/SpecPos");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BalanceBoxes from "@/components/myPositions/BalanceBoxes.vue";
+import SpecPos from "@/components/myPositions/SpecPos.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import EmptyPosList from "@/components/myPositions/EmptyPosList.vue";
 
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";

@@ -87,10 +87,10 @@
 </template>
 
 <script>
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
-const NetworkPopup = () => import("@/components/popups/NetworkPopup");
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import SelectChainsWrap from "@/components/bridge/SelectChainsWrap.vue";
+import NetworkPopup from "@/components/popups/NetworkPopup.vue";
 import Vue from "vue";
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";

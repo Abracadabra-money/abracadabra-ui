@@ -17,11 +17,13 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusBar = () => import("@/components/ui/StatusBar");
+import { defineAsyncComponent } from "vue";
 export default {
   name: "TokenPopupItem",
-  components: { BaseTokenIcon, StatusBar },
+  components: { 
+    BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")), 
+    StatusBar: defineAsyncComponent(() => import("@/components/ui/StatusBar.vue")) 
+  },
   props: {
     farmItem: {
       type: Object,

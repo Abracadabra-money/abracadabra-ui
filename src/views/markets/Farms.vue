@@ -92,11 +92,11 @@
 <script>
 import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
-const DropdownWrap = () => import("@/components/ui/DropdownWrap");
-const MarketsFarmItem = () => import("@/components/markets/FarmItem");
-const CheckBox = () => import("@/components/ui/CheckBox");
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import EmptyMarketsList from "@/components/markets/EmptyMarketsList.vue";
+import DropdownWrap from "@/components/ui/DropdownWrap.vue";
+import MarketsFarmItem from "@/components/markets/FarmItem.vue";
+import CheckBox from "@/components/ui/CheckBox.vue";
 const sortKeys = {
   name: "name",
   yield: "yield",

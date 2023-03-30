@@ -51,8 +51,8 @@
 
 <script>
 import Vue from "vue";
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
 
 import olimpusWrap from "@/mixins/getCollateralLogic/olimpusWrap";
 import { approveToken } from "@/utils/approveHelpers.js";

@@ -137,14 +137,14 @@
 <script>
 import { mapGetters } from "vuex";
 
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const MarketsSwitch = () => import("@/components/markets/MarketsSwitch");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
 import farmPoolsMixin from "../mixins/farmPools";
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 

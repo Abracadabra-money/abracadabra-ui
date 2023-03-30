@@ -201,7 +201,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  mainToken.totalSupply | localAmountFilter
+                  Number(mainToken.totalSupply).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{
                   mainToken.totalSupplyUsd | formatUSD
@@ -222,7 +222,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  totalRewardsEarned | localAmountFilter
+                  Number(totalRewardsEarned).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
               </div>
@@ -262,13 +262,13 @@ import Vue from "vue";
 import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/charts/TickChartMagicAPE");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import EmptyBlock from "@/components/stake/EmptyBlock.vue";
+import TickChart from "@/components/ui/charts/TickChartMagicAPE.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { approveToken } from "@/utils/approveHelpers";
 import mAPETokenMixin from "@/mixins/stake/mAPEToken";
 import notification from "@/helpers/notification/notification.js";
@@ -689,12 +689,6 @@ export default {
     this.chartInterval = setInterval(async () => {
       await this.fetchChartData();
     }, 60000);
-  },
-
-  filters: {
-    localAmountFilter(val) {
-      return Number(val).toLocaleString();
-    },
   },
 
   beforeDestroy() {

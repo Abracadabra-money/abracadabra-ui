@@ -196,17 +196,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-const ConnectButton = () => import("@/components/ui/ConnectButton");
-const MimTokenBlock = () => import("@/components/ui/MimTokenBlock");
-const NetworkPopup = () => import("@/components/popups/NetworkPopup");
-const MobileMenu = () => import("@/components/popups/MobileMenu");
-const Docs = () => import("@/components/icons/Docs");
-// const Medium = () => import("@/components/icons/Medium");
-const Twitter = () => import("@/components/icons/Twitter");
-const Discord = () => import("@/components/icons/Discord");
-const GitHub = () => import("@/components/icons/GitHub");
-const Lens = () => import("@/components/icons/Lens");
-const Mirror = () => import("@/components/icons/Mirror");
+import { defineAsyncComponent } from "vue";
 
 import chainSwitch from "@/mixins/chainSwitch";
 
@@ -332,17 +322,16 @@ export default {
   },
 
   components: {
-    ConnectButton,
-    MimTokenBlock,
-    NetworkPopup,
-    MobileMenu,
-    Docs,
-    // Medium,
-    Twitter,
-    Discord,
-    Lens,
-    Mirror,
-    GitHub,
+    ConnectButton: defineAsyncComponent(() => import("@/components/ui/ConnectButton.vue")),
+    MimTokenBlock: defineAsyncComponent(() => import("@/components/ui/MimTokenBlock.vue")),
+    NetworkPopup: defineAsyncComponent(() => import("@/components/popups/NetworkPopup.vue")),
+    MobileMenu: defineAsyncComponent(() => import("@/components/popups/MobileMenu.vue")),
+    Docs: defineAsyncComponent(() => import("@/components/icons/Docs.vue")),
+    Twitter: defineAsyncComponent(() => import("@/components/icons/Twitter.vue")),
+    Discord: defineAsyncComponent(() => import("@/components/icons/Discord.vue")),
+    Lens: defineAsyncComponent(() => import("@/components/icons/Lens.vue")),
+    Mirror: defineAsyncComponent(() => import("@/components/icons/Mirror.vue")),
+    GitHub: defineAsyncComponent(() => import("@/components/icons/GitHub.vue")),
   },
 };
 </script>

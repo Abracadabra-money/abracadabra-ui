@@ -40,8 +40,8 @@
 </template>
 
 <script>
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 const getInfoFromAddress = (address) => {
   return {

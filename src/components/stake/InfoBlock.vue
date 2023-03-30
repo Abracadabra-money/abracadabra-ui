@@ -62,7 +62,7 @@
 <script>
 import Vue from "vue";
 import LockedTimer from "@/components/stake/LockedTimer.vue";
-const BaseButton = () => import("@/components/base/BaseButton");
+import BaseButton from "@/components/base/BaseButton.vue";
 
 export default {
   name: "info-block",

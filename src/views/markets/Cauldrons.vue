@@ -93,11 +93,11 @@
 <script>
 import { mapGetters } from "vuex";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
-const DropdownWrap = () => import("@/components/ui/DropdownWrap");
-const CauldronItem = () => import("@/components/markets/CauldronItem");
-const CheckBox = () => import("@/components/ui/CheckBox");
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import EmptyMarketsList from "@/components/markets/EmptyMarketsList.vue";
+import DropdownWrap from "@/components/ui/DropdownWrap.vue";
+import CauldronItem from "@/components/markets/CauldronItem.vue";
+import CheckBox from "@/components/ui/CheckBox.vue";
 const sortKeys = {
   name: "name",
   yield: "yield",

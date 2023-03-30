@@ -172,14 +172,14 @@
 <script>
 import { mapGetters } from "vuex";
 
-const ConnectButton = () => import("@/components/ui/ConnectButton");
-const Docs = () => import("@/components/icons/Docs");
-// const Medium = () => import("@/components/icons/Medium");
-const Twitter = () => import("@/components/icons/Twitter");
-const Discord = () => import("@/components/icons/Discord");
-const Lens = () => import("@/components/icons/Lens");
-const Mirror = () => import("@/components/icons/Mirror");
-const GitHub = () => import("@/components/icons/GitHub");
+import ConnectButton from "@/components/ui/ConnectButton.vue";
+import Docs from "@/components/icons/Docs.vue";
+// const Medium from "@/components/icons/Medium");
+import Twitter from "@/components/icons/Twitter.vue";
+import Discord from "@/components/icons/Discord.vue";
+import Lens from "@/components/icons/Lens.vue";
+import Mirror from "@/components/icons/Mirror.vue";
+import GitHub from "@/components/icons/GitHub.vue";
 export default {
   data() {
     return {

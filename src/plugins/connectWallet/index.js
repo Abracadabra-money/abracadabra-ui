@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -85,9 +86,9 @@ const subscribeProvider = async (provider, isCoinbase) => {
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
-  const provider = new ethers.providers.StaticJsonRpcProvider(
+  const provider = markRaw(new ethers.providers.StaticJsonRpcProvider(
     walletconnect.options.rpc[chainId]
-  );
+  ));
 
   store.commit("setChainId", chainId);
   store.commit("setProvider", provider);
@@ -132,7 +133,7 @@ const onConnect = async () => {
 
     await subscribeProvider(instance, isCoinbase);
 
-    const provider = new ethers.providers.Web3Provider(instance);
+    const provider = markRaw(new ethers.providers.Web3Provider(instance));
     const signer = provider.getSigner();
 
     const accounts = await signer.getAddress();
@@ -172,12 +173,12 @@ store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
 
 export default {
   async install(Vue) {
-    Vue.prototype.$connectWallet = async () => {
+    Vue.config.globalProperties.$connectWallet = async () => {
       await web3Modal.clearCachedProvider();
       await onConnect();
     };
 
-    Vue.prototype.$disconnectWallet = async () => {
+    Vue.config.globalProperties.$disconnectWallet = async () => {
       await resetApp();
     };
   },

@@ -110,8 +110,8 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const spellIcon = require("@/assets/images/tokens/SPELL.png");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import spellIcon from "@/assets/images/tokens/SPELL.png";
 
 export default {
   name: "SpecPosFarmItem",

@@ -194,7 +194,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  mainToken.totalSupply | localAmountFilter
+                  Number(mainToken.totalSupply).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{
                   mainToken.totalSupplyUsd | formatUSD
@@ -215,7 +215,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  totalRewardsEarned | localAmountFilter
+                  Number(totalRewardsEarned).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
               </div>
@@ -259,13 +259,13 @@ import Vue from "vue";
 import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/charts/TickChart");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import EmptyBlock from "@/components/stake/EmptyBlock.vue";
+import TickChart from "@/components/ui/charts/TickChart.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
 import { getGlpChartApr } from "@/helpers/glpAprChart";
@@ -542,11 +542,6 @@ export default {
       } catch (error) {
         console.log("Get Total Rewards Error", error);
       }
-    },
-  },
-  filters: {
-    localAmountFilter(val) {
-      return Number(val).toLocaleString();
     },
   },
 

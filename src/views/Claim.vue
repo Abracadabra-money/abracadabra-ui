@@ -150,9 +150,9 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const BaseButton = () => import("@/components/base/BaseButton");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import degenBoxAbi from "@/utils/abi/degenBox.js";
 import { mapGetters } from "vuex";

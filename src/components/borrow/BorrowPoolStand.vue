@@ -186,11 +186,10 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import Vue from "vue";
-import LockedTimer from "@/components/stake/LockedTimer.vue";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/helpers/collateralsApy";
-const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
   name: "BorrowPoolStand",
@@ -690,8 +689,8 @@ export default {
   },
 
   components: {
-    LockedTimer,
-    MiniStatusTag,
+    LockedTimer: defineAsyncComponent(() => import("@/components/stake/LockedTimer.vue")),
+    MiniStatusTag: defineAsyncComponent(() => import("@/components/ui/MiniStatusTag.vue")),
   },
 };
 </script>

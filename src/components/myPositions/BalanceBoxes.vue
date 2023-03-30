@@ -27,9 +27,9 @@
 <script>
 import { mapGetters } from "vuex";
 
-const BalanceBox = () => import("@/components/myPositions/BalanceBox");
-const DegenBentoPopup = () => import("@/components/popups/DegenBentoPopup");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
+import BalanceBox from "@/components/myPositions/BalanceBox.vue";
+import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 
 const initialPopupData = {
   opened: false,

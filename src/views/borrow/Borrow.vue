@@ -189,19 +189,18 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const PercentageButtons = () => import("@/components/borrow/PercentageButtons");
-const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
-const BaseButton = () => import("@/components/base/BaseButton");
-const InfoBlock = () => import("@/components/borrow/InfoBlock");
-const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const CollateralApyBlock = () =>
-  import("@/components/borrow/CollateralApyBlock");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BorrowPoolStand from "@/components/borrow/BorrowPoolStand.vue";
+import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
+import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import InfoBlock from "@/components/borrow/InfoBlock.vue";
+import LeftBorrow from "@/components/borrow/LeftBorrow.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 
 import Vue from "vue";
 
