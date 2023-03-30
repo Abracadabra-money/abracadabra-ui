@@ -8,7 +8,7 @@
       alt=""
     />
     <h2 class="title">Farming Opportunities</h2>
-    <EmptyMarketsList v-if="!currentPools.length && !farmLoading" />
+    <EmptyState v-if="!currentPools.length && !farmLoading" />
     <div v-else-if="!currentPools.length && farmLoading" class="loader-wrap">
       <BaseLoader />
     </div>
@@ -83,7 +83,7 @@
             :pool="pool"
           />
         </template>
-        <EmptyMarketsList v-else />
+        <EmptyState v-else />
       </div>
     </div>
   </div>
@@ -93,7 +93,7 @@
 import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
 const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
+const EmptyState = () => import("@/components/markets/EmptyState");
 const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const MarketsFarmItem = () => import("@/components/markets/FarmItem");
 const CheckBox = () => import("@/components/ui/CheckBox");
@@ -268,7 +268,7 @@ export default {
     window.removeEventListener("scroll", this.onScroll);
   },
   components: {
-    EmptyMarketsList,
+    EmptyState,
     BaseLoader,
     DropdownWrap,
     MarketsFarmItem,

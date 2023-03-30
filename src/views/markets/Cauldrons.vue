@@ -1,48 +1,46 @@
 <template>
-  <div class="wrapper">
+  <div class="cauldrons-page">
     <h2 class="title">Available Cauldrons</h2>
-    <EmptyMarketsList v-if="!borrowPools.length && !borrowLoading" />
-    <!-- todo added loader wrap and props class -->
-    <div v-else-if="!borrowPools.length && borrowLoading" class="loader-wrap">
+    <EmptyState v-if="isEmptyState" />
+    <div v-else-if="cauldronsIsLoaded" class="loader-wrap">
       <BaseLoader />
     </div>
 
-    <div v-else class="stats-wrap">
-      <div class="tools-wrap">
+    <template v-else>
+      <div class="tools">
         <Search @changeSerch="changeSerch" />
 
         <DropdownSortBy
-          :selectedSortData="selectedSortData"
           :sortList="sortList"
-          :selectedSort="selectedSort"
-          @changeSortBy="select"
-          @changeReverse="changeReverse"
+          :activeSortValue="activeSortValue"
+          @changeDropdawnValue="changeDropdawnValue"
+          @changeSortOrder="changeSortOrder"
         />
 
-        <div class="active-markets">
+        <div class="toggle-markets">
           active markets only
-          <CheckBox @update="toggleActiveMarkets" :value="isActiveMarkets" />
+          <CheckBox @update="toggleActiveMarkets" :value="!isShowDeprecated" />
         </div>
       </div>
 
-      <div class="stats-list-wrap">
-        <div class="stats-list-header">
-          <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
+      <div class="cauldrons-list">
+        <div class="list-header">
+          <div v-for="title in tableHeaders" :key="title">{{ title }}</div>
         </div>
 
-        <template v-if="filteredPools.length">
+        <template v-if="filteredCouldrons.length">
           <CauldronItem
-            v-for="pool in filteredPools"
-            :key="pool.id"
-            :cauldron="pool"
+            v-for="cauldron in filteredCouldrons"
+            :key="cauldron.id"
+            :cauldron="cauldron"
           />
         </template>
-        <!-- EmptyState -->
-        <EmptyMarketsList v-else />
-      </div>
-    </div>
 
-    <ScrollToTop v-if="borrowPools.length" />
+        <EmptyState text="No cauldrons found with this name" v-else />
+      </div>
+    </template>
+
+    <ScrollToTop v-if="cauldrons.length" />
   </div>
 </template>
 
@@ -51,169 +49,153 @@ import cauldronsListMixin from "@/mixins/cauldron/cauldronsList.js";
 const ScrollToTop = () => import("@/components/ui/ScrollToTop");
 const Search = () => import("@/components/ui/search/CauldronsSearch");
 const DropdownSortBy = () => import("@/components/ui/dropdown/SortBy");
-
 const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
+const EmptyState = () => import("@/components/markets/EmptyState");
 const CauldronItem = () => import("@/components/markets/CauldronItem");
 const CheckBox = () => import("@/components/ui/CheckBox");
-
-// const sortList = [
-//   { title: "Title", name: "name" },
-//   { title: "TVL", name: "totalMim" },
-//   { title: "MIMs Left", name: "MIMsLeftToBorrow" },
-//   { title: "Interest", name: "interest" },
-//   { title: "Fee", name: "fee" },
-// ];
 
 export default {
   mixins: [cauldronsListMixin],
   data() {
     return {
-      selectedSort: "MIMsLeftToBorrow",
-      sortReverse: false,
-      search: "",
-      poolsInterval: null,
-      isActiveMarkets: true,
-
-      borrowPools: [],
-      borrowLoading: true,
-      // sortList,
-    };
-  },
-
-  computed: {
-    selectedSortData() {
-      return (
-        this.sortList.find(({ name }) => this.selectedSort === name) || null
-      );
-    },
-
-    sortList() {
-      return [
+      isShowDeprecated: false,
+      cauldrons: [],
+      cauldronsLoading: true,
+      activeSortValue: "MIMsLeftToBorrow",
+      sortOrder: false,
+      searchValue: "",
+      updateInterval: null,
+      sortList: [
         { title: "Title", name: "name" },
         { title: "TVL", name: "totalMim" },
         { title: "MIMs Left", name: "MIMsLeftToBorrow" },
         { title: "Interest", name: "interest" },
         { title: "Fee", name: "fee" },
-      ];
-    },
-
-    filteredPools() {
-      return this.sortByDepreciate(
-        this.sortByValue(this.filterBySearch(this.borrowPools, this.search))
-      );
-    },
-
-    headers() {
-      return [
+      ],
+      tableHeaders: [
         "CHAIN",
         "COLLATERAL",
         "TOTAL MIM BORROWED",
         "TVL",
         "MIMS LEFT TO BORROW",
         "INTEREST",
-      ];
+      ],
+    };
+  },
+
+  computed: {
+    isEmptyState() {
+      return !this.cauldrons.length && !this.cauldronsLoading;
+    },
+
+    cauldronsIsLoaded() {
+      return !this.cauldrons.length && this.cauldronsLoading;
+    },
+
+    activeSortData() {
+      return (
+        this.sortList.find(({ name }) => this.activeSortValue === name) || null
+      );
+    },
+
+    filteredCouldrons() {
+      return this.sortByDepreciate(
+        this.sortCauldrons(this.searchByValue(this.cauldrons, this.searchValue))
+      );
     },
   },
 
   methods: {
-    select(name) {
-      this.selectedSort = name;
+    changeDropdawnValue(value) {
+      this.activeSortValue = value;
     },
 
-    changeReverse(isReverse) {
-      this.sortReverse = isReverse;
+    changeSortOrder(value) {
+      this.sortOrder = value;
     },
 
-    filterBySearch(pools, search) {
-      return search
-        ? pools.filter(
-            (pool) =>
-              pool.config.name.toLowerCase().indexOf(search.toLowerCase()) !==
-              -1
-          )
-        : pools;
+    changeSerch(value) {
+      this.searchValue = value;
     },
 
-    sortByValue(pools) {
-      const sortedPools = [...pools];
-      if (this.selectedSortData !== null) {
-        const prepValue = (pool, sortData) => {
-          if (sortData.name === "name") return pool.config.name;
-          if (sortData.name === "fee") return pool.config.liquidationFee;
-          return +pool[sortData.name] || null;
-        };
+    searchByValue(cauldrons, value) {
+      if (cauldrons) {
+        return cauldrons.filter(
+          ({ config }) =>
+            config.name.toLowerCase().indexOf(value.toLowerCase()) !== -1
+        );
+      }
 
-        sortedPools.sort((aPool, bPool) => {
-          const a = prepValue(aPool, this.selectedSortData);
-          const b = prepValue(bPool, this.selectedSortData);
+      return cauldrons;
+    },
 
-          const factor = this.sortReverse ? -1 : 1;
+    getCouldronValue(cauldron, { name }) {
+      if (name === "name") return cauldron.config.name;
+      if (name === "fee") return cauldron.config.liquidationFee;
+      return +cauldron[name] || null;
+    },
 
-          if (this.selectedSort === "name") return a < b ? -factor : factor;
-
+    sortCauldrons(cauldrons) {
+      if (this.activeSortData !== null) {
+        [...cauldrons].sort((cauldronA, cauldronB) => {
+          const a = this.getCouldronValue(cauldronA, this.activeSortData);
+          const b = this.getCouldronValue(cauldronB, this.activeSortData);
+          const factor = this.sortOrder ? -1 : 1;
+          if (this.activeSortValue === "name") return a < b ? -factor : factor;
           return a < b ? factor : -factor;
         });
       }
 
-      return sortedPools;
+      return cauldrons;
     },
 
-    sortByDepreciate(pools = []) {
-      if (this.isActiveMarkets) {
-        return pools.filter((pool) => {
-          if (pool?.config?.cauldronSettings)
-            return !pool.config?.cauldronSettings.isDepreciated;
-          return !pool.config?.cauldronSettings.isDepreciated;
+    sortByDepreciate(cauldrons = []) {
+      if (!this.isShowDeprecated) {
+        return cauldrons.filter((cauldron) => {
+          if (cauldron?.config?.cauldronSettings)
+            return !cauldron.config?.cauldronSettings?.isDepreciated;
+
+          return cauldrons;
         });
       } else {
-        return pools.sort((a, b) => {
+        return cauldrons.sort((a, b) => {
           if (a?.config?.cauldronSettings || b?.config?.cauldronSettings) {
             return (
-              +a.config?.cauldronSettings.isDepreciated -
-              +b.config?.cauldronSettings.isDepreciated
+              +a.config?.cauldronSettings?.isDepreciated -
+              +b.config?.cauldronSettings?.isDepreciated
             );
           }
 
-          return (
-            +a.config?.cauldronSettings.isDepreciated -
-            +b.config?.cauldronSettings.isDepreciated
-          );
+          return a;
         });
       }
     },
 
-    // ----
-    changeSerch(inputValue) {
-      this.search = inputValue;
-    },
-
     toggleActiveMarkets() {
-      this.isActiveMarkets = !this.isActiveMarkets;
+      this.isShowDeprecated = !this.isShowDeprecated;
     },
 
-    async createPoolsCauldronsList() {
-      this.borrowPools = await this.initCauldronsList();
-      this.borrowLoading = false;
+    async createCauldronsList() {
+      this.cauldrons = await this.initCauldronsList();
+      this.cauldronsLoading = false;
 
-      this.poolsInterval = setInterval(await this.initCauldronsList(), 60000);
+      this.updateInterval = setInterval(await this.initCauldronsList(), 60000);
     },
   },
 
   async created() {
-    this.createPoolsCauldronsList();
+    this.createCauldronsList();
   },
 
   beforeDestroy() {
-    clearInterval(this.poolsInterval);
+    clearInterval(this.updateInterval);
   },
 
   components: {
     ScrollToTop,
     DropdownSortBy,
     Search,
-
-    EmptyMarketsList,
+    EmptyState,
     BaseLoader,
     CauldronItem,
     CheckBox,
@@ -222,14 +204,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
-  padding-top: 160px;
-  padding-bottom: 100px;
+.cauldrons-page {
+  padding: 160px 0 100px;
   margin: 0 auto;
   width: 940px;
   max-width: calc(100% - 20px);
-  box-sizing: border-box;
-  scroll-behavior: smooth;
 }
 
 .title {
@@ -237,23 +216,42 @@ export default {
   text-transform: uppercase;
   margin-bottom: 40px;
 }
-.tools-wrap {
-  display: grid;
+
+.loader-wrap {
   width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.tools {
+  width: 100%;
+  display: grid;
   grid-template-columns: 1.5fr 1.5fr 1fr;
   grid-gap: 10px;
   margin-bottom: 10px;
 }
 
-.stats-list-wrap {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 10px;
-  grid-column: 1;
-  margin-top: 10px;
+.toggle-markets {
+  height: 50px;
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 20px;
+  font-size: 16px;
+  line-height: 24px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.stats-list-header {
+.cauldrons-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-header {
   display: none;
   grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 180px;
   align-items: center;
@@ -264,66 +262,14 @@ export default {
   background-color: #2a2835;
   color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
+}
 
-  &-farm {
-    grid-template-columns: 1fr 1fr 1fr 1fr 60px;
+@media screen and (max-width: 1024px) {
+  .tools {
+    display: flex;
+    flex-direction: column;
   }
-}
-.loader-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.active-markets {
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  height: 50px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 10px;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-@media (min-width: 768px) {
-  // .dropdown {
-  //   grid-column: auto / span 5;
-  // }
-  // .search-wrap {
-  //   grid-column: auto / span 3;
-  // }
-  // .active-markets {
-  //   grid-column: auto / span 4;
-  // }
-  // .tools-wrap {
-  //   grid-template-columns: repeat(12, 1fr);
-  // }
-}
-
-@media (min-width: 1024px) {
-  // .dropdown {
-  //   grid-column: auto / span 5;
-  // }
-  // .search-wrap {
-  //   grid-column: auto / span 4;
-  // }
-  // .active-markets {
-  //   grid-column: auto / span 3;
-  // }
-  .stats-list-wrap {
-    grid-column: 1 / 5;
-    margin-top: 0;
-  }
-  .stats-list-header {
-    display: grid;
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .active-markets {
+  .toggle-markets {
     justify-content: center;
   }
 }
