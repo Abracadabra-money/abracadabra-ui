@@ -1,6 +1,6 @@
 <template>
   <div class="stake">
-    <div class="input-block">
+    <div class="input-block" :style="`background-image: url(${stakeBg})`">
       <h4>Choose Chain</h4>
       <div class="underline">
         <NetworksList :active-list="acceptChain" />
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <div class="profile">
+    <div class="profile" :style="`background-image: url(${stakeBg})`">
       <h1 class="title">magicGLP</h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -270,6 +270,8 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import { getMagicGlpTotalRewards } from "@/helpers/subgraph/magicGlp/getMagicGlpTotalRewards";
 import { getMagicGlpChartData } from "@/helpers/subgraph/magicGlp/getMagicGlpChartData";
 import { getGlpApyAvaxChain } from "@/helpers/collateralsApy/getGlpApyAvaxChain";
+import arbitrumBg from "@/assets/images/glp/arbitrum-bg.png";
+import avaxBg from "@/assets/images/glp/avax-bg.png";
 
 export default {
   mixins: [mGlpTokenMixin],
@@ -368,6 +370,10 @@ export default {
       return this.chainId === 43114
         ? require("@/assets/images/tokens/AVAX.png")
         : require("@/assets/images/tokens/ETH2.png");
+    },
+
+    stakeBg() {
+      return +this.chainId === 42161 ? arbitrumBg : avaxBg;
     },
   },
 
@@ -629,6 +635,8 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
+  background-position: center;
+  background-size: cover;
 }
 
 .token-input {
@@ -652,6 +660,8 @@ export default {
   border-radius: 30px;
   background-color: $clrBg2;
   text-align: center;
+  background-position: center;
+  background-size: cover;
 }
 
 .title {
