@@ -1,12 +1,5 @@
 <template>
   <div class="wrapper">
-    <img
-      class="button-up"
-      src="@/assets/images/button-up.svg"
-      @click="scrollToTop"
-      v-if="showButtonUp"
-      alt=""
-    />
     <h2 class="title">Available Cauldrons</h2>
 
     <EmptyMarketsList v-if="!borrowPools.length && !borrowLoading" />
@@ -87,10 +80,14 @@
         <EmptyMarketsList v-else />
       </div>
     </div>
+
+    <ScrollToTop v-if="borrowPools.length" />
   </div>
 </template>
 
 <script>
+const ScrollToTop = () => import("@/components/ui/ScrollToTop");
+
 import { mapGetters } from "vuex";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 const BaseLoader = () => import("@/components/base/BaseLoader");
@@ -118,7 +115,6 @@ export default {
       search: "",
       poolsInterval: null,
       isActiveMarkets: true,
-      scrollPosition: 0,
     };
   },
 
@@ -127,10 +123,6 @@ export default {
       borrowPools: "getPools",
       borrowLoading: "getLoadPoolsBorrow",
     }),
-
-    showButtonUp() {
-      return this.borrowPools.length && this.scrollPosition !== 0;
-    },
 
     selectedSortData() {
       return (
@@ -256,26 +248,19 @@ export default {
     depreciatedPools() {
       return this.pools.filter((pool) => pool.isDepreciated);
     },
-
-    scrollToTop() {
-      window.scrollTo(0, 0);
-    },
-
-    onScroll() {
-      this.scrollPosition = window.scrollY;
-    },
   },
 
   async created() {
     this.poolsInterval = setInterval(await this.createPools(), 5000);
-    window.addEventListener("scroll", this.onScroll);
   },
 
   beforeDestroy() {
     clearInterval(this.poolsInterval);
-    window.removeEventListener("scroll", this.onScroll);
   },
+
   components: {
+    ScrollToTop,
+
     EmptyMarketsList,
     BaseLoader,
     DropdownWrap,
@@ -286,13 +271,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.button-up {
-  position: fixed;
-  right: 10%;
-  bottom: 10%;
-  z-index: 9;
-  cursor: pointer;
-}
 .wrapper {
   padding-top: 160px;
   padding-bottom: 100px;
