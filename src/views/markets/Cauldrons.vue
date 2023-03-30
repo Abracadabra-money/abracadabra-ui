@@ -2,68 +2,29 @@
   <div class="wrapper">
     <h2 class="title">Available Cauldrons</h2>
     <EmptyMarketsList v-if="!borrowPools.length && !borrowLoading" />
+    <!-- todo added loader wrap and props class -->
     <div v-else-if="!borrowPools.length && borrowLoading" class="loader-wrap">
       <BaseLoader />
     </div>
+
     <div v-else class="stats-wrap">
       <div class="tools-wrap">
-        <div class="search-wrap">
-          <img
-            class="search-icon"
-            src="@/assets/images/search.svg"
-            alt="search"
-          />
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Search"
-            class="search-input"
-          />
-        </div>
+        <Search @changeSerch="changeSerch" />
 
-        <DropdownWrap class="dropdown">
-          <template slot="btn">
-            <button class="sort-btn open-btn">
-              <span class="sort-title-wrap">
-                <button
-                  @click.stop="sortReverse = !sortReverse"
-                  @mousedown.prevent.stop=""
-                  class="sort-icon-wrap"
-                >
-                  <img
-                    class="sort-icon"
-                    :class="{ 'sort-icon-reverse': sortReverse }"
-                    src="@/assets/images/filter.svg"
-                    alt="filter"
-                  />
-                </button>
-                <span>{{ `Sorted by ${selectedSortData.title}` }}</span>
-              </span>
-              <img
-                class="arrow-icon"
-                src="@/assets/images/arrow-down.svg"
-                alt="filter"
-              />
-            </button>
-          </template>
-          <template slot="list">
-            <button
-              class="sort-btn sort-item"
-              v-for="(titleData, i) in sortList.filter(
-                ({ name }) => name !== selectedSort
-              )"
-              :key="i"
-              @click="select(titleData.name)"
-            >
-              {{ titleData.title }}
-            </button>
-          </template>
-        </DropdownWrap>
+        <DropdownSortBy
+          :selectedSortData="selectedSortData"
+          :sortList="sortList"
+          :selectedSort="selectedSort"
+          @changeSortBy="select"
+          @changeReverse="changeReverse"
+        />
+
         <div class="active-markets">
           active markets only
           <CheckBox @update="toggleActiveMarkets" :value="isActiveMarkets" />
         </div>
       </div>
+
       <div class="stats-list-wrap">
         <div class="stats-list-header">
           <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
@@ -76,6 +37,7 @@
             :cauldron="pool"
           />
         </template>
+        <!-- EmptyState -->
         <EmptyMarketsList v-else />
       </div>
     </div>
@@ -85,36 +47,37 @@
 </template>
 
 <script>
-const ScrollToTop = () => import("@/components/ui/ScrollToTop");
 import cauldronsListMixin from "@/mixins/cauldron/cauldronsList.js";
+const ScrollToTop = () => import("@/components/ui/ScrollToTop");
+const Search = () => import("@/components/ui/search/CauldronsSearch");
+const DropdownSortBy = () => import("@/components/ui/dropdown/SortBy");
 
 const BaseLoader = () => import("@/components/base/BaseLoader");
 const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
-const DropdownWrap = () => import("@/components/ui/DropdownWrap");
 const CauldronItem = () => import("@/components/markets/CauldronItem");
 const CheckBox = () => import("@/components/ui/CheckBox");
-const sortKeys = {
-  name: "name",
-  yield: "yield",
-  roi: "roi",
-  tvl: "tvl",
-  totalMim: "totalMim",
-  mimsLeft: "mimsLeft",
-  interest: "interest",
-  liquidation: "liquidation",
-};
+
+// const sortList = [
+//   { title: "Title", name: "name" },
+//   { title: "TVL", name: "totalMim" },
+//   { title: "MIMs Left", name: "MIMsLeftToBorrow" },
+//   { title: "Interest", name: "interest" },
+//   { title: "Fee", name: "fee" },
+// ];
 
 export default {
   mixins: [cauldronsListMixin],
   data() {
     return {
-      selectedSort: sortKeys.mimsLeft,
+      selectedSort: "MIMsLeftToBorrow",
       sortReverse: false,
       search: "",
       poolsInterval: null,
       isActiveMarkets: true,
+
       borrowPools: [],
       borrowLoading: true,
+      // sortList,
     };
   },
 
@@ -127,17 +90,17 @@ export default {
 
     sortList() {
       return [
-        { title: "Title", name: sortKeys.name },
-        { title: "TVL", name: sortKeys.totalMim },
-        { title: "MIMs Left", name: sortKeys.mimsLeft },
-        { title: "Interest", name: sortKeys.interest },
-        { title: "Fee", name: sortKeys.liquidation },
+        { title: "Title", name: "name" },
+        { title: "TVL", name: "totalMim" },
+        { title: "MIMs Left", name: "MIMsLeftToBorrow" },
+        { title: "Interest", name: "interest" },
+        { title: "Fee", name: "fee" },
       ];
     },
 
     filteredPools() {
       return this.sortByDepreciate(
-        this.sortByTitle(this.filterBySearch(this.borrowPools, this.search))
+        this.sortByValue(this.filterBySearch(this.borrowPools, this.search))
       );
     },
 
@@ -158,6 +121,10 @@ export default {
       this.selectedSort = name;
     },
 
+    changeReverse(isReverse) {
+      this.sortReverse = isReverse;
+    },
+
     filterBySearch(pools, search) {
       return search
         ? pools.filter(
@@ -168,31 +135,13 @@ export default {
         : pools;
     },
 
-    sortByTitle(pools) {
+    sortByValue(pools) {
       const sortedPools = [...pools];
       if (this.selectedSortData !== null) {
         const prepValue = (pool, sortData) => {
-          switch (sortData.name) {
-            case sortKeys.name:
-              return pool.config.name;
-
-            case sortKeys.tvl:
-              return +pool.tvl;
-
-            case sortKeys.totalMim:
-              return +pool.totalBorrowed;
-
-            case sortKeys.mimsLeft:
-              return +pool.MIMsLeftToBorrow;
-
-            case sortKeys.interest:
-              return +pool.interest;
-
-            case sortKeys.liquidation:
-              return +pool.stabilityFee;
-          }
-
-          return null;
+          if (sortData.name === "name") return pool.config.name;
+          if (sortData.name === "fee") return pool.config.liquidationFee;
+          return +pool[sortData.name] || null;
         };
 
         sortedPools.sort((aPool, bPool) => {
@@ -201,8 +150,7 @@ export default {
 
           const factor = this.sortReverse ? -1 : 1;
 
-          if (this.selectedSort === sortKeys.name)
-            return a < b ? -factor : factor;
+          if (this.selectedSort === "name") return a < b ? -factor : factor;
 
           return a < b ? factor : -factor;
         });
@@ -235,6 +183,11 @@ export default {
       }
     },
 
+    // ----
+    changeSerch(inputValue) {
+      this.search = inputValue;
+    },
+
     toggleActiveMarkets() {
       this.isActiveMarkets = !this.isActiveMarkets;
     },
@@ -257,10 +210,11 @@ export default {
 
   components: {
     ScrollToTop,
+    DropdownSortBy,
+    Search,
 
     EmptyMarketsList,
     BaseLoader,
-    DropdownWrap,
     CauldronItem,
     CheckBox,
   },
@@ -285,111 +239,10 @@ export default {
 }
 .tools-wrap {
   display: grid;
-  grid-template-columns: 1fr;
+  width: 100%;
+  grid-template-columns: 1.5fr 1.5fr 1fr;
   grid-gap: 10px;
   margin-bottom: 10px;
-}
-
-.dropdown {
-  grid-column: auto / span 1;
-  &:focus-within {
-    .open-btn {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      background-color: #55535d;
-      color: white !important;
-    }
-    .sort-btn {
-      background-color: #55535d;
-      &:hover {
-        color: #76c3f5;
-      }
-    }
-  }
-}
-
-.open-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 20px;
-  padding: 0 17px 0 12px;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.06);
-
-  &:hover {
-    background-color: #55535d;
-  }
-
-  .sort-icon {
-    width: 20px;
-    &-reverse {
-      transform: rotate(180deg);
-    }
-    &-wrap {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-
-      margin-right: 10px;
-    }
-  }
-
-  .arrow-icon {
-    margin-left: 25px;
-  }
-}
-
-.sort-btn {
-  height: 50px;
-  color: white;
-  cursor: pointer;
-  border: none;
-}
-
-.sort-title-wrap {
-  display: flex;
-  align-items: center;
-}
-
-.sort-item {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-  &:last-child {
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-  }
-}
-
-.search-wrap {
-  display: grid;
-  grid-template-columns: 30px auto;
-  align-items: center;
-  padding-left: 10px;
-  background-color: rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  height: 50px;
-  grid-column: auto / span 1;
-
-  .search-icon {
-    width: 20px;
-    pointer-events: none;
-  }
-
-  .search-input {
-    background-color: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    width: 100%;
-
-    &::placeholder {
-      color: white;
-    }
-  }
 }
 
 .stats-list-wrap {
@@ -436,30 +289,30 @@ export default {
 }
 
 @media (min-width: 768px) {
-  .dropdown {
-    grid-column: auto / span 5;
-  }
-  .search-wrap {
-    grid-column: auto / span 3;
-  }
-  .active-markets {
-    grid-column: auto / span 4;
-  }
-  .tools-wrap {
-    grid-template-columns: repeat(12, 1fr);
-  }
+  // .dropdown {
+  //   grid-column: auto / span 5;
+  // }
+  // .search-wrap {
+  //   grid-column: auto / span 3;
+  // }
+  // .active-markets {
+  //   grid-column: auto / span 4;
+  // }
+  // .tools-wrap {
+  //   grid-template-columns: repeat(12, 1fr);
+  // }
 }
 
 @media (min-width: 1024px) {
-  .dropdown {
-    grid-column: auto / span 5;
-  }
-  .search-wrap {
-    grid-column: auto / span 4;
-  }
-  .active-markets {
-    grid-column: auto / span 3;
-  }
+  // .dropdown {
+  //   grid-column: auto / span 5;
+  // }
+  // .search-wrap {
+  //   grid-column: auto / span 4;
+  // }
+  // .active-markets {
+  //   grid-column: auto / span 3;
+  // }
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;

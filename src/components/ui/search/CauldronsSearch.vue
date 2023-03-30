@@ -13,6 +13,7 @@
     />
   </div>
 </template>
+
 <script>
 export default {
   methods: {
@@ -31,22 +32,22 @@ export default {
   display: flex;
   gap: 10px;
   padding: 10px;
+}
 
-  .search-icon {
-    width: 20px;
-    pointer-events: none;
-  }
+.search-icon {
+  width: 20px;
+  pointer-events: none;
+}
 
-  .search-input {
-    background-color: transparent;
-    border: none;
-    outline: none;
+.search-input {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  width: 100%;
+
+  &::placeholder {
     color: #fff;
-    width: 100%;
-
-    &::placeholder {
-      color: #fff;
-    }
   }
 }
 </style>
