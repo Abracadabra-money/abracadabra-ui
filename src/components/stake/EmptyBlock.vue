@@ -32,13 +32,13 @@ export default {
       img: require(`@/assets/images/empty_borrow.png`),
       text: "Please use Ethereum Mainnet to stake Spell",
       bottom: "If you want to learn more read our docs",
-      link: "https://docs.abracadabra.money/intro/stake/sspell",
+      link: "https://abracadabramoney.gitbook.io/intro/stake/sspell",
     },
     emptyDataMSpell: {
       img: require(`@/assets/images/empty_borrow.png`),
       text: "mSPELL staking is available on Avalanche, Arbitrum, Ethereum and Fantom Opera!",
       bottom: "If you want to learn more read our docs",
-      link: "https://docs.abracadabra.money/intro/stake/mspell",
+      link: "https://abracadabramoney.gitbook.io/intro/stake/mspell",
     },
     emptyDataMGlp: {
       img: require(`@/assets/images/empty_borrow.png`),

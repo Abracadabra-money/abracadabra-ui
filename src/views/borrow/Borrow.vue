@@ -232,7 +232,7 @@ export default {
         img: require(`@/assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
         bottom: "If you want to learn more read our docs",
-        link: "https://docs.abracadabra.money/intro/lending-markets",
+        link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
       },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
