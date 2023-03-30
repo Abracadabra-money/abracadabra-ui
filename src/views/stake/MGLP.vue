@@ -1,6 +1,6 @@
 <template>
   <div class="stake">
-    <div class="input-block" :style="`background-image: url(${stakeBg})`">
+    <div class="input-block">
       <h4>Choose Chain</h4>
       <div class="underline">
         <NetworksList :active-list="acceptChain" />
@@ -635,8 +635,6 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
-  background-position: center;
-  background-size: cover;
 }
 
 .token-input {
