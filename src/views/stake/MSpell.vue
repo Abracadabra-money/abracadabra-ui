@@ -105,7 +105,7 @@ import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
-import mSpellStaking from "@/mixins/stake/mSpellStaking.vue";
+import mSpellStaking from "@/mixins/stake/mSpellStaking";
 
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
