@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import { ethers } from "ethers";
 import oracleAbi from "@/utils/abi/oracle";
 import { mapGetters, mapMutations } from "vuex";
@@ -122,7 +123,7 @@ export default {
         ethPrice,
       };
 
-      this.setMApeStakingObj(stakeObject);
+      this.setMApeStakingObj(markRaw(stakeObject));
       this.setLoadingMApeStake(false);
     },
 
