@@ -16,22 +16,21 @@ import {
   uniswapGmxEthPool,
   vault,
   GmxGlpWrapperAddress,
-  MagicGlpHarvestorAddress
+  MagicGlpHarvestorAddress,
 } from "./constants";
 
 const provider = new providers.StaticJsonRpcProvider(rpc);
 
-module.exports.getGlpManagerContract = () =>
+export const getGlpManagerContract = () =>
   new Contract(glpManagerAddress, GlpManager.abi, provider);
-module.exports.getRewardReaderContract = () =>
+export const getRewardReaderContract = () =>
   new Contract(rewardReaderAddress, RewardReader.abi, provider);
-module.exports.getReaderContract = () =>
+export const getReaderContract = () =>
   new Contract(readerAddress, ReaderV2.abi, provider);
-module.exports.getPoolContract = () =>
+export const getPoolContract = () =>
   new Contract(uniswapGmxEthPool, UniPool.abi, provider);
-module.exports.getVaultContract = () =>
-  new Contract(vault, Vault.abi, provider);
-module.exports.getGmxGlpWrapperContract = () =>
+export const getVaultContract = () => new Contract(vault, Vault.abi, provider);
+export const getGmxGlpWrapperContract = () =>
   new Contract(GmxGlpWrapperAddress, AbraWsGlp.abi, provider);
-  module.exports.getMagicGlpHarvestorContract = () =>
+export const getMagicGlpHarvestorContract = () =>
   new Contract(MagicGlpHarvestorAddress, MagicGlpHarvestor.abi, provider);

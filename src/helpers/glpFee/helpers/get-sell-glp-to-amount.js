@@ -1,12 +1,31 @@
-import bigNumberify from '../utils/big-numberify';
-import adjustForDecimals from '../utils/adjust-for-decimals';
-import getFeeBasisPoints from './get-fee-basis-points';
-import { GLP_DECIMALS, PRECISION, BASIS_POINTS_DIVISOR, TAX_BASIS_POINTS, MINT_BURN_FEE_BASIS_POINTS } from '../constants';
+import bigNumberify from "../utils/big-numberify";
+import adjustForDecimals from "../utils/adjust-for-decimals";
+import getFeeBasisPoints from "./get-fee-basis-points";
+import {
+  GLP_DECIMALS,
+  PRECISION,
+  BASIS_POINTS_DIVISOR,
+  TAX_BASIS_POINTS,
+  MINT_BURN_FEE_BASIS_POINTS,
+} from "../constants";
 
-
-module.exports = (toAmount, fromTokenAddress, infoTokens, glpPrice, usdgSupply, totalTokenWeights) => {
-    const defaultValue = { amount: bigNumberify(0) };
-  if (!toAmount || !fromTokenAddress || !infoTokens || !glpPrice || !usdgSupply || !totalTokenWeights) {
+export default (
+  toAmount,
+  fromTokenAddress,
+  infoTokens,
+  glpPrice,
+  usdgSupply,
+  totalTokenWeights
+) => {
+  const defaultValue = { amount: bigNumberify(0) };
+  if (
+    !toAmount ||
+    !fromTokenAddress ||
+    !infoTokens ||
+    !glpPrice ||
+    !usdgSupply ||
+    !totalTokenWeights
+  ) {
     return defaultValue;
   }
 
@@ -37,7 +56,9 @@ module.exports = (toAmount, fromTokenAddress, infoTokens, glpPrice, usdgSupply, 
     totalTokenWeights
   );
 
-  fromAmount = fromAmount.mul(BASIS_POINTS_DIVISOR - feeBasisPoints).div(BASIS_POINTS_DIVISOR);
+  fromAmount = fromAmount
+    .mul(BASIS_POINTS_DIVISOR - feeBasisPoints)
+    .div(BASIS_POINTS_DIVISOR);
 
   return { amount: fromAmount, feeBasisPoints };
-}
+};

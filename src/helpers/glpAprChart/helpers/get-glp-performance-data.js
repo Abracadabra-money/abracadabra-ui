@@ -1,10 +1,10 @@
-import getCoingeckoPrice from "./get-coingecko-price";
+import { getCoingeckoPrice } from "./get-coingecko-price";
 
 function getImpermanentLoss(change) {
   return (2 * Math.sqrt(change)) / (1 + change) - 1;
 }
 
-const getGlpPerformanceData = async (glpData, feesData, { from }) => {
+export default async (glpData, feesData, { from }) => {
   const btcPrices = await getCoingeckoPrice("BTC", { from });
   const ethPrices = await getCoingeckoPrice("ETH", { from });
   const avaxPrices = await getCoingeckoPrice("AVAX", { from });
@@ -114,7 +114,7 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
         glpApr = (glpItem.distributedUsdPerGlp / glpPrice) * 365 * 100; // incorrect?
         // let glpComponded = glpItem.distributedUsdPerGlp * glpPrice;
         // let UsdPerCompound = glpComponded * glpItem.distributedUsdPerGlp;
-        glpApy = (Math.pow((1 + ((glpApr/100) / 730)), 730) -1) * 100
+        glpApy = (Math.pow(1 + glpApr / 100 / 730, 730) - 1) * 100;
       }
       if (glpItem.cumulativeDistributedEthPerGlp) {
         glpPlusDistributedEth =
@@ -188,5 +188,3 @@ const getGlpPerformanceData = async (glpData, feesData, { from }) => {
 
   return ret;
 };
-
-module.exports = getGlpPerformanceData;

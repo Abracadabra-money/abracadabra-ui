@@ -4,7 +4,7 @@ import { sortBy, chain, sumBy } from "lodash";
 const MOVING_AVERAGE_DAYS = 7;
 const MOVING_AVERAGE_PERIOD = 86400 * MOVING_AVERAGE_DAYS;
 
-const getGlpData = async ({ from, to }) => {
+export default async ({ from, to }) => {
   const subgraphUrl =
     "https://api.thegraph.com/subgraphs/name/gmx-io/gmx-stats";
 
@@ -74,5 +74,3 @@ const getGlpData = async ({ from, to }) => {
     .value()
     .filter((item) => item.timestamp >= from);
 };
-
-module.exports = getGlpData;

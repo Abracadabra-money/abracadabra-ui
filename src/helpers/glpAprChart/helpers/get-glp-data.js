@@ -24,7 +24,7 @@ function fillNa(arr) {
   return arr;
 }
 
-const getGlpData = async ({ from, to }) => {
+export default async ({ from, to }) => {
   const subgraphUrl =
     "https://api.thegraph.com/subgraphs/name/gmx-io/gmx-stats";
   const timestampProp = "id";
@@ -122,5 +122,3 @@ const getGlpData = async ({ from, to }) => {
   ret = fillNa(ret);
   return ret;
 };
-
-module.exports = getGlpData;

@@ -9,12 +9,13 @@ import {
   getAum,
   getStakingData,
   getBalanceAndSupplyData,
-  bigNumberify,
   getFeePercent,
-  getMagicFeePercent
+  getMagicFeePercent,
 } from "./helpers";
 
-import { expandDecimals, formatAmount } from "./utils";
+import { expandDecimals, formatAmount, bigNumberify } from "./utils";
+
+console.log("expandDecimals", expandDecimals);
 
 const getGlpApy = async (itsMagic = false) => {
   const stakingData = await getStakingData();
@@ -60,10 +61,10 @@ const getGlpApy = async (itsMagic = false) => {
   const glpAprTotal = glpAprForNativeToken.add(glpAprForEsGmx);
   const parseAmount = formatAmount(glpAprTotal, 2, 2, true);
 
-  if(itsMagic) {
-    const fee = await getMagicFeePercent() / 10000;
-    return ((Math.pow((1 + ((parseAmount/100) / 730)), 730) -1) * 100) * (1 - fee);
-  } 
+  if (itsMagic) {
+    const fee = (await getMagicFeePercent()) / 10000;
+    return (Math.pow(1 + parseAmount / 100 / 730, 730) - 1) * 100 * (1 - fee);
+  }
 
   const feePercent = await getFeePercent();
 

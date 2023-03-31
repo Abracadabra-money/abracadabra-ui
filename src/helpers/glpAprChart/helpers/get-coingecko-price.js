@@ -12,7 +12,7 @@ const config = {
   },
 };
 
-const getCoingeckoPrice = async (symbol, { from }) => {
+export const getCoingeckoPrice = async (symbol, { from }) => {
   const _symbol = {
     BTC: "bitcoin",
     ETH: "ethereum",
@@ -39,5 +39,3 @@ const getCoingeckoPrice = async (symbol, { from }) => {
     };
   });
 };
-
-module.exports = getCoingeckoPrice;

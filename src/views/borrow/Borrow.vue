@@ -486,10 +486,14 @@ export default {
     mainValueTokenName() {
       if (this.selectedPool) {
         if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return this.$image(`assets/images/tokens/${this.networkValuteName}2.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}2.png`
+          );
 
         if (this.networkValuteName && this.useDefaultBalance)
-          return this.$image(`assets/images/tokens/${this.networkValuteName}.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}.png`
+          );
 
         if (!this.useCheckBox && this.isCheckBox)
           return this.selectedPool.lpLogic.icon;
