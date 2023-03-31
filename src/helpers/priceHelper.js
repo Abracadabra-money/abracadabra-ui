@@ -54,9 +54,6 @@ const getTokenPriceByAddress = async (chainId, address) => {
     const chainCoinGeckoId = chainCoinGeckoIds[chainId];
 
     if (!chainCoinGeckoId) return false;
-    console.log(
-      `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`
-    );
 
     const pricesResponse = await axios.get(
       `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,
