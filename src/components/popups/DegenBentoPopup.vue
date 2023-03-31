@@ -42,6 +42,7 @@ import BaseButton from "@/components/base/BaseButton.vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
+import filters from "@/filters/index.js";
 
 export default {
   components: { BaseTokenInput, BaseButton },

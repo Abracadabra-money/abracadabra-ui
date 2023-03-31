@@ -122,7 +122,7 @@
           </a></div
       ></template>
     </div>
-    <LocalPopupWrap v-model="isTokensOpened">
+    <LocalPopupWrap :isOpened="isTokensOpened" @closePopup="isTokensOpened = false">
       <MarketsListPopup
         @select="selectPool"
         @close="isTokensOpened = false"

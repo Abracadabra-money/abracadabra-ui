@@ -150,10 +150,10 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap v-model="isSettingsOpened">
+    <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="isSettingsOpened = false">
       <SettingsPopup :slipage="slipage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
-    <LocalPopupWrap v-model="isOpenPollPopup">
+    <LocalPopupWrap :isOpened="isOpenPollPopup" @closePopup="isOpenPollPopup = false">
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"

@@ -84,7 +84,7 @@
           >
         </div>
       </div>
-      <div class="header-link networks-btn" @click="openNetworkPopup">
+      <div class="header-link networks-btn" @click.stop="openNetworkPopup">
         <img v-if="!!networcIcon" :src="networcIcon" alt="" />
       </div>
       <div class="header-link header-connect">

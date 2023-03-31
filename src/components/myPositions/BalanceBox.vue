@@ -18,19 +18,15 @@
     <div class="box-data">
       <BaseTokenIcon :icon="mimIcon" name="MIM" size="50px" />
       <div>
-        <p class="box-balance1">{{  formatTokenBalance(parsedBalance) }}</p>
-        <p class="box-balance2">{{  formatUSD(balanceInUsd) }}</p>
+        <p class="box-balance1">{{ formatTokenBalance(parsedBalance) }}</p>
+        <p class="box-balance2">{{ formatUSD(balanceInUsd) }}</p>
       </div>
     </div>
     <div class="box-actions">
-      <template>
-        <BaseButton @click="$emit('withdraw')" :disabled="isDisabled"
-          >Withdraw</BaseButton
-        >
-        <BaseButton @click="$emit('deposit')" selected
-          >Deposit</BaseButton
-        ></template
+      <BaseButton @click="$emit('withdraw')" :disabled="isDisabled"
+        >Withdraw</BaseButton
       >
+      <BaseButton @click="$emit('deposit')" selected>Deposit</BaseButton>
     </div>
     <div class="box-desc">
       {{ description }}
@@ -95,7 +91,7 @@ export default {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
-  }
+  },
 };
 </script>
 
