@@ -10,7 +10,7 @@ export const bigNumberify = (n) => {
 };
 
 export const expandDecimals = (n, decimals) => {
-  return this.bigNumberify(n).mul(this.bigNumberify(10).pow(decimals));
+  return bigNumberify(n).mul(bigNumberify(10).pow(decimals));
 };
 
 const limitDecimals = (amount, maxDecimals) => {
@@ -43,7 +43,7 @@ export const parseValue = (value, tokenDecimals) => {
 
   value = limitDecimals(value, tokenDecimals);
   const amount = utils.parseUnits(value, tokenDecimals);
-  return this.bigNumberify(amount);
+  return bigNumberify(amount);
 };
 
 const padDecimals = (amount, minDecimals) => {

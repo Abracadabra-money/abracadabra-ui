@@ -15,8 +15,6 @@ import {
 
 import { expandDecimals, formatAmount, bigNumberify } from "./utils";
 
-console.log("expandDecimals", expandDecimals);
-
 const getGlpApy = async (itsMagic = false) => {
   const stakingData = await getStakingData();
   const aum = await getAum();
