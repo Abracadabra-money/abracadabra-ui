@@ -21,7 +21,7 @@
           :max="bridgeObject.balance"
           :value="amount"
           :name="'MIM'"
-          :icon="require('@/assets/images/tokens/MIM.png')"
+          :icon="$image('assets/images/tokens/MIM.png')"
           :error="amountError"
           @input="updateMainValue"
         />

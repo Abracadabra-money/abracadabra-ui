@@ -80,7 +80,11 @@ export default {
       required: true,
     },
   },
-  data: () => ({ search: "" }),
+  data() {
+    return {
+      search: "",
+    };
+  },
   methods: {
     selectToken(chainId) {
       this.$emit("select", chainId);

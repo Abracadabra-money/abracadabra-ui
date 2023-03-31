@@ -1,9 +1,9 @@
-const {
+import {
   GLP_DECIMALS,
   SECONDS_PER_YEAR,
   BASIS_POINTS_DIVISOR,
-} = require("./constants");
-const {
+} from "./constants";
+import {
   getGmxPrice,
   getNativeTokenPrice,
   getAum,
@@ -12,9 +12,9 @@ const {
   bigNumberify,
   getFeePercent,
   getMagicFeePercent
-} = require("./helpers");
+} from "./helpers";
 
-const { expandDecimals, formatAmount } = require("./utils");
+import { expandDecimals, formatAmount } from "./utils";
 
 const getGlpApy = async (itsMagic = false) => {
   const stakingData = await getStakingData();

@@ -79,12 +79,14 @@ import { mapGetters } from "vuex";
 
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
-  data: () => ({
-    activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-    mimBentoInterval: null,
-    farmPoolsTimer: null,
-    borrowPoolsTimer: null,
-  }),
+  data() {
+    return {
+      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
+      mimBentoInterval: null,
+      farmPoolsTimer: null,
+      borrowPoolsTimer: null,
+    };
+  },
   computed: {
     ...mapGetters({
       borrowPools: "getPools",

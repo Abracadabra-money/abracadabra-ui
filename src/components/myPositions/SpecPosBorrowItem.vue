@@ -168,7 +168,7 @@ export default {
 
       const addCollateralLink = {
         title: "Add Collateral/ Borrow MIM",
-        icon: require("@/assets/images/myposition/AddCollateral.png"),
+        icon: this.$image("assets/images/myposition/AddCollateral.png"),
         name: "BorrowId",
       };
 
@@ -176,7 +176,7 @@ export default {
 
       const repayLink = {
         title: "Repay MIMs/ Remove Collateral",
-        icon: require("@/assets/images/myposition/Repay.png"),
+        icon: this.$image("assets/images/myposition/Repay.png"),
         name: "RepayId",
       };
 
@@ -184,7 +184,7 @@ export default {
 
       const deleverageLink = {
         title: "Deleverage",
-        icon: require("@/assets/images/myposition/Deleverage.png"),
+        icon: this.$image("assets/images/myposition/Deleverage.png"),
         name: "DeleverageId",
       };
 

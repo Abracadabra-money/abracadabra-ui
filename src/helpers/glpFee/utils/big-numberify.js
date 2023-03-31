@@ -1,4 +1,4 @@
-const { BigNumber } = require("ethers");
+import { BigNumber } from "ethers";
 
 module.exports = (n) => {
     try {

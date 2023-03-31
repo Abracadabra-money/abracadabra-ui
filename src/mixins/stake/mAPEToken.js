@@ -15,14 +15,14 @@ export default {
           address: "0xf35b31B941D94B249EaDED041DB1b05b7097fEb6",
           decimals: 18,
           abi: tokensAbi.magicApe,
-          icon: require(`@/assets/images/tokens/mAPE.png`),
+          icon: this.$image(`assets/images/tokens/mAPE.png`),
         },
         stakeToken: {
           name: "APE",
           address: "0x4d224452801ACEd8B2F0aebE155379bb5D594381",
           decimals: 18,
           abi: tokensAbi.APE,
-          icon: require(`@/assets/images/tokens/APE.png`),
+          icon: this.$image(`assets/images/tokens/APE.png`),
         },
         oracle: {
           address: "0x64422a1337082Bf99E6052fF52684374Eb1A7fB7",

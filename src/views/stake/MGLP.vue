@@ -145,7 +145,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/GLP.png')"
+                  :icon="$image('assets/images/tokens/GLP.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">GLP</span>
@@ -163,7 +163,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="$image('assets/images/tokens/mGlpToken.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">magicGLP</span>
@@ -187,7 +187,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="$image('assets/images/tokens/mGlpToken.png')"
                   size="40px"
                 />
                 <span>magicGLP</span>
@@ -208,7 +208,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/ETH2.png')"
+                  :icon="$image('assets/images/tokens/ETH2.png')"
                   size="40px"
                 />
                 <span>ETH</span>

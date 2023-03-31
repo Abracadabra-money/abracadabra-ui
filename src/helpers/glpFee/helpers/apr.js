@@ -1,7 +1,7 @@
-const moment = require("moment");
-const getGlpData = require('./get-glp-data');
-const getFeesData = require("./get-fees-data");
-const getGlpPerformanceData = require('./get-glp-performance-data');
+import moment from "moment";
+import getGlpData from './get-glp-data';
+import getFeesData from "./get-fees-data";
+import getGlpPerformanceData from './get-glp-performance-data';
 
 export async function apy(){
     const pastMonth =  moment().subtract(2, 'month').toDate();

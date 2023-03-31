@@ -19,14 +19,14 @@ export default {
           address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
           decimals: 18,
           abi: tokensAbi.magicGLP,
-          icon: require("@/assets/images/tokens/mGlpToken.png"),
+          icon: this.$image("assets/images/tokens/mGlpToken.png"),
         },
         stakeToken: {
           name: "GLP",
           address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
           decimals: 18,
           abi: tokensAbi.sGLP,
-          icon: require(`@/assets/images/tokens/GLP.png`),
+          icon: this.$image(`assets/images/tokens/GLP.png`),
         },
         oracle: {
           address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",

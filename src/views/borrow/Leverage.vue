@@ -235,7 +235,7 @@ export default {
       useDefaultBalance: false,
       updateInterval: null,
       emptyData: {
-        img: require(`@/assets/images/empty_leverage.png`),
+        img: this.$image(`assets/images/empty_leverage.png`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
         bottom: "Read more about it",
         link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
@@ -563,10 +563,10 @@ export default {
     mainValueTokenName() {
       if (this.selectedPool) {
         if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return require(`@/assets/images/tokens/${this.networkValuteName}2.png`);
+          return this.$image(`assets/images/tokens/${this.networkValuteName}2.png`);
 
         if (this.networkValuteName && this.useDefaultBalance)
-          return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
+          return this.$image(`assets/images/tokens/${this.networkValuteName}.png`);
 
         if (!this.useCheckBox && this.isCheckBox)
           return this.selectedPool.lpLogic.icon;

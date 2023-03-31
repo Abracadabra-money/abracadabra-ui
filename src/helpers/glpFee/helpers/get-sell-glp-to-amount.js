@@ -1,7 +1,7 @@
-const bigNumberify = require('../utils/big-numberify');
-const adjustForDecimals = require('../utils/adjust-for-decimals');
-const getFeeBasisPoints = require('./get-fee-basis-points');
-const { GLP_DECIMALS, PRECISION, BASIS_POINTS_DIVISOR, TAX_BASIS_POINTS, MINT_BURN_FEE_BASIS_POINTS } = require('../constants');
+import bigNumberify from '../utils/big-numberify';
+import adjustForDecimals from '../utils/adjust-for-decimals';
+import getFeeBasisPoints from './get-fee-basis-points';
+import { GLP_DECIMALS, PRECISION, BASIS_POINTS_DIVISOR, TAX_BASIS_POINTS, MINT_BURN_FEE_BASIS_POINTS } from '../constants';
 
 
 module.exports = (toAmount, fromTokenAddress, infoTokens, glpPrice, usdgSupply, totalTokenWeights) => {

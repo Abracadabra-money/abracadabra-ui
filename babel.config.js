@@ -1,5 +1,5 @@
 const removeConsolePlugin = [];
-if (process.env.NODE_ENV === "production") {
+if (import.meta.env.PROD) {
   removeConsolePlugin.push("transform-remove-console");
 }
 module.exports = {

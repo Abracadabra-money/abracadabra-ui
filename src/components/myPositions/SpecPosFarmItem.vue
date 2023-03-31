@@ -120,25 +120,27 @@ export default {
   props: {
     pool: { type: Object, required: true },
   },
-  data: () => ({
-    spellIcon,
-    openedItems: [
-      {
-        title: "Stake",
-        name: "stake",
-        icon: require("@/assets/images/myposition/Stake.png"),
-      },
-      {
-        title: "Unstake",
-        name: "unstake",
-        icon: require("@/assets/images/myposition/Unstake.png"),
-      },
-    ],
-  }),
+  data() {
+    return {
+      spellIcon,
+      openedItems: [
+        {
+          title: "Stake",
+          name: "stake",
+          icon: this.$image("assets/images/myposition/Stake.png"),
+        },
+        {
+          title: "Unstake",
+          name: "unstake",
+          icon: this.$image("assets/images/myposition/Unstake.png"),
+        },
+      ],
+    };
+  },
   methods: {
     formatUSD(value) {
       return filters.formatUSD(value);
-    },    
+    },
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },

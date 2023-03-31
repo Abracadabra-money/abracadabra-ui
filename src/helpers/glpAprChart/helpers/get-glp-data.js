@@ -1,5 +1,5 @@
-const axios = require("axios");
-const { sortBy } = require("lodash");
+import axios from "axios";
+import { sortBy } from "lodash";
 
 function fillNa(arr) {
   const prevValues = {};

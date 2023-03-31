@@ -123,7 +123,7 @@ export default {
           decimals: 18,
           isTokenApprowed,
           price: spellPrice,
-          icon: require("@/assets/images/spell-icon.svg"),
+          icon: this.$image("assets/images/spell-icon.svg"),
         },
         mainToken: {
           name: "mSPELL",
@@ -131,7 +131,7 @@ export default {
           balance: depositAmount,
           decimals: 18,
           price: spellPrice,
-          icon: require("@/assets/images/mspell-icon.svg"),
+          icon: this.$image("assets/images/mspell-icon.svg"),
         },
       };
 

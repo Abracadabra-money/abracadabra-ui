@@ -1,5 +1,5 @@
-const axios = require("axios");
-const getCoingeckoPrice = require('./get-coingecko-price');
+import axios from "axios";
+import getCoingeckoPrice from './get-coingecko-price';
 
 function getImpermanentLoss(change) {
     return 2 * Math.sqrt(change) / (1 + change) - 1

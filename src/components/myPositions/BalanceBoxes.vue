@@ -46,9 +46,11 @@ export default {
       required: true,
     },
   },
-  data: () => ({
-    popupData: { ...initialPopupData },
-  }),
+  data(){
+    return {
+      popupData: { ...initialPopupData },
+    }
+  },
   methods: {
     openPopup(isBento, isDeposit) {
       this.popupData = { opened: true, isBento, isDeposit };

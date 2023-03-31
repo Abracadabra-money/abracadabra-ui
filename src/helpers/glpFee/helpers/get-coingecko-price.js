@@ -1,4 +1,4 @@
-const { default: axios } = require("axios");
+import axios from "axios";
 
 const getCoingeckoPrice = async (symbol, { from }) => {
     const _symbol = {

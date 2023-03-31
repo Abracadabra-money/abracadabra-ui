@@ -1,4 +1,4 @@
-const { Wallet } = require("ethers");
+import { Wallet } from "ethers";
 
 module.exports.rpc = "https://rpc.ankr.com/arbitrum";
 

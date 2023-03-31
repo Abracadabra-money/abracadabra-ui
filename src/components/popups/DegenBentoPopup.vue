@@ -53,11 +53,13 @@ export default {
     isBento: { type: Boolean, default: false },
     isDeposit: { type: Boolean, default: false },
   },
-  data: () => ({
-    amount: "",
-    mimIcon,
-    updateInfoInterval: null,
-  }),
+  data() {
+    return {
+      amount: "",
+      mimIcon,
+      updateInfoInterval: null,
+    };
+  },
   methods: {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);

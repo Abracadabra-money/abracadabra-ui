@@ -152,7 +152,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/ape-circle.png')"
+                  :icon="'./src/assets/images/ape/ape-circle.png'"
                   size="60px"
                 />
                 <span class="token-icon-name">APE</span>
@@ -170,7 +170,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/mape-circle.png')"
+                  :icon="'./src/assets/images/ape/mape-circle.png'"
                   size="60px"
                 />
                 <span class="token-icon-name">magicAPE</span>
@@ -194,7 +194,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/mape-circle.png')"
+                  :icon="'./src/assets/images/ape/mape-circle.png'"
                   size="40px"
                 />
                 <span>magicAPE</span>
@@ -215,7 +215,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/ape-circle.png')"
+                  :icon="'./src/assets/images/ape/ape-circle.png'"
                   size="40px"
                 />
                 <span>APE</span>

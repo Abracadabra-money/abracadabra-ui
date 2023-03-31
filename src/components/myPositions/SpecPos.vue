@@ -39,7 +39,11 @@ export default {
     pools: { type: Array, default: () => [] },
   },
   components: { SpecPosBorrowItem, SpecPosFarmItem },
-  data: () => ({ opened: false }),
+  data() {
+    return {
+      opened: false,
+    };
+  },
   computed: {
     title() {
       return this.isFarm ? "Farm" : "Borrow";

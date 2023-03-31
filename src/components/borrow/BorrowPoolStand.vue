@@ -231,12 +231,14 @@ export default {
       default: 0,
     },
   },
-  data: () => ({
-    isInfoPressed: false,
-    collateralDecimals: 4,
-    wOHMTosOHM: null,
-    tokenApy: null,
-  }),
+  data() {
+    return {
+      isInfoPressed: false,
+      collateralDecimals: 4,
+      wOHMTosOHM: null,
+      tokenApy: null,
+    };
+  },
 
   computed: {
     ...mapGetters({
@@ -471,9 +473,7 @@ export default {
         ) {
           resultArray.push({
             title: "Withdrawable Amount",
-            value: filters.formatTokenBalance(
-              this.pool.maxWithdrawAmount || 0
-            ),
+            value: filters.formatTokenBalance(this.pool.maxWithdrawAmount || 0),
             additional: `Maximum Current Amount of ${this.pool.collateralToken.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
           });
         }
@@ -689,8 +689,12 @@ export default {
   },
 
   components: {
-    LockedTimer: defineAsyncComponent(() => import("@/components/stake/LockedTimer.vue")),
-    MiniStatusTag: defineAsyncComponent(() => import("@/components/ui/MiniStatusTag.vue")),
+    LockedTimer: defineAsyncComponent(() =>
+      import("@/components/stake/LockedTimer.vue")
+    ),
+    MiniStatusTag: defineAsyncComponent(() =>
+      import("@/components/ui/MiniStatusTag.vue")
+    ),
   },
 };
 </script>

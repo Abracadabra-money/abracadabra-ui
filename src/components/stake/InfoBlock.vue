@@ -69,14 +69,16 @@ export default {
   props: {
     tokensInfo: {},
   },
-  data: () => ({
-    emptyData: {
-      img: require(`@/assets/images/empty_borrow.png`),
-      text: "Some text 4 empty view!",
-      bottom: "If you want to learn more read our docs",
-      link: "https://abracadabramoney.gitbook.io/",
-    },
-  }),
+  data() {
+    return {
+      emptyData: {
+        img: this.$image(`assets/images/empty_borrow.png`),
+        text: "Some text 4 empty view!",
+        bottom: "If you want to learn more read our docs",
+        link: "https://abracadabramoney.gitbook.io/",
+      },
+    };
+  },
   computed: {
     isEmpty() {
       return !this.tokensInfo;
@@ -92,9 +94,7 @@ export default {
           title: this.tokensInfo.stakeToken.name,
           icon: this.tokensInfo.stakeToken.icon,
           name: "Your balance",
-          value: filters.formatTokenBalance(
-            this.tokensInfo.stakeToken.balance
-          ),
+          value: filters.formatTokenBalance(this.tokensInfo.stakeToken.balance),
           valueInUsd: filters.formatUSD(
             this.tokensInfo.stakeToken.balance *
               this.tokensInfo.stakeToken.price
@@ -104,9 +104,7 @@ export default {
           title: this.tokensInfo.mainToken.name,
           icon: this.tokensInfo.mainToken.icon,
           name: "Staked",
-          value: filters.formatTokenBalance(
-            this.tokensInfo.mainToken.balance
-          ),
+          value: filters.formatTokenBalance(this.tokensInfo.mainToken.balance),
           valueInUsd: filters.formatUSD(
             this.tokensInfo.mainToken.balance * this.tokensInfo.mainToken.price
           ),
@@ -114,7 +112,10 @@ export default {
         {
           title: "Ratio",
           icon: this.tokensInfo.stakeToken.icon,
-          text: `1 ${this.tokensInfo.mainToken.name} = ${filters.formatToFixed(this.tokensInfo.tokensRate, 4)} ${this.tokensInfo.stakeToken.name}`,
+          text: `1 ${this.tokensInfo.mainToken.name} = ${filters.formatToFixed(
+            this.tokensInfo.tokensRate,
+            4
+          )} ${this.tokensInfo.stakeToken.name}`,
         },
         {
           title: "Staking APR",

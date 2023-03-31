@@ -205,7 +205,7 @@ export default {
       updateInterval: null,
       borrowStepRange: "0.0001",
       emptyData: {
-        img: require(`@/assets/images/empty_leverage.png`),
+        img: this.$image(`assets/images/empty_leverage.png`),
         text: "Deleverage your position using our built-in Flash repay function.",
         bottom: "Read more about it",
         link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
@@ -462,7 +462,7 @@ export default {
     selectIcon() {
       if (this.selectedPool) return this.selectedPool.icon;
 
-      return require(`@/assets/images/select.svg`);
+      return this.$image(`assets/images/select.svg`);
     },
 
     selectName() {

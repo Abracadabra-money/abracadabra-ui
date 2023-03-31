@@ -230,19 +230,19 @@ export default {
         return [
           {
             name: "CRV",
-            img: require("@/assets/images/tokens/CRV.png"),
+            img: this.$image("assets/images/tokens/CRV.png"),
             balance: this.crvBalance,
             balanceUsd: this.crvBalance * this.crvBalanceUsd,
             network: "ETH",
-            networkImg: require("@/assets/images/networks/ethereum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/ethereum-icon.svg"),
           },
           {
             name: "MIM",
-            img: require("@/assets/images/tokens/MIM.png"),
+            img: this.$image("assets/images/tokens/MIM.png"),
             balance: this.mimBalance,
             balanceUsd: this.mimBalance * this.mimBalanceUsd,
             network: "ETH",
-            networkImg: require("@/assets/images/networks/ethereum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/ethereum-icon.svg"),
           },
         ];
 
@@ -250,20 +250,20 @@ export default {
         return [
           {
             name: "sGLP",
-            img: require("@/assets/images/tokens/GLP.png"),
+            img: this.$image("assets/images/tokens/GLP.png"),
             balance: this.sGlpBalance,
             balanceUsd: 0,
             isNotBalanceUsd: true,
             network: "AETH",
-            networkImg: require("@/assets/images/networks/arbitrum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/arbitrum-icon.svg"),
           },
           {
             name: "MIM",
-            img: require("@/assets/images/tokens/MIM.png"),
+            img: this.$image("assets/images/tokens/MIM.png"),
             balance: this.mimBalance,
             balanceUsd: this.mimBalance * this.mimBalanceUsd,
             network: "AETH",
-            networkImg: require("@/assets/images/networks/arbitrum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/arbitrum-icon.svg"),
           },
         ];
 

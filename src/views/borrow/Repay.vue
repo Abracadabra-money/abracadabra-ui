@@ -155,7 +155,7 @@ export default {
       isOpenPollPopup: false,
       updateInterval: null,
       emptyData: {
-        img: require(`@/assets/images/empty_borrow.png`),
+        img: this.$image(`assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Repay",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/",
@@ -199,7 +199,7 @@ export default {
 
       return {
         name: "MIM",
-        icon: require("@/assets/images/tokens/MIM.png"),
+        icon: this.$image("assets/images/tokens/MIM.png"),
       };
     },
 

@@ -28,8 +28,8 @@ export default {
   },
   data() {
     return {
-      defaultToken: require("@/assets/images/base_token_icon.png"),
-      selectIcon: require("@/assets/images/base_select_icon.png"),
+      defaultToken: this.$image("assets/images/base_token_icon.png"),
+      selectIcon: this.$image("assets/images/base_select_icon.png"),
     };
   },
 

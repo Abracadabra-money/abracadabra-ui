@@ -1,4 +1,4 @@
-const bigNumberify = require('../utils/big-numberify');
+import bigNumberify from '../utils/big-numberify';
 
 module.exports = (token, usdgSupply, totalTokenWeights) => {
     if (!token || !token.weight || !usdgSupply) {

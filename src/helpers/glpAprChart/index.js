@@ -1,7 +1,7 @@
-const moment = require("moment");
-const getGlpData = require("./helpers/get-glp-data");
-const getFeesData = require("./helpers/get-fees-data");
-const getGlpPerformanceData = require("./helpers/get-glp-performance-data");
+import moment from "moment";
+import getGlpData from "./helpers/get-glp-data";
+import getFeesData from "./helpers/get-fees-data";
+import getGlpPerformanceData from "./helpers/get-glp-performance-data";
 
 const getGlpChartApr = async (month = 3) => {
   const pastMonths = moment().subtract(month, "month").toDate();

@@ -1,4 +1,4 @@
-const { BigNumber, utils } = require("ethers");
+import { BigNumber, utils } from "ethers";
 
 module.exports.bigNumberify = (n) => {
   try {

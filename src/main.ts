@@ -14,4 +14,9 @@ app.use(connectWallet);
 app.directive("click-outside", clickOutside);
 app.mount("#app");
 
+const useImage = ((url: any) => {
+    return new URL(`/src/${url}`, import.meta.url).href;
+});
+
 app.config.globalProperties.$ethers = ethers;
+app.config.globalProperties.$image = useImage;

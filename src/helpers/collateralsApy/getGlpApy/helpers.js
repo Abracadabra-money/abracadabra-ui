@@ -1,4 +1,4 @@
-const {
+import {
   getPoolContract,
   getVaultContract,
   getGlpManagerContract,
@@ -6,18 +6,18 @@ const {
   getReaderContract,
   getGmxGlpWrapperContract,
   getMagicGlpHarvestorContract
-} = require("./contracts");
-const {
+} from "./contracts";
+import {
   weth,
   gmx,
   nativeToken,
   address,
   rewardTrackersForStakingInfo,
   walletTokens,
-} = require("./constants");
-const { Token } = require("@uniswap/sdk-core");
-const { Pool } = require("@uniswap/v3-sdk");
-const { expandDecimals, parseValue } = require("./utils");
+} from "./constants";
+import { Token } from "@uniswap/sdk-core";
+import { Pool } from "@uniswap/v3-sdk";
+import { expandDecimals, parseValue } from "./utils";
 
 module.exports.getGmxPrice = async () => {
   const poolContract = getPoolContract();

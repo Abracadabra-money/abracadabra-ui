@@ -1,5 +1,5 @@
-const bigNumberify = require('../utils/big-numberify');
-const getTargetUsdgAmount = require('./get-target-usdg-amount');
+import bigNumberify from '../utils/big-numberify';
+import getTargetUsdgAmount from './get-target-usdg-amount';
 
 module.exports = (token, tokenUsdgAmount, usdgDelta, feeBasisPoints, taxBasisPoints, increment, usdgSupply, totalTokenWeights) => {
     if (!token || !tokenUsdgAmount || !usdgSupply || !totalTokenWeights) {

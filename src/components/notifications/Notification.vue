@@ -61,10 +61,10 @@ export default {
   methods: {
     getImgUrl(type) {
       if (!type) {
-        return require(`@/assets/images/notification-icons/info-icon.png`);
+        return this.$image(`assets/images/notification-icons/info-icon.png`);
       }
 
-      return require(`@/assets/images/notification-icons/${type}-icon.png`);
+      return this.$image(`assets/images/notification-icons/${type}-icon.png`);
     },
 
     closeNotification() {

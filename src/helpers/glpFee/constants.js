@@ -1,4 +1,4 @@
-const expandDecimals = require('./utils/expand-decimals');
+import expandDecimals from './utils/expand-decimals';
 // const ethers = require('ethers');
 
 const tokens = [

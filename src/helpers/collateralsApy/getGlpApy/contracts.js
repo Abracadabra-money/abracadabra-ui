@@ -1,15 +1,15 @@
-const { providers, Contract } = require("ethers");
-const { rpc } = require("./constants");
+import { providers, Contract } from "ethers";
+import { rpc } from "./constants";
 
-const GlpManager = require("./abis/GlpManager.json");
-const RewardReader = require("./abis/RewardReader.json");
-const ReaderV2 = require("./abis/ReaderV2.json");
-const UniPool = require("./abis/UniPool.json");
-const Vault = require("./abis/Vault.json");
-const AbraWsGlp = require("./abis/AbraWsGlp.json");
-const MagicGlpHarvestor = require("./abis/MagicGlpHarvestor.json");
+import GlpManager from "./abis/GlpManager.json";
+import RewardReader from "./abis/RewardReader.json";
+import ReaderV2 from "./abis/ReaderV2.json";
+import UniPool from "./abis/UniPool.json";
+import Vault from "./abis/Vault.json";
+import AbraWsGlp from "./abis/AbraWsGlp.json";
+import MagicGlpHarvestor from "./abis/MagicGlpHarvestor.json";
 
-const {
+import {
   glpManagerAddress,
   rewardReaderAddress,
   readerAddress,
@@ -17,7 +17,7 @@ const {
   vault,
   GmxGlpWrapperAddress,
   MagicGlpHarvestorAddress
-} = require("./constants");
+} from "./constants";
 
 const provider = new providers.StaticJsonRpcProvider(rpc);
 

@@ -1,5 +1,5 @@
-const axios = require("axios");
-const { sortBy, chain, sumBy } = require("lodash");
+import axios from "axios";
+import { sortBy, chain, sumBy } from "lodash";
 
 const MOVING_AVERAGE_DAYS = 7;
 const MOVING_AVERAGE_PERIOD = 86400 * MOVING_AVERAGE_DAYS;

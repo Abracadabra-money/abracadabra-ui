@@ -75,24 +75,24 @@ export default {
 
     networkInfo() {
       let name = "ETH";
-      let icon = require("@/assets/images/tokens/ETH.png");
+      let icon = this.$image("assets/images/tokens/ETH.png");
 
       if (this.chainId === 56) {
         name = "BSC";
-        icon = require("@/assets/images/tokens/BNB.png");
+        icon = this.$image("assets/images/tokens/BNB.png");
       }
 
       if (this.chainId === 250) {
         name = "FTM";
-        icon = require("@/assets/images/tokens/FTM2.png");
+        icon = this.$image("assets/images/tokens/FTM2.png");
       }
       if (this.chainId === 43114) {
         name = "AVAX";
-        icon = require("@/assets/images/tokens/AVAX.png");
+        icon = this.$image("assets/images/tokens/AVAX.png");
       }
       if (this.chainId === 137) {
         name = "MATIC";
-        icon = require("@/assets/images/tokens/MATIC.png");
+        icon = this.$image("assets/images/tokens/MATIC.png");
       }
 
       return { name, icon };
@@ -152,7 +152,7 @@ export default {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     }
-  }
+  },
 
   components: { BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")) },
 };
