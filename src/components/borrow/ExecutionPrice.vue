@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import Vue from "vue";
 import axios from "axios";
+import filters from "@/filters/index.js";
 export default {
   props: {
     pool: {
@@ -45,7 +45,7 @@ export default {
       if (this.fetching) return "Fetching...";
 
       const price = 1 / this.price;
-      return Vue.filter("formatTokenBalance")(price);
+      return filters.formatTokenBalance(price);
     },
 
     isDifference() {

@@ -51,9 +51,9 @@
           </p>
           <div class="token-info">
             <div class="info token-info-name">{{ token.name }}</div>
-            <div class="info">{{ token.balance | formatTokenBalance }}</div>
+            <div class="info">{{ formatTokenBalance(token.balance) }}</div>
             <div class="info-usd" v-if="!token.isNotBalanceUsd">
-              {{ token.balanceUsd | formatUSD }}
+              {{ formatUSD(token.balanceUsd) }}
             </div>
           </div>
         </div>
@@ -157,6 +157,7 @@ import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import degenBoxAbi from "@/utils/abi/degenBox.js";
 import { mapGetters } from "vuex";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
+import filters from "@/filters/index.js";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";
@@ -322,6 +323,12 @@ export default {
   },
 
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async actionHandler() {
       if (!this.account) await this.$connectWallet();
       else {

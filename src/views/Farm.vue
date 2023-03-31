@@ -82,7 +82,7 @@
             ~Yield per $1000
           </p>
           <p class="info-value">
-            {{ selectedPool.poolYield | formatTokenBalance }}
+            {{ formatTokenBalance(selectedPool.poolYield) }}
           </p>
         </div>
 
@@ -95,7 +95,7 @@
             />
             ROI Annually
           </p>
-          <p class="info-value">{{ selectedPool.poolRoi | formatPercent }}</p>
+          <p class="info-value">{{ formatPercent(selectedPool.poolRoi) }}</p>
         </div>
 
         <div class="info underline">
@@ -107,7 +107,7 @@
             />
             TVL
           </p>
-          <p class="info-value">{{ selectedPool.poolTvl | formatUSD }}</p>
+          <p class="info-value">{{ formatUSD(selectedPool.poolTvl) }}</p>
         </div>
 
         <div class="farm-link-wrap">
@@ -147,6 +147,8 @@ import farmPoolsMixin from "../mixins/farmPools";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
+
+import filters from "@/filters/index.js";
 
 export default {
   mixins: [farmPoolsMixin],
@@ -213,6 +215,15 @@ export default {
     },
   },
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatPercent(value) {
+      return filters.formatPercent(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     selectPool(pool) {
       if (+pool.id !== +this.id)
         this.$router.push({ name: "FarmPool", params: { id: pool.id } });

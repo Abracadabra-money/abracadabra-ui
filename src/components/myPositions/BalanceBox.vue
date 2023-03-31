@@ -18,8 +18,8 @@
     <div class="box-data">
       <BaseTokenIcon :icon="mimIcon" name="MIM" size="50px" />
       <div>
-        <p class="box-balance1">{{ parsedBalance | formatTokenBalance }}</p>
-        <p class="box-balance2">{{ balanceInUsd | formatUSD }}</p>
+        <p class="box-balance1">{{  formatTokenBalance(parsedBalance) }}</p>
+        <p class="box-balance2">{{  formatUSD(balanceInUsd) }}</p>
       </div>
     </div>
     <div class="box-actions">
@@ -50,6 +50,7 @@
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import filters from "@/filters/index.js";
 
 export default {
   name: "BalanceBox",
@@ -87,6 +88,14 @@ export default {
       return !+this.balance;
     },
   },
+  methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+  }
 };
 </script>
 

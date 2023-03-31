@@ -14,7 +14,7 @@
           <div class="header-balance">
             <h4>Remove collateral</h4>
             <p v-if="selectedPool">
-              {{ maxCollateralValue | formatTokenBalance }}
+              {{ formatTokenBalance(maxCollateralValue) }}
             </p>
           </div>
           <BaseTokenInput
@@ -129,7 +129,7 @@ import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 import MimEstimatePrice from "@/components/ui/MimEstimatePrice.vue";
 
-import Vue from "vue";
+import filters from "@/filters/index.js";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
@@ -218,7 +218,7 @@ export default {
               this.selectedPool.maxWithdrawAmount
             ).toFixed(20);
 
-            return Vue.filter("formatToFixed")(
+            return filters.formatToFixed(
               parsedMaxContractWithdrawAmount,
               this.selectedPool.collateralToken.decimals
             );
@@ -265,13 +265,13 @@ export default {
           this.selectedPool.maxWithdrawAmount
         ).toFixed(20);
 
-        return Vue.filter("formatToFixed")(
+        return filters.formatToFixed(
           parsedMaxContractWithdrawAmount,
           this.selectedPool.collateralToken.decimals
         );
       }
 
-      return Vue.filter("formatToFixed")(
+      return filters.formatToFixed(
         borrowLeft,
         this.selectedPool.collateralToken.decimals
       );
@@ -436,6 +436,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     updateCollateralValue(value) {
       this.collateralValue = value;
       return false;
@@ -521,7 +524,7 @@ export default {
       );
 
       let parsedAmount = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
+        filters.formatToFixed(
           this.borrowValue,
           this.selectedPool.borrowToken.decimals
         ),
@@ -686,7 +689,7 @@ export default {
         this.borrowValue === this.selectedPool.userInfo.userBorrowPart;
 
       const parsedAmount = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
+        filters.formatToFixed(
           this.borrowValue,
           this.selectedPool.borrowToken.decimals
         ),

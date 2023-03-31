@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BalanceBoxes from "@/components/myPositions/BalanceBoxes.vue";
 import SpecPos from "@/components/myPositions/SpecPos.vue";
@@ -93,7 +93,7 @@ export default {
       account: "getAccount",
     }),
     balanceItems() {
-      const spellFarmer = Vue.filter("formatTokenBalance")(
+      const spellFarmer = filters.formatTokenBalance(
         this.userFarmPools.reduce((calc, pool) => {
           return (
             calc + +this.$ethers.utils.formatEther(pool.accountInfo.userReward)
@@ -104,7 +104,7 @@ export default {
       return [
         {
           title: "Collateral Deposit",
-          value: Vue.filter("formatUSD")(
+          value: filters.formatUSD(
             this.userBorrowPools.reduce((calc, pool) => {
               return (
                 calc +
@@ -118,7 +118,7 @@ export default {
         },
         {
           title: "MIM Borrowed",
-          value: Vue.filter("formatTokenBalance")(
+          value: filters.formatTokenBalance(
             this.userBorrowPools.reduce((calc, pool) => {
               return calc + parseFloat(pool.userInfo.userBorrowPart);
             }, 0)

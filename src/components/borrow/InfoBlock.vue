@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { getVeloManagementFee } from "@/helpers/collateralsApy/getVeloApy";
@@ -121,7 +121,7 @@ export default {
       if (this.price) {
         info.push({
           name: "Price",
-          value: Vue.filter("formatExactPrice")(this.price),
+          value: filters.formatExactPrice(this.price),
           tooltip: "Price of one collateral token",
         });
       }

@@ -10,7 +10,7 @@
           <div class="header-balance">
             <h4>Collateral assets</h4>
             <p v-if="selectedPool">
-              {{ maxCollateralValue | formatTokenBalance }}
+              {{ formatTokenBalance(maxCollateralValue) }}
             </p>
           </div>
           <button @click="isOpenPollPopup = true" class="select-btn">
@@ -46,7 +46,7 @@
           />
 
           <div class="repay-token">
-            {{ repayBorrow | formatTokenBalance }}
+            {{ formatTokenBalance(repayBorrow) }}
             {{ selectedPool.borrowToken.name }}
           </div>
 
@@ -82,7 +82,7 @@
             :parallelRange="flashRepayAmount"
           />
           <div class="repay-token">
-            {{ repayToken | formatTokenBalance }}
+            {{ formatTokenBalance(repayToken) }}
             {{ selectedPool.collateralToken.name }}
           </div>
         </div>
@@ -177,7 +177,7 @@ import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 import MimEstimatePrice from "@/components/ui/MimEstimatePrice.vue";
 
-import Vue from "vue";
+import filters from "@/filters/index.js";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
@@ -298,7 +298,7 @@ export default {
 
     maxFlashRepayAmount() {
       if (this.selectedPool && this.account) {
-        return Vue.filter("formatToFixed")(
+        return filters.formatToFixed(
           this.selectedPool.userInfo.contractBorrowPartParsed,
           4
         );
@@ -356,7 +356,7 @@ export default {
           this.selectedPool.maxWithdrawAmount
         ).toFixed(20);
 
-        return Vue.filter("formatToFixed")(
+        return filters.formatToFixed(
           parsedMaxContractWithdrawAmount,
           this.selectedPool.borrowToken.decimals
         );
@@ -405,7 +405,7 @@ export default {
     finalCollateralAmount() {
       const slipageMutiplier = (100 + +this.slipage) / 100;
 
-      const collateralAmount = Vue.filter("formatToFixed")(
+      const collateralAmount = filters.formatToFixed(
         this.borrowAmount *
           this.selectedPool.tokenOraclePrice *
           slipageMutiplier,
@@ -425,7 +425,7 @@ export default {
         ? this.noExponents(this.flashRepayRemoveAmount)
         : this.flashRepayRemoveAmount;
 
-      const removeCollateralAmount = Vue.filter("formatToFixed")(
+      const removeCollateralAmount = filters.formatToFixed(
         flashRepayRemoveAmount,
         this.selectedPool.collateralToken.decimals
       );
@@ -437,7 +437,7 @@ export default {
     },
 
     borrowAmount() {
-      return Vue.filter("formatToFixed")(
+      return filters.formatToFixed(
         this.flashRepayAmount,
         this.selectedPool.borrowToken.decimals
       );
@@ -562,6 +562,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async approveTokenHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
@@ -665,7 +668,7 @@ export default {
 
         const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
 
-        let amountFrom = Vue.filter("formatToFixed")(
+        let amountFrom = filters.formatToFixed(
           this.borrowAmount * this.selectedPool.tokenOraclePrice,
           this.selectedPool.collateralToken.decimals
         );

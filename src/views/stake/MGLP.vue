@@ -13,7 +13,7 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
+            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
@@ -153,10 +153,10 @@
               <div>
                 <p class="token-title">GLP</p>
                 <p class="token-balance">
-                  {{ stakeToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(stakeToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ stakeToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(stakeToken.balanceUsd) }}
                 </p>
               </div>
             </div>
@@ -171,10 +171,10 @@
               <div>
                 <p class="token-title">magicGLP</p>
                 <p class="token-balance">
-                  {{ mainToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(mainToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ mainToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(mainToken.balanceUsd) }}
                 </p>
               </div>
             </div>
@@ -197,7 +197,7 @@
                   Number(mainToken.totalSupply).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{
-                  mainToken.totalSupplyUsd | formatUSD
+                  formatUSD(mainToken.totalSupplyUsd)
                 }}</span>
               </div>
             </div>
@@ -217,7 +217,7 @@
                 <span class="info-value">{{
                   Number(totalRewardsEarned).toLocaleString()
                 }}</span>
-                <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
+                <span class="info-usd">{{ formatUSD(totalRewardsUsd) }}</span>
               </div>
             </div>
           </div>
@@ -255,7 +255,7 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
@@ -328,7 +328,7 @@ export default {
 
     tokensRate() {
       const amount = 1 * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
+      return filters.formatToFixed(amount, 4);
     },
 
     toTokenAmount() {
@@ -336,11 +336,11 @@ export default {
 
       if (this.action === "Stake") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
 
       const amount = this.amount * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 6);
+      return filters.formatToFixed(amount, 6);
     },
 
     disableActionBtn() {
@@ -370,6 +370,12 @@ export default {
   },
 
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     updateValue(amount) {
       this.amount = amount ? amount : "";
       this.amountError = "";

@@ -15,7 +15,7 @@
           <div class="header-balance">
             <h4>Collateral assets</h4>
             <p v-if="selectedPool">
-              {{ maxCollateralValue | formatTokenBalance }}
+              {{ formatTokenBalance(maxCollateralValue) }}
             </p>
           </div>
 
@@ -202,7 +202,7 @@ import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 
-import Vue from "vue";
+import filters from "@/filters/index.js";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
@@ -544,7 +544,7 @@ export default {
 
         if (this.selectedPool.name === "SHIB") decimals = 6;
 
-        return Vue.filter("formatToFixed")(tokenToMim, decimals);
+        return filters.formatToFixed(tokenToMim, decimals);
       }
       return "0.0";
     },
@@ -585,6 +585,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     updateCollateralValue(value) {
       this.collateralValue = value;
     },
@@ -757,7 +760,7 @@ export default {
       }
 
       const parsedBorrow = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
+        filters.formatToFixed(
           this.borrowValue,
           this.selectedPool.borrowToken.decimals
         ),
@@ -895,7 +898,7 @@ export default {
       }
 
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
+        filters.formatToFixed(
           this.borrowValue,
           this.selectedPool.borrowToken.decimals
         ),

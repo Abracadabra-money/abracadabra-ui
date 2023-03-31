@@ -14,7 +14,7 @@
       <div class="header-balance">
         <h4>Collateral assets</h4>
         <p v-if="fromToken.balance">
-          {{ fromToken.balance | formatTokenBalance }}
+          {{  formatTokenBalance(fromToken.balance) }}
         </p>
       </div>
 
@@ -41,7 +41,7 @@
       <div class="header-balance">
         <h4>Collateral assets</h4>
         <p v-if="toToken.balance">
-          {{ toToken.balance | formatTokenBalance }}
+          {{ formatTokenBalance(toToken.balance) }}
         </p>
       </div>
 
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import threeCryptoDeposit from "@/mixins/getCollateralLogic/threeCryptoDeposit";
@@ -104,11 +104,11 @@ export default {
 
       if (this.action === "Deposit") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       if (this.action === "Withdraw") {
         const amount = this.amount * this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       return "";
     },
@@ -138,6 +138,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     toggleAction() {
       this.amount = "";
       this.amountError = "";

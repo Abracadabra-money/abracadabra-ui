@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
@@ -51,13 +51,13 @@ export default {
       return [
         {
           title: "~Yield per $1000",
-          value: Vue.filter("formatTokenBalance")(this.pool.poolYield),
+          value: filters.formatTokenBalance(this.pool.poolYield),
         },
         {
           title: "ROI Annually",
-          value: Vue.filter("formatPercent")(this.pool.poolRoi),
+          value: filters.formatPercent(this.pool.poolRoi),
         },
-        { title: "TVL", value: Vue.filter("formatUSD")(this.pool.poolTvl) },
+        { title: "TVL", value: filters.formatUSD(this.pool.poolTvl) },
       ];
     },
 

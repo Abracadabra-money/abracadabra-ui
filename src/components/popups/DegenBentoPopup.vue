@@ -5,7 +5,7 @@
       <div>
         <div class="header-balance">
           <h4>Collateral assets</h4>
-          <p>Balance: {{ balance | formatTokenBalance }}</p>
+          <p>Balance: {{ formatTokenBalance(balance) }}</p>
         </div>
 
         <BaseTokenInput
@@ -59,6 +59,9 @@ export default {
     updateInfoInterval: null,
   }),
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async withdraw() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",

@@ -13,7 +13,7 @@
           <p class="input-title">Token to bridge</p>
           <div class="balance">
             <span>Balance: </span>
-            <span>{{ mimBalance | formatTokenBalance }}</span>
+            <span>{{ formatTokenBalance(mimBalance) }}</span>
           </div>
         </div>
 
@@ -29,7 +29,7 @@
 
       <div class="expected">
         <p class="expected-title">Expected MIM</p>
-        <p class="expected-value">{{ expectedMim | formatTokenBalance }}</p>
+        <p class="expected-value">{{ formatTokenBalance(expectedMim) }}</p>
       </div>
 
       <div class="info">
@@ -40,7 +40,7 @@
         <div class="info-row">
           <p class="info-text">
             Crosschain amounts larger than
-            {{ targetChainInfo.amountLarger | formatNumber }} MIM estimated
+            {{ formatNumber(targetChainInfo.amountLarger) }} MIM estimated
             arrival:
           </p>
           <p class="info-text">up to 12 hours</p>
@@ -91,7 +91,7 @@ import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import SelectChainsWrap from "@/components/bridge/SelectChainsWrap.vue";
 import NetworkPopup from "@/components/popups/NetworkPopup.vue";
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -216,7 +216,7 @@ export default {
       return [
         {
           title: "Maximum Bridgeable Amount",
-          value: `${Vue.filter("formatNumber")(
+          value: `${filters.formatNumber(
             this.targetChainInfo.maxAmount
           )} MIM`,
           additional:
@@ -237,6 +237,12 @@ export default {
   },
 
   methods: {
+    formatNumber(value) {
+      return filters.formatNumber(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     openNetworkPopup(type) {
       this.popupType = type;
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
@@ -298,7 +304,7 @@ export default {
         notification.pending
       );
       try {
-        const parsedAmount = Vue.filter("formatToFixed")(this.amount, 18);
+        const parsedAmount = filters.formatToFixed(this.amount, 18);
 
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
 

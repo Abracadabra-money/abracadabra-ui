@@ -14,7 +14,7 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
+            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
@@ -97,7 +97,7 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import InfoBlock from "@/components/stake/InfoBlock.vue";
 import ClaimInfo from "@/components/stake/ClaimInfo.vue";
 import EmptyBlock from "@/components/stake/EmptyBlock.vue";
@@ -151,11 +151,11 @@ export default {
 
       if (this.action === "Deposit") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       if (this.action === "Withdraw") {
         const amount = this.amount * this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       return "";
     },
@@ -184,6 +184,9 @@ export default {
     },
   },
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     toggleAction() {
       this.amount = "";
       this.amountError = "";

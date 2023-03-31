@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import LockedTimer from "@/components/stake/LockedTimer.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 
@@ -92,10 +92,10 @@ export default {
           title: this.tokensInfo.stakeToken.name,
           icon: this.tokensInfo.stakeToken.icon,
           name: "Your balance",
-          value: Vue.filter("formatTokenBalance")(
+          value: filters.formatTokenBalance(
             this.tokensInfo.stakeToken.balance
           ),
-          valueInUsd: Vue.filter("formatUSD")(
+          valueInUsd: filters.formatUSD(
             this.tokensInfo.stakeToken.balance *
               this.tokensInfo.stakeToken.price
           ),
@@ -104,19 +104,17 @@ export default {
           title: this.tokensInfo.mainToken.name,
           icon: this.tokensInfo.mainToken.icon,
           name: "Staked",
-          value: Vue.filter("formatTokenBalance")(
+          value: filters.formatTokenBalance(
             this.tokensInfo.mainToken.balance
           ),
-          valueInUsd: Vue.filter("formatUSD")(
+          valueInUsd: filters.formatUSD(
             this.tokensInfo.mainToken.balance * this.tokensInfo.mainToken.price
           ),
         },
         {
           title: "Ratio",
           icon: this.tokensInfo.stakeToken.icon,
-          text: `1 ${this.tokensInfo.mainToken.name} = ${Vue.filter(
-            "formatToFixed"
-          )(this.tokensInfo.tokensRate, 4)} ${this.tokensInfo.stakeToken.name}`,
+          text: `1 ${this.tokensInfo.mainToken.name} = ${filters.formatToFixed(this.tokensInfo.tokensRate, 4)} ${this.tokensInfo.stakeToken.name}`,
         },
         {
           title: "Staking APR",
@@ -124,7 +122,7 @@ export default {
             this.tokensInfo.stakeToken.icon,
             this.tokensInfo.mainToken.icon,
           ],
-          text: Vue.filter("formatPercent")(this.tokensInfo.apr),
+          text: filters.formatPercent(this.tokensInfo.apr),
         },
       ];
     },

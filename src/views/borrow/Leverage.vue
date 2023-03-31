@@ -11,7 +11,7 @@
           <div class="header-balance">
             <h4>Collateral assets</h4>
             <p v-if="selectedPool">
-              {{ maxCollateralValue | formatTokenBalance }}
+              {{ formatTokenBalance(maxCollateralValue) }}
             </p>
           </div>
           <BaseTokenInput
@@ -204,7 +204,7 @@ import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 import MimEstimatePrice from "@/components/ui/MimEstimatePrice.vue";
 
-import Vue from "vue";
+import filters from "@/filters/index.js";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
@@ -617,7 +617,7 @@ export default {
 
         if (this.selectedPool.name === "SHIB") decimals = 6;
 
-        return Vue.filter("formatToFixed")(tokenToMim, decimals);
+        return filters.formatToFixed(tokenToMim, decimals);
       }
       return "0.0";
     },
@@ -637,7 +637,7 @@ export default {
     sellAmount() {
       if (!this.collateralValue) return 0;
 
-      const amount = Vue.filter("formatToFixed")(
+      const amount = filters.formatToFixed(
         this.mimAmount,
         this.selectedPool.borrowToken.decimals
       );
@@ -657,7 +657,7 @@ export default {
 
       const mimAmount = this.$ethers.utils
         .parseUnits(
-          Vue.filter("formatToFixed")(
+          filters.formatToFixed(
             finalAmount,
             this.selectedPool.borrowToken.decimals
           ),
@@ -725,6 +725,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async alternativeLeverageHandler(multiplyer, slippage) {
       try {
         const collateralAmount = this.$ethers.utils.parseUnits(

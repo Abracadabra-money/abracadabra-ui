@@ -8,7 +8,7 @@
       <img src="@/assets/images/PixelMIM.svg" alt="MIM" />
     </button>
     <p class="mim-price" v-if="mimPrice !== null">
-      $ {{ mimPrice | formatToFixed(4) }}
+      $ {{ formatToFixed(mimPrice, 4) }}
     </p>
   </div>
 </template>
@@ -18,6 +18,7 @@ import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { mapGetters } from "vuex";
 import { ethers, providers } from "ethers";
 import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
+import filters from "@/filters/index.js";
 
 export default {
   data() {
@@ -46,6 +47,9 @@ export default {
   },
 
   methods: {
+    formatToFixed(value, fixed) {
+      return filters.formatToFixed(value, fixed);
+    },
     async addToken() {
       if (!this.account) {
         return false;

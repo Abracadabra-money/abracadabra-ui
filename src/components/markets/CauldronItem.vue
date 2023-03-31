@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
@@ -62,15 +62,15 @@ export default {
       return [
         {
           title: "TOTAL MIM BORROWED",
-          value: Vue.filter("formatLargeSum")(this.pool.totalBorrow),
+          value: filters.formatLargeSum(this.pool.totalBorrow),
         },
         {
           title: "TVL",
-          value: `$ ${Vue.filter("formatLargeSum")(this.pool.tvl)}`,
+          value: `$ ${filters.formatLargeSum(this.pool.tvl)}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
-          value: Vue.filter("formatLargeSum")(this.pool.dynamicBorrowAmount),
+          value: filters.formatLargeSum(this.pool.dynamicBorrowAmount),
         },
         { title: "INTEREST", value: `${this.pool.interest}%` },
       ];
