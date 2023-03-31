@@ -14,9 +14,9 @@ export default defineConfig({
     }),
     vue()
   ],
-  define: {
-    global: {},
-  },
+  // define: {
+  //   global: {},
+  // },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
