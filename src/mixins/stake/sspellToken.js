@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import { mapMutations } from "vuex";
 import moment from "moment";
@@ -124,7 +125,7 @@ export default {
         },
       };
 
-      this.$store.commit("setSSpellObject", stakeObject);
+      this.$store.commit("setSSpellObject", markRaw(stakeObject));
       this.setLoadingSSpellStake(false);
     },
     async getUserLocked(contractInstance) {

@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import spellTokenAbi from "@/utils/abi/tokensAbi/SPELL";
 import mSpellStakingAbi from "@/utils/abi/mSpellStakingAbi";
 import moment from "moment";
@@ -135,7 +136,7 @@ export default {
         },
       };
 
-      this.$store.commit("setMSpellStakingObj", mSpellStakingObj);
+      this.$store.commit("setMSpellStakingObj", markRaw(mSpellStakingObj));
       this.$store.commit("setLoadingMSpellStake", false);
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {

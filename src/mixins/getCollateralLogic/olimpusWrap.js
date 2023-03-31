@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import wrapConf from "@/utils/collateralConfig/ohm-swap/wrapConf";
 import { mapGetters } from "vuex";
 
@@ -98,7 +99,7 @@ export default {
         },
       };
 
-      return wrapObject;
+      return markRaw(wrapObject);
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {
       try {
