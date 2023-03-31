@@ -182,7 +182,7 @@ export default {
       await this.createMimBentoInfo();
     }, 5000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.farmPoolsTimer);
     clearInterval(this.mimBentoInterval);
     clearInterval(this.borrowPoolsTimer);

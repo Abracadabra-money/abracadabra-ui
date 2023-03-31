@@ -697,7 +697,7 @@ export default {
     }, 60000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
     clearInterval(this.chartInterval);
     clearInterval(this.tvlInterval);

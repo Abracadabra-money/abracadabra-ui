@@ -45,7 +45,7 @@ export default {
       this.timeInterval = this.buyTimer();
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timeInterval);
   },
 };

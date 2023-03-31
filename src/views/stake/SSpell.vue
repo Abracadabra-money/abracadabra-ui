@@ -353,7 +353,7 @@ export default {
       await this.createStakePool();
     }, 15000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.spellUpdateInterval);
   },
   components: {

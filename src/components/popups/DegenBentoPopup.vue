@@ -242,7 +242,7 @@ export default {
       }`;
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInfoInterval);
   },
 };

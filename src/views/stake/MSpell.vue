@@ -398,7 +398,7 @@ export default {
       await this.createMSpellStaking();
     }, 15000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.spellUpdateInterval);
   },
   components: {

@@ -375,7 +375,7 @@ export default {
     }, 15000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 

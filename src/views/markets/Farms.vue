@@ -263,7 +263,7 @@ export default {
     window.addEventListener("scroll", this.onScroll);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.poolsInterval);
     window.removeEventListener("scroll", this.onScroll);
   },

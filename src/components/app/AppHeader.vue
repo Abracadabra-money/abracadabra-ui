@@ -317,7 +317,7 @@ export default {
     window.addEventListener("popstate", this.hideAllDropdowns, false);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("popstate", this.hideAllDropdowns);
   },
 

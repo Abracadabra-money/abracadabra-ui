@@ -175,7 +175,7 @@ export default {
     window.addEventListener("scroll", this.onScroll);
     this.onResize();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("resize", this.onResize);
     window.removeEventListener("scroll", this.onScroll);
   },

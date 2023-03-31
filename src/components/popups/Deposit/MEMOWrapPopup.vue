@@ -314,7 +314,7 @@ export default {
       this.tokensInfo = await this.createMEMOWrapObj();
     }, 10000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 

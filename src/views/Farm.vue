@@ -347,7 +347,7 @@ export default {
       await this.createFarmPools();
     }, 10000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.farmPoolsTimer);
   },
   components: {
