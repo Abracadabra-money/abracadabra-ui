@@ -29,7 +29,6 @@ const getTokensRate = async () => {
 
 const fetchSpellApr = async () => {
   try {
-    console.log(import.meta.env)
     const response = await axios.get(import.meta.env.VITE_APP_SPELL_APR_URL);
     return response.data.apr;
   } catch (error) {
