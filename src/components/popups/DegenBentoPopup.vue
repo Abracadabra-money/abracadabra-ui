@@ -11,7 +11,8 @@
         <BaseTokenInput
           :icon="mimIcon"
           name="MIM"
-          v-model="amount"
+          :value="amount"
+          @updateValue="amount = $event"
           :max="balance"
           :error="error"
         />

@@ -17,7 +17,8 @@
           <BaseTokenInput
             :icon="mainValueTokenName"
             :name="mainTokenFinalText"
-            v-model="collateralValue"
+            :value="collateralValue"
+            @updateValue="collateralValue = $event"
             :max="maxCollateralValue"
             :error="collateralError"
             :disabled="!selectedPool"

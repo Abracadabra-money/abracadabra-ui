@@ -22,7 +22,8 @@
           <BaseTokenInput
             :icon="mainValueTokenName"
             :name="mainTokenFinalText"
-            v-model="collateralValue"
+            :value="collateralValue"
+            @updateValue="collateralValue = $event"
             :max="maxCollateralValue"
             :error="collateralError"
             :disabled="!selectedPool"
@@ -84,7 +85,8 @@
           <BaseTokenInput
             :name="borrowToken.name"
             :icon="borrowToken.icon"
-            v-model="borrowValue"
+            :value="borrowValue"
+            @updateValue="borrowValue = $event"
             :max="maxBorrowValue"
             :error="borrowError"
             :disabled="!selectedPool"

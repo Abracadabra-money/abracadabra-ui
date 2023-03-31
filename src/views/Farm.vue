@@ -40,7 +40,8 @@
               {{ selectedPool ? selectedPool.stakingTokenName : "" }} tokens
             </h4>
             <BaseTokenInput
-              v-model="amount"
+              :value="amount"
+              @updateValue="amount = $event"
               :name="selectedPool ? selectedPool.stakingTokenName : null"
               :icon="selectedPool ? selectedPool.icon : null"
               :max="max"

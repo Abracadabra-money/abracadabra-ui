@@ -100,7 +100,7 @@ export default {
         this.currentValue = oldValue;
         return false;
       }
-      this.$emit("input", value);
+      this.$emit("updateValue", value);
     },
     value(val) {
       this.currentValue = val;
