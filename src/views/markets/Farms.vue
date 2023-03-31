@@ -29,7 +29,7 @@
         </div>
 
         <DropdownWrap class="dropdown">
-          <template slot="btn">
+          <template v-slot:btn>
             <button class="sort-btn open-btn">
               <span class="sort-title-wrap">
                 <button
@@ -53,7 +53,7 @@
               />
             </button>
           </template>
-          <template slot="list">
+          <template v-slot:list>
             <button
               class="sort-btn sort-item"
               v-for="(titleData, i) in sortList.filter(
