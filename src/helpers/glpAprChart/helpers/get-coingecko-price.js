@@ -1,14 +1,14 @@
 import axios from "axios";
 
 const apiDomain =
-  import.meta.env.VUE_APP_COINGECKO_API_KEY_2 &&
+  import.meta.env.VITE_APP_COINGECKO_API_KEY_2 &&
   import.meta.env.PROD === "production"
     ? "pro-api.coingecko.com"
     : "api.coingecko.com";
 
 const config = {
   headers: {
-    "X-Cg-Pro-Api-Key": import.meta.env.VUE_APP_COINGECKO_API_KEY_2,
+    "X-Cg-Pro-Api-Key": import.meta.env.VITE_APP_COINGECKO_API_KEY_2,
   },
 };
 

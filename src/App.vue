@@ -51,7 +51,7 @@ export default {
 
   async beforeCreate() {
     const location = await axios.get(
-      `https://ipwhois.pro/?key=${import.meta.env.VUE_APP_IPWHOIS_API_KEY}`
+      `https://ipwhois.pro/?key=${import.meta.env.VITE_APP_IPWHOIS_API_KEY}`
     );
 
     if (
