@@ -252,7 +252,7 @@ export default {
 }
 
 .list-header {
-  display: none;
+  display: grid;
   grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 180px;
   align-items: center;
   padding: 0 20px;
@@ -271,6 +271,10 @@ export default {
   }
   .toggle-markets {
     justify-content: center;
+  }
+
+  .list-header {
+    display: none;
   }
 }
 </style>
