@@ -391,6 +391,9 @@ export default {
     async account(value) {
       if (value) await this.createStakePool();
     },
+    async chainId() {
+      if (this.chainId === 1) await this.crateStakeData();
+    },
   },
 
   methods: {
@@ -679,22 +682,25 @@ export default {
     goLeverage() {
       this.$router.push({ name: "Leverage", params: { id: 39 } });
     },
+
+    async crateStakeData() {
+      await this.getTotalRewards();
+      this.updateInterval = setInterval(async () => {
+        await this.createStakePool();
+      }, 15000);
+
+      await this.fetchChartData();
+
+      this.chartInterval = setInterval(async () => {
+        await this.fetchChartData();
+      }, 60000);
+    },
   },
 
   async created() {
     await this.createStakePool();
-
     if (this.chainId !== 1) return false;
-    await this.getTotalRewards();
-    this.updateInterval = setInterval(async () => {
-      await this.createStakePool();
-    }, 15000);
-
-    await this.fetchChartData();
-
-    this.chartInterval = setInterval(async () => {
-      await this.fetchChartData();
-    }, 60000);
+    await this.crateStakeData();
   },
 
   beforeUnmount() {

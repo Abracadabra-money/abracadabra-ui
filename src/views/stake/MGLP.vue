@@ -367,6 +367,9 @@ export default {
     async account(value) {
       if (value) await this.createStakePool();
     },
+    async chainId() {
+      if (this.chainId === 42161) await this.crateStakeData();
+    },
   },
 
   methods: {
@@ -549,27 +552,30 @@ export default {
         console.log("Get Total Rewards Error", error);
       }
     },
+
+    async crateStakeData() {
+      await this.getTotalRewards();
+      this.updateInterval = setInterval(async () => {
+        await this.createStakePool();
+      }, 15000);
+
+      await this.createChartData(this.chartActiveBtn);
+
+      const apy = await getGlpApy(true);
+      this.apy = parseFloat(apy).toFixed(2);
+
+      this.chartInterval = setInterval(async () => {
+        await this.createChartData(this.chartActiveBtn);
+        const apy = await getGlpApy(true);
+        this.apy = parseFloat(apy).toFixed(2);
+      }, 60000);
+    },
   },
 
   async created() {
     await this.createStakePool();
-
     if (this.chainId !== 42161) return false;
-    await this.getTotalRewards();
-    this.updateInterval = setInterval(async () => {
-      await this.createStakePool();
-    }, 15000);
-
-    await this.createChartData(this.chartActiveBtn);
-
-    const apy = await getGlpApy(true);
-    this.apy = parseFloat(apy).toFixed(2);
-
-    this.chartInterval = setInterval(async () => {
-      await this.createChartData(this.chartActiveBtn);
-      const apy = await getGlpApy(true);
-      this.apy = parseFloat(apy).toFixed(2);
-    }, 60000);
+    await this.crateStakeData();
   },
 
   beforeUnmount() {
