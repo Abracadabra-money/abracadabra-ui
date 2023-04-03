@@ -18,6 +18,7 @@ app.use(VueTippy, {
   defaultProps: {
     placement: "auto",
     allowHTML: true,
+    duration: 0,
   },
 });
 app.mount("#app");
