@@ -21,7 +21,7 @@
         <button
           class="deposit"
           v-if="showCollateralLogicBtn"
-          @click="showCollateralPopup"
+          @click.stop="showCollateralPopup"
         >
           <img src="@/assets/images/deposit.svg" alt="Deposit" />
           {{ collateralTitle }}
@@ -30,7 +30,7 @@
         <button
           class="deposit"
           v-if="showClaimCrvReward"
-          @click="handleClaimCrvReward"
+          @click.stop="handleClaimCrvReward"
         >
           <img src="@/assets/images/deposit.svg" alt="Deposit" /> Claim
         </button>
