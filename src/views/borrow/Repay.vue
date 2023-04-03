@@ -21,11 +21,10 @@
             :icon="selectedPool ? selectedPool.icon : null"
             :name="selectedPool ? selectedPool.name : null"
             :value="collateralValue"
-            @updateValue="collateralValue = $event"
             :max="maxCollateralValue"
             :error="collateralError"
             :disabled="!selectedPool"
-            @input="updateCollateralValue"
+            @updateValue="updateCollateralValue"
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
           />
@@ -38,11 +37,10 @@
             :name="borrowToken.name"
             :icon="borrowToken.icon"
             :value="borrowValue"
-            @updateValue="borrowValue = $event"
             :max="maxBorrowValue"
             :error="borrowError"
             :disabled="!selectedPool"
-            @input="updateBorrowValue"
+            @updateValue="updateBorrowValue"
           />
 
           <MimEstimatePrice
@@ -108,7 +106,10 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap :isOpened="isOpenPollPopup" @closePopup="isOpenPollPopup = false">
+    <LocalPopupWrap
+      :isOpened="isOpenPollPopup"
+      @closePopup="isOpenPollPopup = false"
+    >
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"

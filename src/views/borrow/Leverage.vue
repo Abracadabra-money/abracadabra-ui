@@ -18,11 +18,10 @@
             :icon="mainValueTokenName"
             :name="mainTokenFinalText"
             :value="collateralValue"
-            @updateValue="collateralValue = $event"
             :max="maxCollateralValue"
+            @updateValue="updateCollateralValue"
             :error="collateralError"
             :disabled="!selectedPool"
-            @input="updateCollateralValue"
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
           />
@@ -76,7 +75,7 @@
             </button>
           </div>
           <Range
-            v-model="multiplier"
+            :value="multiplier"
             :max="maxLeverage"
             :min="1"
             :step="0.01"
@@ -84,6 +83,7 @@
             :collateralValue="collateralValue"
             :disabled="!collateralValue"
             tooltipText="Allows users to leverage their position. Read more about this in the documents!"
+            @updateValue="updateMultiplier"
           />
           <div class="leverage-percent">( {{ multiplier }}x)</div>
 
@@ -102,7 +102,11 @@
             </span>
           </div>
 
-          <MimEstimatePrice v-if="selectedPool" :mim="selectedPool.borrowToken.address" :amount="multiplyMimExpected"/>
+          <MimEstimatePrice
+            v-if="selectedPool"
+            :mim="selectedPool.borrowToken.address"
+            :amount="multiplyMimExpected"
+          />
         </div>
 
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
@@ -175,10 +179,16 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="isSettingsOpened = false">
+    <LocalPopupWrap
+      :isOpened="isSettingsOpened"
+      @closePopup="isSettingsOpened = false"
+    >
       <SettingsPopup :slipage="slipage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
-    <LocalPopupWrap :isOpened="isOpenPollPopup" @closePopup="isOpenPollPopup = false">
+    <LocalPopupWrap
+      :isOpened="isOpenPollPopup"
+      @closePopup="isOpenPollPopup = false"
+    >
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
@@ -564,10 +574,14 @@ export default {
     mainValueTokenName() {
       if (this.selectedPool) {
         if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return this.$image(`assets/images/tokens/${this.networkValuteName}2.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}2.png`
+          );
 
         if (this.networkValuteName && this.useDefaultBalance)
-          return this.$image(`assets/images/tokens/${this.networkValuteName}.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}.png`
+          );
 
         if (!this.useCheckBox && this.isCheckBox)
           return this.selectedPool.lpLogic.icon;
@@ -790,6 +804,10 @@ export default {
         this.mimAmount =
           (this.maxBorrowValue * this.percentValue) / this.selectedPool.ltv;
       }
+    },
+
+    updateMultiplier(value) {
+      this.multiplier = value;
     },
 
     async approveTokenHandler() {
@@ -1183,7 +1201,7 @@ export default {
 
       const result = Math.min(multiplier, 100);
 
-      return +parseFloat(result).toFixed(2)
+      return +parseFloat(result).toFixed(2);
     },
   },
 
@@ -1220,7 +1238,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     CollateralApyBlock,
-    MimEstimatePrice
+    MimEstimatePrice,
   },
 };
 </script>

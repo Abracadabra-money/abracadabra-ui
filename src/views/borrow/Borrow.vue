@@ -23,11 +23,10 @@
             :icon="mainValueTokenName"
             :name="mainTokenFinalText"
             :value="collateralValue"
-            @updateValue="collateralValue = $event"
             :max="maxCollateralValue"
             :error="collateralError"
             :disabled="!selectedPool"
-            @input="updateCollateralValue"
+            @updateValue="updateCollateralValue"
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
           />
@@ -86,11 +85,10 @@
             :name="borrowToken.name"
             :icon="borrowToken.icon"
             :value="borrowValue"
-            @updateValue="borrowValue = $event"
             :max="maxBorrowValue"
             :error="borrowError"
             :disabled="!selectedPool"
-            @input="updateBorrowValue"
+            @updateValue="updateBorrowValue"
           />
         </div>
         <template v-if="selectedPool">
@@ -180,7 +178,10 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap :isOpened="isOpenPollPopup" @closePopup="isOpenPollPopup = false">
+    <LocalPopupWrap
+      :isOpened="isOpenPollPopup"
+      @closePopup="isOpenPollPopup = false"
+    >
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"

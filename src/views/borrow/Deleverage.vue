@@ -39,10 +39,11 @@
           </div>
 
           <Range
-            v-model="flashRepayAmount"
+            :value="flashRepayAmount"
             :max="+maxFlashRepayAmount"
             :step="+borrowStepRange"
             title="Choose the amount of MIM you want to repay"
+            @updateValue="updateFlashRepayAmount"
           />
 
           <div class="repay-token">
@@ -76,10 +77,11 @@
 
           <Range
             title="Choose the amount of collateral you want to remove"
-            v-model="flashRepayRemoveAmount"
+            :value="flashRepayRemoveAmount"
             :max="maxFlashRepayRemoveAmount"
             :step="+collateralStepRange"
             :parallelRange="flashRepayAmount"
+            @updateValue="updateFlashRepayRemoveAmount"
           />
           <div class="repay-token">
             {{ formatTokenBalance(repayToken) }}
@@ -150,10 +152,16 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="isSettingsOpened = false">
+    <LocalPopupWrap
+      :isOpened="isSettingsOpened"
+      @closePopup="isSettingsOpened = false"
+    >
       <SettingsPopup :slipage="slipage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
-    <LocalPopupWrap :isOpened="isOpenPollPopup" @closePopup="isOpenPollPopup = false">
+    <LocalPopupWrap
+      :isOpened="isOpenPollPopup"
+      @closePopup="isOpenPollPopup = false"
+    >
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
@@ -611,6 +619,14 @@ export default {
       }
 
       this.isSettingsOpened = false;
+    },
+
+    updateFlashRepayRemoveAmount(value) {
+      this.flashRepayRemoveAmount = value;
+    },
+
+    updateFlashRepayAmount(value) {
+      this.flashRepayAmount = value;
     },
 
     async actionHandler() {

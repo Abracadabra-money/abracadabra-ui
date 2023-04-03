@@ -23,7 +23,7 @@
         :name="fromToken.name"
         :value="amount"
         :max="fromToken.balance || 0"
-        @input="updateMainValue"
+        @updateValue="updateMainValue"
         :error="amountError"
       />
     </div>

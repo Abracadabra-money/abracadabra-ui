@@ -23,7 +23,7 @@
           :name="'MIM'"
           :icon="$image('assets/images/tokens/MIM.png')"
           :error="amountError"
-          @input="updateMainValue"
+          @updateValue="updateMainValue"
         />
       </div>
 
@@ -216,9 +216,7 @@ export default {
       return [
         {
           title: "Maximum Bridgeable Amount",
-          value: `${filters.formatNumber(
-            this.targetChainInfo.maxAmount
-          )} MIM`,
+          value: `${filters.formatNumber(this.targetChainInfo.maxAmount)} MIM`,
           additional:
             "Maximum amount that can be sent in one single transaction.",
         },

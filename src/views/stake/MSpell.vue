@@ -21,7 +21,7 @@
             :name="fromToken.name"
             :disabled="tokensInfo.lockedUntil && action === 'Withdraw'"
             :value="amount"
-            @input="updateMainValue"
+            @updateValue="updateMainValue"
             :max="fromToken.balance"
             :error="amountError"
           />

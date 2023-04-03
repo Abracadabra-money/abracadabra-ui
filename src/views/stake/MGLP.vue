@@ -19,7 +19,7 @@
             :icon="fromToken.icon"
             :name="fromToken.name"
             :value="amount"
-            @input="updateMainValue"
+            @updateValue="updateMainValue"
             :max="fromToken.balance"
             :error="amountError"
           />

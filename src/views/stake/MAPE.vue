@@ -19,7 +19,7 @@
             :icon="fromToken.icon"
             :name="fromToken.name"
             :value="amount"
-            @input="updateMainValue"
+            @updateValue="updateMainValue"
             :max="fromToken.balance"
             :error="amountError"
           />
@@ -204,7 +204,7 @@
                   Number(mainToken.totalSupply).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{
-                   formatUSD(mainToken.totalSupplyUsd)
+                  formatUSD(mainToken.totalSupplyUsd)
                 }}</span>
               </div>
             </div>

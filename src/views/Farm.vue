@@ -123,7 +123,10 @@
           </a></div
       ></template>
     </div>
-    <LocalPopupWrap :isOpened="isTokensOpened" @closePopup="isTokensOpened = false">
+    <LocalPopupWrap
+      :isOpened="isTokensOpened"
+      @closePopup="isTokensOpened = false"
+    >
       <MarketsListPopup
         @select="selectPool"
         @close="isTokensOpened = false"

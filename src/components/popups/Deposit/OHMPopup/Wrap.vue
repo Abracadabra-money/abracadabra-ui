@@ -4,7 +4,7 @@
       <div class="header-balance">
         <h4>Collateral assets</h4>
         <p v-if="fromToken.balance">
-          {{  formatTokenBalance(fromToken.balance) }}
+          {{ formatTokenBalance(fromToken.balance) }}
         </p>
       </div>
 
@@ -13,7 +13,7 @@
         :name="fromToken.name"
         :value="amount"
         :max="fromToken.balance || 0"
-        @input="updateMainValue"
+        @updateValue="updateMainValue"
         :error="amountError"
       />
     </div>
