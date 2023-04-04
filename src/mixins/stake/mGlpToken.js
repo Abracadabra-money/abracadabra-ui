@@ -38,7 +38,7 @@ export default {
         },
         43114: {
           harvester: {
-            address: "0xDcB9Bd145B5A31DBbF30428247D1bE8659fa0bF1",
+            address: "0x05b3b96df07b4630373ae7506e51777b547335b0",
             abi: MagicGlpHarvestorAbi,
           },
           mainToken: {
