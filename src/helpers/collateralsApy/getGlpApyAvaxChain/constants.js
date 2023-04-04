@@ -20,7 +20,7 @@ module.exports.vault = "0x9ab2De34A33fB459b538c43f251eB825645e8595";
 module.exports.readerAddress = "0x2eFEE1950ededC65De687b40Fd30a7B5f4544aBd";
 
 module.exports.MagicGlpHarvestorAddress =
-  "0xDcB9Bd145B5A31DBbF30428247D1bE8659fa0bF1";
+  "0x05b3b96df07b4630373ae7506e51777b547335b0";
 
 module.exports.rewardTrackersForStakingInfo = [
   "0x2bD10f8E93B3669b6d42E74eEedC65dd1B0a1342",
