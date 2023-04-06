@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import stakeConf from "@/utils/collateralConfig/ohm-swap/stakeConf";
 import { mapGetters } from "vuex";
 
@@ -89,7 +90,7 @@ export default {
         },
       };
 
-      return stakeObject;
+      return markRaw(stakeObject);
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {
       try {

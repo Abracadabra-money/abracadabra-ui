@@ -30,7 +30,7 @@
         </div>
 
         <DropdownWrap class="dropdown">
-          <template slot="btn">
+          <template v-slot:btn>
             <button class="sort-btn open-btn">
               <span class="sort-title-wrap">
                 <button
@@ -54,7 +54,7 @@
               />
             </button>
           </template>
-          <template slot="list">
+          <template v-slot:list>
             <button
               class="sort-btn sort-item"
               v-for="(titleData, i) in sortList.filter(
@@ -93,11 +93,11 @@
 <script>
 import { mapGetters } from "vuex";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyMarketsList = () => import("@/components/markets/EmptyMarketsList");
-const DropdownWrap = () => import("@/components/ui/DropdownWrap");
-const CauldronItem = () => import("@/components/markets/CauldronItem");
-const CheckBox = () => import("@/components/ui/CheckBox");
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import EmptyMarketsList from "@/components/markets/EmptyMarketsList.vue";
+import DropdownWrap from "@/components/ui/DropdownWrap.vue";
+import CauldronItem from "@/components/markets/CauldronItem.vue";
+import CheckBox from "@/components/ui/CheckBox.vue";
 const sortKeys = {
   name: "name",
   yield: "yield",
@@ -271,7 +271,7 @@ export default {
     window.addEventListener("scroll", this.onScroll);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.poolsInterval);
     window.removeEventListener("scroll", this.onScroll);
   },

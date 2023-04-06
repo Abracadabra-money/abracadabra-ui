@@ -1,25 +1,26 @@
-const {
+import {
   getPoolContract,
   getVaultContract,
   getGlpManagerContract,
   getRewardReaderContract,
   getReaderContract,
   getGmxGlpWrapperContract,
-  getMagicGlpHarvestorContract
-} = require("./contracts");
-const {
+  getMagicGlpHarvestorContract,
+} from "./contracts";
+import {
   weth,
   gmx,
   nativeToken,
   address,
   rewardTrackersForStakingInfo,
   walletTokens,
-} = require("./constants");
-const { Token } = require("@uniswap/sdk-core");
-const { Pool } = require("@uniswap/v3-sdk");
-const { expandDecimals, parseValue } = require("./utils");
+} from "./constants";
 
-module.exports.getGmxPrice = async () => {
+import { Token } from "@uniswap/sdk-core";
+import { Pool } from "@uniswap/v3-sdk";
+import { expandDecimals, parseValue } from "./utils";
+
+export const getGmxPrice = async () => {
   const poolContract = getPoolContract();
   const uniPoolSlot0 = await poolContract.slot0();
 
@@ -44,12 +45,12 @@ module.exports.getGmxPrice = async () => {
   return poolTokenPriceAmount?.mul(ethPrice).div(expandDecimals(1, 18));
 };
 
-module.exports.getNativeTokenPrice = () => {
+export const getNativeTokenPrice = () => {
   const contract = getVaultContract();
   return contract.getMinPrice(nativeToken);
 };
 
-module.exports.getAum = async () => {
+export const getAum = async () => {
   const glpManagerContract = getGlpManagerContract();
   const [aum0, aum1] = await glpManagerContract.getAums();
   return aum0.add(aum1).div(2);
@@ -63,7 +64,7 @@ function getStakingInfo() {
   );
 }
 
-module.exports.getStakingData = async () => {
+export const getStakingData = async () => {
   const stakingInfo = await getStakingInfo();
 
   const keys = [
@@ -95,7 +96,7 @@ function getBalances() {
   return contract.getTokenBalancesWithSupplies(address, walletTokens);
 }
 
-module.exports.getBalanceAndSupplyData = async () => {
+export const getBalanceAndSupplyData = async () => {
   const balances = await getBalances();
   const keys = ["gmx", "esGmx", "glp", "stakedGmxTracker"];
   const balanceData = {};
@@ -111,12 +112,12 @@ module.exports.getBalanceAndSupplyData = async () => {
   return { balanceData, supplyData };
 };
 
-module.exports.getFeePercent = async () => {
+export const getFeePercent = async () => {
   const GmxGlpWrapperContract = await getGmxGlpWrapperContract();
   return await GmxGlpWrapperContract.feePercent();
 };
 
-module.exports.getMagicFeePercent = async () => {
+export const getMagicFeePercent = async () => {
   const MagicGlpHarvestorContrac = await getMagicGlpHarvestorContract();
   return await MagicGlpHarvestorContrac.feePercentBips();
 };

@@ -10,9 +10,13 @@ import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 
+const useImage = ((url) => {
+  return new URL(`/src/${url}`, import.meta.url).href;
+});
+
 export default [
   {
-    icon: require(`@/assets/images/tokens/USDT.png`),
+    icon: useImage(`assets/images/tokens/USDT.png`),
     name: "yvUSDT v2",
     contractChain: 1,
     id: 1,
@@ -47,7 +51,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -62,7 +66,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/WETH.png`),
+    icon: useImage(`assets/images/tokens/WETH.png`),
     name: "yvWETH v2",
     contractChain: 1,
     id: 2,
@@ -97,7 +101,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -112,7 +116,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/YEARN.png`),
+    icon: useImage(`assets/images/tokens/YEARN.png`),
     name: "yvYFI v2",
     contractChain: 1,
     id: 3,
@@ -147,7 +151,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -162,7 +166,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/USDC.png`),
+    icon: useImage(`assets/images/tokens/USDC.png`),
     name: "yvUSDC v2",
     contractChain: 1,
     id: 4,
@@ -197,7 +201,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -212,7 +216,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/xSUSHI.png`),
+    icon: useImage(`assets/images/tokens/xSUSHI.png`),
     name: "xSUSHI",
     contractChain: 1,
     id: 5,
@@ -247,7 +251,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -262,7 +266,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/WETH.png`),
+    icon: useImage(`assets/images/tokens/WETH.png`),
     name: "yvWETH v2",
     contractChain: 1,
     id: 6,
@@ -297,7 +301,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -312,7 +316,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/yvcrvIB.png`),
+    icon: useImage(`assets/images/tokens/yvcrvIB.png`),
     name: "yvcrvIB",
     contractChain: 1,
     id: 7,
@@ -347,7 +351,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -362,7 +366,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/xSUSHI.png`),
+    icon: useImage(`assets/images/tokens/xSUSHI.png`),
     name: "xSUSHI",
     contractChain: 1,
     id: 8,
@@ -397,7 +401,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -460,7 +464,7 @@ export default [
   //   },
   // },
   {
-    icon: require(`@/assets/images/tokens/OHM.png`),
+    icon: useImage(`assets/images/tokens/OHM.png`),
     name: "wsOHM",
     contractChain: 1,
     id: 10,
@@ -499,7 +503,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -514,7 +518,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/sSPELL.png`),
+    icon: useImage(`assets/images/tokens/sSPELL.png`),
     name: "sSpell",
     contractChain: 1,
     id: 11,
@@ -549,7 +553,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -560,7 +564,7 @@ export default [
     },
   },
   // {
-  //   icon: require(`@/assets/images/tokens/crvSTETH.png`),
+  //   icon: useImage(`assets/images/tokens/crvSTETH.png`),
   //   name: "yvcrvSTETH",
   //   contractChain: 1,
   //   id: 12,
@@ -595,7 +599,7 @@ export default [
   //   },
   //   pairToken: {
   //     name: "MIM",
-  //     icon: require(`@/assets/images/tokens/MIM.png`),
+  //     icon: useImage(`assets/images/tokens/MIM.png`),
   //     decimals: 18,
   //     address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
   //     abi: tokensAbi.MIM,
@@ -610,7 +614,7 @@ export default [
   //   },
   // },
   {
-    icon: require(`@/assets/images/tokens/ALCX.png`),
+    icon: useImage(`assets/images/tokens/ALCX.png`),
     name: "ALCX",
     contractChain: 1,
     id: 13,
@@ -645,7 +649,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -660,7 +664,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/FTM.png`),
+    icon: useImage(`assets/images/tokens/FTM.png`),
     name: "FTM",
     contractChain: 1,
     id: 14,
@@ -695,7 +699,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -710,7 +714,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Convex-Curve.png`),
+    icon: useImage(`assets/images/tokens/Convex-Curve.png`),
     name: "cvx3pool",
     contractChain: 1,
     id: 15,
@@ -752,7 +756,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -767,7 +771,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Convex-Curve3.png`),
+    icon: useImage(`assets/images/tokens/Convex-Curve3.png`),
     name: "cvxtricrypto2",
     contractChain: 1,
     id: 16,
@@ -806,7 +810,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -821,7 +825,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/LOOT.png`),
+    icon: useImage(`assets/images/tokens/LOOT.png`),
     name: "AGLD",
     contractChain: 1,
     id: 17,
@@ -856,7 +860,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -871,7 +875,7 @@ export default [
     },
   },
   // {
-  //   icon: require(`@/assets/images/tokens/Convex-Bitcoin.png`),
+  //   icon: useImage(`assets/images/tokens/Convex-Bitcoin.png`),
   //   name: "cvxrenCrv",
   //   contractChain: 1,
   //   id: 18,
@@ -910,7 +914,7 @@ export default [
   //   },
   //   pairToken: {
   //     name: "MIM",
-  //     icon: require(`@/assets/images/tokens/MIM.png`),
+  //     icon: useImage(`assets/images/tokens/MIM.png`),
   //     decimals: 18,
   //     address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
   //     abi: tokensAbi.MIM,
@@ -925,7 +929,7 @@ export default [
   //   },
   // },
   {
-    icon: require(`@/assets/images/tokens/UST.png`),
+    icon: useImage(`assets/images/tokens/UST.png`),
     name: "UST",
     contractChain: 1,
     id: 19,
@@ -961,7 +965,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -976,7 +980,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/SHIB.png`),
+    icon: useImage(`assets/images/tokens/SHIB.png`),
     name: "SHIB",
     contractChain: 1,
     id: 20,
@@ -1011,7 +1015,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1026,7 +1030,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/FTT.png`),
+    icon: useImage(`assets/images/tokens/FTT.png`),
     name: "FTT",
     contractChain: 1,
     id: 21,
@@ -1061,7 +1065,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1076,7 +1080,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/sSPELL.png`),
+    icon: useImage(`assets/images/tokens/sSPELL.png`),
     name: "sSpell",
     contractChain: 1,
     id: 22,
@@ -1111,7 +1115,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1122,7 +1126,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/SPELL.png`),
+    icon: useImage(`assets/images/tokens/SPELL.png`),
     name: "Spell",
     contractChain: 1,
     id: 23,
@@ -1157,7 +1161,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1172,7 +1176,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Convex-Curve.png`),
+    icon: useImage(`assets/images/tokens/Convex-Curve.png`),
     name: "cvx3pool",
     contractChain: 1,
     id: 24,
@@ -1214,7 +1218,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1229,7 +1233,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Convex-Curve.png`),
+    icon: useImage(`assets/images/tokens/Convex-Curve.png`),
     name: "cvx3pool (new)",
     contractChain: 1,
     id: 25,
@@ -1271,7 +1275,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1286,7 +1290,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/UST.png`),
+    icon: useImage(`assets/images/tokens/UST.png`),
     name: "UST",
     contractChain: 1,
     id: 26,
@@ -1322,7 +1326,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1337,7 +1341,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/WETH.png`),
+    icon: useImage(`assets/images/tokens/WETH.png`),
     name: "WETH",
     contractChain: 1,
     id: 27,
@@ -1372,7 +1376,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1387,7 +1391,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/WBTC.png`),
+    icon: useImage(`assets/images/tokens/WBTC.png`),
     name: "WBTC",
     contractChain: 1,
     id: 28,
@@ -1422,7 +1426,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1437,7 +1441,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Convex-ETH.png`),
+    icon: useImage(`assets/images/tokens/Convex-ETH.png`),
     name: "yvCVXETH",
     contractChain: 1,
     id: 29,
@@ -1472,7 +1476,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1487,7 +1491,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/DAI.png`),
+    icon: useImage(`assets/images/tokens/DAI.png`),
     name: "yvDAI",
     contractChain: 1,
     id: 30,
@@ -1522,7 +1526,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1537,7 +1541,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Stargate-USDC.png`),
+    icon: useImage(`assets/images/tokens/Stargate-USDC.png`),
     name: "Stargate USDC",
     contractChain: 1,
     id: 31,
@@ -1573,7 +1577,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1588,7 +1592,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/Stargate-USDT.png`),
+    icon: useImage(`assets/images/tokens/Stargate-USDT.png`),
     name: "Stargate USDT",
     contractChain: 1,
     id: 32,
@@ -1624,7 +1628,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1639,7 +1643,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/crvSTETH.png`),
+    icon: useImage(`assets/images/tokens/crvSTETH.png`),
     name: "yvcrvSTETH Concentrated",
     contractChain: 1,
     id: 33,
@@ -1674,7 +1678,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1689,7 +1693,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/LUSD.png`),
+    icon: useImage(`assets/images/tokens/LUSD.png`),
     name: "LUSD",
     contractChain: 1,
     id: 34,
@@ -1727,7 +1731,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1742,7 +1746,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/CRV.png`),
+    icon: useImage(`assets/images/tokens/CRV.png`),
     name: "CRV",
     contractChain: 1,
     id: 35,
@@ -1778,14 +1782,14 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
     },
   },
   {
-    icon: require(`@/assets/images/tokens/WBTC.png`),
+    icon: useImage(`assets/images/tokens/WBTC.png`),
     name: "WBTC",
     contractChain: 1,
     id: 36,
@@ -1821,14 +1825,14 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
     },
   },
   {
-    icon: require(`@/assets/images/tokens/crvSTETH.png`),
+    icon: useImage(`assets/images/tokens/crvSTETH.png`),
     name: "yvcrvSTETH",
     contractChain: 1,
     id: 37,
@@ -1864,14 +1868,14 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
     },
   },
   {
-    icon: require(`@/assets/images/tokens/yv-3crypto.png`),
+    icon: useImage(`assets/images/tokens/yv-3crypto.png`),
     name: "yv-3Crypto",
     contractChain: 1,
     id: 38,
@@ -1907,7 +1911,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
@@ -1922,7 +1926,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/mAPE.png`),
+    icon: useImage(`assets/images/tokens/mAPE.png`),
     name: "magicAPE",
     contractChain: 1,
     id: 39,
@@ -1959,7 +1963,7 @@ export default [
     },
     lpLogic: {
       name: "APE",
-      icon: require(`@/assets/images/tokens/APE.png`),
+      icon: useImage(`assets/images/tokens/APE.png`),
       defaultToken: false,
       lpAddress: "0x4d224452801ACEd8B2F0aebE155379bb5D594381",
       lpAbi: tokensAbi.APE,
@@ -1968,7 +1972,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,

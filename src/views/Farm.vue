@@ -33,43 +33,41 @@
             />
           </button>
         </div>
-        <template>
-          <div class="input-wrap underline">
-            <h4 class="sub-title">
-              Deposit
-              {{ selectedPool ? selectedPool.stakingTokenName : "" }} tokens
-            </h4>
-            <BaseTokenInput
-              v-model="amount"
-              :name="selectedPool ? selectedPool.stakingTokenName : null"
-              :icon="selectedPool ? selectedPool.icon : null"
-              :max="max"
-              :error="error"
-              :disabled="!selectedPool"
-            />
-          </div>
 
-          <div class="btn-wrap">
-            <BaseButton
-              v-if="!isAllowance && !isUnstake"
-              @click="approveHandler"
-              :disabled="!isValid || !!error || +selectedPool.poolRoi === 0"
-              primary
-              >Approve</BaseButton
-            >
-            <BaseButton
-              v-if="isUnstake || isAllowance"
-              @click="handler"
-              :disabled="
-                !isValid ||
-                !!error ||
-                (!isUnstake && +selectedPool.poolRoi === 0)
-              "
-              primary
-              >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
-            >
-          </div></template
-        >
+        <div class="input-wrap underline">
+          <h4 class="sub-title">
+            Deposit
+            {{ selectedPool ? selectedPool.stakingTokenName : "" }} tokens
+          </h4>
+          <BaseTokenInput
+            :value="amount"
+            @updateValue="amount = $event"
+            :name="selectedPool ? selectedPool.stakingTokenName : null"
+            :icon="selectedPool ? selectedPool.icon : null"
+            :max="max"
+            :error="error"
+            :disabled="!selectedPool"
+          />
+        </div>
+
+        <div class="btn-wrap">
+          <BaseButton
+            v-if="!isAllowance && !isUnstake"
+            @click="approveHandler"
+            :disabled="!isValid || !!error || +selectedPool.poolRoi === 0"
+            primary
+            >Approve</BaseButton
+          >
+          <BaseButton
+            v-if="isUnstake || isAllowance"
+            @click="handler"
+            :disabled="
+              !isValid || !!error || (!isUnstake && +selectedPool.poolRoi === 0)
+            "
+            primary
+            >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
+          >
+        </div>
       </div>
       <template v-if="selectedPool">
         <div class="info underline">
@@ -82,7 +80,7 @@
             ~Yield per $1000
           </p>
           <p class="info-value">
-            {{ selectedPool.poolYield | formatTokenBalance }}
+            {{ formatTokenBalance(selectedPool.poolYield) }}
           </p>
         </div>
 
@@ -95,7 +93,7 @@
             />
             ROI Annually
           </p>
-          <p class="info-value">{{ selectedPool.poolRoi | formatPercent }}</p>
+          <p class="info-value">{{ formatPercent(selectedPool.poolRoi) }}</p>
         </div>
 
         <div class="info underline">
@@ -107,7 +105,7 @@
             />
             TVL
           </p>
-          <p class="info-value">{{ selectedPool.poolTvl | formatUSD }}</p>
+          <p class="info-value">{{ formatUSD(selectedPool.poolTvl) }}</p>
         </div>
 
         <div class="farm-link-wrap">
@@ -122,7 +120,10 @@
           </a></div
       ></template>
     </div>
-    <LocalPopupWrap v-model="isTokensOpened">
+    <LocalPopupWrap
+      :isOpened="isTokensOpened"
+      @closePopup="isTokensOpened = false"
+    >
       <MarketsListPopup
         @select="selectPool"
         @close="isTokensOpened = false"
@@ -137,16 +138,18 @@
 <script>
 import { mapGetters } from "vuex";
 
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const MarketsSwitch = () => import("@/components/markets/MarketsSwitch");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
 import farmPoolsMixin from "../mixins/farmPools";
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
+
+import filters from "@/filters/index.js";
 
 export default {
   mixins: [farmPoolsMixin],
@@ -213,6 +216,15 @@ export default {
     },
   },
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatPercent(value) {
+      return filters.formatPercent(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     selectPool(pool) {
       if (+pool.id !== +this.id)
         this.$router.push({ name: "FarmPool", params: { id: pool.id } });
@@ -336,7 +348,7 @@ export default {
       await this.createFarmPools();
     }, 10000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.farmPoolsTimer);
   },
   components: {

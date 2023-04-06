@@ -1,3 +1,7 @@
+const useImage = ((url) => {
+  return new URL(`/src/${url}`, import.meta.url).href;
+});
+
 export default {
   stakeContract: {
     address: "0xC8C436271f9A6F10a5B80c8b8eD7D0E8f37a612d",
@@ -301,7 +305,7 @@ export default {
   },
   stakeToken: {
     name: "OHMv1",
-    icon: require(`@/assets/images/tokens/OHM.png`),
+    icon: useImage(`assets/images/tokens/OHM.png`),
     decimals: 9,
     address: "0x383518188C0C6d7730D91b2c03a03C837814a899",
     abi: [
@@ -713,7 +717,7 @@ export default {
   },
   mainToken: {
     name: "sOHM",
-    icon: require(`@/assets/images/tokens/OHM.png`),
+    icon: useImage(`assets/images/tokens/OHM.png`),
     decimals: 9,
     address: "0x04f2694c8fcee23e8fd0dfea1d4f5bb8c352111f",
     abi: [

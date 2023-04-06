@@ -5,13 +5,14 @@
       <div>
         <div class="header-balance">
           <h4>Collateral assets</h4>
-          <p>Balance: {{ balance | formatTokenBalance }}</p>
+          <p>Balance: {{ formatTokenBalance(balance) }}</p>
         </div>
 
         <BaseTokenInput
           :icon="mimIcon"
           name="MIM"
-          v-model="amount"
+          :value="amount"
+          @updateValue="amount = $event"
           :max="balance"
           :error="error"
         />
@@ -37,11 +38,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
+import filters from "@/filters/index.js";
 
 export default {
   components: { BaseTokenInput, BaseButton },
@@ -53,12 +55,17 @@ export default {
     isBento: { type: Boolean, default: false },
     isDeposit: { type: Boolean, default: false },
   },
-  data: () => ({
-    amount: "",
-    mimIcon,
-    updateInfoInterval: null,
-  }),
+  data() {
+    return {
+      amount: "",
+      mimIcon,
+      updateInfoInterval: null,
+    };
+  },
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async withdraw() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
@@ -237,7 +244,7 @@ export default {
       }`;
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInfoInterval);
   },
 };

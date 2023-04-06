@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import spellTokenAbi from "@/utils/abi/tokensAbi/SPELL";
 import mSpellStakingAbi from "@/utils/abi/mSpellStakingAbi";
 import moment from "moment";
@@ -123,7 +124,7 @@ export default {
           decimals: 18,
           isTokenApprowed,
           price: spellPrice,
-          icon: require("@/assets/images/spell-icon.svg"),
+          icon: this.$image("assets/images/spell-icon.svg"),
         },
         mainToken: {
           name: "mSPELL",
@@ -131,11 +132,11 @@ export default {
           balance: depositAmount,
           decimals: 18,
           price: spellPrice,
-          icon: require("@/assets/images/mspell-icon.svg"),
+          icon: this.$image("assets/images/mspell-icon.svg"),
         },
       };
 
-      this.$store.commit("setMSpellStakingObj", mSpellStakingObj);
+      this.$store.commit("setMSpellStakingObj", markRaw(mSpellStakingObj));
       this.$store.commit("setLoadingMSpellStake", false);
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {

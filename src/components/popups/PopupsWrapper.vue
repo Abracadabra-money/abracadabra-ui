@@ -15,17 +15,14 @@
 
 <script>
 import { mapGetters } from "vuex";
-const CrvPoolPopup = () => import("@/components/popups/Deposit/CrvPoolPopup");
-const CrvRenPoolPopup = () =>
-  import("@/components/popups/Deposit/CrvRenPoolPopup");
-const ThreeCryptoPopup = () =>
-  import("@/components/popups/Deposit/ThreeCryptoPopup");
-const OHMPopup = () => import("@/components/popups/Deposit/OHMPopup/index");
-const MEMOWrapPopup = () => import("@/components/popups/Deposit/MEMOWrapPopup");
-const SucessPopup = () => import("@/components/popups/SuccessPopup");
-const ClaimPopup = () => import("@/components/popups/ClaimPopup");
-const RouteOptimisationPopup = () =>
-  import("@/components/popups/RouteOptimisationPopup");
+import CrvPoolPopup from "@/components/popups/Deposit/CrvPoolPopup.vue";
+import CrvRenPoolPopup from "@/components/popups/Deposit/CrvRenPoolPopup.vue";
+import ThreeCryptoPopup from "@/components/popups/Deposit/ThreeCryptoPopup.vue";
+import OHMPopup from "@/components/popups/Deposit/OHMPopup/index.vue";
+import MEMOWrapPopup from "@/components/popups/Deposit/MEMOWrapPopup.vue";
+import SucessPopup from "@/components/popups/SuccessPopup.vue";
+import ClaimPopup from "@/components/popups/ClaimPopup.vue";
+import RouteOptimisationPopup from "@/components/popups/RouteOptimisationPopup.vue";
 
 export default {
   computed: {

@@ -51,9 +51,9 @@
           </p>
           <div class="token-info">
             <div class="info token-info-name">{{ token.name }}</div>
-            <div class="info">{{ token.balance | formatTokenBalance }}</div>
+            <div class="info">{{ formatTokenBalance(token.balance) }}</div>
             <div class="info-usd" v-if="!token.isNotBalanceUsd">
-              {{ token.balanceUsd | formatUSD }}
+              {{ formatUSD(token.balanceUsd) }}
             </div>
           </div>
         </div>
@@ -150,13 +150,14 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const BaseButton = () => import("@/components/base/BaseButton");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import degenBoxAbi from "@/utils/abi/degenBox.js";
 import { mapGetters } from "vuex";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
+import filters from "@/filters/index.js";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";
@@ -229,19 +230,19 @@ export default {
         return [
           {
             name: "CRV",
-            img: require("@/assets/images/tokens/CRV.png"),
+            img: this.$image("assets/images/tokens/CRV.png"),
             balance: this.crvBalance,
             balanceUsd: this.crvBalance * this.crvBalanceUsd,
             network: "ETH",
-            networkImg: require("@/assets/images/networks/ethereum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/ethereum-icon.svg"),
           },
           {
             name: "MIM",
-            img: require("@/assets/images/tokens/MIM.png"),
+            img: this.$image("assets/images/tokens/MIM.png"),
             balance: this.mimBalance,
             balanceUsd: this.mimBalance * this.mimBalanceUsd,
             network: "ETH",
-            networkImg: require("@/assets/images/networks/ethereum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/ethereum-icon.svg"),
           },
         ];
 
@@ -249,20 +250,20 @@ export default {
         return [
           {
             name: "sGLP",
-            img: require("@/assets/images/tokens/GLP.png"),
+            img: this.$image("assets/images/tokens/GLP.png"),
             balance: this.sGlpBalance,
             balanceUsd: 0,
             isNotBalanceUsd: true,
             network: "AETH",
-            networkImg: require("@/assets/images/networks/arbitrum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/arbitrum-icon.svg"),
           },
           {
             name: "MIM",
-            img: require("@/assets/images/tokens/MIM.png"),
+            img: this.$image("assets/images/tokens/MIM.png"),
             balance: this.mimBalance,
             balanceUsd: this.mimBalance * this.mimBalanceUsd,
             network: "AETH",
-            networkImg: require("@/assets/images/networks/arbitrum-icon.svg"),
+            networkImg: this.$image("assets/images/networks/arbitrum-icon.svg"),
           },
         ];
 
@@ -322,6 +323,12 @@ export default {
   },
 
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async actionHandler() {
       if (!this.account) await this.$connectWallet();
       else {

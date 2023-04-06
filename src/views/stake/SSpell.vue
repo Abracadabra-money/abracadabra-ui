@@ -14,14 +14,14 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
+            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
             :name="fromToken.name"
             :disabled="tokensInfo.lockedUntil && action === 'Unstake'"
             :value="amount"
-            @input="updateMainValue"
+            @updateValue="updateMainValue"
             :max="fromToken.balance"
             :error="amountError"
           />
@@ -90,13 +90,13 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-const InfoBlock = () => import("@/components/stake/InfoBlock");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseButton = () => import("@/components/base/BaseButton");
-const BaseLoader = () => import("@/components/base/BaseLoader");
+import filters from "@/filters/index.js";
+import InfoBlock from "@/components/stake/InfoBlock.vue";
+import EmptyBlock from "@/components/stake/EmptyBlock.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
 
 import sspellToken from "@/mixins/stake/sspellToken";
 
@@ -144,11 +144,11 @@ export default {
 
       if (this.action === "Stake") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       if (this.action === "Unstake") {
         const amount = this.amount * this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       return "";
     },
@@ -169,6 +169,9 @@ export default {
     },
   },
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     toggleAction() {
       this.amount = "";
       this.amountError = "";
@@ -350,7 +353,7 @@ export default {
       await this.createStakePool();
     }, 15000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.spellUpdateInterval);
   },
   components: {

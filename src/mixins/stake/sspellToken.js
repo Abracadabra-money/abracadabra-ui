@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import { mapMutations } from "vuex";
 import moment from "moment";
@@ -19,14 +20,14 @@ export default {
           address: "0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9",
           decimals: 18,
           abi: tokensAbi.sSPELL,
-          icon: require("@/assets/images/sspell-icon.svg"),
+          icon: this.$image("assets/images/sspell-icon.svg"),
         },
         stakeToken: {
           name: "SPELL",
           address: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
           decimals: 18,
           abi: tokensAbi.SPELL,
-          icon: require("@/assets/images/spell-icon.svg"),
+          icon: this.$image("assets/images/spell-icon.svg"),
         },
       },
     };
@@ -124,7 +125,7 @@ export default {
         },
       };
 
-      this.$store.commit("setSSpellObject", stakeObject);
+      this.$store.commit("setSSpellObject", markRaw(stakeObject));
       this.setLoadingSSpellStake(false);
     },
     async getUserLocked(contractInstance) {

@@ -2,10 +2,14 @@ import SorbettiereAbi from "./abi/SorbettiereAbi";
 import erc20Abi from "./abi/erc20Abi";
 import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
 
+const useImage = ((url) => {
+  return new URL(`/src/${url}`, import.meta.url).href;
+});
+
 export default [
   {
     name: "MIM-2Crv",
-    icon: require(`@/assets/images/tokens/Curve-MIM.png`),
+    icon: useImage(`assets/images/tokens/Curve-MIM.png`),
     nameSubtitle: "crv.finance",
     contractChain: 42161,
     id: 3,

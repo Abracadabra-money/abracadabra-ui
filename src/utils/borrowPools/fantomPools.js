@@ -4,9 +4,13 @@ import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 
+const useImage = ((url) => {
+  return new URL(`/src/${url}`, import.meta.url).href;
+});
+
 export default [
   {
-    icon: require(`@/assets/images/tokens/FTM.png`),
+    icon: useImage(`assets/images/tokens/FTM.png`),
     name: "WFTM",
     contractChain: 250,
     id: 1,
@@ -41,7 +45,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -56,7 +60,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/FTM.png`),
+    icon: useImage(`assets/images/tokens/FTM.png`),
     name: "WFTM",
     contractChain: 250,
     id: 2,
@@ -91,7 +95,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -106,7 +110,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/FTM.png`),
+    icon: useImage(`assets/images/tokens/FTM.png`),
     name: "yvWFTM",
     contractChain: 250,
     id: 3,
@@ -141,7 +145,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -204,7 +208,7 @@ export default [
   //   },
   // },
   {
-    icon: require(`@/assets/images/tokens/xBOO.png`),
+    icon: useImage(`assets/images/tokens/xBOO.png`),
     name: "xBOO",
     contractChain: 250,
     id: 5,
@@ -239,7 +243,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -302,7 +306,7 @@ export default [
   //   },
   // },
   {
-    icon: require(`@/assets/images/tokens/FTM-MIM.png`),
+    icon: useImage(`assets/images/tokens/FTM-MIM.png`),
     name: "FTM/MIM",
     contractChain: 250,
     id: 7,
@@ -338,7 +342,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,
@@ -353,7 +357,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/FTM-MIM.png`),
+    icon: useImage(`assets/images/tokens/FTM-MIM.png`),
     name: "FTM/MIM",
     contractChain: 250,
     id: 8,
@@ -389,7 +393,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
       abi: tokensAbi.MIM,

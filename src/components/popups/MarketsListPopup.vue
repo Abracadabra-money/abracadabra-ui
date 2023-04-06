@@ -61,9 +61,9 @@
 <script>
 import { mapGetters } from "vuex";
 
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const TokenPopupItem = () => import("@/components/farms/FarmListItem");
-const SelectPopupItem = () => import("@/components/borrow/BorrowListItem");
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import TokenPopupItem from "@/components/farms/FarmListItem.vue";
+import SelectPopupItem from "@/components/borrow/BorrowListItem.vue";
 
 export default {
   props: {
@@ -80,7 +80,11 @@ export default {
       required: true,
     },
   },
-  data: () => ({ search: "" }),
+  data() {
+    return {
+      search: "",
+    };
+  },
   methods: {
     selectToken(chainId) {
       this.$emit("select", chainId);

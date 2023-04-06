@@ -34,8 +34,8 @@
 </template>
 
 <script>
-const Stake = () => import("@/components/popups/Deposit/OHMPopup/Stake");
-const Wrap = () => import("@/components/popups/Deposit/OHMPopup/Wrap");
+import Stake from "@/components/popups/Deposit/OHMPopup/Stake.vue";
+import Wrap from "@/components/popups/Deposit/OHMPopup/Wrap.vue";
 
 export default {
   data() {
