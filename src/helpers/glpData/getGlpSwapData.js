@@ -4,8 +4,6 @@ import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import store from "@/store";
 
-// console.log("MulticallProvider", MulticallProvider);
-
 const staticProvider = new providers.StaticJsonRpcProvider(
   "https://arb1.arbitrum.io/rpc"
 );
