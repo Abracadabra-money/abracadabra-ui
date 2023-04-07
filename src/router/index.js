@@ -50,6 +50,11 @@ const routes = [
     component: () => import("@/views/stake/MAPE"),
   },
   {
+    path: "/magicLVL",
+    name: "magicLVL",
+    component: () => import("@/views/stake/MLVL"),
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/borrow/Leverage"),
