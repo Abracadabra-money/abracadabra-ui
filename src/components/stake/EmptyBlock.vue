@@ -5,15 +5,9 @@
       <p v-if="selectedData.text">
         {{ selectedData.text }}
       </p>
-      <p class="empty-bottom" v-if="selectedData.bottom">
+      <p class="empty-bottom" v-if="selectedData.link">
         {{ selectedData.bottom }}
-        <a
-          class="empty-link"
-          :href="selectedData.link"
-          v-if="selectedData.link"
-          target="_blank"
-          >here</a
-        >
+        <a class="empty-link" :href="selectedData.link" target="_blank">here</a>
       </p>
     </div>
   </div>
@@ -52,6 +46,12 @@ export default {
       bottom: "If you want to learn more read our docs",
       link: "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
     },
+    emptyDataMLvl: {
+      img: require(`@/assets/images/empty_borrow.png`),
+      text: "Please use  Binance Smart Chain to obtain magicLVL",
+      bottom: "If you want to learn more read our docs",
+      link: false,
+    },
   }),
   computed: {
     selectedData() {
@@ -59,6 +59,7 @@ export default {
       if (this.warningType === "mspell") return this.emptyDataMSpell;
       if (this.warningType === "mglp") return this.emptyDataMGlp;
       if (this.warningType === "mape") return this.emptyDataMApe;
+      if (this.warningType === "mlvl") return this.emptyDataMLvl;
       return false;
     },
   },

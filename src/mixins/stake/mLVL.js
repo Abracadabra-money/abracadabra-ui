@@ -176,6 +176,7 @@ export default {
           feePercent: 1,
           ethPrice: 1,
           tokensRate,
+          levelMasterContract: levelMasterContract.connect(this.userSigner),
           mainToken: {
             ...lvlConfig[idx].mainToken,
             contractInstance: mainContractInstance,
@@ -194,6 +195,7 @@ export default {
             price: price,
             balanceUsd: stakeTokenBalance * price,
             isApproved: stakeTokensApprowed[idx],
+            pid: idx,
           },
         };
       });

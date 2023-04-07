@@ -9,12 +9,31 @@
         <BaseLoader />
       </div>
 
-      <div class="swap-wrap" v-if="tokensInfo">
-        <div>
-          <button @click="changeTokenLvl('Junior')">Junior</button>
-          <button @click="changeTokenLvl('Mezzanine')">Mezzanine</button>
-          <button @click="changeTokenLvl('Senior')">Senior</button>
+      <div class="tranches-wrap" v-if="tokensInfo">
+        <h4>
+          Select tranche
+          <img src="@/assets/images/stake/info-Icon.svg" class="info-icon" />
+        </h4>
+        <div class="tranches-buttons">
+          <TrancheButton
+            type="senior"
+            :isActive="tokenLvl === 'Junior'"
+            @changeToken="changeTokenLvl('Junior')"
+          />
+          <TrancheButton
+            type="mezzanine"
+            :isActive="tokenLvl === 'Mezzanine'"
+            @changeToken="changeTokenLvl('Mezzanine')"
+          />
+          <TrancheButton
+            type="junior"
+            :isActive="tokenLvl === 'Senior'"
+            @changeToken="changeTokenLvl('Senior')"
+          />
         </div>
+      </div>
+
+      <div class="swap-wrap" v-if="tokensInfo">
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
@@ -69,16 +88,16 @@
       </div>
     </div>
 
-    <div class="profile">
-      <h1 class="title">magicGLP</h1>
+    <div class="profile" :style="`background-image: url(${profileBg})`">
+      <h1 class="title">Magic Level Tranches</h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
       </div>
 
-      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mglp'" />
+      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mlvl'" />
 
       <template v-else>
-        <!-- <div class="wrap wrap-chart" v-if="chartData && false"> -->
+        <!-- <div class="wrap wrap-chart" v-if="chartData"> -->
         <div class="wrap wrap-chart" v-if="false">
           <div class="chart-row">
             <h1 class="chart-title">APY Chart</h1>
@@ -135,99 +154,9 @@
           <BaseLoader />
         </div>
 
-        <div class="balance-block wrap" v-if="stakeToken && mainToken">
-          <div class="balance-top">
-            <h4 class="balance-title">Your balance</h4>
-            <div class="balance-ratio">
-              <img
-                class="balance-ratio-icon"
-                src="@/assets/images/glp/mGlpNew.png"
-                alt="mGlp icon"
-              />
-              <span>1 magicGLP = {{ tokensRate }} GLP</span>
-            </div>
-          </div>
-          <div class="balance-row">
-            <div class="balance-token">
-              <div class="token-icon">
-                <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/GLP.png')"
-                  size="60px"
-                />
-                <span class="token-icon-name">GLP</span>
-              </div>
-              <div>
-                <p class="token-title">GLP</p>
-                <p class="token-balance">
-                  {{ stakeToken.balance | formatTokenBalance }}
-                </p>
-                <p class="token-price">
-                  {{ stakeToken.balanceUsd | formatUSD }}
-                </p>
-              </div>
-            </div>
-            <div class="balance-token">
-              <div class="token-icon">
-                <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
-                  size="60px"
-                />
-                <span class="token-icon-name">magicGLP</span>
-              </div>
-              <div>
-                <p class="token-title">magicGLP</p>
-                <p class="token-balance">
-                  {{ mainToken.balance | formatTokenBalance }}
-                </p>
-                <p class="token-price">
-                  {{ mainToken.balanceUsd | formatUSD }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TranchesStatistics />
+        <LvlTokensBalance :tokensInfo="tokensInfo" />
 
-        <div class="info-block wrap">
-          <div>
-            <h5 class="info-title">Total Supply</h5>
-            <div class="info-item">
-              <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
-                  size="40px"
-                />
-                <span>magicGLP</span>
-              </div>
-              <div class="info-balance">
-                <span class="info-value">{{
-                  mainToken.totalSupply | localAmountFilter
-                }}</span>
-                <span class="info-usd">{{
-                  mainToken.totalSupplyUsd | formatUSD
-                }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="info-line"></div>
-          <div>
-            <h5 class="info-title">Total Rewards Earned</h5>
-            <div class="info-item">
-              <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/ETH2.png')"
-                  size="40px"
-                />
-                <span>ETH</span>
-              </div>
-              <div class="info-balance">
-                <span class="info-value">{{
-                  totalRewardsEarned | localAmountFilter
-                }}</span>
-                <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
         <p class="profile-subscribtion">
           Enjoy the benefits of compounding without having to worry about the
           tedious work! Simply deposit your GLP into MagicGLP and let it do its
@@ -243,7 +172,7 @@
             rel="noreferrer noopener"
           >
             <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
-              Buy GLP</span
+              Buy LVL</span
             ></a
           >
           <a
@@ -253,7 +182,7 @@
             rel="noreferrer noopener"
           >
             <img src="@/assets/images/deposit.svg" alt="Deposit" />
-            <span>Sell GLP</span></a
+            <span>Sell LVL</span></a
           >
         </div>
       </template>
@@ -271,13 +200,18 @@ const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
 const BaseButton = () => import("@/components/base/BaseButton");
 const EmptyBlock = () => import("@/components/stake/EmptyBlock");
 const TickChart = () => import("@/components/ui/charts/TickChart");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+const TrancheButton = () => import("@/components/stake/TrancheButton");
+const TranchesStatistics = () =>
+  import("@/components/stake/TranchesStatistics");
+const LvlTokensBalance = () => import("@/components/stake/LvlTokensBalance");
+
 // import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
 import { getGlpChartApr } from "@/helpers/glpAprChart";
 import mGlpTokenMixin from "@/mixins/stake/mLVL";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import profileBg from "@/assets/images/stake/mGLPprofileBg.png";
 
 export default {
   mixins: [mGlpTokenMixin],
@@ -294,6 +228,7 @@ export default {
       gasLimitConst: 1000,
       totalRewards: null,
       tokenLvl: "Junior",
+      profileBg,
     };
   },
 
@@ -312,11 +247,6 @@ export default {
     stakeToken() {
       return this.lvlInfo?.stakeToken;
     },
-
-    // stakeTokenBalance() {
-    //   // {{ stakeToken.balance | formatTokenBalance }}
-    //   return this.$ethers.utils.formatEther(this.stakeToken.balance);
-    // },
 
     mainToken() {
       return this.lvlInfo?.mainToken;
@@ -339,11 +269,6 @@ export default {
 
     disableApproveBtn() {
       return this.isActionApproved;
-    },
-
-    tokensRate() {
-      const amount = 1 * this.lvlInfo?.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
     },
 
     toTokenAmount() {
@@ -385,11 +310,9 @@ export default {
   },
 
   methods: {
-    // new
     changeTokenLvl(lvl) {
       this.tokenLvl = lvl;
     },
-    // new
 
     updateValue(amount) {
       this.amount = amount ? amount : "";
@@ -449,6 +372,19 @@ export default {
       const notificationId = await this.createNotification(pending);
 
       try {
+        if (this.stakeToken.walletBalance < this.amount) {
+          const withdrawAmount = this.$ethers.utils.parseEther(
+            this.amount - this.stakeToken.walletBalance
+          );
+          const tx = await this.lvlInfo.levelMasterContract.withdraw(
+            this.stakeToken.pid.toString(),
+            withdrawAmount,
+            this.account
+          );
+
+          await tx.wait();
+        }
+
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         const estimateGas =
@@ -597,16 +533,19 @@ export default {
     clearInterval(this.updateInterval);
   },
   components: {
-    BaseTokenIcon,
     TickChart,
     BaseButton,
     BaseTokenInput,
     NetworksList,
     BaseLoader,
     EmptyBlock,
+    TrancheButton,
+    TranchesStatistics,
+    LvlTokensBalance,
   },
 };
 </script>
+
 <style lang="scss" scoped>
 .empty-link {
   color: #759ffa;
@@ -634,6 +573,27 @@ export default {
   }
 }
 
+.tranches-wrap {
+  margin-top: 15px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.tranches-wrap h4 {
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 27px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.025em;
+}
+.info-icon {
+  margin-left: 10px;
+}
+.tranches-buttons {
+  display: flex;
+  gap: 10px;
+}
 .choose-stake-input {
   background-color: white;
 }
@@ -656,8 +616,13 @@ export default {
 }
 
 .profile-subscribtion {
+  font-weight: 400;
+  font-size: 16px;
   line-height: 24px;
+  text-align: center;
+  letter-spacing: 0.025em;
   color: rgba(255, 255, 255, 0.6);
+  margin-top: 30px;
   margin-bottom: 24px;
   text-align: center;
 }
@@ -825,8 +790,7 @@ export default {
   height: 24px;
 }
 
-.balance-row,
-.info-block {
+.balance-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   text-align: left;
@@ -860,64 +824,6 @@ export default {
 
 .token-price {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.info-block {
-  margin-bottom: 24px;
-}
-
-.info-title {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  margin-bottom: 14px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.info-icon {
-  display: flex;
-  align-items: center;
-}
-
-.info-balance {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.info-line {
-  position: relative;
-}
-
-.info-line::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: 1px;
-  height: 45px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.info-value {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  letter-spacing: 0.4px;
-}
-
-.info-usd {
-  font-size: 14px;
-  line-height: 21px;
-  display: flex;
   color: rgba(255, 255, 255, 0.6);
 }
 
@@ -1032,7 +938,7 @@ export default {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .stake {
     grid-template-columns: 1fr;
   }
@@ -1083,6 +989,9 @@ export default {
   .wrap-chart {
     max-width: 88vw;
     margin: 0 auto;
+  }
+  .tranches-buttons {
+    flex-direction: column;
   }
 }
 </style>
