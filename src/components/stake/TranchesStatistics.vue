@@ -3,124 +3,50 @@
     <div>
       <h5 class="info-title">Tranches Statistics</h5>
       <div class="tranches-boxes">
-        <div class="tranche-box">
+        <div class="tranche-box" v-for="(data, idx) in staticData" :key="idx">
           <div class="tranche-header">
             <div class="tranche-logo">
-              <img
-                src="@/assets/images/stake/senior-icon.svg"
-                class="tranche-icon"
-              />
+              <img :src="data.icon" class="tranche-icon" />
               <h6 class="logo-title">
-                Senior <br />
+                {{ data.type }} <br />
                 Tranches
               </h6>
             </div>
-            <span class="risk-marker">LOW RISK</span>
+            <span class="risk-marker" :class="data.risk"
+              >{{ data.risk }} risk</span
+            >
           </div>
           <ul class="tranche-box-info">
             <li class="info-field">
               <span class="field-title">APR</span>
-              <span class="field-value">90.59%</span>
+              <span class="field-value">{{ data.apr }}%</span>
             </li>
             <li class="info-field">
               <span class="field-title">Total Rewards</span>
-              <span class="field-value">$304,210.19</span>
+              <span class="field-value">${{ data.totalRewards }}</span>
             </li>
             <li class="info-field">
               <span class="field-title">Total supply</span>
-              <span class="field-value">$5,304,313.99</span>
-            </li>
-          </ul>
-        </div>
-        <div class="tranche-box">
-          <div class="tranche-header">
-            <div class="tranche-logo">
-              <img
-                src="@/assets/images/stake/mezzanine-icon.svg"
-                class="tranche-icon"
-              />
-              <h6 class="logo-title">
-                Mezzanine <br />
-                Tranches
-              </h6>
-            </div>
-            <span class="risk-marker" style="color: #9f71ff">MEDIUM RISK</span>
-          </div>
-          <ul class="tranche-box-info">
-            <li class="info-field">
-              <span class="field-title">APR</span>
-              <span class="field-value">90.59%</span>
-            </li>
-            <li class="info-field">
-              <span class="field-title">Total Rewards</span>
-              <span class="field-value">$304,210.19</span>
-            </li>
-            <li class="info-field">
-              <span class="field-title">Total supply</span>
-              <span class="field-value">$5,304,313.99</span>
-            </li>
-          </ul>
-        </div>
-        <div class="tranche-box">
-          <div class="tranche-header">
-            <div class="tranche-logo">
-              <img
-                src="@/assets/images/stake/junior-icon.svg"
-                class="tranche-icon"
-              />
-              <h6 class="logo-title">
-                Junior <br />
-                Tranches
-              </h6>
-            </div>
-            <span class="risk-marker" style="color: #ffb274">HIGH RISK</span>
-          </div>
-          <ul class="tranche-box-info">
-            <li class="info-field">
-              <span class="field-title">APR</span>
-              <span class="field-value">90.59%</span>
-            </li>
-            <li class="info-field">
-              <span class="field-title">Total Rewards</span>
-              <span class="field-value">$304,210.19</span>
-            </li>
-            <li class="info-field">
-              <span class="field-title">Total supply</span>
-              <span class="field-value">$5,304,313.99</span>
+              <span class="field-value">${{ data.totalSupply }}</span>
             </li>
           </ul>
         </div>
       </div>
     </div>
     <div class="supply-rewards">
-      <div class="supply-rewards-block">
-        <h5 class="info-title">Total Supply</h5>
+      <div
+        class="supply-rewards-block"
+        v-for="(data, idx) in totalData"
+        :key="idx"
+      >
+        <h5 class="info-title">{{ data.title }}</h5>
         <div class="info-item">
           <div class="info-icon">
-            <BaseTokenIcon
-              :icon="require('@/assets/images/tokens/LVL.png')"
-              size="40px"
-            />
-            <span>LVL</span>
+            <BaseTokenIcon :icon="data.icon" size="40px" />
+            <span>{{ data.name }}</span>
           </div>
           <div class="info-balance">
-            <span class="info-value">$5,304,313.99</span>
-          </div>
-        </div>
-      </div>
-      <div class="info-line"></div>
-      <div class="supply-rewards-block">
-        <h5 class="info-title">Total Rewards Earned</h5>
-        <div class="info-item">
-          <div class="info-icon">
-            <BaseTokenIcon
-              :icon="require('@/assets/images/tokens/ETH2.png')"
-              size="40px"
-            />
-            <span>ETH</span>
-          </div>
-          <div class="info-balance">
-            <span class="info-value">$5,304,313.99</span>
+            <span class="info-value">${{ data.value }}</span>
           </div>
         </div>
       </div>
@@ -130,7 +56,53 @@
 <script>
 const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
 export default {
-  name: "TranchesStatistics",
+  computed: {
+    staticData() {
+      return [
+        {
+          icon: require("@/assets/images/stake/senior-icon.svg"),
+          type: "Senior",
+          risk: "low",
+          apr: "90.59",
+          totalRewards: "304,210.19",
+          totalSupply: "5,304,313.99",
+        },
+        {
+          icon: require("@/assets/images/stake/mezzanine-icon.svg"),
+          type: "Mezzanine",
+          risk: "medium",
+          apr: "90.59",
+          totalRewards: "304,210.19",
+          totalSupply: "5,304,313.99",
+        },
+        {
+          icon: require("@/assets/images/stake/junior-icon.svg"),
+          type: "Junior",
+          risk: "high",
+          apr: "90.59",
+          totalRewards: "304,210.19",
+          totalSupply: "5,304,313.99",
+        },
+      ];
+    },
+
+    totalData() {
+      return [
+        {
+          title: "Total Supply",
+          icon: require("@/assets/images/tokens/LVL.png"),
+          name: "LVL",
+          value: "5,304,313.99",
+        },
+        {
+          title: "Total Rewards Earned",
+          icon: require("@/assets/images/tokens/ETH2.png"),
+          name: "ETH",
+          value: "7,304,313.99",
+        },
+      ];
+    },
+  },
   components: {
     BaseTokenIcon,
   },
@@ -184,6 +156,13 @@ export default {
   text-transform: uppercase;
   color: #92e2ff;
 }
+
+.medium {
+  color: #9f71ff;
+}
+.high {
+  color: #ffb274;
+}
 .tranche-box-info {
   width: 100%;
   list-style: none;
@@ -211,7 +190,20 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 32px;
+  position: relative;
+}
+
+.supply-rewards::after {
+  content: "";
+  position: absolute;
+  top: 60%;
+  left: 0;
+  right: 0;
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 auto;
 }
 .supply-rewards-block {
   width: 100%;
@@ -272,21 +264,6 @@ export default {
   align-items: end;
 }
 
-.info-line {
-  position: relative;
-}
-
-.info-line::after {
-  content: "";
-  position: absolute;
-  bottom: -30px;
-  left: 0;
-  right: 0;
-  width: 1px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
 .info-value {
   font-weight: 700;
   font-size: 18px;
@@ -314,7 +291,7 @@ export default {
   .supply-rewards {
     flex-direction: column;
   }
-  .info-line::after {
+  .supply-rewards::after {
     display: none;
   }
 }
