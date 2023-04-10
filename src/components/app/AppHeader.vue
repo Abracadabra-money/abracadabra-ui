@@ -383,7 +383,7 @@ export default {
   background: #ffffff0f;
   backdrop-filter: blur(40px);
   border-radius: 20px;
-  padding: 13px 18px;
+  padding: 13px 15px;
   font-size: 16px;
   line-height: 24px;
   color: #fff;

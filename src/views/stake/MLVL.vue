@@ -628,6 +628,8 @@ export default {
 }
 
 .profile {
+  background-size: cover;
+  background-repeat: no-repeat;
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;

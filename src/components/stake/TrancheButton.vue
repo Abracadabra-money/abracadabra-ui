@@ -2,9 +2,12 @@
   <a
     class="default-button"
     :class="[{ active: isActive }, type]"
-    @click="toggleButton"
+    @click="$emit('changeToken')"
   >
-    <img :src="btnIcon" class="tranche-icon" />
+    <img
+      :src="require(`@/assets/images/stake/${this.type}-icon.svg`)"
+      class="tranche-icon"
+    />
 
     <img
       src="@/assets/images/stake/check-icon.svg"
@@ -12,29 +15,16 @@
       v-if="isActive"
     />
     <div class="button-content">
-      <p class="button-title" :class="type">{{ type }} Tranches</p>
+      <p class="button-title" :class="type + '-title'">{{ type }} Tranches</p>
       <p class="apr">200.59% <span>APR</span></p>
     </div>
   </a>
 </template>
 <script>
 export default {
-  name: "TrancheButton",
   props: {
     type: String,
     isActive: Boolean,
-  },
-
-  computed: {
-    btnIcon() {
-      return require(`@/assets/images/stake/${this.type}-icon.svg`);
-    },
-  },
-
-  methods: {
-    toggleButton() {
-      this.$emit("changeToken");
-    },
   },
 };
 </script>
@@ -68,18 +58,14 @@ export default {
   width: 100%;
   cursor: pointer;
   position: relative;
-  border-radius: 20px;
+  z-index: 0;
   padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Prompt;
-  font-style: normal;
-  z-index: 0;
-  font-weight: normal;
   font-size: 16px;
   line-height: 24px;
-  overflow: hidden;
+  border-radius: 20px;
   border: 2px solid #403e4a;
 
   &:hover {
@@ -112,11 +98,11 @@ export default {
   text-transform: uppercase;
 }
 
-.button-title.mezzanine {
+.button-title.mezzanine-title {
   color: #c345fe;
 }
 
-.button-title.senior {
+.button-title.senior-title {
   color: #37caff;
 }
 
@@ -125,8 +111,9 @@ export default {
   font-size: 12px;
   line-height: 18px;
   letter-spacing: 0.025em;
-  color: #ffffff;
+  color: #fff;
 }
+
 .apr span {
   opacity: 0.5;
 }
