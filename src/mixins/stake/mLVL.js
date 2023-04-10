@@ -148,9 +148,9 @@ export default {
         const mainContractInstance = contracts.mainTokenInstance.connect(
           this.userSigner
         );
-        const mainBalance = utils.formatEther(
-          mainTokensBalances[idx].toString()
-        );
+        const mainBalance = this.account
+          ? utils.formatEther(mainTokensBalances[idx].toString())
+          : 0;
         const mainPrice =
           (1 / utils.formatUnits(oracleRates[idx], 18)) * tokensRate;
         const mainBalanceUsd = mainBalance * mainPrice;
@@ -161,13 +161,13 @@ export default {
           this.userSigner
         );
 
-        const stakeWalletBalance = utils.formatEther(
-          stakeTokensBalances[idx].toString()
-        );
+        const stakeWalletBalance = this.account
+          ? utils.formatEther(stakeTokensBalances[idx].toString())
+          : 0;
 
-        const lvlMasterBalance = utils.formatEther(
-          levelMasterBalances[idx].amount.toString()
-        );
+        const lvlMasterBalance = this.account
+          ? utils.formatEther(levelMasterBalances[idx]?.amount.toString())
+          : 0;
 
         const stakeTokenBalance = +stakeWalletBalance + +lvlMasterBalance;
         const price = 1 / utils.formatUnits(oracleRates[idx].toString(), 18);
