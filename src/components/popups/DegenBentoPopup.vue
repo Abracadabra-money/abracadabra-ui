@@ -99,8 +99,6 @@ export default {
 
         const receipt = await tx.wait();
 
-        console.log("withdraw", receipt);
-
         this.closePopup();
 
         await this.$store.commit("notifications/delete", notificationId);
