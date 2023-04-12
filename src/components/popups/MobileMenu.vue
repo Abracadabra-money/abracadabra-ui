@@ -159,8 +159,6 @@
               <Discord />
             </a>
 
-            <!-- <Discord /> -->
-
             <Lens :isMobile="true" />
           </div>
         </div>
