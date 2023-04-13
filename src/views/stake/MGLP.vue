@@ -54,10 +54,8 @@
           </BaseButton>
         </div>
         <p class="profile-subscribtion">
-          Amplify your yield with the Abracadabra Leverage Engine
-          <router-link
-            class="link"
-            :to="{ name: 'Leverage', params: { id: 3 } }"
+          {{ leverageText }}
+          <router-link class="link" v-if="leverageLink" :to="leverageLink"
             >here.</router-link
           >
         </p>
@@ -374,6 +372,19 @@ export default {
 
     stakeBg() {
       return +this.chainId === 42161 ? arbitrumBg : avaxBg;
+    },
+
+    leverageText() {
+      if (+this.chainId === 42161)
+        return " Amplify your yield with the Abracadabra Leverage Engine";
+      else
+        return " Abracadabra Leverage Engine is being developed, stay tuned!";
+    },
+
+    leverageLink() {
+      if (+this.chainId === 42161)
+        return { name: "Leverage", params: { id: 3 } };
+      return false;
     },
   },
 
