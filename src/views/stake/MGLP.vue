@@ -3,7 +3,7 @@
     <div class="input-block">
       <h4>Choose Chain</h4>
       <div class="underline">
-        <NetworksList :active-list="[42161]" />
+        <NetworksList :active-list="acceptChain" />
       </div>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -54,17 +54,15 @@
           </BaseButton>
         </div>
         <p class="profile-subscribtion">
-          Amplify your yield with the Abracadabra Leverage Engine
-          <router-link
-            class="link"
-            :to="{ name: 'Leverage', params: { id: 3 } }"
+          {{ leverageText }}
+          <router-link class="link" v-if="leverageLink" :to="leverageLink"
             >here.</router-link
           >
         </p>
       </div>
     </div>
 
-    <div class="profile">
+    <div class="profile" :style="`background-image: url(${stakeBg})`">
       <h1 class="title">magicGLP</h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -207,11 +205,8 @@
             <h5 class="info-title">Total Rewards Earned</h5>
             <div class="info-item">
               <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/tokens/ETH2.png')"
-                  size="40px"
-                />
-                <span>ETH</span>
+                <BaseTokenIcon :icon="rewardsTokenIcon" size="40px" />
+                <span>{{ rewardsTokenSymbol }}</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
@@ -268,10 +263,14 @@ import TickChart from "@/components/ui/charts/TickChart.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
-import { getGlpChartApr } from "@/helpers/glpAprChart";
 import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { getMagicGlpTotalRewards } from "@/helpers/subgraph/magicGlp/getMagicGlpTotalRewards";
+import { getMagicGlpChartData } from "@/helpers/subgraph/magicGlp/getMagicGlpChartData";
+import { getGlpApyAvaxChain } from "@/helpers/collateralsApy/getGlpApyAvaxChain";
+import arbitrumBg from "@/assets/images/glp/arbitrum-bg.png";
+import avaxBg from "@/assets/images/glp/avax-bg.png";
 
 export default {
   mixins: [mGlpTokenMixin],
@@ -287,6 +286,7 @@ export default {
       apy: "",
       gasLimitConst: 1000,
       totalRewards: null,
+      acceptChain: [42161, 43114],
     };
   },
 
@@ -296,6 +296,7 @@ export default {
       account: "getAccount",
       tokensInfo: "getMGlpObject",
       itsMetamask: "getMetamaskActive",
+      chainId: "getChainId",
     }),
 
     stakeToken() {
@@ -349,17 +350,42 @@ export default {
     },
 
     totalRewardsEarned() {
-      return this.totalRewards
-        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-        : 0;
+      return this.totalRewards ? this.totalRewards : 0;
     },
 
     totalRewardsUsd() {
       return this.totalRewards
         ? parseFloat(
-            +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+            +this.totalRewardsEarned * +this.tokensInfo.rewardsTokenPrice
           ).toFixed(2)
         : 0;
+    },
+
+    rewardsTokenSymbol() {
+      return this.chainId === 43114 ? "AVAX" : "ETH";
+    },
+
+    rewardsTokenIcon() {
+      return this.chainId === 43114
+        ? this.$image("assets/images/tokens/AVAX.png")
+        : this.$image("/assets/images/tokens/ETH2.png");
+    },
+
+    stakeBg() {
+      return +this.chainId === 42161 ? arbitrumBg : avaxBg;
+    },
+
+    leverageText() {
+      if (+this.chainId === 42161)
+        return " Amplify your yield with the Abracadabra Leverage Engine";
+      else
+        return " Abracadabra Leverage Engine is being developed, stay tuned!";
+    },
+
+    leverageLink() {
+      if (+this.chainId === 42161)
+        return { name: "Leverage", params: { id: 3 } };
+      return false;
     },
   },
 
@@ -524,10 +550,15 @@ export default {
       }
     },
 
-    async createChartData(time = 3) {
+    async createChartData() {
       const labels = [];
       const tickUpper = [];
-      const data = await getGlpChartApr(time);
+
+      const data = await getMagicGlpChartData(
+        this.chainId,
+        this.chartActiveBtn
+      );
+
       data.forEach((element) => {
         labels.push(moment.unix(element.timestamp).format("DD.MM"));
         tickUpper.push(element.glpApy * (1 - this.tokensInfo.feePercent));
@@ -538,44 +569,38 @@ export default {
 
     async changeChartTime(time) {
       this.chartActiveBtn = time;
-      await this.createChartData(time);
+      await this.createChartData();
     },
 
-    async getTotalRewards() {
-      try {
-        const response = await axios.get(
-          "https://analytics.abracadabra.money/api/mglp"
-        );
-
-        this.totalRewards = response.data;
-      } catch (error) {
-        console.log("Get Total Rewards Error", error);
-      }
+    async getEstApy() {
+      let apy = 0;
+      if (this.chainId === 42161) apy = await getGlpApy(true);
+      if (this.chainId === 43114) apy = await getGlpApyAvaxChain(true);
+      return parseFloat(apy).toFixed(2);
     },
+  },
 
-    async crateStakeData() {
-      await this.getTotalRewards();
-      this.updateInterval = setInterval(async () => {
-        await this.createStakePool();
-      }, 15000);
-
-      await this.createChartData(this.chartActiveBtn);
-
-      const apy = await getGlpApy(true);
-      this.apy = parseFloat(apy).toFixed(2);
-
-      this.chartInterval = setInterval(async () => {
-        await this.createChartData(this.chartActiveBtn);
-        const apy = await getGlpApy(true);
-        this.apy = parseFloat(apy).toFixed(2);
-      }, 60000);
+  filters: {
+    localAmountFilter(val) {
+      return Number(val).toLocaleString();
     },
   },
 
   async created() {
-    await this.createStakePool();
-    if (this.chainId !== 42161) return false;
-    await this.crateStakeData();
+    if (!this.acceptChain.includes(this.chainId)) return false;
+    this.totalRewards = await getMagicGlpTotalRewards(this.chainId);
+
+    this.updateInterval = setInterval(async () => {
+      await this.createStakePool();
+    }, 15000);
+
+    await this.createChartData();
+    this.apy = await this.getEstApy();
+
+    this.chartInterval = setInterval(async () => {
+      await this.createChartData();
+      this.apy = await this.getEstApy();
+    }, 60000);
   },
 
   beforeUnmount() {
@@ -652,6 +677,8 @@ export default {
   border-radius: 30px;
   background-color: $clrBg2;
   text-align: center;
+  background-position: center;
+  background-size: cover;
 }
 
 .title {
@@ -723,7 +750,7 @@ export default {
 
 .chart-apt-text {
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 27px;
   margin-right: 10px;
 }

@@ -1,7 +1,11 @@
 export default [
   {
     inputs: [
-      { internalType: "contract IWETH", name: "_weth", type: "address" },
+      {
+        internalType: "contract IWETHAlike",
+        name: "_rewardToken",
+        type: "address",
+      },
       {
         internalType: "contract IGmxRewardRouterV2",
         name: "_rewardRouterV2",
@@ -22,7 +26,7 @@ export default [
     type: "constructor",
   },
   { inputs: [], name: "ErrInvalidFeePercent", type: "error" },
-  { inputs: [], name: "ErrNotWeth", type: "error" },
+  { inputs: [], name: "ErrNotRewardToken", type: "error" },
   { inputs: [], name: "NotAllowedOperator", type: "error" },
   {
     anonymous: false,
@@ -119,6 +123,13 @@ export default [
   },
   {
     inputs: [],
+    name: "asset",
+    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "claimOwnership",
     outputs: [],
     stateMutability: "nonpayable",
@@ -200,7 +211,19 @@ export default [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "minGlp", type: "uint256" }],
+    inputs: [],
+    name: "rewardToken",
+    outputs: [
+      { internalType: "contract IWETHAlike", name: "", type: "address" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "uint256", name: "minGlp", type: "uint256" },
+      { internalType: "uint256", name: "rewardAmount", type: "uint256" },
+    ],
     name: "run",
     outputs: [],
     stateMutability: "nonpayable",
@@ -267,13 +290,6 @@ export default [
         type: "address",
       },
     ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "weth",
-    outputs: [{ internalType: "contract IWETH", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
