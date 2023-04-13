@@ -10,7 +10,9 @@
 
         <div class="balance">
           <span class="balance-tag">Balance</span>
-          <span class="balance-value">{{ info.balance }}</span>
+          <span class="balance-value">{{
+            info.balance | formatTokenBalance
+          }}</span>
         </div>
 
         <p class="rate">1 mLVL = {{ info.rate }} LVL</p>
@@ -27,7 +29,7 @@ export default {
 
   computed: {
     mSeniorBalance() {
-      return this.tokensInfo.Senior.mainToken.balance;
+      return this.tokensInfo.Senior.stakeToken.balance;
     },
 
     mSeniorRate() {
@@ -36,7 +38,7 @@ export default {
     },
 
     mMezzanineBalance() {
-      return this.tokensInfo.Mezzanine.mainToken.balance;
+      return this.tokensInfo.Mezzanine.stakeToken.balance;
     },
 
     mMezzanineRate() {
@@ -45,7 +47,7 @@ export default {
     },
 
     mJuniorBalance() {
-      return this.tokensInfo.Junior.mainToken.balance;
+      return this.tokensInfo.Junior.stakeToken.balance;
     },
 
     mJuniorRate() {

@@ -90,14 +90,14 @@ export default {
       return [
         {
           title: "Total Supply",
-          icon: require("@/assets/images/tokens/LVL.png"),
-          name: "LVL",
-          value: "5,304,313.99",
+          icon: require("@/assets/images/tokens/totalLVL.png"),
+          name: "Magic Tranches",
+          value: "304,313.99",
         },
         {
           title: "Total Rewards Earned",
-          icon: require("@/assets/images/tokens/ETH2.png"),
-          name: "ETH",
+          icon: require("@/assets/images/tokens/LVL.png"),
+          name: "LVL",
           value: "7,304,313.99",
         },
       ];

@@ -11,14 +11,21 @@
 
       <div class="tranches-wrap" v-if="tokensInfo">
         <h4>
-          Select tranche
-          <img src="@/assets/images/stake/info-Icon.svg" class="info-icon" />
+          <span> Select tranche</span>
+          <a
+            class="tranches-link"
+            href="https://docs.level.finance/tutorials/liquidity-tutorials/trading-pools-tranches"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="@/assets/images/stake/info-Icon.svg" class="info-icon"
+          /></a>
         </h4>
         <div class="tranches-buttons">
           <TrancheButton
             type="senior"
-            :isActive="tokenLvl === 'Junior'"
-            @changeToken="changeTokenLvl('Junior')"
+            :isActive="tokenLvl === 'Senior'"
+            @changeToken="changeTokenLvl('Senior')"
           />
           <TrancheButton
             type="mezzanine"
@@ -27,8 +34,8 @@
           />
           <TrancheButton
             type="junior"
-            :isActive="tokenLvl === 'Senior'"
-            @changeToken="changeTokenLvl('Senior')"
+            :isActive="tokenLvl === 'Junior'"
+            @changeToken="changeTokenLvl('Junior')"
           />
         </div>
       </div>
@@ -77,14 +84,14 @@
             {{ action }}
           </BaseButton>
         </div>
-        <p class="profile-subscribtion">
+        <!-- <p class="profile-subscribtion">
           Amplify your yield with the Abracadabra Leverage Engine
           <router-link
             class="link"
             :to="{ name: 'Leverage', params: { id: 3 } }"
             >here.</router-link
           >
-        </p>
+        </p> -->
       </div>
     </div>
 
@@ -159,15 +166,15 @@
 
         <p class="profile-subscribtion">
           Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your GLP into MagicGLP and let it do its
-          magic!
+          tedious work! Simply deposit your Level Tranches into MAGICLVL and let
+          it do its magic!
           <br />
           Note: A 1% protocol fee is taken on the yields.
         </p>
         <div class="links-wrap">
           <a
             class="deposit"
-            href="https://app.gmx.io/#/buy_glp"
+            :href="`${trancheLinks[tokenLvl]}/buy`"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -177,7 +184,7 @@
           >
           <a
             class="deposit"
-            href="https://app.gmx.io/#/buy_glp#redeem"
+            :href="`${trancheLinks[tokenLvl]}/sell`"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -227,8 +234,13 @@ export default {
       apy: "",
       gasLimitConst: 1000,
       totalRewards: null,
-      tokenLvl: "Junior",
+      tokenLvl: "Senior",
       profileBg,
+      trancheLinks: {
+        Junior: "https://app.level.finance/liquidity/junior-tranche",
+        Mezzanine: "https://app.level.finance/liquidity/mezzanine-tranche",
+        Senior: "https://app.level.finance/liquidity/senior-tranche",
+      },
     };
   },
 
@@ -253,7 +265,7 @@ export default {
     },
 
     isActionApproved() {
-      if (this.action === "Stake") return !!this.stakeToken.isApproved;
+      if (this.action === "Stake") return this.stakeToken.isApproved;
       return true;
     },
 
@@ -305,7 +317,7 @@ export default {
 
   watch: {
     async account(value) {
-      if (value) await this.createStakePool();
+      if (value) await this.createStakeData();
     },
   },
 
@@ -374,11 +386,12 @@ export default {
       try {
         if (this.stakeToken.walletBalance < this.amount) {
           const withdrawAmount = this.$ethers.utils.parseEther(
-            this.amount - this.stakeToken.walletBalance
+            (this.amount - this.stakeToken.walletBalance).toString()
           );
+
           const tx = await this.lvlInfo.levelMasterContract.withdraw(
             this.stakeToken.pid.toString(),
-            withdrawAmount,
+            withdrawAmount.toString(),
             this.account
           );
 
@@ -500,6 +513,13 @@ export default {
         console.log("Get Total Rewards Error", error);
       }
     },
+
+    async createStakeData() {
+      await this.createStakePool();
+      this.updateInterval = setInterval(async () => {
+        await this.createStakePool();
+      }, 15000);
+    },
   },
 
   filters: {
@@ -509,13 +529,10 @@ export default {
   },
 
   async created() {
-    await this.createStakePool();
+    await this.createStakeData();
 
     // if (this.chainId !== 42161) return false;
     // await this.getTotalRewards();
-    this.updateInterval = setInterval(async () => {
-      await this.createStakePool();
-    }, 15000);
 
     // await this.createChartData(this.chartActiveBtn);
 
@@ -586,6 +603,12 @@ export default {
   display: flex;
   align-items: center;
   letter-spacing: 0.025em;
+  display: flex;
+  align-items: center;
+}
+
+.tranches-link {
+  display: flex;
 }
 .info-icon {
   margin-left: 10px;
