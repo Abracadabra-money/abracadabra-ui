@@ -368,7 +368,7 @@ export default {
     rewardsTokenIcon() {
       return this.chainId === 43114
         ? this.$image("assets/images/tokens/AVAX.png")
-        : this.$image("/assets/images/tokens/ETH2.png");
+        : this.$image("assets/images/tokens/ETH2.png");
     },
 
     stakeBg() {
@@ -588,7 +588,7 @@ export default {
 
   async created() {
     await this.createStakePool();
-    
+
     if (!this.acceptChain.includes(this.chainId)) return false;
     this.totalRewards = await getMagicGlpTotalRewards(this.chainId);
 
