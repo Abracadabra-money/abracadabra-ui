@@ -1,6 +1,6 @@
-const axios = require("axios");
-const { sortBy } = require("lodash");
-const getSubgraphUrl = require("./get-subgraph-url");
+import axios from "axios";
+import { sortBy } from "lodash";
+import getSubgraphUrl from "./get-subgraph-url";
 
 function fillNa(arr) {
   const prevValues = {};
@@ -169,4 +169,4 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
   return ret;
 };
 
-module.exports = getGlpData;
+export default getGlpData;

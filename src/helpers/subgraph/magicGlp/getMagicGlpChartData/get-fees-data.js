@@ -1,6 +1,6 @@
-const axios = require("axios");
-const { sortBy, chain, sumBy } = require("lodash");
-const getSubgraphUrl = require("./get-subgraph-url");
+import axios from "axios";
+import { sortBy, chain, sumBy } from "lodash";
+import getSubgraphUrl from "./get-subgraph-url";
 
 const MOVING_AVERAGE_DAYS = 7;
 const MOVING_AVERAGE_PERIOD = 86400 * MOVING_AVERAGE_DAYS;
@@ -76,4 +76,4 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
     .filter((item) => item.timestamp >= from);
 };
 
-module.exports = getGlpData;
+export default getGlpData;

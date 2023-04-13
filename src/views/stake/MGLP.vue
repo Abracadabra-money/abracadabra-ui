@@ -587,6 +587,8 @@ export default {
   },
 
   async created() {
+    await this.createStakePool();
+    
     if (!this.acceptChain.includes(this.chainId)) return false;
     this.totalRewards = await getMagicGlpTotalRewards(this.chainId);
 

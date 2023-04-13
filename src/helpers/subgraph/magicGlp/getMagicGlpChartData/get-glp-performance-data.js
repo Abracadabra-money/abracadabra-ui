@@ -1,4 +1,4 @@
-const getCoingeckoPrice = require("./get-coingecko-price");
+import getCoingeckoPrice from "./get-coingecko-price";
 
 function getImpermanentLoss(change) {
   return (2 * Math.sqrt(change)) / (1 + change) - 1;
@@ -212,4 +212,4 @@ const getGlpPerformanceData = async (
   return ret;
 };
 
-module.exports = getGlpPerformanceData;
+export default getGlpPerformanceData;
