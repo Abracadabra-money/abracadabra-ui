@@ -166,8 +166,8 @@
 
         <p class="profile-subscribtion">
           Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your Level Tranches into MAGICLVL and let
-          it do its magic!
+          tedious work! Simply deposit your Level Tranches into Magic Level and
+          let it do its magic!
           <br />
           Note: A 1% protocol fee is taken on the yields.
         </p>
