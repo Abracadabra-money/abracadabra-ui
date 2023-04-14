@@ -20,3 +20,4 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=4096"
         with:
           build: npm run build
+          command: npm run test:e2e
