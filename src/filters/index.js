@@ -46,7 +46,7 @@ const formatLargeSum = (value) => {
   }`;
 };
 
-const formatToFixed = (value, fixed) => {
+export const formatToFixed = (value, fixed) => {
   if (isNaN(Number(value))) return "0";
 
   const itsNumber = typeof value === "number";
@@ -67,7 +67,7 @@ const formatToFixed = (value, fixed) => {
   return removedDot;
 };
 
-const formatTokenBalance = (value) => {
+export const formatTokenBalance = (value) => {
   if (isNaN(Number(value)) || +value === 0) return "0.0";
 
   if (+value >= 1) return formatToFixed(value, 4);

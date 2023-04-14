@@ -4,10 +4,7 @@
     :class="[{ active: isActive }, type]"
     @click="$emit('changeToken')"
   >
-    <img
-      :src="require(`@/assets/images/stake/${this.type}-icon.svg`)"
-      class="tranche-icon"
-    />
+    <img :src="trancheIcon" class="tranche-icon" />
 
     <img
       src="@/assets/images/stake/check-icon.svg"
@@ -21,10 +18,21 @@
   </a>
 </template>
 <script>
+import seniorIcon from "@/assets/images/stake/senior-icon.svg";
+import juniorIcon from "@/assets/images/stake/junior-icon.svg";
+import mezzanineIcon from "@/assets/images/stake/mezzanine-icon.svg";
 export default {
   props: {
     type: String,
     isActive: Boolean,
+  },
+
+  computed: {
+    trancheIcon() {
+      if (this.type === "senior") return seniorIcon;
+      if (this.type === "mezzanine") return mezzanineIcon;
+      return juniorIcon;
+    },
   },
 };
 </script>

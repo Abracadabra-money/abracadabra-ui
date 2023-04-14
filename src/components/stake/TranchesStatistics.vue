@@ -54,13 +54,18 @@
   </div>
 </template>
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon";
+import seniorIcon from "@/assets/images/stake/senior-icon.svg";
+import mezzanineIcon from "@/assets/images/stake/mezzanine-icon.svg";
+import juniorIcon from "@/assets/images/stake/junior-icon.svg";
+import magicTranchesLvlIcon from "@/assets/images/tokens/magicTranches.png";
+import lvlIcon from "@/assets/images/tokens/LVL.png";
 export default {
   computed: {
     staticData() {
       return [
         {
-          icon: require("@/assets/images/stake/senior-icon.svg"),
+          icon: seniorIcon,
           type: "Senior",
           risk: "low",
           apr: "90.59",
@@ -68,7 +73,7 @@ export default {
           totalSupply: "5,304,313.99",
         },
         {
-          icon: require("@/assets/images/stake/mezzanine-icon.svg"),
+          icon: mezzanineIcon,
           type: "Mezzanine",
           risk: "medium",
           apr: "90.59",
@@ -76,7 +81,7 @@ export default {
           totalSupply: "5,304,313.99",
         },
         {
-          icon: require("@/assets/images/stake/junior-icon.svg"),
+          icon: juniorIcon,
           type: "Junior",
           risk: "high",
           apr: "90.59",
@@ -90,13 +95,13 @@ export default {
       return [
         {
           title: "Total Supply",
-          icon: require("@/assets/images/tokens/totalLVL.png"),
+          icon: magicTranchesLvlIcon,
           name: "Magic Tranches",
           value: "304,313.99",
         },
         {
           title: "Total Rewards Earned",
-          icon: require("@/assets/images/tokens/LVL.png"),
+          icon: lvlIcon,
           name: "LVL",
           value: "7,304,313.99",
         },

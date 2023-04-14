@@ -44,7 +44,7 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
+            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
@@ -197,31 +197,27 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axios from "axios";
-import moment from "moment";
+// import axios from "axios";
 import { mapGetters } from "vuex";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/charts/TickChart");
-const TrancheButton = () => import("@/components/stake/TrancheButton");
-const TranchesStatistics = () =>
-  import("@/components/stake/TranchesStatistics");
-const LvlTokensBalance = () => import("@/components/stake/LvlTokensBalance");
-
-// import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
+import mLvlTokensMixin from "@/mixins/stake/mLVL";
 import { approveToken } from "@/utils/approveHelpers";
-import { getGlpChartApr } from "@/helpers/glpAprChart";
-import mGlpTokenMixin from "@/mixins/stake/mLVL";
+import { formatTokenBalance, formatToFixed } from "@/filters";
+import profileBg from "@/assets/images/stake/mGLPprofileBg.png";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import profileBg from "@/assets/images/stake/mGLPprofileBg.png";
+
+import BaseButton from "@/components/base/BaseButton";
+import BaseLoader from "@/components/base/BaseLoader";
+import NetworksList from "@/components/ui/NetworksList";
+import EmptyBlock from "@/components/stake/EmptyBlock";
+import TickChart from "@/components/ui/charts/TickChart";
+import TrancheButton from "@/components/stake/TrancheButton";
+import BaseTokenInput from "@/components/base/BaseTokenInput";
+import LvlTokensBalance from "@/components/stake/LvlTokensBalance";
+import TranchesStatistics from "@/components/stake/TranchesStatistics";
 
 export default {
-  mixins: [mGlpTokenMixin],
+  mixins: [mLvlTokensMixin],
   data() {
     return {
       action: "Stake",
@@ -252,16 +248,16 @@ export default {
       itsMetamask: "getMetamaskActive",
     }),
 
-    lvlInfo() {
+    activeTokenInfo() {
       return this.tokensInfo[this.tokenLvl];
     },
 
     stakeToken() {
-      return this.lvlInfo?.stakeToken;
+      return this.activeTokenInfo?.stakeToken;
     },
 
     mainToken() {
-      return this.lvlInfo?.mainToken;
+      return this.activeTokenInfo?.mainToken;
     },
 
     isActionApproved() {
@@ -286,13 +282,10 @@ export default {
     toTokenAmount() {
       if (!this.amount || !this.tokensInfo) return "";
 
-      if (this.action === "Stake") {
-        const amount = this.amount / this.lvlInfo?.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
-      }
+      if (this.action === "Stake")
+        return formatToFixed(this.amount / this.activeTokenInfo?.tokensRate, 6);
 
-      const amount = this.amount * this.lvlInfo?.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 6);
+      return formatToFixed(this.amount * this.activeTokenInfo?.tokensRate, 6);
     },
 
     disableActionBtn() {
@@ -300,19 +293,19 @@ export default {
       return !!(!+this.amount || this.amountError);
     },
 
-    totalRewardsEarned() {
-      return this.totalRewards
-        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-        : 0;
-    },
+    // totalRewardsEarned() {
+    //   return this.totalRewards
+    //     ? this.$ethers.utils.formatEther(this.totalRewards?.total)
+    //     : 0;
+    // },
 
-    totalRewardsUsd() {
-      return this.totalRewards
-        ? parseFloat(
-            +this.totalRewardsEarned * +this.lvlInfo?.ethPrice
-          ).toFixed(2)
-        : 0;
-    },
+    // totalRewardsUsd() {
+    //   return this.totalRewards
+    //     ? parseFloat(
+    //         +this.totalRewardsEarned * +this.lvlInfo?.ethPrice
+    //       ).toFixed(2)
+    //     : 0;
+    // },
   },
 
   watch: {
@@ -389,7 +382,7 @@ export default {
             (this.amount - this.stakeToken.walletBalance).toString()
           );
 
-          const tx = await this.lvlInfo.levelMasterContract.withdraw(
+          const tx = await this.activeTokenInfo.levelMasterContract.withdraw(
             this.stakeToken.pid.toString(),
             withdrawAmount.toString(),
             this.account
@@ -485,34 +478,34 @@ export default {
       }
     },
 
-    async createChartData(time = 3) {
-      const labels = [];
-      const tickUpper = [];
-      const data = await getGlpChartApr(time);
-      data.forEach((element) => {
-        labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        tickUpper.push(element.glpApy * (1 - this.lvlInfo?.feePercent));
-      });
+    // async createChartData(time = 3) {
+    //   const labels = [];
+    //   const tickUpper = [];
+    //   const data = await getGlpChartApr(time);
+    //   data.forEach((element) => {
+    //     labels.push(moment.unix(element.timestamp).format("DD.MM"));
+    //     tickUpper.push(element.glpApy * (1 - this.lvlInfo?.feePercent));
+    //   });
 
-      this.chartData = { labels, tickUpper };
-    },
+    //   this.chartData = { labels, tickUpper };
+    // },
 
-    async changeChartTime(time) {
-      this.chartActiveBtn = time;
-      await this.createChartData(time);
-    },
+    // async changeChartTime(time) {
+    //   this.chartActiveBtn = time;
+    //   await this.createChartData(time);
+    // },
 
-    async getTotalRewards() {
-      try {
-        const response = await axios.get(
-          "https://analytics.abracadabra.money/api/mglp"
-        );
+    // async getTotalRewards() {
+    //   try {
+    //     const response = await axios.get(
+    //       "https://analytics.abracadabra.money/api/mglp"
+    //     );
 
-        this.totalRewards = response.data;
-      } catch (error) {
-        console.log("Get Total Rewards Error", error);
-      }
-    },
+    //     this.totalRewards = response.data;
+    //   } catch (error) {
+    //     console.log("Get Total Rewards Error", error);
+    //   }
+    // },
 
     async createStakeData() {
       await this.createStakePool();
@@ -520,12 +513,8 @@ export default {
         await this.createStakePool();
       }, 15000);
     },
-  },
 
-  filters: {
-    localAmountFilter(val) {
-      return Number(val).toLocaleString();
-    },
+    formatTokenBalance,
   },
 
   async created() {
@@ -549,6 +538,7 @@ export default {
   beforeDestroy() {
     clearInterval(this.updateInterval);
   },
+
   components: {
     TickChart,
     BaseButton,

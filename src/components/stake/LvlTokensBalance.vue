@@ -11,7 +11,7 @@
         <div class="balance">
           <span class="balance-tag">Balance</span>
           <span class="balance-value">{{
-            info.balance | formatTokenBalance
+            formatTokenBalance(info.balance)
           }}</span>
         </div>
 
@@ -21,7 +21,10 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
+import { formatTokenBalance, formatToFixed } from "@/filters";
+import seniorIcon from "@/assets/images/stake/senior-icon.svg";
+import juniorIcon from "@/assets/images/stake/junior-icon.svg";
+import mezzanineIcon from "@/assets/images/stake/mezzanine-icon.svg";
 export default {
   props: {
     tokensInfo: Object,
@@ -33,8 +36,7 @@ export default {
     },
 
     mSeniorRate() {
-      const amount = 1 * this.tokensInfo.Senior.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
+      return formatToFixed(1 * this.tokensInfo.Senior.tokensRate, 4);
     },
 
     mMezzanineBalance() {
@@ -42,8 +44,7 @@ export default {
     },
 
     mMezzanineRate() {
-      const amount = 1 * this.tokensInfo.Mezzanine.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
+      return formatToFixed(1 * this.tokensInfo.Mezzanine.tokensRate, 4);
     },
 
     mJuniorBalance() {
@@ -51,32 +52,36 @@ export default {
     },
 
     mJuniorRate() {
-      const amount = 1 * this.tokensInfo.Junior.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
+      return formatToFixed(1 * this.tokensInfo.Junior.tokensRate, 4);
     },
 
     InfoArr() {
       return [
         {
-          icon: require("@/assets/images/stake/senior-icon.svg"),
+          icon: seniorIcon,
           title: "Senior Tranches",
           balance: this.mSeniorBalance,
           rate: this.mSeniorRate,
         },
         {
-          icon: require("@/assets/images/stake/mezzanine-icon.svg"),
+          icon: mezzanineIcon,
           title: "Senior Tranches",
           balance: this.mMezzanineBalance,
           rate: this.mMezzanineRate,
         },
         {
-          icon: require("@/assets/images/stake/junior-icon.svg"),
+          icon: juniorIcon,
           title: "Senior Tranches",
           balance: this.mJuniorBalance,
           rate: this.mJuniorRate,
         },
       ];
     },
+  },
+
+  methods: {
+    formatTokenBalance,
+    formatToFixed,
   },
 };
 </script>
