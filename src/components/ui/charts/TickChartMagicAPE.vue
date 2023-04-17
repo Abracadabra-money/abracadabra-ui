@@ -23,13 +23,15 @@ export default {
       required: true,
     },
   },
-  data: () => ({
-    name: "tick-chart",
-    config: {
-      type: "line",
-    },
-    chart: null,
-  }),
+  data() {
+    return {
+      name: "tick-chart",
+      config: {
+        type: "line",
+      },
+      chart: null,
+    };
+  },
   watch: {
     labels() {
       const data = this.createDataObject();

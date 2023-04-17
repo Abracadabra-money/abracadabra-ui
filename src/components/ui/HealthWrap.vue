@@ -12,14 +12,16 @@ export default {
     isMedium: { type: Boolean, default: false },
     isHigh: { type: Boolean, default: false },
   },
-  data: () => ({
-    colors: {
-      safe: "rgba(99, 202, 248, 0.06)",
-      medium: "rgba(255, 184, 0, 0.06)",
-      high: "rgba(254, 24, 66, 0.06)",
-      none: "rgba(255, 255, 255, 0.06)",
-    },
-  }),
+  data() {
+    return {
+      colors: {
+        safe: "rgba(99, 202, 248, 0.06)",
+        medium: "rgba(255, 184, 0, 0.06)",
+        high: "rgba(254, 24, 66, 0.06)",
+        none: "rgba(255, 255, 255, 0.06)",
+      },
+    };
+  },
   computed: {
     backgroundColor() {
       const { safe, medium, high, none } = this.colors;

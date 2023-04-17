@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import bridgeConfig from "@/utils/bridge/bridgeConfig";
 import mimToken from "@/utils/contracts/mimToken";
 import { mapGetters } from "vuex";
@@ -92,7 +93,7 @@ export default {
         isDefaultProvider,
       };
 
-      this.$store.commit("setBridgeObject", bridgeObject);
+      this.$store.commit("setBridgeObject", markRaw(bridgeObject));
     },
     async getUserBalance(tokenContract) {
       try {

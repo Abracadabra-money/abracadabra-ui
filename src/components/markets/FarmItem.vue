@@ -32,8 +32,8 @@
 </template>
 
 <script>
-import Vue from "vue";
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import filters from "@/filters/index.js";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
   props: {
@@ -51,42 +51,42 @@ export default {
       return [
         {
           title: "~Yield per $1000",
-          value: Vue.filter("formatTokenBalance")(this.pool.poolYield),
+          value: filters.formatTokenBalance(this.pool.poolYield),
         },
         {
           title: "ROI Annually",
-          value: Vue.filter("formatPercent")(this.pool.poolRoi),
+          value: filters.formatPercent(this.pool.poolRoi),
         },
-        { title: "TVL", value: Vue.filter("formatUSD")(this.pool.poolTvl) },
+        { title: "TVL", value: filters.formatUSD(this.pool.poolTvl) },
       ];
     },
 
     getChainIcon() {
       if (this.chainId === 56) {
-        return require("@/assets/images/networks/BNB.svg");
+        return this.$image("assets/images/networks/BNB.svg");
       }
 
       if (this.chainId === 250) {
-        return require("@/assets/images/networks/fantom-icon.svg");
+        return this.$image("assets/images/networks/fantom-icon.svg");
       }
 
       if (this.chainId === 43114) {
-        return require("@/assets/images/networks/avalanche-icon.png");
+        return this.$image("assets/images/networks/avalanche-icon.png");
       }
 
       if (this.chainId === 137) {
-        return require("@/assets/images/networks/polygon-icon.svg");
+        return this.$image("assets/images/networks/polygon-icon.svg");
       }
 
       if (this.chainId === 42161) {
-        return require("@/assets/images/networks/Arbitrum.svg");
+        return this.$image("assets/images/networks/Arbitrum.svg");
       }
 
       if (this.chainId === 10) {
-        return require("@/assets/images/networks/optimism-icon.svg");
+        return this.$image("assets/images/networks/optimism-icon.svg");
       }
 
-      return require("@/assets/images/networks/ethereum-icon.svg");
+      return this.$image("assets/images/networks/ethereum-icon.svg");
     },
   },
 

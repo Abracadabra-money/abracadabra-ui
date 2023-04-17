@@ -7,9 +7,11 @@ import lpAbi from "@/utils/abi/lp/lpAbi";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
 
+import { useImage } from "@/helpers/useImage";
+
 export default [
   {
-    icon: require(`@/assets/images/tokens/OP_USDC.png`),
+    icon: useImage(`assets/images/tokens/OP_USDC.png`),
     name: "Velodrome Volatile OP/USDC",
     contractChain: 10,
     id: 1,
@@ -61,7 +63,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0xB153FB3d196A8eB25522705560ac152eeEc57901",
       abi: tokensAbi.MIM,
@@ -81,7 +83,7 @@ export default [
     },
   },
   // {
-  //   icon: require(`@/assets/images/tokens/Stargate-USDC.png`),
+  //   icon: useImage(`assets/images/tokens/Stargate-USDC.png`),
   //   name: "Stargate USDC",
   //   contractChain: 10,
   //   id: 2,
@@ -116,7 +118,7 @@ export default [
   //   },
   //   pairToken: {
   //     name: "MIM",
-  //     icon: require(`@/assets/images/tokens/MIM.png`),
+  //     icon: useImage(`assets/images/tokens/MIM.png`),
   //     decimals: 18,
   //     address: "0xB153FB3d196A8eB25522705560ac152eeEc57901",
   //     abi: tokensAbi.MIM,

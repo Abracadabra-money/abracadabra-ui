@@ -17,9 +17,11 @@
 <script>
 export default {
   name: "DropdownWrap",
-  data: () => ({
-    isBtnAlreadyFocused: false,
-  }),
+  data() {
+    return {
+      isBtnAlreadyFocused: false,
+    }
+  },
   methods: {
     checkFocus() {
       const btn = this.$refs.dropdownBtn.children[0];

@@ -1,37 +1,36 @@
-const { providers, Contract } = require("ethers");
-const { rpc } = require("./constants");
+import { providers, Contract } from "ethers";
+import { rpc } from "./constants";
 
-const GlpManager = require("./abis/GlpManager.json");
-const RewardReader = require("./abis/RewardReader.json");
-const ReaderV2 = require("./abis/ReaderV2.json");
-const UniPool = require("./abis/UniPool.json");
-const Vault = require("./abis/Vault.json");
-const AbraWsGlp = require("./abis/AbraWsGlp.json");
-const MagicGlpHarvestor = require("./abis/MagicGlpHarvestor.json");
+import GlpManager from "./abis/GlpManager.json";
+import RewardReader from "./abis/RewardReader.json";
+import ReaderV2 from "./abis/ReaderV2.json";
+import UniPool from "./abis/UniPool.json";
+import Vault from "./abis/Vault.json";
+import AbraWsGlp from "./abis/AbraWsGlp.json";
+import MagicGlpHarvestor from "./abis/MagicGlpHarvestor.json";
 
-const {
+import {
   glpManagerAddress,
   rewardReaderAddress,
   readerAddress,
   uniswapGmxEthPool,
   vault,
   GmxGlpWrapperAddress,
-  MagicGlpHarvestorAddress
-} = require("./constants");
+  MagicGlpHarvestorAddress,
+} from "./constants";
 
 const provider = new providers.StaticJsonRpcProvider(rpc);
 
-module.exports.getGlpManagerContract = () =>
+export const getGlpManagerContract = () =>
   new Contract(glpManagerAddress, GlpManager.abi, provider);
-module.exports.getRewardReaderContract = () =>
+export const getRewardReaderContract = () =>
   new Contract(rewardReaderAddress, RewardReader.abi, provider);
-module.exports.getReaderContract = () =>
+export const getReaderContract = () =>
   new Contract(readerAddress, ReaderV2.abi, provider);
-module.exports.getPoolContract = () =>
+export const getPoolContract = () =>
   new Contract(uniswapGmxEthPool, UniPool.abi, provider);
-module.exports.getVaultContract = () =>
-  new Contract(vault, Vault.abi, provider);
-module.exports.getGmxGlpWrapperContract = () =>
+export const getVaultContract = () => new Contract(vault, Vault.abi, provider);
+export const getGmxGlpWrapperContract = () =>
   new Contract(GmxGlpWrapperAddress, AbraWsGlp.abi, provider);
-  module.exports.getMagicGlpHarvestorContract = () =>
+export const getMagicGlpHarvestorContract = () =>
   new Contract(MagicGlpHarvestorAddress, MagicGlpHarvestor.abi, provider);

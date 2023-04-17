@@ -1,11 +1,12 @@
 import SorbettiereAbi from "./abi/SorbettiereAbi";
 import erc20Abi from "./abi/erc20Abi";
 import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {
     name: "3PoolV2",
-    icon: require(`@/assets/images/tokens/CRV.png`),
+    icon: useImage(`assets/images/tokens/CRV.png`),
     nameSubtitle: "avax.curve.fi",
     contractChain: 43114,
     id: 3,

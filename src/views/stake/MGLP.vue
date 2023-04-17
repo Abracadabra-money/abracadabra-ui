@@ -13,13 +13,13 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
+            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
             :name="fromToken.name"
             :value="amount"
-            @input="updateMainValue"
+            @updateValue="updateMainValue"
             :max="fromToken.balance"
             :error="amountError"
           />
@@ -143,7 +143,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/GLP.png')"
+                  :icon="$image('assets/images/tokens/GLP.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">GLP</span>
@@ -151,17 +151,17 @@
               <div>
                 <p class="token-title">GLP</p>
                 <p class="token-balance">
-                  {{ stakeToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(stakeToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ stakeToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(stakeToken.balanceUsd) }}
                 </p>
               </div>
             </div>
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="$image('assets/images/tokens/mGlpToken.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">magicGLP</span>
@@ -169,10 +169,10 @@
               <div>
                 <p class="token-title">magicGLP</p>
                 <p class="token-balance">
-                  {{ mainToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(mainToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ mainToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(mainToken.balanceUsd) }}
                 </p>
               </div>
             </div>
@@ -185,17 +185,17 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="$image('assets/images/tokens/mGlpToken.png')"
                   size="40px"
                 />
                 <span>magicGLP</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  mainToken.totalSupply | localAmountFilter
+                  Number(mainToken.totalSupply).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{
-                  mainToken.totalSupplyUsd | formatUSD
+                  formatUSD(mainToken.totalSupplyUsd)
                 }}</span>
               </div>
             </div>
@@ -210,9 +210,9 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  totalRewardsEarned | localAmountFilter
+                  Number(totalRewardsEarned).toLocaleString()
                 }}</span>
-                <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
+                <span class="info-usd">{{ formatUSD(totalRewardsUsd) }}</span>
               </div>
             </div>
           </div>
@@ -250,16 +250,17 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
+import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/charts/TickChart");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import EmptyBlock from "@/components/stake/EmptyBlock.vue";
+import TickChart from "@/components/ui/charts/TickChart.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
 import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
@@ -328,7 +329,7 @@ export default {
 
     tokensRate() {
       const amount = 1 * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
+      return filters.formatToFixed(amount, 4);
     },
 
     toTokenAmount() {
@@ -336,11 +337,11 @@ export default {
 
       if (this.action === "Stake") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
 
       const amount = this.amount * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 6);
+      return filters.formatToFixed(amount, 6);
     },
 
     disableActionBtn() {
@@ -366,8 +367,8 @@ export default {
 
     rewardsTokenIcon() {
       return this.chainId === 43114
-        ? require("@/assets/images/tokens/AVAX.png")
-        : require("@/assets/images/tokens/ETH2.png");
+        ? this.$image("assets/images/tokens/AVAX.png")
+        : this.$image("assets/images/tokens/ETH2.png");
     },
 
     stakeBg() {
@@ -392,9 +393,18 @@ export default {
     async account(value) {
       if (value) await this.createStakePool();
     },
+    async chainId() {
+      if (this.chainId === 42161) await this.crateStakeData();
+    },
   },
 
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     updateValue(amount) {
       this.amount = amount ? amount : "";
       this.amountError = "";
@@ -595,7 +605,7 @@ export default {
     }, 60000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
   components: {

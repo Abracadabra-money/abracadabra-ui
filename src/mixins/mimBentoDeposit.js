@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import mimTokenInfo from "@/utils/contracts/mimToken";
 import bentoContractsInfo from "@/utils/contracts/master";
 import degenBoxInfo from "@/utils/contracts/degenBox";
@@ -139,7 +140,7 @@ export default {
         degenAllowance,
       };
 
-      this.$store.commit("setMimInBentoDepositObject", mimOnBentoDeposit);
+      this.$store.commit("setMimInBentoDepositObject", markRaw(mimOnBentoDeposit));
     },
   },
 };

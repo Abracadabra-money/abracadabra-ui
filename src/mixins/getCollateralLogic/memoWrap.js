@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import wrapConfig from "@/utils/collateralConfig/memoWrap/wrapConfig";
 import { mapGetters } from "vuex";
 
@@ -73,7 +74,7 @@ export default {
         },
       };
 
-      return stakeObject;
+      return markRaw(stakeObject);
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {
       try {

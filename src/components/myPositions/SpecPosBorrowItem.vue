@@ -11,7 +11,7 @@
           <p class="header-token-title">{{ tokenName }}</p>
           <p class="header-token-price">
             1 {{ tokenName }} =
-            {{ tokenToMim | formatToFixed(4) }}
+            {{ formatToFixed(tokenToMim, 4) }}
             {{ pool.borrowToken.name }}
           </p>
         </div>
@@ -62,9 +62,9 @@
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.userInfo">
               <p class="lp-data-balance">
-                {{ pool.userInfo.userCollateralShare | formatTokenBalance }}
+                {{ formatTokenBalance(pool.userInfo.userCollateralShare) }}
               </p>
-              <p class="lp-data-price">{{ initialInUsd | formatUSD }}</p>
+              <p class="lp-data-price">{{ formatUSD(initialInUsd) }}</p>
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@
             </div>
             <div class="lp-data-balance-wrap">
               <p class="lp-data-balance">
-                {{ pool.userInfo.userBorrowPart | formatTokenBalance }}
+                {{ formatTokenBalance(pool.userInfo.userBorrowPart) }}
               </p>
             </div>
           </div>
@@ -136,12 +136,12 @@
 </template>
 
 <script>
-import Vue from "vue";
-import HealthWrap from "@/components/ui/HealthWrap";
-const HealthLine = () => import("@/components/ui/HealthLine");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusName = () => import("@/components/ui/StatusName");
-const mimIcon = require("@/assets/images/tokens/MIM.png");
+import filters from "@/filters/index.js";
+import HealthWrap from "@/components/ui/HealthWrap.vue";
+import HealthLine from "@/components/ui/HealthLine.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import StatusName from "@/components/ui/StatusName.vue";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 
 export default {
   name: "SpecPosBorrowItem",
@@ -168,7 +168,7 @@ export default {
 
       const addCollateralLink = {
         title: "Add Collateral/ Borrow MIM",
-        icon: require("@/assets/images/myposition/AddCollateral.png"),
+        icon: this.$image("assets/images/myposition/AddCollateral.png"),
         name: "BorrowId",
       };
 
@@ -176,7 +176,7 @@ export default {
 
       const repayLink = {
         title: "Repay MIMs/ Remove Collateral",
-        icon: require("@/assets/images/myposition/Repay.png"),
+        icon: this.$image("assets/images/myposition/Repay.png"),
         name: "RepayId",
       };
 
@@ -184,7 +184,7 @@ export default {
 
       const deleverageLink = {
         title: "Deleverage",
-        icon: require("@/assets/images/myposition/Deleverage.png"),
+        icon: this.$image("assets/images/myposition/Deleverage.png"),
         name: "DeleverageId",
       };
 
@@ -243,7 +243,7 @@ export default {
       return mimIcon;
     },
     liqPrice() {
-      return Vue.filter("formatExactPrice")(this.liquidationPrice);
+      return filters.formatExactPrice(this.liquidationPrice);
     },
     valuesList() {
       return [
@@ -251,11 +251,22 @@ export default {
           title: "Required Drop in price",
           tooltipText:
             "If your Collateral Price drops by this amount, you will be flagged for liquidation",
-          value: Vue.filter("formatUSD")(this.minPrice),
+          value: filters.formatUSD(this.minPrice),
         },
       ];
     },
   },
+  methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatToFixed(value, fixed) {
+      return filters.formatToFixed(value, fixed);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+  }
 };
 </script>
 

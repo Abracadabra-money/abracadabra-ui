@@ -41,7 +41,7 @@
 </template>
 
 <script>
-const BaseButton = () => import("@/components/base/BaseButton");
+import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
@@ -68,7 +68,7 @@ export default {
     closeBanner() {},
   },
   components: {
-    BaseButton,
+    BaseButton: defineAsyncComponent(() => import("@/components/base/BaseButton.vue")),
   },
 };
 </script>

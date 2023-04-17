@@ -29,10 +29,8 @@
 </template>
 
 <script>
-const SpecPosBorrowItem = () =>
-  import("@/components/myPositions/SpecPosBorrowItem");
-const SpecPosFarmItem = () =>
-  import("@/components/myPositions/SpecPosFarmItem");
+import SpecPosBorrowItem from "@/components/myPositions/SpecPosBorrowItem.vue";
+import SpecPosFarmItem from "@/components/myPositions/SpecPosFarmItem.vue";
 
 export default {
   name: "SpecPos",
@@ -41,7 +39,11 @@ export default {
     pools: { type: Array, default: () => [] },
   },
   components: { SpecPosBorrowItem, SpecPosFarmItem },
-  data: () => ({ opened: false }),
+  data() {
+    return {
+      opened: false,
+    };
+  },
   computed: {
     title() {
       return this.isFarm ? "Farm" : "Borrow";

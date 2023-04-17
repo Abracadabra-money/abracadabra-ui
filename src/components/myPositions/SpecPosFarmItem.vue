@@ -35,9 +35,9 @@
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
               <p class="lp-data-balance">
-                {{ earnedData.balance | formatTokenBalance }}
+                {{ formatTokenBalance(earnedData.balance) }}
               </p>
-              <p class="lp-data-price">{{ earnedData.usd | formatUSD }}</p>
+              <p class="lp-data-price">{{ formatUSD(earnedData.usd) }}</p>
             </div>
           </div>
           <div class="lp-data-actions">
@@ -62,9 +62,9 @@
             </div>
             <div class="lp-data-balance-wrap" v-if="pool.accountInfo">
               <p class="lp-data-balance">
-                {{ depositedData.balance | formatTokenBalance }}
+                {{ formatTokenBalance(depositedData.balance) }}
               </p>
-              <p class="lp-data-price">{{ depositedData.usd | formatUSD }}</p>
+              <p class="lp-data-price">{{ formatUSD(depositedData.usd) }}</p>
             </div>
           </div>
           <div v-if="balanceList.length" class="balance-list">
@@ -84,9 +84,9 @@
               </div>
               <div v-if="pool.accountInfo" class="lp-data-balance-wrap">
                 <p class="balance-list-balance">
-                  {{ balanceItem.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(balanceItem.balance) }}
                 </p>
-                <p class="lp-data-price">{{ balanceItem.usd | formatUSD }}</p>
+                <p class="lp-data-price">{{ formatUSD(balanceItem.usd) }}</p>
               </div>
             </div>
           </div>
@@ -110,8 +110,9 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const spellIcon = require("@/assets/images/tokens/SPELL.png");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import spellIcon from "@/assets/images/tokens/SPELL.png";
+import filters from "@/filters/index.js";
 
 export default {
   name: "SpecPosFarmItem",
@@ -119,22 +120,30 @@ export default {
   props: {
     pool: { type: Object, required: true },
   },
-  data: () => ({
-    spellIcon,
-    openedItems: [
-      {
-        title: "Stake",
-        name: "stake",
-        icon: require("@/assets/images/myposition/Stake.png"),
-      },
-      {
-        title: "Unstake",
-        name: "unstake",
-        icon: require("@/assets/images/myposition/Unstake.png"),
-      },
-    ],
-  }),
+  data() {
+    return {
+      spellIcon,
+      openedItems: [
+        {
+          title: "Stake",
+          name: "stake",
+          icon: this.$image("assets/images/myposition/Stake.png"),
+        },
+        {
+          title: "Unstake",
+          name: "unstake",
+          icon: this.$image("assets/images/myposition/Unstake.png"),
+        },
+      ],
+    };
+  },
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     prepBalanceData(tokenValue, priceValue) {
       const tokenValueParsed = this.$ethers.utils.formatEther(tokenValue);
 
