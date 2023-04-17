@@ -667,7 +667,7 @@ export default {
         const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
 
         let amountFrom = Vue.filter("formatToFixed")(
-          this.borrowAmount * this.selectedPool.tokenOraclePrice,
+          this.repayBorrow * this.selectedPool.tokenOraclePrice,
           this.selectedPool.collateralToken.decimals
         );
 

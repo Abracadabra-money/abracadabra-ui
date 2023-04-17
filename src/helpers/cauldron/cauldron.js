@@ -16,7 +16,7 @@ export const cook = async (contract, cookData, value) => {
       cookData.datas,
       {
         value,
-        gasLimit: 10000000,
+        gasLimit: 50000000,
       }
     );
   
