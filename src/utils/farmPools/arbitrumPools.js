@@ -1,10 +1,7 @@
 import SorbettiereAbi from "./abi/SorbettiereAbi";
 import erc20Abi from "./abi/erc20Abi";
 import crvStakeTokenAbi from "./abi/crvStakeTokenAbi";
-
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {

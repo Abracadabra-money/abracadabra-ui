@@ -3,10 +3,7 @@ import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import joeInfoAbi from "@/utils/abi/joeInfo";
-
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {

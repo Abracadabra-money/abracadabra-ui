@@ -6,10 +6,7 @@ import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper"
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
 import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
-
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {

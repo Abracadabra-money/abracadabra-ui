@@ -7,9 +7,7 @@ import lpAbi from "@/utils/abi/lp/lpAbi";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
 
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {

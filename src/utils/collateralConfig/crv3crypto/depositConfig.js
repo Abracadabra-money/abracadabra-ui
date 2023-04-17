@@ -1,10 +1,7 @@
 import depositTokenAbi from "@/utils/abi/tokensAbi/crv3crypto";
 import mainTokenAbi from "@/utils/abi/tokensAbi/stkcvxcrv3crypto";
 import stakeTokenAbi from "@/utils/abi/tokensAbi/cvxcrv3crypto";
-
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
+import { useImage } from "@/helpers/useImage";
 
 export default {
   depositToken: {
