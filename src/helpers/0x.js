@@ -64,11 +64,11 @@ export const swap0xRequest = async (
       sellAmount: BigNumber.from(sellAmount),
       estimatedGas: BigNumber.from(estimatedGas),
       buyAmountWithSlippage: BigNumber.from(buyAmount)
-        .mul(BigNumber.from(100 - slippage))
-        .div(BigNumber.from(100)),
+        .mul(BigNumber.from(1e4 - slippagePercentage * 1e4))
+        .div(BigNumber.from(1e4)),
       sellAmountWithSlippage: BigNumber.from(sellAmount)
-        .mul(BigNumber.from(100 - slippage))
-        .div(BigNumber.from(100)),
+        .mul(BigNumber.from(1e4 - slippagePercentage * 1e4))
+        .div(BigNumber.from(1e4)),
     };
   } catch (error) {
     console.log("swap0xRequest error:", error);
