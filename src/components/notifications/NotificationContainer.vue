@@ -11,8 +11,7 @@
 </template>
 
 <script>
-const NotificationItem = () =>
-  import("@/components/notifications/Notification");
+import NotificationItem from "@/components/notifications/Notification.vue";
 
 export default {
   computed: {

@@ -142,7 +142,7 @@
   </div>
 </template>
 <script>
-const BaseButton = () => import("@/components/base/BaseButton");
+import BaseButton from "@/components/base/BaseButton.vue";
 
 export default {
   data() {
@@ -175,7 +175,7 @@ export default {
     window.addEventListener("scroll", this.onScroll);
     this.onResize();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("resize", this.onResize);
     window.removeEventListener("scroll", this.onScroll);
   },

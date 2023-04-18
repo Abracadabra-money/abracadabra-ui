@@ -2,10 +2,11 @@ import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {
-    icon: require(`@/assets/images/tokens/BNB.png`),
+    icon: useImage(`assets/images/tokens/BNB.png`),
     name: "WBNB",
     contractChain: 56,
     id: 1,
@@ -40,7 +41,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba",
       abi: tokensAbi.MIM,
@@ -55,7 +56,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/CAKE.png`),
+    icon: useImage(`assets/images/tokens/CAKE.png`),
     name: "CAKE",
     contractChain: 56,
     id: 2,
@@ -91,7 +92,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0xfE19F0B51438fd612f6FD59C1dbB3eA319f433Ba",
       abi: tokensAbi.MIM,

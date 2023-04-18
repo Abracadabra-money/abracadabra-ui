@@ -13,7 +13,7 @@
           <p class="input-title">Token to bridge</p>
           <div class="balance">
             <span>Balance: </span>
-            <span>{{ mimBalance | formatTokenBalance }}</span>
+            <span>{{ formatTokenBalance(mimBalance) }}</span>
           </div>
         </div>
 
@@ -21,15 +21,15 @@
           :max="bridgeObject.balance"
           :value="amount"
           :name="'MIM'"
-          :icon="require('@/assets/images/tokens/MIM.png')"
+          :icon="$image('assets/images/tokens/MIM.png')"
           :error="amountError"
-          @input="updateMainValue"
+          @updateValue="updateMainValue"
         />
       </div>
 
       <div class="expected">
         <p class="expected-title">Expected MIM</p>
-        <p class="expected-value">{{ expectedMim | formatTokenBalance }}</p>
+        <p class="expected-value">{{ formatTokenBalance(expectedMim) }}</p>
       </div>
 
       <div class="info">
@@ -40,7 +40,7 @@
         <div class="info-row">
           <p class="info-text">
             Crosschain amounts larger than
-            {{ targetChainInfo.amountLarger | formatNumber }} MIM estimated
+            {{ formatNumber(targetChainInfo.amountLarger) }} MIM estimated
             arrival:
           </p>
           <p class="info-text">up to 12 hours</p>
@@ -87,11 +87,11 @@
 </template>
 
 <script>
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const SelectChainsWrap = () => import("@/components/bridge/SelectChainsWrap");
-const NetworkPopup = () => import("@/components/popups/NetworkPopup");
-import Vue from "vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import SelectChainsWrap from "@/components/bridge/SelectChainsWrap.vue";
+import NetworkPopup from "@/components/popups/NetworkPopup.vue";
+import filters from "@/filters/index.js";
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -108,6 +108,7 @@ export default {
       fromChainId: null,
       updateInterval: null,
       amount: "",
+      acceptedNetworks: [43114, 1, 250, 56, 42161, 137],
     };
   },
 
@@ -117,6 +118,10 @@ export default {
       activeChain: "getChainId",
       address: "getAccount",
     }),
+
+    isAcceptedNetworks() {
+      return this.acceptedNetworks.indexOf(this.chainId) === -1;
+    },
 
     amountError() {
       if (+this.amount > +this.bridgeObject.balance) {
@@ -216,9 +221,7 @@ export default {
       return [
         {
           title: "Maximum Bridgeable Amount",
-          value: `${Vue.filter("formatNumber")(
-            this.targetChainInfo.maxAmount
-          )} MIM`,
+          value: `${filters.formatNumber(this.targetChainInfo.maxAmount)} MIM`,
           additional:
             "Maximum amount that can be sent in one single transaction.",
         },
@@ -236,7 +239,20 @@ export default {
     },
   },
 
+  watch: {
+    async chainId() {
+      if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
+      else await this.createBridgeData();
+    },
+  },
+
   methods: {
+    formatNumber(value) {
+      return filters.formatNumber(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     openNetworkPopup(type) {
       this.popupType = type;
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
@@ -298,7 +314,7 @@ export default {
         notification.pending
       );
       try {
-        const parsedAmount = Vue.filter("formatToFixed")(this.amount, 18);
+        const parsedAmount = filters.formatToFixed(this.amount, 18);
 
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
 
@@ -348,28 +364,30 @@ export default {
         await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
-  },
 
-  async created() {
-    const acceptedNetworks = [43114, 1, 250, 56, 42161, 137];
-
-    if (acceptedNetworks.indexOf(this.chainId) === -1) {
-      await this.$store.dispatch(
+    async bridgeNotAvailable() {
+      return await this.$store.dispatch(
         "notifications/new",
         notification.bridgeNotAvailable
       );
+    },
 
-      return false;
-    }
-
-    await this.createBridgeConfig();
-
-    this.updateInterval = setInterval(async () => {
+    async createBridgeData() {
       await this.createBridgeConfig();
-    }, 15000);
+
+      this.updateInterval = setInterval(async () => {
+        await this.createBridgeConfig();
+      }, 15000);
+    },
   },
 
-  beforeDestroy() {
+  async created() {
+    if (!this.chainId) return false;
+    if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
+    else await this.createBridgeData();
+  },
+
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 

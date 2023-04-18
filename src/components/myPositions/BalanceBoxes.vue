@@ -13,7 +13,7 @@
       :mimPrice="infoObject.mimPrice"
       :isBento="true"
     />
-    <LocalPopupWrap v-model="popupData.opened">
+    <LocalPopupWrap :isOpened="popupData.opened" @closePopup="popupData.opened= false">
       <DegenBentoPopup
         :infoObject="infoObject"
         :isBento="popupData.isBento"
@@ -27,9 +27,9 @@
 <script>
 import { mapGetters } from "vuex";
 
-const BalanceBox = () => import("@/components/myPositions/BalanceBox");
-const DegenBentoPopup = () => import("@/components/popups/DegenBentoPopup");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
+import BalanceBox from "@/components/myPositions/BalanceBox.vue";
+import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 
 const initialPopupData = {
   opened: false,
@@ -46,9 +46,11 @@ export default {
       required: true,
     },
   },
-  data: () => ({
-    popupData: { ...initialPopupData },
-  }),
+  data(){
+    return {
+      popupData: { ...initialPopupData },
+    }
+  },
   methods: {
     openPopup(isBento, isDeposit) {
       this.popupData = { opened: true, isBento, isDeposit };

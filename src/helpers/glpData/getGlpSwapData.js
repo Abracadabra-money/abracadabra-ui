@@ -1,5 +1,5 @@
 import { ethers, providers } from "ethers";
-import { MulticallProvider } from "ethers-multicall-provider";
+import { MulticallWrapper } from "ethers-multicall-provider";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import store from "@/store";
@@ -8,7 +8,7 @@ const staticProvider = new providers.StaticJsonRpcProvider(
   "https://arb1.arbitrum.io/rpc"
 );
 
-const multicalProvider = MulticallProvider.wrap(staticProvider);
+const multicalProvider = MulticallWrapper.wrap(staticProvider);
 
 import gmxVaultAbi from "@/helpers/glpData/abi/gmxVault";
 import gmxLensAbi from "@/helpers/glpData/abi/gmxLens";
@@ -85,7 +85,9 @@ const getGlpLevData = async (
 
   const { borrowToken, collateralToken } = pool;
 
-  const tokensArr = (await getWhitelistedTokens()).filter(info => !info.maxAmountIn.eq(0));
+  const tokensArr = (await getWhitelistedTokens()).filter(
+    (info) => !info.maxAmountIn.eq(0)
+  );
   const initialRequestsArr = [];
 
   for (let token of tokensArr) {
@@ -217,7 +219,7 @@ const getGlpLevData = async (
     );
 
     const infoIndex = cookInfo.indexOf(info);
-    const itsLast = infoIndex === cookInfo.length - 1
+    const itsLast = infoIndex === cookInfo.length - 1;
 
     if (!itsLast) {
       cookData = await actions.addCollateral(cookData, "-2", userAddr, false);

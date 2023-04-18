@@ -3,10 +3,11 @@ import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import joeInfoAbi from "@/utils/abi/joeInfo";
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {
-    icon: require(`@/assets/images/tokens/AVAX.png`),
+    icon: useImage(`assets/images/tokens/AVAX.png`),
     name: "WAVAX",
     contractChain: 43114,
     id: 1,
@@ -41,7 +42,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,
@@ -56,7 +57,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/MEMO.png`),
+    icon: useImage(`assets/images/tokens/MEMO.png`),
     name: "wMEMO",
     contractChain: 43114,
     id: 2,
@@ -96,7 +97,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,
@@ -111,7 +112,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/xJOE.png`),
+    icon: useImage(`assets/images/tokens/xJOE.png`),
     name: "xJOE",
     contractChain: 43114,
     id: 3,
@@ -147,7 +148,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,
@@ -167,7 +168,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/AVAX-USDC.png`),
+    icon: useImage(`assets/images/tokens/AVAX-USDC.png`),
     name: "AVAX/USDC.e JLP",
     contractChain: 43114,
     id: 4,
@@ -203,7 +204,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,
@@ -223,7 +224,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/MEMO.png`),
+    icon: useImage(`assets/images/tokens/MEMO.png`),
     name: "wMEMO",
     contractChain: 43114,
     id: 5,
@@ -263,7 +264,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,
@@ -278,7 +279,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/AVAX-USDT.png`),
+    icon: useImage(`assets/images/tokens/AVAX-USDT.png`),
     name: "AVAX/USDT.e JLP",
     contractChain: 43114,
     id: 6,
@@ -314,7 +315,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,
@@ -334,7 +335,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/MIM-AVAX.png`),
+    icon: useImage(`assets/images/tokens/MIM-AVAX.png`),
     name: "AVAX/MIM JLP",
     contractChain: 43114,
     id: 7,
@@ -370,7 +371,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,
@@ -390,7 +391,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/MIM-AVAX.png`),
+    icon: useImage(`assets/images/tokens/MIM-AVAX.png`),
     name: "AVAX/MIM SLP",
     contractChain: 43114,
     id: 8,
@@ -425,7 +426,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x130966628846BFd36ff31a822705796e8cb8C18D",
       abi: tokensAbi.MIM,

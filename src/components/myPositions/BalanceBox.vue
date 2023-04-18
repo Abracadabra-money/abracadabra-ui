@@ -18,19 +18,15 @@
     <div class="box-data">
       <BaseTokenIcon :icon="mimIcon" name="MIM" size="50px" />
       <div>
-        <p class="box-balance1">{{ parsedBalance | formatTokenBalance }}</p>
-        <p class="box-balance2">{{ balanceInUsd | formatUSD }}</p>
+        <p class="box-balance1">{{ formatTokenBalance(parsedBalance) }}</p>
+        <p class="box-balance2">{{ formatUSD(balanceInUsd) }}</p>
       </div>
     </div>
     <div class="box-actions">
-      <template>
-        <BaseButton @click="$emit('withdraw')" :disabled="isDisabled"
-          >Withdraw</BaseButton
-        >
-        <BaseButton @click="$emit('deposit')" selected
-          >Deposit</BaseButton
-        ></template
+      <BaseButton @click="$emit('withdraw')" :disabled="isDisabled"
+        >Withdraw</BaseButton
       >
+      <BaseButton @click="$emit('deposit')" selected>Deposit</BaseButton>
     </div>
     <div class="box-desc">
       {{ description }}
@@ -47,9 +43,10 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const BaseButton = () => import("@/components/base/BaseButton");
-const mimIcon = require("@/assets/images/tokens/MIM.png");
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import mimIcon from "@/assets/images/tokens/MIM.png";
+import filters from "@/filters/index.js";
 
 export default {
   name: "BalanceBox",
@@ -85,6 +82,14 @@ export default {
     },
     isDisabled() {
       return !+this.balance;
+    },
+  },
+  methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
     },
   },
 };
