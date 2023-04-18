@@ -1,7 +1,6 @@
 <template>
   <div class="tick-chart">
     <canvas :id="name"></canvas>
-    <button @click="test">Button</button>
   </div>
 </template>
 
