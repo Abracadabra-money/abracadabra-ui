@@ -41,6 +41,12 @@ import CurveDAOToken from "@/utils/abi/tokensAbi/CurveDAOToken";
 import magicGLP from "@/utils/abi/tokensAbi/magicGLP";
 import APE from "@/utils/abi/tokensAbi/ape";
 import magicApe from "@/utils/abi/tokensAbi/magicApe";
+import lvlJunior from "@/utils/abi/tokensAbi/lvlJunior";
+import mLvlJunior from "@/utils/abi/tokensAbi/mLvlJunior";
+import lvlMezzanine from "@/utils/abi/tokensAbi/lvlMezzanine";
+import mLvlMezzanine from "@/utils/abi/tokensAbi/mLvlMezzanine";
+import lvlSenior from "@/utils/abi/tokensAbi/lvlSenior";
+import mLvlSenior from "@/utils/abi/tokensAbi/mLvlSenior";
 
 export default {
   ALCX,
@@ -86,4 +92,10 @@ export default {
   magicGLP,
   APE,
   magicApe,
+  lvlJunior,
+  mLvlJunior,
+  lvlMezzanine,
+  mLvlMezzanine,
+  lvlSenior,
+  mLvlSenior,
 };

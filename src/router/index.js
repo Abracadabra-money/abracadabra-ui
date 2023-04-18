@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
   {
@@ -45,6 +45,11 @@ const routes = [
     path: "/magicAPE",
     name: "magicAPE",
     component: () => import("@/views/stake/MAPE.vue"),
+  },
+  {
+    path: "/magicLVL",
+    name: "magicLVL",
+    component: () => import("@/views/stake/MLVL.vue"),
   },
   {
     path: "/leverage",
@@ -112,7 +117,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior() {
-    return { top: 0 }
+    return { top: 0 };
   },
 });
 
