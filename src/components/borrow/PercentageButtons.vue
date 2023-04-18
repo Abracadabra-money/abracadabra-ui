@@ -37,8 +37,6 @@
 </template>
 
 <script>
-import { between } from "vuelidate/lib/validators";
-
 export default {
   props: {
     maxValue: {
@@ -59,12 +57,6 @@ export default {
       customErr: false,
       value: null,
     };
-  },
-
-  validations: {
-    customValue: {
-      between: between(0, 100),
-    },
   },
 
   watch: {

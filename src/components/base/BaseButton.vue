@@ -3,7 +3,6 @@
     class="default-button"
     :style="{ width: setWidth() }"
     :class="{ primary: primary, disabled: disabled || loading, borderless }"
-    @click="onClick"
   >
     <div><slot></slot></div>
     <span v-if="loading" class="loader"></span>
@@ -33,9 +32,6 @@ export default {
   methods: {
     setWidth() {
       return this.width ? this.width : "100%";
-    },
-    onClick() {
-      if (!this.disabled) this.$emit("click");
     },
   },
 };

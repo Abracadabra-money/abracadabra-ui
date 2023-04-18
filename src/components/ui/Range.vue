@@ -106,9 +106,9 @@ export default {
         let max = arr.slice(0, index + 5).join("");
 
         if (max === value) {
-          this.$emit("input", this.max);
+          this.$emit("updateValue", this.max);
         } else {
-          this.$emit("input", value);
+          this.$emit("updateValue", value);
         }
       },
     },

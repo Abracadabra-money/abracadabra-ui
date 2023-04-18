@@ -13,13 +13,13 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
+            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
             :name="fromToken.name"
             :value="amount"
-            @input="updateMainValue"
+            @updateValue="updateMainValue"
             :max="fromToken.balance"
             :error="amountError"
           />
@@ -152,7 +152,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/ape-circle.png')"
+                  :icon="'./src/assets/images/ape/ape-circle.png'"
                   size="60px"
                 />
                 <span class="token-icon-name">APE</span>
@@ -160,17 +160,17 @@
               <div>
                 <p class="token-title">APE</p>
                 <p class="token-balance">
-                  {{ stakeToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(stakeToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ stakeToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(stakeToken.balanceUsd) }}
                 </p>
               </div>
             </div>
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/mape-circle.png')"
+                  :icon="'./src/assets/images/ape/mape-circle.png'"
                   size="60px"
                 />
                 <span class="token-icon-name">magicAPE</span>
@@ -178,10 +178,10 @@
               <div>
                 <p class="token-title">magicAPE</p>
                 <p class="token-balance">
-                  {{ mainToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(mainToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ mainToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(mainToken.balanceUsd) }}
                 </p>
               </div>
             </div>
@@ -194,17 +194,17 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/mape-circle.png')"
+                  :icon="'./src/assets/images/ape/mape-circle.png'"
                   size="40px"
                 />
                 <span>magicAPE</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  mainToken.totalSupply | localAmountFilter
+                  Number(mainToken.totalSupply).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{
-                  mainToken.totalSupplyUsd | formatUSD
+                  formatUSD(mainToken.totalSupplyUsd)
                 }}</span>
               </div>
             </div>
@@ -215,16 +215,16 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/ape/ape-circle.png')"
+                  :icon="'./src/assets/images/ape/ape-circle.png'"
                   size="40px"
                 />
                 <span>APE</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  totalRewardsEarned | localAmountFilter
+                  Number(totalRewardsEarned).toLocaleString()
                 }}</span>
-                <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
+                <span class="info-usd">{{ formatUSD(totalRewardsUsd) }}</span>
               </div>
             </div>
           </div>
@@ -237,7 +237,7 @@
           Note: A 1% protocol fee is taken on the yields.
         </p>
         <div class="btns-wrap">
-          <BaseButton @click="goBorrow">
+          <BaseButton @click="goToPage('BorrowId', 39)">
             <div class="btn-ape-wrap">
               <img
                 class="btn-ape-img"
@@ -247,7 +247,7 @@
               <span class="btn-ape-text">Borrow Against MagicAPE</span>
             </div>
           </BaseButton>
-          <BaseButton @click="goLeverage">
+          <BaseButton @click="goToPage('LeverageId', 39)">
             <span class="btn-ape-text"
               >Leverage your Yield (up to ≈{{ expectedApy }}%)</span
             ></BaseButton
@@ -258,17 +258,17 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/charts/TickChartMagicAPE");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import EmptyBlock from "@/components/stake/EmptyBlock.vue";
+import TickChart from "@/components/ui/charts/TickChartMagicAPE.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { approveToken } from "@/utils/approveHelpers";
 import mAPETokenMixin from "@/mixins/stake/mAPEToken";
 import notification from "@/helpers/notification/notification.js";
@@ -342,7 +342,7 @@ export default {
 
     tokensRate() {
       const amount = 1 * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
+      return filters.formatToFixed(amount, 4);
     },
 
     toTokenAmount() {
@@ -350,11 +350,11 @@ export default {
 
       if (this.action === "Stake") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
 
       const amount = this.amount * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 6);
+      return filters.formatToFixed(amount, 6);
     },
 
     disableActionBtn() {
@@ -391,9 +391,18 @@ export default {
     async account(value) {
       if (value) await this.createStakePool();
     },
+    async chainId() {
+      if (this.chainId === 1) await this.crateStakeData();
+    },
   },
 
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     updateValue(amount) {
       this.amount = amount ? amount : "";
       this.amountError = "";
@@ -666,38 +675,31 @@ export default {
       }
     },
 
-    goBorrow() {
-      this.$router.push({ name: "Borrow", params: { id: 39 } });
+    goToPage(name, id) {
+      this.$router.push({ name, params: { id } });
     },
 
-    goLeverage() {
-      this.$router.push({ name: "Leverage", params: { id: 39 } });
+    async crateStakeData() {
+      await this.getTotalRewards();
+      this.updateInterval = setInterval(async () => {
+        await this.createStakePool();
+      }, 15000);
+
+      await this.fetchChartData();
+
+      this.chartInterval = setInterval(async () => {
+        await this.fetchChartData();
+      }, 60000);
     },
   },
 
   async created() {
     await this.createStakePool();
-
     if (this.chainId !== 1) return false;
-    await this.getTotalRewards();
-    this.updateInterval = setInterval(async () => {
-      await this.createStakePool();
-    }, 15000);
-
-    await this.fetchChartData();
-
-    this.chartInterval = setInterval(async () => {
-      await this.fetchChartData();
-    }, 60000);
+    await this.crateStakeData();
   },
 
-  filters: {
-    localAmountFilter(val) {
-      return Number(val).toLocaleString();
-    },
-  },
-
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
     clearInterval(this.chartInterval);
     clearInterval(this.tvlInterval);

@@ -10,7 +10,7 @@
           <div class="header-balance">
             <h4>Collateral assets</h4>
             <p v-if="selectedPool">
-              {{ maxCollateralValue | formatTokenBalance }}
+              {{ formatTokenBalance(maxCollateralValue) }}
             </p>
           </div>
           <button @click="isOpenPollPopup = true" class="select-btn">
@@ -39,14 +39,15 @@
           </div>
 
           <Range
-            v-model="flashRepayAmount"
+            :value="flashRepayAmount"
             :max="+maxFlashRepayAmount"
             :step="+borrowStepRange"
             title="Choose the amount of MIM you want to repay"
+            @updateValue="updateFlashRepayAmount"
           />
 
           <div class="repay-token">
-            {{ repayBorrow | formatTokenBalance }}
+            {{ formatTokenBalance(repayBorrow) }}
             {{ selectedPool.borrowToken.name }}
           </div>
 
@@ -76,13 +77,14 @@
 
           <Range
             title="Choose the amount of collateral you want to remove"
-            v-model="flashRepayRemoveAmount"
+            :value="flashRepayRemoveAmount"
             :max="maxFlashRepayRemoveAmount"
             :step="+collateralStepRange"
             :parallelRange="flashRepayAmount"
+            @updateValue="updateFlashRepayRemoveAmount"
           />
           <div class="repay-token">
-            {{ repayToken | formatTokenBalance }}
+            {{ formatTokenBalance(repayToken) }}
             {{ selectedPool.collateralToken.name }}
           </div>
         </div>
@@ -150,10 +152,16 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap v-model="isSettingsOpened">
+    <LocalPopupWrap
+      :isOpened="isSettingsOpened"
+      @closePopup="isSettingsOpened = false"
+    >
       <SettingsPopup :slipage="slipage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
-    <LocalPopupWrap v-model="isOpenPollPopup">
+    <LocalPopupWrap
+      :isOpened="isOpenPollPopup"
+      @closePopup="isOpenPollPopup = false"
+    >
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
@@ -164,21 +172,20 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const Range = () => import("@/components/ui/Range");
-const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const BaseButton = () => import("@/components/base/BaseButton");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const InfoBlock = () => import("@/components/borrow/InfoBlock");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
-const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const CollateralApyBlock = () =>
-  import("@/components/borrow/CollateralApyBlock");
-const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import Range from "@/components/ui/Range.vue";
+import BorrowPoolStand from "@/components/borrow/BorrowPoolStand.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import InfoBlock from "@/components/borrow/InfoBlock.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import SettingsPopup from "@/components/leverage/SettingsPopup.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
+import MimEstimatePrice from "@/components/ui/MimEstimatePrice.vue";
 
-import Vue from "vue";
+import filters from "@/filters/index.js";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
@@ -206,7 +213,7 @@ export default {
       updateInterval: null,
       borrowStepRange: "0.0001",
       emptyData: {
-        img: require(`@/assets/images/empty_leverage.png`),
+        img: this.$image(`assets/images/empty_leverage.png`),
         text: "Deleverage your position using our built-in Flash repay function.",
         bottom: "Read more about it",
         link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
@@ -299,7 +306,7 @@ export default {
 
     maxFlashRepayAmount() {
       if (this.selectedPool && this.account) {
-        return Vue.filter("formatToFixed")(
+        return filters.formatToFixed(
           this.selectedPool.userInfo.contractBorrowPartParsed,
           4
         );
@@ -357,7 +364,7 @@ export default {
           this.selectedPool.maxWithdrawAmount
         ).toFixed(20);
 
-        return Vue.filter("formatToFixed")(
+        return filters.formatToFixed(
           parsedMaxContractWithdrawAmount,
           this.selectedPool.borrowToken.decimals
         );
@@ -406,7 +413,7 @@ export default {
     finalCollateralAmount() {
       const slipageMutiplier = (100 + +this.slipage) / 100;
 
-      const collateralAmount = Vue.filter("formatToFixed")(
+      const collateralAmount = filters.formatToFixed(
         this.borrowAmount *
           this.selectedPool.tokenOraclePrice *
           slipageMutiplier,
@@ -426,7 +433,7 @@ export default {
         ? this.noExponents(this.flashRepayRemoveAmount)
         : this.flashRepayRemoveAmount;
 
-      const removeCollateralAmount = Vue.filter("formatToFixed")(
+      const removeCollateralAmount = filters.formatToFixed(
         flashRepayRemoveAmount,
         this.selectedPool.collateralToken.decimals
       );
@@ -438,7 +445,7 @@ export default {
     },
 
     borrowAmount() {
-      return Vue.filter("formatToFixed")(
+      return filters.formatToFixed(
         this.flashRepayAmount,
         this.selectedPool.borrowToken.decimals
       );
@@ -463,7 +470,7 @@ export default {
     selectIcon() {
       if (this.selectedPool) return this.selectedPool.icon;
 
-      return require(`@/assets/images/select.svg`);
+      return this.$image(`assets/images/select.svg`);
     },
 
     selectName() {
@@ -563,6 +570,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async approveTokenHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
@@ -609,6 +619,14 @@ export default {
       }
 
       this.isSettingsOpened = false;
+    },
+
+    updateFlashRepayRemoveAmount(value) {
+      this.flashRepayRemoveAmount = value;
+    },
+
+    updateFlashRepayAmount(value) {
+      this.flashRepayAmount = value;
     },
 
     async actionHandler() {
@@ -666,7 +684,7 @@ export default {
 
         const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
 
-        let amountFrom = Vue.filter("formatToFixed")(
+        let amountFrom = filters.formatToFixed(
           this.borrowAmount * this.selectedPool.tokenOraclePrice,
           this.selectedPool.collateralToken.decimals
         );
@@ -819,7 +837,7 @@ export default {
     }, 15000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 

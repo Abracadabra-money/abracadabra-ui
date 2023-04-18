@@ -40,34 +40,34 @@
 </template>
 
 <script>
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 const getInfoFromAddress = (address) => {
   return {
     "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f": {
       name: "WBTC",
-      icon: require("@/assets/images/tokens/BTC.png"),
+      icon: "assets/images/tokens/BTC.png",
     },
     "0x82af49447d8a07e3bd95bd0d56f35241523fbab1": {
       name: "WETH",
-      icon: require("@/assets/images/tokens/WETH.png"),
+      icon: "assets/images/tokens/WETH.png",
     },
     "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": {
       name: "USDC",
-      icon: require("@/assets/images/tokens/USDC.png"),
+      icon: "assets/images/tokens/USDC.png",
     },
     "0xf97f4df75117a78c1a5a0dbb814af92458539fb4": {
       name: "LINK",
-      icon: require("@/assets/images/tokens/LINK.png"),
+      icon: "assets/images/tokens/LINK.png",
     },
     "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9": {
       name: "USDT",
-      icon: require("@/assets/images/tokens/USDT.png"),
+      icon: "assets/images/tokens/USDT.png",
     },
     "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1": {
       name: "DAI",
-      icon: require("@/assets/images/tokens/DAI.png"),
+      icon: "assets/images/tokens/DAI.png",
     },
   }[address];
 };
@@ -90,7 +90,7 @@ export default {
         const { name, icon } = getInfoFromAddress(item.address.toLowerCase());
         return {
           name,
-          icon,
+          icon: this.$image(icon),
           address: item.address,
           fees: item.feeBasisPoints / 100,
           amount: parseFloat(

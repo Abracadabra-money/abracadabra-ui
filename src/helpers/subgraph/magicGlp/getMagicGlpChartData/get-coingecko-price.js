@@ -1,4 +1,4 @@
-const { default: axios } = require("axios");
+import axios from "axios";
 
 const getCoingeckoPrice = async (symbol, { from }) => {
   const _symbol = {
@@ -12,15 +12,17 @@ const getCoingeckoPrice = async (symbol, { from }) => {
   const now = Date.now() / 1000;
   const days = Math.ceil(now / 86400) - Math.ceil(from / 86400) - 1;
 
-  const apiDomain = process.env.VUE_APP_COINGECKO_API_KEY_2
+  const apiDomain =
+  import.meta.env.VITE_APP_COINGECKO_API_KEY &&
+  import.meta.env.PROD === "production"
     ? "pro-api.coingecko.com"
     : "api.coingecko.com";
 
-  const config = {
-    headers: {
-      "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY_2,
-    },
-  };
+const config = {
+  headers: {
+    "X-Cg-Pro-Api-Key": import.meta.env.VITE_APP_COINGECKO_API_KEY,
+  },
+};
 
   const url = `https://${apiDomain}/api/v3/coins/${_symbol}/market_chart?vs_currency=usd&days=${days}&interval=daily`;
 
@@ -38,4 +40,4 @@ const getCoingeckoPrice = async (symbol, { from }) => {
   });
 };
 
-module.exports = getCoingeckoPrice;
+export default getCoingeckoPrice;

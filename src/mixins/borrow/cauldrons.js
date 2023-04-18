@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 import axios from "axios";
@@ -43,7 +44,7 @@ export default {
         chainPools.map((pool) => this.createPool(pool))
       );
 
-      this.$store.commit("setPools", pools);
+      this.$store.commit("setPools", markRaw(pools));
       this.setLoadingPoolsBorrow(false);
       this.setCreatingPoolsBorrow(true);
     },

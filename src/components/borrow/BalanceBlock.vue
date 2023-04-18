@@ -10,7 +10,7 @@
         <p>{{ networkInfo.name }}</p>
       </div>
       <div class="balance">
-        <p>{{ networkBalance | formatTokenBalance }}</p>
+        <p>{{ formatTokenBalance(networkBalance) }}</p>
       </div>
     </div>
 
@@ -20,7 +20,7 @@
         <p>{{ pool.borrowToken.name }}</p>
       </div>
       <div class="balance">
-        <p>{{ userMimBalance | formatTokenBalance }}</p>
+        <p>{{ formatTokenBalance(userMimBalance) }}</p>
       </div>
     </div>
 
@@ -30,9 +30,9 @@
         <p>{{ pool.collateralToken.name }}</p>
       </div>
       <div class="balance">
-        <p>{{ userBalance | formatTokenBalance }}</p>
+        <p>{{ formatTokenBalance(userBalance) }}</p>
         <p v-if="+userBalance">
-          {{ pool.userInfo.balanceUsd | formatUSD }}
+          {{  formatUSD(pool.userInfo.balanceUsd) }}
         </p>
       </div>
     </div>
@@ -43,9 +43,9 @@
         <p>{{ pool.lpLogic.name }}</p>
       </div>
       <div class="balance">
-        <p>{{ lpBalance | formatTokenBalance }}</p>
+        <p>{{ formatTokenBalance(lpBalance) }}</p>
         <p v-if="+lpBalance">
-          {{ pool.userInfo.lpInfo.balanceUsd | formatUSD }}
+          {{ formatUSD(pool.userInfo.balanceUsd) }}
         </p>
       </div>
     </div>
@@ -53,7 +53,8 @@
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import { defineAsyncComponent } from "vue";
+import filters from "@/filters/index.js";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { mapGetters } from "vuex";
 export default {
@@ -74,24 +75,24 @@ export default {
 
     networkInfo() {
       let name = "ETH";
-      let icon = require("@/assets/images/tokens/ETH.png");
+      let icon = this.$image("assets/images/tokens/ETH.png");
 
       if (this.chainId === 56) {
         name = "BSC";
-        icon = require("@/assets/images/tokens/BNB.png");
+        icon = this.$image("assets/images/tokens/BNB.png");
       }
 
       if (this.chainId === 250) {
         name = "FTM";
-        icon = require("@/assets/images/tokens/FTM2.png");
+        icon = this.$image("assets/images/tokens/FTM2.png");
       }
       if (this.chainId === 43114) {
         name = "AVAX";
-        icon = require("@/assets/images/tokens/AVAX.png");
+        icon = this.$image("assets/images/tokens/AVAX.png");
       }
       if (this.chainId === 137) {
         name = "MATIC";
-        icon = require("@/assets/images/tokens/MATIC.png");
+        icon = this.$image("assets/images/tokens/MATIC.png");
       }
 
       return { name, icon };
@@ -144,7 +145,16 @@ export default {
     },
   },
 
-  components: { BaseTokenIcon },
+  methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    }
+  },
+
+  components: { BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")) },
 };
 </script>
 

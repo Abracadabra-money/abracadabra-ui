@@ -21,7 +21,7 @@
         <button
           class="deposit"
           v-if="showCollateralLogicBtn"
-          @click="showCollateralPopup"
+          @click.stop="showCollateralPopup"
         >
           <img src="@/assets/images/deposit.svg" alt="Deposit" />
           {{ collateralTitle }}
@@ -30,7 +30,7 @@
         <button
           class="deposit"
           v-if="showClaimCrvReward"
-          @click="handleClaimCrvReward"
+          @click.stop="handleClaimCrvReward"
         >
           <img src="@/assets/images/deposit.svg" alt="Deposit" /> Claim
         </button>
@@ -186,11 +186,10 @@
 </template>
 
 <script>
-import Vue from "vue";
-import LockedTimer from "@/components/stake/LockedTimer.vue";
+import { defineAsyncComponent } from "vue";
+import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/helpers/collateralsApy";
-const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
 
 export default {
   name: "BorrowPoolStand",
@@ -232,12 +231,14 @@ export default {
       default: 0,
     },
   },
-  data: () => ({
-    isInfoPressed: false,
-    collateralDecimals: 4,
-    wOHMTosOHM: null,
-    tokenApy: null,
-  }),
+  data() {
+    return {
+      isInfoPressed: false,
+      collateralDecimals: 4,
+      wOHMTosOHM: null,
+      tokenApy: null,
+    };
+  },
 
   computed: {
     ...mapGetters({
@@ -297,23 +298,23 @@ export default {
         ? this.collateralDepositExpected
         : 0;
 
-      return Vue.filter("formatTokenBalance")(collateralDeposited) || "0.0";
+      return filters.formatTokenBalance(collateralDeposited) || "0.0";
     },
 
     collateralValue() {
-      return Vue.filter("formatUSD")(this.tokenInUsd);
+      return filters.formatUSD(this.tokenInUsd);
     },
 
     mimBorrowed() {
       const mimBorrowed = this.account ? this.mimBorrowedExpected : 0;
 
-      return Vue.filter("formatTokenBalance")(mimBorrowed);
+      return filters.formatTokenBalance(mimBorrowed);
     },
 
     calculateLiquidationPrice() {
       const liquidationPrice = this.account ? this.liquidationPrice : 0;
 
-      return Vue.filter("formatExactPrice")(liquidationPrice);
+      return filters.formatExactPrice(liquidationPrice);
     },
 
     liquidationRiskClass() {
@@ -373,20 +374,20 @@ export default {
         const resultArray = [
           {
             title: "Collateral Deposited",
-            value: Vue.filter("formatTokenBalance")(
+            value: filters.formatTokenBalance(
               this.pool.userInfo?.userCollateralShare || 0
             ),
             additional: "Amount of Tokens Deposited as Collaterals",
           },
           {
             title: "Collateral Value",
-            value: Vue.filter("formatUSD")(this.collateralInUsd || 0),
+            value: filters.formatUSD(this.collateralInUsd || 0),
             additional:
               "USD Value of the Collateral Deposited in your Position",
           },
           {
             title: "MIM Borrowed",
-            value: Vue.filter("formatTokenBalance")(
+            value: filters.formatTokenBalance(
               this.pool.userInfo?.userBorrowPart || 0
             ),
             additional: "MIM Currently Borrowed in your Position",
@@ -394,7 +395,7 @@ export default {
           {
             title: "TVL",
             value: `$ ${this.formatNumber(
-              Vue.filter("formatTokenBalance")(this.pool.tvl || 0)
+              filters.formatTokenBalance(this.pool.tvl || 0)
             )}`,
             additional: "Total Value Locked",
           },
@@ -403,7 +404,7 @@ export default {
         if (this.pool.id === 10 && this.chainId === 1) {
           resultArray.push({
             title: "Liquidation Price",
-            value: Vue.filter("formatExactPrice")(
+            value: filters.formatExactPrice(
               this.pool.userInfo?.liquidationPrice || 0
             ),
             additional:
@@ -415,7 +416,7 @@ export default {
         ) {
           resultArray.push({
             title: "wMEMO Liquidation Price",
-            value: Vue.filter("formatExactPrice")(
+            value: filters.formatExactPrice(
               this.pool.userInfo?.liquidationPrice || 0
             ),
             additional:
@@ -424,7 +425,7 @@ export default {
         } else {
           resultArray.push({
             title: "Liquidation Price",
-            value: Vue.filter("formatExactPrice")(
+            value: filters.formatExactPrice(
               this.pool.userInfo?.liquidationPrice || 0
             ),
             additional:
@@ -438,7 +439,7 @@ export default {
 
           resultArray.push({
             title: "OHM Liquidation Price",
-            value: Vue.filter("formatExactPrice")(ohmLiquidationPrice || 0),
+            value: filters.formatExactPrice(ohmLiquidationPrice || 0),
             additional:
               "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
           });
@@ -454,7 +455,7 @@ export default {
 
           resultArray.push({
             title: "MEMO Liquidation Price",
-            value: Vue.filter("formatExactPrice")(ohmLiquidationPrice || 0),
+            value: filters.formatExactPrice(ohmLiquidationPrice || 0),
             additional:
               "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
           });
@@ -462,7 +463,7 @@ export default {
 
         resultArray.push({
           title: "MIM Left To Borrow",
-          value: Vue.filter("formatTokenBalance")(borrowLeftParsed || 0),
+          value: filters.formatTokenBalance(borrowLeftParsed || 0),
           additional: "MIM Borrowable Given the Collateral Deposited",
         });
 
@@ -472,9 +473,7 @@ export default {
         ) {
           resultArray.push({
             title: "Withdrawable Amount",
-            value: Vue.filter("formatTokenBalance")(
-              this.pool.maxWithdrawAmount || 0
-            ),
+            value: filters.formatTokenBalance(this.pool.maxWithdrawAmount || 0),
             additional: `Maximum Current Amount of ${this.pool.collateralToken.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
           });
         }
@@ -486,7 +485,7 @@ export default {
 
           const apyInfo = {
             title: title,
-            value: Vue.filter("formatPercent")(this.tokenApy || 0),
+            value: filters.formatPercent(this.tokenApy || 0),
             additional: "APY Delivered by the Open Position",
           };
 
@@ -617,7 +616,7 @@ export default {
 
         if (this.pool.name === "SHIB") decimals = 6;
 
-        return Vue.filter("formatToFixed")(tokenToMim, decimals);
+        return filters.formatToFixed(tokenToMim, decimals);
       }
       return "0.0";
     },
@@ -690,8 +689,12 @@ export default {
   },
 
   components: {
-    LockedTimer,
-    MiniStatusTag,
+    LockedTimer: defineAsyncComponent(() =>
+      import("@/components/stake/LockedTimer.vue")
+    ),
+    MiniStatusTag: defineAsyncComponent(() =>
+      import("@/components/ui/MiniStatusTag.vue")
+    ),
   },
 };
 </script>

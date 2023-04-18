@@ -1,8 +1,10 @@
 /* eslint-disable */
 
+import { useImage } from "@/helpers/useImage";
+
 export default [
   {
-    icon: require(`@/assets/images/tokens/MATIC.png`),
+    icon: useImage(`assets/images/tokens/MATIC.png`),
     name: "MATIC",
     contractChain: 137,
     id: 1,
@@ -694,7 +696,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0x01288e04435bFcd4718FF203D6eD18146C17Cd4b",
       abi: [

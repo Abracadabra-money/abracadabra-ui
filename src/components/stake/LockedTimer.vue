@@ -38,11 +38,6 @@ export default {
       this.timerCount = formatDurr;
     },
   },
-  filters: {
-    date: function (value) {
-      return moment(value).format("DD.MM.YY - HH:mm:ss");
-    },
-  },
   mounted() {
     this.acceptByTime = moment(this.finalTime).isBefore(new Date());
     if (!this.acceptByTime) {
@@ -50,7 +45,7 @@ export default {
       this.timeInterval = this.buyTimer();
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timeInterval);
   },
 };
