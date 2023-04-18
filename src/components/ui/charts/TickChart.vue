@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { markRaw } from "vue";
 import Chart from "chart.js/auto";
 export default {
   props: {
@@ -105,7 +106,7 @@ export default {
     this.config.data = data;
     this.config.options = options;
     const ctx = document.getElementById(this.name);
-    this.chart = new Chart(ctx, this.config);
+    this.chart = markRaw(new Chart(ctx, this.config));
   },
 };
 </script>
