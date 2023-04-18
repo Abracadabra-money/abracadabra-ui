@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import farmPools from "@/utils/farmPools/pools";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 import { mapGetters, mapMutations } from "vuex";
@@ -66,7 +67,7 @@ export default {
         );
         this.setLoadingPoolsFarm(false);
 
-        this.$store.commit("setFarmPools", pools);
+        this.$store.commit("setFarmPools", markRaw(pools));
       } catch (e) {
         console.log("createFarmPools err", e);
         this.setLoadingPoolsFarm(false);

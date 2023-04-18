@@ -15,18 +15,18 @@
           <div class="header-balance">
             <h4>Collateral assets</h4>
             <p v-if="selectedPool">
-              {{ maxCollateralValue | formatTokenBalance }}
+              {{ formatTokenBalance(maxCollateralValue) }}
             </p>
           </div>
 
           <BaseTokenInput
             :icon="mainValueTokenName"
             :name="mainTokenFinalText"
-            v-model="collateralValue"
+            :value="collateralValue"
             :max="maxCollateralValue"
             :error="collateralError"
             :disabled="!selectedPool"
-            @input="updateCollateralValue"
+            @updateValue="updateCollateralValue"
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
           />
@@ -84,11 +84,11 @@
           <BaseTokenInput
             :name="borrowToken.name"
             :icon="borrowToken.icon"
-            v-model="borrowValue"
+            :value="borrowValue"
             :max="maxBorrowValue"
             :error="borrowError"
             :disabled="!selectedPool"
-            @input="updateBorrowValue"
+            @updateValue="updateBorrowValue"
           />
         </div>
         <template v-if="selectedPool">
@@ -178,7 +178,10 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap v-model="isOpenPollPopup">
+    <LocalPopupWrap
+      :isOpened="isOpenPollPopup"
+      @closePopup="isOpenPollPopup = false"
+    >
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
@@ -189,21 +192,20 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const PercentageButtons = () => import("@/components/borrow/PercentageButtons");
-const BalanceBlock = () => import("@/components/borrow/BalanceBlock");
-const BaseButton = () => import("@/components/base/BaseButton");
-const InfoBlock = () => import("@/components/borrow/InfoBlock");
-const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const CollateralApyBlock = () =>
-  import("@/components/borrow/CollateralApyBlock");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BorrowPoolStand from "@/components/borrow/BorrowPoolStand.vue";
+import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
+import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import InfoBlock from "@/components/borrow/InfoBlock.vue";
+import LeftBorrow from "@/components/borrow/LeftBorrow.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 
-import Vue from "vue";
+import filters from "@/filters/index.js";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
@@ -229,7 +231,7 @@ export default {
       useDefaultBalance: false,
       updateInterval: null,
       emptyData: {
-        img: require(`@/assets/images/empty_borrow.png`),
+        img: this.$image(`assets/images/empty_borrow.png`),
         text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
@@ -279,7 +281,7 @@ export default {
 
       return {
         name: "MIM",
-        icon: require("@/assets/images/tokens/MIM.png"),
+        icon: this.$image("assets/images/tokens/MIM.png"),
       };
     },
 
@@ -487,10 +489,14 @@ export default {
     mainValueTokenName() {
       if (this.selectedPool) {
         if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return require(`@/assets/images/tokens/${this.networkValuteName}2.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}2.png`
+          );
 
         if (this.networkValuteName && this.useDefaultBalance)
-          return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}.png`
+          );
 
         if (!this.useCheckBox && this.isCheckBox)
           return this.selectedPool.lpLogic.icon;
@@ -545,7 +551,7 @@ export default {
 
         if (this.selectedPool.name === "SHIB") decimals = 6;
 
-        return Vue.filter("formatToFixed")(tokenToMim, decimals);
+        return filters.formatToFixed(tokenToMim, decimals);
       }
       return "0.0";
     },
@@ -586,6 +592,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     updateCollateralValue(value) {
       this.collateralValue = value;
     },
@@ -758,7 +767,7 @@ export default {
       }
 
       const parsedBorrow = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
+        filters.formatToFixed(
           this.borrowValue,
           this.selectedPool.borrowToken.decimals
         ),
@@ -896,7 +905,7 @@ export default {
       }
 
       const parsedBorrowValue = this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(
+        filters.formatToFixed(
           this.borrowValue,
           this.selectedPool.borrowToken.decimals
         ),
@@ -986,7 +995,7 @@ export default {
     }, 15000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 

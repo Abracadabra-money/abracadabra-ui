@@ -3,7 +3,7 @@
     <div class="input-block">
       <h4>Choose Chain</h4>
       <div class="underline">
-        <NetworksList :active-list="[42161]" />
+        <NetworksList :active-list="acceptChain" />
       </div>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -13,13 +13,13 @@
         <div class="token-input">
           <div class="header-balance">
             <h4>{{ action }}</h4>
-            <p>Balance: {{ fromToken.balance | formatTokenBalance }}</p>
+            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
           </div>
           <BaseTokenInput
             :icon="fromToken.icon"
             :name="fromToken.name"
             :value="amount"
-            @input="updateMainValue"
+            @updateValue="updateMainValue"
             :max="fromToken.balance"
             :error="amountError"
           />
@@ -54,17 +54,15 @@
           </BaseButton>
         </div>
         <p class="profile-subscribtion">
-          Amplify your yield with the Abracadabra Leverage Engine
-          <router-link
-            class="link"
-            :to="{ name: 'Leverage', params: { id: 3 } }"
+          {{ leverageText }}
+          <router-link class="link" v-if="leverageLink" :to="leverageLink"
             >here.</router-link
           >
         </p>
       </div>
     </div>
 
-    <div class="profile">
+    <div class="profile" :style="`background-image: url(${stakeBg})`">
       <h1 class="title">magicGLP</h1>
       <div class="loader-wrap" v-if="isLoading">
         <BaseLoader />
@@ -145,7 +143,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/GLP.png')"
+                  :icon="$image('assets/images/tokens/GLP.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">GLP</span>
@@ -153,17 +151,17 @@
               <div>
                 <p class="token-title">GLP</p>
                 <p class="token-balance">
-                  {{ stakeToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(stakeToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ stakeToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(stakeToken.balanceUsd) }}
                 </p>
               </div>
             </div>
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="$image('assets/images/tokens/mGlpToken.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">magicGLP</span>
@@ -171,10 +169,10 @@
               <div>
                 <p class="token-title">magicGLP</p>
                 <p class="token-balance">
-                  {{ mainToken.balance | formatTokenBalance }}
+                  {{ formatTokenBalance(mainToken.balance) }}
                 </p>
                 <p class="token-price">
-                  {{ mainToken.balanceUsd | formatUSD }}
+                  {{ formatUSD(mainToken.balanceUsd) }}
                 </p>
               </div>
             </div>
@@ -187,17 +185,17 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/mGlpToken.png')"
+                  :icon="$image('assets/images/tokens/mGlpToken.png')"
                   size="40px"
                 />
                 <span>magicGLP</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  mainToken.totalSupply | localAmountFilter
+                  Number(mainToken.totalSupply).toLocaleString()
                 }}</span>
                 <span class="info-usd">{{
-                  mainToken.totalSupplyUsd | formatUSD
+                  formatUSD(mainToken.totalSupplyUsd)
                 }}</span>
               </div>
             </div>
@@ -207,17 +205,14 @@
             <h5 class="info-title">Total Rewards Earned</h5>
             <div class="info-item">
               <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="require('@/assets/images/tokens/ETH2.png')"
-                  size="40px"
-                />
-                <span>ETH</span>
+                <BaseTokenIcon :icon="rewardsTokenIcon" size="40px" />
+                <span>{{ rewardsTokenSymbol }}</span>
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  totalRewardsEarned | localAmountFilter
+                  Number(totalRewardsEarned).toLocaleString()
                 }}</span>
-                <span class="info-usd">{{ totalRewardsUsd | formatUSD }}</span>
+                <span class="info-usd">{{ formatUSD(totalRewardsUsd) }}</span>
               </div>
             </div>
           </div>
@@ -255,23 +250,27 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import axios from "axios";
 import moment from "moment";
 import { mapGetters } from "vuex";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
-const EmptyBlock = () => import("@/components/stake/EmptyBlock");
-const TickChart = () => import("@/components/ui/charts/TickChart");
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import EmptyBlock from "@/components/stake/EmptyBlock.vue";
+import TickChart from "@/components/ui/charts/TickChart.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { approveToken } from "@/utils/approveHelpers";
-import { getGlpChartApr } from "@/helpers/glpAprChart";
 import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { getMagicGlpTotalRewards } from "@/helpers/subgraph/magicGlp/getMagicGlpTotalRewards";
+import { getMagicGlpChartData } from "@/helpers/subgraph/magicGlp/getMagicGlpChartData";
+import { getGlpApyAvaxChain } from "@/helpers/collateralsApy/getGlpApyAvaxChain";
+import arbitrumBg from "@/assets/images/glp/arbitrum-bg.png";
+import avaxBg from "@/assets/images/glp/avax-bg.png";
 
 export default {
   mixins: [mGlpTokenMixin],
@@ -287,6 +286,7 @@ export default {
       apy: "",
       gasLimitConst: 1000,
       totalRewards: null,
+      acceptChain: [42161, 43114],
     };
   },
 
@@ -296,6 +296,7 @@ export default {
       account: "getAccount",
       tokensInfo: "getMGlpObject",
       itsMetamask: "getMetamaskActive",
+      chainId: "getChainId",
     }),
 
     stakeToken() {
@@ -328,7 +329,7 @@ export default {
 
     tokensRate() {
       const amount = 1 * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 4);
+      return filters.formatToFixed(amount, 4);
     },
 
     toTokenAmount() {
@@ -336,11 +337,11 @@ export default {
 
       if (this.action === "Stake") {
         const amount = this.amount / this.tokensInfo.tokensRate;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
 
       const amount = this.amount * this.tokensInfo.tokensRate;
-      return Vue.filter("formatToFixed")(amount, 6);
+      return filters.formatToFixed(amount, 6);
     },
 
     disableActionBtn() {
@@ -349,17 +350,42 @@ export default {
     },
 
     totalRewardsEarned() {
-      return this.totalRewards
-        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-        : 0;
+      return this.totalRewards ? this.totalRewards : 0;
     },
 
     totalRewardsUsd() {
       return this.totalRewards
         ? parseFloat(
-            +this.totalRewardsEarned * +this.tokensInfo.ethPrice
+            +this.totalRewardsEarned * +this.tokensInfo.rewardsTokenPrice
           ).toFixed(2)
         : 0;
+    },
+
+    rewardsTokenSymbol() {
+      return this.chainId === 43114 ? "AVAX" : "ETH";
+    },
+
+    rewardsTokenIcon() {
+      return this.chainId === 43114
+        ? this.$image("assets/images/tokens/AVAX.png")
+        : this.$image("assets/images/tokens/ETH2.png");
+    },
+
+    stakeBg() {
+      return +this.chainId === 42161 ? arbitrumBg : avaxBg;
+    },
+
+    leverageText() {
+      if (+this.chainId === 42161)
+        return " Amplify your yield with the Abracadabra Leverage Engine";
+      else
+        return " Abracadabra Leverage Engine is being developed, stay tuned!";
+    },
+
+    leverageLink() {
+      if (+this.chainId === 42161)
+        return { name: "Leverage", params: { id: 3 } };
+      return false;
     },
   },
 
@@ -367,9 +393,18 @@ export default {
     async account(value) {
       if (value) await this.createStakePool();
     },
+    async chainId() {
+      if (this.chainId === 42161) await this.crateStakeData();
+    },
   },
 
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     updateValue(amount) {
       this.amount = amount ? amount : "";
       this.amountError = "";
@@ -515,10 +550,15 @@ export default {
       }
     },
 
-    async createChartData(time = 3) {
+    async createChartData() {
       const labels = [];
       const tickUpper = [];
-      const data = await getGlpChartApr(time);
+
+      const data = await getMagicGlpChartData(
+        this.chainId,
+        this.chartActiveBtn
+      );
+
       data.forEach((element) => {
         labels.push(moment.unix(element.timestamp).format("DD.MM"));
         tickUpper.push(element.glpApy * (1 - this.tokensInfo.feePercent));
@@ -529,21 +569,17 @@ export default {
 
     async changeChartTime(time) {
       this.chartActiveBtn = time;
-      await this.createChartData(time);
+      await this.createChartData();
     },
 
-    async getTotalRewards() {
-      try {
-        const response = await axios.get(
-          "https://analytics.abracadabra.money/api/mglp"
-        );
-
-        this.totalRewards = response.data;
-      } catch (error) {
-        console.log("Get Total Rewards Error", error);
-      }
+    async getEstApy() {
+      let apy = 0;
+      if (this.chainId === 42161) apy = await getGlpApy(true);
+      if (this.chainId === 43114) apy = await getGlpApyAvaxChain(true);
+      return parseFloat(apy).toFixed(2);
     },
   },
+
   filters: {
     localAmountFilter(val) {
       return Number(val).toLocaleString();
@@ -553,25 +589,23 @@ export default {
   async created() {
     await this.createStakePool();
 
-    if (this.chainId !== 42161) return false;
-    await this.getTotalRewards();
+    if (!this.acceptChain.includes(this.chainId)) return false;
+    this.totalRewards = await getMagicGlpTotalRewards(this.chainId);
+
     this.updateInterval = setInterval(async () => {
       await this.createStakePool();
     }, 15000);
 
-    await this.createChartData(this.chartActiveBtn);
-
-    const apy = await getGlpApy(true);
-    this.apy = parseFloat(apy).toFixed(2);
+    await this.createChartData();
+    this.apy = await this.getEstApy();
 
     this.chartInterval = setInterval(async () => {
-      await this.createChartData(this.chartActiveBtn);
-      const apy = await getGlpApy(true);
-      this.apy = parseFloat(apy).toFixed(2);
+      await this.createChartData();
+      this.apy = await this.getEstApy();
     }, 60000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
   components: {
@@ -645,6 +679,8 @@ export default {
   border-radius: 30px;
   background-color: $clrBg2;
   text-align: center;
+  background-position: center;
+  background-size: cover;
 }
 
 .title {
@@ -716,7 +752,7 @@ export default {
 
 .chart-apt-text {
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 27px;
   margin-right: 10px;
 }

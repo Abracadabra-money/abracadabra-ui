@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import Vue from "vue";
+import filters from "@/filters/index.js";
 import { swap0xRequest } from "@/helpers/0x";
 
 const usdc = {
@@ -155,7 +155,7 @@ export default {
 
       // TODO: weird expansion
       return this.$ethers.utils.parseUnits(
-        Vue.filter("formatToFixed")(this.amount, this.sellTokenDecimals),
+        filters.formatToFixed(this.amount, this.sellTokenDecimals),
         this.sellTokenDecimals
       );
     },

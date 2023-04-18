@@ -4,7 +4,7 @@
       <div class="header-balance">
         <h4>Collateral assets</h4>
         <p v-if="fromToken.balance">
-          {{ fromToken.balance | formatTokenBalance }}
+          {{ formatTokenBalance(fromToken.balance) }}
         </p>
       </div>
 
@@ -13,7 +13,7 @@
         :name="fromToken.name"
         :value="amount"
         :max="fromToken.balance || 0"
-        @input="updateMainValue"
+        @updateValue="updateMainValue"
         :error="amountError"
       />
     </div>
@@ -31,7 +31,7 @@
       <div class="header-balance">
         <h4>Collateral assets</h4>
         <p v-if="toToken.balance">
-          {{ toToken.balance | formatTokenBalance }}
+          {{ formatTokenBalance(toToken.balance) }}
         </p>
       </div>
 
@@ -50,9 +50,9 @@
 </template>
 
 <script>
-import Vue from "vue";
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const BaseButton = () => import("@/components/base/BaseButton");
+import filters from "@/filters/index.js";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
 
 import olimpusWrap from "@/mixins/getCollateralLogic/olimpusWrap";
 import { approveToken } from "@/utils/approveHelpers.js";
@@ -95,11 +95,11 @@ export default {
 
       if (this.action === "Wrap") {
         const amount = this.amount * this.tokensInfo.stakeToMain;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       if (this.action === "Unwrap") {
         const amount = this.amount * this.tokensInfo.mainToStake;
-        return Vue.filter("formatToFixed")(amount, 6);
+        return filters.formatToFixed(amount, 6);
       }
       return "";
     },
@@ -131,6 +131,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     toggleAction() {
       this.amount = "";
       this.amountError = "";
@@ -297,7 +300,7 @@ export default {
     }, 10000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 

@@ -19,24 +19,14 @@
 export default {
   name: "LocalPopupWrap",
   props: {
-    value: {
+    isOpened: {
       type: Boolean,
       default: false,
     },
   },
   methods: {
     closePopup() {
-      this.isOpened = false;
-    },
-  },
-  computed: {
-    isOpened: {
-      get() {
-        return this.value;
-      },
-      set(value) {
-        this.$emit("input", value);
-      },
+      this.$emit("closePopup");
     },
   },
   watch: {

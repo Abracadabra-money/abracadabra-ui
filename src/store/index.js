@@ -1,5 +1,4 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from 'vuex'
 
 import connectProvider from "@/store/modules/connectProvider";
 import networks from "@/store/modules/networks";
@@ -10,9 +9,7 @@ import stake from "@/store/modules/stake";
 import borrowPools from "@/store/modules/borrowPools";
 import farms from "@/store/modules/farms";
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+export default createStore({
   state: {
     routeData: []
   },

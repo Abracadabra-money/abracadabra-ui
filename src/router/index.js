@@ -1,122 +1,118 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-
-Vue.use(VueRouter);
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import("@/views/Home"),
+    component: () => import("@/views/Home.vue"),
   },
   {
     path: "/borrow",
     name: "Borrow",
-    component: () => import("@/views/borrow/Borrow"),
+    component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
     path: "/borrow/:id",
     name: "BorrowId",
-    component: () => import("@/views/borrow/Borrow"),
+    component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
     path: "/repay",
     name: "Repay",
-    component: () => import("@/views/borrow/Repay"),
+    component: () => import("@/views/borrow/Repay.vue"),
   },
   {
     path: "/repay/:id",
     name: "RepayId",
-    component: () => import("@/views/borrow/Repay"),
+    component: () => import("@/views/borrow/Repay.vue"),
   },
   {
     path: "/sSPELL",
     name: "Stake",
-    component: () => import("@/views/stake/SSpell"),
+    component: () => import("@/views/stake/SSpell.vue"),
   },
   {
     path: "/mSPELL",
     name: "mStake",
-    component: () => import("@/views/stake/MSpell"),
+    component: () => import("@/views/stake/MSpell.vue"),
   },
   {
     path: "/magicGLP",
     name: "magicGLP",
-    component: () => import("@/views/stake/MGLP"),
+    component: () => import("@/views/stake/MGLP.vue"),
   },
   {
     path: "/magicAPE",
     name: "magicAPE",
-    component: () => import("@/views/stake/MAPE"),
+    component: () => import("@/views/stake/MAPE.vue"),
   },
   {
     path: "/leverage",
     name: "Leverage",
-    component: () => import("@/views/borrow/Leverage"),
+    component: () => import("@/views/borrow/Leverage.vue"),
   },
   {
     path: "/leverage/:id",
     name: "LeverageId",
-    component: () => import("@/views/borrow/Leverage"),
+    component: () => import("@/views/borrow/Leverage.vue"),
   },
   {
     path: "/deleverage",
     name: "Deleverage",
-    component: () => import("@/views/borrow/Deleverage"),
+    component: () => import("@/views/borrow/Deleverage.vue"),
   },
   {
     path: "/deleverage/:id",
     name: "DeleverageId",
-    component: () => import("@/views/borrow/Deleverage"),
+    component: () => import("@/views/borrow/Deleverage.vue"),
   },
   {
     path: "/bridge",
     name: "Bridge",
-    component: () => import("@/views/Bridge"),
+    component: () => import("@/views/Bridge.vue"),
   },
   {
     path: "/farm",
     name: "MarketsFarm",
-    component: () => import("@/views/markets/Farms"),
+    component: () => import("@/views/markets/Farms.vue"),
   },
   {
     path: "/farm/:id",
     name: "FarmPool",
-    component: () => import("@/views/Farm"),
+    component: () => import("@/views/Farm.vue"),
     props: true,
   },
   {
     path: "/my-positions",
     name: "MyPositions",
-    component: () => import("@/views/MyPositions"),
+    component: () => import("@/views/MyPositions.vue"),
   },
   {
     path: "/cauldrons",
     name: "Cauldrons",
-    component: () => import("@/views/markets/Cauldrons"),
+    component: () => import("@/views/markets/Cauldrons.vue"),
   },
   {
     path: "/markets",
     name: "Markets",
-    component: () => import("@/views/markets/Cauldrons"),
+    component: () => import("@/views/markets/Cauldrons.vue"),
   },
   {
     path: "/claim",
     name: "Claim",
-    component: () => import("@/views/Claim"),
+    component: () => import("@/views/Claim.vue"),
   },
   {
-    path: "*",
+    path: "/:catchAll(.*)",
     redirect: "/",
   },
 ];
 
-const router = new VueRouter({
-  mode: "hash",
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHashHistory(),
   routes,
   scrollBehavior() {
-    return { x: 0, y: 0 };
+    return { top: 0 }
   },
 });
 
