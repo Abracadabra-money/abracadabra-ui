@@ -11,17 +11,17 @@
           <div class="header-balance">
             <h4>Collateral assets</h4>
             <p v-if="selectedPool">
-              {{ maxCollateralValue | formatTokenBalance }}
+              {{ formatTokenBalance(maxCollateralValue) }}
             </p>
           </div>
           <BaseTokenInput
             :icon="mainValueTokenName"
             :name="mainTokenFinalText"
-            v-model="collateralValue"
+            :value="collateralValue"
             :max="maxCollateralValue"
+            @updateValue="updateCollateralValue"
             :error="collateralError"
             :disabled="!selectedPool"
-            @input="updateCollateralValue"
             @openTokensList="isOpenPollPopup = true"
             isChooseToken
           />
@@ -75,7 +75,7 @@
             </button>
           </div>
           <Range
-            v-model="multiplier"
+            :value="multiplier"
             :max="maxLeverage"
             :min="1"
             :step="0.01"
@@ -83,6 +83,7 @@
             :collateralValue="collateralValue"
             :disabled="!collateralValue"
             tooltipText="Allows users to leverage their position. Read more about this in the documents!"
+            @updateValue="updateMultiplier"
           />
           <div class="leverage-percent">( {{ multiplier }}x)</div>
 
@@ -101,7 +102,11 @@
             </span>
           </div>
 
-          <MimEstimatePrice v-if="selectedPool" :mim="selectedPool.borrowToken.address" :amount="multiplyMimExpected"/>
+          <MimEstimatePrice
+            v-if="selectedPool"
+            :mim="selectedPool.borrowToken.address"
+            :amount="multiplyMimExpected"
+          />
         </div>
 
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
@@ -174,10 +179,16 @@
 
     <BaseLoader v-else />
 
-    <LocalPopupWrap v-model="isSettingsOpened">
+    <LocalPopupWrap
+      :isOpened="isSettingsOpened"
+      @closePopup="isSettingsOpened = false"
+    >
       <SettingsPopup :slipage="slipage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
-    <LocalPopupWrap v-model="isOpenPollPopup">
+    <LocalPopupWrap
+      :isOpened="isOpenPollPopup"
+      @closePopup="isOpenPollPopup = false"
+    >
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
@@ -189,23 +200,22 @@
 </template>
 
 <script>
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BaseTokenInput = () => import("@/components/base/BaseTokenInput");
-const Range = () => import("@/components/ui/Range");
-const BorrowPoolStand = () => import("@/components/borrow/BorrowPoolStand");
-const BaseButton = () => import("@/components/base/BaseButton");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const InfoBlock = () => import("@/components/borrow/InfoBlock");
-const LeftBorrow = () => import("@/components/borrow/LeftBorrow");
-const ExecutionPrice = () => import("@/components/borrow/ExecutionPrice");
-const LocalPopupWrap = () => import("@/components/popups/LocalPopupWrap");
-const SettingsPopup = () => import("@/components/leverage/SettingsPopup");
-const MarketsListPopup = () => import("@/components/popups/MarketsListPopup");
-const CollateralApyBlock = () =>
-  import("@/components/borrow/CollateralApyBlock");
-const MimEstimatePrice = () => import("@/components/ui/MimEstimatePrice");
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import Range from "@/components/ui/Range.vue";
+import BorrowPoolStand from "@/components/borrow/BorrowPoolStand.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import InfoBlock from "@/components/borrow/InfoBlock.vue";
+import LeftBorrow from "@/components/borrow/LeftBorrow.vue";
+import ExecutionPrice from "@/components/borrow/ExecutionPrice.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import SettingsPopup from "@/components/leverage/SettingsPopup.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
+import MimEstimatePrice from "@/components/ui/MimEstimatePrice.vue";
 
-import Vue from "vue";
+import filters from "@/filters/index.js";
 
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
@@ -236,7 +246,7 @@ export default {
       useDefaultBalance: false,
       updateInterval: null,
       emptyData: {
-        img: require(`@/assets/images/empty_leverage.png`),
+        img: this.$image(`assets/images/empty_leverage.png`),
         text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
         bottom: "Read more about it",
         link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
@@ -564,10 +574,14 @@ export default {
     mainValueTokenName() {
       if (this.selectedPool) {
         if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return require(`@/assets/images/tokens/${this.networkValuteName}2.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}2.png`
+          );
 
         if (this.networkValuteName && this.useDefaultBalance)
-          return require(`@/assets/images/tokens/${this.networkValuteName}.png`);
+          return this.$image(
+            `assets/images/tokens/${this.networkValuteName}.png`
+          );
 
         if (!this.useCheckBox && this.isCheckBox)
           return this.selectedPool.lpLogic.icon;
@@ -618,7 +632,7 @@ export default {
 
         if (this.selectedPool.name === "SHIB") decimals = 6;
 
-        return Vue.filter("formatToFixed")(tokenToMim, decimals);
+        return filters.formatToFixed(tokenToMim, decimals);
       }
       return "0.0";
     },
@@ -638,7 +652,7 @@ export default {
     sellAmount() {
       if (!this.collateralValue) return 0;
 
-      const amount = Vue.filter("formatToFixed")(
+      const amount = filters.formatToFixed(
         this.mimAmount,
         this.selectedPool.borrowToken.decimals
       );
@@ -658,7 +672,7 @@ export default {
 
       const mimAmount = this.$ethers.utils
         .parseUnits(
-          Vue.filter("formatToFixed")(
+          filters.formatToFixed(
             finalAmount,
             this.selectedPool.borrowToken.decimals
           ),
@@ -726,6 +740,9 @@ export default {
   },
 
   methods: {
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     async alternativeLeverageHandler(multiplyer, slippage) {
       try {
         const collateralAmount = this.$ethers.utils.parseUnits(
@@ -787,6 +804,10 @@ export default {
         this.mimAmount =
           (this.maxBorrowValue * this.percentValue) / this.selectedPool.ltv;
       }
+    },
+
+    updateMultiplier(value) {
+      this.multiplier = value;
     },
 
     async approveTokenHandler() {
@@ -1180,7 +1201,7 @@ export default {
 
       const result = Math.min(multiplier, 100);
 
-      return +parseFloat(result).toFixed(2)
+      return +parseFloat(result).toFixed(2);
     },
   },
 
@@ -1199,7 +1220,7 @@ export default {
     }, 15000);
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 
@@ -1217,7 +1238,7 @@ export default {
     SettingsPopup,
     MarketsListPopup,
     CollateralApyBlock,
-    MimEstimatePrice
+    MimEstimatePrice,
   },
 };
 </script>

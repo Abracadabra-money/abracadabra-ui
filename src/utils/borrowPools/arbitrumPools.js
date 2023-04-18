@@ -6,10 +6,11 @@ import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper"
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
 import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {
-    icon: require(`@/assets/images/tokens/WETH.png`),
+    icon: useImage(`assets/images/tokens/WETH.png`),
     name: "WETH",
     contractChain: 42161,
     id: 1,
@@ -44,7 +45,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
       abi: tokensAbi.MIM,
@@ -59,7 +60,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/GLP.png`),
+    icon: useImage(`assets/images/tokens/GLP.png`),
     name: "GLP",
     contractChain: 42161,
     id: 2,
@@ -103,14 +104,14 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
       abi: tokensAbi.MIM,
     },
   },
   {
-    icon: require(`@/assets/images/tokens/mGlpToken.png`),
+    icon: useImage(`assets/images/tokens/mGlpToken.png`),
     name: "MagicGLP",
     contractChain: 42161,
     id: 3,
@@ -148,7 +149,7 @@ export default [
     },
     lpLogic: {
       name: "GLP",
-      icon: require(`@/assets/images/tokens/GLP.png`),
+      icon: useImage(`assets/images/tokens/GLP.png`),
       defaultToken: false,
       lpAddress: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       lpAbi: tokensAbi.sGLP,
@@ -157,7 +158,7 @@ export default [
     },
     pairToken: {
       name: "MIM",
-      icon: require(`@/assets/images/tokens/MIM.png`),
+      icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
       abi: tokensAbi.MIM,

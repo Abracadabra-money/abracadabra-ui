@@ -17,7 +17,7 @@
           <p class="values-list-title">{{ item.title }}</p>
           <p class="values-list-value">{{ item.value }}</p>
         </router-link>
-        <div v-else :key="i" class="values-list-item">
+        <div v-else :key="`${i}-ff`" class="values-list-item">
           <p class="values-list-title">{{ item.title }}</p>
           <p class="values-list-value">{{ item.value }}</p>
         </div>
@@ -65,12 +65,12 @@
 </template>
 
 <script>
-import Vue from "vue";
-const NetworksList = () => import("@/components/ui/NetworksList");
-const BalanceBoxes = () => import("@/components/myPositions/BalanceBoxes");
-const SpecPos = () => import("@/components/myPositions/SpecPos");
-const BaseLoader = () => import("@/components/base/BaseLoader");
-const EmptyPosList = () => import("@/components/myPositions/EmptyPosList");
+import filters from "@/filters/index.js";
+import NetworksList from "@/components/ui/NetworksList.vue";
+import BalanceBoxes from "@/components/myPositions/BalanceBoxes.vue";
+import SpecPos from "@/components/myPositions/SpecPos.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import EmptyPosList from "@/components/myPositions/EmptyPosList.vue";
 
 import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
@@ -79,12 +79,14 @@ import { mapGetters } from "vuex";
 
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
-  data: () => ({
-    activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-    mimBentoInterval: null,
-    farmPoolsTimer: null,
-    borrowPoolsTimer: null,
-  }),
+  data() {
+    return {
+      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
+      mimBentoInterval: null,
+      farmPoolsTimer: null,
+      borrowPoolsTimer: null,
+    };
+  },
   computed: {
     ...mapGetters({
       borrowPools: "getPools",
@@ -93,7 +95,7 @@ export default {
       account: "getAccount",
     }),
     balanceItems() {
-      const spellFarmer = Vue.filter("formatTokenBalance")(
+      const spellFarmer = filters.formatTokenBalance(
         this.userFarmPools.reduce((calc, pool) => {
           return (
             calc + +this.$ethers.utils.formatEther(pool.accountInfo.userReward)
@@ -104,7 +106,7 @@ export default {
       return [
         {
           title: "Collateral Deposit",
-          value: Vue.filter("formatUSD")(
+          value: filters.formatUSD(
             this.userBorrowPools.reduce((calc, pool) => {
               return (
                 calc +
@@ -118,7 +120,7 @@ export default {
         },
         {
           title: "MIM Borrowed",
-          value: Vue.filter("formatTokenBalance")(
+          value: filters.formatTokenBalance(
             this.userBorrowPools.reduce((calc, pool) => {
               return calc + parseFloat(pool.userInfo.userBorrowPart);
             }, 0)
@@ -180,7 +182,7 @@ export default {
       await this.createMimBentoInfo();
     }, 5000);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.farmPoolsTimer);
     clearInterval(this.mimBentoInterval);
     clearInterval(this.borrowPoolsTimer);

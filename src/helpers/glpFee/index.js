@@ -1,7 +1,7 @@
-const getBuyGlpFromAmount = require("./helpers/get-buy-glp-from-amount");
-const getSellGlpToAmount = require("./helpers/get-sell-glp-to-amount");
+import getBuyGlpFromAmount from "./helpers/get-buy-glp-from-amount";
+import getSellGlpToAmount from "./helpers/get-sell-glp-to-amount";
 
-const {
+import {
   tokens,
   GLP_DECIMALS,
   ARB_URL,
@@ -9,16 +9,16 @@ const {
   BASIS_POINTS_DIVISOR,
   MAX_PRICE_DEVIATION_BASIS_POINTS,
   DEFAULT_MAX_USDG_AMOUNT
-} = require("./constants");
-const { providers, Contract, Wallet, BigNumber } = require("ethers");
-const bigNumberify = require("./utils/big-numberify");
-const expandDecimals = require("./utils/expand-decimals");
-const { default: axios } = require("axios");
+} from "./constants";
+import { providers, Contract, Wallet, BigNumber } from "ethers";
+import bigNumberify from "./utils/big-numberify";
+import expandDecimals from "./utils/expand-decimals";
+import axios from "axios";
 
-const { abi: GlpManagerAbi } = require("./abis/glpManager.json");
-const { abi: ReaderAbi } = require("./abis/Reader.json");
-const { abi: VaultAbi } = require("./abis/Vault.json");
-const { abi: VaultReaderAbi } = require("./abis/VaultReader.json");
+import { abi as GlpManagerAbi } from "./abis/glpManager.json";
+import { abi as ReaderAbi } from "./abis/Reader.json";
+import { abi as VaultAbi } from "./abis/Vault.json";
+import { abi as VaultReaderAbi } from "./abis/VaultReader.json";
 
 const provider = new providers.StaticJsonRpcProvider(ARB_URL);
 

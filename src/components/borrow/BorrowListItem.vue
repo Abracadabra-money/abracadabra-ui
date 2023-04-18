@@ -16,16 +16,16 @@
         </div>
       </div>
       <div class="pool-balance" v-if="isMagicPool">
-        <p>{{ userBalance | formatTokenBalance }} {{ pool.name }}</p>
-        <p>{{ userLpBalance | formatTokenBalance }} {{ pool.lpLogic.name }}</p>
+        <p>{{ formatTokenBalance(userBalance) }} {{ pool.name }}</p>
+        <p>{{ formatTokenBalance(userLpBalance) }} {{ pool.lpLogic.name }}</p>
         <p v-if="+userTotalBalance" class="price">
-          Total amount: {{ userTotalBalance | formatUSD }}
+          Total amount: {{  formatUSD(userTotalBalance) }}
         </p>
       </div>
       <div class="pool-balance" v-else>
-        <p>{{ userBalance | formatTokenBalance }}</p>
+        <p>{{ formatTokenBalance(userBalance) }}</p>
         <p v-if="+userBalance" class="price">
-          {{ userBalanceUsd | formatUSD }}
+          {{  formatUSD(userBalanceUsd) }}
         </p>
       </div>
     </button>
@@ -34,9 +34,8 @@
 
 <script>
 import { mapGetters } from "vuex";
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusBar = () => import("@/components/ui/StatusBar");
-const MiniStatusTag = () => import("@/components/ui/MiniStatusTag");
+import { defineAsyncComponent } from "vue";
+import filters from "@/filters/index.js";
 
 export default {
   props: {
@@ -105,11 +104,21 @@ export default {
   },
 
   methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
     enterPool(pool) {
       this.$emit("enterPool", pool);
     },
   },
-  components: { BaseTokenIcon, StatusBar, MiniStatusTag },
+  components: {
+    BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")),
+    StatusBar: defineAsyncComponent(() => import("@/components/ui/StatusBar.vue")),
+    MiniStatusTag: defineAsyncComponent(() => import("@/components/ui/MiniStatusTag.vue")),
+  },
 };
 </script>
 

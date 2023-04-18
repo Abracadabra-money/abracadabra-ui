@@ -1,20 +1,19 @@
-const {
+import {
   GLP_DECIMALS,
   SECONDS_PER_YEAR,
   BASIS_POINTS_DIVISOR,
-} = require("./constants");
-const {
+} from "./constants";
+import {
   getGmxPrice,
   getNativeTokenPrice,
   getAum,
   getStakingData,
   getBalanceAndSupplyData,
-  bigNumberify,
   getFeePercent,
-  getMagicFeePercent
-} = require("./helpers");
+  getMagicFeePercent,
+} from "./helpers";
 
-const { expandDecimals, formatAmount } = require("./utils");
+import { expandDecimals, formatAmount, bigNumberify } from "./utils";
 
 const getGlpApy = async (itsMagic = false) => {
   const stakingData = await getStakingData();
@@ -60,10 +59,10 @@ const getGlpApy = async (itsMagic = false) => {
   const glpAprTotal = glpAprForNativeToken.add(glpAprForEsGmx);
   const parseAmount = formatAmount(glpAprTotal, 2, 2, true);
 
-  if(itsMagic) {
-    const fee = await getMagicFeePercent() / 10000;
-    return ((Math.pow((1 + ((parseAmount/100) / 730)), 730) -1) * 100) * (1 - fee);
-  } 
+  if (itsMagic) {
+    const fee = (await getMagicFeePercent()) / 10000;
+    return (Math.pow(1 + parseAmount / 100 / 730, 730) - 1) * 100 * (1 - fee);
+  }
 
   const feePercent = await getFeePercent();
 

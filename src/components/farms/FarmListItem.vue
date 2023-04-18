@@ -8,20 +8,23 @@
       </div>
       <div v-if="balance !== null" class="token-value">
         <p>
-          {{ balance | formatTokenBalance }}
+          {{ formatTokenBalance(balance) }}
         </p>
-        <p v-if="+balance !== 0">{{ balanceInUSD | formatUSD }}</p>
+        <p v-if="+balance !== 0">{{ formatUSD(balanceInUSD) }}</p>
       </div>
     </div>
   </button>
 </template>
 
 <script>
-const BaseTokenIcon = () => import("@/components/base/BaseTokenIcon");
-const StatusBar = () => import("@/components/ui/StatusBar");
+import { defineAsyncComponent } from "vue";
+import filters from "@/filters/index.js";
 export default {
   name: "TokenPopupItem",
-  components: { BaseTokenIcon, StatusBar },
+  components: { 
+    BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")), 
+    StatusBar: defineAsyncComponent(() => import("@/components/ui/StatusBar.vue")) 
+  },
   props: {
     farmItem: {
       type: Object,
@@ -49,6 +52,14 @@ export default {
       return Number(this.balance) * Number(this.price);
     },
   },
+  methods: {
+    formatUSD(value) {
+      return filters.formatUSD(value);
+    },
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+  }
 };
 </script>
 

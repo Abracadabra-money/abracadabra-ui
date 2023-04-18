@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import depositConf from "@/utils/collateralConfig/cvxRen/depositConfig";
 import { mapGetters } from "vuex";
 
@@ -70,7 +71,7 @@ export default {
         },
       };
 
-      return stakeObject;
+      return markRaw(stakeObject);
     },
     async isTokenApprowed(tokenContract, userAddr, approveAddr) {
       try {

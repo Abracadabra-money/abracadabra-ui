@@ -1,6 +1,6 @@
-const { BigNumber, providers, Contract } = require("ethers");
+import { BigNumber, providers, Contract } from "ethers";
 const url = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
-const { Percent, CurrencyAmount, Token } = require("@uniswap/sdk");
+import { Percent, CurrencyAmount, Token } from "@uniswap/sdk";
 
 import lpStakingAbi from "@/utils/abi/StargateLPStaking";
 import poolAbi from "@/utils/abi/StargatePool";

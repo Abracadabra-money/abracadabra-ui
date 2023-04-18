@@ -13,14 +13,16 @@ export default {
     isHigh: { type: Boolean, default: false },
     bordered: { type: Boolean, default: false },
   },
-  data: () => ({
-    colors: {
-      safe: "#63CAF8",
-      medium: "#FFB800",
-      high: "#FE1842",
-      none: "rgba(255, 255, 255, 0.3)",
-    },
-  }),
+  data() {
+    return {
+      colors: {
+        safe: "#63CAF8",
+        medium: "#FFB800",
+        high: "#FE1842",
+        none: "rgba(255, 255, 255, 0.3)",
+      },
+    };
+  },
   computed: {
     backgroundColor() {
       return !this.bordered ? this.gradientColor : "transparent";

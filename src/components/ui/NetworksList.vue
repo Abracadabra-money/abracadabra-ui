@@ -37,7 +37,7 @@
 import { mapGetters } from "vuex";
 
 import chainSwitch from "@/mixins/chainSwitch";
-const NetworkChip = () => import("@/components/ui/NetworkChip");
+import NetworkChip from "@/components/ui/NetworkChip.vue";
 
 export default {
   name: "NetworksList",
@@ -47,12 +47,14 @@ export default {
     items: { type: Number, default: 4 },
     activeList: { type: Array, default: () => [] },
   },
-  data: () => ({
-    isListOpened: false,
-    lineHeight: 50,
-    linesGap: 16,
-    loading: false,
-  }),
+  data() {
+    return {
+      isListOpened: false,
+      lineHeight: 50,
+      linesGap: 16,
+      loading: false,
+    };
+  },
   methods: {
     async changeNetwork(chainId) {
       this.loading = true;

@@ -1,25 +1,16 @@
 <template>
-  <div id="app">
-    <AppHeader />
-    <div class="router-wrap" v-if="checkInProcess">
-      <router-view />
-    </div>
-    <NotificationContainer />
-    <PopupsWrapper />
-    <Banner />
-    <SkullBanner />
+  <AppHeader />
+  <div class="router-wrap" v-if="checkInProcess">
+    <router-view />
   </div>
+  <NotificationContainer />
+  <PopupsWrapper />
+  <Banner />
+  <SkullBanner />
 </template>
-
 <script>
 import { mapGetters } from "vuex";
-
-const NotificationContainer = () =>
-  import("@/components/notifications/NotificationContainer");
-const AppHeader = () => import("@/components/app/AppHeader");
-const PopupsWrapper = () => import("@/components/popups/PopupsWrapper");
-const Banner = () => import("@/components/ui/Banner");
-const SkullBanner = () => import("@/components/ui/SkullBanner");
+import { defineAsyncComponent } from "vue";
 import axios from "axios";
 
 export default {
@@ -60,7 +51,7 @@ export default {
 
   async beforeCreate() {
     const location = await axios.get(
-      `https://ipwhois.pro/?key=${process.env.VUE_APP_IPWHOIS_API_KEY}`
+      `https://ipwhois.pro/?key=${import.meta.env.VITE_APP_IPWHOIS_API_KEY}`
     );
 
     if (
@@ -71,11 +62,11 @@ export default {
   },
 
   components: {
-    AppHeader,
-    NotificationContainer,
-    PopupsWrapper,
-    Banner,
-    SkullBanner,
+    AppHeader: defineAsyncComponent(() => import("@/components/app/AppHeader.vue")),
+    NotificationContainer: defineAsyncComponent(() => import("@/components/notifications/NotificationContainer.vue")),
+    PopupsWrapper: defineAsyncComponent(() => import("@/components/popups/PopupsWrapper.vue")),
+    Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
+    SkullBanner: defineAsyncComponent(() => import("@/components/ui/SkullBanner.vue")),
   },
 };
 </script>

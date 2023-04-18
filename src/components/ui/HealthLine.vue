@@ -18,14 +18,16 @@ export default {
     isHigh: { type: Boolean, default: false },
     percent: { type: [Number, String], default: 0 },
   },
-  data: () => ({
-    colors: {
-      safe: "#63CAF8",
-      medium: "#FFB800",
-      high: "#FE1842",
-      none: "rgba(255, 255, 255, 0.3)",
-    },
-  }),
+  data() {
+    return {
+      colors: {
+        safe: "#63CAF8",
+        medium: "#FFB800",
+        high: "#FE1842",
+        none: "rgba(255, 255, 255, 0.3)",
+      },
+    };
+  },
   computed: {
     gradientColor() {
       const { safe, medium, high, none } = this.colors;

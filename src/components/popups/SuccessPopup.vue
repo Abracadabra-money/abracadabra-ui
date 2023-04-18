@@ -22,7 +22,7 @@
 </template>
 
 <script>
-const BaseButton = () => import("@/components/base/BaseButton");
+import BaseButton from "@/components/base/BaseButton.vue";
 export default {
   methods: {
     closePopup() {

@@ -1,11 +1,13 @@
 <template>
   <div class="left-borrow">
     <span>MIMS LEFT TO BORROW:</span>
-    <span>{{ borrowLeft | formatLargeSum }}</span>
+    <span>{{ formatLargeSum(borrowLeft) }}</span>
   </div>
 </template>
 
 <script>
+import filters from "@/filters/index.js";
+
 export default {
   props: {
     borrowLeft: {
@@ -13,6 +15,11 @@ export default {
       default: 0,
     },
   },
+  methods: {
+    formatLargeSum(value) {
+      return filters.formatLargeSum(value);
+    }
+  }
 };
 </script>
 

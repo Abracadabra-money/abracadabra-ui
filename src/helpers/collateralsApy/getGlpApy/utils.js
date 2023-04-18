@@ -1,6 +1,6 @@
-const { BigNumber, utils } = require("ethers");
+import { BigNumber, utils } from "ethers";
 
-module.exports.bigNumberify = (n) => {
+export const bigNumberify = (n) => {
   try {
     return BigNumber.from(n);
   } catch (e) {
@@ -9,8 +9,8 @@ module.exports.bigNumberify = (n) => {
   }
 };
 
-module.exports.expandDecimals = (n, decimals) => {
-  return this.bigNumberify(n).mul(this.bigNumberify(10).pow(decimals));
+export const expandDecimals = (n, decimals) => {
+  return bigNumberify(n).mul(bigNumberify(10).pow(decimals));
 };
 
 const limitDecimals = (amount, maxDecimals) => {
@@ -34,7 +34,7 @@ const limitDecimals = (amount, maxDecimals) => {
   return amountStr;
 };
 
-module.exports.parseValue = (value, tokenDecimals) => {
+export const parseValue = (value, tokenDecimals) => {
   const pValue = parseFloat(value);
 
   if (isNaN(pValue)) {
@@ -43,7 +43,7 @@ module.exports.parseValue = (value, tokenDecimals) => {
 
   value = limitDecimals(value, tokenDecimals);
   const amount = utils.parseUnits(value, tokenDecimals);
-  return this.bigNumberify(amount);
+  return bigNumberify(amount);
 };
 
 const padDecimals = (amount, minDecimals) => {
@@ -73,7 +73,7 @@ function numberWithCommas(x) {
   return parts.join(".");
 }
 
-module.exports.formatAmount = (
+export const formatAmount = (
   amount,
   tokenDecimals,
   displayDecimals,

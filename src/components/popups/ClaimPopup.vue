@@ -27,7 +27,7 @@
 </template>
 
 <script>
-const BaseButton = () => import("@/components/base/BaseButton");
+import BaseButton from "@/components/base/BaseButton.vue";
 import bg from "@/assets/images/claim/popupBg.png";
 export default {
   data() {

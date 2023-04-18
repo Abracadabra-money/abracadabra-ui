@@ -11,14 +11,14 @@ const chainCoinGeckoIds = {
 };
 
 const apiDomain =
-  process.env.VUE_APP_COINGECKO_API_KEY_2 &&
-  process.env.NODE_ENV === "production"
+import.meta.env.VITE_APP_COINGECKO_API_KEY &&
+import.meta.env.PROD
     ? "pro-api.coingecko.com"
     : "api.coingecko.com";
 
 const config = {
   headers: {
-    "X-Cg-Pro-Api-Key": process.env.VUE_APP_COINGECKO_API_KEY_2,
+    "X-Cg-Pro-Api-Key": import.meta.env.VITE_APP_COINGECKO_API_KEY,
   },
 };
 
@@ -54,9 +54,6 @@ const getTokenPriceByAddress = async (chainId, address) => {
     const chainCoinGeckoId = chainCoinGeckoIds[chainId];
 
     if (!chainCoinGeckoId) return false;
-    console.log(
-      `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`
-    );
 
     const pricesResponse = await axios.get(
       `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`,

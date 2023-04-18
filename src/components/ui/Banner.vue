@@ -47,12 +47,6 @@ export default {
     }
   },
 
-  watch: {
-    $route(val) {
-      console.log(val)
-    },
-  },
-
   methods: {
     closeBanner() {
       this.closeClicked = true;
