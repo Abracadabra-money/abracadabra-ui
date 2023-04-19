@@ -2,10 +2,6 @@ import depositTokenAbi from "@/utils/abi/tokensAbi/MEMO";
 import mainTokenAbi from "@/utils/abi/tokensAbi/wMEMO";
 import { useImage } from "@/helpers/useImage";
 
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
-
 export default {
   depositToken: {
     name: "MEMO",

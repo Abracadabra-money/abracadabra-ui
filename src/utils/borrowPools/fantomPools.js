@@ -5,10 +5,6 @@ import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import { useImage } from "@/helpers/useImage";
 
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
-
 export default [
   {
     icon: useImage(`assets/images/tokens/FTM.png`),

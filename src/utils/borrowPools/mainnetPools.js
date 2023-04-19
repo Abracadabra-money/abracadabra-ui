@@ -11,10 +11,6 @@ import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
 
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
-
 export default [
   {
     icon: useImage(`assets/images/tokens/USDT.png`),

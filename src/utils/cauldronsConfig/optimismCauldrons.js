@@ -5,10 +5,7 @@ import zeroXLiqSwapper from "@/utils/abi/zeroXLiqSwapper";
 import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
 import lpAbi from "@/utils/abi/lp/lpAbi";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
-
-const useImage = (url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-};
+import { useImage } from "@/helpers/useImage";
 
 const mimInfo = {
   name: "MIM",

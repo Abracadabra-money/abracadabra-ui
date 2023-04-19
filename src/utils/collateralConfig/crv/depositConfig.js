@@ -2,10 +2,6 @@ import depositTokenAbi from "@/utils/abi/tokensAbi/Crv";
 import mainTokenAbi from "@/utils/abi/tokensAbi/stkcvx3Crv";
 import { useImage } from "@/helpers/useImage";
 
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
-
 export default {
   depositToken: {
     name: "3Crv",

@@ -5,10 +5,6 @@ import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import joeInfoAbi from "@/utils/abi/joeInfo";
 import { useImage } from "@/helpers/useImage";
 
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
-
 export default [
   {
     icon: useImage(`assets/images/tokens/AVAX.png`),

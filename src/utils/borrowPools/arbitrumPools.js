@@ -8,10 +8,6 @@ import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
 import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
 import { useImage } from "@/helpers/useImage";
 
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
-
 export default [
   {
     icon: useImage(`assets/images/tokens/WETH.png`),
