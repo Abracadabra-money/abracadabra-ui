@@ -6,10 +6,7 @@ import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
 import lpAbi from "@/utils/abi/lp/lpAbi";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 import EACAggregatorProxyAbi from "@/utils/abi/EACAggregatorProxy";
-
-const useImage = ((url) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-});
+import { useImage } from "@/helpers/useImage";
 
 export default [
   {
@@ -25,7 +22,8 @@ export default [
     isSwappersActive: true,
     cauldronSettings: {
       isDegenBox: true,
-      strategyLink: "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/Z9bhlbcfDTByubuwSzCahPMhpvYxnOaC0sBYU12Eh_Y",
+      strategyLink:
+        "https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/Z9bhlbcfDTByubuwSzCahPMhpvYxnOaC0sBYU12Eh_Y",
       isDepreciated: false,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,

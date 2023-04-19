@@ -6,6 +6,7 @@ import { createApp } from "vue";
 import connectWallet from "./plugins/connectWallet";
 import clickOutside from "./directives/clickOutside";
 import VueTippy from "vue-tippy";
+import { useImage } from "./helpers/useImage";
 
 const app = createApp(App);
 
@@ -22,10 +23,6 @@ app.use(VueTippy, {
   },
 });
 app.mount("#app");
-
-const useImage = (url: any) => {
-  return new URL(`/src/${url}`, import.meta.url).href;
-};
 
 app.config.globalProperties.$ethers = ethers;
 app.config.globalProperties.$image = useImage;

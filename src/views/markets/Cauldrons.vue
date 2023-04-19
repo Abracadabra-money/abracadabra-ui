@@ -8,7 +8,6 @@
     <template v-else>
       <div class="tools">
         <Search @changeSerch="changeSerch" />
-
         <DropdownSortBy
           :sortList="sortList"
           :activeSortValue="activeSortValue"
@@ -44,11 +43,9 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import cauldronsListMixin from "@/mixins/cauldron/cauldronsList.js";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
-import DropdownWrap from "@/components/ui/DropdownWrap.vue";
 import CauldronItem from "@/components/markets/CauldronItem.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
 import ScrollToTop from "@/components/ui/ScrollToTop.vue";
@@ -138,7 +135,7 @@ export default {
 
     sortCauldrons(cauldrons) {
       if (this.activeSortData !== null) {
-        [...cauldrons].sort((cauldronA, cauldronB) => {
+        return [...cauldrons].sort((cauldronA, cauldronB) => {
           const a = this.getCouldronValue(cauldronA, this.activeSortData);
           const b = this.getCouldronValue(cauldronB, this.activeSortData);
           const factor = this.sortOrder ? -1 : 1;
