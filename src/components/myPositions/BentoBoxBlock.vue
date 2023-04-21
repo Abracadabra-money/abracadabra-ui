@@ -1,21 +1,26 @@
 <template>
-  <div class="balance-boxes" v-if="account">
-    <BalanceBox
+  <div class="bento-wrapper">
+    <BentoBoxItem
       @withdraw="openPopup(false, false)"
       @deposit="openPopup(false, true)"
-      :balance="infoObject.mimInDegenBalance"
-      :mimPrice="infoObject.mimPrice"
+      :balance="bentoInfo.mimInDegenBalance"
+      :mimPrice="bentoInfo.mimPrice"
     />
-    <BalanceBox
+
+    <BentoBoxItem
       @withdraw="openPopup(true, false)"
       @deposit="openPopup(true, true)"
-      :balance="infoObject.mimInBentoBalance"
-      :mimPrice="infoObject.mimPrice"
+      :balance="bentoInfo.mimInBentoBalance"
+      :mimPrice="bentoInfo.mimPrice"
       :isBento="true"
     />
-    <LocalPopupWrap :isOpened="popupData.opened" @closePopup="popupData.opened= false">
+
+    <LocalPopupWrap
+      :isOpened="popupData.opened"
+      @closePopup="popupData.opened = false"
+    >
       <DegenBentoPopup
-        :infoObject="infoObject"
+        :infoObject="bentoInfo"
         :isBento="popupData.isBento"
         :isDeposit="popupData.isDeposit"
         @close="closePopup"
@@ -25,9 +30,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-
-import BalanceBox from "@/components/myPositions/BalanceBox.vue";
+import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 
@@ -38,46 +41,47 @@ const initialPopupData = {
 };
 
 export default {
-  name: "BalanceBoxes",
-  components: { BalanceBox, DegenBentoPopup, LocalPopupWrap },
   props: {
-    infoObject: {
+    bentoInfo: {
       type: Object,
       required: true,
     },
   },
-  data(){
+
+  data() {
     return {
       popupData: { ...initialPopupData },
-    }
+    };
   },
+
   methods: {
     openPopup(isBento, isDeposit) {
       this.popupData = { opened: true, isBento, isDeposit };
     },
+
     closePopup() {
       this.popupData = { ...initialPopupData };
     },
   },
-  computed: {
-    ...mapGetters({
-      account: "getAccount",
-    }),
+
+  components: {
+    BentoBoxItem,
+    LocalPopupWrap,
+    DegenBentoPopup,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.balance-boxes {
+.bento-wrapper {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-gap: 30px;
-  margin-top: 16px;
 }
 
-@media (min-width: 1024px) {
-  .balance-boxes {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 1024px) {
+  .bento-wrapper {
+    grid-template-columns: 1fr;
   }
 }
 </style>
