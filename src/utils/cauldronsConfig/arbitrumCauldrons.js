@@ -6,10 +6,11 @@ import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper"
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
 import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
+import { useImage } from "@/helpers/useImage";
 
 const mimInfo = {
   name: "MIM",
-  icon: require(`@/assets/images/tokens/MIM.png`),
+  icon: useImage(`assets/images/tokens/MIM.png`),
   decimals: 18,
   address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
   abi: tokensAbi.MIM,
@@ -17,7 +18,7 @@ const mimInfo = {
 
 export default [
   {
-    icon: require(`@/assets/images/tokens/WETH.png`),
+    icon: useImage(`assets/images/tokens/WETH.png`),
     name: "WETH",
     chainId: 42161,
     id: 1,
@@ -58,7 +59,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/GLP.png`),
+    icon: useImage(`assets/images/tokens/GLP.png`),
     name: "GLP",
     chainId: 42161,
     id: 2,
@@ -94,7 +95,7 @@ export default [
       isHiddenWrap: true,
       unwrappedToken: {
         name: "GLP",
-        icon: require(`@/assets/images/tokens/GLP.png`),
+        icon: useImage(`assets/images/tokens/GLP.png`),
         address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
         abi: tokensAbi.sGLP,
       },
@@ -105,7 +106,7 @@ export default [
     },
   },
   {
-    icon: require(`@/assets/images/tokens/mGlpToken.png`),
+    icon: useImage(`assets/images/tokens/mGlpToken.png`),
     name: "MagicGLP",
     chainId: 42161,
     id: 3,
@@ -144,7 +145,7 @@ export default [
       isHiddenWrap: false,
       unwrappedToken: {
         name: "GLP",
-        icon: require(`@/assets/images/tokens/GLP.png`),
+        icon: useImage(`assets/images/tokens/GLP.png`),
         address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
         abi: tokensAbi.sGLP,
       },

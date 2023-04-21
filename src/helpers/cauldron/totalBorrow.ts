@@ -1,7 +1,9 @@
-import { BigNumber, utils } from "ethers";
+import { BigNumber, utils, Contract } from "ethers";
 import moment from "moment";
 
-export const getTotalBorrow = async (cauldron) => {
+const INTEREST_PRECISION: BigNumber = BigNumber.from("1000000000000000000");
+
+export const getTotalBorrow = async (cauldron: Contract): Promise<string>  => {
   const totalBorrow = await cauldron.totalBorrow();
   const { lastAccrued, INTEREST_PER_SECOND } = await cauldron.accrueInfo();
 
@@ -18,5 +20,5 @@ export const getTotalBorrow = async (cauldron) => {
     return utils.formatUnits(totalBorrow.elastic);
   }
 
-  return utils.formatUnits(totalBorrow.elastic.add(totalBorrow.elastic.mul(INTEREST_PER_SECOND).mul(duration).div(BigNumber.from("1000000000000000000"))))
+  return utils.formatUnits(totalBorrow.elastic.add(totalBorrow.elastic.mul(INTEREST_PER_SECOND).mul(duration).div(INTEREST_PRECISION)))
 };
