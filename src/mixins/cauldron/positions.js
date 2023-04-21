@@ -52,24 +52,20 @@ export default {
       return positions;
     },
     getUserStatistics(positions) {
-      const collateralDeposited =  positions.reduce(
-        (accumulator, position) => {
-          const collateralValue = position.collateralAmount.mul(1e2).div(position.oracleRate);
-          return accumulator.add(collateralValue);
-        },
-        BigNumber.from(0)
-      );
+      const collateralDeposited = positions.reduce((accumulator, position) => {
+        const collateralValue = position.collateralAmount
+          .mul(1e2)
+          .div(position.oracleRate);
+        return accumulator.add(collateralValue);
+      }, BigNumber.from(0));
 
-      const mimBorrowed =  positions.reduce(
-        (accumulator, position) => {
-          return accumulator.add(position.borrowPart.userBorrowPart);
-        },
-        BigNumber.from(0)
-      );
+      const mimBorrowed = positions.reduce((accumulator, position) => {
+        return accumulator.add(position.borrowPart.userBorrowPart);
+      }, BigNumber.from(0));
 
       return {
         collateralDepositedInUsd: utils.formatUnits(collateralDeposited, 2),
-        mimBorrowed: utils.formatUnits(mimBorrowed)
+        mimBorrowed: utils.formatUnits(mimBorrowed),
       };
     },
     async checkIndividualPosition(config) {

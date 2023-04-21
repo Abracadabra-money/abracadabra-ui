@@ -1,63 +1,40 @@
 <template>
-  <div class="my-position-view">
-    <h2 class="title page-title">My positions</h2>
-    <div class="choose">
-      <h4 class="choose-title">Choose Chain</h4>
+  <div class="position-page">
+    <h2 class="title">My positions</h2>
+
+    <div class="network-wrap">
+      <h4 class="network-title">Choose Chain</h4>
       <NetworksList :items="5" :activeList="activeNetworks" />
     </div>
 
-    <div class="values-list" v-if="account && !borrowLoading && !farmLoading">
-      <template v-for="(item, i) in balanceItems">
-        <router-link
-          v-if="item.routName"
-          :to="{ name: item.routName }"
-          :key="i"
-          class="values-list-item"
-        >
-          <p class="values-list-title">{{ item.title }}</p>
-          <p class="values-list-value">{{ item.value }}</p>
-        </router-link>
-        <div v-else :key="`${i}-ff`" class="values-list-item">
-          <p class="values-list-title">{{ item.title }}</p>
-          <p class="values-list-value">{{ item.value }}</p>
-        </div>
-      </template>
-    </div>
-    <BalanceBoxes
-      v-if="mimInBentoDepositObject && !hideBoxes"
-      :infoObject="mimInBentoDepositObject"
+    <TotalAssets
+      v-if="account && !cauldronsLoading && !farmLoading"
+      :assets="totalAssets"
     />
+
+    <BentoBoxBlock v-if="isHideBentoBoxBlock" :bentoInfo="bentoBoxConfig" />
+
     <h2 class="title">Individual positions</h2>
 
-    <div
-      v-if="
-        !account ||
-        (!userBorrowPools.length &&
-          !userFarmPools.length &&
-          !borrowLoading &&
-          !farmLoading)
-      "
-      class="empty-wrap"
-    >
-      <EmptyPosList />
+    <div v-if="isEmpyState" class="empty-wrap">
+      <EmptyState />
     </div>
-    <div v-else class="spec-positions">
-      <div
-        v-if="
-          (farmLoading && !userFarmPools.length) ||
-          (borrowLoading && !userBorrowPools.length)
-        "
-        class="loader-wrap"
-      >
+
+    <div v-else class="positions-list">
+      <div v-if="isPositionsLoaded" class="loader-wrap">
         <BaseLoader />
       </div>
 
       <template v-else>
-        <SpecPos v-if="userBorrowPools.length" :pools="userBorrowPools" />
-        <SpecPos
-          v-if="userFarmPools.length"
+        <PositionList
+          v-if="openUserCauldrons.length"
+          :cauldrons="openUserCauldrons"
+        />
+
+        <PositionList
+          v-if="openUserFarms.length"
           :isFarm="true"
-          :pools="userFarmPools"
+          :cauldrons="openUserFarms"
         />
       </template>
     </div>
@@ -65,38 +42,59 @@
 </template>
 
 <script>
-import filters from "@/filters/index.js";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import BalanceBoxes from "@/components/myPositions/BalanceBoxes.vue";
-import SpecPos from "@/components/myPositions/SpecPos.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import EmptyPosList from "@/components/myPositions/EmptyPosList.vue";
-
-import mimBentoDeposit from "@/mixins/mimBentoDeposit";
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
+import filters from "@/filters/index.js";
+import farmMixin from "@/mixins/farmPools";
+import bentoBoxMixin from "@/mixins/mimBentoDeposit";
+import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
+import NetworksList from "@/components/ui/NetworksList.vue";
+import TotalAssets from "@/components/myPositions/TotalAssets.vue";
+import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
+import EmptyState from "@/components/myPositions/EmptyState.vue";
+import PositionList from "@/components/myPositions/PositionList.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
 
 export default {
-  mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
+  mixins: [bentoBoxMixin, farmMixin, cauldronsMixin],
+
   data() {
     return {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-      mimBentoInterval: null,
-      farmPoolsTimer: null,
-      borrowPoolsTimer: null,
+      bentoUpdateInterval: null,
+      farmUpdateInterval: null,
+      cauldronsUpdateInterval: null,
     };
   },
+
   computed: {
     ...mapGetters({
-      borrowPools: "getPools",
-      borrowLoading: "getLoadPoolsBorrow",
-      farmLoading: "getFarmPoolLoading",
       account: "getAccount",
+      cauldronPools: "getPools",
+      cauldronsLoading: "getLoadPoolsBorrow",
+      farmLoading: "getFarmPoolLoading",
+      bentoBoxConfig: "getMimInBentoDepositObject",
     }),
-    balanceItems() {
+
+    isEmpyState() {
+      return (
+        !this.account ||
+        (!this.openUserCauldrons.length &&
+          !this.openUserFarms.length &&
+          !this.cauldronsLoading &&
+          !this.farmLoading)
+      );
+    },
+
+    isPositionsLoaded() {
+      return (
+        (this.farmLoading && !this.openUserFarms.length) ||
+        (this.cauldronsLoading && !this.openUserCauldrons.length)
+      );
+    },
+
+    totalAssets() {
       const spellFarmer = filters.formatTokenBalance(
-        this.userFarmPools.reduce((calc, pool) => {
+        this.openUserFarms.reduce((calc, pool) => {
           return (
             calc + +this.$ethers.utils.formatEther(pool.accountInfo.userReward)
           );
@@ -107,7 +105,7 @@ export default {
         {
           title: "Collateral Deposit",
           value: filters.formatUSD(
-            this.userBorrowPools.reduce((calc, pool) => {
+            this.openUserCauldrons.reduce((calc, pool) => {
               return (
                 calc +
                 parseFloat(
@@ -121,7 +119,7 @@ export default {
         {
           title: "MIM Borrowed",
           value: filters.formatTokenBalance(
-            this.userBorrowPools.reduce((calc, pool) => {
+            this.openUserCauldrons.reduce((calc, pool) => {
               return calc + parseFloat(pool.userInfo.userBorrowPart);
             }, 0)
           ),
@@ -134,130 +132,115 @@ export default {
         },
       ].filter((item) => !item.hidden);
     },
-    mimInBentoDepositObject() {
-      return this.$store.getters.getMimInBentoDepositObject;
-    },
-    userBorrowPools() {
-      return this.borrowPools.filter((pool) => {
-        if (!pool.userInfo) return false;
+
+    openUserCauldrons() {
+      return this.cauldronPools.filter((cauldron) => {
+        if (!cauldron.userInfo) return false;
         const tokenInUsd =
-          pool.userInfo.userCollateralShare / pool.borrowToken.exchangeRate;
+          cauldron.userInfo.userCollateralShare /
+          cauldron.borrowToken.exchangeRate;
         if (tokenInUsd < 3) return false;
         return (
-          pool.userBorrowPart !== "0.0" &&
-          pool.userInfo.userCollateralShare !== "0.0"
+          cauldron.userBorrowPart !== "0.0" &&
+          cauldron.userInfo.userCollateralShare !== "0.0"
         );
       });
     },
-    userFarmPools() {
-      return this.pools.filter((pool) => {
+
+    openUserFarms() {
+      return this.pools.filter((farm) => {
         return (
-          !pool.accountInfo?.userReward.isZero() ||
-          !pool.accountInfo?.userInfo.amount.isZero()
+          !farm.accountInfo?.userReward.isZero() ||
+          !farm.accountInfo?.userInfo.amount.isZero()
         );
       });
     },
-    hideBoxes() {
+
+    isHideBentoBoxBlock() {
       return (
-        !+this.mimInBentoDepositObject.mimInBentoBalance &&
-        !+this.mimInBentoDepositObject.mimInDegenBalance
+        this.bentoBoxConfig &&
+        +this.bentoBoxConfig?.mimInBentoBalance &&
+        +this.bentoBoxConfig?.mimInDegenBalance &&
+        this.account
       );
     },
   },
+
   async created() {
     if (!this.pools.length) {
       await this.createFarmPools();
     }
 
-    this.farmPoolsTimer = setInterval(async () => {
+    this.farmUpdateInterval = setInterval(async () => {
       await this.createFarmPools();
     }, 10000);
 
-    this.borrowPoolsTimer = setInterval(async () => {
+    this.cauldronsUpdateInterval = setInterval(async () => {
       await this.createPools();
     }, 10000);
 
     await this.createMimBentoInfo();
-    this.mimBentoInterval = setInterval(async () => {
+    this.bentoUpdateInterval = setInterval(async () => {
       await this.createMimBentoInfo();
     }, 5000);
   },
+
   beforeUnmount() {
-    clearInterval(this.farmPoolsTimer);
-    clearInterval(this.mimBentoInterval);
-    clearInterval(this.borrowPoolsTimer);
+    clearInterval(this.farmUpdateInterval);
+    clearInterval(this.bentoUpdateInterval);
+    clearInterval(this.cauldronsUpdateInterval);
   },
+
   components: {
-    EmptyPosList,
-    SpecPos,
     NetworksList,
-    BalanceBoxes,
+    TotalAssets,
+    BentoBoxBlock,
+    EmptyState,
+    PositionList,
     BaseLoader,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.my-position-view {
-  padding-top: 160px;
+.position-page {
+  max-width: 780px;
+  width: 100%;
   margin: 0 auto;
-  width: 780px;
-  max-width: calc(100% - 20px);
-  box-sizing: border-box;
-  padding-bottom: 207px;
+  padding: 130px 5px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .title {
   text-align: center;
   text-transform: uppercase;
-  margin: 32px 0 32px 0;
-
-  &.page-title {
-    margin-top: 0;
-  }
+  margin: 16px 0;
 }
 
-.choose {
-  padding: 20px 16px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  max-width: 100%;
+.network-wrap {
   overflow: hidden;
-  margin-top: 40px;
-
-  &-title {
-    padding-bottom: 14px;
-  }
-}
-
-.values-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: repeat(auto-fill, 1fr);
-  row-gap: 33px;
-  padding: 20px 16px;
+  width: 100%;
+  padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
-  max-width: 100%;
-  margin-top: 16px;
+}
 
-  &-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 18px;
-    line-height: 27px;
-    color: white;
-  }
+.network-title {
+  padding-bottom: 14px;
+}
 
-  &-title {
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.8);
-  }
+.empty-wrap {
+  background-color: #2a2835;
+  border-radius: 30px;
+  padding: 50px 0;
+}
 
-  &-value {
-    font-weight: 700;
-  }
+.positions-list {
+  display: grid;
+  grid-template-rows: repeat(auto-fill, auto);
+  row-gap: 24px;
 }
 
 .loader-wrap {
@@ -266,25 +249,9 @@ export default {
   justify-content: center;
 }
 
-.spec-positions {
-  display: grid;
-  grid-template-rows: repeat(auto-fill, auto);
-  row-gap: 24px;
-  margin-top: 40px;
-}
-
-.empty-wrap {
-  background-color: #2a2835;
-  border-radius: 30px;
-  padding: 16px 0 50px 0;
-}
-
-@media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
-  .values-list {
-    padding: 18px 40px 15px 20px;
+@media (max-width: 1024px) {
+  .network-wrap {
+    padding: 20px 16px;
   }
 }
 </style>
