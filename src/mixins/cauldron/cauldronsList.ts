@@ -37,7 +37,7 @@ export const createCauldronItem = async (config: any, provider: providers.Provid
     provider
   );
 
-  const interest = await getInterest(config, cauldron);
+  const interest: string = config.interest ? config.interest : await getInterest(cauldron);
 
   const bentoBoxAddress = await cauldron.bentoBox();
 

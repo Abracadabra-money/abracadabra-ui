@@ -16,7 +16,7 @@ export default defineConfig({
     vue(),
   ],
   esbuild: {
-    drop: ['console', 'debugger'], // warn: to comment in dev mode to show logs in .ts files 
+    // drop: ['console', 'debugger'], // warn: to comment in dev mode to show logs in .ts files 
   },
   build: {
     rollupOptions: {

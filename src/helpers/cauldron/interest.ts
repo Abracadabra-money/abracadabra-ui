@@ -2,9 +2,7 @@ import { BigNumber, Contract, utils } from "ethers";
 
 const INTEREST_PRECISION = 1e2;
 
-export const getInterest = async (config: any, cauldron: Contract): Promise<string> => {
-  if (Object.prototype.hasOwnProperty.call(cauldron, "interest")) return config.interest; // WARN: remove all unnecessary keys from config
-
+export const getInterest = async (cauldron: Contract): Promise<string> => {
   const { INTEREST_PER_SECOND }: {INTEREST_PER_SECOND: BigNumber} = await cauldron.accrueInfo();
   if (!INTEREST_PER_SECOND) return "0";
 

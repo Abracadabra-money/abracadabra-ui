@@ -44,12 +44,63 @@ export const getUserCollateralInfo = async (
   };
 };
 
-export const getUserBorrowInfo = async (cauldron: Contract, user: string): Promise<UserBorrowInfo> => {
+export const getUserBorrowInfo = async (
+  cauldron: Contract,
+  user: string
+): Promise<UserBorrowInfo> => {
   const BORROW_PRECISION = BigNumber.from(1e10);
 
   const userBorrowPart: BigNumber = await cauldron.userBorrowPart(user);
   const totalBorrowInfo = await cauldron.totalBorrow();
   const { INTEREST_PER_SECOND, lastAccrued } = await cauldron.accrueInfo();
+
+  if (totalBorrowInfo.elastic.isZero() || totalBorrowInfo.base.isZero()) {
+    return {
+      userBorrowPart,
+      userBorrowAmount: userBorrowPart,
+    };
+  }
+
+  const multiplyer = totalBorrowInfo.elastic
+    .mul(BORROW_PRECISION)
+    .div(totalBorrowInfo.base);
+  const userBorrowAmount = userBorrowPart.mul(multiplyer).div(BORROW_PRECISION);
+
+  if (!INTEREST_PER_SECOND || INTEREST_PER_SECOND.eq(0) || !lastAccrued) {
+    return {
+      userBorrowPart,
+      userBorrowAmount,
+    };
+  }
+
+  const duration = getSecDurationSinceLastAccrue(lastAccrued);
+
+  if (!duration)
+    return {
+      userBorrowPart,
+      userBorrowAmount,
+    };
+
+  const accruedAmount = checkAccruedAmount(
+    duration,
+    userBorrowAmount,
+    INTEREST_PER_SECOND
+  );
+
+  return {
+    userBorrowPart,
+    userBorrowAmount: userBorrowAmount.add(accruedAmount),
+  };
+};
+
+export const getUserBorrowInfoAlternative =  (
+  userBorrowPart: BigNumber,
+  totalBorrowInfo: any,
+  accrueInfo: any,
+): UserBorrowInfo => {
+  const BORROW_PRECISION = BigNumber.from(1e10);
+
+  const { INTEREST_PER_SECOND, lastAccrued } = accrueInfo;
 
   if (totalBorrowInfo.elastic.isZero() || totalBorrowInfo.base.isZero()) {
     return {

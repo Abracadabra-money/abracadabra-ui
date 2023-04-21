@@ -16,6 +16,8 @@ import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
 import { getTotalBorrow } from "@/helpers/getTotalBorrow";
 
+import { getUserCauldronPositions } from "@/mixins/cauldron/positions";
+
 export default {
   computed: {
     ...mapGetters({
@@ -905,7 +907,12 @@ export default {
       return tokenRate;
     },
   },
-  created() {
-    this.createPools();
+  async created() {
+    //this.createPools(); // TEST
+    await getUserCauldronPositions(this.chainId, this.account, this.contractProvider)
+    await getUserCauldronPositions(this.chainId, this.account, this.contractProvider)
+    await getUserCauldronPositions(this.chainId, this.account, this.contractProvider)
+    await getUserCauldronPositions(this.chainId, this.account, this.contractProvider)
+    await getUserCauldronPositions(this.chainId, this.account, this.contractProvider)
   },
 };
