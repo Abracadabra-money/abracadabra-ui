@@ -11,6 +11,8 @@ import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
 
+import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
+
 const mimInfo = {
   name: "MIM",
   icon: useImage(`assets/images/tokens/MIM.png`),
@@ -19,7 +21,7 @@ const mimInfo = {
   abi: tokensAbi.MIM,
 };
 
-export default [
+const config: Array<CauldronConfig> = [
   {
     icon: useImage(`assets/images/tokens/USDT.png`),
     name: "yvUSDT v2",
@@ -1499,3 +1501,5 @@ export default [
     },
   },
 ];
+
+export default config;

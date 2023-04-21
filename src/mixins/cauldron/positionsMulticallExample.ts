@@ -25,7 +25,7 @@ export const checkIndividualPositionMulticall = async (
 ): Promise<CauldronPositionItem[]> => {
   const multicalProvider = MulticallWrapper.wrap(provider);
 
-  const cauldrons = configs.map((config: any) => {
+  const cauldronContracts = configs.map((config: any) => {
     return new Contract(
       config.contract.address,
       config.contract.abi,
@@ -34,7 +34,7 @@ export const checkIndividualPositionMulticall = async (
   });
 
   const boxAddresses = await Promise.all(
-    cauldrons.map((cauldron) => cauldron.bentoBox())
+    cauldronContracts.map((cauldron) => cauldron.bentoBox())
   );
 
   const boxContracts = boxAddresses.map((address: string, idx) => {
@@ -42,11 +42,11 @@ export const checkIndividualPositionMulticall = async (
   });
 
   const oracles = await Promise.all(
-    cauldrons.map((cauldron) => cauldron.oracle())
+    cauldronContracts.map((cauldron) => cauldron.oracle())
   );
 
   const oraclesData = await Promise.all(
-    cauldrons.map((cauldron) => cauldron.oracleData())
+    cauldronContracts.map((cauldron) => cauldron.oracleData())
   );
 
   const oracleContracts = oracles.map((address: string, idx) => {
@@ -58,7 +58,7 @@ export const checkIndividualPositionMulticall = async (
   );
 
   const userCollateralShares = await Promise.all(
-    cauldrons.map((contract) => contract.userCollateralShare(user))
+    cauldronContracts.map((contract) => contract.userCollateralShare(user))
   );
 
   const userCollateralAmounts = await Promise.all(
@@ -72,22 +72,22 @@ export const checkIndividualPositionMulticall = async (
   );
 
   const userBorrowParts = await Promise.all(
-    cauldrons.map((contract) => contract.userBorrowPart(user))
+    cauldronContracts.map((contract) => contract.userBorrowPart(user))
   );
 
   const totalBorrows = await Promise.all(
-    cauldrons.map((contract) => contract.totalBorrow())
+    cauldronContracts.map((contract) => contract.totalBorrow())
   );
 
-  const accrueInfos = await Promise.all(
-    cauldrons.map((contract) => contract.accrueInfo())
+  const accrueInfoArr = await Promise.all(
+    cauldronContracts.map((contract) => contract.accrueInfo())
   );
 
-  const userBorrowInfos = userBorrowParts.map((userBorrowPart, idx) =>
+  const userBorrowInfoArr = userBorrowParts.map((userBorrowPart, idx) =>
     getUserBorrowInfoAlternative(
       userBorrowPart,
       totalBorrows[idx],
-      accrueInfos[idx]
+      accrueInfoArr[idx]
     )
   );
 
@@ -110,7 +110,7 @@ export const checkIndividualPositionMulticall = async (
         userCollateralShare: userCollateralShares[idx],
         userCollateralAmount: userCollateralAmounts[idx],
       },
-      borrowInfo: userBorrowInfos[idx],
+      borrowInfo: userBorrowInfoArr[idx],
       liquidationPrice: liquidationPriceArr[idx],
     };
   });
