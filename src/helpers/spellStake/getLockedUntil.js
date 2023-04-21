@@ -1,3 +1,5 @@
+// IMPORTANT NOTE: will be used and changed when implemented in the cauldron interaction pages 
+
 import moment from "moment";
 
 export const getLockedUntil = async (sspell, user) => {

@@ -1,3 +1,5 @@
+// IMPORTANT NOTE: will be used and changed when implemented in the cauldron interaction pages 
+
 import { mapGetters } from "vuex";
 import { Contract, utils } from "ethers";
 
@@ -179,11 +181,11 @@ export default {
           config.cauldronSettings
         );
 
-        const maxWithdrawableAmount = await getMaxWithdrawableAmount(
-          config,
+        const maxWithdrawableAmount = config.cauldronSettings.hasWithdrawableLimit ? await getMaxWithdrawableAmount(
+          config.collateralInfo.decimals,
           contracts.collateral,
           contracts.bentoBox.address
-        );
+        ) : null;
 
         return {
           interest,

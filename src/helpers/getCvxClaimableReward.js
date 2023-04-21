@@ -1,3 +1,5 @@
+// IMPORTANT NOTE: will be used and changed when implemented in the cauldron interaction pages 
+
 import { utils } from "ethers";
 
 export const getCvxClaimableReward = async (collateral, user) => {
