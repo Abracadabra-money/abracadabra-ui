@@ -26,16 +26,36 @@
       </div>
 
       <template v-else>
-        <PositionList
-          v-if="openUserCauldrons.length"
-          :cauldrons="openUserCauldrons"
-        />
+        <div class="positions-wrap" v-if="openUserCauldrons.length">
+          <div class="positions-header">
+            <p>Borrow</p>
+            <button class="btn-more" @click="toggleShowMore">
+              <p class="btn-more-text">Show {{ showMoreText }}</p>
+              <img class="btn-more-icon" :src="showMoreIcon" alt="Show more" />
+            </button>
+          </div>
 
-        <PositionList
-          v-if="openUserFarms.length"
-          :isFarm="true"
-          :cauldrons="openUserFarms"
-        />
+          <div class="position-list">
+            <CauldronPositionItem
+              v-for="cauldron in openUserCauldrons"
+              :key="cauldron.id"
+              :opened="isShowMore"
+              :pool="cauldron"
+            />
+          </div>
+        </div>
+
+        <div class="positions-wrap" v-if="openUserFarms.length">
+          <div class="positions-header">Farm</div>
+          <div class="position-list">
+            <FarmPositionItem
+              v-for="cauldron in openUserFarms"
+              :key="cauldron.id"
+              :opened="isShowMore"
+              :pool="cauldron"
+            />
+          </div>
+        </div>
       </template>
     </div>
   </div>
@@ -46,12 +66,15 @@ import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import farmMixin from "@/mixins/farmPools";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
+import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
+import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import TotalAssets from "@/components/myPositions/TotalAssets.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
 import EmptyState from "@/components/myPositions/EmptyState.vue";
-import PositionList from "@/components/myPositions/PositionList.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
+import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
+import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
 
 export default {
   mixins: [farmMixin, cauldronsMixin],
@@ -61,6 +84,7 @@ export default {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
       farmUpdateInterval: null,
       cauldronsUpdateInterval: null,
+      isShowMore: false,
     };
   },
 
@@ -152,6 +176,20 @@ export default {
         );
       });
     },
+
+    showMoreIcon() {
+      return this.isShowMore ? iconMinus : iconPlus;
+    },
+
+    showMoreText() {
+      return this.isShowMore ? "less" : "more";
+    },
+  },
+
+  methods: {
+    toggleShowMore() {
+      this.isShowMore = !this.isShowMore;
+    },
   },
 
   async created() {
@@ -178,8 +216,9 @@ export default {
     TotalAssets,
     BentoBoxBlock,
     EmptyState,
-    PositionList,
     BaseLoader,
+    CauldronPositionItem,
+    FarmPositionItem,
   },
 };
 </script>
@@ -231,9 +270,62 @@ export default {
   justify-content: center;
 }
 
+.positions-wrap {
+  background: #2a2835;
+  border-radius: 30px;
+  padding: 20px;
+}
+
+.positions-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 27px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.btn-more {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-more-text {
+  font-size: 14px;
+  line-height: 21px;
+  background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.btn-more-icon {
+  width: 20px;
+  height: auto;
+  object-fit: contain;
+  margin-left: 8px;
+}
+
+.position-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 @media (max-width: 1024px) {
   .network-wrap {
     padding: 20px 16px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .positions-wrap {
+    padding: 20px 10px;
   }
 }
 </style>
