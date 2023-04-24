@@ -1,17 +1,17 @@
 <template>
-  <div class="bento-wrapper">
+  <div class="bento-wrapper" v-if="isHide">
     <BentoBoxItem
       @withdraw="openPopup(false, false)"
       @deposit="openPopup(false, true)"
-      :balance="bentoInfo.mimInDegenBalance"
-      :mimPrice="bentoInfo.mimPrice"
+      :balance="bentoBoxConfig.mimInDegenBalance"
+      :mimPrice="bentoBoxConfig.mimPrice"
     />
 
     <BentoBoxItem
       @withdraw="openPopup(true, false)"
       @deposit="openPopup(true, true)"
-      :balance="bentoInfo.mimInBentoBalance"
-      :mimPrice="bentoInfo.mimPrice"
+      :balance="bentoBoxConfig.mimInBentoBalance"
+      :mimPrice="bentoBoxConfig.mimPrice"
       :isBento="true"
     />
 
@@ -20,7 +20,7 @@
       @closePopup="popupData.opened = false"
     >
       <DegenBentoPopup
-        :infoObject="bentoInfo"
+        :infoObject="bentoBoxConfig"
         :isBento="popupData.isBento"
         :isDeposit="popupData.isDeposit"
         @close="closePopup"
@@ -30,6 +30,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
@@ -41,17 +43,29 @@ const initialPopupData = {
 };
 
 export default {
-  props: {
-    bentoInfo: {
-      type: Object,
-      required: true,
-    },
-  },
+  mixins: [bentoBoxMixin],
 
   data() {
     return {
       popupData: { ...initialPopupData },
+      bentoUpdateInterval: null,
     };
+  },
+
+  computed: {
+    ...mapGetters({
+      account: "getAccount",
+      bentoBoxConfig: "getMimInBentoDepositObject",
+    }),
+
+    isHide() {
+      return (
+        this.bentoBoxConfig &&
+        +this.bentoBoxConfig?.mimInBentoBalance &&
+        +this.bentoBoxConfig?.mimInDegenBalance &&
+        this.account
+      );
+    },
   },
 
   methods: {
@@ -62,6 +76,18 @@ export default {
     closePopup() {
       this.popupData = { ...initialPopupData };
     },
+  },
+
+  async created() {
+    await this.createMimBentoInfo();
+
+    this.bentoUpdateInterval = setInterval(async () => {
+      await this.createMimBentoInfo();
+    }, 5000);
+  },
+
+  beforeUnmount() {
+    clearInterval(this.bentoUpdateInterval);
   },
 
   components: {

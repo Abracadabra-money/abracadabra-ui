@@ -12,7 +12,7 @@
       :assets="totalAssets"
     />
 
-    <BentoBoxBlock v-if="isHideBentoBoxBlock" :bentoInfo="bentoBoxConfig" />
+    <BentoBoxBlock />
 
     <h2 class="title">Individual positions</h2>
 
@@ -45,7 +45,6 @@
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import farmMixin from "@/mixins/farmPools";
-import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import TotalAssets from "@/components/myPositions/TotalAssets.vue";
@@ -55,12 +54,11 @@ import PositionList from "@/components/myPositions/PositionList.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 
 export default {
-  mixins: [bentoBoxMixin, farmMixin, cauldronsMixin],
+  mixins: [farmMixin, cauldronsMixin],
 
   data() {
     return {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-      bentoUpdateInterval: null,
       farmUpdateInterval: null,
       cauldronsUpdateInterval: null,
     };
@@ -72,7 +70,6 @@ export default {
       cauldronPools: "getPools",
       cauldronsLoading: "getLoadPoolsBorrow",
       farmLoading: "getFarmPoolLoading",
-      bentoBoxConfig: "getMimInBentoDepositObject",
     }),
 
     isEmpyState() {
@@ -155,15 +152,6 @@ export default {
         );
       });
     },
-
-    isHideBentoBoxBlock() {
-      return (
-        this.bentoBoxConfig &&
-        +this.bentoBoxConfig?.mimInBentoBalance &&
-        +this.bentoBoxConfig?.mimInDegenBalance &&
-        this.account
-      );
-    },
   },
 
   async created() {
@@ -178,16 +166,10 @@ export default {
     this.cauldronsUpdateInterval = setInterval(async () => {
       await this.createPools();
     }, 10000);
-
-    await this.createMimBentoInfo();
-    this.bentoUpdateInterval = setInterval(async () => {
-      await this.createMimBentoInfo();
-    }, 5000);
   },
 
   beforeUnmount() {
     clearInterval(this.farmUpdateInterval);
-    clearInterval(this.bentoUpdateInterval);
     clearInterval(this.cauldronsUpdateInterval);
   },
 
