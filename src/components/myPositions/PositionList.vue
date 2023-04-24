@@ -18,7 +18,7 @@
         />
       </template>
       <template v-else>
-        <PositionFarmItem
+        <FarmPositionItem
           v-for="pool in cauldrons"
           :key="pool.id"
           :pool="pool"
@@ -32,7 +32,7 @@
 import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
 import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
-import PositionFarmItem from "@/components/myPositions/PositionFarmItem.vue";
+import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
 
 export default {
   props: {
@@ -66,7 +66,7 @@ export default {
     },
   },
 
-  components: { CauldronPositionItem, PositionFarmItem },
+  components: { CauldronPositionItem, FarmPositionItem },
 };
 </script>
 
