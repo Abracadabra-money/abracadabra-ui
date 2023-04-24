@@ -3,6 +3,10 @@ import { MulticallWrapper } from "ethers-multicall-provider";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 import oracleAbi from "@/utils/abi/oracle";
 
+
+const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
+import lensAbi from "@/utils/abi/marketLens.js"
+
 import {
   getUserBorrowInfoAlternative,
   getLiquidationPrice,
