@@ -905,7 +905,7 @@ export default {
       return tokenRate;
     },
   },
-  async created() {
-    await this.createPools();
+  created() {
+    this.createPools();
   },
 };

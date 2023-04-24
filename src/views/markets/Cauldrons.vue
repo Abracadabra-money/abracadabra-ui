@@ -267,7 +267,7 @@ export default {
   },
 
   async created() {
-    // this.poolsInterval = setInterval(await this.createPools(), 5000); // TEST
+    this.poolsInterval = setInterval(await this.createPools(), 5000);
     window.addEventListener("scroll", this.onScroll);
   },
 
