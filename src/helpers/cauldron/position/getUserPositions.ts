@@ -1,18 +1,14 @@
 import { Contract, utils, BigNumber, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
+import cauldronsConfig from "@/utils/cauldronsConfig";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
-import oracleAbi from "@/utils/abi/oracle";
 
+import { getUserBorrowInfo, type UserBorrowInfo} from "./getUserBorrowInfo";
+import type { UserColalteralInfo  } from "./getUserCollateralInfo";
+import { getLiquidationPrice } from "./getUserLiquidationPrice";
 
 const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
 import lensAbi from "@/utils/abi/marketLens.js"
-
-import {
-  getUserBorrowInfoAlternative,
-  getLiquidationPrice,
-  type UserColalteralInfo,
-  type UserBorrowInfo,
-} from "@/helpers/cauldron/position";
 
 type CauldronPositionItem = {
   config: object;
@@ -22,12 +18,22 @@ type CauldronPositionItem = {
   liquidationPrice: number;
 };
 
-export const checkIndividualPositionMulticall = async (
-  provider: providers.BaseProvider,
+export const getUserPositions = async (
+  chainId: number,
   user: string,
-  configs: any[]
+  provider: providers.BaseProvider,
 ): Promise<CauldronPositionItem[]> => {
   const multicalProvider = MulticallWrapper.wrap(provider);
+
+  const configs: any[] = cauldronsConfig.filter(
+    (config) => config.chainId === chainId
+  );
+  
+  const lensContract = new Contract(
+    lensAddress,
+    lensAbi,
+    multicalProvider
+  );
 
   const cauldronContracts = configs.map((config: any) => {
     return new Contract(
@@ -41,24 +47,12 @@ export const checkIndividualPositionMulticall = async (
     cauldronContracts.map((cauldron) => cauldron.bentoBox())
   );
 
-  const boxContracts = boxAddresses.map((address: string, idx) => {
+  const boxContracts = boxAddresses.map((address: string) => {
     return new Contract(address, bentoBoxAbi, multicalProvider);
   });
 
-  const oracles = await Promise.all(
-    cauldronContracts.map((cauldron) => cauldron.oracle())
-  );
-
-  const oraclesData = await Promise.all(
-    cauldronContracts.map((cauldron) => cauldron.oracleData())
-  );
-
-  const oracleContracts = oracles.map((address: string, idx) => {
-    return new Contract(address, oracleAbi, multicalProvider);
-  });
-
   const oracleRates = await Promise.all(
-    oracleContracts.map((contract, idx) => contract.peekSpot(oraclesData[idx]))
+    configs.map((config) => lensContract.getOracleExchangeRate(config.contract.address))
   );
 
   const userCollateralShares = await Promise.all(
@@ -88,7 +82,7 @@ export const checkIndividualPositionMulticall = async (
   );
 
   const userBorrowInfoArr = userBorrowParts.map((userBorrowPart, idx) =>
-    getUserBorrowInfoAlternative(
+    getUserBorrowInfo(
       userBorrowPart,
       totalBorrows[idx],
       accrueInfoArr[idx]

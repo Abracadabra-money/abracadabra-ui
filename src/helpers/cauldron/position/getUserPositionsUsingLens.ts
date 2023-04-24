@@ -1,17 +1,22 @@
 import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
+import cauldronsConfig from "@/utils/cauldronsConfig";
 
 
 const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
 import lensAbi from "@/utils/abi/marketLens.js"
 
-export const checkIndividualPositionLens = async (
-  provider: providers.BaseProvider,
+export const getUserPositionsUsingLens = async (
+  chainId: number,
   user: string,
-  configs: any[]
+  provider: providers.BaseProvider,
 ): Promise<any[]> => {
 
   const multicalProvider = MulticallWrapper.wrap(provider);
+
+  const configs: any[] = cauldronsConfig.filter(
+    (config) => config.chainId === chainId
+  );
 
   const lensContract = new Contract(
     lensAddress,
