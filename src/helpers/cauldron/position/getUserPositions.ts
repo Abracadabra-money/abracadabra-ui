@@ -100,7 +100,7 @@ export const getUserPositions = async (
     )
   );
 
-  return configs.map((config, idx) => {
+  const allPositions = configs.map((config, idx) => {
     return {
       config,
       oracleRate: oracleRates[idx],
@@ -112,4 +112,13 @@ export const getUserPositions = async (
       liquidationPrice: liquidationPriceArr[idx],
     };
   });
+
+  const openPositions = allPositions.filter((info) => {
+    return (
+      info.collateralInfo.userCollateralShare.gt(0) ||
+      info.borrowInfo.userBorrowPart.gt(0)
+    );
+  });
+
+  return openPositions;
 };
