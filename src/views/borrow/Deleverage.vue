@@ -685,7 +685,7 @@ export default {
         const repayAmount = this.$ethers.utils.parseUnits(this.borrowAmount);
 
         let amountFrom = filters.formatToFixed(
-          this.borrowAmount * this.selectedPool.tokenOraclePrice,
+          this.repayBorrow * this.selectedPool.tokenOraclePrice,
           this.selectedPool.collateralToken.decimals
         );
 
