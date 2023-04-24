@@ -6,6 +6,7 @@ import bentoBoxAbi from "@/utils/abi/bentoBox";
 import { getCauldronOracleRates } from "@/helpers/cauldron/exchangeRates";
 
 import { checkIndividualPositionMulticall } from "./positionsMulticallExample";
+import { checkIndividualPositionLens } from "./positionsLensExample";
 
 import {
   getUserCollateralInfo,
@@ -27,7 +28,7 @@ export const getUserCauldronPositions = async (
   chainId: number,
   user: string,
   provider: providers.BaseProvider
-): Promise<CauldronPositionItem[]> => {
+) => {
   const filteredByChain: object[] = cauldronsConfig.filter(
     (config) => config.chainId === chainId
   );
@@ -44,31 +45,36 @@ export const getUserCauldronPositions = async (
   );
   const end2 = new Date();
 
+  const start3 = new Date();
+  const lensResult = await checkIndividualPositionLens(provider, user, filteredByChain);
+  const end3 = new Date();
+
   console.log("__________cycle start__________")
 
   console.log("multicall duration:", +end - +start)
-  console.log("basic duration:", +end2 - +start2)
+  console.log("basic optimized duration:", +end2 - +start2)
+  console.log("lens duration:", +end3 - +start3)
 
-  console.log("result multicall:", multicallResult)
-  console.log("result basic:", cauldrons);
+  // console.log("result multicall:", multicallResult)
+  // console.log("result basic:", cauldrons);
 
   console.log("__________end__________")
 
 
 
-  const positions = cauldrons.filter((info) => {
-    return (
-      info.collateralInfo.userCollateralShare.gt(0) ||
-      info.borrowInfo.userBorrowPart.gt(0)
-    );
-  });
+  // const positions = multicallResult.filter((info) => {
+  //   return (
+  //     info.collateralInfo.userCollateralShare.gt(0) ||
+  //     info.borrowInfo.userBorrowPart.gt(0)
+  //   );
+  // });
 
   // const statistics = getUserStatistics(positions);
 
   // console.log("userPositions", positions);
   // console.log("statistics", statistics);
 
-  return positions;
+  // return positions;
 };
 
 export const checkIndividualPosition = async (
