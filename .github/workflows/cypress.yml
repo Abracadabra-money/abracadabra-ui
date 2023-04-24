@@ -16,3 +16,8 @@ jobs:
       # and run all Cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v5
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        with:
+          build: npm run build
+          command: npm run test:e2e
