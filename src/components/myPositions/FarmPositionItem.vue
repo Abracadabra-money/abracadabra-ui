@@ -1,7 +1,7 @@
 <template>
   <div class="farm-positions">
     <div class="position-header">
-      <PositionTokensInfo :position="pool" />
+      <PositionTokensInfo :position="farmConfig" />
       <PositionLinks :actions="positionActions" />
     </div>
     <PositionAssets :assetsInfo="assetsInfo" />
@@ -17,7 +17,7 @@ import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 
 export default {
   props: {
-    pool: { type: Object, required: true },
+    farmConfig: { type: Object, required: true },
   },
 
   computed: {
@@ -27,13 +27,13 @@ export default {
           title: "Stake",
           icon: this.$image("assets/images/myposition/Stake.png"),
           name: "FarmPool",
-          id: this.pool.id,
+          id: this.farmConfig.id,
         },
         {
           title: "Untake",
           icon: this.$image("assets/images/myposition/Unstake.png"),
           name: "FarmPool",
-          id: this.pool.id,
+          id: this.farmConfig.id,
         },
       ];
     },
@@ -42,27 +42,27 @@ export default {
       return [
         {
           title: "Earned",
-          symbol: this.pool.tokenName,
+          symbol: this.farmConfig.tokenName,
           icon: spellIcon,
           amount: filters.formatTokenBalance(this.earnedData.balance),
           amountlUsd: filters.formatUSD(this.earnedData.usd),
           actions: {
-            visibility: this.pool.accountInfo,
+            visibility: this.farmConfig.accountInfo,
             disabled: !+this.earnedData.balance,
             event: "harvest",
           },
         },
         {
-          title: `${this.pool.stakingTokenType} deposited`,
-          symbol: this.pool.name,
-          icon: this.pool.icon,
+          title: `${this.farmConfig.stakingTokenType} deposited`,
+          symbol: this.farmConfig.name,
+          icon: this.farmConfig.icon,
           amount: filters.formatTokenBalance(this.depositedData.balance),
           amountlUsd: filters.formatUSD(this.depositedData.usd),
           tokensList: this.tokensList,
           actions: {
             link: "FarmPool",
-            id: this.pool.id,
-            visibility: this.pool.accountInfo,
+            id: this.farmConfig.id,
+            visibility: this.farmConfig.accountInfo,
             disabled: !+this.depositedData.balance,
             event: "withdraw",
           },
@@ -73,23 +73,23 @@ export default {
     tokensList() {
       const tokensList = [
         {
-          symbol: this.pool.depositedBalance?.token0.name,
-          icon: this.pool.depositedBalance?.token0.icon,
+          symbol: this.farmConfig.depositedBalance?.token0.name,
+          icon: this.farmConfig.depositedBalance?.token0.icon,
           amount: filters.formatTokenBalance(
-            this.pool.accountInfo?.tokensBalanceInfo?.token0.amount
+            this.farmConfig.accountInfo?.tokensBalanceInfo?.token0.amount
           ),
           amountlUsd: filters.formatUSD(
-            this.pool.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
+            this.farmConfig.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
           ),
         },
         {
-          symbol: this.pool.depositedBalance?.token1.name,
-          icon: this.pool.depositedBalance?.token1.icon,
+          symbol: this.farmConfig.depositedBalance?.token1.name,
+          icon: this.farmConfig.depositedBalance?.token1.icon,
           amount: filters.formatTokenBalance(
-            this.pool.accountInfo?.tokensBalanceInfo?.token1.amount
+            this.farmConfig.accountInfo?.tokensBalanceInfo?.token1.amount
           ),
           amountlUsd: filters.formatUSD(
-            this.pool.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
+            this.farmConfig.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
           ),
         },
       ].filter((e) => e.symbol && e.amount);
@@ -99,15 +99,15 @@ export default {
 
     earnedData() {
       return this.prepBalanceData(
-        this.pool.accountInfo?.userReward,
-        this.pool.tokenPrice
+        this.farmConfig.accountInfo?.userReward,
+        this.farmConfig.tokenPrice
       );
     },
 
     depositedData() {
       return this.prepBalanceData(
-        this.pool.accountInfo?.userInfo.amount,
-        this.pool.lpPrice
+        this.farmConfig.accountInfo?.userInfo.amount,
+        this.farmConfig.lpPrice
       );
     },
   },
@@ -126,8 +126,8 @@ export default {
 
     async harvest() {
       try {
-        const tx = await this.pool.contractInstance.withdraw(
-          this.pool.poolId,
+        const tx = await this.farmConfig.contractInstance.withdraw(
+          this.farmConfig.poolId,
           0
         );
 

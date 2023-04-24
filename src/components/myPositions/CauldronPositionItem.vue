@@ -1,7 +1,7 @@
 <template>
   <div class="position-item">
     <div class="position-header">
-      <PositionTokensInfo :position="pool" :tokenName="collateralSymbol" />
+      <PositionTokensInfo :position="cauldron" :tokenName="collateralSymbol" />
       <PositionLinks :actions="positionActions" />
     </div>
 
@@ -48,7 +48,7 @@ import HealthProgress from "@/components/myPositions/HealthProgress.vue";
 export default {
   props: {
     opened: { type: Boolean, default: true },
-    pool: { type: Object, required: true },
+    cauldron: { type: Object, required: true },
   },
 
   data() {
@@ -61,22 +61,26 @@ export default {
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
 
+    cauldronConfig() {
+      return this.cauldron.config;
+    },
+
     collateralSymbol() {
-      return this.chainId === 42161 && this.pool?.id === 2
-        ? this.pool.lpLogic.name
-        : this.pool.collateralToken.name;
+      return this.chainId === 42161 && this.cauldronConfig.id === 2
+        ? this.cauldronConfig?.wrapInfo?.unwrappedToken?.name
+        : this.cauldronConfig.collateralInfo.name;
     },
 
     collateralPrice() {
-      return 1 / this.pool.borrowToken.exchangeRate;
+      return 1 / this.cauldron.oracleRate;
     },
 
     liquidationPrice() {
-      return +this.pool.userInfo.liquidationPrice;
+      return +this.cauldron.liquidationPrice;
     },
 
     userBorrow() {
-      return +this.pool.userInfo.userBorrowPart;
+      return +this.cauldron.borrowPart.userBorrowPart;
     },
 
     leftToDrop() {
@@ -88,7 +92,7 @@ export default {
     },
 
     healthMultiplier() {
-      return this.pool.cauldronSettings.healthMultiplier;
+      return this.cauldronConfig.cauldronSettings.healthMultiplier;
     },
 
     positionHealth() {
@@ -107,7 +111,7 @@ export default {
     },
 
     userCollateralShare() {
-      return this.pool.userInfo.userCollateralShare;
+      return this.cauldron.collateralAmount;
     },
 
     collateralAmount() {
@@ -116,12 +120,12 @@ export default {
 
     collateralAmountUsd() {
       return this.formatUSD(
-        this.userCollateralShare / this.pool.borrowToken.exchangeRate
+        this.userCollateralShare / this.cauldron.oracleRate
       );
     },
 
     isDeleverage() {
-      return this.pool?.isSwappersActive && !!this.pool?.liqSwapperContract;
+      return this.cauldronConfig.cauldronSettings.isSwappersActive;
     },
 
     positionActions() {
@@ -130,13 +134,13 @@ export default {
           title: "Add Collateral/ Borrow MIM",
           icon: this.$image("assets/images/myposition/AddCollateral.png"),
           name: "BorrowId",
-          id: this.pool.id,
+          id: this.cauldronConfig.id,
         },
         {
           title: "Repay MIMs/ Remove Collateral",
           icon: this.$image("assets/images/myposition/Repay.png"),
           name: "RepayId",
-          id: this.pool.id,
+          id: this.cauldronConfig.id,
         },
       ];
 
@@ -145,7 +149,7 @@ export default {
           title: "Deleverage",
           icon: this.$image("assets/images/myposition/Deleverage.png"),
           name: "DeleverageId",
-          id: this.pool.id,
+          id: this.cauldronConfig.id,
         };
 
         defaultActions.push(deleverageLink);
@@ -159,13 +163,13 @@ export default {
         {
           title: "Collateral Deposited",
           symbol: this.collateralSymbol,
-          icon: this.pool.icon,
+          icon: this.cauldronConfig.icon,
           amount: this.collateralAmount,
           amountlUsd: this.collateralAmountUsd,
         },
         {
           title: "Borrowed",
-          symbol: this.pool.borrowToken.name,
+          symbol: this.cauldronConfig.mimInfo.name,
           icon: mimIcon,
           amount: this.formatTokenBalance(this.userBorrow),
         },
@@ -194,7 +198,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// todo grid to flex
 .position-item {
   display: flex;
   flex-direction: column;

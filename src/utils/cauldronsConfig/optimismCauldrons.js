@@ -9,7 +9,7 @@ import { useImage } from "@/helpers/useImage";
 
 const mimInfo = {
   name: "MIM",
-  icon: useImage(`@/assets/images/tokens/MIM.png`),
+  icon: useImage(`assets/images/tokens/MIM.png`),
   decimals: 18,
   address: "0xB153FB3d196A8eB25522705560ac152eeEc57901",
   abi: tokensAbi.MIM,
@@ -17,7 +17,7 @@ const mimInfo = {
 
 export default [
   {
-    icon: useImage(`@/assets/images/tokens/OP_USDC.png`),
+    icon: useImage(`assets/images/tokens/OP_USDC.png`),
     name: "Velodrome Volatile OP/USDC",
     chainId: 10,
     id: 1,
@@ -62,7 +62,7 @@ export default [
       isHiddenWrap: true,
       unwrappedToken: {
         name: "OP/USDC",
-        icon: useImage(`@/assets/images/tokens/OP_USDC.png`),
+        icon: useImage(`assets/images/tokens/OP_USDC.png`),
         address: "0x47029bc8f5CBe3b464004E87eF9c9419a48018cd",
         abi: lpAbi,
       },

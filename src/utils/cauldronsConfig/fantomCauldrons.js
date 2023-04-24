@@ -7,7 +7,7 @@ import { useImage } from "@/helpers/useImage";
 
 const mimInfo = {
   name: "MIM",
-  icon: useImage(`@/assets/images/tokens/MIM.png`),
+  icon: useImage(`assets/images/tokens/MIM.png`),
   decimals: 18,
   address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
   abi: tokensAbi.MIM,
@@ -15,7 +15,7 @@ const mimInfo = {
 
 export default [
   {
-    icon: useImage(`@/assets/images/tokens/FTM.png`),
+    icon: useImage(`assets/images/tokens/FTM.png`),
     name: "WFTM",
     chainId: 250,
     id: 1,
@@ -56,7 +56,7 @@ export default [
     },
   },
   {
-    icon: useImage(`@/assets/images/tokens/FTM.png`),
+    icon: useImage(`assets/images/tokens/FTM.png`),
     name: "WFTM",
     chainId: 250,
     id: 2,
@@ -97,7 +97,7 @@ export default [
     },
   },
   {
-    icon: useImage(`@/assets/images/tokens/FTM.png`),
+    icon: useImage(`assets/images/tokens/FTM.png`),
     name: "yvWFTM",
     chainId: 250,
     id: 3,
@@ -138,7 +138,7 @@ export default [
     },
   },
   {
-    icon: useImage(`@/assets/images/tokens/xBOO.png`),
+    icon: useImage(`assets/images/tokens/xBOO.png`),
     name: "xBOO",
     chainId: 250,
     id: 5,
@@ -179,7 +179,7 @@ export default [
     },
   },
   {
-    icon: useImage(`@/assets/images/tokens/FTM-MIM.png`),
+    icon: useImage(`assets/images/tokens/FTM-MIM.png`),
     name: "FTM/MIM",
     chainId: 250,
     id: 7,
@@ -221,7 +221,7 @@ export default [
     },
   },
   {
-    icon: useImage(`@/assets/images/tokens/FTM-MIM.png`),
+    icon: useImage(`assets/images/tokens/FTM-MIM.png`),
     name: "FTM/MIM",
     chainId: 250,
     id: 8,

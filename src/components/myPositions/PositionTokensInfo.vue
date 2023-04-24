@@ -1,6 +1,6 @@
 <template>
   <div class="token-info">
-    <BaseTokenIcon :name="tokenSymbol" :icon="position.icon" size="80px" />
+    <BaseTokenIcon :name="tokenSymbol" :icon="tokenIcon" size="80px" />
     <div>
       <p class="token-name">{{ tokenSymbol }}</p>
       <p class="token-rate" v-if="tokenName">{{ tokensRate }}</p>
@@ -23,20 +23,21 @@ export default {
   },
 
   computed: {
+    tokenIcon() {
+      return this.position?.config?.icon || this.position?.icon;
+    },
+
     tokenSymbol() {
       if (this.tokenName) return this.tokenName;
-      return this.position?.collateralToken?.name || this.position?.name;
+      return this.position?.config?.collateralInfo?.name || this.position?.name;
     },
 
     tokenToMim() {
-      return filters.formatToFixed(
-        1 / this.position.borrowToken.exchangeRate,
-        4
-      );
+      return filters.formatToFixed(1 / this.position.oracleRate, 4);
     },
 
     tokensRate() {
-      return `1 ${this.tokenName} = ${this.tokenToMim}${this.position.borrowToken.name}`;
+      return `1 ${this.tokenName} = ${this.tokenToMim}${this.position.config.mimInfo.name}`;
     },
   },
 

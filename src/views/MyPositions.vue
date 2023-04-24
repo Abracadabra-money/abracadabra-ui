@@ -4,13 +4,10 @@
 
     <div class="network-wrap">
       <h4 class="network-title">Choose Chain</h4>
-      <NetworksList :items="5" :activeList="activeNetworks" />
+      <NetworksList :items="activeNetwork" :activeList="activeNetworks" />
     </div>
 
-    <TotalAssets
-      v-if="account && !cauldronsLoading && !farmLoading"
-      :assets="totalAssets"
-    />
+    <TotalAssets v-if="showTotalAssets" :assets="totalAssets" />
 
     <BentoBoxBlock />
 
@@ -40,7 +37,7 @@
               v-for="cauldron in openUserCauldrons"
               :key="cauldron.id"
               :opened="isShowMore"
-              :pool="cauldron"
+              :cauldron="cauldron"
             />
           </div>
         </div>
@@ -49,10 +46,10 @@
           <div class="positions-header">Farm</div>
           <div class="position-list">
             <FarmPositionItem
-              v-for="cauldron in openUserFarms"
-              :key="cauldron.id"
+              v-for="farm in openUserFarms"
+              :key="farm.id"
               :opened="isShowMore"
-              :pool="cauldron"
+              :farmConfig="farm"
             />
           </div>
         </div>
@@ -65,7 +62,7 @@
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import farmMixin from "@/mixins/farmPools";
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
+import cauldronsMixin from "@/mixins/cauldron/positions.js";
 import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
 import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
 import NetworksList from "@/components/ui/NetworksList.vue";
@@ -82,9 +79,11 @@ export default {
   data() {
     return {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-      farmUpdateInterval: null,
-      cauldronsUpdateInterval: null,
+      activeNetwork: 5,
+      updateInterval: null,
       isShowMore: false,
+      cauldrons: [],
+      cauldronsIsLoading: true,
     };
   },
 
@@ -93,23 +92,27 @@ export default {
       account: "getAccount",
       cauldronPools: "getPools",
       cauldronsLoading: "getLoadPoolsBorrow",
-      farmLoading: "getFarmPoolLoading",
+      farmIsLoading: "getFarmPoolLoading",
     }),
+
+    showTotalAssets() {
+      return this.account && !this.cauldronsIsLoading && !this.farmIsLoading;
+    },
 
     isEmpyState() {
       return (
         !this.account ||
         (!this.openUserCauldrons.length &&
           !this.openUserFarms.length &&
-          !this.cauldronsLoading &&
-          !this.farmLoading)
+          !this.cauldronsIsLoading &&
+          !this.farmIsLoading)
       );
     },
 
     isPositionsLoaded() {
       return (
-        (this.farmLoading && !this.openUserFarms.length) ||
-        (this.cauldronsLoading && !this.openUserCauldrons.length)
+        (this.farmIsLoading && !this.openUserFarms.length) ||
+        (this.cauldronsIsLoading && !this.openUserCauldrons.length)
       );
     },
 
@@ -126,12 +129,11 @@ export default {
         {
           title: "Collateral Deposit",
           value: filters.formatUSD(
-            this.openUserCauldrons.reduce((calc, pool) => {
+            this.openUserCauldrons.reduce((calc, cauldron) => {
               return (
                 calc +
                 parseFloat(
-                  (pool.userInfo.userCollateralShare * 1) /
-                    pool.borrowToken.exchangeRate
+                  (cauldron.collateralAmount * 1) / cauldron.oracleRate
                 )
               );
             }, 0)
@@ -140,8 +142,8 @@ export default {
         {
           title: "MIM Borrowed",
           value: filters.formatTokenBalance(
-            this.openUserCauldrons.reduce((calc, pool) => {
-              return calc + parseFloat(pool.userInfo.userBorrowPart);
+            this.openUserCauldrons.reduce((calc, cauldron) => {
+              return calc + +cauldron.borrowPart.userBorrowPart;
             }, 0)
           ),
         },
@@ -155,15 +157,33 @@ export default {
     },
 
     openUserCauldrons() {
-      return this.cauldronPools.filter((cauldron) => {
-        if (!cauldron.userInfo) return false;
-        const tokenInUsd =
-          cauldron.userInfo.userCollateralShare /
-          cauldron.borrowToken.exchangeRate;
+      const formatConfig = this.cauldrons.map((cauldron) => {
+        return {
+          borrowPart: {
+            userBorrowPart: this.$ethers.utils.formatUnits(
+              cauldron.borrowPart.userBorrowPart,
+              cauldron.config.collateralInfo.decimals
+            ),
+          },
+          collateralAmount: this.$ethers.utils.formatUnits(
+            cauldron.collateralAmount,
+            cauldron.config.collateralInfo.decimals
+          ),
+          liquidationPrice: cauldron.liquidationPrice,
+          oracleRate: this.$ethers.utils.formatUnits(
+            cauldron.oracleRate,
+            cauldron.config.collateralInfo.decimals
+          ),
+          config: cauldron.config,
+        };
+      });
+
+      return formatConfig.filter((cauldron) => {
+        const tokenInUsd = cauldron.collateralAmount / cauldron.oracleRate;
         if (tokenInUsd < 3) return false;
         return (
-          cauldron.userBorrowPart !== "0.0" &&
-          cauldron.userInfo.userCollateralShare !== "0.0"
+          cauldron.borrowPart.userBorrowPart !== "0.0" &&
+          cauldron.collateralAmount !== "0.0"
         );
       });
     },
@@ -190,25 +210,25 @@ export default {
     toggleShowMore() {
       this.isShowMore = !this.isShowMore;
     },
+
+    async createOpenPositions() {
+      this.cauldrons = await this.checkCauldronPositions();
+      this.cauldronsIsLoading = false;
+      if (!this.pools.length) await this.createFarmPools();
+
+      this.updateInterval = setInterval(async () => {
+        this.cauldrons = await this.checkCauldronPositions();
+        await this.createFarmPools();
+      }, 10000);
+    },
   },
 
   async created() {
-    if (!this.pools.length) {
-      await this.createFarmPools();
-    }
-
-    this.farmUpdateInterval = setInterval(async () => {
-      await this.createFarmPools();
-    }, 10000);
-
-    this.cauldronsUpdateInterval = setInterval(async () => {
-      await this.createPools();
-    }, 10000);
+    await this.createOpenPositions();
   },
 
   beforeUnmount() {
-    clearInterval(this.farmUpdateInterval);
-    clearInterval(this.cauldronsUpdateInterval);
+    clearInterval(this.updateInterval);
   },
 
   components: {
