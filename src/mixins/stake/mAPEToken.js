@@ -50,7 +50,7 @@ export default {
   methods: {
     ...mapMutations(["setLoadingMApeStake", "setMApeStakingObj"]),
 
-    async createStakePool() {
+    async createMagicApeData() {
       if (this.chainId !== 1) return !!this.setLoadingMApeStake(false);
 
       const { mainToken, stakeToken, oracle } = this.stakeInfo;
@@ -132,19 +132,6 @@ export default {
         "1000000000000000000"
       );
       return ethers.utils.formatUnits(rate);
-
-      // const mainTokenBalance = await stakeTokenInstance.balanceOf(
-      //   mainTokenInstance.address
-      // );
-
-      // const totalSupply = await mainTokenInstance.totalSupply();
-
-      // const parsedMainTokenBalance = this.$ethers.utils.formatEther(
-      //   mainTokenBalance.toString()
-      // );
-      // const parsedTotalSupply = this.$ethers.utils.formatEther(totalSupply);
-
-      // return parsedMainTokenBalance / parsedTotalSupply;
     },
 
     async getUserInfo(stakeInstance, mainInstance) {
