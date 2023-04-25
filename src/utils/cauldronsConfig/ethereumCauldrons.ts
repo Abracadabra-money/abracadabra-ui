@@ -10,6 +10,7 @@ import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
+import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
 const mimInfo = {
   name: "MIM",
@@ -19,7 +20,7 @@ const mimInfo = {
   abi: tokensAbi.MIM,
 };
 
-export default [
+const config: Array<CauldronConfig> = [
   {
     icon: useImage(`assets/images/tokens/USDT.png`),
     name: "yvUSDT v2",
@@ -252,9 +253,9 @@ export default [
       hasCrvClaimLogic: false,
     },
     contract: {
-      name: "CauldronMediumRiskV1",
+      name: "CauldronV2Flat",
       address: "0x920D9BD936Da4eAFb5E25c6bDC9f6CB528953F9f",
-      abi: poolsAbi.CauldronMediumRiskV1,
+      abi: poolsAbi.CauldronV2Flat,
     },
     collateralInfo: {
       name: "yvWETH",
@@ -1499,3 +1500,5 @@ export default [
     },
   },
 ];
+
+export default config;

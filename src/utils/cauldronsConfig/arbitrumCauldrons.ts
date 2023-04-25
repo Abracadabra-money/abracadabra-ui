@@ -7,6 +7,7 @@ import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
 import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
 import { useImage } from "@/helpers/useImage";
+import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
 const mimInfo = {
   name: "MIM",
@@ -16,7 +17,7 @@ const mimInfo = {
   abi: tokensAbi.MIM,
 };
 
-export default [
+const config: Array<CauldronConfig> = [
   {
     icon: useImage(`assets/images/tokens/WETH.png`),
     name: "WETH",
@@ -164,3 +165,5 @@ export default [
     },
   },
 ];
+
+export default config;

@@ -4,8 +4,8 @@ import zeroXLevSwapper from "@/utils/abi/zeroXLevSwapper.js";
 import zeroXLiqSwapper from "@/utils/abi/zeroXLiqSwapper";
 import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
 import lpAbi from "@/utils/abi/lp/lpAbi";
-import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 import { useImage } from "@/helpers/useImage";
+import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
 const mimInfo = {
   name: "MIM",
@@ -15,7 +15,7 @@ const mimInfo = {
   abi: tokensAbi.MIM,
 };
 
-export default [
+const config: Array<CauldronConfig> = [
   {
     icon: useImage(`assets/images/tokens/OP_USDC.png`),
     name: "Velodrome Volatile OP/USDC",
@@ -49,14 +49,6 @@ export default [
       address: "0x6eb1709e0b562097bf1cc48bc6a378446c297c04",
       abi: tokensAbi.opUSDC,
     },
-    token0: {
-      address: "0x4200000000000000000000000000000000000042",
-      abi: abiERC20,
-    },
-    token1: {
-      address: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-      abi: abiERC20,
-    },
     mimInfo,
     wrapInfo: {
       isHiddenWrap: true,
@@ -81,3 +73,5 @@ export default [
     },
   },
 ];
+
+export default config;
