@@ -64,7 +64,7 @@ export default {
       updateInterval: null,
       sortList: [
         { title: "Title", name: "name" },
-        { title: "TVL", name: "totalMim" },
+        { title: "TVL", name: "tvl" },
         { title: "MIMs Left", name: "MIMsLeftToBorrow" },
         { title: "Interest", name: "interest" },
         { title: "Fee", name: "fee" },
