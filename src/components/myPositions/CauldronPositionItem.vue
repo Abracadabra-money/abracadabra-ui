@@ -7,7 +7,7 @@
 
     <PositionLiquidationPrice
       :positionRisk="positionRisk"
-      :liquidationPrice="liquidationPrice"
+      :liquidationPrice="cauldron.liquidationPrice"
     />
 
     <PositionAssets :assetsInfo="assetsInfo" />
@@ -29,7 +29,7 @@
           />
           <p>Required Drop in price</p>
         </div>
-        <p class="drop-value">{{ formatLeftDrop }}</p>
+        <p class="drop-value">{{ leftToDrop.toLocaleString() }}</p>
       </div>
     </div>
   </div>
@@ -61,43 +61,36 @@ export default {
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
 
-    cauldronConfig() {
-      return this.cauldron.config;
+    collateralSymbol() {
+      return this.chainId === 42161 && this.cauldron.config.id === 2
+        ? this.cauldron.config?.wrapInfo?.unwrappedToken?.name
+        : this.cauldron.config.collateralInfo.name;
     },
 
-    collateralSymbol() {
-      return this.chainId === 42161 && this.cauldronConfig.id === 2
-        ? this.cauldronConfig?.wrapInfo?.unwrappedToken?.name
-        : this.cauldronConfig.collateralInfo.name;
+    oracleRate() {
+      return this.$ethers.utils.formatUnits(
+        this.cauldron.oracleRate,
+        this.cauldron.config.collateralInfo.decimals
+      );
     },
 
     collateralPrice() {
-      return 1 / this.cauldron.oracleRate;
-    },
-
-    liquidationPrice() {
-      return +this.cauldron.liquidationPrice;
-    },
-
-    userBorrow() {
-      return +this.cauldron.borrowPart.userBorrowPart;
+      return 1 / this.oracleRate;
     },
 
     leftToDrop() {
-      return this.collateralPrice - this.liquidationPrice;
-    },
-
-    formatLeftDrop() {
-      return filters.formatUSD(this.leftToDrop);
-    },
-
-    healthMultiplier() {
-      return this.cauldronConfig.cauldronSettings.healthMultiplier;
+      return +this.collateralPrice - +this.cauldron.liquidationPrice;
     },
 
     positionHealth() {
-      if (+this.userBorrow === 0 || isNaN(this.liquidationPrice)) return 100;
-      const priceToDrop = this.leftToDrop * this.healthMultiplier;
+      const { liquidationPrice } = this.cauldron;
+      const { healthMultiplier } = this.cauldron.config.cauldronSettings;
+      const { userBorrowAmount } = this.cauldron.borrowInfo;
+
+      if (userBorrowAmount.toString() === "0" || isNaN(+liquidationPrice))
+        return 100;
+
+      const priceToDrop = this.leftToDrop * healthMultiplier;
       const percent = (priceToDrop / this.collateralPrice) * 100;
       if (percent > 100) return 100;
       if (percent < 0) return 0;
@@ -110,22 +103,22 @@ export default {
       return "safe";
     },
 
-    userCollateralShare() {
-      return this.cauldron.collateralAmount;
-    },
-
-    collateralAmount() {
-      return this.formatTokenBalance(this.userCollateralShare);
-    },
-
-    collateralAmountUsd() {
-      return this.formatUSD(
-        this.userCollateralShare / this.cauldron.oracleRate
+    userCollateralAmount() {
+      return this.$ethers.utils.formatUnits(
+        this.cauldron.collateralInfo.userCollateralAmount,
+        this.cauldron.config.collateralInfo.decimals
       );
     },
 
-    isDeleverage() {
-      return this.cauldronConfig.cauldronSettings.isSwappersActive;
+    userCollateralAmountUsd() {
+      return this.userCollateralAmount / this.oracleRate;
+    },
+
+    userBorrowAmount() {
+      return this.$ethers.utils.formatUnits(
+        this.cauldron.borrowInfo.userBorrowAmount,
+        this.cauldron.config.mimInfo.decimals
+      );
     },
 
     positionActions() {
@@ -134,22 +127,22 @@ export default {
           title: "Add Collateral/ Borrow MIM",
           icon: this.$image("assets/images/myposition/AddCollateral.png"),
           name: "BorrowId",
-          id: this.cauldronConfig.id,
+          id: this.cauldron.config.id,
         },
         {
           title: "Repay MIMs/ Remove Collateral",
           icon: this.$image("assets/images/myposition/Repay.png"),
           name: "RepayId",
-          id: this.cauldronConfig.id,
+          id: this.cauldron.config.id,
         },
       ];
 
-      if (this.isDeleverage) {
+      if (this.cauldron.config.cauldronSettings.isSwappersActive) {
         const deleverageLink = {
           title: "Deleverage",
           icon: this.$image("assets/images/myposition/Deleverage.png"),
           name: "DeleverageId",
-          id: this.cauldronConfig.id,
+          id: this.cauldron.config.id,
         };
 
         defaultActions.push(deleverageLink);
@@ -163,25 +156,21 @@ export default {
         {
           title: "Collateral Deposited",
           symbol: this.collateralSymbol,
-          icon: this.cauldronConfig.icon,
-          amount: this.collateralAmount,
-          amountlUsd: this.collateralAmountUsd,
+          icon: this.cauldron.config.icon,
+          amount: this.formatTokenBalance(this.userCollateralAmount),
+          amountlUsd: Number(this.userCollateralAmountUsd).toLocaleString(),
         },
         {
           title: "Borrowed",
-          symbol: this.cauldronConfig.mimInfo.name,
+          symbol: this.cauldron.config.mimInfo.name,
           icon: mimIcon,
-          amount: this.formatTokenBalance(this.userBorrow),
+          amount: this.formatTokenBalance(this.userBorrowAmount),
         },
       ];
     },
   },
 
   methods: {
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
-
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },

@@ -7,7 +7,7 @@
       <NetworksList :items="activeNetwork" :activeList="activeNetworks" />
     </div>
 
-    <TotalAssets v-if="showTotalAssets" :assets="totalAssets" />
+    <TotalAssets v-if="showTotalAssets" :assets="totalAssetsData" />
 
     <BentoBoxBlock />
 
@@ -23,7 +23,7 @@
       </div>
 
       <template v-else>
-        <div class="positions-wrap" v-if="openUserCauldrons.length">
+        <div class="positions-wrap" v-if="openUserPositions.length">
           <div class="positions-header">
             <p>Borrow</p>
             <button class="btn-more" @click="toggleShowMore">
@@ -34,7 +34,7 @@
 
           <div class="position-list">
             <CauldronPositionItem
-              v-for="cauldron in openUserCauldrons"
+              v-for="cauldron in openUserPositions"
               :key="cauldron.id"
               :opened="isShowMore"
               :cauldron="cauldron"
@@ -62,9 +62,10 @@
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import farmMixin from "@/mixins/farmPools";
-import cauldronsMixin from "@/mixins/cauldron/positions.js";
 import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
 import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
+import { getUserPositions } from "@/helpers/cauldron/position/getUserPositions.ts";
+import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import TotalAssets from "@/components/myPositions/TotalAssets.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
@@ -74,7 +75,7 @@ import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.
 import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
 
 export default {
-  mixins: [farmMixin, cauldronsMixin],
+  mixins: [farmMixin],
 
   data() {
     return {
@@ -82,29 +83,30 @@ export default {
       activeNetwork: 5,
       updateInterval: null,
       isShowMore: false,
-      cauldrons: [],
-      cauldronsIsLoading: true,
+      positionList: [],
+      positionsIsLoading: true,
+      totalAssets: null,
     };
   },
 
   computed: {
     ...mapGetters({
       account: "getAccount",
-      cauldronPools: "getPools",
-      cauldronsLoading: "getLoadPoolsBorrow",
+      chainId: "getChainId",
+      provider: "getProvider",
       farmIsLoading: "getFarmPoolLoading",
     }),
 
     showTotalAssets() {
-      return this.account && !this.cauldronsIsLoading && !this.farmIsLoading;
+      return this.account && !this.positionsIsLoading && !this.farmIsLoading;
     },
 
     isEmpyState() {
       return (
         !this.account ||
-        (!this.openUserCauldrons.length &&
+        (!this.openUserPositions.length &&
           !this.openUserFarms.length &&
-          !this.cauldronsIsLoading &&
+          !this.positionsIsLoading &&
           !this.farmIsLoading)
       );
     },
@@ -112,11 +114,11 @@ export default {
     isPositionsLoaded() {
       return (
         (this.farmIsLoading && !this.openUserFarms.length) ||
-        (this.cauldronsIsLoading && !this.openUserCauldrons.length)
+        (this.positionsIsLoading && !this.openUserPositions.length)
       );
     },
 
-    totalAssets() {
+    totalAssetsData() {
       const spellFarmer = filters.formatTokenBalance(
         this.openUserFarms.reduce((calc, pool) => {
           return (
@@ -128,24 +130,13 @@ export default {
       return [
         {
           title: "Collateral Deposit",
-          value: filters.formatUSD(
-            this.openUserCauldrons.reduce((calc, cauldron) => {
-              return (
-                calc +
-                parseFloat(
-                  (cauldron.collateralAmount * 1) / cauldron.oracleRate
-                )
-              );
-            }, 0)
-          ),
+          value: Number(
+            this.totalAssets.collateralDepositedInUsd
+          ).toLocaleString(),
         },
         {
           title: "MIM Borrowed",
-          value: filters.formatTokenBalance(
-            this.openUserCauldrons.reduce((calc, cauldron) => {
-              return calc + +cauldron.borrowPart.userBorrowPart;
-            }, 0)
-          ),
+          value: filters.formatTokenBalance(this.totalAssets.mimBorrowed),
         },
         {
           title: "SPELL Farmed",
@@ -156,35 +147,19 @@ export default {
       ].filter((item) => !item.hidden);
     },
 
-    openUserCauldrons() {
-      const formatConfig = this.cauldrons.map((cauldron) => {
-        return {
-          borrowPart: {
-            userBorrowPart: this.$ethers.utils.formatUnits(
-              cauldron.borrowPart.userBorrowPart,
-              cauldron.config.collateralInfo.decimals
-            ),
-          },
-          collateralAmount: this.$ethers.utils.formatUnits(
-            cauldron.collateralAmount,
-            cauldron.config.collateralInfo.decimals
-          ),
-          liquidationPrice: cauldron.liquidationPrice,
-          oracleRate: this.$ethers.utils.formatUnits(
-            cauldron.oracleRate,
-            cauldron.config.collateralInfo.decimals
-          ),
-          config: cauldron.config,
-        };
-      });
+    openUserPositions() {
+      return this.positionList.filter((cauldron) => {
+        const tokenInUsd = cauldron.collateralInfo.userCollateralAmount
+          .mul(Math.pow(10, cauldron.config.collateralInfo.decimals).toString())
+          .div(cauldron.oracleRate);
 
-      return formatConfig.filter((cauldron) => {
-        const tokenInUsd = cauldron.collateralAmount / cauldron.oracleRate;
-        if (tokenInUsd < 3) return false;
-        return (
-          cauldron.borrowPart.userBorrowPart !== "0.0" &&
-          cauldron.collateralAmount !== "0.0"
+        const parseUsd = this.$ethers.utils.formatUnits(
+          tokenInUsd,
+          cauldron.config.collateralInfo.decimals
         );
+
+        if (parseUsd < 3) return false;
+        else return true;
       });
     },
 
@@ -212,12 +187,26 @@ export default {
     },
 
     async createOpenPositions() {
-      this.cauldrons = await this.checkCauldronPositions();
-      this.cauldronsIsLoading = false;
+      this.positionList = await getUserPositions(
+        this.chainId,
+        this.account,
+        this.provider
+      );
+
+      this.totalAssets = getUsersTotalAssets(this.positionList);
+      this.positionsIsLoading = false;
+
       if (!this.pools.length) await this.createFarmPools();
 
       this.updateInterval = setInterval(async () => {
-        this.cauldrons = await this.checkCauldronPositions();
+        this.positionList = await getUserPositions(
+          this.chainId,
+          this.account,
+          this.provider
+        );
+
+        this.totalAssets = getUsersTotalAssets(this.positionList);
+
         await this.createFarmPools();
       }, 10000);
     },

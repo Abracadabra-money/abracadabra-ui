@@ -32,12 +32,19 @@ export default {
       return this.position?.config?.collateralInfo?.name || this.position?.name;
     },
 
+    oracleRate() {
+      return this.$ethers.utils.formatUnits(
+        this.position.oracleRate,
+        this.position.config.collateralInfo.decimals
+      );
+    },
+
     tokenToMim() {
-      return filters.formatToFixed(1 / this.position.oracleRate, 4);
+      return filters.formatToFixed(1 / this.oracleRate, 4);
     },
 
     tokensRate() {
-      return `1 ${this.tokenName} = ${this.tokenToMim}${this.position.config.mimInfo.name}`;
+      return `1 ${this.tokenName} = ${this.tokenToMim} ${this.position.config.mimInfo.name}`;
     },
   },
 
