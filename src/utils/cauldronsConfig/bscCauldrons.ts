@@ -3,6 +3,7 @@ import tokensAbi from "@/utils/abi/tokensAbi/index";
 import swapAbi from "@/utils/abi/swap";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import { useImage } from "@/helpers/useImage";
+import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
 const mimInfo = {
   name: "MIM",
@@ -12,7 +13,7 @@ const mimInfo = {
   abi: tokensAbi.MIM,
 };
 
-export default [
+const config: Array<CauldronConfig> = [
   {
     icon: useImage(`assets/images/tokens/BNB.png`),
     name: "WBNB",
@@ -97,3 +98,5 @@ export default [
     },
   },
 ];
+
+export default config;
