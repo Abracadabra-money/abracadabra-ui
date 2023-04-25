@@ -43,7 +43,8 @@
 </template>
 
 <script>
-import cauldronsListMixin from "@/mixins/cauldron/cauldronsList.js";
+import { mapGetters } from "vuex";
+import { getMarketList } from "@/helpers/cauldron/lists/getMarketList.ts";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
 import CauldronItem from "@/components/markets/CauldronItem.vue";
@@ -51,9 +52,7 @@ import CheckBox from "@/components/ui/CheckBox.vue";
 import ScrollToTop from "@/components/ui/ScrollToTop.vue";
 import Search from "@/components/ui/search/CauldronsSearch.vue";
 import DropdownSortBy from "@/components/ui/dropdown/SortBy.vue";
-
 export default {
-  mixins: [cauldronsListMixin],
   data() {
     return {
       isShowDeprecated: false,
@@ -82,6 +81,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ chainId: "getChainId", provider: "getProvider" }),
+
     isEmptyState() {
       return !this.cauldrons.length && !this.cauldronsLoading;
     },
@@ -174,10 +175,13 @@ export default {
     },
 
     async createCauldronsList() {
-      this.cauldrons = await this.initCauldronsList();
+      this.cauldrons = await getMarketList(this.chainId, this.provider);
       this.cauldronsLoading = false;
 
-      this.updateInterval = setInterval(await this.initCauldronsList(), 60000);
+      this.updateInterval = setInterval(
+        await getMarketList(this.chainId, this.provider),
+        60000
+      );
     },
   },
 

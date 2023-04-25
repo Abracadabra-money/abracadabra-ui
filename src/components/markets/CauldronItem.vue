@@ -29,7 +29,10 @@
         <router-link class="cauldron-link" :to="goToPage('BorrowId')"
           >Borrow</router-link
         >
-        <router-link class="cauldron-link" :to="goToPage('LeverageId')"
+        <router-link
+          class="cauldron-link"
+          v-if="hasLeverage"
+          :to="goToPage('LeverageId')"
           >Leverage</router-link
         >
       </div>
