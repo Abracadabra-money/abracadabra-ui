@@ -185,8 +185,7 @@
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
-        :pools="filteredPool"
-        popupType="cauldron"
+        popupType="borrow"
     /></LocalPopupWrap>
   </div>
 </template>
@@ -251,17 +250,17 @@ export default {
       account: "getAccount",
     }),
 
-    filteredPool() {
-      if (this.account && this.pools[0]?.userInfo) {
-        return this.pools
-          .filter((pool) => !pool.cauldronSettings.isDepreciated)
-          .sort((a, b) =>
-            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-          );
-      }
+    // filteredPool() {
+    //   if (this.account && this.pools[0]?.userInfo) {
+    //     return this.pools
+    //       .filter((pool) => !pool.cauldronSettings.isDepreciated)
+    //       .sort((a, b) =>
+    //         a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
+    //       );
+    //   }
 
-      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
-    },
+    //   return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
+    // },
 
     selectedPool() {
       if (this.poolId) {

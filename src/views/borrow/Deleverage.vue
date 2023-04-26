@@ -166,7 +166,7 @@
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
         :pools="filteredPool"
-        popupType="cauldron"
+        popupType="deleverage"
     /></LocalPopupWrap>
   </div>
 </template>
