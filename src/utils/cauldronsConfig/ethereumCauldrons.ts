@@ -971,7 +971,7 @@ const config: Array<CauldronConfig> = [
     chainId: 1,
     id: 27,
     liquidationFee: 4,
-    interest: 7.5,
+    interest: 15,
     mcr: 90,
     borrowFee: 0.5,
     cauldronSettings: {
@@ -1013,7 +1013,7 @@ const config: Array<CauldronConfig> = [
     chainId: 1,
     id: 28,
     liquidationFee: 7,
-    interest: 7.5,
+    interest: 15,
     mcr: 85,
     borrowFee: 0.5,
     cauldronSettings: {
@@ -1339,6 +1339,7 @@ const config: Array<CauldronConfig> = [
     chainId: 1,
     id: 36,
     liquidationFee: 12.5,
+    interest: 15.5,
     mcr: 75,
     borrowFee: 0.5,
     cauldronSettings: {
