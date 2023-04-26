@@ -3,7 +3,7 @@
     <div class="cauldron-info">
       <div class="chain-info">
         <p class="chain-title">Chain</p>
-        <BaseTokenIcon :icon="getCauldronsChainIcon(chainId)" size="26px" />
+        <BaseTokenIcon :icon="getChainIcon(chainId)" size="26px" />
       </div>
 
       <div class="collateral-info">
@@ -44,7 +44,6 @@
 import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import { getCauldronsChainIcon } from "@/helpers/icons/getCauldronsChainIcon";
 
 export default {
   props: {
@@ -54,7 +53,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", getChainIcon: "getChainIcon" }),
 
     goToCauldron() {
       const name = this.cauldronSettings?.isDepreciated
@@ -112,8 +111,6 @@ export default {
   },
 
   methods: {
-    getCauldronsChainIcon,
-
     goToPage(name) {
       return { name, params: { id: this.cauldronConfig.id } };
     },

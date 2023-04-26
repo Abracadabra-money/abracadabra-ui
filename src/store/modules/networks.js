@@ -133,5 +133,11 @@ export default {
   },
   getters: {
     getAvailableNetworks: (state) => state.networks,
+    getChainIcon: (state) => (chainId) => {
+      const network = state.networks.find(
+        (network) => network.chainId === +chainId
+      );
+      return network.icon;
+    },
   },
 };
