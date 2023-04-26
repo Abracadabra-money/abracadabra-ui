@@ -1501,6 +1501,39 @@ const config: Array<CauldronConfig> = [
       abi: ERC4626LiqSwapper,
     },
   },
+  {
+    icon: useImage(`assets/images/tokens/CRV.png`),
+    name: "CRV 2",
+    chainId: 1,
+    id: 40,
+    liquidationFee: 7.5,
+    mcr: 75,
+    borrowFee: 0,
+    cauldronSettings: {
+      isSwappersActive: false,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x7d8dF3E4D06B0e19960c19Ee673c0823BEB90815",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "CRV",
+      decimals: 18,
+      address: "0xD533a949740bb3306d119CC777fa900bA034cd52",
+      abi: tokensAbi.CurveDAOToken,
+    },
+    mimInfo,
+  },
 ];
 
 export default config;
