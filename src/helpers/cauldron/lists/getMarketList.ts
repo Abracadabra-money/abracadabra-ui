@@ -4,7 +4,6 @@ import { MulticallWrapper } from "ethers-multicall-provider";
 import cauldronsConfig from "@/utils/cauldronsConfig";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 
-import { getInterest } from "@/helpers/cauldron/getInterest";
 import { getMaxToBorrow } from "@/helpers/cauldron/getMaxToBorrow";
 import { getTotalBorrowed } from "@/helpers/cauldron/getTotalBorrowed";
 
@@ -13,7 +12,7 @@ import lensAbi from "@/utils/abi/marketLens.js";
 
 type CauldronListItem = {
   config: object;
-  interest: string;
+  interest: number;
   tvl: string;
   totalBorrowed: string;
   MIMsLeftToBorrow: string;
@@ -117,8 +116,12 @@ export const getMarketList = async (
     )
   );
 
-  const interestArr = configs.map(({ interest }, idx) =>
-    interest ? interest : getInterest(accrueInfoArr[idx])
+  const interestArr = await Promise.all(
+    configs.map(({ interest, contract }) =>
+      interest
+        ? interest * 100
+        : lensContract.getInterestPerYear(contract.address)
+    )
   );
 
   const tvlArr = configs.map((_, idx) =>
@@ -128,7 +131,7 @@ export const getMarketList = async (
   return configs.map((config, idx) => {
     return {
       config,
-      interest: interestArr[idx],
+      interest: interestArr[idx] / 100,
       tvl: tvlArr[idx],
       totalBorrowed: totalBorrowedArr[idx],
       MIMsLeftToBorrow: MIMsLeftToBorrowArr[idx].toString(),

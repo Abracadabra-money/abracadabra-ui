@@ -60,7 +60,7 @@ const checkAccruedAmount = (
   INTEREST_PER_SECOND: BigNumber
 ): BigNumber => {
   const INTEREST_PRECISION = BigNumber.from("10000000000000000");
-  const secondsInYear = BigNumber.from(31536000);
+  const secondsInYear = BigNumber.from("316880878");
 
   const interestPercent =
     INTEREST_PER_SECOND.mul(secondsInYear).div(INTEREST_PRECISION);
