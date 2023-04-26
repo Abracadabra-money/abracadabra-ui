@@ -68,6 +68,12 @@ export default {
     },
   },
 
+  watch: {
+    async account() {
+      await this.createMimBentoData();
+    },
+  },
+
   methods: {
     openPopup(isBento, isDeposit) {
       this.popupData = { opened: true, isBento, isDeposit };
@@ -76,14 +82,19 @@ export default {
     closePopup() {
       this.popupData = { ...initialPopupData };
     },
+
+    async createMimBentoData() {
+      if (!this.account) return false;
+      await this.createMimBentoInfo();
+
+      this.bentoUpdateInterval = setInterval(async () => {
+        await this.createMimBentoInfo();
+      }, 5000);
+    },
   },
 
   async created() {
-    await this.createMimBentoInfo();
-
-    this.bentoUpdateInterval = setInterval(async () => {
-      await this.createMimBentoInfo();
-    }, 5000);
+    await this.createMimBentoData();
   },
 
   beforeUnmount() {

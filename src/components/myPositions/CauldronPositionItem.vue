@@ -29,7 +29,7 @@
           />
           <p>Required Drop in price</p>
         </div>
-        <p class="drop-value">{{ leftToDrop.toLocaleString() }}</p>
+        <p class="drop-value">{{ formatUSD(leftToDrop) }}</p>
       </div>
     </div>
   </div>
@@ -158,7 +158,7 @@ export default {
           symbol: this.collateralSymbol,
           icon: this.cauldron.config.icon,
           amount: this.formatTokenBalance(this.userCollateralAmount),
-          amountlUsd: Number(this.userCollateralAmountUsd).toLocaleString(),
+          amountlUsd: this.formatUSD(this.userCollateralAmountUsd),
         },
         {
           title: "Borrowed",
@@ -173,6 +173,10 @@ export default {
   methods: {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
+    },
+
+    formatUSD(value) {
+      return filters.formatUSD(value);
     },
   },
 

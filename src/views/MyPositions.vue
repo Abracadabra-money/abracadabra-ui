@@ -130,9 +130,7 @@ export default {
       return [
         {
           title: "Collateral Deposit",
-          value: Number(
-            this.totalAssets.collateralDepositedInUsd
-          ).toLocaleString(),
+          value: filters.formatUSD(this.totalAssets.collateralDepositedInUsd),
         },
         {
           title: "MIM Borrowed",
@@ -181,12 +179,23 @@ export default {
     },
   },
 
+  watch: {
+    async account() {
+      await this.createOpenPositions();
+    },
+  },
+
   methods: {
     toggleShowMore() {
       this.isShowMore = !this.isShowMore;
     },
 
     async createOpenPositions() {
+      if (!this.account) {
+        this.positionsIsLoading = false;
+        return false;
+      }
+
       this.positionList = await getUserPositions(
         this.chainId,
         this.account,
