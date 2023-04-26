@@ -2,7 +2,7 @@
   <div class="cauldrons-page">
     <h2 class="title">Available Cauldrons</h2>
     <EmptyState v-if="isEmptyState" />
-    <div v-else-if="cauldronsIsLoaded" class="loader-wrap">
+    <div v-else-if="isLoading" class="loader-wrap">
       <BaseLoader />
     </div>
     <template v-else>
@@ -87,7 +87,7 @@ export default {
       return !this.cauldrons.length && !this.cauldronsLoading;
     },
 
-    cauldronsIsLoaded() {
+    isLoading() {
       return !this.cauldrons.length && this.cauldronsLoading;
     },
 
