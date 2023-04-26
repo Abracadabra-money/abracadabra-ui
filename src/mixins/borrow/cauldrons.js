@@ -506,6 +506,8 @@ export default {
       if (poolInterest) interest = poolInterest;
       if (!poolInterest && pool?.interest) interest = pool?.interest;
 
+      if(pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
+
       let poolData = {
         name: pool.name,
         icon: pool.icon,
