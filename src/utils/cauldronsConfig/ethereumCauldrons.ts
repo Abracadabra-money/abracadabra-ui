@@ -971,7 +971,7 @@ const config: Array<CauldronConfig> = [
     chainId: 1,
     id: 27,
     liquidationFee: 4,
-    interest: 7.5,
+    interest: 15,
     mcr: 90,
     borrowFee: 0.5,
     cauldronSettings: {
@@ -1013,7 +1013,7 @@ const config: Array<CauldronConfig> = [
     chainId: 1,
     id: 28,
     liquidationFee: 7,
-    interest: 7.5,
+    interest: 15,
     mcr: 85,
     borrowFee: 0.5,
     cauldronSettings: {
@@ -1339,6 +1339,7 @@ const config: Array<CauldronConfig> = [
     chainId: 1,
     id: 36,
     liquidationFee: 12.5,
+    interest: 15.5,
     mcr: 75,
     borrowFee: 0.5,
     cauldronSettings: {
@@ -1499,6 +1500,39 @@ const config: Array<CauldronConfig> = [
       address: "0x93Ef8EcF4d9cBc602806C85E0D990856775407CD",
       abi: ERC4626LiqSwapper,
     },
+  },
+  {
+    icon: useImage(`assets/images/tokens/CRV.png`),
+    name: "CRV 2",
+    chainId: 1,
+    id: 40,
+    liquidationFee: 7.5,
+    mcr: 75,
+    borrowFee: 0,
+    cauldronSettings: {
+      isSwappersActive: false,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x7d8dF3E4D06B0e19960c19Ee673c0823BEB90815",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "CRV",
+      decimals: 18,
+      address: "0xD533a949740bb3306d119CC777fa900bA034cd52",
+      abi: tokensAbi.CurveDAOToken,
+    },
+    mimInfo,
   },
 ];
 
