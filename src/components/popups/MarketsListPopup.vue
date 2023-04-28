@@ -1,57 +1,51 @@
 <template>
   <div class="popup-wrap">
     <div class="popup-header">
-      <h4 class="popup-title">Select {{ title }}</h4>
-      <PopupSearch v-if="!isLoading" @input="changeInput" />
+      <h4 class="popup-title">Select {{ popupTitle }}</h4>
+      <PopupSearch v-if="!isLoadingMarkets" @input="changeSerch" />
     </div>
 
     <div class="loader-wrap" v-if="isLoader">
       <BaseLoader />
     </div>
 
-    <div class="tokens-list" v-else-if="filteredPools.length">
-      <template v-if="popupType === 'farms'">
-        <TokenPopupItem
-          v-for="pool in filteredPools"
-          @click="selectToken(pool)"
-          :key="pool.id"
-          :name="pool.name"
-          :icon="pool.icon"
-          :farmItem="pool"
-          :balance="pool.accountInfo ? pool.accountInfo.balance : null"
-          :price="pool.lpPrice"
+    <div class="markets-list" v-else-if="filteredMarketList.length">
+      <template v-if="isFarmsMarket">
+        <MarketsListPopupFarmItem
+          v-for="marketItem in filteredMarketList"
+          :marketItem="marketItem"
+          :key="marketItem.id"
+          @changeActiveMarket="changeActiveMarket"
         />
       </template>
 
       <template v-else>
-        <SelectPopupItem
-          v-for="pool in filteredPools"
-          :key="pool.id"
-          :pool="pool"
-          @enterPool="selectToken"
+        <MarketsListPopupCauldronItem
+          v-for="marketItem in filteredMarketList"
+          :marketItem="marketItem"
+          :key="marketItem.config.id"
+          @changeActiveMarket="changeActiveMarket"
         />
       </template>
     </div>
 
-    <PopupEmptyState :popupType="popupType" :emptyType="emptyType" />
+    <PopupEmptyState :popupType="popupType" :emptyType="popupEmptyType" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import { getPopupList } from "@/helpers/cauldron/lists/getPopupList.ts";
 import PopupSearch from "@/components/popups/ui/PopupSearch.vue";
-import { createMarketsList } from "@/helpers/cauldron/marketsList.js";
-
 import BaseLoader from "@/components/base/BaseLoader.vue";
-import TokenPopupItem from "@/components/farms/FarmListItem.vue";
-import SelectPopupItem from "@/components/popups/marketList/MarketsListPopupItem.vue";
+import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
+import MarketsListPopupCauldronItem from "@/components/popups/marketList/MarketsListPopupCauldronItem.vue";
 import PopupEmptyState from "@/components/popups/ui/PopupEmptyState.vue";
 
 export default {
   props: {
-    pools: {
+    farmsList: {
       type: Array,
-      default: () => [],
     },
 
     popupType: {
@@ -70,93 +64,120 @@ export default {
 
   computed: {
     ...mapGetters({
-      // isLoadedCauldrons: "getLoadPoolsBorrow",
-      isLoadedFarms: "getFarmPoolLoading",
-      provider: "getProvider",
       chainId: "getChainId",
       account: "getAccount",
+      provider: "getProvider",
+      isLoadedFarms: "getFarmPoolLoading",
     }),
 
+    isFarmsMarket() {
+      return this.popupType === "farms";
+    },
+
+    popupTitle() {
+      return this.isFarmsMarket ? "Farm" : "Cauldron";
+    },
+
     marketsList() {
-      if (this.popupType === "farms") return this.pools;
-      return this.cauldronsList;
+      return this.isFarmsMarket ? this.farmsList : this.cauldronsList;
     },
 
-    title() {
-      return this.popupType === "farms" ? "Farm" : "Cauldron";
-    },
-
-    isLoading() {
-      return this.popupType === "farms"
+    isLoadingMarkets() {
+      return this.isFarmsMarket
         ? this.isLoadedFarms
         : this.cauldronsListIsLoading;
     },
 
     isLoader() {
-      return !this.marketsList.length && this.isLoading;
+      return !this.marketsList.length && this.isLoadingMarkets;
     },
 
-    emptyType() {
-      if (this.isLoading) return "";
-      if (!this.filteredPools.length && this.marketsList.length)
-        return "search";
+    serchNotFound() {
+      return !this.filteredMarketList.length && this.marketsList.length;
+    },
+
+    popupEmptyType() {
+      if (this.isLoadingMarkets) return "";
+      if (this.serchNotFound) return "search";
       if (!this.marketsList.length) return "pools";
       return "";
     },
 
-    filteredPools() {
-      let filteredPools = null;
-      if (this.popupType === "borrow") filteredPools = this.borrowfilteredPool;
+    borrowFilteredList() {
+      return this.marketsList
+        .filter(({ config }) => !config.cauldronSettings.isDepreciated)
+        .sort(({ userInfo: a }, { userInfo: b }) =>
+          +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
+        );
+    },
 
-      if (!this.search) return filteredPools;
+    leverageFilteredList() {
+      return this.marketsList
+        .filter(
+          ({ config }) =>
+            config.cauldronSettings.isSwappersActive &&
+            !config.cauldronSettings.isDepreciated
+        )
+        .sort(({ userInfo: a }, { userInfo: b }) =>
+          +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
+        );
+    },
 
-      return filteredPools.filter(
-        ({ name }) =>
-          name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+    repayFilteredList() {
+      return [...this.marketsList].sort(({ userInfo: a }, { userInfo: b }) =>
+        +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
       );
     },
 
-    // todo end balanceUsd
-    borrowfilteredPool() {
+    deleverageFilteredList() {
       return this.marketsList
-        .filter(({ config }) => !config.cauldronSettings.isDepreciated)
-        .sort((a, b) =>
-          a.userCollateralAmounts.toString() <
-          b.userCollateralAmounts.toString()
-            ? 1
-            : -1
+        .filter(({ config }) => config.cauldronSettings.isSwappersActive)
+        .sort(({ userInfo: a }, { userInfo: b }) =>
+          +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
         );
+    },
 
-      // if (this.account && this.pools[0]?.userInfo) {
-      //   return this.pools
-      //     .filter((pool) => !pool.cauldronSettings.isDepreciated)
-      //     .sort((a, b) =>
-      //       a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-      //     );
-      // }
+    sortedMarketsList() {
+      if (this.popupType === "borrow") return this.borrowFilteredList;
+      if (this.popupType === "leverage") return this.leverageFilteredList;
+      if (this.popupType === "repay") return this.repayFilteredList;
+      if (this.popupType === "deleverage") return this.deleverageFilteredList;
+      if (!this.search) return this.marketsList;
+      return this.marketsList;
+    },
 
-      // return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
+    filteredMarketList() {
+      if (this.isFarmsMarket) {
+        return this.sortedMarketsList.filter(
+          ({ name }) =>
+            name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+        );
+      }
+
+      return this.sortedMarketsList.filter(
+        ({ config }) =>
+          config.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+      );
     },
   },
 
   methods: {
-    changeInput({ target }) {
+    changeSerch({ target }) {
       this.search = target.value;
     },
 
-    selectToken(chainId) {
-      this.$emit("select", chainId);
-      this.$emit("close");
+    changeActiveMarket(marketId) {
+      this.$emit("changeActiveMarket", marketId);
     },
 
     async getMarketsList() {
-      this.cauldronsList = await createMarketsList(
+      this.cauldronsList = await getPopupList(
         this.chainId,
         this.provider,
         this.account
       );
 
-      this.cauldronsIsLoading = false;
+      this.cauldronsListIsLoading = false;
     },
   },
 
@@ -167,8 +188,8 @@ export default {
   components: {
     PopupSearch,
     BaseLoader,
-    SelectPopupItem,
-    TokenPopupItem,
+    MarketsListPopupFarmItem,
+    MarketsListPopupCauldronItem,
     PopupEmptyState,
   },
 };
@@ -224,37 +245,9 @@ export default {
   margin-top: 52px;
 }
 
-.tokens-list {
+.markets-list {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
-
-.token-spacer-wrap {
-  display: flex;
-  justify-content: flex-end;
-  flex: 0 0 1px;
-}
-.token-spacer {
-  display: inline-block;
-  background-color: rgba(255, 255, 255, 0.1);
-  height: 1px;
-  width: calc(100% - 42px);
-}
-
-// .not-found {
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   justify-content: center;
-//   text-align: center;
-//   padding: 30px 10px;
-// }
-
-// .not-found__img {
-//   width: 186px;
-//   max-width: 100%;
-//   height: auto;
-//   margin-bottom: 19px;
-// }
 </style>

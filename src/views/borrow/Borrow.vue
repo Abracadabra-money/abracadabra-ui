@@ -183,9 +183,8 @@
       @closePopup="isOpenPollPopup = false"
     >
       <MarketsListPopup
-        @select="chosePool($event)"
-        @close="isOpenPollPopup = false"
         popupType="borrow"
+        @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
   </div>
 </template>
@@ -249,18 +248,6 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
-
-    // filteredPool() {
-    //   if (this.account && this.pools[0]?.userInfo) {
-    //     return this.pools
-    //       .filter((pool) => !pool.cauldronSettings.isDepreciated)
-    //       .sort((a, b) =>
-    //         a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-    //       );
-    //   }
-
-    //   return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
-    // },
 
     selectedPool() {
       if (this.poolId) {
@@ -639,18 +626,17 @@ export default {
       return false;
     },
 
-    async chosePool(pool) {
+    async changeActiveMarket(marketId) {
+      this.useDefaultBalance = false;
+      this.poolId = marketId;
+
       this.clearData();
 
-      this.useDefaultBalance = false;
+      const duplicate = this.$route.fullPath === `/borrow/${marketId}`;
 
-      this.poolId = pool.id;
+      if (!duplicate) this.$router.push(`/borrow/${marketId}`);
 
-      let duplicate = this.$route.fullPath === `/borrow/${pool.id}`;
-
-      if (!duplicate) {
-        this.$router.push(`/borrow/${pool.id}`);
-      }
+      this.isOpenPollPopup = false;
     },
 
     checkIsPoolAllowBorrow(amount, notificationId) {

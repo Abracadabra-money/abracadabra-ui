@@ -125,11 +125,9 @@
       @closePopup="isTokensOpened = false"
     >
       <MarketsListPopup
-        @select="selectPool"
-        @close="isTokensOpened = false"
+        :farmsList="pools"
         popupType="farms"
-        :pools="pools"
-        :isUnstake="isUnstake"
+        @changeActiveMarket="changeActiveMarket"
       />
     </LocalPopupWrap>
   </div>
@@ -225,9 +223,11 @@ export default {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
-    selectPool(pool) {
-      if (+pool.id !== +this.id)
-        this.$router.push({ name: "FarmPool", params: { id: pool.id } });
+    changeActiveMarket(marketId) {
+      if (+marketId !== +this.id)
+        this.$router.push({ name: "FarmPool", params: { id: marketId } });
+
+      this.isTokensOpened = false;
     },
 
     async stakeHandler() {

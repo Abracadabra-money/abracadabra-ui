@@ -111,10 +111,8 @@
       @closePopup="isOpenPollPopup = false"
     >
       <MarketsListPopup
-        @select="chosePool($event)"
-        @close="isOpenPollPopup = false"
-        :pools="filteredPool"
         popupType="repay"
+        @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
   </div>
 </template>
@@ -174,15 +172,6 @@ export default {
       pools: "getPools",
       account: "getAccount",
     }),
-
-    filteredPool() {
-      if (this.account && this.pools[0]?.userInfo) {
-        return [...this.pools].sort((a, b) =>
-          a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-        );
-      }
-      return this.pools;
-    },
 
     selectedPool() {
       if (this.poolId) {
@@ -482,16 +471,16 @@ export default {
       return false;
     },
 
-    async chosePool(pool) {
+    async changeActiveMarket(marketId) {
       this.collateralValue = "";
       this.borrowValue = "";
-      this.poolId = pool.id;
+      this.poolId = marketId;
 
-      let duplicate = this.$route.fullPath === `/repay/${pool.id}`;
+      const duplicate = this.$route.fullPath === `/repay/${marketId}`;
 
-      if (!duplicate) {
-        this.$router.push(`/repay/${pool.id}`);
-      }
+      if (!duplicate) this.$router.push(`/repay/${marketId}`);
+
+      this.isOpenPollPopup = false;
     },
 
     async actionHandler() {
