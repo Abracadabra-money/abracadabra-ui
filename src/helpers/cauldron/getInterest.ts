@@ -4,7 +4,7 @@ const INTEREST_PRECISION = 1e2;
 
 export const getInterest = (accrueInfo: any): string => {
   const { INTEREST_PER_SECOND }: {INTEREST_PER_SECOND: BigNumber} = accrueInfo;
-  if (!INTEREST_PER_SECOND) return "0";
+  if (!INTEREST_PER_SECOND) return "0.0";
 
   const seconds = BigNumber.from("316880878")
 
