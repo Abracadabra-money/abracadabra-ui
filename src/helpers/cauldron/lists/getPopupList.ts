@@ -1,4 +1,4 @@
-import { Contract, providers, utils } from "ethers";
+import { Contract, providers, utils, BigNumber } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import cauldronsConfig from "@/utils/cauldronsConfig";
 import lensAbi from "@/utils/abi/marketLens.js";
@@ -73,44 +73,45 @@ const getUserBalances = async (
     )
   );
 
+  const collateralPrices = collateralContracts.map((_, idx): BigNumber => {
+    const { decimals } = configs[idx].collateralInfo;
+    return utils
+      .parseUnits("1", decimals)
+      .mul(Math.pow(10, decimals).toString())
+      .div(oracleRates[idx]);
+  });
+
   const collateralAmounts = await Promise.all(
     collateralContracts.map((contract) => contract.balanceOf(account))
   );
 
-  const collateralsPrices = collateralContracts.map((_, idx): any => {
-    return toBigNumber(1, configs[idx])
-      .mul(getPrecision(configs[idx]))
-      .div(oracleRates[idx]);
+  const parseCollateralAmounts = collateralAmounts.map((amount, idx) => {
+    return utils.formatUnits(amount, configs[idx].collateralInfo.decimals);
   });
 
   const collateralAmountsUsd = collateralAmounts.map((amount, idx) => {
-    return amount.mul(collateralsPrices[idx]).div(getPrecision(configs[idx]));
+    const { decimals } = configs[idx].collateralInfo;
+    return utils.formatUnits(
+      amount.mul(collateralPrices[idx]).div(Math.pow(10, decimals).toString()),
+      decimals
+    );
   });
 
-  const { unwrappedTokenAmounts, unwrappedTokenAmountsUsd } =
+  const { parseUnwrappedTokenAmounts, unwrappedTokenAmountsUsd } =
     await getUnwrappedTokenAmounts(
       configs,
       provider,
       account,
       collateralContracts,
-      collateralsPrices
+      collateralPrices
     );
 
   return configs.map((_: any, idx: number) => {
-    const { decimals } = configs[idx].collateralInfo;
     return {
-      collateralAmount: collateralAmounts[idx]
-        ? utils.formatUnits(collateralAmounts[idx], decimals)
-        : "0.0",
-      collateralAmountUsd: collateralAmountsUsd[idx]
-        ? utils.formatUnits(collateralAmountsUsd[idx], decimals)
-        : "0.0",
-      unwrappedTokenAmount: unwrappedTokenAmounts[idx]
-        ? utils.formatUnits(unwrappedTokenAmounts[idx], decimals)
-        : "0.0",
-      unwrappedTokenAmountUsd: unwrappedTokenAmountsUsd[idx]
-        ? utils.formatUnits(unwrappedTokenAmountsUsd[idx], decimals)
-        : "0.0",
+      collateralAmount: parseCollateralAmounts[idx],
+      collateralAmountUsd: collateralAmountsUsd[idx],
+      unwrappedTokenAmount: parseUnwrappedTokenAmounts[idx],
+      unwrappedTokenAmountUsd: unwrappedTokenAmountsUsd[idx],
     };
   });
 };
@@ -120,7 +121,7 @@ const getUnwrappedTokenAmounts = async (
   provider: providers.BaseProvider,
   account: string,
   collateralContracts: Array<Contract | null>,
-  collateralsPrices: Array<bigint>
+  collateralPrices: Array<BigNumber>
 ) => {
   const unwrappedTokenContracts = configs.map(({ wrapInfo }) => {
     if (wrapInfo) {
@@ -131,37 +132,43 @@ const getUnwrappedTokenAmounts = async (
 
   const unwrappedTokenAmounts = await Promise.all(
     unwrappedTokenContracts.map(
-      (contract: any) => contract?.balanceOf(account) || null
+      (contract: Contract | null) => contract?.balanceOf(account) || null
     )
   );
 
+  const parseUnwrappedTokenAmounts = unwrappedTokenAmounts.map(
+    (amount, idx) => {
+      return amount
+        ? utils.formatUnits(amount, configs[idx].collateralInfo.decimals)
+        : "0.0";
+    }
+  );
+
   const unwrappedTokenRates = await Promise.all(
-    collateralContracts.map((contract: any, idx: number) =>
+    collateralContracts.map((contract: Contract | null, idx: number) =>
       Object.prototype.hasOwnProperty.call(contract, "convertToAssets")
-        ? contract.convertToAssets(getPrecision(configs[idx]))
+        ? contract?.convertToAssets(
+            Math.pow(10, configs[idx].collateralInfo.decimals).toString()
+          )
         : null
     )
   );
 
   const unwrappedTokenAmountsUsd = unwrappedTokenAmounts.map((amount, idx) => {
     try {
-      return amount
-        .mul(collateralsPrices[idx])
-        .div(getPrecision(configs[idx]))
-        .mul(unwrappedTokenRates[idx])
-        .div(getPrecision(configs[idx]));
+      const { decimals } = configs[idx].collateralInfo;
+      return utils.formatUnits(
+        amount
+          .mul(collateralPrices[idx])
+          .div(Math.pow(10, decimals).toString())
+          .mul(unwrappedTokenRates[idx])
+          .div(Math.pow(10, decimals).toString()),
+        decimals
+      );
     } catch (error) {
-      return toBigNumber(0, configs[idx]);
+      return "0.0";
     }
   });
 
-  return { unwrappedTokenAmounts, unwrappedTokenAmountsUsd };
-};
-
-const getPrecision = ({ collateralInfo }: any) => {
-  return Math.pow(10, collateralInfo.decimals).toString();
-};
-
-const toBigNumber = (number: number, { collateralInfo }: any) => {
-  return utils.parseUnits(number.toString(), collateralInfo.decimals);
+  return { parseUnwrappedTokenAmounts, unwrappedTokenAmountsUsd };
 };
