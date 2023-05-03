@@ -15,26 +15,26 @@ type CauldronListItem = {
   interest: number;
   tvl: string;
   totalBorrowed: string;
-  MIMsLeftToBorrow: string;
+  mimLeftToBorrow: string;
 };
 
 export const getMarketList = async (
   chainId: number,
   provider: providers.BaseProvider
 ): Promise<CauldronListItem[]> => {
-  const multicalProvider = MulticallWrapper.wrap(provider);
+  const multicallProvider = MulticallWrapper.wrap(provider);
 
   const configs: any[] = cauldronsConfig.filter(
     (config) => config.chainId === chainId
   );
 
-  const lensContract = new Contract(lensAddress, lensAbi, multicalProvider);
+  const lensContract = new Contract(lensAddress, lensAbi, multicallProvider);
 
   const cauldronContracts = configs.map((config: any) => {
     return new Contract(
       config.contract.address,
       config.contract.abi,
-      multicalProvider
+      multicallProvider
     );
   });
 
@@ -43,7 +43,7 @@ export const getMarketList = async (
   );
 
   const boxContracts = boxAddresses.map((address: string) => {
-    return new Contract(address, bentoBoxAbi, multicalProvider);
+    return new Contract(address, bentoBoxAbi, multicallProvider);
   });
 
   const oracleRates = await Promise.all(
@@ -105,7 +105,7 @@ export const getMarketList = async (
     getTotalBorrowed(totalBorrowArr[idx], accrueInfoArr[idx])
   );
 
-  const MIMsLeftToBorrowArr = await Promise.all(
+  const mimLeftToBorrowArr = await Promise.all(
     configs.map((config, idx) =>
       getMaxToBorrow(
         utils.formatUnits(mimCauldronAmounts[idx]),
@@ -134,7 +134,7 @@ export const getMarketList = async (
       interest: interestArr[idx] / 100,
       tvl: tvlArr[idx],
       totalBorrowed: totalBorrowedArr[idx],
-      MIMsLeftToBorrow: MIMsLeftToBorrowArr[idx].toString(),
+      mimLeftToBorrow: mimLeftToBorrowArr[idx].toString(),
     };
   });
 };

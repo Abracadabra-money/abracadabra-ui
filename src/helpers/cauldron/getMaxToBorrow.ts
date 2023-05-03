@@ -1,8 +1,15 @@
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
+
+const MIN_AMOUNT_TO_SHOW = 1000;
+
+type BorrowLimit = {
+  borrowPartPerAddress: BigNumber;
+  total: BigNumber
+}
 
 export const getMaxToBorrow = async (
     mimCauldronBalance: string,
-    borrowLimit: any,
+    borrowLimit: BorrowLimit,
     totalBorrowed: string,
     { localBorrowAmountLimit, isDepreciated }: { localBorrowAmountLimit: string | number, isDepreciated: boolean }
   ): Promise<number> => {
@@ -19,7 +26,7 @@ export const getMaxToBorrow = async (
       values.push(+utils.formatUnits(borrowLimit.total));
   
       const availableLimit = +utils.formatUnits(borrowLimit.total) - +totalBorrowed;
-      if (availableLimit < 1000) return 0;
+      if (availableLimit < MIN_AMOUNT_TO_SHOW) return 0;
       values.push(availableLimit);
     }
   

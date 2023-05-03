@@ -1,12 +1,12 @@
 import { utils, BigNumber } from "ethers";
 
 import type { UserBorrowInfo } from "./getUserBorrowInfo";
-import type { UserColalteralInfo } from "./getUserCollateralInfo";
+import type { UserCollateralInfo } from "./getUserCollateralInfo";
 
 type CauldronPositionItem = {
   config: object;
   oracleRate: BigNumber;
-  collateralInfo: UserColalteralInfo;
+  collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
   liquidationPrice: number;
 };
