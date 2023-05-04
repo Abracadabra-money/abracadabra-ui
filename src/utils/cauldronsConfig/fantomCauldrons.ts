@@ -24,6 +24,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 12.5,
     mcr: 75,
     borrowFee: 0.05,
+    version: 2,
     cauldronSettings: {
       isSwappersActive: true,
       isDegenBox: false,
@@ -65,6 +66,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 7.5,
     mcr: 50,
     borrowFee: 0.05,
+    version: 2,
     cauldronSettings: {
       isSwappersActive: true,
       isDegenBox: false,
@@ -106,6 +108,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 12.5,
     mcr: 80,
     borrowFee: 0.5,
+    version: 2,
     cauldronSettings: {
       isSwappersActive: true,
       isDegenBox: false,
@@ -147,6 +150,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 12.5,
     mcr: 70,
     borrowFee: 1,
+    version: 2,
     cauldronSettings: {
       isSwappersActive: true,
       isDegenBox: true,
@@ -188,6 +192,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 8,
     mcr: 85,
     borrowFee: 0.5,
+    version: 2,
     cauldronSettings: {
       isSwappersActive: true,
       isDegenBox: true,
@@ -230,6 +235,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 8,
     mcr: 85,
     borrowFee: 0.5,
+    version: 2,
     cauldronSettings: {
       isSwappersActive: true,
       isDegenBox: true,
