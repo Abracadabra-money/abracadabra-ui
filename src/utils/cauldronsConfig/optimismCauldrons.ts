@@ -24,6 +24,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 8,
     mcr: 70,
     borrowFee: 0,
+    version: 3,
     cauldronSettings: {
       is0xSwap: true,
       isSwappersActive: true,

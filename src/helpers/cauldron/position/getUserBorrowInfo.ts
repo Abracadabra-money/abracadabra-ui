@@ -22,10 +22,10 @@ export const getUserBorrowInfo = (
     };
   }
 
-  const multiplyer = totalBorrowInfo.elastic
+  const multiplier = totalBorrowInfo.elastic
     .mul(BORROW_PRECISION)
     .div(totalBorrowInfo.base);
-  const userBorrowAmount = userBorrowPart.mul(multiplyer).div(BORROW_PRECISION);
+  const userBorrowAmount = userBorrowPart.mul(multiplier).div(BORROW_PRECISION);
 
   if (!INTEREST_PER_SECOND || INTEREST_PER_SECOND.eq(0) || !lastAccrued) {
     return {
@@ -34,7 +34,7 @@ export const getUserBorrowInfo = (
     };
   }
 
-  const duration = getSecDurationSinceLastAccrue(lastAccrued);
+  const duration = getSecondsSinceLastAccrue(lastAccrued);
 
   if (!duration)
     return {
@@ -76,7 +76,7 @@ const checkAccruedAmount = (
   return accruedAmount;
 };
 
-const getSecDurationSinceLastAccrue = (lastAccrued: number): number => {
+const getSecondsSinceLastAccrue = (lastAccrued: number): number => {
   const startTimestamp = moment.unix(lastAccrued);
   const currentTimestamp = moment.unix(new Date().getTime() / 1000);
   const duration = Math.floor(
