@@ -4,7 +4,7 @@ import cauldronsConfig from "@/utils/cauldronsConfig";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 
 import { getUserBorrowInfo, type UserBorrowInfo} from "./getUserBorrowInfo";
-import type { UserColalteralInfo  } from "./getUserCollateralInfo";
+import type { UserCollateralInfo  } from "./getUserCollateralInfo";
 import { getLiquidationPrice } from "./getUserLiquidationPrice";
 
 const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
@@ -13,7 +13,7 @@ import lensAbi from "@/utils/abi/marketLens.js"
 type CauldronPositionItem = {
   config: object;
   oracleRate: BigNumber;
-  collateralInfo: UserColalteralInfo;
+  collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
   liquidationPrice: number;
 };
@@ -23,7 +23,7 @@ export const getUserPositions = async (
   user: string,
   provider: providers.BaseProvider,
 ): Promise<CauldronPositionItem[]> => {
-  const multicalProvider = MulticallWrapper.wrap(provider);
+  const multicallProvider = MulticallWrapper.wrap(provider);
 
   const configs: any[] = cauldronsConfig.filter(
     (config) => config.chainId === chainId
@@ -32,14 +32,14 @@ export const getUserPositions = async (
   const lensContract = new Contract(
     lensAddress,
     lensAbi,
-    multicalProvider
+    multicallProvider
   );
 
   const cauldronContracts = configs.map((config: any) => {
     return new Contract(
       config.contract.address,
       config.contract.abi,
-      multicalProvider
+      multicallProvider
     );
   });
 
@@ -48,7 +48,7 @@ export const getUserPositions = async (
   );
 
   const boxContracts = boxAddresses.map((address: string) => {
-    return new Contract(address, bentoBoxAbi, multicalProvider);
+    return new Contract(address, bentoBoxAbi, multicallProvider);
   });
 
   const oracleRates = await Promise.all(

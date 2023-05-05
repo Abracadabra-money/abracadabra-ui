@@ -26,6 +26,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 5,
     mcr: 85,
     borrowFee: 0.5,
+    version: 2,
     cauldronSettings: {
       isSwappersActive: true,
       isDegenBox: false,
@@ -67,6 +68,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 7.5,
     mcr: 75,
     borrowFee: 0,
+    version: 4,
     cauldronSettings: {
       isSwappersActive: false,
       isDegenBox: true,
@@ -114,6 +116,7 @@ const config: Array<CauldronConfig> = [
     liquidationFee: 7.5,
     mcr: 75,
     borrowFee: 0,
+    version: 4,
     cauldronSettings: {
       isSwappersActive: true,
       is0xSwap: true,
