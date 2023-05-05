@@ -69,8 +69,6 @@ export default {
                 weight: "light",
               },
               callback: function (value) {
-                console.log(+value < 1);
-
                 if (+value < 1) return `$ ${Number(value).toFixed(6)}`;
                 return `$ ${Number(value).toFixed(2)}`;
               },

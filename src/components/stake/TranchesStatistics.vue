@@ -80,7 +80,7 @@ export default {
             this.tokensInfo.tranchesStatistics.seniorTotalRewardsUsd
           ),
           totalSupply: filters.formatUSD(
-            this.tokensInfo.Senior.mainToken.totalSupplyUsd
+            this.tokensInfo.senior.mainToken.totalSupplyUsd
           ),
         },
         {
@@ -94,7 +94,7 @@ export default {
             this.tokensInfo.tranchesStatistics.mezzanineTotalRewardsUsd
           ),
           totalSupply: filters.formatUSD(
-            this.tokensInfo.Mezzanine.mainToken.totalSupplyUsd
+            this.tokensInfo.mezzanine.mainToken.totalSupplyUsd
           ),
         },
         {
@@ -108,7 +108,7 @@ export default {
             this.tokensInfo.tranchesStatistics.juniorTotalRewardsUsd
           ),
           totalSupply: filters.formatUSD(
-            this.tokensInfo.Junior.mainToken.totalSupplyUsd
+            this.tokensInfo.junior.mainToken.totalSupplyUsd
           ),
         },
       ];
@@ -135,6 +135,7 @@ export default {
       ];
     },
   },
+
   components: {
     BaseTokenIcon,
   },

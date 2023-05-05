@@ -12,7 +12,6 @@ export default {
   data() {
     return {
       levelMasterV2Address: "0x5aE081b6647aEF897dEc738642089D4BDa93C0e7",
-      desc: ["mainTokenBalances", "stakeTokenBalances", "levelMasterBalance"],
     };
   },
 
@@ -213,15 +212,10 @@ export default {
           this.userSigner
         );
 
-        const stakeWalletBalance = this.account
-          ? utils.formatEther(stakeTokensBalances[idx].toString())
-          : 0;
+        const stakeTokenBalance = stakeTokensBalances[idx].add(
+          levelMasterBalances[idx]?.amount
+        );
 
-        const lvlMasterBalance = this.account
-          ? utils.formatEther(levelMasterBalances[idx]?.amount.toString())
-          : 0;
-
-        const stakeTokenBalance = +stakeWalletBalance + +lvlMasterBalance;
         const price = 1 / utils.formatUnits(oracleRates[idx].toString(), 18);
 
         stakeInfo[lvlConfig[idx].name] = {
@@ -241,9 +235,9 @@ export default {
           stakeToken: {
             ...lvlConfig[idx].stakeToken,
             contractInstance: stakeContractInstance,
-            walletBalance: stakeWalletBalance,
-            lvlMasterBalance: lvlMasterBalance,
+            walletBalance: stakeTokensBalances[idx],
             balance: stakeTokenBalance,
+            formatBalance: utils.formatEther(stakeTokenBalance.toString()),
             price: price,
             balanceUsd: stakeTokenBalance * price,
             isApproved: stakeTokensApprowed[idx],

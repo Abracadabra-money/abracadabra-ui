@@ -10,7 +10,9 @@
 
         <div class="balance">
           <span class="balance-tag">Balance</span>
-          <span class="balance-value">{{ formatBalance(info.balance) }}</span>
+          <span class="balance-value">{{
+            formatBalance(info.formatBalance)
+          }}</span>
         </div>
 
         <p class="rate">1 mLVL = {{ info.rate }} LVL</p>
@@ -30,36 +32,36 @@ export default {
 
   computed: {
     mSeniorRate() {
-      return filters.formatToFixed(1 * this.tokensInfo.Senior.tokensRate, 4);
+      return filters.formatToFixed(1 * this.tokensInfo.senior.tokensRate, 4);
     },
 
     mMezzanineRate() {
-      return filters.formatToFixed(1 * this.tokensInfo.Mezzanine.tokensRate, 4);
+      return filters.formatToFixed(1 * this.tokensInfo.mezzanine.tokensRate, 4);
     },
 
     mJuniorRate() {
-      return filters.formatToFixed(1 * this.tokensInfo.Junior.tokensRate, 4);
+      return filters.formatToFixed(1 * this.tokensInfo.junior.tokensRate, 4);
     },
 
     InfoArr() {
-      const { Senior, Mezzanine, Junior } = this.tokensInfo;
+      const { senior, mezzanine, junior } = this.tokensInfo;
       return [
         {
           icon: seniorIcon,
           title: "Senior Tranches",
-          balance: Senior.stakeToken.balance,
+          balance: senior.stakeToken.formatBalance,
           rate: this.mSeniorRate,
         },
         {
           icon: mezzanineIcon,
           title: "Mezzanine Tranches",
-          balance: Mezzanine.stakeToken.balance,
+          balance: mezzanine.stakeToken.formatBalance,
           rate: this.mMezzanineRate,
         },
         {
           icon: juniorIcon,
           title: "Junior Tranches",
-          balance: Junior.stakeToken.balance,
+          balance: junior.stakeToken.formatBalance,
           rate: this.mJuniorRate,
         },
       ];

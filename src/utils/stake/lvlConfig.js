@@ -9,7 +9,7 @@ import mLvlJuniorIcon from "@/assets/images/tokens/mLvlJunior.png";
 
 export default [
   {
-    name: "Senior",
+    name: "senior",
     mainToken: {
       name: "mLVS",
       address: "0xD8Cbd5b22D7D37c978609e4e394cE8B9C003993b",
@@ -31,7 +31,7 @@ export default [
     pid: 0,
   },
   {
-    name: "Mezzanine",
+    name: "mezzanine",
     mainToken: {
       name: "mLVM",
       address: "0x87aC701ba8acb1966526375da68A692CebB8AF75",
@@ -53,7 +53,7 @@ export default [
     pid: 1,
   },
   {
-    name: "Junior",
+    name: "junior",
     mainToken: {
       name: "mLVJ",
       address: "0xC094c2a5C349eAd7839C1805126Da71Cc1cc1A39",

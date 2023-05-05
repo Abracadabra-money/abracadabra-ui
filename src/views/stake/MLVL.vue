@@ -24,21 +24,21 @@
         <div class="tranches-buttons">
           <TrancheButton
             type="senior"
-            :isActive="tokenLvl === 'Senior'"
+            :isActive="tokenLvl === 'senior'"
             :apr="seniorApy"
-            @changeToken="changeTokenLvl('Senior')"
+            @changeToken="changeTokenLvl('senior')"
           />
           <TrancheButton
             type="mezzanine"
             :apr="mezzanineApy"
-            :isActive="tokenLvl === 'Mezzanine'"
-            @changeToken="changeTokenLvl('Mezzanine')"
+            :isActive="tokenLvl === 'mezzanine'"
+            @changeToken="changeTokenLvl('mezzanine')"
           />
           <TrancheButton
             type="junior"
             :apr="juniorApy"
-            :isActive="tokenLvl === 'Junior'"
-            @changeToken="changeTokenLvl('Junior')"
+            :isActive="tokenLvl === 'junior'"
+            @changeToken="changeTokenLvl('junior')"
           />
         </div>
       </div>
@@ -54,7 +54,7 @@
             :name="fromToken.name"
             :value="amount"
             @updateValue="updateMainValue"
-            :max="fromToken.balance"
+            :max="fromToken.formatBalance"
             :error="amountError"
           />
         </div>
@@ -102,12 +102,12 @@
         <div class="wrap wrap-chart" v-if="chartData.length && labels.length">
           <div class="chart-row">
             <h1 class="chart-title">APY Chart</h1>
-            <div class="chart-apt-wrap">
+            <div class="chart-apt-wrap" :class="tokenLvl">
               <div class="chart-apt">
-                <img src="@/assets/images/stake/lvl-apy-icon.png" alt="" />
+                <img :src="lvlApyIcon" alt="APY" />
                 <span class="chart-apt-text">est. APY</span>
-                <span class="chart-apt-percent" v-if="seniorApy">{{
-                  seniorApy
+                <span class="chart-apt-percent" v-if="lvlApy">{{
+                  lvlApy
                 }}</span>
                 <div class="loader-wrap-mini" v-else>
                   <p class="loader"></p>
@@ -201,12 +201,12 @@ export default {
       chartInterval: null,
       // apy: "",
       gasLimitConst: 1000,
-      tokenLvl: "Senior",
+      tokenLvl: "senior",
       profileBg,
       trancheLinks: {
-        Junior: "https://app.level.finance/liquidity/junior-tranche",
-        Mezzanine: "https://app.level.finance/liquidity/mezzanine-tranche",
-        Senior: "https://app.level.finance/liquidity/senior-tranche",
+        junior: "https://app.level.finance/liquidity/junior-tranche",
+        mezzanine: "https://app.level.finance/liquidity/mezzanine-tranche",
+        senior: "https://app.level.finance/liquidity/senior-tranche",
       },
     };
   },
@@ -228,7 +228,7 @@ export default {
     },
 
     tokenBalance() {
-      return filters.formatTokenBalance(this.fromToken.balance);
+      return filters.formatTokenBalance(this.fromToken.formatBalance);
     },
 
     mainToken() {
@@ -274,6 +274,20 @@ export default {
       return !!(!+this.amount || this.amountError);
     },
 
+    lvlApy() {
+      if (this.tokenLvl === "senior") return this.seniorApy;
+      if (this.tokenLvl === "mezzanine") return this.mezzanineApy;
+      return this.juniorApy;
+    },
+
+    lvlApyIcon() {
+      if (this.tokenLvl === "senior")
+        return this.$image("assets/images/stake/senior-apy.png");
+      if (this.tokenLvl === "mezzanine")
+        return this.$image("assets/images/stake/mezzanine-apy.png");
+      return this.$image("assets/images/stake/junior-apy.png");
+    },
+
     seniorApy() {
       return filters.formatPercent(
         this.tokensInfo.tranchesStatistics.seniorApy
@@ -315,8 +329,8 @@ export default {
     },
 
     updateMainValue(amount) {
-      if (+amount > +this.fromToken.balance)
-        this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
+      if (+amount > +this.fromToken.formatBalance)
+        this.amountError = `The value cannot be greater than ${this.fromToken.formatBalance}`;
       else this.updateValue(amount);
     },
 
@@ -362,14 +376,14 @@ export default {
       const notificationId = await this.createNotification(pending);
 
       try {
-        if (+this.stakeToken.walletBalance < +this.amount) {
-          const withdrawAmount = this.$ethers.utils.parseEther(
-            (+this.amount - +this.stakeToken.walletBalance).toString()
-          );
+        const parseAmount = this.$ethers.utils.parseEther(this.amount);
+
+        if (this.stakeToken.walletBalance.lt(parseAmount)) {
+          const withdrawAmount = parseAmount.sub(this.stakeToken.walletBalance);
 
           const tx = await this.activeTokenInfo.levelMasterContract.withdraw(
             this.stakeToken.pid.toString(),
-            withdrawAmount.toString(),
+            withdrawAmount,
             this.account
           );
 
@@ -377,8 +391,6 @@ export default {
         }
 
         const amount = this.$ethers.utils.parseEther(this.amount.toString());
-
-        console.log("amount", amount);
 
         const estimateGas =
           await this.mainToken.contractInstance.estimateGas.deposit(
@@ -399,17 +411,15 @@ export default {
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
+        await tx.wait();
 
         this.deleteNotification(notificationId);
         this.createNotification(success);
-      } catch (e) {
-        console.log("stake err:", e);
+      } catch (error) {
+        console.log("Magic Level Stake Error:", error);
 
         const errorNotification = {
-          msg: await notificationErrorMsg(e),
+          msg: await notificationErrorMsg(error),
           type: "error",
         };
 
@@ -446,17 +456,15 @@ export default {
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
+        await tx.wait();
 
         this.deleteNotification(notificationId);
         this.createNotification(success);
-      } catch (e) {
-        console.log("stake err:", e);
+      } catch (error) {
+        console.log("Magic Level Unstake Error:", error);
 
         const errorNotification = {
-          msg: await notificationErrorMsg(e),
+          msg: await notificationErrorMsg(error),
           type: "error",
         };
 
@@ -701,6 +709,14 @@ export default {
   border-radius: 0px 30px 30px 0px;
 }
 
+.chart-apt-wrap.mezzanine {
+  background: linear-gradient(0deg, #864efb, #864efb);
+}
+
+.chart-apt-wrap.junior {
+  background: linear-gradient(0deg, #ff7100, #ff7100);
+}
+
 .chart-apt {
   width: 176px;
   height: 30px;
@@ -733,6 +749,17 @@ export default {
   font-size: 18px;
   line-height: 27px;
   color: #37caff;
+}
+
+.mezzanine {
+  .chart-apt-percent {
+    color: #c345fe;
+  }
+}
+.junior {
+  .chart-apt-percent {
+    color: #ff7100;
+  }
 }
 
 .chart-btns {
