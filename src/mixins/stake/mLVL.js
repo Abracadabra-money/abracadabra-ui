@@ -226,7 +226,10 @@ export default {
           mainToken: {
             ...lvlConfig[idx].mainToken,
             contractInstance: mainContractInstance,
-            balance: mainBalance,
+            balance: mainTokensBalances[idx],
+            formatBalance: utils.formatEther(
+              mainTokensBalances[idx].toString()
+            ),
             price: mainPrice,
             balanceUsd: mainBalanceUsd,
             totalSupply: mainTotalSupply,
