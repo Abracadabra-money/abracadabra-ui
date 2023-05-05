@@ -10,9 +10,7 @@
 
         <div class="balance">
           <span class="balance-tag">Balance</span>
-          <span class="balance-value">{{
-            formatBalance(info.formatBalance)
-          }}</span>
+          <span class="balance-value">{{ formatBalance(info.balance) }}</span>
         </div>
 
         <p class="rate">1 mLVL = {{ info.rate }} LVL</p>
