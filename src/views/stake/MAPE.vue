@@ -88,21 +88,21 @@
               <button
                 class="chart-btn btn-start"
                 :class="{ 'chart-btn-active': chartActive === 'yield' }"
-                @click="changeChart('yield')"
+                @click="updateChartData('yield', 1)"
               >
                 Yield
               </button>
               <button
                 class="chart-btn"
                 :class="{ 'chart-btn-active': chartActive === 'tvl' }"
-                @click="changeChart('tvl')"
+                @click="updateChartData('tvl', 1)"
               >
                 TVL
               </button>
               <button
                 class="chart-btn btn-last"
                 :class="{ 'chart-btn-active': chartActive === 'price' }"
-                @click="changeChart('price')"
+                @click="updateChartData('price', 1)"
               >
                 Price
               </button>
@@ -111,19 +111,20 @@
               <button
                 class="chart-btn btn-start"
                 :class="{ 'chart-btn-active': chatrTime === 1 }"
-                @click="changeChartTime(1)"
+                @click="updateChartData(chartActive, 1)"
               >
                 1m
               </button>
               <button
                 class="chart-btn btn-last"
                 :class="{ 'chart-btn-active': chatrTime === 3 }"
-                @click="changeChartTime(3)"
+                @click="updateChartData(chartActive, 3)"
               >
                 3m
               </button>
             </div>
           </div>
+
           <TickChart
             v-if="chartData"
             :label="chartActive.toUpperCase()"
@@ -152,7 +153,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="'./src/assets/images/ape/ape-circle.png'"
+                  :icon="$image('assets/images/ape/ape-circle.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">APE</span>
@@ -170,7 +171,7 @@
             <div class="balance-token">
               <div class="token-icon">
                 <BaseTokenIcon
-                  :icon="'./src/assets/images/ape/mape-circle.png'"
+                  :icon="$image('assets/images/ape/mape-circle.png')"
                   size="60px"
                 />
                 <span class="token-icon-name">magicAPE</span>
@@ -194,7 +195,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="'./src/assets/images/ape/mape-circle.png'"
+                  :icon="$image('assets/images/ape/mape-circle.png')"
                   size="40px"
                 />
                 <span>magicAPE</span>
@@ -215,7 +216,7 @@
             <div class="info-item">
               <div class="info-icon">
                 <BaseTokenIcon
-                  :icon="'./src/assets/images/ape/ape-circle.png'"
+                  :icon="$image('assets/images/ape/ape-circle.png')"
                   size="40px"
                 />
                 <span>APE</span>
@@ -237,7 +238,7 @@
           Note: A 1% protocol fee is taken on the yields.
         </p>
         <div class="btns-wrap">
-          <BaseButton @click="goToPage('BorrowId', 39)">
+          <BaseButton @click="routeTo('BorrowId', 39)">
             <div class="btn-ape-wrap">
               <img
                 class="btn-ape-img"
@@ -247,7 +248,7 @@
               <span class="btn-ape-text">Borrow Against MagicAPE</span>
             </div>
           </BaseButton>
-          <BaseButton @click="goToPage('LeverageId', 39)">
+          <BaseButton @click="routeTo('LeverageId', 39)">
             <span class="btn-ape-text"
               >Leverage your Yield (up to ≈{{ expectedApy }}%)</span
             ></BaseButton
@@ -276,6 +277,10 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import inputBlockBg from "@/assets/images/ape/bg.png";
 import profileBg from "@/assets/images/ape/bg-info.png";
 import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
+import { getMagicApeYieldChartData } from "@/helpers/subgraph/magicApe/getMagicApeYieldChartData";
+import { getMagicApeTvlChartData } from "@/helpers/subgraph/magicApe/getMagicApeTvlChartData";
+import { getMagicApePriceChartData } from "@/helpers/subgraph/magicApe/getMagicApePriceChartData";
+import { getMagicApeTotalRewards } from "@/helpers/subgraph/magicApe/getMagicApeTotalRewards";
 
 export default {
   mixins: [mAPETokenMixin],
@@ -292,13 +297,8 @@ export default {
       totalRewards: null,
       inputBlockBg,
       profileBg,
-      fetchData: null,
-      tvlData: null,
-      tvlInterval: null,
       chatrTime: 1,
       chartActive: "yield",
-      priceData: null,
-      priceIntervalL: null,
       labels: [],
     };
   },
@@ -310,6 +310,7 @@ export default {
       tokensInfo: "getMApeObject",
       itsMetamask: "getMetamaskActive",
       provider: "getProvider",
+      chainId: "getChainId",
     }),
 
     stakeToken() {
@@ -363,9 +364,7 @@ export default {
     },
 
     totalRewardsEarned() {
-      return this.totalRewards
-        ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-        : 0;
+      return this.totalRewards ? this.totalRewards : 0;
     },
 
     totalRewardsUsd() {
@@ -389,10 +388,7 @@ export default {
 
   watch: {
     async account(value) {
-      if (value) await this.createStakePool();
-    },
-    async chainId() {
-      if (this.chainId === 1) await this.crateStakeData();
+      if (value) await this.crateStakeData();
     },
   },
 
@@ -400,23 +396,23 @@ export default {
     formatUSD(value) {
       return filters.formatUSD(value);
     },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
-    updateValue(amount) {
-      this.amount = amount ? amount : "";
-      this.amountError = "";
-    },
 
     toggleAction() {
-      this.updateValue();
+      this.amount = "";
       this.action = this.action === "Stake" ? "Unstake" : "Stake";
     },
 
     updateMainValue(amount) {
       if (+amount > +this.fromToken.balance)
         this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
-      else this.updateValue(amount);
+      else {
+        this.amount = amount;
+        this.amountError = "";
+      }
     },
 
     async createNotification(msg) {
@@ -543,119 +539,97 @@ export default {
       }
     },
 
-    async fetchChartData() {
-      const response = await axios.get(
-        "https://analytics.abracadabra.money/api/mape"
-      );
+    async initChart(type = "yield", period = 1) {
+      await this.updateChartData(type, period);
+      await this.getEstApy();
+    },
+
+    async updateChartData(type = "yield", period = 1) {
+      this.chartActive = type;
+      this.chatrTime = period;
+      if (type === "yield") return await this.getYieldChartData();
+      if (type === "tvl") return await this.getTvlChartData();
+      if (type === "price") return await this.getPriceChartData();
+    },
+
+    async getYieldChartData() {
+      const chartData = await getMagicApeYieldChartData(this.chatrTime);
+      this.createDoubleChartDataset(chartData);
+    },
+
+    async getTvlChartData() {
+      const chartData = await getMagicApeTvlChartData(this.chatrTime);
+      this.createChartDataset(chartData, this.chartActive);
+    },
+
+    async getPriceChartData() {
+      const chartData = await getMagicApePriceChartData(this.chatrTime);
+      this.createChartDataset(chartData, this.chartActive);
+    },
+
+    async getEstApy() {
       const apy = await getApeApy(this.provider);
       this.apy = apy.toFixed(2);
-      this.fetchData = response.data;
-      this.changeChart(this.chartActive);
     },
 
-    async fetchTvl() {
-      const response = await axios.get(
-        "https://analytics.abracadabra.money/api/mape/tvl"
-      );
+    createChartDataset(chartData, type) {
+      const reverseData = chartData.reverse();
 
-      return response.data;
-    },
-
-    async createChartTvlData() {
-      this.tvlData = await this.fetchTvl();
-
-      this.tvlInterval = setInterval(async () => {
-        this.tvlData = await this.fetchTvl();
-      }, 60000);
-
-      return this.tvlData;
-    },
-
-    async fetchPrice() {
-      const response = await axios.get(
-        "https://analytics.abracadabra.money/api/mape/price"
-      );
-
-      return response.data;
-    },
-
-    async createChartPriceData() {
-      this.priceData = await this.fetchPrice();
-
-      this.priceInterval = setInterval(async () => {
-        this.priceData = await this.fetchPrice();
-      }, 60000);
-
-      return this.priceData;
-    },
-
-    async changeChart(type = "yield") {
       this.labels = [];
+      const tickUpper = [];
+      reverseData.forEach((element) => {
+        this.labels.push(moment(element.date).format("DD.MM"));
+        tickUpper.push(element[type]);
+      });
+
+      const dataset = {
+        label: this.chartActive.toUpperCase(),
+        data: tickUpper,
+        borderColor: "#c0c53f",
+        pointBackgroundColor: "#c0c53f",
+        pointBorderColor: "#c0c53f",
+        pointRadius: 0,
+        borderWidth: 2,
+      };
+
       this.chartData = [];
-      this.chartActive = type;
+      this.chartData.push(dataset);
+    },
+
+    createDoubleChartDataset(chartData) {
+      const reverseData = chartData.reverse();
+
+      this.labels = [];
       const tickUpper = [];
       const tickUpper2 = [];
+      reverseData.forEach((element) => {
+        this.labels.push(moment(element.date).format("DD.MM"));
+        tickUpper.push(element.apy);
+        tickUpper2.push(element.apr);
+      });
 
-      let typeData = this.fetchData;
+      const dataset1 = {
+        label: "MagicAPE",
+        data: tickUpper,
+        borderColor: "#c0c53f",
+        pointBackgroundColor: "#c0c53f",
+        pointBorderColor: "#c0c53f",
+        pointRadius: 0,
+        borderWidth: 4,
+      };
 
-      if (type === "tvl") {
-        if (!this.tvlData) typeData = await this.createChartTvlData();
-        else typeData = this.tvlData;
-      }
+      const dataset2 = {
+        label: "APE",
+        data: tickUpper2,
+        borderColor: "#495B7C",
+        pointBackgroundColor: "#495B7C",
+        pointBorderColor: "#495B7C",
+        pointRadius: 0,
+        borderWidth: 2,
+      };
 
-      if (type === "price") {
-        if (!this.priceData) typeData = await this.createChartPriceData();
-        else typeData = this.priceData;
-      }
-
-      const data = typeData.slice(0, this.chatrTime * 31).reverse();
-
-      if (type === "yield") {
-        data.forEach((element) => {
-          this.labels.push(moment(element.date).format("DD.MM"));
-          tickUpper.push(element.apy);
-          tickUpper2.push(element.apr);
-        });
-
-        const dataset1 = {
-          label: "MagicAPE",
-          data: tickUpper,
-          borderColor: "#c0c53f",
-          pointBackgroundColor: "#c0c53f",
-          pointBorderColor: "#c0c53f",
-          pointRadius: 0,
-          borderWidth: 4,
-        };
-
-        const dataset2 = {
-          label: "APE",
-          data: tickUpper2,
-          borderColor: "#495B7C",
-          pointBackgroundColor: "#495B7C",
-          pointBorderColor: "#495B7C",
-          pointRadius: 0,
-          borderWidth: 2,
-        };
-
-        this.chartData.push(dataset1, dataset2);
-      } else {
-        data.forEach((element) => {
-          this.labels.push(moment(element.date).format("DD.MM"));
-          tickUpper.push(element[type]);
-        });
-
-        const dataset = {
-          label: this.chartActive.toUpperCase(),
-          data: tickUpper,
-          borderColor: "#c0c53f",
-          pointBackgroundColor: "#c0c53f",
-          pointBorderColor: "#c0c53f",
-          pointRadius: 0,
-          borderWidth: 2,
-        };
-
-        this.chartData.push(dataset);
-      }
+      this.chartData = [];
+      this.chartData.push(dataset1, dataset2);
     },
 
     async changeChartTime(time) {
@@ -663,48 +637,36 @@ export default {
       this.changeChart(this.chartActive);
     },
 
-    async getTotalRewards() {
-      try {
-        const response = await axios.get(
-          "https://analytics.abracadabra.money/api/mape/rewards"
-        );
-
-        this.totalRewards = response.data;
-      } catch (error) {
-        console.log("Get Total Rewards Error", error);
-      }
-    },
-
-    goToPage(name, id) {
+    routeTo(name, id) {
       this.$router.push({ name, params: { id } });
     },
 
     async crateStakeData() {
-      await this.getTotalRewards();
+      await this.createMagicApeData();
+      if (this.chainId !== 1) return false;
+      this.totalRewards = await getMagicApeTotalRewards();
+
       this.updateInterval = setInterval(async () => {
-        await this.createStakePool();
+        await this.createMagicApeData();
       }, 15000);
 
-      await this.fetchChartData();
+      await this.initChart();
 
       this.chartInterval = setInterval(async () => {
-        await this.fetchChartData();
+        await this.initChart(this.chartActive, this.chatrTime);
       }, 60000);
     },
   },
 
   async created() {
-    await this.createStakePool();
-    if (this.chainId !== 1) return false;
-    await this.crateStakeData();
+    this.crateStakeData();
   },
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
     clearInterval(this.chartInterval);
-    clearInterval(this.tvlInterval);
-    clearInterval(this.priceIntervalL);
   },
+
   components: {
     BaseTokenIcon,
     TickChart,
@@ -716,6 +678,7 @@ export default {
   },
 };
 </script>
+
 <style lang="scss" scoped>
 .empty-link {
   color: #759ffa;

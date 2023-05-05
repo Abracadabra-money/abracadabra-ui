@@ -13,7 +13,7 @@
     />
     <div class="button-content">
       <p class="button-title" :class="type + '-title'">{{ type }} Tranches</p>
-      <p class="apr">200.59% <span>APR</span></p>
+      <p class="apr">{{ apr }} <span>APR</span></p>
     </div>
   </a>
 </template>
@@ -25,6 +25,7 @@ export default {
   props: {
     type: String,
     isActive: Boolean,
+    apr: String,
   },
 
   computed: {

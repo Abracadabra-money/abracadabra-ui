@@ -1,6 +1,8 @@
 import { BigNumber } from "ethers";
 import axios from "axios";
 
+const SLIPPAGE_ACCURACY = 1e4;
+
 const endpoints = {
   1: "https://api.0x.org",
   10: "https://optimism.api.0x.org",
@@ -64,11 +66,11 @@ export const swap0xRequest = async (
       sellAmount: BigNumber.from(sellAmount),
       estimatedGas: BigNumber.from(estimatedGas),
       buyAmountWithSlippage: BigNumber.from(buyAmount)
-        .mul(BigNumber.from(100 - slippage))
-        .div(BigNumber.from(100)),
+        .mul(BigNumber.from(SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY))
+        .div(BigNumber.from(SLIPPAGE_ACCURACY)),
       sellAmountWithSlippage: BigNumber.from(sellAmount)
-        .mul(BigNumber.from(100 - slippage))
-        .div(BigNumber.from(100)),
+        .mul(BigNumber.from(SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY))
+        .div(BigNumber.from(SLIPPAGE_ACCURACY)),
     };
   } catch (error) {
     console.log("swap0xRequest error:", error);

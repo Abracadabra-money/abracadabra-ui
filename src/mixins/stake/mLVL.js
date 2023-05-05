@@ -4,6 +4,7 @@ import { mapGetters, mapMutations } from "vuex";
 import { isTokenApprowed } from "@/utils/approveHelpers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { Contract, utils } from "ethers";
+import { getLevelFinanceStatistics } from "@/helpers/subgraph/magicLvl";
 
 import lvlConfig from "@/utils/stake/lvlConfig";
 
@@ -12,7 +13,6 @@ export default {
     return {
       levelMasterV2Address: "0x5aE081b6647aEF897dEc738642089D4BDa93C0e7",
       desc: ["mainTokenBalances", "stakeTokenBalances", "levelMasterBalance"],
-      stakeInfo: {},
     };
   },
 
@@ -121,6 +121,51 @@ export default {
       );
     },
 
+    async getTranchesStatistics(totalSupplyArr, totalSupplyUsd) {
+      const totalSupply = totalSupplyArr.reduce((accumulator, value) =>
+        accumulator.add(value)
+      );
+
+      const { juniorApy, mezzanineApy, seniorApy, junior, mezzanine, senior } =
+        await getLevelFinanceStatistics();
+
+      const { totalRewards: juniorTotalRewards, lpPriceUsd: juniorLpPriceUsd } =
+        junior;
+
+      const juniorTotalRewardsUsd =
+        +utils.formatEther(juniorTotalRewards) * +juniorLpPriceUsd;
+
+      const {
+        totalRewards: mezzanineTotalRewards,
+        lpPriceUsd: mezzanineLpPriceUsd,
+      } = mezzanine;
+
+      const mezzanineTotalRewardsUsd =
+        +utils.formatEther(mezzanineTotalRewards) * +mezzanineLpPriceUsd;
+
+      const { totalRewards: seniorTotalRewards, lpPriceUsd: seniorLpPriceUsd } =
+        senior;
+      const seniorTotalRewardsUsd =
+        +utils.formatEther(seniorTotalRewards) * +seniorLpPriceUsd;
+
+      const totalRewardsUsd =
+        juniorTotalRewardsUsd +
+        mezzanineTotalRewardsUsd +
+        seniorTotalRewardsUsd;
+
+      return {
+        juniorApy,
+        mezzanineApy,
+        seniorApy,
+        juniorTotalRewardsUsd,
+        mezzanineTotalRewardsUsd,
+        seniorTotalRewardsUsd,
+        totalRewardsUsd,
+        totalSupply: utils.formatEther(totalSupply),
+        totalSupplyUsd,
+      };
+    },
+
     async createStakePool() {
       if (this.chainId !== 56) return !!this.setLoadingMLvlStake(false);
       const levelMasterContract = await new Contract(
@@ -144,6 +189,10 @@ export default {
         stakeTokensApprowed,
       } = await this.getUserInfo(lvlContracts, levelMasterContract);
 
+      let totalSupplyUsd = 0;
+      let totalSupplyArrUsd = [];
+      const stakeInfo = {};
+
       lvlContracts.map((contracts, idx) => {
         const tokensRate = utils.formatUnits(tokensRates[idx]);
         const mainContractInstance = contracts.mainTokenInstance.connect(
@@ -157,6 +206,8 @@ export default {
         const mainBalanceUsd = mainBalance * mainPrice;
         const mainTotalSupply = utils.formatUnits(totalSupplyArr[idx], 18);
         const mainTotalSupplyUsd = mainTotalSupply * mainPrice;
+        totalSupplyArrUsd.push(mainTotalSupplyUsd);
+        totalSupplyUsd = totalSupplyUsd + mainTotalSupplyUsd;
 
         const stakeContractInstance = contracts.stakeTokenInstance.connect(
           this.userSigner
@@ -173,7 +224,7 @@ export default {
         const stakeTokenBalance = +stakeWalletBalance + +lvlMasterBalance;
         const price = 1 / utils.formatUnits(oracleRates[idx].toString(), 18);
 
-        this.stakeInfo[lvlConfig[idx].name] = {
+        stakeInfo[lvlConfig[idx].name] = {
           feePercent: 1,
           ethPrice: 1,
           tokensRate,
@@ -201,9 +252,12 @@ export default {
         };
       });
 
-      console.log("stakeInfo", this.stakeInfo);
+      stakeInfo.tranchesStatistics = await this.getTranchesStatistics(
+        totalSupplyArr,
+        totalSupplyUsd
+      );
 
-      this.setMLvlStakingObj(markRaw(this.stakeInfo));
+      this.setMLvlStakingObj(markRaw(stakeInfo));
       this.setLoadingMLvlStake(false);
     },
 

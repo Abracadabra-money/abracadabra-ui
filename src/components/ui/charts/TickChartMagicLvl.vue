@@ -10,11 +10,6 @@ import Chart from "chart.js/auto";
 
 export default {
   props: {
-    label: {
-      type: String,
-      required: true,
-      default: "APR",
-    },
     labels: {
       type: Array,
       required: true,
@@ -53,11 +48,7 @@ export default {
                 const { dataset, dataIndex } = context;
                 const { label, data } = dataset;
                 let value = +data[dataIndex];
-                if (label === "TVL") return ` ${label} $ ${value.toFixed(4)}`;
-                if (label === "PRICE") return ` $ ${value.toFixed(2)} mAPE`;
-                if (label === "APE") {
-                  return ` ${label}           ${value.toFixed(2)}%`;
-                }
+                if (+value < 1) return ` ${label} ${value.toFixed(6)}%`;
                 return ` ${label} ${value.toFixed(2)}%`;
               },
             },
@@ -78,16 +69,10 @@ export default {
                 weight: "light",
               },
               callback: function (value) {
-                const classes =
-                  this.$context.scale.ctx.canvas.offsetParent.classList;
+                console.log(+value < 1);
 
-                const chartValue = value < 1 ? value.toFixed(4) : value;
-
-                if (classes.contains("yield")) {
-                  return `${chartValue}%`;
-                }
-
-                return `$ ${Number(chartValue).toFixed(2)}`;
+                if (+value < 1) return `$ ${Number(value).toFixed(6)}`;
+                return `$ ${Number(value).toFixed(2)}`;
               },
             },
           },
@@ -113,7 +98,6 @@ export default {
   },
   mounted() {
     const data = this.createDataObject();
-
     const options = this.createOptionsObject();
 
     this.config.data = data;

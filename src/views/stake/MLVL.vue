@@ -25,15 +25,18 @@
           <TrancheButton
             type="senior"
             :isActive="tokenLvl === 'Senior'"
+            :apr="seniorApy"
             @changeToken="changeTokenLvl('Senior')"
           />
           <TrancheButton
             type="mezzanine"
+            :apr="mezzanineApy"
             :isActive="tokenLvl === 'Mezzanine'"
             @changeToken="changeTokenLvl('Mezzanine')"
           />
           <TrancheButton
             type="junior"
+            :apr="juniorApy"
             :isActive="tokenLvl === 'Junior'"
             @changeToken="changeTokenLvl('Junior')"
           />
@@ -84,14 +87,6 @@
             {{ action }}
           </BaseButton>
         </div>
-        <!-- <p class="profile-subscribtion">
-          Amplify your yield with the Abracadabra Leverage Engine
-          <router-link
-            class="link"
-            :to="{ name: 'Leverage', params: { id: 3 } }"
-            >here.</router-link
-          >
-        </p> -->
       </div>
     </div>
 
@@ -104,15 +99,16 @@
       <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mlvl'" />
 
       <template v-else>
-        <!-- <div class="wrap wrap-chart" v-if="chartData"> -->
-        <div class="wrap wrap-chart" v-if="false">
+        <div class="wrap wrap-chart" v-if="chartData.length && labels.length">
           <div class="chart-row">
             <h1 class="chart-title">APY Chart</h1>
             <div class="chart-apt-wrap">
               <div class="chart-apt">
-                <img src="@/assets/images/glp/chart-apr.png" alt="" />
+                <img src="@/assets/images/stake/lvl-apy-icon.png" alt="" />
                 <span class="chart-apt-text">est. APY</span>
-                <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
+                <span class="chart-apt-percent" v-if="seniorApy">{{
+                  seniorApy
+                }}</span>
                 <div class="loader-wrap-mini" v-else>
                   <p class="loader"></p>
                 </div>
@@ -123,45 +119,20 @@
           <div class="chart-btns">
             <button
               class="chart-btn btn-3"
-              :class="{ 'chart-btn-active': chartActiveBtn === 1 }"
-              @click="changeChartTime(1)"
-            >
-              1m
-            </button>
-            <button
-              class="chart-btn"
               :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
-              @click="changeChartTime(3)"
+              @click="changeChartTime(1)"
             >
               3m
             </button>
-            <button
-              class="chart-btn"
-              :class="{ 'chart-btn-active': chartActiveBtn === 6 }"
-              @click="changeChartTime(6)"
-            >
-              6m
-            </button>
-            <button
-              class="chart-btn btn-1y"
-              :class="{ 'chart-btn-active': chartActiveBtn === 12 }"
-              @click="changeChartTime(12)"
-            >
-              1y
-            </button>
           </div>
-          <TickChart
-            v-if="chartData"
-            :labels="chartData.labels"
-            :tickUpper="chartData.tickUpper"
-          />
+          <TickChart v-if="chartData" :labels="labels" :datasets="chartData" />
         </div>
 
         <div class="loader-wrap" v-if="!chartData">
           <BaseLoader />
         </div>
 
-        <TranchesStatistics />
+        <TranchesStatistics :tokensInfo="tokensInfo" />
         <LvlTokensBalance :tokensInfo="tokensInfo" v-if="tokensInfo" />
 
         <p class="profile-subscribtion">
@@ -197,20 +168,20 @@
   </div>
 </template>
 <script>
-// import axios from "axios";
+import moment from "moment";
 import { mapGetters } from "vuex";
+import filters from "@/filters/index.js";
 import mLvlTokensMixin from "@/mixins/stake/mLVL.js";
 import { approveToken } from "@/utils/approveHelpers.js";
-import filters from "@/filters/index.js";
 import profileBg from "@/assets/images/stake/mGLPprofileBg.png";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-
+import { getLevelFinanceChartData } from "@/helpers/subgraph/magicLvl/getLevelFinanceChartData.js";
 import BaseButton from "@/components/base/BaseButton.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import EmptyBlock from "@/components/stake/EmptyBlock.vue";
-import TickChart from "@/components/ui/charts/TickChart.vue";
+import TickChart from "@/components/ui/charts/TickChartMagicLvl.vue";
 import TrancheButton from "@/components/stake/TrancheButton.vue";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import LvlTokensBalance from "@/components/stake/LvlTokensBalance.vue";
@@ -223,13 +194,13 @@ export default {
       action: "Stake",
       amount: "",
       amountError: "",
-      chartData: null,
+      chartData: [],
+      labels: [],
       updateInterval: null,
-      chartActiveBtn: 1,
+      chartActiveBtn: 3,
       chartInterval: null,
-      apy: "",
+      // apy: "",
       gasLimitConst: 1000,
-      totalRewards: null,
       tokenLvl: "Senior",
       profileBg,
       trancheLinks: {
@@ -303,19 +274,23 @@ export default {
       return !!(!+this.amount || this.amountError);
     },
 
-    // totalRewardsEarned() {
-    //   return this.totalRewards
-    //     ? this.$ethers.utils.formatEther(this.totalRewards?.total)
-    //     : 0;
-    // },
+    seniorApy() {
+      return filters.formatPercent(
+        this.tokensInfo.tranchesStatistics.seniorApy
+      );
+    },
 
-    // totalRewardsUsd() {
-    //   return this.totalRewards
-    //     ? parseFloat(
-    //         +this.totalRewardsEarned * +this.lvlInfo?.ethPrice
-    //       ).toFixed(2)
-    //     : 0;
-    // },
+    mezzanineApy() {
+      return filters.formatPercent(
+        this.tokensInfo.tranchesStatistics.mezzanineApy
+      );
+    },
+
+    juniorApy() {
+      return filters.formatPercent(
+        this.tokensInfo.tranchesStatistics.juniorApy
+      );
+    },
   },
 
   watch: {
@@ -387,9 +362,9 @@ export default {
       const notificationId = await this.createNotification(pending);
 
       try {
-        if (this.stakeToken.walletBalance < this.amount) {
+        if (+this.stakeToken.walletBalance < +this.amount) {
           const withdrawAmount = this.$ethers.utils.parseEther(
-            (this.amount - this.stakeToken.walletBalance).toString()
+            (+this.amount - +this.stakeToken.walletBalance).toString()
           );
 
           const tx = await this.activeTokenInfo.levelMasterContract.withdraw(
@@ -401,7 +376,9 @@ export default {
           await tx.wait();
         }
 
-        const amount = this.$ethers.utils.parseEther(this.amount);
+        const amount = this.$ethers.utils.parseEther(this.amount.toString());
+
+        console.log("amount", amount);
 
         const estimateGas =
           await this.mainToken.contractInstance.estimateGas.deposit(
@@ -488,33 +465,57 @@ export default {
       }
     },
 
-    // async createChartData(time = 3) {
-    //   const labels = [];
-    //   const tickUpper = [];
-    //   const data = await getGlpChartApr(time);
-    //   data.forEach((element) => {
-    //     labels.push(moment.unix(element.timestamp).format("DD.MM"));
-    //     tickUpper.push(element.glpApy * (1 - this.lvlInfo?.feePercent));
-    //   });
+    async createChartData(time = 3) {
+      this.labels = [];
+      const tickUpper = [];
+      const tickUpper2 = [];
+      const tickUpper3 = [];
+      const data = await getLevelFinanceChartData();
 
-    //   this.chartData = { labels, tickUpper };
-    // },
+      data.forEach((element) => {
+        this.labels.push(moment.unix(element.timestamp).format("DD.MM"));
+        tickUpper.push(element.juniorApy);
+        tickUpper2.push(element.mezzanineApy);
+        tickUpper3.push(element.seniorApy);
+      });
+
+      const dataset1 = {
+        label: "junior",
+        data: tickUpper,
+        borderColor: "#ff7101",
+        pointBackgroundColor: "#ff7101",
+        pointBorderColor: "#ff7101",
+        pointRadius: 0,
+        borderWidth: 4,
+      };
+
+      const dataset2 = {
+        label: "megazine",
+        data: tickUpper2,
+        borderColor: "#874efb",
+        pointBackgroundColor: "#874efb",
+        pointBorderColor: "#874efb",
+        pointRadius: 0,
+        borderWidth: 3,
+      };
+
+      const dataset3 = {
+        label: "sinior",
+        data: tickUpper2,
+        borderColor: "#58c6f9",
+        pointBackgroundColor: "#58c6f9",
+        pointBorderColor: "#58c6f9",
+        pointRadius: 0,
+        borderWidth: 3,
+      };
+
+      this.chartData = [];
+      this.chartData.push(dataset1, dataset2, dataset3);
+    },
 
     // async changeChartTime(time) {
     //   this.chartActiveBtn = time;
     //   await this.createChartData(time);
-    // },
-
-    // async getTotalRewards() {
-    //   try {
-    //     const response = await axios.get(
-    //       "https://analytics.abracadabra.money/api/mglp"
-    //     );
-
-    //     this.totalRewards = response.data;
-    //   } catch (error) {
-    //     console.log("Get Total Rewards Error", error);
-    //   }
     // },
 
     async createStakeData() {
@@ -527,20 +528,16 @@ export default {
 
   async created() {
     await this.createStakeData();
-
-    // if (this.chainId !== 42161) return false;
-    // await this.getTotalRewards();
-
-    // await this.createChartData(this.chartActiveBtn);
+    await this.createChartData(this.chartActiveBtn);
 
     // const apy = await getGlpApy(true);
     // this.apy = parseFloat(apy).toFixed(2);
 
-    // this.chartInterval = setInterval(async () => {
-    //   await this.createChartData(this.chartActiveBtn);
-    //   const apy = await getGlpApy(true);
-    //   this.apy = parseFloat(apy).toFixed(2);
-    // }, 60000);
+    this.chartInterval = setInterval(async () => {
+      await this.createChartData(this.chartActiveBtn);
+      // const apy = await getGlpApy(true);
+      // this.apy = parseFloat(apy).toFixed(2);
+    }, 60000);
   },
 
   beforeUnmount() {
@@ -698,7 +695,7 @@ export default {
 .chart-apt-wrap {
   width: 178px;
   height: 32px;
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
+  background: linear-gradient(0deg, #37caff, #37caff);
   display: flex;
   align-items: center;
   border-radius: 0px 30px 30px 0px;
@@ -732,11 +729,10 @@ export default {
 }
 
 .chart-apt-percent {
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 27px;
+  color: #37caff;
 }
 
 .chart-btns {
@@ -903,19 +899,16 @@ export default {
   width: 8px;
   animation: rectangle infinite 1s ease-in-out -0.2s;
   border-radius: 4px;
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
+  background: linear-gradient(0deg, #37caff, #37caff);
 }
 .loader:before,
 .loader:after {
   position: absolute;
-
   width: 8px;
   height: 8px;
   border-radius: 4px;
-
   content: "";
-
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
+  background: linear-gradient(0deg, #37caff, #37caff);
 }
 .loader:before {
   left: -10px;
@@ -932,6 +925,10 @@ export default {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-fill-color: transparent;
+}
+
+.wrap-chart {
+  margin-bottom: 16px;
 }
 
 @keyframes rectangle {

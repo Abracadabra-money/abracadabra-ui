@@ -19,15 +19,15 @@
           <ul class="tranche-box-info">
             <li class="info-field">
               <span class="field-title">APR</span>
-              <span class="field-value">{{ data.apr }}%</span>
+              <span class="field-value">{{ data.apr }}</span>
             </li>
             <li class="info-field">
               <span class="field-title">Total Rewards</span>
-              <span class="field-value">${{ data.totalRewards }}</span>
+              <span class="field-value">{{ data.totalRewards }}</span>
             </li>
             <li class="info-field">
               <span class="field-title">Total supply</span>
-              <span class="field-value">${{ data.totalSupply }}</span>
+              <span class="field-value">{{ data.totalSupply }}</span>
             </li>
           </ul>
         </div>
@@ -46,7 +46,7 @@
             <span>{{ data.name }}</span>
           </div>
           <div class="info-balance">
-            <span class="info-value">${{ data.value }}</span>
+            <span class="info-value">{{ data.value }}</span>
           </div>
         </div>
       </div>
@@ -60,7 +60,12 @@ import mezzanineIcon from "@/assets/images/stake/mezzanine-icon.svg";
 import juniorIcon from "@/assets/images/stake/junior-icon.svg";
 import magicTranchesLvlIcon from "@/assets/images/tokens/magicTranches.png";
 import lvlIcon from "@/assets/images/tokens/LVL.png";
+import filters from "@/filters/index.js";
 export default {
+  props: {
+    tokensInfo: { type: Object },
+  },
+
   computed: {
     staticData() {
       return [
@@ -68,25 +73,43 @@ export default {
           icon: seniorIcon,
           type: "Senior",
           risk: "low",
-          apr: "90.59",
-          totalRewards: "304,210.19",
-          totalSupply: "5,304,313.99",
+          apr: filters.formatPercent(
+            this.tokensInfo.tranchesStatistics.seniorApy
+          ),
+          totalRewards: filters.formatUSD(
+            this.tokensInfo.tranchesStatistics.seniorTotalRewardsUsd
+          ),
+          totalSupply: filters.formatUSD(
+            this.tokensInfo.Senior.mainToken.totalSupplyUsd
+          ),
         },
         {
           icon: mezzanineIcon,
           type: "Mezzanine",
           risk: "medium",
-          apr: "90.59",
-          totalRewards: "304,210.19",
-          totalSupply: "5,304,313.99",
+          apr: filters.formatPercent(
+            this.tokensInfo.tranchesStatistics.mezzanineApy
+          ),
+          totalRewards: filters.formatUSD(
+            this.tokensInfo.tranchesStatistics.mezzanineTotalRewardsUsd
+          ),
+          totalSupply: filters.formatUSD(
+            this.tokensInfo.Mezzanine.mainToken.totalSupplyUsd
+          ),
         },
         {
           icon: juniorIcon,
           type: "Junior",
           risk: "high",
-          apr: "90.59",
-          totalRewards: "304,210.19",
-          totalSupply: "5,304,313.99",
+          apr: filters.formatPercent(
+            this.tokensInfo.tranchesStatistics.juniorApy
+          ),
+          totalRewards: filters.formatUSD(
+            this.tokensInfo.tranchesStatistics.juniorTotalRewardsUsd
+          ),
+          totalSupply: filters.formatUSD(
+            this.tokensInfo.Junior.mainToken.totalSupplyUsd
+          ),
         },
       ];
     },
@@ -97,13 +120,17 @@ export default {
           title: "Total Supply",
           icon: magicTranchesLvlIcon,
           name: "Magic Tranches",
-          value: "304,313.99",
+          value: filters.formatUSD(
+            this.tokensInfo.tranchesStatistics.totalSupplyUsd
+          ),
         },
         {
           title: "Total Rewards Earned",
           icon: lvlIcon,
           name: "LVL",
-          value: "7,304,313.99",
+          value: filters.formatUSD(
+            this.tokensInfo.tranchesStatistics.totalRewardsUsd
+          ),
         },
       ];
     },

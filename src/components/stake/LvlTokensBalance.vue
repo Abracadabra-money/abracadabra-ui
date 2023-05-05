@@ -29,24 +29,12 @@ export default {
   },
 
   computed: {
-    mSeniorBalance() {
-      return this.tokensInfo.Senior.stakeToken.balance;
-    },
-
     mSeniorRate() {
       return filters.formatToFixed(1 * this.tokensInfo.Senior.tokensRate, 4);
     },
 
-    mMezzanineBalance() {
-      return this.tokensInfo.Mezzanine.stakeToken.balance;
-    },
-
     mMezzanineRate() {
       return filters.formatToFixed(1 * this.tokensInfo.Mezzanine.tokensRate, 4);
-    },
-
-    mJuniorBalance() {
-      return this.tokensInfo.Junior.stakeToken.balance;
     },
 
     mJuniorRate() {
@@ -54,23 +42,24 @@ export default {
     },
 
     InfoArr() {
+      const { Senior, Mezzanine, Junior } = this.tokensInfo;
       return [
         {
           icon: seniorIcon,
           title: "Senior Tranches",
-          balance: this.mSeniorBalance,
+          balance: Senior.stakeToken.balance,
           rate: this.mSeniorRate,
         },
         {
           icon: mezzanineIcon,
-          title: "Senior Tranches",
-          balance: this.mMezzanineBalance,
+          title: "Mezzanine Tranches",
+          balance: Mezzanine.stakeToken.balance,
           rate: this.mMezzanineRate,
         },
         {
           icon: juniorIcon,
-          title: "Senior Tranches",
-          balance: this.mJuniorBalance,
+          title: "Junior Tranches",
+          balance: Junior.stakeToken.balance,
           rate: this.mJuniorRate,
         },
       ];
