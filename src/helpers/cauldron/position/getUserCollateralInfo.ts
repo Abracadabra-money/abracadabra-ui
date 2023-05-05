@@ -1,6 +1,6 @@
 import type { BigNumber, Contract } from "ethers";
 
-export type UserColalteralInfo = {
+export type UserCollateralInfo = {
   userCollateralShare: BigNumber;
   userCollateralAmount: BigNumber;
 };
@@ -10,7 +10,7 @@ export const getUserCollateralInfo = async (
   bentoBox: Contract,
   cauldron: Contract,
   collateral: string
-): Promise<UserColalteralInfo> => {
+): Promise<UserCollateralInfo> => {
   const userCollateralShare: BigNumber = await cauldron.userCollateralShare(
     user
   );

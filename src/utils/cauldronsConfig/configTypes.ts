@@ -13,7 +13,7 @@ type CauldronSettings = {
   isNew?: boolean;
   executionPrice?: boolean;
   isMigrated?: boolean;
-  oracleAddress?: string
+  oracleAddress?: string;
 };
 
 type MimInfo = {
@@ -33,6 +33,7 @@ export type CauldronConfig = {
   interest?: number;
   mcr: number;
   borrowFee: number;
+  version: number;
   cauldronSettings: CauldronSettings;
   contract: {
     name: string;
