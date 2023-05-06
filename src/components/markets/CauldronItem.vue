@@ -79,7 +79,7 @@ export default {
         },
         {
           title: "MIMS LEFT TO BORROW",
-          value: filters.formatLargeSum(this.cauldron.MIMsLeftToBorrow),
+          value: filters.formatLargeSum(this.cauldron.mimLeftToBorrow),
         },
         { title: "INTEREST", value: `${this.cauldron.interest}%` },
       ];
