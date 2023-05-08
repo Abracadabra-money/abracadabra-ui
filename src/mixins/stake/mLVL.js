@@ -202,6 +202,7 @@ export default {
           : 0;
         const mainPrice =
           (1 / utils.formatUnits(oracleRates[idx], 18)) * tokensRate;
+
         const mainBalanceUsd = mainBalance * mainPrice;
         const mainTotalSupply = utils.formatUnits(totalSupplyArr[idx], 18);
         const mainTotalSupplyUsd = mainTotalSupply * mainPrice;

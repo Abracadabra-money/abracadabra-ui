@@ -200,7 +200,7 @@ export default {
       chartActiveBtn: 3,
       chartInterval: null,
       // apy: "",
-      gasLimitConst: 1000,
+      gasLimitConst: 5000,
       tokenLvl: "senior",
       profileBg,
       trancheLinks: {
