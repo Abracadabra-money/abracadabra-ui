@@ -373,12 +373,17 @@ export default {
 
     async stake() {
       const { pending, success } = notification;
+      const parseAmount = this.$ethers.utils.parseEther(this.amount);
+      const isWithdraw = this.stakeToken.walletBalance.lt(parseAmount);
       const notificationId = await this.createNotification(pending);
 
       try {
-        const parseAmount = this.$ethers.utils.parseEther(this.amount);
+        if (isWithdraw) {
+          this.$store.commit("notifications/updateTitle", {
+            title: "1/2 withdrawing Lps",
+            id: notificationId,
+          });
 
-        if (this.stakeToken.walletBalance.lt(parseAmount)) {
           const withdrawAmount = parseAmount.sub(this.stakeToken.walletBalance);
 
           const tx = await this.activeTokenInfo.levelMasterContract.withdraw(
@@ -388,6 +393,13 @@ export default {
           );
 
           await tx.wait();
+        }
+
+        if (isWithdraw) {
+          this.$store.commit("notifications/updateTitle", {
+            title: "2/2 staking to magicLVL",
+            id: notificationId,
+          });
         }
 
         const amount = this.$ethers.utils.parseEther(this.amount.toString());
@@ -509,7 +521,7 @@ export default {
 
       const dataset3 = {
         label: "sinior",
-        data: tickUpper2,
+        data: tickUpper3,
         borderColor: "#58c6f9",
         pointBackgroundColor: "#58c6f9",
         pointBorderColor: "#58c6f9",
