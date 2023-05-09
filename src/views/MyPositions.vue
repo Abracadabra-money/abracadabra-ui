@@ -66,6 +66,7 @@ import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
 import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
 import { getUserPositions } from "@/helpers/cauldron/position/getUserPositions.ts";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
+import { getPositionProfit } from "@/helpers/subgraph/position/getPositionProfit.ts";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import TotalAssets from "@/components/myPositions/TotalAssets.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
@@ -196,11 +197,7 @@ export default {
         return false;
       }
 
-      this.positionList = await getUserPositions(
-        this.chainId,
-        this.account,
-        this.provider
-      );
+      await this.updatePositinList();
 
       this.totalAssets = getUsersTotalAssets(this.positionList);
       this.positionsIsLoading = false;
@@ -208,16 +205,33 @@ export default {
       if (!this.pools.length) await this.createFarmPools();
 
       this.updateInterval = setInterval(async () => {
-        this.positionList = await getUserPositions(
-          this.chainId,
-          this.account,
-          this.provider
-        );
+        await this.updatePositinList();
 
         this.totalAssets = getUsersTotalAssets(this.positionList);
 
         await this.createFarmPools();
       }, 10000);
+    },
+
+    async updatePositinList() {
+      const positionList = await getUserPositions(
+        this.chainId,
+        this.account,
+        this.provider
+      );
+
+      const cauldronsProfit = await getPositionProfit(this.account);
+      if (!cauldronsProfit) return positionList;
+
+      this.positionList = positionList.map((position) => {
+        const positionAddress =
+          position.config.contract.address.toLocaleLowerCase();
+
+        if (cauldronsProfit[positionAddress])
+          position.positionStats = cauldronsProfit[positionAddress];
+
+        return position;
+      });
     },
   },
 

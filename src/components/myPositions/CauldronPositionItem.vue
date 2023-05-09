@@ -12,6 +12,12 @@
 
     <PositionAssets :assetsInfo="assetsInfo" />
 
+    <PositionStats
+      :cauldron="cauldron"
+      :liquidationRisk="positionRisk"
+      v-if="isPositionStats"
+    />
+
     <div class="position-health" v-if="opened">
       <h4 class="title">Position health</h4>
 
@@ -43,6 +49,7 @@ import PositionTokensInfo from "@/components/myPositions/PositionTokensInfo.vue"
 import PositionLinks from "@/components/myPositions/PositionLinks.vue";
 import PositionLiquidationPrice from "@/components/myPositions/PositionLiquidationPrice.vue";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
+import PositionStats from "@/components/myPositions/PositionStats.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
 
 export default {
@@ -168,6 +175,10 @@ export default {
         },
       ];
     },
+
+    isPositionStats() {
+      return !!this.cauldron?.positionStats;
+    },
   },
 
   methods: {
@@ -185,6 +196,7 @@ export default {
     PositionLinks,
     PositionLiquidationPrice,
     PositionAssets,
+    PositionStats,
     HealthProgress,
   },
 };
