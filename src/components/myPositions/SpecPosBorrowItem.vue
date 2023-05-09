@@ -91,6 +91,12 @@
       </div>
     </div>
 
+    <PositionStats
+      :cauldron="pool"
+      :liquidationRisk="liquidationRisk"
+      v-if="isPositionStats"
+    />
+
     <template v-if="opened">
       <div class="footer">
         <div class="footer-title">
@@ -142,10 +148,9 @@ import HealthLine from "@/components/ui/HealthLine.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import StatusName from "@/components/ui/StatusName.vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import PositionStats from "@/components/myPositions/PositionStats.vue";
 
 export default {
-  name: "SpecPosBorrowItem",
-  components: { HealthWrap, HealthLine, BaseTokenIcon, StatusName },
   props: {
     opened: { type: Boolean, default: true },
     pool: { type: Object, required: true },
@@ -255,6 +260,9 @@ export default {
         },
       ];
     },
+    isPositionStats() {
+      return !!this.pool.userInfo?.positionStats;
+    },
   },
   methods: {
     formatUSD(value) {
@@ -266,7 +274,15 @@ export default {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
-  }
+  },
+
+  components: {
+    HealthWrap,
+    HealthLine,
+    BaseTokenIcon,
+    StatusName,
+    PositionStats,
+  },
 };
 </script>
 
@@ -361,8 +377,7 @@ export default {
     display: grid;
     grid-template-columns: 1fr;
     grid-gap: 37px;
-    margin-top: 16px;
-
+    margin: 16px 0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     padding: 20px 13px 20px 20px;

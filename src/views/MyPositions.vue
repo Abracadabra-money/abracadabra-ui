@@ -76,7 +76,6 @@ import mimBentoDeposit from "@/mixins/mimBentoDeposit";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
-import { getPositionProfit } from "@/helpers/subgraph/position/getPositionProfit.ts";
 
 export default {
   mixins: [mimBentoDeposit, farmPoolsMixin, cauldronsMixin],
@@ -166,8 +165,6 @@ export default {
     },
   },
   async created() {
-    // getPositionProfit();
-
     if (!this.pools.length) {
       await this.createFarmPools();
     }
