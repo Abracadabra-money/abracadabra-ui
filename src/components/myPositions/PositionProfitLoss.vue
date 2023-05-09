@@ -40,7 +40,6 @@ export default {
   backdrop-filter: blur(5px);
   border-radius: 20px;
 }
-
 .info-icon {
   position: absolute;
   top: 12.5px;
