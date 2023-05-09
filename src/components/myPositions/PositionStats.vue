@@ -1,16 +1,28 @@
 <template>
   <div class="wrapper">
-    <PositionLiquidationPrice :price="liquidationPrice" :risk="positionRisk" />
-    <PositionProfitLoss :profit="profit" />
-    <PositionPrice :entryPrice="entryPrice" />
+    <PositionStatsItem
+      title="Liq. Price"
+      :value="liquidationPrice"
+      :liquidation-status="positionRisk"
+      tooltip="Collateral Price at which your Position will be Liquidated"
+    />
+    <PositionStatsItem
+      title="P/L"
+      :value="profitLoss"
+      :profit-status="profitStatus"
+      tooltip="Profit and Loss"
+    />
+    <PositionStatsItem
+      title="Entry Price"
+      :value="entryPrice"
+      tooltip="Entry Price"
+    />
   </div>
 </template>
 
 <script>
 import filters from "@/filters/index.js";
-import PositionLiquidationPrice from "@/components/myPositions/PositionLiquidationPrice.vue";
-import PositionProfitLoss from "@/components/myPositions/PositionProfitLoss.vue";
-import PositionPrice from "@/components/myPositions/PositionPrice.vue";
+import PositionStatsItem from "@/components/myPositions/PositionStatsItem.vue";
 
 export default {
   props: {
@@ -20,7 +32,7 @@ export default {
     },
 
     liquidationRisk: {
-      type: String,
+      type: [Number, String],
       required: true,
     },
   },
@@ -30,10 +42,6 @@ export default {
       return filters.formatExactPrice(this.cauldron.userInfo.liquidationPrice);
     },
 
-    profit() {
-      return this.cauldron.userInfo.positionStats.profit;
-    },
-
     positionRisk() {
       if (this.liquidationRisk > 75) return "safe";
       if (this.liquidationRisk > 5 && this.liquidationRisk <= 75)
@@ -41,15 +49,21 @@ export default {
       return "high";
     },
 
+    profitLoss() {
+      return filters.formatUSD(this.cauldron.userInfo.positionStats.profit);
+    },
+
+    profitStatus() {
+      return this.cauldron.userInfo.positionStats.profit > 0 ? "up" : "loss";
+    },
+
     entryPrice() {
-      return this.cauldron.userInfo.positionStats.entryPric;
+      return filters.formatUSD(this.cauldron.userInfo.positionStats.entryPrice);
     },
   },
 
   components: {
-    PositionLiquidationPrice,
-    PositionProfitLoss,
-    PositionPrice,
+    PositionStatsItem,
   },
 };
 </script>
