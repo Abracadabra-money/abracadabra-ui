@@ -34,7 +34,7 @@
       :isMedium="liquidationRisk > 5 && liquidationRisk <= 75"
       :isHigh="liquidationRisk >= 0 && liquidationRisk <= 5"
     >
-      <div class="liq-price">
+      <div class="liq-price" v-if="!isPositionStats">
         <div>
           <span class="liq-price-text">Liquidation price</span>
           <span class="liq-price-value">{{ liqPrice }}</span>

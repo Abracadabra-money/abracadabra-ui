@@ -45,7 +45,7 @@ export default {
         chainPools.map((pool) => this.createPool(pool))
       );
 
-      if (this.account) {
+      if (this.account && this.chainId === 1) {
         const updatePools = await this.updatePoolProfit(pools);
         this.$store.commit("setPools", markRaw(updatePools));
       } else {
