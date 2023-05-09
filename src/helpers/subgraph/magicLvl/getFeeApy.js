@@ -50,7 +50,6 @@ export const getFeeApy = async (currentTimestamp) => {
 
   const { data } = await axios.default.post(subgraphUrl, { query });
 
-
   const juniorInfo = {
     currentAmount: data.data.current.find(
       (item) => item.id.toLowerCase() === JUNIOR.toLowerCase()
@@ -85,8 +84,8 @@ export const getFeeApy = async (currentTimestamp) => {
   return {
     juniorFeeApy,
     mezzanineFeeApy,
-    seniorFeeApy
-  }
+    seniorFeeApy,
+  };
 };
 
 const computeApy = (info) => {
