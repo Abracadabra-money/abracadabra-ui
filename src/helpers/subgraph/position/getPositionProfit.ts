@@ -1,6 +1,5 @@
 import axios from "axios";
 import { utils } from "ethers";
-import filters from "@/filters/index.js";
 const url = "https://api.studio.thegraph.com/query/4540/abra-test/v0.0.21/";
 
 export const getPositionProfit = async (address: string) => {
@@ -67,7 +66,7 @@ export const getPositionProfit = async (address: string) => {
 
       positionsProfit[cauldron.id] = {
         profit,
-        entryPrice: filters.formatUSD(entryPrice),
+        entryPrice: entryPrice,
       };
     }
   );
