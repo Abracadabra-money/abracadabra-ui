@@ -50,7 +50,7 @@ export default {
 .box-value {
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #ffffff;
+  color: #fff;
 }
 
 .risk {
