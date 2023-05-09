@@ -3,6 +3,8 @@ import axios from "axios";
 const subgraphUrl =
   "https://api.thegraph.com/subgraphs/name/0xfantaholic/abra-bsc";
 
+import { getFeeApy } from "./getFeeApy";
+
 //   getLevelFinanceStatistics
 export const getLevelFinanceStatistics = async () => {
   const query = `{
@@ -20,7 +22,7 @@ export const getLevelFinanceStatistics = async () => {
         totalRewards
       }
     }
-    levelFinanceDailySnapshots(first: 1, orderDirection: asc, orderBy: timestamp) {
+    levelFinanceDailySnapshots(first: 1, orderDirection: desc, orderBy: timestamp) {
           seniorApy
           mezzanineApy
           juniorApy
@@ -29,10 +31,21 @@ export const getLevelFinanceStatistics = async () => {
   }`;
 
   const { data } = await axios.default.post(subgraphUrl, { query });
-  const { juniorApy, mezzanineApy, seniorApy } =
+  const { juniorApy, mezzanineApy, seniorApy, timestamp } =
     data.data.levelFinanceDailySnapshots[0];
 
   const { junior, mezzanine, senior } = data.data.levelFinances[0];
 
-  return { juniorApy, mezzanineApy, seniorApy, junior, mezzanine, senior };
+  const { juniorFeeApy, mezzanineFeeApy, seniorFeeApy } = await getFeeApy(
+    timestamp
+  );
+
+  return {
+    juniorApy: +juniorApy + juniorFeeApy,
+    mezzanineApy: +mezzanineApy + mezzanineFeeApy,
+    seniorApy: +seniorApy + seniorFeeApy,
+    junior,
+    mezzanine,
+    senior,
+  };
 };

@@ -713,7 +713,8 @@ export default {
 }
 
 .chart-apt-wrap {
-  width: 178px;
+  min-width: 180px;
+  width: max-content;
   height: 32px;
   background: linear-gradient(0deg, #37caff, #37caff);
   display: flex;
@@ -730,7 +731,7 @@ export default {
 }
 
 .chart-apt {
-  width: 176px;
+  width: 178px;
   height: 30px;
   background: #23212d;
   border-radius: 0px 30px 30px 0px;
@@ -751,14 +752,14 @@ export default {
 
 .chart-apt-text {
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 27px;
   margin-right: 10px;
 }
 
 .chart-apt-percent {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 27px;
   color: #37caff;
 }
