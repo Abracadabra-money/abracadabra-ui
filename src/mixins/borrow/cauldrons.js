@@ -917,6 +917,7 @@ export default {
 
     async updatePoolProfit(pools) {
       const cauldronsProfit = await getPositionProfit(this.account);
+      if (!cauldronsProfit) return pools;
 
       return pools.map((pool) => {
         const cauldronAddress =

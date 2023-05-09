@@ -15,11 +15,7 @@
       {{ liquidationStatus }}
     </span>
 
-    <img
-      class="profit-icon"
-      :src="`src/assets/images/icons/profit-${profitStatus}.svg`"
-      v-if="profitStatus"
-    />
+    <img class="profit-icon" :src="profitIcon" v-if="profitStatus" />
 
     <div class="description">
       <p class="title">{{ title }}</p>
@@ -36,6 +32,12 @@ export default {
     liquidationStatus: { type: String },
     profitStatus: { type: String },
     tooltip: { type: String, default: "Tooltip" },
+  },
+
+  computed: {
+    profitIcon() {
+      return this.$image(`assets/images/icons/profit-${this.profitStatus}.svg`);
+    },
   },
 };
 </script>

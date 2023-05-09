@@ -30,6 +30,8 @@ export const getPositionProfit = async (address: string) => {
 
   const { data } = await axios.post(url, { query });
 
+  if (!data.data.account) return false;
+
   const positionsProfit: any = {};
 
   data.data.account.states.map(
