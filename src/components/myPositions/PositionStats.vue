@@ -15,7 +15,7 @@
     <PositionStatsItem
       title="Entry Price"
       :value="entryPrice"
-      tooltip="Entry Price"
+      tooltip="Collateral Price at which the position was opened"
     />
   </div>
 </template>
