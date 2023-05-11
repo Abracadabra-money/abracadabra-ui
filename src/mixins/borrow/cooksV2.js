@@ -7,12 +7,14 @@ import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
-
+import vyperContractAbi from "@/utils/abi/lp/vyperContract";
 
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
 // const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
+const usdtAddress = "0xdac17f958d2ee523a2206206994597c13d831ec7";
+const vyperAddress = "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46";
 
 export default {
   mixins: [degenBoxCookHelperMixin],
@@ -28,6 +30,7 @@ export default {
       itsMetamask: "getMetamaskActive",
       chainId: "getChainId",
       signer: "getSigner",
+      provider: "getProvider",
     }),
 
     // TODO: move to config
@@ -59,6 +62,10 @@ export default {
     // TODO: move to config
     isApe() {
       return this.chainId === 1 && this.selectedPool.id === 39;
+    },
+
+    isCrv3crypto() {
+      return this.chainId === 1 && this.selectedPool.id === 41;
     },
   },
   methods: {
@@ -101,10 +108,18 @@ export default {
 
       let buyToken = pool.collateralToken.address;
       if (this.isGlp) {
-        const leverageResp = await getGlpLevData(this.signer, pool, amount, 42161, slipage)
+        const leverageResp = await getGlpLevData(
+          this.signer,
+          pool,
+          amount,
+          42161,
+          slipage
+        );
         return leverageResp.swapDataEncode;
-      } 
+      }
       if (this.isApe) buyToken = apeAddress;
+
+      if (this.isCrv3crypto) buyToken = usdtAddress;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -114,6 +129,13 @@ export default {
         amount,
         pool.levSwapperContract.address
       );
+
+      if (this.isCrv3crypto) {
+        return this.$ethers.utils.defaultAbiCoder.encode(
+          ["address", "uint256", "bytes"],
+          ["0xdac17f958d2ee523a2206206994597c13d831ec7", "0", swapResponse.data]
+        );
+      }
 
       return swapResponse.data;
     },
@@ -126,18 +148,27 @@ export default {
       let selToken = pool.collateralToken.address;
       let selAmount = collateralAmount;
 
-      console.log("collateralAmount", collateralAmount.toString())
-
       if (this.isGlp) {
-        const deleverageResp = await getGlpLiqData(this.signer, pool, collateralAmount, 42161, slipage)
+        const deleverageResp = await getGlpLiqData(
+          this.signer,
+          pool,
+          collateralAmount,
+          42161,
+          slipage
+        );
         return deleverageResp.swapDataEncode;
-      } 
+      }
 
       if (this.isApe) {
         selToken = apeAddress;
         selAmount = await pool.collateralToken.contract.convertToAssets(
           collateralAmount
         );
+      }
+
+      if (this.isCrv3crypto) {
+        selToken = usdtAddress;
+        selAmount = await this.calculate3cryptoUsdtAmount(selAmount);
       }
 
       const response = await swap0xRequest(
@@ -149,7 +180,24 @@ export default {
         swapper
       );
 
+      if (this.isCrv3crypto) {
+        return this.$ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "bytes"],
+          ["0", response.data]
+        );
+      }
+
       return response.data;
+    },
+
+    async calculate3cryptoUsdtAmount(selAmount) {
+      const vyperContract = new this.$ethers.Contract(
+        vyperAddress,
+        JSON.stringify(vyperContractAbi),
+        this.provider
+      );
+
+      return vyperContract.calc_withdraw_one_coin(selAmount.toString(), "0");
     },
 
     async recipeSetMaxBorrow(cookData, whitelistedInfo, user) {
@@ -426,7 +474,15 @@ export default {
       const swapperAddres = pool.levSwapperContract.address;
       const userAddr = this.account;
 
-      if(this.isGlp) return await getGlpLevData(cookData, this.signer, pool, amount, 42161, slipage)
+      if (this.isGlp)
+        return await getGlpLevData(
+          cookData,
+          this.signer,
+          pool,
+          amount,
+          42161,
+          slipage
+        );
 
       if (!is0x) {
         const swapStaticTx =
@@ -449,7 +505,6 @@ export default {
 
         return cookData;
       }
-
 
       const swapData = await this.get0xLeverageSwapData(pool, amount, slipage);
 

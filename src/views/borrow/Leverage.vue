@@ -273,7 +273,8 @@ export default {
     isMagicPool() {
       return (
         (this.chainId === 42161 && this.selectedPool?.id === 3) ||
-        (this.chainId === 1 && this.selectedPool?.id === 39)
+        (this.chainId === 1 && this.selectedPool?.id === 39) ||
+        (this.chainId === 1 && this.selectedPool?.id === 41)
       );
     },
 

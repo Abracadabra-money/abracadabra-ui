@@ -19,13 +19,13 @@
         <p>{{ formatTokenBalance(userBalance) }} {{ pool.name }}</p>
         <p>{{ formatTokenBalance(userLpBalance) }} {{ pool.lpLogic.name }}</p>
         <p v-if="+userTotalBalance" class="price">
-          Total amount: {{  formatUSD(userTotalBalance) }}
+          Total amount: {{ formatUSD(userTotalBalance) }}
         </p>
       </div>
       <div class="pool-balance" v-else>
         <p>{{ formatTokenBalance(userBalance) }}</p>
         <p v-if="+userBalance" class="price">
-          {{  formatUSD(userBalanceUsd) }}
+          {{ formatUSD(userBalanceUsd) }}
         </p>
       </div>
     </button>
@@ -47,8 +47,15 @@ export default {
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
 
+    isLpInfo() {
+      return (
+        (this.chainId === 42161 && this.pool.id === 2 && this.pool.userInfo) ||
+        (this.chainId === 1 && this.pool.id === 41 && this.pool.userInfo)
+      );
+    },
+
     userBalance() {
-      if (this.chainId === 42161 && this.pool?.id === 2 && this.pool.userInfo)
+      if (this.isLpInfo)
         return this.$ethers.utils.formatUnits(
           this.pool.userInfo.lpInfo.balance,
           this.pool.lpLogic.lpDecimals
@@ -64,9 +71,7 @@ export default {
     },
 
     userBalanceUsd() {
-      if (this.chainId === 42161 && this.pool?.id === 2)
-        return this.pool.userInfo?.lpInfo.balanceUsd;
-
+      if (this.isLpInfo) return this.pool.userInfo?.lpInfo.balanceUsd;
       return this.pool.userInfo?.balanceUsd;
     },
 
@@ -115,9 +120,15 @@ export default {
     },
   },
   components: {
-    BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")),
-    StatusBar: defineAsyncComponent(() => import("@/components/ui/StatusBar.vue")),
-    MiniStatusTag: defineAsyncComponent(() => import("@/components/ui/MiniStatusTag.vue")),
+    BaseTokenIcon: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenIcon.vue")
+    ),
+    StatusBar: defineAsyncComponent(() =>
+      import("@/components/ui/StatusBar.vue")
+    ),
+    MiniStatusTag: defineAsyncComponent(() =>
+      import("@/components/ui/MiniStatusTag.vue")
+    ),
   },
 };
 </script>
