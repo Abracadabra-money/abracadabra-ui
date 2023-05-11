@@ -7,6 +7,7 @@ import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
+import degenBoxConvexWrapper from "@/utils/abi/DegenBoxConvexWrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
@@ -2036,41 +2037,41 @@ export default [
     ltv: 90,
     borrowFee: 0.5,
     isSwappersActive: true,
-    // is0xSwap: true,
-    // cauldronSettings: {
-    //   isDegenBox: true,
-    //   strategyLink: false,
-    //   isDepreciated: false,
-    //   acceptUseDefaultBalance: false,
-    //   healthMultiplier: 1,
-    //   hasAccountBorrowLimit: false,
-    //   hasWithdrawableLimit: false,
-    //   leverageMax: 15,
-    //   localBorrowAmountLimit: false,
-    //   isCollateralClaimable: false,
-    //   claimCrvReward: false,
-    //   isNew: true,
-    // },
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      localBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+      isNew: true,
+    },
     contract: {
       name: "CauldronV4",
       address: "0xF835c53CB253a91F7c8eBB517a0717eA52FB3106",
       abi: poolsAbi.CauldronV4,
     },
     token: {
-      name: "stkcvxcrv3crypto-abra",
+      name: "stkcvxcrv3crypto",
       decimals: 18,
       address: "0x1F71EaCE951cDc6df1459FD055bA24a6C07824B7",
       abi: tokensAbi.stkcvxcrv3cryptoAbra,
     },
-    // lpLogic: {
-    //   name: "APE",
-    //   icon: useImage(`assets/images/tokens/APE.png`),
-    //   defaultToken: false,
-    //   lpAddress: "0x4d224452801ACEd8B2F0aebE155379bb5D594381",
-    //   lpAbi: tokensAbi.APE,
-    //   tokenWrapper: "0x35843535220182E89E3a99fCEb5348dFe0Bd4eb2",
-    //   tokenWrapperAbi: degenBoxERC4626Wrapper,
-    // },
+    lpLogic: {
+      name: "crv3crypto",
+      icon: useImage(`assets/images/tokens/APE.png`),
+      defaultToken: false,
+      lpAddress: "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+      lpAbi: tokensAbi.cvxcrv3crypto,
+      tokenWrapper: "0xf48959414cb1A94D29cd5160D9B9e785ff67124a",
+      tokenWrapperAbi: degenBoxConvexWrapper,
+    },
     pairToken: {
       name: "MIM",
       icon: useImage(`assets/images/tokens/MIM.png`),

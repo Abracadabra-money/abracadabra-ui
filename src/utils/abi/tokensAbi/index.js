@@ -42,6 +42,7 @@ import magicGLP from "@/utils/abi/tokensAbi/magicGLP";
 import APE from "@/utils/abi/tokensAbi/ape";
 import magicApe from "@/utils/abi/tokensAbi/magicApe";
 import stkcvxcrv3cryptoAbra from "@/utils/abi/tokensAbi/stkcvxcrv3cryptoAbra";
+import cvxcrv3crypto from "@/utils/abi/tokensAbi/cvxcrv3crypto";
 
 export default {
   ALCX,
@@ -88,4 +89,5 @@ export default {
   APE,
   magicApe,
   stkcvxcrv3cryptoAbra,
+  cvxcrv3crypto,
 };
