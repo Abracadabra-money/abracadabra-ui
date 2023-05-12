@@ -2049,7 +2049,7 @@ export default [
       leverageMax: 15,
       localBorrowAmountLimit: false,
       isCollateralClaimable: false,
-      claimCrvReward: false,
+      claimCrvReward: true,
       isNew: true,
     },
     contract: {
