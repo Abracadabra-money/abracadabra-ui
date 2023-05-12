@@ -2,7 +2,7 @@
   <div class="dropdown" v-click-outside="closeDropdawn">
     <button
       class="dropdown-header"
-      :class="{ 'dropdown-open': isOpenDropdawn }"
+      :class="{ 'dropdown-open': isOpenDropdown }"
       @click="toogleDropdawn"
     >
       <img
@@ -19,11 +19,11 @@
         alt="Arrow"
       />
     </button>
-    <div class="dropdown-list" v-show="isOpenDropdawn">
+    <div class="dropdown-list" v-show="isOpenDropdown">
       <button
         class="dropdown-item"
         v-for="(titleData, i) in dropdownList"
-        @click="changeDropdawnValue(titleData.name)"
+        @click="changeDropdownValue(titleData.name)"
         :key="i"
       >
         {{ titleData.title }}
@@ -48,7 +48,7 @@ export default {
   data() {
     return {
       isSortReverse: false,
-      isOpenDropdawn: false,
+      isOpenDropdown: false,
     };
   },
 
@@ -71,16 +71,16 @@ export default {
 
   methods: {
     toogleDropdawn() {
-      this.isOpenDropdawn = !this.isOpenDropdawn;
+      this.isOpenDropdown = !this.isOpenDropdown;
     },
 
     closeDropdawn() {
-      this.isOpenDropdawn = false;
+      this.isOpenDropdown = false;
     },
 
-    changeDropdawnValue(value) {
+    changeDropdownValue(value) {
       this.closeDropdawn();
-      this.$emit("changeDropdawnValue", value);
+      this.$emit("changeDropdownValue", value);
     },
 
     changeSortingOrder() {

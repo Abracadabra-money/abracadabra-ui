@@ -9,7 +9,7 @@
       type="text"
       placeholder="Search"
       class="search-input"
-      @input="changeSerch"
+      @input="changeSearch"
     />
   </div>
 </template>
@@ -17,8 +17,8 @@
 <script>
 export default {
   methods: {
-    changeSerch(event) {
-      this.$emit("changeSerch", event.target.value);
+    changeSearch(event) {
+      this.$emit("changeSearch", event.target.value);
     },
   },
 };

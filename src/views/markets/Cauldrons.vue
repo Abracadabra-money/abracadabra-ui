@@ -7,11 +7,11 @@
     </div>
     <template v-else>
       <div class="tools">
-        <Search @changeSerch="changeSerch" />
+        <Search @changeSearch="changeSearch" />
         <DropdownSortBy
           :sortList="sortList"
           :activeSortValue="activeSortValue"
-          @changeDropdawnValue="changeDropdawnValue"
+          @changeDropdownValue="changeDropdownValue"
           @changeSortOrder="changeSortOrder"
         />
 
@@ -105,7 +105,7 @@ export default {
   },
 
   methods: {
-    changeDropdawnValue(value) {
+    changeDropdownValue(value) {
       this.activeSortValue = value;
     },
 
@@ -113,7 +113,7 @@ export default {
       this.sortOrder = value;
     },
 
-    changeSerch(value) {
+    changeSearch(value) {
       this.searchValue = value;
     },
 
