@@ -15,6 +15,7 @@ import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
 import { getTotalBorrow } from "@/helpers/getTotalBorrow";
+import { getPositionProfit } from "@/helpers/subgraph/position/getPositionProfit.ts";
 
 export default {
   computed: {
@@ -44,7 +45,13 @@ export default {
         chainPools.map((pool) => this.createPool(pool))
       );
 
-      this.$store.commit("setPools", markRaw(pools));
+      if (this.account && this.chainId === 1) {
+        const updatePools = await this.updatePoolProfit(pools);
+        this.$store.commit("setPools", markRaw(updatePools));
+      } else {
+        this.$store.commit("setPools", markRaw(pools));
+      }
+
       this.setLoadingPoolsBorrow(false);
       this.setCreatingPoolsBorrow(true);
     },
@@ -506,7 +513,7 @@ export default {
       if (poolInterest) interest = poolInterest;
       if (!poolInterest && pool?.interest) interest = pool?.interest;
 
-      if(pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
+      if (pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
 
       let poolData = {
         name: pool.name,
@@ -891,6 +898,7 @@ export default {
         balanceUsd,
       };
     },
+
     async getTokensRate(mainTokenInstance, stakeTokenInstance) {
       const mGlpBalance = await stakeTokenInstance.balanceOf(
         mainTokenInstance.address
@@ -905,6 +913,21 @@ export default {
       const tokenRate = parsedBalance / parsedTotalSupply;
 
       return tokenRate;
+    },
+
+    async updatePoolProfit(pools) {
+      const cauldronsProfit = await getPositionProfit(this.account);
+      if (!cauldronsProfit) return pools;
+
+      return pools.map((pool) => {
+        const cauldronAddress =
+          pool.contractInstance.address.toLocaleLowerCase();
+
+        if (cauldronsProfit[cauldronAddress])
+          pool.userInfo.positionStats = cauldronsProfit[cauldronAddress];
+
+        return pool;
+      });
     },
   },
   created() {
