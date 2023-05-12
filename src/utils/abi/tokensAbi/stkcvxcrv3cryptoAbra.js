@@ -351,7 +351,7 @@ export default [
         type: "tuple[]",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {

@@ -115,6 +115,24 @@ export default {
       return userPairBalance;
     },
 
+    async getEarnedReward(contractInstance, decimals) {
+      try {
+        const rewards = await contractInstance.earned(this.account);
+
+        return rewards.map((reward) => {
+          const data = {};
+          data[reward.token] = this.$ethers.utils.formatUnits(
+            reward.amount,
+            decimals
+          );
+
+          return data;
+        });
+      } catch (error) {
+        console.log("Get Earned Reward Error: ", error);
+      }
+    },
+
     async getClaimableReward(contractInstance, decimals) {
       try {
         const reward = await contractInstance.cvx_claimable_reward(
@@ -506,7 +524,7 @@ export default {
       if (poolInterest) interest = poolInterest;
       if (!poolInterest && pool?.interest) interest = pool?.interest;
 
-      if(pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
+      if (pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
 
       let poolData = {
         name: pool.name,
@@ -582,10 +600,17 @@ export default {
       let claimableReward;
 
       if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
-        claimableReward = await this.getClaimableReward(
-          pool.collateralToken.contract,
-          pool.collateralToken.decimals
-        );
+        if (pool.id === 41) {
+          claimableReward = await this.getEarnedReward(
+            pool.collateralToken.contract,
+            pool.collateralToken.decimals
+          );
+        } else {
+          claimableReward = await this.getClaimableReward(
+            pool.collateralToken.contract,
+            pool.collateralToken.decimals
+          );
+        }
       }
 
       const userCollateralShare = await this.getUserCollateralShare(

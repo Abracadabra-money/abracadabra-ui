@@ -2048,7 +2048,7 @@ export default [
       hasWithdrawableLimit: false,
       leverageMax: 15,
       localBorrowAmountLimit: false,
-      isCollateralClaimable: false,
+      isCollateralClaimable: true,
       claimCrvReward: true,
       isNew: true,
     },
