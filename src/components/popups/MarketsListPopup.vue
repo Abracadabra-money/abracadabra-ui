@@ -2,7 +2,7 @@
   <div class="popup-wrap">
     <div class="popup-header">
       <h4 class="popup-title">Select {{ popupTitle }}</h4>
-      <PopupSearch v-if="!isLoadingMarkets" @input="changeSerch" />
+      <PopupSearch v-if="!isLoadingMarkets" @input="changeSearch" />
     </div>
 
     <div class="loader-wrap" v-if="isLoader">
@@ -162,7 +162,7 @@ export default {
   },
 
   methods: {
-    changeSerch({ target }) {
+    changeSearch({ target }) {
       this.search = target.value;
     },
 
