@@ -115,38 +115,6 @@ export default {
       return userPairBalance;
     },
 
-    async getEarnedReward(contractInstance, decimals) {
-      try {
-        const rewards = await contractInstance.earned(this.account);
-
-        return rewards.map((reward) => {
-          const data = {};
-          data[reward.token] = this.$ethers.utils.formatUnits(
-            reward.amount,
-            decimals
-          );
-
-          return data;
-        });
-      } catch (error) {
-        console.log("Get Earned Reward Error: ", error);
-      }
-    },
-
-    async getClaimableReward(contractInstance, decimals) {
-      try {
-        const reward = await contractInstance.cvx_claimable_reward(
-          this.account
-        );
-
-        const parsedReward = this.$ethers.utils.formatUnits(reward, decimals);
-
-        return parsedReward;
-      } catch (e) {
-        console.log("getClaimableReward err: ", e);
-      }
-    },
-
     async parseCollatealTokenToBorrowToken(
       totalCollateralShare,
       oracleExchangeRate,
@@ -597,22 +565,6 @@ export default {
 
       const networkBalance = await this.contractProvider.getBalance();
 
-      let claimableReward;
-
-      if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
-        if (pool.id === 41) {
-          claimableReward = await this.getEarnedReward(
-            pool.collateralToken.contract,
-            pool.collateralToken.decimals
-          );
-        } else {
-          claimableReward = await this.getClaimableReward(
-            pool.collateralToken.contract,
-            pool.collateralToken.decimals
-          );
-        }
-      }
-
       const userCollateralShare = await this.getUserCollateralShare(
         pool.masterContractInstance,
         pool.contractInstance,
@@ -663,7 +615,6 @@ export default {
         userBalance,
         userPairBalance,
         networkBalance,
-        claimableReward,
         userCollateralShare,
         liquidationPrice,
         userLockedTimestamp: collateralLockTimestamp,
