@@ -2028,8 +2028,8 @@ export default [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/3Crypto2.png`),
-    name: "crv3crypto",
+    icon: useImage(`assets/images/tokens/Convex-Curve3.png`),
+    name: "cvxtricrypto",
     contractChain: 1,
     id: 41,
     stabilityFee: 5,
@@ -2064,8 +2064,8 @@ export default [
       abi: tokensAbi.stkcvxcrv3cryptoAbra,
     },
     lpLogic: {
-      name: "crv3crypto",
-      icon: useImage(`assets/images/tokens/APE.png`),
+      name: "cvxtricrypto",
+      icon: useImage(`assets/images/tokens/Convex-Curve3.png`),
       defaultToken: false,
       lpAddress: "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
       lpAbi: tokensAbi.cvxcrv3crypto,
