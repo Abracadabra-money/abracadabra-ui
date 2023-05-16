@@ -132,7 +132,7 @@ export default {
 
     formatAmount(amount) {
       if (amount >= 0.01) return filters.formatToFixed(amount, 2);
-      return "> 0.01";
+      return "< 0.01";
     },
 
     async claimCvxReward() {
