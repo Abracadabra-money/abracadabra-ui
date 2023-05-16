@@ -1,7 +1,25 @@
 <template>
   <div class="bridge-view">
     <div class="bridge" v-if="bridgeObject">
-      <h3 class="title">Network to bridge</h3>
+      <h3 class="title">
+        Bridge
+        <div class="wallet-btn" :class="{ active: isShowInputAddress }">
+          <img
+            class="wallet-icon"
+            @click="toggleInputAddress"
+            src="@/assets/images/wallet-icon.png"
+            alt="Wallet icon"
+          />
+        </div>
+        <div class="settings-btn" :class="{ active: isSettingsOpened }">
+          <img
+            class="settings-icon"
+            @click="isSettingsOpened = true"
+            src="@/assets/images/settings.png"
+            alt="Settings icon"
+          />
+        </div>
+      </h3>
       <SelectChainsWrap
         @handlerNetwork="openNetworkPopup"
         @switchHandle="switchChain"
@@ -26,6 +44,14 @@
           @updateValue="updateMainValue"
         />
       </div>
+
+      <input
+        class="input-address"
+        v-model="inputAddressValue"
+        v-if="isShowInputAddress"
+        type="text"
+        placeholder="Add destination address"
+      />
 
       <div class="expected">
         <p class="expected-title">Expected MIM</p>
@@ -75,6 +101,17 @@
         >
       </div>
     </div>
+    <LocalPopupWrap
+      :isOpened="isSettingsOpened"
+      @closePopup="isSettingsOpened = false"
+    >
+      <SettingsPopup
+        :value="''"
+        :max="10"
+        :config="settingConfig"
+        @changeSettings="changeSettings"
+    /></LocalPopupWrap>
+
     <NetworkPopup
       :isOpen="isOpenNetworkPopup"
       @closePopup="closeNetworkPopup"
@@ -91,6 +128,8 @@ import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import SelectChainsWrap from "@/components/bridge/SelectChainsWrap.vue";
 import NetworkPopup from "@/components/popups/NetworkPopup.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import SettingsPopup from "@/components/popups/SettingsPopup.vue";
 import filters from "@/filters/index.js";
 import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
@@ -103,12 +142,24 @@ export default {
   data() {
     return {
       isOpenNetworkPopup: false,
+      isShowInputAddress: false,
+      inputAddressValue: null,
       popupType: null,
       toChainId: null,
       fromChainId: null,
       updateInterval: null,
       amount: "",
       acceptedNetworks: [43114, 1, 250, 56, 42161, 137],
+      isSettingsOpened: false,
+      gas: 0,
+      settingConfig: {
+        title: "Advanced settings",
+        subtitle: "Gas on destination chain",
+        tooltipText:
+          "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
+        linkText: "Learn more",
+        text: "about MIM being an Omnichain Fungible Tokens",
+      },
     };
   },
 
@@ -182,6 +233,9 @@ export default {
     },
 
     actionBtnText() {
+      if (!this.inputAddressValue && this.isShowInputAddress)
+        return "Set destination address";
+
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1)
         return "Approve";
 
@@ -204,6 +258,7 @@ export default {
     },
 
     disableBtn() {
+      if (!this.inputAddressValue && this.isShowInputAddress) return true;
       if (this.bridgeObject.isDefaultProvider) return true;
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
       if (+this.amount === 0) return true;
@@ -247,12 +302,18 @@ export default {
   },
 
   methods: {
+    toggleInputAddress() {
+      this.isShowInputAddress = !this.isShowInputAddress;
+    },
+
     formatNumber(value) {
       return filters.formatNumber(value);
     },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
+
     openNetworkPopup(type) {
       this.popupType = type;
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
@@ -379,6 +440,12 @@ export default {
         await this.createBridgeConfig();
       }, 15000);
     },
+
+    changeSettings(value) {
+      if (!value) this.gas = 0;
+      else this.gas = value;
+      this.isSettingsOpened = false;
+    },
   },
 
   async created() {
@@ -396,6 +463,8 @@ export default {
     BaseButton,
     SelectChainsWrap,
     NetworkPopup,
+    LocalPopupWrap,
+    SettingsPopup,
   },
 };
 </script>
@@ -429,10 +498,58 @@ export default {
   letter-spacing: 0.025em;
   text-transform: uppercase;
   margin-bottom: 40px;
+  position: relative;
+}
+
+.wallet-btn,
+.settings-btn {
+  position: absolute;
+  cursor: pointer;
+  top: 50%;
+  transform: translateY(-55%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.wallet-btn {
+  right: 48px;
+}
+
+.settings-btn {
+  right: 0;
+}
+
+.wallet-icon {
+  width: 24px;
+  height: 24px;
+}
+.settings-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .input-wrap {
   margin-bottom: 20px;
+}
+
+.input-address {
+  width: 100%;
+  height: 50px;
+  background: rgba(129, 126, 166, 0.2);
+  border: 1px solid #494661;
+  border-radius: 12px;
+  outline: none;
+  padding: 12px 20px;
+  color: #fff;
+  margin-bottom: 30px;
 }
 
 .input-balance {
