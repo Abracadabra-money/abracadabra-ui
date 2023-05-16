@@ -27,13 +27,11 @@
           {{ collateralTitle }}
         </button>
 
-        <button
-          class="deposit"
+        <CvxClaim
+          :contract="pool.collateralToken.contract"
+          :id="pool.id"
           v-if="showClaimCrvReward"
-          @click.stop="handleClaimCrvReward"
-        >
-          <img src="@/assets/images/deposit.svg" alt="Deposit" /> Claim
-        </button>
+        />
 
         <a
           class="deposit"
@@ -186,10 +184,12 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
-import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
+import filters from "@/filters/index.js";
 import { fetchTokenApy } from "@/helpers/collateralsApy";
+import CvxClaim from "@/components/ui/claim/CvxClaim.vue";
+import LockedTimer from "@/components/stake/LockedTimer.vue";
+import MiniStatusTag from "@/components/ui/MiniStatusTag.vue";
 
 export default {
   name: "BorrowPoolStand",
@@ -518,10 +518,7 @@ export default {
     },
 
     showClaimCrvReward() {
-      return (
-        this.pool?.cauldronSettings.claimCrvReward &&
-        this.isUserHasClaimableReward
-      );
+      return this.pool?.cauldronSettings.claimCrvReward;
     },
 
     showAvaxSlpLink() {
@@ -546,10 +543,6 @@ export default {
       if (this.pool) return this.pool.id === 33 && this.chainId === 1;
 
       return false;
-    },
-
-    isUserHasClaimableReward() {
-      return +this.pool.userInfo?.claimableReward;
     },
 
     showCollateralLogicBtn() {
@@ -654,22 +647,6 @@ export default {
         item.symbol
       );
     },
-    async handleClaimCrvReward() {
-      try {
-        const estimateGas =
-          await this.pool.collateralToken.contract.estimateGas.getReward(
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        await await this.pool.collateralToken.contract.getReward(this.account, {
-          gasLimit,
-        });
-      } catch (e) {
-        console.log("handleClaimCrvReward err:", e);
-      }
-    },
 
     showCollateralPopup() {
       if (this.pool.collateralToken.additionalLogic) {
@@ -689,12 +666,9 @@ export default {
   },
 
   components: {
-    LockedTimer: defineAsyncComponent(() =>
-      import("@/components/stake/LockedTimer.vue")
-    ),
-    MiniStatusTag: defineAsyncComponent(() =>
-      import("@/components/ui/MiniStatusTag.vue")
-    ),
+    LockedTimer,
+    MiniStatusTag,
+    CvxClaim,
   },
 };
 </script>

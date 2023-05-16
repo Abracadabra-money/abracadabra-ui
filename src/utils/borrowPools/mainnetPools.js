@@ -7,6 +7,7 @@ import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
 import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
+import degenBoxConvexWrapper from "@/utils/abi/DegenBoxConvexWrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
@@ -2024,6 +2025,67 @@ export default [
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
+    },
+  },
+  {
+    icon: useImage(`assets/images/tokens/Convex-Curve3.png`),
+    name: "cvxtricrypto",
+    contractChain: 1,
+    id: 41,
+    stabilityFee: 5,
+    interest: 6.5,
+    ltv: 90,
+    borrowFee: 0.5,
+    isSwappersActive: true,
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      leverageMax: 15,
+      localBorrowAmountLimit: false,
+      isCollateralClaimable: true,
+      claimCrvReward: true,
+      isNew: true,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0xF835c53CB253a91F7c8eBB517a0717eA52FB3106",
+      abi: poolsAbi.CauldronV4,
+    },
+    token: {
+      name: "stkcvxcrv3crypto",
+      decimals: 18,
+      address: "0x1F71EaCE951cDc6df1459FD055bA24a6C07824B7",
+      abi: tokensAbi.stkcvxcrv3cryptoAbra,
+    },
+    lpLogic: {
+      name: "cvxtricrypto",
+      icon: useImage(`assets/images/tokens/Convex-Curve3.png`),
+      defaultToken: false,
+      lpAddress: "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+      lpAbi: tokensAbi.cvxcrv3crypto,
+      tokenWrapper: "0x2d4dd35AE84f9B666ba54E04Cf68Bf770b6681cd",
+      tokenWrapperAbi: degenBoxConvexWrapper,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: useImage(`assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0x7967b1C7f2Fb3da9DDcA9112A822DE5F49Fc492d",
+      abi: ERC4626LevSwapper,
+    },
+    reverseSwapContractInfo: {
+      address: "0x6e2AFdFDef7bE6059c3b60ebeBF3706038a73B5a",
+      abi: ERC4626LiqSwapper,
     },
   },
 ];

@@ -115,20 +115,6 @@ export default {
       return userPairBalance;
     },
 
-    async getClaimableReward(contractInstance, decimals) {
-      try {
-        const reward = await contractInstance.cvx_claimable_reward(
-          this.account
-        );
-
-        const parsedReward = this.$ethers.utils.formatUnits(reward, decimals);
-
-        return parsedReward;
-      } catch (e) {
-        console.log("getClaimableReward err: ", e);
-      }
-    },
-
     async parseCollatealTokenToBorrowToken(
       totalCollateralShare,
       oracleExchangeRate,
@@ -506,7 +492,7 @@ export default {
       if (poolInterest) interest = poolInterest;
       if (!poolInterest && pool?.interest) interest = pool?.interest;
 
-      if(pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
+      if (pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
 
       let poolData = {
         name: pool.name,
@@ -579,15 +565,6 @@ export default {
 
       const networkBalance = await this.contractProvider.getBalance();
 
-      let claimableReward;
-
-      if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
-        claimableReward = await this.getClaimableReward(
-          pool.collateralToken.contract,
-          pool.collateralToken.decimals
-        );
-      }
-
       const userCollateralShare = await this.getUserCollateralShare(
         pool.masterContractInstance,
         pool.contractInstance,
@@ -638,7 +615,6 @@ export default {
         userBalance,
         userPairBalance,
         networkBalance,
-        claimableReward,
         userCollateralShare,
         liquidationPrice,
         userLockedTimestamp: collateralLockTimestamp,

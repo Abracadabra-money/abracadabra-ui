@@ -32,7 +32,7 @@
       <div class="balance">
         <p>{{ formatTokenBalance(userBalance) }}</p>
         <p v-if="+userBalance">
-          {{  formatUSD(pool.userInfo.balanceUsd) }}
+          {{ formatUSD(pool.userInfo.balanceUsd) }}
         </p>
       </div>
     </div>
@@ -45,7 +45,7 @@
       <div class="balance">
         <p>{{ formatTokenBalance(lpBalance) }}</p>
         <p v-if="+lpBalance">
-          {{ formatUSD(pool.userInfo.balanceUsd) }}
+          {{ formatUSD(pool.userInfo.lpInfo.balanceUsd) }}
         </p>
       </div>
     </div>
@@ -151,10 +151,14 @@ export default {
     },
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
-    }
+    },
   },
 
-  components: { BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")) },
+  components: {
+    BaseTokenIcon: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenIcon.vue")
+    ),
+  },
 };
 </script>
 
