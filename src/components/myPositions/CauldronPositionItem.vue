@@ -158,7 +158,7 @@ export default {
           symbol: this.collateralSymbol,
           icon: this.cauldron.config.icon,
           amount: this.formatTokenBalance(this.userCollateralAmount),
-          amountlUsd: this.formatUSD(this.userCollateralAmountUsd),
+          amountUsd: this.formatUSD(this.userCollateralAmountUsd),
         },
         {
           title: "Borrowed",

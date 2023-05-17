@@ -10,8 +10,8 @@
 
         <div class="token-balance">
           <p class="token-amount">{{ asset.amount }}</p>
-          <p class="token-price" v-if="asset.amountlUsd">
-            {{ asset.amountlUsd }}
+          <p class="token-price" v-if="asset.amountUsd">
+            {{ asset.amountUsd }}
           </p>
         </div>
       </div>
@@ -30,7 +30,7 @@
           <div class="token-balance">
             <p class="token-amount">{{ tokenInfo.amount }}</p>
             <p class="token-price">
-              {{ tokenInfo.amountlUsd }}
+              {{ tokenInfo.amountUsd }}
             </p>
           </div>
         </div>

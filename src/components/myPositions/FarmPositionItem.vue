@@ -45,7 +45,7 @@ export default {
           symbol: this.farmConfig.tokenName,
           icon: spellIcon,
           amount: filters.formatTokenBalance(this.earnedData.balance),
-          amountlUsd: filters.formatUSD(this.earnedData.usd),
+          amountUsd: filters.formatUSD(this.earnedData.usd),
           actions: {
             visibility: this.farmConfig.accountInfo,
             disabled: !+this.earnedData.balance,
@@ -57,7 +57,7 @@ export default {
           symbol: this.farmConfig.name,
           icon: this.farmConfig.icon,
           amount: filters.formatTokenBalance(this.depositedData.balance),
-          amountlUsd: filters.formatUSD(this.depositedData.usd),
+          amountUsd: filters.formatUSD(this.depositedData.usd),
           tokensList: this.tokensList,
           actions: {
             link: "FarmPool",
@@ -78,7 +78,7 @@ export default {
           amount: filters.formatTokenBalance(
             this.farmConfig.accountInfo?.tokensBalanceInfo?.token0.amount
           ),
-          amountlUsd: filters.formatUSD(
+          amountUsd: filters.formatUSD(
             this.farmConfig.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
           ),
         },
@@ -88,7 +88,7 @@ export default {
           amount: filters.formatTokenBalance(
             this.farmConfig.accountInfo?.tokensBalanceInfo?.token1.amount
           ),
-          amountlUsd: filters.formatUSD(
+          amountUsd: filters.formatUSD(
             this.farmConfig.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
           ),
         },
