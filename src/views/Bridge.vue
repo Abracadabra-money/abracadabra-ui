@@ -177,6 +177,17 @@ export default {
       address: "getAccount",
     }),
 
+    toAddressBytes() {
+      const toAddress = this.inputAddressValue
+        ? this.inputAddressValue
+        : this.address;
+
+      return this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [toAddress]
+      );
+    },
+
     isAcceptedNetworks() {
       return this.acceptedNetworks.indexOf(this.chainId) === -1;
     },
@@ -396,56 +407,60 @@ export default {
         "notifications/new",
         notification.pending
       );
+
       try {
         const parsedAmount = filters.formatToFixed(this.amount, 18);
-
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
 
-        const toChainId = this.$ethers.BigNumber.from(this.targetToChain);
+        const fees = await this.getFees(amount);
 
-        const contract = this.bridgeObject.contractInstance;
-
-        const methodName = this.bridgeObject.methodName;
-
-        const tokenAddr = this.targetChainInfo.tokenAddr;
-
-        const estimateGas = await contract.estimateGas[methodName](
-          tokenAddr,
-          this.address,
-          amount,
-          toChainId
+        console.log(
+          `fees[0] (wei): ${fees[0]} / (eth): ${this.$ethers.utils.formatEther(
+            fees[0]
+          )}`
         );
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        let tx = await (
+          await this.bridgeObject.contractInstance.sendFrom(
+            this.address, // 'from' address to send tokens
+            this.$ethers.BigNumber.from(this.targetToChain), // remote LayerZero chainId
+            this.toAddressBytes, // 'to' address to send tokens
+            amount, // amount of tokens to send (in wei)
+            [this.address, this.$ethers.constants.AddressZero, "0x"], // flexible bytes array to indicate messaging adapter services
+            { value: fees[0] }
+          )
+        ).wait();
 
-        this.amount = "";
-
-        const result = await contract[methodName](
-          tokenAddr,
-          this.address,
-          amount,
-          toChainId,
-          {
-            value: 0,
-            gasLimit,
-          }
+        console.log(
+          `✅ Sent. https://layerzeroscan.com/tx/${tx.transactionHash}`
         );
-
-        console.log(result);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (e) {
-        console.log("SWAP ERR:", e);
+      } catch (error) {
+        console.log("Bridge Error:", error);
 
         const errorNotification = {
-          msg: await notificationErrorMsg(e),
+          msg: await notificationErrorMsg(error),
           type: "error",
         };
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
+    },
+
+    async getFees(amount) {
+      // quote fee with default adapterParams
+      const adapterParams = this.$ethers.utils.solidityPack(
+        ["uint16", "uint256"],
+        [1, 200_000]
+      ); // default adapterParams example
+
+      return await this.bridgeObject.contractInstance.estimateSendFee(
+        this.$ethers.BigNumber.from(this.targetToChain),
+        this.toAddressBytes,
+        amount,
+        false,
+        adapterParams
+      );
     },
 
     async bridgeNotAvailable() {
