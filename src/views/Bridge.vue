@@ -45,13 +45,20 @@
         />
       </div>
 
-      <input
-        class="input-address"
-        v-model="inputAddressValue"
-        v-if="isShowInputAddress"
-        type="text"
-        placeholder="Add destination address"
-      />
+      <div class="input-address-wrap">
+        <input
+          class="input-address"
+          :class="{ error: inputAddressError }"
+          v-model="inputAddressValue"
+          v-if="isShowInputAddress"
+          type="text"
+          placeholder="Add destination address"
+        />
+        <p class="error-message">
+          <span v-if="inputAddressError">Invalid address</span>
+          <span v-else>&nbsp;</span>
+        </p>
+      </div>
 
       <div class="expected">
         <p class="expected-title">Expected MIM</p>
@@ -236,6 +243,8 @@ export default {
       if (!this.inputAddressValue && this.isShowInputAddress)
         return "Set destination address";
 
+      if (this.inputAddressError) return "Set destination address";
+
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1)
         return "Approve";
 
@@ -259,6 +268,7 @@ export default {
 
     disableBtn() {
       if (!this.inputAddressValue && this.isShowInputAddress) return true;
+      if (this.inputAddressError) return true;
       if (this.bridgeObject.isDefaultProvider) return true;
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
       if (+this.amount === 0) return true;
@@ -291,6 +301,17 @@ export default {
           additional: "Mimimum Fee required to bridge tokens.",
         },
       ];
+    },
+
+    checkInputAddress() {
+      return this.inputAddressValue
+        ? this.$ethers.utils.isAddress(this.inputAddressValue.toLowerCase())
+        : false;
+    },
+
+    inputAddressError() {
+      if (!this.inputAddressValue) return false;
+      return this.isShowInputAddress && !this.checkInputAddress;
     },
   },
 
@@ -342,6 +363,7 @@ export default {
     },
 
     async actionHandler() {
+      if (this.disableBtn) return false;
       if (!this.bridgeObject.isTokenApprove && this.chainId === 1) {
         const notificationId = await this.$store.dispatch(
           "notifications/new",
@@ -540,6 +562,10 @@ export default {
   margin-bottom: 20px;
 }
 
+.input-address-wrap {
+  margin-bottom: 30px;
+}
+
 .input-address {
   width: 100%;
   height: 50px;
@@ -549,7 +575,17 @@ export default {
   outline: none;
   padding: 12px 20px;
   color: #fff;
-  margin-bottom: 30px;
+}
+
+.error {
+  border-color: #e54369;
+}
+
+.error-message {
+  color: $clrError;
+  font-size: 10px;
+  margin-top: 5px;
+  margin-left: 10px;
 }
 
 .input-balance {
