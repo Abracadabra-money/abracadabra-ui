@@ -138,16 +138,16 @@ import NetworkPopup from "@/components/popups/NetworkPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import SettingsPopup from "@/components/popups/SettingsPopup.vue";
 import filters from "@/filters/index.js";
-import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
-
 import { mapGetters } from "vuex";
+import { createBridgeConfig } from "@/helpers/bridge";
 export default {
-  mixins: [bridgeMixin, chainSwitch],
+  mixins: [chainSwitch],
   data() {
     return {
+      bridgeObject: null,
       isOpenNetworkPopup: false,
       isShowInputAddress: false,
       inputAddressValue: null,
@@ -172,9 +172,10 @@ export default {
 
   computed: {
     ...mapGetters({
-      bridgeObject: "getBridgeObject",
       activeChain: "getChainId",
       address: "getAccount",
+      provider: "getProvider",
+      chainId: "getChainId",
     }),
 
     toAddressBytes() {
@@ -471,10 +472,18 @@ export default {
     },
 
     async createBridgeData() {
-      await this.createBridgeConfig();
+      this.bridgeObject = await createBridgeConfig(
+        this.chainId,
+        this.provider,
+        this.address
+      );
 
       this.updateInterval = setInterval(async () => {
-        await this.createBridgeConfig();
+        this.bridgeObject = await createBridgeConfig(
+          this.chainId,
+          this.provider,
+          this.address
+        );
       }, 15000);
     },
 
