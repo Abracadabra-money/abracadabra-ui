@@ -4,8 +4,6 @@ import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import store from "@/store";
 
-import delay from "../delay";
-
 const staticProvider = new providers.StaticJsonRpcProvider(
   "https://arb1.arbitrum.io/rpc"
 );
@@ -102,8 +100,6 @@ const getGlpLevData = async (
         sellAmount
       )
     );
-
-    await delay(400); // wait .4s to avoid the 429 error 0x
   }
 
   const mintedGlpFromTokenInArr = await Promise.all(
@@ -158,8 +154,6 @@ const getGlpLevData = async (
       info.sellAmount = sellAmount;
 
       cookInfo.push(info);
-
-      await delay(400); // wait .4s to avoid the 429 error 0x
     }
 
     mimLeftToSwap = mimLeftToSwap.sub(awailableToSwap);
@@ -271,8 +265,6 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
         tokenOutFromBurningGlpArr[tokensArr.indexOf(token)].amount
       )
     );
-
-    await delay(400); // wait .4s to avoid the 429 error 0x
   }
 
   const results = respArr.map((resp, idx) => {
