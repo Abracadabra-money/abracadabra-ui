@@ -37,6 +37,8 @@ import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import filters from "@/filters/index.js";
 
+import { ethers } from "ethers";
+
 export default {
   props: {
     isBento: { type: Boolean, default: false },
@@ -71,7 +73,7 @@ export default {
     },
 
     parsedBalance() {
-      return this.$ethers.utils.formatEther(this.balance);
+      return ethers.utils.formatEther(this.balance);
     },
 
     balanceInUsd() {
@@ -87,6 +89,9 @@ export default {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
+  },
+  mounted() {
+    console.log("parcedBalance", this.parsedBalance);
   },
 
   components: {
