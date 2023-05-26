@@ -11,6 +11,7 @@
 <script>
 import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { ethers } from "ethers";
 export default {
   props: {
     position: {
@@ -33,7 +34,7 @@ export default {
     },
 
     oracleRate() {
-      return this.$ethers.utils.formatUnits(
+      return ethers.utils.formatUnits(
         this.position.oracleRate,
         this.position.config.collateralInfo.decimals
       );
