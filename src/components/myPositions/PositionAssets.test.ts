@@ -31,7 +31,7 @@ describe("PositionAssets.vue", () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("renders 2 assetsItems", () => {
+  it("renders assetsItems", () => {
     const wrapper = mount(PositionAssets, {
       props: { assetsInfo: assetsInfoTest },
     });
