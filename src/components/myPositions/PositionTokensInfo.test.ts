@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
 import PositionTokensInfo from "@/components/myPositions/PositionTokensInfo.vue";
 
-import filters from "@/filters/index.js";
 import config from "@/utils/cauldronsConfig/ethereumCauldrons";
 
 const cauldron = {
