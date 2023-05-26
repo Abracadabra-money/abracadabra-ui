@@ -10,8 +10,8 @@
     </p>
 
     <template v-else>
-      <p class="not-found__text">no {{ popupType }} on this network</p>
-      <p class="not-found__text">in the future they will be displayed here</p>
+      <p class="not-found__text">No {{ popupType }} on this network</p>
+      <p class="not-found__text">In the future they will be displayed here</p>
     </template>
   </div>
 </template>
