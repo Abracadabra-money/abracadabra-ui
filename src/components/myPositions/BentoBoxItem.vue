@@ -89,10 +89,7 @@ export default {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
-  },
-  mounted() {
-    console.log("parcedBalance", this.parsedBalance);
-  },
+  }
 
   components: {
     BaseTokenIcon,

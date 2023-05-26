@@ -6,7 +6,6 @@ import HealthProgress from "@/components/myPositions/HealthProgress.vue";
 describe("HealthProgress.vue", () => {
   it("has .safe class with no props passed", () => {
     const wrapper = mount(HealthProgress);
-    console.log(wrapper);
     const infoDiv = wrapper.find(".progress");
     expect(infoDiv.exists()).toBe(true);
     expect(infoDiv.classes()).toContain("safe");
@@ -18,7 +17,6 @@ describe("HealthProgress.vue", () => {
         positionRisk: "safe",
       },
     });
-    console.log(wrapper);
     const infoDiv = wrapper.find(".progress");
     expect(infoDiv.classes()).toContain("safe");
   });
@@ -29,7 +27,6 @@ describe("HealthProgress.vue", () => {
         positionRisk: "medium",
       },
     });
-    console.log(wrapper);
     const infoDiv = wrapper.find(".progress");
     expect(infoDiv.classes()).toContain("medium");
   });
@@ -40,7 +37,6 @@ describe("HealthProgress.vue", () => {
         positionRisk: "high",
       },
     });
-    console.log(wrapper);
     const infoDiv = wrapper.find(".progress");
     expect(infoDiv.classes()).toContain("high");
   });

@@ -22,7 +22,6 @@ describe("BentoBoxItem.vue", () => {
     expect(wrapper.vm.link).toEqual(degenLink);
   });
 
-  // ???
   it("should calculate usdPrice correct", () => {
     const wrapper = mount(BentoBoxItem, {
       props: { isBento: true, balance: "20", mimPrice: 0.95 },
