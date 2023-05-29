@@ -89,7 +89,7 @@ export default {
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
-  }
+  },
 
   components: {
     BaseTokenIcon,
