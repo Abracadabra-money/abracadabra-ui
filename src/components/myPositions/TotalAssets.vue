@@ -22,7 +22,7 @@
 export default {
   props: {
     assets: {
-      type: Object,
+      type: Array,
       required: true,
     },
   },
