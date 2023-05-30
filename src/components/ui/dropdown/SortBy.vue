@@ -1,9 +1,9 @@
 <template>
-  <div class="dropdown" v-click-outside="closeDropdawn">
+  <div class="dropdown" v-click-outside="closeDropdown">
     <button
       class="dropdown-header"
       :class="{ 'dropdown-open': isOpenDropdown }"
-      @click="toogleDropdawn"
+      @click="toogleDropdown"
     >
       <img
         class="sort-icon"
@@ -70,16 +70,16 @@ export default {
   },
 
   methods: {
-    toogleDropdawn() {
+    toogleDropdown() {
       this.isOpenDropdown = !this.isOpenDropdown;
     },
 
-    closeDropdawn() {
+    closeDropdown() {
       this.isOpenDropdown = false;
     },
 
     changeDropdownValue(value) {
-      this.closeDropdawn();
+      this.closeDropdown();
       this.$emit("changeDropdownValue", value);
     },
 
