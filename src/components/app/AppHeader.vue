@@ -67,9 +67,9 @@
           <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
             >Farms</router-link
           >
-          <router-link class="list-link" :to="{ name: 'Bridge' }"
+          <!-- <router-link class="list-link" :to="{ name: 'Bridge' }"
             >Bridge</router-link
-          >
+          > -->
           <a
             href="https://curve.fi/#/ethereum/pools/mim/swap"
             class="list-link"
