@@ -66,11 +66,11 @@ const routes = [
     name: "DeleverageId",
     component: () => import("@/views/borrow/Deleverage.vue"),
   },
-  {
-    path: "/bridge",
-    name: "Bridge",
-    component: () => import("@/views/Bridge.vue"),
-  },
+  // {
+  //   path: "/bridge",
+  //   name: "Bridge",
+  //   component: () => import("@/views/Bridge.vue"),
+  // },
   {
     path: "/farm",
     name: "MarketsFarm",
