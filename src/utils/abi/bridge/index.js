@@ -1,7 +1,7 @@
-import AnyswapV4Router from "@/utils/abi/bridge/AnyswapV4Router";
-import ProxyOFTV2 from "@/utils/abi/bridge/ProxyOFTV2";
+import LzProxyOFTV2 from "@/utils/abi/bridge/LzProxyOFTV2";
+import LzIndirectOFTV2 from "@/utils/abi/bridge/LzIndirectOFTV2";
 
 export default {
-  AnyswapV4Router,
-  ProxyOFTV2,
+  LzProxyOFTV2,
+  LzIndirectOFTV2,
 };
