@@ -20,7 +20,9 @@ describe("SortBy.vue", () => {
       },
     });
 
-    expect(wrapper.vm.dropdownList[0].name).toBe("tvl");
+    const dropdownList: Array<any> = wrapper.vm.dropdownList;
+
+    expect(dropdownList[0].name).toBe("tvl");
     expect(wrapper.vm.dropdownTitle).toBe("Title");
   });
 });
