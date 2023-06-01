@@ -64,6 +64,7 @@ export const createBridgeConfig = async (
   const toChains = chainsInfo.map((chainItem) => {
     return {
       chainId: chainItem.chainId,
+      lzChainId: chainItem.lzChainId,
       title: chainItem.name,
       icon: chainItem.icon,
     };
