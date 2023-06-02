@@ -3,16 +3,17 @@ import mimConfigs from "@/utils/contracts/mimToken";
 import chainConfig from "@/utils/bridge/chainConfig";
 import bridgeConfigs from "@/utils/bridge/bridgeConfig";
 import { isTokenApprowed } from "@/utils/approveHelpers.js";
+import { markRaw } from "vue";
 import { getUserBalance, getNativeTokenBalance } from "@/helpers/userInfo";
 import type { BridgeConfig, UserInfo } from "@/helpers/bridge/types";
 
 const getUserInfo = async (
-  provider: providers.BaseProvider,
+  signer: providers.BaseProvider,
   account: string,
   contract: Contract,
   address: string
 ): Promise<UserInfo> => {
-  if (!provider)
+  if (!signer)
     return {
       balance: "0.0",
       nativeTokenBalance: "0.0",
@@ -21,14 +22,14 @@ const getUserInfo = async (
 
   return {
     balance: await getUserBalance(contract, account, 18),
-    nativeTokenBalance: await getNativeTokenBalance(provider, account, 18),
+    nativeTokenBalance: await getNativeTokenBalance(signer, account, 18),
     isTokenApprove: await isTokenApprowed(contract, account, address, true),
   };
 };
 
 export const createBridgeConfig = async (
   chainId: number,
-  provider: any,
+  signer: providers.BaseProvider,
   account: string
 ): Promise<BridgeConfig | boolean> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
@@ -40,13 +41,13 @@ export const createBridgeConfig = async (
   const contractInstance = new Contract(
     bridgeConfig.contract.address,
     JSON.stringify(bridgeConfig.contract.abi),
-    provider
+    signer
   );
 
   const tokenContractInstance = new Contract(
     mimConfig.address,
     JSON.stringify(mimConfig.abi),
-    provider
+    signer
   );
 
   const fromChains = bridgeConfigs.map((configItem) => {
@@ -69,13 +70,13 @@ export const createBridgeConfig = async (
   });
 
   const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
-    provider,
+    signer,
     account,
     tokenContractInstance,
     bridgeConfig.contract.address
   );
 
-  return {
+  return markRaw({
     contractInstance,
     balance,
     nativeTokenBalance,
@@ -84,5 +85,5 @@ export const createBridgeConfig = async (
     chainsInfo: chainsInfo,
     fromChains,
     toChains,
-  };
+  });
 };

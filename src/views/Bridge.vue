@@ -148,6 +148,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 import { createBridgeConfig } from "@/helpers/bridge";
+import { approveToken } from "@/utils/approveHelpers.js";
 export default {
   mixins: [chainSwitch],
   data() {
@@ -178,7 +179,7 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      provider: "getProvider",
+      signer: "getSigner",
       chainId: "getChainId",
     }),
 
@@ -344,7 +345,7 @@ export default {
           notification.approvePending
         );
 
-        let approve = await this.approveToken(
+        const approve = await approveToken(
           this.bridgeObject.tokenContractInstance,
           this.bridgeObject.contractInstance.address
         );
@@ -434,14 +435,14 @@ export default {
     async createBridgeData() {
       this.bridgeObject = await createBridgeConfig(
         this.chainId,
-        this.provider,
+        this.signer,
         this.account
       );
 
       this.updateInterval = setInterval(async () => {
         this.bridgeObject = await createBridgeConfig(
           this.chainId,
-          this.provider,
+          this.signer,
           this.account
         );
       }, 15000);
