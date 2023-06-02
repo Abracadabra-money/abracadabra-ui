@@ -17,14 +17,12 @@ const getUserInfo = async (
       balance: "0.0",
       nativeTokenBalance: "0.0",
       isTokenApprove: false,
-      isDefaultProvider: true,
     };
 
   return {
     balance: await getUserBalance(contract, account, 18),
     nativeTokenBalance: await getNativeTokenBalance(provider, account, 18),
     isTokenApprove: await isTokenApprowed(contract, account, address, true),
-    isDefaultProvider: false,
   };
 };
 
@@ -70,13 +68,12 @@ export const createBridgeConfig = async (
     };
   });
 
-  const { balance, isTokenApprove, isDefaultProvider, nativeTokenBalance } =
-    await getUserInfo(
-      provider,
-      account,
-      tokenContractInstance,
-      bridgeConfig.contract.address
-    );
+  const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
+    provider,
+    account,
+    tokenContractInstance,
+    bridgeConfig.contract.address
+  );
 
   return {
     contractInstance,
@@ -87,6 +84,5 @@ export const createBridgeConfig = async (
     chainsInfo: chainsInfo,
     fromChains,
     toChains,
-    isDefaultProvider,
   };
 };

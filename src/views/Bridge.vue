@@ -177,13 +177,13 @@ export default {
 
   computed: {
     ...mapGetters({
-      address: "getAccount",
+      account: "getAccount",
       provider: "getProvider",
       chainId: "getChainId",
     }),
 
     toAddress() {
-      return this.inputAddressValue ? this.inputAddressValue : this.address;
+      return this.inputAddressValue ? this.inputAddressValue : this.account;
     },
 
     toAddressBytes() {
@@ -201,7 +201,6 @@ export default {
       if (+this.amount > +this.bridgeObject.balance) {
         return `The value cannot be greater than ${this.bridgeObject.balance}`;
       }
-
       return "";
     },
 
@@ -231,10 +230,12 @@ export default {
       return this.bridgeObject.chainsInfo[0].chainId;
     },
 
-    lzChainId() {
-      return this.bridgeObject.chainsInfo.find(
+    remoteLzChainId() {
+      const lzChainId = this.bridgeObject.chainsInfo.find(
         (item) => item.chainId === this.targetToChain
       )?.lzChainId;
+
+      return this.$ethers.BigNumber.from(lzChainId);
     },
 
     destinationChain() {
@@ -264,9 +265,9 @@ export default {
     },
 
     disableBtn() {
+      if (!this.account) return true;
       if (!this.inputAddressValue && this.isShowInputAddress) return true;
       if (this.inputAddressError) return true;
-      if (this.bridgeObject.isDefaultProvider) return true;
       if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
         return false;
       if (+this.amount === 0) return true;
@@ -302,10 +303,6 @@ export default {
       this.isShowInputAddress = !this.isShowInputAddress;
     },
 
-    formatNumber(value) {
-      return filters.formatNumber(value);
-    },
-
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -330,7 +327,7 @@ export default {
     },
 
     switchChain() {
-      if (this.address) this.switchNetwork(this.destinationChain.chainId);
+      if (this.account) this.switchNetwork(this.destinationChain.chainId);
       else this.switchNetworkWithoutConnect(this.destinationChain.chainId);
     },
 
@@ -379,16 +376,16 @@ export default {
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
         const fees = await this.getFees(this.amount);
 
-        let tx = await (
-          await this.bridgeObject.contractInstance.sendFrom(
-            this.toAddress, // 'from' address to send tokens
-            this.$ethers.BigNumber.from(this.lzChainId), // remote LayerZero chainId
-            this.toAddressBytes, // 'to' address to send tokens
-            amount, // amount of tokens to send (in wei)
-            [this.toAddress, this.$ethers.constants.AddressZero, "0x"], // flexible bytes array to indicate messaging adapter services
-            { value: fees[0] }
-          )
-        ).wait();
+        const tx = await this.bridgeObject.contractInstance.sendFrom(
+          this.toAddress, // 'from' address to send tokens
+          this.remoteLzChainId, // remote LayerZero chainId
+          this.toAddressBytes, // 'to' address to send tokens
+          amount, // amount of tokens to send (in wei)
+          [this.toAddress, this.$ethers.constants.AddressZero, "0x"], // flexible bytes array to indicate messaging adapter services
+          { value: fees[0] }
+        );
+
+        tx.wait();
 
         console.log(
           `✅ Sent. https://layerzeroscan.com/tx/${tx.transactionHash}`
@@ -417,7 +414,7 @@ export default {
 
       this.estimateSendFee =
         await this.bridgeObject.contractInstance.estimateSendFee(
-          this.$ethers.BigNumber.from(this.lzChainId),
+          this.remoteLzChainId,
           this.toAddressBytes,
           parseAmount,
           false,
@@ -438,14 +435,14 @@ export default {
       this.bridgeObject = await createBridgeConfig(
         this.chainId,
         this.provider,
-        this.address
+        this.account
       );
 
       this.updateInterval = setInterval(async () => {
         this.bridgeObject = await createBridgeConfig(
           this.chainId,
           this.provider,
-          this.address
+          this.account
         );
       }, 15000);
     },

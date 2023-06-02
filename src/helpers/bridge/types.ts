@@ -21,12 +21,10 @@ export type BridgeConfig = {
   chainsInfo: Array<ChainsConfig>;
   fromChains: Array<NetworksConfig>;
   toChains: Array<NetworksConfig>;
-  isDefaultProvider: boolean;
 };
 
 export type UserInfo = {
   balance: string;
   nativeTokenBalance: string | BigNumber | undefined;
   isTokenApprove: boolean;
-  isDefaultProvider: boolean;
 };

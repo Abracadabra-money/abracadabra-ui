@@ -25,7 +25,7 @@ const config: Array<BridgeConfig> = [
     chainName: "ETH",
     chainIcon: ethIcon,
     contract: {
-      address: "0x8D0aC6c1d28Ef9a14E8C3ecfCF558a84540A84E4",
+      address: "0xC1235796B310106F46c2352E0c93fDE50FbacdB6",
       abi: abi.LzProxyOFTV2,
     },
   },
@@ -34,7 +34,7 @@ const config: Array<BridgeConfig> = [
     chainName: "OP",
     chainIcon: optimismIcon,
     contract: {
-      address: "0xA9Ba9852a249Aa9c596C990Cc409cFeAf653fAC0",
+      address: "0xA3Ba2164553D2f266863968641a9cA47525Cb11D",
       abi: abi.LzIndirectOFTV2,
     },
   },
@@ -43,7 +43,7 @@ const config: Array<BridgeConfig> = [
     chainName: "BSC",
     chainIcon: binanceIcon,
     contract: {
-      address: "0x854A86d09ce114e07aC3E63946bE91B6B1CF10A3",
+      address: "0xaB137bb12e93fEdB8B639771c4C4fE29aC138Ee6",
       abi: abi.LzIndirectOFTV2,
     },
   },
@@ -52,7 +52,7 @@ const config: Array<BridgeConfig> = [
     chainName: "MATIC",
     chainIcon: polygonIcon,
     contract: {
-      address: "0x1cA9F1A7cf93284Fff9eC9A7EB627f9dE04A0EA8",
+      address: "0xF4B36812d1645dca9d562846E3aBf416D590349e",
       abi: abi.LzIndirectOFTV2,
     },
   },
@@ -61,7 +61,7 @@ const config: Array<BridgeConfig> = [
     chainName: "FTM",
     chainIcon: fantomIcon,
     contract: {
-      address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
+      address: "0xd3a238d0E0f47AaC26defd2AFCf03eA41DA263C7",
       abi: abi.LzIndirectOFTV2,
     },
   },
@@ -70,7 +70,7 @@ const config: Array<BridgeConfig> = [
     chainName: "Moonriver",
     chainIcon: arbitrumIcon,
     contract: {
-      address: "0x43838338F30795185Dabf1e52DaE6a3FEEdC953d",
+      address: "0x15f57fbCB7A443aC6022e051a46cAE19491bC298",
       abi: abi.LzIndirectOFTV2,
     },
   },
@@ -79,7 +79,7 @@ const config: Array<BridgeConfig> = [
     chainName: "AETH",
     chainIcon: arbitrumIcon,
     contract: {
-      address: "0x9D16087301225a377392942De4BB5b23E35A894b",
+      address: "0xB94d2014735B96152ddf97825a816Fca26846e91",
       abi: abi.LzIndirectOFTV2,
     },
   },
@@ -88,7 +88,7 @@ const config: Array<BridgeConfig> = [
     chainName: "AVAX",
     chainIcon: avalancheIcon,
     contract: {
-      address: "0x0C11084F9Bb72E4305088d329a5A1a64a6dF2A3c",
+      address: "0x56d924066bf9eF61caA26F8f1aeB451EA950e475",
       abi: abi.LzIndirectOFTV2,
     },
   },
