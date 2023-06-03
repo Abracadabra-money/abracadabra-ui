@@ -45,12 +45,11 @@
         />
       </div>
 
-      <div class="input-address-wrap">
+      <div class="input-address-wrap" v-if="isShowInputAddress">
         <input
           class="input-address"
           :class="{ error: inputAddressError }"
           v-model="inputAddressValue"
-          v-if="isShowInputAddress"
           type="text"
           placeholder="Add destination address"
         />
@@ -60,43 +59,22 @@
         </p>
       </div>
 
-      <div class="expected">
-        <p class="expected-title">Estimate Send Fee:</p>
-        <p class="expected-value">
-          {{ formatEstimateSendFee }}
-        </p>
-      </div>
-      <!-- <div class="expected">
-        <p class="expected-title">Expected MIM</p>
-        <p class="expected-value">{{ formatTokenBalance(expectedMim) }}</p>
-      </div> -->
-
       <div class="info">
-        <div class="info-row underline">
-          <p class="info-text">Estimated Time of Crosschain Arrival:</p>
-          <p class="info-text">10-30 min</p>
+        <div class="expected">
+          <p class="expected-title">Expected MIM:</p>
+          <p class="expected-value">{{ amount || "0.0" }} MIM</p>
         </div>
-        <div class="info-row">
-          <p class="info-text">
-            Crosschain amounts larger than 1000000 MIM estimated
+        <div class="expected">
+          <p class="expected-title">Native token on destination:</p>
+          <p class="expected-value">0.0 {{ destinationTokenInfo.symbol }}</p>
+        </div>
+        <div class="expected">
+          <p class="expected-title">Estimated gas cost:</p>
+          <p class="expected-value">
+            {{ formatEstimateSendFee }} {{ nativeTokenInfo.symbol }}
           </p>
-          <p class="info-text">up to 12 hours</p>
         </div>
       </div>
-
-      <!-- <div class="info">
-        <div class="info-row underline">
-          <p class="info-text">Estimated Time of Crosschain Arrival:</p>
-          <p class="info-text">10-30 min</p>
-        </div>
-        <div class="info-row">
-          <p class="info-text">
-            Crosschain amounts larger than
-            {{ formatNumber(targetChainInfo.amountLarger) }} MIM estimated
-          </p>
-          <p class="info-text">up to 12 hours</p>
-        </div>
-      </div> -->
 
       <div class="btn-wrap">
         <BaseButton
@@ -107,24 +85,7 @@
         >
       </div>
 
-      <!-- <div class="expected" v-for="(info, inx) in chainInfo" :key="inx">
-        <p class="expected-title">
-          <img
-            class="expected-icon"
-            src="@/assets/images/info.svg"
-            alt="Icon"
-            v-tooltip="info.additional"
-          />
-          {{ info.title }}
-        </p>
-        <p class="expected-value">{{ info.value }}</p>
-      </div> -->
-
-      <div class="link-wrap">
-        <a href="https://app.multichain.org/" target="_blank"
-          >Powered By Multichain</a
-        >
-      </div>
+      <p class="caption">Powered By LayerZero</p>
     </div>
     <LocalPopupWrap
       :isOpened="isSettingsOpened"
@@ -136,6 +97,13 @@
         :config="settingConfig"
         @changeSettings="changeSettings"
     /></LocalPopupWrap>
+
+    <LocalPopupWrap
+      :isOpened="isSuccessPopup"
+      @closePopup="isSuccessPopup = false"
+    >
+      <SuccessPopup :link="transactionLink" />
+    </LocalPopupWrap>
 
     <NetworkPopup
       :isOpen="isOpenNetworkPopup"
@@ -154,13 +122,16 @@ import BaseButton from "@/components/base/BaseButton.vue";
 import SelectChainsWrap from "@/components/bridge/SelectChainsWrap.vue";
 import NetworkPopup from "@/components/popups/NetworkPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import SettingsPopup from "@/components/popups/SettingsPopup.vue";
+import SettingsPopup from "@/components/bridge/SettingsPopup.vue";
+import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
 import filters from "@/filters/index.js";
 import chainSwitch from "@/mixins/chainSwitch";
 import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 import { createBridgeConfig } from "@/helpers/bridge";
 import { approveToken } from "@/utils/approveHelpers.js";
+import { getTokenInfo } from "@/helpers/getTokenInfo";
+
 export default {
   mixins: [chainSwitch],
   data() {
@@ -175,16 +146,10 @@ export default {
       updateInterval: null,
       amount: "",
       isSettingsOpened: false,
+      isSuccessPopup: false,
       gas: 0,
       estimateSendFee: 0,
-      settingConfig: {
-        title: "Advanced settings",
-        subtitle: "Gas on destination chain",
-        tooltipText:
-          "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
-        linkText: "Learn more",
-        text: "about MIM being an Omnichain Fungible Tokens",
-      },
+      transactionLink: "",
     };
   },
 
@@ -301,7 +266,30 @@ export default {
 
     formatEstimateSendFee() {
       if (!this.estimateSendFee[0]) return "0.0";
-      return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
+      return filters.formatToFixed(
+        this.$ethers.utils.formatEther(this.estimateSendFee[0]),
+        8
+      );
+    },
+
+    nativeTokenInfo() {
+      return getTokenInfo(this.chainId);
+    },
+
+    destinationTokenInfo() {
+      return getTokenInfo(this.targetToChain);
+    },
+
+    settingConfig() {
+      return {
+        title: "Advanced settings",
+        subtitle: "Gas on destination chain",
+        tooltipText:
+          "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
+        linkText: "Learn more",
+        text: "about MIM being an Omnichain Fungible Tokens",
+        icon: this.destinationTokenInfo.icon,
+      };
     },
   },
 
@@ -426,11 +414,10 @@ export default {
           }
         );
 
-        tx.wait();
-
-        console.log(
-          `✅ Sent. https://layerzeroscan.com/tx/${tx.transactionHash}`
-        );
+        await tx.wait();
+        await this.$store.commit("notifications/delete", notificationId);
+        this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
+        this.isSuccessPopup = true;
       } catch (error) {
         console.log("Bridge Error:", error);
 
@@ -517,6 +504,7 @@ export default {
     NetworkPopup,
     LocalPopupWrap,
     SettingsPopup,
+    SuccessPopup,
   },
 };
 </script>
@@ -639,7 +627,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   height: 50px;
 }
 
@@ -656,34 +643,6 @@ export default {
   cursor: pointer;
 }
 
-.info {
-  width: 100%;
-  padding: 12px 10px 7px;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: 0 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(100px);
-  border-radius: 20px;
-  margin-top: 30px;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  font-size: 14px;
-  line-height: 21px;
-  color: rgba(255, 255, 255, 0.6);
-  padding-bottom: 5px;
-}
-
-.info-row:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-.info-text:nth-child(odd) {
-  max-width: 320px;
-  width: 100%;
-}
 
 .btn-wrap {
   margin: 30px 0;
@@ -707,6 +666,20 @@ export default {
   background: -webkit-linear-gradient(#5282fd, #76c3f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.info {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.caption {
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 600px) {
@@ -734,19 +707,4 @@ export default {
   .expected-value {
     text-align: right;
   }
-
-  .info-row {
-    align-items: center;
-  }
-
-  .info-text:nth-child(odd) {
-    max-width: 70%;
-  }
-}
-
-@media (max-width: 375px) {
-  .info-text:nth-child(odd) {
-    max-width: 160px;
-  }
-}
 </style>
