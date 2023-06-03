@@ -71,6 +71,19 @@
         <p class="expected-value">{{ formatTokenBalance(expectedMim) }}</p>
       </div> -->
 
+      <div class="info">
+        <div class="info-row underline">
+          <p class="info-text">Estimated Time of Crosschain Arrival:</p>
+          <p class="info-text">10-30 min</p>
+        </div>
+        <div class="info-row">
+          <p class="info-text">
+            Crosschain amounts larger than 1000000 MIM estimated
+          </p>
+          <p class="info-text">up to 12 hours</p>
+        </div>
+      </div>
+
       <!-- <div class="info">
         <div class="info-row underline">
           <p class="info-text">Estimated Time of Crosschain Arrival:</p>
@@ -366,12 +379,24 @@ export default {
       await this.bridge();
     },
 
-    adapterParams(type = 0) {
-      const params = this.chainId === 1 ? 100_000 : 50_000;
+    async adapterParams() {
+      const packetType = 0;
+      const messageVersion = 1;
+      const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
+        this.remoteLzChainId,
+        packetType
+      );
+
+      if (minGas.eq(0))
+        console.log(
+          `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
+        );
+
+      console.log(`minGas: ${minGas}`);
 
       return this.$ethers.utils.solidityPack(
         ["uint16", "uint256"],
-        [type, params]
+        [messageVersion, minGas]
       );
     },
 
@@ -396,7 +421,9 @@ export default {
             this.$ethers.constants.AddressZero,
             this.adapterParams(),
           ], // flexible bytes array to indicate messaging adapter services
-          { value: fees[0] }
+          {
+            value: fees[0],
+          }
         );
 
         tx.wait();
@@ -435,7 +462,7 @@ export default {
           this.toAddressBytes,
           parseAmount,
           false,
-          this.adapterParams(1)
+          this.adapterParams()
         );
 
       return this.estimateSendFee;
