@@ -294,7 +294,7 @@ export default {
     adapterParams() {
       return this.$ethers.utils.solidityPack(
         ["uint16", "uint256"],
-        [1, 200_000]
+        [0, 200_000]
       );
     },
   },
