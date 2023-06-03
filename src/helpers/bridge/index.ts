@@ -8,12 +8,12 @@ import { getUserBalance, getNativeTokenBalance } from "@/helpers/userInfo";
 import type { BridgeConfig, UserInfo } from "@/helpers/bridge/types";
 
 const getUserInfo = async (
-  signer: providers.BaseProvider,
+  provider: providers.BaseProvider,
   account: string,
   contract: Contract,
   address: string
 ): Promise<UserInfo> => {
-  if (!signer)
+  if (!provider)
     return {
       balance: "0.0",
       nativeTokenBalance: "0.0",
@@ -22,7 +22,7 @@ const getUserInfo = async (
 
   return {
     balance: await getUserBalance(contract, account, 18),
-    nativeTokenBalance: await getNativeTokenBalance(signer, account, 18),
+    nativeTokenBalance: await getNativeTokenBalance(provider, account, 18),
     isTokenApprove: await isTokenApprowed(contract, account, address, true),
   };
 };
@@ -30,7 +30,8 @@ const getUserInfo = async (
 export const createBridgeConfig = async (
   chainId: number,
   signer: providers.BaseProvider,
-  account: string
+  account: string,
+  provider: providers.BaseProvider
 ): Promise<BridgeConfig | boolean> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
   if (!mimConfig) return false;
@@ -70,7 +71,7 @@ export const createBridgeConfig = async (
   });
 
   const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
-    signer,
+    provider,
     account,
     tokenContractInstance,
     bridgeConfig.contract.address

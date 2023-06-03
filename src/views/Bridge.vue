@@ -180,6 +180,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
       signer: "getSigner",
+      provider: "getProvider",
       chainId: "getChainId",
     }),
 
@@ -442,14 +443,16 @@ export default {
       this.bridgeObject = await createBridgeConfig(
         this.chainId,
         this.signer,
-        this.account
+        this.account,
+        this.provider
       );
 
       this.updateInterval = setInterval(async () => {
         this.bridgeObject = await createBridgeConfig(
           this.chainId,
           this.signer,
-          this.account
+          this.account,
+          this.provider
         );
       }, 15000);
     },
