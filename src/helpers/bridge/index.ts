@@ -23,7 +23,7 @@ const getUserInfo = async (
   return {
     balance: await getUserBalance(contract, account, 18),
     nativeTokenBalance: await getNativeTokenBalance(provider, account, 18),
-    isTokenApprove: await isTokenApprowed(contract, account, address, true),
+    isTokenApprove: await isTokenApprowed(contract, address, account, true),
   };
 };
 
