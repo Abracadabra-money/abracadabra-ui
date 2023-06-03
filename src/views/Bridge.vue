@@ -643,7 +643,6 @@ export default {
   cursor: pointer;
 }
 
-
 .btn-wrap {
   margin: 30px 0;
 }
@@ -707,4 +706,5 @@ export default {
   .expected-value {
     text-align: right;
   }
+}
 </style>
