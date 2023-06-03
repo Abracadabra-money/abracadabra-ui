@@ -290,13 +290,6 @@ export default {
       if (!this.estimateSendFee[0]) return "0.0";
       return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
     },
-
-    adapterParams() {
-      return this.$ethers.utils.solidityPack(
-        ["uint16", "uint256"],
-        [0, 200_000]
-      );
-    },
   },
 
   watch: {
@@ -384,16 +377,17 @@ export default {
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
         const fees = await this.getFees(this.amount);
 
+        const adapterParams = this.$ethers.utils.solidityPack(
+          ["uint16", "uint256"],
+          [0, 200_000]
+        );
+
         const tx = await this.bridgeObject.contractInstance.sendFrom(
           this.account, // 'from' address to send tokens
           this.remoteLzChainId, // remote LayerZero chainId
           this.toAddressBytes, // 'to' address to send tokens
           amount, // amount of tokens to send (in wei)
-          [
-            this.account,
-            this.$ethers.constants.AddressZero,
-            this.adapterParams,
-          ], // flexible bytes array to indicate messaging adapter services
+          [this.account, this.$ethers.constants.AddressZero, adapterParams], // flexible bytes array to indicate messaging adapter services
           { value: fees[0] }
         );
 
@@ -427,13 +421,18 @@ export default {
       if (!+amount) return 0;
       const parseAmount = await this.$ethers.utils.parseUnits(amount, 18);
 
+      const adapterParams = this.$ethers.utils.solidityPack(
+        ["uint16", "uint256"],
+        [1, 200_000]
+      );
+
       this.estimateSendFee =
         await this.bridgeObject.contractInstance.estimateSendFee(
           this.remoteLzChainId,
           this.toAddressBytes,
           parseAmount,
           false,
-          this.adapterParams
+          adapterParams
         );
 
       return this.estimateSendFee;
