@@ -8,6 +8,7 @@ const binanceIcon = useImage(`assets/images/bridge/BNB.png`);
 const avalancheIcon = useImage(`assets/images/bridge/AVAX.png`);
 const arbitrumIcon = useImage(`assets/images/bridge/Arbitrum.png`);
 const optimismIcon = useImage(`assets/images/networks/optimism-icon.svg`);
+const moonriver = useImage(`assets/images/networks/moonriver.svg`);
 
 export type BridgeConfig = {
   chainId: number;
@@ -68,7 +69,7 @@ const config: Array<BridgeConfig> = [
   {
     chainId: 1285,
     chainName: "Moonriver",
-    chainIcon: arbitrumIcon,
+    chainIcon: moonriver,
     contract: {
       address: "0x15f57fbCB7A443aC6022e051a46cAE19491bC298",
       abi: abi.LzIndirectOFTV2,

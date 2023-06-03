@@ -7,6 +7,7 @@ const binanceIcon = useImage(`assets/images/bridge/BNB.png`);
 const avalancheIcon = useImage(`assets/images/bridge/AVAX.png`);
 const arbitrumIcon = useImage(`assets/images/bridge/Arbitrum.png`);
 const optimismIcon = useImage(`assets/images/networks/optimism-icon.svg`);
+const moonriver = useImage(`assets/images/networks/moonriver.svg`);
 
 export type ChainConfig = {
   name: string;
@@ -48,7 +49,7 @@ const config: Array<ChainConfig> = [
   },
   {
     name: "Moonriver",
-    icon: optimismIcon,
+    icon: moonriver,
     chainId: 1285,
     lzChainId: 167,
   },

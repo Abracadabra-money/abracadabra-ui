@@ -144,7 +144,6 @@ import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import SettingsPopup from "@/components/popups/SettingsPopup.vue";
 import filters from "@/filters/index.js";
 import chainSwitch from "@/mixins/chainSwitch";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 import { createBridgeConfig } from "@/helpers/bridge";
@@ -386,12 +385,12 @@ export default {
         const fees = await this.getFees(this.amount);
 
         const tx = await this.bridgeObject.contractInstance.sendFrom(
-          this.toAddress, // 'from' address to send tokens
+          this.account, // 'from' address to send tokens
           this.remoteLzChainId, // remote LayerZero chainId
           this.toAddressBytes, // 'to' address to send tokens
           amount, // amount of tokens to send (in wei)
           [
-            this.toAddress,
+            this.account,
             this.$ethers.constants.AddressZero,
             this.adapterParams,
           ], // flexible bytes array to indicate messaging adapter services
@@ -407,9 +406,17 @@ export default {
         console.log("Bridge Error:", error);
 
         const errorNotification = {
-          msg: await notificationErrorMsg(error),
+          msg: "Transaction encountered an Error",
           type: "error",
         };
+
+        if (
+          String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
+          String(error).indexOf("insufficient funds") !== -1 ||
+          String(error?.message).indexOf("insufficient funds") !== -1
+        ) {
+          errorNotification.msg = "Insufficient funds";
+        }
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
