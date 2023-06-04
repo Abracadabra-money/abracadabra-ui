@@ -369,7 +369,10 @@ export default {
 
     async adapterParams() {
       const packetType = 0;
-      const messageVersion = 1;
+      const messageVersion = 2;
+
+      const dstNativeAmount = this.$ethers.utils.parseEther("0.0016");
+
       const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
         this.remoteLzChainId,
         packetType
@@ -382,10 +385,12 @@ export default {
 
       console.log(`minGas: ${minGas}`);
 
-      return this.$ethers.utils.solidityPack(
-        ["uint16", "uint256"],
-        [messageVersion, minGas]
+      const result = this.$ethers.utils.solidityPack(
+        ["uint16", "uint256", "uint256", "address"],
+        [messageVersion, minGas, dstNativeAmount, this.account]
       );
+
+      return result;
     },
 
     async bridge() {
