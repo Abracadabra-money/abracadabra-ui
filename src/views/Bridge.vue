@@ -66,7 +66,9 @@
         </div>
         <div class="expected">
           <p class="expected-title">Native token on destination:</p>
-          <p class="expected-value">0.0 {{ destinationTokenInfo.symbol }}</p>
+          <p class="expected-value">
+            {{ this.gas || "0.0" }} {{ destinationTokenInfo.symbol }}
+          </p>
         </div>
         <div class="expected">
           <p class="expected-title">Estimated gas cost:</p>
@@ -92,10 +94,11 @@
       @closePopup="isSettingsOpened = false"
     >
       <SettingsPopup
-        :value="''"
-        :max="10"
+        :value="gas"
+        :max="destinationTokenMax"
         :config="settingConfig"
         @changeSettings="changeSettings"
+        @closeSettings="closeSettings"
     /></LocalPopupWrap>
 
     <LocalPopupWrap
@@ -147,7 +150,7 @@ export default {
       amount: "",
       isSettingsOpened: false,
       isSuccessPopup: false,
-      gas: 0,
+      gas: "",
       estimateSendFee: 0,
       transactionLink: "",
     };
@@ -291,6 +294,21 @@ export default {
         icon: this.destinationTokenInfo.icon,
       };
     },
+
+    destinationTokenMax() {
+      const tokensMax = {
+        1: 0.24,
+        10: 0.24,
+        56: 1.32,
+        137: 681,
+        250: 631,
+        1285: 1,
+        42161: 0.24,
+        43114: 18.47,
+      };
+
+      return tokensMax[this.targetToChain];
+    },
   },
 
   watch: {
@@ -371,7 +389,9 @@ export default {
       const packetType = 0;
       const messageVersion = 2;
 
-      const dstNativeAmount = this.$ethers.utils.parseEther("0.0016");
+      const dstNativeAmount = this.$ethers.utils.parseEther(
+        this.gas.toString() || "0"
+      );
 
       const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
         this.remoteLzChainId,
@@ -402,7 +422,7 @@ export default {
       try {
         const parsedAmount = filters.formatToFixed(this.amount, 18);
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
-        const fees = await this.getFees(this.amount);
+        const fees = await this.getFees(this.amount); // add(dstNativeAmount);
 
         const estimateGas =
           await this.bridgeObject.contractInstance.estimateGas.sendFrom(
@@ -505,8 +525,11 @@ export default {
     },
 
     changeSettings(value) {
-      if (!value) this.gas = 0;
+      if (!value) this.gas = "";
       else this.gas = value;
+    },
+
+    closeSettings() {
       this.isSettingsOpened = false;
     },
   },

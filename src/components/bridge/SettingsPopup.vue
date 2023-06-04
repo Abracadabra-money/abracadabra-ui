@@ -35,10 +35,16 @@
           max
         </button>
       </div>
+      <p class="value-error">
+        <span v-if="error">{{ error }}</span>
+        <span v-else>&nbsp;</span>
+      </p>
     </div>
 
     <div class="popup-footer">
-      <BaseButton primary @click="actionHandler">Save</BaseButton>
+      <BaseButton primary @click="actionHandler" :disabled="!!this.error"
+        >Save</BaseButton
+      >
       <p class="footer-text">
         <a
           class="bottom-link"
@@ -87,12 +93,26 @@ export default {
     };
   },
 
+  computed: {
+    error() {
+      if (this.inputValue > this.max) return `Error max value ${this.max}`;
+      return false;
+    },
+  },
+
   methods: {
+    isDisableBtn() {
+      return !!this.error;
+    },
+
     actionHandler() {
+      if (this.error) return false;
       this.$emit("changeSettings", this.inputValue);
+      this.$emit("closeSettings");
     },
 
     resetInputValue() {
+      this.$emit("changeSettings", "");
       this.inputValue = "";
     },
   },
@@ -253,5 +273,12 @@ input[type="number"]::-webkit-outer-spin-button {
   background-clip: text;
   text-fill-color: transparent;
   margin-right: 5px;
+}
+
+.value-error {
+  color: $clrError;
+  font-size: 10px;
+  margin-top: 5px;
+  margin-left: 10px;
 }
 </style>
