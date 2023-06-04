@@ -89,16 +89,14 @@
 
       <p class="caption">Powered By LayerZero</p>
     </div>
-    <LocalPopupWrap
-      :isOpened="isSettingsOpened"
-      @closePopup="isSettingsOpened = false"
-    >
+    <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
       <SettingsPopup
         :value="gas"
         :max="destinationTokenMax"
         :config="settingConfig"
         @changeSettings="changeSettings"
         @closeSettings="closeSettings"
+        @errorSettings="errorSettings"
     /></LocalPopupWrap>
 
     <LocalPopupWrap
@@ -153,6 +151,7 @@ export default {
       gas: "",
       estimateSendFee: 0,
       transactionLink: "",
+      isSettingsError: false,
     };
   },
 
@@ -292,7 +291,14 @@ export default {
         linkText: "Learn more",
         text: "about MIM being an Omnichain Fungible Tokens",
         icon: this.destinationTokenInfo.icon,
+        nativeTokenBalance: this.bridgeObject.nativeTokenBalance,
+        gasCost: this.getGasCost,
       };
+    },
+
+    getGasCost() {
+      if (!this.estimateSendFee[0]) return 0;
+      return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
     },
 
     destinationTokenMax() {
@@ -525,20 +531,36 @@ export default {
       }, 15000);
     },
 
-    changeSettings(value) {
+    async changeSettings(value) {
       if (!value) this.gas = "";
       else this.gas = value;
+      await this.getFees(this.amount || "1");
     },
 
     closeSettings() {
       this.isSettingsOpened = false;
+    },
+
+    async closePopup() {
+      this.isSettingsOpened = false;
+      if (this.isSettingsError) {
+        this.gas = "";
+        await this.changeSettings(0);
+      }
+    },
+
+    errorSettings(value) {
+      this.isSettingsError = value;
     },
   },
 
   async created() {
     if (!this.chainId) return false;
     if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
-    else await this.createBridgeData();
+    else {
+      await this.createBridgeData();
+      await this.getFees("1");
+    }
   },
 
   beforeUnmount() {

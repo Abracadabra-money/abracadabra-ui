@@ -95,8 +95,26 @@ export default {
 
   computed: {
     error() {
-      if (this.inputValue > this.max) return `Error max value ${this.max}`;
+      if (this.config.gasCost > this.config.nativeTokenBalance) {
+        this.$emit("errorSettings", true);
+        return `Not enough gas ${
+          +this.config.gasCost - +this.config.nativeTokenBalance
+        } BNB needed`;
+      }
+
+      if (this.inputValue > this.max) {
+        this.$emit("errorSettings", true);
+        return `Error max value ${this.max}`;
+      }
+
+      this.$emit("errorSettings", true);
       return false;
+    },
+  },
+
+  watch: {
+    inputValue() {
+      this.$emit("changeSettings", this.inputValue);
     },
   },
 
