@@ -7,8 +7,12 @@
     <div class="popup-content">
       <img src="@/assets/images/sucess-popup-img.png" alt="" class="main-img" />
 
-      <p class="info-title">The transaction has been successfully confirmed!</p>
-      <p class="info-subtitle">Head over to my position to view it.</p>
+      <p class="info-title">
+        The origin chain transaction has been succesfully confirmed!
+      </p>
+      <p class="info-subtitle">
+        Your MIM are being beamed towards your selected destination chain.
+      </p>
     </div>
 
     <a class="popup-link" :href="link" target="_blank" rel="noopener noreferrer"
