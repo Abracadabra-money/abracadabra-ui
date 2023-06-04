@@ -293,6 +293,9 @@ export default {
         icon: this.destinationTokenInfo.icon,
         nativeTokenBalance: this.bridgeObject.nativeTokenBalance,
         gasCost: this.getGasCost,
+        originId: this.originChain.chainId,
+        destinationId: this.targetToChain,
+        destinationSymbol: this.destinationTokenInfo.symbol,
       };
     },
 
@@ -308,7 +311,7 @@ export default {
         56: 1.32,
         137: 681,
         250: 631,
-        1285: 1,
+        1285: 10,
         42161: 0.24,
         43114: 18.47,
       };
