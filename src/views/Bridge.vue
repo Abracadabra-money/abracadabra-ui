@@ -399,6 +399,24 @@ export default {
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
         const fees = await this.getFees(this.amount);
 
+        const estimateGas =
+          await this.bridgeObject.contractInstance.estimateGas.sendFrom(
+            this.account, // 'from' address to send tokens
+            this.remoteLzChainId, // remote LayerZero chainId
+            this.toAddressBytes, // 'to' address to send tokens
+            amount, // amount of tokens to send (in wei)
+            [
+              this.account,
+              this.$ethers.constants.AddressZero,
+              this.adapterParams(),
+            ], // flexible bytes array to indicate messaging adapter services
+            {
+              value: fees[0],
+            }
+          );
+
+        const gasLimit = 1000 + +estimateGas.toString();
+
         const tx = await this.bridgeObject.contractInstance.sendFrom(
           this.account, // 'from' address to send tokens
           this.remoteLzChainId, // remote LayerZero chainId
@@ -410,6 +428,7 @@ export default {
             this.adapterParams(),
           ], // flexible bytes array to indicate messaging adapter services
           {
+            gasLimit,
             value: fees[0],
           }
         );
