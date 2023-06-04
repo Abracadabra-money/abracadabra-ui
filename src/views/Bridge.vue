@@ -339,6 +339,7 @@ export default {
     changeChain(chainId, type) {
       if (type === "to") {
         this.amount = "";
+        this.gas = "";
         this.estimateSendFee = 0;
         this.toChainId = chainId;
       } else {
