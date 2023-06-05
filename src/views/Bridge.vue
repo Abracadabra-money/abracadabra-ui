@@ -20,11 +20,13 @@
           />
         </div>
       </h3>
-      <SelectChainsWrap
-        @handlerNetwork="openNetworkPopup"
-        @switchHandle="switchChain"
+
+      <ChainsWrap
         :fromChain="originChain"
         :toChain="destinationChain"
+        :selectChain="selectChain"
+        @switchChain="switchChain"
+        @changeNetwork="openNetworkPopup"
       />
       <div class="input-wrap">
         <div class="input-balance">
@@ -59,24 +61,22 @@
         </p>
       </div>
 
-      <div class="info">
-        <div class="expected">
-          <p class="expected-title">Expected MIM:</p>
-          <p class="expected-value">{{ amount || "0.0" }} MIM</p>
-        </div>
-        <div class="expected">
-          <p class="expected-title">Native token on destination:</p>
-          <p class="expected-value">
-            {{ this.destinationTokenAmount || "0.0" }}
-            {{ destinationTokenInfo.symbol }}
-          </p>
-        </div>
-        <div class="expected">
-          <p class="expected-title">Estimated gas cost:</p>
-          <p class="expected-value">
-            {{ formatEstimateSendFee }} {{ nativeTokenInfo.symbol }}
-          </p>
-        </div>
+      <div class="expected">
+        <p class="expected-title">Expected MIM:</p>
+        <p class="expected-value">{{ amount || "0.0" }} MIM</p>
+      </div>
+      <div class="expected">
+        <p class="expected-title">Native token on destination:</p>
+        <p class="expected-value">
+          {{ this.destinationTokenAmount || "0.0" }}
+          {{ destinationTokenInfo.symbol }}
+        </p>
+      </div>
+      <div class="expected">
+        <p class="expected-title">Estimated gas cost:</p>
+        <p class="expected-value">
+          {{ formatEstimateSendFee }} {{ nativeTokenInfo.symbol }}
+        </p>
       </div>
 
       <div class="btn-wrap">
@@ -88,7 +88,9 @@
         >
       </div>
 
-      <p class="caption">Powered By LayerZero</p>
+      <p class="caption">
+        Powered By<img src="@/assets/images/bridge/layer-zero.png" alt="" />
+      </p>
     </div>
     <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
       <SettingsPopup
@@ -108,13 +110,14 @@
       <SuccessPopup :link="transactionLink" />
     </LocalPopupWrap>
 
-    <NetworkPopup
+    <ChainsPopup
       :isOpen="isOpenNetworkPopup"
       @closePopup="closeNetworkPopup"
       @enterChain="changeChain"
       :networksArr="popupNetworksArr"
       :activeChain="activePopupChain"
       :popupType="popupType"
+      :selectChain="selectChain"
     />
   </div>
 </template>
@@ -122,8 +125,8 @@
 <script>
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import SelectChainsWrap from "@/components/bridge/SelectChainsWrap.vue";
-import NetworkPopup from "@/components/popups/NetworkPopup.vue";
+import ChainsWrap from "@/components/bridge/ChainsWrap.vue";
+import ChainsPopup from "@/components/bridge/ChainsPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import SettingsPopup from "@/components/bridge/SettingsPopup.vue";
 import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
@@ -155,6 +158,7 @@ export default {
       estimateSendFee: 0,
       transactionLink: "",
       isSettingsError: false,
+      selectChain: false,
     };
   },
 
@@ -245,7 +249,7 @@ export default {
     },
 
     mimBalance() {
-      return this.bridgeObject?.balance || 0;
+      return this.selectChain ? this.bridgeObject?.balance || 0 : 0;
     },
 
     disableBtn() {
@@ -320,10 +324,7 @@ export default {
   watch: {
     async chainId() {
       if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
-      else {
-        await this.createBridgeData();
-        await this.getFees();
-      }
+      else await this.createBridgeData();
     },
   },
 
@@ -347,6 +348,7 @@ export default {
 
     async changeChain(chainId, type) {
       if (type === "to") {
+        this.selectChain = true;
         this.amount = "";
         this.destinationTokenAmount = "";
         this.estimateSendFee = 0;
@@ -358,13 +360,14 @@ export default {
     },
 
     switchChain() {
+      if (!this.selectChain) return false;
       if (this.account) this.switchNetwork(this.destinationChain.chainId);
       else this.switchNetworkWithoutConnect(this.destinationChain.chainId);
     },
 
     async updateMainValue(value) {
       this.amount = value;
-      await this.getFees(value);
+      if (this.selectChain) await this.getFees(value);
     },
 
     async actionHandler() {
@@ -553,10 +556,7 @@ export default {
   async created() {
     if (!this.chainId) return false;
     if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
-    else {
-      await this.createBridgeData();
-      await this.getFees();
-    }
+    else await this.createBridgeData();
   },
 
   beforeUnmount() {
@@ -566,8 +566,8 @@ export default {
   components: {
     BaseTokenInput,
     BaseButton,
-    SelectChainsWrap,
-    NetworkPopup,
+    ChainsWrap,
+    ChainsPopup,
     LocalPopupWrap,
     SettingsPopup,
     SuccessPopup,
@@ -694,6 +694,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   height: 50px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .expected-title {
@@ -733,16 +734,14 @@ export default {
   -webkit-text-fill-color: transparent;
 }
 
-.info {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .caption {
   font-weight: 300;
   font-size: 12px;
   line-height: 18px;
+  display: flex;
   text-align: center;
+  gap: 8px;
+  justify-content: center;
   letter-spacing: 0.025em;
   text-transform: uppercase;
 }

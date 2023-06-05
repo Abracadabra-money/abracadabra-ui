@@ -18,24 +18,40 @@
     <div class="select-item" @click="$emit('changeNetwork', 'to')">
       <h3 class="title">Destination Chain</h3>
       <div class="description">
-        <img class="chain-icon" :src="toChain.icon" alt="" />
-        <p>{{ toChain.title }}</p>
+        <img class="chain-icon" :src="destinationChain.icon" alt="" />
+        <p>{{ destinationChain.title }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { useImage } from "@/helpers/useImage";
 export default {
   props: {
+    selectChain: {
+      type: Boolean,
+      default: false,
+    },
     fromChain: {
       type: Object,
       require: true,
     },
-
     toChain: {
       type: Object,
       require: true,
+    },
+  },
+
+  computed: {
+    destinationChain() {
+      if (!this.selectChain)
+        return {
+          title: "Select chain",
+          icon: useImage(`assets/images/networks/no-chain.svg`),
+        };
+
+      return this.toChain;
     },
   },
 };
