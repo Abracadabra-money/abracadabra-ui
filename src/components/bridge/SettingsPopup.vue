@@ -26,7 +26,7 @@
         <input
           class="input"
           v-model="inputValue"
-          type="number"
+          type="text"
           placeholder="0.0"
         />
 
@@ -117,9 +117,13 @@ export default {
   },
 
   watch: {
-    inputValue() {
+    inputValue(value, oldValue) {
       if (+this.inputValue <= +this.max)
         this.$emit("changeSettings", this.inputValue);
+      if (isNaN(value)) {
+        this.inputValue = oldValue;
+        return false;
+      }
     },
   },
 
