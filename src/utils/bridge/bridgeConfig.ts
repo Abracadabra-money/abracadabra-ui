@@ -43,25 +43,6 @@ const config: Array<BridgeConfig> = [
     },
   },
   {
-    chainId: 10,
-    chainName: "OP",
-    chainIcon: optimismIcon,
-    destinationMax: 0.24,
-    contract: {
-      address: "0xA3Ba2164553D2f266863968641a9cA47525Cb11D",
-      abi: abi.LzIndirectOFTV2,
-    },
-    defaultValue: {
-      1: "0.119489304809683491",
-      56: "0.000548",
-      137: "0.12769615656648925",
-      250: "0.026834613604608669",
-      1285: "0.01774",
-      42161: "0.000278362471171267",
-      43114: "0.006601526510375709",
-    },
-  },
-  {
     chainId: 56,
     chainName: "BSC",
     chainIcon: binanceIcon,
@@ -81,8 +62,27 @@ const config: Array<BridgeConfig> = [
     },
   },
   {
+    chainId: 42161,
+    chainName: "Arbitrum",
+    chainIcon: arbitrumIcon,
+    destinationMax: 0.24,
+    contract: {
+      address: "0xB94d2014735B96152ddf97825a816Fca26846e91",
+      abi: abi.LzIndirectOFTV2,
+    },
+    defaultValue: {
+      1: "0.008858578698816767",
+      10: "0.00000285787311",
+      56: "0.0032258135959937",
+      137: "0.12769615656648925",
+      250: "0.04645576777626232",
+      1285: "0.01774",
+      43114: "0.007487999650150403",
+    },
+  },
+  {
     chainId: 137,
-    chainName: "MATIC",
+    chainName: "Polygon",
     chainIcon: polygonIcon,
     destinationMax: 681,
     contract: {
@@ -100,8 +100,46 @@ const config: Array<BridgeConfig> = [
     },
   },
   {
+    chainId: 10,
+    chainName: "Optimism",
+    chainIcon: optimismIcon,
+    destinationMax: 0.24,
+    contract: {
+      address: "0xA3Ba2164553D2f266863968641a9cA47525Cb11D",
+      abi: abi.LzIndirectOFTV2,
+    },
+    defaultValue: {
+      1: "0.119489304809683491",
+      56: "0.000548",
+      137: "0.12769615656648925",
+      250: "0.026834613604608669",
+      1285: "0.01774",
+      42161: "0.000278362471171267",
+      43114: "0.006601526510375709",
+    },
+  },
+  {
+    chainId: 43114,
+    chainName: "Avalanche",
+    chainIcon: avalancheIcon,
+    destinationMax: 18.47,
+    contract: {
+      address: "0x56d924066bf9eF61caA26F8f1aeB451EA950e475",
+      abi: abi.LzIndirectOFTV2,
+    },
+    defaultValue: {
+      1: "0.006523560791554295",
+      10: "0.000002913707586",
+      56: "0.000548",
+      137: "0.12769615656648925",
+      250: "0.055201363318514121",
+      1285: "0.01774",
+      42161: "0.000276367799372566",
+    },
+  },
+  {
     chainId: 250,
-    chainName: "FTM",
+    chainName: "Fantom",
     chainIcon: fantomIcon,
     destinationMax: 631,
     contract: {
@@ -120,7 +158,7 @@ const config: Array<BridgeConfig> = [
   },
   {
     chainId: 1285,
-    chainName: "Moonriver",
+    chainName: "Moonrover",
     chainIcon: moonriver,
     destinationMax: 8,
     contract: {
@@ -135,44 +173,6 @@ const config: Array<BridgeConfig> = [
       250: "0",
       42161: "0",
       43114: "0",
-    },
-  },
-  {
-    chainId: 42161,
-    chainName: "AETH",
-    chainIcon: arbitrumIcon,
-    destinationMax: 0.24,
-    contract: {
-      address: "0xB94d2014735B96152ddf97825a816Fca26846e91",
-      abi: abi.LzIndirectOFTV2,
-    },
-    defaultValue: {
-      1: "0.008858578698816767",
-      10: "0.00000285787311",
-      56: "0.0032258135959937",
-      137: "0.12769615656648925",
-      250: "0.04645576777626232",
-      1285: "0.01774",
-      43114: "0.007487999650150403",
-    },
-  },
-  {
-    chainId: 43114,
-    chainName: "AVAX",
-    chainIcon: avalancheIcon,
-    destinationMax: 18.47,
-    contract: {
-      address: "0x56d924066bf9eF61caA26F8f1aeB451EA950e475",
-      abi: abi.LzIndirectOFTV2,
-    },
-    defaultValue: {
-      1: "0.006523560791554295",
-      10: "0.000002913707586",
-      56: "0.000548",
-      137: "0.12769615656648925",
-      250: "0.055201363318514121",
-      1285: "0.01774",
-      42161: "0.000276367799372566",
     },
   },
 ];
