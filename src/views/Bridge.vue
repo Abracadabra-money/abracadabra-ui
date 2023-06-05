@@ -341,12 +341,13 @@ export default {
       this.isOpenNetworkPopup = false;
     },
 
-    changeChain(chainId, type) {
+    async changeChain(chainId, type) {
       if (type === "to") {
         this.amount = "";
         this.destinationTokenAmount = "";
         this.estimateSendFee = 0;
         this.toChainId = chainId;
+        await this.getFees();
       } else {
         this.switchNetwork(chainId);
       }

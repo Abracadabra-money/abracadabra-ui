@@ -120,7 +120,7 @@ export default {
 
   watch: {
     inputValue() {
-      if (this.inputValue <= this.max)
+      if (this.inputValue <= this.max && !this.isDisabledBtn)
         this.$emit("changeSettings", this.inputValue);
     },
   },
