@@ -15,7 +15,7 @@
       </div>
 
       <div class="btns-wrap">
-        <button class="setting-btn" @click="updateInputValue()">None</button>
+        <button class="setting-btn" @click="updateInputValue(0)">None</button>
         <button class="setting-btn" @click="updateInputValue(defaultValue)">
           Default
         </button>
@@ -45,7 +45,7 @@
     </div>
 
     <div class="popup-footer">
-      <BaseButton primary @click="actionHandler" :disabled="!!this.error"
+      <BaseButton primary @click="actionHandler" :disabled="isDisabledBtn"
         >Save</BaseButton
       >
       <p class="footer-text">
@@ -92,17 +92,26 @@ export default {
   },
 
   computed: {
+    isDisabledBtn() {
+      if (!this.inputValue.toString().length) return true;
+      return !!this.error;
+    },
+
     error() {
       if (this.inputValue > this.max) {
         this.$emit("errorSettings", true);
         return `Error max value ${this.max}`;
       }
 
-      if (this.config.gasCost > this.config.nativeTokenBalance) {
+      if (
+        this.config.gasCost > this.config.nativeTokenBalance &&
+        this.inputValue
+      ) {
         this.$emit("errorSettings", true);
-        return `Not enough gas ${
-          +this.config.gasCost - +this.config.nativeTokenBalance
-        } ${this.config.destinationSymbol} needed`;
+        return "Insufficient funds";
+        // return `Not enough gas ${
+        //   +this.config.gasCost - +this.config.nativeTokenBalance
+        // } ${this.config.destinationSymbol} needed`;
       }
 
       this.$emit("errorSettings", true);
@@ -123,12 +132,12 @@ export default {
     },
 
     actionHandler() {
-      if (this.error) return false;
+      if (this.error || !this.inputValue.toString().length) return false;
       this.$emit("changeSettings", this.inputValue);
       this.$emit("closeSettings");
     },
 
-    updateInputValue(value = "") {
+    updateInputValue(value) {
       this.inputValue = value;
     },
   },

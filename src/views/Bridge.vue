@@ -536,10 +536,6 @@ export default {
 
     async closePopup() {
       this.isSettingsOpened = false;
-      if (this.isSettingsError) {
-        this.destinationTokenAmount = "";
-        await this.changeSettings(0);
-      }
     },
 
     errorSettings(value) {
