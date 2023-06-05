@@ -310,7 +310,7 @@ export default [
       { internalType: "bytes32", name: "_toAddress", type: "bytes32" },
       { internalType: "uint256", name: "_amount", type: "uint256" },
       { internalType: "bytes", name: "_payload", type: "bytes" },
-      { internalType: "uint64", name: "", type: "uint64" },
+      { internalType: "uint64", name: "_dstGasForCall", type: "uint64" },
       { internalType: "bool", name: "_useZro", type: "bool" },
       { internalType: "bytes", name: "_adapterParams", type: "bytes" },
     ],
@@ -503,7 +503,7 @@ export default [
       { internalType: "bytes32", name: "_toAddress", type: "bytes32" },
       { internalType: "uint256", name: "_amount", type: "uint256" },
       { internalType: "bytes", name: "_payload", type: "bytes" },
-      { internalType: "uint64", name: "", type: "uint64" },
+      { internalType: "uint64", name: "_dstGasForCall", type: "uint64" },
       {
         components: [
           {
