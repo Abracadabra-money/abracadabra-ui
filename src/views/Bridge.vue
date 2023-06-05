@@ -290,6 +290,7 @@ export default {
         nativeTokenBalance: this.bridgeObject.nativeTokenBalance,
         gasCost: this.getGasCost,
         destinationSymbol: this.destinationTokenInfo.symbol,
+        nativeSymbol: this.nativeTokenInfo.symbol,
       };
     },
 

@@ -108,10 +108,9 @@ export default {
         this.inputValue
       ) {
         this.$emit("errorSettings", true);
-        return "Insufficient funds";
-        // return `Not enough gas ${
-        //   +this.config.gasCost - +this.config.nativeTokenBalance
-        // } ${this.config.destinationSymbol} needed`;
+        return `Not enough gas ${
+          +this.config.gasCost - +this.config.nativeTokenBalance
+        } ${this.config.nativeSymbol} needed`;
       }
 
       this.$emit("errorSettings", true);
