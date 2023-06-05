@@ -13,17 +13,18 @@
               <span class="logo-address">
                 <div class="token-info">
                   <div class="token-logo">
-                    <img
-                      src="@/assets/images/tokens/ETH.png"
-                      class="token-icon"
-                    />
-                    <span class="token-symbol">eth</span>
+                    <img :src="config.originChain.icon" class="token-icon" />
+                    <span class="token-symbol">{{
+                      config.originChain.title
+                    }}</span>
                   </div>
                 </div>
-                <h3 class="address">0x23...2ee</h3>
+                <h3 class="address">{{ sendFrom }}</h3>
               </span>
               <span class="link-block">
-                <a href="" class="link-text">Etherscan</a>
+                <a :href="fromScanUrl" target="_blank" class="link-text">{{
+                  fromScanTitle
+                }}</a>
                 <img
                   src="@/assets/images/bridge/arrow-link.png"
                   class="arrow-link"
@@ -35,28 +36,35 @@
                 <li>
                   <span class="tag">Amount</span>
                   <span class="value">
-                    <span class="eth">1 ETH</span>
-                    <span class="fiat">$2000.00</span>
+                    <span class="eth">{{ config.mimAmount }} MIM</span>
+                    <span class="fiat">${{ config.mimAmount * mimPrice }}</span>
                   </span>
                 </li>
                 <li>
-                  <span class="tag">Fee</span>
+                  <span class="tag">Beaming fee</span>
                   <span class="value">
-                    <span class="eth">0.0 ETH</span>
-                    <span class="fiat">$0.00</span>
+                    <span class="eth"
+                      >{{ config.gasCost }} {{ config.nativeSymbol }}</span
+                    >
+                    <!-- <span class="fiat">$0.00</span> -->
                   </span>
                 </li>
                 <li>
                   <span class="tag">Convert to gas token</span>
                   <span class="value">
-                    <span class="eth">0.0 ETH</span>
+                    <span class="eth"
+                      >{{ config.tokenToGas }} {{ config.nativeSymbol }}</span
+                    >
                     <span>
                       <img
                         src="@/assets/images/arrow_right.svg"
                         class="convert-arrow"
                       />
                     </span>
-                    <span class="fiat">0.000345</span>
+                    <span class="fiat"
+                      >{{ config.destinationTokenAmount }}
+                      {{ config.destinationSymbol }}</span
+                    >
                   </span>
                 </li>
               </ul>
@@ -77,30 +85,34 @@
                     <span class="token-symbol">avax</span>
                   </div>
                 </div>
-                <h3 class="address">0x23...2ee</h3>
+                <h3 class="address">{{ sendTo }}</h3>
               </span>
-              <span class="link-block">
+              <!-- <span class="link-block">
                 <a href="" class="link-text">snowtrace.io</a>
                 <img
                   src="@/assets/images/bridge/arrow-link.png"
                   class="arrow-link"
                 />
-              </span>
+              </span> -->
             </div>
             <div class="lower">
               <ul class="transaction-info">
                 <li>
                   <span class="tag">You will receive</span>
                   <span class="value">
-                    <span class="eth">1 ETH</span>
-                    <span class="fiat">$2000.00</span>
+                    <span class="eth">{{ config.mimAmount }} MIM</span>
+                    <span class="fiat">${{ config.mimAmount * mimPrice }}</span>
                   </span>
                 </li>
                 <li>
                   <span class="tag"></span>
                   <span class="value">
-                    <span class="eth">0.0 ETH</span>
-                    <span class="fiat">$0.00</span>
+                    <span class="eth"
+                      >{{ config.destinationTokenAmount }}
+                      {{ config.destinationSymbol }}</span
+                    >
+
+                    <!-- <span class="fiat">$0.00</span> -->
                   </span>
                 </li>
               </ul>
@@ -108,7 +120,7 @@
           </div>
         </div>
         <div class="block-container">
-          <h2 class="block-title">Transaction processing/complete</h2>
+          <h2 class="block-title">Transaction processing</h2>
           <div class="block-content-box">
             <div class="upper">
               <p>
@@ -132,6 +144,11 @@
   </div>
 </template>
 <script>
+import { ethers, providers } from "ethers";
+import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
+import { mapGetters } from "vuex";
+import scanConfig from "@/utils/bridge/scanConfig.ts";
+
 export default {
   props: {
     config: {
@@ -143,6 +160,61 @@ export default {
       type: String,
       required: true,
     },
+  },
+
+  data() {
+    return {
+      mimPrice: 1,
+    };
+  },
+
+  computed: {
+    ...mapGetters({ ensName: "getEnsName" }),
+
+    sendFrom() {
+      if (this.ensName) return this.ensName;
+      return `${this.config.sendFrom.slice(
+        0,
+        4
+      )}...${this.config.sendFrom.slice(-3)}`;
+    },
+    sendTo() {
+      if (this.ensName) return this.ensName;
+      return `${this.config.sendTo.slice(0, 4)}...${this.config.sendTo.slice(
+        -3
+      )}`;
+    },
+
+    fromScanTitle() {
+      return scanConfig[this.config.originChain.chainId].name;
+    },
+
+    fromScanUrl() {
+      return `${scanConfig[this.config.originChain.chainId].url}${
+        this.config.transaction.hash
+      }`;
+    },
+  },
+
+  methods: {
+    async getMimPrice() {
+      const defaultProvider = new providers.StaticJsonRpcProvider(
+        "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+      );
+
+      const contract = await new ethers.Contract(
+        "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
+        JSON.stringify(priceAbi),
+        defaultProvider
+      );
+
+      const price = await contract.latestAnswer();
+      this.mimPrice = this.$ethers.utils.formatUnits(price.toString(), 8);
+    },
+  },
+
+  async created() {
+    await this.getMimPrice();
   },
 };
 </script>

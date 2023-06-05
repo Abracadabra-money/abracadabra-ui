@@ -107,7 +107,7 @@
       :isOpened="isSuccessPopup"
       @closePopup="isSuccessPopup = false"
     >
-      <SuccessPopup :link="transactionLink" />
+      <SuccessPopup :link="transactionLink" :config="successConfig" />
     </LocalPopupWrap>
 
     <ChainsPopup
@@ -159,6 +159,8 @@ export default {
       transactionLink: "",
       isSettingsError: false,
       selectChain: false,
+      startGasCost: 0,
+      transaction: null,
     };
   },
 
@@ -253,7 +255,7 @@ export default {
     },
 
     disableBtn() {
-      if (!this.account) return true;
+      if (!this.account || !this.selectChain) return true;
       if (!this.destinationAddress && this.isShowInputAddress) return true;
       if (this.inputAddressError) return true;
       if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
@@ -319,6 +321,24 @@ export default {
         )?.defaultValue[this.targetToChain] || "0"
       );
     },
+
+    successConfig() {
+      return {
+        sendFrom: this.account,
+        sendTo: this.toAddress,
+        originChain: this.originChain,
+        mimAmount: this.amount,
+        nativeSymbol: this.nativeTokenInfo.symbol,
+        gasCost: filters.formatToFixed(this.getGasCost, 6),
+        tokenToGas: filters.formatToFixed(
+          +this.getGasCost - +this.startGasCost,
+          6
+        ),
+        destinationTokenAmount: this.destinationTokenAmount || "0.0",
+        destinationSymbol: this.destinationTokenInfo.symbol,
+        transaction: this.transaction,
+      };
+    },
   },
 
   watch: {
@@ -353,6 +373,10 @@ export default {
         this.destinationTokenAmount = "";
         this.estimateSendFee = 0;
         this.toChainId = chainId;
+        if (!this.startGasCost) {
+          const startGasCost = await this.getFees();
+          this.startGasCost = this.$ethers.utils.formatEther(startGasCost[0]);
+        }
         await this.getFees();
       } else {
         this.switchNetwork(chainId);
@@ -398,23 +422,22 @@ export default {
     },
 
     async adapterParams() {
-      // const packetType = 0;
+      const packetType = 0;
       const messageVersion = 2;
 
       const dstNativeAmount = this.$ethers.utils.parseEther(
         this.destinationTokenAmount.toString() || "0"
       );
 
-      const minGas = 100_000;
-      // const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
-      //   this.remoteLzChainId,
-      //   packetType
-      // );
+      const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
+        this.remoteLzChainId,
+        packetType
+      );
 
-      // if (minGas.eq(0))
-      //   console.log(
-      //     `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
-      //   );
+      if (minGas.eq(0))
+        console.log(
+          `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
+        );
 
       return this.$ethers.utils.solidityPack(
         ["uint16", "uint256", "uint256", "address"],
@@ -469,6 +492,7 @@ export default {
 
         await tx.wait();
         await this.$store.commit("notifications/delete", notificationId);
+        this.transaction = tx;
         this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
         this.isSuccessPopup = true;
       } catch (error) {
