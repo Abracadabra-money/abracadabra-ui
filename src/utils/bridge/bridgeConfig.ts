@@ -1,13 +1,13 @@
 import abi from "@/utils/abi/bridge/index";
 import { useImage } from "@/helpers/useImage";
 
-const ethIcon = useImage(`assets/images/bridge/ETH.png`);
-const fantomIcon = useImage(`assets/images/bridge/FTM.png`);
-const polygonIcon = useImage(`assets/images/bridge/MATIC.png`);
-const binanceIcon = useImage(`assets/images/bridge/BNB.png`);
-const avalancheIcon = useImage(`assets/images/bridge/AVAX.png`);
-const arbitrumIcon = useImage(`assets/images/bridge/Arbitrum.png`);
-const optimismIcon = useImage(`assets/images/networks/optimism-icon.svg`);
+const ethIcon = useImage(`assets/images/networks/ethereum.svg`);
+const binanceIcon = useImage(`assets/images/networks/binance.svg`);
+const fantomIcon = useImage(`assets/images/networks/fantom.svg`);
+const avalancheIcon = useImage(`assets/images/networks/avalanche.svg`);
+const arbitrumIcon = useImage(`assets/images/networks/arbitrum-chain.svg`);
+const polygonIcon = useImage(`assets/images/networks/polygon.svg`);
+const optimismIcon = useImage(`assets/images/networks/optimism.svg`);
 const moonriver = useImage(`assets/images/networks/moonriver.svg`);
 
 export type BridgeConfig = {
@@ -25,7 +25,7 @@ export type BridgeConfig = {
 const config: Array<BridgeConfig> = [
   {
     chainId: 1,
-    chainName: "ETH",
+    chainName: "Ethereum",
     chainIcon: ethIcon,
     destinationMax: 0.24,
     contract: {

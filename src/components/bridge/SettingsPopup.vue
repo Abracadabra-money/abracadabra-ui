@@ -30,13 +30,7 @@
           placeholder="0.0"
         />
 
-        <button
-          class="input-btn"
-          @click="updateInputValue(max)"
-          :disabled="disabled"
-        >
-          max
-        </button>
+        <button class="input-btn" @click="updateInputValue(max)">max</button>
       </div>
       <p class="value-error">
         <span v-if="error">{{ error }}</span>
