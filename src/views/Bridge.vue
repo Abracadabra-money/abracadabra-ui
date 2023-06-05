@@ -49,7 +49,7 @@
         <input
           class="input-address"
           :class="{ error: inputAddressError }"
-          v-model="inputAddressValue"
+          v-model="destinationAddress"
           type="text"
           placeholder="Add destination address"
         />
@@ -67,7 +67,8 @@
         <div class="expected">
           <p class="expected-title">Native token on destination:</p>
           <p class="expected-value">
-            {{ this.gas || "0.0" }} {{ destinationTokenInfo.symbol }}
+            {{ this.destinationTokenAmount || "0.0" }}
+            {{ destinationTokenInfo.symbol }}
           </p>
         </div>
         <div class="expected">
@@ -91,7 +92,7 @@
     </div>
     <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
       <SettingsPopup
-        :value="gas"
+        :value="destinationTokenAmount"
         :max="destinationTokenMax"
         :defaultValue="destinationTokenDefaultValue"
         :config="settingConfig"
@@ -143,13 +144,13 @@ export default {
       bridgeObject: null,
       isOpenNetworkPopup: false,
       isShowInputAddress: false,
-      inputAddressValue: null,
+      destinationAddress: null,
       toChainId: null,
       updateInterval: null,
       amount: "",
       isSettingsOpened: false,
       isSuccessPopup: false,
-      gas: "",
+      destinationTokenAmount: "",
       estimateSendFee: 0,
       transactionLink: "",
       isSettingsError: false,
@@ -165,7 +166,7 @@ export default {
     }),
 
     toAddress() {
-      return this.inputAddressValue ? this.inputAddressValue : this.account;
+      return this.destinationAddress ? this.destinationAddress : this.account;
     },
 
     toAddressBytes() {
@@ -231,7 +232,7 @@ export default {
     },
 
     actionBtnText() {
-      if (!this.inputAddressValue && this.isShowInputAddress)
+      if (!this.destinationAddress && this.isShowInputAddress)
         return "Set destination address";
 
       if (this.inputAddressError) return "Set destination address";
@@ -248,7 +249,7 @@ export default {
 
     disableBtn() {
       if (!this.account) return true;
-      if (!this.inputAddressValue && this.isShowInputAddress) return true;
+      if (!this.destinationAddress && this.isShowInputAddress) return true;
       if (this.inputAddressError) return true;
       if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
         return false;
@@ -257,13 +258,13 @@ export default {
     },
 
     checkInputAddress() {
-      return this.inputAddressValue
-        ? this.$ethers.utils.isAddress(this.inputAddressValue.toLowerCase())
+      return this.destinationAddress
+        ? this.$ethers.utils.isAddress(this.destinationAddress.toLowerCase())
         : false;
     },
 
     inputAddressError() {
-      if (!this.inputAddressValue) return false;
+      if (!this.destinationAddress) return false;
       return this.isShowInputAddress && !this.checkInputAddress;
     },
 
@@ -288,8 +289,6 @@ export default {
         icon: this.destinationTokenInfo.icon,
         nativeTokenBalance: this.bridgeObject.nativeTokenBalance,
         gasCost: this.getGasCost,
-        originId: this.originChain.chainId,
-        destinationId: this.targetToChain,
         destinationSymbol: this.destinationTokenInfo.symbol,
       };
     },
@@ -344,7 +343,7 @@ export default {
     changeChain(chainId, type) {
       if (type === "to") {
         this.amount = "";
-        this.gas = "";
+        this.destinationTokenAmount = "";
         this.estimateSendFee = 0;
         this.toChainId = chainId;
       } else {
@@ -375,10 +374,8 @@ export default {
           this.bridgeObject.contractInstance.address
         );
 
-        if (approve) {
-          await this.$store.commit("notifications/delete", notificationId);
-        } else {
-          await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.commit("notifications/delete", notificationId);
+        if (!approve) {
           await this.$store.dispatch(
             "notifications/new",
             notification.approveError
@@ -396,7 +393,7 @@ export default {
       const messageVersion = 2;
 
       const dstNativeAmount = this.$ethers.utils.parseEther(
-        this.gas.toString() || "0"
+        this.destinationTokenAmount.toString() || "0"
       );
 
       const minGas = 100_000;
@@ -410,12 +407,10 @@ export default {
       //     `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
       //   );
 
-      const result = this.$ethers.utils.solidityPack(
+      return this.$ethers.utils.solidityPack(
         ["uint16", "uint256", "uint256", "address"],
         [messageVersion, minGas, dstNativeAmount, this.account]
       );
-
-      return result;
     },
 
     async bridge() {
@@ -488,7 +483,7 @@ export default {
       }
     },
 
-    async getFees(amount) {
+    async getFees(amount = "1") {
       if (!+amount) return 0;
       const parseAmount = await this.$ethers.utils.parseUnits(amount, 18);
 
@@ -530,9 +525,9 @@ export default {
     },
 
     async changeSettings(value) {
-      if (!value) this.gas = "";
-      else this.gas = value;
-      await this.getFees(this.amount || "1");
+      if (!value) this.destinationTokenAmount = "";
+      else this.destinationTokenAmount = value;
+      await this.getFees(this.amount);
     },
 
     closeSettings() {
@@ -542,7 +537,7 @@ export default {
     async closePopup() {
       this.isSettingsOpened = false;
       if (this.isSettingsError) {
-        this.gas = "";
+        this.destinationTokenAmount = "";
         await this.changeSettings(0);
       }
     },
@@ -557,7 +552,7 @@ export default {
     if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
     else {
       await this.createBridgeData();
-      await this.getFees("1");
+      await this.getFees();
     }
   },
 

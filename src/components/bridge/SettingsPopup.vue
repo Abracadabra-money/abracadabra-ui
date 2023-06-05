@@ -32,7 +32,6 @@
 
         <button
           class="input-btn"
-          v-if="+max > 0 && showMax"
           @click="updateInputValue(max)"
           :disabled="disabled"
         >
@@ -76,17 +75,10 @@ export default {
       type: Object,
       required: true,
     },
-
     max: {
       type: [Number, String],
       default: 0,
     },
-
-    showMax: {
-      type: Boolean,
-      default: true,
-    },
-
     defaultValue: {
       type: String,
       default: "0",

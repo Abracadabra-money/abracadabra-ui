@@ -122,7 +122,7 @@ const config: Array<BridgeConfig> = [
     chainId: 1285,
     chainName: "Moonriver",
     chainIcon: moonriver,
-    destinationMax: 10,
+    destinationMax: 8,
     contract: {
       address: "0x15f57fbCB7A443aC6022e051a46cAE19491bC298",
       abi: abi.LzIndirectOFTV2,
