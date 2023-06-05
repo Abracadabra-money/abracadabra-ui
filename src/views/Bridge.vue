@@ -93,6 +93,7 @@
       <SettingsPopup
         :value="gas"
         :max="destinationTokenMax"
+        :defaultValue="destinationTokenDefaultValue"
         :config="settingConfig"
         @changeSettings="changeSettings"
         @closeSettings="closeSettings"
@@ -284,12 +285,6 @@ export default {
 
     settingConfig() {
       return {
-        title: "Advanced settings",
-        subtitle: "Gas on destination chain",
-        tooltipText:
-          "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
-        linkText: "Learn more",
-        text: "about MIM being an Omnichain Fungible Tokens",
         icon: this.destinationTokenInfo.icon,
         nativeTokenBalance: this.bridgeObject.nativeTokenBalance,
         gasCost: this.getGasCost,
@@ -305,9 +300,19 @@ export default {
     },
 
     destinationTokenMax() {
-      return this.bridgeObject.fromChains.find(
-        (chain) => chain.chainId === this.targetToChain
-      )?.destinationMax;
+      return (
+        this.bridgeObject.fromChains.find(
+          (chain) => chain.chainId === this.targetToChain
+        )?.destinationMax || "0"
+      );
+    },
+
+    destinationTokenDefaultValue() {
+      return (
+        this.bridgeObject.fromChains.find(
+          (chain) => chain.chainId === this.originChain.chainId
+        )?.defaultValue[this.targetToChain] || "0"
+      );
     },
   },
 
@@ -387,24 +392,23 @@ export default {
     },
 
     async adapterParams() {
-      const packetType = 0;
+      // const packetType = 0;
       const messageVersion = 2;
 
       const dstNativeAmount = this.$ethers.utils.parseEther(
         this.gas.toString() || "0"
       );
 
-      const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
-        this.remoteLzChainId,
-        packetType
-      );
+      const minGas = 100_000;
+      // const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
+      //   this.remoteLzChainId,
+      //   packetType
+      // );
 
-      if (minGas.eq(0))
-        console.log(
-          `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
-        );
-
-      console.log(`minGas: ${minGas}`);
+      // if (minGas.eq(0))
+      //   console.log(
+      //     `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
+      //   );
 
       const result = this.$ethers.utils.solidityPack(
         ["uint16", "uint256", "uint256", "address"],

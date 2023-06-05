@@ -57,6 +57,7 @@ export const createBridgeConfig = async (
       title: configItem.chainName,
       icon: configItem.chainIcon,
       destinationMax: configItem.destinationMax,
+      defaultValue: configItem.defaultValue,
     };
   });
 

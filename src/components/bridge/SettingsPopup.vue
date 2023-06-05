@@ -1,24 +1,28 @@
 <template>
   <div class="settings-popup">
     <div>
-      <p class="title">{{ config.title }}</p>
+      <p class="title">Advanced settings</p>
       <div class="subtitle-wrap">
-        <p class="subtitle">{{ config.subtitle }}</p>
+        <p class="subtitle">Gas on destination chain</p>
         <img
           class="tooltip"
           src="@/assets/images/info.svg"
           alt="info"
-          v-tooltip="config.tooltipText"
+          v-tooltip="
+            'The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.'
+          "
         />
       </div>
 
       <div class="btns-wrap">
-        <button class="setting-btn" @click="resetInputValue">None</button>
-        <button class="setting-btn" @click="getDefaultValue">Default</button>
+        <button class="setting-btn" @click="updateInputValue()">None</button>
+        <button class="setting-btn" @click="updateInputValue(defaultValue)">
+          Default
+        </button>
       </div>
 
       <div class="input-wrap">
-        <img class="input-icon" :src="config.icon" alt="" />
+        <img class="input-icon" :src="config.icon" alt="Icon" />
         <input
           class="input"
           v-model="inputValue"
@@ -29,7 +33,7 @@
         <button
           class="input-btn"
           v-if="+max > 0 && showMax"
-          @click="inputValue = max"
+          @click="updateInputValue(max)"
           :disabled="disabled"
         >
           max
@@ -48,13 +52,12 @@
       <p class="footer-text">
         <a
           class="bottom-link"
-          v-if="config.linkText"
           href="#"
           target="_blank"
           rel="noopener noreferrer"
-          >{{ config.linkText }}</a
+          >Learn more</a
         >
-        <span v-if="config.text"> {{ config.text }}</span>
+        <span>about MIM being an Omnichain Fungible Tokens</span>
       </p>
     </div>
   </div>
@@ -83,102 +86,31 @@ export default {
       type: Boolean,
       default: true,
     },
+
+    defaultValue: {
+      type: String,
+      default: "0",
+    },
   },
 
   data() {
     return {
       inputValue: this.value,
-      tooltipText:
-        "Transaction will revert if the leveraged amount changes by this percentage",
-      defaultValue: {
-        1: {
-          10: "0.000000587209028",
-          56: "0",
-          137: "0.12769615656648925",
-          250: "0.028548233315008973",
-          1285: "0",
-          42161: "0.000197125401096902",
-          43114: "0.007909505245705214",
-        },
-        10: {
-          1: "0.119489304809683491",
-          56: "0",
-          137: "0.12769615656648925",
-          250: "0.026834613604608669",
-          1285: "0",
-          42161: "0.000278362471171267",
-          43114: "0.006601526510375709",
-        },
-        56: {
-          1: "0.105235446281148448",
-          10: "0.0000009426358548",
-          137: "0.12769615656648925",
-          250: "0.030083711161502848",
-          1285: "0",
-          42161: "0.000918881105354775",
-          43114: "0.006451582412018373",
-        },
-        137: {
-          1: "0.009214665824547975",
-          10: "0.00000296156132",
-          56: "0",
-          250: "0.035091746032134288",
-          1285: "0",
-          42161: "0.000514784975414775",
-          43114: "0.006653377736217831",
-        },
-        250: {
-          1: "0.009609676187498731",
-          10: "0.00000291885122",
-          56: "0",
-          137: "0.12769615656648925",
-          1285: "0",
-          42161: "0.000471314396755295",
-          43114: "0.007084992346795497",
-        },
-        1285: {
-          1: "0",
-          10: "0",
-          56: "0",
-          137: "0",
-          250: "0",
-          42161: "0",
-          43114: "0",
-        },
-        42161: {
-          1: "0.008858578698816767",
-          10: "0.00000285787311",
-          56: "0.0032258135959937",
-          137: "0.12769615656648925",
-          250: "0.04645576777626232",
-          1285: "0",
-          43114: "0.007487999650150403",
-        },
-        43114: {
-          1: "0.006523560791554295",
-          10: "0.000002913707586",
-          56: "0",
-          137: "0.12769615656648925",
-          250: "0.055201363318514121",
-          1285: "0",
-          42161: "0.000276367799372566",
-        },
-      },
     };
   },
 
   computed: {
     error() {
+      if (this.inputValue > this.max) {
+        this.$emit("errorSettings", true);
+        return `Error max value ${this.max}`;
+      }
+
       if (this.config.gasCost > this.config.nativeTokenBalance) {
         this.$emit("errorSettings", true);
         return `Not enough gas ${
           +this.config.gasCost - +this.config.nativeTokenBalance
         } ${this.config.destinationSymbol} needed`;
-      }
-
-      if (this.inputValue > this.max) {
-        this.$emit("errorSettings", true);
-        return `Error max value ${this.max}`;
       }
 
       this.$emit("errorSettings", true);
@@ -188,7 +120,8 @@ export default {
 
   watch: {
     inputValue() {
-      this.$emit("changeSettings", this.inputValue);
+      if (this.inputValue <= this.max)
+        this.$emit("changeSettings", this.inputValue);
     },
   },
 
@@ -203,15 +136,7 @@ export default {
       this.$emit("closeSettings");
     },
 
-    resetInputValue() {
-      this.$emit("changeSettings", "");
-      this.inputValue = "";
-    },
-
-    getDefaultValue() {
-      const value =
-        this.defaultValue[this.config.originId][this.config.destinationId];
-      this.$emit("changeSettings", value);
+    updateInputValue(value = "") {
       this.inputValue = value;
     },
   },
