@@ -102,7 +102,6 @@ export default {
         this.$emit("errorSettings", true);
         return `Error max value ${this.max}`;
       }
-
       if (
         this.config.gasCost > this.config.nativeTokenBalance &&
         this.inputValue
@@ -112,15 +111,14 @@ export default {
           +this.config.gasCost - +this.config.nativeTokenBalance
         } ${this.config.nativeSymbol} needed`;
       }
-
-      this.$emit("errorSettings", true);
+      this.$emit("errorSettings", false);
       return false;
     },
   },
 
   watch: {
     inputValue() {
-      if (this.inputValue <= this.max && !this.isDisabledBtn)
+      if (+this.inputValue <= +this.max)
         this.$emit("changeSettings", this.inputValue);
     },
   },

@@ -134,6 +134,7 @@ import { mapGetters } from "vuex";
 import { createBridgeConfig } from "@/helpers/bridge";
 import { approveToken } from "@/utils/approveHelpers.js";
 import { getTokenInfo } from "@/helpers/getTokenInfo";
+import { nextTick } from "vue";
 
 export default {
   mixins: [chainSwitch],
@@ -319,7 +320,10 @@ export default {
   watch: {
     async chainId() {
       if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
-      else await this.createBridgeData();
+      else {
+        await this.createBridgeData();
+        await this.getFees();
+      }
     },
   },
 
@@ -527,9 +531,10 @@ export default {
     },
 
     async changeSettings(value) {
-      if (!value) this.destinationTokenAmount = "";
+      await nextTick();
+      if (!value || this.isSettingsError) this.destinationTokenAmount = "";
       else this.destinationTokenAmount = value;
-      await this.getFees(this.amount);
+      await this.getFees();
     },
 
     closeSettings() {
