@@ -98,12 +98,12 @@ export default {
     },
 
     error() {
-      if (this.inputValue > this.max) {
+      if (+this.inputValue > +this.max) {
         this.$emit("errorSettings", true);
         return `Error max value ${this.max}`;
       }
       if (
-        this.config.gasCost > this.config.nativeTokenBalance &&
+        +this.config.gasCost > +this.config.nativeTokenBalance &&
         this.inputValue
       ) {
         this.$emit("errorSettings", true);
