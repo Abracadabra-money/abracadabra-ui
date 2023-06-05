@@ -305,18 +305,9 @@ export default {
     },
 
     destinationTokenMax() {
-      const tokensMax = {
-        1: 0.24,
-        10: 0.24,
-        56: 1.32,
-        137: 681,
-        250: 631,
-        1285: 10,
-        42161: 0.24,
-        43114: 18.47,
-      };
-
-      return tokensMax[this.targetToChain];
+      return this.bridgeObject.fromChains.find(
+        (chain) => chain.chainId === this.targetToChain
+      )?.destinationMax;
     },
   },
 
