@@ -1,16 +1,36 @@
 <template>
   <div class="bridge-view">
     <div class="bridge" v-if="bridgeObject">
-      <h3 class="title">Network to bridge</h3>
-      <SelectChainsWrap
-        @handlerNetwork="openNetworkPopup"
-        @switchHandle="switchChain"
-        :fromChain="activeFrom"
-        :toChain="activeTo"
+      <h3 class="title">
+        Beam
+        <div class="wallet-btn" :class="{ active: isShowInputAddress }">
+          <img
+            class="wallet-icon"
+            @click="toggleInputAddress"
+            src="@/assets/images/wallet-icon.png"
+            alt="Wallet icon"
+          />
+        </div>
+        <div class="settings-btn" :class="{ active: isSettingsOpened }">
+          <img
+            class="settings-icon"
+            @click="isSettingsOpened = true"
+            src="@/assets/images/settings.png"
+            alt="Settings icon"
+          />
+        </div>
+      </h3>
+
+      <ChainsWrap
+        :fromChain="originChain"
+        :toChain="destinationChain"
+        :selectChain="selectChain"
+        @switchChain="switchChain"
+        @changeNetwork="openNetworkPopup"
       />
       <div class="input-wrap">
         <div class="input-balance">
-          <p class="input-title">Token to bridge</p>
+          <p class="input-title">Token to beam</p>
           <div class="balance">
             <span>Balance: </span>
             <span>{{ formatTokenBalance(mimBalance) }}</span>
@@ -27,24 +47,36 @@
         />
       </div>
 
-      <div class="expected">
-        <p class="expected-title">Expected MIM</p>
-        <p class="expected-value">{{ formatTokenBalance(expectedMim) }}</p>
+      <div class="input-address-wrap" v-if="isShowInputAddress">
+        <input
+          class="input-address"
+          :class="{ error: inputAddressError }"
+          v-model="destinationAddress"
+          type="text"
+          placeholder="Add destination address"
+        />
+        <p class="error-message">
+          <span v-if="inputAddressError">Invalid address</span>
+          <span v-else>&nbsp;</span>
+        </p>
       </div>
 
-      <div class="info">
-        <div class="info-row underline">
-          <p class="info-text">Estimated Time of Crosschain Arrival:</p>
-          <p class="info-text">10-30 min</p>
-        </div>
-        <div class="info-row">
-          <p class="info-text">
-            Crosschain amounts larger than
-            {{ formatNumber(targetChainInfo.amountLarger) }} MIM estimated
-            arrival:
-          </p>
-          <p class="info-text">up to 12 hours</p>
-        </div>
+      <div class="expected">
+        <p class="expected-title">Expected MIM:</p>
+        <p class="expected-value">{{ amount || "0.0" }} MIM</p>
+      </div>
+      <div class="expected">
+        <p class="expected-title">Native token on destination:</p>
+        <p class="expected-value">
+          {{ this.destinationTokenAmount || "0.0" }}
+          {{ destinationTokenInfo.symbol }}
+        </p>
+      </div>
+      <div class="expected">
+        <p class="expected-title">Estimated gas cost:</p>
+        <p class="expected-value">
+          {{ formatEstimateSendFee }} {{ nativeTokenInfo.symbol }}
+        </p>
       </div>
 
       <div class="btn-wrap">
@@ -56,32 +88,36 @@
         >
       </div>
 
-      <div class="expected" v-for="(info, inx) in chainInfo" :key="inx">
-        <p class="expected-title">
-          <img
-            class="expected-icon"
-            src="@/assets/images/info.svg"
-            alt="Icon"
-            v-tooltip="info.additional"
-          />
-          {{ info.title }}
-        </p>
-        <p class="expected-value">{{ info.value }}</p>
-      </div>
-
-      <div class="link-wrap">
-        <a href="https://app.multichain.org/" target="_blank"
-          >Powered By Multichain</a
-        >
-      </div>
+      <p class="caption">
+        Powered By<img src="@/assets/images/bridge/layer-zero.png" alt="" />
+      </p>
     </div>
-    <NetworkPopup
+    <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
+      <SettingsPopup
+        :value="destinationTokenAmount"
+        :max="destinationTokenMax"
+        :defaultValue="destinationTokenDefaultValue"
+        :config="settingConfig"
+        @changeSettings="changeSettings"
+        @closeSettings="closeSettings"
+        @errorSettings="errorSettings"
+    /></LocalPopupWrap>
+
+    <LocalPopupWrap
+      :isOpened="isSuccessPopup"
+      @closePopup="isSuccessPopup = false"
+    >
+      <SuccessPopup :link="transactionLink" :config="successConfig" />
+    </LocalPopupWrap>
+
+    <ChainsPopup
       :isOpen="isOpenNetworkPopup"
       @closePopup="closeNetworkPopup"
       @enterChain="changeChain"
       :networksArr="popupNetworksArr"
-      :activeChain="activeChainPopup"
+      :activeChain="activePopupChain"
       :popupType="popupType"
+      :selectChain="selectChain"
     />
   </div>
 </template>
@@ -89,35 +125,63 @@
 <script>
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import SelectChainsWrap from "@/components/bridge/SelectChainsWrap.vue";
-import NetworkPopup from "@/components/popups/NetworkPopup.vue";
+import ChainsWrap from "@/components/bridge/ChainsWrap.vue";
+import ChainsPopup from "@/components/bridge/ChainsPopup.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import SettingsPopup from "@/components/bridge/SettingsPopup.vue";
+import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
 import filters from "@/filters/index.js";
-import bridgeMixin from "@/mixins/bridge";
 import chainSwitch from "@/mixins/chainSwitch";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
-
 import { mapGetters } from "vuex";
+import { createBridgeConfig } from "@/helpers/bridge";
+import { approveToken } from "@/utils/approveHelpers.js";
+import { getTokenInfo } from "@/helpers/getTokenInfo";
+import { nextTick } from "vue";
+
 export default {
-  mixins: [bridgeMixin, chainSwitch],
+  mixins: [chainSwitch],
   data() {
     return {
-      isOpenNetworkPopup: false,
+      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 42161, 43114],
       popupType: null,
+      bridgeObject: null,
+      isOpenNetworkPopup: false,
+      isShowInputAddress: false,
+      destinationAddress: null,
       toChainId: null,
-      fromChainId: null,
       updateInterval: null,
       amount: "",
-      acceptedNetworks: [43114, 1, 250, 56, 42161, 137],
+      isSettingsOpened: false,
+      isSuccessPopup: false,
+      destinationTokenAmount: "",
+      estimateSendFee: 0,
+      transactionLink: "",
+      isSettingsError: false,
+      selectChain: false,
+      startGasCost: 0,
+      transaction: null,
     };
   },
 
   computed: {
     ...mapGetters({
-      bridgeObject: "getBridgeObject",
-      activeChain: "getChainId",
-      address: "getAccount",
+      account: "getAccount",
+      signer: "getSigner",
+      provider: "getProvider",
+      chainId: "getChainId",
     }),
+
+    toAddress() {
+      return this.destinationAddress ? this.destinationAddress : this.account;
+    },
+
+    toAddressBytes() {
+      return this.$ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [this.toAddress]
+      );
+    },
 
     isAcceptedNetworks() {
       return this.acceptedNetworks.indexOf(this.chainId) === -1;
@@ -127,115 +191,157 @@ export default {
       if (+this.amount > +this.bridgeObject.balance) {
         return `The value cannot be greater than ${this.bridgeObject.balance}`;
       }
-
-      if (+this.amount > +this.targetChainInfo.maxAmount) {
-        return `The value cannot be greater than ${this.targetChainInfo.maxAmount}`;
-      }
-
-      if (+this.amount && +this.amount < +this.targetChainInfo.minAmount) {
-        return `Minimum bridge requirement not met`;
-      }
-
       return "";
     },
 
     popupNetworksArr() {
-      if (this.popupType === "from") {
-        return this.bridgeObject?.fromChains;
-      } else {
-        return this.bridgeObject?.toChains;
-      }
+      if (this.popupType === "from") return this.bridgeObject?.fromChains;
+      return this.bridgeObject?.toChains;
     },
 
-    activeChainPopup() {
-      if (this.popupType === "from" && this.activeFrom) {
-        return this.activeFrom.chainId;
-      } else if (this.activeTo) {
-        return this.activeTo.chainId;
+    activePopupChain() {
+      if (this.popupType === "from" && this.originChain) {
+        return this.originChain.chainId;
+      } else if (this.destinationChain) {
+        return this.destinationChain.chainId;
       }
 
       return 1;
     },
 
-    targetFromChain() {
-      if (this.fromChainId) return this.fromChainId;
-
-      return this.activeChain;
-    },
-
-    activeFrom() {
+    originChain() {
       return this.bridgeObject?.fromChains.find(
-        (chain) => chain.chainId === this.targetFromChain
+        (chain) => chain.chainId === this.chainId
       );
     },
 
     targetToChain() {
       if (this.toChainId) return this.toChainId;
-
       return this.bridgeObject.chainsInfo[0].chainId;
     },
 
-    activeTo() {
+    remoteLzChainId() {
+      const lzChainId = this.bridgeObject.chainsInfo.find(
+        (item) => item.chainId === this.targetToChain
+      )?.lzChainId;
+
+      return this.$ethers.BigNumber.from(lzChainId);
+    },
+
+    destinationChain() {
       return this.bridgeObject?.toChains.find(
         (chain) => chain.chainId === this.targetToChain
       );
     },
 
-    actionBtnText() {
-      if (!this.bridgeObject.isTokenApprove && this.chainId === 1)
-        return "Approve";
-
-      return "Bridge";
+    isMainnetChain() {
+      return this.chainId === 1;
     },
 
-    expectedMim() {
-      if (!+this.amount) return "0.0000";
-      if (this.amountError) return "0.0000";
+    actionBtnText() {
+      if (!this.destinationAddress && this.isShowInputAddress)
+        return "Set destination address";
 
-      const feeAmount = this.targetChainInfo.feeAmount;
+      if (this.inputAddressError) return "Set destination address";
 
-      return +this.amount - feeAmount;
+      if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
+        return "Approve";
+
+      return "Beam";
     },
 
     mimBalance() {
-      if (this.bridgeObject?.balance) return this.bridgeObject.balance;
-
-      return 0;
+      return this.bridgeObject?.balance || 0;
     },
 
     disableBtn() {
-      if (this.bridgeObject.isDefaultProvider) return true;
-      if (!this.bridgeObject.isTokenApprove && this.chainId === 1) return false;
+      if (!this.account || !this.selectChain) return true;
+      if (!this.destinationAddress && this.isShowInputAddress) return true;
+      if (this.inputAddressError) return true;
+      if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
+        return false;
       if (+this.amount === 0) return true;
-
       return !!this.amountError;
     },
 
-    targetChainInfo() {
-      return this.bridgeObject?.chainsInfo.find(
-        (item) => +item.chainId === this.targetToChain
+    checkInputAddress() {
+      return this.destinationAddress
+        ? this.$ethers.utils.isAddress(this.destinationAddress.toLowerCase())
+        : false;
+    },
+
+    inputAddressError() {
+      if (!this.destinationAddress) return false;
+      return this.isShowInputAddress && !this.checkInputAddress;
+    },
+
+    formatEstimateSendFee() {
+      if (!this.estimateSendFee[0]) return "0.0";
+      return filters.formatToFixed(
+        this.$ethers.utils.formatEther(this.estimateSendFee[0]),
+        8
       );
     },
 
-    chainInfo() {
-      return [
-        {
-          title: "Maximum Bridgeable Amount",
-          value: `${filters.formatNumber(this.targetChainInfo.maxAmount)} MIM`,
-          additional:
-            "Maximum amount that can be sent in one single transaction.",
-        },
-        {
-          title: "Minimum Bridgeable Amount",
-          value: `${this.targetChainInfo.minAmount} MIM`,
-          additional: "Mininum Amount required to bridge tokens.",
-        },
-        {
-          title: "Minimum Bridging Fee",
-          value: `${this.targetChainInfo.feeAmount} MIM`,
-          additional: "Mimimum Fee required to bridge tokens.",
-        },
-      ];
+    nativeTokenInfo() {
+      return getTokenInfo(this.chainId);
+    },
+
+    destinationTokenInfo() {
+      return getTokenInfo(this.targetToChain);
+    },
+
+    settingConfig() {
+      return {
+        icon: this.destinationTokenInfo.icon,
+        nativeTokenBalance: this.bridgeObject.nativeTokenBalance,
+        gasCost: this.getGasCost,
+        destinationSymbol: this.destinationTokenInfo.symbol,
+        nativeSymbol: this.nativeTokenInfo.symbol,
+      };
+    },
+
+    getGasCost() {
+      if (!this.estimateSendFee[0]) return 0;
+      return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
+    },
+
+    destinationTokenMax() {
+      return (
+        this.bridgeObject.fromChains.find(
+          (chain) => chain.chainId === this.targetToChain
+        )?.destinationMax || "0"
+      );
+    },
+
+    destinationTokenDefaultValue() {
+      return (
+        this.bridgeObject.fromChains.find(
+          (chain) => chain.chainId === this.originChain.chainId
+        )?.defaultValue[this.targetToChain] || "0"
+      );
+    },
+
+    successConfig() {
+      return {
+        sendFrom: this.account,
+        sendTo: this.toAddress,
+        originChain: this.originChain,
+        mimAmount: this.amount,
+        nativeSymbol: this.nativeTokenInfo.symbol,
+        gasCost: filters.formatToFixed(this.getGasCost, 6),
+        tokenToGas: filters.formatToFixed(
+          +this.getGasCost - +this.startGasCost,
+          2
+        ),
+        destinationTokenAmount: filters.formatToFixed(
+          this.destinationTokenAmount || "0.0",
+          2
+        ),
+        destinationSymbol: this.destinationTokenInfo.symbol,
+        transaction: this.transaction,
+        destinationchain: this.destinationChain,
+      };
     },
   },
 
@@ -247,12 +353,14 @@ export default {
   },
 
   methods: {
-    formatNumber(value) {
-      return filters.formatNumber(value);
+    toggleInputAddress() {
+      this.isShowInputAddress = !this.isShowInputAddress;
     },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
+
     openNetworkPopup(type) {
       this.popupType = type;
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
@@ -262,40 +370,50 @@ export default {
       this.isOpenNetworkPopup = false;
     },
 
-    changeChain(chainId, type) {
+    async changeChain(chainId, type) {
       if (type === "to") {
+        this.selectChain = true;
+        this.amount = "";
+        this.destinationTokenAmount = "";
+        this.estimateSendFee = 0;
         this.toChainId = chainId;
+        this.startGasCost = 0;
+        if (!this.startGasCost) {
+          const startGasCost = await this.getFees();
+          this.startGasCost = this.$ethers.utils.formatEther(startGasCost[0]);
+        }
+        await this.getFees();
       } else {
         this.switchNetwork(chainId);
-        this.fromChainId = chainId;
       }
     },
 
     switchChain() {
-      if (this.address) this.switchNetwork(this.activeTo.chainId);
-      else this.switchNetworkWithoutConnect(this.activeTo.chainId);
+      if (!this.selectChain) return false;
+      if (this.account) this.switchNetwork(this.destinationChain.chainId);
+      else this.switchNetworkWithoutConnect(this.destinationChain.chainId);
     },
 
-    updateMainValue(value) {
+    async updateMainValue(value) {
       this.amount = value;
+      if (this.selectChain) await this.getFees(value);
     },
 
     async actionHandler() {
-      if (!this.bridgeObject.isTokenApprove && this.chainId === 1) {
+      if (this.disableBtn) return false;
+      if (!this.bridgeObject.isTokenApprove && this.isMainnetChain) {
         const notificationId = await this.$store.dispatch(
           "notifications/new",
           notification.approvePending
         );
 
-        let approve = await this.approveToken(
+        const approve = await approveToken(
           this.bridgeObject.tokenContractInstance,
           this.bridgeObject.contractInstance.address
         );
 
-        if (approve) {
-          await this.$store.commit("notifications/delete", notificationId);
-        } else {
-          await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.commit("notifications/delete", notificationId);
+        if (!approve) {
           await this.$store.dispatch(
             "notifications/new",
             notification.approveError
@@ -308,61 +426,115 @@ export default {
       await this.bridge();
     },
 
+    async adapterParams() {
+      const packetType = 0;
+      const messageVersion = 2;
+
+      const dstNativeAmount = this.$ethers.utils.parseEther(
+        this.destinationTokenAmount.toString() || "0"
+      );
+
+      const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
+        this.remoteLzChainId,
+        packetType
+      );
+
+      if (minGas.eq(0))
+        console.log(
+          `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
+        );
+
+      return this.$ethers.utils.solidityPack(
+        ["uint16", "uint256", "uint256", "address"],
+        [messageVersion, minGas, dstNativeAmount, this.toAddress]
+      );
+    },
+
     async bridge() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.pending
       );
+
       try {
         const parsedAmount = filters.formatToFixed(this.amount, 18);
-
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
+        const fees = await this.getFees(this.amount); // add(dstNativeAmount);
 
-        const toChainId = this.$ethers.BigNumber.from(this.targetToChain);
-
-        const contract = this.bridgeObject.contractInstance;
-
-        const methodName = this.bridgeObject.methodName;
-
-        const tokenAddr = this.targetChainInfo.tokenAddr;
-
-        const estimateGas = await contract.estimateGas[methodName](
-          tokenAddr,
-          this.address,
-          amount,
-          toChainId
-        );
+        const estimateGas =
+          await this.bridgeObject.contractInstance.estimateGas.sendFrom(
+            this.account, // 'from' address to send tokens
+            this.remoteLzChainId, // remote LayerZero chainId
+            this.toAddressBytes, // 'to' address to send tokens
+            amount, // amount of tokens to send (in wei)
+            [
+              this.account,
+              this.$ethers.constants.AddressZero,
+              this.adapterParams(),
+            ], // flexible bytes array to indicate messaging adapter services
+            {
+              value: fees[0],
+            }
+          );
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        this.amount = "";
-
-        const result = await contract[methodName](
-          tokenAddr,
-          this.address,
-          amount,
-          toChainId,
+        const tx = await this.bridgeObject.contractInstance.sendFrom(
+          this.account, // 'from' address to send tokens
+          this.remoteLzChainId, // remote LayerZero chainId
+          this.toAddressBytes, // 'to' address to send tokens
+          amount, // amount of tokens to send (in wei)
+          [
+            this.account,
+            this.$ethers.constants.AddressZero,
+            this.adapterParams(),
+          ], // flexible bytes array to indicate messaging adapter services
           {
-            value: 0,
             gasLimit,
+            value: fees[0],
           }
         );
 
-        console.log(result);
-
+        await tx.wait();
         await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (e) {
-        console.log("SWAP ERR:", e);
+        this.transaction = tx;
+        this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
+        this.isSuccessPopup = true;
+      } catch (error) {
+        console.log("Bridge Error:", error);
 
         const errorNotification = {
-          msg: await notificationErrorMsg(e),
+          msg: "Transaction encountered an Error",
           type: "error",
         };
+
+        if (
+          String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
+          String(error).indexOf("insufficient funds") !== -1 ||
+          String(error?.message).indexOf("insufficient funds") !== -1
+        ) {
+          errorNotification.msg = "Insufficient funds";
+        }
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
+    },
+
+    async getFees(amount = "1") {
+      if (!+amount) return 0;
+      const parseAmount = await this.$ethers.utils.parseUnits(amount, 18);
+
+      this.estimateSendFee =
+        await this.bridgeObject.contractInstance.estimateSendFee(
+          this.remoteLzChainId,
+          this.toAddressBytes,
+          parseAmount,
+          false,
+          this.adapterParams()
+        );
+
+      return this.estimateSendFee;
     },
 
     async bridgeNotAvailable() {
@@ -373,11 +545,40 @@ export default {
     },
 
     async createBridgeData() {
-      await this.createBridgeConfig();
+      this.bridgeObject = await createBridgeConfig(
+        this.chainId,
+        this.signer,
+        this.account,
+        this.provider
+      );
 
       this.updateInterval = setInterval(async () => {
-        await this.createBridgeConfig();
+        this.bridgeObject = await createBridgeConfig(
+          this.chainId,
+          this.signer,
+          this.account,
+          this.provider
+        );
       }, 15000);
+    },
+
+    async changeSettings(value) {
+      await nextTick();
+      if (!value || this.isSettingsError) this.destinationTokenAmount = "";
+      else this.destinationTokenAmount = value;
+      await this.getFees();
+    },
+
+    closeSettings() {
+      this.isSettingsOpened = false;
+    },
+
+    async closePopup() {
+      this.isSettingsOpened = false;
+    },
+
+    errorSettings(value) {
+      this.isSettingsError = value;
     },
   },
 
@@ -394,8 +595,11 @@ export default {
   components: {
     BaseTokenInput,
     BaseButton,
-    SelectChainsWrap,
-    NetworkPopup,
+    ChainsWrap,
+    ChainsPopup,
+    LocalPopupWrap,
+    SettingsPopup,
+    SuccessPopup,
   },
 };
 </script>
@@ -429,10 +633,72 @@ export default {
   letter-spacing: 0.025em;
   text-transform: uppercase;
   margin-bottom: 40px;
+  position: relative;
+}
+
+.wallet-btn,
+.settings-btn {
+  position: absolute;
+  cursor: pointer;
+  top: 50%;
+  transform: translateY(-55%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.wallet-btn {
+  right: 48px;
+}
+
+.settings-btn {
+  right: 0;
+}
+
+.wallet-icon {
+  width: 24px;
+  height: 24px;
+}
+.settings-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .input-wrap {
   margin-bottom: 20px;
+}
+
+.input-address-wrap {
+  margin-bottom: 30px;
+}
+
+.input-address {
+  width: 100%;
+  height: 50px;
+  background: rgba(129, 126, 166, 0.2);
+  border: 1px solid #494661;
+  border-radius: 12px;
+  outline: none;
+  padding: 12px 20px;
+  color: #fff;
+}
+
+.error {
+  border-color: #e54369;
+}
+
+.error-message {
+  color: $clrError;
+  font-size: 10px;
+  margin-top: 5px;
+  margin-left: 10px;
 }
 
 .input-balance {
@@ -456,8 +722,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   height: 50px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .expected-title {
@@ -471,35 +737,6 @@ export default {
   height: 24px;
   margin-right: 10px;
   cursor: pointer;
-}
-
-.info {
-  width: 100%;
-  padding: 12px 10px 7px;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: 0 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(100px);
-  border-radius: 20px;
-  margin-top: 30px;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  font-size: 14px;
-  line-height: 21px;
-  color: rgba(255, 255, 255, 0.6);
-  padding-bottom: 5px;
-}
-
-.info-row:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-.info-text:nth-child(odd) {
-  max-width: 320px;
-  width: 100%;
 }
 
 .btn-wrap {
@@ -526,6 +763,18 @@ export default {
   -webkit-text-fill-color: transparent;
 }
 
+.caption {
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 18px;
+  display: flex;
+  text-align: center;
+  gap: 8px;
+  justify-content: center;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
 @media (max-width: 600px) {
   .bridge {
     padding: 30px 15px;
@@ -550,20 +799,6 @@ export default {
 
   .expected-value {
     text-align: right;
-  }
-
-  .info-row {
-    align-items: center;
-  }
-
-  .info-text:nth-child(odd) {
-    max-width: 70%;
-  }
-}
-
-@media (max-width: 375px) {
-  .info-text:nth-child(odd) {
-    max-width: 160px;
   }
 }
 </style>

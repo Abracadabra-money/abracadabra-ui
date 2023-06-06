@@ -5,6 +5,7 @@ import binanceIcon from "@/assets/images/networks/binance-icon.svg";
 import avalancheIcon from "@/assets/images/networks/avalanche-icon.png";
 import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
 import optimismIcon from "@/assets/images/networks/optimism-icon.svg";
+import moonriver from "@/assets/images/networks/moonriver.svg";
 
 export default {
   state: {
@@ -127,6 +128,18 @@ export default {
           chainName: "Optimism (mainnet)",
           rpcUrls: ["https://mainnet.optimism.io"],
           blockExplorerUrls: ["https://optimistic.etherscan.io"],
+        },
+      },
+      {
+        chainId: 1285,
+        name: "Moonriver",
+        rpc: "https://rpc.api.moonriver.moonbeam.network",
+        icon: moonriver,
+        switchData: {
+          chainId: "0x505",
+          chainName: "Moonriver",
+          rpcUrls: ["https://rpc.api.moonriver.moonbeam.network"],
+          blockExplorerUrls: ["https://moonriver.moonscan.io/"],
         },
       },
     ],

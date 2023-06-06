@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
   {
@@ -66,11 +66,15 @@ const routes = [
     name: "DeleverageId",
     component: () => import("@/views/borrow/Deleverage.vue"),
   },
-  // {
-  //   path: "/bridge",
-  //   name: "Bridge",
-  //   component: () => import("@/views/Bridge.vue"),
-  // },
+  {
+    path: "/beam",
+    name: "Bridge",
+    component: () => import("@/views/Bridge.vue"),
+  },
+  {
+    path: "/bridge",
+    redirect: "/beam",
+  },
   {
     path: "/farm",
     name: "MarketsFarm",
@@ -112,7 +116,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior() {
-    return { top: 0 }
+    return { top: 0 };
   },
 });
 
