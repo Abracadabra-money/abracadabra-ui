@@ -37,7 +37,7 @@
                   <span class="tag">Amount</span>
                   <span class="value">
                     <span class="eth">{{ config.mimAmount }} MIM</span>
-                    <span class="fiat">${{ config.mimAmount * mimPrice }}</span>
+                    <span class="fiat">${{ mimToUsd }}</span>
                   </span>
                 </li>
                 <li>
@@ -101,7 +101,7 @@
                   <span class="tag">You will receive</span>
                   <span class="value">
                     <span class="eth">{{ config.mimAmount }} MIM</span>
-                    <span class="fiat">${{ config.mimAmount * mimPrice }}</span>
+                    <span class="fiat">${{ mimToUsd }}</span>
                   </span>
                 </li>
                 <li>
@@ -147,6 +147,7 @@ import { ethers, providers } from "ethers";
 import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 import { mapGetters } from "vuex";
 import scanConfig from "@/utils/bridge/scanConfig.ts";
+import filters from "@/filters/index.js";
 
 export default {
   props: {
@@ -192,6 +193,10 @@ export default {
       return `${scanConfig[this.config.originChain.chainId].url}${
         this.config.transaction.hash
       }`;
+    },
+
+    mimToUsd() {
+      return filters.formatToFixed(+this.config.mimAmount * +this.mimPrice, 2);
     },
   },
 
