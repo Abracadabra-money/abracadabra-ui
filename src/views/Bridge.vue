@@ -2,7 +2,7 @@
   <div class="bridge-view">
     <div class="bridge" v-if="bridgeObject">
       <h3 class="title">
-        Bridge
+        Beam
         <div class="wallet-btn" :class="{ active: isShowInputAddress }">
           <img
             class="wallet-icon"
@@ -30,7 +30,7 @@
       />
       <div class="input-wrap">
         <div class="input-balance">
-          <p class="input-title">Token to bridge</p>
+          <p class="input-title">Token to beam</p>
           <div class="balance">
             <span>Balance: </span>
             <span>{{ formatTokenBalance(mimBalance) }}</span>
@@ -247,7 +247,7 @@ export default {
       if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
         return "Approve";
 
-      return "Bridge";
+      return "Beam";
     },
 
     mimBalance() {
@@ -332,11 +332,11 @@ export default {
         gasCost: filters.formatToFixed(this.getGasCost, 6),
         tokenToGas: filters.formatToFixed(
           +this.getGasCost - +this.startGasCost,
-          10
+          2
         ),
         destinationTokenAmount: filters.formatToFixed(
           this.destinationTokenAmount || "0.0",
-          10
+          2
         ),
         destinationSymbol: this.destinationTokenInfo.symbol,
         transaction: this.transaction,

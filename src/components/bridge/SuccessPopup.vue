@@ -50,18 +50,21 @@
                 <li class="convert-gas">
                   <span class="tag">Convert to gas token</span>
                   <span class="value">
-                    <span class="eth"
-                      >{{ config.tokenToGas }} {{ config.nativeSymbol }}</span
-                    >
-                    <span>
-                      <img
-                        src="@/assets/images/arrow_right.svg"
-                        class="convert-arrow"
-                      />
-                    </span>
-                    <span class="fiat"
-                      >{{ config.destinationTokenAmount }}
-                      {{ config.destinationSymbol }}</span
+                    <template v-if="isNone">None</template>
+                    <template v-else>
+                      <span class="eth"
+                        >{{ config.tokenToGas }} {{ config.nativeSymbol }}</span
+                      >
+                      <span>
+                        <img
+                          src="@/assets/images/arrow_right.svg"
+                          class="convert-arrow"
+                        />
+                      </span>
+                      <span class="fiat"
+                        >{{ config.destinationTokenAmount }}
+                        {{ config.destinationSymbol }}</span
+                      ></template
                     >
                   </span>
                 </li>
@@ -198,6 +201,10 @@ export default {
     mimToUsd() {
       return filters.formatToFixed(+this.config.mimAmount * +this.mimPrice, 2);
     },
+
+    isNone() {
+      return !+this.config.tokenToGas && !+this.config.destinationTokenAmount;
+    },
   },
 
   methods: {
@@ -254,9 +261,9 @@ export default {
   display: flex;
 }
 .check-line {
-  width: 25px;
-  height: 475px;
-  margin-top: 15px;
+  width: 20px;
+  height: 400px;
+  margin-top: 20px;
   margin-right: 22px;
 }
 .block-container {
@@ -341,7 +348,6 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
@@ -360,22 +366,6 @@ export default {
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
-}
-
-.convert-gas {
-  flex-direction: column;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-}
-
-.convert-arrow {
-  margin: 0 8px;
-}
-
-.convert-gas {
-  .value span {
-    margin: 0;
-  }
 }
 
 @media (max-width: 400px) {
