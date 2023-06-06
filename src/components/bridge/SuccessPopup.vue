@@ -111,7 +111,7 @@
                       >{{ config.destinationTokenAmount || "0.0" }}
                       {{ config.destinationSymbol }}</span
                     >
-                    <!-- <span class="fiat">$0.00</span> -->
+                    <span class="fiat">${{ destinationTokenUsd }}</span>
                   </span>
                 </li>
               </ul>
@@ -199,6 +199,14 @@ export default {
       return filters.formatToFixed(
         this.config.destinationTokenAmount || "0.0",
         3
+      );
+    },
+
+    destinationTokenUsd() {
+      return filters.formatToFixed(
+        this.config.destinationTokenAmount *
+          this.config.destinationTokenPrice || "0.0",
+        2
       );
     },
 

@@ -138,6 +138,7 @@ import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
 import filters from "@/filters/index.js";
 import chainSwitch from "@/mixins/chainSwitch";
 import notification from "@/helpers/notification/notification.js";
+import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { mapGetters } from "vuex";
 import { createBridgeConfig } from "@/helpers/bridge";
 import { approveToken } from "@/utils/approveHelpers.js";
@@ -166,6 +167,7 @@ export default {
       selectChain: false,
       startGasCost: 0,
       transaction: null,
+      destinationTokenPrice: null,
     };
   },
 
@@ -343,6 +345,7 @@ export default {
         destinationSymbol: this.destinationTokenInfo.symbol,
         transaction: this.transaction,
         destinationchain: this.destinationChain,
+        destinationTokenPrice: this.destinationTokenPrice,
       };
     },
   },
@@ -457,6 +460,8 @@ export default {
         "notifications/new",
         notification.pending
       );
+
+      this.destinationTokenPrice = await getNativeTokenPrice(this.toChainId);
 
       try {
         const parsedAmount = filters.formatToFixed(this.amount, 18);
