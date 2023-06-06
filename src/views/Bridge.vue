@@ -89,7 +89,12 @@
       </div>
 
       <p class="caption">
-        Powered By<img src="@/assets/images/bridge/layer-zero.png" alt="" />
+        <span>Powered By</span
+        ><img
+          class="caption-icon"
+          src="@/assets/images/bridge/layer-zero.svg"
+          alt=""
+        />
       </p>
     </div>
     <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
@@ -334,10 +339,7 @@ export default {
           +this.getGasCost - +this.startGasCost,
           2
         ),
-        destinationTokenAmount: filters.formatToFixed(
-          this.destinationTokenAmount || "0.0",
-          2
-        ),
+        destinationTokenAmount: this.destinationTokenAmount,
         destinationSymbol: this.destinationTokenInfo.symbol,
         transaction: this.transaction,
         destinationchain: this.destinationChain,
@@ -768,11 +770,20 @@ export default {
   font-size: 12px;
   line-height: 18px;
   display: flex;
-  text-align: center;
+  align-items: center;
   gap: 8px;
   justify-content: center;
+  text-align: center;
   letter-spacing: 0.025em;
   text-transform: uppercase;
+}
+
+.caption span {
+  margin-top: 2px;
+}
+
+.caption-icon {
+  max-width: 85px;
 }
 
 @media (max-width: 600px) {

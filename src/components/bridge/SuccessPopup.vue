@@ -62,7 +62,7 @@
                         />
                       </span>
                       <span class="fiat"
-                        >{{ config.destinationTokenAmount }}
+                        >{{ destinationTokenAmount }}
                         {{ config.destinationSymbol }}</span
                       ></template
                     >
@@ -109,9 +109,9 @@
                 </li>
                 <li>
                   <span class="tag"></span>
-                  <span class="value">
+                  <span class="value" v-if="config.destinationTokenAmount">
                     <span class="eth"
-                      >{{ config.destinationTokenAmount }}
+                      >{{ config.destinationTokenAmount || "0.0" }}
                       {{ config.destinationSymbol }}</span
                     >
                     <!-- <span class="fiat">$0.00</span> -->
@@ -148,7 +148,6 @@
 <script>
 import { ethers, providers } from "ethers";
 import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
-import { mapGetters } from "vuex";
 import scanConfig from "@/utils/bridge/scanConfig.ts";
 import filters from "@/filters/index.js";
 
@@ -172,17 +171,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ ensName: "getEnsName" }),
-
     sendFrom() {
-      if (this.ensName) return this.ensName;
       return `${this.config.sendFrom.slice(
         0,
         4
       )}...${this.config.sendFrom.slice(-3)}`;
     },
+
     sendTo() {
-      if (this.ensName) return this.ensName;
       return `${this.config.sendTo.slice(0, 4)}...${this.config.sendTo.slice(
         -3
       )}`;
@@ -200,6 +196,10 @@ export default {
 
     mimToUsd() {
       return filters.formatToFixed(+this.config.mimAmount * +this.mimPrice, 2);
+    },
+
+    destinationTokenAmount() {
+      return filters.formatToFixed(this.destinationTokenAmount || "0.0", 2);
     },
 
     isNone() {
