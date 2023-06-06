@@ -446,7 +446,7 @@ export default {
 
       return this.$ethers.utils.solidityPack(
         ["uint16", "uint256", "uint256", "address"],
-        [messageVersion, minGas, dstNativeAmount, this.account]
+        [messageVersion, minGas, dstNativeAmount, this.toAddress]
       );
     },
 
