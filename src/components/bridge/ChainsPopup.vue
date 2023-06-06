@@ -8,17 +8,19 @@
         alt="Close popup"
       />
       <p class="title">Select network</p>
-      <div class="networks-wrap">
-        <button
+      <div class="content-wrap">
+        <div
+          class="select-item"
+          :class="network.chainId === activeChain && selectChain && 'active'"
           v-for="(network, inx) in networksArr"
           :key="inx"
-          class="network"
-          :class="network.chainId === activeChain && 'active'"
           @click="enterChain(network.chainId)"
         >
-          <img class="network-image" :src="network.icon" alt="network" />
-          <span>{{ network.title }}</span>
-        </button>
+          <div class="description">
+            <img class="chain-icon" :src="network.icon" alt="Icon" />
+            <p>{{ network.title }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -42,6 +44,9 @@ export default {
 
     popupType: {
       type: String,
+    },
+    selectChain: {
+      type: Boolean,
     },
   },
 
@@ -76,9 +81,9 @@ export default {
 }
 
 .popup {
-  max-width: 400px;
+  max-width: 585px;
   width: 100%;
-  padding: 20px 20px 86px;
+  padding: 20px 20px 30px;
   background: #302e38;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
@@ -100,55 +105,46 @@ export default {
   line-height: 27px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 23px;
-  margin-bottom: 23px;
+  margin-bottom: 30px;
 }
 
-.networks-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+.content-wrap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
 }
 
-.network {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50px;
+.select-item {
+  max-width: 168px;
+  border: 2px solid transparent;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
   border-radius: 20px;
+  padding: 16px;
   cursor: pointer;
-  border: none;
-  color: white;
-  max-width: 170px;
-  width: 100%;
 }
 
-.network:not(:last-child) {
-  margin-bottom: 10px;
+.description {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.network-image {
-  height: 25px;
-  width: 25px;
-  margin-right: 8px;
+.chain-icon {
+  width: 60px;
+  height: 60px;
 }
 
-.selected {
-  position: relative;
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(118, 195, 245, 0.5);
+@media screen and (max-width: 500px) {
+  .content-wrap {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .active,
-.network:hover {
+.select-item:hover {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid #6678aa;
-}
-
-@media (max-width: 600px) {
-  .network {
-    max-width: 100%;
-  }
 }
 </style>
