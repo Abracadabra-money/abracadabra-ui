@@ -337,7 +337,7 @@ export default {
         gasCost: filters.formatToFixed(this.getGasCost, 6),
         tokenToGas: filters.formatToFixed(
           +this.getGasCost - +this.startGasCost,
-          2
+          3
         ),
         destinationTokenAmount: this.destinationTokenAmount,
         destinationSymbol: this.destinationTokenInfo.symbol,

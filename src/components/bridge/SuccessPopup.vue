@@ -52,19 +52,16 @@
                   <span class="value">
                     <template v-if="isNone">None</template>
                     <template v-else>
-                      <span class="eth"
-                        >{{ config.tokenToGas }} {{ config.nativeSymbol }}</span
-                      >
+                      <span class="eth">{{ originalTokenAmount }}</span>
                       <span>
                         <img
                           src="@/assets/images/arrow_right.svg"
                           class="convert-arrow"
                         />
                       </span>
-                      <span class="fiat"
-                        >{{ destinationTokenAmount }}
-                        {{ config.destinationSymbol }}</span
-                      ></template
+                      <span class="fiat">{{
+                        convertTokenAmount
+                      }}</span></template
                     >
                   </span>
                 </li>
@@ -199,11 +196,25 @@ export default {
     },
 
     destinationTokenAmount() {
-      return filters.formatToFixed(this.destinationTokenAmount || "0.0", 2);
+      return filters.formatToFixed(
+        this.config.destinationTokenAmount || "0.0",
+        3
+      );
     },
 
     isNone() {
       return !+this.config.tokenToGas && !+this.config.destinationTokenAmount;
+    },
+
+    originalTokenAmount() {
+      if (!+this.config.tokenToGas) return `<0.001 ${this.config.nativeSymbol}`;
+      return `${this.config.tokenToGas} ${this.config.nativeSymbol}`;
+    },
+
+    convertTokenAmount() {
+      if (!+this.destinationTokenAmount)
+        return `<0.001 ${this.config.destinationSymbol}`;
+      return `${this.destinationTokenAmount} ${this.config.destinationSymbol}`;
     },
   },
 
