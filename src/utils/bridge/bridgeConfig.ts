@@ -158,7 +158,7 @@ const config: Array<BridgeConfig> = [
   },
   {
     chainId: 1285,
-    chainName: "Moonrover",
+    chainName: "Moonriver",
     chainIcon: moonriver,
     destinationMax: 8,
     contract: {

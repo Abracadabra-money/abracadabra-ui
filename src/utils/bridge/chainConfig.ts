@@ -60,7 +60,7 @@ const config: Array<ChainConfig> = [
     lzChainId: 112,
   },
   {
-    name: "Moonrover",
+    name: "Moonriver",
     icon: moonriver,
     chainId: 1285,
     lzChainId: 167,

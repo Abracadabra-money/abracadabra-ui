@@ -251,7 +251,7 @@ export default {
     },
 
     mimBalance() {
-      return this.selectChain ? this.bridgeObject?.balance || 0 : 0;
+      return this.bridgeObject?.balance || 0;
     },
 
     disableBtn() {
@@ -332,11 +332,15 @@ export default {
         gasCost: filters.formatToFixed(this.getGasCost, 6),
         tokenToGas: filters.formatToFixed(
           +this.getGasCost - +this.startGasCost,
-          6
+          10
         ),
-        destinationTokenAmount: this.destinationTokenAmount || "0.0",
+        destinationTokenAmount: filters.formatToFixed(
+          this.destinationTokenAmount || "0.0",
+          10
+        ),
         destinationSymbol: this.destinationTokenInfo.symbol,
         transaction: this.transaction,
+        destinationchain: this.destinationChain,
       };
     },
   },
@@ -373,6 +377,7 @@ export default {
         this.destinationTokenAmount = "";
         this.estimateSendFee = 0;
         this.toChainId = chainId;
+        this.startGasCost = 0;
         if (!this.startGasCost) {
           const startGasCost = await this.getFees();
           this.startGasCost = this.$ethers.utils.formatEther(startGasCost[0]);

@@ -22,9 +22,9 @@
                 <h3 class="address">{{ sendFrom }}</h3>
               </span>
               <span class="link-block">
-                <a :href="fromScanUrl" target="_blank" class="link-text">{{
-                  fromScanTitle
-                }}</a>
+                <a :href="fromScanUrl" target="_blank" class="link-text"
+                  >Explorer</a
+                >
                 <img
                   src="@/assets/images/bridge/arrow-link.png"
                   class="arrow-link"
@@ -43,13 +43,11 @@
                 <li>
                   <span class="tag">Beaming fee</span>
                   <span class="value">
-                    <span class="eth"
-                      >{{ config.gasCost }} {{ config.nativeSymbol }}</span
-                    >
+                    <span class="eth">0</span>
                     <!-- <span class="fiat">$0.00</span> -->
                   </span>
                 </li>
-                <li>
+                <li class="convert-gas">
                   <span class="tag">Convert to gas token</span>
                   <span class="value">
                     <span class="eth"
@@ -79,10 +77,12 @@
                 <div class="token-info">
                   <div class="token-logo">
                     <img
-                      src="@/assets/images/tokens/AVAX.png"
+                      :src="config.destinationchain.icon"
                       class="token-icon"
                     />
-                    <span class="token-symbol">avax</span>
+                    <span class="token-symbol">{{
+                      config.destinationchain.title
+                    }}</span>
                   </div>
                 </div>
                 <h3 class="address">{{ sendTo }}</h3>
@@ -111,7 +111,6 @@
                       >{{ config.destinationTokenAmount }}
                       {{ config.destinationSymbol }}</span
                     >
-
                     <!-- <span class="fiat">$0.00</span> -->
                   </span>
                 </li>
@@ -130,7 +129,7 @@
             </div>
             <div class="lower">
               <span class="link-block">
-                <a :href="link" target="_blank" class="link-text">LayerZwero</a>
+                <a :href="link" target="_blank" class="link-text">LayerZero</a>
                 <img
                   src="@/assets/images/bridge/arrow-link.png"
                   class="arrow-link"
@@ -218,7 +217,7 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="scss" scoped>
 .wrap {
   margin: auto;
   margin-bottom: 20px;
@@ -250,9 +249,9 @@ export default {
   display: flex;
 }
 .check-line {
-  width: 20px;
-  height: 400px;
-  margin-top: 20px;
+  width: 25px;
+  height: 475px;
+  margin-top: 15px;
   margin-right: 22px;
 }
 .block-container {
@@ -337,7 +336,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
+  margin-bottom: 5px;
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
@@ -356,6 +355,22 @@ export default {
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
+}
+
+.convert-gas {
+  flex-direction: column;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
+.convert-arrow {
+  margin: 0 8px;
+}
+
+.convert-gas {
+  .value span {
+    margin: 0;
+  }
 }
 
 @media (max-width: 400px) {
