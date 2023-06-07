@@ -174,6 +174,7 @@ import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 import scanConfig from "@/utils/bridge/scanConfig.ts";
 import filters from "@/filters/index.js";
 import BaseLoader from "@/components/base/BaseLoader.vue";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
@@ -210,19 +211,20 @@ export default {
     },
 
     sendFromCheck() {
-      if (this.fromScanUrl) return `src/assets/images/bridge/complete.png`;
-      return `src/assets/images/bridge/check.png`;
+      if (this.fromScanUrl)
+        return useImage("assets/images/bridge/complete.png");
+      return useImage("assets/images/bridge/check.png");
     },
 
     sendToCheck() {
-      if (this.dstScanUrl) return `src/assets/images/bridge/complete.png`;
-      return `src/assets/images/bridge/check.png`;
+      if (this.dstScanUrl) return useImage("assets/images/bridge/complete.png");
+      return useImage("assets/images/bridge/check.png");
     },
 
     transactionCheck() {
       if (this.config.transactionInfo)
-        return `src/assets/images/bridge/transaction-complete.png`;
-      return `src/assets/images/bridge/transaction-check.png`;
+        return useImage("assets/images/bridge/transaction-complete.png");
+      return useImage("assets/images/bridge/transaction-check.png");
     },
 
     transactionText() {
