@@ -9,8 +9,17 @@
         </div>
 
         <div class="balance">
-          <span class="balance-tag">Balance</span>
-          <span class="balance-value">{{ formatBalance(info.balance) }}</span>
+          <span class="balance-tag">{{ info.stakeTokenName }} Balance</span>
+          <span class="balance-value">{{
+            formatBalance(info.stakeBalance)
+          }}</span>
+        </div>
+
+        <div class="balance">
+          <span class="balance-tag">{{ info.mainTokenName }} Balance</span>
+          <span class="balance-value">{{
+            formatBalance(info.mainBalance)
+          }}</span>
         </div>
 
         <p class="rate">1 mLVL = {{ info.rate }} LVL</p>
@@ -47,19 +56,28 @@ export default {
         {
           icon: seniorIcon,
           title: "Senior Tranches",
-          balance: senior.stakeToken.formatBalance,
+          stakeBalance: senior.stakeToken.formatBalance,
+          mainBalance: senior.mainToken.formatBalance,
+          stakeTokenName: senior.stakeToken.name,
+          mainTokenName: senior.mainToken.name,
           rate: this.mSeniorRate,
         },
         {
           icon: mezzanineIcon,
           title: "Mezzanine Tranches",
-          balance: mezzanine.stakeToken.formatBalance,
+          stakeBalance: mezzanine.stakeToken.formatBalance,
+          mainBalance: mezzanine.mainToken.formatBalance,
+          stakeTokenName: mezzanine.stakeToken.name,
+          mainTokenName: mezzanine.mainToken.name,
           rate: this.mMezzanineRate,
         },
         {
           icon: juniorIcon,
           title: "Junior Tranches",
-          balance: junior.stakeToken.formatBalance,
+          stakeBalance: junior.stakeToken.formatBalance,
+          mainBalance: junior.mainToken.formatBalance,
+          stakeTokenName: junior.stakeToken.name,
+          mainTokenName: junior.mainToken.name,
           rate: this.mJuniorRate,
         },
       ];
@@ -88,7 +106,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
-  height: 98px;
+  height: 116px;
   padding: 8px;
   background: #2b2b3c;
   border: 1px solid rgba(255, 255, 255, 0.06);
