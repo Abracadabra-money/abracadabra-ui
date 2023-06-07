@@ -58,6 +58,7 @@
 
 <script>
 import BaseButton from "@/components/base/BaseButton.vue";
+import { getEstimatedGasCost } from "@/helpers/bridge/getEstimatedGasCost.ts";
 
 export default {
   props: {
@@ -82,6 +83,7 @@ export default {
   data() {
     return {
       inputValue: this.value,
+      gasCost: null,
     };
   },
 
@@ -96,13 +98,10 @@ export default {
         this.$emit("errorSettings", true);
         return `Error max value ${this.max}`;
       }
-      if (
-        +this.config.gasCost > +this.config.nativeTokenBalance &&
-        this.inputValue
-      ) {
+      if (+this.gasCost > +this.config.nativeTokenBalance && this.inputValue) {
         this.$emit("errorSettings", true);
         return `Not enough gas ${
-          +this.config.gasCost - +this.config.nativeTokenBalance
+          +this.gasCost - +this.config.nativeTokenBalance
         } ${this.config.nativeSymbol} needed`;
       }
       this.$emit("errorSettings", false);
@@ -111,13 +110,13 @@ export default {
   },
 
   watch: {
-    inputValue(value, oldValue) {
-      if (+this.inputValue <= +this.max)
-        this.$emit("changeSettings", this.inputValue);
+    async inputValue(value, oldValue) {
       if (isNaN(value)) {
         this.inputValue = oldValue;
         return false;
       }
+
+      this.gasCost = await this.updateGasCost(value);
     },
   },
 
@@ -134,6 +133,18 @@ export default {
 
     updateInputValue(value) {
       this.inputValue = value;
+    },
+
+    async updateGasCost(value) {
+      const gasCost = await getEstimatedGasCost(
+        this.config.contract,
+        this.config.address,
+        this.config.dstChainId,
+        value
+      );
+
+      if (!gasCost[0]) return 0;
+      return this.$ethers.utils.formatEther(gasCost[0]);
     },
   },
 

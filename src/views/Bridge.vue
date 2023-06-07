@@ -313,6 +313,9 @@ export default {
         gasCost: this.getGasCost,
         destinationSymbol: this.destinationTokenInfo.symbol,
         nativeSymbol: this.nativeTokenInfo.symbol,
+        contract: this.bridgeObject.contractInstance,
+        address: this.toAddress,
+        dstChainId: this.remoteLzChainId,
       };
     },
 
