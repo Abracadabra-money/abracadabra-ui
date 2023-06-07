@@ -66,8 +66,10 @@
         <p class="expected-value">{{ amount || "0.0" }} MIM</p>
       </div>
       <div class="expected">
-        <p class="expected-title">Native token on destination:</p>
-        <p class="expected-value">
+        <p class="expected-title pointer" @click="isSettingsOpened = true">
+          Gas on destination:
+        </p>
+        <p class="expected-value pointer" @click="isSettingsOpened = true">
           {{ this.destinationTokenAmount || "0.0" }}
           {{ destinationTokenInfo.symbol }}
         </p>
@@ -89,7 +91,12 @@
       </div>
 
       <p class="caption">
-        Powered By<img src="@/assets/images/bridge/layer-zero.png" alt="" />
+        <span>Powered By</span
+        ><img
+          class="caption-icon"
+          src="@/assets/images/bridge/layer-zero.svg"
+          alt=""
+        />
       </p>
     </div>
     <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
@@ -133,14 +140,18 @@ import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
 import filters from "@/filters/index.js";
 import chainSwitch from "@/mixins/chainSwitch";
 import notification from "@/helpers/notification/notification.js";
+import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { mapGetters } from "vuex";
 import { createBridgeConfig } from "@/helpers/bridge";
 import { approveToken } from "@/utils/approveHelpers.js";
 import { getTokenInfo } from "@/helpers/getTokenInfo";
 import { nextTick } from "vue";
+import { waitForMessageReceived } from "@layerzerolabs/scan-client";
+import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
 
 export default {
   mixins: [chainSwitch],
+  
   data() {
     return {
       acceptedNetworks: [1, 10, 56, 137, 250, 1285, 42161, 43114],
@@ -161,6 +172,9 @@ export default {
       selectChain: false,
       startGasCost: 0,
       transaction: null,
+      destinationTokenPrice: null,
+      transactionInfo: null,
+      destinationTokenMax: 0,
     };
   },
 
@@ -226,6 +240,12 @@ export default {
       )?.lzChainId;
 
       return this.$ethers.BigNumber.from(lzChainId);
+    },
+
+    dstChainId() {
+      return this.bridgeObject.chainsInfo.find(
+        (item) => item.chainId === this.targetToChain
+      )?.lzChainId;
     },
 
     destinationChain() {
@@ -298,20 +318,15 @@ export default {
         gasCost: this.getGasCost,
         destinationSymbol: this.destinationTokenInfo.symbol,
         nativeSymbol: this.nativeTokenInfo.symbol,
+        contract: this.bridgeObject.contractInstance,
+        address: this.toAddress,
+        dstChainId: this.remoteLzChainId,
       };
     },
 
     getGasCost() {
       if (!this.estimateSendFee[0]) return 0;
       return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
-    },
-
-    destinationTokenMax() {
-      return (
-        this.bridgeObject.fromChains.find(
-          (chain) => chain.chainId === this.targetToChain
-        )?.destinationMax || "0"
-      );
     },
 
     destinationTokenDefaultValue() {
@@ -332,15 +347,14 @@ export default {
         gasCost: filters.formatToFixed(this.getGasCost, 6),
         tokenToGas: filters.formatToFixed(
           +this.getGasCost - +this.startGasCost,
-          2
+          3
         ),
-        destinationTokenAmount: filters.formatToFixed(
-          this.destinationTokenAmount || "0.0",
-          2
-        ),
+        destinationTokenAmount: this.destinationTokenAmount,
         destinationSymbol: this.destinationTokenInfo.symbol,
         transaction: this.transaction,
         destinationchain: this.destinationChain,
+        destinationTokenPrice: this.destinationTokenPrice,
+        transactionInfo: this.transactionInfo,
       };
     },
   },
@@ -378,6 +392,12 @@ export default {
         this.estimateSendFee = 0;
         this.toChainId = chainId;
         this.startGasCost = 0;
+        this.destinationTokenMax = await getDstTokenMax(
+          this.bridgeObject.contractInstance,
+          this.signer,
+          this.dstChainId
+        );
+
         if (!this.startGasCost) {
           const startGasCost = await this.getFees();
           this.startGasCost = this.$ethers.utils.formatEther(startGasCost[0]);
@@ -456,6 +476,8 @@ export default {
         notification.pending
       );
 
+      this.destinationTokenPrice = await getNativeTokenPrice(this.toChainId);
+
       try {
         const parsedAmount = filters.formatToFixed(this.amount, 18);
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
@@ -495,11 +517,15 @@ export default {
           }
         );
 
-        await tx.wait();
         await this.$store.commit("notifications/delete", notificationId);
+        this.isSuccessPopup = true;
+        await tx.wait();
         this.transaction = tx;
         this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
-        this.isSuccessPopup = true;
+        this.transactionInfo = await waitForMessageReceived(
+          this.dstChainId,
+          tx.hash
+        );
       } catch (error) {
         console.log("Bridge Error:", error);
 
@@ -768,11 +794,24 @@ export default {
   font-size: 12px;
   line-height: 18px;
   display: flex;
-  text-align: center;
+  align-items: center;
   gap: 8px;
   justify-content: center;
+  text-align: center;
   letter-spacing: 0.025em;
   text-transform: uppercase;
+}
+
+.caption span {
+  margin-top: 2px;
+}
+
+.caption-icon {
+  max-width: 85px;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {
