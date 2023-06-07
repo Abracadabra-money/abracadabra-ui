@@ -47,7 +47,6 @@
                     <span class="tag">Beaming fee</span>
                     <span class="value">
                       <span class="eth">0</span>
-                      <!-- <span class="fiat">$0.00</span> -->
                     </span>
                   </li>
                   <li class="convert-gas">
@@ -55,20 +54,16 @@
                     <span class="value">
                       <template v-if="isNone">None</template>
                       <template v-else>
-                        <span class="eth"
-                          >{{ config.tokenToGas }}
-                          {{ config.nativeSymbol }}</span
-                        >
+                        <span class="eth">{{ originalTokenAmount }}</span>
                         <span>
                           <img
                             src="@/assets/images/arrow_right.svg"
                             class="convert-arrow"
                           />
                         </span>
-                        <span class="fiat"
-                          >{{ config.destinationTokenAmount }}
-                          {{ config.destinationSymbol }}</span
-                        ></template
+                        <span class="fiat">{{
+                          convertTokenAmount
+                        }}</span></template
                       >
                     </span>
                   </li>
@@ -98,13 +93,16 @@
                   </div>
                   <h3 class="address">{{ sendTo }}</h3>
                 </span>
-                <!-- <span class="link-block">
-                <a href="" class="link-text">snowtrace.io</a>
-                <img
-                  src="@/assets/images/bridge/arrow-link.png"
-                  class="arrow-link"
-                />
-              </span> -->
+
+                <span class="link-block" v-if="dstScanUrl">
+                  <a class="link-text" :href="dstScanUrl" target="_blank"
+                    >Explorer</a
+                  >
+                  <img
+                    src="@/assets/images/bridge/arrow-link.png"
+                    class="arrow-link"
+                  />
+                </span>
               </div>
               <div class="lower">
                 <ul class="transaction-info">
@@ -119,10 +117,10 @@
                     <span class="tag"></span>
                     <span class="value">
                       <span class="eth"
-                        >{{ config.destinationTokenAmount }}
+                        >{{ config.destinationTokenAmount || "0.0" }}
                         {{ config.destinationSymbol }}</span
                       >
-                      <!-- <span class="fiat">$0.00</span> -->
+                      <span class="fiat">${{ destinationTokenUsd }}</span>
                     </span>
                   </li>
                 </ul>
@@ -242,6 +240,14 @@ export default {
       if (!+this.destinationTokenAmount)
         return `<0.001 ${this.config.destinationSymbol}`;
       return `${this.destinationTokenAmount} ${this.config.destinationSymbol}`;
+    },
+
+    dstScanUrl() {
+      console.log("this.config.transactionInfo", this.config.transactionInfo);
+      if (!this.config.transactionInfo) return "";
+      return `${scanConfig[this.config.destinationchain.chainId].url}${
+        this.config.transactionInfo.dstTxHash
+      }`;
     },
   },
 

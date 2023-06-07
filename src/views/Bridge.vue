@@ -144,6 +144,7 @@ import { createBridgeConfig } from "@/helpers/bridge";
 import { approveToken } from "@/utils/approveHelpers.js";
 import { getTokenInfo } from "@/helpers/getTokenInfo";
 import { nextTick } from "vue";
+import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 
 export default {
   mixins: [chainSwitch],
@@ -168,6 +169,7 @@ export default {
       startGasCost: 0,
       transaction: null,
       destinationTokenPrice: null,
+      transactionInfo: null,
     };
   },
 
@@ -233,6 +235,12 @@ export default {
       )?.lzChainId;
 
       return this.$ethers.BigNumber.from(lzChainId);
+    },
+
+    dstChainId() {
+      return this.bridgeObject.chainsInfo.find(
+        (item) => item.chainId === this.targetToChain
+      )?.lzChainId;
     },
 
     destinationChain() {
@@ -346,6 +354,7 @@ export default {
         transaction: this.transaction,
         destinationchain: this.destinationChain,
         destinationTokenPrice: this.destinationTokenPrice,
+        transactionInfo: this.transactionInfo,
       };
     },
   },
@@ -507,6 +516,10 @@ export default {
         this.transaction = tx;
         this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
         this.isSuccessPopup = true;
+        this.transactionInfo = await waitForMessageReceived(
+          this.dstChainId,
+          tx.hash
+        );
       } catch (error) {
         console.log("Bridge Error:", error);
 
