@@ -14,7 +14,6 @@ export type BridgeConfig = {
   chainId: number;
   chainName: string;
   chainIcon: string;
-  destinationMax: number;
   contract: {
     address: string;
     abi: any;
@@ -27,7 +26,6 @@ const config: Array<BridgeConfig> = [
     chainId: 1,
     chainName: "Ethereum",
     chainIcon: ethIcon,
-    destinationMax: 0.24,
     contract: {
       address: "0x439a5f0f5E8d149DDA9a0Ca367D4a8e4D6f83C10",
       abi: abi.LzProxyOFTV2,
@@ -46,7 +44,6 @@ const config: Array<BridgeConfig> = [
     chainId: 56,
     chainName: "BSC",
     chainIcon: binanceIcon,
-    destinationMax: 1.32,
     contract: {
       address: "0x41D5A04B4e03dC27dC1f5C5A576Ad2187bc601Af",
       abi: abi.LzIndirectOFTV2,
@@ -65,7 +62,6 @@ const config: Array<BridgeConfig> = [
     chainId: 42161,
     chainName: "Arbitrum",
     chainIcon: arbitrumIcon,
-    destinationMax: 0.24,
     contract: {
       address: "0x957A8Af7894E76e16DB17c2A913496a4E60B7090",
       abi: abi.LzIndirectOFTV2,
@@ -84,7 +80,6 @@ const config: Array<BridgeConfig> = [
     chainId: 137,
     chainName: "Polygon",
     chainIcon: polygonIcon,
-    destinationMax: 681,
     contract: {
       address: "0xca0d86afc25c57a6d2aCdf331CaBd4C9CEE05533",
       abi: abi.LzIndirectOFTV2,
@@ -103,7 +98,6 @@ const config: Array<BridgeConfig> = [
     chainId: 10,
     chainName: "Optimism",
     chainIcon: optimismIcon,
-    destinationMax: 0.24,
     contract: {
       address: "0x48686c24697fe9042531B64D792304e514E74339",
       abi: abi.LzIndirectOFTV2,
@@ -122,7 +116,6 @@ const config: Array<BridgeConfig> = [
     chainId: 43114,
     chainName: "Avalanche",
     chainIcon: avalancheIcon,
-    destinationMax: 18.47,
     contract: {
       address: "0xb3a66127ccb143bfb01d3aecd3ce9d17381b130d",
       abi: abi.LzIndirectOFTV2,
@@ -141,7 +134,6 @@ const config: Array<BridgeConfig> = [
     chainId: 250,
     chainName: "Fantom",
     chainIcon: fantomIcon,
-    destinationMax: 631,
     contract: {
       address: "0xc5c01568a3B5d8c203964049615401Aaf0783191",
       abi: abi.LzIndirectOFTV2,
@@ -160,7 +152,6 @@ const config: Array<BridgeConfig> = [
     chainId: 1285,
     chainName: "Moonriver",
     chainIcon: moonriver,
-    destinationMax: 8,
     contract: {
       address: "0xeF2dBDfeC54c466F7Ff92C9c5c75aBB6794f0195",
       abi: abi.LzIndirectOFTV2,
