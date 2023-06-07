@@ -1,14 +1,14 @@
 <template>
   <div class="wrap">
     <div class="title-container">
-      <h1 class="popup-title">Success</h1>
+      <h1 class="popup-title">Transaction overview</h1>
     </div>
     <div class="popup-content">
       <div class="blocks">
         <div class="block-container">
           <h2 class="block-title">
-            <img src="@/assets/images/bridge/check.png" class="check" /> Send
-            From
+            <img :src="sendFromCheck" class="check" />
+            Send From
           </h2>
           <div class="box-wrap">
             <div class="block-content-box">
@@ -74,7 +74,7 @@
         </div>
         <div class="block-container">
           <h2 class="block-title">
-            <img src="@/assets/images/bridge/check.png" class="check" /> Send To
+            <img :src="sendToCheck" class="check" /> Send To
           </h2>
           <div class="box-wrap">
             <div class="block-content-box">
@@ -130,7 +130,7 @@
         </div>
         <div class="block-container">
           <h2 class="block-title">
-            <img src="@/assets/images/bridge/check.png" class="check" />
+            <img :src="transactionCheck" class="check" />
             Transaction processing
           </h2>
           <div class="box-wrap">
@@ -181,6 +181,9 @@ export default {
   data() {
     return {
       mimPrice: 1,
+      sendFromComplete: false,
+      sendToComplete: false,
+      transactionComplete: false,
     };
   },
 
@@ -197,7 +200,19 @@ export default {
         -3
       )}`;
     },
-
+    sendFromCheck() {
+      if (this.sendFromComplete) return `src/assets/images/bridge/complete.png`;
+      return `src/assets/images/bridge/check.png`;
+    },
+    sendToCheck() {
+      if (this.sendToComplete) return `src/assets/images/bridge/complete.png`;
+      return `src/assets/images/bridge/check.png`;
+    },
+    transactionCheck() {
+      if (this.transactionComplete)
+        return `src/assets/images/bridge/transaction-complete.png`;
+      return `src/assets/images/bridge/transaction-check.png`;
+    },
     fromScanTitle() {
       return scanConfig[this.config.originChain.chainId].name;
     },
@@ -323,13 +338,24 @@ export default {
     padding-bottom: 10px;
   }
 }
-.block-container:not(:last-child) {
+.block-container:first-child {
   .box-wrap {
     border-left: 1px dashed rgba(255, 255, 255, 0.8);
   }
 }
+
+.block-container:last-child {
+  .block-title {
+  }
+  .check {
+    position: static;
+    margin-right: 10.5px;
+  }
+}
 .block-title {
   position: relative;
+  display: flex;
+  align-items: center;
   margin-left: 32px;
   margin-bottom: 8px;
   font-weight: 600;
@@ -338,6 +364,7 @@ export default {
   letter-spacing: 0.025em;
   color: #ffffff;
 }
+
 .block-content-box {
   padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -430,9 +457,6 @@ export default {
 }
 
 @media (max-width: 400px) {
-  .check {
-    display: none;
-  }
   .block-title {
     margin-left: 0;
   }
@@ -440,6 +464,11 @@ export default {
     .box-wrap {
       padding-left: 0;
       border-left: none !important;
+    }
+  }
+  .block-container:not(:last-child) {
+    .check {
+      display: none;
     }
   }
   .upper {
