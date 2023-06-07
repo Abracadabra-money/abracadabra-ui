@@ -4,137 +4,156 @@
       <h1 class="popup-title">Success</h1>
     </div>
     <div class="popup-content">
-      <img src="@/assets/images/bridge/Check-line.png" class="check-line" />
       <div class="blocks">
         <div class="block-container">
-          <h2 class="block-title">Send From</h2>
-          <div class="block-content-box">
-            <div class="upper">
-              <span class="logo-address">
-                <div class="token-info">
-                  <div class="token-logo">
-                    <img :src="config.originChain.icon" class="token-icon" />
-                    <span class="token-symbol">{{
-                      config.originChain.title
-                    }}</span>
+          <h2 class="block-title">
+            <img src="@/assets/images/bridge/check.png" class="check" /> Send
+            From
+          </h2>
+          <div class="box-wrap">
+            <div class="block-content-box">
+              <div class="upper">
+                <span class="logo-address">
+                  <div class="token-info">
+                    <div class="token-logo">
+                      <img :src="config.originChain.icon" class="token-icon" />
+                      <span class="token-symbol">{{
+                        config.originChain.title
+                      }}</span>
+                    </div>
                   </div>
-                </div>
-                <h3 class="address">{{ sendFrom }}</h3>
-              </span>
-              <span class="link-block">
-                <a :href="fromScanUrl" target="_blank" class="link-text"
-                  >Explorer</a
-                >
-                <img
-                  src="@/assets/images/bridge/arrow-link.png"
-                  class="arrow-link"
-                />
-              </span>
-            </div>
-            <div class="lower">
-              <ul class="transaction-info">
-                <li>
-                  <span class="tag">Amount</span>
-                  <span class="value">
-                    <span class="eth">{{ config.mimAmount }} MIM</span>
-                    <span class="fiat">${{ mimToUsd }}</span>
-                  </span>
-                </li>
-                <li>
-                  <span class="tag">Beaming fee</span>
-                  <span class="value">
-                    <span class="eth">0</span>
-                    <!-- <span class="fiat">$0.00</span> -->
-                  </span>
-                </li>
-                <li class="convert-gas">
-                  <span class="tag">Convert to gas token</span>
-                  <span class="value">
-                    <template v-if="isNone">None</template>
-                    <template v-else>
-                      <span class="eth">{{ originalTokenAmount }}</span>
-                      <span>
-                        <img
-                          src="@/assets/images/arrow_right.svg"
-                          class="convert-arrow"
-                        />
-                      </span>
-                      <span class="fiat">{{
-                        convertTokenAmount
-                      }}</span></template
-                    >
-                  </span>
-                </li>
-              </ul>
+                  <h3 class="address">{{ sendFrom }}</h3>
+                </span>
+                <span class="link-block">
+                  <a :href="fromScanUrl" target="_blank" class="link-text"
+                    >Explorer</a
+                  >
+                  <img
+                    src="@/assets/images/bridge/arrow-link.png"
+                    class="arrow-link"
+                  />
+                </span>
+              </div>
+              <div class="lower">
+                <ul class="transaction-info">
+                  <li>
+                    <span class="tag">Amount</span>
+                    <span class="value">
+                      <span class="eth">{{ config.mimAmount }} MIM</span>
+                      <span class="fiat">${{ mimToUsd }}</span>
+                    </span>
+                  </li>
+                  <li>
+                    <span class="tag">Beaming fee</span>
+                    <span class="value">
+                      <span class="eth">0</span>
+                      <!-- <span class="fiat">$0.00</span> -->
+                    </span>
+                  </li>
+                  <li class="convert-gas">
+                    <span class="tag">Convert to gas token</span>
+                    <span class="value">
+                      <template v-if="isNone">None</template>
+                      <template v-else>
+                        <span class="eth"
+                          >{{ config.tokenToGas }}
+                          {{ config.nativeSymbol }}</span
+                        >
+                        <span>
+                          <img
+                            src="@/assets/images/arrow_right.svg"
+                            class="convert-arrow"
+                          />
+                        </span>
+                        <span class="fiat"
+                          >{{ config.destinationTokenAmount }}
+                          {{ config.destinationSymbol }}</span
+                        ></template
+                      >
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
         <div class="block-container">
-          <h2 class="block-title">Send To</h2>
-          <div class="block-content-box">
-            <div class="upper">
-              <span class="logo-address">
-                <div class="token-info">
-                  <div class="token-logo">
-                    <img
-                      :src="config.destinationchain.icon"
-                      class="token-icon"
-                    />
-                    <span class="token-symbol">{{
-                      config.destinationchain.title
-                    }}</span>
+          <h2 class="block-title">
+            <img src="@/assets/images/bridge/check.png" class="check" /> Send To
+          </h2>
+          <div class="box-wrap">
+            <div class="block-content-box">
+              <div class="upper">
+                <span class="logo-address">
+                  <div class="token-info">
+                    <div class="token-logo">
+                      <img
+                        :src="config.destinationchain.icon"
+                        class="token-icon"
+                      />
+                      <span class="token-symbol">{{
+                        config.destinationchain.title
+                      }}</span>
+                    </div>
                   </div>
-                </div>
-                <h3 class="address">{{ sendTo }}</h3>
-              </span>
-              <!-- <span class="link-block">
+                  <h3 class="address">{{ sendTo }}</h3>
+                </span>
+                <!-- <span class="link-block">
                 <a href="" class="link-text">snowtrace.io</a>
                 <img
                   src="@/assets/images/bridge/arrow-link.png"
                   class="arrow-link"
                 />
               </span> -->
-            </div>
-            <div class="lower">
-              <ul class="transaction-info">
-                <li>
-                  <span class="tag">You will receive</span>
-                  <span class="value">
-                    <span class="eth">{{ config.mimAmount }} MIM</span>
-                    <span class="fiat">${{ mimToUsd }}</span>
-                  </span>
-                </li>
-                <li>
-                  <span class="tag"></span>
-                  <span class="value" v-if="config.destinationTokenAmount">
-                    <span class="eth"
-                      >{{ config.destinationTokenAmount || "0.0" }}
-                      {{ config.destinationSymbol }}</span
-                    >
-                    <span class="fiat">${{ destinationTokenUsd }}</span>
-                  </span>
-                </li>
-              </ul>
+              </div>
+              <div class="lower">
+                <ul class="transaction-info">
+                  <li>
+                    <span class="tag">You will receive</span>
+                    <span class="value">
+                      <span class="eth">{{ config.mimAmount }} MIM</span>
+                      <span class="fiat">${{ mimToUsd }}</span>
+                    </span>
+                  </li>
+                  <li>
+                    <span class="tag"></span>
+                    <span class="value">
+                      <span class="eth"
+                        >{{ config.destinationTokenAmount }}
+                        {{ config.destinationSymbol }}</span
+                      >
+                      <!-- <span class="fiat">$0.00</span> -->
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
         <div class="block-container">
-          <h2 class="block-title">Transaction processing</h2>
-          <div class="block-content-box">
-            <div class="upper">
-              <p>
-                Transaction is processing. You may see it in the LayerZero
-                explorer
-              </p>
-            </div>
-            <div class="lower">
-              <span class="link-block">
-                <a :href="link" target="_blank" class="link-text">LayerZero</a>
-                <img
-                  src="@/assets/images/bridge/arrow-link.png"
-                  class="arrow-link"
-                />
-              </span>
+          <h2 class="block-title">
+            <img src="@/assets/images/bridge/check.png" class="check" />
+            Transaction processing
+          </h2>
+          <div class="box-wrap">
+            <div class="block-content-box">
+              <div class="upper">
+                <p>
+                  Transaction is processing. You may see it in the LayerZero
+                  explorer
+                </p>
+              </div>
+              <div class="lower">
+                <span class="link-block">
+                  <a :href="link" target="_blank" class="link-text"
+                    >LayerZero</a
+                  >
+                  <img
+                    src="@/assets/images/bridge/arrow-link.png"
+                    class="arrow-link"
+                  />
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -252,7 +271,7 @@ export default {
 .wrap {
   margin: auto;
   margin-bottom: 20px;
-  width: 440px;
+
   padding: 8px 20px 20px 20px;
   font-family: "Prompt";
   font-style: normal;
@@ -260,6 +279,7 @@ export default {
 
 .title-container {
   padding-bottom: 19px;
+  margin-bottom: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
@@ -279,6 +299,11 @@ export default {
 .popup-content {
   display: flex;
 }
+.check {
+  position: absolute;
+  left: -42px;
+  top: 4px;
+}
 .check-line {
   width: 20px;
   height: 400px;
@@ -286,9 +311,20 @@ export default {
   margin-right: 22px;
 }
 .block-container {
-  margin-top: 16px;
+  margin-top: 4px;
+  .box-wrap {
+    padding-left: 32px;
+    padding-bottom: 10px;
+  }
+}
+.block-container:not(:last-child) {
+  .box-wrap {
+    border-left: 1px dashed rgba(255, 255, 255, 0.8);
+  }
 }
 .block-title {
+  position: relative;
+  margin-left: 32px;
   margin-bottom: 8px;
   font-weight: 600;
   font-size: 16px;
@@ -388,8 +424,17 @@ export default {
 }
 
 @media (max-width: 400px) {
-  .check-line {
+  .check {
     display: none;
+  }
+  .block-title {
+    margin-left: 0;
+  }
+  .block-container {
+    .box-wrap {
+      padding-left: 0;
+      border-left: none !important;
+    }
   }
   .upper {
     flex-direction: column;
