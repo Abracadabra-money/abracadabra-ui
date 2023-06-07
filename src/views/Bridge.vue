@@ -66,8 +66,10 @@
         <p class="expected-value">{{ amount || "0.0" }} MIM</p>
       </div>
       <div class="expected">
-        <p class="expected-title">Native token on destination:</p>
-        <p class="expected-value">
+        <p class="expected-title pointer" @click="isSettingsOpened = true">
+          Gas on destination:
+        </p>
+        <p class="expected-value pointer" @click="isSettingsOpened = true">
           {{ this.destinationTokenAmount || "0.0" }}
           {{ destinationTokenInfo.symbol }}
         </p>
@@ -805,6 +807,10 @@ export default {
 
 .caption-icon {
   max-width: 85px;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {
