@@ -147,6 +147,7 @@ import { approveToken } from "@/utils/approveHelpers.js";
 import { getTokenInfo } from "@/helpers/getTokenInfo";
 import { nextTick } from "vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
+import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
 
 export default {
   mixins: [chainSwitch],
@@ -172,6 +173,7 @@ export default {
       transaction: null,
       destinationTokenPrice: null,
       transactionInfo: null,
+      destinationTokenMax: 0,
     };
   },
 
@@ -326,14 +328,6 @@ export default {
       return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
     },
 
-    destinationTokenMax() {
-      return (
-        this.bridgeObject.fromChains.find(
-          (chain) => chain.chainId === this.targetToChain
-        )?.destinationMax || "0"
-      );
-    },
-
     destinationTokenDefaultValue() {
       return (
         this.bridgeObject.fromChains.find(
@@ -397,6 +391,12 @@ export default {
         this.estimateSendFee = 0;
         this.toChainId = chainId;
         this.startGasCost = 0;
+        this.destinationTokenMax = await getDstTokenMax(
+          this.bridgeObject.contractInstance,
+          this.signer,
+          this.dstChainId
+        );
+
         if (!this.startGasCost) {
           const startGasCost = await this.getFees();
           this.startGasCost = this.$ethers.utils.formatEther(startGasCost[0]);
