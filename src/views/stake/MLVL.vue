@@ -500,7 +500,7 @@ export default {
       });
 
       const dataset1 = {
-        label: "junior",
+        label: "Junior",
         data: tickUpper,
         borderColor: "#ff7101",
         pointBackgroundColor: "#ff7101",
@@ -510,7 +510,7 @@ export default {
       };
 
       const dataset2 = {
-        label: "megazine",
+        label: "Mezzanine",
         data: tickUpper2,
         borderColor: "#874efb",
         pointBackgroundColor: "#874efb",
@@ -520,7 +520,7 @@ export default {
       };
 
       const dataset3 = {
-        label: "sinior",
+        label: "Senior",
         data: tickUpper3,
         borderColor: "#58c6f9",
         pointBackgroundColor: "#58c6f9",
