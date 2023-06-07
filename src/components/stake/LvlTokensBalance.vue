@@ -3,6 +3,7 @@
     <h4 class="balance-title">Your balance</h4>
     <div class="balance-boxes">
       <div class="balance-box" v-for="(info, idx) in InfoArr" :key="idx">
+        
         <div class="box-header">
           <img :src="info.icon" class="tranche-icon" />
           <h6 class="logo-title">{{ info.title }}</h6>
