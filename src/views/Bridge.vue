@@ -516,11 +516,11 @@ export default {
           }
         );
 
-        await tx.wait();
         await this.$store.commit("notifications/delete", notificationId);
+        this.isSuccessPopup = true;
+        await tx.wait();
         this.transaction = tx;
         this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
-        this.isSuccessPopup = true;
         this.transactionInfo = await waitForMessageReceived(
           this.dstChainId,
           tx.hash

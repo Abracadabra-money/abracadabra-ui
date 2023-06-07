@@ -10,7 +10,7 @@
             <img :src="sendFromCheck" class="check" />
             Send From
           </h2>
-          <div class="box-wrap">
+          <div class="box-wrap" :class="{ 'box-line': fromScanUrl }">
             <div class="block-content-box">
               <div class="upper">
                 <span class="logo-address">
@@ -24,7 +24,7 @@
                   </div>
                   <h3 class="address">{{ sendFrom }}</h3>
                 </span>
-                <span class="link-block">
+                <span class="link-block" v-if="fromScanUrl">
                   <a :href="fromScanUrl" target="_blank" class="link-text"
                     >Explorer</a
                   >
@@ -33,6 +33,9 @@
                     class="arrow-link"
                   />
                 </span>
+                <div class="loader-wrap" v-else>
+                  <BaseLoader type="loader" />
+                </div>
               </div>
               <div class="lower">
                 <ul class="transaction-info">
@@ -103,6 +106,9 @@
                     class="arrow-link"
                   />
                 </span>
+                <div class="loader-wrap" v-else>
+                  <BaseLoader type="loader" />
+                </div>
               </div>
               <div class="lower">
                 <ul class="transaction-info">
@@ -131,7 +137,7 @@
         <div class="block-container">
           <h2 class="block-title">
             <img :src="transactionCheck" class="check" />
-            Transaction processing
+            Transaction {{ transactionText }}
           </h2>
           <div class="box-wrap">
             <div class="block-content-box">
@@ -142,7 +148,7 @@
                 </p>
               </div>
               <div class="lower">
-                <span class="link-block">
+                <span class="link-block" v-if="link">
                   <a :href="link" target="_blank" class="link-text"
                     >LayerZero</a
                   >
@@ -151,6 +157,9 @@
                     class="arrow-link"
                   />
                 </span>
+                <div class="loader-wrap" v-else>
+                  <BaseLoader type="loader" />
+                </div>
               </div>
             </div>
           </div>
@@ -164,6 +173,7 @@ import { ethers, providers } from "ethers";
 import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 import scanConfig from "@/utils/bridge/scanConfig.ts";
 import filters from "@/filters/index.js";
+import BaseLoader from "@/components/base/BaseLoader.vue";
 
 export default {
   props: {
@@ -181,8 +191,6 @@ export default {
   data() {
     return {
       mimPrice: 1,
-      sendFromComplete: false,
-      sendToComplete: false,
       transactionComplete: false,
     };
   },
@@ -200,24 +208,33 @@ export default {
         -3
       )}`;
     },
+
     sendFromCheck() {
-      if (this.sendFromComplete) return `src/assets/images/bridge/complete.png`;
+      if (this.fromScanUrl) return `src/assets/images/bridge/complete.png`;
       return `src/assets/images/bridge/check.png`;
     },
+
     sendToCheck() {
-      if (this.sendToComplete) return `src/assets/images/bridge/complete.png`;
+      if (this.dstScanUrl) return `src/assets/images/bridge/complete.png`;
       return `src/assets/images/bridge/check.png`;
     },
+
     transactionCheck() {
-      if (this.transactionComplete)
+      if (this.config.transactionInfo)
         return `src/assets/images/bridge/transaction-complete.png`;
       return `src/assets/images/bridge/transaction-check.png`;
     },
+
+    transactionText() {
+      return this.config.transactionInfo ? "complete" : "processing";
+    },
+
     fromScanTitle() {
       return scanConfig[this.config.originChain.chainId].name;
     },
 
     fromScanUrl() {
+      if (!this.config.transaction?.hash) return "";
       return `${scanConfig[this.config.originChain.chainId].url}${
         this.config.transaction.hash
       }`;
@@ -258,7 +275,6 @@ export default {
     },
 
     dstScanUrl() {
-      console.log("this.config.transactionInfo", this.config.transactionInfo);
       if (!this.config.transactionInfo) return "";
       return `${scanConfig[this.config.destinationchain.chainId].url}${
         this.config.transactionInfo.dstTxHash
@@ -286,13 +302,16 @@ export default {
   async created() {
     await this.getMimPrice();
   },
+
+  components: {
+    BaseLoader,
+  },
 };
 </script>
 <style lang="scss" scoped>
 .wrap {
   margin: auto;
   margin-bottom: 20px;
-
   padding: 8px 20px 20px 20px;
   font-family: "Prompt";
   font-style: normal;
@@ -306,6 +325,7 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
+
 .popup-title {
   font-weight: 600;
   font-size: 20px;
@@ -313,18 +333,22 @@ export default {
   letter-spacing: 0.025em;
   color: #ffffff;
 }
+
 .close-button {
   width: 14px;
   height: 14px;
 }
+
 .popup-content {
   display: flex;
 }
+
 .check {
   position: absolute;
   left: -42px;
   top: 4px;
 }
+
 .check-line {
   width: 20px;
   height: 400px;
@@ -336,11 +360,17 @@ export default {
   .box-wrap {
     padding-left: 32px;
     padding-bottom: 10px;
+    transition: all 0.3s ease-in;
   }
 }
+
 .block-container:first-child {
   .box-wrap {
     border-left: 1px dashed rgba(255, 255, 255, 0.8);
+  }
+
+  .box-line {
+    border-left: 1px dashed #63ff7b;
   }
 }
 
@@ -454,6 +484,12 @@ export default {
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
+}
+
+.loader-wrap {
+  width: 50px;
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 400px) {

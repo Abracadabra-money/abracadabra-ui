@@ -1,5 +1,9 @@
 <template>
-  <div class="spinner">
+  <div class="loader-wrap-mini" v-if="type === 'loader'">
+    <p class="loader" ref="loader"></p>
+  </div>
+
+  <div class="spinner" v-else>
     <i v-for="i in 100" :key="i">
       <b></b>
     </i>
@@ -9,6 +13,11 @@
 <script>
 export default {
   name: "BaseLoader",
+  props: {
+    type: {
+      default: "spinner",
+    },
+  },
 };
 </script>
 
@@ -44,6 +53,40 @@ i {
   }
 }
 
+.loader-wrap-mini {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35%;
+}
+
+.loader {
+  position: relative;
+  display: block;
+  width: 8px;
+  animation: rectangle infinite 1s ease-in-out -0.2s;
+  border-radius: 4px;
+  background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
+}
+.loader:before,
+.loader:after {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  content: "";
+  background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
+}
+.loader:before {
+  left: -10px;
+  animation: rectangle infinite 1s ease-in-out -0.4s;
+}
+.loader:after {
+  right: -10px;
+  animation: rectangle infinite 1s ease-in-out;
+}
+
 @for $i from 1 through $particles {
   i:nth-child(#{$i}) {
     $angle: math.div($i, $particles) * 360;
@@ -69,6 +112,17 @@ i {
   }
   50% {
     transform: scale(1);
+  }
+}
+
+@keyframes rectangle {
+  0%,
+  80%,
+  100% {
+    height: 6px;
+  }
+  40% {
+    height: 8px;
   }
 }
 
