@@ -1,11 +1,11 @@
-import { Contract, ethers } from "ethers";
+import { Contract, ethers, providers } from "ethers";
 import endpointAbi from "@/utils/abi/bridge/endpoint.js";
 import ultraLightNodeV2Abi from "@/utils/abi/bridge/UltraLightNodeV2.js";
 import relayerAbi from "@/utils/abi/bridge/relayer.js";
 
 export const getDstTokenMax = async (
   beamContract: Contract,
-  signer: any,
+  signer: providers.BaseProvider,
   dstChainId: number
 ) => {
   const lzEndpointAddress = await beamContract.lzEndpoint();
