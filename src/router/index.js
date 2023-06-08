@@ -72,9 +72,13 @@ const routes = [
     component: () => import("@/views/borrow/Deleverage.vue"),
   },
   {
-    path: "/bridge",
+    path: "/beam",
     name: "Bridge",
     component: () => import("@/views/Bridge.vue"),
+  },
+  {
+    path: "/bridge",
+    redirect: "/beam",
   },
   {
     path: "/farm",
