@@ -5,16 +5,11 @@ import { isTokenApprowed } from "@/utils/approveHelpers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { Contract, utils } from "ethers";
 import { getLevelFinanceStatistics } from "@/helpers/subgraph/magicLvl";
-
+import harvestorAbi from "@/utils/abi/lvl/harvestor";
 import lvlConfig from "@/utils/stake/lvlConfig";
+import { MASTER_ADDRESS, HARVESTOR_ADDRESS } from "@/constants/lvlFinance";
 
 export default {
-  data() {
-    return {
-      levelMasterV2Address: "0x5aE081b6647aEF897dEc738642089D4BDa93C0e7",
-    };
-  },
-
   computed: {
     ...mapGetters({
       chainId: "getChainId",
@@ -23,7 +18,7 @@ export default {
       provider: "getProvider",
     }),
 
-    multicalProvider() {
+    multicallProvider() {
       return MulticallWrapper.wrap(this.provider);
     },
 
@@ -41,19 +36,19 @@ export default {
           const mainTokenInstance = await new Contract(
             config.mainToken.address,
             JSON.stringify(config.mainToken.abi),
-            this.multicalProvider
+            this.multicallProvider
           );
 
           const stakeTokenInstance = await new Contract(
             config.stakeToken.address,
             JSON.stringify(config.stakeToken.abi),
-            this.multicalProvider
+            this.multicallProvider
           );
 
           const oracleContract = await new Contract(
             config.oracle.address,
             JSON.stringify(config.oracle.abi),
-            this.multicalProvider
+            this.multicallProvider
           );
 
           return { mainTokenInstance, stakeTokenInstance, oracleContract };
@@ -99,7 +94,7 @@ export default {
       );
     },
 
-    async getTokensApprowed(lvlContracts) {
+    async getTokensApproved(lvlContracts) {
       return await Promise.all(
         lvlContracts.map(({ stakeTokenInstance, mainTokenInstance }) =>
           isTokenApprowed(
@@ -168,9 +163,15 @@ export default {
     async createStakePool() {
       if (this.chainId !== 56) return !!this.setLoadingMLvlStake(false);
       const levelMasterContract = await new Contract(
-        this.levelMasterV2Address,
+        MASTER_ADDRESS,
         JSON.stringify(levelMasterV2Abi),
-        this.multicalProvider
+        this.multicallProvider
+      );
+
+      const harvestorContract = await new Contract(
+        HARVESTOR_ADDRESS,
+        JSON.stringify(harvestorAbi),
+        this.multicallProvider
       );
 
       const lvlContracts = await this.createLvlContracts();
@@ -250,6 +251,8 @@ export default {
         };
       });
 
+      stakeInfo.feePercent = (await harvestorContract.feeBips()) / 10000;
+
       stakeInfo.tranchesStatistics = await this.getTranchesStatistics(
         totalSupplyArr,
         totalSupplyUsd
@@ -274,7 +277,7 @@ export default {
           levelMasterContract
         );
 
-        stakeTokensApprowed = await this.getTokensApprowed(lvlContracts);
+        stakeTokensApprowed = await this.getTokensApproved(lvlContracts);
       }
 
       return {

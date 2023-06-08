@@ -1,14 +1,12 @@
 import axios from "axios";
 import { utils, BigNumber } from "ethers";
-
-const subgraphUrl =
-  "https://api.thegraph.com/subgraphs/name/level-fi/levelfinanceanalytics";
-const blockNumberUrl =
-  "https://api.thegraph.com/subgraphs/name/wombat-exchange/bnb-chain-block";
-
-const JUNIOR = "0xcc5368f152453d497061cb1fb578d2d3c54bd0a0";
-const MEZZANINE = "0x4265af66537F7BE1Ca60Ca6070D97531EC571BDd";
-const SENIOR = "0xb5c42f84ab3f786bca9761240546aa9cec1f8821";
+import {
+  JUNIOR_LLP_ADDRESS,
+  MEZZANINE_LLP_ADDRESS,
+  SENIOR_LLP_ADDRESS,
+  SUBGRAPH_URL,
+  BLOCK_NUMBER_URL,
+} from "@/constants/lvlFinance";
 
 export const getBlockNumberByTimestamp = async (timestamp) => {
   const query = `{
@@ -23,7 +21,7 @@ export const getBlockNumberByTimestamp = async (timestamp) => {
     }
   }`;
 
-  const { data } = await axios.default.post(blockNumberUrl, { query });
+  const { data } = await axios.default.post(BLOCK_NUMBER_URL, { query });
   const blockNumber = data.data.blocks[0].number;
 
   return blockNumber;
@@ -48,32 +46,32 @@ export const getFeeApy = async (currentTimestamp) => {
     }
   }`;
 
-  const { data } = await axios.default.post(subgraphUrl, { query });
+  const { data } = await axios.default.post(SUBGRAPH_URL, { query });
 
   const juniorInfo = {
     currentAmount: data.data.current.find(
-      (item) => item.id.toLowerCase() === JUNIOR.toLowerCase()
+      (item) => item.id.toLowerCase() === JUNIOR_LLP_ADDRESS.toLowerCase()
     ),
     prior: data.data.prior.find(
-      (item) => item.id.toLowerCase() === JUNIOR.toLowerCase()
+      (item) => item.id.toLowerCase() === JUNIOR_LLP_ADDRESS.toLowerCase()
     ),
   };
 
   const mezzanineInfo = {
     currentAmount: data.data.current.find(
-      (item) => item.id.toLowerCase() === MEZZANINE.toLowerCase()
+      (item) => item.id.toLowerCase() === MEZZANINE_LLP_ADDRESS.toLowerCase()
     ),
     prior: data.data.prior.find(
-      (item) => item.id.toLowerCase() === MEZZANINE.toLowerCase()
+      (item) => item.id.toLowerCase() === MEZZANINE_LLP_ADDRESS.toLowerCase()
     ),
   };
 
   const seniorInfo = {
     currentAmount: data.data.current.find(
-      (item) => item.id.toLowerCase() === SENIOR.toLowerCase()
+      (item) => item.id.toLowerCase() === SENIOR_LLP_ADDRESS.toLowerCase()
     ),
     prior: data.data.prior.find(
-      (item) => item.id.toLowerCase() === SENIOR.toLowerCase()
+      (item) => item.id.toLowerCase() === SENIOR_LLP_ADDRESS.toLowerCase()
     ),
   };
 

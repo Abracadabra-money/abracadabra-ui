@@ -494,9 +494,11 @@ export default {
 
       data.forEach((element) => {
         this.labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        tickUpper.push(element.juniorApy);
-        tickUpper2.push(element.mezzanineApy);
-        tickUpper3.push(element.seniorApy);
+        tickUpper.push(element.juniorApy * (1 - this.tokensInfo.feePercent));
+        tickUpper2.push(
+          element.mezzanineApy * (1 - this.tokensInfo.feePercent)
+        );
+        tickUpper3.push(element.seniorApy * (1 - this.tokensInfo.feePercent));
       });
 
       const dataset1 = {
