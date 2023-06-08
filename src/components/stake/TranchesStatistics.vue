@@ -1,7 +1,7 @@
 <template>
   <div class="info-block wrap">
     <div>
-      <h5 class="info-title">Tranches Statistics</h5>
+      <h5 class="info-title">Tranche Statistics</h5>
       <div class="tranches-boxes">
         <div class="tranche-box" v-for="(data, idx) in staticData" :key="idx">
           <div class="tranche-header">
@@ -9,7 +9,7 @@
               <img :src="data.icon" class="tranche-icon" />
               <h6 class="logo-title">
                 {{ data.type }} <br />
-                Tranches
+                Tranche
               </h6>
             </div>
             <span class="risk-marker" :class="data.risk"
@@ -117,19 +117,19 @@ export default {
     totalData() {
       return [
         {
-          title: "Total Supply",
-          icon: magicTranchesLvlIcon,
-          name: "Magic Tranches",
-          value: filters.formatUSD(
-            this.tokensInfo.tranchesStatistics.totalSupplyUsd
-          ),
-        },
-        {
           title: "Total Rewards Earned",
           icon: lvlIcon,
           name: "LVL",
           value: filters.formatUSD(
             this.tokensInfo.tranchesStatistics.totalRewardsUsd
+          ),
+        },
+        {
+          title: "Total Supply",
+          icon: magicTranchesLvlIcon,
+          name: "Magic Tranches",
+          value: filters.formatUSD(
+            this.tokensInfo.tranchesStatistics.totalSupplyUsd
           ),
         },
       ];

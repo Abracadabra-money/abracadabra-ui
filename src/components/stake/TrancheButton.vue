@@ -12,7 +12,7 @@
       v-if="isActive"
     />
     <div class="button-content">
-      <p class="button-title" :class="type + '-title'">{{ type }} Tranches</p>
+      <p class="button-title" :class="type + '-title'">{{ type }} Tranche</p>
       <p class="apr">{{ apr }} <span>APR</span></p>
     </div>
   </a>

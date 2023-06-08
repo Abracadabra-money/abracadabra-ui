@@ -69,8 +69,8 @@ export default {
                 weight: "light",
               },
               callback: function (value) {
-                if (+value < 1) return `$ ${Number(value).toFixed(6)}`;
-                return `$ ${Number(value).toFixed(2)}`;
+                if (+value < 1) return `% ${Number(value).toFixed(6)}`;
+                return `% ${Number(value).toFixed(2)}`;
               },
             },
           },

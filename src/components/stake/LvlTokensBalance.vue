@@ -3,7 +3,6 @@
     <h4 class="balance-title">Your balance</h4>
     <div class="balance-boxes">
       <div class="balance-box" v-for="(info, idx) in InfoArr" :key="idx">
-        
         <div class="box-header">
           <img :src="info.icon" class="tranche-icon" />
           <h6 class="logo-title">{{ info.title }}</h6>
@@ -56,7 +55,7 @@ export default {
       return [
         {
           icon: seniorIcon,
-          title: "Senior Tranches",
+          title: "Senior Tranche",
           stakeBalance: senior.stakeToken.formatBalance,
           mainBalance: senior.mainToken.formatBalance,
           stakeTokenName: senior.stakeToken.name,
@@ -65,7 +64,7 @@ export default {
         },
         {
           icon: mezzanineIcon,
-          title: "Mezzanine Tranches",
+          title: "Mezzanine Tranche",
           stakeBalance: mezzanine.stakeToken.formatBalance,
           mainBalance: mezzanine.mainToken.formatBalance,
           stakeTokenName: mezzanine.stakeToken.name,
@@ -74,7 +73,7 @@ export default {
         },
         {
           icon: juniorIcon,
-          title: "Junior Tranches",
+          title: "Junior Tranche",
           stakeBalance: junior.stakeToken.formatBalance,
           mainBalance: junior.mainToken.formatBalance,
           stakeTokenName: junior.stakeToken.name,
