@@ -9,6 +9,7 @@ import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
+import ConvexWrapperSwapper from "@/utils/abi/ConvexWrapperSwapper";
 import { useImage } from "@/helpers/useImage";
 
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
@@ -1565,6 +1566,48 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.CurveDAOToken,
     },
     mimInfo,
+  },
+  {
+    icon: useImage(`assets/images/tokens/CRV.png`),
+    name: "MIM3",
+    chainId: 1,
+    id: 41,
+    liquidationFee: 0.5,
+    mcr: 98,
+    borrowFee: 0,
+    version: 4,
+    cauldronSettings: {
+      isSwappersActive: true,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+    },
+    contract: {
+      name: "WhitelistedCheckpointCauldronV4",
+      address: "0xA185a0aed96837Ee60e69BC2E2513ed318F01806",
+      abi: poolsAbi.WhitelistedCauldronV4,
+    },
+    collateralInfo: {
+      name: "ConvexWrapperSwapper",
+      decimals: 18,
+      address: "0x74322FDeb6f98FDb4e0Fcd87B0125A3DAD410359 ",
+      abi: ConvexWrapperSwapper,
+    },
+    mimInfo,
+    leverageInfo: {
+      address: "0x681e0E9FfA58E63B5156d7Bd19aF411F500d8C93",
+      abi: swapAbi,
+    },
+    deleverageInfo: {
+      address: "0x74322FDeb6f98FDb4e0Fcd87B0125A3DAD410359",
+      abi: reverseSwapAbi,
+    },
   },
 ];
 
