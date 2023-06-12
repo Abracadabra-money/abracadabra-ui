@@ -79,6 +79,7 @@ export default {
   font-size: 16px;
   line-height: 150%;
   margin-bottom: 8px;
+  text-align: center;
 }
 
 .description {
