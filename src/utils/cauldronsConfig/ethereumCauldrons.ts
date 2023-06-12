@@ -1567,8 +1567,8 @@ const config: Array<CauldronConfig> = [
     mimInfo,
   },
   {
-    icon: useImage(`assets/images/tokens/CRV.png`),
-    name: "MIM3",
+    icon: useImage(`assets/images/tokens/Curve-MIM-YEARN.png`),
+    name: "Private yv-MIM3CRV",
     chainId: 1,
     id: 41,
     liquidationFee: 0.5,
@@ -1593,7 +1593,7 @@ const config: Array<CauldronConfig> = [
       abi: poolsAbi.WhitelistedCauldronV4,
     },
     collateralInfo: {
-      name: "private yearn MIM3CRV",
+      name: "Private yv-MIM3CRV",
       decimals: 18,
       address: "0xa540744DEDBDA9eF64cf753F0E851EfE4a419EA9 ",
       abi: tokensAbi.yvCurveMIMf,

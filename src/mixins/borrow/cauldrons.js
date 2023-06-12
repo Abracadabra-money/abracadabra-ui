@@ -38,8 +38,7 @@ export default {
 
     async createPools() {
       const chainPools = poolsInfo.filter((pool) => {
-        let result;
-        if (pool.contractChain === +this.chainId) result = true;
+        let result = pool.contractChain === +this.chainId;
 
         if (pool.id === 41 && pool.contractChain === 1)
           result = this.account === GNOSIS_SAFE_ADDRESS ? true : false;
