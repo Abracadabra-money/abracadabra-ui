@@ -151,7 +151,6 @@ import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
 
 export default {
   mixins: [chainSwitch],
-  
   data() {
     return {
       acceptedNetworks: [1, 10, 56, 137, 250, 1285, 42161, 43114],
@@ -387,7 +386,6 @@ export default {
     async changeChain(chainId, type) {
       if (type === "to") {
         this.selectChain = true;
-        this.amount = "";
         this.destinationTokenAmount = "";
         this.estimateSendFee = 0;
         this.toChainId = chainId;

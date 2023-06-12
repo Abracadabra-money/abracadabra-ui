@@ -63,6 +63,15 @@ export default [
       "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
   },
   {
+    name: "MIM",
+    chain: 1285,
+    address: "0x0caE51e1032e8461f4806e26332c030E34De3aDb",
+    symbol: "MIM",
+    decimals: 18,
+    image:
+      "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
+  },
+  {
     name: "Spell",
     chain: 1,
     address: "0x090185f2135308bad17527004364ebcc2d37e5f6",
