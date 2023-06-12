@@ -15,6 +15,7 @@ import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
 import { getTotalBorrow } from "@/helpers/getTotalBorrow";
+import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
 export default {
   computed: {
@@ -36,9 +37,17 @@ export default {
     }),
 
     async createPools() {
-      const chainPools = poolsInfo.filter(
-        (pool) => pool.contractChain === +this.chainId
-      );
+      const chainPools = poolsInfo.filter((pool) => {
+        let result;
+        if (pool.contractChain === +this.chainId) result = true;
+
+        if (pool.id === 41 && pool.contractChain === 1)
+          result = this.account === GNOSIS_SAFE_ADDRESS ? true : false;
+
+        return result;
+      });
+
+      console.log("chainPools", chainPools);
 
       const pools = await Promise.all(
         chainPools.map((pool) => this.createPool(pool))
@@ -506,7 +515,7 @@ export default {
       if (poolInterest) interest = poolInterest;
       if (!poolInterest && pool?.interest) interest = pool?.interest;
 
-      if(pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
+      if (pool.id === 36 && this.chainId === 1) interest = pool.interest; // deprecated WBTC
 
       let poolData = {
         name: pool.name,
