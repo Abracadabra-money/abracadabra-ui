@@ -70,7 +70,7 @@
           <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
             >Farms</router-link
           >
-          <router-link class="list-link" :to="{ name: 'Bridge' }"
+          <router-link class="list-link" :to="{ name: 'Beam' }"
             >Beam</router-link
           >
           <a

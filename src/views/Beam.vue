@@ -1,25 +1,18 @@
 <template>
-  <div class="bridge-view">
-    <div class="bridge" v-if="bridgeObject">
-      <h3 class="title">
-        Beam
-        <div class="wallet-btn" :class="{ active: isShowInputAddress }">
-          <img
-            class="wallet-icon"
-            @click="toggleInputAddress"
-            src="@/assets/images/wallet-icon.png"
-            alt="Wallet icon"
-          />
-        </div>
-        <div class="settings-btn" :class="{ active: isSettingsOpened }">
-          <img
-            class="settings-icon"
-            @click="isSettingsOpened = true"
-            src="@/assets/images/settings.png"
-            alt="Settings icon"
-          />
-        </div>
-      </h3>
+  <div class="beam-view">
+    <div class="beam" v-if="bridgeObject">
+      <h3 class="title">Beam</h3>
+
+      <div class="settings-btns">
+        <WalletButton
+          :active="isShowInputAddress"
+          @click="toggleInputAddress"
+        />
+        <SettingsButton
+          :active="isSettingsOpened"
+          @click="isSettingsOpened = true"
+        />
+      </div>
 
       <ChainsWrap
         :fromChain="originChain"
@@ -28,70 +21,38 @@
         @switchChain="switchChain"
         @changeNetwork="openNetworkPopup"
       />
-      <div class="input-wrap">
-        <div class="input-balance">
-          <p class="input-title">Token to beam</p>
-          <div class="balance">
-            <span>Balance: </span>
-            <span>{{ formatTokenBalance(mimBalance) }}</span>
-          </div>
+
+      <div class="inputs-wrap">
+        <div>
+          <InputLabel title="Token to beam" :amount="mimBalance" />
+          <BaseTokenInput
+            :max="bridgeObject.balance"
+            :value="amount"
+            :name="'MIM'"
+            :icon="$image('assets/images/tokens/MIM.png')"
+            :error="amountError"
+            @updateValue="updateMainValue"
+          />
         </div>
 
-        <BaseTokenInput
-          :max="bridgeObject.balance"
-          :value="amount"
-          :name="'MIM'"
-          :icon="$image('assets/images/tokens/MIM.png')"
-          :error="amountError"
-          @updateValue="updateMainValue"
+        <InputAddress
+          v-if="isShowInputAddress"
+          @update-input="updateDestinationAddress"
+          @error-input="errorDestinationAddress"
         />
       </div>
 
-      <div class="input-address-wrap" v-if="isShowInputAddress">
-        <input
-          class="input-address"
-          :class="{ error: inputAddressError }"
-          v-model="destinationAddress"
-          type="text"
-          placeholder="Add destination address"
-        />
-        <p class="error-message">
-          <span v-if="inputAddressError">Invalid address</span>
-          <span v-else>&nbsp;</span>
-        </p>
-      </div>
+      <ExpectedBlock :data="expectedData" />
 
-      <div class="expected">
-        <p class="expected-title">Expected MIM:</p>
-        <p class="expected-value">{{ amount || "0.0" }} MIM</p>
-      </div>
-      <div class="expected">
-        <p class="expected-title pointer" @click="isSettingsOpened = true">
-          Gas on destination:
-        </p>
-        <p class="expected-value pointer" @click="isSettingsOpened = true">
-          {{ this.destinationTokenAmount || "0.0" }}
-          {{ destinationTokenInfo.symbol }}
-        </p>
-      </div>
-      <div class="expected">
-        <p class="expected-title">Estimated gas cost:</p>
-        <p class="expected-value">
-          {{ formatEstimateSendFee }} {{ nativeTokenInfo.symbol }}
-        </p>
-      </div>
-
-      <div class="btn-wrap">
-        <BaseButton
-          :primary="true"
-          :disabled="disableBtn"
-          @click="actionHandler"
-          >{{ actionBtnText }}</BaseButton
-        >
-      </div>
+      <BaseButton
+        :primary="true"
+        :disabled="disableBtn"
+        @click="actionHandler"
+        >{{ actionBtnText }}</BaseButton
+      >
 
       <p class="caption">
-        <span>Powered By</span
+        <span class="caption-text">Powered By</span
         ><img
           class="caption-icon"
           src="@/assets/images/bridge/layer-zero.svg"
@@ -99,6 +60,7 @@
         />
       </p>
     </div>
+
     <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
       <SettingsPopup
         :value="destinationTokenAmount"
@@ -149,6 +111,12 @@ import { nextTick } from "vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
 
+import WalletButton from "@/components/ui/buttons/WalletButton.vue";
+import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
+import InputAddress from "@/components/ui/inputs/InputAddress.vue";
+import InputLabel from "@/components/ui/inputs/InputLabel.vue";
+import ExpectedBlock from "@/components/bridge/ExpectedBlock.vue";
+
 export default {
   mixins: [chainSwitch],
   data() {
@@ -174,6 +142,7 @@ export default {
       destinationTokenPrice: null,
       transactionInfo: null,
       destinationTokenMax: 0,
+      inputAddressError: false,
     };
   },
 
@@ -184,6 +153,16 @@ export default {
       provider: "getProvider",
       chainId: "getChainId",
     }),
+
+    expectedData() {
+      return {
+        mimAmount: this.amount,
+        dstTokenAmount: this.destinationTokenAmount || "0.0",
+        dstTokenSymbol: this.destinationTokenInfo.symbol,
+        gasCost: this.formatEstimateSendFee,
+        srcTokenSymbol: this.nativeTokenInfo.symbol,
+      };
+    },
 
     toAddress() {
       return this.destinationAddress ? this.destinationAddress : this.account;
@@ -283,17 +262,6 @@ export default {
       return !!this.amountError;
     },
 
-    checkInputAddress() {
-      return this.destinationAddress
-        ? this.$ethers.utils.isAddress(this.destinationAddress.toLowerCase())
-        : false;
-    },
-
-    inputAddressError() {
-      if (!this.destinationAddress) return false;
-      return this.isShowInputAddress && !this.checkInputAddress;
-    },
-
     formatEstimateSendFee() {
       if (!this.estimateSendFee[0]) return "0.0";
       return filters.formatToFixed(
@@ -366,6 +334,16 @@ export default {
   },
 
   methods: {
+    updateDestinationAddress(address, error) {
+      this.destinationAddress = address;
+      this.inputAddressError = error;
+      console.log("dddd");
+    },
+
+    errorDestinationAddress(error) {
+      this.inputAddressError = error;
+    },
+
     toggleInputAddress() {
       this.isShowInputAddress = !this.isShowInputAddress;
     },
@@ -624,183 +602,72 @@ export default {
     LocalPopupWrap,
     SettingsPopup,
     SuccessPopup,
+    WalletButton,
+    SettingsButton,
+    InputAddress,
+    InputLabel,
+    ExpectedBlock,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.bridge-view {
-  max-width: calc(100% - 20px);
-  padding: 100px 0;
-  margin: 0 auto;
+.beam-view {
+  padding: 100px 15px;
 }
 
-.underline {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bridge {
-  background: #2a2835;
-  backdrop-filter: blur(100px);
-  border-radius: 30px;
+.beam {
   max-width: 680px;
   width: 100%;
   margin: 0 auto;
   padding: 30px 65px;
+  background: #2a2835;
+  backdrop-filter: blur(100px);
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  position: relative;
 }
 
 .title {
   font-weight: 600;
   font-size: 24px;
-  line-height: 36px;
+  line-height: 150%;
   text-align: center;
   letter-spacing: 0.025em;
   text-transform: uppercase;
-  margin-bottom: 40px;
-  position: relative;
 }
 
-.wallet-btn,
-.settings-btn {
+.settings-btns {
   position: absolute;
-  cursor: pointer;
-  top: 50%;
-  transform: translateY(-55%);
-  width: 32px;
-  height: 32px;
+  top: 30px;
+  right: 65px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 15px;
+  z-index: 1;
 }
 
-.active {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-}
-
-.wallet-btn {
-  right: 48px;
-}
-
-.settings-btn {
-  right: 0;
-}
-
-.wallet-icon {
-  width: 24px;
-  height: 24px;
-}
-.settings-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.input-wrap {
-  margin-bottom: 20px;
-}
-
-.input-address-wrap {
-  margin-bottom: 30px;
-}
-
-.input-address {
-  width: 100%;
-  height: 50px;
-  background: rgba(129, 126, 166, 0.2);
-  border: 1px solid #494661;
-  border-radius: 12px;
-  outline: none;
-  padding: 12px 20px;
-  color: #fff;
-}
-
-.error {
-  border-color: #e54369;
-}
-
-.error-message {
-  color: $clrError;
-  font-size: 10px;
-  margin-top: 5px;
-  margin-left: 10px;
-}
-
-.input-balance {
+.inputs-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-
-  .balance {
-    font-size: 14px;
-  }
-}
-
-.input-title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-}
-
-.expected {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 50px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.expected-title {
-  color: rgba(255, 255, 255, 0.6);
-  display: flex;
-  align-items: center;
-}
-
-.expected-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-.btn-wrap {
-  margin: 30px 0;
-}
-
-.link-wrap {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.link-wrap a {
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 18px;
-  text-transform: uppercase;
-  color: #fff;
-}
-
-.link-wrap a:hover {
-  background: -webkit-linear-gradient(#5282fd, #76c3f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .caption {
   font-weight: 300;
   font-size: 12px;
-  line-height: 18px;
+  line-height: 150%;
   display: flex;
   align-items: center;
-  gap: 8px;
   justify-content: center;
-  text-align: center;
+  gap: 8px;
   letter-spacing: 0.025em;
   text-transform: uppercase;
 }
 
-.caption span {
+.caption-text {
   margin-top: 2px;
 }
 
@@ -808,34 +675,15 @@ export default {
   max-width: 85px;
 }
 
-.pointer {
-  cursor: pointer;
-}
-
 @media (max-width: 600px) {
-  .bridge {
+  .beam {
     padding: 30px 15px;
+    gap: 15px;
   }
 
-  .title {
-    margin-bottom: 12px;
-  }
-
-  .balance {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .expected {
-    display: flex;
-    flex-direction: column;
-    align-items: initial;
-    justify-content: initial;
-  }
-
-  .expected-value {
-    text-align: right;
+  .settings-btns {
+    right: 5%;
+    gap: 10px;
   }
 }
 </style>

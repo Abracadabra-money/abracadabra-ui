@@ -63,7 +63,6 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  margin-bottom: 30px;
 }
 
 .select-item {
