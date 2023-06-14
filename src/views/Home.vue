@@ -28,16 +28,9 @@
           <BaseButton
             primary
             :width="isMobile ? '288px' : '200px'"
-            @click="toBorrowPage"
+            @click="toCauldronsPage"
           >
-            Borrow
-          </BaseButton>
-          <BaseButton
-            primary
-            :width="isMobile ? '288px' : '200px'"
-            @click="toLeveragePage"
-          >
-            Leverage Up
+            Discover Cauldrons
           </BaseButton>
         </div>
       </div>
@@ -94,11 +87,10 @@
           />
         </div>
         <div class="info-wrap">
-          <h3>Our Pegged Assets</h3>
+          <h3>Our Pegged Asset</h3>
           <p>
-            Magic Internet Money ($MIM) and Magic Internet Gold ($MIG) are the
-            pillars of the Abracadabra ecosystem. Our tokens are paired to the
-            dollar and the ounce of gold.
+            Magic Internet Money ($MIM) is the pillar of the Abracadabra
+            ecosystem and pegged to 1 US dollar.
           </p>
           <p class="highlited">
             USE THEM TO STORE VALUE, EARN YIELD OR PARTICIPATE IN MANY OTHER
@@ -157,11 +149,8 @@ export default {
     },
   },
   methods: {
-    toBorrowPage() {
-      this.$router.push({ name: "Borrow" });
-    },
-    toLeveragePage() {
-      this.$router.push({ name: "Leverage" });
+    toCauldronsPage() {
+      this.$router.push({ name: "Cauldrons" });
     },
     onResize() {
       this.isMobile = window.innerWidth < 980;
