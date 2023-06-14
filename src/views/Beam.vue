@@ -61,14 +61,17 @@
       </p>
     </div>
 
-    <LocalPopupWrap :isOpened="isSettingsOpened" @closePopup="closePopup">
+    <LocalPopupWrap
+      :isOpened="isSettingsOpened"
+      @closePopup="isSettingsOpened = false"
+    >
       <SettingsPopup
         :value="destinationTokenAmount"
         :max="destinationTokenMax"
         :defaultValue="destinationTokenDefaultValue"
         :config="settingConfig"
         @changeSettings="changeSettings"
-        @closeSettings="closeSettings"
+        @closeSettings="isSettingsOpened = false"
         @errorSettings="errorSettings"
     /></LocalPopupWrap>
 
@@ -102,20 +105,22 @@ import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
 import filters from "@/filters/index.js";
 import chainSwitch from "@/mixins/chainSwitch";
 import notification from "@/helpers/notification/notification.js";
-import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
-import { mapGetters } from "vuex";
-import { createBridgeConfig } from "@/helpers/bridge";
-import { approveToken } from "@/utils/approveHelpers.js";
-import { getTokenInfo } from "@/helpers/getTokenInfo";
-import { nextTick } from "vue";
-import { waitForMessageReceived } from "@layerzerolabs/scan-client";
-import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
-
 import WalletButton from "@/components/ui/buttons/WalletButton.vue";
 import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
 import InputAddress from "@/components/ui/inputs/InputAddress.vue";
 import InputLabel from "@/components/ui/inputs/InputLabel.vue";
 import ExpectedBlock from "@/components/bridge/ExpectedBlock.vue";
+
+import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
+import { mapGetters } from "vuex";
+import { createBridgeConfig } from "@/helpers/bridge";
+import { approveToken } from "@/helpers/approve/approveToken.ts";
+import { getTokenInfo } from "@/helpers/getTokenInfo";
+import { nextTick } from "vue";
+import { waitForMessageReceived } from "@layerzerolabs/scan-client";
+import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
+import { getEstimatedGasCostNew } from "@/helpers/bridge/getEstimatedGasCost";
+import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 
 export default {
   mixins: [chainSwitch],
@@ -153,6 +158,19 @@ export default {
       provider: "getProvider",
       chainId: "getChainId",
     }),
+
+    isTokenApproved() {
+      return !this.bridgeObject.isTokenApprove && this.isMainnetChain;
+    },
+
+    beamConfig() {
+      return {
+        contract: this.bridgeObject.contractInstance,
+        account: this.account,
+        dstChainId: this.remoteLzChainId,
+        toAddressBytes: this.toAddressBytes,
+      };
+    },
 
     expectedData() {
       return {
@@ -337,7 +355,6 @@ export default {
     updateDestinationAddress(address, error) {
       this.destinationAddress = address;
       this.inputAddressError = error;
-      console.log("dddd");
     },
 
     errorDestinationAddress(error) {
@@ -395,33 +412,6 @@ export default {
       if (this.selectChain) await this.getFees(value);
     },
 
-    async actionHandler() {
-      if (this.disableBtn) return false;
-      if (!this.bridgeObject.isTokenApprove && this.isMainnetChain) {
-        const notificationId = await this.$store.dispatch(
-          "notifications/new",
-          notification.approvePending
-        );
-
-        const approve = await approveToken(
-          this.bridgeObject.tokenContractInstance,
-          this.bridgeObject.contractInstance.address
-        );
-
-        await this.$store.commit("notifications/delete", notificationId);
-        if (!approve) {
-          await this.$store.dispatch(
-            "notifications/new",
-            notification.approveError
-          );
-        }
-
-        return false;
-      }
-
-      await this.bridge();
-    },
-
     async adapterParams() {
       const packetType = 0;
       const messageVersion = 2;
@@ -444,83 +434,6 @@ export default {
         ["uint16", "uint256", "uint256", "address"],
         [messageVersion, minGas, dstNativeAmount, this.toAddress]
       );
-    },
-
-    async bridge() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-
-      this.destinationTokenPrice = await getNativeTokenPrice(this.toChainId);
-
-      try {
-        const parsedAmount = filters.formatToFixed(this.amount, 18);
-        const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
-        const fees = await this.getFees(this.amount); // add(dstNativeAmount);
-
-        const estimateGas =
-          await this.bridgeObject.contractInstance.estimateGas.sendFrom(
-            this.account, // 'from' address to send tokens
-            this.remoteLzChainId, // remote LayerZero chainId
-            this.toAddressBytes, // 'to' address to send tokens
-            amount, // amount of tokens to send (in wei)
-            [
-              this.account,
-              this.$ethers.constants.AddressZero,
-              this.adapterParams(),
-            ], // flexible bytes array to indicate messaging adapter services
-            {
-              value: fees[0],
-            }
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.bridgeObject.contractInstance.sendFrom(
-          this.account, // 'from' address to send tokens
-          this.remoteLzChainId, // remote LayerZero chainId
-          this.toAddressBytes, // 'to' address to send tokens
-          amount, // amount of tokens to send (in wei)
-          [
-            this.account,
-            this.$ethers.constants.AddressZero,
-            this.adapterParams(),
-          ], // flexible bytes array to indicate messaging adapter services
-          {
-            gasLimit,
-            value: fees[0],
-          }
-        );
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.isSuccessPopup = true;
-        await tx.wait();
-        this.transaction = tx;
-        this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
-        this.transactionInfo = await waitForMessageReceived(
-          this.dstChainId,
-          tx.hash
-        );
-      } catch (error) {
-        console.log("Bridge Error:", error);
-
-        const errorNotification = {
-          msg: "Transaction encountered an Error",
-          type: "error",
-        };
-
-        if (
-          String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
-          String(error).indexOf("insufficient funds") !== -1 ||
-          String(error?.message).indexOf("insufficient funds") !== -1
-        ) {
-          errorNotification.msg = "Insufficient funds";
-        }
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
     },
 
     async getFees(amount = "1") {
@@ -571,16 +484,78 @@ export default {
       await this.getFees();
     },
 
-    closeSettings() {
-      this.isSettingsOpened = false;
-    },
-
-    async closePopup() {
-      this.isSettingsOpened = false;
-    },
-
     errorSettings(value) {
       this.isSettingsError = value;
+    },
+
+    async actionHandler() {
+      if (this.disableBtn) return false;
+      if (this.isTokenApproved) {
+        return await approveToken(
+          this.bridgeObject.tokenContractInstance,
+          this.bridgeObject.contractInstance.address
+        );
+      }
+
+      await this.seendBeam();
+    },
+
+    async errorTransaction(error, notificationId) {
+      const errorNotification = {
+        msg: "Transaction encountered an Error",
+        type: "error",
+      };
+
+      if (
+        String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
+        String(error).indexOf("insufficient funds") !== -1 ||
+        String(error?.message).indexOf("insufficient funds") !== -1
+      ) {
+        errorNotification.msg = "Insufficient funds";
+      }
+
+      await this.$store.commit("notifications/delete", notificationId);
+      await this.$store.dispatch("notifications/new", errorNotification);
+    },
+
+    async seendBeam() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.pending
+      );
+
+      this.destinationTokenPrice = await getNativeTokenPrice(this.toChainId);
+
+      try {
+        const mimAmount = this.$ethers.utils.parseUnits(
+          filters.formatToFixed(this.amount, 18),
+          18
+        );
+
+        const { fees, params } = await getEstimatedGasCostNew(
+          this.bridgeObject.contractInstance,
+          this.toAddress,
+          this.remoteLzChainId,
+          this.destinationTokenAmount,
+          this.amount
+        );
+
+        const tx = await sendFrom(fees, params, mimAmount, this.beamConfig);
+        await this.$store.commit("notifications/delete", notificationId);
+
+        this.isSuccessPopup = true;
+        await tx.wait();
+
+        this.transaction = tx;
+        this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
+        this.transactionInfo = await waitForMessageReceived(
+          this.dstChainId,
+          tx.hash
+        );
+      } catch (error) {
+        console.log("Bridge Error:", error);
+        this.errorTransaction(error, notificationId);
+      }
     },
   },
 

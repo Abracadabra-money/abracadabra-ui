@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-const adapterParams = async (
+export const adapterParams = async (
   contract: any,
   address: string,
   dstAmount: any,
@@ -35,4 +35,25 @@ export const getEstimatedGasCost = async (
     false,
     adapterParams(contract, address, dstAmount, dstChainId)
   );
+};
+
+export const getEstimatedGasCostNew = async (
+  contract: any,
+  address: string,
+  dstChainId: any,
+  dstAmount = "0",
+  mimAmount = "1"
+) => {
+  if (!+mimAmount) return 0;
+  const params = await adapterParams(contract, address, dstAmount, dstChainId);
+
+  const fees = await contract.estimateSendFee(
+    dstChainId,
+    ethers.utils.defaultAbiCoder.encode(["address"], [address]),
+    ethers.utils.parseUnits(mimAmount, 18),
+    false,
+    params
+  );
+
+  return { fees, params };
 };
