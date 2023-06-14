@@ -192,7 +192,7 @@ export default {
   }
 
   .stats-wrap {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 0.5fr 1.1fr 1.1fr 1.1fr 1.2fr;
     align-items: center;
     grid-gap: 0;
   }
