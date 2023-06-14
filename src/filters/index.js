@@ -7,7 +7,7 @@ const formatUSD = (value) => {
 
   const formatAmount = +parseFloat(value).toFixed(decimals);
 
-  if (+value < 0.0001) return `$ ${formatAmount}`;
+  if (+value < 0.01) return `$ <0.01`;
 
   return `$ ${formatAmount.toLocaleString("en-US", { currency: "USD" })}`;
 };
