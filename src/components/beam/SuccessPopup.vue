@@ -29,7 +29,7 @@
                     >Explorer</a
                   >
                   <img
-                    src="@/assets/images/bridge/arrow-link.png"
+                    src="@/assets/images/beam/arrow-link.png"
                     class="arrow-link"
                   />
                 </span>
@@ -99,7 +99,7 @@
                     >Explorer</a
                   >
                   <img
-                    src="@/assets/images/bridge/arrow-link.png"
+                    src="@/assets/images/beam/arrow-link.png"
                     class="arrow-link"
                   />
                 </span>
@@ -150,7 +150,7 @@
                     >LayerZero</a
                   >
                   <img
-                    src="@/assets/images/bridge/arrow-link.png"
+                    src="@/assets/images/beam/arrow-link.png"
                     class="arrow-link"
                   />
                 </span>
@@ -203,20 +203,19 @@ export default {
     },
 
     sendFromCheck() {
-      if (this.fromScanUrl)
-        return useImage("assets/images/bridge/complete.png");
-      return useImage("assets/images/bridge/check.png");
+      if (this.fromScanUrl) return useImage("assets/images/beam/complete.png");
+      return useImage("assets/images/beam/check.png");
     },
 
     sendToCheck() {
-      if (this.dstScanUrl) return useImage("assets/images/bridge/complete.png");
-      return useImage("assets/images/bridge/check.png");
+      if (this.dstScanUrl) return useImage("assets/images/beam/complete.png");
+      return useImage("assets/images/beam/check.png");
     },
 
     transactionCheck() {
       if (this.config.txInfo)
-        return useImage("assets/images/bridge/transaction-complete.png");
-      return useImage("assets/images/bridge/transaction-check.png");
+        return useImage("assets/images/beam/transaction-complete.png");
+      return useImage("assets/images/beam/transaction-check.png");
     },
 
     transactionText() {

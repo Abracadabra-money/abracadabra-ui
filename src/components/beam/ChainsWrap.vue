@@ -11,7 +11,7 @@
     <img
       class="switch-chain"
       @click="$emit('switchChain')"
-      src="@/assets/images/bridge/bridge-refresh.svg"
+      src="@/assets/images/beam/refresh.svg"
       alt="Switch network"
     />
 

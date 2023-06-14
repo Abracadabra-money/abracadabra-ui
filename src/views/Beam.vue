@@ -52,7 +52,7 @@
         <span class="caption-text">Powered By</span
         ><img
           class="caption-icon"
-          src="@/assets/images/bridge/layer-zero.svg"
+          src="@/assets/images/beam/layer-zero.svg"
           alt=""
         />
       </p>
@@ -94,16 +94,16 @@
 <script>
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import ChainsWrap from "@/components/bridge/ChainsWrap.vue";
-import ChainsPopup from "@/components/bridge/ChainsPopup.vue";
+import ChainsWrap from "@/components/beam/ChainsWrap.vue";
+import ChainsPopup from "@/components/beam/ChainsPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import SettingsPopup from "@/components/bridge/SettingsPopup.vue";
-import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
+import SettingsPopup from "@/components/beam/SettingsPopup.vue";
+import SuccessPopup from "@/components/beam/SuccessPopup.vue";
 import WalletButton from "@/components/ui/buttons/WalletButton.vue";
 import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
 import InputAddress from "@/components/ui/inputs/InputAddress.vue";
 import InputLabel from "@/components/ui/inputs/InputLabel.vue";
-import ExpectedBlock from "@/components/bridge/ExpectedBlock.vue";
+import ExpectedBlock from "@/components/beam/ExpectedBlock.vue";
 
 import { mapGetters } from "vuex";
 import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
@@ -400,7 +400,7 @@ export default {
           this.tx.hash
         );
       } catch (error) {
-        console.log("Bridge Error:", error);
+        console.log("Seend Beam Error:", error);
         this.errorTransaction(error, notificationId);
       }
     },
