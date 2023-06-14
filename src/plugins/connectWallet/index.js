@@ -73,8 +73,7 @@ const subscribeProvider = async (provider, isCoinbase) => {
   }
 
   provider.on("close", () => alert("close"));
-  provider.on("accountsChanged", async (account) => {
-    if (Array.isArray(account) && !account.length) await resetApp();
+  provider.on("accountsChanged", async () => {
     window.location.reload();
   });
 
