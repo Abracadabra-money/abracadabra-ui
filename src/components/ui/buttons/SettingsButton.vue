@@ -33,4 +33,9 @@ export default {
   width: 20px;
   height: 20px;
 }
+
+.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
 </style>

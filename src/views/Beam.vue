@@ -1,13 +1,10 @@
 <template>
   <div class="beam-view">
-    <div class="beam" v-if="bridgeObject">
+    <div class="beam" v-if="beamConfig">
       <h3 class="title">Beam</h3>
 
       <div class="settings-btns">
-        <WalletButton
-          :active="isShowInputAddress"
-          @click="toggleInputAddress"
-        />
+        <WalletButton :active="isShowDstAddress" @click="toggleDstAddress" />
         <SettingsButton
           :active="isSettingsOpened"
           @click="isSettingsOpened = true"
@@ -16,33 +13,33 @@
 
       <ChainsWrap
         :fromChain="originChain"
-        :toChain="destinationChain"
-        :selectChain="selectChain"
-        @switchChain="switchChain"
-        @changeNetwork="openNetworkPopup"
+        :toChain="dstChain"
+        :selectChain="isSelectedChain"
+        @switch-chain="switchChain"
+        @change-network="openNetworkPopup"
       />
 
       <div class="inputs-wrap">
         <div>
           <InputLabel title="Token to beam" :amount="mimBalance" />
           <BaseTokenInput
-            :max="bridgeObject.balance"
+            :max="beamConfig.balance"
             :value="amount"
             :name="'MIM'"
             :icon="$image('assets/images/tokens/MIM.png')"
             :error="amountError"
-            @updateValue="updateMainValue"
+            @update-value="updateMainValue"
           />
         </div>
 
         <InputAddress
-          v-if="isShowInputAddress"
+          v-if="isShowDstAddress"
           @update-input="updateDestinationAddress"
           @error-input="errorDestinationAddress"
         />
       </div>
 
-      <ExpectedBlock :data="expectedData" />
+      <ExpectedBlock :data="expectedConfig" />
 
       <BaseButton
         :primary="true"
@@ -63,33 +60,33 @@
 
     <LocalPopupWrap
       :isOpened="isSettingsOpened"
-      @closePopup="isSettingsOpened = false"
+      @close-popup="isSettingsOpened = false"
     >
       <SettingsPopup
-        :value="destinationTokenAmount"
-        :max="destinationTokenMax"
-        :defaultValue="destinationTokenDefaultValue"
+        :value="dstTokenAmount"
+        :max="dstMaxAmount"
+        :defaultValue="dstDefaultValue"
         :config="settingConfig"
-        @changeSettings="changeSettings"
-        @closeSettings="isSettingsOpened = false"
-        @errorSettings="errorSettings"
+        @change-settings="changeSettings"
+        @close-settings="isSettingsOpened = false"
+        @error-settings="errorSettings"
     /></LocalPopupWrap>
 
     <LocalPopupWrap
-      :isOpened="isSuccessPopup"
-      @closePopup="isSuccessPopup = false"
+      :isOpened="isOpenSuccessPopup"
+      @close-popup="isOpenSuccessPopup = false"
     >
-      <SuccessPopup :link="transactionLink" :config="successConfig" />
+      <SuccessPopup :config="successConfig" />
     </LocalPopupWrap>
 
     <ChainsPopup
       :isOpen="isOpenNetworkPopup"
-      @closePopup="closeNetworkPopup"
-      @enterChain="changeChain"
       :networksArr="popupNetworksArr"
       :activeChain="activePopupChain"
       :popupType="popupType"
-      :selectChain="selectChain"
+      :selectChain="isSelectedChain"
+      @close-popup="closeNetworkPopup"
+      @enter-chain="changeChain"
     />
   </div>
 </template>
@@ -102,52 +99,51 @@ import ChainsPopup from "@/components/bridge/ChainsPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import SettingsPopup from "@/components/bridge/SettingsPopup.vue";
 import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
-import filters from "@/filters/index.js";
-import chainSwitch from "@/mixins/chainSwitch";
-import notification from "@/helpers/notification/notification.js";
 import WalletButton from "@/components/ui/buttons/WalletButton.vue";
 import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
 import InputAddress from "@/components/ui/inputs/InputAddress.vue";
 import InputLabel from "@/components/ui/inputs/InputLabel.vue";
 import ExpectedBlock from "@/components/bridge/ExpectedBlock.vue";
 
-import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { mapGetters } from "vuex";
-import { createBridgeConfig } from "@/helpers/bridge";
+import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
+import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { approveToken } from "@/helpers/approve/approveToken.ts";
 import { getTokenInfo } from "@/helpers/getTokenInfo";
-import { nextTick } from "vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
-import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
+import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
+import notification from "@/helpers/notification/notification.js";
+import filters from "@/filters/index.js";
+
+import chainSwitch from "@/mixins/chainSwitch";
 
 export default {
   mixins: [chainSwitch],
   data() {
     return {
       acceptedNetworks: [1, 10, 56, 137, 250, 1285, 42161, 43114],
-      popupType: null,
-      bridgeObject: null,
-      isOpenNetworkPopup: false,
-      isShowInputAddress: false,
-      destinationAddress: null,
+      isShowDstAddress: false,
       toChainId: null,
-      updateInterval: null,
+      dstAddress: null,
+      dstAddressError: false,
+      dstTokenAmount: "",
+      popupType: null,
       amount: "",
+      isOpenNetworkPopup: false,
+      updateInterval: null,
       isSettingsOpened: false,
-      isSuccessPopup: false,
-      destinationTokenAmount: "",
+      beamConfig: null,
       estimateSendFee: 0,
-      transactionLink: "",
+      dstMaxAmount: 0,
+      dstTokenPrice: null,
       isSettingsError: false,
-      selectChain: false,
-      startGasCost: 0,
-      transaction: null,
-      destinationTokenPrice: null,
-      transactionInfo: null,
-      destinationTokenMax: 0,
-      inputAddressError: false,
+      startFee: 0,
+      isSelectedChain: false,
+      isOpenSuccessPopup: false,
+      tx: null,
+      txInfo: null,
     };
   },
 
@@ -159,31 +155,12 @@ export default {
       chainId: "getChainId",
     }),
 
-    isTokenApproved() {
-      return !this.bridgeObject.isTokenApprove && this.isMainnetChain;
-    },
-
-    beamConfig() {
-      return {
-        contract: this.bridgeObject.contractInstance,
-        account: this.account,
-        dstChainId: this.remoteLzChainId,
-        toAddressBytes: this.toAddressBytes,
-      };
-    },
-
-    expectedData() {
-      return {
-        mimAmount: this.amount,
-        dstTokenAmount: this.destinationTokenAmount || "0.0",
-        dstTokenSymbol: this.destinationTokenInfo.symbol,
-        gasCost: this.formatEstimateSendFee,
-        srcTokenSymbol: this.nativeTokenInfo.symbol,
-      };
+    isAcceptedNetworks() {
+      return this.acceptedNetworks.indexOf(this.chainId) === -1;
     },
 
     toAddress() {
-      return this.destinationAddress ? this.destinationAddress : this.account;
+      return this.dstAddress ? this.dstAddress : this.account;
     },
 
     toAddressBytes() {
@@ -193,133 +170,141 @@ export default {
       );
     },
 
-    isAcceptedNetworks() {
-      return this.acceptedNetworks.indexOf(this.chainId) === -1;
+    isTokenApproved() {
+      return !this.beamConfig.isTokenApprove && this.chainId === 1;
     },
 
     amountError() {
-      if (+this.amount > +this.bridgeObject.balance) {
-        return `The value cannot be greater than ${this.bridgeObject.balance}`;
+      if (+this.amount > +this.beamConfig.balance) {
+        return `The value cannot be greater than ${this.beamConfig.balance}`;
       }
       return "";
     },
 
     popupNetworksArr() {
-      if (this.popupType === "from") return this.bridgeObject?.fromChains;
-      return this.bridgeObject?.toChains;
+      if (this.popupType === "from") return this.beamConfig?.fromChains;
+      return this.beamConfig?.toChains;
     },
 
     activePopupChain() {
       if (this.popupType === "from" && this.originChain) {
         return this.originChain.chainId;
-      } else if (this.destinationChain) {
-        return this.destinationChain.chainId;
+      } else if (this.dstChain) {
+        return this.dstChain.chainId;
       }
 
       return 1;
     },
 
     originChain() {
-      return this.bridgeObject?.fromChains.find(
+      return this.beamConfig?.fromChains.find(
         (chain) => chain.chainId === this.chainId
       );
     },
 
     targetToChain() {
       if (this.toChainId) return this.toChainId;
-      return this.bridgeObject.chainsInfo[0].chainId;
+      return this.beamConfig.chainsInfo[0].chainId;
     },
 
-    remoteLzChainId() {
-      const lzChainId = this.bridgeObject.chainsInfo.find(
+    dstChainId() {
+      return this.beamConfig.chainsInfo.find(
+        (item) => item.chainId === this.targetToChain
+      )?.lzChainId;
+    },
+
+    lzChainId() {
+      const lzChainId = this.beamConfig.chainsInfo.find(
         (item) => item.chainId === this.targetToChain
       )?.lzChainId;
 
       return this.$ethers.BigNumber.from(lzChainId);
     },
 
-    dstChainId() {
-      return this.bridgeObject.chainsInfo.find(
-        (item) => item.chainId === this.targetToChain
-      )?.lzChainId;
-    },
-
-    destinationChain() {
-      return this.bridgeObject?.toChains.find(
+    dstChain() {
+      return this.beamConfig?.toChains.find(
         (chain) => chain.chainId === this.targetToChain
       );
     },
 
-    isMainnetChain() {
-      return this.chainId === 1;
+    isEnterDstAddress() {
+      return !this.dstAddress && this.isShowDstAddress;
     },
 
     actionBtnText() {
-      if (!this.destinationAddress && this.isShowInputAddress)
-        return "Set destination address";
-
-      if (this.inputAddressError) return "Set destination address";
-
-      if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
-        return "Approve";
-
+      if (this.isEnterDstAddress) return "Set destination address";
+      if (this.dstAddressError) return "Set destination address";
+      if (this.isTokenApproved) return "Approve";
       return "Beam";
     },
 
     mimBalance() {
-      return this.bridgeObject?.balance || 0;
+      return this.beamConfig?.balance || 0;
     },
 
     disableBtn() {
-      if (!this.account || !this.selectChain) return true;
-      if (!this.destinationAddress && this.isShowInputAddress) return true;
-      if (this.inputAddressError) return true;
-      if (!this.bridgeObject.isTokenApprove && this.isMainnetChain)
-        return false;
+      if (!this.account || !this.isSelectedChain) return true;
+      if (this.isEnterDstAddress) return true;
+      if (this.dstAddressError) return true;
+      if (this.isTokenApproved) return false;
       if (+this.amount === 0) return true;
       return !!this.amountError;
     },
 
-    formatEstimateSendFee() {
-      if (!this.estimateSendFee[0]) return "0.0";
-      return filters.formatToFixed(
-        this.$ethers.utils.formatEther(this.estimateSendFee[0]),
-        8
+    dstDefaultValue() {
+      return (
+        this.beamConfig.fromChains.find(
+          (chain) => chain.chainId === this.originChain.chainId
+        )?.defaultValue[this.targetToChain] || "0"
       );
     },
 
-    nativeTokenInfo() {
+    srcTokenInfo() {
       return getTokenInfo(this.chainId);
     },
 
-    destinationTokenInfo() {
+    dstTokenInfo() {
       return getTokenInfo(this.targetToChain);
     },
 
-    settingConfig() {
-      return {
-        icon: this.destinationTokenInfo.icon,
-        nativeTokenBalance: this.bridgeObject.nativeTokenBalance,
-        gasCost: this.getGasCost,
-        destinationSymbol: this.destinationTokenInfo.symbol,
-        nativeSymbol: this.nativeTokenInfo.symbol,
-        contract: this.bridgeObject.contractInstance,
-        address: this.toAddress,
-        dstChainId: this.remoteLzChainId,
-      };
-    },
-
-    getGasCost() {
+    getFee() {
       if (!this.estimateSendFee[0]) return 0;
       return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
     },
 
-    destinationTokenDefaultValue() {
-      return (
-        this.bridgeObject.fromChains.find(
-          (chain) => chain.chainId === this.originChain.chainId
-        )?.defaultValue[this.targetToChain] || "0"
-      );
+    formatFee() {
+      if (!this.getFee) return "0.0";
+      return filters.formatToFixed(this.getFee, 8);
+    },
+
+    expectedConfig() {
+      return {
+        mimAmount: this.amount,
+        dstTokenAmount: this.dstTokenAmount,
+        dstTokenSymbol: this.dstTokenInfo.symbol,
+        gasCost: this.formatFee,
+        srcTokenSymbol: this.srcTokenInfo.symbol,
+      };
+    },
+
+    settingConfig() {
+      return {
+        icon: this.dstTokenInfo.icon,
+        nativeTokenBalance: this.beamConfig.nativeTokenBalance,
+        nativeSymbol: this.srcTokenInfo.symbol,
+        contract: this.beamConfig.contractInstance,
+        address: this.toAddress,
+        dstChainId: this.lzChainId,
+      };
+    },
+
+    txConfig() {
+      return {
+        contract: this.beamConfig.contractInstance,
+        account: this.account,
+        dstChainId: this.lzChainId,
+        toAddressBytes: this.toAddressBytes,
+      };
     },
 
     successConfig() {
@@ -328,41 +313,34 @@ export default {
         sendTo: this.toAddress,
         originChain: this.originChain,
         mimAmount: this.amount,
-        nativeSymbol: this.nativeTokenInfo.symbol,
-        gasCost: filters.formatToFixed(this.getGasCost, 6),
-        tokenToGas: filters.formatToFixed(
-          +this.getGasCost - +this.startGasCost,
-          3
-        ),
-        destinationTokenAmount: this.destinationTokenAmount,
-        destinationSymbol: this.destinationTokenInfo.symbol,
-        transaction: this.transaction,
-        destinationchain: this.destinationChain,
-        destinationTokenPrice: this.destinationTokenPrice,
-        transactionInfo: this.transactionInfo,
+        nativeSymbol: this.srcTokenInfo.symbol,
+        gasOnDst: filters.formatToFixed(+this.getFee - +this.startFee, 3),
+        dstTokenSymbol: this.dstTokenInfo.symbol,
+        dstChain: this.dstChain,
+        dstTokenAmount: this.dstTokenAmount,
+        dstTokenPrice: this.dstTokenPrice,
+        tx: this.tx,
+        txInfo: this.txInfo,
       };
     },
   },
 
   watch: {
     async chainId() {
-      if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
-      else await this.createBridgeData();
+      if (this.isAcceptedNetworks) await this.beamNotAvailable();
+      else await this.createBeamData();
     },
   },
 
   methods: {
-    updateDestinationAddress(address, error) {
-      this.destinationAddress = address;
-      this.inputAddressError = error;
+    toggleDstAddress() {
+      this.isShowDstAddress = !this.isShowDstAddress;
     },
 
-    errorDestinationAddress(error) {
-      this.inputAddressError = error;
-    },
-
-    toggleInputAddress() {
-      this.isShowInputAddress = !this.isShowInputAddress;
+    switchChain() {
+      if (!this.isSelectedChain) return false;
+      if (this.account) this.switchNetwork(this.dstChain.chainId);
+      else this.switchNetworkWithoutConnect(this.dstChain.chainId);
     },
 
     openNetworkPopup(type) {
@@ -370,98 +348,69 @@ export default {
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
     },
 
-    closeNetworkPopup() {
-      this.isOpenNetworkPopup = false;
-    },
-
-    async changeChain(chainId, type) {
-      if (type === "to") {
-        this.selectChain = true;
-        this.destinationTokenAmount = "";
-        this.estimateSendFee = 0;
-        this.toChainId = chainId;
-        this.startGasCost = 0;
-        this.destinationTokenMax = await getDstTokenMax(
-          this.bridgeObject.contractInstance,
-          this.signer,
-          this.dstChainId
-        );
-
-        if (!this.startGasCost) {
-          const startGasCost = await this.getEstimatedFees();
-          this.startGasCost = this.$ethers.utils.formatEther(startGasCost[0]);
-        }
-
-        this.estimateSendFee = await this.getEstimatedFees();
-      } else {
-        this.switchNetwork(chainId);
-      }
-    },
-
-    switchChain() {
-      if (!this.selectChain) return false;
-      if (this.account) this.switchNetwork(this.destinationChain.chainId);
-      else this.switchNetworkWithoutConnect(this.destinationChain.chainId);
-    },
-
     async updateMainValue(value) {
       this.amount = value;
     },
 
-    async bridgeNotAvailable() {
-      return await this.$store.dispatch(
-        "notifications/new",
-        notification.bridgeNotAvailable
-      );
+    updateDestinationAddress(address, error) {
+      this.dstAddress = address;
+      this.dstAddressError = error;
     },
 
-    async createBridgeData() {
-      this.bridgeObject = await createBridgeConfig(
-        this.chainId,
-        this.signer,
-        this.account,
-        this.provider
-      );
-
-      this.updateInterval = setInterval(async () => {
-        this.bridgeObject = await createBridgeConfig(
-          this.chainId,
-          this.signer,
-          this.account,
-          this.provider
-        );
-      }, 15000);
-    },
-
-    async changeSettings(value) {
-      await nextTick();
-      if (!value || this.isSettingsError) this.destinationTokenAmount = "";
-      else this.destinationTokenAmount = value;
-      this.estimateSendFee = await this.getEstimatedFees();
-    },
-
-    errorSettings(value) {
-      this.isSettingsError = value;
+    errorDestinationAddress(error) {
+      this.dstAddressError = error;
     },
 
     async actionHandler() {
       if (this.disableBtn) return false;
       if (this.isTokenApproved) {
         return await approveToken(
-          this.bridgeObject.tokenContractInstance,
-          this.bridgeObject.contractInstance.address
+          this.beamConfig.tokenContractInstance,
+          this.beamConfig.contractInstance.address
         );
       }
 
       await this.seendBeam();
     },
 
+    async seendBeam() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.pending
+      );
+
+      this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
+
+      try {
+        const mimAmount = this.$ethers.utils.parseUnits(
+          filters.formatToFixed(this.amount, 18),
+          18
+        );
+
+        const { fees, params } = await this.getEstimatedFees(true);
+        this.tx = await sendFrom(fees, params, mimAmount, this.txConfig);
+        console.log("this.tx", this.tx);
+        await this.$store.commit("notifications/delete", notificationId);
+        this.isOpenSuccessPopup = true;
+        await this.tx.wait();
+        console.log("this.tx", this.tx);
+
+        this.txInfo = await waitForMessageReceived(
+          this.dstChainId,
+          this.tx.hash
+        );
+      } catch (error) {
+        console.log("Bridge Error:", error);
+        this.errorTransaction(error, notificationId);
+      }
+    },
+
     async getEstimatedFees(getParams = false) {
       const { fees, params } = await getEstimateSendFee(
-        this.bridgeObject.contractInstance,
+        this.beamConfig.contractInstance,
         this.toAddress,
-        this.remoteLzChainId,
-        this.destinationTokenAmount || "0",
+        this.lzChainId,
+        this.dstTokenAmount || "0",
         this.amount || "1"
       );
 
@@ -487,44 +436,74 @@ export default {
       await this.$store.dispatch("notifications/new", errorNotification);
     },
 
-    async seendBeam() {
-      const notificationId = await this.$store.dispatch(
+    async changeSettings(value) {
+      if (!value || this.isSettingsError) this.dstTokenAmount = "";
+      else this.dstTokenAmount = value;
+      this.estimateSendFee = await this.getEstimatedFees();
+    },
+
+    errorSettings(value) {
+      this.isSettingsError = value;
+    },
+
+    closeNetworkPopup() {
+      this.isOpenNetworkPopup = false;
+    },
+
+    async changeChain(chainId, type) {
+      if (type === "to") {
+        this.isSelectedChain = true;
+        this.dstTokenAmount = "";
+        this.estimateSendFee = 0;
+        this.toChainId = chainId;
+        this.startFee = 0;
+        this.dstMaxAmount = await getDstTokenMax(
+          this.beamConfig.contractInstance,
+          this.signer,
+          this.dstChainId
+        );
+
+        if (!this.startFee) {
+          const startFee = await this.getEstimatedFees();
+          this.startFee = this.$ethers.utils.formatEther(startFee[0]);
+        }
+
+        this.estimateSendFee = await this.getEstimatedFees();
+      } else {
+        this.switchNetwork(chainId);
+      }
+    },
+
+    async beamNotAvailable() {
+      return await this.$store.dispatch(
         "notifications/new",
-        notification.pending
+        notification.beamNotAvailable
+      );
+    },
+
+    async createBeamData() {
+      this.beamConfig = await createBeamConfig(
+        this.chainId,
+        this.signer,
+        this.account,
+        this.provider
       );
 
-      this.destinationTokenPrice = await getNativeTokenPrice(this.toChainId);
-
-      try {
-        const mimAmount = this.$ethers.utils.parseUnits(
-          filters.formatToFixed(this.amount, 18),
-          18
+      this.updateInterval = setInterval(async () => {
+        this.beamConfig = await createBeamConfig(
+          this.chainId,
+          this.signer,
+          this.account,
+          this.provider
         );
-
-        const { fees, params } = await this.getEstimatedFees(true);
-        const tx = await sendFrom(fees, params, mimAmount, this.beamConfig);
-        await this.$store.commit("notifications/delete", notificationId);
-
-        this.isSuccessPopup = true;
-        await tx.wait();
-
-        this.transaction = tx;
-        this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
-        this.transactionInfo = await waitForMessageReceived(
-          this.dstChainId,
-          tx.hash
-        );
-      } catch (error) {
-        console.log("Bridge Error:", error);
-        this.errorTransaction(error, notificationId);
-      }
+      }, 15000);
     },
   },
 
   async created() {
     if (!this.chainId) return false;
-    if (this.isAcceptedNetworks) await this.bridgeNotAvailable();
-    else await this.createBridgeData();
+    if (this.isAcceptedNetworks) await this.beamNotAvailable();
+    else await this.createBeamData();
   },
 
   beforeUnmount() {

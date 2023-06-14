@@ -1,13 +1,13 @@
 import { Contract, ethers, providers } from "ethers";
-import endpointAbi from "@/utils/abi/bridge/endpoint.js";
-import ultraLightNodeV2Abi from "@/utils/abi/bridge/UltraLightNodeV2.js";
-import relayerAbi from "@/utils/abi/bridge/relayer.js";
+import endpointAbi from "@/utils/abi/beam/endpoint.js";
+import ultraLightNodeV2Abi from "@/utils/abi/beam/UltraLightNodeV2.js";
+import relayerAbi from "@/utils/abi/beam/relayer.js";
 
 export const getDstTokenMax = async (
   beamContract: Contract,
   signer: providers.BaseProvider,
   dstChainId: number
-) => {
+): Promise<String> => {
   const lzEndpointAddress = await beamContract.lzEndpoint();
 
   const endpointContract = await new Contract(
@@ -39,4 +39,3 @@ export const getDstTokenMax = async (
 
   return ethers.utils.formatUnits(response.dstNativeAmtCap, 18);
 };
-//

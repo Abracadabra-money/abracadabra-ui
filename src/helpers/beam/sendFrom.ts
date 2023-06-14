@@ -6,7 +6,7 @@ export const sendFrom = async (
   adapterParams: string,
   mimAmount: BigNumber,
   { contract, account, dstChainId, toAddressBytes }: any
-): Promise<any> => {
+): Promise<Object> => {
   const estimateGas = await contract.estimateGas.sendFrom(
     account, // 'from' address to send tokens
     dstChainId, // remote LayerZero chainId

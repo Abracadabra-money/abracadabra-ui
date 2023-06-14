@@ -12,7 +12,7 @@ type ChainsConfig = {
   icon: string;
 };
 
-export type BridgeConfig = {
+export type BeamConfig = {
   contractInstance: Contract;
   balance: string;
   nativeTokenBalance: string | BigNumber | undefined;

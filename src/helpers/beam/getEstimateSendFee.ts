@@ -7,7 +7,7 @@ export const adapterParams = async (
   address: string,
   dstAmount: string,
   dstChainId: number
-) => {
+): Promise<String> => {
   const dstNativeAmount = ethers.utils.parseEther(dstAmount.toString() || "0");
   const minGas = await contract.minDstGasLookup(dstChainId, PACKET_TYPE);
 
@@ -25,7 +25,7 @@ export const getEstimateSendFee = async (
   dstChainId: number,
   dstAmount: string = "0",
   mimAmount: string = "1"
-) => {
+): Promise<Object> => {
   const params = await adapterParams(contract, address, dstAmount, dstChainId);
 
   const fees = await contract.estimateSendFee(

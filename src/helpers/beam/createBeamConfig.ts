@@ -1,11 +1,11 @@
 import { Contract, providers } from "ethers";
 import mimConfigs from "@/utils/contracts/mimToken";
-import chainConfig from "@/utils/bridge/chainConfig";
-import bridgeConfigs from "@/utils/bridge/bridgeConfig";
+import chainConfig from "@/utils/beam/chainConfig";
+import beamConfigs from "@/utils/beam/beamConfigs";
 import { isTokenApprowed } from "@/utils/approveHelpers.js";
 import { markRaw } from "vue";
 import { getUserBalance, getNativeTokenBalance } from "@/helpers/userInfo";
-import type { BridgeConfig, UserInfo } from "@/helpers/bridge/types";
+import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
 const getUserInfo = async (
   provider: providers.BaseProvider,
@@ -27,21 +27,21 @@ const getUserInfo = async (
   };
 };
 
-export const createBridgeConfig = async (
+export const createBeamConfig = async (
   chainId: number,
   signer: providers.BaseProvider,
   account: string,
   provider: providers.BaseProvider
-): Promise<BridgeConfig | boolean> => {
+): Promise<BeamConfig | boolean> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
   if (!mimConfig) return false;
 
-  const bridgeConfig = bridgeConfigs.find((item) => item.chainId === chainId);
-  if (!bridgeConfig) return false;
+  const beamConfig = beamConfigs.find((item) => item.chainId === chainId);
+  if (!beamConfig) return false;
 
   const contractInstance = new Contract(
-    bridgeConfig.contract.address,
-    JSON.stringify(bridgeConfig.contract.abi),
+    beamConfig.contract.address,
+    JSON.stringify(beamConfig.contract.abi),
     signer
   );
 
@@ -51,7 +51,7 @@ export const createBridgeConfig = async (
     signer
   );
 
-  const fromChains = bridgeConfigs.map((configItem) => {
+  const fromChains = beamConfigs.map((configItem) => {
     return {
       chainId: configItem.chainId,
       title: configItem.chainName,
@@ -75,7 +75,7 @@ export const createBridgeConfig = async (
     provider,
     account,
     tokenContractInstance,
-    bridgeConfig.contract.address
+    beamConfig.contract.address
   );
 
   return markRaw({

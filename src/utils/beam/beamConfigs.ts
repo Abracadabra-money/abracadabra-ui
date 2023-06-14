@@ -1,4 +1,4 @@
-import abi from "@/utils/abi/bridge/index";
+import abi from "@/utils/abi/beam/";
 import { useImage } from "@/helpers/useImage";
 
 const ethIcon = useImage(`assets/images/networks/ethereum.svg`);
@@ -10,7 +10,7 @@ const polygonIcon = useImage(`assets/images/networks/polygon.svg`);
 const optimismIcon = useImage(`assets/images/networks/optimism.svg`);
 const moonriver = useImage(`assets/images/networks/moonriver.svg`);
 
-export type BridgeConfig = {
+export type BeamConfig = {
   chainId: number;
   chainName: string;
   chainIcon: string;
@@ -21,7 +21,7 @@ export type BridgeConfig = {
   defaultValue: any;
 };
 
-const config: Array<BridgeConfig> = [
+const config: Array<BeamConfig> = [
   {
     chainId: 1,
     chainName: "Ethereum",

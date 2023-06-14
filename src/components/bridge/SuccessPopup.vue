@@ -85,12 +85,9 @@
                 <span class="logo-address">
                   <div class="token-info">
                     <div class="token-logo">
-                      <img
-                        :src="config.destinationchain.icon"
-                        class="token-icon"
-                      />
+                      <img class="token-icon" :src="config.dstChain.icon" />
                       <span class="token-symbol">{{
-                        config.destinationchain.title
+                        config.dstChain.title
                       }}</span>
                     </div>
                   </div>
@@ -123,8 +120,8 @@
                     <span class="tag"></span>
                     <span class="value">
                       <span class="eth"
-                        >{{ config.destinationTokenAmount || "0.0" }}
-                        {{ config.destinationSymbol }}</span
+                        >{{ config.dstTokenAmount || "0.0" }}
+                        {{ config.dstTokenSymbol }}</span
                       >
                       <span class="fiat">{{ destinationTokenUsd }}</span>
                     </span>
@@ -148,8 +145,8 @@
                 </p>
               </div>
               <div class="lower">
-                <span class="link-block" v-if="link">
-                  <a :href="link" target="_blank" class="link-text"
+                <span class="link-block" v-if="layerZeroLink">
+                  <a :href="layerZeroLink" target="_blank" class="link-text"
                     >LayerZero</a
                   >
                   <img
@@ -171,7 +168,7 @@
 <script>
 import { ethers, providers } from "ethers";
 import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
-import scanConfig from "@/utils/bridge/scanConfig.ts";
+import scanConfig from "@/utils/beam/scanConfig.ts";
 import filters from "@/filters/index.js";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import { useImage } from "@/helpers/useImage";
@@ -180,11 +177,6 @@ export default {
   props: {
     config: {
       type: Object,
-      default: null,
-    },
-
-    link: {
-      type: String,
       required: true,
     },
   },
@@ -222,13 +214,13 @@ export default {
     },
 
     transactionCheck() {
-      if (this.config.transactionInfo)
+      if (this.config.txInfo)
         return useImage("assets/images/bridge/transaction-complete.png");
       return useImage("assets/images/bridge/transaction-check.png");
     },
 
     transactionText() {
-      return this.config.transactionInfo ? "complete" : "processing";
+      return this.config.txInfo ? "complete" : "processing";
     },
 
     fromScanTitle() {
@@ -236,9 +228,9 @@ export default {
     },
 
     fromScanUrl() {
-      if (!this.config.transaction?.hash) return "";
+      if (!this.config.tx?.hash) return "";
       return `${scanConfig[this.config.originChain.chainId].url}${
-        this.config.transaction.hash
+        this.config.tx.hash
       }`;
     },
 
@@ -247,39 +239,40 @@ export default {
     },
 
     destinationTokenAmount() {
-      return filters.formatToFixed(
-        this.config.destinationTokenAmount || "0.0",
-        3
-      );
+      return filters.formatToFixed(this.config.dstTokenAmount || "0.0", 3);
     },
 
     destinationTokenUsd() {
       return filters.formatUSD(
-        this.config.destinationTokenAmount *
-          this.config.destinationTokenPrice || 0
+        this.config.dstTokenAmount * this.config.dstTokenPrice || 0
       );
     },
 
     isNone() {
-      return !+this.config.tokenToGas && !+this.config.destinationTokenAmount;
+      return !+this.config.gasOnDst && !+this.config.dstTokenAmount;
     },
 
     originalTokenAmount() {
-      if (!+this.config.tokenToGas) return `<0.001 ${this.config.nativeSymbol}`;
-      return `${this.config.tokenToGas} ${this.config.nativeSymbol}`;
+      if (!+this.config.gasOnDst) return `<0.001 ${this.config.nativeSymbol}`;
+      return `${this.config.gasOnDst} ${this.config.nativeSymbol}`;
     },
 
     convertTokenAmount() {
       if (!+this.destinationTokenAmount)
-        return `<0.001 ${this.config.destinationSymbol}`;
-      return `${this.destinationTokenAmount} ${this.config.destinationSymbol}`;
+        return `<0.001 ${this.config.dstTokenSymbol}`;
+      return `${this.destinationTokenAmount} ${this.config.dstTokenSymbol}`;
     },
 
     dstScanUrl() {
-      if (!this.config.transactionInfo) return "";
-      return `${scanConfig[this.config.destinationchain.chainId].url}${
-        this.config.transactionInfo.dstTxHash
+      if (!this.config.txInfo) return "";
+      return `${scanConfig[this.config.dstChain.chainId].url}${
+        this.config.txInfo.dstTxHash
       }`;
+    },
+
+    layerZeroLink() {
+      if (!this.config.tx) return false;
+      return `https://layerzeroscan.com/tx/${this.config.tx.hash}`;
     },
   },
 

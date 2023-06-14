@@ -10,8 +10,8 @@
         Gas on destination:
       </p>
       <p class="value pointer" @click="$emit('open-settings')">
-        {{ data.dstTokenAmount }}
-        {{ data.destinationTokenInfo }}
+        {{ data.dstTokenAmount || "0.0" }}
+        {{ data.dstTokenSymbol }}
       </p>
     </div>
 
