@@ -166,12 +166,11 @@
   </div>
 </template>
 <script>
-import { ethers, providers } from "ethers";
-import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
 import scanConfig from "@/utils/beam/scanConfig.ts";
 import filters from "@/filters/index.js";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import { useImage } from "@/helpers/useImage";
+import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
 
 export default {
   props: {
@@ -275,25 +274,8 @@ export default {
     },
   },
 
-  methods: {
-    async getMimPrice() {
-      const defaultProvider = new providers.StaticJsonRpcProvider(
-        "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
-      );
-
-      const contract = await new ethers.Contract(
-        "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
-        JSON.stringify(priceAbi),
-        defaultProvider
-      );
-
-      const price = await contract.latestAnswer();
-      this.mimPrice = this.$ethers.utils.formatUnits(price.toString(), 8);
-    },
-  },
-
   async created() {
-    await this.getMimPrice();
+    this.mimPrice = await getMimPrice();
   },
 
   components: {
