@@ -4,14 +4,7 @@
       <p class="title">Advanced settings</p>
       <div class="subtitle-wrap">
         <p class="subtitle">Gas on destination chain</p>
-        <img
-          class="tooltip"
-          src="@/assets/images/info.svg"
-          alt="info"
-          v-tooltip="
-            'The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.'
-          "
-        />
+        <Tooltip :tooltip="tooltip" />
       </div>
 
       <div class="btns-wrap">
@@ -57,6 +50,7 @@
 </template>
 
 <script>
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee.ts";
 
@@ -82,8 +76,10 @@ export default {
 
   data() {
     return {
+      fee: null,
       inputValue: this.value,
-      gasCost: null,
+      tooltip:
+        "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
     };
   },
 
@@ -98,12 +94,14 @@ export default {
         this.$emit("errorSettings", true);
         return `Error max value ${this.max}`;
       }
-      if (+this.gasCost > +this.config.nativeTokenBalance && this.inputValue) {
+
+      if (+this.fee > +this.config.nativeTokenBalance && this.inputValue) {
         this.$emit("errorSettings", true);
-        return `Not enough gas ${
-          +this.gasCost - +this.config.nativeTokenBalance
-        } ${this.config.nativeSymbol} needed`;
+        return `Not enough gas ${+this.fee - +this.config.nativeTokenBalance} ${
+          this.config.nativeSymbol
+        } needed`;
       }
+
       this.$emit("errorSettings", false);
       return false;
     },
@@ -116,7 +114,7 @@ export default {
         return false;
       }
 
-      this.gasCost = await this.updateGasCost(value);
+      this.fee = await this.updateFee(value);
     },
   },
 
@@ -135,7 +133,7 @@ export default {
       this.inputValue = value;
     },
 
-    async updateGasCost(value) {
+    async updateFee(value) {
       const { fees } = await getEstimateSendFee(
         this.config.contract,
         this.config.address,
@@ -149,32 +147,13 @@ export default {
   },
 
   components: {
+    Tooltip,
     BaseButton,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-input[type="number"]:hover,
-input[type="number"]:focus {
-  -moz-appearance: number-input;
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 .settings-popup {
   display: flex;
   flex-direction: column;
@@ -204,39 +183,12 @@ input[type="number"]::-webkit-outer-spin-button {
   line-height: 27px;
 }
 
-.tooltip {
-  cursor: pointer;
-}
-
 .btns-wrap {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
   margin-bottom: 15px;
-}
-
-.setting-btn {
-  text-decoration: none;
-  width: 84px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  align-items: center;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  border: transparent;
-  width: 50%;
-  height: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease-in;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
 }
 
 .input-wrap {

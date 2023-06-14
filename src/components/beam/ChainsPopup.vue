@@ -37,11 +37,9 @@ export default {
       type: Array,
       default: () => [],
     },
-
     activeChain: {
       type: [String, Number],
     },
-
     popupType: {
       type: String,
     },
