@@ -1,5 +1,13 @@
 import { BigNumber } from "ethers";
 import axios from "axios";
+import rateLimit from "axios-rate-limit";
+
+// rate limit to avoid 429 error
+const http = rateLimit(axios.create(), {
+  maxRequests: 1,
+  perMilliseconds: 400,
+  maxRPS: 1,
+});
 
 const SLIPPAGE_ACCURACY = 1e4;
 
@@ -51,7 +59,7 @@ export const swap0xRequest = async (
       };
     }
 
-    const response = await axios.get(`${endpoint}/swap/v1/quote`, {
+    const response = await http.get(`${endpoint}/swap/v1/quote`, {
       params: params,
     });
 
