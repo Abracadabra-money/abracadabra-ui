@@ -140,8 +140,7 @@ export default {
     sortList() {
       return [
         { title: "Title", name: sortKeys.name },
-        { title: "Yield Per $1000", name: sortKeys.yield },
-        { title: "ROI Annually", name: sortKeys.roi },
+        { title: "APR", name: sortKeys.roi },
         { title: "TVL", name: sortKeys.tvl },
       ];
     },
@@ -157,7 +156,7 @@ export default {
     },
 
     headers() {
-      return ["CHAIN", "Pool", "~Yield per $1000", "ROI Annually", "TVL"];
+      return ["CHAIN", "Pool", "APR", "TVL"];
     },
   },
 

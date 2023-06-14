@@ -50,11 +50,7 @@ export default {
     stats() {
       return [
         {
-          title: "~Yield per $1000",
-          value: filters.formatTokenBalance(this.pool.poolYield),
-        },
-        {
-          title: "ROI Annually",
+          title: "APR",
           value: filters.formatPercent(this.pool.poolRoi),
         },
         { title: "TVL", value: filters.formatUSD(this.pool.poolTvl) },
