@@ -1566,6 +1566,40 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
   },
+  {
+    icon: useImage(`assets/images/tokens/Curve-MIM-YEARN.png`),
+    name: "Private yv-MIM3CRV",
+    chainId: 1,
+    id: 41,
+    liquidationFee: 0.5,
+    mcr: 98,
+    borrowFee: 0,
+    version: 4,
+    cauldronSettings: {
+      isSwappersActive: false,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+    },
+    contract: {
+      name: "WhitelistedCauldronV4",
+      address: "0xCA76612C694f79b935e69898b1A731E8A28dAcC8",
+      abi: poolsAbi.WhitelistedCauldronV4,
+    },
+    collateralInfo: {
+      name: "Private yv-MIM3CRV",
+      decimals: 18,
+      address: "0xa540744DEDBDA9eF64cf753F0E851EfE4a419EA9 ",
+      abi: tokensAbi.yvCurveMIMf,
+    },
+    mimInfo,
+  },
 ];
 
 export default config;
