@@ -119,7 +119,7 @@ import { getTokenInfo } from "@/helpers/getTokenInfo";
 import { nextTick } from "vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
-import { getEstimatedGasCostNew } from "@/helpers/bridge/getEstimatedGasCost";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 
 export default {
@@ -365,10 +365,6 @@ export default {
       this.isShowInputAddress = !this.isShowInputAddress;
     },
 
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
-
     openNetworkPopup(type) {
       this.popupType = type;
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
@@ -392,10 +388,11 @@ export default {
         );
 
         if (!this.startGasCost) {
-          const startGasCost = await this.getFees();
+          const startGasCost = await this.getEstimatedFees();
           this.startGasCost = this.$ethers.utils.formatEther(startGasCost[0]);
         }
-        await this.getFees();
+
+        this.estimateSendFee = await this.getEstimatedFees();
       } else {
         this.switchNetwork(chainId);
       }
@@ -409,47 +406,6 @@ export default {
 
     async updateMainValue(value) {
       this.amount = value;
-      if (this.selectChain) await this.getFees(value);
-    },
-
-    async adapterParams() {
-      const packetType = 0;
-      const messageVersion = 2;
-
-      const dstNativeAmount = this.$ethers.utils.parseEther(
-        this.destinationTokenAmount.toString() || "0"
-      );
-
-      const minGas = await this.bridgeObject.contractInstance.minDstGasLookup(
-        this.remoteLzChainId,
-        packetType
-      );
-
-      if (minGas.eq(0))
-        console.log(
-          `minGas is 0, minDstGasLookup not set for destination chain ${this.remoteLzChainId}`
-        );
-
-      return this.$ethers.utils.solidityPack(
-        ["uint16", "uint256", "uint256", "address"],
-        [messageVersion, minGas, dstNativeAmount, this.toAddress]
-      );
-    },
-
-    async getFees(amount = "1") {
-      if (!+amount) return 0;
-      const parseAmount = await this.$ethers.utils.parseUnits(amount, 18);
-
-      this.estimateSendFee =
-        await this.bridgeObject.contractInstance.estimateSendFee(
-          this.remoteLzChainId,
-          this.toAddressBytes,
-          parseAmount,
-          false,
-          this.adapterParams()
-        );
-
-      return this.estimateSendFee;
     },
 
     async bridgeNotAvailable() {
@@ -481,7 +437,7 @@ export default {
       await nextTick();
       if (!value || this.isSettingsError) this.destinationTokenAmount = "";
       else this.destinationTokenAmount = value;
-      await this.getFees();
+      this.estimateSendFee = await this.getEstimatedFees();
     },
 
     errorSettings(value) {
@@ -498,6 +454,19 @@ export default {
       }
 
       await this.seendBeam();
+    },
+
+    async getEstimatedFees(getParams = false) {
+      const { fees, params } = await getEstimateSendFee(
+        this.bridgeObject.contractInstance,
+        this.toAddress,
+        this.remoteLzChainId,
+        this.destinationTokenAmount || "0",
+        this.amount || "1"
+      );
+
+      if (getParams) return { fees, params };
+      else return fees;
     },
 
     async errorTransaction(error, notificationId) {
@@ -532,14 +501,7 @@ export default {
           18
         );
 
-        const { fees, params } = await getEstimatedGasCostNew(
-          this.bridgeObject.contractInstance,
-          this.toAddress,
-          this.remoteLzChainId,
-          this.destinationTokenAmount,
-          this.amount
-        );
-
+        const { fees, params } = await this.getEstimatedFees(true);
         const tx = await sendFrom(fees, params, mimAmount, this.beamConfig);
         await this.$store.commit("notifications/delete", notificationId);
 

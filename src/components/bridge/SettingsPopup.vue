@@ -58,7 +58,7 @@
 
 <script>
 import BaseButton from "@/components/base/BaseButton.vue";
-import { getEstimatedGasCost } from "@/helpers/bridge/getEstimatedGasCost.ts";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee.ts";
 
 export default {
   props: {
@@ -136,15 +136,15 @@ export default {
     },
 
     async updateGasCost(value) {
-      const gasCost = await getEstimatedGasCost(
+      const { fees } = await getEstimateSendFee(
         this.config.contract,
         this.config.address,
         this.config.dstChainId,
         value
       );
 
-      if (!gasCost[0]) return 0;
-      return this.$ethers.utils.formatEther(gasCost[0]);
+      if (!fees[0]) return 0;
+      return this.$ethers.utils.formatEther(fees[0]);
     },
   },
 
