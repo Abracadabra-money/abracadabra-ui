@@ -43,7 +43,7 @@
                     <span class="tag">Amount</span>
                     <span class="value">
                       <span class="eth">{{ config.mimAmount }} MIM</span>
-                      <span class="fiat">${{ mimToUsd }}</span>
+                      <span class="fiat">{{ mimToUsd }}</span>
                     </span>
                   </li>
                   <li>
@@ -116,7 +116,7 @@
                     <span class="tag">You will receive</span>
                     <span class="value">
                       <span class="eth">{{ config.mimAmount }} MIM</span>
-                      <span class="fiat">${{ mimToUsd }}</span>
+                      <span class="fiat">{{ mimToUsd }}</span>
                     </span>
                   </li>
                   <li>
@@ -126,7 +126,7 @@
                         >{{ config.destinationTokenAmount || "0.0" }}
                         {{ config.destinationSymbol }}</span
                       >
-                      <span class="fiat">${{ destinationTokenUsd }}</span>
+                      <span class="fiat">{{ destinationTokenUsd }}</span>
                     </span>
                   </li>
                 </ul>
@@ -243,7 +243,7 @@ export default {
     },
 
     mimToUsd() {
-      return filters.formatToFixed(+this.config.mimAmount * +this.mimPrice, 2);
+      return filters.formatUSD(+this.config.mimAmount * +this.mimPrice);
     },
 
     destinationTokenAmount() {
@@ -254,10 +254,9 @@ export default {
     },
 
     destinationTokenUsd() {
-      return filters.formatToFixed(
+      return filters.formatUSD(
         this.config.destinationTokenAmount *
-          this.config.destinationTokenPrice || "0.0",
-        2
+          this.config.destinationTokenPrice || 0
       );
     },
 
