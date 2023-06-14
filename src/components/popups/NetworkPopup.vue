@@ -1,6 +1,6 @@
 <template>
-  <div class="popup-wrap" v-if="isOpen">
-    <div class="popup" v-click-outside="closePopup">
+  <div class="popup-wrap" v-if="isOpen" @click="closePopup">
+    <div class="popup">
       <img
         class="popup-close"
         @click="closePopup"

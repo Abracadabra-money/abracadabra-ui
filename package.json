@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.6.5",
+    "@layerzerolabs/scan-client": "^0.0.4",
     "@rollup/plugin-alias": "^4.0.3",
     "@toruslabs/torus-embed": "^1.41.1",
     "@uniswap/sdk": "^3.0.3",

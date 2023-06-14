@@ -46,6 +46,9 @@
           <router-link class="list-link" :to="{ name: 'magicAPE' }"
             >magicAPE</router-link
           >
+          <router-link class="list-link" :to="{ name: 'magicLVL' }"
+            >magicLVL</router-link
+          >
         </div>
       </div>
 
@@ -68,7 +71,7 @@
             >Farms</router-link
           >
           <router-link class="list-link" :to="{ name: 'Bridge' }"
-            >Bridge</router-link
+            >Beam</router-link
           >
           <a
             href="https://curve.fi/#/ethereum/pools/mim/swap"
@@ -322,13 +325,25 @@ export default {
   },
 
   components: {
-    ConnectButton: defineAsyncComponent(() => import("@/components/ui/ConnectButton.vue")),
-    MimTokenBlock: defineAsyncComponent(() => import("@/components/ui/MimTokenBlock.vue")),
-    NetworkPopup: defineAsyncComponent(() => import("@/components/popups/NetworkPopup.vue")),
-    MobileMenu: defineAsyncComponent(() => import("@/components/popups/MobileMenu.vue")),
+    ConnectButton: defineAsyncComponent(() =>
+      import("@/components/ui/ConnectButton.vue")
+    ),
+    MimTokenBlock: defineAsyncComponent(() =>
+      import("@/components/ui/MimTokenBlock.vue")
+    ),
+    NetworkPopup: defineAsyncComponent(() =>
+      import("@/components/popups/NetworkPopup.vue")
+    ),
+    MobileMenu: defineAsyncComponent(() =>
+      import("@/components/popups/MobileMenu.vue")
+    ),
     Docs: defineAsyncComponent(() => import("@/components/icons/Docs.vue")),
-    Twitter: defineAsyncComponent(() => import("@/components/icons/Twitter.vue")),
-    Discord: defineAsyncComponent(() => import("@/components/icons/Discord.vue")),
+    Twitter: defineAsyncComponent(() =>
+      import("@/components/icons/Twitter.vue")
+    ),
+    Discord: defineAsyncComponent(() =>
+      import("@/components/icons/Discord.vue")
+    ),
     Lens: defineAsyncComponent(() => import("@/components/icons/Lens.vue")),
     Mirror: defineAsyncComponent(() => import("@/components/icons/Mirror.vue")),
     GitHub: defineAsyncComponent(() => import("@/components/icons/GitHub.vue")),
@@ -369,7 +384,7 @@ export default {
   background: #ffffff0f;
   backdrop-filter: blur(40px);
   border-radius: 20px;
-  padding: 13px 18px;
+  padding: 13px 15px;
   font-size: 16px;
   line-height: 24px;
   color: #fff;

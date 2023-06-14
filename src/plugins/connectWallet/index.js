@@ -15,6 +15,8 @@ const walletconnect = {
       10: "https://mainnet.optimism.io",
       56: "https://bsc-dataseed.binance.org/",
       250: "https://rpc.ftm.tools/",
+      137: "https://polygon-rpc.com",
+      1285: "https://rpc.api.moonriver.moonbeam.network",
       42161: "https://arb1.arbitrum.io/rpc",
       43114: "https://api.avax.network/ext/bc/C/rpc",
     },
@@ -29,7 +31,9 @@ const coinbasewallet = {
       1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       10: "https://mainnet.optimism.io",
       56: "https://bsc-dataseed.binance.org/",
+      137: "https://polygon-rpc.com",
       250: "https://rpc.ftm.tools/",
+      1285: "https://rpc.api.moonriver.moonbeam.network",
       42161: "https://arb1.arbitrum.io/rpc",
       43114: "https://api.avax.network/ext/bc/C/rpc",
     },
@@ -86,9 +90,11 @@ const subscribeProvider = async (provider, isCoinbase) => {
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
-  const provider = markRaw(new ethers.providers.StaticJsonRpcProvider(
-    walletconnect.options.rpc[chainId]
-  ));
+  const provider = markRaw(
+    new ethers.providers.StaticJsonRpcProvider(
+      walletconnect.options.rpc[chainId]
+    )
+  );
 
   store.commit("setChainId", chainId);
   store.commit("setProvider", provider);

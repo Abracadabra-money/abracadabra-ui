@@ -5,11 +5,11 @@
   >
     <div class="notification-item__header">
       <img
-        :src="getImgUrl(notification.type)"
-        alt=""
         class="notification-item__icon"
+        :src="getImgUrl(notification.type)"
+        alt="Notification icon"
       />
-      <h2>{{ notificationTitle }}</h2>
+      <p>{{ notificationTitle }}</p>
       <img
         class="notification-item__close"
         src="@/assets/images/notification-icons/close-icon.svg"
