@@ -12,7 +12,7 @@ const sortListTest = [
 const activeSortValueTest = "name";
 
 describe("SortBy.vue", () => {
-  it("renders with correct computed properties", () => {
+  it("Should render with correct computed properties", () => {
     const wrapper = mount(SortBy, {
       props: {
         sortList: sortListTest,
