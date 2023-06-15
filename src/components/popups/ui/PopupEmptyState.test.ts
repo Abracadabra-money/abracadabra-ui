@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import PopupEmptyState from "@/components/popups/ui/PopupEmptyState.vue";
 
 describe("PopupEmptyState.vue", () => {
-  it("should return empty state for borrow", () => {
+  it("Should return empty state for borrow", () => {
     const wrapper = mount(PopupEmptyState, {
       propsData: {
         emptyType: "pools",
@@ -15,7 +15,7 @@ describe("PopupEmptyState.vue", () => {
     expect(text.text()).toContain("No borrow on this network");
   });
 
-  it("should return  empty state to search the borrow", () => {
+  it("Should return  empty state to search the borrow", () => {
     const wrapper = mount(PopupEmptyState, {
       propsData: {
         emptyType: "search",
@@ -27,7 +27,7 @@ describe("PopupEmptyState.vue", () => {
     expect(text.text()).toContain("No borrow found with this name");
   });
 
-  it("should return empty state for farm", () => {
+  it("Should return empty state for farm", () => {
     const wrapper = mount(PopupEmptyState, {
       propsData: {
         emptyType: "pools",
@@ -39,7 +39,7 @@ describe("PopupEmptyState.vue", () => {
     expect(text.text()).toContain("No farms on this network");
   });
 
-  it("should return  empty state to search the farm", () => {
+  it("Should return  empty state to search the farm", () => {
     const wrapper = mount(PopupEmptyState, {
       propsData: {
         emptyType: "search",

@@ -17,7 +17,7 @@ const marketItemTest = {
 };
 
 describe("MarketsListPopupFarmItem.vue", () => {
-  it("renders with correct computed properties", () => {
+  it("Should render with correct computed properties", () => {
     console.log(marketItemTest);
 
     const wrapper = mount(MarketsListPopupFarmItem, {
