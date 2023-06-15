@@ -453,16 +453,16 @@ export default {
           this.contractProvider
         );
       }
+      
+      const isLiquidatable = await this.liquidationContract.isLiquidatable(
+        this.selectedPool.contractInstance.address,
+        address
+      );
 
-      // const isLiquidatable = await liquidationContract.isLiquidatable(
-      //   this.selectedPool.contractInstance.address,
-      //   address
-      // );
-
-      // if (!isLiquidatable) {
-      //   this.liquidationAccountError = "Address not liquidatable";
-      //   return false;
-      // }
+      if (!isLiquidatable) {
+        this.liquidationAccountError = "Address not liquidatable";
+        return false;
+      }
 
       const mim = await this.liquidationContract.mim();
       const mimContract = markRaw(
