@@ -47,6 +47,7 @@ import lvlMezzanine from "@/utils/abi/tokensAbi/lvlMezzanine";
 import mLvlMezzanine from "@/utils/abi/tokensAbi/mLvlMezzanine";
 import lvlSenior from "@/utils/abi/tokensAbi/lvlSenior";
 import mLvlSenior from "@/utils/abi/tokensAbi/mLvlSenior";
+import yvCurveMIMf from "@/utils/abi/tokensAbi/yvCurveMIMf";
 
 export default {
   ALCX,
@@ -98,4 +99,5 @@ export default {
   mLvlMezzanine,
   lvlSenior,
   mLvlSenior,
+  yvCurveMIMf,
 };

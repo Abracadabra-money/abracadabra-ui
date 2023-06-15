@@ -7,6 +7,7 @@ import CauldronV2Multichain from "@/utils/abi/borrowPoolsAbi/CauldronV2Multichai
 import CauldronV2FTM from "@/utils/abi/borrowPoolsAbi/CauldronV2FTM";
 import CauldronV3 from "@/utils/abi/borrowPoolsAbi/CauldronV3";
 import WhitelistedCauldronV3 from "@/utils/abi/borrowPoolsAbi/WhitelistedCauldronV3";
+import WhitelistedCauldronV4 from "@/utils/abi/borrowPoolsAbi/WhitelistedCauldronV4";
 import CauldronV3_2 from "@/utils/abi/borrowPoolsAbi/CauldronV3_2";
 import CauldronV4 from "@/utils/abi/borrowPoolsAbi/CauldronV4";
 import PrivilegedCauldronV4 from "@/utils/abi/borrowPoolsAbi/PrivilegedCauldronV4";
@@ -21,6 +22,7 @@ export default {
   CauldronV2FTM,
   CauldronV3,
   WhitelistedCauldronV3,
+  WhitelistedCauldronV4,
   CauldronV3_2,
   CauldronV4,
   PrivilegedCauldronV4,
