@@ -98,7 +98,7 @@ import ChainsWrap from "@/components/beam/ChainsWrap.vue";
 import ChainsPopup from "@/components/beam/ChainsPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import SettingsPopup from "@/components/beam/SettingsPopup.vue";
-import SuccessPopup from "@/components/beam/SuccessPopup.vue";
+import SuccessPopup from "@/components/beam/successPopup/SuccessPopup.vue";
 import WalletButton from "@/components/ui/buttons/WalletButton.vue";
 import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
 import InputAddress from "@/components/ui/inputs/InputAddress.vue";
@@ -109,7 +109,7 @@ import { mapGetters } from "vuex";
 import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { approveToken } from "@/helpers/approve/approveToken.ts";
-import { getTokenInfo } from "@/helpers/getTokenInfo";
+import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
@@ -260,11 +260,11 @@ export default {
     },
 
     srcTokenInfo() {
-      return getTokenInfo(this.chainId);
+      return getChainInfo(this.chainId);
     },
 
     dstTokenInfo() {
-      return getTokenInfo(this.targetToChain);
+      return getChainInfo(this.targetToChain);
     },
 
     getFee() {

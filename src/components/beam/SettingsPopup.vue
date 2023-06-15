@@ -191,6 +191,28 @@ export default {
   margin-bottom: 15px;
 }
 
+.setting-btn {
+  text-decoration: none;
+  width: 84px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  align-items: center;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: transparent;
+  width: 50%;
+  height: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease-in;
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
 .input-wrap {
   display: flex;
   align-items: center;
