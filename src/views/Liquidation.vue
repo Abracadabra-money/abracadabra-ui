@@ -47,12 +47,7 @@
               <span v-if="liquidationAccountError">{{
                 liquidationAccountError
               }}</span>
-
-<p v-else-if="isTokenApproved === false" class="error-message">
-              <span>This address did not approve interaction with the contract</span>
-              
-            </p>
-              <!-- <span v-else>&nbsp;</span> -->
+              <span v-else>&nbsp;</span>
             </p>
           </div>
 
@@ -217,7 +212,7 @@ export default {
     }),
 
     enableApprove() {
-      if(this.isTokenApproved === false && this.account.toLowerCase() === this.liquidationAccount.toLowerCase()) return true;
+      if(this.isTokenApproved === false) return true;
 
       return false;
     },
@@ -279,10 +274,11 @@ export default {
   },
 
   watch: {
-    account() {
+    account(value) {
       this.createPools();
       this.clearData();
       this.liquidationContract = null;
+      this.checkApprove(value);
     },
 
     pools() {
@@ -297,7 +293,6 @@ export default {
     liquidationAccount(value) {
       this.positionBorrowPart = null;
       this.borrowPart = "";
-      this.isTokenApproved = null
       this.expectedLiquidationInfo = {
         requiredMIMAmount: "0.0",
         returnedCollateralAmount: "0.0",
@@ -318,7 +313,6 @@ export default {
       this.isLiquidatable = null;
       this.positionBorrowPart = null;
       this.borrowPart = "";
-      this.isTokenApproved = null;
       this.expectedLiquidationInfo = {
         requiredMIMAmount: "0.0",
         returnedCollateralAmount: "0.0",
@@ -463,19 +457,6 @@ export default {
         return false;
       }
 
-      const mim = await this.liquidationContract.mim();
-      const mimContract = markRaw(
-        new this.$ethers.Contract(mim, MIMAbi, this.contractProvider)
-      );
-
-      const isTokenApproved = await isTokenApprowed(
-        mimContract,
-        this.liquidationContract.address,
-        address
-      );
-
-      this.isTokenApproved = !!+isTokenApproved;
-
       const userBorrowPart =
         await this.selectedPool.contractInstance.userBorrowPart(address);
       this.positionBorrowPart = this.$ethers.utils.formatUnits(userBorrowPart);
@@ -550,10 +531,36 @@ export default {
 
       return cauldronInfo.version;
     },
+    async checkApprove(account) {
+      try {
+        if (!this.liquidationContract) {
+          this.liquidationContract = await getLiquidationHelperContract(
+            this.contractProvider
+          );
+        }
+
+        const mim = await this.liquidationContract.mim();
+        const mimContract = markRaw(
+          new this.$ethers.Contract(mim, MIMAbi, this.contractProvider)
+        );
+
+        const isTokenApproved = await isTokenApprowed(
+          mimContract,
+          this.liquidationContract.address,
+          account
+        );
+
+        this.isTokenApproved = !!+isTokenApproved;
+      } catch (error) {
+        console.log("checkApprove err:", error)
+      }
+    }
   },
 
   created() {
     this.poolId = this.$route.params.id;
+
+    if(this.account) this.checkApprove(this.account);
   },
 
   beforeUnmount() {
