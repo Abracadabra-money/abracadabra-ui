@@ -22,7 +22,7 @@ const assetsDataTest = [
 ];
 
 describe("TotalAssets.vue", () => {
-  it("should render with routerLink if has routName", () => {
+  it("Should render with routerLink if has routName", () => {
     const wrapper = mount(TotalAssets, {
       props: { assets: assetsDataTest },
     });
@@ -33,7 +33,7 @@ describe("TotalAssets.vue", () => {
     expect(value.text()).toBe("1000.0");
   });
 
-  it("should render without routerLink if has routName", () => {
+  it("Should render without routerLink if has routName", () => {
     const wrapper = mount(TotalAssets, {
       props: { assets: assetsDataTest },
     });

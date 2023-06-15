@@ -24,14 +24,14 @@ const actionsTest = [
 ];
 
 describe("PositionLinks.vue", () => {
-  it("renders", () => {
+  it("Should render correct", () => {
     const wrapper = mount(PositionLinks, {
       props: { actions: actionsTest },
     });
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("renders assetsItems", () => {
+  it("Should render assetsItems", () => {
     const wrapper = mount(PositionLinks, {
       props: { actions: actionsTest },
     });
@@ -40,7 +40,7 @@ describe("PositionLinks.vue", () => {
     expect(assetsItems.classes()).toContain("position-link");
   });
 
-  it("asset item has proper title", () => {
+  it("Asset item should have proper title", () => {
     const wrapper = mount(PositionLinks, {
       props: { actions: actionsTest },
     });

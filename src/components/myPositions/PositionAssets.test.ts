@@ -21,14 +21,14 @@ const assetsInfoTest = [
 ];
 
 describe("PositionAssets.vue", () => {
-  it("renders", () => {
+  it("Should render correct", () => {
     const wrapper = mount(PositionAssets, {
       props: { assetsInfo: assetsInfoTest },
     });
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("renders assetsItems", () => {
+  it("Should render assetsItems", () => {
     const wrapper = mount(PositionAssets, {
       props: { assetsInfo: assetsInfoTest },
     });

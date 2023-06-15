@@ -4,14 +4,14 @@ import { describe, it, expect } from "vitest";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
 
 describe("HealthProgress.vue", () => {
-  it("has .safe class with no props passed", () => {
+  it("Should have .safe class with no props passed", () => {
     const wrapper = mount(HealthProgress);
     const infoDiv = wrapper.find(".progress");
     expect(infoDiv.exists()).toBe(true);
     expect(infoDiv.classes()).toContain("safe");
   });
 
-  it("has .safe class with such positionRisk prop", () => {
+  it("Should have .safe class with such positionRisk prop", () => {
     const wrapper = mount(HealthProgress, {
       props: {
         positionRisk: "safe",
@@ -21,7 +21,7 @@ describe("HealthProgress.vue", () => {
     expect(infoDiv.classes()).toContain("safe");
   });
 
-  it("has .medium class with such positionRisk prop", () => {
+  it("Should have .medium class with such positionRisk prop", () => {
     const wrapper = mount(HealthProgress, {
       props: {
         positionRisk: "medium",
@@ -31,7 +31,7 @@ describe("HealthProgress.vue", () => {
     expect(infoDiv.classes()).toContain("medium");
   });
 
-  it("has .high class with such positionRisk prop", () => {
+  it("Should have .high class with such positionRisk prop", () => {
     const wrapper = mount(HealthProgress, {
       props: {
         positionRisk: "high",

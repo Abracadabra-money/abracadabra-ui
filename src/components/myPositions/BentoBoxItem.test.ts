@@ -8,21 +8,21 @@ describe("BentoBoxItem.vue", () => {
   const bentoLink = `https://abracadabramoney.gitbook.io/intro/the-dashboard#mim-balance-on-bentobox`;
   const degenLink = `https://abracadabramoney.gitbook.io/our-ecosystem/our-contracts#our-degenbox-contracts`;
 
-  it("returns bentoLink if isBento", () => {
+  it("Should return bentoLink if isBento", () => {
     const wrapper = mount(BentoBoxItem, {
       props: { isBento: true, balance: "0", mimPrice: 0 },
     });
     expect(wrapper.vm.link).toEqual(bentoLink);
   });
 
-  it("returns degenLink if !isBento", () => {
+  it("Should degenLink if !isBento", () => {
     const wrapper = mount(BentoBoxItem, {
       props: { isBento: false, balance: "0", mimPrice: 0 },
     });
     expect(wrapper.vm.link).toEqual(degenLink);
   });
 
-  it("should calculate usdPrice correct", () => {
+  it("Should calculate usdPrice correct", () => {
     const wrapper = mount(BentoBoxItem, {
       props: { isBento: true, balance: "20", mimPrice: 0.95 },
     });

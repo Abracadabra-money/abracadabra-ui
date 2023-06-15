@@ -16,7 +16,7 @@ const cauldron = {
 };
 
 describe("PositionTokensInfo.vue", () => {
-  it("using props correct", () => {
+  it("Should use props correct", () => {
     const wrapper = mount(PositionTokensInfo, {
       props: {
         position: cauldron,
@@ -31,7 +31,7 @@ describe("PositionTokensInfo.vue", () => {
     expect(wrapper.vm.tokensRate).toBe("1 sSPELL = 10000000000000000.0 MIM");
   });
 
-  it("using position prop if tokenName have not passed", () => {
+  it("Should use position prop if tokenName have not passed", () => {
     const wrapper = mount(PositionTokensInfo, {
       props: {
         position: cauldron,

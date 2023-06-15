@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
 
 describe("BentoBoxBlock.vue", () => {
-  it("computing correct with all getters passed", () => {
+  it("Should computing correct with all getters passed", () => {
     const store = new Vuex.Store({
       modules: {
         connectProvider: {
@@ -39,7 +39,7 @@ describe("BentoBoxBlock.vue", () => {
     expect(wrapper.vm.isHide).toBeTruthy();
   });
 
-  it("computing correct with not all getters passed", () => {
+  it("Should computing correct with not all getters passed", () => {
     const store = new Vuex.Store({});
 
     const wrapper: any = mount(BentoBoxBlock, {

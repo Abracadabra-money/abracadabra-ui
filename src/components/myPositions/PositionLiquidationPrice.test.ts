@@ -5,7 +5,7 @@ import PositionLiquidationPrice from "@/components/myPositions/PositionLiquidati
 import filters from "@/filters/index.js";
 
 describe("PositionLinks.vue", () => {
-  it("has safe status on safe positionRisk prop", () => {
+  it("Should have safe status on safe positionRisk prop", () => {
     const wrapper = mount(PositionLiquidationPrice, {
       props: {
         positionRisk: "safe",
@@ -15,7 +15,7 @@ describe("PositionLinks.vue", () => {
     expect(wrapper.vm.positionStatus).toEqual(`status-safe`);
   });
 
-  it("has medium status on medium positionRisk prop", () => {
+  it("Should have medium status on medium positionRisk prop", () => {
     const wrapper = mount(PositionLiquidationPrice, {
       props: {
         positionRisk: "medium",
@@ -25,7 +25,7 @@ describe("PositionLinks.vue", () => {
     expect(wrapper.vm.positionStatus).toEqual(`status-medium`);
   });
 
-  it("has high status on high positionRisk prop", () => {
+  it("Should have high status on high positionRisk prop", () => {
     const wrapper = mount(PositionLiquidationPrice, {
       props: {
         positionRisk: "high",
@@ -35,7 +35,7 @@ describe("PositionLinks.vue", () => {
     expect(wrapper.vm.positionStatus).toEqual(`status-high`);
   });
 
-  it("convert liquidationPrice properly", () => {
+  it("Should liquidationPrice properly", () => {
     const wrapper = mount(PositionLiquidationPrice, {
       props: {
         positionRisk: "safe",
