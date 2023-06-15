@@ -13,7 +13,7 @@
               <BaseTokenIcon
                 v-if="selectedPool"
                 :name="selectedPool.name"
-                :icon="mainValueTokenName"
+                :icon="selectedPool.icon"
               />
               <BaseTokenIcon v-else type="select" />
               <span class="select-text">
@@ -26,76 +26,121 @@
               />
             </button>
           </div>
-
-          <div
-            class="checkbox-wrap"
-            v-if="selectedPool"
-            :class="{ active: useCheckBox }"
-            @click="toggleCheckBox"
-          >
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/active.svg"
-              alt=""
-              v-if="useCheckBox"
-            />
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/default.svg"
-              alt=""
-              v-else
-            />
-
-            <p class="label-text">Max</p>
-          </div>
         </div>
 
         <div class="borrow-input underline" v-if="selectedPool">
+          <h4>
+            Liquidate address
+            <span v-if="account" class="insert-btn" @click="useConnectedAddress"
+              >use connected</span
+            >
+          </h4>
           <div class="input-address-wrap">
             <input
               class="input-address"
-              :class="{ error: inputAddressError }"
-              v-model="destinationAddress"
+              :class="{ error: liquidationAccountError }"
+              v-model="liquidationAccount"
               type="text"
-              placeholder="Add address"
+              placeholder="0x000...."
             />
             <p class="error-message">
-              <span v-if="inputAddressError">Invalid address</span>
-              <span v-else>&nbsp;</span>
+              <span v-if="liquidationAccountError">{{
+                liquidationAccountError
+              }}</span>
+
+<p v-else-if="isTokenApproved === false" class="error-message">
+              <span>This address did not approve interaction with the contract</span>
+              
+            </p>
+              <!-- <span v-else>&nbsp;</span> -->
             </p>
           </div>
 
           <BaseTokenInput
-            :name="borrowToken.name"
-            :icon="borrowToken.icon"
-            :value="borrowValue"
-            :max="maxBorrowValue"
-            :error="borrowError"
+            :name="mimInfo.name"
+            :icon="mimInfo.icon"
+            :value="borrowPart"
+            :max="positionBorrowPart"
+            :error="borrowPartError"
             :disabled="!selectedPool"
-            @updateValue="updateBorrowValue"
+            @updateValue="updateBorrowPart"
           />
         </div>
-
-        <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
-          >Go to Positions</router-link
-        >
       </div>
 
       <div class="info-block">
-        <h1 class="title">Borrow MIM</h1>
+        <h1 class="title">Liquidation Helper</h1>
 
-        <LiquidationStand
-          :pool="selectedPool"
-          :collateralExpected="collateralValue"
-          :mimExpected="mimExpected"
-          :liquidationPrice="depositExpectedLiquidationPrice"
-          :emptyData="emptyData"
-          :poolId="selectedPoolId"
-        />
+        <div class="stable-info">
+          <div class="info-wrap"></div>
+          <div class="stable-data">
+            <template v-if="!selectedPool">
+              <div class="empty-wrap">
+                <div class="empty-text">
+                  <p>
+                    Please select cauldron to start interacting with the page
+                  </p>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="stable-preview">
+                <div class="item">
+                  <p class="item-title">MIM Amount To Liquidate</p>
+                  <p class="loader-wrap" v-if="isLoading">
+                    <BaseLoader type="loader" />
+                  </p>
+                  <p v-else class="item-value">
+                    {{ expectedLiquidationInfo.requiredMIMAmount }}
+                  </p>
+                </div>
+
+                <div class="item">
+                  <p class="item-title">Collateral To Receive</p>
+                  <p class="loader-wrap" v-if="isLoading">
+                    <BaseLoader type="loader" />
+                  </p>
+                  <p v-else class="item-value">
+                    {{ expectedLiquidationInfo.returnedCollateralAmount }}
+                  </p>
+                </div>
+
+                <div class="item">
+                  <p class="item-title">MIM Value</p>
+                  <p class="loader-wrap" v-if="isLoading">
+                    <BaseLoader type="loader" />
+                  </p>
+                  <p v-else class="item-value">
+                    {{ expectedLiquidationInfo.returnedMIMValue }}
+                  </p>
+                </div>
+                <div class="item">
+                  <p class="item-title">Collateral Value</p>
+                  <p class="loader-wrap" v-if="isLoading">
+                    <BaseLoader type="loader" />
+                  </p>
+                  <p v-else class="item-value">
+                    {{ expectedLiquidationInfo.returnedCollateralValue }}
+                  </p>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
 
         <div class="btn-wrap">
-          <BaseButton v-if="selectedPool" @click="actionHandler" primary
-            >Liquidation
+          <BaseButton
+            @click="approveTokenHandler"
+            primary
+            :disabled="!enableApprove"
+            >Approve</BaseButton
+          >
+          <BaseButton
+            v-if="selectedPool"
+            @click="actionHandler"
+            :disabled="disableActionButton"
+            primary
+            >Liquidate
           </BaseButton>
         </div>
       </div>
@@ -110,7 +155,7 @@
       <MarketsListPopup
         @select="chosePool($event)"
         @close="isOpenPollPopup = false"
-        :pools="filteredPool"
+        :pools="sortedCauldrons"
         popupType="cauldron"
     /></LocalPopupWrap>
   </div>
@@ -119,52 +164,69 @@
 <script>
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import LiquidationStand from "@/components/liquidation/LiquidationStand.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
-import cookMixin from "@/mixins/borrow/cooksV2.js";
+import cauldronsConfig from "@/utils/cauldronsConfig";
+import notification from "@/helpers/notification/notification.js";
+import MIMAbi from "@/utils/abi/tokensAbi/MIM";
+import filters from "@/filters/index.js";
+import { markRaw } from "vue";
+import {
+  getLiquidationHelperContract,
+  liquidate,
+  liquidateMax,
+} from "@/helpers/liquidation";
+import { getMIMPrice } from "@/helpers/getMIMPrice";
 import { mapGetters } from "vuex";
+import { approveToken, isTokenApprowed } from "@/utils/approveHelpers.js";
 
 export default {
-  mixins: [cauldronsMixin, cookMixin],
+  mixins: [cauldronsMixin],
   data() {
     return {
-      collateralValue: "",
-      borrowValue: "",
+      liquidationContract: null,
+      liquidationAccount: "",
+      isLiquidatable: null,
+      positionBorrowPart: null,
+      borrowPart: "",
       poolId: null,
       isOpenPollPopup: false,
-      useDefaultBalance: false,
       updateInterval: null,
-      emptyData: {
-        img: this.$image(`assets/images/empty_borrow.png`),
-        text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
-        bottom: "If you want to learn more read our docs",
-        link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
+      liquidationAccountError: "",
+      expectedLiquidationInfo: {
+        requiredMIMAmount: "0.0",
+        returnedCollateralAmount: "0.0",
+        returnedMIMValue: "0.0",
+        returnedCollateralValue: "0.0",
       },
-      useCheckBox: false,
+      mimPrice: null,
+      isLoading: false,
+      isTokenApproved: null
     };
   },
 
   computed: {
     ...mapGetters({
       pools: "getPools",
+      chainId: "getChainId",
       account: "getAccount",
+      signer: "getSigner",
     }),
 
-    filteredPool() {
-      if (this.account && this.pools[0]?.userInfo) {
-        return this.pools
-          .filter((pool) => !pool.cauldronSettings.isDepreciated)
-          .sort((a, b) =>
-            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-          );
-      }
+    enableApprove() {
+      if(this.isTokenApproved === false && this.account.toLowerCase() === this.liquidationAccount.toLowerCase()) return true;
 
-      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
+      return false;
+    },
+
+    sortedCauldrons() {
+      return this.pools.sort((a, b) =>
+        a.cauldronSettings.isDepreciated ? 1 : -1
+      );
     },
 
     selectedPool() {
@@ -176,7 +238,7 @@ export default {
       return null;
     },
 
-    borrowToken() {
+    mimInfo() {
       if (this.selectedPool)
         return {
           name: this.selectedPool.borrowToken.name,
@@ -189,202 +251,25 @@ export default {
       };
     },
 
-    collateralError() {
-      if (isNaN(this.collateralValue)) return "Please input valid value";
+    maxBorrowPart() {
+      return 1;
+    },
 
-      if (
-        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      )
-        return `The value cannot be greater than ${this.maxCollateralValue}`;
+    borrowPartError() {
+      if (+this.borrowPart && +this.borrowPart > +this.positionBorrowPart)
+        return `The value cannot be greater than ${this.positionBorrowPart}`;
 
       return "";
     },
 
-    borrowError() {
-      if (isNaN(this.borrowValue)) return "Please input valid value";
-
-      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue))
-        return `The value cannot be greater than ${this.maxBorrowValue}`;
-
-      return "";
-    },
-
-    isLpLogic() {
-      return !!this.selectedPool.lpLogic;
-    },
-
-    maxCollateralValue() {
-      if (this.selectedPool?.userInfo && this.account) {
-        if (this.isLpLogic && !this.useCheckBox) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.lpInfo.balance,
-            this.selectedPool.lpLogic.lpDecimals
-          );
-        }
-
-        if (this.useDefaultBalance) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.networkBalance,
-            this.selectedPool.collateralToken.decimals
-          );
-        }
-
-        return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance,
-          this.selectedPool.collateralToken.decimals
-        );
-      }
-
-      return 0;
-    },
-
-    maxBorrowValue() {
-      if (this.selectedPool?.userInfo && this.account) {
-        let valueInDolars;
-        let maxPairValue;
-
-        if (this.collateralValue) {
-          valueInDolars =
-            this.collateralValue / this.selectedPool.borrowToken.exchangeRate;
-          maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
-        } else {
-          valueInDolars =
-            this.selectedPool.userInfo.userCollateralShare /
-            this.selectedPool.borrowToken.exchangeRate;
-          maxPairValue =
-            (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
-            this.selectedPool.userInfo?.userBorrowPart;
-        }
-
-        if (maxPairValue < 0) {
-          return 0;
-        }
-
-        return maxPairValue;
-      }
-
-      return 0;
-    },
-
-    actionBtnText() {
-      if (!this.isTokenApprove) return "Nothing to do";
-
-      if (+this.collateralValue > 0) return "Nothing to do";
-
-      if (this.collateralError || this.borrowError) return "Nothing to do";
-
-      if (
-        +this.borrowValue > 0 &&
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
-      )
-        return "Add collateral and borrow";
-
-      if (
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
-      )
-        return "Add collateral";
-
-      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
-        return "Borrow";
-
-      return "Nothing to do";
-    },
-
-    mimExpected() {
-      if (!this.borrowError) return this.borrowValue;
-
-      return 0;
-    },
-
-    depositExpectedLiquidationPrice() {
-      if (this.selectedPool && this.account) {
-        return (
-          +this.depositExpectedBorrowed /
-            +this.depositExpectedCollateral /
-            this.liquidationMultiplier || 0
-        );
-      }
-      return 0;
-    },
-
-    depositExpectedBorrowed() {
-      if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo?.userBorrowPart;
-      return +this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart;
-    },
-
-    depositExpectedCollateral() {
-      if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo?.userCollateralShare;
-      return (
-        +this.collateralValue + +this.selectedPool.userInfo?.userCollateralShare
-      );
-    },
-
-    liquidationMultiplier() {
-      return this.selectedPool.ltv / 100;
+    disableActionButton() {
+      if (!this.account) return true;
+      if (!+this.borrowPart || this.borrowPartError) return true;
+      if (this.liquidationAccountError) return true;
     },
 
     followLink() {
       return !!(this.$route.params.id && !this.pools.length);
-    },
-
-    networkValuteName() {
-      if (this.chainId === 1) return "ETH";
-      if (this.chainId === 250) return "FTM";
-      if (this.chainId === 137) return "MATIC";
-      if (this.chainId === 43114) return "AVAX";
-      if (this.chainId === 42161) return "ETH";
-      if (this.chainId === 56) return "BNB";
-
-      return false;
-    },
-
-    mainValueTokenName() {
-      if (this.selectedPool) {
-        if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return this.$image(
-            `assets/images/tokens/${this.networkValuteName}2.png`
-          );
-
-        return this.selectedPool.icon;
-      }
-      return "";
-    },
-
-    mainTokenFinalText() {
-      if (this.selectedPool) {
-        if (this.networkValuteName && this.useDefaultBalance)
-          return this.networkValuteName;
-
-        if (this.selectedPool.lpLogic && !this.useCheckBox)
-          return this.selectedPool.lpLogic.name;
-
-        return this.selectedPool.collateralToken.name;
-      }
-      return "";
-    },
-
-    isTokenApprove() {
-      if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isLpLogic && !this.useCheckBox)
-          return this.selectedPool.userInfo.lpInfo.isApprove;
-
-        return this.selectedPool.userInfo.isApproveTokenCollateral;
-      }
-
-      return true;
-    },
-
-    ltv() {
-      if (this.selectedPool) {
-        return this.selectedPool.ltv;
-      }
-      return 0;
     },
 
     selectedPoolId() {
@@ -397,27 +282,214 @@ export default {
   watch: {
     account() {
       this.createPools();
+      this.clearData();
+      this.liquidationContract = null;
     },
 
     pools() {
       if (this.poolId) {
         let pool = this.$store.getters.getPoolById(+this.poolId);
-        if (!pool) this.$router.push(`/borrow`);
+        if (!pool) this.$router.push(`/liquidation`);
       }
 
       return false;
     },
+
+    liquidationAccount(value) {
+      this.positionBorrowPart = null;
+      this.borrowPart = "";
+      this.isTokenApproved = null
+      this.expectedLiquidationInfo = {
+        requiredMIMAmount: "0.0",
+        returnedCollateralAmount: "0.0",
+        returnedMIMValue: "0.0",
+        returnedCollateralValue: "0.0",
+      };
+      this.checkAccount(value);
+    },
+
+    borrowPart(value) {
+      this.computeExpectedLiquidation(value);
+    },
   },
 
   methods: {
-    updateBorrowValue(value) {
-      this.borrowValue = value;
+    clearData() {
+      this.liquidationAccount = "";
+      this.isLiquidatable = null;
+      this.positionBorrowPart = null;
+      this.borrowPart = "";
+      this.isTokenApproved = null;
+      this.expectedLiquidationInfo = {
+        requiredMIMAmount: "0.0",
+        returnedCollateralAmount: "0.0",
+        returnedMIMValue: "0.0",
+        returnedCollateralValue: "0.0",
+      };
+    },
+
+    async approveTokenHandler() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.approvePending
+      );
+
+      try {
+        if (!this.liquidationContract) {
+          this.liquidationContract = await getLiquidationHelperContract(
+            this.contractProvider
+          );
+        }
+
+        const mim = await this.liquidationContract.mim();
+        const mimContract = markRaw(
+          new this.$ethers.Contract(mim, MIMAbi, this.contractProvider)
+        );
+
+        const approved = await approveToken(
+          mimContract,
+          this.liquidationContract.address
+        );
+
+        this.isTokenApproved = !!+approved;
+
+        await this.$store.commit("notifications/delete", notificationId);
+      } catch (error) {
+        console.log(error);
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approveError
+        );
+      }
+    },
+
+    useConnectedAddress() {
+      this.liquidationAccount = this.account;
+    },
+
+    async computeExpectedLiquidation(value) {
+      this.expectedLiquidationInfo = {
+        requiredMIMAmount: "0.0",
+        returnedCollateralAmount: "0.0",
+        returnedMIMValue: "0.0",
+        returnedCollateralValue: "0.0",
+      };
+      if (!+value) return false;
+
+      this.isLoading = true;
+
+      const itsMax = this.value === this.positionBorrowPart;
+
+      const cauldron = this.selectedPool.contractInstance.address;
+
+      const previewResp = itsMax
+        ? await this.liquidationContract.previewMaxLiquidation(
+            cauldron,
+            this.liquidationAccount
+          )
+        : await this.liquidationContract.previewLiquidation(
+            cauldron,
+            this.liquidationAccount,
+            this.$ethers.utils.parseUnits(value)
+          );
+
+      this.expectedLiquidationInfo = await this.parseBoxInfo(previewResp);
+
+      this.isLoading = false;
+    },
+
+    async parseBoxInfo(previewResp) {
+      const collateralPrice = 1 / this.selectedPool.tokenOraclePrice;
+
+      if (!this.mimPrice) {
+        this.mimPrice = await getMIMPrice();
+      }
+
+      const requiredMIMAmount = filters.formatTokenBalance(
+        this.$ethers.utils.formatUnits(previewResp.requiredMIMAmount)
+      );
+
+      const returnedCollateralAmount = filters.formatTokenBalance(
+        this.$ethers.utils.formatUnits(
+          previewResp.returnedCollateralAmount,
+          this.selectedPool.collateralToken.decimals
+        )
+      );
+
+      const returnedCollateralValue = filters.formatUSD(
+        returnedCollateralAmount * collateralPrice
+      );
+
+      const returnedMIMValue = filters.formatUSD(
+        requiredMIMAmount * this.mimPrice
+      );
+
+      return {
+        requiredMIMAmount,
+        returnedCollateralAmount,
+        returnedMIMValue,
+        returnedCollateralValue,
+      };
+    },
+
+    async checkAccount(address) {
+      this.liquidationAccountError = "";
+
+      if (!address) {
+        return false;
+      }
+
+      const isAddressValid =
+        address && this.$ethers.utils.isAddress(address.toLowerCase());
+
+      if (!isAddressValid) {
+        this.liquidationAccountError = "Invalid address";
+        return false;
+      }
+
+      if (!this.liquidationContract) {
+        this.liquidationContract = await getLiquidationHelperContract(
+          this.contractProvider
+        );
+      }
+
+      // const isLiquidatable = await liquidationContract.isLiquidatable(
+      //   this.selectedPool.contractInstance.address,
+      //   address
+      // );
+
+      // if (!isLiquidatable) {
+      //   this.liquidationAccountError = "Address not liquidatable";
+      //   return false;
+      // }
+
+      const mim = await this.liquidationContract.mim();
+      const mimContract = markRaw(
+        new this.$ethers.Contract(mim, MIMAbi, this.contractProvider)
+      );
+
+      const isTokenApproved = await isTokenApprowed(
+        mimContract,
+        this.liquidationContract.address,
+        address
+      );
+
+      this.isTokenApproved = !!+isTokenApproved;
+
+      const userBorrowPart =
+        await this.selectedPool.contractInstance.userBorrowPart(address);
+      this.positionBorrowPart = this.$ethers.utils.formatUnits(userBorrowPart);
+    },
+
+    updateBorrowPart(value) {
+      this.borrowPart = value;
     },
 
     async chosePool(pool) {
       this.clearData();
       this.poolId = pool.id;
-      let duplicate = this.$route.fullPath === `/borrow/${pool.id}`;
+      let duplicate = this.$route.fullPath === `/liquidation/${pool.id}`;
 
       if (!duplicate) {
         this.$router.push(`/liquidation/${pool.id}`);
@@ -425,26 +497,64 @@ export default {
     },
 
     async actionHandler() {
-      console.log("actionHandler");
+      if (this.disableActionButton) return false;
+
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.pending
+      );
+
+      try {
+        const itsMax = this.borrowPart === this.positionBorrowPart;
+
+        const contract = this.liquidationContract;
+        const borrowPart = this.$ethers.utils.parseUnits(this.borrowPart);
+        const account = this.liquidationAccount;
+        const cauldron = this.selectedPool.contractInstance.address;
+        const cauldronVersion = this.getCauldronVersion(cauldron);
+
+        const result = itsMax
+          ? await liquidateMax(contract, cauldron, account, cauldronVersion)
+          : await liquidate(
+              contract,
+              cauldron,
+              account,
+              borrowPart,
+              cauldronVersion
+            );
+
+        console.log("result", result);
+
+        await this.$store.commit("notifications/delete", notificationId);
+      } catch (error) {
+        console.log(error);
+
+        await this.$store.commit("notifications/delete", notificationId);
+        const errorNotification = {
+          msg: "Transaction encountered an Error",
+          type: "error",
+        };
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
     },
 
-    clearData() {
-      this.collateralValue = "";
-      this.borrowValue = "";
-    },
+    // fix when migrate to new config
+    getCauldronVersion(cauldron) {
+      const configs = cauldronsConfig.filter(
+        (config) => config.chainId === this.chainId
+      );
 
-    toggleCheckBox() {
-      this.clearData();
-      this.useCheckBox = !this.useCheckBox;
+      const cauldronInfo = configs.find(
+        (config) =>
+          config.contract.address.toLowerCase() === cauldron.toLowerCase()
+      );
+
+      return cauldronInfo.version;
     },
   },
 
   created() {
     this.poolId = this.$route.params.id;
-
-    this.updateInterval = setInterval(async () => {
-      this.createPools();
-    }, 15000);
   },
 
   beforeUnmount() {
@@ -454,7 +564,6 @@ export default {
   components: {
     NetworksList,
     BaseTokenInput,
-    LiquidationStand,
     BaseButton,
     BaseLoader,
     LocalPopupWrap,
@@ -465,6 +574,275 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.insert-btn {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    color: white;
+    text-decoration: underline;
+  }
+}
+
+.stable-info {
+  background-color: rgba(35, 33, 45, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 30px;
+
+  .empty-wrap {
+    background: #2b2b3c;
+    box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+    backdrop-filter: blur(100px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 30px;
+    padding: 23px 65px;
+    min-height: 280px;
+
+    img {
+      max-width: 160px;
+      width: 90%;
+      height: auto;
+    }
+  }
+
+  .empty-bottom {
+    margin-top: 15px;
+  }
+
+  .empty-text {
+    font-size: 18px;
+    line-height: 27px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .empty-link {
+    color: #759ffa;
+  }
+
+  .info-wrap {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 30px 7px 30px;
+    min-height: 40px;
+  }
+
+  .strategy {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .strategy a {
+    color: #fff;
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(3, auto);
+    align-items: center;
+  }
+
+  .deposit-wrap {
+    display: flex;
+  }
+
+  .deposit {
+    background: rgba(157, 244, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    padding: 3px 8px;
+    color: #63caf8;
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    cursor: pointer;
+
+    img {
+      margin-right: 5px;
+    }
+  }
+
+  .info-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    /* margin: 9px 30px 7px 0;*/
+    width: 24px;
+    height: 24px;
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+
+  .info-icon {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+  }
+
+  .stable-data {
+    position: relative;
+    box-sizing: border-box;
+    background: #2b2b3c;
+    backdrop-filter: blur(100px);
+    border-radius: 30px;
+  }
+
+  .stable-preview {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 30px;
+    background: #2b2b3c;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(100px);
+    border-radius: 30px;
+  }
+
+  .item {
+    text-align: center;
+    border-bottom: 1px rgba(255, 255, 255, 0.1) solid;
+    padding-top: 14px;
+    padding-bottom: 14px;
+
+    &:nth-child(odd) {
+      border-right: 1px rgba(255, 255, 255, 0.1) solid;
+    }
+
+    &:nth-last-child(-n + 2) {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    &:nth-child(-n + 2) {
+      padding-top: 0;
+    }
+  }
+
+  .item-title {
+    font-size: 18px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 12px;
+  }
+
+  .item-value {
+    font-size: 30px;
+    font-weight: 700;
+
+    &.safe {
+      color: #75c9ee;
+    }
+
+    &.medium {
+      color: #ffb800;
+    }
+
+    &.high {
+      color: #fe1842;
+    }
+  }
+
+  .info-list-wrap {
+    padding: 20px 15px;
+  }
+
+  .info-list-bottom {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: 30px;
+    padding: 0 17px 10px 17px;
+    margin-top: 10px;
+  }
+
+  .info-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 52px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .info-list-subitem {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 25px;
+  }
+
+  .info-list-value {
+    font-weight: 700;
+    color: white;
+  }
+
+  .info-list {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: 30px;
+    padding: 0 17px 10px 17px;
+    overflow-y: auto;
+    height: 210px;
+  }
+
+  .info-list-item {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 25px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .info-list-name {
+    flex: 1 1 auto;
+    text-align: left;
+  }
+
+  .info-list-icon {
+    padding-right: 12px;
+    cursor: pointer;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 1200px) {
+    .stable-preview {
+      padding: 30px 5px;
+    }
+
+    .item-value {
+      font-size: 24px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .empty-wrap {
+      padding: 20px 10px;
+    }
+
+    .item-value {
+      font-size: 22px;
+    }
+  }
+
+  @media (max-width: 375px) {
+    .item-title {
+      font-size: 16px;
+    }
+
+    .item-value {
+      font-size: 16px;
+    }
+  }
+}
+
 .select-wrap {
   margin-bottom: 15px;
 }
@@ -497,7 +875,8 @@ export default {
 }
 
 .input-address-wrap {
-  margin-bottom: 30px;
+  padding-top: 10px;
+  margin-bottom: 20px;
 }
 
 .input-address {
@@ -569,7 +948,6 @@ export default {
 }
 
 .borrow-input {
-  padding-top: 27px;
   padding-bottom: 14px;
 }
 
@@ -634,6 +1012,10 @@ export default {
 
 .btn-wrap {
   margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 20px;
+  margin-bottom: 30px;
 }
 
 .checkbox-wrap {
@@ -726,5 +1108,53 @@ export default {
   .choose {
     padding: 30px;
   }
+}
+
+.loader {
+  margin-left: 19px;
+  position: relative;
+  top: 2px;
+  display: block;
+  width: 10px;
+  height: 30px;
+  animation: rectangle infinite 1s ease-in-out -0.2s;
+
+  background-color: #fff;
+}
+.loader:before,
+.loader:after {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  content: "";
+
+  background-color: #fff;
+}
+.loader:before {
+  left: -10px;
+  animation: rectangle infinite 1s ease-in-out -0.4s;
+}
+.loader:after {
+  right: -10px;
+  animation: rectangle infinite 1s ease-in-out;
+}
+
+@keyframes rectangle {
+  0%,
+  80%,
+  100% {
+    height: 6px;
+  }
+  40% {
+    height: 8px;
+  }
+}
+
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
