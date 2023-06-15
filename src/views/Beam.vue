@@ -3,6 +3,10 @@
     <div class="beam" v-if="beamConfig">
       <h3 class="title">Beam</h3>
 
+      <button class="last-beam" v-if="lastBeam" @click="openLastTransaction">
+        Last Beam
+      </button>
+
       <div class="settings-btns">
         <WalletButton :active="isShowDstAddress" @click="toggleDstAddress" />
         <SettingsButton
@@ -144,6 +148,8 @@ export default {
       isOpenSuccessPopup: false,
       tx: null,
       txInfo: null,
+      isLastTransaction: false,
+      lastBeam: null,
     };
   },
 
@@ -308,6 +314,8 @@ export default {
     },
 
     successConfig() {
+      if (this.isLastTransaction) return this.lastBeam;
+
       return {
         sendFrom: this.account,
         sendTo: this.toAddress,
@@ -389,16 +397,19 @@ export default {
 
         const { fees, params } = await this.getEstimatedFees(true);
         this.tx = await sendFrom(fees, params, mimAmount, this.txConfig);
-        console.log("this.tx", this.tx);
         await this.$store.commit("notifications/delete", notificationId);
         this.isOpenSuccessPopup = true;
+        localStorage.setItem("beam", JSON.stringify(this.successConfig));
+        this.lastBeam = this.successConfig;
         await this.tx.wait();
-        console.log("this.tx", this.tx);
 
         this.txInfo = await waitForMessageReceived(
           this.dstChainId,
           this.tx.hash
         );
+
+        localStorage.setItem("beam", JSON.stringify(this.successConfig));
+        this.lastBeam = this.successConfig;
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.errorTransaction(error, notificationId);
@@ -498,12 +509,25 @@ export default {
         );
       }, 15000);
     },
+
+    closeSuccessPopup() {
+      this.isOpenSuccessPopup = false;
+      this.isLastTransaction = false;
+    },
+
+    openLastTransaction() {
+      this.isLastTransaction = true;
+      this.isOpenSuccessPopup = true;
+    },
   },
 
   async created() {
     if (!this.chainId) return false;
     if (this.isAcceptedNetworks) await this.beamNotAvailable();
-    else await this.createBeamData();
+    else {
+      await this.createBeamData();
+      this.lastBeam = JSON.parse(localStorage.getItem("beam"));
+    }
   },
 
   beforeUnmount() {
@@ -553,6 +577,28 @@ export default {
   text-align: center;
   letter-spacing: 0.025em;
   text-transform: uppercase;
+}
+
+.last-beam {
+  position: absolute;
+  top: 30px;
+  left: 65px;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  align-items: center;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: transparent;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease-in;
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 }
 
 .settings-btns {
