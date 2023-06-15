@@ -10,6 +10,7 @@ import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
+import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
 export default [
   {
@@ -2049,6 +2050,8 @@ export default [
       localBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
+      isPrivate: true,
+      whitelistedWallets: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
       name: "WhitelistedCauldronV4",
@@ -2067,6 +2070,59 @@ export default [
       decimals: 18,
       address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: tokensAbi.MIM,
+    },
+  },
+  {
+    icon: useImage(`assets/images/tokens/Stargate-USDT.png`),
+    name: "Stargate USDT",
+    contractChain: 1,
+    id: 42,
+    stabilityFee: 0.25,
+    interest: 0,
+    ltv: 99,
+    borrowFee: 0,
+    isSwappersActive: true,
+    is0xSwap: true,
+    cauldronSettings: {
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      leverageMax: 15,
+      localBorrowAmountLimit: false,
+      isCollateralClaimable: false,
+      claimCrvReward: false,
+      isPrivate: true,
+      whitelistedWallets: [GNOSIS_SAFE_ADDRESS],
+    },
+    contract: {
+      name: "WhitelistedCauldronV4",
+      address: "0x1062eB452f8C7A94276437ec1F4aAca9b1495B72",
+      abi: poolsAbi.WhitelistedCauldronV4,
+    },
+    token: {
+      name: "Stargate USDT",
+      decimals: 6,
+      address: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
+      abi: tokensAbi.StargateUSDT,
+    },
+    pairToken: {
+      name: "MIM",
+      icon: useImage(`assets/images/tokens/MIM.png`),
+      decimals: 18,
+      address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      abi: tokensAbi.MIM,
+    },
+    swapContractInfo: {
+      address: "0x88650a9A0F8894C0bc0d6AE833A64f7E34644935",
+      abi: swapAbi,
+    },
+    reverseSwapContractInfo: {
+      address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
+      abi: reverseSwapAbi,
     },
   },
 ];

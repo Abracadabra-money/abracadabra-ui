@@ -40,9 +40,10 @@ export default {
       const chainPools = poolsInfo.filter((pool) => {
         let result = pool.contractChain === +this.chainId;
 
-        if (pool.id === 41 && pool.contractChain === 1)
-          result = this.account === GNOSIS_SAFE_ADDRESS ? true : false;
-
+        if (pool.cauldronSettings.isPrivate)
+          result = pool.cauldronSettings.whitelistedWallets.some(
+            (walletAddress) => walletAddress === this.account
+          );
         return result;
       });
 
