@@ -112,6 +112,17 @@ const routes = [
     component: () => import("@/views/Claim.vue"),
   },
   {
+    path: "/liquidation",
+    name: "Liquidation",
+    component: () => import("@/views/Liquidation.vue"),
+  },
+  {
+    path: "/liquidation/:id",
+    name: "LiquidationId",
+    component: () => import("@/views/Liquidation.vue"),
+  },
+
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
