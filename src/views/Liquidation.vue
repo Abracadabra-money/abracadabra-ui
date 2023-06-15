@@ -128,7 +128,7 @@
           </div>
         </div>
 
-        <div class="btn-wrap">
+        <div class="btn-wrap" v-if="selectedPool">
           <BaseButton
             @click="approveTokenHandler"
             primary
@@ -136,7 +136,6 @@
             >Approve</BaseButton
           >
           <BaseButton
-            v-if="selectedPool"
             @click="actionHandler"
             :disabled="disableActionButton"
             primary
@@ -453,7 +452,7 @@ export default {
           this.contractProvider
         );
       }
-      
+
       const isLiquidatable = await this.liquidationContract.isLiquidatable(
         this.selectedPool.contractInstance.address,
         address
@@ -489,10 +488,10 @@ export default {
     async chosePool(pool) {
       this.clearData();
       this.poolId = pool.id;
-      let duplicate = this.$route.fullPath === `/liquidation/${pool.id}`;
+      let duplicate = this.$route.fullPath === `/liquidation-helper/${pool.id}`;
 
       if (!duplicate) {
-        this.$router.push(`/liquidation/${pool.id}`);
+        this.$router.push(`/liquidation-helper/${pool.id}`);
       }
     },
 

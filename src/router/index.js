@@ -112,12 +112,12 @@ const routes = [
     component: () => import("@/views/Claim.vue"),
   },
   {
-    path: "/liquidation",
+    path: "/liquidation-helper",
     name: "Liquidation",
     component: () => import("@/views/Liquidation.vue"),
   },
   {
-    path: "/liquidation/:id",
+    path: "/liquidation-helper/:id",
     name: "LiquidationId",
     component: () => import("@/views/Liquidation.vue"),
   },
