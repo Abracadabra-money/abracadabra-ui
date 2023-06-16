@@ -25,7 +25,7 @@
             <span>Amount</span>
             <span class="item-value">
               <span>{{ config.mimAmount }} MIM</span>
-              <span>{{ mimToUsd }}</span>
+              <span>{{ config.mimToUsd }}</span>
             </span>
           </li>
 
@@ -65,10 +65,6 @@ export default {
     config: {
       type: Object,
       required: true,
-    },
-    mimToUsd: {
-      type: String,
-      default: "0.0",
     },
   },
 

@@ -26,14 +26,20 @@ export default {
   },
 
   computed: {
+    isTxComplete() {
+      return !this.config.txInfo || this.config.txInfo?.status === "INFLIGHT"
+        ? false
+        : true;
+    },
+
     transactionCheck() {
-      if (this.config.txInfo)
+      if (this.isTxComplete)
         return useImage("assets/images/beam/transaction-complete.png");
       return useImage("assets/images/beam/transaction-check.png");
     },
 
     transactionText() {
-      return this.config.txInfo ? "complete" : "processing";
+      return this.isTxComplete ? "complete" : "processing";
     },
 
     layerZeroLink() {

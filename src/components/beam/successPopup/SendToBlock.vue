@@ -25,7 +25,7 @@
             <span>You will receive</span>
             <span>
               <span>{{ config.mimAmount }} MIM</span>
-              <span>{{ mimToUsd }}</span>
+              <span>{{ config.mimToUsd }}</span>
             </span>
           </li>
 
@@ -56,10 +56,6 @@ export default {
       type: Object,
       required: true,
     },
-    mimToUsd: {
-      type: String,
-      default: "0.0",
-    },
   },
 
   computed: {
@@ -75,10 +71,9 @@ export default {
     },
 
     dstScanUrl() {
-      if (!this.config.txInfo) return "";
-      return `${getChainInfo(this.config.dstChain.chainId).scanUrl}${
-        this.config.txInfo.dstTxHash
-      }`;
+      const { txInfo, dstChain } = this.config;
+      if (!txInfo || txInfo?.status === "INFLIGHT") return "";
+      return `${getChainInfo(dstChain.chainId).scanUrl}${txInfo.dstTxHash}`;
     },
 
     destinationTokenUsd() {

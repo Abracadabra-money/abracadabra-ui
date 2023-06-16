@@ -1,18 +1,31 @@
 <template>
   <div class="beam-view">
     <div class="beam" v-if="beamConfig">
-      <h3 class="title">Beam</h3>
+      <div class="beam-header">
+        <h3 class="title">Beam</h3>
 
-      <button class="last-beam" v-if="lastBeam" @click="openLastTransaction">
-        Last Beam
-      </button>
+        <button
+          class="last-beam"
+          v-if="successData"
+          @click="openLastTransaction"
+        >
+          <span class="progress-text"> {{ txProgress }}</span>
+        </button>
+        <button
+          class="last-beam-mobile"
+          v-if="successData"
+          @click="openLastTransaction"
+        >
+          <span :class="txProgress"></span>
+        </button>
 
-      <div class="settings-btns">
-        <WalletButton :active="isShowDstAddress" @click="toggleDstAddress" />
-        <SettingsButton
-          :active="isSettingsOpened"
-          @click="isSettingsOpened = true"
-        />
+        <div class="settings-btns">
+          <WalletButton :active="isShowDstAddress" @click="toggleDstAddress" />
+          <SettingsButton
+            :active="isSettingsOpened"
+            @click="isSettingsOpened = true"
+          />
+        </div>
       </div>
 
       <ChainsWrap
@@ -43,7 +56,10 @@
         />
       </div>
 
-      <ExpectedBlock :data="expectedConfig" />
+      <ExpectedBlock
+        :data="expectedConfig"
+        @open-settings="isSettingsOpened = true"
+      />
 
       <BaseButton
         :primary="true"
@@ -80,7 +96,7 @@
       :isOpened="isOpenSuccessPopup"
       @close-popup="isOpenSuccessPopup = false"
     >
-      <SuccessPopup :config="successConfig" />
+      <SuccessPopup :config="successData" />
     </LocalPopupWrap>
 
     <ChainsPopup
@@ -114,12 +130,16 @@ import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { approveToken } from "@/helpers/approve/approveToken.ts";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
-import { waitForMessageReceived } from "@layerzerolabs/scan-client";
+import {
+  waitForMessageReceived,
+  createClient,
+} from "@layerzerolabs/scan-client";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
+import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
 
 import chainSwitch from "@/mixins/chainSwitch";
 
@@ -147,9 +167,9 @@ export default {
       isSelectedChain: false,
       isOpenSuccessPopup: false,
       tx: null,
-      txInfo: null,
       isLastTransaction: false,
-      lastBeam: null,
+      successData: null,
+      mimToUsd: 0,
     };
   },
 
@@ -314,8 +334,6 @@ export default {
     },
 
     successConfig() {
-      if (this.isLastTransaction) return this.lastBeam;
-
       return {
         sendFrom: this.account,
         sendTo: this.toAddress,
@@ -329,7 +347,15 @@ export default {
         dstTokenPrice: this.dstTokenPrice,
         tx: this.tx,
         txInfo: this.txInfo,
+        mimToUsd: this.mimToUsd,
+        dstChainId: this.dstChainId,
       };
+    },
+
+    txProgress() {
+      return this.successData.txInfo?.status === "DELIVERED"
+        ? "completed"
+        : "processing";
     },
   },
 
@@ -388,6 +414,8 @@ export default {
       );
 
       this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
+      const mimPrice = (await getMimPrice()) || 1;
+      this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
 
       try {
         const mimAmount = this.$ethers.utils.parseUnits(
@@ -399,17 +427,20 @@ export default {
         this.tx = await sendFrom(fees, params, mimAmount, this.txConfig);
         await this.$store.commit("notifications/delete", notificationId);
         this.isOpenSuccessPopup = true;
-        localStorage.setItem("beam", JSON.stringify(this.successConfig));
-        this.lastBeam = this.successConfig;
+        this.successData = this.successConfig;
+        localStorage.setItem("beam", JSON.stringify(this.successData));
+
         await this.tx.wait();
 
-        this.txInfo = await waitForMessageReceived(
+        const txInfo = await waitForMessageReceived(
           this.dstChainId,
           this.tx.hash
         );
 
-        localStorage.setItem("beam", JSON.stringify(this.successConfig));
-        this.lastBeam = this.successConfig;
+        this.successData = this.successConfig;
+        this.successData.txInfo = txInfo;
+
+        localStorage.setItem("beam", JSON.stringify(this.successData));
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.errorTransaction(error, notificationId);
@@ -515,7 +546,17 @@ export default {
       this.isLastTransaction = false;
     },
 
-    openLastTransaction() {
+    async getMessagesBySrcTxHash() {
+      const client = createClient("mainnet");
+      const { messages } = await client.getMessagesBySrcTxHash(
+        this.successData.tx.hash
+      );
+
+      return messages[0];
+    },
+
+    async openLastTransaction() {
+      this.successData.txInfo = await this.getMessagesBySrcTxHash();
       this.isLastTransaction = true;
       this.isOpenSuccessPopup = true;
     },
@@ -526,7 +567,16 @@ export default {
     if (this.isAcceptedNetworks) await this.beamNotAvailable();
     else {
       await this.createBeamData();
-      this.lastBeam = JSON.parse(localStorage.getItem("beam"));
+      this.successData = JSON.parse(localStorage.getItem("beam"));
+
+      if (this.successData?.tx?.hash) {
+        this.successData.txInfo = await this.getMessagesBySrcTxHash();
+
+        this.successData.txInfo = await waitForMessageReceived(
+          this.successData.dstChainId,
+          this.successData.tx.hash
+        );
+      }
     }
   },
 
@@ -557,16 +607,20 @@ export default {
 }
 
 .beam {
-  max-width: 680px;
+  max-width: 740px;
   width: 100%;
   margin: 0 auto;
-  padding: 30px 65px;
+  padding: 30px 95px;
   background: #2a2835;
   backdrop-filter: blur(100px);
   border-radius: 30px;
   display: flex;
   flex-direction: column;
   gap: 30px;
+  position: relative;
+}
+
+.beam-header {
   position: relative;
 }
 
@@ -579,14 +633,15 @@ export default {
   text-transform: uppercase;
 }
 
-.last-beam {
+.last-beam,
+.last-beam-mobile {
   position: absolute;
-  top: 30px;
-  left: 65px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
   text-decoration: none;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  align-items: center;
   padding: 10px;
   display: flex;
   align-items: center;
@@ -596,15 +651,39 @@ export default {
   height: 40px;
   cursor: pointer;
   transition: all 0.3s ease-in;
+
   &:hover {
     background: rgba(255, 255, 255, 0.2);
   }
 }
 
+.progress-text:first-letter {
+  text-transform: uppercase;
+}
+
+.last-beam-mobile {
+  width: 40px;
+  height: 30px;
+  display: none;
+}
+
+.completed,
+.processing {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #63ff7b;
+  display: inline-block;
+}
+.processing {
+  background: $clrYellow;
+}
+
 .settings-btns {
   position: absolute;
-  top: 30px;
-  right: 65px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -637,6 +716,12 @@ export default {
   max-width: 85px;
 }
 
+@media (max-width: 768px) {
+  .beam {
+    padding: 30px 50px;
+  }
+}
+
 @media (max-width: 600px) {
   .beam {
     padding: 30px 15px;
@@ -646,6 +731,16 @@ export default {
   .settings-btns {
     right: 5%;
     gap: 10px;
+  }
+}
+
+@media (max-width: 400px) {
+  .last-beam {
+    display: none;
+  }
+
+  .last-beam-mobile {
+    display: flex;
   }
 }
 </style>

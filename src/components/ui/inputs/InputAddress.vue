@@ -1,15 +1,17 @@
 <template>
-  <input
-    class="input-address"
-    :class="{ error: addressEntryError }"
-    v-model="address"
-    @input="updateInput"
-    type="text"
-    placeholder="Add destination address"
-  />
-  <p class="error-message" :class="{ visibility: addressEntryError }">
-    Invalid address
-  </p>
+  <div>
+    <input
+      class="input-address"
+      :class="{ error: addressEntryError }"
+      v-model="address"
+      @input="updateInput"
+      type="text"
+      placeholder="Add destination address"
+    />
+    <p class="error-message" :class="{ visibility: addressEntryError }">
+      Invalid address
+    </p>
+  </div>
 </template>
 
 <script>

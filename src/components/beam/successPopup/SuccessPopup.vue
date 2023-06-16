@@ -1,15 +1,13 @@
 <template>
   <div class="wraper">
     <h1 class="title">Transaction overview</h1>
-    <SendFromBlock :config="config" :mimToUsd="mimToUsd" />
-    <SendToBlock :config="config" :mimToUsd="mimToUsd" />
+    <SendFromBlock :config="config" />
+    <SendToBlock :config="config" />
     <TransactionProgressBlock :config="config" />
   </div>
 </template>
 
 <script>
-import filters from "@/filters/index.js";
-import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
 import SendFromBlock from "@/components/beam/successPopup/SendFromBlock.vue";
 import SendToBlock from "@/components/beam/successPopup/SendToBlock.vue";
 import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
@@ -20,17 +18,6 @@ export default {
       type: Object,
       required: true,
     },
-  },
-
-  data() {
-    return {
-      mimToUsd: 0,
-    };
-  },
-
-  async created() {
-    const mimToUsd = (await getMimPrice()) || 1;
-    this.mimToUsd = filters.formatUSD(+this.config.mimAmount * +mimToUsd);
   },
 
   components: {
