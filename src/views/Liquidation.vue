@@ -81,7 +81,7 @@
             <template v-else>
               <div class="stable-preview">
                 <div class="item">
-                  <p class="item-title">MIM Amount To Liquidate</p>
+                  <p class="item-title">MIM Amount</p>
                   <p class="loader-wrap" v-if="isLoading">
                     <BaseLoader type="loader" />
                   </p>
@@ -454,7 +454,7 @@ export default {
 
       if (!isLiquidatable) {
         this.liquidationAccountError = "Address not liquidatable";
-        return false;
+        // return false;
       }
 
       const userBorrowPart =
