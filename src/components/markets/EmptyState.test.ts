@@ -13,7 +13,7 @@ describe("EmptyState.vue", () => {
     );
   });
 
-  it("Should render default string without props passed", () => {
+  it("Should render provided string if passed", () => {
     const wrapper = mount(EmptyState, { props: { text: testText } });
     const stateText = wrapper.find("p.state-text");
     expect(stateText.text()).toBe(testText);
