@@ -16,13 +16,13 @@ const assetsDataTest = [
   {
     title: "SPELL Farmed",
     value: filters.formatTokenBalance(1000),
-    routName: "Farm",
+    routeName: "Farm",
     hidden: false,
   },
 ];
 
 describe("TotalAssets.vue", () => {
-  it("Should render with routerLink if has routName", () => {
+  it("Should render with routerLink if has routeName", () => {
     const wrapper = mount(TotalAssets, {
       props: { assets: assetsDataTest },
     });
@@ -33,7 +33,7 @@ describe("TotalAssets.vue", () => {
     expect(value.text()).toBe("1000.0");
   });
 
-  it("Should render without routerLink if has routName", () => {
+  it("Should render without routerLink if has routeName", () => {
     const wrapper = mount(TotalAssets, {
       props: { assets: assetsDataTest },
     });

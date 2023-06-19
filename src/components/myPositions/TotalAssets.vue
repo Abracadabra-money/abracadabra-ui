@@ -3,8 +3,8 @@
     <template v-for="(asset, idx) in assets">
       <router-link
         class="asset-item"
-        v-if="asset.routName"
-        :to="{ name: asset.routName }"
+        v-if="asset.routeName"
+        :to="{ name: asset.routeName }"
         :key="idx"
       >
         <p class="title">{{ asset.title }}</p>

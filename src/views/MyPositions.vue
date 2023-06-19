@@ -139,7 +139,7 @@ export default {
         {
           title: "SPELL Farmed",
           value: spellFarmer,
-          routName: "Farm",
+          routeName: "Farm",
           hidden: spellFarmer === "0.0",
         },
       ].filter((item) => !item.hidden);
