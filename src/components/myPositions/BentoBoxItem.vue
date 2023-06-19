@@ -37,12 +37,12 @@ import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import filters from "@/filters/index.js";
 
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 
 export default {
   props: {
     isBento: { type: Boolean, default: false },
-    balance: { default: "0" },
+    balance: { type: [String, BigNumber], default: "0" },
     mimPrice: { type: Number, default: 0 },
   },
 
