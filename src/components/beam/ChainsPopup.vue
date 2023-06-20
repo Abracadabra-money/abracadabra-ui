@@ -7,7 +7,7 @@
         src="@/assets/images/cross.svg"
         alt="Close popup"
       />
-      <p class="title">Select network</p>
+      <h3 class="title">Select network</h3>
       <div class="content-wrap">
         <div
           class="select-item"
