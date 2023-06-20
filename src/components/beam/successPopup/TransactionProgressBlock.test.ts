@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
 import filters from "@/filters";
+import { useImage } from "@/helpers/useImage";
 
 const fullConfig = {
   sendFrom: "0x000000",
@@ -45,7 +46,7 @@ describe("TransactionProgressBlock.vue", () => {
     });
     expect(wrapper.vm.isTxComplete).toBe(true);
     expect(wrapper.vm.transactionCheck).toBe(
-      "file:///D:/src/assets/images/beam/transaction-complete.png"
+      useImage("assets/images/beam/transaction-complete.png")
     );
     expect(wrapper.vm.transactionText).toBe("complete");
     expect(wrapper.vm.layerZeroLink).toBe(
@@ -61,7 +62,7 @@ describe("TransactionProgressBlock.vue", () => {
     });
     expect(wrapper.vm.isTxComplete).toBe(false);
     expect(wrapper.vm.transactionCheck).toBe(
-      "file:///D:/src/assets/images/beam/transaction-check.png"
+      useImage("assets/images/beam/transaction-check.png")
     );
     expect(wrapper.vm.transactionText).toBe("processing");
     expect(wrapper.vm.layerZeroLink).toBe(false);

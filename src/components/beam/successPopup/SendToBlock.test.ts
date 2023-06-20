@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import SendToBlock from "@/components/beam/successPopup/SendToBlock.vue";
 import filters from "@/filters";
+import { useImage } from "@/helpers/useImage";
 
 const fullConfig = {
   sendFrom: "0x000000",
@@ -45,7 +46,7 @@ describe("SendToBlock.vue", () => {
     });
 
     expect(wrapper.vm.sendToCheck).toBe(
-      "file:///D:/src/assets/images/beam/check.png"
+      useImage("assets/images/beam/check.png")
     );
     expect(wrapper.vm.sendTo).toBe("0x11...111");
     expect(wrapper.vm.dstScanUrl).toBe("");
@@ -60,7 +61,7 @@ describe("SendToBlock.vue", () => {
     });
 
     expect(wrapper.vm.sendToCheck).toBe(
-      "file:///D:/src/assets/images/beam/complete.png"
+      useImage("assets/images/beam/complete.png")
     );
     expect(wrapper.vm.sendTo).toBe("0x11...111");
     expect(wrapper.vm.dstScanUrl).toBe("https://bscscan.com/tx/undefined");

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import SendFromBlock from "@/components/beam/successPopup/SendFromBlock.vue";
 import filters from "@/filters";
+import { useImage } from "@/helpers/useImage";
 
 const fullConfig = {
   sendFrom: "0x000000",
@@ -48,7 +49,7 @@ describe("SendFromBlock.vue", () => {
     expect(wrapper.vm.isNone).toBe(true);
     expect(wrapper.vm.fromScanUrl).toBe("");
     expect(wrapper.vm.sendFromCheck).toBe(
-      "file:///D:/src/assets/images/beam/check.png"
+      useImage("assets/images/beam/check.png")
     );
     expect(wrapper.vm.destinationTokenAmount).toBe("0");
   });
@@ -66,7 +67,7 @@ describe("SendFromBlock.vue", () => {
     expect(wrapper.vm.sendFrom).toBe("0x00...000");
     expect(wrapper.vm.fromScanUrl).toBe("https://etherscan.io/tx/txHash");
     expect(wrapper.vm.sendFromCheck).toBe(
-      "file:///D:/src/assets/images/beam/complete.png"
+      useImage("assets/images/beam/complete.png")
     );
     expect(wrapper.vm.destinationTokenAmount).toBe("500.0");
   });
