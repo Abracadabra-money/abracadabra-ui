@@ -1,10 +1,11 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import SettingsPopup from "@/components/beam/SettingsPopup.vue";
+import { useImage } from "@/helpers/useImage";
 
 const config = {
   address: "0xFF325aF9D13baF1eC655CAD7A92663632439163d",
-  icon: "http://127.0.0.1:5173/src/assets/images/tokens/AVAX.png",
+  icon: useImage("assets/images/tokens/AVAX.png"),
   nativeSymbol: "FTM",
   nativeTokenBalance: "0.58381987290380852",
 };

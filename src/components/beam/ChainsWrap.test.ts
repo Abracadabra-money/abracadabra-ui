@@ -1,14 +1,15 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import ChainsWrap from "@/components/beam/ChainsWrap.vue";
+import { useImage } from "@/helpers/useImage";
 
 const fromChain = {
-  icon: "http://127.0.0.1:5173/src/assets/images/networks/ethereum.svg",
+  icon: useImage("assets/images/networks/ethereum.svg"),
   title: "Ethereum",
 };
 
 const toChain = {
-  icon: "http://127.0.0.1:5173/src/assets/images/networks/binance.svg",
+  icon: useImage("assets/images/networks/binance.svg"),
   title: "BSC",
 };
 

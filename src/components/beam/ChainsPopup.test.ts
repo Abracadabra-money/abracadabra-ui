@@ -1,25 +1,26 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import ChainsPopup from "@/components/beam/ChainsPopup.vue";
+import { useImage } from "@/helpers/useImage";
 
 const networksArr = [
   {
     chainId: 56,
     lzChainId: 102,
     title: "BSC",
-    icon: "http://127.0.0.1:5173/src/assets/images/networks/binance.svg",
+    icon: useImage("assets/images/networks/binance.svg"),
   },
   {
     chainId: 42161,
     lzChainId: 110,
     title: "Arbitrum",
-    icon: "http://127.0.0.1:5173/src/assets/images/networks/arbitrum-chain.svg",
+    icon: useImage("assets/images/networks/arbitrum-chain.svg"),
   },
   {
     chainId: 137,
     lzChainId: 109,
     title: "Polygon",
-    icon: "http://127.0.0.1:5173/src/assets/images/networks/polygon.svg",
+    icon: useImage("assets/images/networks/polygon.svg"),
   },
 ];
 
