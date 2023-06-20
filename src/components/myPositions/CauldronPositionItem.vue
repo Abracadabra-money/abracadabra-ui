@@ -44,6 +44,8 @@ import PositionLinks from "@/components/myPositions/PositionLinks.vue";
 import PositionLiquidationPrice from "@/components/myPositions/PositionLiquidationPrice.vue";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
+import { ethers } from "ethers";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
@@ -68,7 +70,7 @@ export default {
     },
 
     oracleRate() {
-      return this.$ethers.utils.formatUnits(
+      return ethers.utils.formatUnits(
         this.cauldron.oracleRate,
         this.cauldron.config.collateralInfo.decimals
       );
@@ -104,7 +106,7 @@ export default {
     },
 
     userCollateralAmount() {
-      return this.$ethers.utils.formatUnits(
+      return ethers.utils.formatUnits(
         this.cauldron.collateralInfo.userCollateralAmount,
         this.cauldron.config.collateralInfo.decimals
       );
@@ -115,7 +117,7 @@ export default {
     },
 
     userBorrowAmount() {
-      return this.$ethers.utils.formatUnits(
+      return ethers.utils.formatUnits(
         this.cauldron.borrowInfo.userBorrowAmount,
         this.cauldron.config.mimInfo.decimals
       );
@@ -125,13 +127,13 @@ export default {
       const defaultActions = [
         {
           title: "Add Collateral/ Borrow MIM",
-          icon: this.$image("assets/images/myposition/AddCollateral.png"),
+          icon: useImage("assets/images/myposition/AddCollateral.png"),
           name: "BorrowId",
           id: this.cauldron.config.id,
         },
         {
           title: "Repay MIMs/ Remove Collateral",
-          icon: this.$image("assets/images/myposition/Repay.png"),
+          icon: useImage("assets/images/myposition/Repay.png"),
           name: "RepayId",
           id: this.cauldron.config.id,
         },
@@ -140,7 +142,7 @@ export default {
       if (this.cauldron.config.cauldronSettings.isSwappersActive) {
         const deleverageLink = {
           title: "Deleverage",
-          icon: this.$image("assets/images/myposition/Deleverage.png"),
+          icon: useImage("assets/images/myposition/Deleverage.png"),
           name: "DeleverageId",
           id: this.cauldron.config.id,
         };
