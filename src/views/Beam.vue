@@ -4,13 +4,13 @@
       <div class="beam-header">
         <h3 class="title">Beam</h3>
 
-        <button
+        <!-- <button
           class="last-beam"
           v-if="successData"
           @click="openLastTransaction"
         >
           <span class="progress-text"> {{ txProgress }}</span>
-        </button>
+        </button> -->
         <button
           class="last-beam-mobile"
           v-if="successData"
