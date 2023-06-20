@@ -76,7 +76,7 @@ export default {
 
   data() {
     return {
-      fee: null,
+      fee: 0,
       inputValue: this.value,
       tooltip:
         "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
