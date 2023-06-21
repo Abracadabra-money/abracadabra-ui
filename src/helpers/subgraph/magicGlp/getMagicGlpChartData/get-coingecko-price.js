@@ -13,16 +13,15 @@ const getCoingeckoPrice = async (symbol, { from }) => {
   const days = Math.ceil(now / 86400) - Math.ceil(from / 86400) - 1;
 
   const apiDomain =
-  import.meta.env.VITE_APP_COINGECKO_API_KEY &&
-  import.meta.env.PROD === "production"
-    ? "pro-api.coingecko.com"
-    : "api.coingecko.com";
+    import.meta.env.VITE_APP_COINGECKO_API_KEY && import.meta.env.PROD
+      ? "pro-api.coingecko.com"
+      : "api.coingecko.com";
 
-const config = {
-  headers: {
-    "X-Cg-Pro-Api-Key": import.meta.env.VITE_APP_COINGECKO_API_KEY,
-  },
-};
+  const config = {
+    headers: {
+      "X-Cg-Pro-Api-Key": import.meta.env.VITE_APP_COINGECKO_API_KEY,
+    },
+  };
 
   const url = `https://${apiDomain}/api/v3/coins/${_symbol}/market_chart?vs_currency=usd&days=${days}&interval=daily`;
 
