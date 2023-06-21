@@ -128,7 +128,7 @@ import ExpectedBlock from "@/components/beam/ExpectedBlock.vue";
 import { mapGetters } from "vuex";
 import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
-import { approveToken } from "@/helpers/approve/approveToken.ts";
+import { approveToken } from "@/helpers/approval.ts";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import {
   waitForMessageReceived,
@@ -398,10 +398,25 @@ export default {
     async actionHandler() {
       if (this.disableBtn) return false;
       if (this.isTokenApproved) {
-        return await approveToken(
+        const notificationId = await this.$store.dispatch(
+          "notifications/new",
+          notification.pending
+        );
+
+        const isTokenApproved = await approveToken(
           this.beamConfig.tokenContractInstance,
           this.beamConfig.contractInstance.address
         );
+
+        if (isTokenApproved)
+          await this.$store.commit("notifications/delete", notificationId);
+        else
+          await this.$store.dispatch(
+            "notifications/new",
+            notification.approveError
+          );
+
+        return;
       }
 
       await this.seendBeam();
