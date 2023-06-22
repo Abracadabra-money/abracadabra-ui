@@ -59,9 +59,6 @@ export default {
       return this.emptyDataConfig[pageIdentifier];
     },
   },
-  mounted() {
-    console.log("route", this.$route);
-  },
 };
 </script>
 <style lang="scss" scoped>
