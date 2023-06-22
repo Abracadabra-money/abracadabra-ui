@@ -145,8 +145,30 @@
           :emptyData="emptyData"
           :poolId="selectedPoolId"
         /> -->
-        <StablePreview v-if="false" liquidationRiskClass="safe" />
-        <InfoList v-else :pool="selectedPool" />
+
+        <div class="stable-info">
+          <div class="info-wrap">
+            <div
+              v-if="!!selectedPool"
+              class="info-btn"
+              @click="isInfoPressed = !isInfoPressed"
+            >
+              <img
+                class="info-icon"
+                src="@/assets/images/info.svg"
+                alt="info"
+              />
+            </div>
+          </div>
+          <div class="stable-data">
+            <template v-if="selectedPool">
+              <StablePreview v-if="isInfoPressed" liquidationRiskClass="safe" />
+              <InfoList v-else :pool="selectedPool" />
+            </template>
+            <EmptyState v-else />
+          </div>
+        </div>
+
         <CollateralApyBlock
           v-if="selectedPool"
           :pool="selectedPool"
@@ -207,6 +229,7 @@ import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 import StablePreview from "@/components/ui/borrow/poolStand/StablePreview.vue";
 import InfoList from "@/components/ui/borrow/poolStand/InfoList.vue";
+import EmptyState from "@/components/ui/borrow/poolStand/EmptyState.vue";
 
 import filters from "@/filters/index.js";
 
@@ -231,14 +254,9 @@ export default {
       borrowValue: "",
       poolId: null,
       isOpenPollPopup: false,
+      isInfoPressed: false,
       useDefaultBalance: false,
       updateInterval: null,
-      emptyData: {
-        img: this.$image(`assets/images/empty_borrow.png`),
-        text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
-        bottom: "If you want to learn more read our docs",
-        link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
-      },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
       glpPoolsId: [2, 3],
@@ -1017,11 +1035,24 @@ export default {
     CollateralApyBlock,
     StablePreview,
     InfoList,
+    EmptyState,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.stable-info {
+  background-color: rgba(35, 33, 45, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 30px;
+}
+.stable-data {
+  position: relative;
+  box-sizing: border-box;
+  background: #2b2b3c;
+  backdrop-filter: blur(100px);
+  border-radius: 30px;
+}
 .borrow {
   display: grid;
   grid-template-columns: 1fr;
@@ -1163,6 +1194,19 @@ export default {
 
 .info-wrap {
   margin-bottom: 20px;
+}
+
+.info-btn {
+  background-color: transparent;
+  cursor: pointer;
+  border: none;
+  /* margin: 9px 30px 7px 0;*/
+  width: 24px;
+  height: 24px;
+
+  &:disabled {
+    cursor: default;
+  }
 }
 
 @media (max-width: 1200px) {
