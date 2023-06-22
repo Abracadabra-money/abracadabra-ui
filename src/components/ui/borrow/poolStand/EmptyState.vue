@@ -25,26 +25,26 @@ export default {
   data() {
     return {
       emptyDataConfig: {
-        borrowTest: {
+        BorrowTest: {
           img: useImage(`assets/images/empty_borrow.png`),
           text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
           bottom: "If you want to learn more read our docs",
           link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
         },
-        repay: {
+        Repay: {
           img: useImage(`assets/images/empty_borrow.png`),
           text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Repay",
           bottom: "If you want to learn more read our docs",
           link: "https://abracadabramoney.gitbook.io/",
           glpPoolsId: [2, 3],
         },
-        leverage: {
+        Leverage: {
           img: useImage(`assets/images/empty_leverage.png`),
           text: "Leverage up your selected asset using our built in function. Remember you will not receive any MIMs.",
           bottom: "Read more about it",
           link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
         },
-        deleverage: {
+        Deleverage: {
           img: useImage(`assets/images/empty_leverage.png`),
           text: "Deleverage your position using our built-in Flash repay function.",
           bottom: "Read more about it",
@@ -55,9 +55,12 @@ export default {
   },
   computed: {
     emptyData() {
-      const pageIdentifier = this.$route.path.slice(1);
+      const pageIdentifier = this.$route.name;
       return this.emptyDataConfig[pageIdentifier];
     },
+  },
+  mounted() {
+    console.log("route", this.$route);
   },
 };
 </script>
