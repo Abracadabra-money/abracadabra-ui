@@ -1,7 +1,7 @@
 <template>
   <div class="left-borrow">
     <span>MIMS LEFT TO BORROW:</span>
-    <span>{{ formatLargeSum(borrowLeft) }}</span>
+    <span>{{ formatLargeSum }}</span>
   </div>
 </template>
 
@@ -15,11 +15,16 @@ export default {
       default: 0,
     },
   },
-  methods: {
-    formatLargeSum(value) {
-      return filters.formatLargeSum(value);
-    }
-  }
+  computed: {
+    formatLargeSum() {
+      return filters.formatLargeSum(this.borrowLeft);
+    },
+  },
+  // methods: {
+  //   formatLargeSum(value) {
+  //     return filters.formatLargeSum(value);
+  //   }
+  // }
 };
 </script>
 

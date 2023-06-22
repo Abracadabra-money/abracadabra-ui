@@ -7,8 +7,8 @@
           alt="info"
           v-tooltip="item.tooltip"
         />
-        {{ item.name }}:</span
-      >
+        {{ item.name }}:
+      </span>
       <span>{{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span>
     </div>
   </div>
@@ -59,7 +59,9 @@ export default {
     },
 
     isCollateralInterest() {
-      return this.chainId === 1 && (this.pool?.id === 28 || this.pool?.id === 27);
+      return (
+        this.chainId === 1 && (this.pool?.id === 28 || this.pool?.id === 27)
+      );
     },
 
     info() {
@@ -95,8 +97,11 @@ export default {
         info.push(borrowFee);
       }
 
-      let interestText = "This is the annualized percent that your debt will increase each year."
-      if(this.isCollateralInterest) interestText = "This is the annualized percent that your collateral will decrease each year."
+      let interestText =
+        "This is the annualized percent that your debt will increase each year.";
+      if (this.isCollateralInterest)
+        interestText =
+          "This is the annualized percent that your collateral will decrease each year.";
 
       info.push({
         name: "Interest",
