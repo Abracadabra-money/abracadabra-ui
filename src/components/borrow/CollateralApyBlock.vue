@@ -1,18 +1,8 @@
 <template>
   <div :class="{ 'no-apy': !isCalcExist }">
     <div class="apy" v-if="isCalcExist">
-      <img
-        v-if="isApe"
-        class="apy-bg"
-        src="@/assets/images/ape/apy-bg.png"
-        alt=""
-      />
-      <img
-        v-else
-        class="apy-bg"
-        src="@/assets/images/primary-apy-bg.png"
-        alt=""
-      />
+      <img v-if="isApe" class="apy-bg" src="@/assets/images/ape/apy-bg.png" />
+      <img v-else class="apy-bg" src="@/assets/images/primary-apy-bg.png" />
       <div class="apy-content">
         <img
           v-if="isApe"
@@ -40,7 +30,7 @@
 
 <script>
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
-
+import { mapGetters } from "vuex";
 export default {
   props: {
     expectedLeverage: {
@@ -68,13 +58,14 @@ export default {
   },
 
   computed: {
-    chainId() {
-      return this.$store.getters.getChainId;
-    },
+    ...mapGetters({
+      chainId: "getChainId",
+    }),
+
     calculateApy() {
-      if (+this.expectedLeverage)
-        return parseFloat(+this.apy * +this.expectedLeverage).toFixed(2);
-      return parseFloat(this.apy).toFixed(2);
+      return this.expectedLeverage
+        ? parseFloat(+this.apy * +this.expectedLeverage).toFixed(2)
+        : parseFloat(this.apy).toFixed(2);
     },
 
     isTilde() {
@@ -95,12 +86,14 @@ export default {
       this.apy = await fetchTokenApy(this.pool);
       this.loading = false;
     },
+
     async init() {
       this.isCalcExist = isApyCalcExist(this.chainId, this.pool.id);
       if (!this.isCalcExist) return false;
       await this.getApy();
     },
   },
+
   async created() {
     await this.init();
   },
