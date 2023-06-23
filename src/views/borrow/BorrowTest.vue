@@ -147,7 +147,8 @@
         /> -->
 
         <div class="stable-info">
-          <div class="info-wrap">
+          <div class="stable-tags">
+            <TagsBlock :cauldron="selectedPool" />
             <div
               v-if="!!selectedPool"
               class="info-btn"
@@ -217,7 +218,6 @@
 <script>
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BorrowPoolStand from "@/components/borrow/BorrowPoolStand.vue";
 import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
 import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
@@ -230,6 +230,7 @@ import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 import StablePreview from "@/components/ui/borrow/poolStand/StablePreview.vue";
 import InfoList from "@/components/ui/borrow/poolStand/InfoList.vue";
 import EmptyState from "@/components/ui/borrow/poolStand/EmptyState.vue";
+import TagsBlock from "@/components/ui/borrow/poolStand/TagsBlock.vue";
 
 import filters from "@/filters/index.js";
 
@@ -1023,7 +1024,6 @@ export default {
   components: {
     NetworksList,
     BaseTokenInput,
-    BorrowPoolStand,
     PercentageButtons,
     BalanceBlock,
     BaseButton,
@@ -1036,6 +1036,7 @@ export default {
     StablePreview,
     InfoList,
     EmptyState,
+    TagsBlock,
   },
 };
 </script>
@@ -1045,6 +1046,7 @@ export default {
   background-color: rgba(35, 33, 45, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 30px;
+  position: relative;
 }
 .stable-data {
   position: relative;
@@ -1196,11 +1198,18 @@ export default {
   margin-bottom: 20px;
 }
 
+.stable-tags {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 30px 7px 30px;
+}
+
 .info-btn {
   background-color: transparent;
   cursor: pointer;
   border: none;
-  /* margin: 9px 30px 7px 0;*/
   width: 24px;
   height: 24px;
 
