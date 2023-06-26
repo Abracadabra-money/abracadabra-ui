@@ -110,6 +110,14 @@ import mSpellStaking from "@/mixins/stake/mSpellStaking";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 
+import { approveToken } from "@/utils/approveHelpers.js";
+
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   mixins: [mSpellStaking],
   data() {
@@ -216,7 +224,7 @@ export default {
         notification.approvePending
       );
 
-      let approve = await this.approveToken(
+      let approve = await approveToken(
         this.tokensInfo.stakeToken.contractInstance,
         this.tokensInfo.mainToken.contractInstance.address
       );
@@ -252,22 +260,25 @@ export default {
       );
 
       try {
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
-            0
-          );
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const contract = this.tokensInfo.mainToken.contractInstance;
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
-          0,
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "withdraw",
+          args: [0],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        console.log("CLAIM", receipt);
+        const { hash } = await walletClient.writeContract(request);
+
+        await waitForTransaction({
+          hash,
+        });
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
@@ -289,28 +300,31 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
-            amount
-          );
+        const contract = this.tokensInfo.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "deposit",
+          args: [amount],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
-          amount,
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
-        console.log("DEPOSIT", receipt);
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
@@ -331,28 +345,31 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdraw(
-            amount
-          );
+        const contract = this.tokensInfo.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "withdraw",
+          args: [amount],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.withdraw(
-          amount,
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
-        console.log("WITHDRAW", receipt);
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
@@ -365,30 +382,6 @@ export default {
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-    async approveToken(tokenContract, approveAddr) {
-      try {
-        const estimateGas = await tokenContract.estimateGas.approve(
-          approveAddr,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-        );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await tokenContract.approve(
-          approveAddr,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
-        console.log("APPROVE RESP:", receipt);
-        return true;
-      } catch (e) {
-        console.log("isApprowed err:", e);
-        return false;
       }
     },
   },
