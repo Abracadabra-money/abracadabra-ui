@@ -480,8 +480,15 @@ export default {
         const amount = this.$ethers.utils.parseUnits(parsedAmount, 18);
         const fees = await this.getFees(this.amount); // add(dstNativeAmount);
 
-        const estimateGas =
-          await this.bridgeObject.contractInstance.estimateGas.sendFrom(
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+        const contract = this.bridgeObject.contractInstance;
+
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "sendFrom",
+          args: [
             this.account, // 'from' address to send tokens
             this.remoteLzChainId, // remote LayerZero chainId
             this.toAddressBytes, // 'to' address to send tokens
@@ -491,37 +498,26 @@ export default {
               this.$ethers.constants.AddressZero,
               this.adapterParams(),
             ], // flexible bytes array to indicate messaging adapter services
-            {
-              value: fees[0],
-            }
-          );
+          ],
+          chain: publicClient.chain,
+          account: this.account,
+          value: fees[0],
+        });
 
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.bridgeObject.contractInstance.sendFrom(
-          this.account, // 'from' address to send tokens
-          this.remoteLzChainId, // remote LayerZero chainId
-          this.toAddressBytes, // 'to' address to send tokens
-          amount, // amount of tokens to send (in wei)
-          [
-            this.account,
-            this.$ethers.constants.AddressZero,
-            this.adapterParams(),
-          ], // flexible bytes array to indicate messaging adapter services
-          {
-            gasLimit,
-            value: fees[0],
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         await this.$store.commit("notifications/delete", notificationId);
         this.isSuccessPopup = true;
-        await tx.wait();
-        this.transaction = tx;
-        this.transactionLink = `https://layerzeroscan.com/tx/${tx.hash}`;
+
+        await waitForTransaction({
+          hash,
+        });
+
+        this.transaction = { hash }; // TODO: CHECK THIS
+        this.transactionLink = `https://layerzeroscan.com/tx/${hash}`;
         this.transactionInfo = await waitForMessageReceived(
           this.dstChainId,
-          tx.hash
+          hash
         );
       } catch (error) {
         console.log("Bridge Error:", error);
