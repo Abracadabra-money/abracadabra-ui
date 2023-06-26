@@ -1,3 +1,9 @@
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export const isTokenApprowed = async (
   tokenContract,
   spenderAddress,
@@ -20,24 +26,25 @@ export const isTokenApprowed = async (
 
 export const approveToken = async (tokenContract, spenderAddress) => {
   try {
-    const estimateGas = await tokenContract.estimateGas.approve(
-      spenderAddress,
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    );
+    const publicClient = getPublicClient();
+    const walletClient = await getWalletClient();
+    const account = walletClient.account.address;
+    const MAX_AMOUNT = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
-    const gasLimit = 1000 + +estimateGas.toString();
+    const { request } = await publicClient.simulateContract({
+      address: tokenContract.address,
+      abi: tokenContract.interface.fragments,
+      functionName: "approve",
+      args: [spenderAddress, MAX_AMOUNT],
+      chain: publicClient.chain,
+      account,
+    });
 
-    console.log("gasLimit:", gasLimit);
+    const { hash } = await walletClient.writeContract(request);
 
-    const tx = await tokenContract.approve(
-      spenderAddress,
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      {
-        gasLimit,
-      }
-    );
-
-    await tx.wait();
+    await waitForTransaction({
+      hash,
+    });
 
     return true;
   } catch (e) {
