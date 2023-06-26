@@ -296,7 +296,6 @@ export default {
         const publicClient = await getPublicClient();
         const walletClient = await getWalletClient();
 
-        console.log("walletClient", walletClient)
         const amount = this.$ethers.utils.parseEther(this.amount);
 
         const contract = this.tokensInfo.mainToken.contractInstance;
