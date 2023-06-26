@@ -1,15 +1,14 @@
-import { ethers } from "ethers";
+import { getWalletClient } from "@wagmi/core";
 
 const getApprovalEncode = async (
   signer,
   bentoContract,
   account,
-  chain,
+  chainId,
   masterContract
 ) => {
   const verifyingContract = bentoContract.address;
   const nonce = await bentoContract.nonces(account);
-  const chainId = ethers.utils.hexlify(chain);
 
   const domain = {
     name: "BentoBox V1",
@@ -37,18 +36,15 @@ const getApprovalEncode = async (
     nonce,
   };
 
-  let signature;
-  try {
-    signature = await signer._signTypedData(domain, types, value);
-  } catch (e) {
-    console.log("SIG ERR:", e.code);
+  const walletClient = await getWalletClient();
 
-    if (e.code === -32603) {
-      console.log("signature ERROR LEGER HERE", e.code);
-      return "ledger";
-    }
-    return false;
-  }
+  const signature = await walletClient.signTypedData({
+    account,
+    domain,
+    types,
+    primaryType: "SetMasterContractApproval",
+    message: value,
+  });
 
   const parsedSignature = parseSignature(signature);
 

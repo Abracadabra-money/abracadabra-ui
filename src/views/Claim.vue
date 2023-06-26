@@ -174,6 +174,12 @@ const ethMimAddress = "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3";
 
 import claimAbi from "@/utils/abi/tokensClaim";
 
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   data() {
     return {
@@ -343,7 +349,21 @@ export default {
         }
 
         if (this.isClaimedEth || this.isClaimedAeth) {
-          this.claimContract.claim();
+          const publicClient = await getPublicClient();
+          const walletClient = await getWalletClient();
+
+          const contract = this.claimContract;
+
+          const { request } = await publicClient.simulateContract({
+            address: contract.address,
+            abi: contract.interface.fragments,
+            functionName: "claim",
+            chain: publicClient.chain,
+            account: this.account,
+          });
+
+          await walletClient.writeContract(request);
+
           return false;
         }
       }
@@ -365,27 +385,31 @@ export default {
         );
       }
       try {
-        const estimateGas =
-          await this.degenContract.estimateGas.setMasterContractApproval(
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
+        const contract = this.degenContract;
+
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "setMasterContractApproval",
+          args: [
             this.account,
             masterContract,
             false,
             signature.v,
             signature.r,
-            signature.s
-          );
-        const gasLimit = this.gasLimitConst + +estimateGas.toString();
-        const tx = await this.degenContract.setMasterContractApproval(
-          this.account,
-          masterContract,
-          false,
-          signature.v,
-          signature.r,
-          signature.s,
-          { gasLimit }
-        );
-        const receipt = await tx.wait();
-        return receipt;
+            signature.s,
+          ],
+          chain: publicClient.chain,
+          account: this.account,
+        });
+
+        const { hash } = await walletClient.writeContract(request);
+        return await waitForTransaction({
+          hash,
+        });
       } catch (e) {
         console.log("approveMasterContract err:", masterContract);
         return false;

@@ -149,6 +149,12 @@ import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
 import switchNetwork from "@/helpers/switchNetwork";
 
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   data() {
     return {

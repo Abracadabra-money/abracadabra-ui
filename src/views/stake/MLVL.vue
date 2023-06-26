@@ -187,6 +187,12 @@ import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import LvlTokensBalance from "@/components/stake/LvlTokensBalance.vue";
 import TranchesStatistics from "@/components/stake/TranchesStatistics.vue";
 
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   mixins: [mLvlTokensMixin],
   data() {

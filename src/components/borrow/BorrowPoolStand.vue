@@ -191,6 +191,11 @@ import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
 import { fetchTokenApy } from "@/helpers/collateralsApy";
 
+import {
+  getPublicClient,
+  getWalletClient,
+} from "@wagmi/core";
+
 export default {
   name: "BorrowPoolStand",
   props: {

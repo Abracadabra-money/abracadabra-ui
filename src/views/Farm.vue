@@ -139,6 +139,12 @@ import filters from "@/filters/index.js";
 
 import { approveToken } from "@/utils/approveHelpers.js";
 
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   mixins: [farmPoolsMixin],
   props: {
