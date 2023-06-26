@@ -585,7 +585,7 @@ export default {
         pool.borrowToken.decimals
       );
 
-      const networkBalance = await this.contractProvider.getBalance();
+      const networkBalance = await this.contractProvider.getBalance(this.account);
 
       let claimableReward;
 

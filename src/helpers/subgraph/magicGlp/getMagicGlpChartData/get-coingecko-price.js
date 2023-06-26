@@ -13,7 +13,7 @@ const getCoingeckoPrice = async (symbol, { from }) => {
   const days = Math.ceil(now / 86400) - Math.ceil(from / 86400) - 1;
 
   const apiDomain =
-    import.meta.env.VITE_APP_COINGECKO_API_KEY && import.meta.env.PROD
+    import.meta.env.VITE_APP_COINGECKO_API_KEY
       ? "pro-api.coingecko.com"
       : "api.coingecko.com";
 

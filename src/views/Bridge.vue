@@ -138,7 +138,6 @@ import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import SettingsPopup from "@/components/bridge/SettingsPopup.vue";
 import SuccessPopup from "@/components/bridge/SuccessPopup.vue";
 import filters from "@/filters/index.js";
-import chainSwitch from "@/mixins/chainSwitch";
 import notification from "@/helpers/notification/notification.js";
 import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { mapGetters } from "vuex";
@@ -148,9 +147,9 @@ import { getTokenInfo } from "@/helpers/getTokenInfo";
 import { nextTick } from "vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { getDstTokenMax } from "@/helpers/bridge/getDstTokenMax.ts";
+import switchNetwork from "@/helpers/switchNetwork";
 
 export default {
-  mixins: [chainSwitch],
   data() {
     return {
       acceptedNetworks: [1, 10, 56, 137, 250, 1285, 42161, 43114],
@@ -402,14 +401,14 @@ export default {
         }
         await this.getFees();
       } else {
-        this.switchNetwork(chainId);
+        await switchNetwork(chainId);
       }
     },
 
-    switchChain() {
+    async switchChain() {
       if (!this.selectChain) return false;
-      if (this.account) this.switchNetwork(this.destinationChain.chainId);
-      else this.switchNetworkWithoutConnect(this.destinationChain.chainId);
+
+      await switchNetwork(this.destinationChain.chainId);
     },
 
     async updateMainValue(value) {

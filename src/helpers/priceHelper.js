@@ -11,7 +11,7 @@ const chainCoinGeckoIds = {
 };
 
 const apiDomain =
-  import.meta.env.VITE_APP_COINGECKO_API_KEY && import.meta.env.PROD
+  import.meta.env.VITE_APP_COINGECKO_API_KEY
     ? "pro-api.coingecko.com"
     : "api.coingecko.com";
 
