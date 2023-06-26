@@ -45,6 +45,14 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
 
+import { approveToken } from "@/utils/approveHelpers.js";
+
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   components: { BaseTokenInput, BaseButton },
   props: {
@@ -72,32 +80,29 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseEther(this.amount);
         const account = this.account;
         const tokenAddress = this.infoObject.mimContract.address;
 
-        const estimateGas = await this.activeContract.estimateGas.withdraw(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0"
-        );
+        const contract = this.activeContract;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "withdraw",
+          args: [tokenAddress, account, account, amount, "0"],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.activeContract.withdraw(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0",
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
-        const receipt = await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
         this.closePopup();
 
@@ -121,32 +126,29 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseEther(this.amount);
         const account = this.account;
         const tokenAddress = this.infoObject.mimContract.address;
 
-        const estimateGas = await this.activeContract.estimateGas.deposit(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0"
-        );
+        const contract = this.activeContract;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "deposit",
+          args: [tokenAddress, account, account, amount, "0"],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.activeContract.deposit(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0",
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
-        const receipt = await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
         console.log("deposit", receipt);
 
@@ -170,35 +172,20 @@ export default {
         "notifications/new",
         notification.approvePending
       );
-      try {
-        const estimateGas =
-          await this.infoObject.mimContract.estimateGas.approve(
-            this.activeContract.address,
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          );
 
-        const gasLimit = 1000 + +estimateGas.toString();
+      const approve = await approveToken(
+        this.selectedPool.stakingTokenContract,
+        this.selectedPool.contractAddress
+      );
 
-        const tx = await this.infoObject.mimContract.approve(
-          this.activeContract.address,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
+      if (approve) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approveError
         );
-        const receipt = await tx.wait();
-        console.log("APPROVE RESP:", receipt);
-        await this.$store.commit("notifications/delete", notificationId);
-      } catch (e) {
-        console.log("isApprowed err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
     closePopup() {
