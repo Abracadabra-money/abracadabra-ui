@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { getWalletClient } from "@wagmi/core";
 
 const signMasterContract = async (
   signer,
@@ -10,11 +11,11 @@ const signMasterContract = async (
   nonce
 ) => {
   try {
-    const chainHex = ethers.utils.hexlify(chainId);
+    // const chainHex = ethers.utils.hexlify(chainId);
 
     const domain = {
       name: "BentoBox V1",
-      chainId: chainHex,
+      chainId,
       verifyingContract,
     };
 
@@ -42,7 +43,15 @@ const signMasterContract = async (
       nonce,
     };
 
-    const signature = await signer._signTypedData(domain, types, value);
+    const walletClient = await getWalletClient();
+
+    const signature = await walletClient.signTypedData({
+      account: user,
+      domain,
+      types,
+      primaryType: "SetMasterContractApproval",
+      message: value,
+    });
 
     const parsedSignature = parseSignature(signature);
 

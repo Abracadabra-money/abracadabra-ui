@@ -1,24 +1,27 @@
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export const cook = async (contract, cookData, value) => {
-    const estimateGas = await contract.estimateGas.cook(
-      cookData.events,
-      cookData.values,
-      cookData.datas,
-      {
-        value,
-      }
-    );
-  
-    const gasLimit = estimateGas.add(1000);
-  
-    const tx = await contract.cook(
-      cookData.events,
-      cookData.values,
-      cookData.datas,
-      {
-        value,
-        gasLimit,
-      }
-    );
-  
-    return await tx.wait();
-  };
+  const publicClient = getPublicClient();
+  const walletClient = await getWalletClient();
+  const account = walletClient.account.address;
+
+  const { request } = await publicClient.simulateContract({
+    address: contract.address,
+    abi: contract.interface.fragments,
+    functionName: "cook",
+    args: [cookData.events, cookData.values, cookData.datas],
+    chain: publicClient.chain,
+    value,
+    account,
+  });
+
+  const { hash } = await walletClient.writeContract(request);
+
+  return await waitForTransaction({
+    hash,
+  });
+};
