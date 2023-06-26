@@ -272,6 +272,12 @@ import { getGlpApyAvaxChain } from "@/helpers/collateralsApy/getGlpApyAvaxChain"
 import arbitrumBg from "@/assets/images/glp/arbitrum-bg.png";
 import avaxBg from "@/assets/images/glp/avax-bg.png";
 
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   mixins: [mGlpTokenMixin],
   data() {
@@ -463,30 +469,30 @@ export default {
       const notificationId = await this.createNotification(pending);
 
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
-            amount,
-            this.account
-          );
+        const contract = this.tokensInfo.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "deposit",
+          args: [amount, this.account],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
-          amount,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
+        await waitForTransaction({
+          hash,
+        });
 
         this.deleteNotification(notificationId);
         this.createNotification(success);
@@ -508,30 +514,30 @@ export default {
       const notificationId = await this.createNotification(pending);
 
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.redeem(
-            amount,
-            this.account,
-            this.account
-          );
+        const contract = this.tokensInfo.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "redeem",
+          args: [amount, this.account, this.account],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.redeem(
-          amount,
-          this.account,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
         console.log("stake", receipt);
 

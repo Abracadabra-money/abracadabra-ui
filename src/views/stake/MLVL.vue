@@ -378,6 +378,9 @@ export default {
       const notificationId = await this.createNotification(pending);
 
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         if (isWithdraw) {
           this.$store.commit("notifications/updateTitle", {
             title: "1/2 withdrawing Lps",
@@ -385,14 +388,26 @@ export default {
           });
 
           const withdrawAmount = parseAmount.sub(this.stakeToken.walletBalance);
+          const contract = this.activeTokenInfo.levelMasterContract;
 
-          const tx = await this.activeTokenInfo.levelMasterContract.withdraw(
-            this.stakeToken.pid.toString(),
-            withdrawAmount,
-            this.account
-          );
+          const { request } = await publicClient.simulateContract({
+            address: contract.address,
+            abi: contract.interface.fragments,
+            functionName: "withdraw",
+            args: [
+              this.stakeToken.pid.toString(),
+              withdrawAmount,
+              this.account,
+            ],
+            chain: publicClient.chain,
+            account: this.account,
+          });
 
-          await tx.wait();
+          const { hash } = await walletClient.writeContract(request);
+
+          await waitForTransaction({
+            hash,
+          });
         }
 
         if (isWithdraw) {
@@ -404,26 +419,25 @@ export default {
 
         const amount = this.$ethers.utils.parseEther(this.amount.toString());
 
-        const estimateGas =
-          await this.mainToken.contractInstance.estimateGas.deposit(
-            amount,
-            this.account
-          );
+        const contract = this.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "deposit",
+          args: [amount, this.account],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.mainToken.contractInstance.deposit(
-          amount,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
         this.deleteNotification(notificationId);
         this.createNotification(success);
@@ -445,30 +459,30 @@ export default {
       const notificationId = await this.createNotification(pending);
 
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseEther(this.amount);
 
-        const estimateGas =
-          await this.mainToken.contractInstance.estimateGas.redeem(
-            amount,
-            this.account,
-            this.account
-          );
+        const contract = this.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "redeem",
+          args: [amount, this.account, this.account],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.mainToken.contractInstance.redeem(
-          amount,
-          this.account,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
         this.deleteNotification(notificationId);
         this.createNotification(success);
