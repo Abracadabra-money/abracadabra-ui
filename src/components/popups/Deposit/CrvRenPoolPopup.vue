@@ -69,6 +69,13 @@ import { mapGetters } from "vuex";
 import { approveToken } from "@/utils/approveHelpers.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
+
+import {
+  getPublicClient,
+  getWalletClient,
+  waitForTransaction,
+} from "@wagmi/core";
+
 export default {
   mixins: [crvDeposit],
   data() {
@@ -208,31 +215,33 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
           this.tokensInfo.depositToken.decimals
         );
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
-            amount,
-            this.account
-          );
+        const contract = this.tokensInfo.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "deposit",
+          args: [amount, this.account],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
-          amount,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
+        await waitForTransaction({
+          hash,
+        });
 
         console.log("Deposit", receipt);
         await this.$store.commit("notifications/delete", notificationId);
@@ -256,32 +265,34 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
         const amount = this.$ethers.utils.parseUnits(
           this.amount,
           this.tokensInfo.mainToken.decimals
         );
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdrawAndUnwrap(
-            amount
-          );
+        const contract = this.tokensInfo.mainToken.contractInstance;
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "withdrawAndUnwrap",
+          args: [amount],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const tx =
-          await this.tokensInfo.mainToken.contractInstance.withdrawAndUnwrap(
-            amount,
-            {
-              gasLimit,
-            }
-          );
+        const { hash } = await walletClient.writeContract(request);
 
         this.amount = "";
         this.amountError = "";
 
-        const receipt = await tx.wait();
-
-        console.log("Deposit", receipt);
+        await waitForTransaction({
+          hash,
+        });
+        
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
       } catch (e) {
