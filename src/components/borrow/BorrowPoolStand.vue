@@ -656,16 +656,21 @@ export default {
     },
     async handleClaimCrvReward() {
       try {
-        const estimateGas =
-          await this.pool.collateralToken.contract.estimateGas.getReward(
-            this.account
-          );
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
 
-        const gasLimit = 1000 + +estimateGas.toString();
+        const contract = this.pool.collateralToken.contract;
 
-        await await this.pool.collateralToken.contract.getReward(this.account, {
-          gasLimit,
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "getReward",
+          args: [this.account],
+          chain: publicClient.chain,
+          account: this.account,
         });
+
+        const { hash } = await walletClient.writeContract(request);
       } catch (e) {
         console.log("handleClaimCrvReward err:", e);
       }
