@@ -137,6 +137,8 @@ import notification from "@/helpers/notification/notification.js";
 
 import filters from "@/filters/index.js";
 
+import { approveToken } from "@/utils/approveHelpers.js";
+
 export default {
   mixins: [farmPoolsMixin],
   props: {
@@ -222,18 +224,29 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
+        const contract = this.selectedPool.contractInstance;
+
         const parseAmount = this.$ethers.utils.parseEther(
           this.amount.toString()
         );
 
-        const tx = await this.selectedPool.contractInstance.deposit(
-          this.selectedPool.poolId,
-          parseAmount
-        );
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "deposit",
+          args: [this.selectedPool.poolId, parseAmount],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const receipt = await tx.wait();
+        const { hash } = await walletClient.writeContract(request);
 
-        console.log("stake success:", receipt);
+        await waitForTransaction({
+          hash,
+        });
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
       } catch (error) {
@@ -258,18 +271,29 @@ export default {
         notification.pending
       );
       try {
+        const publicClient = await getPublicClient();
+        const walletClient = await getWalletClient();
+
+        const contract = this.selectedPool.contractInstance;
+
         const parseAmount = this.$ethers.utils.parseEther(
           this.amount.toString()
         );
 
-        const tx = await this.selectedPool.contractInstance.withdraw(
-          this.selectedPool.poolId,
-          parseAmount
-        );
+        const { request } = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.interface.fragments,
+          functionName: "withdraw",
+          args: [this.selectedPool.poolId, parseAmount],
+          chain: publicClient.chain,
+          account: this.account,
+        });
 
-        const receipt = await tx.wait();
+        const { hash } = await walletClient.writeContract(request);
 
-        console.log("unstakeHandler success:", receipt);
+        await waitForTransaction({
+          hash,
+        });
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
@@ -291,37 +315,19 @@ export default {
         notification.approvePending
       );
 
-      try {
-        const estimateGas =
-          await this.selectedPool.stakingTokenContract.estimateGas.approve(
-            this.selectedPool.contractAddress,
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          );
+      const approve = await approveToken(
+        this.selectedPool.stakingTokenContract,
+        this.selectedPool.contractAddress
+      );
 
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.selectedPool.stakingTokenContract.approve(
-          this.selectedPool.contractAddress,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
+      if (approve) {
+        await this.$store.commit("notifications/delete", notificationId);
+      } else {
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch(
+          "notifications/new",
+          notification.approveError
         );
-
-        const receipt = await tx.wait();
-
-        console.log(receipt);
-        await this.$store.commit("notifications/delete", notificationId);
-      } catch (error) {
-        console.log("approve err:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
   },
