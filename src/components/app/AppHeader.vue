@@ -183,7 +183,6 @@
       <NetworkPopup
         :isOpen="isOpenNetworkPopup"
         @closePopup="closeNetworkPopup"
-        @enterChain="changeChain"
         :networksArr="popupNetworksArr"
         :activeChain="chainId"
       />
@@ -200,11 +199,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-
-import chainSwitch from "@/mixins/chainSwitch";
-
 export default {
-  mixins: [chainSwitch],
   data() {
     return {
       isDropdownTools: false,
@@ -290,15 +285,6 @@ export default {
 
     closeNetworkPopup() {
       this.isOpenNetworkPopup = false;
-    },
-
-    async changeChain(chainId) {
-      try {
-        if (this.account) await this.switchNetwork(chainId);
-        else this.switchNetworkWithoutConnect(chainId);
-      } catch (e) {
-        console.log(e);
-      }
     },
 
     toggleMobileMenu() {

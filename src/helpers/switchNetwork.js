@@ -1,0 +1,34 @@
+import { getWalletClient } from "@wagmi/core";
+
+import {
+  mainnet,
+  optimism,
+  bsc,
+  polygon,
+  fantom,
+  moonriver,
+  arbitrum,
+  avalanche,
+} from "@wagmi/core/chains";
+
+const chains = {
+  1: mainnet,
+  10: optimism,
+  56: bsc,
+  137: polygon,
+  250: fantom,
+  1285: moonriver,
+  42161: arbitrum,
+  43114: avalanche,
+};
+
+export default async (chainId) => {
+  const walletClient = await getWalletClient();
+  if (walletClient) {
+    await walletClient.addChain({ chain: chains[chainId] }) 
+    await walletClient.switchChain({ id: chainId });
+  } else {
+    localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
+    window.location.reload();
+  }
+};
