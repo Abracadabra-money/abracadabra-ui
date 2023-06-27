@@ -1,0 +1,2 @@
+export const SANCTIONS_LIST_ADDRESS: string =
+  "0x40c57923924b5c5c5455c48d93317139addac8fb";

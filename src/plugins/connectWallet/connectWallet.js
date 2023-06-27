@@ -1,6 +1,14 @@
 import store from "@/store";
 import { markRaw } from "vue";
 import { ethers } from "ethers";
+import { Web3Modal } from "@web3modal/html";
+import { sanctionAbi } from "@/utils/abi/sanctionAbi";
+import { SANCTIONS_LIST_ADDRESS } from "@/constants/contracts";
+import {
+  EthereumClient,
+  w3mConnectors,
+  w3mProvider,
+} from "@web3modal/ethereum";
 import {
   configureChains,
   createConfig,
@@ -8,35 +16,31 @@ import {
   watchNetwork,
 } from "@wagmi/core";
 import {
-  arbitrum,
+  mainnet,
+  optimism,
   bsc,
   polygon,
-  avalanche,
-  mainnet,
   fantom,
+  moonriver,
+  arbitrum,
+  avalanche,
 } from "@wagmi/core/chains";
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from "@web3modal/ethereum";
-import { Web3Modal } from "@web3modal/html";
-import { sanctionAbi } from "@/utils/abi/sanctionAbi";
-
-const rpc = {
-  1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  56: "https://bsc-dataseed.binance.org/",
-  137: "https://polygon-rpc.com",
-  250: "https://rpc.ftm.tools/",
-  42161: "https://arb1.arbitrum.io/rpc",
-  43114: "https://api.avax.network/ext/bc/C/rpc",
-};
+import { RPC_MAINNET, RPC } from "@/constants/rpc";
 
 // 1. Define constants
 const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
 if (!projectId) throw new Error("You need to provide projectId env");
 
-const chains = [mainnet, bsc, polygon, avalanche, fantom, arbitrum];
+const chains = [
+  mainnet,
+  optimism,
+  bsc,
+  polygon,
+  fantom,
+  moonriver,
+  arbitrum,
+  avalanche,
+];
 
 // 2. Configure wagmi client
 const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
@@ -64,12 +68,10 @@ const web3modal = new Web3Modal(
 );
 
 const checkSanctionAddress = async (address) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
-  );
+  const provider = new ethers.providers.JsonRpcProvider(RPC_MAINNET);
 
   const contract = new ethers.Contract(
-    "0x40c57923924b5c5c5455c48d93317139addac8fb",
+    SANCTIONS_LIST_ADDRESS,
     JSON.stringify(sanctionAbi),
     provider
   );
@@ -90,8 +92,7 @@ const checkSanctionAddress = async (address) => {
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
-  const rpc = ethereumClient.chains.find((chain) => chain.id === chainId);
-  const provider = markRaw(new ethers.providers.JsonRpcProvider(rpc[chainId]));
+  const provider = markRaw(new ethers.providers.JsonRpcProvider(RPC[chainId]));
 
   const account = ethereumClient.getAccount().address;
   watchAccount(({ address }) => {
@@ -113,7 +114,7 @@ const onConnectNew = async () => {
     const chainId = activeChain.id;
     localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
     const provider = markRaw(
-      new ethers.providers.JsonRpcProvider(rpc[chainId])
+      new ethers.providers.JsonRpcProvider(RPC[chainId])
     );
 
     if (await checkSanctionAddress(account)) return false;
@@ -139,7 +140,6 @@ const onConnectNew = async () => {
 
 const subscribeProvider = async (web3modal) => {
   await web3modal.subscribeEvents(({ data }) => {
-    console.log("herter", data);
     if (data.name === "ACCOUNT_CONNECTED") onConnectNew();
     if (data.name === "ACCOUNT_DISCONNECTED") window.location.reload();
   });
