@@ -105,6 +105,11 @@ const initWithoutConnect = async () => {
     )
   );
 
+  const account = ethereumClient.getAccount().address;
+  watchAccount(({ address }) => {
+    if (account !== address) window.location.reload();
+  });
+
   store.commit("setChainId", chainId);
   store.commit("setProvider", provider);
   store.commit("setAccount", null);
