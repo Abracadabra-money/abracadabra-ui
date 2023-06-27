@@ -64,7 +64,7 @@ const web3modal = new Web3Modal(
     themeMode: "dark",
     themeVariables: {
       "--w3m-font-family": "'Prompt', sans-serif",
-      "--w3m-background-color": "#ffffff0f",
+      "--w3m-background-color": "rgba(60, 60, 60, 0.8)",
       "--w3m-accent-color": "#76c3f5",
       "--w3m-z-index": "1000",
     },
