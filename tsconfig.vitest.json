@@ -3,6 +3,7 @@
   "exclude": [],
   "include": ["src/**/*", "tests/**/*"],
   "compilerOptions": {
+    "ignoreDeprecations": "5.0",
     "allowJs": true,
     "composite": true,
     "lib": [],
