@@ -25,8 +25,14 @@ const chains = {
 export default async (chainId) => {
   const walletClient = await getWalletClient();
   if (walletClient) {
-    await walletClient.addChain({ chain: chains[chainId] }) 
-    await walletClient.switchChain({ id: chainId });
+    try {
+      await walletClient.switchChain({ id: chainId });
+    } catch (error) {
+      if (String(error).indexOf("Unrecognized chain ID") !== -1) {
+        await walletClient.addChain({ chain: chains[chainId] });
+        await walletClient.switchChain({ id: chainId });
+      }
+    }
   } else {
     localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
     window.location.reload();
