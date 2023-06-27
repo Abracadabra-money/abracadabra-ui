@@ -131,7 +131,9 @@ const onConnectNew = async () => {
     });
 
     const provider = markRaw(getEthersProvider());
-    const signer = markRaw(await getEthersSigner());
+    const signer = markRaw(await getEthersSigner(
+      {chainId}
+    ));
 
     store.commit("setChainId", chainId);
     store.commit("setProvider", provider);
