@@ -109,6 +109,9 @@
       @enter-chain="changeChain"
     />
   </div>
+  <div class="beam">
+    <BeamHistory />
+  </div>
 </template>
 
 <script>
@@ -124,6 +127,7 @@ import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
 import InputAddress from "@/components/ui/inputs/InputAddress.vue";
 import InputLabel from "@/components/ui/inputs/InputLabel.vue";
 import ExpectedBlock from "@/components/beam/ExpectedBlock.vue";
+import BeamHistory from "@/components/beam/history/BeamHistory.vue";
 
 import { mapGetters } from "vuex";
 import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
@@ -612,6 +616,7 @@ export default {
     InputAddress,
     InputLabel,
     ExpectedBlock,
+    BeamHistory,
   },
 };
 </script>
