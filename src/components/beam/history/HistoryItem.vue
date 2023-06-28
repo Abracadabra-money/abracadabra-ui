@@ -1,39 +1,50 @@
 <template>
   <li class="history-item">
-    <TransactionStatus />
+    <TransactionStatus :config="beamHistory" />
 
     <div class="transaction-main">
       <div class="transaction-chains">
-        <TransactionChain destination="from" :chain="chainsConfig.from" />
-        <TransactionChain destination="to" :chain="chainsConfig.to" />
+        <TransactionChain
+          :chain="beamHistory.originChain"
+          :address="beamHistory.sendFrom"
+        />
+
+        <TransactionChain
+          destination="to"
+          :chain="beamHistory.dstChain"
+          :address="beamHistory.sendTo"
+        />
       </div>
 
       <ul class="transaction-info">
         <li class="info-item">
           <span class="item-title">MIM transferred:</span>
-          <span class="item-value">1,000.09211 MIM</span>
+          <span class="item-value">{{ beamHistory.mimAmount }} MIM</span>
         </li>
 
         <li class="info-item">
           <span class="item-title">Convert to gas token:</span>
           <span class="item-value">
-            0.0 Avax
-            <img src="/src/assets/images/arrow_right.svg" />
-            <span class="converted-value"> 0,000345</span>
+            <template v-if="isNone">None</template>
+            <template v-else>
+              <span> {{ originalTokenAmount }}</span>
+              <img class="arrow" src="/src/assets/images/arrow_right.svg" />
+              <span class="converted-value"> {{ convertTokenAmount }}</span>
+            </template>
           </span>
         </li>
 
         <li class="info-item">
-          <span class="item-title">Gas cost:</span>
-          <span class="item-value">0.0</span>
+          <span class="item-title">Total gas cost:</span>
+          <span class="item-value"
+            >{{ beamHistory.totalGas || "0.0 " }}
+            {{ beamHistory.nativeSymbol }}</span
+          >
         </li>
 
         <li class="info-item">
           <span class="item-title">Beaming Fee:</span>
-          <span class="item-value">
-            0.0 ETH
-            <span class="converted-value"> $0.00</span>
-          </span>
+          <span class="item-value"> 0.0 </span>
         </li>
       </ul>
     </div>
@@ -43,23 +54,34 @@
 <script>
 import TransactionStatus from "@/components/beam/history/TransactionStatus.vue";
 import TransactionChain from "@/components/beam/history/TransactionChain.vue";
+import filters from "@/filters/index.js";
 
-import { useImage } from "@/helpers/useImage";
 export default {
+  props: {
+    beamHistory: {
+      type: Object,
+    },
+  },
+
   computed: {
-    chainsConfig() {
-      return {
-        from: {
-          icon: useImage("assets/images/networks/ETH.svg"),
-          name: "Ethereum",
-          address: "0x2345g245g45f242g113ggh5ht134f134f2ee",
-        },
-        to: {
-          icon: useImage("assets/images/networks/avalanche.svg"),
-          name: "Avalanche",
-          address: "0x2345g245g45f242g113ggh5ht134f134f2ee",
-        },
-      };
+    originalTokenAmount() {
+      if (!+this.beamHistory.gasOnDst)
+        return `<0.001 ${this.beamHistory.nativeSymbol}`;
+      return `${this.beamHistory.gasOnDst} ${this.beamHistory.nativeSymbol}`;
+    },
+
+    destinationTokenAmount() {
+      return filters.formatToFixed(this.beamHistory.dstTokenAmount || "0.0", 3);
+    },
+
+    convertTokenAmount() {
+      if (!+this.destinationTokenAmount)
+        return `<0.001 ${this.beamHistory.dstTokenSymbol}`;
+      return `${this.destinationTokenAmount} ${this.beamHistory.dstTokenSymbol}`;
+    },
+
+    isNone() {
+      return !+this.beamHistory.gasOnDst && !+this.beamHistory.dstTokenAmount;
     },
   },
 
@@ -108,6 +130,16 @@ export default {
 .item-value {
   font-size: 12px;
   letter-spacing: 0.3px;
+}
+
+.item-value {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.arrow {
+  margin-bottom: 3px;
 }
 .converted-value {
   color: rgba(255, 255, 255, 0.8);

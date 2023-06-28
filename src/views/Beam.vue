@@ -4,21 +4,6 @@
       <div class="beam-header">
         <h3 class="title">Beam</h3>
 
-        <!-- <button
-          class="last-beam"
-          v-if="successData"
-          @click="openLastTransaction"
-        >
-          <span class="progress-text"> {{ txProgress }}</span>
-        </button> -->
-        <button
-          class="last-beam-mobile"
-          v-if="successData"
-          @click="openLastTransaction"
-        >
-          <span :class="txProgress"></span>
-        </button>
-
         <div class="settings-btns">
           <WalletButton :active="isShowDstAddress" @click="toggleDstAddress" />
           <SettingsButton
@@ -68,6 +53,16 @@
         >{{ actionBtnText }}</BaseButton
       >
 
+      <BeamHistory :historyArr="beamHistoryArr" />
+
+      <button
+        class="btn-more"
+        v-if="isVisibilityMoreButton"
+        @click="seeMoreHistory"
+      >
+        See more
+      </button>
+
       <p class="caption">
         <span class="caption-text">Powered By</span
         ><img
@@ -108,9 +103,6 @@
       @close-popup="closeNetworkPopup"
       @enter-chain="changeChain"
     />
-  </div>
-  <div class="beam">
-    <BeamHistory />
   </div>
 </template>
 
@@ -171,9 +163,11 @@ export default {
       isSelectedChain: false,
       isOpenSuccessPopup: false,
       tx: null,
-      isLastTransaction: false,
       successData: null,
       mimToUsd: 0,
+      beamHistory: [],
+      historyPage: 1,
+      quantityHistory: 5,
     };
   },
 
@@ -353,13 +347,19 @@ export default {
         txInfo: this.txInfo,
         mimToUsd: this.mimToUsd,
         dstChainId: this.dstChainId,
+        totalGas: this.formatFee,
       };
     },
 
-    txProgress() {
-      return this.successData.txInfo?.status === "DELIVERED"
-        ? "completed"
-        : "processing";
+    beamHistoryArr() {
+      const quantity = this.quantityHistory * this.historyPage;
+      return [...this.beamHistory].reverse().slice(0, quantity);
+    },
+
+    isVisibilityMoreButton() {
+      const quantity = this.quantityHistory * this.historyPage;
+      if (quantity >= this.beamHistory.length) return false;
+      return true;
     },
   },
 
@@ -447,7 +447,7 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         this.isOpenSuccessPopup = true;
         this.successData = this.successConfig;
-        localStorage.setItem("beam", JSON.stringify(this.successData));
+        this.updateHistoryBeam(this.successData);
 
         await this.tx.wait();
 
@@ -459,11 +459,50 @@ export default {
         this.successData = this.successConfig;
         this.successData.txInfo = txInfo;
 
-        localStorage.setItem("beam", JSON.stringify(this.successData));
+        this.updateHistoryBeam(this.successData);
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.errorTransaction(error, notificationId);
       }
+    },
+
+    updateHistoryBeam(newTx) {
+      const beamHistory = JSON.parse(localStorage.getItem("beam-history"));
+
+      if (!beamHistory) {
+        localStorage.setItem("beam-history", JSON.stringify([...newTx]));
+        this.beamHistory = [...newTx];
+      } else {
+        let duplicateTx = null;
+        beamHistory.forEach(({ tx }, idx) => {
+          if (tx?.hash === newTx?.tx?.hash) duplicateTx = idx;
+        });
+
+        if (!duplicateTx) {
+          beamHistory.push(newTx);
+          this.beamHistory = beamHistory;
+          localStorage.setItem("beam-history", JSON.stringify(beamHistory));
+        } else this.updateHistoryStatus();
+      }
+    },
+
+    async updateHistoryStatus() {
+      let beamHistory = JSON.parse(localStorage.getItem("beam-history"));
+      if (!beamHistory) return [];
+
+      await Promise.all(
+        beamHistory.map(async (history) => {
+          if (history?.txInfo?.status !== "DELIVERED") {
+            history.txInfo = await waitForMessageReceived(
+              history.dstChainId,
+              history.tx.hash
+            );
+          }
+        })
+      );
+
+      this.beamHistory = beamHistory;
+      localStorage.setItem("beam-history", JSON.stringify(beamHistory));
     },
 
     async getEstimatedFees(getParams = false) {
@@ -562,7 +601,6 @@ export default {
 
     closeSuccessPopup() {
       this.isOpenSuccessPopup = false;
-      this.isLastTransaction = false;
     },
 
     async getMessagesBySrcTxHash() {
@@ -574,10 +612,8 @@ export default {
       return messages[0];
     },
 
-    async openLastTransaction() {
-      this.successData.txInfo = await this.getMessagesBySrcTxHash();
-      this.isLastTransaction = true;
-      this.isOpenSuccessPopup = true;
+    seeMoreHistory() {
+      this.historyPage += 1;
     },
   },
 
@@ -586,16 +622,7 @@ export default {
     if (this.isAcceptedNetworks) await this.beamNotAvailable();
     else {
       await this.createBeamData();
-      this.successData = JSON.parse(localStorage.getItem("beam"));
-
-      if (this.successData?.tx?.hash) {
-        this.successData.txInfo = await this.getMessagesBySrcTxHash();
-
-        this.successData.txInfo = await waitForMessageReceived(
-          this.successData.dstChainId,
-          this.successData.tx.hash
-        );
-      }
+      await this.updateHistoryStatus();
     }
   },
 
@@ -653,38 +680,8 @@ export default {
   text-transform: uppercase;
 }
 
-.last-beam,
-.last-beam-mobile {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 0;
-  text-decoration: none;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  border: transparent;
-  height: 40px;
-  cursor: pointer;
-  transition: all 0.3s ease-in;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-}
-
 .progress-text:first-letter {
   text-transform: uppercase;
-}
-
-.last-beam-mobile {
-  width: 40px;
-  height: 30px;
-  display: none;
 }
 
 .completed,
@@ -728,6 +725,27 @@ export default {
   text-transform: uppercase;
 }
 
+.btn-more {
+  height: 32px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  max-width: 200px;
+  width: 100%;
+  margin: 0 auto;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
 .caption-text {
   margin-top: 2px;
 }
@@ -751,16 +769,6 @@ export default {
   .settings-btns {
     right: 5%;
     gap: 10px;
-  }
-}
-
-@media (max-width: 400px) {
-  .last-beam {
-    display: none;
-  }
-
-  .last-beam-mobile {
-    display: flex;
   }
 }
 </style>

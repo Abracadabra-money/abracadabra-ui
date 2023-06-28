@@ -2,10 +2,8 @@
   <div class="chain from">
     <img class="chain-icon" :src="chain.icon" />
     <div class="chain-info">
-      <p class="name">{{ destination }}: {{ chain.name }}</p>
-      <p class="address">
-        {{ formatAddress(chain.address) }}
-      </p>
+      <p class="name">{{ destination }}: {{ chain.title }}</p>
+      <p class="address">{{ formatAddress }}</p>
     </div>
   </div>
 </template>
@@ -19,13 +17,17 @@ export default {
     },
     destination: {
       type: String,
+      default: "From",
+    },
+    address: {
+      type: String,
       required: true,
     },
   },
 
-  methods: {
-    formatAddress(address) {
-      return `${address.slice(0, 4)}...${address.slice(-3)}`;
+  computed: {
+    formatAddress() {
+      return `${this.address.slice(0, 4)}...${this.address.slice(-3)}`;
     },
   },
 };

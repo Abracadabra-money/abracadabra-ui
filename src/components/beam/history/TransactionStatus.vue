@@ -24,7 +24,8 @@ export default {
     },
 
     transactionCheck() {
-      if (true) return useImage("assets/images/beam/transaction-complete.png");
+      if (this.config?.txInfo?.status === "DELIVERED")
+        return useImage("assets/images/beam/transaction-complete.png");
       return useImage("assets/images/beam/transaction-check.png");
     },
 
@@ -33,7 +34,8 @@ export default {
     },
 
     layerZeroLink() {
-      return `https://layerzeroscan.com/tx/0x`;
+      if (!this.config.tx) return false;
+      return `https://layerzeroscan.com/tx/${this.config.tx.hash}`;
     },
   },
 
