@@ -355,6 +355,7 @@ export default {
 
     beamHistoryArr() {
       const quantity = this.quantityHistory * this.historyPage;
+      if (this.beamHistory.length <= quantity) return this.beamHistory;
       return [...this.beamHistory].reverse().slice(0, quantity);
     },
 
@@ -368,7 +369,10 @@ export default {
   watch: {
     async chainId() {
       if (this.isAcceptedNetworks) await this.beamNotAvailable();
-      else await this.createBeamData();
+      else {
+        await this.createBeamData();
+        await this.updateHistoryStatus();
+      }
     },
   },
 
@@ -471,8 +475,8 @@ export default {
       const beamHistory = JSON.parse(localStorage.getItem("beam-history"));
 
       if (!beamHistory) {
-        localStorage.setItem("beam-history", JSON.stringify([...newTx]));
-        this.beamHistory = [...newTx];
+        localStorage.setItem("beam-history", JSON.stringify([newTx]));
+        this.beamHistory = [newTx];
       } else {
         let duplicateTx = null;
         beamHistory.forEach(({ tx }, idx) => {
