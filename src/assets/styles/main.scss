@@ -10,6 +10,11 @@
   caret-color: #7b79f7;
 }
 
+w3m-core-button {
+  display: flex;
+  justify-content: center;
+}
+
 #app {
   font-family: "Prompt", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -35,14 +35,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-
-import chainSwitch from "@/mixins/chainSwitch";
 import NetworkChip from "@/components/ui/NetworkChip.vue";
+import switchNetwork from "@/helpers/switchNetwork";
 
 export default {
   name: "NetworksList",
   components: { NetworkChip },
-  mixins: [chainSwitch],
   props: {
     items: { type: Number, default: 4 },
     activeList: { type: Array, default: () => [] },
@@ -59,10 +57,9 @@ export default {
     async changeNetwork(chainId) {
       this.loading = true;
       try {
-        if (this.account) await this.switchNetwork(chainId);
-        else this.switchNetworkWithoutConnect(chainId);
-      } catch (e) {
-        console.log(e);
+        await switchNetwork(chainId);
+      } catch (error) {
+        console.log(error)
       } finally {
         this.loading = false;
       }

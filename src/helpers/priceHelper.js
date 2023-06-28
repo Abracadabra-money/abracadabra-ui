@@ -11,8 +11,7 @@ const chainCoinGeckoIds = {
 };
 
 const apiDomain =
-import.meta.env.VITE_APP_COINGECKO_API_KEY &&
-import.meta.env.PROD
+  import.meta.env.VITE_APP_COINGECKO_API_KEY
     ? "pro-api.coingecko.com"
     : "api.coingecko.com";
 
@@ -77,4 +76,27 @@ const numberWithCommas = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-export { getTokenPriceByAddress, getTokensArrayPrices, numberWithCommas };
+const coingeckoChainId = {
+  1: "ethereum",
+  10: "ethereum",
+  56: "binancecoin",
+  137: "matic-network",
+  250: "fantom",
+  1285: "moonriver",
+  42161: "ethereum",
+  43114: "avalanche-2",
+};
+
+const getNativeTokenPrice = async (chainId) => {
+  const id = coingeckoChainId[chainId];
+  const url = `https://${apiDomain}/api/v3/coins/${id}`;
+  const response = await axios.get(url, config);
+  return response.data.market_data.current_price.usd;
+};
+
+export {
+  getTokenPriceByAddress,
+  getTokensArrayPrices,
+  numberWithCommas,
+  getNativeTokenPrice,
+};

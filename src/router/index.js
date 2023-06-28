@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
   {
@@ -47,6 +47,11 @@ const routes = [
     component: () => import("@/views/stake/MAPE.vue"),
   },
   {
+    path: "/magicLVL",
+    name: "magicLVL",
+    component: () => import("@/views/stake/MLVL.vue"),
+  },
+  {
     path: "/leverage",
     name: "Leverage",
     component: () => import("@/views/borrow/Leverage.vue"),
@@ -67,9 +72,13 @@ const routes = [
     component: () => import("@/views/borrow/Deleverage.vue"),
   },
   {
-    path: "/bridge",
+    path: "/beam",
     name: "Bridge",
     component: () => import("@/views/Bridge.vue"),
+  },
+  {
+    path: "/bridge",
+    redirect: "/beam",
   },
   {
     path: "/farm",
@@ -112,7 +121,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior() {
-    return { top: 0 }
+    return { top: 0 };
   },
 });
 

@@ -84,7 +84,7 @@
 
         <div class="popup-link-wrap" @click="closePopup">
           <router-link class="popup-link" :to="{ name: 'Bridge' }"
-            >Bridge</router-link
+            >Beam</router-link
           >
         </div>
         <div class="popup-link-wrap" @click="closePopup">

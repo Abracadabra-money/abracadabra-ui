@@ -75,23 +75,9 @@
             <img
               src="@/assets/images/info.svg"
               alt=""
-              v-tooltip="'Daily amount of SPELL per $1000 Staked'"
-            />
-            ~Yield per $1000
-          </p>
-          <p class="info-value">
-            {{ formatTokenBalance(selectedPool.poolYield) }}
-          </p>
-        </div>
-
-        <div class="info underline">
-          <p class="info-text">
-            <img
-              src="@/assets/images/info.svg"
-              alt=""
               v-tooltip="'Annual Return on Staked tokens at current price'"
             />
-            ROI Annually
+            APR
           </p>
           <p class="info-value">{{ formatPercent(selectedPool.poolRoi) }}</p>
         </div>
