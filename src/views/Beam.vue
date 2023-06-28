@@ -53,15 +53,17 @@
         >{{ actionBtnText }}</BaseButton
       >
 
-      <BeamHistory :historyArr="beamHistoryArr" />
+      <template v-if="account">
+        <BeamHistory :historyArr="beamHistoryArr" />
 
-      <button
-        class="btn-more"
-        v-if="isVisibilityMoreButton"
-        @click="seeMoreHistory"
-      >
-        See more
-      </button>
+        <button
+          class="btn-more"
+          v-if="isVisibilityMoreButton"
+          @click="seeMoreHistory"
+        >
+          See more
+        </button>
+      </template>
 
       <p class="caption">
         <span class="caption-text">Powered By</span
@@ -351,6 +353,8 @@ export default {
 
     beamHistoryArr() {
       const quantity = this.quantityHistory * this.historyPage;
+      console.log("quantity", quantity);
+      console.log("quantity", this.beamHistory);
       return [...this.beamHistory].reverse().slice(0, quantity);
     },
 
