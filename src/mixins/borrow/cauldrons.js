@@ -585,10 +585,10 @@ export default {
         pool.borrowToken.decimals
       );
 
-      const networkBalance = await this.contractProvider.getBalance();
+      const networkBalance = await this.defaultProvider.getBalance(this.account);
 
       let claimableReward;
-
+    
       if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
           pool.collateralToken.contract,
