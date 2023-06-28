@@ -355,7 +355,8 @@ export default {
 
     beamHistoryArr() {
       const quantity = this.quantityHistory * this.historyPage;
-      if (this.beamHistory.length <= quantity) return this.beamHistory;
+      if (this.beamHistory.length <= quantity)
+        return [...this.beamHistory].reverse();
       return [...this.beamHistory].reverse().slice(0, quantity);
     },
 
@@ -494,6 +495,7 @@ export default {
     async updateHistoryStatus() {
       let beamHistory = JSON.parse(localStorage.getItem("beam-history"));
       if (!beamHistory) return [];
+      this.beamHistory = beamHistory;
 
       await Promise.all(
         beamHistory.map(async (history) => {
