@@ -1,6 +1,6 @@
 <template>
   <div class="title">Beam history</div>
-  <ul class="beam-history" v-if="historyArr">
+  <ul class="beam-history" v-if="historyArr.length">
     <HistoryItem
       v-for="history in historyArr"
       :beam-history="history"
