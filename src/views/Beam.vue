@@ -136,11 +136,9 @@ import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
 import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
-
-import chainSwitch from "@/mixins/chainSwitch";
+import switchNetwork from "@/helpers/switchNetwork";
 
 export default {
-  mixins: [chainSwitch],
   data() {
     return {
       acceptedNetworks: [1, 10, 56, 137, 250, 1285, 42161, 43114],
@@ -375,10 +373,9 @@ export default {
       this.isShowDstAddress = !this.isShowDstAddress;
     },
 
-    switchChain() {
+    async switchChain() {
       if (!this.isSelectedChain) return false;
-      if (this.account) this.switchNetwork(this.dstChain.chainId);
-      else this.switchNetworkWithoutConnect(this.dstChain.chainId);
+      await switchNetwork(this.destinationChain.chainId);
     },
 
     openNetworkPopup(type) {
@@ -570,7 +567,7 @@ export default {
 
         this.estimateSendFee = await this.getEstimatedFees();
       } else {
-        this.switchNetwork(chainId);
+        await switchNetwork(chainId);
       }
     },
 
