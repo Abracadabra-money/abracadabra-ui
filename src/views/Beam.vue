@@ -355,8 +355,6 @@ export default {
 
     beamHistoryArr() {
       const quantity = this.quantityHistory * this.historyPage;
-      console.log("quantity", quantity);
-      console.log("quantity", this.beamHistory);
       return [...this.beamHistory].reverse().slice(0, quantity);
     },
 
