@@ -1,6 +1,6 @@
 <template>
+  <div class="title">Transaction overview</div>
   <ul class="beam-history">
-    <p class="title">Transaction overview</p>
     <HistoryItem v-for="item in items" />
   </ul>
 </template>
@@ -19,10 +19,10 @@ export default {
 
 <style lang="scss" scoped>
 .beam-history {
+  margin: -20px 0 0 0;
   list-style: none;
 }
 .title {
-  margin: 0 0 20px 0;
   font-weight: 600;
   font-size: 18px;
   line-height: 150%;

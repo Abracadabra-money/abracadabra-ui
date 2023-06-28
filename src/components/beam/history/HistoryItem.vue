@@ -4,24 +4,8 @@
 
     <div class="transaction-main">
       <div class="transaction-chains">
-        <div class="chain from">
-          <img class="chain-icon" :src="chainsConfig.from.icon" />
-          <div class="chain-info">
-            <p class="name">From: {{ chainsConfig.from.name }}</p>
-            <p class="address">
-              {{ formatAddress(chainsConfig.from.address) }}
-            </p>
-          </div>
-        </div>
-        <div class="chain to">
-          <img class="chain-icon" :src="chainsConfig.to.icon" />
-          <div class="chain-info">
-            <p class="name">To: {{ chainsConfig.to.name }}</p>
-            <p class="address">
-              {{ formatAddress(chainsConfig.to.address) }}
-            </p>
-          </div>
-        </div>
+        <TransactionChain destination="from" :chain="chainsConfig.from" />
+        <TransactionChain destination="to" :chain="chainsConfig.to" />
       </div>
 
       <ul class="transaction-info">
@@ -58,6 +42,7 @@
 
 <script>
 import TransactionStatus from "@/components/beam/history/TransactionStatus.vue";
+import TransactionChain from "@/components/beam/history/TransactionChain.vue";
 
 import { useImage } from "@/helpers/useImage";
 export default {
@@ -78,14 +63,9 @@ export default {
     },
   },
 
-  methods: {
-    formatAddress(address) {
-      return `${address.slice(0, 4)}...${address.slice(-3)}`;
-    },
-  },
-
   components: {
     TransactionStatus,
+    TransactionChain,
   },
 };
 </script>
@@ -107,34 +87,6 @@ export default {
   align-items: center;
   gap: 144px;
   margin: 0 0 11px 0;
-}
-
-.chain {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chain-icon {
-  height: 32px;
-  width: 32px;
-  border-radius: 50px;
-}
-.chain-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.name {
-  color: rgba(255, 255, 255, 1);
-  font-size: 14px;
-  letter-spacing: 0.35px;
-}
-
-.address {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
-  letter-spacing: 0.3px;
 }
 
 .transaction-info {
@@ -159,5 +111,19 @@ export default {
 }
 .converted-value {
   color: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 450px) {
+  .transaction-chains {
+    gap: 0;
+    justify-content: space-between;
+  }
+
+  .item-value {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 }
 </style>
