@@ -6,7 +6,6 @@
       selected,
       'chip-no-image': !icon,
     }"
-    @click="clickHandler"
   >
     <img v-if="icon" class="network-icon" :src="icon" alt="network" />
     <span>{{ name }}</span>
@@ -23,11 +22,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
-    },
-  },
-  methods: {
-    clickHandler(event) {
-      if (!this.selected) this.$emit("click", event);
     },
   },
 };
