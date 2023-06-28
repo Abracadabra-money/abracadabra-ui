@@ -1,6 +1,6 @@
 <template>
-  <div class="popup-wrap" v-if="isOpen">
-    <div class="popup" v-click-outside="closePopup">
+  <div class="popup-wrap" v-if="isOpen" @click="closePopup">
+    <div class="popup">
       <img
         class="popup-close"
         @click="closePopup"
@@ -14,7 +14,7 @@
           :key="inx"
           class="network"
           :class="network.chainId === activeChain && 'active'"
-          @click="enterChain(network.chainId)"
+          @click="switchHandler(network.chainId)"
         >
           <img class="network-image" :src="network.icon" alt="network" />
           <span>{{ network.title }}</span>
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import switchNetwork from "@/helpers/switchNetwork";
+
 export default {
   props: {
     isOpen: {
@@ -50,8 +52,8 @@ export default {
       this.$emit("closePopup");
     },
 
-    enterChain(chainId) {
-      this.$emit("enterChain", chainId, this.popupType);
+    async switchHandler(chainId) {
+      await switchNetwork(chainId);
       this.closePopup();
     },
   },
