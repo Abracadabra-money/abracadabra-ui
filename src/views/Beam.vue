@@ -46,12 +46,14 @@
         @open-settings="isSettingsOpened = true"
       />
 
-      <BaseButton
-        :primary="true"
-        :disabled="disableBtn"
-        @click="actionHandler"
-        >{{ actionBtnText }}</BaseButton
-      >
+      <div :class="{ 'wrap-btn': account }">
+        <BaseButton
+          :primary="true"
+          :disabled="disableBtn"
+          @click="actionHandler"
+          >{{ actionBtnText }}</BaseButton
+        >
+      </div>
 
       <template v-if="account">
         <BeamHistory :historyArr="beamHistoryArr" />
@@ -712,6 +714,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.wrap-btn {
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .caption {
