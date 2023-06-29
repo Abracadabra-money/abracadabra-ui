@@ -1,8 +1,8 @@
 import { markRaw } from "vue";
 import bridgeConfig from "@/utils/bridge/bridgeConfig";
+import chainConfig from "@/utils/bridge/chainConfig";
 import mimToken from "@/utils/contracts/mimToken";
 import { mapGetters } from "vuex";
-import axios from "axios";
 
 export default {
   computed: {
@@ -20,18 +20,12 @@ export default {
   methods: {
     async createBridgeConfig() {
       const mimInfo = mimToken.find((item) => item.chainId === this.chainId);
-
-      if (!mimInfo) {
-        return false;
-      }
+      if (!mimInfo) return false;
 
       const bridgeInfo = bridgeConfig.find(
         (item) => item.chainId === this.chainId
       );
-
-      if (!bridgeInfo) {
-        return false;
-      }
+      if (!bridgeInfo) return false;
 
       const contractInstance = new this.$ethers.Contract(
         bridgeInfo.contract.address,
@@ -53,7 +47,11 @@ export default {
         };
       });
 
-      const toChains = bridgeInfo.chainsInfo.map((chainItem) => {
+      const chainsInfo = chainConfig.filter(
+        (chain) => chain.chainId !== this.chainId
+      );
+
+      const toChains = chainsInfo.map((chainItem) => {
         return {
           chainId: chainItem.chainId,
           title: chainItem.name,
@@ -61,30 +59,16 @@ export default {
         };
       });
 
-      let balance, isTokenApprove, isDefaultProvider;
-
-      if (this.userSigner) {
-        balance = await this.getUserBalance(tokenContractInstance);
-
-        isTokenApprove = await this.isTokenApprowed(
+      const { balance, isTokenApprove, isDefaultProvider, nativeTokenBalance } =
+        await this.getUserInfo(
           tokenContractInstance,
-          this.account,
           bridgeInfo.contract.address
         );
 
-        isDefaultProvider = false;
-      } else {
-        balance = "Null";
-        isTokenApprove = false;
-        isDefaultProvider = true;
-      }
-
-      const chainsInfo = await this.getBridgeProps(bridgeInfo);
-
       const bridgeObject = {
         contractInstance,
-        methodName: bridgeInfo.methodName,
         balance,
+        nativeTokenBalance,
         isTokenApprove,
         tokenContractInstance,
         chainsInfo: chainsInfo,
@@ -95,6 +79,28 @@ export default {
 
       this.$store.commit("setBridgeObject", markRaw(bridgeObject));
     },
+
+    async getUserInfo(contract, address) {
+      if (!this.userSigner)
+        return {
+          balance: "0.0",
+          nativeTokenBalance: "0.0",
+          isTokenApprove: false,
+          isDefaultProvider: true,
+        };
+
+      return {
+        balance: await this.getUserBalance(contract),
+        nativeTokenBalance: await this.defaultProvider.getBalance(this.account),
+        isTokenApprove: await this.isTokenApprowed(
+          contract,
+          this.account,
+          address
+        ),
+        isDefaultProvider: false,
+      };
+    },
+
     async getUserBalance(tokenContract) {
       try {
         const userBalance = await tokenContract.balanceOf(this.account);
@@ -144,38 +150,38 @@ export default {
       }
     },
 
-    async getBridgeProps(bridgeInfo) {
-      const response = await axios.get(
-        `https://bridgeapi.anyswap.exchange/v3/serverinfoV3?chainId=${this.chainId}&version=STABLEV3`
-      );
+    // async getBridgeProps(bridgeInfo) {
+    //   const response = await axios.get(
+    //     `https://bridgeapi.anyswap.exchange/v3/serverinfoV3?chainId=${this.chainId}&version=STABLEV3`
+    //   );
 
-      let chainsData = null;
+    //   let chainsData = null;
 
-      for (let prop in response.data) {
-        if (response.data[prop].tokenid === "MIM") {
-          chainsData = response.data[prop].destChains;
-        }
-      }
+    //   for (let prop in response.data) {
+    //     if (response.data[prop].tokenid === "MIM") {
+    //       chainsData = response.data[prop].destChains;
+    //     }
+    //   }
 
-      const result = [];
+    //   const result = [];
 
-      bridgeInfo.chainsInfo.forEach((item) => {
-        if (chainsData[item.chainId]) {
-          let chainData = chainsData[item.chainId];
+    //   bridgeInfo.chainsInfo.forEach((item) => {
+    //     if (chainsData[item.chainId]) {
+    //       let chainData = chainsData[item.chainId];
 
-          result.push({
-            ...item,
-            fee: 0,
-            feeAmount: chainData.MinimumSwapFee,
-            feeAmountMax: chainData.MaximumSwapFee,
-            minAmount: chainData.MinimumSwap,
-            maxAmount: chainData.MaximumSwap,
-            amountLarger: chainData.BigValueThreshold,
-          });
-        }
-      });
+    //       result.push({
+    //         ...item,
+    //         fee: 0,
+    //         feeAmount: chainData.MinimumSwapFee,
+    //         feeAmountMax: chainData.MaximumSwapFee,
+    //         minAmount: chainData.MinimumSwap,
+    //         maxAmount: chainData.MaximumSwap,
+    //         amountLarger: chainData.BigValueThreshold,
+    //       });
+    //     }
+    //   });
 
-      return result;
-    },
+    //   return result;
+    // },
   },
 };

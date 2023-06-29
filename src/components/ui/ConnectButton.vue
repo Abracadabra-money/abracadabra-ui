@@ -7,9 +7,6 @@
     >
       {{ walletBtnText }}
     </button>
-    <button v-if="account" class="disconnect-btn" @click="$disconnectWallet">
-      Disconnect
-    </button>
   </div>
 </template>
 
@@ -69,10 +66,7 @@ export default {
       });
     },
     async walletBtnHandler() {
-      if (this.account) {
-        return false;
-      }
-      await this.$connectWallet();
+      await this.$openWeb3modal();
     },
   },
 };
@@ -127,10 +121,10 @@ export default {
       background: #55535d;
     }
 
-    .connected {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-    }
+    // .connected {
+      // border-bottom-left-radius: 0;
+      // border-bottom-right-radius: 0;
+    // }
   }
 }
 

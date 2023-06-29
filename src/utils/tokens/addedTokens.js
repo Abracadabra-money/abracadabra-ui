@@ -47,7 +47,7 @@ export default [
   {
     name: "MIM",
     chain: 137,
-    address: "0x01288e04435bFcd4718FF203D6eD18146C17Cd4b",
+    address: "0x49a0400587A7F65072c87c4910449fDcC5c47242",
     symbol: "MIM",
     decimals: 18,
     image:
@@ -57,6 +57,15 @@ export default [
     name: "MIM",
     chain: 10,
     address: "0xB153FB3d196A8eB25522705560ac152eeEc57901",
+    symbol: "MIM",
+    decimals: 18,
+    image:
+      "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
+  },
+  {
+    name: "MIM",
+    chain: 1285,
+    address: "0x0caE51e1032e8461f4806e26332c030E34De3aDb",
     symbol: "MIM",
     decimals: 18,
     image:

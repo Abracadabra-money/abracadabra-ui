@@ -141,8 +141,7 @@ export default {
     sortList() {
       return [
         { title: "Title", name: sortKeys.name },
-        { title: "Yield Per $1000", name: sortKeys.yield },
-        { title: "ROI Annually", name: sortKeys.roi },
+        { title: "APR", name: sortKeys.roi },
         { title: "TVL", name: sortKeys.tvl },
       ];
     },
@@ -158,7 +157,7 @@ export default {
     },
 
     headers() {
-      return ["CHAIN", "Pool", "~Yield per $1000", "ROI Annually", "TVL"];
+      return ["CHAIN", "Pool", "APR", "TVL"];
     },
   },
 
@@ -419,7 +418,7 @@ export default {
 
 .stats-list-header {
   display: none;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.5fr 1.1fr 1.1fr 1.1fr 1.2fr;
   align-items: center;
   padding: 0 20px;
   height: 60px;

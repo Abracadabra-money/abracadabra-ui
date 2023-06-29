@@ -17,6 +17,11 @@ export default {
         (item) => item.id !== id
       );
     },
+    updateTitle(state, payload) {
+      state.notifications.find((notification) => {
+        if (notification.id === payload.id) notification.title = payload.title;
+      });
+    },
   },
   actions: {
     new({ commit, state }, payload) {
