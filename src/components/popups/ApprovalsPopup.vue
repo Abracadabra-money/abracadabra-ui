@@ -23,7 +23,10 @@
       <p class="info-subtitle">Revoke it now !</p>
     </div>
 
-    <BaseButton @click="revokeHandler">Revoke all</BaseButton>
+    <BaseButton @click="revokeHandlerBasic"
+      >Revoke all
+      {{ allowanceCount > 1 ? `(${allowanceCount})` : "" }}</BaseButton
+    >
   </div>
 </template>
 
@@ -36,11 +39,13 @@ import {
   getAllowanceDatas,
   revokeAllApprovals,
 } from "@/helpers/oldCauldronsAllowance.js";
+import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
+import { Contract } from "ethers";
 
 export default {
   data() {
     return {
-      isMoreThanOneApproval: false,
+      allowanceCount: 0,
     };
   },
   computed: {
@@ -51,9 +56,9 @@ export default {
     }),
     titleText() {
       return `Your address has a ${
-        this.isMoreThanOneApproval ? "tokens" : "token"
+        this.allowanceCount > 1 ? "tokens" : "token"
       } spending allowance to an old ${
-        this.isMoreThanOneApproval ? "cauldrons" : "cauldron"
+        this.allowanceCount > 1 ? "cauldrons" : "cauldron"
       }
         contract`;
     },
@@ -62,6 +67,47 @@ export default {
   methods: {
     closePopup() {
       this.$store.commit("closePopups");
+    },
+    async revokeHandlerBasic() {
+      const notificationId = await this.$store.dispatch(
+        "notifications/new",
+        notification.pending
+      );
+
+      const userData = await getAllowanceDatas(this.account, this.userSigner);
+
+      console.log(userData);
+
+      try {
+        await Promise.all(
+          userData.map(async (info) => {
+            if(!info.isStillApproved) return false;
+
+            const tokenContract = new Contract(
+              info.token,
+              abiERC20,
+              this.userSigner
+            );
+
+            const tx = await tokenContract.approve(info.spender, 0);
+
+            return await tx.wait()
+          })
+        );
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", notification.success);
+        this.closePopup();
+      } catch (error) {
+        console.log(error.message);
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.$store.commit("notifications/delete", notificationId);
+        await this.$store.dispatch("notifications/new", errorNotification);
+      }
     },
     async revokeHandler() {
       const notificationId = await this.$store.dispatch(
@@ -94,6 +140,10 @@ export default {
       this.account,
       this.userSigner
     );
+
+    this.allowanceCount = allovanceData
+      ? allovanceData.filter((item) => item.isStillApproved).length
+      : 0;
   },
 
   components: { BaseButton },

@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       closeClicked: false,
-      isStillApproved: true,
+      isStillApproved: false,
       isMoreThanOneApproval: false,
     };
   },
