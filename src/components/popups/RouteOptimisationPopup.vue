@@ -26,8 +26,12 @@
         <p class="header-title">Fees</p>
         <p class="header-title">{{ amountTitle }}</p>
       </div>
-      <div class="list-item" v-for="(item, idx) of routeDatas" :key="item.address"
-      :class="{accent: itsDeleverage && idx === 0 || !itsDeleverage}">
+      <div
+        class="list-item"
+        v-for="(item, idx) of routeDatas"
+        :key="item.address"
+        :class="{ accent: (itsDeleverage && idx === 0) || !itsDeleverage }"
+      >
         <div class="token-icon">
           <BaseTokenIcon :icon="item.icon" />
           <p>{{ item.name }}</p>
@@ -53,8 +57,12 @@ const getInfoFromAddress = (address) => {
       name: "WETH",
       icon: "assets/images/tokens/WETH.png",
     },
-    "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": {
+    "0xaf88d065e77c8cc2239327c5edb3a432268e5831": {
       name: "USDC",
+      icon: "assets/images/tokens/USDC.png",
+    },
+    "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": {
+      name: "USDC.e",
       icon: "assets/images/tokens/USDC.png",
     },
     "0xf97f4df75117a78c1a5a0dbb814af92458539fb4": {
@@ -79,8 +87,8 @@ export default {
       return this.$route.name === "DeleverageId";
     },
     amountTitle() {
-      if(this.itsDeleverage) return  "Buy Amount of MIM"
-      return "Leveraged Amount of GLP"
+      if (this.itsDeleverage) return "Buy Amount of MIM";
+      return "Leveraged Amount of GLP";
     },
     routeDatas() {
       const data = this.$store.getters.getRouteData;
