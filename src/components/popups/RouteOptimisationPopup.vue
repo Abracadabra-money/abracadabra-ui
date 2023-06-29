@@ -57,10 +57,6 @@ const getInfoFromAddress = (address) => {
       name: "WETH",
       icon: "assets/images/tokens/WETH.png",
     },
-    "0xaf88d065e77c8cc2239327c5edb3a432268e5831": {
-      name: "USDC",
-      icon: "assets/images/tokens/USDC.png",
-    },
     "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": {
       name: "USDC.e",
       icon: "assets/images/tokens/USDC.png",
