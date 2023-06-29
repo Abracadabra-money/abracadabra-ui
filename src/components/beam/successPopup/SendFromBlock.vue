@@ -30,9 +30,10 @@
           </li>
 
           <li class="list-item">
-            <span>Beaming fee</span>
+            <span>Total Gas cost</span>
             <span class="item-value">
-              <span>0</span>
+              <span>{{ config.totalGas }}</span>
+              <span>{{ config.nativeSymbol }}</span>
             </span>
           </li>
 
@@ -47,6 +48,13 @@
                 </span>
                 <span>{{ convertTokenAmount }}</span>
               </template>
+            </span>
+          </li>
+
+          <li class="list-item">
+            <span>Beaming fee</span>
+            <span class="item-value">
+              <span>0</span>
             </span>
           </li>
         </ul>

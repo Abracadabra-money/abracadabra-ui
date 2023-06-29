@@ -63,7 +63,7 @@
           v-if="isVisibilityMoreButton"
           @click="seeMoreHistory"
         >
-          See more
+          Show more
         </button>
       </template>
 
@@ -479,37 +479,47 @@ export default {
         localStorage.setItem("beam-history", JSON.stringify([newTx]));
         this.beamHistory = [newTx];
       } else {
-        let duplicateTx = null;
+        let duplicateTx = false;
+        let txIndex = null;
         beamHistory.forEach(({ tx }, idx) => {
-          if (tx?.hash === newTx?.tx?.hash) duplicateTx = idx;
+          if (tx?.hash === newTx?.tx?.hash) {
+            duplicateTx = true;
+            txIndex = idx;
+          }
         });
 
         if (!duplicateTx) {
           beamHistory.push(newTx);
-          this.beamHistory = beamHistory;
           localStorage.setItem("beam-history", JSON.stringify(beamHistory));
-        } else this.updateHistoryStatus();
+          this.beamHistory = beamHistory;
+        } else {
+          beamHistory[txIndex] = newTx;
+          localStorage.setItem("beam-history", JSON.stringify(beamHistory));
+          this.beamHistory = beamHistory;
+        }
       }
     },
 
-    async updateHistoryStatus() {
+    async updateHistoryStatus(complite = false) {
       let beamHistory = JSON.parse(localStorage.getItem("beam-history"));
       if (!beamHistory) return [];
       this.beamHistory = beamHistory;
 
-      await Promise.all(
+      this.beamHistory = await Promise.all(
         beamHistory.map(async (history) => {
           if (history?.txInfo?.status !== "DELIVERED") {
             history.txInfo = await waitForMessageReceived(
               history.dstChainId,
               history.tx.hash
             );
+            return history;
           }
+          return history;
         })
       );
 
-      this.beamHistory = beamHistory;
-      localStorage.setItem("beam-history", JSON.stringify(beamHistory));
+      localStorage.setItem("beam-history", JSON.stringify(this.beamHistory));
+      if (!complite) this.updateHistoryStatus(true);
     },
 
     async getEstimatedFees(getParams = false) {

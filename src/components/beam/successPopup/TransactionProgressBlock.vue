@@ -6,9 +6,7 @@
     </div>
 
     <div class="description">
-      <p class="text">
-        Transaction is processing. You may see it in the LayerZero explorer
-      </p>
+      <p class="text">You may see your transaction in the LayerZero explorer</p>
       <ExplorerLink :link="layerZeroLink" title="LayerZero" />
     </div>
   </div>
@@ -27,7 +25,7 @@ export default {
 
   computed: {
     isTxComplete() {
-      return !this.config.txInfo || this.config.txInfo?.status === "INFLIGHT"
+      return !this.config?.txInfo || this.config?.txInfo?.status === "INFLIGHT"
         ? false
         : true;
     },

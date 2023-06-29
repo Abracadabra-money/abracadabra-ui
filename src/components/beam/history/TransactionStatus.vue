@@ -20,17 +20,18 @@ export default {
 
   computed: {
     isTxComplete() {
-      return true;
+      return this.config?.txInfo?.status === "DELIVERED";
     },
 
     transactionCheck() {
-      if (this.config?.txInfo?.status === "DELIVERED")
+      if (this.isTxComplete)
         return useImage("assets/images/beam/transaction-complete.png");
       return useImage("assets/images/beam/transaction-check.png");
     },
 
     transactionText() {
-      return "complete";
+      if (this.isTxComplete) return "Complete";
+      return "Processing";
     },
 
     layerZeroLink() {

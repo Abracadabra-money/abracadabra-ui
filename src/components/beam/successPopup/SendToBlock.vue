@@ -29,7 +29,7 @@
             </span>
           </li>
 
-          <li class="list-item">
+          <li class="list-item" v-if="config.dstTokenAmount">
             <span></span>
             <span>
               <span
