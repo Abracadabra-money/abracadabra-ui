@@ -1,8 +1,5 @@
 import { Contract } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-
-const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
-import multicall3Abi from "@/utils/abi/multicall3Abi";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 
 const accountsList = {
@@ -96,49 +93,4 @@ const getAllowanceDatas = async (account, provider) => {
   });
 };
 
-const revokeAllApprovals = async (account, signer) => {
-  const userInfo = await getAllowanceDatas(account, signer);
-
-  const multicall3Contract = new Contract(
-    multicall3Address,
-    multicall3Abi,
-    signer
-  );
-
-  const txCallDatas = await Promise.all(
-    userInfo.map(async (info) => {
-      if (!info.isStillApproved) return false;
-      const tokenContract = new Contract(info.token, abiERC20, signer);
-      const { data } = await tokenContract.populateTransaction.approve(
-        info.spender,
-        0
-      );
-
-      // multicall Call3 struct
-      return [
-        info.token, // Target contract to call.
-        false, // If false, the entire call will revert if the call fails.
-        data, // Data to call on the target contract.
-      ];
-    })
-  );
-
-  const filteredTxCallDatas = txCallDatas.filter((data) => data !== false);
-
-  try {
-    const estimateGas = await multicall3Contract.estimateGas.aggregate3(
-      filteredTxCallDatas
-    );
-
-    const tx = await multicall3Contract.aggregate3(filteredTxCallDatas, {
-      gasLimit: estimateGas.add(1000),
-    });
-
-    return await tx.wait();
-  } catch (error) {
-    console.log("revokeAllApprovals error:", error);
-    return false;
-  }
-};
-
-export { getAllowanceDatas, revokeAllApprovals };
+export { getAllowanceDatas };

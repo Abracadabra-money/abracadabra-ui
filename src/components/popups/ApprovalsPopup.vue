@@ -23,7 +23,7 @@
       <p class="info-subtitle">Revoke it now !</p>
     </div>
 
-    <BaseButton @click="revokeHandlerBasic"
+    <BaseButton @click="revokeHandler"
       >Revoke all
       {{ allowanceCount > 1 ? `(${allowanceCount})` : "" }}</BaseButton
     >
@@ -36,8 +36,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 import {
-  getAllowanceDatas,
-  revokeAllApprovals,
+  getAllowanceDatas
 } from "@/helpers/oldCauldronsAllowance.js";
 import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
 import { Contract } from "ethers";
@@ -68,7 +67,7 @@ export default {
     closePopup() {
       this.$store.commit("closePopups");
     },
-    async revokeHandlerBasic() {
+    async revokeHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.pending
@@ -108,30 +107,6 @@ export default {
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", errorNotification);
       }
-    },
-    async revokeHandler() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-
-      const result = await revokeAllApprovals(this.account, this.userSigner);
-
-      if (!result) {
-        const errorNotification = {
-          msg: await notificationErrorMsg(),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-
-        return false;
-      }
-
-      await this.$store.commit("notifications/delete", notificationId);
-      await this.$store.dispatch("notifications/new", notification.success);
-      this.closePopup();
     },
   },
 
