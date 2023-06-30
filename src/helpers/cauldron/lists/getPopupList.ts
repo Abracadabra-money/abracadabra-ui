@@ -24,9 +24,16 @@ export const getPopupList = async (
 ): Promise<PopupListItem[]> => {
   const multicalProvider = MulticallWrapper.wrap(provider);
 
-  const configs: any[] = cauldronsConfig.filter(
-    (config) => config.chainId === chainId
-  );
+  const configs: any[] = cauldronsConfig.filter((config) => {
+    let result = config.chainId === +chainId;
+
+    if (config.cauldronSettings.isPrivate)
+      result = config.cauldronSettings.privatelyFor!.some(
+        (walletAddress) => walletAddress === account
+      );
+
+    return result;
+  });
 
   const lensContract = new Contract(lensAddress, lensAbi, provider);
 
