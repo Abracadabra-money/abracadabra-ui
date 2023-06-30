@@ -2051,7 +2051,7 @@ export default [
       isCollateralClaimable: false,
       claimCrvReward: false,
       isPrivate: true,
-      whitelistedWallets: [GNOSIS_SAFE_ADDRESS],
+      privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
       name: "WhitelistedCauldronV4",
@@ -2096,7 +2096,7 @@ export default [
       isCollateralClaimable: false,
       claimCrvReward: false,
       isPrivate: true,
-      whitelistedWallets: [GNOSIS_SAFE_ADDRESS],
+      privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
       name: "WhitelistedCauldronV4",

@@ -15,7 +15,7 @@ type CauldronSettings = {
   isMigrated?: boolean;
   oracleAddress?: string;
   isPrivate?: boolean;
-  whitelistedWallets?: string[];
+  privatelyFor?: string[];
 };
 
 type MimInfo = {

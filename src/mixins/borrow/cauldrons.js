@@ -41,7 +41,7 @@ export default {
         let result = pool.contractChain === +this.chainId;
 
         if (pool.cauldronSettings.isPrivate)
-          result = pool.cauldronSettings.whitelistedWallets.some(
+          result = pool.cauldronSettings.privatelyFor.some(
             (walletAddress) => walletAddress === this.account
           );
         return result;

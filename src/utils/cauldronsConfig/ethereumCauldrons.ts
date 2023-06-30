@@ -1587,7 +1587,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isPrivate: true,
-      whitelistedWallets: [GNOSIS_SAFE_ADDRESS],
+      privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
       name: "WhitelistedCauldronV4",
@@ -1623,7 +1623,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isPrivate: true,
-      whitelistedWallets: [GNOSIS_SAFE_ADDRESS],
+      privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
       name: "WhitelistedCauldronV4",
