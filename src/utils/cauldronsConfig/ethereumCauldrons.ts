@@ -1613,6 +1613,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       isSwappersActive: true,
+      is0xSwap: true,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,

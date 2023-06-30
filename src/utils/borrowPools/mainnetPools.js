@@ -2037,7 +2037,7 @@ export default [
     ltv: 98,
     borrowFee: 0,
     isSwappersActive: false,
-    is0xSwap: true,
+    is0xSwap: false,
     cauldronSettings: {
       isDegenBox: true,
       strategyLink: false,
@@ -2118,11 +2118,11 @@ export default [
     },
     swapContractInfo: {
       address: "0x88650a9A0F8894C0bc0d6AE833A64f7E34644935",
-      abi: swapAbi,
+      abi: ERC4626LevSwapper,
     },
     reverseSwapContractInfo: {
       address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
-      abi: reverseSwapAbi,
+      abi: ERC4626LiqSwapper,
     },
   },
 ];
