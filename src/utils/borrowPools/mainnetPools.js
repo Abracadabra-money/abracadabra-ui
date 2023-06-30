@@ -10,6 +10,7 @@ import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
+import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
 export default [
   {
@@ -2049,6 +2050,8 @@ export default [
       localBorrowAmountLimit: false,
       isCollateralClaimable: false,
       claimCrvReward: false,
+      isPrivate: true,
+      privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
       name: "WhitelistedCauldronV4",
