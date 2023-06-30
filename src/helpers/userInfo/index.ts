@@ -16,13 +16,13 @@ export const getUserBalance = async (
 };
 
 export const getNativeTokenBalance = async (
-  provider: providers.BaseProvider,
+  provider: any,
   account: string,
   decimals: number,
   isBigNumber?: boolean
 ) => {
   try {
-    const balance = await provider.getBalance(account);
+    const balance = await provider.getBalance();
     if (isBigNumber) return balance;
     return utils.formatUnits(balance, decimals);
   } catch (error) {
