@@ -14,6 +14,8 @@ type CauldronSettings = {
   executionPrice?: boolean;
   isMigrated?: boolean;
   oracleAddress?: string;
+  isPrivate?: boolean;
+  privatelyFor?: string[];
 };
 
 type MimInfo = {
