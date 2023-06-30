@@ -72,7 +72,7 @@ export const createBeamConfig = async (
   });
 
   const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
-    provider,
+    signer,
     account,
     tokenContractInstance,
     beamConfig.contract.address
