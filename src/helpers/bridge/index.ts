@@ -72,7 +72,7 @@ export const createBridgeConfig = async (
   });
 
   const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
-    provider,
+    signer,
     account,
     tokenContractInstance,
     bridgeConfig.contract.address
