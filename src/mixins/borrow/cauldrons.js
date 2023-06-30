@@ -15,7 +15,6 @@ import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
 import { getTotalBorrow } from "@/helpers/getTotalBorrow";
-import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
 export default {
   computed: {
@@ -40,8 +39,10 @@ export default {
       const chainPools = poolsInfo.filter((pool) => {
         let result = pool.contractChain === +this.chainId;
 
-        if (pool.id === 41 && pool.contractChain === 1)
-          result = this.account === GNOSIS_SAFE_ADDRESS ? true : false;
+        if (pool.cauldronSettings.isPrivate)
+          result = pool.cauldronSettings.privatelyFor.some(
+            (walletAddress) => walletAddress === this.account
+          );
 
         return result;
       });
@@ -588,7 +589,7 @@ export default {
       const networkBalance = await this.userSigner.getBalance();
 
       let claimableReward;
-    
+
       if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
           pool.collateralToken.contract,
