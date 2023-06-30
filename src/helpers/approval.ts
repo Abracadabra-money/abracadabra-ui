@@ -1,5 +1,8 @@
 import type { Contract } from "ethers";
-import { APPROVE_AMOUNT, APPROVE_GAS_LIMIT } from "@/constants/approve";
+
+const APPROVE_AMOUNT: string =
+  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+const APPROVE_GAS_LIMIT: number = 1000;
 
 export const approveToken = async (
   contract: Contract,

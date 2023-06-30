@@ -1,5 +1,6 @@
 import { ethers, BigNumber } from "ethers";
-import { GAS_LIMIT } from "@/constants/transaction";
+
+export const GAS_LIMIT: number = 1000;
 
 export const sendFrom = async (
   fees: Array<BigNumber>,

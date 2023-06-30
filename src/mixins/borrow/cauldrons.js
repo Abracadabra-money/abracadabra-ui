@@ -15,7 +15,8 @@ import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
 import { getTotalBorrow } from "@/helpers/getTotalBorrow";
-import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
+
+const GNOSIS_SAFE_ADDRESS = "0xDF2C270f610Dc35d8fFDA5B453E74db5471E126B";
 
 export default {
   computed: {
@@ -588,7 +589,7 @@ export default {
       const networkBalance = await this.userSigner.getBalance();
 
       let claimableReward;
-    
+
       if (this.chainId === 1 && pool.cauldronSettings.isCollateralClaimable) {
         claimableReward = await this.getClaimableReward(
           pool.collateralToken.contract,

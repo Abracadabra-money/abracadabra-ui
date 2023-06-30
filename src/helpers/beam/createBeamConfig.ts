@@ -8,12 +8,12 @@ import { getUserBalance, getNativeTokenBalance } from "@/helpers/userInfo";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
 const getUserInfo = async (
-  provider: providers.BaseProvider,
+  signer: providers.BaseProvider,
   account: string,
   contract: Contract,
   address: string
 ): Promise<UserInfo> => {
-  if (!provider)
+  if (!signer)
     return {
       balance: "0.0",
       nativeTokenBalance: "0.0",
@@ -22,7 +22,7 @@ const getUserInfo = async (
 
   return {
     balance: await getUserBalance(contract, account, 18),
-    nativeTokenBalance: await getNativeTokenBalance(provider, account, 18),
+    nativeTokenBalance: await getNativeTokenBalance(signer, account, 18),
     isTokenApprove: await isTokenApprowed(contract, address, account, true),
   };
 };
@@ -30,8 +30,7 @@ const getUserInfo = async (
 export const createBeamConfig = async (
   chainId: number,
   signer: providers.BaseProvider,
-  account: string,
-  provider: providers.BaseProvider
+  account: string
 ): Promise<BeamConfig | boolean> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
   if (!mimConfig) return false;

@@ -1,2 +1,0 @@
-export const MIM_CHAIN_LINK: string =
-  "0x7A364e8770418566e3eb2001A96116E6138Eb32F";
