@@ -48,6 +48,7 @@ import mLvlMezzanine from "@/utils/abi/tokensAbi/mLvlMezzanine";
 import lvlSenior from "@/utils/abi/tokensAbi/lvlSenior";
 import mLvlSenior from "@/utils/abi/tokensAbi/mLvlSenior";
 import yvCurveMIMf from "@/utils/abi/tokensAbi/yvCurveMIMf";
+import StargateUSDT from "@/utils/abi/tokensAbi/StargateUSDT";
 
 export default {
   ALCX,
@@ -100,4 +101,5 @@ export default {
   lvlSenior,
   mLvlSenior,
   yvCurveMIMf,
+  StargateUSDT,
 };
