@@ -1598,7 +1598,7 @@ const config: Array<CauldronConfig> = [
     collateralInfo: {
       name: "Private yv-MIM3CRV",
       decimals: 18,
-      address: "0xa540744DEDBDA9eF64cf753F0E851EfE4a419EA9 ",
+      address: "0xa540744DEDBDA9eF64cf753F0E851EfE4a419EA9",
       abi: tokensAbi.yvCurveMIMf,
     },
     mimInfo,
@@ -1635,7 +1635,7 @@ const config: Array<CauldronConfig> = [
     collateralInfo: {
       name: "Stargate USDT",
       decimals: 6,
-      address: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783 ",
+      address: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783",
       abi: tokensAbi.StargateUSDT,
     },
     mimInfo,
