@@ -8,8 +8,12 @@ import {
   watchNetwork,
 } from "@wagmi/core";
 
+import { publicProvider } from '@wagmi/core/providers/public';
+
+import {mainnet} from "./chains/mainnet"
+
 import {
-  mainnet,
+  // mainnet,
   optimism,
   bsc,
   polygon,
@@ -48,7 +52,7 @@ if (!projectId) throw new Error("You need to provide projectId env");
 const chains = [mainnet, bsc, polygon, avalanche, fantom, arbitrum, optimism, moonriver];
 
 // 2. Configure wagmi client
-const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
+const { publicClient } = configureChains(chains, [w3mProvider({ projectId }), publicProvider()]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
