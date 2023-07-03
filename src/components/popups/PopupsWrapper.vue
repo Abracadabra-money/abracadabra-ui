@@ -9,6 +9,7 @@
       <SucessPopup v-if="popupActiveType === 'success'" />
       <ClaimPopup v-if="popupActiveType === 'claim'" />
       <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
+      <ApprovalsPopup v-if="popupActiveType === 'approvals'"/>
     </div>
   </div>
 </template>
@@ -21,6 +22,7 @@ import ThreeCryptoPopup from "@/components/popups/Deposit/ThreeCryptoPopup.vue";
 import OHMPopup from "@/components/popups/Deposit/OHMPopup/index.vue";
 import MEMOWrapPopup from "@/components/popups/Deposit/MEMOWrapPopup.vue";
 import SucessPopup from "@/components/popups/SuccessPopup.vue";
+import ApprovalsPopup from "@/components/popups/ApprovalsPopup.vue";
 import ClaimPopup from "@/components/popups/ClaimPopup.vue";
 import RouteOptimisationPopup from "@/components/popups/RouteOptimisationPopup.vue";
 
@@ -46,6 +48,7 @@ export default {
     SucessPopup,
     ClaimPopup,
     RouteOptimisationPopup,
+    ApprovalsPopup
   },
 };
 </script>
