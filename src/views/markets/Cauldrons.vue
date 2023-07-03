@@ -81,7 +81,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId", provider: "getProvider" }),
+    ...mapGetters({
+      account: "getAccount",
+      chainId: "getChainId",
+      provider: "getProvider",
+    }),
 
     isEmptyState() {
       return !this.cauldrons.length && !this.cauldronsLoading;
@@ -175,11 +179,15 @@ export default {
     },
 
     async createCauldronsList() {
-      this.cauldrons = await getMarketList(this.chainId, this.provider);
+      this.cauldrons = await getMarketList(
+        this.account,
+        this.chainId,
+        this.provider
+      );
       this.cauldronsLoading = false;
 
       this.updateInterval = setInterval(
-        await getMarketList(this.chainId, this.provider),
+        await getMarketList(this.account, this.chainId, this.provider),
         60000
       );
     },
