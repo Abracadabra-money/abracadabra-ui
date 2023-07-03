@@ -15,7 +15,6 @@ import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import abraWsGlp from "@/utils/abi/tokensAbi/abraWsGlp";
 import { getInterest } from "@/helpers/getInterest";
 import { getTotalBorrow } from "@/helpers/getTotalBorrow";
-import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
 export default {
   computed: {
@@ -44,6 +43,7 @@ export default {
           result = pool.cauldronSettings.privatelyFor.some(
             (walletAddress) => walletAddress === this.account
           );
+
         return result;
       });
 
@@ -586,7 +586,7 @@ export default {
         pool.borrowToken.decimals
       );
 
-      const networkBalance = await this.contractProvider.getBalance();
+      const networkBalance = await this.userSigner.getBalance();
 
       let claimableReward;
 

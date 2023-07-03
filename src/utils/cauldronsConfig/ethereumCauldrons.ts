@@ -11,6 +11,7 @@ import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
+
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
 const mimInfo = {

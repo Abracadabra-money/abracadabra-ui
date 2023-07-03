@@ -11,7 +11,7 @@ const chainCoinGeckoIds = {
 };
 
 const apiDomain =
-  import.meta.env.VITE_APP_COINGECKO_API_KEY && import.meta.env.PROD
+  import.meta.env.VITE_APP_COINGECKO_API_KEY
     ? "pro-api.coingecko.com"
     : "api.coingecko.com";
 
@@ -88,10 +88,15 @@ const coingeckoChainId = {
 };
 
 const getNativeTokenPrice = async (chainId) => {
-  const id = coingeckoChainId[chainId];
-  const url = `https://${apiDomain}/api/v3/coins/${id}`;
-  const response = await axios.get(url, config);
-  return response.data.market_data.current_price.usd;
+  try {
+    const id = coingeckoChainId[chainId];
+    const url = `https://${apiDomain}/api/v3/coins/${id}`;
+    const response = await axios.get(url, config);
+    return response.data.market_data.current_price.usd;
+  } catch (error) {
+    console.log("Get token price Error:", error);
+    return "0.0";
+  }
 };
 
 export {

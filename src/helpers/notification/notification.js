@@ -37,8 +37,8 @@ export default {
     type: "success",
   },
 
-  bridgeNotAvailable: {
-    msg: "The bridge is not available on this network",
+  beamNotAvailable: {
+    msg: "The beam is not available on this network",
     type: "error",
   },
 
