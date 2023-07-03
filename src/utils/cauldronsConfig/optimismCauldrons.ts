@@ -76,5 +76,4 @@ const config: Array<CauldronConfig> = [
   },
 ];
 
-
 export default config;
