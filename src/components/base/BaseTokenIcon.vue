@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import { useImage } from "@/helpers/useImage";
+
 export default {
   props: {
     icon: {
@@ -28,8 +30,8 @@ export default {
   },
   data() {
     return {
-      defaultToken: this.$image("assets/images/base_token_icon.png"),
-      selectIcon: this.$image("assets/images/base_select_icon.png"),
+      defaultToken: useImage("assets/images/base_token_icon.png"),
+      selectIcon: useImage("assets/images/base_select_icon.png"),
     };
   },
 
