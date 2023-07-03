@@ -10,6 +10,7 @@ import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
+import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
@@ -1586,6 +1587,8 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: true,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isPrivate: true,
+      privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
       name: "WhitelistedCauldronV4",
