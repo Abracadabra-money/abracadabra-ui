@@ -1,133 +1,196 @@
 <template>
-  <div class="tokens-popup">
-    <div class="search-wrap">
-      <p class="title">{{ title }}</p>
-      <input
-        v-if="!isLoading"
-        v-model="search"
-        type="text"
-        placeholder="Search"
-        class="search-input"
-      />
+  <div class="popup-wrap">
+    <div class="popup-header">
+      <h4 class="popup-title">Select {{ popupTitle }}</h4>
+      <PopupSearch v-if="!isLoadingMarkets" @input="changeSearch" />
     </div>
 
-    <div v-if="!pools.length && isLoading" class="loader-wrap">
+    <div class="loader-wrap" v-if="isLoader">
       <BaseLoader />
     </div>
 
-    <div v-else-if="filteredPools.length" class="tokens-list">
-      <template v-if="popupType === 'farms'">
-        <TokenPopupItem
-          v-for="pool in filteredPools"
-          @click="selectToken(pool)"
-          :key="pool.id"
-          :name="pool.name"
-          :icon="pool.icon"
-          :farmItem="pool"
-          :balance="pool.accountInfo ? pool.accountInfo.balance : null"
-          :price="pool.lpPrice"
+    <div class="markets-list" v-else-if="filteredMarketList.length">
+      <template v-if="isFarmsMarket">
+        <MarketsListPopupFarmItem
+          v-for="marketItem in filteredMarketList"
+          :marketItem="marketItem"
+          :key="marketItem.id"
+          @changeActiveMarket="changeActiveMarket"
         />
       </template>
+
       <template v-else>
-        <SelectPopupItem
-          v-for="pool in filteredPools"
-          :key="pool.id"
-          :pool="pool"
-          @enterPool="selectToken"
+        <MarketsListPopupCauldronItem
+          v-for="marketItem in filteredMarketList"
+          :marketItem="marketItem"
+          :key="marketItem.config.id"
+          @changeActiveMarket="changeActiveMarket"
         />
       </template>
     </div>
 
-    <div class="not-found" v-else-if="!filteredPools.length && pools.length">
-      <img
-        class="not-found__img"
-        src="@/assets/images/empty-stats-list.png"
-        alt=""
-      />
-      <p class="not-found__text">{{ notFoundTitle }}</p>
-    </div>
-    <div class="not-found" v-else-if="!pools.length">
-      <img
-        class="not-found__img"
-        src="@/assets/images/empty-stats-list.png"
-        alt=""
-      />
-      <p class="not-found__text">{{ noOnNetworkTitle }}</p>
-      <p class="not-found__text">in the future they will be displayed here</p>
-    </div>
+    <PopupEmptyState :popupType="popupType" :emptyType="popupEmptyType" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-
+import { getPopupList } from "@/helpers/cauldron/lists/getPopupList.ts";
+import PopupSearch from "@/components/popups/ui/PopupSearch.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
-import TokenPopupItem from "@/components/farms/FarmListItem.vue";
-import SelectPopupItem from "@/components/borrow/BorrowListItem.vue";
+import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
+import MarketsListPopupCauldronItem from "@/components/popups/marketList/MarketsListPopupCauldronItem.vue";
+import PopupEmptyState from "@/components/popups/ui/PopupEmptyState.vue";
 
 export default {
   props: {
-    pools: {
+    farmsList: {
       type: Array,
-      default: () => [],
     },
-    isUnstake: {
-      type: Boolean,
-      default: false,
-    },
+
     popupType: {
       type: String,
       required: true,
     },
   },
+
   data() {
     return {
       search: "",
+      cauldronsList: [],
+      cauldronsListIsLoading: true,
     };
   },
-  methods: {
-    selectToken(chainId) {
-      this.$emit("select", chainId);
-      this.$emit("close");
-    },
-  },
+
   computed: {
-    title() {
-      return this.popupType === "farms" ? "Select Farm" : "Select Cauldron";
-    },
-    notFoundTitle() {
-      return this.popupType === "farms"
-        ? "No farms found with this name"
-        : "No cauldrons found with this name";
-    },
-    noOnNetworkTitle() {
-      return this.popupType === "farms"
-        ? "NO FARMS ON THIS NETWORK"
-        : "NO POOLS ON THIS NETWORK";
-    },
-    filteredPools() {
-      return !this.search
-        ? this.pools
-        : this.pools.filter(
-            ({ name }) =>
-              name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
-          );
-    },
-    isLoading() {
-      return this.popupType === "farms"
-        ? this.farmPoolLoading
-        : this.isLoadBorrowPools;
-    },
     ...mapGetters({
-      isLoadBorrowPools: "getLoadPoolsBorrow",
-      farmPoolLoading: "getFarmPoolLoading",
-      isCreatingPoolsBorrow: "getCreatePoolsBorrow",
+      chainId: "getChainId",
+      account: "getAccount",
+      provider: "getProvider",
+      isLoadedFarms: "getFarmPoolLoading",
     }),
+
+    isFarmsMarket() {
+      return this.popupType === "farms";
+    },
+
+    popupTitle() {
+      return this.isFarmsMarket ? "Farm" : "Cauldron";
+    },
+
+    marketsList() {
+      return this.isFarmsMarket ? this.farmsList : this.cauldronsList;
+    },
+
+    isLoadingMarkets() {
+      return this.isFarmsMarket
+        ? this.isLoadedFarms
+        : this.cauldronsListIsLoading;
+    },
+
+    isLoader() {
+      return !this.marketsList.length && this.isLoadingMarkets;
+    },
+
+    serchNotFound() {
+      return !this.filteredMarketList.length && this.marketsList.length;
+    },
+
+    popupEmptyType() {
+      if (this.isLoadingMarkets) return "";
+      if (this.serchNotFound) return "search";
+      if (!this.marketsList.length) return "pools";
+      return "";
+    },
+
+    borrowFilteredList() {
+      return this.marketsList
+        .filter(({ config }) => !config.cauldronSettings.isDepreciated)
+        .sort(({ userInfo: a }, { userInfo: b }) =>
+          +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
+        );
+    },
+
+    leverageFilteredList() {
+      return this.marketsList
+        .filter(
+          ({ config }) =>
+            config.cauldronSettings.isSwappersActive &&
+            !config.cauldronSettings.isDepreciated
+        )
+        .sort(({ userInfo: a }, { userInfo: b }) =>
+          +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
+        );
+    },
+
+    repayFilteredList() {
+      return [...this.marketsList].sort(({ userInfo: a }, { userInfo: b }) =>
+        +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
+      );
+    },
+
+    deleverageFilteredList() {
+      return this.marketsList
+        .filter(({ config }) => config.cauldronSettings.isSwappersActive)
+        .sort(({ userInfo: a }, { userInfo: b }) =>
+          +a.collateralAmountUsd < +b.collateralAmountUsd ? 1 : -1
+        );
+    },
+
+    sortedMarketsList() {
+      if (this.popupType === "borrow") return this.borrowFilteredList;
+      if (this.popupType === "leverage") return this.leverageFilteredList;
+      if (this.popupType === "repay") return this.repayFilteredList;
+      if (this.popupType === "deleverage") return this.deleverageFilteredList;
+      if (!this.search) return this.marketsList;
+      return this.marketsList;
+    },
+
+    filteredMarketList() {
+      if (this.isFarmsMarket) {
+        return this.sortedMarketsList.filter(
+          ({ name }) =>
+            name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+        );
+      }
+
+      return this.sortedMarketsList.filter(
+        ({ config }) =>
+          config.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+      );
+    },
   },
+
+  methods: {
+    changeSearch({ target }) {
+      this.search = target.value;
+    },
+
+    changeActiveMarket(marketId) {
+      this.$emit("changeActiveMarket", marketId);
+    },
+
+    async getMarketsList() {
+      this.cauldronsList = await getPopupList(
+        this.chainId,
+        this.provider,
+        this.account
+      );
+
+      this.cauldronsListIsLoading = false;
+    },
+  },
+
+  async created() {
+    await this.getMarketsList();
+  },
+
   components: {
+    PopupSearch,
     BaseLoader,
-    SelectPopupItem,
-    TokenPopupItem,
+    MarketsListPopupFarmItem,
+    MarketsListPopupCauldronItem,
+    PopupEmptyState,
   },
 };
 </script>
@@ -155,57 +218,26 @@ export default {
   background-color: #414141;
   border-color: transparent;
 }
-.tokens-popup {
+.popup-wrap {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 520px;
   width: 380px;
   max-width: 100%;
 }
-.title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-}
 
-.search-input {
-  background-color: rgba(255, 255, 255, 0.1);
-  height: 50px;
-  width: 100%;
-  font-size: 20px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
-  color: white;
-  padding: 0 14px;
-  margin-top: 10px;
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-  }
-}
-
-.search-wrap {
+.popup-header {
   padding: 10px 10px 20px 10px;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
 }
 
-.tokens-list {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
+.popup-title {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 27px;
+  margin-bottom: 10px;
 }
 
-.token-spacer-wrap {
-  display: flex;
-  justify-content: flex-end;
-  flex: 0 0 1px;
-}
-.token-spacer {
-  display: inline-block;
-  background-color: rgba(255, 255, 255, 0.1);
-  height: 1px;
-  width: calc(100% - 42px);
-}
 .loader-wrap {
   display: flex;
   justify-content: center;
@@ -213,19 +245,9 @@ export default {
   margin-top: 52px;
 }
 
-.not-found {
+.markets-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 30px 10px;
-}
-
-.not-found__img {
-  width: 186px;
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 19px;
+  overflow-y: auto;
 }
 </style>
