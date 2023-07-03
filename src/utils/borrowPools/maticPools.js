@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import { useImage } from "@/helpers/useImage";
 
 export default [
