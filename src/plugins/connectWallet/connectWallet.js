@@ -52,7 +52,7 @@ if (!projectId) throw new Error("You need to provide projectId env");
 const chains = [mainnet, bsc, polygon, avalanche, fantom, arbitrum, optimism, moonriver];
 
 // 2. Configure wagmi client
-const { publicClient } = configureChains(chains, [w3mProvider({ projectId }), publicProvider()]);
+const { publicClient } = configureChains(chains, [publicProvider(), w3mProvider({ projectId })]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
