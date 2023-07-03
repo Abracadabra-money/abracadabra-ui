@@ -5,7 +5,6 @@ export default {
   },
   mutations: {
     setFarmPools(state, payload) {
-      console.log(payload);
       state.farmPools = payload;
     },
     setLoadingPoolsFarm(state, payload) {

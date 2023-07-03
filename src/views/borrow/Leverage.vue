@@ -190,10 +190,8 @@
       @closePopup="isOpenPollPopup = false"
     >
       <MarketsListPopup
-        @select="chosePool($event)"
-        @close="isOpenPollPopup = false"
-        :pools="filteredPool"
-        popupType="cauldron"
+        popupType="leverage"
+        @changeActiveMarket="changeActiveMarket($event)"
       />
     </LocalPopupWrap>
   </div>
@@ -275,23 +273,6 @@ export default {
         (this.chainId === 42161 && this.selectedPool?.id === 3) ||
         (this.chainId === 1 && this.selectedPool?.id === 39)
       );
-    },
-
-    filteredPool() {
-      if (this.account && this.pools[0]?.userInfo) {
-        return this.pools
-          .filter(
-            (pool) =>
-              pool.isSwappersActive &&
-              !pool.cauldronSettings.isDepreciated &&
-              !!pool.levSwapperContract
-          )
-          .sort((a, b) =>
-            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-          );
-      }
-
-      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
     },
 
     selectedPool() {
@@ -843,17 +824,17 @@ export default {
       return false;
     },
 
-    async chosePool(pool) {
-      this.poolId = pool.id;
+    async changeActiveMarket(marketId) {
       this.useDefaultBalance = false;
+      this.poolId = marketId;
 
       this.clearData();
-
-      let duplicate = this.$route.fullPath === `/leverage/${pool.id}`;
+      const duplicate = this.$route.fullPath === `/leverage/${marketId}`;
 
       if (!duplicate) {
-        this.$router.push(`/leverage/${pool.id}`);
+        this.$router.push(`/leverage/${marketId}`);
       }
+      this.isOpenPollPopup = false;
     },
 
     changeSlippage(value) {
