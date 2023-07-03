@@ -138,8 +138,12 @@ const onConnectNew = async () => {
     watchNetwork((network) => {
       if (chainId !== network.chain.id) window.location.reload();
     });
-
-    const provider = markRaw(getEthersProvider());
+    
+    const provider = markRaw(
+      new ethers.providers.StaticJsonRpcProvider(
+        rpc[chainId]
+      )
+    );
     const signer = markRaw(await getEthersSigner(
       {chainId}
     ));
