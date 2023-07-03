@@ -7,6 +7,10 @@ export const notificationErrorMsg = (e) => {
     msg = "User denied transaction signature";
   }
 
+  if (e?.message.indexOf("user rejected transaction")) {
+    msg = "User rejected transaction";
+  }
+
   if (
     String(e).indexOf("Borrow Limit reached") !== -1 ||
     String(e).indexOf("Whitelisted borrow exceeded") !== -1 ||
@@ -42,8 +46,10 @@ export const notificationErrorMsg = (e) => {
 
   if (
     String(e).indexOf("RewardTracker: burn amount exceeds balance") !== -1 ||
-    e?.data?.message === "execution reverted: RewardTracker: burn amount exceeds balance" ||
-    e?.message === "execution reverted: RewardTracker: burn amount exceeds balance"
+    e?.data?.message ===
+      "execution reverted: RewardTracker: burn amount exceeds balance" ||
+    e?.message ===
+      "execution reverted: RewardTracker: burn amount exceeds balance"
   ) {
     msg =
       "Some of your GLP tokens are reserved for vesting on gmx. Please insert the amount that is not reserved for vesting";
