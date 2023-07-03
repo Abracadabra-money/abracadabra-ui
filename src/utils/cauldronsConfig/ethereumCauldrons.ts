@@ -1603,6 +1603,51 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
   },
+  {
+    icon: useImage(`assets/images/tokens/Stargate-USDT.png`),
+    name: "Stargate USDT",
+    chainId: 1,
+    id: 42,
+    liquidationFee: 0.25,
+    mcr: 99,
+    borrowFee: 0,
+    version: 4,
+    cauldronSettings: {
+      isSwappersActive: true,
+      is0xSwap: true,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+      isPrivate: true,
+      privatelyFor: [GNOSIS_SAFE_ADDRESS],
+    },
+    contract: {
+      name: "WhitelistedCauldronV4",
+      address: "0x1062eB452f8C7A94276437ec1F4aAca9b1495B72",
+      abi: poolsAbi.WhitelistedCauldronV4,
+    },
+    collateralInfo: {
+      name: "Stargate USDT",
+      decimals: 6,
+      address: "0x38EA452219524Bb87e18dE1C24D3bB59510BD783 ",
+      abi: tokensAbi.StargateUSDT,
+    },
+    mimInfo,
+    leverageInfo: {
+      address: "0x88650a9A0F8894C0bc0d6AE833A64f7E34644935",
+      abi: ERC4626LevSwapper,
+    },
+    deleverageInfo: {
+      address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
+      abi: ERC4626LiqSwapper,
+    },
+  },
 ];
 
 export default config;

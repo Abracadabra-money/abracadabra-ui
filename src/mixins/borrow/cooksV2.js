@@ -8,10 +8,10 @@ import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
-
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
 // const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
+const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
 export default {
@@ -60,6 +60,10 @@ export default {
     isApe() {
       return this.chainId === 1 && this.selectedPool.id === 39;
     },
+
+    isSUSDT() {
+      return this.chainId === 1 && this.selectedPool.id === 42;
+    },
   },
   methods: {
     async signAndGetData(
@@ -101,10 +105,18 @@ export default {
 
       let buyToken = pool.collateralToken.address;
       if (this.isGlp) {
-        const leverageResp = await getGlpLevData(this.signer, pool, amount, 42161, slipage)
+        const leverageResp = await getGlpLevData(
+          this.signer,
+          pool,
+          amount,
+          42161,
+          slipage
+        );
         return leverageResp.swapDataEncode;
-      } 
+      }
       if (this.isApe) buyToken = apeAddress;
+
+      if (this.isSUSDT) buyToken = usdtAddress;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -126,12 +138,16 @@ export default {
       let selToken = pool.collateralToken.address;
       let selAmount = collateralAmount;
 
-      console.log("collateralAmount", collateralAmount.toString())
-
       if (this.isGlp) {
-        const deleverageResp = await getGlpLiqData(this.signer, pool, collateralAmount, 42161, slipage)
+        const deleverageResp = await getGlpLiqData(
+          this.signer,
+          pool,
+          collateralAmount,
+          42161,
+          slipage
+        );
         return deleverageResp.swapDataEncode;
-      } 
+      }
 
       if (this.isApe) {
         selToken = apeAddress;
@@ -139,6 +155,8 @@ export default {
           collateralAmount
         );
       }
+
+      if (this.isSUSDT) selToken = usdtAddress;
 
       const response = await swap0xRequest(
         this.chainId,
@@ -426,7 +444,15 @@ export default {
       const swapperAddres = pool.levSwapperContract.address;
       const userAddr = this.account;
 
-      if(this.isGlp) return await getGlpLevData(cookData, this.signer, pool, amount, 42161, slipage)
+      if (this.isGlp)
+        return await getGlpLevData(
+          cookData,
+          this.signer,
+          pool,
+          amount,
+          42161,
+          slipage
+        );
 
       if (!is0x) {
         const swapStaticTx =
@@ -449,7 +475,6 @@ export default {
 
         return cookData;
       }
-
 
       const swapData = await this.get0xLeverageSwapData(pool, amount, slipage);
 
