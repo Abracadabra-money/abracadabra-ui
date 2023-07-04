@@ -42,21 +42,23 @@ export default {
     },
 
     isLeverageTag() {
-      return this.cauldron?.isSwappersActive;
+      return this.cauldron?.config.isSwappersActive;
     },
 
     isMigrated() {
-      if (this.cauldron?.cauldronSettings)
-        return this.cauldron.cauldronSettings.isMigrated;
+      if (this.cauldron?.config.cauldronSettings)
+        return this.cauldron.config.cauldronSettings.isMigrated;
 
-      return this.cauldron?.isMigrated;
+      return this.cauldron?.config.isMigrated;
     },
 
     tokenLinkData() {
-      return getTokenLinkData(this.cauldron.id, this.chainId);
+      return getTokenLinkData(this.cauldron.config.id, this.chainId);
     },
   },
-
+  created() {
+    console.log("cauldron", this.cauldron);
+  },
   components: {
     LockedTimer,
     MiniStatusTag,

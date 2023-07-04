@@ -1,5 +1,5 @@
 <template>
-  <div class="stable-preview">
+  <div class="stand-preview">
     <div class="item">
       <p class="item-title">Collateral Deposit</p>
       <p class="item-value">0</p>
@@ -16,19 +16,67 @@
     </div>
     <div class="item">
       <p class="item-title">Liquidation Price</p>
-      <p class="item-value" :class="liquidationRiskClass">0</p>
+      <p class="item-value" :class="liquidationRiskClass">
+        {{ cauldron.userPosition.liquidationPrice }}
+      </p>
     </div>
   </div>
 </template>
 <script>
 export default {
   props: {
-    liquidationRiskClass: { type: String },
+    cauldron: { type: Object },
+  },
+  computed: {
+    liquidationRisk() {
+      if (this.cauldron) {
+        const priceDifferens =
+          1 / this.cauldron.mainParams.oracleExchangeRate -
+          this.cauldron.userPosition.liquidationPrice;
+
+        const riskPersent =
+          this.priceDifferens *
+          this.cauldron.config.cauldronSettings.healthMultiplier *
+          this.cauldron.mainParams.oracleExchangeRate *
+          100;
+
+        if (riskPersent > 100) {
+          return 100;
+        }
+
+        if (riskPersent <= 0) {
+          return 0;
+        }
+
+        return parseFloat(riskPersent).toFixed(2); // xx of 100%
+      }
+
+      return this.cauldron.config.cauldronSettings.healthMultiplier;
+    },
+    liquidationRiskClass() {
+      if (this.liquidationPrice === 0) {
+        return "";
+      }
+
+      if (this.liquidationRisk >= 0 && this.liquidationRisk <= 5) {
+        return "high";
+      }
+
+      if (this.liquidationRisk > 5 && this.liquidationRisk <= 75) {
+        return "medium";
+      }
+
+      if (this.liquidationRisk > 75) {
+        return "safe";
+      }
+
+      return "";
+    },
   },
 };
 </script>
 <style lang="scss" scoped>
-.stable-preview {
+.stand-preview {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   padding: 30px;
@@ -80,7 +128,7 @@ export default {
 }
 
 @media (max-width: 1200px) {
-  .stable-preview {
+  .stand-preview {
     padding: 30px 5px;
   }
 

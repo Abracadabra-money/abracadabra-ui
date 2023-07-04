@@ -142,15 +142,15 @@
           MIM
         </h1>
 
-        <div class="stable-info">
-          <div class="stable-tags">
+        <div class="stand-info">
+          <div class="stand-tags">
             <!-- specialInfoBlock -->
-            <!-- <TagsBlock :cauldron="selectedPool" /> -->
-            <!-- isInfoPressed => showAdditionaInfo  -->
+            <!-- <SpecialInfoBlock :cauldron="cauldron" /> -->
+            <!-- showAdditionalInfo => showAdditionaInfo  -->
             <div
               class="info-btn"
               v-if="!!cauldron"
-              @click="isInfoPressed = !isInfoPressed"
+              @click="showAdditionalInfo = !showAdditionalInfo"
             >
               <img
                 class="info-icon"
@@ -159,26 +159,29 @@
               />
             </div>
           </div>
-          <div class="stable-data">
+          <div class="stand-data">
             <template v-if="cauldron">
               <!-- PositionBlock -->
               <!-- PositionInfoBlock -->
               <!-- liquidationRiskClass to component -->
-              <StablePreview v-if="isInfoPressed" liquidationRiskClass="safe" />
+              <PositionInfoBlock
+                v-if="showAdditionalInfo"
+                :cauldron="cauldron"
+              />
               <!-- additionalInfoBlock -->
-              <InfoList v-else :pool="cauldron" />
+              <AdditionalInfoBlock v-else :cauldron="cauldron" />
             </template>
             <EmptyState v-else />
           </div>
         </div>
 
         <CollateralApyBlock
-          v-if="selectedPool"
-          :pool="selectedPool"
+          v-if="cauldron"
+          :cauldron="cauldron"
           :isApe="isMagicApe"
         />
 
-        <template v-if="selectedPool">
+        <template v-if="cauldron">
           <div class="btn-wrap">
             <BaseButton
               @click="approveTokenHandler"
@@ -195,10 +198,12 @@
 
           <div class="info-wrap">
             <!-- mainInfoBlock -->
-            <InfoBlock :pool="selectedPool" :price="tokenToMim" />
+            <MainInfoBlock :cauldron="cauldron" :price="tokenToMim" />
           </div>
           <!-- LeftToBorrowBlock -->
-          <LeftBorrow :borrowLeft="selectedPool.dynamicBorrowAmount" />
+          <LeftToBorrowBlock
+            :borrowLeft="cauldron.userPosition.borrowInfo.userBorrowAmount"
+          />
         </template>
       </div>
       <!-- todo end -->
@@ -224,17 +229,17 @@
 // import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
 // import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import InfoBlock from "@/components/borrow/InfoBlock.vue";
-import LeftBorrow from "@/components/borrow/LeftBorrow.vue";
+import MainInfoBlock from "@/components/borrow/MainInfoBlock.vue";
+import LeftToBorrowBlock from "@/components/borrow/LeftToBorrowBlock.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 
-import StablePreview from "@/components/ui/borrow/poolStand/StablePreview.vue";
-import InfoList from "@/components/ui/borrow/poolStand/InfoList.vue";
-import EmptyState from "@/components/ui/borrow/poolStand/EmptyState.vue";
-// import TagsBlock from "@/components/ui/borrow/poolStand/TagsBlock.vue";
+import PositionInfoBlock from "@/components/borrow/PositionInfoBlock.vue";
+import AdditionalInfoBlock from "@/components/borrow/AdditionalInfoBlock.vue";
+import EmptyState from "@/components/borrow/EmptyState.vue";
+import SpecialInfoBlock from "@/components/borrow/SpecialInfoBlock.vue";
 
 import filters from "@/filters/index.js";
 
@@ -259,7 +264,7 @@ export default {
   data() {
     return {
       cauldron: null,
-
+      showAdditionalInfo: true,
       // -----
       collateralValue: "",
       borrowValue: "",
@@ -1046,16 +1051,16 @@ export default {
     // PercentageButtons,
     // BalanceBlock,
     BaseButton,
-    InfoBlock,
-    LeftBorrow,
+    MainInfoBlock,
+    LeftToBorrowBlock,
     BaseLoader,
     LocalPopupWrap,
     MarketsListPopup,
     CollateralApyBlock,
-    StablePreview,
-    InfoList,
+    PositionInfoBlock,
+    AdditionalInfoBlock,
     EmptyState,
-    // TagsBlock,
+    SpecialInfoBlock,
   },
 };
 </script>

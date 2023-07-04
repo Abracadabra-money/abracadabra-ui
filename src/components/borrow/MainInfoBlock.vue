@@ -26,7 +26,7 @@ export default {
       type: Array,
     },
 
-    pool: {
+    cauldron: {
       type: Object,
     },
 
@@ -51,16 +51,17 @@ export default {
     },
 
     isGlpPool() {
-      return this.chainId === 42161 && this.pool?.id === 2;
+      return this.chainId === 42161 && this.cauldron?.config.id === 2;
     },
 
     isVelodrome() {
-      return this.chainId === 10 && this.pool?.id === 1;
+      return this.chainId === 10 && this.cauldron?.config.id === 1;
     },
 
     isCollateralInterest() {
       return (
-        this.chainId === 1 && (this.pool?.id === 28 || this.pool?.id === 27)
+        this.chainId === 1 &&
+        (this.cauldron?.config.id === 28 || this.cauldron?.config.id === 27)
       );
     },
 
@@ -68,13 +69,13 @@ export default {
       let info = [
         {
           name: "Maximum collateral ratio",
-          value: this.pool.ltv,
+          value: this.cauldron.mainParams.maximumCollateralRatio,
           tooltip:
             "Maximum collateral ratio (MCR) - MCR represents the maximum amount of debt a user can borrow with a selected collateral token.",
         },
         {
           name: "Liquidation fee",
-          value: this.pool.stabilityFee,
+          value: this.cauldron.mainParams.liquidationFee,
           tooltip:
             "This is the discount a liquidator gets when buying collateral flagged for liquidation.",
         },
@@ -82,7 +83,7 @@ export default {
 
       const borrowFee = {
         name: "Borrow fee",
-        value: this.pool.borrowFee,
+        value: this.cauldron.mainParams.borrowFee,
         tooltip: "This fee is added to your debt every time you borrow MIM.",
       };
 
@@ -105,7 +106,7 @@ export default {
 
       info.push({
         name: "Interest",
-        value: this.pool.interest,
+        value: this.cauldron.mainParams.interest,
         tooltip: interestText,
       });
 
@@ -118,7 +119,7 @@ export default {
 
         info.push({
           name: "Management Fee",
-          value: `${this.pool.lpLogic.feePercent || 0}`,
+          value: `${this.cauldron.lpLogic.feePercent || 0}`,
           tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
         });
       }
@@ -146,7 +147,7 @@ export default {
 
     if (this.isVelodrome)
       this.veloManagementFee = await getVeloManagementFee(
-        this.pool,
+        this.cauldron,
         this.signer
       );
   },

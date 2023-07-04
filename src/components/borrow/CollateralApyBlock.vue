@@ -37,7 +37,7 @@ export default {
       type: [String, Number],
       default: "",
     },
-    pool: {
+    cauldron: {
       type: Object,
       required: true,
     },
@@ -74,7 +74,7 @@ export default {
   },
 
   watch: {
-    async pool(val, oldVal) {
+    async cauldron(val, oldVal) {
       if (val.id === oldVal.id) return false;
       await this.init();
     },
@@ -83,12 +83,12 @@ export default {
   methods: {
     async getApy() {
       this.loading = true;
-      this.apy = await fetchTokenApy(this.pool);
+      this.apy = await fetchTokenApy(this.cauldron);
       this.loading = false;
     },
 
     async init() {
-      this.isCalcExist = isApyCalcExist(this.chainId, this.pool.id);
+      this.isCalcExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
       if (!this.isCalcExist) return false;
       await this.getApy();
     },
