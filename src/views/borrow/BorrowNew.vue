@@ -1,7 +1,7 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': followLink }">
     <template v-if="!followLink">
-      <div
+      <!-- <div
         class="deposit-block"
         :class="{ 'ape-bg': isMagicApe }"
         :style="bgApe"
@@ -120,22 +120,24 @@
         <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
         >
-      </div>
+      </div> -->
 
+      <!-- todo Oleg -->
       <!-- cauldronStand -->
       <!-- cauldronInfoStand -->
+      <!-- class="info-block" -->
       <div
-        class="info-block"
+        class="cauldron-stand"
         :class="{ 'ape-bg': isMagicApe }"
         :style="bgApeInfo"
       >
         <h1 class="title">
           Borrow
           <img
-            class="title-ape"
+            class="ape-icon"
             src="@/assets/images/ape/ape.png"
             v-if="isMagicApe"
-            alt=""
+            alt="Ape icon"
           />
           MIM
         </h1>
@@ -143,11 +145,11 @@
         <div class="stable-info">
           <div class="stable-tags">
             <!-- specialInfoBlock -->
-            <TagsBlock :cauldron="selectedPool" />
-            <!-- isInfoPressed => showAdiInfo  -->
+            <!-- <TagsBlock :cauldron="selectedPool" /> -->
+            <!-- isInfoPressed => showAdditionaInfo  -->
             <div
-              v-if="!!selectedPool"
               class="info-btn"
+              v-if="!!cauldron"
               @click="isInfoPressed = !isInfoPressed"
             >
               <img
@@ -158,13 +160,13 @@
             </div>
           </div>
           <div class="stable-data">
-            <template v-if="selectedPool">
+            <template v-if="cauldron">
               <!-- PositionBlock -->
               <!-- PositionInfoBlock -->
               <!-- liquidationRiskClass to component -->
               <StablePreview v-if="isInfoPressed" liquidationRiskClass="safe" />
-              <!-- aditionalInfoBlock -->
-              <InfoList v-else :pool="selectedPool" />
+              <!-- additionalInfoBlock -->
+              <InfoList v-else :pool="cauldron" />
             </template>
             <EmptyState v-else />
           </div>
@@ -199,6 +201,7 @@
           <LeftBorrow :borrowLeft="selectedPool.dynamicBorrowAmount" />
         </template>
       </div>
+      <!-- todo end -->
     </template>
 
     <BaseLoader v-else />
@@ -208,19 +211,18 @@
       @closePopup="isOpenPollPopup = false"
     >
       <MarketsListPopup
-        @select="chosePool($event)"
-        @close="isOpenPollPopup = false"
-        :pools="filteredPool"
-        popupType="cauldron"
+        popupType="borrow"
+        @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
   </div>
 </template>
 
 <script>
-import NetworksList from "@/components/ui/NetworksList.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
-import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
+// import NetworksList from "@/components/ui/NetworksList.vue";
+// import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+// import BorrowPoolStand from "@/components/borrow/BorrowPoolStand.vue";
+// import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
+// import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import InfoBlock from "@/components/borrow/InfoBlock.vue";
 import LeftBorrow from "@/components/borrow/LeftBorrow.vue";
@@ -228,14 +230,15 @@ import BaseLoader from "@/components/base/BaseLoader.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
+
 import StablePreview from "@/components/ui/borrow/poolStand/StablePreview.vue";
 import InfoList from "@/components/ui/borrow/poolStand/InfoList.vue";
 import EmptyState from "@/components/ui/borrow/poolStand/EmptyState.vue";
-import TagsBlock from "@/components/ui/borrow/poolStand/TagsBlock.vue";
+// import TagsBlock from "@/components/ui/borrow/poolStand/TagsBlock.vue";
 
 import filters from "@/filters/index.js";
 
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
+// import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import {
   approveToken,
@@ -248,17 +251,28 @@ import { mapGetters } from "vuex";
 import bg from "@/assets/images/ape/bg.png";
 import bgInfo from "@/assets/images/ape/bg-info.png";
 
+// ------
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+
 export default {
-  mixins: [cauldronsMixin, cookMixin],
+  mixins: [cookMixin],
   data() {
     return {
+      cauldron: null,
+
+      // -----
       collateralValue: "",
       borrowValue: "",
       poolId: null,
       isOpenPollPopup: false,
-      isInfoPressed: false,
       useDefaultBalance: false,
       updateInterval: null,
+      emptyData: {
+        img: this.$image(`assets/images/empty_borrow.png`),
+        text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
+        bottom: "If you want to learn more read our docs",
+        link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
+      },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
       glpPoolsId: [2, 3],
@@ -270,349 +284,340 @@ export default {
 
   computed: {
     ...mapGetters({
-      pools: "getPools",
+      // pools: "getPools",
       account: "getAccount",
+      provider: "getProvider",
+      signer: "getSigner",
     }),
-
-    filteredPool() {
-      if (this.account && this.pools[0]?.userInfo) {
-        return this.pools
-          .filter((pool) => !pool.cauldronSettings.isDepreciated)
-          .sort((a, b) =>
-            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-          );
-      }
-
-      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
-    },
 
     selectedPool() {
       if (this.poolId) {
-        let pool = this.$store.getters.getPoolById(+this.poolId);
-        if (pool) return pool;
-        return null;
+        return this.cauldron;
+        // let pool = this.$store.getters.getPoolById(+this.poolId);
+        // if (pool) return pool;
+        // return null;
       }
       return null;
     },
 
-    borrowToken() {
-      if (this.selectedPool)
-        return {
-          name: this.selectedPool.borrowToken.name,
-          icon: this.selectedPool.borrowToken.icon,
-        };
+    // borrowToken() {
+    //   if (this.selectedPool)
+    //     return {
+    //       name: this.selectedPool.borrowToken.name,
+    //       icon: this.selectedPool.borrowToken.icon,
+    //     };
 
-      return {
-        name: "MIM",
-        icon: this.$image("assets/images/tokens/MIM.png"),
-      };
-    },
+    //   return {
+    //     name: "MIM",
+    //     icon: this.$image("assets/images/tokens/MIM.png"),
+    //   };
+    // },
 
-    collateralError() {
-      if (isNaN(this.collateralValue)) return "Please input valid value";
+    // collateralError() {
+    //   if (isNaN(this.collateralValue)) return "Please input valid value";
 
-      if (
-        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      )
-        return `The value cannot be greater than ${this.maxCollateralValue}`;
+    //   if (
+    //     parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
+    //   )
+    //     return `The value cannot be greater than ${this.maxCollateralValue}`;
 
-      return "";
-    },
+    //   return "";
+    // },
 
-    borrowError() {
-      if (isNaN(this.borrowValue)) return "Please input valid value";
+    // borrowError() {
+    //   if (isNaN(this.borrowValue)) return "Please input valid value";
 
-      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue))
-        return `The value cannot be greater than ${this.maxBorrowValue}`;
+    //   if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue))
+    //     return `The value cannot be greater than ${this.maxBorrowValue}`;
 
-      return "";
-    },
+    //   return "";
+    // },
 
-    isLpLogic() {
-      return !!this.selectedPool.lpLogic;
-    },
+    // isLpLogic() {
+    //   return !!this.selectedPool.lpLogic;
+    // },
 
-    maxCollateralValue() {
-      if (this.selectedPool?.userInfo && this.account) {
-        if (this.isLpLogic && !this.useCheckBox) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.lpInfo.balance,
-            this.selectedPool.lpLogic.lpDecimals
-          );
-        }
+    // maxCollateralValue() {
+    //   if (this.selectedPool?.userInfo && this.account) {
+    //     if (this.isLpLogic && !this.useCheckBox) {
+    //       return this.$ethers.utils.formatUnits(
+    //         this.selectedPool.userInfo.lpInfo.balance,
+    //         this.selectedPool.lpLogic.lpDecimals
+    //       );
+    //     }
 
-        if (this.useDefaultBalance) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.networkBalance,
-            this.selectedPool.collateralToken.decimals
-          );
-        }
+    //     if (this.useDefaultBalance) {
+    //       return this.$ethers.utils.formatUnits(
+    //         this.selectedPool.userInfo.networkBalance,
+    //         this.selectedPool.collateralToken.decimals
+    //       );
+    //     }
 
-        return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance,
-          this.selectedPool.collateralToken.decimals
-        );
-      }
+    //     return this.$ethers.utils.formatUnits(
+    //       this.selectedPool.userInfo.userBalance,
+    //       this.selectedPool.collateralToken.decimals
+    //     );
+    //   }
 
-      return 0;
-    },
+    //   return 0;
+    // },
 
-    maxBorrowValue() {
-      if (this.selectedPool?.userInfo && this.account) {
-        let valueInDolars;
-        let maxPairValue;
+    // maxBorrowValue() {
+    //   if (this.selectedPool?.userInfo && this.account) {
+    //     let valueInDolars;
+    //     let maxPairValue;
 
-        if (this.collateralValue) {
-          valueInDolars =
-            this.collateralValue / this.selectedPool.borrowToken.exchangeRate;
-          maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
-        } else {
-          valueInDolars =
-            this.selectedPool.userInfo.userCollateralShare /
-            this.selectedPool.borrowToken.exchangeRate;
-          maxPairValue =
-            (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
-            this.selectedPool.userInfo?.userBorrowPart;
-        }
+    //     if (this.collateralValue) {
+    //       valueInDolars =
+    //         this.collateralValue / this.selectedPool.borrowToken.exchangeRate;
+    //       maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
+    //     } else {
+    //       valueInDolars =
+    //         this.selectedPool.userInfo.userCollateralShare /
+    //         this.selectedPool.borrowToken.exchangeRate;
+    //       maxPairValue =
+    //         (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
+    //         this.selectedPool.userInfo?.userBorrowPart;
+    //     }
 
-        if (maxPairValue < 0) {
-          return 0;
-        }
+    //     if (maxPairValue < 0) {
+    //       return 0;
+    //     }
 
-        return maxPairValue;
-      }
+    //     return maxPairValue;
+    //   }
 
-      return 0;
-    },
+    //   return 0;
+    // },
 
-    actionBtnText() {
-      if (!this.isTokenApprove) return "Nothing to do";
+    // actionBtnText() {
+    //   if (!this.isTokenApprove) return "Nothing to do";
 
-      if (this.isUserLocked && +this.collateralValue > 0)
-        return "Nothing to do";
+    //   if (this.isUserLocked && +this.collateralValue > 0)
+    //     return "Nothing to do";
 
-      if (this.collateralError || this.borrowError) return "Nothing to do";
+    //   if (this.collateralError || this.borrowError) return "Nothing to do";
 
-      if (
-        +this.borrowValue > 0 &&
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
-      )
-        return "Add collateral and borrow";
+    //   if (
+    //     +this.borrowValue > 0 &&
+    //     +this.collateralValue > 0 &&
+    //     !this.collateralError &&
+    //     !this.borrowError
+    //   )
+    //     return "Add collateral and borrow";
 
-      if (
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
-      )
-        return "Add collateral";
+    //   if (
+    //     +this.collateralValue > 0 &&
+    //     !this.collateralError &&
+    //     !this.borrowError
+    //   )
+    //     return "Add collateral";
 
-      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
-        return "Borrow";
+    //   if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
+    //     return "Borrow";
 
-      return "Nothing to do";
-    },
+    //   return "Nothing to do";
+    // },
 
-    isUserLocked() {
-      return (
-        this.selectedPool.userInfo?.userLockedTimestamp &&
-        Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
-      );
-    },
+    // isUserLocked() {
+    //   return (
+    //     this.selectedPool.userInfo?.userLockedTimestamp &&
+    //     Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
+    //   );
+    // },
 
-    calculateLtv() {
-      if (this.collateralValue && !this.collateralError && !this.borrowError) {
-        const percent = this.maxBorrowValue / this.selectedPool.ltv;
+    // calculateLtv() {
+    //   if (this.collateralValue && !this.collateralError && !this.borrowError) {
+    //     const percent = this.maxBorrowValue / this.selectedPool.ltv;
 
-        let ltv = this.borrowValue / percent;
+    //     let ltv = this.borrowValue / percent;
 
-        if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
+    //     if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
 
-        return parseFloat(ltv).toFixed(0);
-      }
+    //     return parseFloat(ltv).toFixed(0);
+    //   }
 
-      if (this.borrowValue && !this.borrowError && !this.collateralError) {
-        const tokenToMim =
-          this.selectedPool.userInfo?.userCollateralShare /
-          this.selectedPool.borrowToken.exchangeRate;
-        let ltv =
-          Math.round(
-            ((+this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart) /
-              tokenToMim) *
-              100
-          ) + 1;
+    //   if (this.borrowValue && !this.borrowError && !this.collateralError) {
+    //     const tokenToMim =
+    //       this.selectedPool.userInfo?.userCollateralShare /
+    //       this.selectedPool.borrowToken.exchangeRate;
+    //     let ltv =
+    //       Math.round(
+    //         ((+this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart) /
+    //           tokenToMim) *
+    //           100
+    //       ) + 1;
 
-        if (ltv <= this.selectedPool.ltv) {
-          return parseFloat(ltv).toFixed(0);
-        }
-        return this.selectedPool.ltv;
-      }
+    //     if (ltv <= this.selectedPool.ltv) {
+    //       return parseFloat(ltv).toFixed(0);
+    //     }
+    //     return this.selectedPool.ltv;
+    //   }
 
-      return 0;
-    },
+    //   return 0;
+    // },
 
-    mimExpected() {
-      if (!this.borrowError) return this.borrowValue;
+    // mimExpected() {
+    //   if (!this.borrowError) return this.borrowValue;
 
-      return 0;
-    },
+    //   return 0;
+    // },
 
-    depositExpectedLiquidationPrice() {
-      if (this.selectedPool && this.account) {
-        return (
-          +this.depositExpectedBorrowed /
-            +this.depositExpectedCollateral /
-            this.liquidationMultiplier || 0
-        );
-      }
-      return 0;
-    },
+    // depositExpectedLiquidationPrice() {
+    //   if (this.selectedPool && this.account) {
+    //     return (
+    //       +this.depositExpectedBorrowed /
+    //         +this.depositExpectedCollateral /
+    //         this.liquidationMultiplier || 0
+    //     );
+    //   }
+    //   return 0;
+    // },
 
-    depositExpectedBorrowed() {
-      if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo?.userBorrowPart;
-      return +this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart;
-    },
+    // depositExpectedBorrowed() {
+    //   if (this.borrowError || this.collateralError)
+    //     return +this.selectedPool.userInfo?.userBorrowPart;
+    //   return +this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart;
+    // },
 
-    depositExpectedCollateral() {
-      if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo?.userCollateralShare;
-      return (
-        +this.collateralValue + +this.selectedPool.userInfo?.userCollateralShare
-      );
-    },
+    // depositExpectedCollateral() {
+    //   if (this.borrowError || this.collateralError)
+    //     return +this.selectedPool.userInfo?.userCollateralShare;
+    //   return (
+    //     +this.collateralValue + +this.selectedPool.userInfo?.userCollateralShare
+    //   );
+    // },
 
-    liquidationMultiplier() {
-      return this.selectedPool.ltv / 100;
-    },
+    // liquidationMultiplier() {
+    //   return this.selectedPool.ltv / 100;
+    // },
 
     followLink() {
-      return !!(this.$route.params.id && !this.pools.length);
+      return !!(this.$route.params.id && !this.cauldron);
     },
 
-    acceptUseDefaultBalance() {
-      if (this.selectedPool)
-        return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
+    // acceptUseDefaultBalance() {
+    //   if (this.selectedPool)
+    //     return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
 
-      return false;
-    },
+    //   return false;
+    // },
 
-    networkValuteName() {
-      if (this.chainId === 1) return "ETH";
-      if (this.chainId === 250) return "FTM";
-      if (this.chainId === 137) return "MATIC";
-      if (this.chainId === 43114) return "AVAX";
-      if (this.chainId === 42161) return "ETH";
-      if (this.chainId === 56) return "BNB";
+    // networkValuteName() {
+    //   if (this.chainId === 1) return "ETH";
+    //   if (this.chainId === 250) return "FTM";
+    //   if (this.chainId === 137) return "MATIC";
+    //   if (this.chainId === 43114) return "AVAX";
+    //   if (this.chainId === 42161) return "ETH";
+    //   if (this.chainId === 56) return "BNB";
 
-      return false;
-    },
+    //   return false;
+    // },
 
-    mainValueTokenName() {
-      if (this.selectedPool) {
-        if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return this.$image(
-            `assets/images/tokens/${this.networkValuteName}2.png`
-          );
+    // mainValueTokenName() {
+    //   if (this.selectedPool) {
+    //     if (this.networkValuteName === "FTM" && this.useDefaultBalance)
+    //       return this.$image(
+    //         `assets/images/tokens/${this.networkValuteName}2.png`
+    //       );
 
-        if (this.networkValuteName && this.useDefaultBalance)
-          return this.$image(
-            `assets/images/tokens/${this.networkValuteName}.png`
-          );
+    //     if (this.networkValuteName && this.useDefaultBalance)
+    //       return this.$image(
+    //         `assets/images/tokens/${this.networkValuteName}.png`
+    //       );
 
-        if (!this.useCheckBox && this.isCheckBox)
-          return this.selectedPool.lpLogic.icon;
+    //     if (!this.useCheckBox && this.isCheckBox)
+    //       return this.selectedPool.lpLogic.icon;
 
-        return this.selectedPool.icon;
-      }
-      return "";
-    },
+    //     return this.selectedPool.icon;
+    //   }
+    //   return "";
+    // },
 
-    mainTokenFinalText() {
-      if (this.selectedPool) {
-        if (this.networkValuteName && this.useDefaultBalance)
-          return this.networkValuteName;
+    // mainTokenFinalText() {
+    //   if (this.selectedPool) {
+    //     if (this.networkValuteName && this.useDefaultBalance)
+    //       return this.networkValuteName;
 
-        if (this.selectedPool.lpLogic && !this.useCheckBox)
-          return this.selectedPool.lpLogic.name;
+    //     if (this.selectedPool.lpLogic && !this.useCheckBox)
+    //       return this.selectedPool.lpLogic.name;
 
-        return this.selectedPool.collateralToken.name;
-      }
-      return "";
-    },
+    //     return this.selectedPool.collateralToken.name;
+    //   }
+    //   return "";
+    // },
 
-    isTokenApprove() {
-      if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isLpLogic && !this.useCheckBox)
-          return this.selectedPool.userInfo.lpInfo.isApprove;
+    // isTokenApprove() {
+    //   if (this.selectedPool && this.selectedPool.userInfo && this.account) {
+    //     if (this.isLpLogic && !this.useCheckBox)
+    //       return this.selectedPool.userInfo.lpInfo.isApprove;
 
-        return this.selectedPool.userInfo.isApproveTokenCollateral;
-      }
+    //     return this.selectedPool.userInfo.isApproveTokenCollateral;
+    //   }
 
-      return true;
-    },
+    //   return true;
+    // },
 
-    ltv() {
-      if (this.selectedPool) {
-        return this.selectedPool.ltv;
-      }
-      return 0;
-    },
+    // ltv() {
+    //   if (this.selectedPool) {
+    //     return this.selectedPool.ltv;
+    //   }
+    //   return 0;
+    // },
 
-    selectedPoolId() {
-      if (this.selectedPool) return this.selectedPool.id;
+    // selectedPoolId() {
+    //   if (this.selectedPool) return this.selectedPool.id;
 
-      return null;
-    },
+    //   return null;
+    // },
 
-    tokenToMim() {
-      if (this.selectedPool) {
-        const tokenToMim = 1 / this.selectedPool.borrowToken.exchangeRate;
+    // tokenToMim() {
+    //   if (this.selectedPool) {
+    //     const tokenToMim = 1 / this.selectedPool.borrowToken.exchangeRate;
 
-        let decimals = 4;
+    //     let decimals = 4;
 
-        if (this.selectedPool.name === "SHIB") decimals = 6;
+    //     if (this.selectedPool.name === "SHIB") decimals = 6;
 
-        return filters.formatToFixed(tokenToMim, decimals);
-      }
-      return "0.0";
-    },
+    //     return filters.formatToFixed(tokenToMim, decimals);
+    //   }
+    //   return "0.0";
+    // },
 
-    isCheckBox() {
-      return (
-        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
-        (this.chainId === 1 && this.selectedPool?.id === 39)
-      );
-    },
+    // isCheckBox() {
+    //   return (
+    //     (this.chainId === 42161 && this.selectedPool?.id === 3) ||
+    //     (this.chainId === 1 && this.selectedPool?.id === 39)
+    //   );
+    // },
 
-    isMagicApe() {
-      return this.selectedPool?.id === 39;
-    },
+    // isMagicApe() {
+    //   return this.selectedPool?.id === 39;
+    // },
 
-    bgApe() {
-      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
-    },
+    // bgApe() {
+    //   return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    // },
 
-    bgApeInfo() {
-      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
-    },
+    // bgApeInfo() {
+    //   return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
+    // },
   },
 
-  watch: {
-    account() {
-      this.createPools();
-    },
+  // watch: {
+  // account() {
+  //   this.createPools();
+  // },
 
-    pools() {
-      if (this.poolId) {
-        let pool = this.$store.getters.getPoolById(+this.poolId);
-        if (!pool) this.$router.push(`/borrow`);
-      }
+  // pools() {
+  //   if (this.poolId) {
+  //     let pool = this.$store.getters.getPoolById(+this.poolId);
+  //     if (!pool) this.$router.push(`/borrow`);
+  //   }
 
-      return false;
-    },
-  },
+  //   return false;
+  // },
+  // },
 
   methods: {
     formatTokenBalance(value) {
@@ -663,18 +668,17 @@ export default {
       return false;
     },
 
-    async chosePool(pool) {
+    async changeActiveMarket(marketId) {
+      this.useDefaultBalance = false;
+      this.poolId = marketId;
+
       this.clearData();
 
-      this.useDefaultBalance = false;
+      const duplicate = this.$route.fullPath === `/borrow/${marketId}`;
 
-      this.poolId = pool.id;
+      if (!duplicate) this.$router.push(`/borrow/${marketId}`);
 
-      let duplicate = this.$route.fullPath === `/borrow/${pool.id}`;
-
-      if (!duplicate) {
-        this.$router.push(`/borrow/${pool.id}`);
-      }
+      this.isOpenPollPopup = false;
     },
 
     checkIsPoolAllowBorrow(amount, notificationId) {
@@ -1010,11 +1014,24 @@ export default {
     },
   },
 
-  created() {
+  async created() {
     this.poolId = this.$route.params.id;
 
-    this.updateInterval = setInterval(async () => {
-      this.createPools();
+    this.cauldron = await getCauldronInfo(
+      this.poolId,
+      this.chainId,
+      this.provider,
+      this.signer
+    );
+
+    this.updateInterval = await setInterval(async () => {
+      // this.createPools();
+      this.cauldron = getCauldronInfo(
+        this.poolId,
+        this.chainId,
+        this.provider,
+        this.signer
+      );
     }, 15000);
   },
 
@@ -1023,10 +1040,11 @@ export default {
   },
 
   components: {
-    NetworksList,
-    BaseTokenInput,
-    PercentageButtons,
-    BalanceBlock,
+    // NetworksList,
+    // BaseTokenInput,
+    // BorrowPoolStand,
+    // PercentageButtons,
+    // BalanceBlock,
     BaseButton,
     InfoBlock,
     LeftBorrow,
@@ -1037,25 +1055,12 @@ export default {
     StablePreview,
     InfoList,
     EmptyState,
-    TagsBlock,
+    // TagsBlock,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.stable-info {
-  background-color: rgba(35, 33, 45, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 30px;
-  position: relative;
-}
-.stable-data {
-  position: relative;
-  box-sizing: border-box;
-  background: #2b2b3c;
-  backdrop-filter: blur(100px);
-  border-radius: 30px;
-}
 .borrow {
   display: grid;
   grid-template-columns: 1fr;
@@ -1140,13 +1145,13 @@ export default {
   margin: 0 auto;
 }
 
-.info-block {
-  min-height: 520px;
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
-}
+// .info-block {
+//   min-height: 520px;
+//   padding: 30px;
+//   border-radius: 30px;
+//   background-color: $clrBg2;
+//   text-align: center;
+// }
 
 .title {
   font-size: 24px;
@@ -1159,10 +1164,10 @@ export default {
   justify-content: center;
 }
 
-.title-ape {
-  max-width: 27px;
-  margin: 0 10px;
-}
+// .title-ape {
+//   max-width: 27px;
+//   margin: 0 10px;
+// }
 
 .btn-wrap {
   display: grid;
@@ -1199,34 +1204,14 @@ export default {
   margin-bottom: 20px;
 }
 
-.stable-tags {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 30px 7px 30px;
-}
-
-.info-btn {
-  background-color: transparent;
-  cursor: pointer;
-  border: none;
-  width: 24px;
-  height: 24px;
-
-  &:disabled {
-    cursor: default;
-  }
-}
-
 @media (max-width: 1200px) {
   .borrow {
     grid-gap: 15px;
   }
 
-  .info-block {
-    padding: 30px 20px;
-  }
+  // .info-block {
+  //   padding: 30px 20px;
+  // }
 
   .deposit-block {
     padding: 30px 15px 50px;
@@ -1246,10 +1231,10 @@ export default {
     bottom: 15px;
   }
 
-  .info-block {
-    padding: 20px 10px;
-    min-height: auto;
-  }
+  // .info-block {
+  //   padding: 20px 10px;
+  //   min-height: auto;
+  // }
 
   .title {
     margin-bottom: 20px;
@@ -1280,6 +1265,33 @@ export default {
 
   .choose {
     padding: 30px;
+  }
+}
+
+// todo cauldronStand
+.cauldron-stand {
+  min-height: 520px;
+  padding: 30px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+}
+
+.ape-icon {
+  max-width: 27px;
+  margin: 0 10px;
+}
+
+@media (max-width: 1200px) {
+  .cauldron-stand {
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cauldron-stand {
+    padding: 20px 10px;
+    min-height: auto;
   }
 }
 </style>

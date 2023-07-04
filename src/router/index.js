@@ -27,6 +27,16 @@ const routes = [
     component: () => import("@/views/borrow/BorrowTest.vue"),
   },
   {
+    path: "/borrowNew",
+    name: "BorrowNew",
+    component: () => import("@/views/borrow/BorrowNew.vue"),
+  },
+  {
+    path: "/borrowNew/:id",
+    name: "BorrowNewId",
+    component: () => import("@/views/borrow/BorrowNew.vue"),
+  },
+  {
     path: "/repay",
     name: "Repay",
     component: () => import("@/views/borrow/Repay.vue"),
