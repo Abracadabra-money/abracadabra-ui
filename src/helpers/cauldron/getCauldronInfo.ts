@@ -3,7 +3,7 @@ import cauldronsConfig from "@/utils/cauldronsConfig";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getContracts } from "@/helpers/cauldron/getContracts";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import { getUserPosition } from "@/helpers/cauldron/getUserPosition";
+import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import { getUserTokensInfo } from "@/helpers/cauldron/getUserTokensInfo";
 import type { providers } from "ethers";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
@@ -25,7 +25,7 @@ export const getCauldronInfo = async (
 
   const mainParams = await getMainParams([config], multicallProvider);
 
-  const userPosition = await getUserPosition(
+  const userPositions = await getUserPositions(
     [config],
     multicallProvider,
     address,
@@ -44,7 +44,7 @@ export const getCauldronInfo = async (
     config,
     contracts,
     mainParams: mainParams[0],
-    userPosition: userPosition[0],
+    userPosition: userPositions[0],
     userTokensInfo,
   };
 };

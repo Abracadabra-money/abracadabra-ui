@@ -1,4 +1,4 @@
-import { Contract, BigNumber } from "ethers";
+import { Contract, BigNumber, utils } from "ethers";
 import lensAbi from "@/utils/abi/marketLens.js";
 import type { providers } from "ethers";
 import type { UserPositions } from "@/helpers/cauldron/types";
@@ -14,10 +14,10 @@ const emptyPosition = {
     userBorrowAmount: BigNumber.from("0"),
     userBorrowPart: BigNumber.from("0"),
   },
-  liquidationPrice: BigNumber.from("0"),
+  liquidationPrice: "0",
 };
 
-export const getUserPosition = async (
+export const getUserPositions = async (
   configs: Array<Object | undefined>,
   provider: providers.BaseProvider,
   account: string | undefined,
@@ -67,7 +67,7 @@ export const getUserPosition = async (
         userBorrowAmount: position.borrowValue,
         userBorrowPart: userBorrowPart[idx],
       },
-      liquidationPrice: position.liquidationPrice,
+      liquidationPrice: utils.formatUnits(position.liquidationPrice),
       oracleRate: oracleExchangeRate[idx],
     };
   });

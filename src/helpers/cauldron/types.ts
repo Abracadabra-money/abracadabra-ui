@@ -1,12 +1,20 @@
-import type { BigNumber, Contract } from "ethers";
-import type { UserBorrowInfo } from "./position/getUserBorrowInfo";
-import type { UserCollateralInfo } from "./position/getUserCollateralInfo";
+import type { BigNumber } from "ethers";
+
+export type UserBorrowInfo = {
+  userBorrowPart: BigNumber;
+  userBorrowAmount: BigNumber;
+};
+
+export type UserCollateralInfo = {
+  userCollateralShare: BigNumber;
+  userCollateralAmount: BigNumber;
+};
 
 export type UserPositions = {
-  oracleRate: BigNumber;
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
-  liquidationPrice: number;
+  oracleRate: BigNumber;
+  liquidationPrice: String;
 };
 
 export type MainParams = {
@@ -38,4 +46,12 @@ export type CauldronInfo = {
   mainParams: MainParams;
   userPosition: UserPositions;
   userTokensInfo: UserTokensInfo | null;
+};
+
+export type CauldronPositionItem = {
+  config: object;
+  oracleRate: BigNumber;
+  collateralInfo: UserCollateralInfo;
+  borrowInfo: UserBorrowInfo;
+  liquidationPrice: number;
 };
