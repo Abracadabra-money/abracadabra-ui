@@ -163,10 +163,8 @@
       @closePopup="isOpenPollPopup = false"
     >
       <MarketsListPopup
-        @select="chosePool($event)"
-        @close="isOpenPollPopup = false"
-        :pools="filteredPool"
-        popupType="cauldron"
+        popupType="deleverage"
+        @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
   </div>
 </template>
@@ -232,18 +230,6 @@ export default {
 
     isGlp() {
       return this.chainId === 42161 && this.selectedPool?.id === 3;
-    },
-
-    filteredPool() {
-      if (this.account && this.pools[0]?.userInfo) {
-        return this.pools
-          .filter((pool) => pool.isSwappersActive && !!pool.liqSwapperContract)
-          .sort((a, b) =>
-            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-          );
-      }
-
-      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
     },
 
     selectedPool() {
@@ -601,14 +587,14 @@ export default {
       return false;
     },
 
-    async chosePool(pool) {
-      this.poolId = pool.id;
+    async changeActiveMarket(marketId) {
+      this.poolId = marketId;
 
-      let duplicate = this.$route.fullPath === `/deleverage/${pool.id}`;
+      const duplicate = this.$route.fullPath === `/deleverage/${marketId}`;
 
-      if (!duplicate) {
-        this.$router.push(`/deleverage/${pool.id}`);
-      }
+      if (!duplicate) this.$router.push(`/deleverage/${marketId}`);
+
+      this.isOpenPollPopup = false;
     },
 
     changeSlippage(value) {

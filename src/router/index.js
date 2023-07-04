@@ -83,8 +83,8 @@ const routes = [
   },
   {
     path: "/beam",
-    name: "Bridge",
-    component: () => import("@/views/Bridge.vue"),
+    name: "Beam",
+    component: () => import("@/views/Beam.vue"),
   },
   {
     path: "/bridge",

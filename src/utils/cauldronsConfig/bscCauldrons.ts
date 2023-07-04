@@ -14,7 +14,7 @@ const mimInfo = {
   abi: tokensAbi.MIM,
 };
 
-const config: Array<CauldronConfig> =  [
+const config: Array<CauldronConfig> = [
   {
     icon: useImage(`assets/images/tokens/BNB.png`),
     name: "WBNB",
@@ -101,6 +101,5 @@ const config: Array<CauldronConfig> =  [
     },
   },
 ];
-
 
 export default config;

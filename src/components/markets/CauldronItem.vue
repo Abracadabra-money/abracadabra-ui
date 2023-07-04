@@ -1,29 +1,40 @@
 <template>
-  <router-link :to="goToPage" class="markets-link">
-    <div class="stats-wrap">
-      <div>
+  <router-link :to="goToCauldron" class="cauldron-item">
+    <div class="cauldron-info">
+      <div class="chain-info">
         <p class="chain-title">Chain</p>
-        <img class="chain-icon" :src="getChainIcon" alt="" />
+        <BaseTokenIcon :icon="getChainIcon(chainId)" size="26px" />
       </div>
-      <div class="pool-info">
-        <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
-        <div class="pool-description">
-          <span>{{ pool.name }}</span>
-          <span class="pool-new" v-if="isPoolNew">New</span>
-          <span class="pool-deprecated" v-if="!isDepreciated">Deprecated</span>
+
+      <div class="collateral-info">
+        <BaseTokenIcon
+          :name="cauldronConfig.name"
+          :icon="cauldronConfig.icon"
+        />
+        <div class="collateral-labels">
+          <span>{{ cauldronConfig.name }}</span>
+          <span class="new-label" v-if="isNewLabel">New</span>
+          <span class="deprecated-label" v-if="!isDeprecatedCauldron"
+            >Deprecated</span
+          >
         </div>
       </div>
-      <div v-for="(item, i) in items" :key="i">
-        <span class="mobile-title">{{ item.title }}</span>
-        <span>{{ item.value }}</span>
+
+      <div class="cauldron-stats" v-for="(stats, i) in cauldronInfo" :key="i">
+        <span class="stats-title">{{ stats.title }}</span>
+        <span>{{ stats.value }}</span>
       </div>
-      <div class="links-wrap" v-if="isDepreciated">
-        <div class="link-wrap">
-          <router-link :to="goToBorrowPage">Borrow</router-link>
-        </div>
-        <div class="link-wrap" v-if="isLeverage">
-          <router-link :to="goToLeveragePage">Leverage</router-link>
-        </div>
+
+      <div class="cauldron-links" v-if="isDeprecatedCauldron">
+        <router-link class="cauldron-link" :to="goToPage('BorrowId')"
+          >Borrow</router-link
+        >
+        <router-link
+          class="cauldron-link"
+          v-if="hasLeverage"
+          :to="goToPage('LeverageId')"
+          >Leverage</router-link
+        >
       </div>
     </div>
   </router-link>
@@ -36,94 +47,72 @@ import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
   props: {
-    pool: {
+    cauldron: {
       type: Object,
     },
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", getChainIcon: "getChainIcon" }),
 
-    goToPage() {
-      if (this.pool?.cauldronSettings?.isDepreciated) {
-        return {
-          name: "RepayId",
-          params: { id: this.pool.id },
-        };
-      }
+    goToCauldron() {
+      const name = this.cauldronSettings?.isDepreciated
+        ? "RepayId"
+        : "BorrowId";
 
       return {
-        name: "BorrowId",
-        params: { id: this.pool.id },
+        name,
+        params: { id: this.cauldronConfig.id },
       };
     },
 
-    items() {
+    cauldronInfo() {
       return [
         {
           title: "TOTAL MIM BORROWED",
-          value: filters.formatLargeSum(this.pool.totalBorrow),
+
+          value: filters.formatLargeSum(this.cauldron.totalBorrowed),
         },
         {
           title: "TVL",
-          value: `$ ${filters.formatLargeSum(this.pool.tvl)}`,
+          value: `$ ${filters.formatLargeSum(this.cauldron.tvl)}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
-          value: filters.formatLargeSum(this.pool.dynamicBorrowAmount),
+          value: filters.formatLargeSum(this.cauldron.mimLeftToBorrow),
         },
-        { title: "INTEREST", value: `${this.pool.interest}%` },
+        { title: "INTEREST", value: `${this.cauldron.interest}%` },
       ];
     },
 
-    getChainIcon() {
-      if (this.chainId === 56) {
-        return this.$image("assets/images/networks/binance-icon.svg");
-      }
-
-      if (this.chainId === 250) {
-        return this.$image("assets/images/networks/fantom-icon.svg");
-      }
-
-      if (this.chainId === 43114) {
-        return this.$image("assets/images/networks/avalanche-icon.png");
-      }
-
-      if (this.chainId === 137) {
-        return this.$image("assets/images/networks/polygon-icon.svg");
-      }
-
-      if (this.chainId === 42161) {
-        return this.$image("assets/images/networks/arbitrum-icon.svg");
-      }
-
-      if (this.chainId === 10) {
-        return this.$image("assets/images/networks/optimism-icon.svg");
-      }
-
-      return this.$image("assets/images/networks/ethereum-icon.svg");
+    isDeprecatedCauldron() {
+      if (this.cauldronSettings) return !this.cauldronSettings.isDepreciated;
+      return false;
     },
 
-    isDepreciated() {
-      if (this.pool?.cauldronSettings)
-        return !this.pool.cauldronSettings.isDepreciated;
-      return !this.pool.isDepreciated;
+    hasLeverage() {
+      return (
+        this.cauldronSettings?.isSwappersActive &&
+        !!this.cauldronConfig?.leverageInfo
+      );
     },
 
-    isLeverage() {
-      return this.pool.isSwappersActive && !!this.pool.levSwapperContract;
+    isNewLabel() {
+      return this.cauldron.config.cauldronSettings.isNew;
     },
 
-    goToBorrowPage() {
-      return { name: "BorrowId", params: { id: this.pool.id } };
+    cauldronConfig() {
+      return this.cauldron?.config;
     },
 
-    goToLeveragePage() {
-      return { name: "LeverageId", params: { id: this.pool.id } };
+    cauldronSettings() {
+      return this.cauldron.config.cauldronSettings;
     },
+  },
 
-    isPoolNew() {
-      return this.pool.cauldronSettings.isNew;
+  methods: {
+    goToPage(name) {
+      return { name, params: { id: this.cauldronConfig.id } };
     },
   },
 
@@ -134,61 +123,61 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.markets-link {
+.cauldron-item {
   position: relative;
   display: flex;
   align-items: center;
   background-color: #2a2835;
   line-height: 21px;
-  border-radius: 26px;
-  padding: 10px;
-  height: auto;
-  font-size: 14px;
+  padding: 0 20px;
+  font-size: 16px;
   border: none;
   cursor: pointer;
   color: white;
   text-align: left;
   box-shadow: 0 0 0 1px transparent;
   transition: all 0.2s;
+  height: 70px;
+  border-radius: 30px;
 
   &:hover {
     background: #343141;
   }
 }
 
-.stats-wrap {
+.cauldron-info {
   display: grid;
-  grid-gap: 4px;
+  grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 180px;
+  align-items: center;
   width: 100%;
+  height: 36px;
+}
+
+.chain-info {
+  display: flex;
+  align-items: center;
 }
 
 .chain-title {
-  display: block;
-  text-transform: uppercase;
+  display: none;
 }
 
-.chain-icon {
-  max-width: 26px;
-  width: 100%;
-  max-height: 26px;
-}
-
-.pool-info {
+.collateral-info {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   font-size: 16px;
-  margin-bottom: 6px;
 }
 
-.pool-description {
+.collateral-labels {
   position: relative;
   display: flex;
   justify-content: center;
   flex-direction: column;
+  height: 28px;
 }
 
-.pool-new {
+.new-label {
   width: 45px;
   background: #6372f8;
   border-radius: 8px;
@@ -197,80 +186,73 @@ export default {
   padding: 0 10px;
 }
 
-.pool-deprecated {
+.deprecated-label {
   width: max-content;
-  background: #D94844;
+  background: #d94844;
   border-radius: 8px;
   font-size: 12px;
   line-height: 18px;
   padding: 0 10px;
 }
 
-.mobile-title {
-  display: block;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
+.stats-title {
+  display: none;
 }
 
-.links-wrap {
+.cauldron-links {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 
-.link-wrap {
-  text-decoration: none;
+.cauldron-link {
   width: 84px;
   height: 32px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  align-items: center;
   padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  a {
-    color: #fff;
-  }
+  color: #fff;
 }
 
-.disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  text-decoration: none;
-  pointer-events: none;
-}
-
-@media (min-width: 1024px) {
-  .markets-link {
-    padding: 0 20px;
-    font-size: 16px;
+@media screen and (max-width: 1024px) {
+  .cauldron-item {
+    font-size: 14px;
     border-radius: 30px;
-    height: 70px;
+    height: auto;
+  }
+  .cauldron-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: auto;
+    gap: 5px;
   }
 
-  .stats-wrap {
-    grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 180px;
-    align-items: center;
-    grid-gap: 0;
-    height: 36px;
+  .chain-info {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .mobile-title {
-    display: none;
+  .chain-title,
+  .stats-title {
+    display: block;
+    text-transform: uppercase;
   }
 
-  .chain-title {
-    display: none;
+  .stats-title {
+    color: rgba(255, 255, 255, 0.6);
   }
 
-  .pool-info {
-    margin-bottom: 0;
+  .collateral-info {
+    margin-bottom: 6px;
   }
 
-  .pool-description {
-    height: 28px;
+  .collateral-labels {
+    height: auto;
   }
 }
 </style>

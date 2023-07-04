@@ -18,14 +18,22 @@ type CauldronListItem = {
 };
 
 export const getMarketList = async (
+  account: string,
   chainId: number,
   provider: providers.BaseProvider
 ): Promise<CauldronListItem[]> => {
   const multicallProvider = MulticallWrapper.wrap(provider);
 
-  const configs: any[] = cauldronsConfig.filter(
-    (config) => config.chainId === chainId
-  );
+  const configs: any[] = cauldronsConfig.filter((config) => {
+    let result = config.chainId === +chainId;
+
+    if (config.cauldronSettings.isPrivate)
+      result = config.cauldronSettings.privatelyFor!.some(
+        (walletAddress) => walletAddress === account
+      );
+
+    return result;
+  });
 
   const mainParams = await getMainParams(configs, multicallProvider);
 
