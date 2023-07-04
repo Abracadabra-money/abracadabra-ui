@@ -61,8 +61,8 @@ export default {
     isHide() {
       return (
         this.bentoBoxConfig &&
-        +this.bentoBoxConfig?.mimInBentoBalance &&
-        +this.bentoBoxConfig?.mimInDegenBalance &&
+        (+this.bentoBoxConfig?.mimInBentoBalance ||
+          +this.bentoBoxConfig?.mimInDegenBalance) &&
         this.account
       );
     },
