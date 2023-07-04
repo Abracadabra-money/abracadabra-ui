@@ -2121,7 +2121,7 @@ export default [
       abi: ERC4626LevSwapper,
     },
     reverseSwapContractInfo: {
-      address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
+      address: "0xe6eDa77d32460dE791EB7B28fB51ba7De38D5Af1",
       abi: ERC4626LiqSwapper,
     },
   },
