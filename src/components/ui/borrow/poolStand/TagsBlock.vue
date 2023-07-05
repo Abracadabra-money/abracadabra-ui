@@ -4,7 +4,7 @@
       <LockedTimer v-if="isLockedTimer" :finalTime="isLockedTimer" />
       <MiniStatusTag v-if="isLeverageTag" text="Leverage" :rounded="true" />
       <MiniStatusTag v-if="isMigrated" :rounded="true" />
-      <StrategyLinkNew :cauldron="cauldron" />
+      <StrategyLink :cauldron="cauldron" />
     </div>
     <div class="wrap">
       <DepositButton :cauldron="cauldron" />
@@ -20,7 +20,7 @@ import { getTokenLinkData } from "@/helpers/getTokenLinkData.ts";
 
 import LockedTimer from "@/components/stake/LockedTimer.vue";
 import MiniStatusTag from "@/components/ui/MiniStatusTag.vue";
-import StrategyLinkNew from "@/components/ui/links/StrategyLinkNew.vue";
+import StrategyLink from "@/components/ui/links/StrategyLink.vue";
 import DepositButton from "@/components/ui/buttons/DepositButton.vue";
 import ClaimButton from "@/components/ui/buttons/ClaimButton.vue";
 import GetTokenLink from "@/components/ui/links/GetTokenLink.vue";
@@ -42,27 +42,25 @@ export default {
     },
 
     isLeverageTag() {
-      return this.cauldron?.config.isSwappersActive;
+      return this.cauldron?.isSwappersActive;
     },
 
     isMigrated() {
-      if (this.cauldron?.config.cauldronSettings)
-        return this.cauldron.config.cauldronSettings.isMigrated;
+      if (this.cauldron?.cauldronSettings)
+        return this.cauldron.cauldronSettings.isMigrated;
 
-      return this.cauldron?.config.isMigrated;
+      return this.cauldron?.isMigrated;
     },
 
     tokenLinkData() {
-      return getTokenLinkData(this.cauldron.config.id, this.chainId);
+      return getTokenLinkData(this.cauldron.id, this.chainId);
     },
   },
-  created() {
-    console.log("cauldron", this.cauldron);
-  },
+
   components: {
     LockedTimer,
     MiniStatusTag,
-    StrategyLinkNew,
+    StrategyLink,
     DepositButton,
     ClaimButton,
     GetTokenLink,
