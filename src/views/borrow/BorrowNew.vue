@@ -1031,7 +1031,7 @@ export default {
 
     this.updateInterval = await setInterval(async () => {
       // this.createPools();
-      this.cauldron = getCauldronInfo(
+      this.cauldron = await getCauldronInfo(
         this.poolId,
         this.chainId,
         this.provider,
