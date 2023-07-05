@@ -175,7 +175,7 @@
           </div>
         </div>
 
-        <CollateralApyBlock
+        <CollateralApyBlockNew
           v-if="cauldron"
           :cauldron="cauldron"
           :isApe="isMagicApe"
@@ -234,7 +234,7 @@ import LeftToBorrowBlock from "@/components/borrow/LeftToBorrowBlock.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
-import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
+import CollateralApyBlockNew from "@/components/borrow/CollateralApyBlockNew.vue";
 
 import PositionInfoBlock from "@/components/borrow/PositionInfoBlock.vue";
 import AdditionalInfoBlock from "@/components/borrow/AdditionalInfoBlock.vue";
@@ -1056,7 +1056,7 @@ export default {
     BaseLoader,
     LocalPopupWrap,
     MarketsListPopup,
-    CollateralApyBlock,
+    CollateralApyBlockNew,
     PositionInfoBlock,
     AdditionalInfoBlock,
     EmptyState,
