@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import { Contract } from "ethers";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
 
@@ -63,7 +64,7 @@ export const getContracts = async (config: any, contractProvider: any) => {
         )
       : null;
 
-    return {
+    return markRaw({
       cauldron,
       bentoBox,
       collateral,
@@ -72,7 +73,7 @@ export const getContracts = async (config: any, contractProvider: any) => {
       liquidationSwapper,
       unwrappedToken,
       wrapper,
-    };
+    });
   } catch (error) {
     console.log("createContracts error:", error);
     return null;
