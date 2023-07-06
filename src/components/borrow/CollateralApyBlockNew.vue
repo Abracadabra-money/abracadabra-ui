@@ -1,27 +1,26 @@
 <template>
-  <div :class="{ 'no-apy': !isCalcExist }">
-    <div class="apy" v-if="isCalcExist">
-      <img v-if="isApe" class="apy-bg" src="@/assets/images/ape/apy-bg.png" />
-      <img v-else class="apy-bg" src="@/assets/images/primary-apy-bg.png" />
+  <div :class="{ 'no-apy': !isApyExist }">
+    <div class="apy" v-if="isApyExist">
+      <img class="apy-bg" :src="apyInfo.bg" />
+
       <div class="apy-content">
         <img
-          v-if="isApe"
-          class="coins-img coins-ape"
-          src="@/assets/images/ape/coins-ape.png"
-          alt="Coins ape"
-        />
-        <img
-          v-else
           class="coins-img"
-          src="@/assets/images/coins.png"
+          :class="{ 'coins-ape': isApe }"
+          :src="apyInfo.coins"
           alt="Coins"
         />
+
         <div>
-          <p class="title" v-tooltip="tooltipText">{{ title }}</p>
-          <div class="loader-wrap" v-if="loading">
-            <p class="loader"></p>
+          <p class="title">Collateral APY</p>
+
+          <div class="loader-wrap" v-if="isLoadingApy">
+            <Loader type="loader" />
           </div>
-          <p class="percent" v-else>{{ isTilde }} {{ calculateApy }} %</p>
+
+          <p class="percent" v-else>
+            {{ isTilde }} {{ calculateCollateralApy }} %
+          </p>
         </div>
       </div>
     </div>
@@ -29,8 +28,12 @@
 </template>
 
 <script>
-import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 import { mapGetters } from "vuex";
+import filters from "@/filters/index.js";
+import { useImage } from "@/helpers/useImage";
+import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import Loader from "@/components/base/BaseLoader.vue";
+
 export default {
   props: {
     expectedLeverage: {
@@ -41,19 +44,13 @@ export default {
       type: Object,
       required: true,
     },
-    isApe: {
-      type: Boolean,
-      default: false,
-    },
   },
 
   data() {
     return {
-      title: "Collateral APY",
-      apy: "",
-      tooltipText: "",
-      isCalcExist: false,
-      loading: false,
+      isApyExist: false,
+      isLoadingApy: true,
+      collateralApy: null,
     };
   },
 
@@ -62,40 +59,56 @@ export default {
       chainId: "getChainId",
     }),
 
-    calculateApy() {
+    isApe() {
+      return this.cauldron.config.id === 39 && +this.chainId === 1;
+    },
+
+    apyInfo() {
+      if (this.isApe)
+        return {
+          bg: useImage("assets/images/ape/apy-bg.png"),
+          coins: useImage("assets/images/ape/coins-ape.png"),
+        };
+
+      return {
+        bg: useImage("assets/images/primary-apy-bg.png"),
+        coins: useImage("assets/images/coins.png"),
+      };
+    },
+
+    calculateCollateralApy() {
       return this.expectedLeverage
-        ? parseFloat(+this.apy * +this.expectedLeverage).toFixed(2)
-        : parseFloat(this.apy).toFixed(2);
+        ? filters.formatToFixed(+this.collateralApy * +this.expectedLeverage, 2)
+        : filters.formatToFixed(this.collateralApy, 2);
     },
 
     isTilde() {
-      return this.apy < this.calculateApy ? "~" : "";
+      return this.collateralApy < this.calculateCollateralApy ? "~" : "";
     },
   },
 
   watch: {
-    async cauldron(val, oldVal) {
-      if (val.id === oldVal.id) return false;
-      await this.init();
+    async cauldron(newCauldron, oldCauldron) {
+      if (newCauldron.config.id === oldCauldron.config.id) return false;
+      await this.initApy();
     },
   },
 
   methods: {
-    async getApy() {
-      this.loading = true;
-      this.apy = await fetchTokenApy(this.cauldron);
-      this.loading = false;
-    },
-
-    async init() {
-      this.isCalcExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
-      if (!this.isCalcExist) return false;
-      await this.getApy();
+    async initApy() {
+      this.isApyExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
+      if (!this.isApyExist) return false;
+      this.collateralApy = await fetchTokenApy(this.cauldron);
+      this.isLoadingApy = false;
     },
   },
 
   async created() {
-    await this.init();
+    await this.initApy();
+  },
+
+  components: {
+    Loader,
   },
 };
 </script>
