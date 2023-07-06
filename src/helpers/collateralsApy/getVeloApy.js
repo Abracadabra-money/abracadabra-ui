@@ -5,8 +5,8 @@ import SolidlyGaugeVolatileLPStrategy from "@/utils/abi/SolidlyGaugeVolatileLPSt
 
 const getVeloManagementFee = async (pool, provider) => {
   try {
-    const strategyAddress = await pool.masterContractInstance.strategy(
-      pool.collateralToken.address
+    const strategyAddress = await pool.contracts.bentoBox.strategy(
+      pool.config.collateralInfo.address
     );
 
     const strategy = new ethers.Contract(
@@ -33,8 +33,9 @@ const getVeloApy = async (pool, provider) => {
 
     const APYVault = opusdcPair.apr;
 
-    const strategyData = await pool.masterContractInstance.strategyData(
-      pool.collateralToken.address
+    //todo const strategyData = await pool.masterContractInstance.strategyData(
+    const strategyData = await pool.contracts.bentoBox.strategyData(
+      pool.config.collateralInfo.address
     );
 
     const targetPercentage = strategyData.targetPercentage / 100;

@@ -119,7 +119,8 @@ export default {
 
         info.push({
           name: "Management Fee",
-          value: `${this.cauldron.lpLogic.feePercent || 0}`,
+          // todo value: `${this.cauldron.lpLogic.feePercent || 0}`,
+          value: `0`,
           tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
         });
       }
