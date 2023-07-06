@@ -1,154 +1,93 @@
 <template>
-  <div class="borrow" :class="{ 'borrow-loading': followLink }">
-    <template v-if="!followLink">
-      <div
-        class="deposit-block"
-        :class="{ 'ape-bg': isMagicApe }"
-        :style="bgApe"
-      >
+  <div class="borrow" :class="{ 'borrow-loading': isLoadedCauldron }">
+    <template v-if="!isLoadedCauldron">
+      <!-- :class="{ 'ape-bg': isMagicApe }" -->
+      <!-- :style="bgApe" -->
+      <div class="cauldron-deposit">
         <h4>Choose Chain</h4>
+
         <div class="underline">
           <NetworksList />
         </div>
 
-        <div class="collateral-input underline">
-          <div class="header-balance">
-            <h4>Collateral assets</h4>
-            <p v-if="selectedPool">
-              {{ formatTokenBalance(maxCollateralValue) }}
-            </p>
-          </div>
+        <div class="collateral-assets underline">
+          <InputLabel :amount="formatTokenBalance(activeToken.balance.value)" />
 
           <BaseTokenInput
-            :icon="mainValueTokenName"
-            :name="mainTokenFinalText"
+            :icon="activeToken.icon"
+            :name="activeToken.name"
             :value="collateralValue"
-            :max="maxCollateralValue"
-            :error="collateralError"
-            :disabled="!selectedPool"
+            :max="activeToken.balance.value"
+            :error="errorCallateralValue"
+            :disabled="!cauldron"
             @updateValue="updateCollateralValue"
-            @openTokensList="isOpenPollPopup = true"
+            @openTokensList="isOpenMarketListPopup = true"
             isChooseToken
           />
 
-          <div
-            class="checkbox-wrap"
-            v-if="acceptUseDefaultBalance"
-            :class="{ active: useDefaultBalance }"
-            @click="toggleUseDefaultBalance"
-          >
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/active.svg"
-              alt=""
-              v-if="useDefaultBalance"
-            />
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/default.svg"
-              alt=""
-              v-else
-            />
-
-            <p class="label-text" v-if="networkValuteName">
-              Use {{ networkValuteName }}
-            </p>
-          </div>
-
-          <div
-            class="checkbox-wrap"
-            v-if="isCheckBox"
-            :class="{ active: useCheckBox }"
-            @click="toggleCheckBox"
-          >
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/active.svg"
-              alt=""
-              v-if="useCheckBox"
-            />
-            <img
-              class="checkbox-img"
-              src="@/assets/images/checkbox/default.svg"
-              alt=""
-              v-else
-            />
-            <p class="label-text">Use {{ selectedPool.name }}</p>
-          </div>
+          <UseCheckbox :config="cauldron.config" @toggle="changeToken" />
         </div>
-        <div class="borrow-input underline">
+
+        <div class="borrow-assets underline">
           <div class="header-balance">
             <h4>MIM to Borrow</h4>
           </div>
 
           <BaseTokenInput
-            :name="borrowToken.name"
-            :icon="borrowToken.icon"
+            :name="cauldron.config.mimInfo.name"
+            :icon="cauldron.config.mimInfo.icon"
             :value="borrowValue"
             :max="maxBorrowValue"
-            :error="borrowError"
-            :disabled="!selectedPool"
+            :error="errorBorrowValue"
+            :disabled="!cauldron"
             @updateValue="updateBorrowValue"
           />
         </div>
-        <template v-if="selectedPool">
-          <div class="deposit-info underline">
-            <span>
-              <img
-                class="tooltip-icon"
-                src="@/assets/images/info.svg"
-                v-tooltip="ltvTooltip"
-                alt="info"
-              />
-              LTV</span
-            >
-            <span>{{ calculateLtv }}%</span>
-          </div>
 
-          <div class="percent-wrap">
-            <PercentageButtons
-              :liquidationPrice="depositExpectedLiquidationPrice"
-              :collateralValue="collateralValue"
-              @onchange="updatePercentValue"
-              :maxValue="ltv"
-            />
-          </div>
+        <div class="info-row underline">
+          <span class="info-item">
+            <Tooltip :tooltip="ltvTooltip" />
+            <span> LTV</span>
+          </span>
+          <span class="info-item">{{ calculateLtv }}%</span>
+        </div>
 
-          <BalanceBlock :pool="selectedPool" />
-        </template>
+        <div class="percent-wrap">
+          <PercentageButtons
+            :maxValue="cauldron.config.mcr"
+            :collateralValue="collateralValue"
+            :liquidationPrice="expectedLiquidationPrice"
+            @onchange="updatePercentValue"
+          />
 
-        <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
-          >Go to Positions</router-link
-        >
+          <BalanceBlock :pool="cauldron" />
+
+          <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
+            >Go to Positions</router-link
+          >
+        </div>
       </div>
 
-      <!-- cauldronStand -->
-      <!-- cauldronInfoStand -->
-      <div
-        class="info-block"
-        :class="{ 'ape-bg': isMagicApe }"
-        :style="bgApeInfo"
-      >
+      <!-- :class="{ 'ape-bg': isMagicApe }" -->
+      <!-- :style="bgApeInfo" -->
+      <div class="cauldron-stand">
         <h1 class="title">
           Borrow
-          <img
-            class="title-ape"
+          <!-- <img
+            class="ape-icon"
             src="@/assets/images/ape/ape.png"
             v-if="isMagicApe"
-            alt=""
-          />
+            alt="Ape icon"
+          /> -->
           MIM
         </h1>
 
-        <div class="stable-info">
-          <div class="stable-tags">
-            <!-- specialInfoBlock -->
-            <TagsBlock :cauldron="selectedPool" />
-            <!-- isInfoPressed => showAdiInfo  -->
+        <div class="stand-info">
+          <div class="stand-tags">
             <div
-              v-if="!!selectedPool"
               class="info-btn"
-              @click="isInfoPressed = !isInfoPressed"
+              v-if="!!cauldron"
+              @click="showAdditionalInfo = !showAdditionalInfo"
             >
               <img
                 class="info-icon"
@@ -157,31 +96,30 @@
               />
             </div>
           </div>
-          <div class="stable-data">
-            <template v-if="selectedPool">
-              <!-- PositionBlock -->
-              <!-- PositionInfoBlock -->
-              <!-- liquidationRiskClass to component -->
-              <StablePreview v-if="isInfoPressed" liquidationRiskClass="safe" />
-              <!-- aditionalInfoBlock -->
-              <InfoList v-else :pool="selectedPool" />
+          <div class="stand-data">
+            <template v-if="cauldron">
+              <PositionInfoBlock
+                v-if="showAdditionalInfo"
+                :cauldron="cauldron"
+                :expectedCollateralAmount="expectedCollateralAmount"
+                :expectedBorrowedAmount="expectedBorrowedAmount"
+                :expectedLiquidationPrice="expectedLiquidationPrice"
+              />
+
+              <AdditionalInfoBlock v-else :cauldron="cauldron" />
             </template>
             <EmptyState v-else />
           </div>
         </div>
 
-        <CollateralApyBlock
-          v-if="selectedPool"
-          :pool="selectedPool"
-          :isApe="isMagicApe"
-        />
+        <CollateralApyBlockNew v-if="cauldron" :cauldron="cauldron" />
 
-        <template v-if="selectedPool">
+        <template v-if="cauldron">
           <div class="btn-wrap">
             <BaseButton
-              @click="approveTokenHandler"
               primary
               :disabled="isTokenApprove"
+              @click="approveTokenHandler"
               >Approve</BaseButton
             >
             <BaseButton
@@ -190,13 +128,6 @@
               >{{ actionBtnText }}</BaseButton
             >
           </div>
-
-          <div class="info-wrap">
-            <!-- mainInfoBlock -->
-            <InfoBlock :pool="selectedPool" :price="tokenToMim" />
-          </div>
-          <!-- LeftToBorrowBlock -->
-          <LeftBorrow :borrowLeft="selectedPool.dynamicBorrowAmount" />
         </template>
       </div>
     </template>
@@ -204,38 +135,17 @@
     <BaseLoader v-else />
 
     <LocalPopupWrap
-      :isOpened="isOpenPollPopup"
-      @closePopup="isOpenPollPopup = false"
+      :isOpened="isOpenMarketListPopup"
+      @closePopup="isOpenMarketListPopup = false"
     >
       <MarketsListPopup
-        @select="chosePool($event)"
-        @close="isOpenPollPopup = false"
-        :pools="filteredPool"
-        popupType="cauldron"
+        popupType="borrow"
+        @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
   </div>
 </template>
 
 <script>
-import NetworksList from "@/components/ui/NetworksList.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
-import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import InfoBlock from "@/components/borrow/InfoBlock.vue";
-import LeftBorrow from "@/components/borrow/LeftBorrow.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
-import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
-import StablePreview from "@/components/ui/borrow/poolStand/StablePreview.vue";
-import InfoList from "@/components/ui/borrow/poolStand/InfoList.vue";
-import EmptyState from "@/components/ui/borrow/poolStand/EmptyState.vue";
-import TagsBlock from "@/components/ui/borrow/poolStand/TagsBlock.vue";
-
-import filters from "@/filters/index.js";
-
-import cauldronsMixin from "@/mixins/borrow/cauldrons.js";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import {
   approveToken,
@@ -243,26 +153,59 @@ import {
   isTokenApprowed,
 } from "@/utils/approveHelpers.js";
 import notification from "@/helpers/notification/notification.js";
-
-import { mapGetters } from "vuex";
 import bg from "@/assets/images/ape/bg.png";
 import bgInfo from "@/assets/images/ape/bg-info.png";
+// -----
+import NetworksList from "@/components/ui/NetworksList.vue";
+import InputLabel from "@/components/ui/inputs/InputLabel.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import UseCheckbox from "@/components/ui/checkboxes/UseCheckbox.vue";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
+import BalanceBlock from "@/components/borrow/BalanceBlockNew.vue";
+import PositionInfoBlock from "@/components/borrow/PositionInfoBlock.vue";
+import AdditionalInfoBlock from "@/components/borrow/AdditionalInfoBlock.vue";
+import EmptyState from "@/components/borrow/EmptyState.vue";
+import CollateralApyBlockNew from "@/components/borrow/CollateralApyBlockNew.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
+// -----
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+// -----
+import { utils } from "ethers";
+import { mapGetters } from "vuex";
+import filters from "@/filters/index.js";
+import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+
+const MAX_ALLOWANCE_VALUE =
+  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
 export default {
-  mixins: [cauldronsMixin, cookMixin],
+  mixins: [cookMixin],
   data() {
     return {
+      cauldron: null,
+      useOtherToken: false,
       collateralValue: "",
+      isOpenMarketListPopup: false,
       borrowValue: "",
+      showAdditionalInfo: true,
+      // -----
       poolId: null,
-      isOpenPollPopup: false,
-      isInfoPressed: false,
-      useDefaultBalance: false,
+      // useDefaultBalance: false,
       updateInterval: null,
+      emptyData: {
+        img: this.$image(`assets/images/empty_borrow.png`),
+        text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
+        bottom: "If you want to learn more read our docs",
+        link: "https://abracadabramoney.gitbook.io/intro/lending-markets",
+      },
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
       glpPoolsId: [2, 3],
-      useCheckBox: false,
+      // useCheckBox: false,
       bg,
       bgInfo,
     };
@@ -270,355 +213,298 @@ export default {
 
   computed: {
     ...mapGetters({
-      pools: "getPools",
+      chainId: "getChainId",
       account: "getAccount",
+      provider: "getProvider",
+      signer: "getSigner",
     }),
 
-    filteredPool() {
-      if (this.account && this.pools[0]?.userInfo) {
-        return this.pools
-          .filter((pool) => !pool.cauldronSettings.isDepreciated)
-          .sort((a, b) =>
-            a.userInfo.balanceUsd < b.userInfo.balanceUsd ? 1 : -1
-          );
-      }
-
-      return this.pools.filter((pool) => !pool.cauldronSettings.isDepreciated);
+    isLoadedCauldron() {
+      return !!(this.$route.params.id && !this.cauldron);
     },
 
-    selectedPool() {
-      if (this.poolId) {
-        let pool = this.$store.getters.getPoolById(+this.poolId);
-        if (pool) return pool;
-        return null;
-      }
-      return null;
-    },
-
-    borrowToken() {
-      if (this.selectedPool)
-        return {
-          name: this.selectedPool.borrowToken.name,
-          icon: this.selectedPool.borrowToken.icon,
-        };
-
+    // todo refactoring collateralToken unwrappedToken
+    nativeToken() {
+      const { symbol, icon } = getChainInfo(this.chainId);
       return {
-        name: "MIM",
-        icon: this.$image("assets/images/tokens/MIM.png"),
+        name: symbol,
+        icon,
+        balance: {
+          hex: this.cauldron.userTokensInfo.nativeTokenBalance,
+          value: utils.formatUnits(
+            this.cauldron.userTokensInfo.nativeTokenBalance
+          ),
+        },
+        decimals: 18,
+        allowance: this.$ethers.BigNumber.from(MAX_ALLOWANCE_VALUE),
       };
     },
 
-    collateralError() {
+    collateralToken() {
+      return {
+        name: this.cauldron.config.name,
+        icon: this.cauldron.config.icon,
+        balance: {
+          hex: this.cauldron.userTokensInfo.collateralBalance,
+          value: utils.formatUnits(
+            this.cauldron.userTokensInfo.collateralBalance,
+            this.cauldron.config.collateralInfo.decimals
+          ),
+        },
+        decimals: this.cauldron.config.collateralInfo.decimals,
+        allowance: this.cauldron.userTokensInfo.collateralAllowance,
+        contract: this.cauldron.contracts.collateral,
+      };
+    },
+
+    unwrappedToken() {
+      const { name, icon } = this.cauldron.config.wrapInfo.unwrappedToken;
+      const { decimals } = this.cauldron.config.collateralInfo;
+      const { unwrappedTokenBalance, unwrappedTokenAllowance } =
+        this.cauldron.userTokensInfo;
+      const value = utils.formatUnits(unwrappedTokenBalance, decimals);
+
+      return {
+        name,
+        icon,
+        balance: {
+          hex: unwrappedTokenBalance,
+          value,
+        },
+        decimals,
+        allowance: unwrappedTokenAllowance,
+        contract: this.cauldron.contracts.unwrappedToken,
+      };
+    },
+
+    activeToken() {
+      const { acceptUseDefaultBalance } = this.cauldron.config.cauldronSettings;
+      if (acceptUseDefaultBalance && this.useOtherToken)
+        return this.nativeToken;
+
+      if (this.useOtherToken) return this.unwrappedToken;
+
+      return this.collateralToken;
+    },
+
+    errorCallateralValue() {
       if (isNaN(this.collateralValue)) return "Please input valid value";
-
-      if (
-        parseFloat(this.collateralValue) > parseFloat(this.maxCollateralValue)
-      )
-        return `The value cannot be greater than ${this.maxCollateralValue}`;
-
+      if (+this.collateralValue > +this.activeToken.balance.value)
+        return `The value cannot be greater than ${this.activeToken.balance.value}`;
       return "";
     },
 
-    borrowError() {
-      if (isNaN(this.borrowValue)) return "Please input valid value";
+    collateralInUsd() {
+      const oracleExchangeRate = +utils.formatUnits(
+        this.cauldron.mainParams.oracleExchangeRate,
+        this.cauldron.config.collateralInfo.decimals
+      );
 
-      if (parseFloat(this.borrowValue) > parseFloat(this.maxBorrowValue))
+      return this.expectedCollateralAmount / oracleExchangeRate;
+    },
+
+    maxBorrowValue() {
+      const userBorrowAmount = +utils.formatUnits(
+        this.cauldron.userPosition.borrowInfo.userBorrowAmount
+      );
+
+      const maxBorrow =
+        (this.collateralInUsd / 100) * (this.cauldron.config.mcr - 1) -
+        userBorrowAmount;
+
+      return maxBorrow < 0 ? 0 : maxBorrow;
+    },
+
+    calculateLtv() {
+      const maxBorrow =
+        (this.collateralInUsd / 100) * (this.cauldron.config.mcr - 1);
+
+      const percent =
+        (+this.maxBorrowValue / +maxBorrow - +this.borrowValue) * 100;
+
+      const ltv = this.cauldron.config.mcr - percent;
+
+      if (ltv > this.cauldron.config.mcr) return this.cauldron.config.mcr;
+      if (ltv < 0) return 0;
+      return parseFloat(ltv).toFixed(0);
+    },
+
+    errorBorrowValue() {
+      if (isNaN(this.borrowValue)) return "Please input valid value";
+      if (+this.borrowValue > +this.maxBorrowValue)
         return `The value cannot be greater than ${this.maxBorrowValue}`;
 
       return "";
     },
 
-    isLpLogic() {
-      return !!this.selectedPool.lpLogic;
-    },
-
-    maxCollateralValue() {
-      if (this.selectedPool?.userInfo && this.account) {
-        if (this.isLpLogic && !this.useCheckBox) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.lpInfo.balance,
-            this.selectedPool.lpLogic.lpDecimals
-          );
-        }
-
-        if (this.useDefaultBalance) {
-          return this.$ethers.utils.formatUnits(
-            this.selectedPool.userInfo.networkBalance,
-            this.selectedPool.collateralToken.decimals
-          );
-        }
-
-        return this.$ethers.utils.formatUnits(
-          this.selectedPool.userInfo.userBalance,
-          this.selectedPool.collateralToken.decimals
-        );
-      }
-
-      return 0;
-    },
-
-    maxBorrowValue() {
-      if (this.selectedPool?.userInfo && this.account) {
-        let valueInDolars;
-        let maxPairValue;
-
-        if (this.collateralValue) {
-          valueInDolars =
-            this.collateralValue / this.selectedPool.borrowToken.exchangeRate;
-          maxPairValue = (valueInDolars / 100) * (this.selectedPool.ltv - 1);
-        } else {
-          valueInDolars =
-            this.selectedPool.userInfo.userCollateralShare /
-            this.selectedPool.borrowToken.exchangeRate;
-          maxPairValue =
-            (valueInDolars / 100) * (this.selectedPool.ltv - 1) -
-            this.selectedPool.userInfo?.userBorrowPart;
-        }
-
-        if (maxPairValue < 0) {
-          return 0;
-        }
-
-        return maxPairValue;
-      }
-
-      return 0;
-    },
-
-    actionBtnText() {
-      if (!this.isTokenApprove) return "Nothing to do";
-
-      if (this.isUserLocked && +this.collateralValue > 0)
-        return "Nothing to do";
-
-      if (this.collateralError || this.borrowError) return "Nothing to do";
-
-      if (
-        +this.borrowValue > 0 &&
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
-      )
-        return "Add collateral and borrow";
-
-      if (
-        +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
-      )
-        return "Add collateral";
-
-      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError)
-        return "Borrow";
-
-      return "Nothing to do";
-    },
-
-    isUserLocked() {
-      return (
-        this.selectedPool.userInfo?.userLockedTimestamp &&
-        Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
+    // todo expected Collateral Value: tokens rate
+    expectedCollateralAmount() {
+      const userCollateralAmount = +utils.formatUnits(
+        this.cauldron.userPosition.collateralInfo.userCollateralAmount,
+        this.cauldron.config.collateralInfo.decimals
       );
+
+      return userCollateralAmount + +this.collateralValue;
     },
 
-    calculateLtv() {
-      if (this.collateralValue && !this.collateralError && !this.borrowError) {
-        const percent = this.maxBorrowValue / this.selectedPool.ltv;
-
-        let ltv = this.borrowValue / percent;
-
-        if (ltv > this.selectedPool.ltv) return this.selectedPool.ltv;
-
-        return parseFloat(ltv).toFixed(0);
-      }
-
-      if (this.borrowValue && !this.borrowError && !this.collateralError) {
-        const tokenToMim =
-          this.selectedPool.userInfo?.userCollateralShare /
-          this.selectedPool.borrowToken.exchangeRate;
-        let ltv =
-          Math.round(
-            ((+this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart) /
-              tokenToMim) *
-              100
-          ) + 1;
-
-        if (ltv <= this.selectedPool.ltv) {
-          return parseFloat(ltv).toFixed(0);
-        }
-        return this.selectedPool.ltv;
-      }
-
-      return 0;
+    // todo  expected Borrow fee:
+    expectedBorrowedAmount() {
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      return +this.borrowValue + +utils.formatUnits(userBorrowAmount);
     },
 
-    mimExpected() {
-      if (!this.borrowError) return this.borrowValue;
-
-      return 0;
-    },
-
-    depositExpectedLiquidationPrice() {
-      if (this.selectedPool && this.account) {
-        return (
-          +this.depositExpectedBorrowed /
-            +this.depositExpectedCollateral /
-            this.liquidationMultiplier || 0
-        );
-      }
-      return 0;
-    },
-
-    depositExpectedBorrowed() {
-      if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo?.userBorrowPart;
-      return +this.borrowValue + +this.selectedPool.userInfo?.userBorrowPart;
-    },
-
-    depositExpectedCollateral() {
-      if (this.borrowError || this.collateralError)
-        return +this.selectedPool.userInfo?.userCollateralShare;
+    expectedLiquidationPrice() {
       return (
-        +this.collateralValue + +this.selectedPool.userInfo?.userCollateralShare
+        +this.expectedBorrowedAmount /
+        +this.expectedCollateralAmount /
+        (+this.cauldron.config.mcr / 100)
       );
-    },
-
-    liquidationMultiplier() {
-      return this.selectedPool.ltv / 100;
-    },
-
-    followLink() {
-      return !!(this.$route.params.id && !this.pools.length);
-    },
-
-    acceptUseDefaultBalance() {
-      if (this.selectedPool)
-        return this.selectedPool.cauldronSettings.acceptUseDefaultBalance;
-
-      return false;
-    },
-
-    networkValuteName() {
-      if (this.chainId === 1) return "ETH";
-      if (this.chainId === 250) return "FTM";
-      if (this.chainId === 137) return "MATIC";
-      if (this.chainId === 43114) return "AVAX";
-      if (this.chainId === 42161) return "ETH";
-      if (this.chainId === 56) return "BNB";
-
-      return false;
-    },
-
-    mainValueTokenName() {
-      if (this.selectedPool) {
-        if (this.networkValuteName === "FTM" && this.useDefaultBalance)
-          return this.$image(
-            `assets/images/tokens/${this.networkValuteName}2.png`
-          );
-
-        if (this.networkValuteName && this.useDefaultBalance)
-          return this.$image(
-            `assets/images/tokens/${this.networkValuteName}.png`
-          );
-
-        if (!this.useCheckBox && this.isCheckBox)
-          return this.selectedPool.lpLogic.icon;
-
-        return this.selectedPool.icon;
-      }
-      return "";
-    },
-
-    mainTokenFinalText() {
-      if (this.selectedPool) {
-        if (this.networkValuteName && this.useDefaultBalance)
-          return this.networkValuteName;
-
-        if (this.selectedPool.lpLogic && !this.useCheckBox)
-          return this.selectedPool.lpLogic.name;
-
-        return this.selectedPool.collateralToken.name;
-      }
-      return "";
     },
 
     isTokenApprove() {
-      if (this.selectedPool && this.selectedPool.userInfo && this.account) {
-        if (this.isLpLogic && !this.useCheckBox)
-          return this.selectedPool.userInfo.lpInfo.isApprove;
+      if (!this.account) return true;
 
-        return this.selectedPool.userInfo.isApproveTokenCollateral;
+      if (this.useOtherToken) {
+        const { symbol } = getChainInfo(this.chainId);
+        if (this.activeToken.name === symbol) return true;
+
+        const allowance = +utils.formatUnits(
+          this.cauldron.userTokensInfo.unwrappedTokenAllowance,
+          this.cauldron.config.collateralInfo.decimals
+        );
+        return allowance > 0;
       }
 
-      return true;
-    },
-
-    ltv() {
-      if (this.selectedPool) {
-        return this.selectedPool.ltv;
-      }
-      return 0;
-    },
-
-    selectedPoolId() {
-      if (this.selectedPool) return this.selectedPool.id;
-
-      return null;
-    },
-
-    tokenToMim() {
-      if (this.selectedPool) {
-        const tokenToMim = 1 / this.selectedPool.borrowToken.exchangeRate;
-
-        let decimals = 4;
-
-        if (this.selectedPool.name === "SHIB") decimals = 6;
-
-        return filters.formatToFixed(tokenToMim, decimals);
-      }
-      return "0.0";
-    },
-
-    isCheckBox() {
-      return (
-        (this.chainId === 42161 && this.selectedPool?.id === 3) ||
-        (this.chainId === 1 && this.selectedPool?.id === 39)
+      const allowance = +utils.formatUnits(
+        this.cauldron.userTokensInfo.collateralAllowance
       );
+
+      return allowance > 0;
     },
 
-    isMagicApe() {
-      return this.selectedPool?.id === 39;
-    },
+    // selectedPool() {
+    //   if (this.poolId) {
+    //     return this.cauldron;
+    //     // let pool = this.$store.getters.getPoolById(+this.poolId);
+    //     // if (pool) return pool;
+    //     // return null;
+    //   }
+    //   return null;
+    // },
 
-    bgApe() {
-      return this.isMagicApe ? `background-image: url(${this.bg})` : "";
-    },
+    // isLpLogic() {
+    //   return !!this.selectedPool.lpLogic;
+    // },
 
-    bgApeInfo() {
-      return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
-    },
+    // actionBtnText() {
+    //   if (!this.isTokenApprove) return "Nothing to do";
+
+    //   if (this.isUserLocked && +this.collateralValue > 0)
+    //     return "Nothing to do";
+
+    //   if (this.errorCallateralValue || this.errorBorrowValue) return "Nothing to do";
+
+    //   if (
+    //     +this.borrowValue > 0 &&
+    //     +this.collateralValue > 0 &&
+    //     !this.errorCallateralValue &&
+    //     !this.errorBorrowValue
+    //   )
+    //     return "Add collateral and borrow";
+
+    //   if (
+    //     +this.collateralValue > 0 &&
+    //     !this.errorCallateralValue &&
+    //     !this.errorBorrowValue
+    //   )
+    //     return "Add collateral";
+
+    //   if (+this.borrowValue > 0 && !this.errorCallateralValue && !this.errorBorrowValue)
+    //     return "Borrow";
+
+    //   return "Nothing to do";
+    // },
+
+    // isUserLocked() {
+    //   return (
+    //     this.selectedPool.userInfo?.userLockedTimestamp &&
+    //     Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
+    //   );
+    // },
+
+    // mimExpected() {
+    //   if (!this.errorBorrowValue) return this.borrowValue;
+
+    //   return 0;
+    // },
+
+    // ltv() {
+    //   if (this.selectedPool) {
+    //     return this.selectedPool.ltv;
+    //   }
+    //   return 0;
+    // },
+
+    // selectedPoolId() {
+    //   if (this.selectedPool) return this.selectedPool.id;
+
+    //   return null;
+    // },
+
+    // tokenToMim() {
+    //   if (this.selectedPool) {
+    //     const tokenToMim = 1 / this.selectedPool.borrowToken.exchangeRate;
+
+    //     let decimals = 4;
+
+    //     if (this.selectedPool.name === "SHIB") decimals = 6;
+
+    //     return filters.formatToFixed(tokenToMim, decimals);
+    //   }
+    //   return "0.0";
+    // },
+
+    // isMagicApe() {
+    //   return this.selectedPool?.id === 39;
+    // },
+
+    // bgApe() {
+    //   return this.isMagicApe ? `background-image: url(${this.bg})` : "";
+    // },
+
+    // bgApeInfo() {
+    //   return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
+    // },
   },
 
-  watch: {
-    account() {
-      this.createPools();
-    },
+  // watch: {
+  // account() {
+  //   this.createPools();
+  // },
 
-    pools() {
-      if (this.poolId) {
-        let pool = this.$store.getters.getPoolById(+this.poolId);
-        if (!pool) this.$router.push(`/borrow`);
-      }
+  // pools() {
+  //   if (this.poolId) {
+  //     let pool = this.$store.getters.getPoolById(+this.poolId);
+  //     if (!pool) this.$router.push(`/borrow`);
+  //   }
 
-      return false;
-    },
-  },
+  //   return false;
+  // },
+  // },
 
   methods: {
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
+    clearData() {
+      this.collateralValue = "";
+      this.borrowValue = "";
     },
+
+    changeToken(value) {
+      this.clearData();
+      this.useOtherToken = value;
+    },
+
     updateCollateralValue(value) {
+      console.log("updateCollateralValue");
       this.collateralValue = value;
     },
 
@@ -626,55 +512,57 @@ export default {
       this.borrowValue = value;
     },
 
+    updatePercentValue(value) {
+      const newBorrowValue =
+        (+this.maxBorrowValue * +value) / +this.cauldron.config.mcr;
+
+      if (newBorrowValue > +this.maxBorrowValue) return false;
+      this.borrowValue = newBorrowValue;
+    },
+
     async approveTokenHandler() {
+      // todo isTokenApproved   ???
+      if (this.isTokenApprove) return false;
+
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.approvePending
       );
-      let approve;
 
-      const collateralToken =
-        this.isLpLogic && !this.useCheckBox
-          ? this.selectedPool.lpLogic.lpContract
-          : this.selectedPool.collateralToken.contract;
+      // todo approveToken new helper
+      const approve = await approveToken(
+        this.activeToken.contract,
+        this.cauldron.contracts.bentoBox.address
+      );
+      await this.$store.commit("notifications/delete", notificationId);
 
-      if (this.isLpLogic) {
-        approve = await approveToken(
-          collateralToken,
-          this.selectedPool.masterContractInstance.address
-        );
-      } else {
-        approve = await approveToken(
-          collateralToken,
-          this.selectedPool.masterContractInstance.address
-        );
-      }
-
-      if (approve) {
-        await this.$store.commit("notifications/delete", notificationId);
-      } else {
-        await this.$store.commit("notifications/delete", notificationId);
+      // todo store.commit
+      if (!approve)
         await this.$store.dispatch(
           "notifications/new",
           notification.approveError
         );
-      }
 
       return false;
     },
 
-    async chosePool(pool) {
+    // ------
+
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+
+    async changeActiveMarket(marketId) {
+      this.useDefaultBalance = false;
+      this.poolId = marketId;
+
       this.clearData();
 
-      this.useDefaultBalance = false;
+      const duplicate = this.$route.fullPath === `/borrow/${marketId}`;
 
-      this.poolId = pool.id;
+      if (!duplicate) this.$router.push(`/borrow/${marketId}`);
 
-      let duplicate = this.$route.fullPath === `/borrow/${pool.id}`;
-
-      if (!duplicate) {
-        this.$router.push(`/borrow/${pool.id}`);
-      }
+      this.isOpenMarketListPopup = false;
     },
 
     checkIsPoolAllowBorrow(amount, notificationId) {
@@ -747,8 +635,8 @@ export default {
       if (
         +this.borrowValue > 0 &&
         +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
+        !this.errorCallateralValue &&
+        !this.errorBorrowValue
       ) {
         this.collateralAndBorrowHandler();
         return false;
@@ -756,14 +644,18 @@ export default {
 
       if (
         +this.collateralValue > 0 &&
-        !this.collateralError &&
-        !this.borrowError
+        !this.errorCallateralValue &&
+        !this.errorBorrowValue
       ) {
         this.collateralHandler();
         return false;
       }
 
-      if (+this.borrowValue > 0 && !this.collateralError && !this.borrowError) {
+      if (
+        +this.borrowValue > 0 &&
+        !this.errorCallateralValue &&
+        !this.errorBorrowValue
+      ) {
         this.borrowHandler();
         return false;
       }
@@ -979,42 +871,27 @@ export default {
 
       return false;
     },
-
-    toggleUseDefaultBalance() {
-      this.clearData();
-
-      this.useDefaultBalance = !this.useDefaultBalance;
-    },
-
-    clearData() {
-      this.collateralValue = "";
-      this.borrowValue = "";
-    },
-
-    updatePercentValue(value) {
-      if (this.collateralValue && value) {
-        const newBorrowValue =
-          (this.maxBorrowValue * value) / this.selectedPool.ltv;
-        this.borrowValue =
-          +newBorrowValue > +this.maxBorrowValue
-            ? this.maxBorrowValue
-            : newBorrowValue;
-      } else {
-        this.borrowValue = "";
-      }
-    },
-
-    toggleCheckBox() {
-      this.clearData();
-      this.useCheckBox = !this.useCheckBox;
-    },
   },
 
-  created() {
+  async created() {
     this.poolId = this.$route.params.id;
 
-    this.updateInterval = setInterval(async () => {
-      this.createPools();
+    this.cauldron = await getCauldronInfo(
+      this.poolId,
+      this.chainId,
+      this.provider,
+      this.signer
+    );
+
+    console.log("this.cauldron", this.cauldron);
+
+    this.updateInterval = await setInterval(async () => {
+      this.cauldron = await getCauldronInfo(
+        this.poolId,
+        this.chainId,
+        this.provider,
+        this.signer
+      );
     }, 15000);
   },
 
@@ -1024,38 +901,78 @@ export default {
 
   components: {
     NetworksList,
+    InputLabel,
     BaseTokenInput,
+    UseCheckbox,
+    Tooltip,
     PercentageButtons,
     BalanceBlock,
+    PositionInfoBlock,
+    AdditionalInfoBlock,
+    EmptyState,
+    CollateralApyBlockNew,
     BaseButton,
-    InfoBlock,
-    LeftBorrow,
+    // -----
     BaseLoader,
     LocalPopupWrap,
     MarketsListPopup,
-    CollateralApyBlock,
-    StablePreview,
-    InfoList,
-    EmptyState,
-    TagsBlock,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.stable-info {
-  background-color: rgba(35, 33, 45, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.cauldron-deposit {
+  padding: 30px 30px 50px;
   border-radius: 30px;
+  background-color: $clrBg2;
+  max-width: 100%;
+  overflow: hidden;
   position: relative;
 }
-.stable-data {
-  position: relative;
-  box-sizing: border-box;
-  background: #2b2b3c;
-  backdrop-filter: blur(100px);
-  border-radius: 30px;
+
+.underline {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.collateral-assets {
+  padding-top: 27px;
+  padding-bottom: 24px;
+}
+
+.borrow-assets {
+  padding-top: 27px;
+  padding-bottom: 14px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 25px;
+  padding: 15px 0;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 24px;
+}
+
+@media (max-width: 1200px) {
+  .cauldron-deposit {
+    padding: 30px 15px 50px;
+  }
+}
+
+@media (max-width: 600px) {
+  .collateral-assets {
+    padding: 20px 0 15px;
+  }
+}
+
+//------
 .borrow {
   display: grid;
   grid-template-columns: 1fr;
@@ -1077,55 +994,9 @@ export default {
   height: 100vh;
 }
 
-.deposit-block {
-  padding: 30px 30px 50px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  max-width: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
 .ape-bg {
   background-position: center;
   background-size: cover;
-}
-
-.underline {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.collateral-input {
-  padding-top: 27px;
-  padding-bottom: 24px;
-}
-
-.borrow-input {
-  padding-top: 27px;
-  padding-bottom: 14px;
-}
-
-.deposit-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 25px;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 25px;
-  padding-bottom: 12px;
-}
-
-.deposit-info span {
-  display: flex;
-  align-items: center;
-  line-height: 24px;
-}
-
-.tooltip-icon {
-  margin-right: 5px;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
 }
 
 .percent-wrap {
@@ -1140,14 +1011,6 @@ export default {
   margin: 0 auto;
 }
 
-.info-block {
-  min-height: 520px;
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
-}
-
 .title {
   font-size: 24px;
   text-transform: uppercase;
@@ -1159,11 +1022,6 @@ export default {
   justify-content: center;
 }
 
-.title-ape {
-  max-width: 27px;
-  margin: 0 10px;
-}
-
 .btn-wrap {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1171,65 +1029,13 @@ export default {
   margin-bottom: 30px;
 }
 
-.checkbox-wrap {
-  background: #333141;
-  border-radius: 20px;
-  padding: 8px 16px;
-  display: inline-flex;
-  align-items: center;
-  border: 2px solid transparent;
-  cursor: pointer;
-
-  &.active {
-    border: 2px solid #8180ff;
-  }
-
-  .label-text {
-    cursor: pointer;
-  }
-
-  .checkbox-img {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
-  }
-}
-
 .info-wrap {
   margin-bottom: 20px;
-}
-
-.stable-tags {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 30px 7px 30px;
-}
-
-.info-btn {
-  background-color: transparent;
-  cursor: pointer;
-  border: none;
-  width: 24px;
-  height: 24px;
-
-  &:disabled {
-    cursor: default;
-  }
 }
 
 @media (max-width: 1200px) {
   .borrow {
     grid-gap: 15px;
-  }
-
-  .info-block {
-    padding: 30px 20px;
-  }
-
-  .deposit-block {
-    padding: 30px 15px 50px;
   }
 }
 
@@ -1238,17 +1044,8 @@ export default {
     grid-gap: 20px;
   }
 
-  .collateral-input {
-    padding: 20px 0 15px;
-  }
-
   .choose-link {
     bottom: 15px;
-  }
-
-  .info-block {
-    padding: 20px 10px;
-    min-height: auto;
   }
 
   .title {
@@ -1280,6 +1077,33 @@ export default {
 
   .choose {
     padding: 30px;
+  }
+}
+
+// todo cauldronStand
+.cauldron-stand {
+  min-height: 520px;
+  padding: 30px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+}
+
+.ape-icon {
+  max-width: 27px;
+  margin: 0 10px;
+}
+
+@media (max-width: 1200px) {
+  .cauldron-stand {
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cauldron-stand {
+    padding: 20px 10px;
+    min-height: auto;
   }
 }
 </style>
