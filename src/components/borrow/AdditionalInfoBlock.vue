@@ -16,12 +16,12 @@
     <div class="info-list-bottom">
       <div class="info-bottom">
         <div class="info-list-subitem">
-          <span class="info-list-name">1 MIM</span>
+          <span class="info-list-name">1 MIM </span>
           <span class="info-list-value">1 USD</span>
         </div>
         <div class="info-list-subitem">
           <span class="info-list-name">1 {{ cauldron.config.name }}</span>
-          <span class="info-list-value">{{ tokenToMim }} MIM</span>
+          <span class="info-list-value">{{ collateralToMim }} MIM</span>
         </div>
       </div>
     </div>
@@ -30,6 +30,7 @@
 <script>
 import { utils } from "ethers";
 import filters from "@/filters/index.js";
+import { getMaxWithdrawAmount } from "@/helpers/cauldron/getMaxWithdrawAmount.ts";
 import { mapGetters } from "vuex";
 
 export default {
@@ -39,253 +40,135 @@ export default {
     },
   },
   data() {
-    return { tokenApy: null };
+    return {
+      maxWithdrawAmount: null,
+      tokenApy: null,
+    };
   },
   computed: {
     ...mapGetters({
       chainId: "getChainId",
     }),
 
-    tokenToMim() {
-      if (this.cauldron) {
-        const tokenToMim =
-          1 /
-          utils.formatUnits(
-            this.cauldron.mainParams.oracleExchangeRate,
-            this.cauldron.config.collateralInfo.decimals
-          );
+    oracleExchangeRate() {
+      return +utils.formatUnits(
+        this.cauldron.mainParams.oracleExchangeRate,
+        this.cauldron.config.collateralInfo.decimals
+      );
+    },
 
-        let decimals = 4;
+    userCollateralAmount() {
+      return +utils.formatUnits(
+        this.cauldron.userPosition.collateralInfo.userCollateralAmount,
+        this.cauldron.config.collateralInfo.decimals
+      );
+    },
 
-        if (this.cauldron.config.name === "SHIB") decimals = 6;
+    userBorrowAmount() {
+      return +utils.formatUnits(
+        this.cauldron.userPosition?.borrowInfo.userBorrowAmount,
+        this.cauldron.config.collateralInfo.decimals
+      );
+    },
 
-        return filters.formatToFixed(tokenToMim, decimals);
-      }
-      return "0.0";
+    tvl() {
+      return +utils.formatUnits(this.cauldron.mainParams.tvl);
+    },
+
+    collateralToMim() {
+      const tokenToMim = 1 / this.oracleExchangeRate;
+      const { name } = this.cauldron.config;
+      const decimals = name === "SHIB" ? 6 : 4;
+      return filters.formatToFixed(tokenToMim, decimals);
     },
 
     collateralInUsd() {
-      if (this.cauldron.userPosition) {
-        return (
-          utils.formatUnits(
-            this.cauldron.userPosition?.collateralInfo.userCollateralShare,
-            this.cauldron.config.collateralInfo.decimals
-          ) /
-          utils.formatUnits(
-            this.cauldron.mainParams.oracleExchangeRate,
-            this.cauldron.config.collateralInfo.decimals
-          )
-        );
-      }
-      return 0;
+      if (!this.userCollateralAmount) return 0;
+      return this.userCollateralAmount / this.oracleExchangeRate;
     },
 
-    borrowLeft() {
-      const maxMimBorrow =
-        (this.collateralInUsd / 100) *
-        (utils.formatUnits(
-          this.cauldron.mainParams.tvl,
-          this.cauldron.config.collateralInfo.decimals
-        ) -
-          1);
-
-      const leftBorrow =
-        maxMimBorrow -
-        utils.formatUnits(
-          this.cauldron.userPosition?.borrowInfo.userBorrowPart,
-          this.cauldron.config.collateralInfo.decimals
-        );
-
-      if (+leftBorrow < 0) return "0";
-
-      return leftBorrow;
+    leftToBorrow() {
+      const { mcr } = this.cauldron.config;
+      const maxMimBorrow = (this.collateralInUsd / 100) * (+mcr - 1);
+      const leftToBorrow = +maxMimBorrow - this.userBorrowAmount;
+      return leftToBorrow < 0 ? "0" : leftToBorrow;
     },
 
     additionalInfo() {
-      const test = utils.formatUnits(
-        this.cauldron.mainParams.tvl,
-        this.cauldron.config.collateralInfo.decimals
-      );
-
-      console.log("collateral deposited", test);
-
       try {
-        const borrowLeftParsed = this.borrowLeft;
         const resultArray = [
           {
             title: "Collateral Deposited",
-            value: filters.formatTokenBalance(
-              utils.formatUnits(
-                this.cauldron.userPosition?.collateralInfo.userCollateralShare,
-                this.cauldron.config.collateralInfo.decimals
-              ) || 0
-            ),
+            value: filters.formatTokenBalance(this.userCollateralAmount),
             additional: "Amount of Tokens Deposited as Collaterals",
           },
           {
             title: "Collateral Value",
-            value: filters.formatUSD(this.collateralInUsd || 0),
+            value: filters.formatUSD(this.collateralInUsd),
             additional:
               "USD Value of the Collateral Deposited in your Position",
           },
           {
             title: "MIM Borrowed",
-            value: filters.formatTokenBalance(
-              utils.formatUnits(
-                this.cauldron.userPosition?.borrowInfo.userBorrowPart,
-                this.cauldron.config.collateralInfo.decimals
-              ) || 0
-            ),
+            value: filters.formatTokenBalance(this.userBorrowAmount),
             additional: "MIM Currently Borrowed in your Position",
           },
           {
             title: "TVL",
-            value: `$ ${this.formatNumber(
-              utils.formatUnits(
-                this.cauldron.mainParams.tvl,
-                this.cauldron.config.collateralInfo.decimals
-              ) || 0
-            )}`,
+            value: `$ ${filters.formatLargeSum(this.tvl)}`,
             additional: "Total Value Locked",
+          },
+          {
+            title: "Liquidation Price",
+            value: filters.formatExactPrice(
+              this.cauldron.userPosition.liquidationPrice
+            ),
+            additional:
+              "Collateral Price at which your Position will be Liquidated",
+          },
+          {
+            title: "MIM Left To Borrow",
+            value: filters.formatTokenBalance(this.leftToBorrow),
+            additional: "MIM Borrowable Given the Collateral Deposited",
           },
         ];
 
-        if (this.cauldron.config.id === 10 && this.chainId === 1) {
-          resultArray.push({
-            title: "Liquidation Price",
-            value: filters.formatExactPrice(
-              utils.formatUnits(
-                this.cauldron.userPosition?.liquidationPrice,
-                this.cauldron.config.collateralInfo.decimals
-              ) || 0
-            ),
-            additional:
-              "This is the liquidation price of wsOHM, check the current price of wsOHM at the bottom right of the page!",
-          });
-        } else if (
-          (this.cauldron.config.id === 2 || this.cauldron.config.id === 5) &&
-          this.chainId === 43114
-        ) {
-          resultArray.push({
-            title: "wMEMO Liquidation Price",
-            value: filters.formatExactPrice(
-              utils.formatUnits(
-                this.cauldron.userPosition?.liquidationPrice,
-                this.cauldron.config.collateralInfo.decimals
-              ) || 0
-            ),
-            additional:
-              "Collateral Price at which your Position will be Liquidated",
-          });
-        } else {
-          resultArray.push({
-            title: "Liquidation Price",
-            value: filters.formatExactPrice(
-              utils.formatUnits(
-                this.cauldron.userPosition?.liquidationPrice,
-                this.cauldron.config.collateralInfo.decimals
-              ) || 0
-            ),
-            additional:
-              "Collateral Price at which your Position will be Liquidated",
-          });
-        }
-
-        if (this.cauldron.id === 10 && this.ohmPrice && this.chainId === 1) {
-          const ohmLiquidationPrice =
-            utils.formatUnits(
-              this.cauldron.userPosition?.liquidationPrice,
-              this.cauldron.config.collateralInfo.decimals
-            ) / this.wOHMTosOHM;
-
-          resultArray.push({
-            title: "OHM Liquidation Price",
-            value: filters.formatExactPrice(ohmLiquidationPrice || 0),
-            additional:
-              "This is ESTIMATED liquidation price of OHM, check the current price of OHM at the bottom right of the page!",
-          });
-        }
-
-        if (
-          (this.cauldron.config.id === 2 || this.cauldron.config.id === 5) &&
-          this.timePrice &&
-          this.chainId === 43114
-        ) {
-          const ohmLiquidationPrice =
-            utils.formatUnits(
-              this.cauldron.userPosition?.liquidationPrice,
-              this.cauldron.config.collateralInfo.decimals
-            ) * this.MEMOTowMEMO;
-
-          resultArray.push({
-            title: "MEMO Liquidation Price",
-            value: filters.formatExactPrice(ohmLiquidationPrice || 0),
-            additional:
-              "This is ESTIMATED liquidation price of MEMO, check the current price of MEMO at the bottom right of the page!",
-          });
-        }
-
-        resultArray.push({
-          title: "MIM Left To Borrow",
-          value: filters.formatTokenBalance(borrowLeftParsed || 0),
-          additional: "MIM Borrowable Given the Collateral Deposited",
-        });
-
-        if (
-          this.cauldron.config.cauldronSettings.hasWithdrawableLimit &&
-          this.cauldron.config.maxWithdrawAmount
-        ) {
+        if (this.maxWithdrawAmount) {
           resultArray.push({
             title: "Withdrawable Amount",
-            value: filters.formatTokenBalance(
-              this.cauldron.config.maxWithdrawAmount || 0
-            ),
+            value: filters.formatTokenBalance(this.maxWithdrawAmount),
             additional: `Maximum Current Amount of ${this.cauldron.config.collateralInfo.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
           });
         }
 
-        if (this.tokenApy) {
-          const title = this.cauldron.config.cauldronSettings.strategyLink
-            ? "Your Position Approximate APY"
-            : "Your Position Apy";
+        const userMaxBorrow = +utils.formatUnits(
+          this.cauldron.mainParams.userMaxBorrow,
+          this.cauldron.config.collateralInfo.decimals
+        );
 
-          const apyInfo = {
-            title: title,
-            value: filters.formatPercent(this.tokenApy || 0),
-            additional: "APY Delivered by the Open Position",
-          };
-
-          resultArray.splice(2, 0, apyInfo);
-        }
-
-        if (this.cauldron.mainParams.userMaxBorrow !== null) {
+        if (userMaxBorrow) {
           resultArray.push({
             title: "Maximum Borrowable MIM",
-            value: this.formatNumber(
-              utils.formatUnits(
-                this.cauldron.mainParams.userMaxBorrow,
-                this.cauldron.config.collateralInfo.decimals
-              )
-            ),
+            value: filters.formatLargeSum(userMaxBorrow),
             additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
           });
         }
 
-        if (this.cauldron.userPosition?.whitelistedInfo) {
-          resultArray.push({
-            title: "Maximum Borrowable MIM",
-            value: this.cauldron.userPosition?.whitelistedInfo
-              ?.isUserWhitelisted
-              ? this.formatNumber(
-                  utils.formatUnits(
-                    this.cauldron.userPosition?.whitelistedInfo?.userBorrowPart,
-                    this.cauldron.config.collateralInfo.decimals
-                  )
-                )
-              : "0.0",
-            additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
-          });
-        }
+        // if (this.cauldron.userPosition?.whitelistedInfo) {
+        //   resultArray.push({
+        //     title: "Maximum Borrowable MIM",
+        //     value: this.cauldron.userPosition?.whitelistedInfo
+        //       ?.isUserWhitelisted
+        //       ? filters.formatLargeSum(
+        //           utils.formatUnits(
+        //             this.cauldron.userPosition?.whitelistedInfo?.userBorrowPart,
+        //             this.cauldron.config.collateralInfo.decimals
+        //           )
+        //         )
+        //       : "0.0",
+        //     additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
+        //   });
+        // }
 
         return resultArray;
       } catch (e) {
@@ -294,28 +177,13 @@ export default {
       }
     },
   },
-  methods: {
-    formatNumber(value) {
-      if (isNaN(Number(value)) || Number(value) < 1) return 0;
 
-      const lookup = [
-        { value: 0, symbol: "" },
-        { value: 1, symbol: "" },
-        { value: 1e3, symbol: "k" },
-        { value: 1e6, symbol: "M" },
-      ];
-      const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-      let item = lookup
-        .slice()
-        .reverse()
-        .find(function (item) {
-          return parseFloat(value) >= item.value;
-        });
-      return (
-        (parseFloat(value) / item.value).toFixed(2).replace(rx, "$1") +
-        item.symbol
-      );
-    },
+  async created() {
+    const { decimals } = this.cauldron.config.collateralInfo;
+    this.maxWithdrawAmount = utils.formatUnits(
+      await getMaxWithdrawAmount(this.cauldron),
+      decimals
+    );
   },
 };
 </script>
