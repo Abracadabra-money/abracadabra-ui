@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <p class="title">{{ title }}</p>
+    <h4>{{ title }}</h4>
     <div class="amount">Balance: {{ formatTokenBalance(amount) }}</div>
   </div>
 </template>
@@ -33,12 +33,6 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 6px;
-}
-
-.title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 150%;
 }
 
 .amount {
