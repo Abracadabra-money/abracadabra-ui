@@ -2,73 +2,94 @@
   <div class="stand-preview">
     <div class="item">
       <p class="item-title">Collateral Deposit</p>
-      <p class="item-value">0</p>
+      <p class="item-value">
+        {{ collateralDeposit }}
+      </p>
     </div>
 
     <div class="item">
       <p class="item-title">Collateral Value</p>
-      <p class="item-value">0</p>
+      <p class="item-value">{{ collateralValue }}</p>
     </div>
 
     <div class="item">
       <p class="item-title">MIM Borrowed</p>
-      <p class="item-value">0</p>
+      <p class="item-value">{{ mimBorrowed }}</p>
     </div>
+
     <div class="item">
       <p class="item-title">Liquidation Price</p>
       <p class="item-value" :class="liquidationRiskClass">
-        {{ cauldron.userPosition.liquidationPrice }}
+        {{ liquidationPrice }}
       </p>
     </div>
   </div>
 </template>
 <script>
+import filters from "@/filters/index.js";
 export default {
   props: {
     cauldron: { type: Object },
+    expectedCollateralAmount: { type: Number, default: 0 },
+    expectedBorrowedAmount: { type: Number, default: 0 },
+    expectedLiquidationPrice: { type: Number, default: 0 },
   },
   computed: {
+    collateralDeposit() {
+      return filters.formatTokenBalance(this.expectedCollateralAmount);
+    },
+
+    oracleExchangeRate() {
+      return this.$ethers.utils.formatUnits(
+        this.cauldron.mainParams.oracleExchangeRate,
+        this.cauldron.config.collateralInfo.decimals
+      );
+    },
+
+    collateralValue() {
+      return filters.formatUSD(
+        this.expectedCollateralAmount / this.oracleExchangeRate
+      );
+    },
+
+    mimBorrowed() {
+      return filters.formatTokenBalance(this.expectedBorrowedAmount);
+    },
+
+    liquidationPrice() {
+      return filters.formatExactPrice(this.expectedLiquidationPrice);
+    },
+
     liquidationRisk() {
       if (this.cauldron) {
         const priceDifferens =
-          1 / this.cauldron.mainParams.oracleExchangeRate -
-          this.cauldron.userPosition.liquidationPrice;
+          1 / this.oracleExchangeRate - this.expectedLiquidationPrice;
 
         const riskPersent =
-          this.priceDifferens *
+          priceDifferens *
           this.cauldron.config.cauldronSettings.healthMultiplier *
-          this.cauldron.mainParams.oracleExchangeRate *
+          this.oracleExchangeRate *
           100;
 
-        if (riskPersent > 100) {
-          return 100;
-        }
+        if (riskPersent > 100) return 100;
 
-        if (riskPersent <= 0) {
-          return 0;
-        }
+        if (riskPersent <= 0) return 0;
 
-        return parseFloat(riskPersent).toFixed(2); // xx of 100%
+        return parseFloat(riskPersent).toFixed(2);
       }
 
-      return this.cauldron.config.cauldronSettings.healthMultiplier;
+      return 0;
     },
+
     liquidationRiskClass() {
-      if (this.liquidationPrice === 0) {
-        return "";
-      }
+      if (this.liquidationPrice === 0) return "";
 
-      if (this.liquidationRisk >= 0 && this.liquidationRisk <= 5) {
-        return "high";
-      }
+      if (this.liquidationRisk >= 0 && this.liquidationRisk <= 5) return "high";
 
-      if (this.liquidationRisk > 5 && this.liquidationRisk <= 75) {
+      if (this.liquidationRisk > 5 && this.liquidationRisk <= 75)
         return "medium";
-      }
 
-      if (this.liquidationRisk > 75) {
-        return "safe";
-      }
+      if (this.liquidationRisk > 75) return "safe";
 
       return "";
     },
