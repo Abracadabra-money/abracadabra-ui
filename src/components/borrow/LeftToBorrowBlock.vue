@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { utils } from "ethers";
 import filters from "@/filters/index.js";
 
 export default {
@@ -17,7 +18,7 @@ export default {
   },
   computed: {
     formatLargeSum() {
-      return filters.formatLargeSum(this.borrowLeft);
+      return filters.formatLargeSum(utils.formatUnits(this.borrowLeft));
     },
   },
   // methods: {

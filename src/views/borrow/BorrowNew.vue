@@ -202,7 +202,7 @@
           </div>
           <!-- LeftToBorrowBlock -->
           <LeftToBorrowBlock
-            :borrowLeft="cauldron.userPosition.borrowInfo.userBorrowAmount"
+            :borrowLeft="cauldron.mainParams.mimLeftToBorrow"
           />
         </template>
       </div>
