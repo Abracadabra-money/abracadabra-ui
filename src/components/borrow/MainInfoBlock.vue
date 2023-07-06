@@ -69,7 +69,7 @@ export default {
       let info = [
         {
           name: "Maximum collateral ratio",
-          value: this.cauldron.mainParams.maximumCollateralRatio,
+          value: this.cauldron.config.mcr,
           tooltip:
             "Maximum collateral ratio (MCR) - MCR represents the maximum amount of debt a user can borrow with a selected collateral token.",
         },
