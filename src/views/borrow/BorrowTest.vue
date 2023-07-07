@@ -1,9 +1,7 @@
 <template>
   <div class="borrow" :class="{ 'borrow-loading': isLoadedCauldron }">
     <template v-if="!isLoadedCauldron">
-      <!-- :class="{ 'ape-bg': isMagicApe }" -->
-      <!-- :style="bgApe" -->
-      <div class="cauldron-deposit">
+      <div class="cauldron-deposit" :style="backgroundInfo.deposit">
         <h4>Choose Chain</h4>
 
         <div class="underline">
@@ -59,42 +57,33 @@
             :liquidationPrice="expectedLiquidationPrice"
             @onchange="updatePercentValue"
           />
-
-          <BalanceBlock :pool="cauldron" />
-
-          <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
-            >Go to Positions</router-link
-          >
         </div>
+        <BalanceBlock :pool="cauldron" />
+
+        <router-link class="link choose-link" :to="{ name: 'MyPositions' }"
+          >Go to Positions</router-link
+        >
       </div>
 
-      <!-- :class="{ 'ape-bg': isMagicApe }" -->
-      <!-- :style="bgApeInfo" -->
-      <div class="cauldron-stand">
+      <div class="cauldron-stand" :style="backgroundInfo.stand">
         <h1 class="title">
           Borrow
-          <!-- <img
+          <img
             class="ape-icon"
             src="@/assets/images/ape/ape.png"
-            v-if="isMagicApe"
+            v-if="cauldron.config.id === 39"
             alt="Ape icon"
-          /> -->
+          />
           MIM
         </h1>
 
         <div class="stand-info">
           <div class="stand-tags">
-            <div
-              class="info-btn"
+            <SpecialInfoBlock :cauldron="cauldron" />
+            <Tooltip
               v-if="!!cauldron"
               @click="showAdditionalInfo = !showAdditionalInfo"
-            >
-              <img
-                class="info-icon"
-                src="@/assets/images/info.svg"
-                alt="info"
-              />
-            </div>
+            />
           </div>
           <div class="stand-data">
             <template v-if="cauldron">
@@ -128,6 +117,13 @@
               >{{ actionBtnText }}</BaseButton
             >
           </div>
+          <div class="info-wrap">
+            <MainInfoBlock :cauldron="cauldron" />
+          </div>
+
+          <LeftToBorrowBlock
+            :borrowLeft="cauldron.mainParams.mimLeftToBorrow"
+          />
         </template>
       </div>
     </template>
@@ -163,11 +159,14 @@ import UseCheckbox from "@/components/ui/checkboxes/UseCheckbox.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
 import BalanceBlock from "@/components/borrow/BalanceBlockNew.vue";
+import SpecialInfoBlock from "@/components/borrow/SpecialInfoBlock.vue";
 import PositionInfoBlock from "@/components/borrow/PositionInfoBlock.vue";
 import AdditionalInfoBlock from "@/components/borrow/AdditionalInfoBlock.vue";
 import EmptyState from "@/components/borrow/EmptyState.vue";
 import CollateralApyBlockNew from "@/components/borrow/CollateralApyBlockNew.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
+import MainInfoBlock from "@/components/borrow/MainInfoBlock.vue";
+import LeftToBorrowBlock from "@/components/borrow/LeftToBorrowBlock.vue";
 // -----
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
@@ -176,6 +175,7 @@ import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
+import { useImage } from "@/helpers/useImage";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
@@ -354,9 +354,11 @@ export default {
     },
 
     expectedLiquidationPrice() {
+      if (!this.expectedCollateralAmount) return 0;
+
       return (
-        +this.expectedBorrowedAmount /
-        +this.expectedCollateralAmount /
+        this.expectedBorrowedAmount /
+        this.expectedCollateralAmount /
         (+this.cauldron.config.mcr / 100)
       );
     },
@@ -382,6 +384,35 @@ export default {
       return allowance > 0;
     },
 
+    errorInputsValue() {
+      return !this.errorCallateralValue && !this.errorBorrowValue;
+    },
+
+    // todo this.isUserLocked
+    actionBtnText() {
+      if (!this.isTokenApprove) return "Nothing to do";
+
+      if (this.isUserLocked && +this.collateralValue > 0)
+        return "Nothing to do";
+
+      if (this.errorCallateralValue || this.errorBorrowValue)
+        return "Nothing to do";
+
+      if (
+        +this.borrowValue > 0 &&
+        +this.collateralValue > 0 &&
+        this.errorInputsValue
+      )
+        return "Add collateral and borrow";
+
+      if (+this.collateralValue > 0 && this.errorInputsValue)
+        return "Add collateral";
+
+      if (+this.borrowValue > 0 && this.errorInputsValue) return "Borrow";
+
+      return "Nothing to do";
+    },
+
     // selectedPool() {
     //   if (this.poolId) {
     //     return this.cauldron;
@@ -396,35 +427,6 @@ export default {
     //   return !!this.selectedPool.lpLogic;
     // },
 
-    // actionBtnText() {
-    //   if (!this.isTokenApprove) return "Nothing to do";
-
-    //   if (this.isUserLocked && +this.collateralValue > 0)
-    //     return "Nothing to do";
-
-    //   if (this.errorCallateralValue || this.errorBorrowValue) return "Nothing to do";
-
-    //   if (
-    //     +this.borrowValue > 0 &&
-    //     +this.collateralValue > 0 &&
-    //     !this.errorCallateralValue &&
-    //     !this.errorBorrowValue
-    //   )
-    //     return "Add collateral and borrow";
-
-    //   if (
-    //     +this.collateralValue > 0 &&
-    //     !this.errorCallateralValue &&
-    //     !this.errorBorrowValue
-    //   )
-    //     return "Add collateral";
-
-    //   if (+this.borrowValue > 0 && !this.errorCallateralValue && !this.errorBorrowValue)
-    //     return "Borrow";
-
-    //   return "Nothing to do";
-    // },
-
     // isUserLocked() {
     //   return (
     //     this.selectedPool.userInfo?.userLockedTimestamp &&
@@ -432,49 +434,19 @@ export default {
     //   );
     // },
 
-    // mimExpected() {
-    //   if (!this.errorBorrowValue) return this.borrowValue;
-
-    //   return 0;
-    // },
-
-    // ltv() {
-    //   if (this.selectedPool) {
-    //     return this.selectedPool.ltv;
-    //   }
-    //   return 0;
-    // },
-
-    // selectedPoolId() {
-    //   if (this.selectedPool) return this.selectedPool.id;
-
-    //   return null;
-    // },
-
-    // tokenToMim() {
-    //   if (this.selectedPool) {
-    //     const tokenToMim = 1 / this.selectedPool.borrowToken.exchangeRate;
-
-    //     let decimals = 4;
-
-    //     if (this.selectedPool.name === "SHIB") decimals = 6;
-
-    //     return filters.formatToFixed(tokenToMim, decimals);
-    //   }
-    //   return "0.0";
-    // },
-
-    // isMagicApe() {
-    //   return this.selectedPool?.id === 39;
-    // },
-
-    // bgApe() {
-    //   return this.isMagicApe ? `background-image: url(${this.bg})` : "";
-    // },
-
-    // bgApeInfo() {
-    //   return this.isMagicApe ? `background-image: url(${this.bgInfo})` : "";
-    // },
+    backgroundInfo() {
+      const { id } = this.cauldron.config;
+      if (id === 39)
+        return {
+          deposit: `background-image: url(${useImage(
+            "assets/images/ape/bg.png"
+          )})`,
+          stand: `background-image: url(${useImage(
+            "assets/images/ape/bg-info.png"
+          )})`,
+        };
+      return false;
+    },
   },
 
   // watch: {
@@ -504,7 +476,6 @@ export default {
     },
 
     updateCollateralValue(value) {
-      console.log("updateCollateralValue");
       this.collateralValue = value;
     },
 
@@ -907,11 +878,14 @@ export default {
     Tooltip,
     PercentageButtons,
     BalanceBlock,
+    SpecialInfoBlock,
     PositionInfoBlock,
     AdditionalInfoBlock,
     EmptyState,
     CollateralApyBlockNew,
     BaseButton,
+    MainInfoBlock,
+    LeftToBorrowBlock,
     // -----
     BaseLoader,
     LocalPopupWrap,
@@ -928,6 +902,8 @@ export default {
   max-width: 100%;
   overflow: hidden;
   position: relative;
+  background-position: center;
+  background-size: cover;
 }
 
 .underline {
@@ -992,11 +968,6 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-}
-
-.ape-bg {
-  background-position: center;
-  background-size: cover;
 }
 
 .percent-wrap {
@@ -1087,6 +1058,22 @@ export default {
   border-radius: 30px;
   background-color: $clrBg2;
   text-align: center;
+  background-position: center;
+  background-size: cover;
+}
+
+.stand-info {
+  background-color: #23212d4d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 30px;
+}
+
+.stand-tags {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 30px 7px;
+  min-height: 40px;
+  gap: 15px;
 }
 
 .ape-icon {

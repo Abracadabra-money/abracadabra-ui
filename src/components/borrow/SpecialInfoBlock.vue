@@ -1,10 +1,12 @@
 <template>
   <div class="tags-wrap">
     <div class="wrap">
-      <LockedTimer v-if="isLockedTimer" :finalTime="isLockedTimer" />
+      <!-- todo -->
+      <!-- <LockedTimer v-if="isLockedTimer" :finalTime="isLockedTimer" /> -->
       <MiniStatusTag v-if="isLeverageTag" text="Leverage" :rounded="true" />
-      <MiniStatusTag v-if="isMigrated" :rounded="true" />
-      <StrategyLinkNew :cauldron="cauldron" />
+      <!-- todo -->
+      <!-- <MiniStatusTag v-if="isMigrated" :rounded="true" /> -->
+      <StrategyLink :cauldron="cauldron" />
     </div>
     <div class="wrap">
       <DepositButton :cauldron="cauldron" />
@@ -18,9 +20,9 @@
 import { mapGetters } from "vuex";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData.ts";
 
-import LockedTimer from "@/components/stake/LockedTimer.vue";
+// import LockedTimer from "@/components/stake/LockedTimer.vue";
 import MiniStatusTag from "@/components/ui/MiniStatusTag.vue";
-import StrategyLinkNew from "@/components/ui/links/StrategyLinkNew.vue";
+import StrategyLink from "@/components/ui/links/StrategyLinkNew.vue";
 import DepositButton from "@/components/ui/buttons/DepositButton.vue";
 import ClaimButton from "@/components/ui/buttons/ClaimButton.vue";
 import GetTokenLink from "@/components/ui/links/GetTokenLink.vue";
@@ -34,35 +36,35 @@ export default {
       chainId: "getChainId",
     }),
 
-    isLockedTimer() {
-      if (this.cauldron?.userInfo?.userLockedTimestamp)
-        return this.cauldron.userInfo.userLockedTimestamp;
+    // todo
+    // isLockedTimer() {
+    //   if (this.cauldron?.userInfo?.userLockedTimestamp)
+    //     return this.cauldron.userInfo.userLockedTimestamp;
 
-      return 0;
-    },
+    //   return 0;
+    // },
 
     isLeverageTag() {
-      return this.cauldron?.config.isSwappersActive;
+      return this.cauldron?.config.cauldronSettings.isSwappersActive;
     },
 
-    isMigrated() {
-      if (this.cauldron?.config.cauldronSettings)
-        return this.cauldron.config.cauldronSettings.isMigrated;
+    // todo
+    // isMigrated() {
+    //   if (this.cauldron?.config.cauldronSettings)
+    //     return this.cauldron.config.cauldronSettings.isMigrated;
 
-      return this.cauldron?.config.isMigrated;
-    },
+    //   return this.cauldron?.config.isMigrated;
+    // },
 
     tokenLinkData() {
       return getTokenLinkData(this.cauldron.config.id, this.chainId);
     },
   },
-  created() {
-    console.log("cauldron", this.cauldron);
-  },
+
   components: {
-    LockedTimer,
+    // LockedTimer,
     MiniStatusTag,
-    StrategyLinkNew,
+    StrategyLink,
     DepositButton,
     ClaimButton,
     GetTokenLink,
