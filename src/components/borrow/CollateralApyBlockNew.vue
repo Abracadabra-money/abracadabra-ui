@@ -38,7 +38,7 @@ export default {
   props: {
     expectedLeverage: {
       type: Number,
-      default: "",
+      default: null,
     },
     cauldron: {
       type: Object,

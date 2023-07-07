@@ -1,15 +1,18 @@
 <template>
-  <div class="info-list">
-    <div v-for="(item, i) in infoData" :key="i">
-      <span>
+  <div class="main-info-list">
+    <div class="info-item" v-for="(item, i) in info" :key="i">
+      <span class="item-name">
         <img
+          class="info-tooltip"
           src="@/assets/images/info.svg"
           alt="info"
           v-tooltip="item.tooltip"
         />
         {{ item.name }}:
       </span>
-      <span> {{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span>
+      <span class="item-value">
+        {{ item.value }}{{ item.name !== "Price" ? "%" : "" }}
+      </span>
     </div>
   </div>
 </template>
@@ -22,10 +25,6 @@ import { getVeloManagementFee } from "@/helpers/collateralsApy/getVeloApy";
 
 export default {
   props: {
-    infoArr: {
-      type: Array,
-    },
-
     cauldron: {
       type: Object,
     },
@@ -34,17 +33,12 @@ export default {
   data() {
     return {
       veloManagementFee: null,
+      tokenApy: null,
     };
   },
 
   computed: {
     ...mapGetters({ chainId: "getChainId", signer: "getSigner" }),
-
-    infoData() {
-      if (this.infoArr) return this.infoArr;
-
-      return this.info;
-    },
 
     isGlpPool() {
       return this.chainId === 42161 && this.cauldron?.config.id === 2;
@@ -146,7 +140,7 @@ export default {
   },
 
   watch: {
-    async pool() {
+    async cauldron() {
       if (this.isGlpPool) this.tokenApy = await getGlpApy();
     },
   },
@@ -173,15 +167,14 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.info-item {
-  span {
-    display: flex;
-    align-items: center;
-  }
+.item-name,
+.item-value {
+  display: flex;
+  align-items: center;
+}
 
-  img {
-    margin-right: 5px;
-    cursor: pointer;
-  }
+.info-tooltip {
+  margin-right: 5px;
+  cursor: pointer;
 }
 </style>
