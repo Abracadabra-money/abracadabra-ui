@@ -6,13 +6,13 @@
 </template>
 
 <script>
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
 import filters from "@/filters/index.js";
 
 export default {
   props: {
     borrowLeft: {
-      type: [String, Number],
+      type: BigNumber,
       default: 0,
     },
   },
@@ -21,11 +21,6 @@ export default {
       return filters.formatLargeSum(utils.formatUnits(this.borrowLeft));
     },
   },
-  // methods: {
-  //   formatLargeSum(value) {
-  //     return filters.formatLargeSum(value);
-  //   }
-  // }
 };
 </script>
 
@@ -37,8 +32,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 400;
-  font-size: 16px;
   line-height: 24px;
 }
 
