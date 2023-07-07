@@ -1,5 +1,5 @@
 <template>
-  <div class="stand-preview">
+  <div class="position-info">
     <div class="item">
       <p class="item-title">Collateral Deposit</p>
       <p class="item-value">
@@ -82,7 +82,7 @@ export default {
     },
 
     liquidationRiskClass() {
-      if (this.liquidationPrice === 0) return "";
+      if (this.liquidationPrice === "$ 0.0") return "";
 
       if (this.liquidationRisk >= 0 && this.liquidationRisk <= 5) return "high";
 
@@ -97,7 +97,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.stand-preview {
+.position-info {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   padding: 30px;
@@ -112,23 +112,23 @@ export default {
   border-bottom: 1px rgba(255, 255, 255, 0.1) solid;
   padding-top: 14px;
   padding-bottom: 14px;
+}
 
-  &:nth-child(odd) {
-    border-right: 1px rgba(255, 255, 255, 0.1) solid;
-  }
+.item:nth-child(odd) {
+  border-right: 1px rgba(255, 255, 255, 0.1) solid;
+}
 
-  &:nth-last-child(-n + 2) {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  &:nth-child(-n + 2) {
-    padding-top: 0;
-  }
+.item:nth-last-child(-n + 2) {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.item:nth-child(-n + 2) {
+  padding-top: 0;
 }
 
 .item-title {
   font-size: 18px;
-  font-weight: 400;
   color: rgba(255, 255, 255, 0.6);
   margin-bottom: 12px;
 }
@@ -137,19 +137,19 @@ export default {
   font-size: 30px;
   font-weight: 700;
 }
-.item-value.safe {
+.safe {
   color: #75c9ee;
 }
-.item-value.medium {
+.medium {
   color: #ffb800;
 }
 
-.item-value.high {
+.high {
   color: #fe1842;
 }
 
 @media (max-width: 1200px) {
-  .stand-preview {
+  .position-info {
     padding: 30px 5px;
   }
 
