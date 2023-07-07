@@ -12,7 +12,7 @@ export default {
   props: {
     tooltip: {
       type: String,
-      default: "dfdf",
+      default: "",
     },
   },
 };

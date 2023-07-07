@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <h3 class="title">Your Wallet Balances {{ unWrapTokenBalanceUsd }}</h3>
+    <h3 class="title">Your Wallet Balances</h3>
     <div
       class="balance-item"
       v-if="pool.config.cauldronSettings.acceptUseDefaultBalance"
@@ -34,7 +34,7 @@
       </div>
       <div class="balance">
         <p>{{ formatTokenBalance(userBalance) }}</p>
-        <!-- <p v-if="+userBalance">
+        <!-- todo <p v-if="+userBalance">
           {{ formatUSD(pool.userInfo.balanceUsd) }}
         </p> -->
       </div>
@@ -50,7 +50,7 @@
       </div>
       <div class="balance">
         <p>{{ formatTokenBalance(unWrapTokenBalance) }}</p>
-        <!-- <p v-if="+unWrapTokenBalance">
+        <!-- todo <p v-if="+unWrapTokenBalance">
           {{ formatUSD(pool.userInfo.balanceUsd) }}
         </p> -->
       </div>

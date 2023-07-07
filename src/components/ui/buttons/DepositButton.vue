@@ -29,7 +29,7 @@ export default {
 
     depositConfig() {
       if (!this.account) return false;
-      return getCollateralConfig(this.cauldron.id, this.chainId);
+      return getCollateralConfig(this.cauldron.config.id, this.chainId);
     },
   },
 

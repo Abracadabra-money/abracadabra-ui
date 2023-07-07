@@ -16,7 +16,10 @@ import { useImage } from "@/helpers/useImage";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 export default {
   props: {
-    config: {},
+    config: {
+      type: Object,
+      required: true,
+    },
   },
 
   data() {
