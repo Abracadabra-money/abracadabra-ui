@@ -1,6 +1,6 @@
 <template>
   <div class="info-list">
-    <div v-for="(item, i) in infoData" :key="i" class="info-item">
+    <div v-for="(item, i) in infoData" :key="i">
       <span>
         <img
           src="@/assets/images/info.svg"
@@ -9,7 +9,7 @@
         />
         {{ item.name }}:
       </span>
-      <span>{{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span>
+      <span> {{ item.value }}{{ item.name !== "Price" ? "%" : "" }}</span>
     </div>
   </div>
 </template>
@@ -28,10 +28,6 @@ export default {
 
     cauldron: {
       type: Object,
-    },
-
-    price: {
-      type: [String, Number],
     },
   },
 
@@ -63,6 +59,18 @@ export default {
         this.chainId === 1 &&
         (this.cauldron?.config.id === 28 || this.cauldron?.config.id === 27)
       );
+    },
+
+    collateralToMim() {
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const { name, collateralInfo } = this.cauldron.config;
+      const rate = this.$ethers.utils.formatUnits(
+        oracleExchangeRate,
+        collateralInfo.decimals
+      );
+      const collateralToMim = 1 / rate;
+      const decimals = name === "SHIB" ? 6 : 4;
+      return filters.formatToFixed(collateralToMim, decimals);
     },
 
     info() {
@@ -125,10 +133,10 @@ export default {
         });
       }
 
-      if (this.price) {
+      if (this.collateralToMim) {
         info.push({
           name: "Price",
-          value: filters.formatExactPrice(this.price),
+          value: filters.formatExactPrice(this.collateralToMim),
           tooltip: "Price of one collateral token",
         });
       }
