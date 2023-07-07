@@ -1,5 +1,5 @@
 <template>
-  <button class="claim-btn" v-if="+reward" @click.stop="handleClaimCrvReward">
+  <button class="claim-btn" v-if="reward" @click.stop="actionHandler">
     <img
       class="claim-btn-icon"
       src="@/assets/images/deposit.svg"
@@ -11,6 +11,8 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { getCvxClaimableReward } from "@/helpers/cauldron/getCvxClaimableReward.ts";
+import { handleClaimCrvReward } from "@/helpers/cauldron/handleClaimCrvReward.ts";
 export default {
   props: {
     cauldron: { type: Object, require: true },
@@ -24,61 +26,35 @@ export default {
 
   computed: {
     ...mapGetters({
-      chainId: "getChainId",
       account: "getAccount",
     }),
   },
 
   watch: {
     async account() {
-      this.reward = await this.getClaimableReward(
-        this.cauldron.collateralToken.contract,
-        this.cauldron.collateralToken.decimals
-      );
+      await this.getReward();
     },
   },
 
   methods: {
-    async getClaimableReward(contractInstance, decimals) {
-      if (!contractInstance.cvx_claimable_reward) return null;
-
-      try {
-        const reward = await contractInstance.cvx_claimable_reward(
-          this.account
-        );
-
-        return this.$ethers.utils.formatUnits(reward, decimals);
-      } catch (error) {
-        console.log("Get Claimable Reward Error: ", error);
-      }
+    async actionHandler() {
+      const { collateral } = this.cauldron.contracts;
+      await handleClaimCrvReward(collateral, this.account);
     },
 
-    async handleClaimCrvReward() {
-      try {
-        const estimateGas =
-          await this.cauldron.collateralToken.contract.estimateGas.getReward(
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        await await this.cauldron.collateralToken.contract.getReward(
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-      } catch (error) {
-        console.log("Handle Claim Crv Reward Error:", error);
-      }
+    async getReward() {
+      const { collateral } = this.cauldron.contracts;
+      const { decimals } = this.cauldron.config.collateralInfo;
+      this.reward = await getCvxClaimableReward(
+        collateral,
+        this.account,
+        decimals
+      );
     },
   },
 
   async created() {
-    this.reward = await this.getClaimableReward(
-      this.cauldron.collateralToken.contract,
-      this.cauldron.collateralToken.decimals
-    );
+    await this.getReward();
   },
 };
 </script>
