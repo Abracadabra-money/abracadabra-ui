@@ -1,6 +1,6 @@
 <template>
-  <div :class="{ 'no-apy': !isApyExist }">
-    <div class="apy" v-if="isApyExist">
+  <div :class="{ 'apy-is-not-exist': !isApyExist }">
+    <div class="apy-wrap" v-if="isApyExist">
       <img class="apy-bg" :src="apyInfo.bg" />
 
       <div class="apy-content">
@@ -37,7 +37,7 @@ import Loader from "@/components/base/BaseLoader.vue";
 export default {
   props: {
     expectedLeverage: {
-      type: [String, Number],
+      type: Number,
       default: "",
     },
     cauldron: {
@@ -115,11 +115,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.no-apy {
+.apy-is-not-exist {
   margin-bottom: 32px;
 }
 
-.apy {
+.apy-wrap {
   max-width: 680px;
   width: 100%;
   height: 120px;
@@ -178,42 +178,7 @@ export default {
   justify-content: center;
 }
 
-.loader {
-  margin-right: 15px;
-  margin-top: 10px;
-  position: relative;
-  display: block;
-  width: 8px;
-  animation: rectangle infinite 1s ease-in-out -0.2s;
-  border-radius: 4px;
-  background-color: #fff;
-}
-
-.loader:before,
-.loader:after {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  content: "";
-  background-color: #fff;
-}
-
-.loader:before {
-  left: -10px;
-  animation: rectangle infinite 1s ease-in-out -0.4s;
-}
-
-.loader:after {
-  right: -10px;
-  animation: rectangle infinite 1s ease-in-out;
-}
-
 @media screen and (max-width: 1220px) {
-  .primary-apy-block {
-    max-width: 100%;
-  }
-
   .percent {
     font-size: 24px;
     line-height: 24px;
@@ -221,7 +186,7 @@ export default {
 }
 
 @media screen and (max-width: 1024px) {
-  .not-apy {
+  .apy-is-not-exist {
     margin-bottom: 30px;
   }
 }
@@ -233,17 +198,6 @@ export default {
   .percent {
     font-size: 16px;
     line-height: 18px;
-  }
-}
-
-@keyframes rectangle {
-  0%,
-  80%,
-  100% {
-    height: 6px;
-  }
-  40% {
-    height: 8px;
   }
 }
 </style>
