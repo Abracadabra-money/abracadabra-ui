@@ -98,6 +98,7 @@ export default {
     async initApy() {
       this.isApyExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
       if (!this.isApyExist) return false;
+      this.isLoadingApy = true;
       this.collateralApy = await fetchTokenApy(this.cauldron);
       this.isLoadingApy = false;
     },
