@@ -3,25 +3,25 @@
     <div class="info-list">
       <div v-for="(item, i) in additionalInfo" :key="i" class="info-list-item">
         <img
-          class="info-list-icon"
+          class="item-icon"
           src="@/assets/images/info.svg"
           v-tooltip="item.additional"
           alt="info"
         />
 
-        <span class="info-list-name">{{ item.title }}:</span>
-        <span class="info-list-value">{{ item.value }}</span>
+        <span class="item-name">{{ item.title }}:</span>
+        <span class="item-value">{{ item.value }}</span>
       </div>
     </div>
-    <div class="info-list-bottom">
-      <div class="info-bottom">
-        <div class="info-list-subitem">
-          <span class="info-list-name">1 MIM </span>
-          <span class="info-list-value">1 USD</span>
+    <div class="rates-wrap">
+      <div class="rates">
+        <div class="rate">
+          <span class="currency from">1 MIM </span>
+          <span class="currency to">1 USD</span>
         </div>
-        <div class="info-list-subitem">
-          <span class="info-list-name">1 {{ cauldron.config.name }}</span>
-          <span class="info-list-value">{{ collateralToMim }} MIM</span>
+        <div class="rate">
+          <span class="currency from">1 {{ cauldron.config.name }}</span>
+          <span class="currency to">{{ collateralToMim }} MIM</span>
         </div>
       </div>
     </div>
@@ -192,14 +192,14 @@ export default {
   padding: 20px 15px;
 }
 
-.info-list-bottom {
+.rates-wrap {
   background-color: rgba(255, 255, 255, 0.04);
   border-radius: 30px;
   padding: 0 17px 10px 17px;
   margin-top: 10px;
 }
 
-.info-bottom {
+.rates {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 52px;
@@ -207,16 +207,11 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.info-list-subitem {
+.rate {
   display: flex;
   justify-content: space-between;
   color: rgba(255, 255, 255, 0.6);
   line-height: 25px;
-}
-
-.info-list-value {
-  font-weight: 700;
-  color: white;
 }
 
 .info-list {
@@ -236,12 +231,19 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.info-list-name {
+.item-name,
+.currency.from {
   flex: 1 1 auto;
   text-align: left;
 }
 
-.info-list-icon {
+.item-value,
+.currency.to {
+  font-weight: 700;
+  color: white;
+}
+
+.item-icon {
   padding-right: 12px;
   cursor: pointer;
 }
