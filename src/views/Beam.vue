@@ -384,7 +384,7 @@ export default {
 
     async switchChain() {
       if (!this.isSelectedChain) return false;
-      await switchNetwork(this.destinationChain.chainId);
+      await switchNetwork(this.dstChain.chainId);
     },
 
     openNetworkPopup(type) {
