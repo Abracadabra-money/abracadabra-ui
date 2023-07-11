@@ -27,3 +27,17 @@ export const approveToken = async (
     return false;
   }
 };
+
+export const isMasterContractApproved = async (
+  cauldron: Contract,
+  bentoBox: Contract,
+  account: String
+) => {
+  try {
+    const masterContract = await cauldron.masterContract();
+
+    return await bentoBox.masterContractApproved(masterContract, account);
+  } catch (error) {
+    console.log("Is Master Contract Approved Error:", error);
+  }
+};

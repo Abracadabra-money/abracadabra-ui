@@ -1,4 +1,5 @@
 import { useImage } from "@/helpers/useImage";
+// todo rename getNativeTokenInfoByChain
 
 const tokens: any = {
   1: {
@@ -23,7 +24,7 @@ const tokens: any = {
   },
   250: {
     symbol: "FTM",
-    icon: useImage("assets/images/tokens/FTM.png"),
+    icon: useImage("assets/images/tokens/FTM2.png"),
     scanUrl: "https://ftmscan.com/tx/",
   },
   1285: {

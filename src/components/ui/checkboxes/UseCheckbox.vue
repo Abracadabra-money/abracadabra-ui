@@ -47,7 +47,7 @@ export default {
     tokenSymbol() {
       if (this.config?.cauldronSettings?.acceptUseDefaultBalance)
         return getChainInfo(this.chainId).symbol;
-      return this.config.wrapInfo.unwrappedToken.name;
+      return this.config.collateralInfo.name;
     },
   },
 

@@ -8,9 +8,9 @@ import {
   watchNetwork,
 } from "@wagmi/core";
 
-import { publicProvider } from '@wagmi/core/providers/public';
+import { publicProvider } from "@wagmi/core/providers/public";
 
-import {mainnet} from "./chains/mainnet"
+import { mainnet } from "./chains/mainnet";
 
 import {
   // mainnet,
@@ -49,10 +49,22 @@ const rpc = {
 const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
 if (!projectId) throw new Error("You need to provide projectId env");
 
-const chains = [mainnet, bsc, polygon, avalanche, fantom, arbitrum, optimism, moonriver];
+const chains = [
+  mainnet,
+  bsc,
+  polygon,
+  avalanche,
+  fantom,
+  arbitrum,
+  optimism,
+  moonriver,
+];
 
 // 2. Configure wagmi client
-const { publicClient } = configureChains(chains, [publicProvider(), w3mProvider({ projectId })]);
+const { publicClient } = configureChains(chains, [
+  publicProvider(),
+  w3mProvider({ projectId }),
+]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
@@ -104,9 +116,7 @@ const checkSanctionAddress = async (address) => {
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
   const provider = markRaw(
-    new ethers.providers.StaticJsonRpcProvider(
-      rpc[chainId]
-    )
+    new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
   );
 
   const account = ethereumClient.getAccount().address;
@@ -138,19 +148,16 @@ const onConnectNew = async () => {
     watchNetwork((network) => {
       if (chainId !== network.chain.id) window.location.reload();
     });
-    
-    const provider = markRaw(
-      new ethers.providers.StaticJsonRpcProvider(
-        rpc[chainId]
-      )
-    );
-    const signer = markRaw(await getEthersSigner(
-      {chainId}
-    ));
+
+    // const provider = markRaw(
+    //   new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
+    // );
+
+    const { signer, provider } = await getEthersSigner({ chainId });
 
     store.commit("setChainId", chainId);
-    store.commit("setProvider", provider);
-    store.commit("setSigner", signer); // WARN
+    store.commit("setProvider", markRaw(provider));
+    store.commit("setSigner", markRaw(signer)); // WARN
     store.commit("setAccount", account);
     store.dispatch("checkENSName", account);
     store.commit("setWalletConnection", true);

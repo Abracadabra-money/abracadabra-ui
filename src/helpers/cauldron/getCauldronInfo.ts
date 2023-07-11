@@ -13,13 +13,16 @@ export const getCauldronInfo = async (
   chainId: number,
   provider: providers.BaseProvider,
   signer: providers.JsonRpcSigner
-): Promise<CauldronInfo> => {
+): Promise<CauldronInfo | null> => {
   const { address } = getAccount();
+  const userSigner = address ? signer : provider;
   const multicallProvider = MulticallWrapper.wrap(provider);
 
   const config = cauldronsConfig.find(
     (config) => +config.id === +cauldronId && +config.chainId === +chainId
   );
+
+  if (!config) return null;
 
   const multicallContracts = await getContracts(config, multicallProvider);
 
@@ -38,7 +41,7 @@ export const getCauldronInfo = async (
     signer
   );
 
-  const contracts = await getContracts(config, signer);
+  const contracts = await getContracts(config, userSigner);
 
   return {
     config,
