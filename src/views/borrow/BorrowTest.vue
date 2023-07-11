@@ -2,9 +2,8 @@
   <div class="cauldron-view" :class="{ loading: isLoadedCauldron }">
     <template v-if="!isLoadedCauldron">
       <div class="cauldron-deposit" :style="backgroundInfo.deposit">
-        <h4>Choose Chain</h4>
-
         <div class="underline">
+          <h4>Choose Chain</h4>
           <NetworksList />
         </div>
 
@@ -58,7 +57,7 @@
           />
         </div>
 
-        <BalanceBlock v-if="cauldron" :pool="cauldron" />
+        <BalanceBlock v-if="cauldron" :cauldron="cauldron" />
 
         <router-link class="position-link link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
@@ -111,7 +110,7 @@
             </BaseButton>
           </div>
 
-          <div class="info-wrap">
+          <div class="main-info-wrap">
             <MainInfoBlock :cauldron="cauldron" />
           </div>
 
@@ -957,6 +956,10 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
   margin-bottom: 30px;
+}
+
+.main-info-wrap {
+  margin-bottom: 20px;
 }
 
 @media (max-width: 1024px) {
