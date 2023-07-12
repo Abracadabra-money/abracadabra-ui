@@ -54,6 +54,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     wrapInfo: {
       isHiddenWrap: true,
+      useUnwrappedByDefault: false,
       unwrappedToken: {
         name: "OP/USDC",
         icon: useImage(`assets/images/tokens/OP_USDC.png`),

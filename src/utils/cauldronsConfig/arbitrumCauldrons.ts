@@ -97,6 +97,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     wrapInfo: {
       isHiddenWrap: true,
+      useUnwrappedByDefault: false,
       unwrappedToken: {
         name: "GLP",
         icon: useImage(`assets/images/tokens/GLP.png`),
@@ -148,6 +149,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     wrapInfo: {
       isHiddenWrap: false,
+      useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "GLP",
         icon: useImage(`assets/images/tokens/GLP.png`),

@@ -46,6 +46,7 @@ export type CauldronInfo = {
   mainParams: MainParams;
   userPosition: UserPositions;
   userTokensInfo: UserTokensInfo | null;
+  additionalInfo: AdditionalInfo;
 };
 
 export type CauldronPositionItem = {
@@ -54,4 +55,9 @@ export type CauldronPositionItem = {
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
   liquidationPrice: number;
+};
+
+export type AdditionalInfo = {
+  isMasterContractApproved: Boolean;
+  tokensRate: BigNumber;
 };

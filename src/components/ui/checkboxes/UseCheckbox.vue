@@ -34,8 +34,10 @@ export default {
     }),
 
     isVisibility() {
-      if (this.config?.cauldronSettings?.acceptUseDefaultBalance) return true;
-      if (this.config?.wrapInfo) return true;
+      if (!this.config) return false;
+      const { cauldronSettings, wrapInfo } = this.config;
+      if (cauldronSettings?.acceptUseDefaultBalance) return true;
+      if (!!wrapInfo && !wrapInfo?.isHiddenWrap) return true;
       return false;
     },
 

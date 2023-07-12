@@ -5,6 +5,7 @@ import { getContracts } from "@/helpers/cauldron/getContracts";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import { getUserTokensInfo } from "@/helpers/cauldron/getUserTokensInfo";
+import { getAdditionalInfo } from "@/helpers/cauldron/getAdditionalInfo";
 import type { providers } from "ethers";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 
@@ -41,6 +42,12 @@ export const getCauldronInfo = async (
     signer
   );
 
+  const additionalInfo = await getAdditionalInfo(
+    multicallContracts,
+    address,
+    config
+  );
+
   const contracts = await getContracts(config, userSigner);
 
   return {
@@ -49,5 +56,6 @@ export const getCauldronInfo = async (
     mainParams: mainParams[0],
     userPosition: userPositions[0],
     userTokensInfo,
+    additionalInfo,
   };
 };

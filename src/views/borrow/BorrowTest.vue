@@ -140,7 +140,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
-import { approveToken, isMasterContractApproved } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 
 const MAX_ALLOWANCE_VALUE =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
@@ -166,7 +166,6 @@ export default {
       showAdditionalInfo: true,
       cauldronId: null,
       updateInterval: null,
-      tokensRate: 1,
       ltvTooltip:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
     };
@@ -202,9 +201,8 @@ export default {
     },
 
     collateralToken() {
-      const { name } = this.cauldron.config.collateralInfo;
+      const { name, decimals } = this.cauldron.config.collateralInfo;
       const { icon } = this.cauldron.config;
-      const { decimals } = this.cauldron.config.collateralInfo;
       const { collateral } = this.cauldron.contracts;
       const { collateralBalance, collateralAllowance } =
         this.cauldron.userTokensInfo;
@@ -260,10 +258,12 @@ export default {
 
       const { acceptUseDefaultBalance } = this.cauldron.config.cauldronSettings;
       const { wrapInfo } = this.cauldron.config;
+      const { useUnwrappedByDefault } = wrapInfo;
 
       if (acceptUseDefaultBalance && this.useOtherToken)
         return this.nativeToken;
-      if (!!wrapInfo && !this.useOtherToken) return this.unwrappedToken;
+      if (!!wrapInfo && useUnwrappedByDefault && !this.useOtherToken)
+        return this.unwrappedToken;
       return this.collateralToken;
     },
 
@@ -323,6 +323,7 @@ export default {
     },
 
     expectedCollateralAmount() {
+      const { tokensRate } = this.cauldron.additionalInfo;
       const { userCollateralAmount, decimals } =
         this.cauldron.userPosition.collateralInfo;
 
@@ -330,9 +331,10 @@ export default {
         userCollateralAmount,
         decimals
       );
+      const rates = +utils.formatUnits(tokensRate, decimals);
 
       if (this.useOtherToken) return collateralDeposit + +this.collateralValue;
-      else return collateralDeposit + +this.collateralValue / this.tokensRate;
+      else return collateralDeposit + +this.collateralValue / rates;
     },
 
     expectedBorrowedAmount() {
@@ -473,11 +475,6 @@ export default {
       return filters.formatTokenBalance(value);
     },
 
-    async getTokensRate(contract, decimals) {
-      const rate = await contract.convertToAssets("1000000000000000000");
-      this.tokensRate = +this.$ethers.utils.formatUnits(rate, decimals);
-    },
-
     async createCauldronInfo() {
       if (!this.cauldronId) return false;
 
@@ -488,11 +485,6 @@ export default {
         this.provider,
         userSigner
       );
-
-      if (this.cauldron.config?.wrapInfo) {
-        const { collateral } = this.cauldron.contracts;
-        await this.getTokensRate(collateral, 18);
-      }
 
       this.updateInterval = await setInterval(async () => {
         this.cauldron = await getCauldronInfo(
@@ -508,8 +500,25 @@ export default {
       this[this.actionInfo.methodName]();
     },
 
+    async checkAllowance(amount) {
+      const { isNative, contract } = this.activeToken;
+      const { bentoBox } = this.cauldron.contracts;
+      if (!isNative) {
+        const isApproved = await contract.allowance(
+          this.account,
+          bentoBox.address
+        );
+
+        if (isApproved.lt(amount)) {
+          return await approveToken(contract, bentoBox.address);
+        }
+      }
+
+      return true;
+    },
+
     async addCollateralAndBorrowHandler() {
-      const { bentoBox, cauldron } = this.cauldron.contracts;
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -535,32 +544,12 @@ export default {
         itsDefaultBalance: !!this.activeToken.isNative,
       };
 
-      let isTokenToCookApprove = true;
-
-      if (!this.activeToken.isNative) {
-        isTokenToCookApprove = await this.activeToken.contract.allowance(
-          this.account,
-          bentoBox.address
-        );
-
-        if (isTokenToCookApprove.lt(payload.collateralAmount)) {
-          isTokenToCookApprove = await approveToken(
-            this.activeToken.contract,
-            bentoBox.address
-          );
-        }
-      }
-
-      const isApprovedMasterContract = await isMasterContractApproved(
-        cauldron,
-        bentoBox,
-        this.account
-      );
+      const isTokenToCookApprove = await this.checkAllowance(collateralAmount);
 
       if (+isTokenToCookApprove) {
         await this.cookAddCollateralAndBorrow(
           payload,
-          isApprovedMasterContract,
+          isMasterContractApproved,
           this.cauldron,
           notificationId,
           !!this.cauldron.config.wrapInfo,
@@ -575,7 +564,7 @@ export default {
     },
 
     async addCollateralHandler() {
-      const { bentoBox, cauldron } = this.cauldron.contracts;
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -593,32 +582,12 @@ export default {
         itsDefaultBalance: !!this.activeToken.isNative,
       };
 
-      let isTokenToCookApprove = true;
-
-      if (!this.activeToken.isNative) {
-        let isTokenToCookApprove = await this.activeToken.contract.allowance(
-          this.account,
-          bentoBox.address
-        );
-
-        if (isTokenToCookApprove.lt(payload.amount)) {
-          isTokenToCookApprove = await approveToken(
-            this.activeToken.contract,
-            bentoBox.address
-          );
-        }
-      }
-
-      const isApprovedMasterContract = await isMasterContractApproved(
-        cauldron,
-        bentoBox,
-        this.account
-      );
+      const isTokenToCookApprove = await this.checkAllowance(collateralAmount);
 
       if (+isTokenToCookApprove) {
         await this.cookAddCollateral(
           payload,
-          isApprovedMasterContract,
+          isMasterContractApproved,
           this.cauldron,
           notificationId,
           !!this.cauldron.config.wrapInfo,
@@ -633,7 +602,7 @@ export default {
     },
 
     async borrowHandler() {
-      const { bentoBox, cauldron } = this.cauldron.contracts;
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -662,32 +631,12 @@ export default {
         updatePrice: true,
       };
 
-      let isTokenToCookApprove = true;
-
-      if (!this.activeToken.isNative) {
-        let isTokenToCookApprove = await this.activeToken.contract.allowance(
-          this.account,
-          bentoBox.address
-        );
-
-        if (isTokenToCookApprove.eq(0)) {
-          isTokenToCookApprove = await approveToken(
-            this.activeToken.contract,
-            bentoBox.address
-          );
-        }
-      }
-
-      const isApprovedMasterContract = await isMasterContractApproved(
-        cauldron,
-        bentoBox,
-        this.account
-      );
+      const isTokenToCookApprove = await this.checkAllowance(0);
 
       if (+isTokenToCookApprove) {
         await this.cookBorrow(
           payload,
-          isApprovedMasterContract,
+          isMasterContractApproved,
           this.cauldron,
           notificationId
         );
