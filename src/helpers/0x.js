@@ -45,7 +45,7 @@ export const swap0xRequest = async (
         slippagePercentage,
         skipValidation: true,
         takerAddress,
-        enableSlippageProtection: true
+        enableSlippageProtection: true,
       };
     } else {
       params = {
@@ -55,12 +55,15 @@ export const swap0xRequest = async (
         slippagePercentage,
         skipValidation: true,
         takerAddress,
-        enableSlippageProtection: true
+        enableSlippageProtection: true,
       };
     }
 
     const response = await http.get(`${endpoint}/swap/v1/quote`, {
       params: params,
+      headers: {
+        "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
+      },
     });
 
     const { data, buyAmount, sellAmount, estimatedGas, price } = response.data;
@@ -74,10 +77,18 @@ export const swap0xRequest = async (
       sellAmount: BigNumber.from(sellAmount),
       estimatedGas: BigNumber.from(estimatedGas),
       buyAmountWithSlippage: BigNumber.from(buyAmount)
-        .mul(BigNumber.from(SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY))
+        .mul(
+          BigNumber.from(
+            SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY
+          )
+        )
         .div(BigNumber.from(SLIPPAGE_ACCURACY)),
       sellAmountWithSlippage: BigNumber.from(sellAmount)
-        .mul(BigNumber.from(SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY))
+        .mul(
+          BigNumber.from(
+            SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY
+          )
+        )
         .div(BigNumber.from(SLIPPAGE_ACCURACY)),
     };
   } catch (error) {
