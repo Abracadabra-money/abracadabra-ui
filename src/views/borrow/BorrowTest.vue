@@ -40,12 +40,8 @@
           />
         </div>
 
-        <div class="info-row underline" v-if="cauldron">
-          <span class="info-item">
-            <Tooltip :tooltip="ltvTooltip" />
-            <span> LTV</span>
-          </span>
-          <span class="info-item">{{ calculateLtv }}%</span>
+        <div class="ltv-wrap underline" v-if="cauldron">
+          <LtvBlock :ltv="calculateLtv" />
         </div>
 
         <div class="percent-wrap" v-if="cauldron">
@@ -137,6 +133,7 @@
 <script>
 import { utils } from "ethers";
 import filters from "@/filters/index.js";
+import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
@@ -821,6 +818,9 @@ export default {
     InputLabel,
     BaseTokenInput,
     UseCheckbox,
+    LtvBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/LtvBlock.vue")
+    ),
     Tooltip,
     PercentageButtons,
     BalanceBlock,
@@ -883,20 +883,8 @@ export default {
   padding-bottom: 14px;
 }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 25px;
+.ltv-wrap {
   padding: 15px 0;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  line-height: 24px;
 }
 
 .percent-wrap {
