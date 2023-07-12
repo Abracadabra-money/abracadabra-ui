@@ -117,7 +117,7 @@ export default {
 
     unwrappedTokenInfo() {
       const { wrapInfo, collateralInfo } = this.cauldron.config;
-      const { isHiddenWrap } = wrapInfo;
+      const isHiddenWrap = wrapInfo?.isHiddenWrap;
       if (!wrapInfo || isHiddenWrap) return null;
 
       const { decimals } = collateralInfo;
