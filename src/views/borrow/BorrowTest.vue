@@ -141,25 +141,6 @@ import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken, isMasterContractApproved } from "@/helpers/approval";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import InputLabel from "@/components/ui/inputs/InputLabel.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import UseCheckbox from "@/components/ui/checkboxes/UseCheckbox.vue";
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
-import PercentageButtons from "@/components/borrow/PercentageButtons.vue";
-import BalanceBlock from "@/components/borrow/BalanceBlockNew.vue";
-import MagicApeIcon from "@/components/icons/MagicApe.vue";
-import SpecialInfoBlock from "@/components/borrow/SpecialInfoBlock.vue";
-import PositionInfoBlock from "@/components/borrow/PositionInfoBlock.vue";
-import AdditionalInfoBlock from "@/components/borrow/AdditionalInfoBlock.vue";
-import EmptyState from "@/components/borrow/EmptyState.vue";
-import CollateralApyBlockNew from "@/components/borrow/CollateralApyBlockNew.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import MainInfoBlock from "@/components/borrow/MainInfoBlock.vue";
-import LeftToBorrowBlock from "@/components/borrow/LeftToBorrowBlock.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 
 const MAX_ALLOWANCE_VALUE =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
@@ -814,28 +795,66 @@ export default {
   },
 
   components: {
-    NetworksList,
-    InputLabel,
-    BaseTokenInput,
-    UseCheckbox,
+    NetworksList: defineAsyncComponent(() =>
+      import("@/components/ui/NetworksList.vue")
+    ),
+    InputLabel: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputLabel.vue")
+    ),
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
+    ),
+    UseCheckbox: defineAsyncComponent(() =>
+      import("@/components/ui/checkboxes/UseCheckbox.vue")
+    ),
     LtvBlock: defineAsyncComponent(() =>
       import("@/components/borrow/LtvBlock.vue")
     ),
-    Tooltip,
-    PercentageButtons,
-    BalanceBlock,
-    MagicApeIcon,
-    SpecialInfoBlock,
-    PositionInfoBlock,
-    AdditionalInfoBlock,
-    EmptyState,
-    CollateralApyBlockNew,
-    BaseButton,
-    MainInfoBlock,
-    LeftToBorrowBlock,
-    BaseLoader,
-    LocalPopupWrap,
-    MarketsListPopup,
+    Tooltip: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
+    ),
+    PercentageButtons: defineAsyncComponent(() =>
+      import("@/components/borrow/PercentageButtons.vue")
+    ),
+    BalanceBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/BalanceBlockNew.vue")
+    ),
+    MagicApeIcon: defineAsyncComponent(() =>
+      import("@/components/icons/MagicApe.vue")
+    ),
+    SpecialInfoBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/SpecialInfoBlock.vue")
+    ),
+    PositionInfoBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/PositionInfoBlock.vue")
+    ),
+    AdditionalInfoBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/AdditionalInfoBlock.vue")
+    ),
+    EmptyState: defineAsyncComponent(() =>
+      import("@/components/borrow/EmptyState.vue")
+    ),
+    CollateralApyBlockNew: defineAsyncComponent(() =>
+      import("@/components/borrow/CollateralApyBlockNew.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+    MainInfoBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/MainInfoBlock.vue")
+    ),
+    LeftToBorrowBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/LeftToBorrowBlock.vue")
+    ),
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(() =>
+      import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    MarketsListPopup: defineAsyncComponent(() =>
+      import("@/components/popups/MarketsListPopup.vue")
+    ),
   },
 };
 </script>
