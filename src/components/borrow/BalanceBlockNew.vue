@@ -65,7 +65,7 @@ import { utils } from "ethers";
 import filters from "@/filters/index.js";
 import { useImage } from "@/helpers/useImage";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { defineAsyncComponent } from "vue";
 export default {
   props: {
     cauldron: {
@@ -117,7 +117,8 @@ export default {
 
     unwrappedTokenInfo() {
       const { wrapInfo, collateralInfo } = this.cauldron.config;
-      if (!wrapInfo) return null;
+      const { isHiddenWrap } = wrapInfo;
+      if (!wrapInfo || isHiddenWrap) return null;
 
       const { decimals } = collateralInfo;
       const { icon, name } = this.cauldron.config.wrapInfo.unwrappedToken;
@@ -140,10 +141,10 @@ export default {
     },
 
     async getTokensRate() {
+      const { collateral } = this.cauldron.contracts;
       const { decimals } = this.cauldron.config.collateralInfo;
-      const rate = await this.cauldron.contracts.collateral.convertToAssets(
-        "1000000000000000000"
-      );
+      if (!collateral.convertToAssets) return 1;
+      const rate = await collateral.convertToAssets("1000000000000000000");
 
       this.tokensRate = utils.formatUnits(rate, decimals);
     },
@@ -154,7 +155,9 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
+    BaseTokenIcon: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenIcon.vue")
+    ),
   },
 };
 </script>
