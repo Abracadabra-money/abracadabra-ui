@@ -6,6 +6,42 @@ import BalanceBlock from "@/components/borrow/BalanceBlockNew.vue";
 import ethConfig from "@/utils/cauldronsConfig/ethereumCauldrons";
 import arbConfig from "@/utils/cauldronsConfig/arbitrumCauldrons";
 
+const defaultCauldronParams = {
+  mainParams: {
+    borrowFee: 1,
+    interest: 1,
+    liquidationFee: 1,
+    collateralPrice: ethers.utils.parseUnits("1000000", 3),
+    mimLeftToBorrow: ethers.utils.parseUnits("1000000", 3),
+    maximumCollateralRatio: ethers.utils.parseUnits("1000000", 3),
+    oracleExchangeRate: ethers.utils.parseUnits("1000000", 3),
+    totalBorrowed: ethers.utils.parseUnits("1000000", 3),
+    tvl: ethers.utils.parseUnits("1000000", 3),
+    userMaxBorrow: ethers.utils.parseUnits("1000000", 3),
+  },
+  userPosition: {
+    collateralInfo: {
+      userCollateralShare: ethers.utils.parseUnits("1000000", 3),
+      userCollateralAmount: ethers.utils.parseUnits("1000000", 3),
+    },
+    borrowInfo: {
+      userBorrowPart: ethers.utils.parseUnits("1000000", 3),
+      userBorrowAmount: ethers.utils.parseUnits("1000000", 3),
+    },
+    oracleRate: ethers.utils.parseUnits("1000000", 3),
+    liquidationPrice: "100",
+  },
+  userTokensInfo: {
+    collateralBalance: ethers.utils.parseUnits("1000000", 3),
+    mimBalance: ethers.utils.parseUnits("1000000", 3),
+    nativeTokenBalance: ethers.utils.parseUnits("1000000", 3),
+    collateralAllowance: ethers.utils.parseUnits("1000000", 3),
+    mimAllowance: ethers.utils.parseUnits("1000000", 3),
+    unwrappedTokenBalance: ethers.utils.parseUnits("1000000", 3),
+    unwrappedTokenAllowance: ethers.utils.parseUnits("1000000", 3),
+  },
+};
+
 const testProvider = await ethers.getDefaultProvider();
 
 const testEthCauldron = {
@@ -17,39 +53,7 @@ const testEthCauldron = {
       testProvider
     ),
   },
-  mainParams: {
-    borrowFee: 1,
-    interest: 1,
-    liquidationFee: 1,
-    collateralPrice: ethers.utils.parseUnits("1000000", 3),
-    mimLeftToBorrow: ethers.utils.parseUnits("1000000", 3),
-    maximumCollateralRatio: ethers.utils.parseUnits("1000000", 3),
-    oracleExchangeRate: ethers.utils.parseUnits("1000000", 3),
-    totalBorrowed: ethers.utils.parseUnits("1000000", 3),
-    tvl: ethers.utils.parseUnits("1000000", 3),
-    userMaxBorrow: ethers.utils.parseUnits("1000000", 3),
-  },
-  userPosition: {
-    collateralInfo: {
-      userCollateralShare: ethers.utils.parseUnits("1000000", 3),
-      userCollateralAmount: ethers.utils.parseUnits("1000000", 3),
-    },
-    borrowInfo: {
-      userBorrowPart: ethers.utils.parseUnits("1000000", 3),
-      userBorrowAmount: ethers.utils.parseUnits("1000000", 3),
-    },
-    oracleRate: ethers.utils.parseUnits("1000000", 3),
-    liquidationPrice: "100",
-  },
-  userTokensInfo: {
-    collateralBalance: ethers.utils.parseUnits("1000000", 3),
-    mimBalance: ethers.utils.parseUnits("1000000", 3),
-    nativeTokenBalance: ethers.utils.parseUnits("1000000", 3),
-    collateralAllowance: ethers.utils.parseUnits("1000000", 3),
-    mimAllowance: ethers.utils.parseUnits("1000000", 3),
-    unwrappedTokenBalance: ethers.utils.parseUnits("1000000", 3),
-    unwrappedTokenAllowance: ethers.utils.parseUnits("1000000", 3),
-  },
+  ...defaultCauldronParams,
 };
 
 const testArbCauldronHiddenWrap = {
@@ -61,39 +65,7 @@ const testArbCauldronHiddenWrap = {
       testProvider
     ),
   },
-  mainParams: {
-    borrowFee: 1,
-    interest: 1,
-    liquidationFee: 1,
-    collateralPrice: ethers.utils.parseUnits("1000000", 3),
-    mimLeftToBorrow: ethers.utils.parseUnits("1000000", 3),
-    maximumCollateralRatio: ethers.utils.parseUnits("1000000", 3),
-    oracleExchangeRate: ethers.utils.parseUnits("1000000", 3),
-    totalBorrowed: ethers.utils.parseUnits("1000000", 3),
-    tvl: ethers.utils.parseUnits("1000000", 3),
-    userMaxBorrow: ethers.utils.parseUnits("1000000", 3),
-  },
-  userPosition: {
-    collateralInfo: {
-      userCollateralShare: ethers.utils.parseUnits("1000000", 3),
-      userCollateralAmount: ethers.utils.parseUnits("1000000", 3),
-    },
-    borrowInfo: {
-      userBorrowPart: ethers.utils.parseUnits("1000000", 3),
-      userBorrowAmount: ethers.utils.parseUnits("1000000", 3),
-    },
-    oracleRate: ethers.utils.parseUnits("1000000", 3),
-    liquidationPrice: "100",
-  },
-  userTokensInfo: {
-    collateralBalance: ethers.utils.parseUnits("1000000", 3),
-    mimBalance: ethers.utils.parseUnits("1000000", 3),
-    nativeTokenBalance: ethers.utils.parseUnits("1000000", 3),
-    collateralAllowance: ethers.utils.parseUnits("1000000", 3),
-    mimAllowance: ethers.utils.parseUnits("1000000", 3),
-    unwrappedTokenBalance: ethers.utils.parseUnits("1000000", 3),
-    unwrappedTokenAllowance: ethers.utils.parseUnits("1000000", 3),
-  },
+  ...defaultCauldronParams,
 };
 
 const testArbCauldronAcceptUseDefaultBalance = {
@@ -105,39 +77,7 @@ const testArbCauldronAcceptUseDefaultBalance = {
       testProvider
     ),
   },
-  mainParams: {
-    borrowFee: 1,
-    interest: 1,
-    liquidationFee: 1,
-    collateralPrice: ethers.utils.parseUnits("1000000", 3),
-    mimLeftToBorrow: ethers.utils.parseUnits("1000000", 3),
-    maximumCollateralRatio: ethers.utils.parseUnits("1000000", 3),
-    oracleExchangeRate: ethers.utils.parseUnits("1000000", 3),
-    totalBorrowed: ethers.utils.parseUnits("1000000", 3),
-    tvl: ethers.utils.parseUnits("1000000", 3),
-    userMaxBorrow: ethers.utils.parseUnits("1000000", 3),
-  },
-  userPosition: {
-    collateralInfo: {
-      userCollateralShare: ethers.utils.parseUnits("1000000", 3),
-      userCollateralAmount: ethers.utils.parseUnits("1000000", 3),
-    },
-    borrowInfo: {
-      userBorrowPart: ethers.utils.parseUnits("1000000", 3),
-      userBorrowAmount: ethers.utils.parseUnits("1000000", 3),
-    },
-    oracleRate: ethers.utils.parseUnits("1000000", 3),
-    liquidationPrice: "100",
-  },
-  userTokensInfo: {
-    collateralBalance: ethers.utils.parseUnits("1000000", 3),
-    mimBalance: ethers.utils.parseUnits("1000000", 3),
-    nativeTokenBalance: ethers.utils.parseUnits("1000000", 3),
-    collateralAllowance: ethers.utils.parseUnits("1000000", 3),
-    mimAllowance: ethers.utils.parseUnits("1000000", 3),
-    unwrappedTokenBalance: ethers.utils.parseUnits("1000000", 3),
-    unwrappedTokenAllowance: ethers.utils.parseUnits("1000000", 3),
-  },
+  ...defaultCauldronParams,
 };
 
 describe("BalanceBlockNew.vue", async () => {
