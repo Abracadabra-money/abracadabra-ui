@@ -3,22 +3,18 @@
     <div
       class="percent-item"
       :class="{
-        active: item == value && collateralValue,
-        disabled: item > maxValue || !collateralValue,
+        active: percentValue == currentPercentValue && collateralValue,
+        disabled: percentValue > maxValue || !collateralValue,
       }"
-      v-for="(item, idx) in percentItems"
+      v-for="(percentValue, idx) in defaultPercentValues"
       :key="idx"
-      @click="setItemActive(item)"
+      @click="setItemActive(percentValue)"
     >
-      <p>{{ item }}%</p>
+      <p>{{ percentValue }}%</p>
     </div>
     <label
       class="percent-item custom"
-      :class="{
-        error: customErr,
-        active: customValue == value && value !== '',
-        disabled: !collateralValue,
-      }"
+      :class="customPercentClass"
       @click="setCustomState(true)"
     >
       <input
@@ -26,7 +22,7 @@
         v-model.trim="customValue"
         type="number"
         placeholder="XX%"
-        @input="setCustomValue($event.target.value)"
+        @input="setCustomPercent($event.target.value)"
         :disabled="!collateralValue"
       />
       <p v-else>custom</p>
@@ -48,53 +44,61 @@ export default {
   },
   data() {
     return {
-      percentItems: [25, 50, 70, 90],
-      activePercent: null,
+      defaultPercentValues: [25, 50, 70, 90],
       isCustom: false,
       customValue: "",
-      customErr: false,
-      value: null,
+      inputError: false,
+      currentPercentValue: null,
     };
   },
-
+  computed: {
+    customPercentClass() {
+      return {
+        error: this.inputError,
+        active:
+          this.customValue == this.currentPercentValue &&
+          this.currentPercentValue !== "",
+        disabled: !this.collateralValue,
+      };
+    },
+  },
   watch: {
     collateralValue() {
       if (!this.collateralValue) {
         this.isCustom = false;
-        this.value = null;
+        this.currentPercentValue = null;
       }
     },
   },
 
   methods: {
-    setCustomValue(value) {
-      this.customErr = false;
-      if (value < 0 || value > this.maxValue) {
-        this.customErr = true;
+    setCustomPercent(percent) {
+      this.inputError = false;
+
+      if (!percent) this.emitValue("");
+
+      if (percent < 0 || percent > this.maxValue) {
+        this.inputError = true;
         this.emitValue("");
-        return false;
       }
 
-      if (value && value > 0 && value <= this.maxValue) this.emitValue(value);
-      if (!value) this.emitValue("");
+      if (percent > 0 && percent <= this.maxValue) this.emitValue(percent);
     },
 
     setCustomState(bool) {
-      if (!this.collateralValue) return false;
-      if (this.isCustom === bool) return false;
       this.isCustom = bool;
       if (bool) this.emitValue("");
     },
 
     setItemActive(item) {
-      this.customErr = false;
+      this.inputError = false;
       this.isCustom = false;
       this.customValue = "";
       this.emitValue(item);
     },
 
     emitValue(value) {
-      this.value = value;
+      this.currentPercentValue = value;
       if (!isNaN(value)) this.$emit("onchange", value);
     },
   },
