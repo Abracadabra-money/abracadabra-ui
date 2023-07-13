@@ -2,7 +2,8 @@ import { Contract, BigNumber, utils } from "ethers";
 import lensAbi from "@/utils/abi/marketLens.js";
 import type { providers } from "ethers";
 import type { UserPositions } from "@/helpers/cauldron/types";
-const LENS_CONTRACT_ADDRESS = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
+// todo const LENS_CONTRACT_ADDRESS = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
+const LENS_CONTRACT_ADDRESS = "0x26ecfcd82bf36427006794d41927da334f762230";
 
 const emptyPosition = {
   oracleRate: BigNumber.from("0"),

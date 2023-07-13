@@ -2,7 +2,8 @@ import { Contract } from "ethers";
 import type { providers } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
 import lensAbi from "@/utils/abi/marketLens.js";
-const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
+// todo const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
+const lensAddress = "0x26ecfcd82bf36427006794d41927da334f762230";
 
 export const getMainParams = async (
   configs: Array<Object | undefined>,

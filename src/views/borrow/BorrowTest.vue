@@ -1,6 +1,6 @@
 <template>
-  <div class="cauldron-view" :class="{ loading: isLoadedCauldron }">
-    <template v-if="!isLoadedCauldron">
+  <div class="cauldron-view" :class="{ loading: isCauldronLoading }">
+    <template v-if="!isCauldronLoading">
       <div class="cauldron-deposit" :style="backgroundInfo.deposit">
         <div class="underline">
           <h4>Choose Chain</h4>
@@ -179,7 +179,7 @@ export default {
       signer: "getSigner",
     }),
 
-    isLoadedCauldron() {
+    isCauldronLoading() {
       return !!(this.$route.params.id && !this.cauldron);
     },
 
@@ -243,13 +243,8 @@ export default {
     },
 
     mimInfo() {
-      const name = this.cauldron
-        ? this.cauldron.config.mimInfo.name
-        : MIM_INFO.name;
-      const icon = this.cauldron
-        ? this.cauldron.config.mimInfo.icon
-        : MIM_INFO.icon;
-
+      if (!this.cauldron) return MIM_INFO;
+      const { name, icon } = this.cauldron.config.mimInfo;
       return { name, icon };
     },
 
@@ -424,6 +419,7 @@ export default {
     },
 
     cauldron() {
+      // todo
       if (this.cauldron === null) this.$router.push(`/borrowTest`);
     },
   },
