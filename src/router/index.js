@@ -18,12 +18,12 @@ const routes = [
   },
   {
     path: "/borrowTest",
-    name: "BorrowTest",
+    name: "Borrow",
     component: () => import("@/views/borrow/BorrowTest.vue"),
   },
   {
     path: "/borrowTest/:id",
-    name: "BorrowTestId",
+    name: "BorrowId",
     component: () => import("@/views/borrow/BorrowTest.vue"),
   },
   {

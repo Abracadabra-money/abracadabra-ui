@@ -17,3 +17,10 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.ape-icon {
+  max-width: 27px;
+  margin: 0 10px;
+}
+</style>

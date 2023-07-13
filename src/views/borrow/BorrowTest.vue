@@ -898,11 +898,6 @@ export default {
   gap: 15px;
 }
 
-.ape-icon {
-  max-width: 27px;
-  margin: 0 10px;
-}
-
 .btn-wrap {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -25,8 +25,7 @@ export default {
   data() {
     return {
       emptyDataConfig: {
-        // todo
-        BorrowTest: {
+        Borrow: {
           img: useImage(`assets/images/empty_borrow.png`),
           text: "Choose the asset and amount you want to use as collateral as well as the amount of MIM you want to Borrow",
           bottom: "If you want to learn more read our docs",
