@@ -31,7 +31,7 @@ export default {
   props: {
     cauldron: { type: Object },
     expectedCollateralAmount: { type: Number, default: 0 },
-    expectedBorrowedAmount: { type: Number, default: 0 },
+    expectedBorrowAmount: { type: Number, default: 0 },
     expectedLiquidationPrice: { type: Number, default: 0 },
   },
   computed: {
@@ -53,7 +53,7 @@ export default {
     },
 
     mimBorrowed() {
-      return filters.formatTokenBalance(this.expectedBorrowedAmount);
+      return filters.formatTokenBalance(this.expectedBorrowAmount);
     },
 
     liquidationPrice() {

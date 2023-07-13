@@ -65,7 +65,7 @@
                 v-if="showAdditionalInfo"
                 :cauldron="cauldron"
                 :expectedCollateralAmount="expectedCollateralAmount"
-                :expectedBorrowedAmount="expectedBorrowedAmount"
+                :expectedBorrowAmount="expectedBorrowAmount"
                 :expectedLiquidationPrice="expectedLiquidationPrice"
               />
 
@@ -139,7 +139,6 @@ export default {
       borrowValue: "",
       collateralValue: "",
       cauldronId: null,
-      maxWithdrawAmount: 0,
       updateInterval: null,
       showAdditionalInfo: true,
       isOpenMarketListPopup: false,
@@ -177,7 +176,14 @@ export default {
       if (!this.cauldron) return 0;
 
       const { borrowAmount } = this.mimInfo;
-      const { collateralAmount, maxWithdrawAmount } = this.activeToken;
+      const { collateralAmount, decimals } = this.activeToken;
+      const { config, additionalInfo, mainParams } = this.cauldron;
+      const { mcr } = config;
+      const { maxWithdrawAmount: withdrawAmount } = additionalInfo;
+      const { oracleExchangeRate: exchangeRate } = mainParams;
+
+      const oracleExchangeRate = +utils.formatUnits(exchangeRate, decimals);
+      const maxWithdrawAmount = +utils.formatUnits(withdrawAmount, decimals);
 
       if (+this.borrowValue === borrowAmount || !borrowAmount) {
         if (maxWithdrawAmount && maxWithdrawAmount < collateralAmount) {
@@ -187,30 +193,17 @@ export default {
         return collateralAmount;
       }
 
-      return this.maxRemoveCollateralAmount;
-    },
-
-    maxRemoveCollateralAmount() {
-      const { mcr } = this.cauldron.config;
-      const { borrowAmount } = this.mimInfo;
-      const { oracleExchangeRate: exchangeRate } = this.cauldron.mainParams;
-      const { collateralAmount, decimals, maxWithdrawAmount } =
-        this.activeToken;
-
-      const oracleExchangeRate = +utils.formatUnits(exchangeRate, decimals);
-      const tokenInUsd = collateralAmount / oracleExchangeRate;
-      const maxMimBorrow = (tokenInUsd / 100) * (mcr - 1);
-      const maxBorrowLeft =
-        +this.borrowValue && !this.errorBorrowValue
-          ? +maxMimBorrow - borrowAmount + +this.borrowValue
-          : +maxMimBorrow - borrowAmount;
-      const borrowLeft = ((maxBorrowLeft * oracleExchangeRate) / mcr) * 100;
+      const collateralInUsd = collateralAmount / oracleExchangeRate;
+      const maxBorrow =
+        (collateralInUsd / 100) * (mcr - 1) - this.expectedBorrowAmount;
+      const borrowLeft = ((maxBorrow * oracleExchangeRate) / mcr) * 100;
 
       if (borrowLeft < 0) return "0";
-      if (maxWithdrawAmount && maxWithdrawAmount < +borrowLeft)
+      if (maxWithdrawAmount && maxWithdrawAmount < +borrowLeft) {
         return maxWithdrawAmount;
+      }
 
-      return filters.formatToFixed(+borrowLeft, decimals);
+      return filters.formatToFixed(borrowLeft, decimals);
     },
 
     maxBorrowValue() {
@@ -238,31 +231,27 @@ export default {
 
     expectedCollateralAmount() {
       const { collateralAmount } = this.activeToken;
-
-      if (this.errorCallateralValue) return collateralAmount;
-      return collateralAmount - +this.collateralValue;
+      const expectedAmount = collateralAmount - +this.collateralValue;
+      return expectedAmount < 0 ? 0 : expectedAmount;
     },
 
-    expectedBorrowedAmount() {
+    expectedBorrowAmount() {
       const { borrowAmount } = this.mimInfo;
-
-      if (this.errorBorrowValue) return borrowAmount;
-      return borrowAmount - +this.borrowValue;
+      const expectedAmount = borrowAmount - +this.borrowValue;
+      return expectedAmount < 0 ? 0 : expectedAmount;
     },
 
     expectedLiquidationPrice() {
       if (!this.expectedCollateralAmount) return 0;
 
       return (
-        this.expectedBorrowedAmount /
+        this.expectedBorrowAmount /
         this.expectedCollateralAmount /
         (+this.cauldron.config.mcr / 100)
       );
     },
 
-    activeToken() {
-      if (!this.cauldron) return EMPTY_DATA;
-
+    collateralToken() {
       const { config, userPosition } = this.cauldron;
       const { icon } = config;
       const { name, decimals, address } = config.collateralInfo;
@@ -276,11 +265,13 @@ export default {
         decimals,
         collateralAmount: +utils.formatUnits(userCollateralAmount),
         collateralShare: +utils.formatUnits(userCollateralShare),
-        maxWithdrawAmount: +filters.formatToFixed(
-          +this.maxWithdrawAmount,
-          decimals
-        ),
       };
+    },
+
+    activeToken() {
+      if (!this.cauldron) return EMPTY_DATA;
+
+      return this.collateralToken;
     },
 
     mimInfo() {
@@ -475,8 +466,8 @@ export default {
       };
 
       if (
-        +this.borrowValue === borrowPart &&
-        +this.collateralValue === collateralShare
+        +this.borrowValue === +borrowPart &&
+        +this.collateralValue === +collateralShare
       ) {
         payload.itsMax = true;
         payload.collateralAmount = userBorrowPart;
@@ -510,26 +501,13 @@ export default {
     async checkAllowance(amount) {
       const { bentoBox, mim } = this.cauldron.contracts;
 
-      const isApproved = await mim.allowance(this.account, bentoBox.address);
+      const allowance = await mim.allowance(this.account, bentoBox.address);
 
-      if (isApproved.lt(amount)) {
+      if (allowance.lt(amount)) {
         return await approveToken(mim, bentoBox.address);
       }
 
       return true;
-    },
-
-    async getMaxWithdrawAmount() {
-      const { decimals } = this.activeToken;
-      const { collateral, bentoBox } = this.cauldron.contracts;
-      const { hasWithdrawableLimit } = this.cauldron.config.cauldronSettings;
-
-      if (hasWithdrawableLimit) {
-        const withdrawAmount = await collateral.balanceOf(bentoBox.address);
-        return utils.formatUnits(withdrawAmount, decimals);
-      }
-
-      return 0;
     },
 
     async changeActiveMarket(marketId) {
@@ -558,8 +536,6 @@ export default {
         this.provider,
         userSigner
       );
-
-      this.maxWithdrawAmount = await this.getMaxWithdrawAmount();
 
       this.updateInterval = await setInterval(async () => {
         this.cauldron = await getCauldronInfo(

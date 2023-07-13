@@ -81,7 +81,7 @@
                 v-if="showAdditionalInfo"
                 :cauldron="cauldron"
                 :expectedCollateralAmount="expectedCollateralAmount"
-                :expectedBorrowedAmount="expectedBorrowedAmount"
+                :expectedBorrowAmount="expectedBorrowAmount"
                 :expectedLiquidationPrice="expectedLiquidationPrice"
               />
 
@@ -298,9 +298,8 @@ export default {
 
       if (this.borrowValue) {
         const ltv =
-          Math.round(
-            (this.expectedBorrowedAmount / this.collateralInUsd) * 100
-          ) + 1;
+          Math.round((this.expectedBorrowAmount / this.collateralInUsd) * 100) +
+          1;
 
         if (ltv <= +mcr) return parseFloat(ltv).toFixed(0);
         return +mcr;
@@ -332,7 +331,7 @@ export default {
       else return collateralDeposit + +this.collateralValue / rates;
     },
 
-    expectedBorrowedAmount() {
+    expectedBorrowAmount() {
       const { borrowFee } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
       const borrowAmount = +utils.formatUnits(userBorrowAmount);
@@ -344,7 +343,7 @@ export default {
       if (!this.expectedCollateralAmount) return 0;
 
       return (
-        this.expectedBorrowedAmount /
+        this.expectedBorrowAmount /
         this.expectedCollateralAmount /
         (+this.cauldron.config.mcr / 100)
       );
@@ -500,12 +499,12 @@ export default {
       const { isNative, contract } = this.activeToken;
       const { bentoBox } = this.cauldron.contracts;
       if (!isNative) {
-        const isApproved = await contract.allowance(
+        const allowance = await contract.allowance(
           this.account,
           bentoBox.address
         );
 
-        if (isApproved.lt(amount)) {
+        if (allowance.lt(amount)) {
           return await approveToken(contract, bentoBox.address);
         }
       }

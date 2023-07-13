@@ -60,4 +60,5 @@ export type CauldronPositionItem = {
 export type AdditionalInfo = {
   isMasterContractApproved: Boolean;
   tokensRate: BigNumber;
+  maxWithdrawAmount: BigNumber;
 };

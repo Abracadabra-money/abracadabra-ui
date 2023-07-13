@@ -19,10 +19,14 @@ export const getAdditionalInfo = async (
       collateral.convertToAssets(utils.parseUnits("1", decimals))
     );
 
+  if (config.cauldronSettings.hasWithdrawableLimit)
+    multicallArr.push(collateral.balanceOf(bentoBox.address));
+
   const additionalInfo = await Promise.all(multicallArr);
 
   return {
     isMasterContractApproved: additionalInfo[0] || false,
     tokensRate: additionalInfo[1] || BigNumber.from("1"),
+    maxWithdrawAmount: additionalInfo[2] || BigNumber.from("0"),
   };
 };
