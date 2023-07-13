@@ -139,7 +139,7 @@ export default {
           this.chainId,
           this.buyToken,
           this.sellToken,
-          this.slipage,
+          this.slippage,
           0,
           undefined,
           this.parsedAmount.toString()
@@ -150,7 +150,7 @@ export default {
           this.chainId,
           this.buyToken,
           this.sellToken,
-          this.slipage,
+          this.slippage,
           this.parsedAmount.toString()
         );
         priceIntermediate = price;
