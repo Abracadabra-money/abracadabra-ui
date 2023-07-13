@@ -1,38 +1,36 @@
 <template>
-  <div class="liquid-rules-block">
-    <div class="block-body">
-      <div
-        class="percent-item"
-        :class="{
-          active: item == value && collateralValue,
-          disabled: item > maxValue || !collateralValue,
-        }"
-        v-for="(item, idx) in percentItems"
-        :key="idx"
-        @click="setItemActive(item)"
-      >
-        <p>{{ item }}%</p>
-      </div>
-      <label
-        class="percent-item custom"
-        :class="{
-          error: customErr,
-          active: customValue == value && value !== '',
-          disabled: !collateralValue,
-        }"
-        @click="setCustomState(true)"
-      >
-        <input
-          v-if="isCustom"
-          v-model.trim="customValue"
-          type="number"
-          placeholder="XX%"
-          @input="setCustomValue($event.target.value)"
-          :disabled="!collateralValue"
-        />
-        <p v-else>custom</p>
-      </label>
+  <div class="percentage-buttons-block">
+    <div
+      class="percent-item"
+      :class="{
+        active: item == value && collateralValue,
+        disabled: item > maxValue || !collateralValue,
+      }"
+      v-for="(item, idx) in percentItems"
+      :key="idx"
+      @click="setItemActive(item)"
+    >
+      <p>{{ item }}%</p>
     </div>
+    <label
+      class="percent-item custom"
+      :class="{
+        error: customErr,
+        active: customValue == value && value !== '',
+        disabled: !collateralValue,
+      }"
+      @click="setCustomState(true)"
+    >
+      <input
+        v-if="isCustom"
+        v-model.trim="customValue"
+        type="number"
+        placeholder="XX%"
+        @input="setCustomValue($event.target.value)"
+        :disabled="!collateralValue"
+      />
+      <p v-else>custom</p>
+    </label>
   </div>
 </template>
 
@@ -104,73 +102,58 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.liquid-rules-block {
-  .block-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-  }
+.percentage-buttons-block {
+  width: 100%;
+  max-width: 490px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow-x: auto;
+}
 
-  .price-text {
-    span {
-      padding-left: 10px;
-    }
-  }
+.percent-item {
+  background: #373541;
+  border-radius: 20px;
+  height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border 0.3s ease;
+  margin-right: 5px;
+}
 
-  .block-body {
-    width: 100%;
-    max-width: 490px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    overflow-x: auto;
-  }
+.percent-item.custom {
+  width: 140px;
+  margin-right: 0;
+}
 
-  .percent-item {
-    background: #373541;
-    border-radius: 20px;
-    height: 40px;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: border 0.3s ease;
-    margin-right: 5px;
+.percent-item.disabled {
+  pointer-events: none;
+  color: grey;
+}
 
-    &.custom {
-      width: 140px;
-      margin-right: 0;
-    }
+.percent-item.active,
+.percent-item:hover {
+  background: #55535d;
+}
 
-    input {
-      background-color: transparent;
-      border: none;
-      height: 100%;
-      text-align: center;
-      color: #fff;
-      outline: none;
-      width: 100%;
-      padding-left: 5px;
-      padding-right: 5px;
-      min-width: 50px;
-    }
+.percent-item.error {
+  border: 1px solid red;
+}
 
-    &.disabled {
-      pointer-events: none;
-      color: grey;
-    }
-
-    &.active,
-    &:hover {
-      background: #55535d;
-    }
-
-    &.error {
-      border: 1px solid red;
-    }
-  }
+.percent-item input {
+  background-color: transparent;
+  border: none;
+  height: 100%;
+  text-align: center;
+  color: #fff;
+  outline: none;
+  width: 100%;
+  padding-left: 5px;
+  padding-right: 5px;
+  min-width: 50px;
 }
 </style>
