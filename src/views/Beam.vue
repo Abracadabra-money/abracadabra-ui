@@ -383,7 +383,7 @@ export default {
     },
 
     async switchChain() {
-      if (!this.isSelectedChain) return false;
+      if (!this.isSelectedChain && !this.dstChain) return false;
       await switchNetwork(this.dstChain.chainId);
     },
 

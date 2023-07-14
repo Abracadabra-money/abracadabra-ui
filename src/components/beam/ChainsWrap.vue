@@ -45,7 +45,7 @@ export default {
 
   computed: {
     destinationChain() {
-      if (!this.selectChain)
+      if (!this.selectChain && !this.toChain)
         return {
           title: "Select chain",
           icon: useImage(`assets/images/networks/no-chain.svg`),
