@@ -1,30 +1,33 @@
 <template>
   <div class="percentage-buttons-block">
-    <div
-      class="percent-item"
+    <button
+      class="percent-button"
       :class="{
-        active: percentValue == currentPercentValue && collateralValue,
-        disabled: percentValue > maxValue || !collateralValue,
+        active: percent === parcentValue && !isCustomInput,
+        disabled: percent > maxParcent || !isDisabled,
       }"
-      v-for="(percentValue, idx) in defaultPercentValues"
-      :key="idx"
-      @click="setItemActive(percentValue)"
+      v-for="percent in defaultPercentValues"
+      :key="percent"
+      @click="setButtonActive(percent)"
     >
-      <p>{{ percentValue }}%</p>
-    </div>
+      {{ percent }}%
+    </button>
+
     <label
-      class="percent-item custom"
-      :class="customPercentClass"
+      class="custom-input-wrap"
+      :class="customInputClasses"
       @click="setCustomState(true)"
     >
       <input
-        v-if="isCustom"
-        v-model.trim="customValue"
+        class="custom-input"
+        v-if="isCustomInput"
+        v-model.trim="parcentValue"
         type="number"
         placeholder="XX%"
-        @input="setCustomPercent($event.target.value)"
-        :disabled="!collateralValue"
+        @input="updateCustomPercent($event.target.value)"
+        :disabled="!isDisabled"
       />
+
       <p v-else>custom</p>
     </label>
   </div>
@@ -33,73 +36,56 @@
 <script>
 export default {
   props: {
-    maxValue: {
+    maxParcent: {
       type: Number,
       require: true,
     },
-    collateralValue: {
-      type: String,
+    isDisabled: {
+      type: Boolean,
       require: true,
     },
   },
+
   data() {
     return {
       defaultPercentValues: [25, 50, 70, 90],
-      isCustom: false,
-      customValue: "",
-      inputError: false,
-      currentPercentValue: null,
+      parcentValue: "",
+      isCustomInput: false,
+      errorCastomValue: false,
     };
   },
+
   computed: {
-    customPercentClass() {
+    customInputClasses() {
       return {
-        error: this.inputError,
-        active:
-          this.customValue == this.currentPercentValue &&
-          this.currentPercentValue !== "",
-        disabled: !this.collateralValue,
+        error: this.errorCastomValue,
+        active: this.isCustomInput && this.parcentValue,
+        disabled: !this.isDisabled,
       };
     },
   },
+
   watch: {
-    collateralValue() {
-      if (!this.collateralValue) {
-        this.isCustom = false;
-        this.currentPercentValue = null;
-      }
+    isDisabled() {
+      if (!this.isDisabled) this.setCustomState();
     },
   },
 
   methods: {
-    setCustomPercent(percent) {
-      this.inputError = false;
-
-      if (!percent) this.emitValue("");
-
-      if (percent < 0 || percent > this.maxValue) {
-        this.inputError = true;
-        this.emitValue("");
-      }
-
-      if (percent > 0 && percent <= this.maxValue) this.emitValue(percent);
+    setCustomState(bool = false, value = "") {
+      this.isCustomInput = bool;
+      this.parcentValue = value;
     },
 
-    setCustomState(bool) {
-      this.isCustom = bool;
-      if (bool) this.emitValue("");
+    setButtonActive(item) {
+      this.setCustomState(false, item);
+      this.updateCustomPercent(item);
     },
 
-    setItemActive(item) {
-      this.inputError = false;
-      this.isCustom = false;
-      this.customValue = "";
-      this.emitValue(item);
-    },
-
-    emitValue(value) {
-      this.currentPercentValue = value;
-      if (!isNaN(value)) this.$emit("onchange", value);
+    updateCustomPercent(percent) {
+      this.errorCastomValue = +percent > +this.maxParcent ? true : false;
+      const percentValue = this.errorCastomValue ? "" : percent;
+      if (!isNaN(percent)) this.$emit("onchange", percentValue);
     },
   },
 };
@@ -113,9 +99,11 @@ export default {
   align-items: center;
   justify-content: space-between;
   overflow-x: auto;
+  gap: 5px;
 }
 
-.percent-item {
+.percent-button,
+.custom-input-wrap {
   background: #373541;
   border-radius: 20px;
   height: 40px;
@@ -126,29 +114,28 @@ export default {
   cursor: pointer;
   border: 1px solid transparent;
   transition: border 0.3s ease;
-  margin-right: 5px;
+  color: #fff;
 }
 
-.percent-item.custom {
+.custom-input-wrap {
   width: 140px;
-  margin-right: 0;
 }
 
-.percent-item.disabled {
+.disabled {
   pointer-events: none;
   color: grey;
 }
 
-.percent-item.active,
-.percent-item:hover {
+.active,
+.percent-button:hover {
   background: #55535d;
 }
 
-.percent-item.error {
+.error {
   border: 1px solid red;
 }
 
-.percent-item input {
+.custom-input {
   background-color: transparent;
   border: none;
   height: 100%;

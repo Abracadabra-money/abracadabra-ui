@@ -46,9 +46,8 @@
 
         <div class="percent-wrap" v-if="cauldron">
           <PercentageButtons
-            :maxValue="cauldron.config.mcr"
-            :collateralValue="collateralValue"
-            :liquidationPrice="expectedLiquidationPrice"
+            :maxParcent="cauldron.config.mcr"
+            :isDisabled="!!collateralValue"
             @onchange="updatePercentValue"
           />
         </div>
@@ -442,10 +441,11 @@ export default {
     },
 
     updatePercentValue(value) {
+      if (!value) this.borrowValue = "";
       const { mcr } = this.cauldron.config;
       const amount = (this.maxBorrowValue * value) / +mcr;
       if (amount > +this.maxBorrowValue) this.borrowValue = this.maxBorrowValue;
-      this.borrowValue = amount;
+      this.borrowValue = !amount ? "" : amount;
     },
 
     async approveTokenHandler() {
