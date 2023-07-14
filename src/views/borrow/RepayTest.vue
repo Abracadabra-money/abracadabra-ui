@@ -39,6 +39,12 @@
             :disabled="!cauldron"
             @updateValue="updateBorrowValue"
           />
+
+          <DynamicallyEstimatedPrice
+            :itsClose="true"
+            :amount="borrowValue"
+            :mimAddress="mimInfo.address"
+          />
         </div>
 
         <BalanceBlock v-if="cauldron" :cauldron="cauldron" />
@@ -277,7 +283,7 @@ export default {
     mimInfo() {
       if (!this.cauldron) return MIM_INFO;
 
-      const { name, icon, decimals } = this.cauldron.config.mimInfo;
+      const { name, icon, decimals, address } = this.cauldron.config.mimInfo;
       const { mimBalance } = this.cauldron.userTokensInfo;
       const { userBorrowAmount, userBorrowPart } =
         this.cauldron.userPosition.borrowInfo;
@@ -285,6 +291,7 @@ export default {
       return {
         name,
         icon,
+        address,
         borrowAmount: +utils.formatUnits(userBorrowAmount),
         borrowPart: +utils.formatUnits(userBorrowPart),
         mimBalance: +utils.formatUnits(mimBalance),
@@ -568,6 +575,9 @@ export default {
     ),
     Tooltip: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")
+    ),
+    DynamicallyEstimatedPrice: defineAsyncComponent(() =>
+      import("@/components/borrow/DynamicallyEstimatedPrice.vue")
     ),
     BalanceBlock: defineAsyncComponent(() =>
       import("@/components/borrow/BalanceBlockNew.vue")
