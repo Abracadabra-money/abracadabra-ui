@@ -383,7 +383,8 @@ export default {
     },
 
     async switchChain() {
-      if (!this.isSelectedChain && !this.dstChain) return false;
+      if (!this.isSelectedChain) return false;
+      localStorage.setItem("previous_chain_id", this.chainId);
       await switchNetwork(this.dstChain.chainId);
     },
 
@@ -640,6 +641,12 @@ export default {
     else {
       await this.createBeamData();
       await this.updateHistoryStatus();
+
+      const previousChainId = localStorage.getItem("previous_chain_id");
+      if (previousChainId) {
+        await this.changeChain(+previousChainId, "to");
+        localStorage.removeItem("previous_chain_id");
+      }
     }
   },
 

@@ -45,12 +45,11 @@ export default {
 
   computed: {
     destinationChain() {
-      if (!this.selectChain && !this.toChain)
+      if (!this.selectChain)
         return {
           title: "Select chain",
           icon: useImage(`assets/images/networks/no-chain.svg`),
         };
-
       return this.toChain;
     },
   },
