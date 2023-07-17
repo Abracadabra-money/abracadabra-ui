@@ -8,9 +8,10 @@ import {
   watchNetwork,
 } from "@wagmi/core";
 
-import { publicProvider } from '@wagmi/core/providers/public';
+import { publicProvider } from "@wagmi/core/providers/public";
 
-import {mainnet} from "./chains/mainnet"
+import { mainnet } from "./chains/mainnet";
+import { kava } from "./chains/kava";
 
 import {
   // mainnet,
@@ -34,6 +35,8 @@ import { sanctionAbi } from "@/utils/abi/sanctionAbi";
 import { getEthersProvider } from "./getEthersProvider";
 import { getEthersSigner } from "./getEthersSigner";
 
+import { useImage } from "@/helpers/useImage";
+
 const rpc = {
   1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
   10: "https://mainnet.optimism.io",
@@ -43,16 +46,30 @@ const rpc = {
   1285: "https://rpc.api.moonriver.moonbeam.network",
   42161: "https://arb1.arbitrum.io/rpc",
   43114: "https://api.avax.network/ext/bc/C/rpc",
+  2222: "https://evm.kava.io ",
 };
 
 // 1. Define constants
 const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
 if (!projectId) throw new Error("You need to provide projectId env");
 
-const chains = [mainnet, bsc, polygon, avalanche, fantom, arbitrum, optimism, moonriver];
+const chains = [
+  mainnet,
+  bsc,
+  polygon,
+  avalanche,
+  fantom,
+  arbitrum,
+  optimism,
+  moonriver,
+  kava,
+];
 
 // 2. Configure wagmi client
-const { publicClient } = configureChains(chains, [publicProvider(), w3mProvider({ projectId })]);
+const { publicClient } = configureChains(chains, [
+  publicProvider(),
+  w3mProvider({ projectId }),
+]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
@@ -71,6 +88,9 @@ const web3modal = new Web3Modal(
       "--w3m-background-color": "rgba(60, 60, 60, 0.8)",
       "--w3m-accent-color": "#76c3f5",
       "--w3m-z-index": "1000",
+    },
+    chainImages: {
+      2222: useImage("assets/images/networks/kava.png"),
     },
   },
   ethereumClient
@@ -104,9 +124,7 @@ const checkSanctionAddress = async (address) => {
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
   const provider = markRaw(
-    new ethers.providers.StaticJsonRpcProvider(
-      rpc[chainId]
-    )
+    new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
   );
 
   const account = ethereumClient.getAccount().address;
@@ -138,15 +156,11 @@ const onConnectNew = async () => {
     watchNetwork((network) => {
       if (chainId !== network.chain.id) window.location.reload();
     });
-    
+
     const provider = markRaw(
-      new ethers.providers.StaticJsonRpcProvider(
-        rpc[chainId]
-      )
+      new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
     );
-    const signer = markRaw(await getEthersSigner(
-      {chainId}
-    ));
+    const signer = markRaw(await getEthersSigner({ chainId }));
 
     store.commit("setChainId", chainId);
     store.commit("setProvider", provider);
