@@ -406,6 +406,22 @@ export default {
       this.dstAddressError = error;
     },
 
+    async checkAllowance(wantedAmount) {
+      const allowedAmount =
+        await this.beamConfig.tokenContractInstance.allowance(
+          this.account,
+          this.beamConfig.contractInstance.address
+        );
+
+      if (allowedAmount.lt(wantedAmount)) {
+        return await approveToken(
+          this.beamConfig.tokenContractInstance,
+          this.beamConfig.contractInstance.address
+        );
+      }
+      return allowedAmount;
+    },
+
     async actionHandler() {
       if (this.disableBtn) return false;
       if (this.isTokenApproved) {
@@ -434,21 +450,25 @@ export default {
     },
 
     async seendBeam() {
+      this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
+      const mimPrice = (await getMimPrice()) || 1;
+      this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
+
+      const mimAmount = this.$ethers.utils.parseUnits(
+        filters.formatToFixed(this.amount, 18),
+        18
+      );
+
+      const allowanceStatus = await this.checkAllowance(mimAmount);
+
+      if (!allowanceStatus) return false;
+
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.pending
       );
 
-      this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
-      const mimPrice = (await getMimPrice()) || 1;
-      this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
-
       try {
-        const mimAmount = this.$ethers.utils.parseUnits(
-          filters.formatToFixed(this.amount, 18),
-          18
-        );
-
         const { fees, params } = await this.getEstimatedFees(true);
         this.tx = await sendFrom(fees, params, mimAmount, this.txConfig);
         await this.$store.commit("notifications/delete", notificationId);
