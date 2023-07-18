@@ -588,6 +588,11 @@ export default {
 
         this.estimateSendFee = await this.getEstimatedFees();
       } else {
+        
+        if (this.dstChain.chainId !== chainId) {
+          localStorage.setItem("previous_chain_id", this.dstChain.chainId);
+        }
+
         await switchNetwork(chainId);
       }
     },
