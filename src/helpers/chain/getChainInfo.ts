@@ -31,6 +31,11 @@ const tokens: any = {
     icon: useImage("assets/images/tokens/MOVR.png"),
     scanUrl: "https://moonriver.moonscan.io/tx/",
   },
+  2222: {
+    symbol: "KAVA",
+    icon: useImage("assets/images/tokens/KAVA.png"),
+    scanUrl: "https://explorer.kava.io/tx/",
+  },
   42161: {
     symbol: "ETH",
     icon: useImage("assets/images/tokens/ETH.png"),

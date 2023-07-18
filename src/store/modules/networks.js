@@ -6,6 +6,7 @@ import avalancheIcon from "@/assets/images/networks/avalanche-icon.png";
 import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
 import optimismIcon from "@/assets/images/networks/optimism-icon.svg";
 import moonriver from "@/assets/images/networks/moonriver.svg";
+import kava from "@/assets/images/networks/kava.png";
 
 export default {
   state: {
@@ -140,6 +141,20 @@ export default {
           chainName: "Moonriver",
           rpcUrls: ["https://rpc.api.moonriver.moonbeam.network"],
           blockExplorerUrls: ["https://moonriver.moonscan.io/"],
+        },
+      },
+      {
+        chainId: 2222,
+        name: "Kava EVM",
+        rpc: "https://arb1.arbitrum.io/rpc",
+        icon: kava,
+        switchData: {
+          chainId: "0x8ae",
+          chainName: "Kava EVM",
+
+          rpcUrls: ["https://evm.kava.io"],
+
+          blockExplorerUrls: ["https://explorer.kava.io"],
         },
       },
     ],

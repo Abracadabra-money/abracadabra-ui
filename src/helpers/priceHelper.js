@@ -6,14 +6,15 @@ const chainCoinGeckoIds = {
   56: "binance-smart-chain",
   137: "polygon-pos",
   250: "fantom",
+  1285: "moonriver",
+  2222: "kava",
   42161: "arbitrum-one",
   43114: "avalanche",
 };
 
-const apiDomain =
-  import.meta.env.VITE_APP_COINGECKO_API_KEY
-    ? "pro-api.coingecko.com"
-    : "api.coingecko.com";
+const apiDomain = import.meta.env.VITE_APP_COINGECKO_API_KEY
+  ? "pro-api.coingecko.com"
+  : "api.coingecko.com";
 
 const config = {
   headers: {
@@ -83,6 +84,7 @@ const coingeckoChainId = {
   137: "matic-network",
   250: "fantom",
   1285: "moonriver",
+  2222: "kava",
   42161: "ethereum",
   43114: "avalanche-2",
 };
