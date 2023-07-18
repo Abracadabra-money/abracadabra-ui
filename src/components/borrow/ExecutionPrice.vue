@@ -1,6 +1,7 @@
+<!-- todo refactoring component -->
 <template>
   <div class="wrap">
-    <div class="info" :class="{ difference: isDifference }">
+    <div class="info" :class="{ warning: isWarning }">
       <span class="title">
         <img
           src="@/assets/images/info.svg"
@@ -11,24 +12,26 @@
       </span>
       <span class="price">{{ executionPrice }}</span>
     </div>
-    <p v-if="isDifference" class="error">Warning! Exchange rate is low.</p>
+    <p v-if="isWarning" class="error">Warning! Exchange rate is low.</p>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { utils } from "ethers";
+import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
+import { swap0xRequest } from "@/helpers/0x";
 export default {
   props: {
-    pool: {
+    cauldron: {
       type: Object,
     },
-    sellAmount: {
+    slippage: {
       type: [String, Number],
     },
-    slipage: {
-      type: [String, Number],
-    },
+    maxBorrowValue: {},
+    collateralValue: {},
+    multiplier: {},
   },
 
   data() {
@@ -41,72 +44,88 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      chainId: "getChainId",
+    }),
+
     executionPrice() {
       if (this.fetching) return "Fetching...";
-
-      const price = 1 / this.price;
-      return filters.formatTokenBalance(price);
+      if (!+this.price) return "0.0";
+      return filters.formatTokenBalance(1 / this.price);
     },
 
-    isDifference() {
+    isWarning() {
       if (this.isMoreOnePercent && !this.fetching) return true;
-
       return false;
     },
 
     tooltipText() {
-      return `Execution price of 1 ${this.pool.collateralToken.name} in MIM terms, given your chosen leverage.`;
+      return `Execution price of 1 ${this.cauldron.config.name} in MIM terms, given your chosen leverage.`;
+    },
+
+    sellAmount() {
+      const { mcr } = this.cauldron.config;
+      const { decimals } = this.cauldron.config.mimInfo;
+      const { formatToFixed } = filters;
+
+      const maxBorrowValue = formatToFixed(this.maxBorrowValue, decimals);
+      const amountMultiplyer = +mcr / 100;
+
+      let startAmount = +maxBorrowValue * 0.995;
+      let finalAmount = 0;
+
+      for (let i = this.multiplier; i > 0; i--) {
+        finalAmount += +startAmount;
+        startAmount = +startAmount * +amountMultiplyer;
+      }
+
+      return utils.parseUnits(formatToFixed(finalAmount, decimals)).toString();
     },
   },
 
   watch: {
-    sellAmount() {
-      this.getExecutionPrice(this.pool);
+    async collateralValue() {
+      await this.getExecutionPrice();
     },
   },
 
   methods: {
-    async getExecutionPrice(pool) {
+    async getExecutionPrice() {
+      if (!+this.sellAmount) {
+        this.fetching = false;
+        return 0;
+      }
       this.fetching = true;
-      const url = "https://api.0x.org/swap/v1/quote";
-      const {
-        collateralToken,
-        borrowToken,
-        tokenOraclePrice,
-        levSwapperContract,
-      } = pool;
 
-      const params = {
-        buyToken: collateralToken.address,
-        sellToken: borrowToken.address,
-        sellAmount: this.sellAmount,
-        slippagePercentage: this.slipage,
-        skipValidation: true,
-        takerAddress: levSwapperContract.address,
-      };
+      const { collateralInfo, mimInfo, leverageInfo } = this.cauldron.config;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
 
-      const response = await axios.get(url, { params: params });
+      const oraclePrice = utils.formatUnits(oracleExchangeRate, 18);
 
-      const { price } = response.data;
+      const { price } = await swap0xRequest(
+        this.chainId,
+        collateralInfo.address,
+        mimInfo.address,
+        this.slippage,
+        this.sellAmount,
+        leverageInfo.address
+      );
 
       this.price = price;
-
       this.fetching = false;
 
       const difference =
-        Math.abs(
-          (+tokenOraclePrice - +price) / ((+tokenOraclePrice + +price) / 2)
-        ) * 100;
+        Math.abs((+oraclePrice - +price) / ((+oraclePrice + +price) / 2)) * 100;
 
       this.isMoreOnePercent = difference > 1;
     },
   },
 
   async mounted() {
-    this.getExecutionPrice(this.pool);
+    await this.getExecutionPrice();
 
     this.updateInterval = setInterval(async () => {
-      await this.getExecutionPrice(this.pool);
+      await this.getExecutionPrice();
     }, 10000);
   },
 
@@ -129,7 +148,7 @@ export default {
   justify-content: space-between;
 }
 
-.difference {
+.warning {
   background: rgba(255, 148, 173, 0.06);
   border: 1px solid #e54369;
 

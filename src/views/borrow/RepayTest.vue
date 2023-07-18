@@ -18,7 +18,7 @@
             :name="activeToken.name"
             :value="collateralValue"
             :max="maxCollateralAmount"
-            :error="errorCallateralValue"
+            :error="errorCollateralValue"
             :disabled="!cauldron"
             @updateValue="updateCollateralValue"
             @openTokensList="isOpenMarketListPopup = true"
@@ -126,16 +126,7 @@ import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
-
-const EMPTY_DATA = {
-  name: "",
-  icon: "",
-  balance: { value: 0 },
-};
-const MIM_INFO = {
-  name: "MIM",
-  icon: useImage(`assets/images/tokens/MIM.png`),
-};
+import { COLLATERAL_EMPTY_DATA, MIM_EMPTY_DATA } from "@/constants/cauldron.ts";
 
 export default {
   mixins: [cookMixin],
@@ -173,7 +164,7 @@ export default {
 
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
-      if (this.errorCallateralValue || this.errorBorrowValue) return true;
+      if (this.errorCollateralValue || this.errorBorrowValue) return true;
       if (!this.collateralValue && !this.borrowValue) return true;
       return false;
     },
@@ -220,7 +211,7 @@ export default {
       return borrowAmount;
     },
 
-    errorCallateralValue() {
+    errorCollateralValue() {
       if (isNaN(this.collateralValue)) return "Please input valid value";
       if (+this.collateralValue > +this.maxCollateralAmount)
         return `The value cannot be greater than ${this.maxCollateralAmount}`;
@@ -275,13 +266,13 @@ export default {
     },
 
     activeToken() {
-      if (!this.cauldron) return EMPTY_DATA;
+      if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
 
       return this.collateralToken;
     },
 
     mimInfo() {
-      if (!this.cauldron) return MIM_INFO;
+      if (!this.cauldron) return MIM_EMPTY_DATA;
 
       const { name, icon, decimals, address } = this.cauldron.config.mimInfo;
       const { mimBalance } = this.cauldron.userTokensInfo;

@@ -26,7 +26,7 @@ export const getAdditionalInfo = async (
 
   return {
     isMasterContractApproved: additionalInfo[0] || false,
-    tokensRate: additionalInfo[1] || BigNumber.from("1"),
+    tokensRate: additionalInfo[1] || utils.parseUnits("1", decimals),
     maxWithdrawAmount: additionalInfo[2] || BigNumber.from("0"),
   };
 };

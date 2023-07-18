@@ -1,11 +1,11 @@
 <template>
-  <div class="settings-btn" :class="{ active }">
+  <button class="settings-btn" :class="{ active }">
     <img
       class="settings-icon"
       src="@/assets/images/settings.png"
       alt="Settings button icon"
     />
-  </div>
+  </button>
 </template>
 
 <script>
@@ -27,6 +27,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  outline: none;
+  background: transparent;
 }
 
 .settings-icon {

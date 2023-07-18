@@ -15,7 +15,7 @@
             :name="activeToken.name"
             :value="collateralValue"
             :max="activeToken.balance.value"
-            :error="errorCallateralValue"
+            :error="errorCollateralValue"
             :disabled="!cauldron"
             @updateValue="updateCollateralValue"
             @openTokensList="isOpenMarketListPopup = true"
@@ -130,7 +130,7 @@
 </template>
 
 <script>
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
@@ -140,18 +140,11 @@ import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
-
-const MAX_ALLOWANCE_VALUE =
-  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-const EMPTY_DATA = {
-  name: "",
-  icon: "",
-  balance: { value: 0 },
-};
-const MIM_INFO = {
-  name: "MIM",
-  icon: useImage(`assets/images/tokens/MIM.png`),
-};
+import {
+  MAX_ALLOWANCE_VALUE,
+  COLLATERAL_EMPTY_DATA,
+  MIM_EMPTY_DATA,
+} from "@/constants/cauldron.ts";
 
 export default {
   mixins: [cookMixin],
@@ -165,8 +158,6 @@ export default {
       showAdditionalInfo: true,
       cauldronId: null,
       updateInterval: null,
-      ltvTooltip:
-        "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
     };
   },
 
@@ -185,7 +176,6 @@ export default {
     nativeToken() {
       const { symbol, icon } = getChainInfo(this.chainId);
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
-      const allowance = this.$ethers.BigNumber.from(MAX_ALLOWANCE_VALUE);
 
       return {
         name: symbol,
@@ -195,7 +185,7 @@ export default {
           value: utils.formatUnits(nativeTokenBalance),
         },
         decimals: 18,
-        allowance,
+        allowance: BigNumber.from(MAX_ALLOWANCE_VALUE),
       };
     },
 
@@ -242,26 +232,26 @@ export default {
     },
 
     mimInfo() {
-      if (!this.cauldron) return MIM_INFO;
+      if (!this.cauldron) return MIM_EMPTY_DATA;
       const { name, icon } = this.cauldron.config.mimInfo;
       return { name, icon };
     },
 
     activeToken() {
-      if (!this.cauldron) return EMPTY_DATA;
+      if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
 
       const { acceptUseDefaultBalance } = this.cauldron.config.cauldronSettings;
-      const { wrapInfo } = this.cauldron.config;
-      const { useUnwrappedByDefault } = wrapInfo;
+      const useUnwrappedByDefault =
+        this.cauldron.config?.wrapInfo?.useUnwrappedByDefault;
 
       if (acceptUseDefaultBalance && this.useOtherToken)
         return this.nativeToken;
-      if (!!wrapInfo && useUnwrappedByDefault && !this.useOtherToken)
+      if (useUnwrappedByDefault && !this.useOtherToken)
         return this.unwrappedToken;
       return this.collateralToken;
     },
 
-    errorCallateralValue() {
+    errorCollateralValue() {
       if (isNaN(this.collateralValue)) return "Please input valid value";
       if (+this.collateralValue > +this.activeToken.balance.value)
         return `The value cannot be greater than ${this.activeToken.balance.value}`;
@@ -317,8 +307,9 @@ export default {
 
     expectedCollateralAmount() {
       const { tokensRate } = this.cauldron.additionalInfo;
-      const { userCollateralAmount, decimals } =
+      const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
+      const { decimals } = this.cauldron.config.collateralInfo;
 
       const collateralDeposit = +utils.formatUnits(
         userCollateralAmount,
@@ -383,7 +374,7 @@ export default {
 
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
-      if (this.errorCallateralValue || this.errorBorrowValue) return true;
+      if (this.errorCollateralValue || this.errorBorrowValue) return true;
       if (!this.collateralValue && !this.borrowValue) return true;
       return false;
     },
@@ -585,7 +576,7 @@ export default {
           isMasterContractApproved,
           this.cauldron,
           notificationId,
-          !!this.cauldron.config.wrapInfo,
+          !!this.cauldron.config?.wrapInfo,
           !this.useOtherToken
         );
 
