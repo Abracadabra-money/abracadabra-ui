@@ -459,7 +459,7 @@ export default {
         18
       );
 
-      const allowanceStatus = await checkAllowance(mimAmount);
+      const allowanceStatus = await this.checkAllowance(mimAmount);
 
       if (!allowanceStatus) return false;
 
