@@ -4,7 +4,6 @@ import Vuex from "vuex";
 import { ethers } from "ethers";
 import CollateralApyBlock from "@/components/borrow/CollateralApyBlockNew.vue";
 import ethConfig from "@/utils/cauldronsConfig/ethereumCauldrons";
-import arbConfig from "@/utils/cauldronsConfig/arbitrumCauldrons";
 import { useImage } from "@/helpers/useImage";
 
 const defaultCauldronParams = {
@@ -51,30 +50,6 @@ const testEthCauldron = {
     collateral: new ethers.Contract(
       ethConfig[30].collateralInfo.address,
       ethConfig[30].collateralInfo.abi,
-      testProvider
-    ),
-  },
-  ...defaultCauldronParams,
-};
-
-const testArbCauldronHiddenWrap = {
-  config: arbConfig[1],
-  contracts: {
-    collateral: new ethers.Contract(
-      ethConfig[1].collateralInfo.address,
-      ethConfig[1].collateralInfo.abi,
-      testProvider
-    ),
-  },
-  ...defaultCauldronParams,
-};
-
-const testArbCauldronAcceptUseDefaultBalance = {
-  config: arbConfig[0],
-  contracts: {
-    collateral: new ethers.Contract(
-      ethConfig[0].collateralInfo.address,
-      ethConfig[0].collateralInfo.abi,
       testProvider
     ),
   },

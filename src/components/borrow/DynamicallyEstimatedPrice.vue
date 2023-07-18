@@ -20,6 +20,7 @@ import filters from "@/filters/index.js";
 import { swap0xRequest } from "@/helpers/0x";
 import { chainsUsdcConfigs } from "@/utils/tokens/usdcConfig";
 import { mapGetters } from "vuex";
+import { ethers } from "ethers";
 
 export default {
   props: {
@@ -116,9 +117,7 @@ export default {
 
     parsedAmount() {
       if (!this.amount) return false;
-      return this.$ethers.utils.parseUnits(
-        filters.formatToFixed(this.amount, 18)
-      );
+      return ethers.utils.parseUnits(filters.formatToFixed(this.amount, 18));
     },
   },
 
