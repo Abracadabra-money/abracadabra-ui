@@ -334,7 +334,7 @@ export default {
     },
 
     cauldron() {
-      if (this.cauldron === null) this.$router.push(`/repayTest`);
+      if (this.cauldron === null) this.$router.push(`/repay`);
     },
   },
   methods: {
@@ -515,11 +515,8 @@ export default {
       this.collateralValue = "";
       this.borrowValue = "";
 
-      // todo
-      // const duplicate = this.$route.fullPath === `/repay/${marketId}`;
-      // if (!duplicate) this.$router.push(`/repay/${marketId}`);
-      const duplicate = this.$route.fullPath === `/repayTest/${marketId}`;
-      if (!duplicate) this.$router.push(`/repayTest/${marketId}`);
+      const duplicate = this.$route.fullPath === `/repay/${marketId}`;
+      if (!duplicate) this.$router.push(`/repay/${marketId}`);
 
       this.isOpenMarketListPopup = false;
     },

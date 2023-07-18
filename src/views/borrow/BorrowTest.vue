@@ -310,6 +310,7 @@ export default {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
       const { decimals } = this.cauldron.config.collateralInfo;
+      const wrapInfo = this.cauldron.config?.wrapInfo;
 
       const collateralDeposit = +utils.formatUnits(
         userCollateralAmount,
@@ -317,8 +318,9 @@ export default {
       );
       const rates = +utils.formatUnits(tokensRate, decimals);
 
-      if (this.useOtherToken) return collateralDeposit + +this.collateralValue;
-      else return collateralDeposit + +this.collateralValue / rates;
+      if (wrapInfo && !this.useOtherToken) {
+        return collateralDeposit + +this.collateralValue / rates;
+      } else return collateralDeposit + +this.collateralValue;
     },
 
     expectedBorrowAmount() {
@@ -408,8 +410,7 @@ export default {
     },
 
     cauldron() {
-      // todo
-      if (this.cauldron === null) this.$router.push(`/borrowTest`);
+      if (this.cauldron === null) this.$router.push(`/borrow`);
     },
   },
 
@@ -538,7 +539,7 @@ export default {
           isMasterContractApproved,
           this.cauldron,
           notificationId,
-          !!this.cauldron.config.wrapInfo,
+          !!this.cauldron.config?.wrapInfo,
           !this.useOtherToken
         );
 
@@ -642,11 +643,8 @@ export default {
       this.collateralValue = "";
       this.borrowValue = "";
 
-      // todo
-      // const duplicate = this.$route.fullPath === `/borrow/${marketId}`;
-      // if (!duplicate) this.$router.push(`/borrow/${marketId}`);
-      const duplicate = this.$route.fullPath === `/borrowTest/${marketId}`;
-      if (!duplicate) this.$router.push(`/borrowTest/${marketId}`);
+      const duplicate = this.$route.fullPath === `/borrow/${marketId}`;
+      if (!duplicate) this.$router.push(`/borrow/${marketId}`);
 
       this.isOpenMarketListPopup = false;
     },
