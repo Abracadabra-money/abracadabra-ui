@@ -1,19 +1,12 @@
-<!-- todo refactoring component -->
 <template>
-  <div class="wrap">
-    <div class="info" :class="{ warning: isWarning }">
-      <span class="title">
-        <img
-          src="@/assets/images/info.svg"
-          alt="info"
-          v-tooltip="tooltipText"
-        />
-        Execution Price
-      </span>
-      <span class="price">{{ executionPrice }}</span>
-    </div>
-    <p v-if="isWarning" class="error">Warning! Exchange rate is low.</p>
+  <div class="execution-price" :class="{ warning: isWarning }">
+    <span class="price-title">
+      <Tooltip class="tooltip" :tooltip="tooltipText" />
+      Execution Price
+    </span>
+    <span class="price-value">{{ executionPrice }}</span>
   </div>
+  <p class="warning" v-if="isWarning">Warning! Exchange rate is low.</p>
 </template>
 
 <script>
@@ -21,6 +14,8 @@ import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import { swap0xRequest } from "@/helpers/0x";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
+
 export default {
   props: {
     cauldron: {
@@ -29,9 +24,9 @@ export default {
     slippage: {
       type: [String, Number],
     },
-    maxBorrowValue: {},
-    collateralValue: {},
-    multiplier: {},
+    maxBorrowValue: { type: Number },
+    collateralValue: { type: Number },
+    multiplier: { type: Number },
   },
 
   data() {
@@ -39,7 +34,7 @@ export default {
       price: 0,
       isMoreOnePercent: false,
       updateInterval: null,
-      fetching: true,
+      isFetching: true,
     };
   },
 
@@ -49,13 +44,13 @@ export default {
     }),
 
     executionPrice() {
-      if (this.fetching) return "Fetching...";
+      if (this.isFetching) return "Fetching...";
       if (!+this.price) return "0.0";
       return filters.formatTokenBalance(1 / this.price);
     },
 
     isWarning() {
-      if (this.isMoreOnePercent && !this.fetching) return true;
+      if (this.isMoreOnePercent && !this.isFetching) return true;
       return false;
     },
 
@@ -92,10 +87,10 @@ export default {
   methods: {
     async getExecutionPrice() {
       if (!+this.sellAmount) {
-        this.fetching = false;
+        this.isFetching = false;
         return 0;
       }
-      this.fetching = true;
+      this.isFetching = true;
 
       const { collateralInfo, mimInfo, leverageInfo } = this.cauldron.config;
       const { oracleExchangeRate } = this.cauldron.mainParams;
@@ -112,7 +107,7 @@ export default {
       );
 
       this.price = price;
-      this.fetching = false;
+      this.isFetching = false;
 
       const difference =
         Math.abs((+oraclePrice - +price) / ((+oraclePrice + +price) / 2)) * 100;
@@ -132,11 +127,13 @@ export default {
   beforeUnmount() {
     clearInterval(this.updateInterval);
   },
+
+  components: { Tooltip },
 };
 </script>
 
 <style lang="scss" scoped>
-.info {
+.execution-price {
   padding: 13px 16px;
   font-weight: 400;
   font-size: 16px;
@@ -151,23 +148,23 @@ export default {
 .warning {
   background: rgba(255, 148, 173, 0.06);
   border: 1px solid #e54369;
-
-  .price {
-    color: #e54369;
-  }
 }
 
-.title {
+.warning .price-title {
+  color: #e54369;
+}
+
+.price-title {
   display: flex;
   align-items: center;
-
-  img {
-    margin-right: 5px;
-    cursor: pointer;
-  }
 }
 
-.error {
+.tooltip {
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.warning {
   text-align: left;
   color: #cc123f;
   font-size: 10px;
@@ -176,7 +173,8 @@ export default {
 }
 
 @media (max-width: 375px) {
-  .wrap {
+  .execution-price,
+  .warning {
     font-size: 14px;
   }
 }
