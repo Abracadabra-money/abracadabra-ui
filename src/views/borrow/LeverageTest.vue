@@ -115,10 +115,10 @@
             <ExecutionPrice
               v-if="isExecutionPriceBlock"
               :cauldron="cauldron"
-              :slippage="slippage"
-              :collateralValue="collateralValue"
-              :maxBorrowValue="maxBorrowValue"
-              :multiplier="multiplier"
+              :slippage="+slippage"
+              :collateralValue="+collateralValue"
+              :maxBorrowValue="+maxBorrowValue"
+              :multiplier="+multiplier"
             />
           </div>
 

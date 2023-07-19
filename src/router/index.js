@@ -64,12 +64,12 @@ const routes = [
   {
     path: "/deleverage",
     name: "Deleverage",
-    component: () => import("@/views/borrow/Deleverage.vue"),
+    component: () => import("@/views/borrow/DeleverageTest.vue"),
   },
   {
     path: "/deleverage/:id",
     name: "DeleverageId",
-    component: () => import("@/views/borrow/Deleverage.vue"),
+    component: () => import("@/views/borrow/DeleverageTest.vue"),
   },
   {
     path: "/beam",
