@@ -86,31 +86,29 @@ describe("ExecutionPrice.vue", async () => {
     expect(wrapper.vm.tooltipText).toContain("LUSD");
   });
 
-  describe("Computed properties in different cases", () => {
-    it("Should calculate executionPrice correct", async () => {
-      await wrapper.setData({ isFetching: true });
-      expect(wrapper.vm.executionPrice).toBe("Fetching...");
+  it("Should calculate executionPrice correct", async () => {
+    await wrapper.setData({ isFetching: true });
+    expect(wrapper.vm.executionPrice).toBe("Fetching...");
 
-      await wrapper.setData({ isFetching: false, price: null });
-      expect(wrapper.vm.executionPrice).toBe("0.0");
+    await wrapper.setData({ isFetching: false, price: null });
+    expect(wrapper.vm.executionPrice).toBe("0.0");
 
-      await wrapper.setData({ price: 0.1 });
-      expect(wrapper.vm.executionPrice).toBe("10.0");
-    });
+    await wrapper.setData({ price: 0.1 });
+    expect(wrapper.vm.executionPrice).toBe("10.0");
+  });
 
-    it("Should calculate isWarning correct", async () => {
-      expect(wrapper.vm.isWarning).toBe(false);
+  it("Should calculate isWarning correct", async () => {
+    expect(wrapper.vm.isWarning).toBe(false);
 
-      await wrapper.setData({ isFetching: false, isMoreOnePercent: true });
-      expect(wrapper.vm.isWarning).toBe(true);
-    });
+    await wrapper.setData({ isFetching: false, isMoreOnePercent: true });
+    expect(wrapper.vm.isWarning).toBe(true);
+  });
 
-    it("Should calculate sellAmount  correct", async () => {
-      expect(wrapper.vm.sellAmount).toBe("0");
-      expect(wrapper.vm.sellAmount).toBeTypeOf("string");
+  it("Should calculate sellAmount  correct", async () => {
+    expect(wrapper.vm.sellAmount).toBe("0");
+    expect(wrapper.vm.sellAmount).toBeTypeOf("string");
 
-      await wrapper.setProps({ maxBorrowValue: 100, multiplier: 0.5 });
-      expect(wrapper.vm.sellAmount).toBe("99500000000000000000");
-    });
+    await wrapper.setProps({ maxBorrowValue: 100, multiplier: 0.5 });
+    expect(wrapper.vm.sellAmount).toBe("99500000000000000000");
   });
 });
