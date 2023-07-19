@@ -61,9 +61,10 @@ describe("CollateralApyBlock.vue", async () => {
     const store = new Vuex.Store({
       modules: {
         connectProvider: {
-          state: { chainId: 1 },
+          state: { chainId: 1, provider: testProvider },
           getters: {
             getChainId: (state) => state.chainId,
+            getProvider: (state) => state.provider,
           },
         },
       },
@@ -82,9 +83,10 @@ describe("CollateralApyBlock.vue", async () => {
     const store = new Vuex.Store({
       modules: {
         connectProvider: {
-          state: { chainId: null },
+          state: { chainId: null, provider: testProvider },
           getters: {
             getChainId: (state) => state.chainId,
+            getProvider: (state) => state.provider,
           },
         },
       },
@@ -103,9 +105,10 @@ describe("CollateralApyBlock.vue", async () => {
     const apeStore = new Vuex.Store({
       modules: {
         connectProvider: {
-          state: { chainId: 1 },
+          state: { chainId: 1, provider: testProvider },
           getters: {
             getChainId: (state) => state.chainId,
+            getProvider: (state) => state.provider,
           },
         },
       },
@@ -125,9 +128,10 @@ describe("CollateralApyBlock.vue", async () => {
     const store = new Vuex.Store({
       modules: {
         connectProvider: {
-          state: { chainId: 42161 },
+          state: { chainId: 42161, provider: testProvider },
           getters: {
             getChainId: (state) => state.chainId,
+            getProvider: (state) => state.provider,
           },
         },
       },
@@ -149,9 +153,10 @@ describe("CollateralApyBlock.vue", async () => {
     const store = new Vuex.Store({
       modules: {
         connectProvider: {
-          state: { chainId: 1 },
+          state: { chainId: 1, provider: testProvider },
           getters: {
             getChainId: (state) => state.chainId,
+            getProvider: (state) => state.provider,
           },
         },
       },
@@ -162,7 +167,18 @@ describe("CollateralApyBlock.vue", async () => {
       global: { plugins: [store] },
     });
 
-    expect(wrapper.vm.isTilde).toBe("");
     expect(wrapper.vm.collateralApy).toBe(null);
+    expect(wrapper.vm.isLoadingApy).toBe(true);
+    expect(wrapper.vm.isApyExist).toBe(true);
+    expect(wrapper.vm.calculateCollateralApy).toBe("0");
+    expect(wrapper.vm.isTilde).toBe("");
+
+    wrapper.setData({
+      collateralApy: 39.5,
+    });
+
+    expect(wrapper.vm.isTilde).toBe("~");
+    expect(wrapper.vm.collateralApy).toBe(39.5);
+    expect(wrapper.vm.calculateCollateralApy).toBe("395.0");
   });
 });
