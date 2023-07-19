@@ -6,8 +6,6 @@ import DynamicallyEstimatedPrice from "@/components/borrow/DynamicallyEstimatedP
 import ethConfig from "@/utils/cauldronsConfig/ethereumCauldrons";
 import filters from "@/filters/index.js";
 
-import { useImage } from "@/helpers/useImage";
-
 const defaultCauldronParams = {
   mainParams: {
     borrowFee: 1,
