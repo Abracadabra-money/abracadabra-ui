@@ -27,6 +27,7 @@
 </template>
 <script>
 import filters from "@/filters/index.js";
+import { utils } from "ethers";
 export default {
   props: {
     cauldron: { type: Object },
@@ -40,7 +41,7 @@ export default {
     },
 
     oracleExchangeRate() {
-      return this.$ethers.utils.formatUnits(
+      return utils.formatUnits(
         this.cauldron.mainParams.oracleExchangeRate,
         this.cauldron.config.collateralInfo.decimals
       );
