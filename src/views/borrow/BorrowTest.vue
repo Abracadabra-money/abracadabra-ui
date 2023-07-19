@@ -47,7 +47,7 @@
         <div class="percent-wrap" v-if="cauldron">
           <PercentageButtons
             :maxParcent="cauldron.config.mcr"
-            :isDisabled="!!collateralValue"
+            :isDisabled="!collateralValue"
             @onchange="updatePercentValue"
           />
         </div>

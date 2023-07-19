@@ -1,25 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
-import Vuex from "vuex";
 import LtvBlock from "@/components/borrow/LtvBlock.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 
 describe("LtvBlock.vue", async () => {
   const tooltip = vi.fn();
 
-  const store = new Vuex.Store({
-    modules: {
-      connectProvider: {
-        state: { chainId: 1 },
-        getters: {
-          getChainId: (state) => state.chainId,
-        },
-      },
-    },
-  });
-
   const wrapper: any = mount(LtvBlock, {
-    global: { plugins: [store], directives: { tooltip } },
+    global: { directives: { tooltip } },
   });
 
   it("Should render without props", () => {

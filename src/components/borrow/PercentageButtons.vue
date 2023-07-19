@@ -4,7 +4,7 @@
       class="percent-button"
       :class="{
         active: percent === parcentValue && !isCustomInput,
-        disabled: percent > maxParcent || !isDisabled,
+        disabled: percent > maxParcent || isDisabled,
       }"
       v-for="percent in defaultPercentValues"
       :key="percent"
@@ -25,7 +25,7 @@
         type="number"
         placeholder="XX%"
         @input="updateCustomPercent($event.target.value)"
-        :disabled="!isDisabled"
+        :disabled="isDisabled"
       />
 
       <p v-else>custom</p>
@@ -60,14 +60,14 @@ export default {
       return {
         error: this.errorCastomValue,
         active: this.isCustomInput && this.parcentValue,
-        disabled: !this.isDisabled,
+        disabled: this.isDisabled,
       };
     },
   },
 
   watch: {
     isDisabled() {
-      if (!this.isDisabled) this.setCustomState();
+      if (this.isDisabled) this.setCustomState();
     },
   },
 
