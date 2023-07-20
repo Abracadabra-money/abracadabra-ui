@@ -27,7 +27,8 @@ export const getUserOpenPositions = async (
     configs,
     multicallProvider,
     account,
-    cauldronContracts
+    cauldronContracts,
+    chainId
   );
 
   const positions = userPositions.map((position: any, idx: any) => {
