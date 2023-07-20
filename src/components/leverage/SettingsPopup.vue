@@ -14,7 +14,7 @@
       <input
         v-model="inputValue"
         type="number"
-        :placeholder="`Auto ${slipage}%`"
+        :placeholder="`Auto ${slippage}%`"
         class="settings-input"
       />
     </div>
@@ -27,14 +27,14 @@ import BaseButton from "@/components/base/BaseButton.vue";
 
 export default {
   props: {
-    slipage: {
+    slippage: {
       type: [Number, String],
       default: 1,
     },
   },
   data() {
     return {
-      inputValue: this.slipage,
+      inputValue: this.slippage,
       tooltipText:
         "Transaction will revert if the leveraged amount changes by this percentage",
     };
