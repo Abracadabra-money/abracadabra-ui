@@ -35,7 +35,7 @@ export const getMarketList = async (
     return result;
   });
 
-  const mainParams = await getMainParams(configs, multicallProvider);
+  const mainParams = await getMainParams(configs, multicallProvider, chainId);
 
   return configs.map((config, idx) => {
     return {

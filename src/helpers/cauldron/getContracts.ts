@@ -1,14 +1,8 @@
 import { markRaw } from "vue";
 import { Contract } from "ethers";
 import bentoBoxAbi from "@/utils/abi/bentoBox";
-import lensAbi from "@/utils/abi/marketLens.js";
-import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
-export const getContracts = async (
-  config: any,
-  contractProvider: any,
-  chainId: number
-) => {
+export const getContracts = async (config: any, contractProvider: any) => {
   try {
     if (!contractProvider) return null;
 
@@ -70,9 +64,6 @@ export const getContracts = async (
         )
       : null;
 
-    const lensAddress = getLensAddress(chainId);
-    const lens = new Contract(lensAddress, lensAbi, contractProvider);
-
     return markRaw({
       cauldron,
       bentoBox,
@@ -82,7 +73,6 @@ export const getContracts = async (
       liquidationSwapper,
       unwrappedToken,
       wrapper,
-      lens,
     });
   } catch (error) {
     console.log("createContracts error:", error);

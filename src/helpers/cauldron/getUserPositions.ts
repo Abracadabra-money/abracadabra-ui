@@ -1,5 +1,8 @@
 import { Contract, BigNumber, utils } from "ethers";
+import lensAbi from "@/utils/abi/marketLens.js";
+import type { providers } from "ethers";
 import type { UserPositions } from "@/helpers/cauldron/types";
+import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 const emptyPosition = {
   oracleRate: BigNumber.from("0"),
@@ -16,15 +19,19 @@ const emptyPosition = {
 
 export const getUserPositions = async (
   configs: Array<Object | undefined>,
+  provider: providers.BaseProvider,
   account: string | undefined,
   cauldronContracts: Array<Contract | undefined>,
-  { lens }: any
+  chainId: number
 ): Promise<Array<UserPositions>> => {
   if (!account) configs.map(() => emptyPosition);
 
+  const lensAddress = getLensAddress(chainId);
+  const lensContract = new Contract(lensAddress, lensAbi, provider);
+
   const positions = await Promise.all(
     configs.map((config: any) => {
-      return lens
+      return lensContract
         .getUserPosition(config.contract.address, account)
         .catch(() => null);
     })
@@ -32,7 +39,7 @@ export const getUserPositions = async (
 
   const oracleExchangeRate = await Promise.all(
     configs.map((config: any) => {
-      return lens
+      return lensContract
         .getOracleExchangeRate(config.contract.address)
         .catch(() => "0x00");
     })
