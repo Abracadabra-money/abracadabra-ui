@@ -8,7 +8,7 @@ export const getMainParams = async (
   configs: Array<Object | undefined>,
   provider: providers.BaseProvider,
   chainId: number,
-  cauldron: Contract | undefined
+  cauldron?: Contract | undefined
 ): Promise<Array<MainParams>> => {
   const lensAddress = getLensAddress(chainId);
   const lensContract = new Contract(lensAddress, lensAbi, provider);
@@ -21,11 +21,15 @@ export const getMainParams = async (
     )
   );
 
-  const contractExchangeRate: BigNumber[] = await Promise.all([
-    cauldron?.exchangeRate(),
-  ]);
+  const contractExchangeRate: BigNumber[] | null = cauldron
+    ? await Promise.all([cauldron?.exchangeRate()])
+    : null;
 
   return marketInfoResp.map((info: any) => {
+    const updatePrice = contractExchangeRate
+      ? !contractExchangeRate[0].eq(info.oracleExchangeRate)
+      : false;
+
     return {
       borrowFee: Number(info.borrowFee) / 100,
       interest: Number(info.interestPerYear) / 100,
@@ -37,7 +41,7 @@ export const getMainParams = async (
       totalBorrowed: info.totalBorrowed,
       tvl: info.totalCollateral.value,
       userMaxBorrow: info.userMaxBorrow,
-      updatePrice: !contractExchangeRate[0].eq(info.oracleExchangeRate),
+      updatePrice,
     };
   });
 };
