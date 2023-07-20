@@ -353,12 +353,16 @@ export default {
     },
 
     actionInfo() {
+      const { isCollateralLocked } = this.cauldron.additionalInfo;
+
       const info = {
         methodName: null,
         buttonText: "Nothing to do",
       };
 
       if (this.isActionDisabled) return info;
+
+      if (isCollateralLocked) return info;
 
       if (+this.borrowValue && +this.collateralValue) {
         info.methodName = "addCollateralAndBorrowHandler";
@@ -380,13 +384,6 @@ export default {
       if (!this.collateralValue && !this.borrowValue) return true;
       return false;
     },
-
-    // todo isUserLocked() {
-    //   return (
-    //     this.selectedPool.userInfo?.userLockedTimestamp &&
-    //     Number(this.selectedPool.userInfo?.userLockedTimestamp) !== 0
-    //   );
-    // },
 
     backgroundInfo() {
       if (!this.cauldron) return false;
@@ -506,6 +503,7 @@ export default {
 
     async addCollateralAndBorrowHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -516,9 +514,6 @@ export default {
         this.activeToken.decimals
       );
 
-      // if (!this.checkCauldronBorrowLimit(+this.borrowValue, notificationId))
-      //   return false;
-
       const borrowAmount = this.$ethers.utils.parseUnits(
         filters.formatToFixed(this.borrowValue, 18)
       );
@@ -526,14 +521,17 @@ export default {
       const payload = {
         collateralAmount,
         amount: borrowAmount,
-        // todo updatePrice: this.selectedPool.askUpdatePrice,
-        updatePrice: true,
+        updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
 
-      const isTokenToCookApprove = await this.checkAllowance(collateralAmount);
+      const isPermissionToCook = await this.checkPermissionToCook(
+        this.borrowValue,
+        notificationId,
+        collateralAmount
+      );
 
-      if (+isTokenToCookApprove) {
+      if (+isPermissionToCook) {
         await this.cookAddCollateralAndBorrow(
           payload,
           isMasterContractApproved,
@@ -552,6 +550,7 @@ export default {
 
     async addCollateralHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -564,8 +563,7 @@ export default {
 
       const payload = {
         amount: collateralAmount,
-        // todo updatePrice: this.selectedPool.askUpdatePrice,
-        updatePrice: true,
+        updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
 
@@ -590,23 +588,11 @@ export default {
 
     async borrowHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
       );
-
-      // todo
-      // if (!this.checkCauldronBorrowLimit(+this.borrowValue, notificationId)) {
-      //   return false;
-      // }
-
-      // if (!this.checkIsUserWhitelistedBorrow()) {
-      //   return false;
-      // }
-
-      // if (!this.checkIsAcceptNewYvcrvSTETHBorrow()) {
-      //   return false;
-      // }
 
       const borrowAmount = this.$ethers.utils.parseUnits(
         filters.formatToFixed(this.borrowValue, 18)
@@ -614,13 +600,15 @@ export default {
 
       const payload = {
         amount: borrowAmount,
-        // todo updatePrice: this.selectedPool.askUpdatePrice,
-        updatePrice: true,
+        updatePrice,
       };
 
-      const isTokenToCookApprove = await this.checkAllowance(0);
+      const isPermissionToCook = await this.checkPermissionToCook(
+        this.borrowValue,
+        notificationId
+      );
 
-      if (+isTokenToCookApprove) {
+      if (isPermissionToCook) {
         await this.cookBorrow(
           payload,
           isMasterContractApproved,
@@ -649,73 +637,36 @@ export default {
       this.isOpenMarketListPopup = false;
     },
 
-    // todo
-    async checkCauldronBorrowLimit(amount, notificationId) {
-      let dynamicBorrowAmount;
-      let borrowlimit;
+    async checkPermissionToCook(
+      borrowAmount,
+      notificationId,
+      allowanceAmount = 0
+    ) {
+      const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
+      const { id } = this.cauldron.config;
+      const { whitelistedInfo } = this.cauldron.additionalInfo;
+      const leftToBorrow = utils.formatUnits(mimLeftToBorrow);
+      const borrowLimit = utils.formatUnits(userMaxBorrow);
 
-      if (+this.selectedPool.borrowlimit) {
-        borrowlimit = +amount < +this.selectedPool.borrowlimit;
-      } else {
-        borrowlimit = true;
-      }
-
-      dynamicBorrowAmount = +amount < +this.selectedPool.dynamicBorrowAmount;
-
-      if (dynamicBorrowAmount && borrowlimit) return true;
-
-      if (notificationId) {
-        this.$store.commit("notifications/delete", notificationId);
-      }
-
-      if (!dynamicBorrowAmount) {
-        this.$store.dispatch("notifications/new", notification.allowBorrow);
-      } else {
-        this.$store.dispatch("notifications/new", notification.borrowLimit);
-      }
-
-      return false;
-    },
-
-    // todo
-    checkIsUserWhitelistedBorrow() {
-      if (!this.selectedPool.userInfo?.whitelistedInfo) return true;
-
-      if (!this.selectedPool.userInfo?.whitelistedInfo?.isUserWhitelisted) {
-        const notification = {
-          msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
-          type: "error",
-        };
-
-        this.$store.dispatch("notifications/new", notification);
-
+      if (!+leftToBorrow) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.allowBorrow);
         return false;
       }
 
-      return true;
-    },
-
-    // todo
-    checkIsAcceptNewYvcrvSTETHBorrow() {
-      if (this.selectedPool.id === 33 && this.chainId === 1) {
-        const oldYvCrvSTETH = this.$store.getters.getPoolById(12);
-        const hasOpenedBorrowPosition = +oldYvCrvSTETH.userBorrowPart > 50;
-
-        if (hasOpenedBorrowPosition) {
-          const notification = {
-            msg: "Please close down your old yvcrvSTETH position before opening a new one.",
-            type: "error",
-          };
-
-          this.$store.dispatch("notifications/new", notification);
-
-          return false;
-        }
-
-        return true;
+      if (+borrowAmount > +borrowLimit) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.borrowLimit);
+        return false;
       }
 
-      return true;
+      if (!whitelistedInfo && this.chainId === 1 && id === 33) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.whitelisted);
+        return false;
+      }
+
+      return await this.checkAllowance(allowanceAmount);
     },
   },
 

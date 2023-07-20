@@ -378,6 +378,7 @@ export default {
 
     async repayHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
       const { borrowAmount } = this.mimInfo;
 
       const notificationId = await this.createNotification(
@@ -386,7 +387,7 @@ export default {
 
       const payload = {
         amount: utils.parseUnits(filters.formatToFixed(this.borrowValue, 18)),
-        updatePrice: true, // todo updatePrice: this.selectedPool.askUpdatePrice,
+        updatePrice,
         itsMax: +this.borrowValue === +borrowAmount,
       };
 
@@ -444,6 +445,8 @@ export default {
       const { decimals, address, collateralShare } = this.activeToken;
       const { mimDecimals, borrowPart } = this.mimInfo;
 
+      const { updatePrice } = this.cauldron.mainParams;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -460,7 +463,7 @@ export default {
       const payload = {
         collateralAmount: parsedBorrowValue,
         amount: await bentoBox.toShare(address, parsedCollateralValue, true),
-        updatePrice: true, //todo updatePrice: this.selectedPool.askUpdatePrice,
+        updatePrice,
       };
 
       if (
@@ -469,7 +472,6 @@ export default {
       ) {
         payload.itsMax = true;
         payload.collateralAmount = userBorrowPart;
-        payload.updatePrice = true; //todo updatePrice: this.selectedPool.askUpdatePrice,
         payload.amount = await bentoBox.toShare(
           address,
           userCollateralShare,

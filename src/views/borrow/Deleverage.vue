@@ -127,8 +127,7 @@
       :isOpened="isSettingsOpen"
       @closePopup="isSettingsOpen = false"
     >
-      <!-- todo type slipage => slippage  -->
-      <SettingsPopup :slipage="slippage" @saveSettings="changeSlippage"
+      <SettingsPopup :slippage="slippage" @saveSettings="changeSlippage"
     /></LocalPopupWrap>
 
     <LocalPopupWrap
@@ -527,6 +526,7 @@ export default {
       const { oracleExchangeRate } = this.positionInfo;
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
 
       const itsMax = this.isMaxRepayMimAmount;
 
@@ -560,10 +560,9 @@ export default {
         borrowAmount: itsMax ? userBorrowPart : repayAmount,
         collateralAmount,
         removeCollateralAmount,
-        updatePrice: true, // todo updatePrice: this.selectedPool.askUpdatePrice,
+        updatePrice,
         itsMax,
-        // todo type slipage => slippage
-        slipage: this.slippage,
+        slipage: this.slippage, // todo type
       };
 
       const notificationId = await this.createNotification(
