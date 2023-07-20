@@ -21,7 +21,6 @@
 <script>
 import { useImage } from "@/helpers/useImage";
 export default {
-  props: {},
   data() {
     return {
       emptyDataConfig: {

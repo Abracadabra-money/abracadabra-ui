@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import LeftToBorrowBlock from "@/components/borrow/LeftToBorrowBlock.vue";
 import { utils } from "ethers";
 
-describe("LeftBorrow.vue", async () => {
+describe("LeftToBorrowBlock.vue", async () => {
   const wrapper: any = mount(LeftToBorrowBlock);
 
   it("Should render in default situation", () => {
