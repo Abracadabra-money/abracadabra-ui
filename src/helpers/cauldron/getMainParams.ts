@@ -1,21 +1,14 @@
-import { Contract } from "ethers";
-import type { providers } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
-import lensAbi from "@/utils/abi/marketLens.js";
-// todo const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
-const lensAddress = "0x26ecfcd82bf36427006794d41927da334f762230";
 
 export const getMainParams = async (
   configs: Array<Object | undefined>,
-  provider: providers.BaseProvider
+  { lens }: any
 ): Promise<Array<MainParams>> => {
-  const lensContract = new Contract(lensAddress, lensAbi, provider);
-
   const marketInfoResp = await Promise.all(
     configs.map((config: any) =>
       config.version === 2
-        ? lensContract.getMarketInfoCauldronV2(config.contract.address)
-        : lensContract.getMarketInfoCauldronV3(config.contract.address)
+        ? lens.getMarketInfoCauldronV2(config.contract.address)
+        : lens.getMarketInfoCauldronV3(config.contract.address)
     )
   );
 

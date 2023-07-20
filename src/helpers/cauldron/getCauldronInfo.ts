@@ -25,15 +25,19 @@ export const getCauldronInfo = async (
 
   if (!config) return null;
 
-  const multicallContracts = await getContracts(config, multicallProvider);
+  const multicallContracts = await getContracts(
+    config,
+    multicallProvider,
+    chainId
+  );
 
-  const mainParams = await getMainParams([config], multicallProvider);
+  const mainParams = await getMainParams([config], multicallContracts);
 
   const userPositions = await getUserPositions(
     [config],
-    multicallProvider,
     address,
-    [multicallContracts?.cauldron]
+    [multicallContracts?.cauldron],
+    multicallContracts
   );
 
   const userTokensInfo = await getUserTokensInfo(
@@ -48,7 +52,7 @@ export const getCauldronInfo = async (
     config
   );
 
-  const contracts = await getContracts(config, userSigner);
+  const contracts = await getContracts(config, userSigner, chainId);
 
   return {
     config,

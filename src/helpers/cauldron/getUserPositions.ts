@@ -1,9 +1,5 @@
 import { Contract, BigNumber, utils } from "ethers";
-import lensAbi from "@/utils/abi/marketLens.js";
-import type { providers } from "ethers";
 import type { UserPositions } from "@/helpers/cauldron/types";
-// todo const LENS_CONTRACT_ADDRESS = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
-const LENS_CONTRACT_ADDRESS = "0x26ecfcd82bf36427006794d41927da334f762230";
 
 const emptyPosition = {
   oracleRate: BigNumber.from("0"),
@@ -20,17 +16,15 @@ const emptyPosition = {
 
 export const getUserPositions = async (
   configs: Array<Object | undefined>,
-  provider: providers.BaseProvider,
   account: string | undefined,
-  cauldronContracts: Array<Contract | undefined>
+  cauldronContracts: Array<Contract | undefined>,
+  { lens }: any
 ): Promise<Array<UserPositions>> => {
   if (!account) configs.map(() => emptyPosition);
 
-  const lensContract = new Contract(LENS_CONTRACT_ADDRESS, lensAbi, provider);
-
   const positions = await Promise.all(
     configs.map((config: any) => {
-      return lensContract
+      return lens
         .getUserPosition(config.contract.address, account)
         .catch(() => null);
     })
@@ -38,7 +32,7 @@ export const getUserPositions = async (
 
   const oracleExchangeRate = await Promise.all(
     configs.map((config: any) => {
-      return lensContract
+      return lens
         .getOracleExchangeRate(config.contract.address)
         .catch(() => "0x00");
     })
