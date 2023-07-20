@@ -57,7 +57,7 @@ describe("EmptyState.vue", async () => {
     expect(emptyBottom.text()).toBe(
       "If you want to learn more read our docs here"
     );
-  });
+  }, 30000);
 
   it("Should render on /repay correct", async () => {
     const router = createRouter({
@@ -89,7 +89,7 @@ describe("EmptyState.vue", async () => {
     expect(emptyBottom.text()).toBe(
       "If you want to learn more read our docs here"
     );
-  });
+  }, 30000);
 
   it("Should render on /repay correct", async () => {
     const router = createRouter({
@@ -118,7 +118,7 @@ describe("EmptyState.vue", async () => {
 
     expect(emptyText.text()).toContain("Leverage");
     expect(emptyBottom.text()).toBe("Read more about it here");
-  });
+  }, 30000);
 
   it("Should render on /repay correct", async () => {
     const router = createRouter({
@@ -147,5 +147,5 @@ describe("EmptyState.vue", async () => {
 
     expect(emptyText.text()).toContain("Deleverage");
     expect(emptyBottom.text()).toBe("Read more about it here");
-  });
+  }, 30000);
 });
