@@ -45,14 +45,14 @@
 
         <div class="range-wrap" v-if="cauldron">
           <Range
-            :value="repayCollateralAmount"
-            :max="maxRepayCollateralAmount"
+            :value="removeCollateralAmount"
+            :max="maxRemoveCollateralAmount"
             :step="collateralRangeStep"
             :parallelRange="repayMimAmount"
             title="Choose the amount of collateral you want to remove"
-            @updateValue="updateFlashRepayRemoveAmount"
+            @updateValue="updateRemoveCollateralAmount"
           />
-          <div class="repay-amount">{{ formatRepayCollateralAmount }}</div>
+          <div class="repay-amount">{{ formatRemoveCollateralAmount }}</div>
         </div>
 
         <BaseButton
@@ -89,7 +89,7 @@
                 v-if="showAdditionalInfo"
                 :cauldron="cauldron"
                 :expectedCollateralAmount="expectedCollateralDeposit"
-                :expectedBorrowAmount="expectedBorrowAmount"
+                :expectedBorrowAmount="+expectedBorrowAmount"
                 :expectedLiquidationPrice="+expectedLiquidationPrice"
               />
 
@@ -166,7 +166,7 @@ export default {
       updateInterval: null,
       isSettingsOpen: false,
       borrowRangeStep: 0.0001,
-      repayCollateralAmount: 0,
+      removeCollateralAmount: 0,
       showAdditionalInfo: true,
       isOpenMarketListPopup: false,
     };
@@ -181,8 +181,7 @@ export default {
     }),
 
     positionInfo() {
-      // todo!!!!
-      if (!this.cauldron) return {};
+      if (!this.cauldron) return false;
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
       const { oracleRate } = this.cauldron.userPosition;
@@ -225,7 +224,6 @@ export default {
       return false;
     },
 
-    // todo refactoring
     collateralToken() {
       const { icon } = this.cauldron.config;
       const { name, decimals } = this.cauldron.config.collateralInfo;
@@ -243,7 +241,6 @@ export default {
         decimals,
         allowance: collateralAllowance,
         contract: collateral,
-        isNative: true,
       };
     },
 
@@ -264,7 +261,7 @@ export default {
       return this.repayMimAmount;
     },
 
-    maxRepayCollateralAmount() {
+    maxRemoveCollateralAmount() {
       if (!+this.repayMimAmount) return 0;
 
       const { decimals } = this.activeToken;
@@ -292,42 +289,39 @@ export default {
     isDisabledClosePosition() {
       return !(this.cauldron && this.positionInfo.userBorrowAmount);
     },
-    // end
+
     finalCollateralAmount() {
-      const { decimals } = this.cauldron.config.collateralInfo;
+      const { decimals } = this.activeToken;
       const { oracleExchangeRate } = this.positionInfo;
 
       const borrowAmount = filters.formatToFixed(this.repayMimAmount, 18);
-
-      const slipageMutiplier = (100 + +this.slippage) / 100;
+      const slippageMutiplier = (100 + +this.slippage) / 100;
 
       return filters.formatToFixed(
-        borrowAmount * oracleExchangeRate * slipageMutiplier,
+        borrowAmount * oracleExchangeRate * slippageMutiplier,
         decimals
       );
     },
 
     finalRemoveCollateralAmount() {
-      const { decimals } = this.cauldron.config.collateralInfo;
-      const exponential = this.isExponential(this.repayCollateralAmount);
+      const { decimals } = this.activeToken;
+      const exponential = this.isExponential(this.removeCollateralAmount);
 
-      const flashRepayRemoveAmount = exponential
-        ? this.noExponents(this.repayCollateralAmount)
-        : this.repayCollateralAmount;
+      const removeAmount = exponential
+        ? this.noExponents(this.removeCollateralAmount)
+        : this.removeCollateralAmount;
 
-      const removeCollateralAmount = filters.formatToFixed(
-        flashRepayRemoveAmount,
+      return utils.parseUnits(
+        filters.formatToFixed(removeAmount, decimals),
         decimals
       );
-
-      return this.$ethers.utils.parseUnits(removeCollateralAmount, decimals);
     },
 
     expectedCollateralDeposit() {
       if (!this.cauldron) return 0;
+      const { decimals } = this.activeToken;
       const { userCollateralAmount } = this.positionInfo;
 
-      const { decimals } = this.cauldron.config.collateralInfo;
       return (
         userCollateralAmount -
         (+this.finalCollateralAmount +
@@ -356,7 +350,7 @@ export default {
     actionInfo() {
       if (this.isActionDisabled) return "Nothing to do";
 
-      if (+this.repayMimAmount && +this.repayCollateralAmount) {
+      if (+this.repayMimAmount && +this.removeCollateralAmount) {
         return "Flash repay & Remove collateral";
       } else if (+this.repayMimAmount) {
         return "Flash Repay";
@@ -382,10 +376,6 @@ export default {
       return false;
     },
 
-    isExecutionPriceBlock() {
-      return this.cauldron?.config?.cauldronSettings?.executionPrice;
-    },
-
     isInfoLinkVisibility() {
       return this.chainId === 42161 && this.cauldron?.config?.id === 3;
     },
@@ -396,7 +386,7 @@ export default {
       }`;
     },
 
-    formatRepayCollateralAmount() {
+    formatRemoveCollateralAmount() {
       const { decimals } = this.activeToken;
       return `${filters.formatTokenBalance(
         utils.formatUnits(this.finalRemoveCollateralAmount, decimals)
@@ -405,17 +395,14 @@ export default {
 
     collateralInUsd() {
       const { userCollateralAmount, oracleExchangeRate } = this.positionInfo;
-      const expectedAmount = userCollateralAmount - this.finalCollateralAmount;
+      const expectedAmount = userCollateralAmount - +this.finalCollateralAmount;
       return expectedAmount / oracleExchangeRate;
     },
 
     expectedCollateralAmount() {
       const { userCollateralAmount } = this.positionInfo;
-      return userCollateralAmount - this.finalCollateralAmount;
+      return userCollateralAmount - +this.finalCollateralAmount;
     },
-
-    // isLimitWithdraw() {
-    // },
   },
 
   watch: {
@@ -428,7 +415,7 @@ export default {
     },
 
     repayBorrowAmount() {
-      if (+this.repayBorrowAmount === 0) this.repayCollateralAmount = 0;
+      if (+this.repayBorrowAmount === 0) this.removeCollateralAmount = 0;
     },
   },
 
@@ -445,24 +432,19 @@ export default {
     },
 
     updateRepayMimAmount(amount) {
-      console.log("amount", amount);
       this.repayMimAmount = amount;
     },
 
-    updateFlashRepayRemoveAmount(amount) {
-      this.repayCollateralAmount = amount;
+    updateRemoveCollateralAmount(amount) {
+      this.removeCollateralAmount = amount;
     },
-
-    // clearRepayToken() {
-    //   this.repayCollateralAmount = 0;
-    // },
 
     isExponential(value) {
       return String(value).includes("e") || String(value).includes("E");
     },
 
     noExponents(value) {
-      let data = String(value).split(/[eE]/);
+      const data = String(value).split(/[eE]/);
       if (data.length == 1) return data[0];
 
       let result = "",
@@ -562,13 +544,13 @@ export default {
 
       const testSlippageValue = amountFrom.div(100).mul(slippage).div(1e10);
 
-      const shareFrom = await bentoBox.toShare(
+      const collateralAmount = await bentoBox.toShare(
         this.activeToken.contract.address,
         amountFrom.add(testSlippageValue),
         false
       );
 
-      const finalRemoveCollateralAmountToShare = await bentoBox.toShare(
+      const removeCollateralAmount = await bentoBox.toShare(
         this.activeToken.contract.address,
         this.finalRemoveCollateralAmount,
         true
@@ -576,10 +558,11 @@ export default {
 
       const payload = {
         borrowAmount: itsMax ? userBorrowPart : repayAmount,
-        collateralAmount: shareFrom,
-        removeCollateralAmount: finalRemoveCollateralAmountToShare,
+        collateralAmount,
+        removeCollateralAmount,
         updatePrice: true, // todo updatePrice: this.selectedPool.askUpdatePrice,
         itsMax,
+        // todo type slipage => slippage
         slipage: this.slippage,
       };
 
@@ -590,8 +573,6 @@ export default {
       const isTokenToCookApprove = await this.checkAllowance(
         payload.collateralAmount
       );
-
-      console.log("payload", payload);
 
       if (+isTokenToCookApprove) {
         this.cookDeleverage(
@@ -611,7 +592,7 @@ export default {
 
     async closePositionHandler() {
       this.repayMimAmount = this.positionInfo.userBorrowAmount;
-      this.repayCollateralAmount = this.maxRepayCollateralAmount;
+      this.removeCollateralAmount = this.maxRemoveCollateralAmount;
 
       setTimeout(await this.actionHandler(), 100);
     },
@@ -771,6 +752,16 @@ export default {
   margin: 0 auto;
 }
 
+.cauldron-stand {
+  min-height: 520px;
+  padding: 30px 20px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+  background-position: center;
+  background-size: cover;
+}
+
 .title {
   font-size: 24px;
   text-transform: uppercase;
@@ -780,16 +771,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.cauldron-stand {
-  min-height: 520px;
-  padding: 30px 20px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
-  background-position: center;
-  background-size: cover;
 }
 
 .stand-info {
@@ -837,13 +818,13 @@ export default {
     bottom: 15px;
   }
 
-  .title {
-    margin-bottom: 20px;
-  }
-
   .cauldron-stand {
     padding: 20px 10px;
     min-height: auto;
+  }
+
+  .title {
+    margin-bottom: 20px;
   }
 
   .btn-wrap {

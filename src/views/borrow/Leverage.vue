@@ -295,6 +295,7 @@ export default {
         },
         decimals: 18,
         allowance: BigNumber.from(MAX_ALLOWANCE_VALUE),
+        isNative: true,
       };
     },
 
@@ -336,7 +337,6 @@ export default {
         decimals,
         allowance: collateralAllowance,
         contract: collateral,
-        isNative: true,
       };
     },
 
