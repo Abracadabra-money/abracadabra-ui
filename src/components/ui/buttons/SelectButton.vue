@@ -15,7 +15,7 @@
 import { defineAsyncComponent } from "vue";
 export default {
   props: {
-    activeToken: {},
+    activeToken: { type: Object },
   },
 
   components: {
