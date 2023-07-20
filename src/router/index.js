@@ -9,22 +9,22 @@ const routes = [
   {
     path: "/borrow",
     name: "Borrow",
-    component: () => import("@/views/borrow/BorrowTest.vue"),
+    component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
     path: "/borrow/:id",
     name: "BorrowId",
-    component: () => import("@/views/borrow/BorrowTest.vue"),
+    component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
     path: "/repay",
     name: "Repay",
-    component: () => import("@/views/borrow/RepayTest.vue"),
+    component: () => import("@/views/borrow/Repay.vue"),
   },
   {
     path: "/repay/:id",
     name: "RepayId",
-    component: () => import("@/views/borrow/RepayTest.vue"),
+    component: () => import("@/views/borrow/Repay.vue"),
   },
   {
     path: "/sSPELL",
@@ -54,22 +54,22 @@ const routes = [
   {
     path: "/leverage",
     name: "Leverage",
-    component: () => import("@/views/borrow/LeverageTest.vue"),
+    component: () => import("@/views/borrow/Leverage.vue"),
   },
   {
     path: "/leverage/:id",
     name: "LeverageId",
-    component: () => import("@/views/borrow/LeverageTest.vue"),
+    component: () => import("@/views/borrow/Leverage.vue"),
   },
   {
     path: "/deleverage",
     name: "Deleverage",
-    component: () => import("@/views/borrow/DeleverageTest.vue"),
+    component: () => import("@/views/borrow/Deleverage.vue"),
   },
   {
     path: "/deleverage/:id",
     name: "DeleverageId",
-    component: () => import("@/views/borrow/DeleverageTest.vue"),
+    component: () => import("@/views/borrow/Deleverage.vue"),
   },
   {
     path: "/beam",
