@@ -90,7 +90,7 @@
           </div>
         </div>
 
-        <CollateralApyBlockNew v-if="cauldron" :cauldron="cauldron" />
+        <CollateralApyBlock v-if="cauldron" :cauldron="cauldron" />
 
         <template v-if="cauldron">
           <div class="btn-wrap">
@@ -750,7 +750,7 @@ export default {
       import("@/components/borrow/PercentageButtons.vue")
     ),
     BalanceBlock: defineAsyncComponent(() =>
-      import("@/components/borrow/BalanceBlockNew.vue")
+      import("@/components/borrow/BalanceBlock.vue")
     ),
     MagicApeIcon: defineAsyncComponent(() =>
       import("@/components/icons/MagicApe.vue")
@@ -767,8 +767,8 @@ export default {
     EmptyState: defineAsyncComponent(() =>
       import("@/components/borrow/EmptyState.vue")
     ),
-    CollateralApyBlockNew: defineAsyncComponent(() =>
-      import("@/components/borrow/CollateralApyBlockNew.vue")
+    CollateralApyBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/CollateralApyBlock.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import Vuex from "vuex";
 import { ethers } from "ethers";
-import BalanceBlock from "@/components/borrow/BalanceBlockNew.vue";
+import BalanceBlock from "@/components/borrow/BalanceBlock.vue";
 import ethConfig from "@/utils/cauldronsConfig/ethereumCauldrons";
 import arbConfig from "@/utils/cauldronsConfig/arbitrumCauldrons";
 
@@ -80,7 +80,7 @@ const testArbCauldronAcceptUseDefaultBalance = {
   ...defaultCauldronParams,
 };
 
-describe("BalanceBlockNew.vue", async () => {
+describe("BalanceBlock.vue", async () => {
   it("Should render in default situation", () => {
     const store = new Vuex.Store({
       modules: {

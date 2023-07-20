@@ -13,7 +13,7 @@ export default {
   props: {
     borrowLeft: {
       type: BigNumber,
-      default: 0,
+      default: utils.parseUnits("0"),
     },
   },
   computed: {

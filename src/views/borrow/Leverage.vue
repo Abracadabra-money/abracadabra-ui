@@ -96,7 +96,7 @@
           </div>
         </div>
 
-        <CollateralApyBlockNew v-if="cauldron" :cauldron="cauldron" />
+        <CollateralApyBlock v-if="cauldron" :cauldron="cauldron" />
 
         <template v-if="cauldron">
           <div class="btn-wrap">
@@ -902,8 +902,8 @@ export default {
     EmptyState: defineAsyncComponent(() =>
       import("@/components/borrow/EmptyState.vue")
     ),
-    CollateralApyBlockNew: defineAsyncComponent(() =>
-      import("@/components/borrow/CollateralApyBlockNew.vue")
+    CollateralApyBlock: defineAsyncComponent(() =>
+      import("@/components/borrow/CollateralApyBlock.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")

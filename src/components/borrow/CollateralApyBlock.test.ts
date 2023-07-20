@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import Vuex from "vuex";
 import { ethers } from "ethers";
-import CollateralApyBlock from "@/components/borrow/CollateralApyBlockNew.vue";
+import CollateralApyBlock from "@/components/borrow/CollateralApyBlock.vue";
 import ethConfig from "@/utils/cauldronsConfig/ethereumCauldrons";
 import { useImage } from "@/helpers/useImage";
 
