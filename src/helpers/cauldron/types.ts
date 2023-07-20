@@ -61,4 +61,6 @@ export type AdditionalInfo = {
   isMasterContractApproved: Boolean;
   tokensRate: BigNumber;
   maxWithdrawAmount: BigNumber;
+  whitelistedInfo: Object | null;
+  isCollateralLocked: any;
 };

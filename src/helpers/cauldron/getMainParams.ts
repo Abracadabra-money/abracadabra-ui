@@ -1,4 +1,4 @@
-import { Contract } from "ethers";
+import { Contract, BigNumber } from "ethers";
 import type { providers } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
 import lensAbi from "@/utils/abi/marketLens.js";
@@ -7,7 +7,8 @@ import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 export const getMainParams = async (
   configs: Array<Object | undefined>,
   provider: providers.BaseProvider,
-  chainId: number
+  chainId: number,
+  cauldron: Contract | undefined
 ): Promise<Array<MainParams>> => {
   const lensAddress = getLensAddress(chainId);
   const lensContract = new Contract(lensAddress, lensAbi, provider);
@@ -19,6 +20,10 @@ export const getMainParams = async (
         : lensContract.getMarketInfoCauldronV3(config.contract.address)
     )
   );
+
+  const contractExchangeRate: BigNumber[] = await Promise.all([
+    cauldron?.exchangeRate(),
+  ]);
 
   return marketInfoResp.map((info: any) => {
     return {
@@ -32,6 +37,7 @@ export const getMainParams = async (
       totalBorrowed: info.totalBorrowed,
       tvl: info.totalCollateral.value,
       userMaxBorrow: info.userMaxBorrow,
+      updatePrice: !contractExchangeRate[0].eq(info.oracleExchangeRate),
     };
   });
 };

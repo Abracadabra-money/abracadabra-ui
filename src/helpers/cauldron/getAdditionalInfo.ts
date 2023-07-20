@@ -1,10 +1,14 @@
 import { utils, BigNumber } from "ethers";
 import type { AdditionalInfo } from "@/helpers/cauldron/types";
+import { getWhiteListedInfo } from "@/helpers/cauldron/getWhiteListedInfo";
+import { checkIsUserCollateralLocked } from "@/helpers/cauldron/check/checkIsUserCollateralLocked";
 
 export const getAdditionalInfo = async (
   contracts: any,
   account: string | undefined,
-  config: any
+  config: any,
+  chainId: number,
+  contractProvider: any
 ): Promise<AdditionalInfo> => {
   const { collateral, cauldron, bentoBox } = contracts;
   const { decimals } = config.collateralInfo;
@@ -24,9 +28,26 @@ export const getAdditionalInfo = async (
 
   const additionalInfo = await Promise.all(multicallArr);
 
+  const whitelistedInfo = await getWhiteListedInfo(
+    config,
+    cauldron,
+    account,
+    chainId,
+    contractProvider
+  );
+
+  const isCollateralLocked = await checkIsUserCollateralLocked(
+    config,
+    cauldron,
+    account,
+    chainId
+  );
+
   return {
     isMasterContractApproved: additionalInfo[0] || false,
     tokensRate: additionalInfo[1] || utils.parseUnits("1", decimals),
     maxWithdrawAmount: additionalInfo[2] || BigNumber.from("0"),
+    whitelistedInfo,
+    isCollateralLocked,
   };
 };
