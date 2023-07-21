@@ -2,6 +2,8 @@ import { Contract, utils } from "ethers";
 import whitelisterAbi from "@/utils/abi/Whitelister";
 import yvcrvSTETHWhitelist from "@/utils/yvcrvSTETHWhitelist";
 
+const userNotWhitelisted = { isUserWhitelisted: false };
+
 export const getWhiteListedInfo = async (
   config,
   contract,
@@ -31,7 +33,7 @@ export const getWhiteListedInfo = async (
       }
     });
 
-    if (!userWhitelistedInfo) return null;
+    if (!userWhitelistedInfo) return userNotWhitelisted;
 
     return {
       amountAllowedParsed: utils.formatUnits(amountAllowed),
@@ -41,6 +43,6 @@ export const getWhiteListedInfo = async (
     };
   } catch (error) {
     console.log("Get White Listed Info Error", error);
-    return null;
+    return userNotWhitelisted;
   }
 };

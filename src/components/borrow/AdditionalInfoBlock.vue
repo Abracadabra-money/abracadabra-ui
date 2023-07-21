@@ -71,10 +71,6 @@ export default {
       );
     },
 
-    tvl() {
-      return +utils.formatUnits(this.cauldron.mainParams.tvl);
-    },
-
     collateralToMim() {
       const tokenToMim = 1 / this.oracleExchangeRate;
       const { name } = this.cauldron.config;
@@ -96,6 +92,13 @@ export default {
 
     additionalInfo() {
       try {
+        const { whitelistedInfo } = this.cauldron.additionalInfo;
+        const { decimals, name } = this.cauldron.config.collateralInfo;
+        const { userMaxBorrow, tvl } = this.cauldron.mainParams;
+        const { liquidationPrice } = this.cauldron.userPosition;
+
+        const maxUserBorrow = +utils.formatUnits(userMaxBorrow, decimals);
+
         const resultArray = [
           {
             title: "Collateral Deposited",
@@ -115,14 +118,12 @@ export default {
           },
           {
             title: "TVL",
-            value: `$ ${filters.formatLargeSum(this.tvl)}`,
+            value: `$ ${filters.formatLargeSum(+utils.formatUnits(tvl))}`,
             additional: "Total Value Locked",
           },
           {
             title: "Liquidation Price",
-            value: filters.formatExactPrice(
-              this.cauldron.userPosition.liquidationPrice
-            ),
+            value: filters.formatExactPrice(liquidationPrice),
             additional:
               "Collateral Price at which your Position will be Liquidated",
           },
@@ -137,38 +138,31 @@ export default {
           resultArray.push({
             title: "Withdrawable Amount",
             value: filters.formatTokenBalance(this.maxWithdrawAmount),
-            additional: `Maximum Current Amount of ${this.cauldron.config.collateralInfo.name} Withdrawable from this market. More ${this.tokenName} will be available as this value approaches 0.`,
+            additional: `Maximum Current Amount of ${name} Withdrawable from this market. More will be available as this value approaches 0.`,
           });
         }
 
-        const userMaxBorrow = +utils.formatUnits(
-          this.cauldron.mainParams.userMaxBorrow,
-          this.cauldron.config.collateralInfo.decimals
-        );
-
-        if (userMaxBorrow) {
+        if (maxUserBorrow) {
           resultArray.push({
             title: "Maximum Borrowable MIM",
-            value: filters.formatLargeSum(userMaxBorrow),
+            value: filters.formatLargeSum(maxUserBorrow),
             additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
           });
         }
 
-        // if (this.cauldron.userPosition?.whitelistedInfo) {
-        //   resultArray.push({
-        //     title: "Maximum Borrowable MIM",
-        //     value: this.cauldron.userPosition?.whitelistedInfo
-        //       ?.isUserWhitelisted
-        //       ? filters.formatLargeSum(
-        //           utils.formatUnits(
-        //             this.cauldron.userPosition?.whitelistedInfo?.userBorrowPart,
-        //             this.cauldron.config.collateralInfo.decimals
-        //           )
-        //         )
-        //       : "0.0",
-        //     additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
-        //   });
-        // }
+        if (whitelistedInfo) {
+          const maxBorrow = whitelistedInfo?.isUserWhitelisted
+            ? filters.formatLargeSum(
+                utils.formatUnits(whitelistedInfo?.userBorrowPart, decimals)
+              )
+            : "0.0";
+
+          resultArray.push({
+            title: "Maximum Borrowable MIM",
+            value: maxBorrow,
+            additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
+          });
+        }
 
         return resultArray;
       } catch (e) {

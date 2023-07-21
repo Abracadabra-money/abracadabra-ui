@@ -22,7 +22,11 @@
             isChooseToken
           />
 
-          <UseCheckbox :config="cauldron.config" @toggle="changeToken" />
+          <UseCheckbox
+            v-if="cauldron"
+            :config="cauldron.config"
+            @toggle="changeToken"
+          />
         </div>
 
         <div class="borrow-assets underline">
@@ -41,7 +45,7 @@
         </div>
 
         <div class="ltv-wrap underline" v-if="cauldron">
-          <LtvBlock :ltv="calculateLtv" />
+          <LtvBlock :ltv="+calculateLtv" />
         </div>
 
         <div class="percent-wrap" v-if="cauldron">
