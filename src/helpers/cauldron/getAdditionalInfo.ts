@@ -3,6 +3,14 @@ import type { AdditionalInfo } from "@/helpers/cauldron/types";
 import { getWhiteListedInfo } from "@/helpers/cauldron/getWhiteListedInfo";
 import { checkIsUserCollateralLocked } from "@/helpers/cauldron/check/checkIsUserCollateralLocked";
 
+const EMPTY_STATE = {
+  isMasterContractApproved: false,
+  tokensRate: utils.parseUnits("1", 18),
+  maxWithdrawAmount: BigNumber.from("0"),
+  whitelistedInfo: { isUserWhitelisted: false },
+  isCollateralLocked: false,
+};
+
 export const getAdditionalInfo = async (
   contracts: any,
   account: string | undefined,
@@ -10,6 +18,8 @@ export const getAdditionalInfo = async (
   chainId: number,
   contractProvider: any
 ): Promise<AdditionalInfo> => {
+  if (!account) return EMPTY_STATE;
+
   const { collateral, cauldron, bentoBox } = contracts;
   const { decimals } = config.collateralInfo;
   const masterContract = await cauldron.masterContract();
