@@ -13,13 +13,7 @@ export default defineConfig({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
     }),
-    vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag) => ["router-link"].includes(tag),
-        },
-      },
-    }),
+    vue(),
   ],
   esbuild: {
     drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
