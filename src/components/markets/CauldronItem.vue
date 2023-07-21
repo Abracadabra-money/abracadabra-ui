@@ -42,6 +42,7 @@
 
 <script>
 import filters from "@/filters/index.js";
+import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
@@ -71,15 +72,24 @@ export default {
         {
           title: "TOTAL MIM BORROWED",
 
-          value: filters.formatLargeSum(this.cauldron.totalBorrowed),
+          value: filters.formatLargeSum(
+            utils.formatUnits(this.cauldron.totalBorrowed)
+          ),
         },
         {
           title: "TVL",
-          value: `$ ${filters.formatLargeSum(this.cauldron.tvl)}`,
+          value: `$ ${filters.formatLargeSum(
+            utils.formatUnits(
+              this.cauldron.tvl,
+              this.cauldron.config.collateralInfo.decimals
+            )
+          )}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
-          value: filters.formatLargeSum(this.cauldron.mimLeftToBorrow),
+          value: filters.formatLargeSum(
+            utils.formatUnits(this.cauldron.mimLeftToBorrow)
+          ),
         },
         { title: "INTEREST", value: `${this.cauldron.interest}%` },
       ];
