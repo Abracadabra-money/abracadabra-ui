@@ -60,8 +60,8 @@ const testArbCauldronHiddenWrap = {
   config: arbConfig[1],
   contracts: {
     collateral: new ethers.Contract(
-      ethConfig[1].collateralInfo.address,
-      ethConfig[1].collateralInfo.abi,
+      arbConfig[1].collateralInfo.address,
+      arbConfig[1].collateralInfo.abi,
       testProvider
     ),
   },
@@ -72,8 +72,8 @@ const testArbCauldronAcceptUseDefaultBalance = {
   config: arbConfig[0],
   contracts: {
     collateral: new ethers.Contract(
-      ethConfig[0].collateralInfo.address,
-      ethConfig[0].collateralInfo.abi,
+      arbConfig[0].collateralInfo.address,
+      arbConfig[0].collateralInfo.abi,
       testProvider
     ),
   },
