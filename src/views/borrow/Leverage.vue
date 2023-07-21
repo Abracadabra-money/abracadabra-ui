@@ -466,20 +466,17 @@ export default {
 
     expectedLiquidationPrice() {
       const { mcr } = this.cauldron.config;
-      const { userBorrowAmount, userCollateralAmount } = this.positionInfo;
-
-      if (!this.expectedCollateralAmount) return 0;
+      const { userCollateralAmount } = this.positionInfo;
 
       if (!this.collateralValue)
         return this.cauldron.userPosition.liquidationPrice;
-
-      const borrowPart = +this.expectedBorrowAmount + +userBorrowAmount;
 
       const expectedCollateralPart =
         +this.expectedCollateralAmount + +userCollateralAmount;
 
       const liquidationPrice =
-        +borrowPart / +expectedCollateralPart / (+mcr / 100) || 0;
+        +this.expectedBorrowAmount / +expectedCollateralPart / (+mcr / 100) ||
+        0;
 
       return liquidationPrice.toFixed(4);
     },

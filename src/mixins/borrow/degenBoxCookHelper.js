@@ -5,19 +5,15 @@ export default {
   computed: {
     // TODO: move to config
     cookHelper() {
-      if (
-        this.chainId === 1 &&
-        (this.selectedPool.id === 35 ||
-          this.selectedPool.id === 36 ||
-          this.selectedPool.id === 37)
-      )
+      const { id } = this.cauldron.config;
+      if (this.chainId === 1 && (id === 35 || id === 36 || id === 37))
         return new this.$ethers.Contract(
           "0x3AeCB01be778fAA795f156B9D3627c0E05f700a1",
           JSON.stringify(cookHelperAbi),
           this.signer
         );
 
-      if (this.chainId === 42161 && this.selectedPool.id === 2)
+      if (this.chainId === 42161 && id === 2)
         return new this.$ethers.Contract(
           "0x129149DC63F5778a41f619Bb36212566ac54eA45",
           JSON.stringify(cookHelperAbi),
@@ -28,8 +24,8 @@ export default {
     },
   },
   methods: {
-    async isCookHelperApproved(pool) {
-      return await pool.masterContractInstance.masterContractApproved(
+    async isCookHelperApproved(bentoBox) {
+      return await bentoBox.masterContractApproved(
         this.cookHelper.address,
         this.account
       );

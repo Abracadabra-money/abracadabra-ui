@@ -391,7 +391,7 @@ export default {
         itsMax: +this.borrowValue === +borrowAmount,
       };
 
-      const isTokenToCookApprove = this.checkAllowance(payload.amount);
+      const isTokenToCookApprove = await this.checkAllowance(payload.amount);
 
       if (+isTokenToCookApprove) {
         await this.cookRepay(
@@ -479,7 +479,7 @@ export default {
         );
       }
 
-      const isTokenToCookApprove = this.checkAllowance(
+      const isTokenToCookApprove = await this.checkAllowance(
         payload.collateralAmount
       );
 
