@@ -92,7 +92,7 @@ export default {
 
     additionalInfo() {
       try {
-        const { whitelistedInfo } = this.cauldron.additionalInfo;
+        const whitelistedInfo = this.cauldron.additionalInfo?.whitelistedInfo;
         const { decimals, name } = this.cauldron.config.collateralInfo;
         const { userMaxBorrow, tvl } = this.cauldron.mainParams;
         const { liquidationPrice } = this.cauldron.userPosition;
