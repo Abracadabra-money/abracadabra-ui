@@ -4,7 +4,7 @@ import Vuex from "vuex";
 import { ethers } from "ethers";
 import CauldronItem from "@/components/markets/CauldronItem.vue";
 import arbConfig from "@/utils/cauldronsConfig/arbitrumCauldrons";
-import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
+import { useImage } from "@/helpers/useImage";
 
 const defaultCauldronParams = {
   borrowFee: 1,
@@ -44,7 +44,9 @@ const store = new Vuex.Store({
       },
     },
     networks: {
-      state: { chainIcon: arbitrumIcon },
+      state: {
+        chainIcon: useImage("assets/images/networks/arbitrum-icon.svg"),
+      },
       getters: {
         getChainIcon: (state) => (chainId: number) => state.chainIcon,
       },
