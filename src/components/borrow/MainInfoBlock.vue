@@ -68,7 +68,9 @@ export default {
     },
 
     info() {
-      let info = [
+      const { feePercent } = this.cauldron.additionalInfo;
+
+      const info = [
         {
           name: "Maximum collateral ratio",
           value: this.cauldron.config.mcr,
@@ -121,8 +123,7 @@ export default {
 
         info.push({
           name: "Management Fee",
-          // todo value: `${this.cauldron.lpLogic.feePercent || 0}`,
-          value: `0`,
+          value: `${feePercent || 0}`,
           tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
         });
       }

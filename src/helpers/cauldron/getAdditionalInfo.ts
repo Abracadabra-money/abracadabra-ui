@@ -2,6 +2,7 @@ import { utils, BigNumber } from "ethers";
 import type { AdditionalInfo } from "@/helpers/cauldron/types";
 import { getWhiteListedInfo } from "@/helpers/cauldron/getWhiteListedInfo";
 import { checkIsUserCollateralLocked } from "@/helpers/cauldron/check/checkIsUserCollateralLocked";
+import { getFeePercent } from "@/helpers/cauldron/getFeePercent";
 
 const EMPTY_STATE = {
   isMasterContractApproved: false,
@@ -9,6 +10,7 @@ const EMPTY_STATE = {
   maxWithdrawAmount: BigNumber.from("0"),
   whitelistedInfo: { isUserWhitelisted: false },
   isCollateralLocked: false,
+  feePercent: null,
 };
 
 export const getAdditionalInfo = async (
@@ -53,11 +55,14 @@ export const getAdditionalInfo = async (
     chainId
   );
 
+  const feePercent = await getFeePercent(config, contractProvider, chainId);
+
   return {
     isMasterContractApproved: additionalInfo[0] || false,
     tokensRate: additionalInfo[1] || utils.parseUnits("1", decimals),
     maxWithdrawAmount: additionalInfo[2] || BigNumber.from("0"),
     whitelistedInfo,
     isCollateralLocked,
+    feePercent,
   };
 };

@@ -63,4 +63,5 @@ export type AdditionalInfo = {
   maxWithdrawAmount: BigNumber;
   whitelistedInfo: Object | null;
   isCollateralLocked: any;
+  feePercent: number | null;
 };
