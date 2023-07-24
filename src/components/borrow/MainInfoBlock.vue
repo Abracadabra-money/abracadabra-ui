@@ -22,6 +22,7 @@ import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
 import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { getVeloManagementFee } from "@/helpers/collateralsApy/getVeloApy";
+import { utils } from "ethers";
 
 export default {
   props: {
@@ -58,7 +59,7 @@ export default {
     collateralToMim() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { name, collateralInfo } = this.cauldron.config;
-      const rate = this.$ethers.utils.formatUnits(
+      const rate = utils.formatUnits(
         oracleExchangeRate,
         collateralInfo.decimals
       );
