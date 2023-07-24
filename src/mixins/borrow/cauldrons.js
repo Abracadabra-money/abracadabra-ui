@@ -806,7 +806,7 @@ export default {
       hasAccountBorrowLimit,
       isDepreciated
     ) {
-      if (localBorrowAmountLimit === 0 || isDepreciated) return 0;
+      // if (localBorrowAmountLimit === 0 || isDepreciated) return 0;
 
       const values = [];
 
