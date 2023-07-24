@@ -34,8 +34,8 @@
             <h4>MIM to Borrow</h4>
           </div>
           <BaseTokenInput
-            :name="mimInfo.name"
-            :icon="mimInfo.icon"
+            :name="borrowToken.name"
+            :icon="borrowToken.icon"
             :value="borrowValue"
             :max="maxBorrowValue"
             :error="errorBorrowValue"
@@ -78,7 +78,7 @@
               @click="showAdditionalInfo = !showAdditionalInfo"
             />
           </div>
-          <div class="stand-data">
+          <div>
             <template v-if="cauldron">
               <PositionInfoBlock
                 v-if="showAdditionalInfo"
@@ -177,6 +177,77 @@ export default {
       return !!(this.$route.params.id && !this.cauldron);
     },
 
+    isTokenApproved() {
+      if (!this.account) return true;
+
+      const allowance = +utils.formatUnits(
+        this.activeToken.allowance,
+        this.activeToken.decimals
+      );
+
+      return allowance > 0;
+    },
+
+    isActionDisabled() {
+      if (!this.isTokenApproved) return true;
+      if (this.errorCollateralValue || this.errorBorrowValue) return true;
+      if (!this.collateralValue && !this.borrowValue) return true;
+      return false;
+    },
+
+    expectedCollateralAmount() {
+      const { tokensRate } = this.cauldron.additionalInfo;
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+      const { decimals } = this.cauldron.config.collateralInfo;
+      const wrapInfo = this.cauldron.config?.wrapInfo;
+
+      const collateralDeposit = +utils.formatUnits(
+        userCollateralAmount,
+        decimals
+      );
+      const rates = +utils.formatUnits(tokensRate, decimals);
+
+      if (wrapInfo && !this.useOtherToken) {
+        return collateralDeposit + +this.collateralValue / rates;
+      } else return collateralDeposit + +this.collateralValue;
+    },
+
+    expectedBorrowAmount() {
+      const { borrowFee } = this.cauldron.mainParams;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      const borrowAmount = +utils.formatUnits(userBorrowAmount);
+      const debt = (+this.borrowValue / 100) * +borrowFee;
+
+      if (borrowFee) return +this.borrowValue + debt + borrowAmount;
+      return +this.borrowValue + borrowAmount;
+    },
+
+    expectedLiquidationPrice() {
+      if (!this.expectedCollateralAmount) return 0;
+
+      return (
+        this.expectedBorrowAmount /
+        this.expectedCollateralAmount /
+        (+this.cauldron.config.mcr / 100)
+      );
+    },
+
+    errorCollateralValue() {
+      if (isNaN(this.collateralValue)) return "Please input valid value";
+      if (+this.collateralValue > +this.activeToken.balance.value)
+        return `The value cannot be greater than ${this.activeToken.balance.value}`;
+      return "";
+    },
+
+    errorBorrowValue() {
+      if (isNaN(this.borrowValue)) return "Please input valid value";
+      if (+this.borrowValue > +this.maxBorrowValue)
+        return `The value cannot be greater than ${this.maxBorrowValue}`;
+
+      return "";
+    },
+
     nativeToken() {
       const { symbol, icon } = getChainInfo(this.chainId);
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
@@ -220,14 +291,13 @@ export default {
       const { unwrappedToken } = this.cauldron.contracts;
       const { unwrappedTokenBalance, unwrappedTokenAllowance } =
         this.cauldron.userTokensInfo;
-      const value = utils.formatUnits(unwrappedTokenBalance, decimals);
 
       return {
         name,
         icon,
         balance: {
           hex: unwrappedTokenBalance,
-          value,
+          value: utils.formatUnits(unwrappedTokenBalance, decimals),
         },
         decimals,
         allowance: unwrappedTokenAllowance,
@@ -235,7 +305,7 @@ export default {
       };
     },
 
-    mimInfo() {
+    borrowToken() {
       if (!this.cauldron) return MIM_EMPTY_DATA;
       const { name, icon } = this.cauldron.config.mimInfo;
       return { name, icon };
@@ -253,13 +323,6 @@ export default {
       if (useUnwrappedByDefault && !this.useOtherToken)
         return this.unwrappedToken;
       return this.collateralToken;
-    },
-
-    errorCollateralValue() {
-      if (isNaN(this.collateralValue)) return "Please input valid value";
-      if (+this.collateralValue > +this.activeToken.balance.value)
-        return `The value cannot be greater than ${this.activeToken.balance.value}`;
-      return "";
     },
 
     collateralInUsd() {
@@ -301,61 +364,6 @@ export default {
       return 0;
     },
 
-    errorBorrowValue() {
-      if (isNaN(this.borrowValue)) return "Please input valid value";
-      if (+this.borrowValue > +this.maxBorrowValue)
-        return `The value cannot be greater than ${this.maxBorrowValue}`;
-
-      return "";
-    },
-
-    expectedCollateralAmount() {
-      const { tokensRate } = this.cauldron.additionalInfo;
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-      const { decimals } = this.cauldron.config.collateralInfo;
-      const wrapInfo = this.cauldron.config?.wrapInfo;
-
-      const collateralDeposit = +utils.formatUnits(
-        userCollateralAmount,
-        decimals
-      );
-      const rates = +utils.formatUnits(tokensRate, decimals);
-
-      if (wrapInfo && !this.useOtherToken) {
-        return collateralDeposit + +this.collateralValue / rates;
-      } else return collateralDeposit + +this.collateralValue;
-    },
-
-    expectedBorrowAmount() {
-      const { borrowFee } = this.cauldron.mainParams;
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      const borrowAmount = +utils.formatUnits(userBorrowAmount);
-      if (borrowFee) return +this.borrowValue * +borrowFee + borrowAmount;
-      return +this.borrowValue + borrowAmount;
-    },
-
-    expectedLiquidationPrice() {
-      if (!this.expectedCollateralAmount) return 0;
-
-      return (
-        this.expectedBorrowAmount /
-        this.expectedCollateralAmount /
-        (+this.cauldron.config.mcr / 100)
-      );
-    },
-
-    isTokenApproved() {
-      if (!this.account) return true;
-
-      const allowance = +utils.formatUnits(
-        this.activeToken.allowance,
-        this.activeToken.decimals
-      );
-
-      return allowance > 0;
-    },
-
     actionInfo() {
       const { isCollateralLocked } = this.cauldron.additionalInfo;
 
@@ -365,7 +373,6 @@ export default {
       };
 
       if (this.isActionDisabled) return info;
-
       if (isCollateralLocked) return info;
 
       if (+this.borrowValue && +this.collateralValue) {
@@ -380,13 +387,6 @@ export default {
       }
 
       return info;
-    },
-
-    isActionDisabled() {
-      if (!this.isTokenApproved) return true;
-      if (this.errorCollateralValue || this.errorBorrowValue) return true;
-      if (!this.collateralValue && !this.borrowValue) return true;
-      return false;
     },
 
     backgroundInfo() {
@@ -419,10 +419,28 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+
     changeToken(value) {
       this.collateralValue = "";
       this.borrowValue = "";
       this.useOtherToken = value;
+    },
+
+    async changeActiveMarket(marketId) {
+      clearInterval(this.updateInterval);
+      this.cauldronId = marketId;
+      this.cauldron = "";
+      this.useOtherToken = false;
+      this.collateralValue = "";
+      this.borrowValue = "";
+
+      const duplicate = this.$route.fullPath === `/borrow/${marketId}`;
+      if (!duplicate) this.$router.push(`/borrow/${marketId}`);
+
+      this.isOpenMarketListPopup = false;
     },
 
     updateCollateralValue(value) {
@@ -459,8 +477,161 @@ export default {
       return false;
     },
 
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
+    async actionHandler() {
+      if (!this[this.actionInfo.methodName]) return false;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const isPermissionToCook = await this.checkPermissionToCook(
+        notificationId,
+        this.borrowValue || 0,
+        this.collateralValue || 0
+      );
+
+      if (!isPermissionToCook) return false;
+
+      return await this[this.actionInfo.methodName](notificationId);
+    },
+
+    async addCollateralAndBorrowHandler(notificationId) {
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
+
+      const collateralAmount = utils.parseUnits(
+        this.collateralValue.toString(),
+        this.activeToken.decimals
+      );
+
+      const borrowAmount = utils.parseUnits(
+        filters.formatToFixed(this.borrowValue, 18)
+      );
+
+      const payload = {
+        collateralAmount,
+        amount: borrowAmount,
+        updatePrice,
+        itsDefaultBalance: !!this.activeToken.isNative,
+      };
+
+      await this.cookAddCollateralAndBorrow(
+        payload,
+        isMasterContractApproved,
+        this.cauldron,
+        notificationId,
+        !!this.cauldron.config?.wrapInfo,
+        !this.useOtherToken
+      );
+
+      return await this.createCauldronInfo();
+    },
+
+    async addCollateralHandler(notificationId) {
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
+
+      const collateralAmount = utils.parseUnits(
+        this.collateralValue.toString(),
+        this.activeToken.decimals
+      );
+
+      const payload = {
+        amount: collateralAmount,
+        updatePrice,
+        itsDefaultBalance: !!this.activeToken.isNative,
+      };
+
+      await this.cookAddCollateral(
+        payload,
+        isMasterContractApproved,
+        this.cauldron,
+        notificationId,
+        !!this.cauldron.config?.wrapInfo,
+        !this.useOtherToken
+      );
+
+      return await this.createCauldronInfo();
+    },
+
+    async borrowHandler(notificationId) {
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
+
+      const borrowAmount = utils.parseUnits(
+        filters.formatToFixed(this.borrowValue, 18)
+      );
+
+      const payload = {
+        amount: borrowAmount,
+        updatePrice,
+      };
+
+      await this.cookBorrow(
+        payload,
+        isMasterContractApproved,
+        this.cauldron,
+        notificationId
+      );
+
+      return await this.createCauldronInfo();
+    },
+
+    async checkPermissionToCook(notificationId, borrowAmount, collateralValue) {
+      const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
+      const { id } = this.cauldron.config;
+      const { whitelistedInfo } = this.cauldron.additionalInfo;
+      const leftToBorrow = utils.formatUnits(mimLeftToBorrow);
+      const borrowLimit = utils.formatUnits(userMaxBorrow);
+
+      const allowanceAmount = utils.parseUnits(
+        collateralValue.toString(),
+        this.activeToken.decimals
+      );
+
+      if (!+leftToBorrow) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.allowBorrow);
+        return false;
+      }
+
+      if (+borrowAmount > +borrowLimit) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.borrowLimit);
+        return false;
+      }
+
+      if (!whitelistedInfo && this.chainId === 1 && id === 33) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.whitelisted);
+        return false;
+      }
+
+      const allowance = await this.checkAllowance(allowanceAmount);
+
+      if (!allowance) {
+        await this.deleteNotification(notificationId);
+        return await this.createNotification(notification.approveError);
+      }
+
+      return true;
+    },
+
+    async checkAllowance(amount) {
+      const { isNative, contract } = this.activeToken;
+      const { bentoBox } = this.cauldron.contracts;
+      if (!isNative) {
+        const allowance = await contract.allowance(
+          this.account,
+          bentoBox.address
+        );
+
+        if (allowance.lt(amount)) {
+          return await approveToken(contract, bentoBox.address);
+        }
+      }
+
+      return true;
     },
 
     async createCauldronInfo() {
@@ -482,195 +653,6 @@ export default {
           this.signer
         );
       }, 15000);
-    },
-
-    async actionHandler() {
-      this[this.actionInfo.methodName]();
-    },
-
-    async checkAllowance(amount) {
-      const { isNative, contract } = this.activeToken;
-      const { bentoBox } = this.cauldron.contracts;
-      if (!isNative) {
-        const allowance = await contract.allowance(
-          this.account,
-          bentoBox.address
-        );
-
-        if (allowance.lt(amount)) {
-          return await approveToken(contract, bentoBox.address);
-        }
-      }
-
-      return true;
-    },
-
-    async addCollateralAndBorrowHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const collateralAmount = this.$ethers.utils.parseUnits(
-        this.collateralValue.toString(),
-        this.activeToken.decimals
-      );
-
-      const borrowAmount = this.$ethers.utils.parseUnits(
-        filters.formatToFixed(this.borrowValue, 18)
-      );
-
-      const payload = {
-        collateralAmount,
-        amount: borrowAmount,
-        updatePrice,
-        itsDefaultBalance: !!this.activeToken.isNative,
-      };
-
-      const isPermissionToCook = await this.checkPermissionToCook(
-        this.borrowValue,
-        notificationId,
-        collateralAmount
-      );
-
-      if (+isPermissionToCook) {
-        await this.cookAddCollateralAndBorrow(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          notificationId,
-          !!this.cauldron.config?.wrapInfo,
-          !this.useOtherToken
-        );
-
-        return await this.createCauldronInfo();
-      }
-
-      await this.deleteNotification(notificationId);
-      return await this.createNotification(notification.approveError);
-    },
-
-    async addCollateralHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const collateralAmount = this.$ethers.utils.parseUnits(
-        this.collateralValue.toString(),
-        this.activeToken.decimals
-      );
-
-      const payload = {
-        amount: collateralAmount,
-        updatePrice,
-        itsDefaultBalance: !!this.activeToken.isNative,
-      };
-
-      const isTokenToCookApprove = await this.checkAllowance(collateralAmount);
-
-      if (+isTokenToCookApprove) {
-        await this.cookAddCollateral(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          notificationId,
-          !!this.cauldron.config?.wrapInfo,
-          !this.useOtherToken
-        );
-
-        return await this.createCauldronInfo();
-      }
-
-      await this.deleteNotification(notificationId);
-      return await this.createNotification(notification.approveError);
-    },
-
-    async borrowHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const borrowAmount = this.$ethers.utils.parseUnits(
-        filters.formatToFixed(this.borrowValue, 18)
-      );
-
-      const payload = {
-        amount: borrowAmount,
-        updatePrice,
-      };
-
-      const isPermissionToCook = await this.checkPermissionToCook(
-        this.borrowValue,
-        notificationId
-      );
-
-      if (isPermissionToCook) {
-        await this.cookBorrow(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          notificationId
-        );
-
-        return await this.createCauldronInfo();
-      }
-
-      await this.deleteNotification(notificationId);
-      return await this.createNotification(notification.approveError);
-    },
-
-    async changeActiveMarket(marketId) {
-      clearInterval(this.updateInterval);
-      this.cauldronId = marketId;
-      this.cauldron = "";
-      this.useOtherToken = false;
-      this.collateralValue = "";
-      this.borrowValue = "";
-
-      const duplicate = this.$route.fullPath === `/borrow/${marketId}`;
-      if (!duplicate) this.$router.push(`/borrow/${marketId}`);
-
-      this.isOpenMarketListPopup = false;
-    },
-
-    async checkPermissionToCook(
-      borrowAmount,
-      notificationId,
-      allowanceAmount = 0
-    ) {
-      const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
-      const { id } = this.cauldron.config;
-      const { whitelistedInfo } = this.cauldron.additionalInfo;
-      const leftToBorrow = utils.formatUnits(mimLeftToBorrow);
-      const borrowLimit = utils.formatUnits(userMaxBorrow);
-
-      if (!+leftToBorrow) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.allowBorrow);
-        return false;
-      }
-
-      if (+borrowAmount > +borrowLimit) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.borrowLimit);
-        return false;
-      }
-
-      if (!whitelistedInfo && this.chainId === 1 && id === 33) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.whitelisted);
-        return false;
-      }
-
-      return await this.checkAllowance(allowanceAmount);
     },
   },
 
@@ -806,6 +788,16 @@ export default {
   margin: 0 auto;
 }
 
+.cauldron-stand {
+  min-height: 520px;
+  padding: 30px 20px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+  background-position: center;
+  background-size: cover;
+}
+
 .title {
   font-size: 24px;
   text-transform: uppercase;
@@ -815,16 +807,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.cauldron-stand {
-  min-height: 520px;
-  padding: 30px 20px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
-  background-position: center;
-  background-size: cover;
 }
 
 .stand-info {
@@ -872,13 +854,13 @@ export default {
     bottom: 15px;
   }
 
-  .title {
-    margin-bottom: 20px;
-  }
-
   .cauldron-stand {
     padding: 20px 10px;
     min-height: auto;
+  }
+
+  .title {
+    margin-bottom: 20px;
   }
 
   .btn-wrap {

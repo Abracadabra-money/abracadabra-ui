@@ -31,8 +31,8 @@
             <h4>Repay MIM</h4>
           </div>
           <BaseTokenInput
-            :name="mimInfo.name"
-            :icon="mimInfo.icon"
+            :name="borrowToken.name"
+            :icon="borrowToken.icon"
             :value="borrowValue"
             :max="maxBorrowValue"
             :error="errorBorrowValue"
@@ -41,9 +41,9 @@
           />
 
           <DynamicallyEstimatedPrice
-            :itsClose="true"
+            :isClose="true"
             :amount="borrowValue"
-            :mimAddress="mimInfo.address"
+            :mimAddress="borrowToken.address"
           />
         </div>
 
@@ -65,7 +65,7 @@
               @click="showAdditionalInfo = !showAdditionalInfo"
             />
           </div>
-          <div class="stand-data">
+          <div>
             <template v-if="cauldron">
               <PositionInfoBlock
                 v-if="showAdditionalInfo"
@@ -169,28 +169,33 @@ export default {
       return false;
     },
 
+    isMaxBorrow() {
+      const { userBorrowAmount, userCollateralAmount } = this.positionInfo;
+
+      return (
+        +this.borrowValue === +userBorrowAmount &&
+        +this.collateralValue === +userCollateralAmount
+      );
+    },
+
     maxCollateralAmount() {
       if (!this.cauldron) return 0;
 
-      const { borrowAmount } = this.mimInfo;
-      const { collateralAmount, decimals } = this.activeToken;
-      const { config, additionalInfo, mainParams } = this.cauldron;
-      const { mcr } = config;
-      const { maxWithdrawAmount: withdrawAmount } = additionalInfo;
-      const { oracleExchangeRate: exchangeRate } = mainParams;
+      const { mcr } = this.cauldron.config;
+      const { decimals } = this.activeToken;
+      const { userCollateralAmount } = this.positionInfo;
+      const { userBorrowAmount, oracleExchangeRate, maxWithdrawAmount } =
+        this.positionInfo;
 
-      const oracleExchangeRate = +utils.formatUnits(exchangeRate, decimals);
-      const maxWithdrawAmount = +utils.formatUnits(withdrawAmount, decimals);
-
-      if (+this.borrowValue === borrowAmount || !borrowAmount) {
-        if (maxWithdrawAmount && maxWithdrawAmount < collateralAmount) {
+      if (+this.borrowValue === userBorrowAmount || !userBorrowAmount) {
+        if (maxWithdrawAmount && maxWithdrawAmount < userCollateralAmount) {
           return maxWithdrawAmount;
         }
 
-        return collateralAmount;
+        return userCollateralAmount;
       }
 
-      const collateralInUsd = collateralAmount / oracleExchangeRate;
+      const collateralInUsd = userCollateralAmount / oracleExchangeRate;
       const maxBorrow =
         (collateralInUsd / 100) * (mcr - 1) - this.expectedBorrowAmount;
       const borrowLeft = ((maxBorrow * oracleExchangeRate) / mcr) * 100;
@@ -206,9 +211,10 @@ export default {
     maxBorrowValue() {
       if (!this.cauldron) return 0;
 
-      const { borrowAmount, mimBalance } = this.mimInfo;
-      if (borrowAmount > mimBalance) return mimBalance;
-      return borrowAmount;
+      const { mimBalance } = this.borrowToken;
+      const { userBorrowAmount } = this.positionInfo;
+      if (userBorrowAmount > mimBalance) return mimBalance;
+      return userBorrowAmount;
     },
 
     errorCollateralValue() {
@@ -227,14 +233,15 @@ export default {
     },
 
     expectedCollateralAmount() {
-      const { collateralAmount } = this.activeToken;
-      const expectedAmount = collateralAmount - +this.collateralValue;
+      const { userCollateralAmount } = this.positionInfo;
+
+      const expectedAmount = userCollateralAmount - +this.collateralValue;
       return expectedAmount < 0 ? 0 : expectedAmount;
     },
 
     expectedBorrowAmount() {
-      const { borrowAmount } = this.mimInfo;
-      const expectedAmount = borrowAmount - +this.borrowValue;
+      const { userBorrowAmount } = this.positionInfo;
+      const expectedAmount = userBorrowAmount - +this.borrowValue;
       return expectedAmount < 0 ? 0 : expectedAmount;
     },
 
@@ -248,20 +255,45 @@ export default {
       );
     },
 
+    positionInfo() {
+      const { decimals } = this.activeToken;
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+      const { oracleRate } = this.cauldron.userPosition;
+      const { maxWithdrawAmount } = this.cauldron.additionalInfo;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      return {
+        userBorrowAmount: +utils.formatUnits(userBorrowAmount),
+        oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
+        maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
+        userCollateralAmount: +utils.formatUnits(userCollateralAmount),
+      };
+    },
+
     collateralToken() {
-      const { config, userPosition } = this.cauldron;
-      const { icon } = config;
-      const { name, decimals, address } = config.collateralInfo;
-      const { userCollateralAmount, userCollateralShare } =
-        userPosition.collateralInfo;
+      const { icon } = this.cauldron.config;
+      const { name, decimals, address } = this.cauldron.config.collateralInfo;
 
       return {
         name,
         address,
         icon,
         decimals,
-        collateralAmount: +utils.formatUnits(userCollateralAmount),
-        collateralShare: +utils.formatUnits(userCollateralShare),
+      };
+    },
+
+    borrowToken() {
+      if (!this.cauldron) return MIM_EMPTY_DATA;
+
+      const { name, icon, address } = this.cauldron.config.mimInfo;
+      const { mimBalance } = this.cauldron.userTokensInfo;
+
+      return {
+        name,
+        icon,
+        address,
+        mimBalance: +utils.formatUnits(mimBalance),
       };
     },
 
@@ -269,25 +301,6 @@ export default {
       if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
 
       return this.collateralToken;
-    },
-
-    mimInfo() {
-      if (!this.cauldron) return MIM_EMPTY_DATA;
-
-      const { name, icon, decimals, address } = this.cauldron.config.mimInfo;
-      const { mimBalance } = this.cauldron.userTokensInfo;
-      const { userBorrowAmount, userBorrowPart } =
-        this.cauldron.userPosition.borrowInfo;
-
-      return {
-        name,
-        icon,
-        address,
-        borrowAmount: +utils.formatUnits(userBorrowAmount),
-        borrowPart: +utils.formatUnits(userBorrowPart),
-        mimBalance: +utils.formatUnits(mimBalance),
-        mimDecimals: decimals,
-      };
     },
 
     actionInfo() {
@@ -337,12 +350,26 @@ export default {
       if (this.cauldron === null) this.$router.push(`/repay`);
     },
   },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
+    },
+
+    async changeActiveMarket(marketId) {
+      clearInterval(this.updateInterval);
+      this.cauldronId = marketId;
+      this.cauldron = "";
+      this.collateralValue = "";
+      this.borrowValue = "";
+
+      const duplicate = this.$route.fullPath === `/repay/${marketId}`;
+      if (!duplicate) this.$router.push(`/repay/${marketId}`);
+
+      this.isOpenMarketListPopup = false;
     },
 
     updateCollateralValue(value) {
@@ -352,6 +379,18 @@ export default {
     updateBorrowValue(value) {
       this.borrowValue = value;
       this.collateralValue = +this.maxCollateralAmount;
+    },
+
+    async checkAllowance(amount) {
+      const { bentoBox, mim } = this.cauldron.contracts;
+
+      const allowance = await mim.allowance(this.account, bentoBox.address);
+
+      if (allowance.lt(amount)) {
+        return await approveToken(mim, bentoBox.address);
+      }
+
+      return true;
     },
 
     async approveTokenHandler() {
@@ -373,13 +412,14 @@ export default {
     },
 
     async actionHandler() {
+      if (!this[this.actionInfo.methodName]) return false;
       this[this.actionInfo.methodName]();
     },
 
     async repayHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
-      const { borrowAmount } = this.mimInfo;
+      const { userBorrowAmount } = this.positionInfo;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -388,7 +428,7 @@ export default {
       const payload = {
         amount: utils.parseUnits(filters.formatToFixed(this.borrowValue, 18)),
         updatePrice,
-        itsMax: +this.borrowValue === +borrowAmount,
+        itsMax: +this.borrowValue === +userBorrowAmount,
       };
 
       const isTokenToCookApprove = await this.checkAllowance(payload.amount);
@@ -412,6 +452,7 @@ export default {
       const { bentoBox } = this.cauldron.contracts;
       const { decimals, address } = this.activeToken;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -424,7 +465,7 @@ export default {
 
       const payload = {
         amount: await bentoBox.toShare(address, parsedAmount, true),
-        updatePrice: true, // rodo  updatePrice: this.selectedPool.askUpdatePrice,
+        updatePrice,
       };
 
       await this.cookRemoveCollateral(
@@ -442,9 +483,7 @@ export default {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { userCollateralShare } = this.cauldron.userPosition.collateralInfo;
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
-      const { decimals, address, collateralShare } = this.activeToken;
-      const { mimDecimals, borrowPart } = this.mimInfo;
-
+      const { decimals, address } = this.activeToken;
       const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
@@ -452,7 +491,7 @@ export default {
       );
 
       const parsedBorrowValue = utils.parseUnits(
-        filters.formatToFixed(+this.borrowValue, mimDecimals)
+        filters.formatToFixed(+this.borrowValue, 18)
       );
 
       const parsedCollateralValue = utils.parseUnits(
@@ -466,17 +505,10 @@ export default {
         updatePrice,
       };
 
-      if (
-        +this.borrowValue === +borrowPart &&
-        +this.collateralValue === +collateralShare
-      ) {
+      if (this.isMaxBorrow) {
         payload.itsMax = true;
         payload.collateralAmount = userBorrowPart;
-        payload.amount = await bentoBox.toShare(
-          address,
-          userCollateralShare,
-          true
-        );
+        payload.amount = userCollateralShare;
       }
 
       const isTokenToCookApprove = await this.checkAllowance(
@@ -496,31 +528,6 @@ export default {
 
       await this.deleteNotification(notificationId);
       return await this.createNotification(notification.approveError);
-    },
-
-    async checkAllowance(amount) {
-      const { bentoBox, mim } = this.cauldron.contracts;
-
-      const allowance = await mim.allowance(this.account, bentoBox.address);
-
-      if (allowance.lt(amount)) {
-        return await approveToken(mim, bentoBox.address);
-      }
-
-      return true;
-    },
-
-    async changeActiveMarket(marketId) {
-      clearInterval(this.updateInterval);
-      this.cauldronId = marketId;
-      this.cauldron = "";
-      this.collateralValue = "";
-      this.borrowValue = "";
-
-      const duplicate = this.$route.fullPath === `/repay/${marketId}`;
-      if (!duplicate) this.$router.push(`/repay/${marketId}`);
-
-      this.isOpenMarketListPopup = false;
     },
 
     async createCauldronInfo() {
@@ -653,6 +660,16 @@ export default {
   margin-bottom: 30px;
 }
 
+.cauldron-stand {
+  min-height: 520px;
+  padding: 30px 20px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+  background-position: center;
+  background-size: cover;
+}
+
 .title {
   font-size: 24px;
   text-transform: uppercase;
@@ -662,16 +679,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.cauldron-stand {
-  min-height: 520px;
-  padding: 30px 20px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
-  background-position: center;
-  background-size: cover;
 }
 
 .stand-info {
@@ -711,13 +718,13 @@ export default {
     padding: 20px 0 15px;
   }
 
-  .title {
-    margin-bottom: 20px;
-  }
-
   .cauldron-stand {
     padding: 20px 10px;
     min-height: auto;
+  }
+
+  .title {
+    margin-bottom: 20px;
   }
 
   .btn-wrap {
