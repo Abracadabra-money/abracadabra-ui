@@ -30,7 +30,8 @@ export default {
     }),
 
     isLockedTimer() {
-      const { isCollateralLocked } = this.cauldron.additionalInfo;
+      const isCollateralLocked =
+        this.cauldron.additionalInfo?.isCollateralLocked;
       if (!isCollateralLocked) return 0;
       return isCollateralLocked;
     },
