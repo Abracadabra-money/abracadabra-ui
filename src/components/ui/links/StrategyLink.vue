@@ -20,7 +20,7 @@ export default {
 
   computed: {
     strategyLink() {
-      return this.cauldron?.cauldronSettings.strategyLink;
+      return this.cauldron?.config.cauldronSettings.strategyLink;
     },
   },
 };

@@ -57,7 +57,7 @@ export default {
       import("@/components/ui/MiniStatusTag.vue")
     ),
     StrategyLink: defineAsyncComponent(() =>
-      import("@/components/ui/links/StrategyLinkNew.vue")
+      import("@/components/ui/links/StrategyLink.vue")
     ),
     DepositButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/DepositButton.vue")
