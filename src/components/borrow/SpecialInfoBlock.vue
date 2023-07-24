@@ -1,11 +1,9 @@
 <template>
   <div class="tags-wrap">
     <div class="wrap">
-      <!-- todo -->
-      <!-- <LockedTimer v-if="isLockedTimer" :finalTime="isLockedTimer" /> -->
+      <LockedTimer v-if="isLockedTimer" :finalTime="isLockedTimer" />
       <MiniStatusTag v-if="isLeverageTag" text="Leverage" :rounded="true" />
-      <!-- todo -->
-      <!-- <MiniStatusTag v-if="isMigrated" :rounded="true" /> -->
+      <MiniStatusTag v-if="isMigrated" :rounded="true" />
       <StrategyLink :cauldron="cauldron" />
     </div>
     <div class="wrap">
@@ -19,13 +17,8 @@
 <script>
 import { mapGetters } from "vuex";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData.ts";
+import { defineAsyncComponent } from "vue";
 
-// import LockedTimer from "@/components/stake/LockedTimer.vue";
-import MiniStatusTag from "@/components/ui/MiniStatusTag.vue";
-import StrategyLink from "@/components/ui/links/StrategyLinkNew.vue";
-import DepositButton from "@/components/ui/buttons/DepositButton.vue";
-import ClaimButton from "@/components/ui/buttons/ClaimButton.vue";
-import GetTokenLink from "@/components/ui/links/GetTokenLink.vue";
 export default {
   props: {
     cauldron: { type: Object, required: true },
@@ -36,25 +29,19 @@ export default {
       chainId: "getChainId",
     }),
 
-    // todo
-    // isLockedTimer() {
-    //   if (this.cauldron?.userInfo?.userLockedTimestamp)
-    //     return this.cauldron.userInfo.userLockedTimestamp;
-
-    //   return 0;
-    // },
+    isLockedTimer() {
+      const { isCollateralLocked } = this.cauldron.additionalInfo;
+      if (!isCollateralLocked) return 0;
+      return isCollateralLocked;
+    },
 
     isLeverageTag() {
       return this.cauldron?.config.cauldronSettings.isSwappersActive;
     },
 
-    // todo
-    // isMigrated() {
-    //   if (this.cauldron?.config.cauldronSettings)
-    //     return this.cauldron.config.cauldronSettings.isMigrated;
-
-    //   return this.cauldron?.config.isMigrated;
-    // },
+    isMigrated() {
+      return !!this.cauldron.config.cauldronSettings?.isMigrated;
+    },
 
     tokenLinkData() {
       return getTokenLinkData(this.cauldron.config.id, this.chainId);
@@ -62,12 +49,24 @@ export default {
   },
 
   components: {
-    // LockedTimer,
-    MiniStatusTag,
-    StrategyLink,
-    DepositButton,
-    ClaimButton,
-    GetTokenLink,
+    LockedTimer: defineAsyncComponent(() =>
+      import("@/components/stake/LockedTimer.vue")
+    ),
+    MiniStatusTag: defineAsyncComponent(() =>
+      import("@/components/ui/MiniStatusTag.vue")
+    ),
+    StrategyLink: defineAsyncComponent(() =>
+      import("@/components/ui/links/StrategyLinkNew.vue")
+    ),
+    DepositButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/DepositButton.vue")
+    ),
+    ClaimButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/ClaimButton.vue")
+    ),
+    GetTokenLink: defineAsyncComponent(() =>
+      import("@/components/ui/links/GetTokenLink.vue")
+    ),
   },
 };
 </script>
