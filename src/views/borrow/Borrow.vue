@@ -611,7 +611,8 @@ export default {
 
       if (!allowance) {
         await this.deleteNotification(notificationId);
-        return await this.createNotification(notification.approveError);
+        await this.createNotification(notification.approveError);
+        return false;
       }
 
       return true;
