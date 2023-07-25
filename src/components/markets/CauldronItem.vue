@@ -76,10 +76,7 @@ export default {
         {
           title: "TVL",
           value: `$ ${filters.formatLargeSum(
-            utils.formatUnits(
-              this.cauldron.tvl,
-              this.cauldron.config.collateralInfo.decimals
-            )
+            utils.formatUnits(this.cauldron.tvl)
           )}`,
         },
         {
