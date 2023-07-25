@@ -3,7 +3,7 @@
     <template v-if="!isCauldronLoading">
       <div class="cauldron-deposit" :style="backgroundInfo.deposit">
         <div class="underline">
-          <h4>Choose Chain {{ isMaxRepayMimAmount }}</h4>
+          <h4>Choose Chain</h4>
           <NetworksList />
         </div>
 
@@ -22,7 +22,7 @@
 
           <Range
             :value="repayMimAmount"
-            :max="positionInfo.userBorrowAmount"
+            :max="+formatToFixed(positionInfo.userBorrowAmount, 4)"
             :step="borrowRangeStep"
             title="Choose the amount of MIM you want to repay"
             @updateValue="updateRepayMimAmount"
@@ -198,7 +198,10 @@ export default {
     },
 
     isMaxRepayMimAmount() {
-      return +this.repayMimAmount === +this.positionInfo.userBorrowAmount;
+      return (
+        +filters.formatToFixed(this.repayMimAmount, 4) ===
+        +filters.formatToFixed(this.positionInfo.userBorrowAmount, 4)
+      );
     },
 
     isActionDisabled() {
@@ -236,7 +239,7 @@ export default {
         this.collateralInUsd;
 
       const maxRepayAmount =
-        this.expectedCollateralAmount * usdPercent * repayPersent;
+        this.expectedCollateralAmount * usdPercent * 0.995 * repayPersent;
 
       if (maxWithdrawAmount && maxWithdrawAmount < maxRepayAmount)
         return filters.formatToFixed(maxWithdrawAmount, decimals);
@@ -249,15 +252,18 @@ export default {
       const { decimals } = this.activeToken;
       const { userCollateralAmount } = this.positionInfo;
 
-      return (
-        userCollateralAmount -
-        (+this.finalCollateralAmount +
-          +utils.formatUnits(this.finalRemoveCollateralAmount, decimals))
-      );
+      const finalAmount =
+        +this.finalCollateralAmount +
+        +utils.formatUnits(this.finalRemoveCollateralAmount, decimals);
+
+      const finalRemoveAmount = userCollateralAmount - +finalAmount;
+
+      return finalRemoveAmount;
     },
 
     expectedBorrowAmount() {
       const { userBorrowAmount } = this.positionInfo;
+      if (this.isMaxRepayMimAmount) return 0;
       return +userBorrowAmount - +this.repayMimAmount;
     },
 
@@ -595,7 +601,7 @@ export default {
           this.provider,
           this.signer
         );
-      }, 15000);
+      }, 60000);
     },
   },
 
