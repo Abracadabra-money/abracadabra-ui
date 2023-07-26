@@ -237,15 +237,17 @@ export default {
       const { tokensRate } = this.positionInfo;
       const wrapInfo = this.cauldron.config?.wrapInfo;
 
-      const collateralValue =
+      const collateralAmount =
         wrapInfo && !this.useOtherToken
-          ? this.collateralValue / tokensRate
-          : this.collateralValue;
+          ? (this.collateralValue * 1e10) / tokensRate
+          : this.collateralValue * 1e10;
 
-      return utils.parseUnits(
-        parseFloat(collateralValue || 0).toString(),
+      const parseCollateralAmount = utils.parseUnits(
+        parseFloat(collateralAmount || 0).toString(),
         this.activeToken.decimals
       );
+
+      return parseCollateralAmount.div(1e10);
     },
 
     parseMultiplyer() {
@@ -391,7 +393,7 @@ export default {
     positionInfo() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
-      const { oracleRate } = this.cauldron.userPosition;
+      const { oracleExchangeRate: oracleRate } = this.cauldron.mainParams;
       const { tokensRate } = this.cauldron.additionalInfo;
       const { decimals } = this.cauldron.config.collateralInfo;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
@@ -688,7 +690,7 @@ export default {
     },
 
     async leverageUpHandler(notificationId) {
-      const { bentoBox } = this.cauldron.contracts;
+      const { bentoBox, collateral } = this.cauldron.contracts;
       const { updatePrice } = this.cauldron.mainParams;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
 
@@ -698,7 +700,7 @@ export default {
       );
 
       const shareToMin = await bentoBox.toShare(
-        this.activeToken.contract.address,
+        collateral.address,
         this.expectedMinToSwap,
         true
       );

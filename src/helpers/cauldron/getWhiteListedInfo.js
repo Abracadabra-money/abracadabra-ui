@@ -12,7 +12,9 @@ export const getWhiteListedInfo = async (
   signer
 ) => {
   try {
-    if (config.id !== 33 && chainId !== 1) return null;
+    if (config.id !== 33) return null;
+    if (chainId !== 1) return null;
+
     const whitelisterAddress = await contract.whitelister();
 
     const whitelisterContract = new Contract(
