@@ -671,7 +671,7 @@ export default {
       import("@/components/popups/LocalPopupWrap.vue")
     ),
     SettingsPopup: defineAsyncComponent(() =>
-      import("@/components/leverage/SettingsPopup.vue")
+      import("@/components/borrow/SettingsPopup.vue")
     ),
     MarketsListPopup: defineAsyncComponent(() =>
       import("@/components/popups/MarketsListPopup.vue")
