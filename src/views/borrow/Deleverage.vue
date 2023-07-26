@@ -601,7 +601,7 @@ export default {
           this.provider,
           this.signer
         );
-      }, 60000);
+      }, 15000);
     },
   },
 
