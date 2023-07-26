@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="balance-item">
+    <div class="balance-item" v-if="collateralTokenInfo">
       <div class="token-description">
         <BaseTokenIcon
           :icon="collateralTokenInfo.icon"
@@ -105,10 +105,14 @@ export default {
     },
 
     collateralTokenInfo() {
-      const { icon, collateralInfo } = this.cauldron.config;
+      const { icon, collateralInfo, wrapInfo } = this.cauldron.config;
       const { name, decimals } = collateralInfo;
       const { collateralBalance } = this.cauldron.userTokensInfo;
       const { oracleExchangeRate } = this.cauldron.mainParams;
+      const isHiddenWrap = wrapInfo?.isHiddenWrap;
+
+      if (isHiddenWrap) return null;
+
       const balance = +utils.formatUnits(collateralBalance, decimals);
       const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
       const balanceUsd = balance ? balance / exchangeRate : 0;
@@ -117,8 +121,8 @@ export default {
 
     unwrappedTokenInfo() {
       const { wrapInfo, collateralInfo } = this.cauldron.config;
-      const isHiddenWrap = wrapInfo?.isHiddenWrap;
-      if (!wrapInfo || isHiddenWrap) return null;
+
+      if (!wrapInfo) return null;
 
       const { decimals } = collateralInfo;
       const { icon, name } = this.cauldron.config.wrapInfo.unwrappedToken;

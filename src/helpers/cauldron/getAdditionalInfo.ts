@@ -30,10 +30,15 @@ export const getAdditionalInfo = async (
     bentoBox.masterContractApproved(masterContract, account),
   ];
 
-  if (collateral.convertToAssets && config?.wrapInfo)
+  if (collateral.convertToAssets && config?.wrapInfo) {
     multicallArr.push(
       collateral.convertToAssets(utils.parseUnits("1", decimals))
     );
+  } else if (collateral.toAmount && config?.wrapInfo) {
+    multicallArr.push(collateral.toAmount(utils.parseUnits("1", decimals)));
+  } else {
+    multicallArr.push(utils.parseUnits("1", decimals));
+  }
 
   if (config.cauldronSettings.hasWithdrawableLimit)
     multicallArr.push(collateral.balanceOf(bentoBox.address));

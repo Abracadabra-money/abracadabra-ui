@@ -150,6 +150,11 @@ export default {
       signer: "getSigner",
     }),
 
+    parseCollateralAmount() {
+      const { decimals } = this.activeToken;
+      return utils.parseUnits(this.collateralValue.toString() || "0", decimals);
+    },
+
     isCauldronLoading() {
       return !!(this.$route.params.id && !this.cauldron);
     },
@@ -188,14 +193,14 @@ export default {
         this.positionInfo;
 
       if (+this.borrowValue === userBorrowAmount || !userBorrowAmount) {
-        if (maxWithdrawAmount && maxWithdrawAmount < userCollateralAmount) {
+        if (maxWithdrawAmount && maxWithdrawAmount < +userCollateralAmount) {
           return maxWithdrawAmount;
         }
 
         return userCollateralAmount;
       }
 
-      const collateralInUsd = userCollateralAmount / oracleExchangeRate;
+      const collateralInUsd = +userCollateralAmount / oracleExchangeRate;
       const maxBorrow =
         (collateralInUsd / 100) * (mcr - 1) - this.expectedBorrowAmount;
       const borrowLeft = ((maxBorrow * oracleExchangeRate) / mcr) * 100;
@@ -233,10 +238,14 @@ export default {
     },
 
     expectedCollateralAmount() {
-      const { userCollateralAmount } = this.positionInfo;
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
 
-      const expectedAmount = userCollateralAmount - +this.collateralValue;
-      return expectedAmount < 0 ? 0 : expectedAmount;
+      const expectedAmount = userCollateralAmount.sub(
+        this.parseCollateralAmount
+      );
+
+      return +expectedAmount < 0 ? 0 : utils.formatUnits(expectedAmount);
     },
 
     expectedBorrowAmount() {
@@ -267,7 +276,7 @@ export default {
         userBorrowAmount: +utils.formatUnits(userBorrowAmount),
         oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
         maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
-        userCollateralAmount: +utils.formatUnits(userCollateralAmount),
+        userCollateralAmount: utils.formatUnits(userCollateralAmount),
       };
     },
 
@@ -378,7 +387,7 @@ export default {
 
     updateBorrowValue(value) {
       this.borrowValue = value;
-      this.collateralValue = +this.maxCollateralAmount;
+      this.collateralValue = this.maxCollateralAmount;
     },
 
     async checkAllowance(amount) {
