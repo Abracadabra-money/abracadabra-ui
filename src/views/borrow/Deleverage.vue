@@ -199,8 +199,8 @@ export default {
 
     isMaxRepayMimAmount() {
       return (
-        +filters.formatToFixed(this.repayMimAmount, 4) ===
-        +filters.formatToFixed(this.positionInfo.userBorrowAmount, 4)
+        filters.formatToFixed(this.repayMimAmount, 4) ===
+        filters.formatToFixed(this.positionInfo.userBorrowAmount, 4)
       );
     },
 
