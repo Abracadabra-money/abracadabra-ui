@@ -37,7 +37,11 @@ export default {
     },
 
     isLeverageTag() {
-      return this.cauldron?.config.cauldronSettings.isSwappersActive;
+      return (
+        this.cauldron?.config.cauldronSettings.isSwappersActive &&
+        this.cauldron?.config.leverageInfo &&
+        !this.cauldron?.config.cauldronSettings.isDepreciated
+      );
     },
 
     isMigrated() {
