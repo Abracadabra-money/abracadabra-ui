@@ -134,19 +134,11 @@ export default {
           },
         ];
 
-        if (this.maxWithdrawAmount) {
+        if (+this.maxWithdrawAmount) {
           resultArray.push({
             title: "Withdrawable Amount",
             value: filters.formatTokenBalance(this.maxWithdrawAmount),
             additional: `Maximum Current Amount of ${name} Withdrawable from this market. More will be available as this value approaches 0.`,
-          });
-        }
-
-        if (maxUserBorrow) {
-          resultArray.push({
-            title: "Maximum Borrowable MIM",
-            value: filters.formatLargeSum(maxUserBorrow),
-            additional: `The maximum amount of MIM that your address can borrow in this particular market.`,
           });
         }
 
@@ -178,12 +170,15 @@ export default {
       await getMaxWithdrawAmount(this.cauldron),
       decimals
     );
+    console.log("maxWithdrawAmount", +this.maxWithdrawAmount);
   },
 };
 </script>
 <style lang="scss" scoped>
 .info-list-wrap {
   padding: 20px 15px;
+  background-color: #2b2b3c;
+  border-radius: 30px;
 }
 
 .rates-wrap {
