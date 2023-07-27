@@ -66,7 +66,7 @@ const config: Array<BeamConfig> = [
     chainName: "Arbitrum",
     chainIcon: arbitrumIcon,
     contract: {
-      address: "0xc2F39A3A6b9AA869c41C1E40e535509728bc390F",
+      address: "0x4A351d97E60EF961a0a660B02998de841F9859c1",
       abi: abi.OFTWrapper,
     },
     defaultValue: {
