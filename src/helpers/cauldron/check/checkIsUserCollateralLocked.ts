@@ -9,7 +9,9 @@ export const checkIsUserCollateralLocked = async (
 ): Promise<any> => {
   try {
     const { id } = config;
-    if (id !== 11 || (id !== 22 && chainId === 1)) return false;
+
+    if (id !== 11 && id !== 22) return false;
+    if (chainId !== 1) return false;
 
     const { lockedUntil } = await contract.users(account);
     const lockTimestamp = lockedUntil.toString();

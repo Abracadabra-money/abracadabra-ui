@@ -55,7 +55,7 @@ export const getAdditionalInfo = async (
 
   const isCollateralLocked = await checkIsUserCollateralLocked(
     config,
-    cauldron,
+    collateral,
     account,
     chainId
   );
