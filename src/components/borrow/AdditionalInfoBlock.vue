@@ -170,7 +170,6 @@ export default {
       await getMaxWithdrawAmount(this.cauldron),
       decimals
     );
-    console.log("maxWithdrawAmount", +this.maxWithdrawAmount);
   },
 };
 </script>
