@@ -653,7 +653,7 @@ export default {
           this.provider,
           this.signer
         );
-      }, 15000);
+      }, 60000);
     },
   },
 

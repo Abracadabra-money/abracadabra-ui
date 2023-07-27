@@ -147,7 +147,7 @@
       @closePopup="isOpenMarketListPopup = false"
     >
       <MarketsListPopup
-        popupType="borrow"
+        popupType="leverage"
         @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
   </div>
@@ -714,7 +714,7 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      this.cookLeverage(
+      await this.cookLeverage(
         payload,
         isMasterContractApproved,
         this.cauldron,
@@ -745,7 +745,7 @@ export default {
           this.provider,
           this.signer
         );
-      }, 15000);
+      }, 60000);
     },
   },
 
