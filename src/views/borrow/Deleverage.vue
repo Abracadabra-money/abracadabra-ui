@@ -46,7 +46,7 @@
         <div class="range-wrap" v-if="cauldron">
           <Range
             :value="removeCollateralAmount"
-            :max="maxRemoveCollateralAmount"
+            :max="+maxRemoveCollateralAmount"
             :step="collateralRangeStep"
             :parallelRange="repayMimAmount"
             title="Choose the amount of collateral you want to remove"
@@ -256,9 +256,7 @@ export default {
         +this.finalCollateralAmount +
         +utils.formatUnits(this.finalRemoveCollateralAmount, decimals);
 
-      const finalRemoveAmount = userCollateralAmount - +finalAmount;
-
-      return finalRemoveAmount;
+      return userCollateralAmount - +finalAmount;
     },
 
     expectedBorrowAmount() {
@@ -564,6 +562,9 @@ export default {
       this.removeCollateralAmount = this.maxRemoveCollateralAmount;
 
       setTimeout(await this.actionHandler(), 100);
+
+      this.repayMimAmount = 0;
+      this.removeCollateralAmount = 0;
     },
 
     async checkAllowance(amount) {

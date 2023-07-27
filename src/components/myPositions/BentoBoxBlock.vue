@@ -1,7 +1,7 @@
 <template>
   <div class="bento-wrapper" v-if="isHide">
     <BentoBoxItem
-      v-if="bentoBoxConfig.mimInDegenBalance"
+      v-if="+bentoBoxConfig.mimInDegenBalance"
       @withdraw="openPopup(false, false)"
       @deposit="openPopup(false, true)"
       :balance="bentoBoxConfig.mimInDegenBalance"
@@ -9,7 +9,7 @@
     />
 
     <BentoBoxItem
-      v-if="bentoBoxConfig.mimInBentoBalance"
+      v-if="+bentoBoxConfig.mimInBentoBalance"
       @withdraw="openPopup(true, false)"
       @deposit="openPopup(true, true)"
       :balance="bentoBoxConfig.mimInBentoBalance"
