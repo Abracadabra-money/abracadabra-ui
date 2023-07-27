@@ -12,28 +12,23 @@ export const sendFrom = async (
 
   const methodName = itsV2 ? "sendProxyOFTV2" : "sendFrom";
 
-  const estimateGas = await contract.estimateGas[methodName](
-    account, // 'from' address to send tokens
+  const args = [
     dstChainId, // remote LayerZero chainId
     toAddressBytes, // 'to' address to send tokens
     mimAmount, // amount of tokens to send (in wei)
     [account, ethers.constants.AddressZero, adapterParams], // flexible bytes array to indicate messaging adapter services
-    {
-      value: fees[0],
-    }
-  );
+  ];
+
+  if (!itsV2) args.unshift(account); // 'from' address to send tokens
+
+  const estimateGas = await contract.estimateGas[methodName](...args, {
+    value: fees[0],
+  });
 
   const gasLimit = GAS_LIMIT + +estimateGas.toString();
 
-  return await contract[methodName](
-    account,
-    dstChainId,
-    toAddressBytes,
-    mimAmount,
-    [account, ethers.constants.AddressZero, adapterParams],
-    {
-      gasLimit,
-      value: fees[0],
-    }
-  );
+  return await contract[methodName](...args, {
+    gasLimit,
+    value: fees[0],
+  });
 };
