@@ -199,6 +199,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
 export default {
   data() {
     return {
@@ -226,15 +227,16 @@ export default {
     },
 
     networcIcon() {
+      if (!this.chainId) return "";
       if (this.popupNetworksArr.length && this.chainId) {
         const chain = this.popupNetworksArr.find((chain) => {
           if (chain.chainId === this.chainId) return chain;
         });
 
-        return chain.icon;
+        if (chain) return chain.icon;
       }
 
-      return "";
+      return useImage("assets/images/networks/unsupportedChain.svg");
     },
   },
 

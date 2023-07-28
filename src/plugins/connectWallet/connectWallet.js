@@ -157,10 +157,15 @@ const onConnectNew = async () => {
       if (chainId !== network.chain.id) window.location.reload();
     });
 
+    const unsupportedChain = !rpc[chainId];
+    const currentChain = unsupportedChain ? rpc[1] : rpc[chainId];
+
     const provider = markRaw(
-      new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
+      new ethers.providers.StaticJsonRpcProvider(currentChain)
     );
-    const signer = markRaw(await getEthersSigner({ chainId }));
+    const signer = unsupportedChain
+      ? provider
+      : markRaw(await getEthersSigner({ chainId }));
 
     store.commit("setChainId", chainId);
     store.commit("setProvider", provider);
