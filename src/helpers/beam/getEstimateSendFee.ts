@@ -14,7 +14,7 @@ export const getEstimateSendFee = async (
   const itsV2 = contract.hasOwnProperty("estimateSendFeeV2");
 
   const methodName = itsV2 ? "estimateSendFeeV2" : "estimateSendFee";
-  console.log("here")
+
   const args = itsV2
     ? [
         dstChainId,
@@ -30,7 +30,6 @@ export const getEstimateSendFee = async (
         params,
       ];
 
-    console.log("here")
   const fees = await contract[methodName](...args);
 
   return { fees, params };
