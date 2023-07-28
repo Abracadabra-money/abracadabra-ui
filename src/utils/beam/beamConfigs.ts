@@ -28,8 +28,8 @@ const config: Array<BeamConfig> = [
     chainName: "Ethereum",
     chainIcon: ethIcon,
     contract: {
-      address: "0x439a5f0f5E8d149DDA9a0Ca367D4a8e4D6f83C10",
-      abi: abi.LzProxyOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       10: "0.000000587209028",
@@ -47,8 +47,8 @@ const config: Array<BeamConfig> = [
     chainName: "BSC",
     chainIcon: binanceIcon,
     contract: {
-      address: "0x41D5A04B4e03dC27dC1f5C5A576Ad2187bc601Af",
-      abi: abi.LzIndirectOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       1: "0.105235446281148448",
@@ -66,7 +66,7 @@ const config: Array<BeamConfig> = [
     chainName: "Arbitrum",
     chainIcon: arbitrumIcon,
     contract: {
-      address: "0x4A351d97E60EF961a0a660B02998de841F9859c1",
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
     defaultValue: {
@@ -85,8 +85,8 @@ const config: Array<BeamConfig> = [
     chainName: "Polygon",
     chainIcon: polygonIcon,
     contract: {
-      address: "0xca0d86afc25c57a6d2aCdf331CaBd4C9CEE05533",
-      abi: abi.LzIndirectOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       1: "0.009214665824547975",
@@ -104,8 +104,8 @@ const config: Array<BeamConfig> = [
     chainName: "Optimism",
     chainIcon: optimismIcon,
     contract: {
-      address: "0x48686c24697fe9042531B64D792304e514E74339",
-      abi: abi.LzIndirectOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       1: "0.119489304809683491",
@@ -123,8 +123,8 @@ const config: Array<BeamConfig> = [
     chainName: "Avalanche",
     chainIcon: avalancheIcon,
     contract: {
-      address: "0xb3a66127ccb143bfb01d3aecd3ce9d17381b130d",
-      abi: abi.LzIndirectOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       1: "0.006523560791554295",
@@ -142,8 +142,8 @@ const config: Array<BeamConfig> = [
     chainName: "Fantom",
     chainIcon: fantomIcon,
     contract: {
-      address: "0xc5c01568a3B5d8c203964049615401Aaf0783191",
-      abi: abi.LzIndirectOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -161,8 +161,8 @@ const config: Array<BeamConfig> = [
     chainName: "Moonriver",
     chainIcon: moonriver,
     contract: {
-      address: "0xeF2dBDfeC54c466F7Ff92C9c5c75aBB6794f0195",
-      abi: abi.LzIndirectOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -180,8 +180,8 @@ const config: Array<BeamConfig> = [
     chainName: "Kava EVM",
     chainIcon: kava,
     contract: {
-      address: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
-      abi: abi.LzIndirectOFTV2,
+      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      abi: abi.OFTWrapper,
     },
     defaultValue: {
       1: "0.009609676187498731",
