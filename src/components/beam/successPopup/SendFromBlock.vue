@@ -30,14 +30,6 @@
           </li>
 
           <li class="list-item">
-            <span>Total Gas cost</span>
-            <span class="item-value">
-              <span>{{ config.totalGas }}</span>
-              <span>{{ config.nativeSymbol }}</span>
-            </span>
-          </li>
-
-          <li class="list-item">
             <span>Convert to gas token</span>
             <span class="item-value">
               <template v-if="isNone">None</template>
@@ -54,7 +46,15 @@
           <li class="list-item">
             <span>Beaming fee</span>
             <span class="item-value">
-              <span>0</span>
+              <span>$ 1.00</span>
+            </span>
+          </li>
+
+          <li class="list-item">
+            <span>Total Gas cost</span>
+            <span class="item-value">
+              <span>{{ config.totalGas }}</span>
+              <span>{{ config.nativeSymbol }}</span>
             </span>
           </li>
         </ul>

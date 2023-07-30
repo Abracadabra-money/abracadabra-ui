@@ -16,6 +16,11 @@
     </div>
 
     <div class="row">
+      <p class="title">Beaming Fee:</p>
+      <p class="value">$ 1.00</p>
+    </div>
+
+    <div class="row">
       <p class="title">Estimated gas cost:</p>
       <p class="value">{{ data.gasCost }} {{ data.srcTokenSymbol }}</p>
     </div>
