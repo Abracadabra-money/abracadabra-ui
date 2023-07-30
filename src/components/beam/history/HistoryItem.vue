@@ -35,16 +35,16 @@
         </li>
 
         <li class="info-item">
+          <span class="item-title">Beaming Fee:</span>
+          <span class="item-value">$ 1.00</span>
+        </li>
+
+        <li class="info-item">
           <span class="item-title">Total gas cost:</span>
           <span class="item-value"
             >{{ beamHistory.totalGas || "0.0 " }}
             {{ beamHistory.nativeSymbol }}</span
           >
-        </li>
-
-        <li class="info-item">
-          <span class="item-title">Beaming Fee:</span>
-          <span class="item-value"> 0.0 </span>
         </li>
       </ul>
     </div>
