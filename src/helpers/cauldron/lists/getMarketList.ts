@@ -42,9 +42,13 @@ export const getMarketList = async (
     )
   );
 
-  const marketInfo = marketInfoResp.map((info) => {
+  const marketInfo = marketInfoResp.map((info, idx) => {
+    const interest = configs[idx].interest
+      ? configs[idx].interest
+      : Number(info.interestPerYear) / 100;
+
     return {
-      interest: Number(info.interestPerYear) / 100,
+      interest,
       tvl: utils.formatUnits(info.totalCollateral.value),
       totalBorrowed: utils.formatUnits(info.totalBorrowed),
       mimLeftToBorrow: utils.formatUnits(info.marketMaxBorrow),
