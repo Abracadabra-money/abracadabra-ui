@@ -154,9 +154,13 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        parseFloat(this.collateralValue || 0).toString() || "0",
+        filters.formatToFixed(this.collateralValue || 0, decimals),
         decimals
       );
+    },
+
+    parseBorrowAmount() {
+      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
     },
 
     isCauldronLoading() {
@@ -439,7 +443,7 @@ export default {
       );
 
       const payload = {
-        amount: utils.parseUnits(filters.formatToFixed(this.borrowValue, 18)),
+        amount: this.parseBorrowAmount,
         updatePrice,
         itsMax: +this.borrowValue === +userBorrowAmount,
       };
@@ -463,7 +467,7 @@ export default {
 
     async removeCollateralHandler() {
       const { bentoBox } = this.cauldron.contracts;
-      const { decimals, address } = this.activeToken;
+      const { address } = this.activeToken;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
@@ -471,13 +475,12 @@ export default {
         notification.pending
       );
 
-      const parsedAmount = utils.parseUnits(
-        this.collateralValue.toString(),
-        decimals
-      );
-
       const payload = {
-        amount: await bentoBox.toShare(address, parsedAmount, true),
+        amount: await bentoBox.toShare(
+          address,
+          this.parseCollateralAmount,
+          true
+        ),
         updatePrice,
       };
 
@@ -496,25 +499,20 @@ export default {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { userCollateralShare } = this.cauldron.userPosition.collateralInfo;
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
-      const { decimals, address } = this.activeToken;
+      const { address } = this.activeToken;
       const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
       );
 
-      const parsedBorrowValue = utils.parseUnits(
-        filters.formatToFixed(+this.borrowValue, 18)
-      );
-
-      const parsedCollateralValue = utils.parseUnits(
-        filters.formatToFixed(+this.collateralValue, decimals),
-        decimals
-      );
-
       const payload = {
-        collateralAmount: parsedBorrowValue,
-        amount: await bentoBox.toShare(address, parsedCollateralValue, true),
+        collateralAmount: this.parseBorrowAmount,
+        amount: await bentoBox.toShare(
+          address,
+          this.parseCollateralAmount,
+          true
+        ),
         updatePrice,
       };
 
