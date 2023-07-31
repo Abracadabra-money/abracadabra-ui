@@ -1,11 +1,11 @@
 <template>
-  <div class="wallet-btn" :class="{ active }">
+  <button class="wallet-btn" :class="{ active }">
     <img
       class="wallet-icon"
       src="@/assets/images/wallet-icon.png"
       alt="Wallet button icon"
     />
-  </div>
+  </button>
 </template>
 
 <script>
@@ -21,6 +21,8 @@ export default {
 
 <style lang="scss" scoped>
 .wallet-btn {
+  background: transparent;
+  border: none;
   cursor: pointer;
   width: 32px;
   height: 32px;

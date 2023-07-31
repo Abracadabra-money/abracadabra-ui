@@ -3,25 +3,31 @@
     <div class="select-item" @click="$emit('changeNetwork', 'from')">
       <h3 class="title">Origin Chain</h3>
       <div class="description">
-        <img class="chain-icon" :src="fromChain.icon" alt="Icon" />
-        <p>{{ fromChain.title }}</p>
+        <img class="chain-icon" :src="originChain.icon" alt="Icon" />
+        <p>{{ originChain.title }}</p>
       </div>
     </div>
 
-    <img
-      class="switch-chain"
-      @click="$emit('switchChain')"
-      src="@/assets/images/beam/refresh.svg"
-      alt="Switch network"
-    />
+    <button class="switch-chain-button" :disabled="!fromChain">
+      <img
+        class="switch-chain-image"
+        @click="$emit('switch-chain')"
+        src="@/assets/images/beam/refresh.svg"
+        alt="Switch network"
+      />
+    </button>
 
-    <div class="select-item" @click="$emit('changeNetwork', 'to')">
+    <button
+      class="select-item"
+      @click="$emit('changeNetwork', 'to')"
+      :disabled="!fromChain"
+    >
       <h3 class="title">Destination Chain</h3>
       <div class="description">
         <img class="chain-icon" :src="destinationChain.icon" alt="" />
         <p>{{ destinationChain.title }}</p>
       </div>
-    </div>
+    </button>
   </div>
 </template>
 
@@ -34,7 +40,7 @@ export default {
       default: false,
     },
     fromChain: {
-      type: Object,
+      type: [Object, Boolean],
       require: true,
     },
     toChain: {
@@ -44,8 +50,16 @@ export default {
   },
 
   computed: {
+    originChain() {
+      if (!this.fromChain)
+        return {
+          title: "Select chain",
+          icon: useImage(`assets/images/networks/no-chain.svg`),
+        };
+      return this.fromChain;
+    },
     destinationChain() {
-      if (!this.selectChain)
+      if (!this.selectChain || !this.toChain)
         return {
           title: "Select chain",
           icon: useImage(`assets/images/networks/no-chain.svg`),
@@ -68,7 +82,9 @@ export default {
   width: 200px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: 20px;
+  border: none;
   padding: 16px;
+  color: white;
   cursor: pointer;
 }
 
@@ -92,7 +108,11 @@ export default {
   height: 60px;
 }
 
-.switch-chain {
+.switch-chain-button {
+  background: transparent;
+  border: none;
+}
+.switch-chain-image {
   width: 40px;
   height: 40px;
   cursor: pointer;

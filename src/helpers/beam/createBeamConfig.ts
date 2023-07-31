@@ -33,22 +33,8 @@ export const createBeamConfig = async (
   account: string
 ): Promise<BeamConfig | boolean> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
-  if (!mimConfig) return false;
 
   const beamConfig = beamConfigs.find((item) => item.chainId === chainId);
-  if (!beamConfig) return false;
-
-  const contractInstance = new Contract(
-    beamConfig.contract.address,
-    JSON.stringify(beamConfig.contract.abi),
-    signer
-  );
-
-  const tokenContractInstance = new Contract(
-    mimConfig.address,
-    JSON.stringify(mimConfig.abi),
-    signer
-  );
 
   const fromChains = beamConfigs.map((configItem) => {
     return {
@@ -70,21 +56,44 @@ export const createBeamConfig = async (
     };
   });
 
-  const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
-    signer,
-    account,
-    tokenContractInstance,
-    beamConfig.contract.address
-  );
+  if (beamConfig) {
+    const contractInstance = new Contract(
+      beamConfig.contract.address,
+      JSON.stringify(beamConfig.contract.abi),
+      signer
+    );
 
-  return markRaw({
-    contractInstance,
-    balance,
-    nativeTokenBalance,
-    isTokenApprove,
-    tokenContractInstance,
-    chainsInfo: chainsInfo,
-    fromChains,
-    toChains,
-  });
+    const tokenContractInstance = new Contract(
+      mimConfig.address,
+      JSON.stringify(mimConfig.abi),
+      signer
+    );
+    const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
+      signer,
+      account,
+      tokenContractInstance,
+      beamConfig.contract.address
+    );
+    return markRaw({
+      contractInstance,
+      balance,
+      nativeTokenBalance,
+      isTokenApprove,
+      tokenContractInstance,
+      chainsInfo: chainsInfo,
+      fromChains,
+      toChains,
+    });
+  } else {
+    return markRaw({
+      contractInstance: null,
+      balance: "0",
+      nativeTokenBalance: "0",
+      isTokenApprove: false,
+      tokenContractInstance: null,
+      chainsInfo,
+      fromChains,
+      toChains,
+    });
+  }
 };
