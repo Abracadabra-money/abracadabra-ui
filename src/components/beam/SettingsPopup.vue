@@ -60,6 +60,10 @@ export default {
       type: [Number, String],
       default: "",
     },
+    mimAmount: {
+      type: [Number, String],
+      default: "",
+    },
     config: {
       type: Object,
       required: true,
@@ -134,15 +138,31 @@ export default {
     },
 
     async updateFee(value) {
+      let additionalFee = "0";
+
+      if (this.dstTokenAmount) {
+        const feesWithoutAirdrop = await getEstimateSendFee(
+          this.config.contract,
+          this.config.address,
+          this.config.dstChainId,
+          "0",
+          this.mimAmount
+        );
+
+        additionalFee = feesWithoutAirdrop.fees[0].div(100);
+      }
+
       const { fees } = await getEstimateSendFee(
         this.config.contract,
         this.config.address,
         this.config.dstChainId,
-        value
+        value,
+        this.mimAmount
       );
 
-      if (!fees[0]) return 0;
-      return this.$ethers.utils.formatEther(fees[0]);
+      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
+      if (!updatedFee) return 0;
+      return this.$ethers.utils.formatEther(updatedFee);
     },
   },
 

@@ -83,6 +83,7 @@
     >
       <SettingsPopup
         :value="dstTokenAmount"
+        :mimAmount="amountError ? '0' : amount"
         :max="dstMaxAmount"
         :defaultValue="dstDefaultValue"
         :config="settingConfig"
@@ -544,6 +545,20 @@ export default {
     },
 
     async getEstimatedFees(getParams = false) {
+      let additionalFee = "0";
+
+      if (this.dstTokenAmount) {
+        const feesWithoutAirdrop = await getEstimateSendFee(
+          this.beamConfig.contractInstance,
+          this.toAddress,
+          this.lzChainId,
+          "0",
+          this.amount || "1"
+        );
+
+        additionalFee = feesWithoutAirdrop.fees[0].div(100);
+      }
+
       const { fees, params } = await getEstimateSendFee(
         this.beamConfig.contractInstance,
         this.toAddress,
@@ -552,8 +567,10 @@ export default {
         this.amount || "1"
       );
 
-      if (getParams) return { fees, params };
-      else return fees;
+      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
+      
+      if (getParams) return { fees: [updatedFee], params };
+      else return [updatedFee];
     },
 
     async errorTransaction(error, notificationId) {
@@ -607,7 +624,6 @@ export default {
 
         this.estimateSendFee = await this.getEstimatedFees();
       } else {
-        
         if (this.dstChain.chainId !== chainId) {
           localStorage.setItem("previous_chain_id", this.dstChain.chainId);
         }
