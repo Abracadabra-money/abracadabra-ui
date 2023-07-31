@@ -236,11 +236,14 @@ export default {
     parseCollateralAmount() {
       const { tokensRate } = this.positionInfo;
       const wrapInfo = this.cauldron.config?.wrapInfo;
+      const { decimals } = this.activeToken;
+
+      const amount = filters.formatToFixed(this.collateralValue, decimals);
 
       const collateralAmount =
         wrapInfo && !this.useOtherToken
-          ? (this.collateralValue * 1e10) / tokensRate
-          : this.collateralValue * 1e10;
+          ? (amount * 1e10) / tokensRate
+          : amount * 1e10;
 
       const parseCollateralAmount = utils.parseUnits(
         parseFloat(collateralAmount || 0).toString(),
@@ -248,6 +251,15 @@ export default {
       );
 
       return parseCollateralAmount.div(1e10);
+    },
+
+    parseCollateralValue() {
+      const { decimals } = this.activeToken;
+
+      return utils.parseUnits(
+        filters.formatToFixed(this.collateralValue || 0, decimals),
+        decimals
+      );
     },
 
     parseMultiplyer() {
@@ -595,17 +607,12 @@ export default {
       return false;
     },
 
-    async checkPermissionToCook(notificationId, borrowAmount, collateralValue) {
+    async checkPermissionToCook(notificationId, borrowAmount) {
       const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
       const { id } = this.cauldron.config;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
       const leftToBorrow = utils.formatUnits(mimLeftToBorrow);
       const borrowLimit = utils.formatUnits(userMaxBorrow);
-
-      const allowanceAmount = utils.parseUnits(
-        collateralValue.toString(),
-        this.activeToken.decimals
-      );
 
       if (this.isInstantLiquidation) {
         await this.deleteNotification(notificationId);
@@ -630,7 +637,7 @@ export default {
         return false;
       }
 
-      const allowance = await this.checkAllowance(allowanceAmount);
+      const allowance = await this.checkAllowance(this.parseCollateralValue);
 
       if (!allowance) {
         await this.deleteNotification(notificationId);
@@ -669,10 +676,7 @@ export default {
       const { updatePrice } = this.cauldron.mainParams;
 
       const payload = {
-        amount: utils.parseUnits(
-          this.collateralValue.toString(),
-          this.activeToken.decimals
-        ),
+        amount: this.parseCollateralValue,
         updatePrice,
         itsDefaultBalance: !!this.activeToken?.isNative,
       };
@@ -694,11 +698,6 @@ export default {
       const { updatePrice } = this.cauldron.mainParams;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
 
-      const collateralAmount = utils.parseUnits(
-        this.collateralValue.toString(),
-        this.activeToken.decimals
-      );
-
       const shareToMin = await bentoBox.toShare(
         collateral.address,
         this.expectedMinToSwap,
@@ -706,7 +705,7 @@ export default {
       );
 
       const payload = {
-        collateralAmount: collateralAmount.toString(),
+        collateralAmount: this.parseCollateralValue.toString(),
         amount: this.expectedBorrowPart.toString(),
         minExpected: shareToMin.toString(),
         updatePrice,
