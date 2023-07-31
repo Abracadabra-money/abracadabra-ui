@@ -160,7 +160,7 @@ export default {
         this.mimAmount
       );
 
-      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
+      const updatedFee = fees[0].add(additionalFee); // add 0.5% from base fee to be sure tx success
       if (!updatedFee) return 0;
       return this.$ethers.utils.formatEther(updatedFee);
     },
