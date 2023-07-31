@@ -56,7 +56,7 @@ export const createBeamConfig = async (
     };
   });
 
-  if (beamConfig) {
+  if (beamConfig && mimConfig) {
     const contractInstance = new Contract(
       beamConfig.contract.address,
       JSON.stringify(beamConfig.contract.abi),
