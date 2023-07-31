@@ -87,7 +87,12 @@
           >
         </div>
       </div>
-      <div class="header-link networks-btn" @click.stop="openNetworkPopup">
+
+      <div
+        class="header-link networks-btn"
+        @click.stop="openNetworkPopup"
+        v-tooltip="unsupportedTooltip"
+      >
         <img v-if="!!networcIcon" :src="networcIcon" alt="" />
       </div>
       <div class="header-link header-connect">
@@ -237,6 +242,20 @@ export default {
       }
 
       return useImage("assets/images/networks/unsupportedChain.svg");
+    },
+
+    isUnsupportedChain() {
+      const chain = this.popupNetworksArr.find((chain) => {
+        if (chain.chainId === this.chainId) return chain;
+      });
+
+      return !!chain;
+    },
+
+    unsupportedTooltip() {
+      if (!this.isUnsupportedChain)
+        return "Your wallet's current network is unsupported.";
+      return "";
     },
   },
 
