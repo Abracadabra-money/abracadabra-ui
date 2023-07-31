@@ -50,7 +50,6 @@ export default {
           title: "Select chain",
           icon: useImage(`assets/images/networks/no-chain.svg`),
         };
-
       return this.toChain;
     },
   },

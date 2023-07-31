@@ -145,7 +145,7 @@ import switchNetwork from "@/helpers/switchNetwork";
 export default {
   data() {
     return {
-      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 42161, 43114],
+      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114],
       isShowDstAddress: false,
       toChainId: null,
       dstAddress: null,
@@ -384,7 +384,8 @@ export default {
 
     async switchChain() {
       if (!this.isSelectedChain) return false;
-      await switchNetwork(this.destinationChain.chainId);
+      localStorage.setItem("previous_chain_id", this.chainId);
+      await switchNetwork(this.dstChain.chainId);
     },
 
     openNetworkPopup(type) {
@@ -403,6 +404,22 @@ export default {
 
     errorDestinationAddress(error) {
       this.dstAddressError = error;
+    },
+
+    async checkAllowance(wantedAmount) {
+      const allowedAmount =
+        await this.beamConfig.tokenContractInstance.allowance(
+          this.account,
+          this.beamConfig.contractInstance.address
+        );
+
+      if (allowedAmount.lt(wantedAmount)) {
+        return await approveToken(
+          this.beamConfig.tokenContractInstance,
+          this.beamConfig.contractInstance.address
+        );
+      }
+      return allowedAmount;
     },
 
     async actionHandler() {
@@ -433,21 +450,25 @@ export default {
     },
 
     async seendBeam() {
+      this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
+      const mimPrice = (await getMimPrice()) || 1;
+      this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
+
+      const mimAmount = this.$ethers.utils.parseUnits(
+        filters.formatToFixed(this.amount, 18),
+        18
+      );
+
+      const allowanceStatus = await this.checkAllowance(mimAmount);
+
+      if (!allowanceStatus) return false;
+
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.pending
       );
 
-      this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
-      const mimPrice = (await getMimPrice()) || 1;
-      this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
-
       try {
-        const mimAmount = this.$ethers.utils.parseUnits(
-          filters.formatToFixed(this.amount, 18),
-          18
-        );
-
         const { fees, params } = await this.getEstimatedFees(true);
         this.tx = await sendFrom(fees, params, mimAmount, this.txConfig);
         await this.$store.commit("notifications/delete", notificationId);
@@ -579,7 +600,6 @@ export default {
           this.signer,
           this.dstChainId
         );
-
         if (!this.startFee) {
           const startFee = await this.getEstimatedFees();
           this.startFee = this.$ethers.utils.formatEther(startFee[0]);
@@ -587,6 +607,11 @@ export default {
 
         this.estimateSendFee = await this.getEstimatedFees();
       } else {
+        
+        if (this.dstChain.chainId !== chainId) {
+          localStorage.setItem("previous_chain_id", this.dstChain.chainId);
+        }
+
         await switchNetwork(chainId);
       }
     },
@@ -640,6 +665,12 @@ export default {
     else {
       await this.createBeamData();
       await this.updateHistoryStatus();
+
+      const previousChainId = localStorage.getItem("previous_chain_id");
+      if (previousChainId) {
+        await this.changeChain(+previousChainId, "to");
+        localStorage.removeItem("previous_chain_id");
+      }
     }
   },
 

@@ -23,7 +23,7 @@
       </div>
 
       <template v-else>
-        <div class="positions-wrap" v-if="openUserPositions.length">
+        <div class="positions-wrap" v-if="positionList.length">
           <div class="positions-header">
             <p>Borrow</p>
             <button class="btn-more" @click="toggleShowMore">
@@ -34,7 +34,7 @@
 
           <div class="position-list">
             <CauldronPositionItem
-              v-for="cauldron in openUserPositions"
+              v-for="cauldron in positionList"
               :key="cauldron.id"
               :opened="isShowMore"
               :cauldron="cauldron"
@@ -104,7 +104,7 @@ export default {
     isEmpyState() {
       return (
         !this.account ||
-        (!this.openUserPositions.length &&
+        (!this.positionList.length &&
           !this.openUserFarms.length &&
           !this.positionsIsLoading &&
           !this.farmIsLoading)
@@ -114,7 +114,7 @@ export default {
     isPositionsLoaded() {
       return (
         (this.farmIsLoading && !this.openUserFarms.length) ||
-        (this.positionsIsLoading && !this.openUserPositions.length)
+        (this.positionsIsLoading && !this.positionList.length)
       );
     },
 
@@ -143,22 +143,6 @@ export default {
           hidden: spellFarmer === "0.0",
         },
       ].filter((item) => !item.hidden);
-    },
-
-    openUserPositions() {
-      return this.positionList.filter((cauldron) => {
-        const tokenInUsd = cauldron.collateralInfo.userCollateralAmount
-          .mul(Math.pow(10, cauldron.config.collateralInfo.decimals).toString())
-          .div(cauldron.oracleRate);
-
-        const parseUsd = this.$ethers.utils.formatUnits(
-          tokenInUsd,
-          cauldron.config.collateralInfo.decimals
-        );
-
-        if (parseUsd < 3) return false;
-        else return true;
-      });
     },
 
     openUserFarms() {

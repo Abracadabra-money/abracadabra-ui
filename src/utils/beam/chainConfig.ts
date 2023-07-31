@@ -8,6 +8,7 @@ const arbitrumIcon = useImage(`assets/images/networks/arbitrum-chain.svg`);
 const polygonIcon = useImage(`assets/images/networks/polygon.svg`);
 const optimismIcon = useImage(`assets/images/networks/optimism.svg`);
 const moonriver = useImage(`assets/images/networks/moonriver.svg`);
+const kava = useImage(`assets/images/networks/kava.png`);
 
 export type ChainConfig = {
   name: string;
@@ -64,6 +65,12 @@ const config: Array<ChainConfig> = [
     icon: moonriver,
     chainId: 1285,
     lzChainId: 167,
+  },
+  {
+    name: "Kava EVM",
+    icon: kava,
+    chainId: 2222,
+    lzChainId: 177,
   },
 ];
 

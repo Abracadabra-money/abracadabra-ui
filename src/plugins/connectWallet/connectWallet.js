@@ -11,9 +11,9 @@ import {
 import { publicProvider } from "@wagmi/core/providers/public";
 
 import { mainnet } from "./chains/mainnet";
+import { kava } from "./chains/kava";
 
 import {
-  // mainnet,
   optimism,
   bsc,
   polygon,
@@ -31,8 +31,9 @@ import {
 import { Web3Modal } from "@web3modal/html";
 import { sanctionAbi } from "@/utils/abi/sanctionAbi";
 
-import { getEthersProvider } from "./getEthersProvider";
 import { getEthersSigner } from "./getEthersSigner";
+
+import { useImage } from "@/helpers/useImage";
 
 const rpc = {
   1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
@@ -43,6 +44,7 @@ const rpc = {
   1285: "https://rpc.api.moonriver.moonbeam.network",
   42161: "https://arb1.arbitrum.io/rpc",
   43114: "https://api.avax.network/ext/bc/C/rpc",
+  2222: "https://evm.kava.io ",
 };
 
 // 1. Define constants
@@ -58,6 +60,7 @@ const chains = [
   arbitrum,
   optimism,
   moonriver,
+  kava,
 ];
 
 // 2. Configure wagmi client
@@ -83,6 +86,9 @@ const web3modal = new Web3Modal(
       "--w3m-background-color": "rgba(60, 60, 60, 0.8)",
       "--w3m-accent-color": "#76c3f5",
       "--w3m-z-index": "1000",
+    },
+    chainImages: {
+      2222: useImage("assets/images/networks/kava.png"),
     },
   },
   ethereumClient
@@ -149,14 +155,13 @@ const onConnectNew = async () => {
       if (chainId !== network.chain.id) window.location.reload();
     });
 
-    // const provider = markRaw(
-    //   new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
-    // );
-
-    const { signer, provider } = await getEthersSigner({ chainId });
+    const provider = markRaw(
+      new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
+    );
+    const { signer } = await getEthersSigner({ chainId });
 
     store.commit("setChainId", chainId);
-    store.commit("setProvider", markRaw(provider));
+    store.commit("setProvider", provider);
     store.commit("setSigner", markRaw(signer)); // WARN
     store.commit("setAccount", account);
     store.dispatch("checkENSName", account);

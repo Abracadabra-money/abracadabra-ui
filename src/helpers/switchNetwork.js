@@ -10,6 +10,7 @@ import {
   arbitrum,
   avalanche,
 } from "@wagmi/core/chains";
+import { kava } from "@/plugins/connectWallet/chains/kava";
 
 const chains = {
   1: mainnet,
@@ -18,6 +19,7 @@ const chains = {
   137: polygon,
   250: fantom,
   1285: moonriver,
+  2222: kava,
   42161: arbitrum,
   43114: avalanche,
 };

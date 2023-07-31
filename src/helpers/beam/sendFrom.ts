@@ -8,28 +8,27 @@ export const sendFrom = async (
   mimAmount: BigNumber,
   { contract, account, dstChainId, toAddressBytes }: any
 ): Promise<Object> => {
-  const estimateGas = await contract.estimateGas.sendFrom(
-    account, // 'from' address to send tokens
+  const itsV2 = contract.hasOwnProperty("sendProxyOFTV2");
+
+  const methodName = itsV2 ? "sendProxyOFTV2" : "sendFrom";
+
+  const args = [
     dstChainId, // remote LayerZero chainId
     toAddressBytes, // 'to' address to send tokens
     mimAmount, // amount of tokens to send (in wei)
     [account, ethers.constants.AddressZero, adapterParams], // flexible bytes array to indicate messaging adapter services
-    {
-      value: fees[0],
-    }
-  );
+  ];
+
+  if (!itsV2) args.unshift(account); // 'from' address to send tokens
+
+  const estimateGas = await contract.estimateGas[methodName](...args, {
+    value: fees[0],
+  });
 
   const gasLimit = GAS_LIMIT + +estimateGas.toString();
 
-  return await contract.sendFrom(
-    account,
-    dstChainId,
-    toAddressBytes,
-    mimAmount,
-    [account, ethers.constants.AddressZero, adapterParams],
-    {
-      gasLimit,
-      value: fees[0],
-    }
-  );
+  return await contract[methodName](...args, {
+    gasLimit,
+    value: fees[0],
+  });
 };
