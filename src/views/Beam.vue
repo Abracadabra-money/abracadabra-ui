@@ -556,7 +556,7 @@ export default {
           this.amount || "1"
         );
 
-        additionalFee = feesWithoutAirdrop.fees[0].div(100);
+        additionalFee = feesWithoutAirdrop.fees[0].div(200);
       }
 
       const { fees, params } = await getEstimateSendFee(

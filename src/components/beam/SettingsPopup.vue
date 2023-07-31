@@ -149,7 +149,7 @@ export default {
           this.mimAmount
         );
 
-        additionalFee = feesWithoutAirdrop.fees[0].div(100);
+        additionalFee = feesWithoutAirdrop.fees[0].div(200);
       }
 
       const { fees } = await getEstimateSendFee(
