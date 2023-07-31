@@ -195,6 +195,19 @@ export default {
       return false;
     },
 
+    parseCollateralAmount() {
+      const { decimals } = this.activeToken;
+
+      return utils.parseUnits(
+        filters.formatToFixed(this.collateralValue || 0, decimals),
+        decimals
+      );
+    },
+
+    parseBorrowAmount() {
+      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
+    },
+
     expectedCollateralAmount() {
       const { tokensRate } = this.cauldron.additionalInfo;
       const { userCollateralAmount } =
@@ -486,8 +499,7 @@ export default {
 
       const isPermissionToCook = await this.checkPermissionToCook(
         notificationId,
-        this.borrowValue || 0,
-        this.collateralValue || 0
+        this.borrowValue || 0
       );
 
       if (!isPermissionToCook) return false;
@@ -499,18 +511,9 @@ export default {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
-      const collateralAmount = utils.parseUnits(
-        this.collateralValue.toString(),
-        this.activeToken.decimals
-      );
-
-      const borrowAmount = utils.parseUnits(
-        filters.formatToFixed(this.borrowValue, 18)
-      );
-
       const payload = {
-        collateralAmount,
-        amount: borrowAmount,
+        collateralAmount: this.parseCollateralAmount,
+        amount: this.parseBorrowAmount,
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
@@ -531,13 +534,8 @@ export default {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
-      const collateralAmount = utils.parseUnits(
-        this.collateralValue.toString(),
-        this.activeToken.decimals
-      );
-
       const payload = {
-        amount: collateralAmount,
+        amount: this.parseCollateralAmount,
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
@@ -558,12 +556,8 @@ export default {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
-      const borrowAmount = utils.parseUnits(
-        filters.formatToFixed(this.borrowValue, 18)
-      );
-
       const payload = {
-        amount: borrowAmount,
+        amount: this.parseBorrowAmount,
         updatePrice,
       };
 
@@ -577,17 +571,12 @@ export default {
       return await this.createCauldronInfo();
     },
 
-    async checkPermissionToCook(notificationId, borrowAmount, collateralValue) {
+    async checkPermissionToCook(notificationId, borrowAmount) {
       const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
       const { id } = this.cauldron.config;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
       const leftToBorrow = utils.formatUnits(mimLeftToBorrow);
       const borrowLimit = utils.formatUnits(userMaxBorrow);
-
-      const allowanceAmount = utils.parseUnits(
-        collateralValue.toString(),
-        this.activeToken.decimals
-      );
 
       if (!+leftToBorrow) {
         await this.deleteNotification(notificationId);
@@ -607,7 +596,7 @@ export default {
         return false;
       }
 
-      const allowance = await this.checkAllowance(allowanceAmount);
+      const allowance = await this.checkAllowance(this.parseCollateralAmount);
 
       if (!allowance) {
         await this.deleteNotification(notificationId);
