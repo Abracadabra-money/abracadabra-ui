@@ -70,7 +70,7 @@
               <PositionInfoBlock
                 v-if="showAdditionalInfo"
                 :cauldron="cauldron"
-                :expectedCollateralAmount="expectedCollateralAmount"
+                :expectedCollateralAmount="+expectedCollateralAmount"
                 :expectedBorrowAmount="expectedBorrowAmount"
                 :expectedLiquidationPrice="expectedLiquidationPrice"
               />
@@ -152,7 +152,11 @@ export default {
 
     parseCollateralAmount() {
       const { decimals } = this.activeToken;
-      return utils.parseUnits(this.collateralValue.toString() || "0", decimals);
+
+      return utils.parseUnits(
+        parseFloat(this.collateralValue || 0).toString() || "0",
+        decimals
+      );
     },
 
     isCauldronLoading() {
