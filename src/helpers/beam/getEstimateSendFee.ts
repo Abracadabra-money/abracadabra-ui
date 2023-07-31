@@ -11,13 +11,26 @@ export const getEstimateSendFee = async (
 ): Promise<Object> => {
   const params = await adapterParams(contract, address, dstAmount, dstChainId);
 
-  const fees = await contract.estimateSendFee(
-    dstChainId,
-    ethers.utils.defaultAbiCoder.encode(["address"], [address]),
-    ethers.utils.parseUnits(mimAmount, 18),
-    false,
-    params
-  );
+  const itsV2 = contract.hasOwnProperty("estimateSendFeeV2");
+
+  const methodName = itsV2 ? "estimateSendFeeV2" : "estimateSendFee";
+
+  const args = itsV2
+    ? [
+        dstChainId,
+        ethers.utils.defaultAbiCoder.encode(["address"], [address]),
+        ethers.utils.parseUnits(mimAmount, 18),
+        params,
+      ]
+    : [
+        dstChainId,
+        ethers.utils.defaultAbiCoder.encode(["address"], [address]),
+        ethers.utils.parseUnits(mimAmount, 18),
+        false,
+        params,
+      ];
+
+  const fees = await contract[methodName](...args);
 
   return { fees, params };
 };
