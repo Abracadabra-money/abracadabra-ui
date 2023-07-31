@@ -240,6 +240,7 @@ export default {
       )?.lzChainId;
     },
 
+    
     lzChainId() {
       const lzChainId = this.beamConfig.chainsInfo.find(
         (item) => item.chainId === this.targetToChain
