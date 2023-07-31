@@ -150,6 +150,12 @@ const onConnectNew = async () => {
     const account = ethereumClient.getAccount().address;
     const activeChain = ethereumClient.getNetwork().chain;
     const chainId = activeChain.id;
+    const unsupportedChain = !rpc[chainId];
+    const currentRpc = unsupportedChain ? rpc[1] : rpc[chainId];
+
+    if (!unsupportedChain) {
+      localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
+    }
 
     if (await checkSanctionAddress(account)) return false;
 
@@ -160,9 +166,6 @@ const onConnectNew = async () => {
     watchNetwork((network) => {
       if (chainId !== network.chain.id) window.location.reload();
     });
-
-    const unsupportedChain = !rpc[chainId];
-    const currentRpc = unsupportedChain ? rpc[1] : rpc[chainId];
 
     const provider = markRaw(
       new ethers.providers.StaticJsonRpcProvider(currentRpc)
