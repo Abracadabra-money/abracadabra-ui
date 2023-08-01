@@ -1,5 +1,5 @@
 import { markRaw } from "vue";
-import farmPools from "@/utils/farmPools/pools";
+import farmPools from "@/utils/farmsConfig/farms";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 import { mapGetters, mapMutations } from "vuex";
 

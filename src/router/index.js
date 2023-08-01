@@ -92,6 +92,12 @@ const routes = [
     props: true,
   },
   {
+    path: "/farmNew/:id",
+    name: "FarmNew",
+    component: () => import("@/views/FarmNew.vue"),
+    props: true,
+  },
+  {
     path: "/my-positions",
     name: "MyPositions",
     component: () => import("@/views/MyPositions.vue"),
