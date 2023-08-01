@@ -7,6 +7,14 @@ import { markRaw } from "vue";
 import { getUserBalance, getNativeTokenBalance } from "@/helpers/userInfo";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
+const emptyState = {
+  contractInstance: null,
+  balance: "0",
+  nativeTokenBalance: "0",
+  isTokenApprove: false,
+  tokenContractInstance: null,
+};
+
 const getUserInfo = async (
   signer: providers.BaseProvider,
   account: string,
@@ -31,7 +39,7 @@ export const createBeamConfig = async (
   chainId: number,
   signer: providers.BaseProvider,
   account: string
-): Promise<BeamConfig | boolean> => {
+): Promise<BeamConfig> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
 
   const beamConfig = beamConfigs.find((item) => item.chainId === chainId);
@@ -56,44 +64,39 @@ export const createBeamConfig = async (
     };
   });
 
-  if (beamConfig && mimConfig) {
-    const contractInstance = new Contract(
-      beamConfig.contract.address,
-      JSON.stringify(beamConfig.contract.abi),
-      signer
-    );
-
-    const tokenContractInstance = new Contract(
-      mimConfig.address,
-      JSON.stringify(mimConfig.abi),
-      signer
-    );
-    const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
-      signer,
-      account,
-      tokenContractInstance,
-      beamConfig.contract.address
-    );
+  if (!beamConfig && !mimConfig)
     return markRaw({
-      contractInstance,
-      balance,
-      nativeTokenBalance,
-      isTokenApprove,
-      tokenContractInstance,
-      chainsInfo: chainsInfo,
-      fromChains,
-      toChains,
-    });
-  } else {
-    return markRaw({
-      contractInstance: null,
-      balance: "0",
-      nativeTokenBalance: "0",
-      isTokenApprove: false,
-      tokenContractInstance: null,
+      ...emptyState,
       chainsInfo,
       fromChains,
       toChains,
     });
-  }
+
+  const contractInstance = new Contract(
+    beamConfig!.contract.address,
+    JSON.stringify(beamConfig!.contract.abi),
+    signer
+  );
+
+  const tokenContractInstance = new Contract(
+    mimConfig.address,
+    JSON.stringify(mimConfig.abi),
+    signer
+  );
+  const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
+    signer,
+    account,
+    tokenContractInstance,
+    beamConfig!.contract.address
+  );
+  return markRaw({
+    contractInstance,
+    balance,
+    nativeTokenBalance,
+    isTokenApprove,
+    tokenContractInstance,
+    chainsInfo: chainsInfo,
+    fromChains,
+    toChains,
+  });
 };

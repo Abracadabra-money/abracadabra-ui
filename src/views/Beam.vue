@@ -8,12 +8,12 @@
           <WalletButton
             :active="isShowDstAddress"
             @click="toggleDstAddress"
-            :disabled="!originChain"
+            :disabled="isUnsupportedNetwork"
           />
           <SettingsButton
             :active="isSettingsOpened"
             @click="isSettingsOpened = true"
-            :disabled="!originChain"
+            :disabled="isUnsupportedNetwork"
           />
         </div>
       </div>
@@ -36,7 +36,7 @@
             :icon="$image('assets/images/tokens/MIM.png')"
             :error="amountError"
             @update-value="updateMainValue"
-            :disabled="!originChain"
+            :disabled="isUnsupportedNetwork"
           />
         </div>
 
@@ -148,6 +148,7 @@ import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
 import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
 import switchNetwork from "@/helpers/switchNetwork";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   data() {
@@ -230,12 +231,17 @@ export default {
     },
 
     originChain() {
-      if (this.beamConfig) {
-        return this.beamConfig?.fromChains.find(
-          (chain) => chain.chainId === this.chainId
-        );
-      }
-      return false;
+      let originChain = this.beamConfig?.fromChains.find(
+        (chain) => chain.chainId === this.chainId
+      );
+
+      return originChain
+        ? originChain
+        : {
+            title: "Select chain",
+            icon: useImage(`assets/images/networks/no-chain.svg`),
+            isUnsupportedNetwork: this.isUnsupportedNetwork,
+          };
     },
 
     targetToChain() {
@@ -248,7 +254,6 @@ export default {
         (item) => item.chainId === this.targetToChain
       )?.lzChainId;
     },
-
 
     lzChainId() {
       const lzChainId = this.beamConfig.chainsInfo.find(
@@ -578,7 +583,7 @@ export default {
       );
 
       const updatedFee = fees[0].add(additionalFee); // add 0.5% from base fee to be sure tx success
-      
+
       if (getParams) return { fees: [updatedFee], params };
       else return [updatedFee];
     },
@@ -634,7 +639,7 @@ export default {
 
         this.estimateSendFee = await this.getEstimatedFees();
       } else {
-        if (this.dstChain.chainId !== chainId) {
+        if (this.dstChain.chainId !== chainId && !this.isUnsupportedNetwork) {
           localStorage.setItem("previous_chain_id", this.dstChain.chainId);
         }
 
@@ -694,7 +699,7 @@ export default {
     await this.updateHistoryStatus();
 
     const previousChainId = localStorage.getItem("previous_chain_id");
-    if (previousChainId) {
+    if (previousChainId && !this.isUnsupportedNetwork) {
       await this.changeChain(+previousChainId, "to");
       localStorage.removeItem("previous_chain_id");
     }

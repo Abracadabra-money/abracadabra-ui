@@ -1,14 +1,17 @@
 <template>
   <div class="chains-wrap">
-    <div class="select-item" @click="$emit('changeNetwork', 'from')">
+    <button class="select-item" @click="$emit('changeNetwork', 'from')">
       <h3 class="title">Origin Chain</h3>
       <div class="description">
-        <img class="chain-icon" :src="originChain.icon" alt="Icon" />
-        <p>{{ originChain.title }}</p>
+        <img class="chain-icon" :src="fromChain.icon" alt="Icon" />
+        <p>{{ fromChain.title }}</p>
       </div>
-    </div>
+    </button>
 
-    <button class="switch-chain-button" :disabled="!fromChain">
+    <button
+      class="switch-chain-button"
+      :disabled="fromChain.isUnsupportedNetwork"
+    >
       <img
         class="switch-chain-image"
         @click="$emit('switch-chain')"
@@ -20,7 +23,7 @@
     <button
       class="select-item"
       @click="$emit('changeNetwork', 'to')"
-      :disabled="!fromChain"
+      :disabled="fromChain.isUnsupportedNetwork"
     >
       <h3 class="title">Destination Chain</h3>
       <div class="description">
@@ -40,7 +43,7 @@ export default {
       default: false,
     },
     fromChain: {
-      type: [Object, Boolean],
+      type: [Object],
       require: true,
     },
     toChain: {
@@ -50,14 +53,6 @@ export default {
   },
 
   computed: {
-    originChain() {
-      if (!this.fromChain)
-        return {
-          title: "Select chain",
-          icon: useImage(`assets/images/networks/no-chain.svg`),
-        };
-      return this.fromChain;
-    },
     destinationChain() {
       if (!this.selectChain || !this.toChain)
         return {
