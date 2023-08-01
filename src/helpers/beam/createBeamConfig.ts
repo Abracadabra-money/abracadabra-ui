@@ -79,8 +79,8 @@ export const createBeamConfig = async (
   );
 
   const tokenContractInstance = new Contract(
-    mimConfig.address,
-    JSON.stringify(mimConfig.abi),
+    mimConfig!.address,
+    JSON.stringify(mimConfig!.abi),
     signer
   );
   const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
