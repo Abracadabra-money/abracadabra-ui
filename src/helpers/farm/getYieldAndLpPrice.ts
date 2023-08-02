@@ -3,7 +3,7 @@ import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 
 import type { Contract } from "ethers";
-import type { FarmConfig } from "@/utils/farmConfig/types";
+import type { FarmConfig } from "@/utils/farmsConfig/types";
 
 const MIMAddress = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3";
 const SPELLAddress = "0x090185f2135308bad17527004364ebcc2d37e5f6";
@@ -31,7 +31,7 @@ export const getYieldAndLpPrice = async (
       signer
     );
 
-    const { lpYield, lpPrice } = await getLPYield(
+    const lpYieldAndPrice = await getLPYield(
       poolInfo.stakingToken,
       farmPoolInfo.id === 1 ? mimTokenContract : spellTokenContract,
       stakingTokenContract,
@@ -40,14 +40,14 @@ export const getYieldAndLpPrice = async (
 
     const poolYield = await getYield(
       contractInstance,
-      lpYield,
+      lpYieldAndPrice?.lpYield,
       poolInfo.stakingTokenTotalAmount,
       poolInfo.allocPoint,
       poolInfo.accIcePerShare
     );
 
     return {
-      lpPrice,
+      lpPrice: lpYieldAndPrice?.lpPrice,
       poolYield,
     };
   }
@@ -137,7 +137,7 @@ const getLPYield = async (
     let IceInSlpTotal = await iceInstance.balanceOf(stakingToken);
     let totalTokensSLPMinted = await erc20.totalSupply();
 
-    let icePerLp;
+    let icePerLp: any;
     if (+IceInSlpTotal > 0) {
       icePerLp = +totalTokensSLPMinted / +IceInSlpTotal;
     }
@@ -146,7 +146,7 @@ const getLPYield = async (
     }
     const lpPrice = (+IceInSlpTotal / +totalTokensSLPMinted) * +tokenPrice * 2;
 
-    let IcePer1000Bucks;
+    let IcePer1000Bucks: any;
     if (+tokenPrice > 0) IcePer1000Bucks = 1000 / +tokenPrice;
     if (+tokenPrice === 0) IcePer1000Bucks = 0;
 

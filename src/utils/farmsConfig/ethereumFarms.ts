@@ -3,9 +3,9 @@ import erc20Abi from "@/utils/abi/farm/erc20Abi";
 import crvStakeTokenAbi from "@/utils/abi/farm/crvStakeTokenAbi";
 import { useImage } from "@/helpers/useImage";
 
-import type { FarmConfig } from "@/utils/farmConfig/types";
+import type { FarmConfig } from "@/utils/farmsConfig/types";
 
-const ethereumFarms: FarmConfig = [
+const ethereumFarms: FarmConfig[] = [
   {
     name: "ETH-SPELL",
     icon: useImage(`assets/images/tokens/ETH-Spell.png`),
