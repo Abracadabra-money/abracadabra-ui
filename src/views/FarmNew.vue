@@ -103,8 +103,9 @@
             <img src="@/assets/images/farm-lp.svg" alt="" />
             <p>Get LP’s</p>
             <img src="@/assets/images/farm-lp-arrow.svg" alt="" />
-          </a></div
-      ></template>
+          </a>
+        </div>
+      </template>
     </div>
     <LocalPopupWrap
       :isOpened="isTokensOpened"
@@ -128,15 +129,17 @@ import BaseButton from "@/components/base/BaseButton.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
-import farmPoolsMixin from "../mixins/farmPools";
+// import farmPoolsMixin from "../mixins/farmPools";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 
+import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
+
 import filters from "@/filters/index.js";
 
 export default {
-  mixins: [farmPoolsMixin],
+  // mixins: [farmPoolsMixin],
   props: {
     id: { type: [String, Number], default: null },
     unstake: { type: Boolean, default: false },
@@ -152,23 +155,28 @@ export default {
         { title: "Unstake", name: "unstake" },
       ],
       farmPoolsTimer: null,
+      selectedPool: null,
     };
   },
   computed: {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
+      //remove
       farms: "getFarmPools",
       networks: "getAvailableNetworks",
+      //?
       signer: "getSigner",
+      //remove
       loading: "getFarmPoolLoading",
     }),
     isUnstake() {
       return this.selectedTab === "unstake";
     },
-    selectedPool() {
-      return this.farms.find(({ id }) => +id === +this.id) || null;
-    },
+    //remove
+    // selectedPool() {
+    //   return this.farms.find(({ id }) => +id === +this.id) || null;
+    // },
 
     isAllowance() {
       return !!this.selectedPool?.accountInfo?.allowance;
@@ -190,7 +198,12 @@ export default {
   watch: {
     async account() {
       if (this.account) {
-        await this.createFarmPools();
+        this.selectedPool = await createFarmItemConfig(
+          this.id,
+          this.chainId,
+          this.signer,
+          this.account
+        );
       }
     },
     max() {
@@ -331,11 +344,21 @@ export default {
   },
   async created() {
     if (!this.farms.length) {
-      await this.createFarmPools();
+      this.selectedPool = await createFarmItemConfig(
+        this.id,
+        this.chainId,
+        this.signer,
+        this.account
+      );
     }
 
     this.farmPoolsTimer = setInterval(async () => {
-      await this.createFarmPools();
+      this.selectedPool = await createFarmItemConfig(
+        this.id,
+        this.chainId,
+        this.signer,
+        this.account
+      );
     }, 10000);
   },
   beforeUnmount() {

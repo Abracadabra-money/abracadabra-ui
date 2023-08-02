@@ -54,6 +54,7 @@ export default {
         console.log("updateTokenPrices err", e);
       }
     },
+
     async createFarmPools() {
       const chainPools = farmPools.filter(
         (pool) => pool.contractChain === this.chainId
@@ -73,6 +74,7 @@ export default {
         this.setLoadingPoolsFarm(false);
       }
     },
+
     async createFarmPool(farmPoolInfo) {
       const contractInstance = new this.$ethers.Contract(
         farmPoolInfo.contract.address,
@@ -106,27 +108,38 @@ export default {
 
       const isDepreciated = poolRoi === 0;
 
+      //todo
       const farmPoolItem = {
         name: farmPoolInfo.name,
         icon: farmPoolInfo.icon,
-        nameSubtitle: farmPoolInfo.nameSubtitle,
+        //check actuality
+        // nameSubtitle: farmPoolInfo.nameSubtitle,
         stakingTokenLink: farmPoolInfo.stakingTokenLink,
-        stakingTokenIcon: farmPoolInfo.stakingTokenIcon,
+        //check actuality
+        // stakingTokenIcon: farmPoolInfo.stakingTokenIcon,
+        //check actuality
         id: farmPoolInfo.id,
         poolId: farmPoolInfo.poolId,
         contractInstance,
         stakingTokenName: farmPoolInfo.stakingTokenName,
-        stakingTokenType: farmPoolInfo.stakingTokenType,
-        lpPrice,
-        depositedBalance: farmPoolInfo.depositedBalance,
+        //check actuality
+        // stakingTokenType: farmPoolInfo.stakingTokenType,
+        //check actuality
+        // lpPrice,
+        //check actuality
+        // depositedBalance: farmPoolInfo.depositedBalance,
         contractAddress: farmPoolInfo.contract.address,
-        poolInfo,
+        //under ?
+        // poolInfo,
         stakingTokenContract,
-        tokenPrice,
+        //check actuality
+        // tokenPrice,
+        //check actuality (actual)
         poolYield,
         poolRoi,
         poolTvl,
-        tokenName: farmPoolInfo.earnedToken.name,
+        //check actuality
+        // tokenName: farmPoolInfo.earnedToken.name,
         isDepreciated,
       };
 
@@ -136,6 +149,7 @@ export default {
 
       return farmPoolItem;
     },
+
     async getFarmUserInfo(farmPoolItem) {
       const allowance = await this.getAllowance(
         farmPoolItem.stakingTokenContract,
@@ -180,6 +194,7 @@ export default {
         depositedBalance,
       };
     },
+
     async getSLPBalances(farmPoolItem, userInfo) {
       const { _reserve0, _reserve1 } =
         await farmPoolItem.stakingTokenContract.getReserves();
