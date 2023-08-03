@@ -141,7 +141,6 @@ import filters from "@/filters/index.js";
 export default {
   // mixins: [farmPoolsMixin],
   props: {
-    id: { type: [String, Number], default: null },
     unstake: { type: Boolean, default: false },
   },
   data() {
@@ -170,13 +169,14 @@ export default {
       //remove
       loading: "getFarmPoolLoading",
     }),
+
     isUnstake() {
       return this.selectedTab === "unstake";
     },
-    //remove
-    // selectedPool() {
-    //   return this.farms.find(({ id }) => +id === +this.id) || null;
-    // },
+
+    selectedPoolId() {
+      return this.$route.params.id;
+    },
 
     isAllowance() {
       return !!this.selectedPool?.accountInfo?.allowance;
@@ -199,7 +199,7 @@ export default {
     async account() {
       if (this.account) {
         this.selectedPool = await createFarmItemConfig(
-          this.id,
+          this.selectedPoolId,
           this.chainId,
           this.signer,
           this.account
@@ -220,12 +220,15 @@ export default {
     formatUSD(value) {
       return filters.formatUSD(value);
     },
+
     formatPercent(value) {
       return filters.formatPercent(value);
     },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
+
     changeActiveMarket(marketId) {
       if (+marketId !== +this.id)
         this.$router.push({ name: "FarmPool", params: { id: marketId } });
@@ -265,10 +268,12 @@ export default {
         await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
+
     handler() {
       if (!this.isUnstake) this.stakeHandler();
       else this.unstakeHandler();
     },
+
     async unstakeHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
@@ -302,6 +307,7 @@ export default {
         await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
+
     async approveHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
@@ -342,19 +348,18 @@ export default {
       }
     },
   },
+
   async created() {
-    if (!this.farms.length) {
-      this.selectedPool = await createFarmItemConfig(
-        this.id,
-        this.chainId,
-        this.signer,
-        this.account
-      );
-    }
+    this.selectedPool = await createFarmItemConfig(
+      this.selectedPoolId,
+      this.chainId,
+      this.signer,
+      this.account
+    );
 
     this.farmPoolsTimer = setInterval(async () => {
       this.selectedPool = await createFarmItemConfig(
-        this.id,
+        this.selectedPoolId,
         this.chainId,
         this.signer,
         this.account

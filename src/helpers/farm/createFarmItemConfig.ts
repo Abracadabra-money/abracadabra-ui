@@ -42,9 +42,10 @@ export const createFarmItemConfig = async (
   );
 
   const tokenPrice = await getTokenPriceByAddress(
+    chainId,
     //todo
     //create a type for token adresses
-    tokenAddresses["SELL" as keyof typeof tokenAddresses]
+    tokenAddresses["SPELL" as keyof typeof tokenAddresses]
   );
 
   const { poolYield, lpPrice } = await getYieldAndLpPrice(
@@ -59,7 +60,7 @@ export const createFarmItemConfig = async (
 
   const poolTvl = await getTVL(poolInfo.stakingTokenTotalAmount, +lpPrice!);
 
-  const isDepreciated = poolRoi === 0;
+  const isDepreciated = poolRoi == 0;
 
   let accountInfo: any = null;
 
@@ -89,7 +90,6 @@ export const createFarmItemConfig = async (
     stakingTokenContract,
     //check actuality
     // tokenPrice,
-    //check actuality (actual)
     poolYield,
     poolRoi,
     poolTvl,

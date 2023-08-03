@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
+import { getNetwork } from "@wagmi/core";
 
 import type { Contract } from "ethers";
 import type { FarmConfig } from "@/utils/farmsConfig/types";
@@ -15,9 +16,11 @@ export const getYieldAndLpPrice = async (
   farmPoolInfo: FarmConfig,
   signer: any
 ) => {
+  const chainId = await getNetwork().chain?.id;
+
   if (farmPoolInfo.id === 1 || farmPoolInfo.id === 2) {
-    const mimPrice = await getTokenPriceByAddress(MIMAddress);
-    const spellPrice = await getTokenPriceByAddress(SPELLAddress);
+    const mimPrice = await getTokenPriceByAddress(chainId, MIMAddress);
+    const spellPrice = await getTokenPriceByAddress(chainId, SPELLAddress);
 
     const mimTokenContract = new ethers.Contract(
       MIMAddress,
@@ -26,7 +29,7 @@ export const getYieldAndLpPrice = async (
     );
 
     const spellTokenContract = new ethers.Contract(
-      MIMAddress,
+      SPELLAddress,
       JSON.stringify(erc20Abi),
       signer
     );
@@ -151,7 +154,6 @@ const getLPYield = async (
     if (+tokenPrice === 0) IcePer1000Bucks = 0;
 
     let res = (+IcePer1000Bucks! * +icePerLp!) / 2; // for LP pool
-
     return { lpYield: res, lpPrice };
   } catch (error) {
     console.log(error);

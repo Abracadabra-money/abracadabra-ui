@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { getAccount } from "@wagmi/core";
+import { getAccount, getNetwork } from "@wagmi/core";
 import { getAllowance } from "@/helpers/farm/getAllowance";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 
@@ -57,11 +57,14 @@ export const getFarmUserInfo = async (farmPoolItem: any) => {
 };
 
 const getSLPBalances = async (farmPoolItem: any, userInfo: any) => {
+  const chainId = await getNetwork().chain?.id;
+
   const { _reserve0, _reserve1 } =
     await farmPoolItem.stakingTokenContract.getReserves();
 
   //MIM or SPELL
   const token0Price = await getTokenPriceByAddress(
+    chainId,
     tokenAddresses[
       //todo
       //create a type for token adresses
@@ -71,6 +74,7 @@ const getSLPBalances = async (farmPoolItem: any, userInfo: any) => {
 
   // ETH always
   const token1Price = await getTokenPriceByAddress(
+    chainId,
     //todo
     //create a type for token adresses
     tokenAddresses["WETH" as keyof typeof tokenAddresses]
