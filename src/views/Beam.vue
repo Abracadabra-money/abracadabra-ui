@@ -146,7 +146,7 @@ import switchNetwork from "@/helpers/switchNetwork";
 export default {
   data() {
     return {
-      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114],
+      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453],
       isShowDstAddress: false,
       toChainId: null,
       dstAddress: null,
