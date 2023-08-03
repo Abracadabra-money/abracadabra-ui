@@ -126,8 +126,13 @@ const checkSanctionAddress = async (address) => {
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
+
+  const unsupportedChain = !rpc[chainId];
+  const currentRpc = unsupportedChain ? rpc[1] : rpc[chainId];
+  const currentChain = unsupportedChain ? 1 : chainId;
+
   const provider = markRaw(
-    new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
+    new ethers.providers.StaticJsonRpcProvider(currentRpc)
   );
 
   const account = ethereumClient.getAccount().address;
@@ -135,7 +140,7 @@ const initWithoutConnect = async () => {
     if (account !== address) window.location.reload();
   });
 
-  store.commit("setChainId", chainId);
+  store.commit("setChainId", currentChain);
   store.commit("setProvider", provider);
   store.commit("setAccount", null);
 
@@ -148,7 +153,12 @@ const onConnectNew = async () => {
     const account = ethereumClient.getAccount().address;
     const activeChain = ethereumClient.getNetwork().chain;
     const chainId = activeChain.id;
-    localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
+    const unsupportedChain = !rpc[chainId];
+    const currentRpc = unsupportedChain ? rpc[1] : rpc[chainId];
+
+    if (!unsupportedChain) {
+      localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
+    }
 
     if (await checkSanctionAddress(account)) return false;
 
@@ -161,9 +171,11 @@ const onConnectNew = async () => {
     });
 
     const provider = markRaw(
-      new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
+      new ethers.providers.StaticJsonRpcProvider(currentRpc)
     );
-    const signer = markRaw(await getEthersSigner({ chainId }));
+    const signer = unsupportedChain
+      ? provider
+      : markRaw(await getEthersSigner({ chainId }));
 
     store.commit("setChainId", chainId);
     store.commit("setProvider", provider);
