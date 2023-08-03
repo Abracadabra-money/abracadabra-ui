@@ -174,6 +174,7 @@ export default {
     isTokenApproved() {
       if (!this.isStakeAction) return true;
       if (this.errorMainValue) return true;
+      if (!this.account) return true;
       const { isTokenApproved, approvedAmount } = this.toToken;
       return isTokenApproved && +approvedAmount > +this.mainInputValue;
     },
@@ -316,6 +317,7 @@ export default {
     },
 
     async approveTokenHandler() {
+      if (this.isTokenApproved) return false;
       if (this.toToken.isTokenApproved) return false;
 
       const notificationId = await this.createNotification(
@@ -402,6 +404,8 @@ export default {
     },
 
     async claimMimHandler() {
+      if (this.isDisableClaimButton) return false;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
