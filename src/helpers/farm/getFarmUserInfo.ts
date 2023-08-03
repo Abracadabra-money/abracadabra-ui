@@ -104,13 +104,13 @@ const getSLPBalances = async (farmPoolItem: any, userInfo: any) => {
   return {
     token0: {
       name: farmPoolItem.depositedBalance.token0.name,
-      amount: token0UserAmount,
-      amountInUsd: token0UserAmount * token0Price,
+      amount: +token0UserAmount,
+      amountInUsd: +token0UserAmount * +token0Price,
     },
     token1: {
       name: farmPoolItem.depositedBalance.token1.name,
-      amount: token1UserAmount,
-      amountInUsd: token1UserAmount * token1Price,
+      amount: +token1UserAmount,
+      amountInUsd: +token1UserAmount * +token1Price,
     },
   };
 };

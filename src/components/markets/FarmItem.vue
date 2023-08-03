@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
@@ -43,6 +44,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     goToPage() {
       return { name: "FarmPool", params: { id: this.pool.id } };
     },

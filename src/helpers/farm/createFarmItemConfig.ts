@@ -60,7 +60,7 @@ export const createFarmItemConfig = async (
 
   const poolTvl = await getTVL(poolInfo.stakingTokenTotalAmount, +lpPrice!);
 
-  const isDepreciated = poolRoi == 0;
+  const isDepreciated = poolRoi === 0;
 
   let accountInfo: any = null;
 
@@ -80,10 +80,10 @@ export const createFarmItemConfig = async (
     stakingTokenName: farmPoolInfo!.stakingTokenName,
     //check actuality
     // stakingTokenType: farmPoolInfo.stakingTokenType,
-    //check actuality
-    // lpPrice,
-    //check actuality
-    // depositedBalance: farmPoolInfo.depositedBalance,
+    //check actuality(actual)
+    lpPrice,
+    //check actuality(actual)
+    depositedBalance: farmPoolInfo!.depositedBalance,
     contractAddress: farmPoolInfo!.contract.address,
     //under ?
     // poolInfo,

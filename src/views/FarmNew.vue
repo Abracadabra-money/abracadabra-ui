@@ -112,7 +112,6 @@
       @closePopup="isTokensOpened = false"
     >
       <MarketsListPopup
-        :farmsList="farms"
         popupType="farms"
         @changeActiveMarket="changeActiveMarket"
       />
@@ -162,12 +161,12 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
       //remove
-      farms: "getFarmPools",
+      // farms: "getFarmPools",
       networks: "getAvailableNetworks",
       //?
       signer: "getSigner",
       //remove
-      loading: "getFarmPoolLoading",
+      // loading: "getFarmPoolLoading",
     }),
 
     isUnstake() {

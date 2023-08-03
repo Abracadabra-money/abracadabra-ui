@@ -97,6 +97,7 @@ import EmptyState from "@/components/markets/EmptyState.vue";
 import DropdownWrap from "@/components/ui/DropdownWrap.vue";
 import MarketsFarmItem from "@/components/markets/FarmItem.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
+import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
 const sortKeys = {
   name: "name",
@@ -110,7 +111,7 @@ const sortKeys = {
 };
 
 export default {
-  mixins: [farmPoolsMixin],
+  // mixins: [farmPoolsMixin],
 
   data() {
     return {
@@ -120,11 +121,13 @@ export default {
       poolsInterval: null,
       isActiveMarkets: true,
       scrollPosition: 0,
+      pools: null,
     };
   },
 
   computed: {
     ...mapGetters({
+      signer: "getSigner",
       farmLoading: "getFarmPoolLoading",
     }),
 
@@ -258,8 +261,12 @@ export default {
   },
 
   async created() {
-    await this.createFarmPools();
-    this.poolsInterval = setInterval(await this.createFarmPools(), 5000);
+    // await this.createFarmPools();
+    this.pools = await getFarmsList(this.signer);
+    //todo cors policy
+    this.poolsInterval = setInterval(async () => {
+      this.pools = await getFarmsList(this.signer);
+    }, 5000);
     window.addEventListener("scroll", this.onScroll);
   },
 
