@@ -12,6 +12,7 @@ import { publicProvider } from "@wagmi/core/providers/public";
 
 import { mainnet } from "./chains/mainnet";
 import { kava } from "./chains/kava";
+import { base } from "./chains/base";
 
 import {
   // mainnet,
@@ -44,6 +45,7 @@ const rpc = {
   137: "https://polygon-rpc.com",
   250: "https://rpc.ftm.tools/",
   1285: "https://rpc.api.moonriver.moonbeam.network",
+  8453: "https://mainnet.base.org",
   42161: "https://arb1.arbitrum.io/rpc",
   43114: "https://api.avax.network/ext/bc/C/rpc",
   2222: "https://evm.kava.io ",
@@ -63,6 +65,7 @@ const chains = [
   optimism,
   moonriver,
   kava,
+  base
 ];
 
 // 2. Configure wagmi client

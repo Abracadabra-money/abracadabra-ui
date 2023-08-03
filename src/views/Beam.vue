@@ -153,7 +153,7 @@ import { useImage } from "@/helpers/useImage";
 export default {
   data() {
     return {
-      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114],
+      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453],
       isShowDstAddress: false,
       toChainId: null,
       dstAddress: null,
@@ -204,7 +204,10 @@ export default {
       );
     },
 
+    // TODO: fix naming & conditions
     isTokenApproved() {
+      if(this.chainId === 8453) return false;
+
       return !this.beamConfig.isTokenApprove && this.chainId === 1;
     },
 
