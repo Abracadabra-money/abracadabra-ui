@@ -18,7 +18,7 @@ export default {
   props: {
     warningType: {
       type: String,
-      default: "sspell",
+      default: "sSpell",
     },
   },
   data() {
@@ -59,8 +59,8 @@ export default {
 
   computed: {
     selectedData() {
-      if (this.warningType === "sspell") return this.emptyDataSSpell;
-      if (this.warningType === "mspell") return this.emptyDataMSpell;
+      if (this.warningType === "sSpell") return this.emptyDataSSpell;
+      if (this.warningType === "mSpell") return this.emptyDataMSpell;
       if (this.warningType === "mglp") return this.emptyDataMGlp;
       if (this.warningType === "mape") return this.emptyDataMApe;
       if (this.warningType === "mlvl") return this.emptyDataMLvl;
@@ -78,7 +78,7 @@ export default {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 30px;
   padding: 23px 65px;
-  min-height: 280px;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
