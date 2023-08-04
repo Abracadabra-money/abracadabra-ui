@@ -19,7 +19,7 @@
 
     <div class="item">
       <p class="item-title">Liquidation Price</p>
-      <p class="item-value" :class="liquidationRiskClass">
+      <p class="item-value" :class="positionRisk">
         {{ liquidationPrice }}
       </p>
     </div>
@@ -34,6 +34,7 @@ export default {
     expectedCollateralAmount: { type: Number, default: 0 },
     expectedBorrowAmount: { type: Number, default: 0 },
     expectedLiquidationPrice: { type: Number, default: 0 },
+    positionRisk: { type: String, default: "" },
   },
   computed: {
     collateralDeposit() {
@@ -59,40 +60,6 @@ export default {
 
     liquidationPrice() {
       return filters.formatExactPrice(this.expectedLiquidationPrice);
-    },
-
-    liquidationRisk() {
-      if (this.cauldron) {
-        const priceDifferens =
-          1 / this.oracleExchangeRate - this.expectedLiquidationPrice;
-
-        const riskPersent =
-          priceDifferens *
-          this.cauldron.config.cauldronSettings.healthMultiplier *
-          this.oracleExchangeRate *
-          100;
-
-        if (riskPersent > 100) return 100;
-
-        if (riskPersent <= 0) return 0;
-
-        return parseFloat(riskPersent).toFixed(2);
-      }
-
-      return 0;
-    },
-
-    liquidationRiskClass() {
-      if (this.liquidationPrice === "$ 0.0") return "";
-
-      if (this.liquidationRisk >= 0 && this.liquidationRisk <= 5) return "high";
-
-      if (this.liquidationRisk > 5 && this.liquidationRisk <= 75)
-        return "medium";
-
-      if (this.liquidationRisk > 75) return "safe";
-
-      return "";
     },
   },
 };
@@ -137,16 +104,6 @@ export default {
 .item-value {
   font-size: 30px;
   font-weight: 700;
-}
-.safe {
-  color: #75c9ee;
-}
-.medium {
-  color: #ffb800;
-}
-
-.high {
-  color: #fe1842;
 }
 
 @media (max-width: 1200px) {

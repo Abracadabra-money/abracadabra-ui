@@ -45,7 +45,7 @@
         </div>
 
         <div class="ltv-wrap underline" v-if="cauldron">
-          <LtvBlock :ltv="+calculateLtv" />
+          <LtvBlock :ltv="+calculateLtv" :positionRisk="positionRisk" />
         </div>
 
         <div class="percent-wrap" v-if="cauldron">
@@ -83,6 +83,7 @@
               <PositionInfoBlock
                 v-if="showAdditionalInfo"
                 :cauldron="cauldron"
+                :positionRisk="positionRisk"
                 :expectedCollateralAmount="expectedCollateralAmount"
                 :expectedBorrowAmount="expectedBorrowAmount"
                 :expectedLiquidationPrice="expectedLiquidationPrice"
@@ -359,24 +360,47 @@ export default {
 
     calculateLtv() {
       const { mcr } = this.cauldron.config;
+      if (!this.expectedBorrowAmount) return 0;
 
-      if (this.collateralValue) {
-        const percent = this.maxBorrowValue / +mcr;
-        const ltv = this.borrowValue / percent;
-        if (ltv > +mcr) return mcr;
-        return parseFloat(ltv).toFixed(0);
-      }
+      const ltv =
+        Math.round((this.expectedBorrowAmount / this.collateralInUsd) * 100) +
+        1;
 
-      if (this.borrowValue) {
-        const ltv =
-          Math.round((this.expectedBorrowAmount / this.collateralInUsd) * 100) +
-          1;
+      console.log("ltv", ltv);
 
-        if (ltv <= +mcr) return parseFloat(ltv).toFixed(0);
-        return +mcr;
-      }
+      if (ltv <= +mcr) return parseFloat(ltv).toFixed(0);
+      return +mcr;
+    },
 
-      return 0;
+    liquidationRisk() {
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const { decimals } = this.cauldron.config.collateralInfo;
+      const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
+
+      const priceDifferens = 1 / exchangeRate - this.expectedLiquidationPrice;
+
+      const riskPersent =
+        priceDifferens *
+        this.cauldron.config.cauldronSettings.healthMultiplier *
+        exchangeRate *
+        100;
+
+      if (riskPersent > 100) return 100;
+
+      if (riskPersent <= 0) return 0;
+
+      return parseFloat(riskPersent).toFixed(2);
+    },
+
+    positionRisk() {
+      if (!this.expectedLiquidationPrice) return "";
+      if (this.liquidationRisk >= 0 && this.liquidationRisk <= 5) return "high";
+      if (this.liquidationRisk > 5 && this.liquidationRisk <= 75)
+        return "medium";
+
+      if (this.liquidationRisk > 75) return "safe";
+
+      return "";
     },
 
     actionInfo() {

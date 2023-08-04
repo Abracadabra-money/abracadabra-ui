@@ -4,7 +4,7 @@
       <Tooltip :tooltip="tooltip" />
       <span> LTV</span>
     </span>
-    <span class="ltv-item">{{ ltv }}%</span>
+    <span class="ltv-item" :class="positionRisk">{{ ltv }}%</span>
   </div>
 </template>
 
@@ -21,6 +21,10 @@ export default {
       type: String,
       default:
         "Loan to Value: percentage of debt compared to the collateral. The higher it is, the riskier the position",
+    },
+    positionRisk: {
+      type: String,
+      default: "",
     },
   },
 
