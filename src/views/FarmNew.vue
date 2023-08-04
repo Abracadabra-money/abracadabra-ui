@@ -54,7 +54,7 @@
           <BaseButton
             v-if="!isAllowance && !isUnstake"
             @click="approveHandler"
-            :disabled="!isValid || !!error || +selectedPool.poolRoi === 0"
+            :disabled="!isValid || !!error || +selectedPool.farmRoi === 0"
             primary
             >Approve</BaseButton
           >
@@ -62,7 +62,7 @@
             v-if="isUnstake || isAllowance"
             @click="handler"
             :disabled="
-              !isValid || !!error || (!isUnstake && +selectedPool.poolRoi === 0)
+              !isValid || !!error || (!isUnstake && +selectedPool.farmRoi === 0)
             "
             primary
             >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
@@ -79,7 +79,7 @@
             />
             APR
           </p>
-          <p class="info-value">{{ formatPercent(selectedPool.poolRoi) }}</p>
+          <p class="info-value">{{ formatPercent(selectedPool.farmRoi) }}</p>
         </div>
 
         <div class="info underline">
@@ -91,7 +91,7 @@
             />
             TVL
           </p>
-          <p class="info-value">{{ formatUSD(selectedPool.poolTvl) }}</p>
+          <p class="info-value">{{ formatUSD(selectedPool.farmTvl) }}</p>
         </div>
 
         <div class="farm-link-wrap">
@@ -195,16 +195,15 @@ export default {
     },
   },
   watch: {
-    async account() {
-      if (this.account) {
-        this.selectedPool = await createFarmItemConfig(
-          this.selectedPoolId,
-          this.chainId,
-          this.signer,
-          this.account
-        );
-      }
-    },
+    // async account() {
+    //   if (this.account) {
+    //     this.selectedPool = await createFarmItemConfig(
+    //       this.selectedPoolId,
+    //       this.chainId,
+    //       this.signer
+    //     );
+    //   }
+    // },
     max() {
       this.amount = "";
     },
@@ -246,7 +245,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.deposit(
-          this.selectedPool.poolId,
+          this.selectedPool.farmId,
           parseAmount
         );
 
@@ -284,7 +283,7 @@ export default {
         );
 
         const tx = await this.selectedPool.contractInstance.withdraw(
-          this.selectedPool.poolId,
+          this.selectedPool.farmId,
           parseAmount
         );
 
@@ -352,18 +351,16 @@ export default {
     this.selectedPool = await createFarmItemConfig(
       this.selectedPoolId,
       this.chainId,
-      this.signer,
-      this.account
+      this.signer
     );
 
     this.farmPoolsTimer = setInterval(async () => {
       this.selectedPool = await createFarmItemConfig(
         this.selectedPoolId,
         this.chainId,
-        this.signer,
-        this.account
+        this.signer
       );
-    }, 10000);
+    }, 60000);
   },
   beforeUnmount() {
     clearInterval(this.farmPoolsTimer);

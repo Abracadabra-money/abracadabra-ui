@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
-import { getYieldAndLpPrice } from "@/helpers/farm/getYieldAndLpPrice";
+import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
+import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
 import { getFarmUserInfo } from "@/helpers/farm/getFarmUserInfo";
@@ -18,90 +18,118 @@ export const createFarmItemConfig = async (
   farmId: string | number,
   chainId: number,
   signer: any,
-  account: string
+  isExtended = true,
+  account = ""
 ) => {
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId
   );
-  const farmPoolInfo: FarmConfig | undefined = farmsOnChain.find(
+
+  const farmInfo: FarmConfig | undefined = farmsOnChain.find(
     ({ id }) => +id === +farmId
   );
 
+  if (!farmInfo) return false;
+
+  const { SPELLPrice, MIMPrice, WETHPrice } = await getTokensPrices();
+
   const contractInstance = new ethers.Contract(
-    farmPoolInfo!.contract.address,
-    JSON.stringify(farmPoolInfo!.contract.abi),
+    farmInfo.contract.address,
+    JSON.stringify(farmInfo.contract.abi),
     signer
   );
 
-  const poolInfo = await contractInstance.poolInfo(farmPoolInfo!.poolId);
+  const poolInfo = await contractInstance.poolInfo(farmInfo.farmId);
 
   const stakingTokenContract = new ethers.Contract(
     poolInfo.stakingToken,
-    JSON.stringify(farmPoolInfo!.stakingTokenAbi),
+    JSON.stringify(farmInfo.stakingTokenAbi),
     signer
   );
 
-  const tokenPrice = await getTokenPriceByAddress(
-    chainId,
-    //todo
-    //create a type for token adresses
-    tokenAddresses["SPELL" as keyof typeof tokenAddresses]
-  );
-
-  const { poolYield, lpPrice } = await getYieldAndLpPrice(
+  const { farmYield, lpPrice } = await getFarmYieldAndLpPrice(
     stakingTokenContract,
     contractInstance,
     poolInfo,
-    farmPoolInfo!,
-    signer
+    farmInfo,
+    signer,
+    MIMPrice,
+    SPELLPrice
   );
 
-  const poolRoi = await getRoi(poolYield, tokenPrice);
+  const farmRoi = +farmYield
+    ? await getRoi(+farmYield, SPELLPrice)
+    : +farmYield;
 
-  const poolTvl = await getTVL(poolInfo.stakingTokenTotalAmount, +lpPrice!);
+  const isDepreciated = farmRoi === 0;
 
-  const isDepreciated = poolRoi === 0;
-
-  let accountInfo: any = null;
-
-  //todo
-  const farmItemConfig = {
-    name: farmPoolInfo!.name,
-    icon: farmPoolInfo!.icon,
-    //check actuality
-    // nameSubtitle: farmPoolInfo.nameSubtitle,
-    stakingTokenLink: farmPoolInfo!.stakingTokenLink,
-    //check actuality
-    // stakingTokenIcon: farmPoolInfo.stakingTokenIcon,
-    //check actuality
-    id: farmPoolInfo!.id,
-    poolId: farmPoolInfo!.poolId,
-    contractInstance,
-    stakingTokenName: farmPoolInfo!.stakingTokenName,
-    //check actuality
-    // stakingTokenType: farmPoolInfo.stakingTokenType,
-    //check actuality(actual)
-    lpPrice,
-    //check actuality(actual)
-    depositedBalance: farmPoolInfo!.depositedBalance,
-    contractAddress: farmPoolInfo!.contract.address,
-    //under ?
-    // poolInfo,
-    stakingTokenContract,
-    //check actuality
-    // tokenPrice,
-    poolYield,
-    poolRoi,
-    poolTvl,
-    //check actuality
-    // tokenName: farmPoolInfo.earnedToken.name,
-    accountInfo,
+  let farmItemConfig: any = {
+    name: farmInfo.name,
+    icon: farmInfo.icon,
+    stakingTokenLink: farmInfo.stakingTokenLink,
+    id: farmInfo.id,
+    farmId: farmInfo.farmId,
+    stakingTokenName: farmInfo.stakingTokenName,
+    farmRoi,
     isDepreciated,
   };
 
-  if (account) {
-    farmItemConfig.accountInfo = await getFarmUserInfo(farmItemConfig);
-  }
+  if (isExtended)
+    farmItemConfig.farmTvl = await getTVL(
+      poolInfo.stakingTokenTotalAmount,
+      +lpPrice!
+    );
 
+  if (account) {
+    //todo check for positions page
+    const farmUserInfoConfig = {
+      ...farmItemConfig,
+      farmId: farmInfo.farmId,
+      contractInstance,
+      stakingTokenName: farmInfo.stakingTokenName,
+      lpPrice,
+      depositedBalance: farmInfo.depositedBalance,
+      contractAddress: farmInfo.contract.address,
+      farmYield,
+    };
+
+    farmItemConfig.accountInfo = await getFarmUserInfo(farmUserInfoConfig);
+    console.log("getUserInfo", farmItemConfig.accountInfo);
+    return farmItemConfig;
+  }
   return farmItemConfig;
+};
+
+const getTokensPrices = async () => {
+  const tokenAddressesArray = [
+    tokenAddresses.SPELL,
+    tokenAddresses.MIM,
+    tokenAddresses.WETH,
+  ];
+
+  const tokensPrices = await getTokensArrayPrices(1, tokenAddressesArray);
+
+  let SPELLPrice = 0,
+    MIMPrice = 0,
+    WETHPrice = 0;
+
+  tokensPrices.map((token: any) => {
+    switch (token.address) {
+      case tokenAddresses.SPELL:
+        SPELLPrice = token.price;
+        break;
+      case tokenAddresses.MIM:
+        MIMPrice = token.price;
+        break;
+      case tokenAddresses.WETH:
+        WETHPrice = token.price;
+        break;
+    }
+  });
+
+  return {
+    SPELLPrice,
+    MIMPrice,
+    WETHPrice,
+  };
 };

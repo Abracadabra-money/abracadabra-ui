@@ -8,8 +8,8 @@
       alt=""
     />
     <h2 class="title">Farming Opportunities</h2>
-    <EmptyState v-if="!currentPools.length && !farmLoading" />
-    <div v-else-if="!currentPools.length && farmLoading" class="loader-wrap">
+    <EmptyState v-if="!currentPools.length && !isFarmsLoading" />
+    <div v-else-if="!currentPools.length && isFarmsLoading" class="loader-wrap">
       <BaseLoader />
     </div>
     <div v-else class="stats-wrap">
@@ -78,9 +78,9 @@
 
         <template v-if="filteredPools.length">
           <MarketsFarmItem
-            v-for="pool in filteredPools"
-            :key="pool.id"
-            :pool="pool"
+            v-for="farm in filteredPools"
+            :key="farm.id"
+            :farm="farm"
           />
         </template>
         <EmptyState v-else />
@@ -118,17 +118,17 @@ export default {
       selectedSort: sortKeys.name,
       sortReverse: false,
       search: "",
-      poolsInterval: null,
+      farmsInterval: null,
       isActiveMarkets: true,
       scrollPosition: 0,
-      pools: null,
+      farms: null,
+      isFarmsLoading: false,
     };
   },
 
   computed: {
     ...mapGetters({
       signer: "getSigner",
-      farmLoading: "getFarmPoolLoading",
     }),
 
     showButtonUp() {
@@ -150,7 +150,7 @@ export default {
     },
 
     currentPools() {
-      return this.pools || [];
+      return this.farms || [];
     },
 
     filteredPools() {
@@ -169,43 +169,43 @@ export default {
       this.selectedSort = name;
     },
 
-    filterBySearch(pools, search) {
+    filterBySearch(farms, search) {
       return search
-        ? pools.filter(
-            (pool) =>
-              pool.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+        ? farms.filter(
+            (farm) =>
+              farm.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
           )
-        : pools;
+        : farms;
     },
 
-    sortByTitle(pools) {
-      const sortedPools = [...pools];
+    sortByTitle(farms) {
+      const sortedPools = [...farms];
       if (this.selectedSortData !== null) {
-        const prepValue = (pool, sortData) => {
+        const prepValue = (farm, sortData) => {
           switch (sortData.name) {
             case sortKeys.name:
-              return pool.name;
+              return farm.name;
 
             case sortKeys.yield:
-              return +pool.poolYield;
+              return +farm.farmYield;
 
             case sortKeys.roi:
-              return +pool.poolRoi;
+              return +farm.farmRoi;
 
             case sortKeys.tvl:
-              return +pool.poolTvl;
+              return +farm.farmTvl;
 
             case sortKeys.totalMim:
-              return +pool.totalBorrow;
+              return +farm.totalBorrow;
 
             case sortKeys.mimsLeft:
-              return +pool.dynamicBorrowAmount;
+              return +farm.dynamicBorrowAmount;
 
             case sortKeys.interest:
-              return +pool.interest;
+              return +farm.interest;
 
             case sortKeys.liquidation:
-              return +pool.stabilityFee;
+              return +farm.stabilityFee;
           }
 
           return null;
@@ -226,15 +226,15 @@ export default {
       return sortedPools;
     },
 
-    sortByDepreciate(pools = []) {
+    sortByDepreciate(farms = []) {
       if (this.isActiveMarkets) {
-        return pools.filter((pool) => {
-          if (pool?.cauldronSettings)
-            return !pool.cauldronSettings.isDepreciated;
-          return !pool.isDepreciated;
+        return farms.filter((farm) => {
+          if (farm?.cauldronSettings)
+            return !farm.cauldronSettings.isDepreciated;
+          return !farm.isDepreciated;
         });
       } else {
-        return pools.sort((a, b) => {
+        return farms.sort((a, b) => {
           if (a?.cauldronSettings || b?.cauldronSettings) {
             return (
               +a.cauldronSettings.isDepreciated -
@@ -261,17 +261,17 @@ export default {
   },
 
   async created() {
-    // await this.createFarmPools();
-    this.pools = await getFarmsList(this.signer);
-    //todo cors policy
-    this.poolsInterval = setInterval(async () => {
-      this.pools = await getFarmsList(this.signer);
+    this.isFarmsLoading = true;
+    this.farms = await getFarmsList(this.signer);
+    this.isFarmsLoading = false;
+    this.farmsInterval = setInterval(async () => {
+      this.farms = await getFarmsList(this.signer);
     }, 5000);
     window.addEventListener("scroll", this.onScroll);
   },
 
   beforeUnmount() {
-    clearInterval(this.poolsInterval);
+    clearInterval(this.farmsInterval);
     window.removeEventListener("scroll", this.onScroll);
   },
   components: {

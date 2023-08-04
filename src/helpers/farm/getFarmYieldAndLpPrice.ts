@@ -1,7 +1,5 @@
 import { ethers } from "ethers";
 import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
-import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
-import { getNetwork } from "@wagmi/core";
 
 import type { Contract } from "ethers";
 import type { FarmConfig } from "@/utils/farmsConfig/types";
@@ -9,19 +7,16 @@ import type { FarmConfig } from "@/utils/farmsConfig/types";
 const MIMAddress = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3";
 const SPELLAddress = "0x090185f2135308bad17527004364ebcc2d37e5f6";
 
-export const getYieldAndLpPrice = async (
+export const getFarmYieldAndLpPrice = async (
   stakingTokenContract: Contract,
   contractInstance: Contract,
   poolInfo: any,
-  farmPoolInfo: FarmConfig,
-  signer: any
+  farmInfo: FarmConfig,
+  signer: any,
+  mimPrice: any,
+  spellPrice: any
 ) => {
-  const chainId = await getNetwork().chain?.id;
-
-  if (farmPoolInfo.id === 1 || farmPoolInfo.id === 2) {
-    const mimPrice = await getTokenPriceByAddress(chainId, MIMAddress);
-    const spellPrice = await getTokenPriceByAddress(chainId, SPELLAddress);
-
+  if (farmInfo.id === 1 || farmInfo.id === 2) {
     const mimTokenContract = new ethers.Contract(
       MIMAddress,
       JSON.stringify(erc20Abi),
@@ -34,14 +29,14 @@ export const getYieldAndLpPrice = async (
       signer
     );
 
-    const lpYieldAndPrice = await getLPYield(
+    const lpYieldAndPrice = await getLPYieldAndPrice(
       poolInfo.stakingToken,
-      farmPoolInfo.id === 1 ? mimTokenContract : spellTokenContract,
+      farmInfo.id === 1 ? mimTokenContract : spellTokenContract,
       stakingTokenContract,
-      farmPoolInfo.id === 1 ? mimPrice : spellPrice
+      farmInfo.id === 1 ? mimPrice : spellPrice
     );
 
-    const poolYield = await getYield(
+    const farmYield = await getFarmYield(
       contractInstance,
       lpYieldAndPrice?.lpYield,
       poolInfo.stakingTokenTotalAmount,
@@ -51,16 +46,16 @@ export const getYieldAndLpPrice = async (
 
     return {
       lpPrice: lpYieldAndPrice?.lpPrice,
-      poolYield,
+      farmYield,
     };
   }
 
-  if (farmPoolInfo.id === 3) {
+  if (farmInfo.id === 3) {
     try {
       const price = await stakingTokenContract.get_virtual_price();
 
       const lpPrice = ethers.utils.formatEther(price.toString());
-      const poolYield = await getYield(
+      const farmYield = await getFarmYield(
         contractInstance,
         1000,
         poolInfo.stakingTokenTotalAmount,
@@ -70,25 +65,25 @@ export const getYieldAndLpPrice = async (
 
       return {
         lpPrice,
-        poolYield,
+        farmYield,
       };
     } catch (e) {
       console.log("get price err:", e);
 
       return {
         lpPrice: 0,
-        poolYield: 0,
+        farmYield: 0,
       };
     }
   }
 
   return {
     lpPrice: 0,
-    poolYield: 0,
+    farmYield: 0,
   };
 };
 
-const getYield = async (
+const getFarmYield = async (
   contractInstance: Contract,
   amount = 1000,
   stakingTokenTotalAmount: any,
@@ -101,11 +96,9 @@ const getYield = async (
 
     const multiplier = 86400;
 
-    const icePerSecondResp = await contractInstance.icePerSecond();
-    const icePerSecond = +icePerSecondResp;
+    const icePerSecond = await contractInstance.icePerSecond();
 
-    const totalAllocPointResp = await contractInstance.totalAllocPoint();
-    const totalAllocPoint = +totalAllocPointResp;
+    const totalAllocPoint = await contractInstance.totalAllocPoint();
 
     let iceReward =
       (+multiplier * +icePerSecond * +allocPoint) / +totalAllocPoint;
@@ -125,12 +118,12 @@ const getYield = async (
       pending.toLocaleString("fullwide", { useGrouping: false })
     );
   } catch (error) {
-    console.log("getYield", error);
+    console.log("getFarmYield", error);
     return 0;
   }
 };
 
-const getLPYield = async (
+const getLPYieldAndPrice = async (
   stakingToken: any,
   iceInstance: any,
   erc20: any,
@@ -140,20 +133,15 @@ const getLPYield = async (
     let IceInSlpTotal = await iceInstance.balanceOf(stakingToken);
     let totalTokensSLPMinted = await erc20.totalSupply();
 
-    let icePerLp: any;
-    if (+IceInSlpTotal > 0) {
-      icePerLp = +totalTokensSLPMinted / +IceInSlpTotal;
-    }
-    if (+IceInSlpTotal === 0) {
-      icePerLp = 0;
-    }
+    let icePerLp = 0;
+    if (+IceInSlpTotal > 0) icePerLp = +totalTokensSLPMinted / +IceInSlpTotal;
+
     const lpPrice = (+IceInSlpTotal / +totalTokensSLPMinted) * +tokenPrice * 2;
 
-    let IcePer1000Bucks: any;
+    let IcePer1000Bucks = 0;
     if (+tokenPrice > 0) IcePer1000Bucks = 1000 / +tokenPrice;
-    if (+tokenPrice === 0) IcePer1000Bucks = 0;
 
-    let res = (+IcePer1000Bucks! * +icePerLp!) / 2; // for LP pool
+    let res = (+IcePer1000Bucks * +icePerLp) / 2; // for LP pool
     return { lpYield: res, lpPrice };
   } catch (error) {
     console.log(error);

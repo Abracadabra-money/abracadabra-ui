@@ -1,14 +1,14 @@
 export type FarmConfig = {
   name: string;
   icon: string;
-  nameSubtitle: string;
+  // nameSubtitle?: string;
   contractChain: number;
   id: number;
-  poolId: number;
-  stakingTokenType: string;
-  stakingTokenName: string;
-  stakingTokenIcon: string;
+  farmId: number;
+  // stakingTokenType: string;
+  // stakingTokenIcon: string;
   stakingTokenLink: string;
+  stakingTokenName: string;
   depositedBalance?: {
     token0: {
       name: string;

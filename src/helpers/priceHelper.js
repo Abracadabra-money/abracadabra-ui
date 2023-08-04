@@ -69,7 +69,6 @@ const getTokenPriceByAddress = async (chainId, address) => {
     return price;
   } catch (e) {
     console.log("TOKEN PRICE ERR:", e);
-    //?
     return false;
   }
 };

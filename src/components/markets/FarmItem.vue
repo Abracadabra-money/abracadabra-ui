@@ -7,12 +7,12 @@
       </div>
 
       <div class="pool-info">
-        <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
+        <BaseTokenIcon :name="farm.name" :icon="farm.icon" />
         <div>
           <span class="pool-name">
-            {{ pool.name }}
+            {{ farm.name }}
           </span>
-          <span class="pool-deprecated" v-if="pool.isDepreciated"
+          <span class="pool-deprecated" v-if="farm.isDepreciated"
             >Deprecated</span
           >
         </div>
@@ -23,7 +23,7 @@
         <span>{{ item.value }}</span>
       </div>
       <div class="links-wrap">
-        <div class="link-wrap" v-if="!pool.isDepreciated">
+        <div class="link-wrap" v-if="!farm.isDepreciated">
           <router-link :to="goToPage">Join farm</router-link>
         </div>
       </div>
@@ -38,7 +38,7 @@ import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
   props: {
-    pool: {
+    farm: {
       type: Object,
     },
   },
@@ -47,16 +47,16 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     goToPage() {
-      return { name: "FarmPool", params: { id: this.pool.id } };
+      return { name: "FarmPool", params: { id: this.farm.id } };
     },
 
     stats() {
       return [
         {
           title: "APR",
-          value: filters.formatPercent(this.pool.poolRoi),
+          value: filters.formatPercent(this.farm.farmRoi),
         },
-        { title: "TVL", value: filters.formatUSD(this.pool.poolTvl) },
+        { title: "TVL", value: filters.formatUSD(this.farm.farmTvl) },
       ];
     },
 
