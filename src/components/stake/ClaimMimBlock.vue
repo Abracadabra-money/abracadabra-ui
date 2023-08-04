@@ -14,7 +14,7 @@
 
         <div class="claim-amount">
           <h4>MIM</h4>
-          <div>{{ claimAmount }}</div>
+          <div class="claim-value">{{ claimAmount }}</div>
         </div>
       </div>
 
