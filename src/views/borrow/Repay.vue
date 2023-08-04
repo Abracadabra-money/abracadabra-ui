@@ -154,13 +154,15 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        filters.formatToFixed(this.collateralValue || 0, decimals),
+        filters.formatToFixed(parseFloat(this.collateralValue) || 0, decimals),
         decimals
       );
     },
 
     parseBorrowAmount() {
-      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
+      return utils.parseUnits(
+        filters.formatToFixed(parseFloat(this.borrowValue) || 0, 18)
+      );
     },
 
     isCauldronLoading() {

@@ -238,7 +238,10 @@ export default {
       const wrapInfo = this.cauldron.config?.wrapInfo;
       const { decimals } = this.activeToken;
 
-      const amount = filters.formatToFixed(this.collateralValue, decimals);
+      const amount = filters.formatToFixed(
+        parseFloat(this.collateralValue) || 0,
+        decimals
+      );
 
       const collateralAmount =
         wrapInfo && !this.useOtherToken
@@ -246,7 +249,7 @@ export default {
           : amount * 1e10;
 
       const parseCollateralAmount = utils.parseUnits(
-        parseFloat(collateralAmount || 0).toString(),
+        collateralAmount.toString(),
         this.activeToken.decimals
       );
 
@@ -257,7 +260,7 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        filters.formatToFixed(this.collateralValue || 0, decimals),
+        filters.formatToFixed(parseFloat(this.collateralValue) || 0, decimals),
         decimals
       );
     },
