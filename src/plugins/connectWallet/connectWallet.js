@@ -12,6 +12,7 @@ import { publicProvider } from "@wagmi/core/providers/public";
 
 import { mainnet } from "./chains/mainnet";
 import { kava } from "./chains/kava";
+import { base } from "./chains/base";
 
 import {
   // mainnet,
@@ -44,6 +45,7 @@ const rpc = {
   137: "https://polygon-rpc.com",
   250: "https://rpc.ftm.tools/",
   1285: "https://rpc.api.moonriver.moonbeam.network",
+  8453: "https://mainnet.base.org",
   42161: "https://arb1.arbitrum.io/rpc",
   43114: "https://api.avax.network/ext/bc/C/rpc",
   2222: "https://evm.kava.io ",
@@ -63,6 +65,7 @@ const chains = [
   optimism,
   moonriver,
   kava,
+  base
 ];
 
 // 2. Configure wagmi client
@@ -123,8 +126,13 @@ const checkSanctionAddress = async (address) => {
 
 const initWithoutConnect = async () => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
+
+  const unsupportedChain = !rpc[chainId];
+  const currentRpc = unsupportedChain ? rpc[1] : rpc[chainId];
+  const currentChain = unsupportedChain ? 1 : chainId;
+
   const provider = markRaw(
-    new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
+    new ethers.providers.StaticJsonRpcProvider(currentRpc)
   );
 
   const account = ethereumClient.getAccount().address;
@@ -132,7 +140,7 @@ const initWithoutConnect = async () => {
     if (account !== address) window.location.reload();
   });
 
-  store.commit("setChainId", chainId);
+  store.commit("setChainId", currentChain);
   store.commit("setProvider", provider);
   store.commit("setAccount", null);
 
@@ -145,7 +153,12 @@ const onConnectNew = async () => {
     const account = ethereumClient.getAccount().address;
     const activeChain = ethereumClient.getNetwork().chain;
     const chainId = activeChain.id;
-    localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
+    const unsupportedChain = !rpc[chainId];
+    const currentRpc = unsupportedChain ? rpc[1] : rpc[chainId];
+
+    if (!unsupportedChain) {
+      localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);
+    }
 
     if (await checkSanctionAddress(account)) return false;
 
@@ -158,9 +171,11 @@ const onConnectNew = async () => {
     });
 
     const provider = markRaw(
-      new ethers.providers.StaticJsonRpcProvider(rpc[chainId])
+      new ethers.providers.StaticJsonRpcProvider(currentRpc)
     );
-    const signer = markRaw(await getEthersSigner({ chainId }));
+    const signer = unsupportedChain
+      ? provider
+      : markRaw(await getEthersSigner({ chainId }));
 
     store.commit("setChainId", chainId);
     store.commit("setProvider", provider);

@@ -7,6 +7,14 @@ import { markRaw } from "vue";
 import { getUserBalance, getNativeTokenBalance } from "@/helpers/userInfo";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
+const emptyState = {
+  contractInstance: null,
+  balance: "0",
+  nativeTokenBalance: "0",
+  isTokenApprove: false,
+  tokenContractInstance: null,
+};
+
 const getUserInfo = async (
   signer: providers.BaseProvider,
   account: string,
@@ -31,24 +39,10 @@ export const createBeamConfig = async (
   chainId: number,
   signer: providers.BaseProvider,
   account: string
-): Promise<BeamConfig | boolean> => {
+): Promise<BeamConfig> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
-  if (!mimConfig) return false;
 
   const beamConfig = beamConfigs.find((item) => item.chainId === chainId);
-  if (!beamConfig) return false;
-
-  const contractInstance = new Contract(
-    beamConfig.contract.address,
-    JSON.stringify(beamConfig.contract.abi),
-    signer
-  );
-
-  const tokenContractInstance = new Contract(
-    mimConfig.address,
-    JSON.stringify(mimConfig.abi),
-    signer
-  );
 
   const fromChains = beamConfigs.map((configItem) => {
     return {
@@ -70,13 +64,31 @@ export const createBeamConfig = async (
     };
   });
 
+  if (!beamConfig && !mimConfig)
+    return markRaw({
+      ...emptyState,
+      chainsInfo,
+      fromChains,
+      toChains,
+    });
+
+  const contractInstance = new Contract(
+    beamConfig!.contract.address,
+    JSON.stringify(beamConfig!.contract.abi),
+    signer
+  );
+
+  const tokenContractInstance = new Contract(
+    mimConfig!.address,
+    JSON.stringify(mimConfig!.abi),
+    signer
+  );
   const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
     signer,
     account,
     tokenContractInstance,
-    beamConfig.contract.address
+    beamConfig!.contract.address
   );
-
   return markRaw({
     contractInstance,
     balance,

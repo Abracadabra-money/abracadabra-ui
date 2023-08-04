@@ -13,11 +13,11 @@ type ChainsConfig = {
 };
 
 export type BeamConfig = {
-  contractInstance: Contract;
+  contractInstance: Contract | null;
   balance: string;
   nativeTokenBalance: string | BigNumber | undefined;
   isTokenApprove: boolean;
-  tokenContractInstance: Contract;
+  tokenContractInstance: Contract | null;
   chainsInfo: Array<ChainsConfig>;
   fromChains: Array<NetworksConfig>;
   toChains: Array<NetworksConfig>;

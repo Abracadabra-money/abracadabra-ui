@@ -87,6 +87,7 @@ const coingeckoChainId = {
   2222: "kava",
   42161: "ethereum",
   43114: "avalanche-2",
+  8453: "ethereum",
 };
 
 const getNativeTokenPrice = async (chainId) => {
