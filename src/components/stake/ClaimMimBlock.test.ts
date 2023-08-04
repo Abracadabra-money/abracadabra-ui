@@ -9,9 +9,7 @@ describe("ClaimMimBlock.vue", async () => {
       isDisableClaimButton: false,
     };
 
-    const wrapper = mount(ClaimMimBlock, {
-      props: props,
-    });
+    const wrapper = mount(ClaimMimBlock, { props });
 
     expect(wrapper.find(".claim-value").text()).toBe("0.307276485593160177");
     expect(wrapper.find(".default-button").classes().includes("disabled")).toBe(
@@ -25,9 +23,7 @@ describe("ClaimMimBlock.vue", async () => {
       isDisableClaimButton: true,
     };
 
-    const wrapper = mount(ClaimMimBlock, {
-      props: props,
-    });
+    const wrapper = mount(ClaimMimBlock, { props });
 
     expect(wrapper.find(".claim-value").text()).toBe("0");
     expect(wrapper.find(".default-button").classes().includes("disabled")).toBe(

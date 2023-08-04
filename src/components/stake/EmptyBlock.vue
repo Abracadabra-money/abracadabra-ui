@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { useImage } from "@/helpers/useImage";
 export default {
   props: {
     warningType: {
@@ -24,32 +25,31 @@ export default {
   data() {
     return {
       emptyDataSSpell: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use Ethereum Mainnet to stake Spell",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/intro/stake/sspell",
       },
       emptyDataMSpell: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "mSPELL staking is available on Avalanche, Arbitrum, Ethereum and Fantom Opera!",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/intro/stake/mspell",
       },
       emptyDataMGlp: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use Arbitrum Mainnet to obtain magicGLP",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
       },
       emptyDataMApe: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use  Mainnet to obtain magicAPE",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
       },
-
       emptyDataMLvl: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use  Binance Smart Chain to obtain magicLVL",
         bottom: "If you want to learn more read our docs",
         link: false,
