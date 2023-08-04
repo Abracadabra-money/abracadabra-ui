@@ -113,19 +113,20 @@ const getTokensPrices = async () => {
     MIMPrice = 0,
     WETHPrice = 0;
 
-  tokensPrices.map((token: any) => {
-    switch (token.address) {
-      case tokenAddresses.SPELL:
-        SPELLPrice = token.price;
-        break;
-      case tokenAddresses.MIM:
-        MIMPrice = token.price;
-        break;
-      case tokenAddresses.WETH:
-        WETHPrice = token.price;
-        break;
-    }
-  });
+  if (tokensPrices)
+    tokensPrices.map((token: any) => {
+      switch (token.address) {
+        case tokenAddresses.SPELL:
+          SPELLPrice = token.price;
+          break;
+        case tokenAddresses.MIM:
+          MIMPrice = token.price;
+          break;
+        case tokenAddresses.WETH:
+          WETHPrice = token.price;
+          break;
+      }
+    });
 
   return {
     SPELLPrice,
