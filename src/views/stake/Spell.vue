@@ -376,15 +376,14 @@ export default {
         const { contract } = this.mainToken;
 
         const methodName = contract.burn ? "burn" : "withdraw";
+        const options =
+          methodName === "burn" ? [this.account, amount] : [amount];
 
-        const estimateGas = await contract.estimateGas[methodName](
-          this.account,
-          amount
-        );
+        const estimateGas = await contract.estimateGas[methodName](...options);
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await contract[methodName](this.account, amount, {
+        const tx = await contract[methodName](...options, {
           gasLimit,
         });
 
