@@ -1,3 +1,4 @@
+<!-- test base chain -->
 <template>
   <div class="beam-view" v-if="beamConfig">
     <div class="beam">
@@ -206,7 +207,7 @@ export default {
 
     // TODO: fix naming & conditions
     isTokenApproved() {
-      if(this.chainId === 8453) return false;
+      if (this.chainId === 8453) return false;
 
       return !this.beamConfig.isTokenApprove && this.chainId === 1;
     },
