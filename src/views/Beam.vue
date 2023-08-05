@@ -1,4 +1,3 @@
-<!-- test base chain -->
 <template>
   <div class="beam-view" v-if="beamConfig">
     <div class="beam">
