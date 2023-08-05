@@ -57,15 +57,8 @@
           :primary="true"
           :disabled="disableBtn"
           @click="actionHandler"
+          >{{ actionBtnText }}</BaseButton
         >
-          <span class="btn-content">
-            <Tooltip
-              v-if="isBaseToKava"
-              tooltip="Beaming from Base to Kava is currently unavailable, but coming soon"
-            />
-            {{ actionBtnText }}
-          </span>
-        </BaseButton>
       </div>
 
       <template v-if="account">
@@ -138,7 +131,6 @@ import InputAddress from "@/components/ui/inputs/InputAddress.vue";
 import InputLabel from "@/components/ui/inputs/InputLabel.vue";
 import ExpectedBlock from "@/components/beam/ExpectedBlock.vue";
 import BeamHistory from "@/components/beam/history/BeamHistory.vue";
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
 
 import { mapGetters } from "vuex";
 import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
@@ -214,7 +206,7 @@ export default {
 
     // TODO: fix naming & conditions
     isTokenApproved() {
-      if (this.chainId === 8453) return false;
+      if(this.chainId === 8453) return false;
 
       return !this.beamConfig.isTokenApprove && this.chainId === 1;
     },
@@ -284,15 +276,7 @@ export default {
       return !this.dstAddress && this.isShowDstAddress;
     },
 
-    // todo fix
-    isBaseToKava() {
-      return (
-        +this.originChain.chainId === 8453 && +this.dstChain.chainId === 2222
-      );
-    },
-
     actionBtnText() {
-      if (this.isBaseToKava) return "Coming soon";
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
       if (this.isTokenApproved) return "Approve";
@@ -304,7 +288,6 @@ export default {
     },
 
     disableBtn() {
-      if (this.isBaseToKava) return true;
       if (!this.account || !this.isSelectedChain) return true;
       if (this.isEnterDstAddress) return true;
       if (this.dstAddressError) return true;
@@ -743,7 +726,6 @@ export default {
     InputLabel,
     ExpectedBlock,
     BeamHistory,
-    Tooltip,
   },
 };
 </script>
@@ -816,12 +798,6 @@ export default {
 .wrap-btn {
   padding-bottom: 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.btn-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .caption {
