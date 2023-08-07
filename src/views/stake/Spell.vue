@@ -51,7 +51,7 @@
             :icon="fromToken.icon"
             :name="fromToken.name"
             :max="fromToken.balance"
-            :disabled="isUserLocked"
+            :disabled="isInputDisabled"
             :error="errorMainValue"
             @updateValue="updateMainValue"
           />
@@ -175,6 +175,7 @@ export default {
       if (!this.isStakeAction) return true;
       if (this.errorMainValue) return true;
       if (!this.account) return true;
+      if (this.isUnsupportedChain) return true;
       const { isTokenApproved, approvedAmount } = this.toToken;
       return isTokenApproved && +approvedAmount > +this.mainInputValue;
     },
@@ -191,6 +192,10 @@ export default {
     isDisableClaimButton() {
       if (+this.mainToken?.lockTimestamp) return true;
       return +this.mainToken?.claimableAmount <= 0;
+    },
+
+    isInputDisabled() {
+      return this.isUserLocked || this.isUnsupportedChain;
     },
 
     stakeToken() {
@@ -305,6 +310,7 @@ export default {
     changeToken(token) {
       this.selectedToken = token;
       this.action = "Stake";
+      this.mainInputValue = "";
     },
 
     async updateMainValue(value) {
@@ -317,6 +323,7 @@ export default {
     },
 
     async approveTokenHandler() {
+      if (this.isUnsupportedChain) return true;
       if (this.isTokenApproved) return false;
       if (this.toToken.isTokenApproved) return false;
 
