@@ -18,6 +18,6 @@ describe("ExpectedBlock.vue", () => {
     const values = wrapper.findAll(".value");
     expect(values[0].text()).toBe("10 MIM");
     expect(values[1].text()).toBe("18.47 AVAX");
-    expect(values[2].text()).toBe("0.17179882 ETH");
+    expect(values[2].text()).toBe("$ 1.00");
   });
 });

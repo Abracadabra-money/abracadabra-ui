@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
 import config from "@/utils/cauldronsConfig/ethereumCauldrons";
 import configArb from "@/utils/cauldronsConfig/arbitrumCauldrons";
+import { useImage } from "@/helpers/useImage";
 
 import { ethers } from "ethers";
 
@@ -138,14 +139,14 @@ describe("CauldronPositionItem.vue", () => {
     expect(wrapper.vm.userCollateralAmountUsd).toBe(10.000000000000002);
     expect(wrapper.vm.userBorrowAmount).toBe("0.000000001");
     expect(wrapper.vm.positionActions[2]).toContain({
-      icon: "file:///D:/src/assets/images/myposition/Deleverage.png",
+      icon: useImage("assets/images/myposition/Deleverage.png"),
       id: 11,
       name: "DeleverageId",
     });
     expect(wrapper.vm.assetsInfo[0]).toEqual({
       amount: "0...1",
       amountUsd: "$ 10",
-      icon: "file:///D:/src/assets/images/tokens/sSPELL.png",
+      icon: useImage("assets/images/tokens/sSPELL.png"),
       symbol: "sSPELL",
       title: "Collateral Deposited",
     });

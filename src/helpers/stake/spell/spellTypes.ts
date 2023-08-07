@@ -16,6 +16,7 @@ export type MSpellConfig = {
   isTokenApproved: boolean;
   approvedAmount: string;
   unsupportedChain?: boolean;
+  price: number;
 };
 
 export type SSpellConfig = {
@@ -28,6 +29,7 @@ export type SSpellConfig = {
   isTokenApproved: boolean;
   approvedAmount: string;
   unsupportedChain?: boolean;
+  price: number;
 };
 
 export type SpellConfig = {
@@ -35,4 +37,5 @@ export type SpellConfig = {
   name: string;
   sSpellRate: number;
   balance: string;
+  price: number;
 };

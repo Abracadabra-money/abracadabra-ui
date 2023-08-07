@@ -135,7 +135,7 @@
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { approveToken } from "@/helpers/approval";
-import { getSpellInfo } from "@/helpers/stake/getSpellInfo";
+import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
