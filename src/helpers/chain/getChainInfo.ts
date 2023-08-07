@@ -47,6 +47,11 @@ const tokens: any = {
     icon: useImage("assets/images/tokens/AVAX.png"),
     scanUrl: "https://snowtrace.io/tx/",
   },
+  8453: {
+    symbol: "ETH",
+    icon: useImage("assets/images/tokens/ETH.png"),
+    scanUrl: "https://basescan.org/tx/",
+  },
 };
 
 export const getChainInfo = (chainId: number): Object => tokens[chainId];

@@ -21,6 +21,8 @@ export default {
 
 <style lang="scss" scoped>
 .settings-btn {
+  background: transparent;
+  border: none;
   cursor: pointer;
   width: 32px;
   height: 32px;
