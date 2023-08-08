@@ -27,8 +27,7 @@ const fetchBasicApy = async (provider, collateralAddress) => {
 };
 
 export const getStargateApy = async (pool, provider) => {
-
-  const collateralAddress = pool.collateralToken.contract.address
+  const collateralAddress = pool.config.collateralInfo.address;
 
   const DegenBoxContract = new ethers.Contract(
     DegenBoxAddress,

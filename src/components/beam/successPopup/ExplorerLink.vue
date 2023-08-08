@@ -13,8 +13,7 @@ import BaseLoader from "@/components/base/BaseLoader.vue";
 export default {
   props: {
     link: {
-      type: String,
-      required: true,
+      type: [String, Boolean],
     },
     title: {
       type: String,

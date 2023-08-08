@@ -14,7 +14,7 @@
         <div class="collateral-labels">
           <span>{{ cauldronConfig.name }}</span>
           <span class="new-label" v-if="isNewLabel">New</span>
-          <span class="deprecated-label" v-if="!isDeprecatedCauldron"
+          <span class="deprecated-label" v-if="isDeprecatedCauldron"
             >Deprecated</span
           >
         </div>
@@ -25,7 +25,7 @@
         <span>{{ stats.value }}</span>
       </div>
 
-      <div class="cauldron-links" v-if="isDeprecatedCauldron">
+      <div class="cauldron-links" v-if="!isDeprecatedCauldron">
         <router-link class="cauldron-link" :to="goToPage('BorrowId')"
           >Borrow</router-link
         >
@@ -42,6 +42,7 @@
 
 <script>
 import filters from "@/filters/index.js";
+import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
@@ -56,9 +57,7 @@ export default {
     ...mapGetters({ chainId: "getChainId", getChainIcon: "getChainIcon" }),
 
     goToCauldron() {
-      const name = this.cauldronSettings?.isDepreciated
-        ? "RepayId"
-        : "BorrowId";
+      const name = this.isDeprecatedCauldron ? "RepayId" : "BorrowId";
 
       return {
         name,
@@ -70,23 +69,28 @@ export default {
       return [
         {
           title: "TOTAL MIM BORROWED",
-
-          value: filters.formatLargeSum(this.cauldron.totalBorrowed),
+          value: filters.formatLargeSum(
+            utils.formatUnits(this.cauldron.totalBorrowed)
+          ),
         },
         {
           title: "TVL",
-          value: `$ ${filters.formatLargeSum(this.cauldron.tvl)}`,
+          value: `$ ${filters.formatLargeSum(
+            utils.formatUnits(this.cauldron.tvl)
+          )}`,
         },
         {
           title: "MIMS LEFT TO BORROW",
-          value: filters.formatLargeSum(this.cauldron.mimLeftToBorrow),
+          value: filters.formatLargeSum(
+            utils.formatUnits(this.cauldron.mimLeftToBorrow)
+          ),
         },
         { title: "INTEREST", value: `${this.cauldron.interest}%` },
       ];
     },
 
     isDeprecatedCauldron() {
-      if (this.cauldronSettings) return !this.cauldronSettings.isDepreciated;
+      if (this.cauldronSettings) return this.cauldronSettings.isDepreciated;
       return false;
     },
 
@@ -139,10 +143,10 @@ export default {
   transition: all 0.2s;
   height: 70px;
   border-radius: 30px;
+}
 
-  &:hover {
-    background: #343141;
-  }
+.cauldron-item:hover {
+  background: #343141;
 }
 
 .cauldron-info {

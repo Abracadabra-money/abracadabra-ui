@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
 import config from "@/utils/cauldronsConfig/ethereumCauldrons";
@@ -17,11 +17,15 @@ const marketItemTest = {
 };
 
 describe("MarketsListPopupFarmItem.vue", () => {
+  const tooltip = vi.fn();
   it("Should render with correct computed properties", () => {
     console.log(marketItemTest);
 
     const wrapper = mount(MarketsListPopupFarmItem, {
       props: { marketItem: marketItemTest },
+      global: {
+        directives: { tooltip },
+      },
     });
 
     expect(wrapper.exists()).toBe(true);
