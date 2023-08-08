@@ -27,10 +27,58 @@ export default [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "newRoot",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "ipfsMerkleProofs",
+        type: "string",
+      },
+    ],
+    name: "LogSetMerkleRoot",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
     inputs: [{ internalType: "address", name: "", type: "address" }],
     name: "amountAllowed",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "bytes32", name: "newRoot", type: "bytes32" },
+      { internalType: "string", name: "ipfsMerkleProofs_", type: "string" },
+    ],
+    name: "changeMerkleRoot",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -58,6 +106,20 @@ export default [
     type: "function",
   },
   {
+    inputs: [],
+    name: "owner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       { internalType: "address", name: "user", type: "address" },
       { internalType: "uint256", name: "maxBorrow", type: "uint256" },
@@ -65,6 +127,13 @@ export default [
     ],
     name: "setMaxBorrow",
     outputs: [{ internalType: "bool", name: "success", type: "bool" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "newOwner", type: "address" }],
+    name: "transferOwnership",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },

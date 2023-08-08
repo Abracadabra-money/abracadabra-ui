@@ -11,7 +11,7 @@ export async function walletClientToSigner(walletClient: WalletClient) {
   };
   const provider = new providers.Web3Provider(transport, network);
   const signer = provider.getSigner(account.address);
-  return signer;
+  return { signer, provider };
 }
 
 /** Action to convert a viem Wallet Client to an ethers.js Signer. */

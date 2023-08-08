@@ -1,9 +1,9 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
-import devNodePolyfills from 'vite-plugin-node-polyfills'
+import devNodePolyfills from "vite-plugin-node-polyfills";
 import nodePolyfills from "rollup-plugin-polyfill-node";
 
 // https://vitejs.dev/config/
@@ -16,24 +16,24 @@ export default defineConfig({
     vue(),
   ],
   esbuild: {
-     drop: ['console', 'debugger'], // warn: to comment in dev mode to show logs in .ts files 
+    drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
   },
   build: {
     rollupOptions: {
       plugins: [
         // ↓ Needed for build
-        nodePolyfills()
-      ]
+        nodePolyfills(),
+      ],
     },
     // ↓ Needed for build if using WalletConnect and other providers
     commonjsOptions: {
-      transformMixedEsModules: true
-    }
+      transformMixedEsModules: true,
+    },
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-  }
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
   },
   css: {
     preprocessorOptions: {
@@ -41,8 +41,8 @@ export default defineConfig({
         additionalData: `
           @use "sass:math";
           @import "./src/assets/styles/_variables.scss";
-        `
-      }
-    }
-  }
-})
+        `,
+      },
+    },
+  },
+});

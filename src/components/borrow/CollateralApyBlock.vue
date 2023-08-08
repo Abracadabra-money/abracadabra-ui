@@ -1,37 +1,26 @@
 <template>
-  <div :class="{ 'no-apy': !isCalcExist }">
-    <div class="apy" v-if="isCalcExist">
-      <img
-        v-if="isApe"
-        class="apy-bg"
-        src="@/assets/images/ape/apy-bg.png"
-        alt=""
-      />
-      <img
-        v-else
-        class="apy-bg"
-        src="@/assets/images/primary-apy-bg.png"
-        alt=""
-      />
+  <div :class="{ 'apy-is-not-exist': !isApyExist }">
+    <div class="apy-wrap" v-if="isApyExist">
+      <img class="apy-bg" :src="apyInfo.bg" />
+
       <div class="apy-content">
         <img
-          v-if="isApe"
-          class="coins-img coins-ape"
-          src="@/assets/images/ape/coins-ape.png"
-          alt="Coins ape"
-        />
-        <img
-          v-else
           class="coins-img"
-          src="@/assets/images/coins.png"
+          :class="{ 'coins-ape': isApe }"
+          :src="apyInfo.coins"
           alt="Coins"
         />
+
         <div>
-          <p class="title" v-tooltip="tooltipText">{{ title }}</p>
-          <div class="loader-wrap" v-if="loading">
-            <p class="loader"></p>
+          <p class="title">Collateral APY</p>
+
+          <div class="loader-wrap" v-if="isLoadingApy">
+            <Loader type="loader" />
           </div>
-          <p class="percent" v-else>{{ isTilde }} {{ calculateApy }} %</p>
+
+          <p class="percent" v-else>
+            {{ isTilde }} {{ calculateCollateralApy }} %
+          </p>
         </div>
       </div>
     </div>
@@ -39,80 +28,98 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import filters from "@/filters/index.js";
+import { useImage } from "@/helpers/useImage";
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import Loader from "@/components/base/BaseLoader.vue";
 
 export default {
   props: {
     expectedLeverage: {
-      type: [String, Number],
-      default: "",
+      type: Number,
+      default: null,
     },
-    pool: {
+    cauldron: {
       type: Object,
       required: true,
-    },
-    isApe: {
-      type: Boolean,
-      default: false,
     },
   },
 
   data() {
     return {
-      title: "Collateral APY",
-      apy: "",
-      tooltipText: "",
-      isCalcExist: false,
-      loading: false,
+      isApyExist: false,
+      isLoadingApy: true,
+      collateralApy: null,
     };
   },
 
   computed: {
-    chainId() {
-      return this.$store.getters.getChainId;
+    ...mapGetters({
+      chainId: "getChainId",
+    }),
+
+    isApe() {
+      return this.cauldron.config.id === 39 && +this.chainId === 1;
     },
-    calculateApy() {
-      if (+this.expectedLeverage)
-        return parseFloat(+this.apy * +this.expectedLeverage).toFixed(2);
-      return parseFloat(this.apy).toFixed(2);
+
+    apyInfo() {
+      if (this.isApe)
+        return {
+          bg: useImage("assets/images/ape/apy-bg.png"),
+          coins: useImage("assets/images/ape/coins-ape.png"),
+        };
+
+      return {
+        bg: useImage("assets/images/primary-apy-bg.png"),
+        coins: useImage("assets/images/coins.png"),
+      };
+    },
+
+    calculateCollateralApy() {
+      return this.expectedLeverage
+        ? filters.formatToFixed(+this.collateralApy * +this.expectedLeverage, 2)
+        : filters.formatToFixed(this.collateralApy, 2);
     },
 
     isTilde() {
-      return this.apy < this.calculateApy ? "~" : "";
+      return this.collateralApy < this.calculateCollateralApy ? "~" : "";
     },
   },
 
   watch: {
-    async pool(val, oldVal) {
-      if (val.id === oldVal.id) return false;
-      await this.init();
+    async cauldron(newCauldron, oldCauldron) {
+      if (newCauldron.config.id === oldCauldron.config.id) return false;
+      await this.initApy();
     },
   },
 
   methods: {
-    async getApy() {
-      this.loading = true;
-      this.apy = await fetchTokenApy(this.pool);
-      this.loading = false;
-    },
-    async init() {
-      this.isCalcExist = isApyCalcExist(this.chainId, this.pool.id);
-      if (!this.isCalcExist) return false;
-      await this.getApy();
+    async initApy() {
+      this.isApyExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
+      if (!this.isApyExist) return false;
+      this.isLoadingApy = true;
+      this.collateralApy = await fetchTokenApy(this.cauldron);
+      this.isLoadingApy = false;
     },
   },
+
   async created() {
-    await this.init();
+    await this.initApy();
+  },
+
+  components: {
+    Loader,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.no-apy {
+.apy-is-not-exist {
   margin-bottom: 32px;
 }
 
-.apy {
+.apy-wrap {
   max-width: 680px;
   width: 100%;
   height: 120px;
@@ -171,42 +178,7 @@ export default {
   justify-content: center;
 }
 
-.loader {
-  margin-right: 15px;
-  margin-top: 10px;
-  position: relative;
-  display: block;
-  width: 8px;
-  animation: rectangle infinite 1s ease-in-out -0.2s;
-  border-radius: 4px;
-  background-color: #fff;
-}
-
-.loader:before,
-.loader:after {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  content: "";
-  background-color: #fff;
-}
-
-.loader:before {
-  left: -10px;
-  animation: rectangle infinite 1s ease-in-out -0.4s;
-}
-
-.loader:after {
-  right: -10px;
-  animation: rectangle infinite 1s ease-in-out;
-}
-
 @media screen and (max-width: 1220px) {
-  .primary-apy-block {
-    max-width: 100%;
-  }
-
   .percent {
     font-size: 24px;
     line-height: 24px;
@@ -214,7 +186,7 @@ export default {
 }
 
 @media screen and (max-width: 1024px) {
-  .not-apy {
+  .apy-is-not-exist {
     margin-bottom: 30px;
   }
 }
@@ -226,17 +198,6 @@ export default {
   .percent {
     font-size: 16px;
     line-height: 18px;
-  }
-}
-
-@keyframes rectangle {
-  0%,
-  80%,
-  100% {
-    height: 6px;
-  }
-  40% {
-    height: 8px;
   }
 }
 </style>

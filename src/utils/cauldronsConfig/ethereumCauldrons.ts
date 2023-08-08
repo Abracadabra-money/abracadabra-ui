@@ -1513,6 +1513,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     wrapInfo: {
       isHiddenWrap: false,
+      useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "APE",
         icon: useImage(`assets/images/tokens/APE.png`),

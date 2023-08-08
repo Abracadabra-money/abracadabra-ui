@@ -51,6 +51,7 @@ export type CauldronConfig = {
   mimInfo: MimInfo;
   wrapInfo?: {
     isHiddenWrap: boolean;
+    useUnwrappedByDefault: boolean;
     unwrappedToken: {
       name: string;
       icon: string;
