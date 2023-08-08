@@ -56,7 +56,7 @@ export default {
     estimationResult() {
       if (this.isFetching) return "...Fetching";
 
-      if (!this.price || !+this.amount) return "~";
+      if (!this.price || !+this.amount) return "≈";
 
       return `$${this.estimateAmount} / ${this.estimatePercent}%`;
     },

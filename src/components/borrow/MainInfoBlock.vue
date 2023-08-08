@@ -50,21 +50,18 @@ export default {
     },
 
     isCollateralInterest() {
-      return (
-        this.chainId === 1 &&
-        (this.cauldron?.config.id === 28 || this.cauldron?.config.id === 27)
-      );
+      return !!this.cauldron?.config?.cauldronSettings?.isAlternativeInterest;
     },
 
     collateralToMim() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
-      const { name, collateralInfo } = this.cauldron.config;
+      const { collateralInfo } = this.cauldron.config;
       const rate = utils.formatUnits(
         oracleExchangeRate,
         collateralInfo.decimals
       );
       const collateralToMim = 1 / rate;
-      const decimals = name === "SHIB" ? 6 : 4;
+      const decimals = collateralToMim < 0.0001 ? 6 : 4;
       return filters.formatToFixed(collateralToMim, decimals);
     },
 

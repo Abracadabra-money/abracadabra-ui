@@ -68,7 +68,7 @@
       <div class="cauldron-stand" :style="backgroundInfo.stand">
         <h1 class="title">
           Borrow
-          <MagicApeIcon v-if="cauldron" :cauldronId="cauldron.config.id" />
+          <MagicApeIcon v-if="cauldron" :cauldron="cauldron" />
           MIM
         </h1>
 

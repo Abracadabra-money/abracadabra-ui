@@ -19,7 +19,7 @@
           </div>
 
           <p class="percent" v-else>
-            {{ isTilde }} {{ calculateCollateralApy }} %
+            {{ isApproximate }} {{ calculateCollateralApy }} %
           </p>
         </div>
       </div>
@@ -82,8 +82,8 @@ export default {
         : filters.formatToFixed(this.collateralApy, 2);
     },
 
-    isTilde() {
-      return this.collateralApy < this.calculateCollateralApy ? "~" : "";
+    isApproximate() {
+      return this.collateralApy < this.calculateCollateralApy ? "≈" : "";
     },
   },
 
