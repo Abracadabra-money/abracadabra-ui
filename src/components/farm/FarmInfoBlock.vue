@@ -75,10 +75,9 @@ export default {
 }
 
 .farm-link {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
+  display: flex;
   grid-column-gap: 7px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 3px 10px;
   background: rgba(157, 244, 255, 0.2);
@@ -87,6 +86,12 @@ export default {
   border-radius: 30px;
   font-size: 14px;
   color: #63caf8;
+}
+
+@media (max-width: 768px) {
+  .info-item {
+    margin: 0 -15px 35px -15px;
+  }
 }
 
 @media (max-width: 600px) {

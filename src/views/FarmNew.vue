@@ -24,7 +24,6 @@
           class="underline"
           :selectedFarm="selectedFarm"
           @openFarmsPopup="openFarmsPopup"
-          v-if="selectedFarm"
         />
 
         <h4 class="sub-title">
@@ -46,21 +45,11 @@
 
         <div class="btn-wrap">
           <BaseButton
-            v-if="!isAllowance && !isUnstake"
-            @click="approveHandler"
-            :disabled="!isValid || !!error || +selectedFarm.farmRoi === 0"
+            @click="actionHandler"
+            :disabled="isButtonDisabled"
             primary
-            >Approve</BaseButton
-          >
-          <BaseButton
-            v-if="isUnstake || isAllowance"
-            @click="handler"
-            :disabled="
-              !isValid || !!error || (!isUnstake && +selectedFarm.farmRoi === 0)
-            "
-            primary
-            >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
-          >
+            >{{ buttonText }}
+          </BaseButton>
         </div>
 
         <FarmInfoBlock :selectedFarm="selectedFarm" v-if="selectedFarm" />
@@ -80,7 +69,6 @@
 
 <script>
 import { mapGetters } from "vuex";
-
 import NetworksList from "@/components/ui/NetworksList.vue";
 import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
 import SelectFarm from "@/components/farm/SelectFarm.vue";
@@ -121,7 +109,6 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
       networks: "getAvailableNetworks",
-      //?
       signer: "getSigner",
     }),
 
@@ -133,34 +120,49 @@ export default {
       return this.$route.params.id;
     },
 
-    isAllowance() {
-      return !!this.selectedFarm?.accountInfo?.allowance;
+    isAllowed() {
+      if (!this.account) return false;
+      return +this.selectedFarm?.accountInfo?.allowance >= this.amount;
     },
+
     max() {
       return !this.isUnstake
-        ? this.selectedFarm?.accountInfo?.balance
+        ? this.selectedFarm?.accountInfo?.parsedAccountBalance
         : this.selectedFarm?.accountInfo?.depositedBalance;
     },
+
     isValid() {
       return !!+this.amount;
     },
+
     error() {
       return Number(this.amount) > Number(this.max)
         ? `The value cannot be greater than ${this.max}`
         : null;
     },
+
+    buttonText() {
+      const text = this.isUnstake ? "Unstake" : "Stake";
+      return !this.isAllowed && !this.isUnstake ? "Approve" : text;
+    },
+
+    isButtonDisabled() {
+      return !this.isValid || !!this.error || +this.selectedFarm.farmRoi === 0;
+    },
   },
 
   watch: {
-    // async account() {
-    //   if (this.account) {
-    //     this.selectedFarm = await createFarmItemConfig(
-    //       this.selectedFarmId,
-    //       this.chainId,
-    //       this.signer
-    //     );
-    //   }
-    // },
+    account: {
+      immediate: true,
+      async handler() {
+        if (this.account) await this.getSelectedFarm();
+      },
+    },
+
+    async selectedFarmId(id) {
+      await this.getSelectedFarm();
+    },
+
     max() {
       this.amount = "";
     },
@@ -175,14 +177,16 @@ export default {
   methods: {
     changeActiveMarket(marketId) {
       if (+marketId !== +this.id)
-        this.$router.push({ name: "FarmPool", params: { id: marketId } });
+        this.$router.push({ name: "FarmNew", params: { id: marketId } });
 
       this.isFarmsPopupOpened = false;
     },
 
-    handler() {
-      if (!this.isUnstake) this.stakeHandler();
-      else this.unstakeHandler();
+    async actionHandler() {
+      if (this.isButtonDisabled) return false;
+      if (!this.isAllowed) this.approveHandler();
+      else if (this.isUnstake) this.unstakeHandler();
+      else this.stakeHandler();
     },
 
     async stakeHandler() {
@@ -200,9 +204,10 @@ export default {
           parseAmount
         );
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
-        console.log("stake success:", receipt);
+        await this.getSelectedFarm();
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
       } catch (error) {
@@ -233,9 +238,9 @@ export default {
           parseAmount
         );
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
-        console.log("unstakeHandler success:", receipt);
+        await this.getSelectedFarm();
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
@@ -275,9 +280,10 @@ export default {
           }
         );
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
-        console.log(receipt);
+        await this.getSelectedFarm();
+
         await this.$store.commit("notifications/delete", notificationId);
       } catch (error) {
         console.log("approve err:", error);
@@ -292,24 +298,25 @@ export default {
       }
     },
 
+    async getSelectedFarm() {
+      this.selectedFarm = await createFarmItemConfig(
+        this.selectedFarmId,
+        this.chainId,
+        this.signer,
+        this.account
+      );
+    },
+
     openFarmsPopup() {
       this.isFarmsPopupOpened = true;
     },
   },
 
   async created() {
-    this.selectedFarm = await createFarmItemConfig(
-      this.selectedFarmId,
-      this.chainId,
-      this.signer
-    );
+    await this.getSelectedFarm();
 
     this.farmPoolsTimer = setInterval(async () => {
-      this.selectedFarm = await createFarmItemConfig(
-        this.selectedFarmId,
-        this.chainId,
-        this.signer
-      );
+      await this.getSelectedFarm();
     }, 60000);
   },
 
@@ -397,19 +404,19 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .farm {
+  .farm-wrap {
     padding: 30px;
   }
-  .farm-wrap {
+  .farm {
     padding: 0 15px;
   }
 }
 
 @media (max-width: 600px) {
-  .farm {
+  .farm-wrap {
     padding: 30px 15px;
   }
-  .farm-wrap {
+  .farm {
     padding: 0;
   }
 }

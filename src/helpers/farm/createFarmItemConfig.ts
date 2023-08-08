@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import { ethers } from "ethers";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
@@ -18,8 +19,8 @@ export const createFarmItemConfig = async (
   farmId: string | number,
   chainId: number,
   signer: any,
-  isExtended = true,
-  account = ""
+  account: any,
+  isExtended = true
 ) => {
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId
@@ -32,6 +33,8 @@ export const createFarmItemConfig = async (
   if (!farmInfo) return false;
 
   const { SPELLPrice, MIMPrice, WETHPrice } = await getTokensPrices();
+
+  if (!signer) signer = getDefaultSigner(chainId);
 
   const contractInstance = new ethers.Contract(
     farmInfo.contract.address,
@@ -70,6 +73,9 @@ export const createFarmItemConfig = async (
     id: farmInfo.id,
     farmId: farmInfo.farmId,
     stakingTokenName: farmInfo.stakingTokenName,
+    stakingTokenContract,
+    contractInstance,
+    contractAddress: farmInfo.contract.address,
     farmRoi,
     isDepreciated,
   };
@@ -86,7 +92,7 @@ export const createFarmItemConfig = async (
       ...farmItemConfig,
       farmId: farmInfo.farmId,
       contractInstance,
-      stakingTokenName: farmInfo.stakingTokenName,
+      stakingTokenContract,
       lpPrice,
       depositedBalance: farmInfo.depositedBalance,
       contractAddress: farmInfo.contract.address,
@@ -94,10 +100,10 @@ export const createFarmItemConfig = async (
     };
 
     farmItemConfig.accountInfo = await getFarmUserInfo(farmUserInfoConfig);
-    console.log("getUserInfo", farmItemConfig.accountInfo);
-    return farmItemConfig;
+
+    return markRaw(farmItemConfig);
   }
-  return farmItemConfig;
+  return markRaw(farmItemConfig);
 };
 
 const getTokensPrices = async () => {
@@ -133,4 +139,15 @@ const getTokensPrices = async () => {
     MIMPrice,
     WETHPrice,
   };
+};
+
+const getDefaultSigner = (chainId: number) => {
+  let networksRpc: any = {
+    1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+    250: "https://rpc.ftm.tools/",
+    42161: "https://arb1.arbitrum.io/rpc",
+    43114: "https://api.avax.network/ext/bc/C/rpc",
+  };
+
+  return new ethers.providers.StaticJsonRpcProvider(networksRpc[chainId]);
 };

@@ -82,7 +82,7 @@ export default {
         this.signer
       );
 
-      const poolInfo = await contractInstance.poolInfo(farmPoolInfo.poolId);
+      const poolInfo = await contractInstance.poolInfo(farmPoolInfo.farmId);
 
       const stakingTokenContract = new this.$ethers.Contract(
         poolInfo.stakingToken,
@@ -119,7 +119,7 @@ export default {
         // stakingTokenIcon: farmPoolInfo.stakingTokenIcon,
         //check actuality
         id: farmPoolInfo.id,
-        poolId: farmPoolInfo.poolId,
+        poolId: farmPoolInfo.farmId,
         contractInstance,
         stakingTokenName: farmPoolInfo.stakingTokenName,
         //check actuality

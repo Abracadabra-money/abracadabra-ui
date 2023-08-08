@@ -129,6 +129,7 @@ export default {
   computed: {
     ...mapGetters({
       signer: "getSigner",
+      chainId: "getChainId",
     }),
 
     showButtonUp() {
@@ -262,11 +263,12 @@ export default {
 
   async created() {
     this.isFarmsLoading = true;
-    this.farms = await getFarmsList(this.signer);
+    this.farms = await getFarmsList(this.chainId, this.signer);
     this.isFarmsLoading = false;
+
     this.farmsInterval = setInterval(async () => {
-      this.farms = await getFarmsList(this.signer);
-    }, 5000);
+      this.farms = await getFarmsList(this.chainId, this.signer);
+    }, 60000);
     window.addEventListener("scroll", this.onScroll);
   },
 
