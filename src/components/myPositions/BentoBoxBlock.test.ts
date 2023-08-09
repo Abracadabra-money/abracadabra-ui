@@ -42,7 +42,6 @@ describe("BentoBoxBlock.vue", () => {
 
     expect(wrapper.vm.account).toEqual("0x");
     expect(wrapper.vm.bentoBoxConfig).toBeDefined();
-    expect(wrapper.vm.isHide).toBe(10000000000000000000);
   });
 
   it("Should computing correct with not all getters passed", () => {

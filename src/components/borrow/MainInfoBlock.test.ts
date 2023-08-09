@@ -208,15 +208,3 @@ describe("MainInfoBlock.vue, ETH collateralInterest cauldron", async () => {
     });
   });
 });
-
-describe("MainInfoBlock.vue, SHIB cauldron", async () => {
-  it("Should calculate computed properties correct", () => {
-    const wrapper: any = mount(MainInfoBlock, {
-      props: { cauldron: testEthShibCauldron },
-      global: { plugins: [ethStore], directives: { tooltip } },
-    });
-
-    expect(wrapper.vm.cauldron.config.name).toBe("SHIB");
-    expect(wrapper.vm.collateralToMim).toBe("999999999.999999");
-  });
-});

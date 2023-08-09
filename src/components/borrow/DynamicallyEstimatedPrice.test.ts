@@ -103,7 +103,7 @@ describe("DynamicallyEstimatedPrice.vue", async () => {
       },
     });
 
-    expect(wrapper.vm.estimationResult).toBe("~");
+    expect(wrapper.vm.estimationResult).toBe("≈");
     expect(wrapper.vm.estimateAmount).toBe(false);
     expect(wrapper.vm.parsedAmount).toBe(false);
     expect(wrapper.vm.estimatePercent).toBe(false);
@@ -203,7 +203,7 @@ describe("DynamicallyEstimatedPrice.vue", async () => {
       },
     });
 
-    expect(wrapper.vm.estimationResult).toBe("~");
+    expect(wrapper.vm.estimationResult).toBe("≈");
     expect(wrapper.vm.estimateAmount).toBe(false);
     expect(wrapper.vm.parsedAmount).toStrictEqual(
       ethers.utils.parseUnits(filters.formatToFixed(10, 18))

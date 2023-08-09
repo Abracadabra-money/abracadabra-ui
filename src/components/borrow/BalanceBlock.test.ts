@@ -173,7 +173,7 @@ describe("BalanceBlock.vue", async () => {
 
     const tokenDescriptions = wrapper.findAll(".token-description");
     expect(tokenDescriptions[0].text()).toBe("MIM");
-    expect(tokenDescriptions[1].text()).toBe("abra-wsGlp");
+    expect(tokenDescriptions[1].text()).toBe("GLP");
 
     const tokenBalances = wrapper.findAll(".token-balance");
     expect(tokenBalances[0].text()).toBe("0...1");

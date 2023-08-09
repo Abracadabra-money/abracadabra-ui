@@ -16,6 +16,9 @@ type CauldronSettings = {
   oracleAddress?: string;
   isPrivate?: boolean;
   privatelyFor?: string[];
+  isAlternativeInterest?: boolean;
+  isMagicApe?: boolean;
+  isSSpell?: boolean;
 };
 
 type MimInfo = {

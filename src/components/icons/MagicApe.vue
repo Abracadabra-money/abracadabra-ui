@@ -2,7 +2,7 @@
   <img
     class="ape-icon"
     src="@/assets/images/ape/ape.png"
-    v-if="cauldronId === 39"
+    v-if="isVisibility"
     alt="Ape icon"
   />
 </template>
@@ -10,9 +10,15 @@
 <script>
 export default {
   props: {
-    cauldronId: {
-      type: Number,
+    cauldron: {
+      type: Object,
       required: true,
+    },
+  },
+
+  computed: {
+    isVisibility() {
+      return !!this.cauldron?.config?.cauldronSettings?.isMagicApe;
     },
   },
 };
