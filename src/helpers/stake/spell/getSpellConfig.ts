@@ -5,11 +5,11 @@ import type { SpellConfig } from "@/helpers/stake/spell/spellTypes";
 
 const zero = BigNumber.from("0");
 const mainnetSpellAddress = "0x090185f2135308BaD17527004364eBcC2D37e5F6";
+const { decimals, name, icon }: any = spellConfig.spell;
 
-const spellEmptyState = {
-  name: spellConfig.spell.name,
-  icon: spellConfig.spell.icon,
-  decimals: spellConfig.spell.decimals,
+const spellEmptyState: SpellConfig = {
+  name,
+  icon,
   sSpellRate: 1,
   balance: "0",
   price: 1,
@@ -20,7 +20,6 @@ export const getSpellConfig = async (
   account: string | undefined
 ): Promise<SpellConfig> => {
   const { spell, sSpell } = contracts;
-  const { decimals, name, icon }: any = spellConfig.spell;
 
   if (!spell) return spellEmptyState;
 

@@ -4,16 +4,16 @@ import { spellConfig } from "@/utils/stake/spellConfig";
 import type { SSpellConfig } from "@/helpers/stake/spell/spellTypes";
 
 const zero = BigNumber.from("0");
+const { decimals, name, icon }: any = spellConfig.sSpell;
 
-const sSpellEmptyState = {
-  name: spellConfig.sSpell.name,
-  icon: spellConfig.sSpell.icon,
+const sSpellEmptyState: SSpellConfig = {
+  name,
+  icon,
   rate: 1,
-  lockTimestamp: "0",
+  lockTimestamp: 0,
   contract: null,
   balance: "0",
-  isTokenApproved: false,
-  approvedAmount: "0",
+  approvedAmount: 0,
   unsupportedChain: true,
   price: 1,
 };
@@ -28,16 +28,15 @@ export const getSspellConfig = async (
   const { sSpellRate, price } = spellInfo;
   const { sSpell, spell } = contracts;
   const { address } = sSpell;
-  const { decimals, name, icon }: any = spellConfig.sSpell;
 
-  const isTokenApproved = account ? spell.allowance(account, address) : zero;
+  const allowanceAmount = account ? spell.allowance(account, address) : zero;
   const getBalance = account ? sSpell.balanceOf(account) : "0x00";
-  const getUserInfo = account ? sSpell.users(account) : { lockedUntil: "0" };
+  const getUserInfo = account ? sSpell.users(account) : { lockedUntil: 0 };
 
-  const multicallArr = [isTokenApproved, getBalance, getUserInfo];
+  const multicallArr = [allowanceAmount, getBalance, getUserInfo];
   const response = await Promise.all(multicallArr);
 
-  const sSpellPrice = +price * +sSpellRate;
+  const sSpellPrice = price * sSpellRate;
 
   const lockTimestamp = moment
     .unix(response[2]?.lockedUntil?.toString() || 0)
@@ -49,11 +48,10 @@ export const getSspellConfig = async (
     name,
     icon,
     rate: sSpellRate,
-    lockTimestamp: isLocked ? lockTimestamp.unix().toString() : "0",
+    lockTimestamp: isLocked ? +lockTimestamp.unix().toString() : 0,
     contract: sSpell,
     balance: utils.formatUnits(response[1], decimals),
-    isTokenApproved: response[0].toString() > 0,
-    approvedAmount: utils.formatUnits(response[0], decimals),
+    approvedAmount: +utils.formatUnits(response[0], decimals),
     price: sSpellPrice,
   };
 };
