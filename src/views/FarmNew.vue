@@ -330,8 +330,6 @@ export default {
   async created() {
     await this.getSelectedFarm();
 
-    console.log("farmNew", this.selectedFarm.accountInfo);
-
     this.farmPoolsTimer = setInterval(async () => {
       await this.getSelectedFarm();
     }, 60000);

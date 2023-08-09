@@ -37,7 +37,12 @@ export default {
     },
 
     isVisible() {
-      return !this.marketItem.isDepreciated || this.balance > 0;
+      console.log(+this.marketItem.accountInfo?.depositedBalance);
+      return (
+        !this.marketItem.isDepreciated ||
+        this.balance > 0 ||
+        +this.marketItem.accountInfo?.depositedBalance > 0
+      );
     },
   },
 
