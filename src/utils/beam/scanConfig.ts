@@ -9,6 +9,7 @@ const config = {
   2222: { name: "Explorer Kava", url: "https://explorer.kava.io/tx/" },
   42161: { name: "Arbiscan", url: "https://arbiscan.io/tx/" },
   43114: { name: "Snowtrace", url: "https://snowtrace.io/tx/" },
+  59144: { name: "Blockscout", url: "https://explorer.goerli.linea.build/tx/" },
 };
 
 export default config;

@@ -52,6 +52,11 @@ const tokens: any = {
     icon: useImage("assets/images/tokens/ETH.png"),
     scanUrl: "https://basescan.org/tx/",
   },
+  59144: {
+    symbol: "ETH",
+    icon: useImage("assets/images/tokens/ETH.png"),
+    scanUrl: "https://explorer.goerli.linea.build/tx/",
+  },
 };
 
 export const getChainInfo = (chainId: number): Object => tokens[chainId];
