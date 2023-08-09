@@ -28,14 +28,14 @@
 
         <h4 class="sub-title">
           Deposit
-          {{ selectedFarm ? selectedFarm.stakingTokenName : "" }} tokens
+          {{ selectedFarm ? selectedFarm.stakingToken.name : "" }} tokens
         </h4>
 
         <div class="input-wrap underline">
           <BaseTokenInput
             :value="amount"
             @updateValue="amount = $event"
-            :name="selectedFarm ? selectedFarm.stakingTokenName : null"
+            :name="selectedFarm ? selectedFarm.stakingToken.name : null"
             :icon="selectedFarm ? selectedFarm.icon : null"
             :max="max"
             :error="error"
@@ -265,14 +265,14 @@ export default {
 
       try {
         const estimateGas =
-          await this.selectedFarm.stakingTokenContract.estimateGas.approve(
+          await this.selectedFarm.stakingToken.contract.estimateGas.approve(
             this.selectedFarm.contractAddress,
             "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.selectedFarm.stakingTokenContract.approve(
+        const tx = await this.selectedFarm.stakingToken.contract.approve(
           this.selectedFarm.contractAddress,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           {

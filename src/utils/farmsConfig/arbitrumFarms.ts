@@ -8,23 +8,23 @@ const arbitrumFarms: FarmConfig[] = [
   {
     name: "MIM-2Crv",
     icon: useImage(`assets/images/tokens/Curve-MIM.png`),
-    // nameSubtitle: "crv.finance",
     contractChain: 42161,
     id: 3,
     farmId: 0,
-    // stakingTokenType: "LP",
-    // stakingTokenIcon: "MIM-2Crv",
-    stakingTokenLink: "https://arbitrum.curve.fi/factory/0/deposit",
-    stakingTokenName: "MIM-2Crv",
-    stakingTokenAbi: crvStakeTokenAbi,
-    contract: {
-      name: "Sorbettiere",
-      address: "0x839De324a1ab773F76a53900D70Ac1B913d2B387",
-      abi: SorbettiereAbi,
+    stakingToken: {
+      name: "MIM-2Crv",
+      type: "LP",
+      link: "https://arbitrum.curve.fi/factory/0/deposit",
+      abi: crvStakeTokenAbi,
     },
     earnedToken: {
       name: "Spell",
       abi: erc20Abi,
+    },
+    contract: {
+      name: "Sorbettiere",
+      address: "0x839De324a1ab773F76a53900D70Ac1B913d2B387",
+      abi: SorbettiereAbi,
     },
   },
 ];

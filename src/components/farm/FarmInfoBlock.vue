@@ -16,7 +16,7 @@
   </div>
 
   <div class="farm-link-wrap">
-    <a class="farm-link" :href="selectedFarm.stakingTokenLink" target="_blank">
+    <a class="farm-link" :href="selectedFarm.stakingToken.link" target="_blank">
       <img src="@/assets/images/farm-lp.svg" alt="" />
       <p>Get LP’s</p>
       <img src="@/assets/images/farm-lp-arrow.svg" alt="" />

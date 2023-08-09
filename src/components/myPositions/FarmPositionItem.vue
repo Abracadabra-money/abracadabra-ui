@@ -53,7 +53,7 @@ export default {
           },
         },
         {
-          title: `${this.farmConfig.stakingTokenType} deposited`,
+          title: `${this.farmConfig.stakingToken.type} deposited`,
           symbol: this.farmConfig.name,
           icon: this.farmConfig.icon,
           amount: filters.formatTokenBalance(this.depositedData.balance),

@@ -46,7 +46,7 @@ export const createFarmItemConfig = async (
 
   const stakingTokenContract = new ethers.Contract(
     poolInfo.stakingToken,
-    JSON.stringify(farmInfo.stakingTokenAbi),
+    JSON.stringify(farmInfo.stakingToken.abi),
     signer
   );
 
@@ -69,11 +69,13 @@ export const createFarmItemConfig = async (
   let farmItemConfig: any = {
     name: farmInfo.name,
     icon: farmInfo.icon,
-    stakingTokenLink: farmInfo.stakingTokenLink,
     id: farmInfo.id,
     farmId: farmInfo.farmId,
-    stakingTokenName: farmInfo.stakingTokenName,
-    stakingTokenContract,
+    stakingToken: {
+      link: farmInfo.stakingToken.link,
+      name: farmInfo.stakingToken.name,
+      contract: stakingTokenContract,
+    },
     contractInstance,
     contractAddress: farmInfo.contract.address,
     farmRoi,
@@ -92,7 +94,6 @@ export const createFarmItemConfig = async (
       ...farmItemConfig,
       farmId: farmInfo.farmId,
       contractInstance,
-      stakingTokenContract,
       lpPrice,
       depositedBalance: farmInfo.depositedBalance,
       contractAddress: farmInfo.contract.address,

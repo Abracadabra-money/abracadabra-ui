@@ -13,7 +13,7 @@ export const getFarmUserInfo = async (farmItemConfig: any) => {
   const account = await getAccount().address;
 
   const allowance = await getAllowance(
-    farmItemConfig.stakingTokenContract,
+    farmItemConfig.stakingToken.contract,
     farmItemConfig.contractInstance.address
   );
 
@@ -31,7 +31,7 @@ export const getFarmUserInfo = async (farmItemConfig: any) => {
     ? await getSLPBalances(farmItemConfig, userInfo)
     : null;
 
-  const accountBalance = await farmItemConfig.stakingTokenContract.balanceOf(
+  const accountBalance = await farmItemConfig.stakingToken.contract.balanceOf(
     account
   );
 
@@ -60,14 +60,12 @@ export const getFarmUserInfo = async (farmItemConfig: any) => {
 
 const getSLPBalances = async (farmItemConfig: any, userInfo: any) => {
   const { _reserve0, _reserve1 } =
-    await farmItemConfig.stakingTokenContract.getReserves();
+    await farmItemConfig.stakingToken.contract.getReserves();
 
   //MIM or SPELL
   const token0Price = await getTokenPriceByAddress(
     1,
     tokenAddresses[
-      //todo
-      //create a type for token adresses
       farmItemConfig.depositedBalance.token0.name as keyof typeof tokenAddresses
     ]
   );
@@ -75,8 +73,6 @@ const getSLPBalances = async (farmItemConfig: any, userInfo: any) => {
   // ETH always
   const token1Price = await getTokenPriceByAddress(
     1,
-    //todo
-    //create a type for token adresses
     tokenAddresses["WETH" as keyof typeof tokenAddresses]
   );
 

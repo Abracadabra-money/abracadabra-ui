@@ -86,7 +86,7 @@ export default {
 
       const stakingTokenContract = new this.$ethers.Contract(
         poolInfo.stakingToken,
-        JSON.stringify(farmPoolInfo.stakingTokenAbi),
+        JSON.stringify(farmPoolInfo.stakingToken.abi),
         this.signer
       );
 
@@ -114,32 +114,32 @@ export default {
         icon: farmPoolInfo.icon,
         //check actuality
         // nameSubtitle: farmPoolInfo.nameSubtitle,
-        stakingTokenLink: farmPoolInfo.stakingTokenLink,
+        stakingTokenLink: farmPoolInfo.stakingToken.link,
         //check actuality
         // stakingTokenIcon: farmPoolInfo.stakingTokenIcon,
         //check actuality
         id: farmPoolInfo.id,
         poolId: farmPoolInfo.farmId,
         contractInstance,
-        stakingTokenName: farmPoolInfo.stakingTokenName,
+        stakingTokenName: farmPoolInfo.stakingToken.name,
         //check actuality
-        // stakingTokenType: farmPoolInfo.stakingTokenType,
+        stakingTokenType: farmPoolInfo.stakingTokenType,
         //check actuality
-        // lpPrice,
+        lpPrice,
         //check actuality
-        // depositedBalance: farmPoolInfo.depositedBalance,
+        depositedBalance: farmPoolInfo.depositedBalance,
         contractAddress: farmPoolInfo.contract.address,
         //under ?
-        // poolInfo,
+        poolInfo,
         stakingTokenContract,
         //check actuality
-        // tokenPrice,
+        tokenPrice,
         //check actuality (actual)
         poolYield,
         poolRoi,
         poolTvl,
         //check actuality
-        // tokenName: farmPoolInfo.earnedToken.name,
+        tokenName: farmPoolInfo.earnedToken.name,
         isDepreciated,
       };
 

@@ -90,7 +90,6 @@
 </template>
 
 <script>
-import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
@@ -111,8 +110,6 @@ const sortKeys = {
 };
 
 export default {
-  // mixins: [farmPoolsMixin],
-
   data() {
     return {
       selectedSort: sortKeys.name,
