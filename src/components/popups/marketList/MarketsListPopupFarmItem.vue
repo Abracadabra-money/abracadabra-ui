@@ -29,6 +29,8 @@ export default {
 
   computed: {
     balance() {
+      if (this.marketItem.isDepreciated)
+        return +this.marketItem.accountInfo?.depositedBalance || 0;
       return +this.marketItem.accountInfo?.balance || 0;
     },
 
@@ -37,7 +39,6 @@ export default {
     },
 
     isVisible() {
-      console.log(+this.marketItem.accountInfo?.depositedBalance);
       return (
         !this.marketItem.isDepreciated ||
         this.balance > 0 ||
