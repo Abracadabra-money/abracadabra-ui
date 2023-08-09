@@ -1,5 +1,5 @@
 <template>
-  <button class="market-item" @click="choseItem(marketItem)">
+  <button class="market-item" @click="choseItem(marketItem)" v-if="isVisible">
     <StatusBar :isFarm="true" :pool="marketItem" :small="true" />
     <div class="market-info">
       <div class="token-info">
@@ -34,6 +34,10 @@ export default {
 
     balanceInUSD() {
       return this.balance * +this.marketItem.lpPrice;
+    },
+
+    isVisible() {
+      return !this.marketItem.isDepreciated || this.balance > 0;
     },
   },
 

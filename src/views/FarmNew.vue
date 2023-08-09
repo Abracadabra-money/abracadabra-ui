@@ -10,7 +10,7 @@
           <NetworksList :activeList="activeNetworks" />
         </div>
 
-        <div class="stake-unstake-switch">
+        <div class="stake-unstake-switch" v-if="!isDepreciated">
           <MarketsSwitch
             :name="selectedTab"
             :items="items"
@@ -27,9 +27,8 @@
         />
 
         <h4 class="sub-title">
-          Deposit
-          {{ selectedFarm ? selectedFarm.stakingToken.name : "" }} tokens
-          <span class="deposit-balance">{{ max }}</span>
+          {{ inputTitleText }}
+          <span class="deposit-balance" v-if="max">Balance: {{ max }}</span>
         </h4>
 
         <div class="input-wrap underline">
@@ -126,14 +125,18 @@ export default {
       return +this.selectedFarm?.accountInfo?.allowance >= this.amount;
     },
 
+    isValid() {
+      return !!+this.amount;
+    },
+
+    isDepreciated() {
+      return this.selectedFarm?.isDepreciated;
+    },
+
     max() {
       return !this.isUnstake
         ? this.selectedFarm?.accountInfo?.balance
         : this.selectedFarm?.accountInfo?.depositedBalance;
-    },
-
-    isValid() {
-      return !!+this.amount;
     },
 
     error() {
@@ -147,8 +150,14 @@ export default {
       return !this.isAllowed && !this.isUnstake ? "Approve" : text;
     },
 
+    inputTitleText() {
+      return `${this.isUnstake ? "Unstake" : "Deposit"} ${
+        this.selectedFarm ? this.selectedFarm.stakingToken.name : ""
+      } tokens`;
+    },
+
     isButtonDisabled() {
-      return !this.isValid || !!this.error || +this.selectedFarm.farmRoi === 0;
+      return !this.isValid || !!this.error;
     },
   },
 
@@ -167,11 +176,16 @@ export default {
     max() {
       this.amount = "";
     },
+
     unstake: {
       immediate: true,
       handler(value) {
         if (value) this.selectedTab = "unstake";
       },
+    },
+
+    isDepreciated(status) {
+      if (status) this.selectedTab = "unstake";
     },
   },
 
@@ -184,7 +198,7 @@ export default {
     },
 
     async actionHandler() {
-      // if (this.isButtonDisabled) return false;
+      if (this.isButtonDisabled) return false;
       if (!this.isAllowed) this.approveHandler();
       else if (this.isUnstake) this.unstakeHandler();
       else this.stakeHandler();
@@ -315,6 +329,8 @@ export default {
 
   async created() {
     await this.getSelectedFarm();
+
+    console.log("farmNew", this.selectedFarm.accountInfo);
 
     this.farmPoolsTimer = setInterval(async () => {
       await this.getSelectedFarm();
