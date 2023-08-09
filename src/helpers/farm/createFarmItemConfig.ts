@@ -79,6 +79,7 @@ export const createFarmItemConfig = async (
     contractInstance,
     contractAddress: farmInfo.contract.address,
     farmRoi,
+    lpPrice,
     isDepreciated,
   };
 
@@ -101,7 +102,6 @@ export const createFarmItemConfig = async (
     };
 
     farmItemConfig.accountInfo = await getFarmUserInfo(farmUserInfoConfig);
-
     return markRaw(farmItemConfig);
   }
   return markRaw(farmItemConfig);

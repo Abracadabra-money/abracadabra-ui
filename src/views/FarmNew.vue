@@ -29,6 +29,7 @@
         <h4 class="sub-title">
           Deposit
           {{ selectedFarm ? selectedFarm.stakingToken.name : "" }} tokens
+          <span class="deposit-balance">{{ max }}</span>
         </h4>
 
         <div class="input-wrap underline">
@@ -127,7 +128,7 @@ export default {
 
     max() {
       return !this.isUnstake
-        ? this.selectedFarm?.accountInfo?.parsedAccountBalance
+        ? this.selectedFarm?.accountInfo?.balance
         : this.selectedFarm?.accountInfo?.depositedBalance;
     },
 
@@ -368,10 +369,17 @@ export default {
 }
 
 .sub-title {
+  display: flex;
+  justify-content: space-between;
   font-weight: 600;
   font-size: 18px;
   line-height: 27px;
   margin-bottom: 10px;
+}
+
+.deposit-balance {
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .networks-list-wrap {

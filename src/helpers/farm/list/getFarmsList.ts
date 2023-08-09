@@ -8,7 +8,7 @@ export const getFarmsList = async (
   signer: any,
   isExtended = true
 ) => {
-  const account = await getAccount().address;
+  const account = isExtended ? "" : await getAccount().address;
 
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId

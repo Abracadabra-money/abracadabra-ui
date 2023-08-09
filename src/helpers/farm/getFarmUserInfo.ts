@@ -35,9 +35,7 @@ export const getFarmUserInfo = async (farmItemConfig: any) => {
     account
   );
 
-  const parsedAccountBalance = ethers.utils.formatEther(
-    accountBalance.toString()
-  );
+  const balance = ethers.utils.formatEther(accountBalance.toString());
 
   const deposited = await farmItemConfig.contractInstance.userInfo(
     farmItemConfig.farmId,
@@ -53,7 +51,7 @@ export const getFarmUserInfo = async (farmItemConfig: any) => {
     userInfo,
     userReward,
     tokensBalanceInfo,
-    parsedAccountBalance,
+    balance,
     depositedBalance,
   };
 };

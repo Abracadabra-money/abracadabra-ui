@@ -45,10 +45,6 @@ import PopupEmptyState from "@/components/popups/ui/PopupEmptyState.vue";
 
 export default {
   props: {
-    // farmsList: {
-    //   type: Array,
-    // },
-
     popupType: {
       type: String,
       required: true,
