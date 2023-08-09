@@ -8,10 +8,10 @@ export const checkIsUserCollateralLocked = async (
   chainId: number
 ): Promise<any> => {
   try {
-    const { id } = config;
+    const { isSSpell } = config.cauldronSettings;
 
-    if (id !== 11 && id !== 22) return false;
     if (chainId !== 1) return false;
+    if (!isSSpell) return false;
 
     const { lockedUntil } = await contract.users(account);
     const lockTimestamp = lockedUntil.toString();

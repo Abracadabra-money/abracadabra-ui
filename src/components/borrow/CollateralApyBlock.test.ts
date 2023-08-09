@@ -171,13 +171,13 @@ describe("CollateralApyBlock.vue", async () => {
     expect(wrapper.vm.isLoadingApy).toBe(true);
     expect(wrapper.vm.isApyExist).toBe(true);
     expect(wrapper.vm.calculateCollateralApy).toBe("0");
-    expect(wrapper.vm.isTilde).toBe("");
+    expect(wrapper.vm.isApproximate).toBe("");
 
     wrapper.setData({
       collateralApy: 39.5,
     });
 
-    expect(wrapper.vm.isTilde).toBe("~");
+    expect(wrapper.vm.isApproximate).toBe("≈");
     expect(wrapper.vm.collateralApy).toBe(39.5);
     expect(wrapper.vm.calculateCollateralApy).toBe("395.0");
   });

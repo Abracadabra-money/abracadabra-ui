@@ -73,8 +73,7 @@ export default {
 
     collateralToMim() {
       const tokenToMim = 1 / this.oracleExchangeRate;
-      const { name } = this.cauldron.config;
-      const decimals = name === "SHIB" ? 6 : 4;
+      const decimals = tokenToMim < 0.0001 ? 6 : 4;
       return filters.formatToFixed(tokenToMim, decimals);
     },
 

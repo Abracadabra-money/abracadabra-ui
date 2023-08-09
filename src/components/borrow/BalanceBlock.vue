@@ -66,6 +66,7 @@ import filters from "@/filters/index.js";
 import { useImage } from "@/helpers/useImage";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import { defineAsyncComponent } from "vue";
+import { ONE_ETHER } from "@/constants/global";
 export default {
   props: {
     cauldron: {
@@ -148,7 +149,7 @@ export default {
       const { collateral } = this.cauldron.contracts;
       const { decimals } = this.cauldron.config.collateralInfo;
       if (!collateral.convertToAssets) return 1;
-      const rate = await collateral.convertToAssets("1000000000000000000");
+      const rate = await collateral.convertToAssets(ONE_ETHER);
 
       this.tokensRate = utils.formatUnits(rate, decimals);
     },

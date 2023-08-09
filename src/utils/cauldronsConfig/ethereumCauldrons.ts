@@ -422,6 +422,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isSSpell: true,
     },
     contract: {
       name: "CauldronV2Flat",
@@ -797,6 +798,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isSSpell: true,
     },
     contract: {
       name: "CauldronV2Flat",
@@ -1005,6 +1007,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isAlternativeInterest: true,
     },
     contract: {
       name: "CauldronV2",
@@ -1048,6 +1051,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isAlternativeInterest: true,
     },
     contract: {
       name: "CauldronV2",
@@ -1498,6 +1502,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isNew: true,
+      isMagicApe: true,
     },
     contract: {
       name: "CauldronV4",
