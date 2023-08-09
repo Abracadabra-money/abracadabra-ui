@@ -308,6 +308,7 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     changeToken(token) {
+      localStorage.setItem("SPELL_SELECTED_TOKEN", token);
       this.selectedToken = token;
       this.action = "Stake";
       this.mainInputValue = "";
@@ -452,6 +453,9 @@ export default {
   },
 
   async mounted() {
+    const selectedToken = localStorage.getItem("SPELL_SELECTED_TOKEN");
+    if (selectedToken) this.selectedToken = selectedToken;
+
     await this.createStakeInfo();
 
     this.updateInterval = setInterval(async () => {
