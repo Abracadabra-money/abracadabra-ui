@@ -85,15 +85,15 @@ const routes = [
     name: "MarketsFarm",
     component: () => import("@/views/markets/Farms.vue"),
   },
+  // {
+  //   path: "/farm/:id",
+  //   name: "FarmPool",
+  //   component: () => import("@/views/Farm.vue"),
+  //   props: true,
+  // },
   {
     path: "/farm/:id",
-    name: "FarmPool",
-    component: () => import("@/views/Farm.vue"),
-    props: true,
-  },
-  {
-    path: "/farmNew/:id",
-    name: "FarmNew",
+    name: "Farm",
     component: () => import("@/views/FarmNew.vue"),
     props: true,
   },

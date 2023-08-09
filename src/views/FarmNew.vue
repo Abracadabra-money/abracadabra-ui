@@ -178,7 +178,7 @@ export default {
   methods: {
     changeActiveMarket(marketId) {
       if (+marketId !== +this.id)
-        this.$router.push({ name: "FarmNew", params: { id: marketId } });
+        this.$router.push({ name: "Farm", params: { id: marketId } });
 
       this.isFarmsPopupOpened = false;
     },
