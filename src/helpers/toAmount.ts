@@ -3,21 +3,21 @@ import type { BigNumber, Contract } from "ethers";
 const toAmount = async (
   bentoBox: Contract,
   token: string,
-  base: BigNumber,
+  share: BigNumber,
   roundUp: boolean = false
 ): Promise<BigNumber | undefined> => {
   try {
     const total = await bentoBox.totals(token);
 
-    if (total.base.eq(0)) return base;
+    if (total.base.eq(0)) return share;
 
-    let elastic = base.mul(total.elastic).div(total.base);
+    let amount = share.mul(total.elastic).div(total.base);
 
-    if (roundUp && elastic.mul(total.base).div(total.elastic).lt(base)) {
-      elastic = elastic.add(1);
+    if (roundUp && amount.mul(total.base).div(total.elastic).lt(share)) {
+      amount = amount.add(1);
     }
 
-    return elastic;
+    return amount;
   } catch (error) {
     console.log("toAmount error:", error);
   }
