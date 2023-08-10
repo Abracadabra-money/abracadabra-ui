@@ -174,7 +174,6 @@ export default {
         selAmount,
         swapper
       );
-
       return response.data;
     },
 
@@ -450,7 +449,8 @@ export default {
       slipage,
       is0x = false
     ) {
-      const { leverageSwapper } = this.cauldron.contracts;
+      const { leverageSwapper, bentoBox } = this.cauldron.contracts;
+      const mimAddress = this.cauldron.config.mimInfo.address;
       const swapperAddres = leverageSwapper.address;
       const userAddr = this.account;
 
@@ -487,10 +487,12 @@ export default {
 
       const swapData = await this.get0xLeverageSwapData(pool, amount, slipage);
 
+      const shareFrom = await bentoBox.toShare(mimAddress, amount, false)
+
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
         userAddr,
         minExpected,
-        amount,
+        shareFrom,
         swapData,
         {
           gasLimit: 1000000000,
