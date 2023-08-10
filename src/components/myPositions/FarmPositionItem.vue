@@ -26,13 +26,13 @@ export default {
         {
           title: "Stake",
           icon: this.$image("assets/images/myposition/Stake.png"),
-          name: "FarmPool",
+          name: "Farm",
           id: this.farmConfig.id,
         },
         {
-          title: "Untake",
+          title: "Unstake",
           icon: this.$image("assets/images/myposition/Unstake.png"),
-          name: "FarmPool",
+          name: "Farm",
           id: this.farmConfig.id,
         },
       ];
@@ -60,7 +60,7 @@ export default {
           amountUsd: filters.formatUSD(this.depositedData.usd),
           tokensList: this.tokensList,
           actions: {
-            link: "FarmPool",
+            link: "Farm",
             id: this.farmConfig.id,
             visibility: this.farmConfig.accountInfo,
             disabled: !+this.depositedData.balance,

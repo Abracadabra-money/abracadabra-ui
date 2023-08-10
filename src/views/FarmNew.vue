@@ -33,10 +33,10 @@
 
         <div class="input-wrap underline">
           <BaseTokenInput
-            :value="amount"
-            @updateValue="amount = $event"
-            :name="selectedFarm ? selectedFarm.stakingToken.name : null"
-            :icon="selectedFarm ? selectedFarm.icon : null"
+            :value="inputAmount"
+            @updateValue="inputAmount = $event"
+            :name="selectedFarm?.stakingToken.name"
+            :icon="selectedFarm?.icon"
             :max="max"
             :error="error"
             :disabled="!selectedFarm"
@@ -85,15 +85,11 @@ import notification from "@/helpers/notification/notification.js";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
 
 export default {
-  props: {
-    unstake: { type: Boolean, default: false },
-  },
-
   data() {
     return {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
       isFarmsPopupOpened: false,
-      amount: "",
+      inputAmount: "",
       selectedTab: "stake",
       items: [
         { title: "Stake", name: "stake" },
@@ -122,11 +118,11 @@ export default {
 
     isAllowed() {
       if (!this.account) return false;
-      return +this.selectedFarm?.accountInfo?.allowance >= this.amount;
+      return +this.selectedFarm?.accountInfo?.allowance >= this.inputAmount;
     },
 
     isValid() {
-      return !!+this.amount;
+      return !!+this.inputAmount;
     },
 
     isDepreciated() {
@@ -140,7 +136,7 @@ export default {
     },
 
     error() {
-      return Number(this.amount) > Number(this.max)
+      return Number(this.inputAmount) > Number(this.max)
         ? `The value cannot be greater than ${this.max}`
         : null;
     },
@@ -174,18 +170,11 @@ export default {
     },
 
     max() {
-      this.amount = "";
-    },
-
-    unstake: {
-      immediate: true,
-      handler(value) {
-        if (value) this.selectedTab = "unstake";
-      },
+      this.inputAmount = "";
     },
 
     isDepreciated(status) {
-      if (status) this.selectedTab = "unstake";
+      this.selectedTab = status ? "unstake" : "stake";
     },
   },
 
@@ -211,7 +200,7 @@ export default {
       );
       try {
         const parseAmount = this.$ethers.utils.parseEther(
-          this.amount.toString()
+          this.inputAmount.toString()
         );
 
         const tx = await this.selectedFarm.contractInstance.deposit(
@@ -245,7 +234,7 @@ export default {
       );
       try {
         const parseAmount = this.$ethers.utils.parseEther(
-          this.amount.toString()
+          this.inputAmount.toString()
         );
 
         const tx = await this.selectedFarm.contractInstance.withdraw(

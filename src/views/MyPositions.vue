@@ -61,9 +61,9 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import farmMixin from "@/mixins/farmPools";
 import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
 import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
+import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import { getUserPositions } from "@/helpers/cauldron/position/getUserPositions.ts";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
 import NetworksList from "@/components/ui/NetworksList.vue";
@@ -75,8 +75,6 @@ import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.
 import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
 
 export default {
-  mixins: [farmMixin],
-
   data() {
     return {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
@@ -86,6 +84,7 @@ export default {
       positionList: [],
       positionsIsLoading: true,
       totalAssets: null,
+      farms: [],
     };
   },
 
@@ -94,6 +93,7 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
       provider: "getProvider",
+      signer: "getSigner",
       farmIsLoading: "getFarmPoolLoading",
     }),
 
@@ -146,7 +146,7 @@ export default {
     },
 
     openUserFarms() {
-      return this.pools.filter((farm) => {
+      return this.farms.filter((farm) => {
         return (
           !farm.accountInfo?.userReward.isZero() ||
           !farm.accountInfo?.userInfo.amount.isZero()
@@ -189,7 +189,8 @@ export default {
       this.totalAssets = getUsersTotalAssets(this.positionList);
       this.positionsIsLoading = false;
 
-      if (!this.pools.length) await this.createFarmPools();
+      if (!this.farms.length)
+        this.farms = await getFarmsList(this.chainId, this.signer);
 
       this.updateInterval = setInterval(async () => {
         this.positionList = await getUserPositions(
@@ -200,8 +201,8 @@ export default {
 
         this.totalAssets = getUsersTotalAssets(this.positionList);
 
-        await this.createFarmPools();
-      }, 10000);
+        this.farms = await getFarmsList(this.chainId, this.signer);
+      }, 60000);
     },
   },
 

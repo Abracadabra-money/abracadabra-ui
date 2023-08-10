@@ -56,7 +56,7 @@
             class="button"
             v-if="asset.actions.visibility"
             :disabled="asset.actions.disabled"
-            @click="$emits(asset.actions.event)"
+            @click="$emit(asset.actions.event)"
           >
             {{ asset.actions.event }}
           </button>

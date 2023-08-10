@@ -74,6 +74,7 @@ export const createFarmItemConfig = async (
     stakingToken: {
       link: farmInfo.stakingToken.link,
       name: farmInfo.stakingToken.name,
+      type: farmInfo.stakingToken.type,
       contract: stakingTokenContract,
     },
     contractInstance,
