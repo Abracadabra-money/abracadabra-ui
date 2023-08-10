@@ -8,7 +8,7 @@ import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
-import toElastic from "@/helpers/toElastic";
+import toAmount from "@/helpers/toAmount";
 
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
@@ -490,7 +490,7 @@ export default {
       const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
 
       // to be sure that sell amount in 0x and amountOut inside call will be same
-      const amountToSwap = await toElastic(bentoBox, mimAddress, shareFrom);
+      const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
 
       const swapData = await this.get0xLeverageSwapData(
         pool,

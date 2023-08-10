@@ -1,6 +1,6 @@
 import type { BigNumber, Contract } from "ethers";
 
-const toElastic = async (
+const toAmount = async (
   bentoBox: Contract,
   token: string,
   base: BigNumber,
@@ -19,9 +19,9 @@ const toElastic = async (
 
     return elastic;
   } catch (error) {
-    console.log("toElastic error:", error);
+    console.log("toAmount error:", error);
   }
 };
 
 
-export default toElastic;
+export default toAmount;
