@@ -14,7 +14,7 @@
           <MarketsSwitch
             :name="selectedTab"
             :items="items"
-            @select="selectedTab = $event.name"
+            @select="selectTab($event.name)"
           />
         </div>
 
@@ -78,13 +78,15 @@ import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import FarmInfoBlock from "@/components/farm/FarmInfoBlock.vue";
-
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
-
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
 
 export default {
+  props: {
+    farmId: { type: String },
+  },
+
   data() {
     return {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
@@ -95,7 +97,7 @@ export default {
         { title: "Stake", name: "stake" },
         { title: "Unstake", name: "unstake" },
       ],
-      farmPoolsTimer: null,
+      farmsTimer: null,
       selectedFarm: null,
     };
   },
@@ -104,16 +106,11 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      networks: "getAvailableNetworks",
       signer: "getSigner",
     }),
 
     isUnstake() {
       return this.selectedTab === "unstake";
-    },
-
-    selectedFarmId() {
-      return this.$route.params.id;
     },
 
     isAllowed() {
@@ -165,8 +162,13 @@ export default {
       },
     },
 
-    async selectedFarmId(id) {
-      await this.getSelectedFarm();
+    farmId: {
+      immediate: true,
+      async handler(value) {
+        await this.getSelectedFarm();
+        const action = this.$route.redirectedFrom?.query.action;
+        if (action) this.selectTab(action);
+      },
     },
 
     max() {
@@ -180,10 +182,14 @@ export default {
 
   methods: {
     changeActiveMarket(marketId) {
-      if (+marketId !== +this.id)
-        this.$router.push({ name: "Farm", params: { id: marketId } });
+      if (+marketId !== +this.farmId)
+        this.$router.push({ name: "Farm", params: { farmId: marketId } });
 
       this.isFarmsPopupOpened = false;
+    },
+
+    selectTab(action) {
+      this.selectedTab = action;
     },
 
     async actionHandler() {
@@ -304,7 +310,7 @@ export default {
 
     async getSelectedFarm() {
       this.selectedFarm = await createFarmItemConfig(
-        this.selectedFarmId,
+        this.farmId,
         this.chainId,
         this.signer,
         this.account
@@ -319,13 +325,13 @@ export default {
   async created() {
     await this.getSelectedFarm();
 
-    this.farmPoolsTimer = setInterval(async () => {
+    this.farmsTimer = setInterval(async () => {
       await this.getSelectedFarm();
     }, 60000);
   },
 
   beforeUnmount() {
-    clearInterval(this.farmPoolsTimer);
+    clearInterval(this.farmsTimer);
   },
 
   components: {

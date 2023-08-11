@@ -4,11 +4,12 @@
       <PositionTokensInfo :position="farmConfig" />
       <PositionLinks :actions="positionActions" />
     </div>
-    <PositionAssets :assetsInfo="assetsInfo" />
+    <PositionAssets :assetsInfo="assetsInfo" @harvest="harvest" />
   </div>
 </template>
 
 <script>
+import { utils } from "ethers";
 import filters from "@/filters/index.js";
 import spellIcon from "@/assets/images/tokens/SPELL.png";
 import PositionTokensInfo from "@/components/myPositions/PositionTokensInfo.vue";
@@ -22,13 +23,7 @@ export default {
 
   computed: {
     positionActions() {
-      return [
-        {
-          title: "Stake",
-          icon: this.$image("assets/images/myposition/Stake.png"),
-          name: "Farm",
-          id: this.farmConfig.id,
-        },
+      const actions = [
         {
           title: "Unstake",
           icon: this.$image("assets/images/myposition/Unstake.png"),
@@ -36,13 +31,25 @@ export default {
           id: this.farmConfig.id,
         },
       ];
+
+      if (!this.farmConfig.isDepreciated)
+        actions.unshift({
+          title: "Stake",
+          icon: this.$image("assets/images/myposition/Stake.png"),
+          name: "Farm",
+          id: this.farmConfig.id,
+        });
+
+      return actions;
     },
 
     assetsInfo() {
       return [
         {
           title: "Earned",
-          symbol: this.farmConfig.tokenName,
+          //todo
+          //is always SPELL?
+          symbol: "SPELL",
           icon: spellIcon,
           amount: filters.formatTokenBalance(this.earnedData.balance),
           amountUsd: filters.formatUSD(this.earnedData.usd),
@@ -54,17 +61,18 @@ export default {
         },
         {
           title: `${this.farmConfig.stakingToken.type} deposited`,
+          type: this.farmConfig.stakingToken.type,
           symbol: this.farmConfig.name,
           icon: this.farmConfig.icon,
+          lpLink: this.farmConfig.stakingToken.link,
+          isDepreciated: this.farmConfig.isDepreciated,
           amount: filters.formatTokenBalance(this.depositedData.balance),
           amountUsd: filters.formatUSD(this.depositedData.usd),
           tokensList: this.tokensList,
           actions: {
             link: "Farm",
             id: this.farmConfig.id,
-            visibility: this.farmConfig.accountInfo,
             disabled: !+this.depositedData.balance,
-            event: "withdraw",
           },
         },
       ];
@@ -127,8 +135,8 @@ export default {
     async harvest() {
       try {
         const tx = await this.farmConfig.contractInstance.withdraw(
-          this.farmConfig.poolId,
-          0
+          utils.parseUnits(this.farmConfig.farmId.toString()),
+          utils.parseUnits("0")
         );
 
         await tx.wait();

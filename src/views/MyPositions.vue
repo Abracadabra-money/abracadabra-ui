@@ -83,6 +83,7 @@ export default {
       isShowMore: false,
       positionList: [],
       positionsIsLoading: true,
+      farmIsLoading: true,
       totalAssets: null,
       farms: [],
     };
@@ -94,11 +95,10 @@ export default {
       chainId: "getChainId",
       provider: "getProvider",
       signer: "getSigner",
-      farmIsLoading: "getFarmPoolLoading",
     }),
 
     showTotalAssets() {
-      return this.account && !this.positionsIsLoading && !this.farmIsLoading;
+      return this.account && !this.positionsIsLoading;
     },
 
     isEmpyState() {
@@ -189,8 +189,8 @@ export default {
       this.totalAssets = getUsersTotalAssets(this.positionList);
       this.positionsIsLoading = false;
 
-      if (!this.farms.length)
-        this.farms = await getFarmsList(this.chainId, this.signer);
+      this.farms = await getFarmsList(this.chainId, this.signer);
+      this.farmIsLoading = false;
 
       this.updateInterval = setInterval(async () => {
         this.positionList = await getUserPositions(

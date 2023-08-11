@@ -77,6 +77,7 @@ export const createFarmItemConfig = async (
       type: farmInfo.stakingToken.type,
       contract: stakingTokenContract,
     },
+    depositedBalance: farmInfo.depositedBalance,
     contractInstance,
     contractAddress: farmInfo.contract.address,
     farmRoi,
@@ -97,7 +98,6 @@ export const createFarmItemConfig = async (
       farmId: farmInfo.farmId,
       contractInstance,
       lpPrice,
-      depositedBalance: farmInfo.depositedBalance,
       contractAddress: farmInfo.contract.address,
       farmYield,
     };

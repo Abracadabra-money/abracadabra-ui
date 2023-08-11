@@ -1,7 +1,35 @@
 <template>
   <div class="assets-wrap">
     <div class="assets-item" v-for="(asset, idx) in assetsInfo" :key="idx">
-      <div class="assets-title">{{ asset.title }}</div>
+      <div class="assets-title-wrap">
+        <span class="assets-title">{{ asset.title }}</span>
+        <div class="action-wrap" v-if="asset.actions">
+          <!-- <template v-if="asset.actions.link">
+          <router-link
+            class="button"
+            v-if="asset.actions.visibility"
+            :disabled="asset.actions.disabled"
+            :to="{
+              name: asset.actions.link,
+              params: { farmId: asset.actions.id },
+            }"
+          >
+            Withdraw
+          </router-link>
+        </template> -->
+
+          <button
+            class="button"
+            v-if="asset.actions.visibility"
+            :disabled="asset.actions.disabled"
+            @click="$emit(asset.actions.event)"
+          >
+            {{ asset.actions.event }}
+          </button>
+          <GetLpLink v-else-if="!asset.isDepreciated" :link="asset.lpLink" />
+        </div>
+      </div>
+
       <div class="assets-desc">
         <div class="token-info">
           <BaseTokenIcon :name="asset.symbol" :icon="asset.icon" size="50px" />
@@ -35,39 +63,13 @@
           </div>
         </div>
       </div>
-
-      <div class="button-wrap" v-if="asset.actions">
-        <template v-if="asset.actions.link">
-          <router-link
-            class="button"
-            v-if="asset.actions.visibility"
-            :disabled="asset.actions.disabled"
-            :to="{
-              name: asset.actions.link,
-              params: { id: asset.actions.id },
-            }"
-          >
-            Withdraw
-          </router-link>
-        </template>
-
-        <template v-else>
-          <button
-            class="button"
-            v-if="asset.actions.visibility"
-            :disabled="asset.actions.disabled"
-            @click="$emit(asset.actions.event)"
-          >
-            {{ asset.actions.event }}
-          </button>
-        </template>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import GetLpLink from "@/components/ui/GetLpLink.vue";
 export default {
   props: {
     assetsInfo: {
@@ -78,15 +80,17 @@ export default {
 
   components: {
     BaseTokenIcon,
+    GetLpLink,
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .assets-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 37px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 37px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 20px 12px;
@@ -95,10 +99,16 @@ export default {
 .assets-item {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
   gap: 10px;
 }
 
-.assets-title {
+.assets-title-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 32px;
   font-size: 18px;
   color: rgba(255, 255, 255, 0.8);
 }
@@ -136,13 +146,9 @@ export default {
   padding: 10px 0;
 }
 
-.tokens-list {
-}
-
-.button-wrap {
+.action-wrap {
   display: flex;
   justify-content: flex-end;
-  padding-top: 10px;
 }
 
 .button {
@@ -162,6 +168,13 @@ export default {
   &:first-letter {
     text-transform: uppercase;
   }
+}
+
+.get-lp {
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 @media (max-width: 1024px) {

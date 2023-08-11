@@ -47,7 +47,7 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     goToPage() {
-      return { name: "Farm", params: { id: this.farm.id } };
+      return { name: "Farm", params: { farmId: this.farm.id } };
     },
 
     stats() {

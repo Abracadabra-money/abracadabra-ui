@@ -15,17 +15,12 @@
     <p class="info-item-value">{{ formatUSD(selectedFarm.farmTvl) }}</p>
   </div>
 
-  <div class="farm-link-wrap">
-    <a class="farm-link" :href="selectedFarm.stakingToken.link" target="_blank">
-      <img src="@/assets/images/farm-lp.svg" alt="" />
-      <p>Get LP’s</p>
-      <img src="@/assets/images/farm-lp-arrow.svg" alt="" />
-    </a>
-  </div>
+  <GetLpLink :link="selectedFarm.stakingToken.link" />
 </template>
 <script>
 import filters from "@/filters/index.js";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import GetLpLink from "@/components/ui/GetLpLink.vue";
 
 export default {
   props: {
@@ -46,7 +41,7 @@ export default {
     },
   },
 
-  components: { Tooltip },
+  components: { Tooltip, GetLpLink },
 };
 </script>
 <style lang="scss" scoped>
@@ -67,25 +62,6 @@ export default {
 .info-item-text img {
   margin-right: 10px;
   cursor: pointer;
-}
-
-.farm-link-wrap {
-  display: flex;
-  justify-content: center;
-}
-
-.farm-link {
-  display: flex;
-  grid-column-gap: 7px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 3px 10px;
-  background: rgba(157, 244, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-sizing: border-box;
-  border-radius: 30px;
-  font-size: 14px;
-  color: #63caf8;
 }
 
 @media (max-width: 768px) {

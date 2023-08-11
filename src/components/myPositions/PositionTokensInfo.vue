@@ -2,7 +2,16 @@
   <div class="token-info">
     <BaseTokenIcon :name="tokenSymbol" :icon="tokenIcon" size="80px" />
     <div>
-      <p class="token-name">{{ tokenSymbol }}</p>
+      <p class="token-name">
+        {{ tokenSymbol }}
+        <img
+          class="info-bar-icon"
+          src="@/assets/images/myposition/depreciated-farm.png"
+          alt="Deprecated"
+          v-if="position.isDepreciated"
+          v-tooltip="'Deprecated'"
+        />
+      </p>
       <p class="token-rate" v-if="tokenName">{{ tokensRate }}</p>
     </div>
   </div>
@@ -62,6 +71,9 @@ export default {
 }
 
 .token-name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   font-weight: 600;
   font-size: 18px;
   line-height: 27px;

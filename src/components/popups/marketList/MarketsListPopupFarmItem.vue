@@ -1,6 +1,13 @@
 <template>
-  <button class="market-item" @click="choseItem(marketItem)" v-if="isVisible">
-    <StatusBar :isFarm="true" :pool="marketItem" :small="true" />
+  <button class="market-item" @click="choseItem(marketItem)">
+    <div class="deprecated-icon-bar">
+      <img
+        class="deprecated-icon"
+        src="@/assets/images/myposition/depreciated-farm.png"
+        alt="Deprecated"
+        v-if="this.marketItem.isDepreciated"
+      />
+    </div>
     <div class="market-info">
       <div class="token-info">
         <BaseTokenIcon :icon="marketItem.icon" :name="marketItem.name" />
@@ -37,14 +44,14 @@ export default {
     balanceInUSD() {
       return this.balance * +this.marketItem.lpPrice;
     },
-
-    isVisible() {
-      return (
-        !this.marketItem.isDepreciated ||
-        this.balance > 0 ||
-        +this.marketItem.accountInfo?.depositedBalance > 0
-      );
-    },
+    // Will be useful after redesign
+    // isVisible() {
+    //   return (
+    //     !this.marketItem.isDepreciated ||
+    //     this.balance > 0 ||
+    //     +this.marketItem.accountInfo?.depositedBalance > 0
+    //   );
+    // },
   },
 
   methods: {
@@ -70,6 +77,7 @@ export default {
 
 <style lang="scss" scoped>
 .market-item {
+  position: relative;
   padding: 10px 12px;
   background-color: transparent;
   border: none;
@@ -109,5 +117,10 @@ export default {
 
 .price {
   text-align: right;
+}
+
+.deprecated-icon-bar {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
