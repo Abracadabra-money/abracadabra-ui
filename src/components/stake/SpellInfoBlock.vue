@@ -1,9 +1,9 @@
 <template>
   <div class="position-info">
     <div class="position-tags">
-      <div class="timer-wrap" v-if="mainToken.lockTimestamp">
+      <div class="timer-wrap" v-if="+mainToken.lockTimestamp">
         <img class="timer-icon" src="@/assets/images/Clock.svg" alt="Timer" />
-        <LockedTimer :finalTime="mainToken.lockTimestamp.toString()" />
+        <LockedTimer :finalTime="mainToken.lockTimestamp" />
       </div>
     </div>
 

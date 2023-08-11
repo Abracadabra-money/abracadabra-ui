@@ -45,12 +45,12 @@
         </div>
 
         <div class="input-assets">
-          <InputLabel :amount="fromToken.balance" :title="mainIntulLabel" />
+          <InputLabel :amount="fromTokenBalance" :title="mainIntulLabel" />
           <BaseTokenInput
             :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :max="fromToken.balance"
+            :max="fromTokenBalance"
             :disabled="isInputDisabled"
             :error="errorMainValue"
             @updateValue="updateMainValue"
@@ -86,7 +86,7 @@
 
       <template v-else>
         <SpellInfoBlock
-          v-if="!isUnsupportedChain"
+          v-if="isUnsupportedChain"
           :stakeToken="stakeToken"
           :mainToken="mainToken"
         />
@@ -135,16 +135,11 @@
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { approveToken } from "@/helpers/approval";
-import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
+import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { mint } from "@/helpers/stake/spell/mint";
-import { deposit } from "@/helpers/stake/spell/deposit";
-import { withdraw } from "@/helpers/stake/spell/withdraw";
-import { burn } from "@/helpers/stake/spell/burn";
-
-const actions = { mint, deposit, withdraw, burn };
+import actions from "@/helpers/stake/spell/actions/";
+import { spellConfig } from "@/utils/stake/spellConfig";
 
 export default {
   data() {
@@ -170,7 +165,7 @@ export default {
     },
 
     isUnsupportedChain() {
-      return !!this.stakeConfig && this.mainToken.unsupportedChain;
+      return !!spellConfig[this.selectedToken].addresses[this.chainId];
     },
 
     isStakeAction() {
@@ -181,8 +176,8 @@ export default {
       if (!this.isStakeAction) return true;
       if (this.errorMainValue) return true;
       if (!this.account) return true;
-      if (this.isUnsupportedChain) return true;
-      return this.toToken.approvedAmount >= this.mainInputValue;
+      if (!this.isUnsupportedChain) return true;
+      return +this.toToken.allowanceAmount >= this.mainInputValue;
     },
 
     isActionDisabled() {
@@ -191,16 +186,18 @@ export default {
     },
 
     isClaimMimBlock() {
-      return this.selectedToken === "mSpell" && this.mainToken?.claimableAmount;
+      return (
+        this.selectedToken === "mSpell" && +this.mainToken?.claimableAmount
+      );
     },
 
     isDisableClaimButton() {
-      if (this.mainToken?.lockTimestamp) return true;
-      return this.mainToken?.claimableAmount <= 0;
+      if (+this.mainToken?.lockTimestamp) return true;
+      return +this.mainToken?.claimableAmount <= 0;
     },
 
     isInputDisabled() {
-      return this.isUserLocked || this.isUnsupportedChain;
+      return this.isUserLocked || !this.isUnsupportedChain;
     },
 
     mainInputValue() {
@@ -220,6 +217,10 @@ export default {
       return this.mainToken;
     },
 
+    fromTokenBalance() {
+      return !this.isUnsupportedChain ? "0" : this.fromToken.balance;
+    },
+
     toToken() {
       if (this.isStakeAction) return this.mainToken;
       return this.stakeToken;
@@ -227,7 +228,7 @@ export default {
 
     isUserLocked() {
       const { lockTimestamp } = this.stakeConfig[this.selectedToken];
-      return !!lockTimestamp && !this.isStakeAction;
+      return !!+lockTimestamp && !this.isStakeAction;
     },
 
     expectedAmount() {
@@ -264,7 +265,7 @@ export default {
       );
 
       if (this.isStakeAction) {
-        if (contract.hasOwnProperty.call(contract, "mint")) {
+        if (this.selectedToken === "sSpell") {
           info.methodName = "mint";
           info.options = [amount];
         } else {
@@ -272,7 +273,7 @@ export default {
           info.options = [amount];
         }
       } else if (!this.isStakeAction) {
-        if (contract.hasOwnProperty.call(contract, "burn")) {
+        if (this.selectedToken === "mSpell") {
           info.methodName = "burn";
           info.options = [this.account, amount];
         } else {
@@ -350,7 +351,7 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (this.isUnsupportedChain) return true;
+      if (!this.isUnsupportedChain) return true;
       if (this.isTokenApproved) return false;
 
       const notificationId = await this.createNotification(
@@ -399,7 +400,7 @@ export default {
         notification.pending
       );
 
-      const { error } = await withdraw(this.mainToken.contract, 0);
+      const { error } = await actions.withdraw(this.mainToken.contract, 0);
 
       if (error) {
         await this.deleteNotification(notificationId);
@@ -412,7 +413,7 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeConfig = await getSpellInfo(
+      this.stakeConfig = await getStakeInfo(
         this.provider,
         this.signer,
         this.chainId

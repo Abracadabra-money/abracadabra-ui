@@ -5,35 +5,34 @@ export type SpellStakingApr = {
   mSpellApr: string;
 };
 
-export type MSpellConfig = {
+export type MSpellInfo = {
   name: string;
   icon: string;
   rate: number;
-  lockTimestamp: number;
+  lockTimestamp: string;
   contract: Contract | null;
   balance: string;
-  claimableAmount: number;
-  approvedAmount: number;
+  claimableAmount: string;
+  allowanceAmount: string;
   unsupportedChain?: boolean;
   price: number;
 };
 
-export type SSpellConfig = {
+export type SSpellInfo = {
   name: string;
   icon: string;
   rate: number;
-  lockTimestamp: number;
+  lockTimestamp: string;
   contract: Contract | null;
   balance: string;
-  approvedAmount: number;
+  allowanceAmount: string;
   unsupportedChain?: boolean;
   price: number;
 };
 
-export type SpellConfig = {
+export type SpellInfo = {
   icon: string;
   name: string;
-  sSpellRate: number;
   balance: string;
   price: number;
 };
