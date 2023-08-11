@@ -585,7 +585,7 @@ export default {
         this.amount || "1"
       );
 
-      const updatedFee = fees[0].add(additionalFee); // add 0.5% from base fee to be sure tx success
+      const updatedFee = fees[0].add(additionalFee).mul(10_100).div(10_000); // add 1% to be sure tx success
 
       if (getParams) return { fees: [updatedFee], params };
       else return [updatedFee];
