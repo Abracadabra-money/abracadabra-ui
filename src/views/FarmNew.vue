@@ -89,7 +89,7 @@ export default {
 
   data() {
     return {
-      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
+      activeNetworks: [1, 250, 43114, 42161],
       isFarmsPopupOpened: false,
       inputAmount: "",
       selectedTab: "stake",
