@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import SortBy from "@/components/ui/dropdown/SortBy.vue";
 
@@ -12,11 +12,16 @@ const sortListTest = [
 const activeSortValueTest = "name";
 
 describe("SortBy.vue", () => {
+  const clickOutside = vi.fn();
+
   it("Should render with correct computed properties", () => {
     const wrapper = mount(SortBy, {
       props: {
         sortList: sortListTest,
         activeSortValue: activeSortValueTest,
+      },
+      global: {
+        directives: { "click-outside": clickOutside },
       },
     });
 

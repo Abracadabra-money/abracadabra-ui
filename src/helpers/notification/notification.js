@@ -51,4 +51,8 @@ export default {
     msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
     type: "error",
   },
+  whitelisted: {
+    msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
+    type: "error",
+  },
 };

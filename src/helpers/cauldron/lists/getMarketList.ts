@@ -1,17 +1,20 @@
-import { Contract, providers, utils } from "ethers";
+import type { providers, BigNumber } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-
+import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import cauldronsConfig from "@/utils/cauldronsConfig";
-
-const lensAddress = "0x73f52bd9e59edbdf5cf0dd59126cef00ecc31528";
-import lensAbi from "@/utils/abi/marketLens.js";
 
 type CauldronListItem = {
   config: object;
+  borrowFee: number;
   interest: number;
-  tvl: string;
-  totalBorrowed: string;
-  mimLeftToBorrow: string;
+  liquidationFee: number;
+  collateralPrice: BigNumber;
+  mimLeftToBorrow: BigNumber;
+  maximumCollateralRatio: BigNumber;
+  oracleExchangeRate: BigNumber;
+  totalBorrowed: BigNumber;
+  tvl: BigNumber;
+  userMaxBorrow: BigNumber;
 };
 
 export const getMarketList = async (
@@ -32,35 +35,12 @@ export const getMarketList = async (
     return result;
   });
 
-  const lensContract = new Contract(lensAddress, lensAbi, multicallProvider);
-
-  const marketInfoResp = await Promise.all(
-    configs.map((config) =>
-      config.version === 2
-        ? lensContract.getMarketInfoCauldronV2(config.contract.address)
-        : lensContract.getMarketInfoCauldronV3(config.contract.address)
-    )
-  );
-
-  const marketInfo = marketInfoResp.map((info, idx) => {
-    const interest = configs[idx].interest
-      ? configs[idx].interest
-      : Number(info.interestPerYear) / 100;
-
-    return {
-      interest,
-      tvl: utils.formatUnits(info.totalCollateral.value),
-      totalBorrowed: utils.formatUnits(info.totalBorrowed),
-      mimLeftToBorrow: utils.formatUnits(info.marketMaxBorrow),
-      borrowFee: Number(info.borrowFee) / 100,
-      liquidationFee: Number(info.liquidationFee) / 100,
-    };
-  });
+  const mainParams = await getMainParams(configs, multicallProvider, chainId);
 
   return configs.map((config, idx) => {
     return {
       config,
-      ...marketInfo[idx],
+      ...mainParams[idx],
     };
   });
 };

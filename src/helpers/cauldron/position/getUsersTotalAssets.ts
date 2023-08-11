@@ -1,15 +1,5 @@
 import { utils, BigNumber } from "ethers";
-
-import type { UserBorrowInfo } from "./getUserBorrowInfo";
-import type { UserCollateralInfo } from "./getUserCollateralInfo";
-
-type CauldronPositionItem = {
-  config: object;
-  oracleRate: BigNumber;
-  collateralInfo: UserCollateralInfo;
-  borrowInfo: UserBorrowInfo;
-  liquidationPrice: number;
-};
+import type { CauldronPositionItem } from "@/helpers/cauldron/types";
 
 export const getUsersTotalAssets = (
   positions: CauldronPositionItem[]

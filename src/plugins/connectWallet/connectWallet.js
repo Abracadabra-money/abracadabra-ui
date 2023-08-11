@@ -15,7 +15,6 @@ import { kava } from "./chains/kava";
 import { base } from "./chains/base";
 
 import {
-  // mainnet,
   optimism,
   bsc,
   polygon,
@@ -33,7 +32,6 @@ import {
 import { Web3Modal } from "@web3modal/html";
 import { sanctionAbi } from "@/utils/abi/sanctionAbi";
 
-import { getEthersProvider } from "./getEthersProvider";
 import { getEthersSigner } from "./getEthersSigner";
 
 import { useImage } from "@/helpers/useImage";
@@ -65,7 +63,7 @@ const chains = [
   optimism,
   moonriver,
   kava,
-  base
+  base,
 ];
 
 // 2. Configure wagmi client
@@ -173,13 +171,14 @@ const onConnectNew = async () => {
     const provider = markRaw(
       new ethers.providers.StaticJsonRpcProvider(currentRpc)
     );
-    const signer = unsupportedChain
+
+    const { signer } = unsupportedChain
       ? provider
-      : markRaw(await getEthersSigner({ chainId }));
+      : await getEthersSigner({ chainId });
 
     store.commit("setChainId", chainId);
     store.commit("setProvider", provider);
-    store.commit("setSigner", signer); // WARN
+    store.commit("setSigner", markRaw(signer)); // WARN
     store.commit("setAccount", account);
     store.dispatch("checkENSName", account);
     store.commit("setWalletConnection", true);
