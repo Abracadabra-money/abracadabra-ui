@@ -273,7 +273,7 @@ export default {
           info.options = [amount];
         }
       } else if (!this.isStakeAction) {
-        if (this.selectedToken === "mSpell") {
+        if (this.selectedToken === "sSpell") {
           info.methodName = "burn";
           info.options = [this.account, amount];
         } else {
