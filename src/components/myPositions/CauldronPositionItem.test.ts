@@ -6,8 +6,6 @@ import config from "@/utils/cauldronsConfig/ethereumCauldrons";
 import configArb from "@/utils/cauldronsConfig/arbitrumCauldrons";
 import { useImage } from "@/helpers/useImage";
 
-import { useImage } from "@/helpers/useImage";
-
 import { ethers } from "ethers";
 
 const cauldron = {
