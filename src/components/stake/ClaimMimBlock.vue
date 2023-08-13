@@ -18,13 +18,11 @@
         </div>
       </div>
 
-      <BaseButton
-        :width="'100px'"
-        :disabled="isDisableClaimButton"
-        @click="$emit('claimMim')"
-      >
-        Claim
-      </BaseButton>
+      <div class="btn-wrap">
+        <BaseButton :disabled="isDisableClaimButton" @click="$emit('claimMim')">
+          Claim
+        </BaseButton>
+      </div>
     </div>
   </div>
 </template>
@@ -107,5 +105,28 @@ export default {
 .claim-amount {
   text-align: left;
   font-size: 18px;
+}
+
+.btn-wrap {
+  width: 100px;
+}
+
+@media screen and (max-width: 600px) {
+  .claim-mim-block {
+    padding: 20px 10px;
+  }
+  .claim-info-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .claim-value {
+    font-size: 16px;
+  }
+
+  .btn-wrap {
+    width: 100%;
+  }
 }
 </style>

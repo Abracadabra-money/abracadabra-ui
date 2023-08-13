@@ -608,5 +608,9 @@ export default {
   .stake-stand {
     padding: 30px 10px;
   }
+
+  .title {
+    font-size: 20px;
+  }
 }
 </style>
