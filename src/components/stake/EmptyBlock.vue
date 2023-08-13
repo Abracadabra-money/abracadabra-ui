@@ -104,4 +104,10 @@ export default {
 .empty-link {
   color: #759ffa;
 }
+
+@media screen and (max-width: 600px) {
+  .empty-wrap {
+    padding: 10px;
+  }
+}
 </style>
