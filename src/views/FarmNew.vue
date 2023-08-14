@@ -85,7 +85,7 @@ import { utils } from "ethers";
 
 export default {
   props: {
-    farmId: { type: String },
+    id: { type: String },
   },
 
   data() {
@@ -166,7 +166,7 @@ export default {
       },
     },
 
-    farmId: {
+    id: {
       immediate: true,
       async handler(value) {
         await this.getSelectedFarm();
@@ -186,8 +186,8 @@ export default {
 
   methods: {
     changeActiveMarket(marketId) {
-      if (+marketId !== +this.farmId)
-        this.$router.push({ name: "Farm", params: { farmId: marketId } });
+      if (+marketId !== +this.id)
+        this.$router.push({ name: "Farm", params: { id: marketId } });
 
       this.isFarmsPopupOpened = false;
     },
@@ -314,7 +314,7 @@ export default {
 
     async getSelectedFarm() {
       this.selectedFarm = await createFarmItemConfig(
-        this.farmId,
+        this.id,
         this.chainId,
         this.signer,
         this.account

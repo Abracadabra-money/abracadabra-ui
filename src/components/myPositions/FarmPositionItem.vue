@@ -1,5 +1,5 @@
 <template>
-  <div class="farm-positions">
+  <div class="farm-position">
     <div class="position-header">
       <PositionTokensInfo :position="farmConfig" />
       <PositionLinks :actions="positionActions" />
@@ -155,7 +155,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.farm-positions {
+.farm-position {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
@@ -182,6 +182,12 @@ export default {
   .position-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .farm-position {
+    padding: 20px 10px;
   }
 }
 </style>

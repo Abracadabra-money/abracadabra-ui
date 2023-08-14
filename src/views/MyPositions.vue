@@ -262,7 +262,8 @@ export default {
 }
 
 .positions-list {
-  display: flex;
+  display: grid;
+  grid-template-rows: repeat(auto-fill, auto);
   row-gap: 24px;
 }
 
@@ -273,7 +274,6 @@ export default {
 }
 
 .positions-wrap {
-  width: 100%;
   background: #2a2835;
   border-radius: 30px;
   padding: 20px;

@@ -5,7 +5,7 @@
       v-for="(action, idx) in actions"
       :to="{
         name: action.name,
-        params: { farmId: action.id },
+        params: { id: action.id },
         query: { action: action.title.toLowerCase() },
       }"
       :key="idx"
