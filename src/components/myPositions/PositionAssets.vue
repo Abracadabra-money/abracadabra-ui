@@ -90,6 +90,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 37px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;

@@ -32,6 +32,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
+  width: 100%;
 }
 
 .position-link {

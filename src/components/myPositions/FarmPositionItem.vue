@@ -167,9 +167,7 @@ export default {
 }
 
 .position-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-row-gap: 20px;
+  display: flex;
   justify-content: space-between;
   align-items: center;
 }
@@ -177,6 +175,13 @@ export default {
 @media screen and (max-width: 600px) {
   .farm-positions {
     padding: 20px 10px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .position-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
