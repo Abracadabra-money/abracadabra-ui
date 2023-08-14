@@ -574,7 +574,7 @@ export default {
           this.amount || "1"
         );
 
-        additionalFee = feesWithoutAirdrop.fees[0].div(200);
+        additionalFee = feesWithoutAirdrop.fees[0].div(100);
       }
 
       const { fees, params } = await getEstimateSendFee(
@@ -585,7 +585,7 @@ export default {
         this.amount || "1"
       );
 
-      const updatedFee = fees[0].add(additionalFee); // add 0.5% from base fee to be sure tx success
+      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
 
       if (getParams) return { fees: [updatedFee], params };
       else return [updatedFee];
