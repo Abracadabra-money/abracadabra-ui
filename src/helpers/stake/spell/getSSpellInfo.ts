@@ -32,6 +32,9 @@ export const getSSpellInfo = async (
     ? moment.unix(sSpellUserInfo.lockedUntil).add(1, "d")
     : moment.unix(0);
 
+  const currentTimestamp = moment();
+  const isLocked = lockTimestamp.isAfter(currentTimestamp);
+
   const spellToSSpellRate = +utils.formatUnits(
     spellSSpellBalance.mul(precision).div(totalSupply)
   );
@@ -44,7 +47,7 @@ export const getSSpellInfo = async (
     contract: sSpell,
     price: sSpellPrice,
     rate: spellToSSpellRate,
-    lockTimestamp: lockTimestamp.unix().toString(),
+    lockTimestamp: isLocked ? lockTimestamp.unix().toString() : "0",
     balance: utils.formatUnits(aSpellUserBalance),
     allowanceAmount: utils.formatUnits(allowanceAmount),
   };
