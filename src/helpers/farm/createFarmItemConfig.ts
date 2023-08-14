@@ -72,6 +72,7 @@ export const createFarmItemConfig = async (
     icon: farmInfo.icon,
     id: farmInfo.id,
     farmId: farmInfo.farmId,
+    earnedTokenPrice: SPELLPrice,
     stakingToken: {
       link: farmInfo.stakingToken.link,
       name: farmInfo.stakingToken.name,

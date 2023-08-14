@@ -108,7 +108,7 @@ export default {
     earnedData() {
       return this.prepBalanceData(
         this.farmConfig.accountInfo?.userReward,
-        this.farmConfig.tokenPrice
+        this.farmConfig.earnedTokenPrice
       );
     },
 

@@ -4,19 +4,19 @@
       <div class="assets-title-wrap">
         <span class="assets-title">{{ asset.title }}</span>
         <div class="action-wrap" v-if="asset.actions">
-          <!-- <template v-if="asset.actions.link">
-          <router-link
-            class="button"
-            v-if="asset.actions.visibility"
-            :disabled="asset.actions.disabled"
-            :to="{
-              name: asset.actions.link,
-              params: { farmId: asset.actions.id },
-            }"
-          >
-            Withdraw
-          </router-link>
-        </template> -->
+          <template v-if="asset.actions.link">
+            <router-link
+              class="button"
+              v-if="asset.actions.visibility"
+              :disabled="asset.actions.disabled"
+              :to="{
+                name: asset.actions.link,
+                params: { id: asset.actions.id },
+              }"
+            >
+              Withdraw
+            </router-link>
+          </template>
 
           <button
             class="button"
