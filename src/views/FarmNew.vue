@@ -35,7 +35,7 @@
           <BaseTokenInput
             :value="inputAmount"
             @updateValue="inputAmount = $event"
-            :name="selectedFarm?.stakingToken.name"
+            :name="selectedFarm?.stakingToken?.name"
             :icon="selectedFarm?.icon"
             :max="max"
             :error="error"
@@ -81,6 +81,7 @@ import FarmInfoBlock from "@/components/farm/FarmInfoBlock.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
+import { utils } from "ethers";
 
 export default {
   props: {
@@ -114,8 +115,11 @@ export default {
     },
 
     isAllowed() {
-      if (!this.account) return false;
-      return +this.selectedFarm?.accountInfo?.allowance >= this.inputAmount;
+      if (!this.account || !this.selectedFarm) return false;
+      return (
+        utils.formatUnits(this.selectedFarm?.accountInfo?.allowance) >=
+        this.inputAmount
+      );
     },
 
     isValid() {

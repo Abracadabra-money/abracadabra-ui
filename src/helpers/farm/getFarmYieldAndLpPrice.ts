@@ -16,71 +16,66 @@ export const getFarmYieldAndLpPrice = async (
   mimPrice: any,
   spellPrice: any
 ) => {
-  if (farmInfo.id === 1 || farmInfo.id === 2) {
-    const mimTokenContract = new ethers.Contract(
-      MIMAddress,
-      JSON.stringify(erc20Abi),
-      signer
-    );
+  try {
+    if (farmInfo.depositedBalance) {
+      const tokenAddress =
+        farmInfo.depositedBalance.token0.name === "MIM"
+          ? MIMAddress
+          : SPELLAddress;
 
-    const spellTokenContract = new ethers.Contract(
-      SPELLAddress,
-      JSON.stringify(erc20Abi),
-      signer
-    );
+      const tokenPrice =
+        farmInfo.depositedBalance.token0.name === "MIM" ? mimPrice : spellPrice;
 
-    const lpYieldAndPrice = await getLPYieldAndPrice(
-      poolInfo.stakingToken,
-      farmInfo.id === 1 ? mimTokenContract : spellTokenContract,
-      stakingTokenContract,
-      farmInfo.id === 1 ? mimPrice : spellPrice
-    );
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        JSON.stringify(erc20Abi),
+        signer
+      );
 
-    const farmYield = await getFarmYield(
-      contractInstance,
-      lpYieldAndPrice?.lpYield,
-      poolInfo.stakingTokenTotalAmount,
-      poolInfo.allocPoint,
-      poolInfo.accIcePerShare
-    );
+      const lpYieldAndPrice = await getLPYieldAndPrice(
+        poolInfo.stakingToken,
+        tokenContract,
+        stakingTokenContract,
+        tokenPrice
+      );
 
-    return {
-      lpPrice: lpYieldAndPrice?.lpPrice,
-      farmYield,
-    };
-  }
-
-  if (farmInfo.id === 3) {
-    try {
-      const price = await stakingTokenContract.get_virtual_price();
-
-      const lpPrice = ethers.utils.formatEther(price.toString());
       const farmYield = await getFarmYield(
         contractInstance,
-        1000,
+        lpYieldAndPrice?.lpYield,
         poolInfo.stakingTokenTotalAmount,
         poolInfo.allocPoint,
         poolInfo.accIcePerShare
       );
 
       return {
-        lpPrice,
+        lpPrice: lpYieldAndPrice?.lpPrice,
         farmYield,
       };
-    } catch (e) {
-      console.log("get price err:", e);
-
-      return {
-        lpPrice: 0,
-        farmYield: 0,
-      };
     }
-  }
 
-  return {
-    lpPrice: 0,
-    farmYield: 0,
-  };
+    const price = await stakingTokenContract.get_virtual_price();
+
+    const lpPrice = ethers.utils.formatEther(price.toString());
+    const farmYield = await getFarmYield(
+      contractInstance,
+      1000,
+      poolInfo.stakingTokenTotalAmount,
+      poolInfo.allocPoint,
+      poolInfo.accIcePerShare
+    );
+
+    return {
+      lpPrice,
+      farmYield,
+    };
+  } catch (e) {
+    console.log("get price err:", e);
+
+    return {
+      lpPrice: 0,
+      farmYield: 0,
+    };
+  }
 };
 
 const getFarmYield = async (

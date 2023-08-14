@@ -6,6 +6,7 @@ import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
 import { getFarmUserInfo } from "@/helpers/farm/getFarmUserInfo";
 import farmsConfig from "@/utils/farmsConfig/farms";
+import store from "@/store";
 
 import type { FarmConfig } from "@/utils/farmsConfig/types";
 
@@ -32,9 +33,9 @@ export const createFarmItemConfig = async (
 
   if (!farmInfo) return false;
 
-  const { SPELLPrice, MIMPrice, WETHPrice } = await getTokensPrices();
+  const { SPELLPrice, MIMPrice } = await getTokensPrices();
 
-  if (!signer) signer = getDefaultSigner(chainId);
+  if (!signer) signer = store.getters.getDefaultSigner(chainId);
 
   const contractInstance = new ethers.Contract(
     farmInfo.contract.address,
@@ -92,7 +93,6 @@ export const createFarmItemConfig = async (
     );
 
   if (account) {
-    //todo check for positions page
     const farmUserInfoConfig = {
       ...farmItemConfig,
       farmId: farmInfo.farmId,
@@ -109,17 +109,12 @@ export const createFarmItemConfig = async (
 };
 
 const getTokensPrices = async () => {
-  const tokenAddressesArray = [
-    tokenAddresses.SPELL,
-    tokenAddresses.MIM,
-    tokenAddresses.WETH,
-  ];
+  const tokenAddressesArray = [tokenAddresses.SPELL, tokenAddresses.MIM];
 
   const tokensPrices = await getTokensArrayPrices(1, tokenAddressesArray);
 
   let SPELLPrice = 0,
-    MIMPrice = 0,
-    WETHPrice = 0;
+    MIMPrice = 0;
 
   if (tokensPrices)
     tokensPrices.map((token: any) => {
@@ -130,26 +125,11 @@ const getTokensPrices = async () => {
         case tokenAddresses.MIM:
           MIMPrice = token.price;
           break;
-        case tokenAddresses.WETH:
-          WETHPrice = token.price;
-          break;
       }
     });
 
   return {
     SPELLPrice,
     MIMPrice,
-    WETHPrice,
   };
-};
-
-const getDefaultSigner = (chainId: number) => {
-  let networksRpc: any = {
-    1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-    250: "https://rpc.ftm.tools/",
-    42161: "https://arb1.arbitrum.io/rpc",
-    43114: "https://api.avax.network/ext/bc/C/rpc",
-  };
-
-  return new ethers.providers.StaticJsonRpcProvider(networksRpc[chainId]);
 };

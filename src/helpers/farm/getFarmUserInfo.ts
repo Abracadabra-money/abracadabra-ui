@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import { getAccount } from "@wagmi/core";
-import { getAllowance } from "@/helpers/farm/getAllowance";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 
 const tokenAddresses = {
@@ -12,8 +11,8 @@ const tokenAddresses = {
 export const getFarmUserInfo = async (farmItemConfig: any) => {
   const account = await getAccount().address;
 
-  const allowance = await getAllowance(
-    farmItemConfig.stakingToken.contract,
+  const allowance = await farmItemConfig.stakingToken.contract.allowance(
+    account,
     farmItemConfig.contractInstance.address
   );
 
