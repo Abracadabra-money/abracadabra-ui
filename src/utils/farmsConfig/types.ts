@@ -5,7 +5,7 @@ export type FarmConfig = {
   icon: string;
   contractChain: number;
   id: number;
-  farmId: number;
+  poolId: number;
   stakingToken: {
     name: string;
     type: string;

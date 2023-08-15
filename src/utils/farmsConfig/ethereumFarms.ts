@@ -11,7 +11,7 @@ const ethereumFarms: FarmConfig[] = [
     icon: useImage(`assets/images/tokens/ETH-Spell.png`),
     contractChain: 1,
     id: 2,
-    farmId: 0,
+    poolId: 0,
     stakingToken: {
       name: "SLP",
       type: "SLP",
@@ -43,7 +43,7 @@ const ethereumFarms: FarmConfig[] = [
     icon: useImage(`assets/images/tokens/MIM-ETH.png`),
     contractChain: 1,
     id: 1,
-    farmId: 2,
+    poolId: 2,
     stakingToken: {
       name: "SLP",
       type: "SLP",
@@ -75,7 +75,7 @@ const ethereumFarms: FarmConfig[] = [
     icon: useImage(`assets/images/tokens/Curve-MIM.png`),
     contractChain: 1,
     id: 3,
-    farmId: 1,
+    poolId: 1,
     stakingToken: {
       name: "MIM-3LP3CRV-f-2",
       type: "LP",

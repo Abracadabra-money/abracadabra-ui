@@ -10,7 +10,7 @@ const arbitrumFarms: FarmConfig[] = [
     icon: useImage(`assets/images/tokens/Curve-MIM.png`),
     contractChain: 42161,
     id: 3,
-    farmId: 0,
+    poolId: 0,
     stakingToken: {
       name: "MIM-2Crv",
       type: "LP",

@@ -8,7 +8,7 @@ export const getFarmsList = async (
   signer: any,
   isExtended = true
 ) => {
-  let account: string | undefined = await getAccount().address;
+  const account: string | undefined = await getAccount().address;
 
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId

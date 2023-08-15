@@ -43,7 +43,7 @@ export const createFarmItemConfig = async (
     signer
   );
 
-  const poolInfo = await contractInstance.poolInfo(farmInfo.farmId);
+  const poolInfo = await contractInstance.poolInfo(farmInfo.poolId);
 
   const stakingTokenContract = new ethers.Contract(
     poolInfo.stakingToken,
@@ -67,11 +67,11 @@ export const createFarmItemConfig = async (
 
   const isDepreciated = farmRoi === 0;
 
-  let farmItemConfig: any = {
+  const farmItemConfig: any = {
     name: farmInfo.name,
     icon: farmInfo.icon,
     id: farmInfo.id,
-    farmId: farmInfo.farmId,
+    farmId: farmInfo.poolId,
     earnedTokenPrice: SPELLPrice,
     stakingToken: {
       link: farmInfo.stakingToken.link,
@@ -96,7 +96,7 @@ export const createFarmItemConfig = async (
   if (account) {
     const farmUserInfoConfig = {
       ...farmItemConfig,
-      farmId: farmInfo.farmId,
+      farmId: farmInfo.poolId,
       contractInstance,
       lpPrice,
       contractAddress: farmInfo.contract.address,

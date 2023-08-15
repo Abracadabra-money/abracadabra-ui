@@ -10,7 +10,7 @@ const fantomFarms: FarmConfig[] = [
     icon: useImage(`assets/images/tokens/Curve-MIM.png`),
     contractChain: 250,
     id: 3,
-    farmId: 0,
+    poolId: 0,
     stakingToken: {
       name: "3PoolV2",
       type: "LP",

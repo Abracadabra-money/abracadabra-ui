@@ -10,7 +10,7 @@ const avaxFarms: FarmConfig[] = [
     icon: useImage(`assets/images/tokens/CRV.png`),
     contractChain: 43114,
     id: 3,
-    farmId: 0,
+    poolId: 0,
     stakingToken: {
       name: "3PoolV2",
       type: "LP",
