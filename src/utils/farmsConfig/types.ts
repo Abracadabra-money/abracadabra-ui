@@ -1,3 +1,5 @@
+import type { BigNumber, Contract } from "ethers";
+
 export type FarmConfig = {
   name: string;
   icon: string;
@@ -29,4 +31,46 @@ export type FarmConfig = {
       icon: string;
     };
   };
+};
+
+export type FarmItem = {
+  name: string;
+  icon: string;
+  id: number;
+  farmId: number;
+  earnedTokenPrice: number;
+  stakingToken: {
+    link: string;
+    name: string;
+    type: string;
+    contract: Contract;
+  };
+  depositedBalance: number;
+  contractInstance: Contract;
+  contractAddress: string;
+  farmRoi: number;
+  lpPrice: number;
+  isDepreciated: boolean;
+  accountInfo?: FarmAccountInfo;
+  farmTvl?: number;
+};
+
+export type FarmAccountInfo = {
+  allowance: BigNumber;
+  userInfo: object;
+  userReward: string;
+  tokensBalanceInfo: {
+    token0: {
+      name: any;
+      amount: number;
+      amountInUsd: number;
+    };
+    token1: {
+      name: any;
+      amount: number;
+      amountInUsd: number;
+    };
+  } | null;
+  balance: string;
+  depositedBalance: string;
 };

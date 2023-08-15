@@ -1,117 +1,65 @@
 <template>
   <div class="farm-view">
-    <div class="farm">
-      <div class="farm-wrap">
+    <div class="farm-wrap">
+      <div class="farm">
         <h3 class="title">Farm</h3>
+
         <h4 class="sub-title">Choose Chain</h4>
-        <div class="wrap-networks underline">
+
+        <div class="networks-list-wrap underline">
           <NetworksList :activeList="activeNetworks" />
         </div>
-        <div class="switcher">
+
+        <div class="stake-unstake-switch" v-if="!isDepreciated">
           <MarketsSwitch
             :name="selectedTab"
             :items="items"
-            @select="selectedTab = $event.name"
+            @select="selectTab($event.name)"
           />
         </div>
-        <div class="select-wrap underline">
-          <h4 class="sub-title">Farming Opportunities</h4>
-          <button class="select" @click="isTokensOpened = true">
-            <BaseTokenIcon
-              v-if="selectedPool"
-              :name="selectedPool.name"
-              :icon="selectedPool.icon"
-            />
-            <BaseTokenIcon v-else type="select" />
-            <span class="select-text">
-              {{ selectedPool ? selectedPool.name : "Select Farm" }}
-            </span>
-            <img
-              class="select-arrow"
-              src="@/assets/images/arrow.svg"
-              alt="Arrow"
-            />
-          </button>
-        </div>
+
+        <h4 class="sub-title">Farming Opportunities</h4>
+
+        <SelectFarm
+          class="underline"
+          :selectedFarm="selectedFarm"
+          @openFarmsPopup="openFarmsPopup"
+        />
+
+        <h4 class="sub-title">
+          {{ inputTitleText }}
+          <span class="deposit-balance" v-if="max">Balance: {{ max }}</span>
+        </h4>
 
         <div class="input-wrap underline">
-          <h4 class="sub-title">
-            Deposit
-            {{ selectedPool ? selectedPool.stakingTokenName : "" }} tokens
-          </h4>
           <BaseTokenInput
-            :value="amount"
-            @updateValue="amount = $event"
-            :name="selectedPool ? selectedPool.stakingTokenName : null"
-            :icon="selectedPool ? selectedPool.icon : null"
+            :value="inputAmount"
+            @updateValue="inputAmount = $event"
+            :name="selectedFarm?.stakingToken?.name"
+            :icon="selectedFarm?.icon"
             :max="max"
             :error="error"
-            :disabled="!selectedPool"
+            :disabled="!selectedFarm"
           />
         </div>
 
         <div class="btn-wrap">
           <BaseButton
-            v-if="!isAllowance && !isUnstake"
-            @click="approveHandler"
-            :disabled="!isValid || !!error || +selectedPool.poolRoi === 0"
+            @click="actionHandler"
+            :disabled="isButtonDisabled"
             primary
-            >Approve</BaseButton
-          >
-          <BaseButton
-            v-if="isUnstake || isAllowance"
-            @click="handler"
-            :disabled="
-              !isValid || !!error || (!isUnstake && +selectedPool.poolRoi === 0)
-            "
-            primary
-            >{{ !isUnstake ? "Stake" : "Unstake" }}</BaseButton
-          >
+            >{{ buttonText }}
+          </BaseButton>
         </div>
+
+        <FarmInfoBlock :selectedFarm="selectedFarm" v-if="selectedFarm" />
       </div>
-      <template v-if="selectedPool">
-        <div class="info underline">
-          <p class="info-text">
-            <img
-              src="@/assets/images/info.svg"
-              alt=""
-              v-tooltip="'Annual Return on Staked tokens at current price'"
-            />
-            APR
-          </p>
-          <p class="info-value">{{ formatPercent(selectedPool.poolRoi) }}</p>
-        </div>
-
-        <div class="info underline">
-          <p class="info-text">
-            <img
-              src="@/assets/images/info.svg"
-              alt=""
-              v-tooltip="'Total Value Locked in the Farm'"
-            />
-            TVL
-          </p>
-          <p class="info-value">{{ formatUSD(selectedPool.poolTvl) }}</p>
-        </div>
-
-        <div class="farm-link-wrap">
-          <a
-            class="farm-link"
-            :href="selectedPool.stakingTokenLink"
-            target="_blank"
-          >
-            <img src="@/assets/images/farm-lp.svg" alt="" />
-            <p>Get LP’s</p>
-            <img src="@/assets/images/farm-lp-arrow.svg" alt="" />
-          </a></div
-      ></template>
     </div>
     <LocalPopupWrap
-      :isOpened="isTokensOpened"
-      @closePopup="isTokensOpened = false"
+      :isOpened="isFarmsPopupOpened"
+      @closePopup="isFarmsPopupOpened = false"
     >
       <MarketsListPopup
-        :farmsList="pools"
         popupType="farms"
         @changeActiveMarket="changeActiveMarket"
       />
@@ -121,99 +69,138 @@
 
 <script>
 import { mapGetters } from "vuex";
-
 import NetworksList from "@/components/ui/NetworksList.vue";
+import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
+import SelectFarm from "@/components/farm/SelectFarm.vue";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
-import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
-import farmPoolsMixin from "../mixins/farmPools";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import FarmInfoBlock from "@/components/farm/FarmInfoBlock.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
-
-import filters from "@/filters/index.js";
+import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
+import { utils } from "ethers";
 
 export default {
-  mixins: [farmPoolsMixin],
   props: {
-    id: { type: [String, Number], default: null },
-    unstake: { type: Boolean, default: false },
+    id: { type: String },
   },
+
   data() {
     return {
-      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-      isTokensOpened: false,
-      amount: "",
+      activeNetworks: [1, 250, 43114, 42161],
+      isFarmsPopupOpened: false,
+      inputAmount: "",
       selectedTab: "stake",
       items: [
         { title: "Stake", name: "stake" },
         { title: "Unstake", name: "unstake" },
       ],
-      farmPoolsTimer: null,
+      farmsTimer: null,
+      selectedFarm: null,
     };
   },
+
   computed: {
     ...mapGetters({
-      address: "getAccount",
-      loading: "getFarmPoolLoading",
+      chainId: "getChainId",
+      account: "getAccount",
+      signer: "getSigner",
     }),
+
     isUnstake() {
       return this.selectedTab === "unstake";
     },
-    selectedPool() {
-      return this.pools.find(({ id }) => +id === +this.id) || null;
+
+    isAllowed() {
+      if (!this.account || !this.selectedFarm) return false;
+      return (
+        utils.formatUnits(this.selectedFarm?.accountInfo?.allowance) >=
+        this.inputAmount
+      );
     },
 
-    isAllowance() {
-      return !!this.selectedPool?.accountInfo?.allowance;
+    isValid() {
+      return !!+this.inputAmount;
     },
+
+    isDepreciated() {
+      return this.selectedFarm?.isDepreciated;
+    },
+
     max() {
       return !this.isUnstake
-        ? this.selectedPool?.accountInfo?.balance
-        : this.selectedPool?.accountInfo?.depositedBalance;
+        ? this.selectedFarm?.accountInfo?.balance
+        : this.selectedFarm?.accountInfo?.depositedBalance;
     },
-    isValid() {
-      return !!+this.amount;
-    },
+
     error() {
-      return Number(this.amount) > Number(this.max)
+      return Number(this.inputAmount) > Number(this.max)
         ? `The value cannot be greater than ${this.max}`
         : null;
     },
+
+    buttonText() {
+      const text = this.isUnstake ? "Unstake" : "Stake";
+      return !this.isAllowed && !this.isUnstake ? "Approve" : text;
+    },
+
+    inputTitleText() {
+      return `${this.isUnstake ? "Unstake" : "Deposit"} ${
+        this.selectedFarm ? this.selectedFarm.stakingToken.name : ""
+      } tokens`;
+    },
+
+    isButtonDisabled() {
+      return !this.isValid || !!this.error;
+    },
   },
+
   watch: {
-    async address() {
-      if (this.address) {
-        await this.createFarmPools();
-      }
-    },
-    max() {
-      this.amount = "";
-    },
-    unstake: {
+    account: {
       immediate: true,
-      handler(value) {
-        if (value) this.selectedTab = "unstake";
+      async handler() {
+        if (this.account) await this.getSelectedFarm();
       },
     },
+
+    id: {
+      immediate: true,
+      async handler(value) {
+        await this.getSelectedFarm();
+        const action = this.$route.redirectedFrom?.query.action;
+        if (action) this.selectTab(action);
+      },
+    },
+
+    max() {
+      this.inputAmount = "";
+    },
+
+    isDepreciated(status) {
+      this.selectedTab = status ? "unstake" : "stake";
+    },
   },
+
   methods: {
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
-    formatPercent(value) {
-      return filters.formatPercent(value);
-    },
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
     changeActiveMarket(marketId) {
       if (+marketId !== +this.id)
-        this.$router.push({ name: "FarmPool", params: { id: marketId } });
+        this.$router.push({ name: "Farm", params: { id: marketId } });
 
-      this.isTokensOpened = false;
+      this.isFarmsPopupOpened = false;
+    },
+
+    selectTab(action) {
+      this.selectedTab = action;
+    },
+
+    async actionHandler() {
+      if (this.isButtonDisabled) return false;
+      if (!this.isAllowed) this.approveHandler();
+      else if (this.isUnstake) this.unstakeHandler();
+      else this.stakeHandler();
     },
 
     async stakeHandler() {
@@ -223,17 +210,18 @@ export default {
       );
       try {
         const parseAmount = this.$ethers.utils.parseEther(
-          this.amount.toString()
+          this.inputAmount.toString()
         );
 
-        const tx = await this.selectedPool.contractInstance.deposit(
-          this.selectedPool.poolId,
+        const tx = await this.selectedFarm.contractInstance.deposit(
+          this.selectedFarm.farmId,
           parseAmount
         );
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
-        console.log("stake success:", receipt);
+        await this.getSelectedFarm();
+
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
       } catch (error) {
@@ -248,10 +236,7 @@ export default {
         await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
-    handler() {
-      if (!this.isUnstake) this.stakeHandler();
-      else this.unstakeHandler();
-    },
+
     async unstakeHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
@@ -259,17 +244,17 @@ export default {
       );
       try {
         const parseAmount = this.$ethers.utils.parseEther(
-          this.amount.toString()
+          this.inputAmount.toString()
         );
 
-        const tx = await this.selectedPool.contractInstance.withdraw(
-          this.selectedPool.poolId,
+        const tx = await this.selectedFarm.contractInstance.withdraw(
+          this.selectedFarm.farmId,
           parseAmount
         );
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
-        console.log("unstakeHandler success:", receipt);
+        await this.getSelectedFarm();
 
         await this.$store.commit("notifications/delete", notificationId);
         await this.$store.dispatch("notifications/new", notification.success);
@@ -285,6 +270,7 @@ export default {
         await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
+
     async approveHandler() {
       const notificationId = await this.$store.dispatch(
         "notifications/new",
@@ -293,24 +279,25 @@ export default {
 
       try {
         const estimateGas =
-          await this.selectedPool.stakingTokenContract.estimateGas.approve(
-            this.selectedPool.contractAddress,
+          await this.selectedFarm.stakingToken.contract.estimateGas.approve(
+            this.selectedFarm.contractAddress,
             "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
           );
 
         const gasLimit = 1000 + +estimateGas.toString();
 
-        const tx = await this.selectedPool.stakingTokenContract.approve(
-          this.selectedPool.contractAddress,
+        const tx = await this.selectedFarm.stakingToken.contract.approve(
+          this.selectedFarm.contractAddress,
           "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
           {
             gasLimit,
           }
         );
 
-        const receipt = await tx.wait();
+        await tx.wait();
 
-        console.log(receipt);
+        await this.getSelectedFarm();
+
         await this.$store.commit("notifications/delete", notificationId);
       } catch (error) {
         console.log("approve err:", error);
@@ -324,19 +311,33 @@ export default {
         await this.$store.dispatch("notifications/new", errorNotification);
       }
     },
-  },
-  async created() {
-    if (!this.pools.length) {
-      await this.createFarmPools();
-    }
 
-    this.farmPoolsTimer = setInterval(async () => {
-      await this.createFarmPools();
-    }, 10000);
+    async getSelectedFarm() {
+      this.selectedFarm = await createFarmItemConfig(
+        this.id,
+        this.chainId,
+        this.signer,
+        this.account
+      );
+    },
+
+    openFarmsPopup() {
+      this.isFarmsPopupOpened = true;
+    },
   },
+
+  async created() {
+    await this.getSelectedFarm();
+
+    this.farmsTimer = setInterval(async () => {
+      await this.getSelectedFarm();
+    }, 60000);
+  },
+
   beforeUnmount() {
-    clearInterval(this.farmPoolsTimer);
+    clearInterval(this.farmsTimer);
   },
+
   components: {
     BaseTokenIcon,
     NetworksList,
@@ -345,6 +346,8 @@ export default {
     LocalPopupWrap,
     MarketsListPopup,
     MarketsSwitch,
+    SelectFarm,
+    FarmInfoBlock,
   },
 };
 </script>
@@ -357,7 +360,7 @@ export default {
   margin: 0 auto;
 }
 
-.farm {
+.farm-wrap {
   margin: 0 auto;
   padding: 30px 95px;
   background: #2a2835;
@@ -365,7 +368,7 @@ export default {
   border-radius: 30px;
 }
 
-.farm-wrap {
+.farm {
   padding: 0 30px;
 }
 
@@ -379,50 +382,25 @@ export default {
 }
 
 .sub-title {
+  display: flex;
+  justify-content: space-between;
   font-weight: 600;
   font-size: 18px;
   line-height: 27px;
   margin-bottom: 10px;
 }
 
-.wrap-networks {
+.deposit-balance {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.networks-list-wrap {
   margin-bottom: 17px;
 }
 
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.select-wrap {
-  padding-bottom: 15px;
-  margin-bottom: 30px;
-}
-
-.select {
-  width: 100%;
-  height: 70px;
-  outline: transparent;
-  background: rgba(129, 126, 166, 0.2);
-  border: 1px solid #494661;
-  border-radius: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-
-  &:disabled {
-    cursor: default;
-  }
-}
-
-.select-text {
-  margin-right: 10px;
-}
-
-.select-arrow {
-  width: 16px;
-  height: 16px;
 }
 
 .input-wrap {
@@ -437,46 +415,7 @@ export default {
   margin-bottom: 119px;
 }
 
-.info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 13px;
-  margin-bottom: 35px;
-}
-
-.info-text {
-  display: flex;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.6);
-
-  img {
-    margin-right: 10px;
-    cursor: pointer;
-  }
-}
-
-.farm-link-wrap {
-  display: flex;
-  justify-content: center;
-}
-
-.farm-link {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  grid-column-gap: 7px;
-  justify-content: center;
-  align-items: center;
-  padding: 3px 10px;
-  background: rgba(157, 244, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-sizing: border-box;
-  border-radius: 30px;
-  font-size: 14px;
-  color: #63caf8;
-}
-
-.switcher {
+.stake-unstake-switch {
   margin-bottom: 27px;
 }
 
@@ -486,19 +425,19 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .farm {
+  .farm-wrap {
     padding: 30px;
   }
-  .farm-wrap {
+  .farm {
     padding: 0 15px;
   }
 }
 
 @media (max-width: 600px) {
-  .farm {
+  .farm-wrap {
     padding: 30px 15px;
   }
-  .farm-wrap {
+  .farm {
     padding: 0;
   }
 }
