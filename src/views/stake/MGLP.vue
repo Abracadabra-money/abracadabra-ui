@@ -192,7 +192,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  Number(mainToken.totalSupply).toLocaleString()
+                  formatTokenBalance(mainToken.totalSupply)
                 }}</span>
                 <span class="info-usd">{{
                   formatUSD(mainToken.totalSupplyUsd)
@@ -210,7 +210,7 @@
               </div>
               <div class="info-balance">
                 <span class="info-value">{{
-                  Number(totalRewardsEarned).toLocaleString()
+                  formatTokenBalance(totalRewardsEarned)
                 }}</span>
                 <span class="info-usd">{{ formatUSD(totalRewardsUsd) }}</span>
               </div>
