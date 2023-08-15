@@ -34,7 +34,7 @@ import { getChartData } from "@/helpers/stake/magicGlp/subgraph/getChartData/";
 export default {
   props: {
     chainId: { type: Number, required: true },
-    apy: { type: Number, default: 0 },
+    apy: { type: String, default: "0" },
     feePercent: { type: Number, default: 0 },
   },
 

@@ -22,7 +22,7 @@
 import { defineAsyncComponent } from "vue";
 export default {
   props: {
-    apy: { type: Number, required: true },
+    apy: { type: String, required: true },
   },
 
   components: {
