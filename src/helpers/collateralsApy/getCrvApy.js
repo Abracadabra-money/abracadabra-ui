@@ -8,10 +8,13 @@ let cvxTokenPrice = null;
 
 const getCrvApy = async (pool, baseRewardPool, provider) => {
   try {
-    const tokenRate = pool.borrowToken.exchangeRate;
+    const tokenRate = ethers.utils.formatUnits(
+      pool.mainParams.oracleExchangeRate,
+      pool.config.collateralInfo.decimals
+    );
 
     const crvRewardPoolContract = new ethers.Contract(
-        baseRewardPool,
+      baseRewardPool,
       JSON.stringify(crvRewardPoolAbi),
       provider
     );
@@ -46,7 +49,6 @@ const getCrvApy = async (pool, baseRewardPool, provider) => {
     cvxPrice = cvxTokenPrice;
 
     const apy = (+crvReward * crvPrice + parsedCvxReward * cvxPrice) / 10;
-
     return +apy;
   } catch (e) {
     console.log("getCrvToCvx err", e);
@@ -101,4 +103,4 @@ const convertCrvToCvx = async (amount, provider) => {
   }
 };
 
-export { getCrvApy }
+export { getCrvApy };

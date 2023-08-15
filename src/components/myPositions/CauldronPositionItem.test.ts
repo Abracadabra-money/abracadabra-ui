@@ -1,9 +1,11 @@
 import { mount } from "@vue/test-utils";
 import Vuex from "vuex";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
 import config from "@/utils/cauldronsConfig/ethereumCauldrons";
 import configArb from "@/utils/cauldronsConfig/arbitrumCauldrons";
+import { useImage } from "@/helpers/useImage";
+
 import { useImage } from "@/helpers/useImage";
 
 import { ethers } from "ethers";
@@ -36,6 +38,8 @@ const cauldronArb = {
 };
 
 describe("CauldronPositionItem.vue", () => {
+  const tooltip = vi.fn();
+
   it("Should render in default situation, when passed only cauldron", () => {
     const store = new Vuex.Store({
       modules: {
@@ -50,7 +54,10 @@ describe("CauldronPositionItem.vue", () => {
 
     const wrapper: any = mount(CauldronPositionItem, {
       props: { cauldron },
-      global: { plugins: [store] },
+      global: {
+        plugins: [store],
+        directives: { tooltip },
+      },
     });
 
     const positionHealth = wrapper.find(".position-health");
@@ -71,7 +78,10 @@ describe("CauldronPositionItem.vue", () => {
 
     const wrapper: any = mount(CauldronPositionItem, {
       props: { opened: false, cauldron },
-      global: { plugins: [store] },
+      global: {
+        plugins: [store],
+        directives: { tooltip },
+      },
     });
 
     const positionHealth = wrapper.find(".position-health");
@@ -92,7 +102,10 @@ describe("CauldronPositionItem.vue", () => {
 
     const wrapper: any = mount(CauldronPositionItem, {
       props: { cauldron },
-      global: { plugins: [store] },
+      global: {
+        plugins: [store],
+        directives: { tooltip },
+      },
     });
 
     expect(wrapper.vm.collateralSymbol).toBe("sSPELL");
@@ -110,7 +123,10 @@ describe("CauldronPositionItem.vue", () => {
 
     const wrapperArb: any = mount(CauldronPositionItem, {
       props: { cauldron: cauldronArb },
-      global: { plugins: [storeArb] },
+      global: {
+        plugins: [storeArb],
+        directives: { tooltip },
+      },
     });
 
     expect(wrapperArb.vm.collateralSymbol).toBe("WETH");
@@ -130,7 +146,10 @@ describe("CauldronPositionItem.vue", () => {
 
     const wrapper: any = mount(CauldronPositionItem, {
       props: { cauldron },
-      global: { plugins: [store] },
+      global: {
+        plugins: [store],
+        directives: { tooltip },
+      },
     });
 
     expect(wrapper.vm.oracleRate).toBe("0.0000000000000001");
@@ -168,7 +187,10 @@ describe("CauldronPositionItem.vue", () => {
       props: {
         cauldron,
       },
-      global: { plugins: [store] },
+      global: {
+        plugins: [store],
+        directives: { tooltip },
+      },
     });
 
     expect(wrapper.vm.positionHealth).toBe("100.00");

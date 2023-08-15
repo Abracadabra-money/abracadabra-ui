@@ -64,7 +64,7 @@ import filters from "@/filters/index.js";
 import farmMixin from "@/mixins/farmPools";
 import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
 import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
-import { getUserPositions } from "@/helpers/cauldron/position/getUserPositions.ts";
+import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import TotalAssets from "@/components/myPositions/TotalAssets.vue";
@@ -180,7 +180,7 @@ export default {
         return false;
       }
 
-      this.positionList = await getUserPositions(
+      this.positionList = await getUserOpenPositions(
         this.chainId,
         this.account,
         this.provider
@@ -192,7 +192,7 @@ export default {
       if (!this.pools.length) await this.createFarmPools();
 
       this.updateInterval = setInterval(async () => {
-        this.positionList = await getUserPositions(
+        this.positionList = await getUserOpenPositions(
           this.chainId,
           this.account,
           this.provider
