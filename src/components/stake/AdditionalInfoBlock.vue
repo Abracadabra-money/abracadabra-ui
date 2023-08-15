@@ -6,11 +6,13 @@
       <div class="description">
         <div class="token-info">
           <BaseTokenIcon :icon="mainToken.icon" size="40px" />
-          <span>{{ mainToken.name }}</span>
+          <span class="token-symbol">{{ mainToken.name }}</span>
         </div>
 
         <div class="info-balance">
-          <span class="amount">{{ formatNumber(mainToken.totalSupply) }}</span>
+          <span class="amount">{{
+            formatTokenBalance(mainToken.totalSupply)
+          }}</span>
           <span class="price">{{ formatUSD(mainToken.totalSupplyUsd) }}</span>
         </div>
       </div>
@@ -24,11 +26,13 @@
       <div class="description">
         <div class="token-info">
           <BaseTokenIcon :icon="rewardToken.icon" size="40px" />
-          <span>{{ rewardToken.symbol }}</span>
+          <span class="token-symbol">{{ rewardToken.symbol }}</span>
         </div>
 
         <div class="info-balance">
-          <span class="amount">{{ formatNumber(rewardToken.amount) }}</span>
+          <span class="amount">{{
+            formatTokenBalance(rewardToken.amount)
+          }}</span>
           <span class="price">{{ formatUSD(rewardToken.amountUsd) }}</span>
         </div>
       </div>
@@ -50,8 +54,8 @@ export default {
       return filters.formatUSD(value);
     },
 
-    formatNumber(value) {
-      return filters.formatNumber(value);
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
     },
   },
 

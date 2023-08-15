@@ -36,8 +36,10 @@ export const getTokensInfo = async (
     .div(oracleExchangeRate);
 
   const tokenRate = magicGlpAmount.mul(precision).div(totalSupply);
-
   const stakeTokenPrice = mainTokenPrice.mul(precision).div(tokenRate);
+  const formatMainTokenPrice = utils.formatUnits(mainTokenPrice);
+  const formatTotalSupply = utils.formatUnits(totalSupply);
+  const totalSupplyUsd = +formatTotalSupply * +formatMainTokenPrice;
 
   return {
     mainToken: {
@@ -48,6 +50,7 @@ export const getTokensInfo = async (
       price: utils.formatUnits(mainTokenPrice),
       rate: +utils.formatUnits(tokenRate),
       totalSupply: utils.formatUnits(totalSupply),
+      totalSupplyUsd,
       balance: utils.formatUnits(userMagicGlpBalance),
       approvedAmount: utils.formatUnits(allowanceAmount),
       contract: markRaw(magicGlpContract.connect(signer)),
