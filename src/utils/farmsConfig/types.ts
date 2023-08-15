@@ -45,12 +45,16 @@ export type FarmItem = {
     type: string;
     contract: Contract;
   };
-  depositedBalance: number;
+  depositedBalance?: {
+    token0: { name: string; icon: string };
+    token1: { name: string; icon: string };
+  };
   contractInstance: Contract;
   contractAddress: string;
   farmRoi: number;
   lpPrice: number;
   isDepreciated: boolean;
+  farmYield: number;
   accountInfo?: FarmAccountInfo;
   farmTvl?: number;
 };
@@ -73,4 +77,12 @@ export type FarmAccountInfo = {
   } | null;
   balance: string;
   depositedBalance: string;
+};
+
+export type PoolInfo = {
+  stakingToken: string;
+  stakingTokenTotalAmount: BigNumber;
+  accIcePerShare: BigNumber;
+  lastRewardTime: number;
+  allocPoint: number;
 };

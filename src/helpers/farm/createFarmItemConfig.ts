@@ -1,5 +1,5 @@
 import { markRaw } from "vue";
-import { ethers } from "ethers";
+import { Signer, ethers } from "ethers";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
@@ -8,7 +8,12 @@ import { getFarmUserInfo } from "@/helpers/farm/getFarmUserInfo";
 import farmsConfig from "@/utils/farmsConfig/farms";
 import store from "@/store";
 
-import type { FarmConfig, FarmItem } from "@/utils/farmsConfig/types";
+import type { FarmConfig, FarmItem, PoolInfo } from "@/utils/farmsConfig/types";
+
+type TokenPrices = {
+  SPELLPrice: number;
+  MIMPrice: number;
+};
 
 export const tokenAddresses = {
   SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
@@ -17,10 +22,10 @@ export const tokenAddresses = {
 };
 
 export const createFarmItemConfig = async (
-  farmId: string | number,
+  farmId: string,
   chainId: number,
-  signer: any,
-  account: any,
+  signer: Signer,
+  account: string,
   isExtended = true
 ): Promise<FarmItem | Boolean> => {
   const farmsOnChain = farmsConfig.filter(
@@ -28,7 +33,7 @@ export const createFarmItemConfig = async (
   );
 
   const farmInfo: FarmConfig | undefined = farmsOnChain.find(
-    ({ id }) => +id === +farmId
+    ({ id }) => id === Number(farmId)
   );
 
   if (!farmInfo) return false;
@@ -43,7 +48,7 @@ export const createFarmItemConfig = async (
     signer
   );
 
-  const poolInfo = await contractInstance.poolInfo(farmInfo.poolId);
+  const poolInfo: PoolInfo = await contractInstance.poolInfo(farmInfo.poolId);
 
   const stakingTokenContract = new ethers.Contract(
     poolInfo.stakingToken,
@@ -61,9 +66,7 @@ export const createFarmItemConfig = async (
     SPELLPrice
   );
 
-  const farmRoi = +farmYield
-    ? await getRoi(+farmYield, SPELLPrice)
-    : +farmYield;
+  const farmRoi = farmYield ? await getRoi(farmYield, SPELLPrice) : farmYield;
 
   const isDepreciated = farmRoi === 0;
 
@@ -90,26 +93,17 @@ export const createFarmItemConfig = async (
   if (isExtended)
     farmItemConfig.farmTvl = await getTVL(
       poolInfo.stakingTokenTotalAmount,
-      +lpPrice!
+      lpPrice!
     );
 
   if (account) {
-    const farmUserInfoConfig = {
-      ...farmItemConfig,
-      farmId: farmInfo.poolId,
-      contractInstance,
-      lpPrice,
-      contractAddress: farmInfo.contract.address,
-      farmYield,
-    };
-
-    farmItemConfig.accountInfo = await getFarmUserInfo(farmUserInfoConfig);
+    farmItemConfig.accountInfo = await getFarmUserInfo(farmItemConfig);
     return markRaw(farmItemConfig);
   }
   return markRaw(farmItemConfig);
 };
 
-const getTokensPrices = async () => {
+const getTokensPrices = async (): Promise<TokenPrices> => {
   const tokenAddressesArray = [tokenAddresses.SPELL, tokenAddresses.MIM];
 
   const tokensPrices = await getTokensArrayPrices(1, tokenAddressesArray);

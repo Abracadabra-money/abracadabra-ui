@@ -1,7 +1,15 @@
-export const getRoi = async (farmYield: any, price: any) => {
+export const getRoi = async (
+  farmYield: number,
+  price: number
+): Promise<number> => {
   try {
-    return ((parseFloat(farmYield) * parseFloat(price) * 100) / 1000) * 365;
+    return Number(
+      ((parseFloat(farmYield.toString()) * parseFloat(price.toString()) * 100) /
+        1000) *
+        365
+    );
   } catch (error) {
     console.log("getRoi", error);
+    return 0;
   }
 };
