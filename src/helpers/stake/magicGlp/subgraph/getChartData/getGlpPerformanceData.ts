@@ -1,24 +1,24 @@
-import getCoingeckoPrice from "./get-coingecko-price";
+import { getCoingeckoPrice } from "@/helpers/stake/magicGlp/subgraph/getChartData/getCoingeckoPrice";
 
-function getImpermanentLoss(change) {
+const getImpermanentLoss = (change: any) => {
   return (2 * Math.sqrt(change)) / (1 + change) - 1;
-}
+};
 
-const getGlpPerformanceData = async (
-  glpData,
-  feesData,
-  { from, chainId = 42161 }
+export const getGlpPerformanceData = async (
+  glpData: any,
+  feesData: any,
+  { from, chainId = 42161 }: any
 ) => {
   const btcPrices = await getCoingeckoPrice("BTC", { from });
   const ethPrices = await getCoingeckoPrice("ETH", { from });
   const avaxPrices = await getCoingeckoPrice("AVAX", { from });
 
-  const glpDataById = glpData.reduce((memo, item) => {
+  const glpDataById = glpData.reduce((memo: any, item: any) => {
     memo[item.timestamp] = item;
     return memo;
   }, {});
 
-  const feesDataById = feesData.reduce((memo, item) => {
+  const feesDataById = feesData.reduce((memo: any, item: any) => {
     memo[item.timestamp] = item;
     return memo;
   });
@@ -66,15 +66,16 @@ const getGlpPerformanceData = async (
     prevAvaxPrice = avaxPrice;
     prevEthPrice = ethPrice;
 
-    const timestampGroup = parseInt(btcPrices[i].timestamp / 86400) * 86400;
+    const timestampGroup =
+      parseInt((btcPrices[i].timestamp / 86400).toString()) * 86400;
 
-    const glpItem = glpDataById[timestampGroup] || lastGlpItem;
+    const glpItem: any = glpDataById[timestampGroup] || lastGlpItem;
     lastGlpItem = glpItem;
 
     const glpPrice = glpItem?.glpPrice;
     const glpSupply = glpItem?.glpSupply;
 
-    const feesItem = feesDataById[timestampGroup] || lastFeesItem;
+    const feesItem: any = feesDataById[timestampGroup] || lastFeesItem;
     lastFeesItem = feesItem;
 
     const dailyFees = feesItem?.all;
@@ -211,5 +212,3 @@ const getGlpPerformanceData = async (
 
   return ret;
 };
-
-export default getGlpPerformanceData;

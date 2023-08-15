@@ -17,7 +17,10 @@
       </button>
     </div>
 
-    <TickChart :labels="chartData.labels" :tickUpper="chartData.tickUpper" />
+    <TickChart
+      :chartData="chartData"
+      :createChartOptions="createChartOptions"
+    />
   </div>
 
   <div class="loader-wrap" v-else>
@@ -26,9 +29,8 @@
 </template>
 
 <script>
-import moment from "moment";
 import { defineAsyncComponent } from "vue";
-import { getMagicGlpChartData } from "@/helpers/subgraph/magicGlp/getMagicGlpChartData";
+import { getChartData } from "@/helpers/stake/magicGlp/subgraph/getChartData/";
 export default {
   props: {
     chainId: { type: Number, required: true },
@@ -51,30 +53,77 @@ export default {
   },
 
   methods: {
-    async createChartData() {
-      const chartData = { labels: [], tickUpper: [] };
-
-      const response = await getMagicGlpChartData(this.chainId, this.activeBtn);
-
-      response.forEach((element) => {
-        chartData.labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        chartData.tickUpper.push(element.glpApy * (1 - this.feePercent));
-      });
-
-      this.chartData = chartData;
-    },
-
     async changeChartTime(time) {
       this.activeBtn = time;
-      await this.createChartData();
+      this.chartData = await getChartData(
+        this.chainId,
+        this.activeBtn,
+        this.feePercent
+      );
+    },
+
+    createChartOptions() {
+      return {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            mode: "index",
+            intersect: false,
+            callbacks: {
+              label: function (context) {
+                const { dataset, dataIndex } = context;
+                const { label, data } = dataset;
+                return ` ${label} ${data[dataIndex].toFixed(2)}%`;
+              },
+            },
+          },
+          legend: {
+            display: false,
+          },
+          title: {
+            color: "#fff",
+          },
+        },
+        scales: {
+          y: {
+            ticks: {
+              color: "rgba(255, 255, 255, 0.5)",
+              font: {
+                size: 10,
+                weight: "light",
+              },
+              callback: function (value) {
+                return `${value}%`;
+              },
+            },
+          },
+          x: {
+            ticks: {
+              color: "rgba(255, 255, 255, 0.5)",
+              font: {
+                size: 10,
+                weight: "light",
+              },
+            },
+          },
+        },
+      };
     },
   },
 
   async created() {
-    await this.createChartData();
+    this.chartData = await getChartData(
+      this.chainId,
+      this.activeBtn,
+      this.feePercent
+    );
 
     this.updateInterval = setInterval(async () => {
-      await this.createChartData();
+      this.chartData = await getChartData(
+        this.chainId,
+        this.activeBtn,
+        this.feePercent
+      );
     }, 60000);
   },
 

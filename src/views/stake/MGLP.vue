@@ -100,7 +100,9 @@
           />
         </div>
 
-        <EmptyBlock v-else :warningType="'mglp'" />
+        <div class="empty-wrap" v-else>
+          <EmptyBlock :warningType="'mglp'" />
+        </div>
 
         <div class="description">
           <p>
@@ -111,7 +113,7 @@
           <p>Note: A 1% protocol fee is taken on the yields.</p>
         </div>
 
-        <div class="links-wrap">
+        <div class="links-wrap" v-if="isUnsupportedChain">
           <GetTokenLink
             :data="{ href: 'https://app.gmx.io/#/buy_glp', label: 'Buy GLP' }"
           />
@@ -138,7 +140,7 @@ import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
 import { getMegicGlpApy } from "@/helpers/collateralsApy/getMegicGlpApy";
-import { getMagicGlpTotalRewards } from "@/helpers/subgraph/magicGlp/getMagicGlpTotalRewards";
+import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
 
 export default {
   data() {
@@ -328,13 +330,13 @@ export default {
   async created() {
     await this.createStakeInfo();
 
+    if (!this.isUnsupportedChain) return false;
+
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();
     }, 60000);
 
-    if (!this.isUnsupportedChain) return false;
-
-    this.totalRewards = await getMagicGlpTotalRewards(this.chainId);
+    this.totalRewards = await getTotalRewards(this.chainId);
 
     const response = await getMegicGlpApy(this.chainId);
     this.apy = parseFloat(response.magicGlpApy).toFixed(2);
@@ -468,6 +470,10 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-bottom: 20px;
+}
+
+.empty-wrap {
   margin-bottom: 20px;
 }
 

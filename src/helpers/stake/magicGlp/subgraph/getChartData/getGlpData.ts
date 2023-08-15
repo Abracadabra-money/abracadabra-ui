@@ -1,10 +1,14 @@
 import axios from "axios";
 import { sortBy } from "lodash";
-import getSubgraphUrl from "./get-subgraph-url";
 
-function fillNa(arr) {
-  const prevValues = {};
-  let keys;
+const urls = {
+  42161: "gmx-stats",
+  43114: "gmx-avalanche-stats",
+};
+
+const fillNa = (arr: any) => {
+  const prevValues: any = {};
+  let keys: any;
   if (arr.length > 0) {
     keys = Object.keys(arr[0]);
     delete keys.timestamp;
@@ -14,8 +18,8 @@ function fillNa(arr) {
   for (const el of arr) {
     for (const key of keys) {
       if (!el[key]) {
-        if (prevValues[key]) {
-          el[key] = prevValues[key];
+        if (prevValues[key as keyof typeof prevValues]) {
+          el[key] = prevValues[key as keyof typeof prevValues];
         }
       } else {
         prevValues[key] = el[key];
@@ -23,10 +27,11 @@ function fillNa(arr) {
     }
   }
   return arr;
-}
+};
 
-const getGlpData = async ({ from, to, chainId = 42161 }) => {
-  const subgraphUrl = getSubgraphUrl(chainId);
+export const getGlpData = async ({ from, to, chainId = 42161 }: any) => {
+  const url = urls[chainId as keyof typeof urls];
+  const subgraphUrl = `https://api.thegraph.com/subgraphs/name/gmx-io/${url}`;
   const timestampProp = chainId === 42161 ? "id" : "timestamp";
 
   const query = `{
@@ -49,10 +54,13 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
         }
       }`;
 
-  const { data } = await axios.default.post(subgraphUrl, { query });
+  const { data } = await axios.post(subgraphUrl, { query });
+
+  console.log("data", data);
+
   let { glpStats } = data.data;
 
-  let glpStatsAvax;
+  let glpStatsAvax: any;
 
   if (chainId === 43114) {
     const subQuery = `{
@@ -72,7 +80,7 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
           distributedEth
         }
       }`;
-    const _data = await axios.default.post(
+    const _data = await axios.post(
       "https://api.studio.thegraph.com/query/4540/gmx-avax/v0.0.3",
       { query: subQuery }
     );
@@ -80,7 +88,7 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
   }
 
   if (glpStatsAvax && Array.isArray(glpStatsAvax)) {
-    glpStats = glpStats.map((stat) => {
+    glpStats = glpStats.map((stat: any) => {
       for (const {
         distributedUsd,
         distributedEth,
@@ -100,10 +108,10 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
   let cumulativeDistributedUsdPerGlp = 0;
   let cumulativeDistributedEthPerGlp = 0;
 
-  let prevGlpSupply;
-  let prevAum;
+  let prevGlpSupply: any;
+  let prevAum: any;
 
-  let ret = sortBy(glpStats, (item) => item[timestampProp])
+  const ret = sortBy(glpStats, (item) => item[timestampProp])
     .filter((item) => item[timestampProp] % 86400 === 0)
     .reduce((memo, item) => {
       const last = memo[memo.length - 1];
@@ -142,7 +150,7 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
 
       return memo;
     }, [])
-    .map((item) => {
+    .map((item: any) => {
       let { glpSupply, aum } = item;
       if (!glpSupply) {
         glpSupply = prevGlpSupply;
@@ -150,23 +158,24 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
       if (!aum) {
         aum = prevAum;
       }
+
       item.glpSupplyChange = prevGlpSupply
         ? ((glpSupply - prevGlpSupply) / prevGlpSupply) * 100
         : 0;
+
       if (item.glpSupplyChange > 1000) {
         item.glpSupplyChange = 0;
       }
+
       item.aumChange = prevAum ? ((aum - prevAum) / prevAum) * 100 : 0;
       if (item.aumChange > 1000) {
         item.aumChange = 0;
       }
+
       prevGlpSupply = glpSupply;
       prevAum = aum;
       return item;
     });
 
-  ret = fillNa(ret);
-  return ret;
+  return fillNa(ret);
 };
-
-export default getGlpData;

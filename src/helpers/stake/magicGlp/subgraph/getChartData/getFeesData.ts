@@ -1,12 +1,17 @@
 import axios from "axios";
 import { sortBy, chain, sumBy } from "lodash";
-import getSubgraphUrl from "./get-subgraph-url";
+
+const urls = {
+  42161: "gmx-stats",
+  43114: "gmx-avalanche-stats",
+};
 
 const MOVING_AVERAGE_DAYS = 7;
 const MOVING_AVERAGE_PERIOD = 86400 * MOVING_AVERAGE_DAYS;
 
-const getGlpData = async ({ from, to, chainId = 42161 }) => {
-  const subgraphUrl = getSubgraphUrl(chainId);
+const getGlpData = async ({ from, to, chainId = 42161 }: any) => {
+  const url = urls[chainId as keyof typeof urls];
+  const subgraphUrl = `https://api.thegraph.com/subgraphs/name/gmx-io/${url}`;
 
   const PROPS = "margin liquidation swap mint burn".split(" ");
   const query = `{
@@ -27,15 +32,15 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
       }
     }`;
 
-  const { data } = await axios.default.post(subgraphUrl, { query });
+  const { data } = await axios.post(subgraphUrl, { query });
   const { feeStats } = data.data;
 
-  let chartData = sortBy(feeStats, "id").map((item) => {
-    const ret = { timestamp: item.timestamp || item.id };
+  const chartData = sortBy(feeStats, "id").map((item) => {
+    const ret: any = { timestamp: item.timestamp || item.id };
 
     PROPS.forEach((prop) => {
       if (item[prop]) {
-        ret[prop] = item[prop] / 1e30;
+        ret[prop as keyof typeof ret] = item[prop] / 1e30;
       }
     });
 
@@ -45,7 +50,7 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
   });
 
   let cumulative = 0;
-  const cumulativeByTs = {};
+  const cumulativeByTs: any = {};
 
   return chain(chartData)
     .groupBy((item) => item.timestamp)
@@ -54,10 +59,13 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
       cumulative += all;
 
       let movingAverageAll;
-      const movingAverageTs = timestamp - MOVING_AVERAGE_PERIOD;
+      const movingAverageTs = +timestamp - MOVING_AVERAGE_PERIOD;
+
       if (movingAverageTs in cumulativeByTs) {
         movingAverageAll =
-          (cumulative - cumulativeByTs[movingAverageTs]) / MOVING_AVERAGE_DAYS;
+          (cumulative -
+            cumulativeByTs[movingAverageTs as keyof typeof cumulativeByTs]) /
+          MOVING_AVERAGE_DAYS;
       }
 
       const ret = {
@@ -67,7 +75,7 @@ const getGlpData = async ({ from, to, chainId = 42161 }) => {
         movingAverageAll,
       };
       PROPS.forEach((prop) => {
-        ret[prop] = sumBy(values, prop);
+        ret[prop as keyof typeof ret] = sumBy(values, prop);
       });
       cumulativeByTs[timestamp] = cumulative;
       return ret;

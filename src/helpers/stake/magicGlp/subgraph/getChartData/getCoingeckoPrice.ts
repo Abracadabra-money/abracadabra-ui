@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const getCoingeckoPrice = async (symbol, { from }) => {
+export const getCoingeckoPrice = async (symbol: string, { from }: any) => {
   const _symbol = {
     BTC: "bitcoin",
     ETH: "ethereum",
@@ -12,10 +12,9 @@ const getCoingeckoPrice = async (symbol, { from }) => {
   const now = Date.now() / 1000;
   const days = Math.ceil(now / 86400) - Math.ceil(from / 86400) - 1;
 
-  const apiDomain =
-    import.meta.env.VITE_APP_COINGECKO_API_KEY
-      ? "pro-api.coingecko.com"
-      : "api.coingecko.com";
+  const apiDomain = import.meta.env.VITE_APP_COINGECKO_API_KEY
+    ? "pro-api.coingecko.com"
+    : "api.coingecko.com";
 
   const config = {
     headers: {
@@ -27,16 +26,15 @@ const getCoingeckoPrice = async (symbol, { from }) => {
 
   const { data } = await axios.get(url, config);
 
-  return data.prices.map((item) => {
+  return data.prices.map((item: any) => {
     // -1 is for shifting to previous day
     // because CG uses first price of the day, but for GLP we store last price of the day
     const timestamp = item[0] - 1;
-    const groupTs = parseInt(timestamp / 1000 / 86400) * 86400;
+    const groupTs: any =
+      parseInt((timestamp / 1000 / 86400).toString()) * 86400;
     return {
       timestamp: groupTs,
       value: item[1],
     };
   });
 };
-
-export default getCoingeckoPrice;
