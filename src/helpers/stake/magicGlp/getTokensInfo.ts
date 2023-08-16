@@ -37,9 +37,14 @@ export const getTokensInfo = async (
 
   const tokenRate = magicGlpAmount.mul(precision).div(totalSupply);
   const stakeTokenPrice = mainTokenPrice.mul(precision).div(tokenRate);
-  const formatMainTokenPrice = utils.formatUnits(mainTokenPrice);
+  const formatMainTokenPrice = +utils.formatUnits(mainTokenPrice);
   const formatTotalSupply = utils.formatUnits(totalSupply);
-  const totalSupplyUsd = +formatTotalSupply * +formatMainTokenPrice;
+  const totalSupplyUsd = +formatTotalSupply * formatMainTokenPrice;
+  const mainTokenBalance = utils.formatUnits(userMagicGlpBalance);
+  const mainTokenBalanceUsd = +mainTokenBalance * formatMainTokenPrice;
+  const formatStakeTokenBalance = utils.formatUnits(userGlpBalance);
+  const formastakeTokenPrice = +utils.formatUnits(stakeTokenPrice);
+  const stakeTokenBalanceUsd = +formatStakeTokenBalance * formastakeTokenPrice;
 
   return {
     mainToken: {
@@ -47,11 +52,12 @@ export const getTokensInfo = async (
       icon: config.mainToken.icon,
       rateIcon: config.mainToken.rateIcon,
       decimals: config.mainToken.decimals,
-      price: utils.formatUnits(mainTokenPrice),
+      price: formatMainTokenPrice,
       rate: +utils.formatUnits(tokenRate),
       totalSupply: utils.formatUnits(totalSupply),
       totalSupplyUsd,
-      balance: utils.formatUnits(userMagicGlpBalance),
+      balance: mainTokenBalance,
+      balanceUsd: mainTokenBalanceUsd,
       approvedAmount: utils.formatUnits(allowanceAmount),
       contract: markRaw(magicGlpContract.connect(signer)),
     },
@@ -60,7 +66,8 @@ export const getTokensInfo = async (
       icon: config.stakeToken.icon,
       decimals: config.mainToken.decimals,
       price: +utils.formatUnits(stakeTokenPrice),
-      balance: utils.formatUnits(userGlpBalance),
+      balance: formatStakeTokenBalance,
+      balanceUsd: stakeTokenBalanceUsd,
       contract: markRaw(glpContract.connect(signer)),
     },
   };

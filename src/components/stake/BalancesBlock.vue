@@ -9,7 +9,7 @@
           :src="mainToken.rateIcon"
           alt="MagicGlp icon"
         />
-        <span>{{ mGlpToGlpRate }}</span>
+        <span class="token-rate-value">{{ mGlpToGlpRate }}</span>
       </div>
     </div>
 

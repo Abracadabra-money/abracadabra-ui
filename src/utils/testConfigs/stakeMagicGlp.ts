@@ -7,7 +7,8 @@ export const mainToken = {
   rate: 1.0576260709552454,
   totalSupply: "1081.882193812543319659",
   totalSupplyUsd: 882.8310421099003,
-  balance: "0.0",
+  balance: "5.407649797827852179",
+  balanceUsd: 5.965547116545508,
   approvedAmount: "0.0",
 };
 
@@ -21,7 +22,26 @@ export const emptyMainToken = {
   totalSupply: "0",
   totalSupplyUsd: 0,
   balance: "0",
+  balanceUsd: 0,
   approvedAmount: "0",
+};
+
+export const stakeToken = {
+  name: "GLP",
+  icon: "http://localhost:5173/src/assets/images/tokens/GLP.png",
+  decimals: 18,
+  price: 0.9975055005464002,
+  balance: "5.524563660475857411",
+  balanceUsd: 5.510782639443423,
+};
+
+export const emptyStakeToken = {
+  name: "GLP",
+  icon: "http://localhost:5173/src/assets/images/tokens/GLP.png",
+  decimals: 18,
+  price: 0,
+  balance: "0",
+  balanceUsd: 0,
 };
 
 export const rewardToken = {

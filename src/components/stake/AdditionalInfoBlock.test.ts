@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import ClaimMimBlock from "@/components/stake/AdditionalInfoBlock.vue";
 import { mount } from "@vue/test-utils";
-import filters from "@/filters/index.js";
 import {
   mainToken,
   rewardToken,
@@ -19,7 +18,7 @@ describe("AdditionalInfoBlock.vue", async () => {
     const prices = wrapper.findAll(".price");
 
     expect(tokensSymbol[0].text()).toBe("magicGLP");
-    expect(amounts[0].text()).toBe(filters.formatTokenBalance("1081.8821"));
+    expect(amounts[0].text()).toBe("1081.8821");
     expect(prices[0].text()).toBe("$ 882.83");
   });
 
