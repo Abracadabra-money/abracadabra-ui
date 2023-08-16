@@ -84,6 +84,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      useDegenBoxHelper: true,
     },
     contract: {
       name: "CauldronV4",
@@ -134,8 +135,8 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-
       isNew: true,
+      isMagicGLP: true,
     },
     contract: {
       name: "CauldronV4",

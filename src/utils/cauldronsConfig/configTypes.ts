@@ -17,8 +17,13 @@ type CauldronSettings = {
   isPrivate?: boolean;
   privatelyFor?: string[];
   isAlternativeInterest?: boolean;
+  hasWhitelistLogic?: boolean;
   isMagicApe?: boolean;
   isSSpell?: boolean;
+  isMagicGLP?: boolean;
+  isVelodrome?: boolean;
+  isStargateUSDT?: boolean;
+  useDegenBoxHelper?: boolean; 
 };
 
 type MimInfo = {

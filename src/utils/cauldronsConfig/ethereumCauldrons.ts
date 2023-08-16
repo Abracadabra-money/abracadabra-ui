@@ -1264,6 +1264,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      hasWhitelistLogic: true,
     },
     contract: {
       name: "CauldronV2Flat",
@@ -1351,6 +1352,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: true,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      useDegenBoxHelper: true,
     },
     contract: {
       name: "CauldronV4",
@@ -1387,6 +1389,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isMigrated: true,
+      useDegenBoxHelper: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1422,6 +1425,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isMigrated: true,
+      useDegenBoxHelper: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1631,6 +1635,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isPrivate: true,
+      isStargateUSDT: true,
       privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {

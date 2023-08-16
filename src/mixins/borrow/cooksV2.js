@@ -1,27 +1,27 @@
 import { mapGetters } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { signMasterContract } from "@/helpers/signature";
-import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
 import toAmount from "@/helpers/toAmount";
 
-import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
+import {
+  repayEncodeHandler,
+  bentoDepositEncodeHandler,
+  bentoWithdrawEncodeHandler,
+} from "./cook/degenBoxHelper/actionHandlers";
 
 // const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
 export default {
-  mixins: [degenBoxCookHelperMixin],
   data() {
     return {
       defaultTokenAddress: "0x0000000000000000000000000000000000000000",
-      glpPoolsId: [2, 3], // TODO: move to config
     };
   },
   computed: {
@@ -34,11 +34,10 @@ export default {
 
     // TODO: move to config
     needWhitelisterApprove() {
-      const { id } = this.cauldron.config;
+      if (!this.cauldron.config.cauldronSettings.hasWhitelistLogic)
+        return false;
+
       const { whitelistedInfo } = this.cauldron.additionalInfo;
-
-      if (!(id === 33 && this.chainId === 1)) return false;
-
       if (
         +whitelistedInfo?.amountAllowedParsed < +whitelistedInfo?.userBorrowPart
       )
@@ -48,25 +47,22 @@ export default {
     },
 
     // TODO: move to config
-    isGlp() {
-      return (
-        this.chainId === 42161 &&
-        this.glpPoolsId.includes(+this.cauldron.config.id)
-      );
+    isMagicGLP() {
+      return this.cauldron.config.cauldronSettings.isMagicGLP;
     },
 
     // TODO: move to config
-    isVelo() {
-      return this.chainId === 10 && this.cauldron.config.id === 1;
+    isVelodrome() {
+      return this.cauldron.config.cauldronSettings.isVelodrome;
     },
 
     // TODO: move to config
-    isApe() {
-      return this.chainId === 1 && this.cauldron.config.id === 39;
+    isMagicApe() {
+      return this.cauldron.config.cauldronSettings.isMagicApe;
     },
 
-    isSUSDT() {
-      return this.chainId === 1 && this.cauldron.config.id === 42;
+    isStargateUSDT() {
+      return this.cauldron.config.cauldronSettings.isStargateUSDT;
     },
   },
   methods: {
@@ -106,12 +102,12 @@ export default {
     },
 
     async get0xLeverageSwapData(pool, amount, slipage) {
-      if (this.isVelo) return "0x00";
+      if (this.isVelodrome) return "0x00";
 
       const { collateral, mim, leverageSwapper } = pool.contracts;
 
       let buyToken = collateral.address;
-      if (this.isGlp) {
+      if (this.isMagicGLP) {
         const leverageResp = await getGlpLevData(
           this.signer,
           pool,
@@ -121,9 +117,9 @@ export default {
         );
         return leverageResp.swapDataEncode;
       }
-      if (this.isApe) buyToken = apeAddress;
+      if (this.isMagicApe) buyToken = apeAddress;
 
-      if (this.isSUSDT) buyToken = usdtAddress;
+      if (this.isStargateUSDT) buyToken = usdtAddress;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -138,7 +134,7 @@ export default {
     },
 
     async get0xDeleverageSwapData(pool, collateralAmount, slipage) {
-      if (this.isVelo) return "0x00";
+      if (this.isVelodrome) return "0x00";
 
       const {
         collateral,
@@ -150,7 +146,7 @@ export default {
       let selToken = collateral.address;
       let selAmount = collateralAmount;
 
-      if (this.isGlp) {
+      if (this.isMagicGLP) {
         const deleverageResp = await getGlpLiqData(
           this.signer,
           pool,
@@ -161,12 +157,12 @@ export default {
         return deleverageResp.swapDataEncode;
       }
 
-      if (this.isApe) {
+      if (this.isMagicApe) {
         selToken = apeAddress;
         selAmount = await collateral.convertToAssets(collateralAmount);
       }
 
-      if (this.isSUSDT) selToken = usdtAddress;
+      if (this.isStargateUSDT) selToken = usdtAddress;
 
       const response = await swap0xRequest(
         this.chainId,
@@ -179,17 +175,23 @@ export default {
       return response.data;
     },
 
-    async recipeSetMaxBorrow(cookData, whitelistedInfo, user) {
-      const data = await getSetMaxBorrowData(
-        whitelistedInfo.whitelisterContract,
-        user,
-        whitelistedInfo.userWhitelistedInfo.userBorrowPart,
-        whitelistedInfo.userWhitelistedInfo.proof
-      );
+    async recipeSetMaxBorrow(
+      cookData,
+      { whitelisterContract, userWhitelistedInfo },
+      user
+    ) {
+      const setMaxBorrowTx =
+        await whitelisterContract.populateTransaction.setMaxBorrow(
+          user,
+          userWhitelistedInfo.userBorrowPart,
+          userWhitelistedInfo.proof
+        );
+
+      const data = setMaxBorrowTx.data;
 
       cookData = await actions.call(
         cookData,
-        whitelistedInfo.whitelisterContract.address,
+        whitelisterContract.address,
         data,
         false,
         false,
@@ -202,7 +204,10 @@ export default {
       const { bentoBox, cauldron } = pool.contracts;
 
       const isApproved = this.cookHelper
-        ? await this.isCookHelperApproved(bentoBox)
+        ? await bentoBox.masterContractApproved(
+            this.cookHelper.address,
+            this.account
+          )
         : mcApproved;
 
       const masterContract = this.cookHelper
@@ -222,20 +227,7 @@ export default {
     },
 
     async recipeApproveMC(cookData, pool, approved = true, masterContract) {
-      const { bentoBox } = pool.contracts;
       const addNonce = cookData.events.filter((value) => value === 24).length;
-
-      // [leger issue] out of date?
-      if (!this.itsMetamask && !approved) {
-        const approvalMaster = await setMasterContractApproval(
-          bentoBox,
-          this.account,
-          masterContract,
-          true
-        );
-        if (!approvalMaster) return false; // TODO: update catch
-        return cookData;
-      }
 
       cookData = await this.signAndGetData(
         cookData,
@@ -260,8 +252,9 @@ export default {
       const { unwrappedToken, wrapper, cauldron } = pool.contracts;
 
       if (isWrap) {
-        cookData = await this.bentoDepositEncodeHandler(
+        cookData = await bentoDepositEncodeHandler(
           cookData,
+          pool, // TODO
           unwrappedToken.address,
           to,
           amount,
@@ -272,8 +265,9 @@ export default {
           2
         );
 
-        cookData = await this.bentoWithdrawEncodeHandler(
+        cookData = await bentoWithdrawEncodeHandler(
           cookData,
+          pool, // TODO
           unwrappedToken.address,
           wrapper.address,
           "0",
@@ -299,8 +293,9 @@ export default {
           2
         );
       } else {
-        cookData = await this.bentoDepositEncodeHandler(
+        cookData = await bentoDepositEncodeHandler(
           cookData,
+          pool, // TODO
           token,
           cauldron.address,
           amount,
@@ -316,14 +311,16 @@ export default {
 
       return cookData;
     },
+
     async recipeRemoveCollateral(cookData, pool, share, userAddr, tokenAddr) {
       const wrapInfo = pool.config?.wrapInfo;
       const { wrapper, unwrappedToken, collateral } = pool.contracts;
       if (wrapInfo) {
         cookData = await actions.removeCollateral(cookData, share, userAddr);
 
-        cookData = await this.bentoWithdrawEncodeHandler(
+        cookData = await bentoWithdrawEncodeHandler(
           cookData,
+          pool, // TODO
           collateral.address,
           wrapper.address,
           "0",
@@ -350,8 +347,9 @@ export default {
           2
         );
 
-        cookData = await this.bentoWithdrawEncodeHandler(
+        cookData = await bentoWithdrawEncodeHandler(
           cookData,
+          pool, // TODO
           unwrappedToken.address,
           userAddr,
           "0",
@@ -362,8 +360,9 @@ export default {
       } else {
         cookData = await actions.removeCollateral(cookData, share, userAddr);
 
-        cookData = await this.bentoWithdrawEncodeHandler(
+        cookData = await bentoWithdrawEncodeHandler(
           cookData,
+          pool, // TODO
           tokenAddr,
           userAddr,
           "0x00",
@@ -374,10 +373,11 @@ export default {
       return cookData;
     },
 
-    async recipeBorrow(cookData, part, to, mim) {
+    async recipeBorrow(cookData, pool, part, to, mim) {
       cookData = await actions.borrow(cookData, part, to);
-      cookData = await this.bentoWithdrawEncodeHandler(
+      cookData = await bentoWithdrawEncodeHandler(
         cookData,
+        pool, // TODO
         mim,
         to,
         "0",
@@ -395,8 +395,9 @@ export default {
       const to = this.account;
 
       if (!itsMax) {
-        cookData = await this.bentoDepositEncodeHandler(
+        cookData = await bentoDepositEncodeHandler(
           cookData,
+          pool, // TODO
           mim,
           to,
           part,
@@ -407,9 +408,9 @@ export default {
           2
         );
         cookData = await actions.getRepayPart(cookData, "-2");
-        cookData = await this.repayEncodeHandler(
+        cookData = await repayEncodeHandler(
           cookData,
-          cauldron.address,
+          pool, // TODO
           "-1",
           to,
           false,
@@ -422,8 +423,9 @@ export default {
       }
 
       cookData = await actions.getRepayShare(cookData, userBorrowPart);
-      cookData = await this.bentoDepositEncodeHandler(
+      cookData = await bentoDepositEncodeHandler(
         cookData,
+        pool, // TODO
         mim,
         to,
         "0",
@@ -433,9 +435,9 @@ export default {
         false,
         0
       );
-      cookData = await this.repayEncodeHandler(
+      cookData = await repayEncodeHandler(
         cookData,
-        cauldron.address,
+        pool, // TODO
         userBorrowPart,
         to
       );
@@ -456,7 +458,7 @@ export default {
       const swapperAddres = leverageSwapper.address;
       const userAddr = this.account;
 
-      if (this.isGlp)
+      if (this.isMagicGLP)
         return await getGlpLevData(
           cookData,
           this.signer,
@@ -674,7 +676,7 @@ export default {
         );
       }
 
-      cookData = await this.recipeBorrow(cookData, amount, userAddr, mim);
+      cookData = await this.recipeBorrow(cookData, pool, amount, userAddr, mim);
 
       if (isApprowed && this.cookHelper)
         cookData = await this.recipeApproveMC(
@@ -719,7 +721,13 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeBorrow(cookData, amount, userAddr, pairToken);
+      cookData = await this.recipeBorrow(
+        cookData,
+        pool,
+        amount,
+        userAddr,
+        pairToken
+      );
 
       cookData = await this.recipeAddCollatral(
         cookData,
@@ -995,17 +1003,17 @@ export default {
       );
 
       if (itsMax) {
-        cookData = await this.repayEncodeHandler(
+        cookData = await repayEncodeHandler(
           cookData,
-          cauldron.address,
+          pool, // TODO
           userBorrowPart,
           userAddr
         );
       } else {
         cookData = await actions.getRepayPart(cookData, "-2");
-        cookData = await this.repayEncodeHandler(
+        cookData = await repayEncodeHandler(
           cookData,
-          cauldron.address,
+          pool,
           "-1",
           userAddr,
           false,
