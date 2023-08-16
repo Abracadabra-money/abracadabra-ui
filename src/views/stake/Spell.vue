@@ -45,12 +45,12 @@
         </div>
 
         <div class="input-assets">
-          <InputLabel :amount="fromToken.balance" :title="mainIntulLabel" />
+          <InputLabel :amount="fromTokenBalance" :title="mainIntulLabel" />
           <BaseTokenInput
-            :value="mainInputValue"
+            :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :max="fromToken.balance"
+            :max="fromTokenBalance"
             :disabled="isInputDisabled"
             :error="errorMainValue"
             @updateValue="updateMainValue"
@@ -86,7 +86,7 @@
 
       <template v-else>
         <SpellInfoBlock
-          v-if="!isUnsupportedChain"
+          v-if="isUnsupportedChain"
           :stakeToken="stakeToken"
           :mainToken="mainToken"
         />
@@ -135,17 +135,18 @@
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { approveToken } from "@/helpers/approval";
-import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
+import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import actions from "@/helpers/stake/spell/actions/";
+import { spellConfig } from "@/utils/stake/spellConfig";
 
 export default {
   data() {
     return {
       action: "Stake",
       stakeConfig: null,
-      mainInputValue: "",
+      inputValue: "",
       selectedToken: "mSpell",
       updateInterval: null,
     };
@@ -164,7 +165,7 @@ export default {
     },
 
     isUnsupportedChain() {
-      return !!this.stakeConfig && this.mainToken.unsupportedChain;
+      return !!spellConfig[this.selectedToken].addresses[this.chainId];
     },
 
     isStakeAction() {
@@ -175,18 +176,19 @@ export default {
       if (!this.isStakeAction) return true;
       if (this.errorMainValue) return true;
       if (!this.account) return true;
-      if (this.isUnsupportedChain) return true;
-      const { isTokenApproved, approvedAmount } = this.toToken;
-      return isTokenApproved && +approvedAmount > +this.mainInputValue;
+      if (!this.isUnsupportedChain) return true;
+      return +this.toToken.allowanceAmount >= this.mainInputValue;
     },
 
     isActionDisabled() {
       if (this.isUserLocked) return true;
-      return !!(!+this.mainInputValue || this.errorMainValue);
+      return !!(!this.mainInputValue || this.errorMainValue);
     },
 
     isClaimMimBlock() {
-      return this.selectedToken === "mSpell" && this.mainToken?.claimableAmount;
+      return (
+        this.selectedToken === "mSpell" && +this.mainToken?.claimableAmount
+      );
     },
 
     isDisableClaimButton() {
@@ -195,7 +197,11 @@ export default {
     },
 
     isInputDisabled() {
-      return this.isUserLocked || this.isUnsupportedChain;
+      return this.isUserLocked || !this.isUnsupportedChain;
+    },
+
+    mainInputValue() {
+      return Number(this.inputValue);
     },
 
     stakeToken() {
@@ -211,6 +217,10 @@ export default {
       return this.mainToken;
     },
 
+    fromTokenBalance() {
+      return !this.isUnsupportedChain ? "0" : this.fromToken.balance;
+    },
+
     toToken() {
       if (this.isStakeAction) return this.mainToken;
       return this.stakeToken;
@@ -223,14 +233,14 @@ export default {
 
     expectedAmount() {
       const amount = this.isStakeAction
-        ? +this.mainInputValue / +this.toToken.rate
-        : +this.mainInputValue * +this.fromToken.rate;
+        ? this.mainInputValue / this.toToken.rate
+        : this.mainInputValue * this.fromToken.rate;
 
       return filters.formatToFixed(amount, 6);
     },
 
     errorMainValue() {
-      if (+this.mainInputValue > +this.fromToken.balance) {
+      if (this.inputValue > +this.fromToken.balance) {
         return `The value cannot be greater than ${this.fromToken.balance}`;
       }
 
@@ -238,6 +248,7 @@ export default {
     },
 
     actionInfo() {
+      const { contract } = this.mainToken;
       const isMspell = this.selectedToken === "mSpell";
       const info = { methodName: null };
 
@@ -249,10 +260,26 @@ export default {
 
       if (this.isUserLocked || this.errorMainValue) return info;
 
-      if (+this.mainInputValue && this.isStakeAction) {
-        info.methodName = "stakeHandler";
-      } else if (+this.mainInputValue && !this.isStakeAction) {
-        info.methodName = "unstakeHandler";
+      const amount = this.$ethers.utils.parseEther(
+        filters.formatToFixed(this.inputValue || 0, 18)
+      );
+
+      if (this.isStakeAction) {
+        if (this.selectedToken === "sSpell") {
+          info.methodName = "mint";
+          info.options = [amount];
+        } else {
+          info.methodName = "deposit";
+          info.options = [amount];
+        }
+      } else if (!this.isStakeAction) {
+        if (this.selectedToken === "sSpell") {
+          info.methodName = "burn";
+          info.options = [this.account, amount];
+        } else {
+          info.methodName = "withdraw";
+          info.options = [amount];
+        }
       }
 
       return info;
@@ -308,24 +335,24 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     changeToken(token) {
+      localStorage.setItem("SPELL_SELECTED_TOKEN", token);
       this.selectedToken = token;
       this.action = "Stake";
-      this.mainInputValue = "";
+      this.inputValue = "";
     },
 
     async updateMainValue(value) {
-      this.mainInputValue = value;
+      this.inputValue = value;
     },
 
     toggleAction() {
-      this.mainInputValue = "";
+      this.inputValue = "";
       this.action = this.isStakeAction ? "Unstake" : "Stake";
     },
 
     async approveTokenHandler() {
-      if (this.isUnsupportedChain) return true;
+      if (!this.isUnsupportedChain) return true;
       if (this.isTokenApproved) return false;
-      if (this.toToken.isTokenApproved) return false;
 
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -343,69 +370,26 @@ export default {
     },
 
     async actionHandler() {
-      if (!this[this.actionInfo.methodName]) return false;
+      if (this.isActionDisabled) return false;
+      if (!this.actionInfo.methodName) return false;
 
       const notificationId = await this.createNotification(
         notification.pending
       );
 
-      const amount = this.$ethers.utils.parseEther(this.mainInputValue);
+      const { error } = await actions[this.actionInfo.methodName](
+        this.mainToken.contract,
+        ...this.actionInfo.options
+      );
 
-      return await this[this.actionInfo.methodName](notificationId, amount);
-    },
-
-    async stakeHandler(notificationId, amount) {
-      try {
-        const { contract } = this.mainToken;
-
-        const methodName = contract.mint ? "mint" : "deposit";
-        const estimateGas = await contract.estimateGas[methodName](amount);
-        const gasLimit = 1000 + +estimateGas.toString();
-        const tx = await contract[methodName](amount, { gasLimit });
-
-        await tx.wait();
-        this.mainInputValue = "";
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
         await this.createStakeInfo();
+        this.inputValue = "";
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
-      } catch (error) {
-        console.log("Stake Handler Error:", error);
-        await this.deleteNotification(notificationId);
-        await this.createNotification({
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        });
-      }
-    },
-
-    async unstakeHandler(notificationId, amount) {
-      try {
-        const { contract } = this.mainToken;
-
-        const methodName = contract.burn ? "burn" : "withdraw";
-        const options =
-          methodName === "burn" ? [this.account, amount] : [amount];
-
-        const estimateGas = await contract.estimateGas[methodName](...options);
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await contract[methodName](...options, {
-          gasLimit,
-        });
-
-        await tx.wait();
-        this.mainInputValue = "";
-        await this.createStakeInfo();
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      } catch (error) {
-        console.log("Untake Handler Error:", error);
-        await this.deleteNotification(notificationId);
-        await this.createNotification({
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        });
       }
     },
 
@@ -416,34 +400,20 @@ export default {
         notification.pending
       );
 
-      try {
-        const estimateGas = await this.mainToken.contract.estimateGas.withdraw(
-          0
-        );
+      const { error } = await actions.withdraw(this.mainToken.contract, 0);
 
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.mainToken.contract.withdraw(0, {
-          gasLimit,
-        });
-
-        await tx.wait();
-
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
         await this.createStakeInfo();
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
-      } catch (error) {
-        console.log("Claim Mim Handler Error:", error);
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        });
       }
     },
 
     async createStakeInfo() {
-      this.stakeConfig = await getSpellInfo(
+      this.stakeConfig = await getStakeInfo(
         this.provider,
         this.signer,
         this.chainId
@@ -452,6 +422,9 @@ export default {
   },
 
   async mounted() {
+    const selectedToken = localStorage.getItem("SPELL_SELECTED_TOKEN");
+    if (selectedToken) this.selectedToken = selectedToken;
+
     await this.createStakeInfo();
 
     this.updateInterval = setInterval(async () => {
@@ -634,6 +607,10 @@ export default {
   .deposit-block,
   .stake-stand {
     padding: 30px 10px;
+  }
+
+  .title {
+    font-size: 20px;
   }
 }
 </style>

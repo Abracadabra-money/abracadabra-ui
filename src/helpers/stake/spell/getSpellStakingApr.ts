@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { SpellStakingApr } from "@/helpers/stake/spell/spellTypes";
+import type { SpellStakingApr } from "@/helpers/stake/spell/types";
 
 export const getSpellStakingApr = async (): Promise<SpellStakingApr> => {
   try {

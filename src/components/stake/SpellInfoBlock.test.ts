@@ -20,7 +20,7 @@ const mainToken = {
   balance: "1000.0",
   claimableAmount: "0.0",
   isTokenApproved: true,
-  approvedAmount: "99999999985126.97557398797023447",
+  allowanceAmount: "99999999985126.97557398797023447",
   price: 0.00048113,
   apr: 14.12,
 };
