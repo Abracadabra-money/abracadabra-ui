@@ -1,13 +1,6 @@
 <template>
   <button class="market-item" @click="choseItem(marketItem)">
-    <div class="deprecated-icon-bar">
-      <img
-        class="deprecated-icon"
-        src="@/assets/images/myposition/depreciated-farm.png"
-        alt="Deprecated"
-        v-if="this.marketItem.isDepreciated"
-      />
-    </div>
+    <StatusBar :isFarm="true" :pool="marketItem" :small="true" />
     <div class="market-info">
       <div class="token-info">
         <BaseTokenIcon :icon="marketItem.icon" :name="marketItem.name" />
@@ -117,10 +110,5 @@ export default {
 
 .price {
   text-align: right;
-}
-
-.deprecated-icon-bar {
-  display: flex;
-  justify-content: flex-end;
 }
 </style>

@@ -4,13 +4,7 @@
     <div>
       <p class="token-name">
         {{ tokenSymbol }}
-        <img
-          class="info-bar-icon"
-          src="@/assets/images/myposition/depreciated-farm.png"
-          alt="Deprecated"
-          v-if="position.isDepreciated"
-          v-tooltip="'Deprecated'"
-        />
+        <StatusBar :isFarm="true" :pool="position" :small="true" />
       </p>
       <p class="token-rate" v-if="tokenName">{{ tokensRate }}</p>
     </div>
@@ -21,6 +15,7 @@
 import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { ethers } from "ethers";
+import StatusBar from "@/components/ui/StatusBar.vue";
 export default {
   props: {
     position: {
@@ -60,19 +55,21 @@ export default {
 
   components: {
     BaseTokenIcon,
+    StatusBar,
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .token-info {
+  width: 100%;
   display: flex;
   align-items: center;
 }
 
 .token-name {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 4px;
   font-weight: 600;
   font-size: 18px;
