@@ -37,7 +37,7 @@ export type FarmItem = {
   name: string;
   icon: string;
   id: number;
-  farmId: number;
+  poolId: number;
   earnedTokenPrice: number;
   stakingToken: {
     link: string;

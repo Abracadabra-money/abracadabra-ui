@@ -15,6 +15,11 @@ type TokenPrices = {
   MIMPrice: number;
 };
 
+type TokenPricesResponse = {
+  address: string;
+  price: number;
+};
+
 export const tokenAddresses = {
   SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
   MIM: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3",
@@ -33,7 +38,7 @@ export const createFarmItemConfig = async (
   );
 
   const farmInfo: FarmConfig | undefined = farmsOnChain.find(
-    ({ id }) => id === farmId
+    ({ id }) => id === Number(farmId)
   );
 
   if (!farmInfo) return false;
@@ -70,11 +75,11 @@ export const createFarmItemConfig = async (
 
   const isDepreciated = farmRoi === 0;
 
-  const farmItemConfig: any = {
+  const farmItemConfig: FarmItem = {
     name: farmInfo.name,
     icon: farmInfo.icon,
     id: farmInfo.id,
-    farmId: farmInfo.poolId,
+    poolId: farmInfo.poolId,
     earnedTokenPrice: SPELLPrice,
     stakingToken: {
       link: farmInfo.stakingToken.link,
@@ -86,6 +91,7 @@ export const createFarmItemConfig = async (
     contractInstance,
     contractAddress: farmInfo.contract.address,
     farmRoi,
+    farmYield,
     lpPrice,
     isDepreciated,
   };
@@ -112,7 +118,7 @@ const getTokensPrices = async (): Promise<TokenPrices> => {
     MIMPrice = 0;
 
   if (tokensPrices)
-    tokensPrices.map((token: any) => {
+    tokensPrices.map((token: TokenPricesResponse) => {
       switch (token.address) {
         case tokenAddresses.SPELL:
           SPELLPrice = token.price;

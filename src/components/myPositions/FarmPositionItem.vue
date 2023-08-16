@@ -135,7 +135,7 @@ export default {
     async harvest() {
       try {
         const tx = await this.farmConfig.contractInstance.withdraw(
-          utils.parseUnits(this.farmConfig.farmId.toString()),
+          utils.parseUnits(this.farmConfig.poolId.toString()),
           utils.parseUnits("0")
         );
 

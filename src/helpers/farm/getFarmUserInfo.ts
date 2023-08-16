@@ -21,12 +21,12 @@ export const getFarmUserInfo = async (
   );
 
   const userInfo: UserInfo = await farmItemConfig.contractInstance.userInfo(
-    farmItemConfig.farmId,
+    farmItemConfig.poolId,
     account
   );
 
   const userReward = await farmItemConfig.contractInstance.pendingIce(
-    farmItemConfig.farmId,
+    farmItemConfig.poolId,
     account
   );
 
@@ -41,7 +41,7 @@ export const getFarmUserInfo = async (
   const balance = ethers.utils.formatEther(accountBalance.toString());
 
   const deposited = await farmItemConfig.contractInstance.userInfo(
-    farmItemConfig.farmId,
+    farmItemConfig.poolId,
     account
   );
 

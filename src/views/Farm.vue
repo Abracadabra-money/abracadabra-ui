@@ -214,7 +214,7 @@ export default {
         );
 
         const tx = await this.selectedFarm.contractInstance.deposit(
-          this.selectedFarm.farmId,
+          this.selectedFarm.poolId,
           parseAmount
         );
 
@@ -248,7 +248,7 @@ export default {
         );
 
         const tx = await this.selectedFarm.contractInstance.withdraw(
-          this.selectedFarm.farmId,
+          this.selectedFarm.poolId,
           parseAmount
         );
 

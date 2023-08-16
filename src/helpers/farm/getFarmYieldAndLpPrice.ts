@@ -122,12 +122,12 @@ const getFarmYield = async (
 const getLPYieldAndPrice = async (
   stakingToken: string,
   iceInstance: Contract,
-  erc20: any,
+  stakingTokenContract: Contract,
   tokenPrice: number
 ) => {
   try {
     let IceInSlpTotal = await iceInstance.balanceOf(stakingToken);
-    let totalTokensSLPMinted = await erc20.totalSupply();
+    let totalTokensSLPMinted = await stakingTokenContract.totalSupply();
 
     let icePerLp = 0;
     if (IceInSlpTotal > 0) icePerLp = totalTokensSLPMinted / IceInSlpTotal;
