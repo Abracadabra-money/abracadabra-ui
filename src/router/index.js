@@ -27,14 +27,9 @@ const routes = [
     component: () => import("@/views/borrow/Repay.vue"),
   },
   {
-    path: "/sSPELL",
-    name: "Stake",
-    component: () => import("@/views/stake/SSpell.vue"),
-  },
-  {
-    path: "/mSPELL",
-    name: "mStake",
-    component: () => import("@/views/stake/MSpell.vue"),
+    path: "/spell",
+    name: "StakeSpell",
+    component: () => import("@/views/stake/Spell.vue"),
   },
   {
     path: "/magicGLP",

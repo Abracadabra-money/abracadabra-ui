@@ -12,39 +12,36 @@ export default {
       required: true,
     },
   },
+
   data() {
     return {
       timeInterval: null,
       timerCount: "",
     };
   },
+
   methods: {
-    buyTimer() {
-      return setInterval(() => {
-        this.checkDuration();
-      }, 1000);
-    },
     checkDuration() {
-      let end = moment.unix(this.finalTime);
-      if (!this.finalTime) {
-        this.timerCount = 0;
-        return;
-      }
-      let start = moment(new Date());
+      if (!this.finalTime) return (this.timerCount = 0);
 
-      let duration = end.diff(start);
-
-      let formatDurr = moment.utc(duration).format("HH:mm:ss");
-      this.timerCount = formatDurr;
+      const start = moment(new Date());
+      const end = moment.unix(this.finalTime);
+      const duration = end.diff(start);
+      this.timerCount = moment.utc(duration).format("HH:mm:ss");
     },
   },
+
   mounted() {
     this.acceptByTime = moment(this.finalTime).isBefore(new Date());
     if (!this.acceptByTime) {
       this.checkDuration();
-      this.timeInterval = this.buyTimer();
+
+      this.timeInterval = setInterval(() => {
+        this.checkDuration();
+      }, 1000);
     }
   },
+
   beforeUnmount() {
     clearInterval(this.timeInterval);
   },

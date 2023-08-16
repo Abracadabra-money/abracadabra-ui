@@ -34,11 +34,8 @@
           />
         </div>
         <div class="list" v-if="isDropdownStake">
-          <router-link class="list-link" :to="{ name: 'Stake' }"
-            >sSpell</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'mStake' }"
-            >mSpell</router-link
+          <router-link class="list-link" :to="{ name: 'StakeSpell' }"
+            >s/mSpell</router-link
           >
           <router-link class="list-link" :to="{ name: 'magicGLP' }"
             >magicGLP</router-link

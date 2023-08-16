@@ -2,6 +2,7 @@ import ALCX from "@/utils/abi/tokensAbi/ALCX";
 import MIM from "@/utils/abi/tokensAbi/MIM";
 import sSPELL from "@/utils/abi/tokensAbi/sSPELL";
 import SPELL from "@/utils/abi/tokensAbi/SPELL";
+import mSPELL from "@/utils/abi/tokensAbi/mSpell";
 import wsOHM from "@/utils/abi/tokensAbi/wsOHM";
 import xSUSHI from "@/utils/abi/tokensAbi/xSUSHI";
 import yvcrvIB from "@/utils/abi/tokensAbi/yvcrvIB";
@@ -54,6 +55,7 @@ export default {
   ALCX,
   MIM,
   sSPELL,
+  mSPELL,
   wsOHM,
   xSUSHI,
   yvcrvIB,
