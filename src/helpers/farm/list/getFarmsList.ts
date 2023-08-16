@@ -2,10 +2,11 @@ import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
 import { getAccount } from "@wagmi/core";
 
 import farmsConfig from "@/utils/farmsConfig/farms";
+import type { Signer } from "ethers";
 
 export const getFarmsList = async (
   chainId: number,
-  signer: any,
+  signer: Signer,
   isExtended = true
 ) => {
   const account: string | undefined = await getAccount().address;

@@ -22,10 +22,10 @@ export const tokenAddresses = {
 };
 
 export const createFarmItemConfig = async (
-  farmId: string,
+  farmId: number | string,
   chainId: number,
   signer: Signer,
-  account: string,
+  account: string | undefined,
   isExtended = true
 ): Promise<FarmItem | Boolean> => {
   const farmsOnChain = farmsConfig.filter(
@@ -33,7 +33,7 @@ export const createFarmItemConfig = async (
   );
 
   const farmInfo: FarmConfig | undefined = farmsOnChain.find(
-    ({ id }) => id === Number(farmId)
+    ({ id }) => id === farmId
   );
 
   if (!farmInfo) return false;
