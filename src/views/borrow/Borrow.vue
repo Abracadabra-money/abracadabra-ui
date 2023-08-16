@@ -565,9 +565,7 @@ export default {
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
-
-      console.log("parseCollateralAmount", this.parseCollateralAmount.toString())
-
+      
       await this.cookAddCollateral(
         payload,
         isMasterContractApproved,
