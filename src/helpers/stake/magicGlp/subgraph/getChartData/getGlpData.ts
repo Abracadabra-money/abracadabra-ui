@@ -99,9 +99,9 @@ export const getGlpData = async ({ from, to, chainId = 42161 }: any) => {
 
   let cumulativeDistributedUsdPerGlp = 0;
 
-  const ret = sortBy(glpStats, (item) => item[timestampProp])
-    .filter((item) => item[timestampProp] % 86400 === 0)
-    .reduce((memo: any, currentItem) => {
+  const ret = sortBy(glpStats, (item: any) => item[timestampProp])
+    .filter((item: any) => item[timestampProp] % 86400 === 0)
+    .reduce((memo: any, currentItem: any) => {
       const last = memo[memo.length - 1];
 
       const aum = Number(currentItem.aumInUsdg) / 1e18;
