@@ -1,6 +1,5 @@
 import moment from "moment";
 import { getGlpData } from "@/helpers/stake/magicGlp/subgraph/getChartData/getGlpData";
-import getFeesData from "@/helpers/stake/magicGlp/subgraph/getChartData/getFeesData";
 import { getGlpPerformanceData } from "@/helpers/stake/magicGlp/subgraph/getChartData/getGlpPerformanceData";
 
 export const getChartData = async (
@@ -18,13 +17,8 @@ export const getChartData = async (
   const params = { from, to, groupPeriod, chainId };
 
   const glpData = await getGlpData(params);
-  const feesData = await getFeesData(params);
 
-  const glpPerformanceData = await getGlpPerformanceData(
-    glpData,
-    feesData,
-    params
-  );
+  const glpPerformanceData = await getGlpPerformanceData(glpData, params);
 
   const chartData: any = { labels: [], tickUpper: [] };
 
