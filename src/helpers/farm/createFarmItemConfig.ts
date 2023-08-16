@@ -32,7 +32,7 @@ export const createFarmItemConfig = async (
   signer: Signer,
   account: string | undefined,
   isExtended = true
-): Promise<FarmItem | Boolean> => {
+): Promise<FarmItem | null> => {
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId
   );
@@ -41,7 +41,7 @@ export const createFarmItemConfig = async (
     ({ id }) => id === Number(farmId)
   );
 
-  if (!farmInfo) return false;
+  if (!farmInfo) return null;
 
   const { SPELLPrice, MIMPrice } = await getTokensPrices();
 
