@@ -84,7 +84,7 @@ const getGlpLevData = async (
     isShow: true,
   });
 
-  const { borrowToken, collateralToken } = pool;
+  const { mim, collateral, leverageSwapper } = pool.contracts;
 
   const tokensArr = (await getWhitelistedTokens()).filter(
     (info) => !info.maxAmountIn.eq(0)
@@ -96,7 +96,7 @@ const getGlpLevData = async (
       await swap0xRequest(
         chainId,
         token.address,
-        borrowToken.address,
+        mim.address,
         slipage,
         sellAmount
       )
@@ -144,7 +144,7 @@ const getGlpLevData = async (
         await swap0xRequest(
           chainId,
           info.buyToken,
-          borrowToken.address,
+          mim.address,
           slipage,
           awailableToSwap
         );
@@ -168,9 +168,10 @@ const getGlpLevData = async (
       )
     )
   );
+
   const minExpectedArr = await Promise.all(
     mintedGlpFromTokenInArrFinal.map((mintedGlpFromTokenIn) =>
-      collateralToken.contract.convertToShares(mintedGlpFromTokenIn.amountOut)
+      collateral.convertToShares(mintedGlpFromTokenIn.amountOut)
     )
   );
 
@@ -192,7 +193,7 @@ const getGlpLevData = async (
     })
   );
 
-  const swapperAddres = pool.levSwapperContract.address;
+  const swapperAddres = leverageSwapper.address;
   const userAddr = store.getters.getAccount;
 
   for (let info of cookInfo) {
@@ -203,7 +204,7 @@ const getGlpLevData = async (
       [info.data, info.buyToken]
     );
 
-    const swapStaticTx = await pool.levSwapperContract.populateTransaction.swap(
+    const swapStaticTx = await leverageSwapper.populateTransaction.swap(
       userAddr,
       minExpected,
       swapAmount,
@@ -237,14 +238,10 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
     isShow: true,
   });
 
-  const { borrowToken, collateralToken } = pool;
+  const { mim, collateral, bentoBox } = pool.contracts;
 
-  const mGlpAmount = await pool.masterContractInstance.toAmount(
-    collateralToken.address,
-    amount,
-    false
-  );
-  const glpAmount = await collateralToken.contract.convertToAssets(mGlpAmount);
+  const mGlpAmount = await bentoBox.toAmount(collateral.address, amount, false);
+  const glpAmount = await collateral.convertToAssets(mGlpAmount);
 
   const tokensArr = await getWhitelistedTokens();
 
@@ -260,7 +257,7 @@ const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
     respArr.push(
       await swap0xRequest(
         chainId,
-        borrowToken.address,
+        mim.address,
         token.address,
         slipage,
         tokenOutFromBurningGlpArr[tokensArr.indexOf(token)].amount

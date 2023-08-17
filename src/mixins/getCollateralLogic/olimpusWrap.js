@@ -1,6 +1,7 @@
 import { markRaw } from "vue";
 import wrapConf from "@/utils/collateralConfig/ohm-swap/wrapConf";
 import { mapGetters } from "vuex";
+import { ONE_ETHER } from "@/constants/global";
 
 export default {
   computed: {
@@ -63,9 +64,7 @@ export default {
       let mainToStake;
 
       try {
-        const sOHMTowOHM = await mainTokenInstance.wOHMTosOHM(
-          "1000000000000000000"
-        );
+        const sOHMTowOHM = await mainTokenInstance.wOHMTosOHM(ONE_ETHER);
 
         const sOHMTowOHMParsed = this.$ethers.utils.formatUnits(
           sOHMTowOHM,

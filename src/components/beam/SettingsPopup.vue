@@ -138,20 +138,6 @@ export default {
     },
 
     async updateFee(value) {
-      let additionalFee = "0";
-
-      if (this.dstTokenAmount) {
-        const feesWithoutAirdrop = await getEstimateSendFee(
-          this.config.contract,
-          this.config.address,
-          this.config.dstChainId,
-          "0",
-          this.mimAmount
-        );
-
-        additionalFee = feesWithoutAirdrop.fees[0].div(200);
-      }
-
       const { fees } = await getEstimateSendFee(
         this.config.contract,
         this.config.address,
@@ -160,7 +146,8 @@ export default {
         this.mimAmount
       );
 
-      const updatedFee = fees[0].add(additionalFee); // add 0.5% from base fee to be sure tx success
+      const additionalFee = fees[0].div(100);
+      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
       if (!updatedFee) return 0;
       return this.$ethers.utils.formatEther(updatedFee);
     },

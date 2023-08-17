@@ -34,11 +34,8 @@
           />
         </div>
         <div class="list" v-if="isDropdownStake">
-          <router-link class="list-link" :to="{ name: 'Stake' }"
-            >sSpell</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'mStake' }"
-            >mSpell</router-link
+          <router-link class="list-link" :to="{ name: 'StakeSpell' }"
+            >s/mSpell</router-link
           >
           <router-link class="list-link" :to="{ name: 'magicGLP' }"
             >magicGLP</router-link
@@ -87,7 +84,12 @@
           >
         </div>
       </div>
-      <div class="header-link networks-btn" @click.stop="openNetworkPopup">
+
+      <div
+        class="header-link networks-btn"
+        @click.stop="openNetworkPopup"
+        v-tooltip="unsupportedTooltip"
+      >
         <img v-if="!!networcIcon" :src="networcIcon" alt="" />
       </div>
       <div class="header-link header-connect">
@@ -199,6 +201,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
 export default {
   data() {
     return {
@@ -226,14 +229,29 @@ export default {
     },
 
     networcIcon() {
+      if (!this.chainId) return "";
       if (this.popupNetworksArr.length && this.chainId) {
         const chain = this.popupNetworksArr.find((chain) => {
           if (chain.chainId === this.chainId) return chain;
         });
 
-        return chain.icon;
+        if (chain) return chain.icon;
       }
 
+      return useImage("assets/images/networks/unsupportedChain.svg");
+    },
+
+    isUnsupportedChain() {
+      const chain = this.popupNetworksArr.find((chain) => {
+        if (chain.chainId === this.chainId) return chain;
+      });
+
+      return !!chain;
+    },
+
+    unsupportedTooltip() {
+      if (!this.isUnsupportedChain)
+        return "Your wallet's current network is unsupported.";
       return "";
     },
   },

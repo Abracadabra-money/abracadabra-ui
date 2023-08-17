@@ -12,7 +12,7 @@ export default {
   props: {
     tooltip: {
       type: String,
-      default: "dfdf",
+      default: "",
     },
   },
 };
@@ -20,6 +20,8 @@ export default {
 
 <style lang="scss" scoped>
 .tooltip {
+  width: 24px;
+  height: 24px;
   cursor: pointer;
 }
 </style>

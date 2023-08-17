@@ -1,14 +1,19 @@
 <template>
-  <div class="beam-view">
-    <div class="beam" v-if="beamConfig">
+  <div class="beam-view" v-if="beamConfig">
+    <div class="beam">
       <div class="beam-header">
         <h3 class="title">Beam</h3>
 
         <div class="settings-btns">
-          <WalletButton :active="isShowDstAddress" @click="toggleDstAddress" />
+          <WalletButton
+            :active="isShowDstAddress"
+            @click="toggleDstAddress"
+            :disabled="isUnsupportedNetwork"
+          />
           <SettingsButton
             :active="isSettingsOpened"
             @click="isSettingsOpened = true"
+            :disabled="isUnsupportedNetwork"
           />
         </div>
       </div>
@@ -31,6 +36,7 @@
             :icon="$image('assets/images/tokens/MIM.png')"
             :error="amountError"
             @update-value="updateMainValue"
+            :disabled="isUnsupportedNetwork"
           />
         </div>
 
@@ -142,11 +148,12 @@ import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
 import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
 import switchNetwork from "@/helpers/switchNetwork";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   data() {
     return {
-      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114],
+      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453],
       isShowDstAddress: false,
       toChainId: null,
       dstAddress: null,
@@ -182,7 +189,7 @@ export default {
       chainId: "getChainId",
     }),
 
-    isAcceptedNetworks() {
+    isUnsupportedNetwork() {
       return this.acceptedNetworks.indexOf(this.chainId) === -1;
     },
 
@@ -197,7 +204,10 @@ export default {
       );
     },
 
+    // TODO: fix naming & conditions
     isTokenApproved() {
+      if(this.chainId === 8453) return false;
+
       return !this.beamConfig.isTokenApprove && this.chainId === 1;
     },
 
@@ -224,9 +234,17 @@ export default {
     },
 
     originChain() {
-      return this.beamConfig?.fromChains.find(
+      let originChain = this.beamConfig?.fromChains.find(
         (chain) => chain.chainId === this.chainId
       );
+
+      return originChain
+        ? originChain
+        : {
+            title: "Select chain",
+            icon: useImage(`assets/images/networks/no-chain.svg`),
+            isUnsupportedNetwork: this.isUnsupportedNetwork,
+          };
     },
 
     targetToChain() {
@@ -239,7 +257,6 @@ export default {
         (item) => item.chainId === this.targetToChain
       )?.lzChainId;
     },
-
 
     lzChainId() {
       const lzChainId = this.beamConfig.chainsInfo.find(
@@ -309,9 +326,9 @@ export default {
       return {
         mimAmount: this.amount,
         dstTokenAmount: this.dstTokenAmount,
-        dstTokenSymbol: this.dstTokenInfo.symbol,
+        dstTokenSymbol: this.dstTokenInfo?.symbol,
         gasCost: this.formatFee,
-        srcTokenSymbol: this.srcTokenInfo.symbol,
+        srcTokenSymbol: this.srcTokenInfo?.symbol,
       };
     },
 
@@ -319,7 +336,7 @@ export default {
       return {
         icon: this.dstTokenInfo.icon,
         nativeTokenBalance: this.beamConfig.nativeTokenBalance,
-        nativeSymbol: this.srcTokenInfo.symbol,
+        nativeSymbol: this.srcTokenInfo?.symbol,
         contract: this.beamConfig.contractInstance,
         address: this.toAddress,
         dstChainId: this.lzChainId,
@@ -341,7 +358,7 @@ export default {
         sendTo: this.toAddress,
         originChain: this.originChain,
         mimAmount: this.amount,
-        nativeSymbol: this.srcTokenInfo.symbol,
+        nativeSymbol: this.srcTokenInfo?.symbol,
         gasOnDst: filters.formatToFixed(+this.getFee - +this.startFee, 3),
         dstTokenSymbol: this.dstTokenInfo.symbol,
         dstChain: this.dstChain,
@@ -371,7 +388,7 @@ export default {
 
   watch: {
     async chainId() {
-      if (this.isAcceptedNetworks) await this.beamNotAvailable();
+      if (this.isUnsupportedNetwork) await this.beamNotAvailable();
       else {
         await this.createBeamData();
         await this.updateHistoryStatus();
@@ -546,20 +563,6 @@ export default {
     },
 
     async getEstimatedFees(getParams = false) {
-      let additionalFee = "0";
-
-      if (this.dstTokenAmount) {
-        const feesWithoutAirdrop = await getEstimateSendFee(
-          this.beamConfig.contractInstance,
-          this.toAddress,
-          this.lzChainId,
-          "0",
-          this.amount || "1"
-        );
-
-        additionalFee = feesWithoutAirdrop.fees[0].div(200);
-      }
-
       const { fees, params } = await getEstimateSendFee(
         this.beamConfig.contractInstance,
         this.toAddress,
@@ -568,8 +571,9 @@ export default {
         this.amount || "1"
       );
 
-      const updatedFee = fees[0].add(additionalFee); // add 0.5% from base fee to be sure tx success
-      
+      const additionalFee = fees[0].div(100);
+      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
+
       if (getParams) return { fees: [updatedFee], params };
       else return [updatedFee];
     },
@@ -625,7 +629,7 @@ export default {
 
         this.estimateSendFee = await this.getEstimatedFees();
       } else {
-        if (this.dstChain.chainId !== chainId) {
+        if (this.dstChain.chainId !== chainId && !this.isUnsupportedNetwork) {
           localStorage.setItem("previous_chain_id", this.dstChain.chainId);
         }
 
@@ -678,16 +682,16 @@ export default {
 
   async created() {
     if (!this.chainId) return false;
-    if (this.isAcceptedNetworks) await this.beamNotAvailable();
-    else {
-      await this.createBeamData();
-      await this.updateHistoryStatus();
 
-      const previousChainId = localStorage.getItem("previous_chain_id");
-      if (previousChainId) {
-        await this.changeChain(+previousChainId, "to");
-        localStorage.removeItem("previous_chain_id");
-      }
+    if (this.isUnsupportedNetwork) await this.beamNotAvailable();
+
+    await this.createBeamData();
+    await this.updateHistoryStatus();
+
+    const previousChainId = localStorage.getItem("previous_chain_id");
+    if (previousChainId && !this.isUnsupportedNetwork) {
+      await this.changeChain(+previousChainId, "to");
+      localStorage.removeItem("previous_chain_id");
     }
   },
 

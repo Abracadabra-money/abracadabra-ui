@@ -14,42 +14,42 @@
 </template>
 
 <script>
+import { useImage } from "@/helpers/useImage";
 export default {
   props: {
     warningType: {
       type: String,
-      default: "sspell",
+      default: "sSpell",
     },
   },
   data() {
     return {
       emptyDataSSpell: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use Ethereum Mainnet to stake Spell",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/intro/stake/sspell",
       },
       emptyDataMSpell: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "mSPELL staking is available on Avalanche, Arbitrum, Ethereum and Fantom Opera!",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/intro/stake/mspell",
       },
       emptyDataMGlp: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use Arbitrum Mainnet to obtain magicGLP",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
       },
       emptyDataMApe: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use  Mainnet to obtain magicAPE",
         bottom: "If you want to learn more read our docs",
         link: "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
       },
-
       emptyDataMLvl: {
-        img: this.$image(`assets/images/empty_borrow.png`),
+        img: useImage(`assets/images/empty_borrow.png`),
         text: "Please use  Binance Smart Chain to obtain magicLVL",
         bottom: "If you want to learn more read our docs",
         link: false,
@@ -59,8 +59,8 @@ export default {
 
   computed: {
     selectedData() {
-      if (this.warningType === "sspell") return this.emptyDataSSpell;
-      if (this.warningType === "mspell") return this.emptyDataMSpell;
+      if (this.warningType === "sSpell") return this.emptyDataSSpell;
+      if (this.warningType === "mSpell") return this.emptyDataMSpell;
       if (this.warningType === "mglp") return this.emptyDataMGlp;
       if (this.warningType === "mape") return this.emptyDataMApe;
       if (this.warningType === "mlvl") return this.emptyDataMLvl;
@@ -78,7 +78,7 @@ export default {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 30px;
   padding: 23px 65px;
-  min-height: 280px;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,5 +103,11 @@ export default {
 
 .empty-link {
   color: #759ffa;
+}
+
+@media screen and (max-width: 600px) {
+  .empty-wrap {
+    padding: 10px;
+  }
 }
 </style>

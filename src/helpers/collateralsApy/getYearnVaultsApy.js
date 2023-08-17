@@ -12,7 +12,7 @@ export const getYearnVaultsApy = async (pool) => {
     }
 
     const tokenItem = store.getters.getTokensVaults.find(
-      (item) => item.address === pool.collateralToken.address
+      (item) => item.address === pool.config.collateralInfo.address
     );
 
     if (!tokenItem) return null;

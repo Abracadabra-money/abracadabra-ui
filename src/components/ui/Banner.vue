@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import ethConfig from "@/utils/cauldronsConfig/ethereumCauldrons";
 export default {
   data() {
     return {
@@ -40,11 +41,16 @@ export default {
     chainId() {
       return this.$store.getters.getChainId;
     },
-    showBanner() {
-      if(this.chainId !== 1) return false;
 
-      return this.routes.indexOf(this.$route.name) !== -1 && this.ids.indexOf(+this.$route.params.id) !== -1;
-    }
+    showBanner() {
+      if (this.chainId !== 1) return false;
+
+      const config = ethConfig.find(
+        (config) => +config.id === +this.$route.params.id
+      );
+
+      return !!config?.cauldronSettings?.isAlternativeInterest;
+    },
   },
 
   methods: {
@@ -53,8 +59,7 @@ export default {
     },
   },
 
-  components: {
-  },
+  components: {},
 };
 </script>
 

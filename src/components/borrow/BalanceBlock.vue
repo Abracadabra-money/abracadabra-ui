@@ -1,51 +1,58 @@
 <template>
-  <div class="wrap">
+  <div class="balance-block">
     <h3 class="title">Your Wallet Balances</h3>
-    <div
-      class="balance-item"
-      v-if="pool.cauldronSettings.acceptUseDefaultBalance"
-    >
-      <div class="balance-name">
-        <BaseTokenIcon :icon="networkInfo.icon" :name="pool.name" />
-        <p>{{ networkInfo.name }}</p>
+
+    <div class="balance-item" v-if="nativeTokenInfo">
+      <div class="token-description">
+        <BaseTokenIcon
+          :icon="nativeTokenInfo.icon"
+          :name="nativeTokenInfo.name"
+        />
+        <p>{{ nativeTokenInfo.name }}</p>
       </div>
-      <div class="balance">
-        <p>{{ formatTokenBalance(networkBalance) }}</p>
+      <div class="token-balance">
+        <p>{{ formatTokenBalance(nativeTokenInfo.balance) }}</p>
       </div>
     </div>
 
     <div class="balance-item">
-      <div class="balance-name">
-        <BaseTokenIcon :icon="mimIcon" :name="pool.name" />
-        <p>{{ pool.borrowToken.name }}</p>
+      <div class="token-description">
+        <BaseTokenIcon :icon="mimInfo.icon" :name="mimInfo.name" />
+        <p>{{ mimInfo.name }}</p>
       </div>
-      <div class="balance">
-        <p>{{ formatTokenBalance(userMimBalance) }}</p>
+      <div class="token-balance">
+        <p>{{ formatTokenBalance(mimInfo.balance) }}</p>
       </div>
     </div>
 
-    <div class="balance-item" v-if="!isLpLogic">
-      <div class="balance-name">
-        <BaseTokenIcon :icon="pool.icon" :name="pool.collateralToken.name" />
-        <p>{{ pool.collateralToken.name }}</p>
+    <div class="balance-item" v-if="collateralTokenInfo">
+      <div class="token-description">
+        <BaseTokenIcon
+          :icon="collateralTokenInfo.icon"
+          :name="collateralTokenInfo.name"
+        />
+        <p>{{ collateralTokenInfo.name }}</p>
       </div>
-      <div class="balance">
-        <p>{{ formatTokenBalance(userBalance) }}</p>
-        <p v-if="+userBalance">
-          {{  formatUSD(pool.userInfo.balanceUsd) }}
+      <div class="token-balance">
+        <p>{{ formatTokenBalance(collateralTokenInfo.balance) }}</p>
+        <p v-if="collateralTokenInfo.balanceUsd">
+          {{ formatUSD(collateralTokenInfo.balanceUsd) }}
         </p>
       </div>
     </div>
 
-    <div class="balance-item" v-else>
-      <div class="balance-name">
-        <BaseTokenIcon :icon="pool.icon" :name="pool.lpLogic.name" />
-        <p>{{ pool.lpLogic.name }}</p>
+    <div class="balance-item" v-if="unwrappedTokenInfo">
+      <div class="token-description">
+        <BaseTokenIcon
+          :icon="unwrappedTokenInfo.icon"
+          :name="unwrappedTokenInfo.name"
+        />
+        <p>{{ unwrappedTokenInfo.name }}</p>
       </div>
-      <div class="balance">
-        <p>{{ formatTokenBalance(lpBalance) }}</p>
-        <p v-if="+lpBalance">
-          {{ formatUSD(pool.userInfo.balanceUsd) }}
+      <div class="token-balance">
+        <p>{{ formatTokenBalance(unwrappedTokenInfo.balance) }}</p>
+        <p v-if="unwrappedTokenInfo.balanceUsd">
+          {{ formatUSD(unwrappedTokenInfo.balanceUsd) }}
         </p>
       </div>
     </div>
@@ -53,95 +60,79 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
-import filters from "@/filters/index.js";
-import mimIcon from "@/assets/images/tokens/MIM.png";
 import { mapGetters } from "vuex";
+import { utils } from "ethers";
+import filters from "@/filters/index.js";
+import { useImage } from "@/helpers/useImage";
+import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
+import { defineAsyncComponent } from "vue";
+import { ONE_ETHER } from "@/constants/global";
 export default {
   props: {
-    pool: {
+    cauldron: {
       type: Object,
       require: true,
     },
   },
+
   data() {
     return {
-      mimIcon,
+      tokensRate: 1,
     };
   },
 
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
 
-    networkInfo() {
-      let name = "ETH";
-      let icon = this.$image("assets/images/tokens/ETH.png");
+    nativeTokenInfo() {
+      const { acceptUseDefaultBalance } = this.cauldron.config.cauldronSettings;
+      if (!acceptUseDefaultBalance) return null;
 
-      if (this.chainId === 56) {
-        name = "BSC";
-        icon = this.$image("assets/images/tokens/BNB.png");
-      }
-
-      if (this.chainId === 250) {
-        name = "FTM";
-        icon = this.$image("assets/images/tokens/FTM2.png");
-      }
-      if (this.chainId === 43114) {
-        name = "AVAX";
-        icon = this.$image("assets/images/tokens/AVAX.png");
-      }
-      if (this.chainId === 137) {
-        name = "MATIC";
-        icon = this.$image("assets/images/tokens/MATIC.png");
-      }
-
-      return { name, icon };
+      const { nativeTokenBalance } = this.cauldron.userTokensInfo;
+      const { symbol, icon } = getChainInfo(this.chainId);
+      const balance = utils.formatUnits(nativeTokenBalance);
+      return { name: symbol, icon, balance };
     },
 
-    networkBalance() {
-      if (this.pool.userInfo)
-        return this.$ethers.utils.formatUnits(
-          this.pool.userInfo.networkBalance,
-          18
-        );
-
-      return 0;
+    mimInfo() {
+      const { name } = this.cauldron.config.mimInfo;
+      const { mimBalance } = this.cauldron.userTokensInfo;
+      const balance = utils.formatUnits(mimBalance);
+      return {
+        name,
+        icon: useImage("assets/images/tokens/MIM.png"),
+        balance,
+      };
     },
 
-    userMimBalance() {
-      if (this.pool.userInfo)
-        return this.$ethers.utils.formatUnits(
-          this.pool.userInfo.userPairBalance,
-          this.pool.borrowToken.decimals
-        );
+    collateralTokenInfo() {
+      const { icon, collateralInfo, wrapInfo } = this.cauldron.config;
+      const { name, decimals } = collateralInfo;
+      const { collateralBalance } = this.cauldron.userTokensInfo;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const isHiddenWrap = wrapInfo?.isHiddenWrap;
 
-      return 0;
+      if (isHiddenWrap) return null;
+
+      const balance = +utils.formatUnits(collateralBalance, decimals);
+      const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
+      const balanceUsd = balance ? balance / exchangeRate : 0;
+      return { name, icon, balance, balanceUsd };
     },
 
-    userBalance() {
-      if (this.pool.userInfo)
-        return this.$ethers.utils.formatUnits(
-          this.pool.userInfo.userBalance,
-          this.pool.collateralToken.decimals
-        );
+    unwrappedTokenInfo() {
+      const { wrapInfo, collateralInfo } = this.cauldron.config;
 
-      return 0;
-    },
+      if (!wrapInfo) return null;
 
-    isLpLogic() {
-      return !!this.pool.lpLogic;
-    },
-
-    lpBalance() {
-      if (this.pool.userInfo) {
-        return this.pool.userInfo.lpInfo
-          ? this.$ethers.utils.formatUnits(
-              this.pool.userInfo.lpInfo.balance,
-              this.pool.lpLogic.lpDecimals
-            )
-          : 0;
-      }
-      return 0;
+      const { decimals } = collateralInfo;
+      const { icon, name } = this.cauldron.config.wrapInfo.unwrappedToken;
+      const { unwrappedTokenBalance } = this.cauldron.userTokensInfo;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const balance = +utils.formatUnits(unwrappedTokenBalance, decimals);
+      const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
+      const balanceUsd = balance / this.tokensRate / exchangeRate;
+      return { icon, name, balance, balanceUsd };
     },
   },
 
@@ -149,17 +140,35 @@ export default {
     formatUSD(value) {
       return filters.formatUSD(value);
     },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
-    }
+    },
+
+    async getTokensRate() {
+      const { collateral } = this.cauldron.contracts;
+      const { decimals } = this.cauldron.config.collateralInfo;
+      if (!collateral.convertToAssets) return 1;
+      const rate = await collateral.convertToAssets(ONE_ETHER);
+
+      this.tokensRate = utils.formatUnits(rate, decimals);
+    },
   },
 
-  components: { BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue")) },
+  async created() {
+    if (this.cauldron.config?.wrapInfo) await this.getTokensRate();
+  },
+
+  components: {
+    BaseTokenIcon: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenIcon.vue")
+    ),
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.wrap {
+.balance-block {
   background: #2b2b3c;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
@@ -188,12 +197,12 @@ export default {
   margin-bottom: 8px;
 }
 
-.balance-name {
+.token-description {
   display: flex;
   align-items: center;
 }
 
-.balance {
+.token-balance {
   text-align: right;
 }
 
