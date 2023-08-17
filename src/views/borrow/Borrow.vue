@@ -200,14 +200,14 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        filters.formatToFixed(parseFloat(this.collateralValue) || 0, decimals),
+        filters.formatToFixed(this.collateralValue, decimals),
         decimals
       );
     },
 
     parseBorrowAmount() {
       return utils.parseUnits(
-        filters.formatToFixed(parseFloat(this.borrowValue) || 0, 18)
+        filters.formatToFixed(this.borrowValue, 18)
       );
     },
 
@@ -565,7 +565,7 @@ export default {
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
-
+      
       await this.cookAddCollateral(
         payload,
         isMasterContractApproved,
