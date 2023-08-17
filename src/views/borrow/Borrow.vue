@@ -200,14 +200,14 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        filters.formatToFixed(this.collateralValue, decimals),
+        filters.formatToFixed(this.collateralValue || 0, decimals),
         decimals
       );
     },
 
     parseBorrowAmount() {
       return utils.parseUnits(
-        filters.formatToFixed(this.borrowValue, 18)
+        filters.formatToFixed(this.borrowValue || 0, 18)
       );
     },
 
