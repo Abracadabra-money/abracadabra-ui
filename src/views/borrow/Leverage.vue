@@ -239,7 +239,7 @@ export default {
       const { decimals } = this.activeToken;
 
       const amount = filters.formatToFixed(
-        parseFloat(this.collateralValue) || 0,
+        this.collateralValue,
         decimals
       );
 
@@ -260,7 +260,7 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        filters.formatToFixed(parseFloat(this.collateralValue) || 0, decimals),
+        filters.formatToFixed(this.collateralValue || 0, decimals),
         decimals
       );
     },
