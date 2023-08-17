@@ -14,16 +14,15 @@ const marketItemTest = {
   config: config[4],
   interest: 0.1,
   userInfo: userInfoTest,
+  id: 1,
 };
 
 describe("MarketsListPopupFarmItem.vue", () => {
+  const wrapper = mount(MarketsListPopupFarmItem, {
+    props: { marketItem: marketItemTest },
+  });
+
   it("Should render with correct computed properties", () => {
-    console.log(marketItemTest);
-
-    const wrapper = mount(MarketsListPopupFarmItem, {
-      props: { marketItem: marketItemTest },
-    });
-
     expect(wrapper.exists()).toBe(true);
     expect(wrapper.vm.balance).toBe(0);
     if (marketItemTest.hasOwnProperty("lpPrice")) {
@@ -31,5 +30,14 @@ describe("MarketsListPopupFarmItem.vue", () => {
     } else {
       expect(wrapper.vm.balanceInUSD).toBe(NaN);
     }
+  });
+
+  it("Should emit on click", () => {
+    const marketItem = wrapper.find(".market-item");
+    expect(marketItem.exists()).toBe(true);
+    marketItem.trigger("click");
+
+    expect(wrapper.emitted().changeActiveMarket.length).toBe(1);
+    expect(wrapper.emitted().changeActiveMarket[0]).toContain(1);
   });
 });
