@@ -8,7 +8,7 @@ describe("BentoBoxItem.vue", () => {
   const bentoLink = `https://abracadabramoney.gitbook.io/intro/the-dashboard#mim-balance-on-bentobox`;
   const degenLink = `https://abracadabramoney.gitbook.io/our-ecosystem/our-contracts#our-degenbox-contracts`;
 
-  const testBalance = ethers.utils.parseEther("20");
+  const testBalance = ethers.utils.parseUnits("20000000000000000", 3);
 
   it("Should return bentoLink if isBento", () => {
     const wrapper = mount(BentoBoxItem, {

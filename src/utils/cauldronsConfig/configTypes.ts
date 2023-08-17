@@ -16,6 +16,9 @@ type CauldronSettings = {
   oracleAddress?: string;
   isPrivate?: boolean;
   privatelyFor?: string[];
+  isAlternativeInterest?: boolean;
+  isMagicApe?: boolean;
+  isSSpell?: boolean;
 };
 
 type MimInfo = {
@@ -51,6 +54,7 @@ export type CauldronConfig = {
   mimInfo: MimInfo;
   wrapInfo?: {
     isHiddenWrap: boolean;
+    useUnwrappedByDefault: boolean;
     unwrappedToken: {
       name: string;
       icon: string;

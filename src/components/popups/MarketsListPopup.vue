@@ -115,6 +115,7 @@ export default {
         .filter(
           ({ config }) =>
             config.cauldronSettings.isSwappersActive &&
+            config.leverageInfo &&
             !config.cauldronSettings.isDepreciated
         )
         .sort(({ userInfo: a }, { userInfo: b }) =>

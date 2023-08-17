@@ -1,12 +1,13 @@
 import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
-import swapAbi from "@/utils/abi/swap";
-import reverseSwapAbi from "@/utils/abi/reverseSwap";
 import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
 import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
 import { useImage } from "@/helpers/useImage";
+
+import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
+import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
@@ -29,6 +30,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 0.5,
     version: 2,
     cauldronSettings: {
+      is0xSwap: true,
       isSwappersActive: true,
       isDegenBox: false,
       strategyLink: false,
@@ -53,12 +55,12 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0xC9faCFA2fC50C9A30C77a2ad14E2dB107d591918",
-      abi: swapAbi,
+      address: "0xa116565cDF0Aa5f1fE36f82A9c8F0dc1dfc82cf0",
+      abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0x4c56DbCC056655b8813539aF9C819ae128c07e17",
-      abi: reverseSwapAbi,
+      address: "0x16310c0fe8844EDE84d766dA9fFe24DFf1aFb4ff",
+      abi: zeroXLiqSwapperAbi,
     },
   },
   {
@@ -97,6 +99,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     wrapInfo: {
       isHiddenWrap: true,
+      useUnwrappedByDefault: false,
       unwrappedToken: {
         name: "GLP",
         icon: useImage(`assets/images/tokens/GLP.png`),
@@ -148,6 +151,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     wrapInfo: {
       isHiddenWrap: false,
+      useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "GLP",
         icon: useImage(`assets/images/tokens/GLP.png`),

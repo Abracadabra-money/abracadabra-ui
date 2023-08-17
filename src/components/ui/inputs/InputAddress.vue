@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { utils } from "ethers";
+
 export default {
   data() {
     return {
@@ -24,9 +26,7 @@ export default {
 
   computed: {
     checkInputAddress() {
-      return this.address
-        ? this.$ethers.utils.isAddress(this.address.toLowerCase())
-        : false;
+      return this.address ? utils.isAddress(this.address.toLowerCase()) : false;
     },
 
     addressEntryError() {

@@ -8,6 +8,7 @@ import { getLevelFinanceStatistics } from "@/helpers/subgraph/magicLvl";
 import harvestorAbi from "@/utils/abi/lvl/harvestor";
 import lvlConfig from "@/utils/stake/lvlConfig";
 import { MASTER_ADDRESS, HARVESTOR_ADDRESS } from "@/constants/lvlFinance";
+import { ONE_ETHER } from "@/constants/global";
 
 export default {
   computed: {
@@ -65,7 +66,7 @@ export default {
     async getTokensRates(lvlContracts) {
       return await Promise.all(
         lvlContracts.map(({ mainTokenInstance }) =>
-          mainTokenInstance.convertToAssets("1000000000000000000")
+          mainTokenInstance.convertToAssets(ONE_ETHER)
         )
       );
     },

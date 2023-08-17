@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import SettingsPopup from "@/components/beam/SettingsPopup.vue";
 import { useImage } from "@/helpers/useImage";
 
@@ -11,6 +11,8 @@ const config = {
 };
 
 describe("ExpectedBlock.vue", () => {
+  const tooltip = vi.fn();
+
   it("Should save button must be active", () => {
     const wrapper = mount(SettingsPopup, {
       props: {
@@ -18,6 +20,9 @@ describe("ExpectedBlock.vue", () => {
         max: 18.47,
         defaultValue: "0.009609676187498731",
         value: 1,
+      },
+      global: {
+        directives: { tooltip },
       },
     });
 
@@ -32,6 +37,9 @@ describe("ExpectedBlock.vue", () => {
         defaultValue: "0.009609676187498731",
         value: "",
       },
+      global: {
+        directives: { tooltip },
+      },
     });
 
     expect(wrapper.vm.isDisabledBtn).toBe(true);
@@ -45,9 +53,11 @@ describe("ExpectedBlock.vue", () => {
         defaultValue: "0.009609676187498731",
         value: 20,
       },
+      global: {
+        directives: { tooltip },
+      },
     });
     wrapper.vm.$data.fee = 947.901333149714;
-    console.log("error", wrapper.vm.error);
 
     expect(wrapper.vm.error).toBe("Error max value 18.47");
   });
@@ -59,6 +69,9 @@ describe("ExpectedBlock.vue", () => {
         max: 18.47,
         defaultValue: "0.009609676187498731",
         value: 10,
+      },
+      global: {
+        directives: { tooltip },
       },
     });
 

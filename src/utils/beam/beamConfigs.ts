@@ -10,6 +10,7 @@ const polygonIcon = useImage(`assets/images/networks/polygon.svg`);
 const optimismIcon = useImage(`assets/images/networks/optimism.svg`);
 const moonriver = useImage(`assets/images/networks/moonriver.svg`);
 const kava = useImage(`assets/images/networks/kava.png`);
+const base = useImage(`assets/images/networks/base.png`);
 
 export type BeamConfig = {
   chainId: number;
@@ -40,6 +41,7 @@ const config: Array<BeamConfig> = [
       2222: "0.32",
       42161: "0.000197125401096902",
       43114: "0.007909505245705214",
+      8453: "0.000197125401096902",
     },
   },
   {
@@ -59,6 +61,7 @@ const config: Array<BeamConfig> = [
       2222: "0.32",
       42161: "0.000918881105354775",
       43114: "0.006451582412018373",
+      8453: "0.000918881105354775",
     },
   },
   {
@@ -78,6 +81,7 @@ const config: Array<BeamConfig> = [
       1285: "0.01774",
       2222: "0.32",
       43114: "0.007487999650150403",
+      8453: "0.008858578698816767",
     },
   },
   {
@@ -85,7 +89,7 @@ const config: Array<BeamConfig> = [
     chainName: "Polygon",
     chainIcon: polygonIcon,
     contract: {
-      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
+      address: "0xE1261E47b08a22Df93af46889EE504C2Aa6DfD4c",
       abi: abi.OFTWrapper,
     },
     defaultValue: {
@@ -97,6 +101,7 @@ const config: Array<BeamConfig> = [
       2222: "0.32",
       42161: "0.000514784975414775",
       43114: "0.006653377736217831",
+      8453: "0.000514784975414775",
     },
   },
   {
@@ -116,6 +121,7 @@ const config: Array<BeamConfig> = [
       2222: "0.32",
       42161: "0.000278362471171267",
       43114: "0.006601526510375709",
+      8453: "0.000278362471171267",
     },
   },
   {
@@ -135,6 +141,7 @@ const config: Array<BeamConfig> = [
       1285: "0.01774",
       2222: "0.32",
       42161: "0.000276367799372566",
+      8453: "0.000276367799372566",
     },
   },
   {
@@ -154,6 +161,7 @@ const config: Array<BeamConfig> = [
       2222: "0.32",
       42161: "0.000471314396755295",
       43114: "0.007084992346795497",
+      8453: "0.000471314396755295",
     },
   },
   {
@@ -173,6 +181,7 @@ const config: Array<BeamConfig> = [
       250: "0.055201363318514121",
       42161: "0.000278362471171267",
       43114: "0.006601526510375709",
+      8453: "0.000278362471171267",
     },
   },
   {
@@ -192,6 +201,27 @@ const config: Array<BeamConfig> = [
       250: "0.055201363318514121",
       42161: "0.000278362471171267",
       43114: "0.006601526510375709",
+      8453: "0.000278362471171267",
+    },
+  },
+  {
+    chainId: 8453,
+    chainName: "Base",
+    chainIcon: base,
+    contract: {
+      address: "0x4035957323FC05AD9704230E3dc1E7663091d262",
+      abi: abi.LzIndirectOFTV2,
+    },
+    defaultValue: {
+      1: "0.008858578698816767",
+      10: "0.00000285787311",
+      56: "0.0032258135959937",
+      137: "0.12769615656648925",
+      250: "0.04645576777626232",
+      1285: "0.01774",
+      2222: "0.32",
+      42161: "0.000278362471171267",
+      43114: "0.007487999650150403",
     },
   },
 ];

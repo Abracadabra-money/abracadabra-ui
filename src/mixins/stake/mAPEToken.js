@@ -5,6 +5,7 @@ import { mapGetters, mapMutations } from "vuex";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import { isTokenApprowed } from "@/utils/approveHelpers";
 import chainLinkAbi from "@/utils/abi/chainLink";
+import { ONE_ETHER } from "@/constants/global";
 
 export default {
   data() {
@@ -128,9 +129,7 @@ export default {
     },
 
     async getTokensRate(mainTokenInstance) {
-      const rate = await mainTokenInstance.convertToAssets(
-        "1000000000000000000"
-      );
+      const rate = await mainTokenInstance.convertToAssets(ONE_ETHER);
       return ethers.utils.formatUnits(rate);
     },
 

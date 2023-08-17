@@ -7,6 +7,7 @@ import arbitrumIcon from "@/assets/images/networks/arbitrum-icon.svg";
 import optimismIcon from "@/assets/images/networks/optimism-icon.svg";
 import moonriver from "@/assets/images/networks/moonriver.svg";
 import kava from "@/assets/images/networks/kava.png";
+import base from "@/assets/images/networks/base.png";
 
 import { providers } from "ethers";
 
@@ -158,6 +159,12 @@ export default {
 
           blockExplorerUrls: ["https://explorer.kava.io"],
         },
+      },
+      {
+        chainId: 8453,
+        name: "Base",
+        rpc: "https://mainnet.base.org",
+        icon: base,
       },
     ],
   },
