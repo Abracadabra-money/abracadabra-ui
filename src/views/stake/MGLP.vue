@@ -339,7 +339,7 @@ export default {
     this.totalRewards = await getTotalRewards(this.chainId);
 
     const response = await getMagicGlpApy(this.chainId);
-    this.apy = parseFloat(response.magicGlpApy).toFixed(2);
+    this.apy = filters.formatToFixed(response.magicGlpApy, 2);
   },
 
   beforeUnmount() {

@@ -118,7 +118,6 @@ const getTokenArrayPriceByPeriod = async (symbol, period) => {
 
   const url = `https://${apiDomain}/api/v3/coins/${tokenSymbol}/market_chart?vs_currency=usd&days=${days}&interval=daily`;
   const { data } = await axios.get(url, config);
-  console.log("11111", data);
 
   return data.prices.map((item) => {
     const timestamp = item[0] - 1;
