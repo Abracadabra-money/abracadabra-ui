@@ -7,9 +7,9 @@
         <img
           class="token-rate-icon"
           :src="mainToken.rateIcon"
-          alt="MagicGlp icon"
+          alt="Token icon"
         />
-        <span class="token-rate-value">{{ mGlpToGlpRate }}</span>
+        <span class="token-rate-value">{{ tokensRate }}</span>
       </div>
     </div>
 
@@ -61,7 +61,7 @@ export default {
   },
 
   computed: {
-    mGlpToGlpRate() {
+    tokensRate() {
       const rate = filters.formatToFixed(1 * this.mainToken.rate, 4);
       return `1 ${this.mainToken.name} = ${rate} ${this.stakeToken.name}`;
     },
