@@ -1,4 +1,5 @@
 import { getTokenArrayPriceByPeriod } from "@/helpers/priceHelper";
+import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 
 export const getGlpPerformanceData = async (
   glpData: any,
@@ -6,6 +7,8 @@ export const getGlpPerformanceData = async (
 ) => {
   const btcPrices = await getTokenArrayPriceByPeriod("BTC", from);
   const avaxPrices = await getTokenArrayPriceByPeriod("AVAX", from);
+  const { isArbitrumChain }: any | undefined =
+    magicGlpConfig[chainId as keyof typeof magicGlpConfig].additionalInfo;
 
   const glpDataById = glpData.reduce((memo: any, item: any) => {
     memo[item.timestamp] = item;
@@ -22,10 +25,9 @@ export const getGlpPerformanceData = async (
 
     const { distributedUsdPerGlp, glpPrice } = glpItem;
 
-    const glpApr =
-      chainId === 42161
-        ? (distributedUsdPerGlp / glpPrice) * 365 * 100
-        : (((distributedUsdPerGlp / 100) * avaxPrice) / glpPrice) * 365 * 100;
+    const glpApr = isArbitrumChain
+      ? (distributedUsdPerGlp / glpPrice) * 365 * 100
+      : (((distributedUsdPerGlp / 100) * avaxPrice) / glpPrice) * 365 * 100;
 
     accumulator.push({
       timestamp: price.timestamp,

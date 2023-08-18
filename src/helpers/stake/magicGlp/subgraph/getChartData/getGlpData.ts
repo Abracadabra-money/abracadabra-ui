@@ -1,5 +1,6 @@
 import axios from "axios";
 import { sortBy } from "lodash";
+import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 
 const urls = {
   42161: "gmx-stats",
@@ -32,7 +33,9 @@ const fillNa = (arr: any) => {
 export const getGlpData = async ({ from, to, chainId = 42161 }: any) => {
   const url = urls[chainId as keyof typeof urls];
   const subgraphUrl = `https://api.thegraph.com/subgraphs/name/gmx-io/${url}`;
-  const timestampProp = chainId === 42161 ? "id" : "timestamp";
+
+  const { timestampProp } =
+    magicGlpConfig[chainId as keyof typeof magicGlpConfig].additionalInfo;
 
   const query = `{
       glpStats(
