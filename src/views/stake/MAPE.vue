@@ -336,8 +336,10 @@ export default {
         this.chainId
       );
 
-      this.apy = await getMegicApeApy(this.provider);
-      this.totalRewards = await getTotalRewards();
+      if (this.isUnsupportedChain) {
+        this.apy = await getMegicApeApy(this.provider);
+        this.totalRewards = await getTotalRewards();
+      }
     },
 
     routeTo(name, id) {
