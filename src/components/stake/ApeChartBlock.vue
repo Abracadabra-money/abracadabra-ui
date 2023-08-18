@@ -2,7 +2,7 @@
   <div class="chart-block" :class="[chartActive]" v-if="!!chartData">
     <div class="chart-header">
       <h3 class="chart-title">Statistics</h3>
-      <EstApy :apy="apy.toFixed(2)" :config="apyConfig" />
+      <EstApy :apy="apy" :config="apyConfig" />
     </div>
 
     <div class="actions-btns">
@@ -52,7 +52,7 @@ import { getPrice } from "@/helpers/stake/magicApe/subgraph/getPrice";
 
 export default {
   props: {
-    apy: {},
+    apy: { type: String },
   },
 
   data() {

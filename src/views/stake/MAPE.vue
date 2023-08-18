@@ -202,7 +202,7 @@ export default {
         (1 - Math.pow(percentMultiplier, multiplier + 1)) /
         (1 - percentMultiplier);
 
-      return Math.floor(parseFloat(expectedLevearage * this.apy).toFixed(2));
+      return Math.floor(expectedLevearage * this.apy);
     },
 
     errorMainValue() {

@@ -1,3 +1,4 @@
+import filters from "@/filters";
 import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { config } from "@/helpers/collateralsApy/getMegicApeApy/config";
@@ -28,5 +29,8 @@ export const getMegicApeApy = async (
 
   const fee = feePercentBips / bips;
   const apr = apeCoinInfo[0] / 100;
-  return (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100 * (1 - fee);
+  return filters.formatToFixed(
+    (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100 * (1 - fee),
+    2
+  );
 };
