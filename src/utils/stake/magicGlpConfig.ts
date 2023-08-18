@@ -42,6 +42,8 @@ export const magicGlpConfig = {
         label: "Amplify your yield with the Abracadabra Leverage Engine",
         id: 3,
       },
+      timestampProp: "id",
+      isArbitrumChain: true,
     },
   },
   43114: {
@@ -80,6 +82,8 @@ export const magicGlpConfig = {
       leverageInfo: {
         label: "Abracadabra Leverage Engine is being developed, stay tuned!",
       },
+      timestampProp: "timestamp",
+      isAvaxChain: true,
     },
   },
 };

@@ -1,4 +1,5 @@
 import { utils } from "ethers";
+import { BIPS } from "@/constants/global";
 
 export const getAdditionalInfo = async (contracts: any, config: any) => {
   const { harvestorContract, chainLinkContract } = contracts;
@@ -12,7 +13,7 @@ export const getAdditionalInfo = async (contracts: any, config: any) => {
   const [feePercentBips, rewardTokenPrice] = await Promise.all(multicallArr);
 
   return {
-    feePercent: feePercentBips / 10000,
+    feePercent: feePercentBips / BIPS,
     rewardTokenPrice: +utils.formatUnits(rewardTokenPrice, 8),
     rewardToken,
     leverageInfo,
