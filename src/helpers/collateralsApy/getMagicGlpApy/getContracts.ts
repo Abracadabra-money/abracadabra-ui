@@ -1,7 +1,7 @@
 import { providers, Contract } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-import { rpc } from "@/helpers/collateralsApy/getMegicGlpApy/constants";
-import { contracts } from "@/helpers/collateralsApy/getMegicGlpApy/constants";
+import { rpc } from "@/helpers/collateralsApy/getMagicGlpApy/constants";
+import { contracts } from "@/helpers/collateralsApy/getMagicGlpApy/constants";
 
 export const getContracts = async (chainId: number) => {
   const {

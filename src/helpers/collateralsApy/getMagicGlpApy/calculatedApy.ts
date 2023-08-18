@@ -2,7 +2,7 @@ import {
   GLP_DECIMALS,
   SECONDS_PER_YEAR,
   BASIS_POINTS_DIVISOR,
-} from "@/helpers/collateralsApy/getMegicGlpApy/constants";
+} from "@/helpers/collateralsApy/getMagicGlpApy/constants";
 import { BigNumber, utils } from "ethers";
 
 const precision = BigNumber.from(Math.pow(10, GLP_DECIMALS).toString());

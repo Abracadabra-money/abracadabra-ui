@@ -139,7 +139,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
-import { getMegicGlpApy } from "@/helpers/collateralsApy/getMegicGlpApy";
+import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
 
 export default {
@@ -338,7 +338,7 @@ export default {
 
     this.totalRewards = await getTotalRewards(this.chainId);
 
-    const response = await getMegicGlpApy(this.chainId);
+    const response = await getMagicGlpApy(this.chainId);
     this.apy = parseFloat(response.magicGlpApy).toFixed(2);
   },
 

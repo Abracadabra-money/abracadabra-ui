@@ -1,5 +1,5 @@
-import { walletTokens } from "@/helpers/collateralsApy/getMegicGlpApy/constants";
-import type { AdditionalInfo } from "@/helpers/collateralsApy/getMegicGlpApy/types";
+import { walletTokens } from "@/helpers/collateralsApy/getMagicGlpApy/constants";
+import type { AdditionalInfo } from "@/helpers/collateralsApy/getMagicGlpApy/types";
 
 export const getAdditionalInfo = async (
   contracts: any,
