@@ -200,10 +200,13 @@ export default {
 
     async actionHandler() {
       if (this.isButtonDisabled) return false;
+
       this.isActionProcessing = true;
+
       if (!this.isAllowed & !this.isUnstake) await this.approveHandler();
       else if (this.isUnstake) await this.unstakeHandler();
       else await this.stakeHandler();
+
       this.isActionProcessing = false;
     },
 

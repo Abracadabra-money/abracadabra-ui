@@ -55,7 +55,7 @@ export const getFarmYieldAndLpPrice = async (
 
     const price = await stakingTokenContract.get_virtual_price();
 
-    const lpPrice = Number(ethers.utils.formatEther(price.toString()));
+    const lpPrice = Number(ethers.utils.formatEther(price));
     const farmYield = await getFarmYield(
       contractInstance,
       1000,

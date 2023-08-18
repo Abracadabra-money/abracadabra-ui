@@ -38,16 +38,14 @@ export const getFarmUserInfo = async (
     account
   );
 
-  const balance = ethers.utils.formatEther(accountBalance.toString());
+  const balance = ethers.utils.formatEther(accountBalance);
 
   const deposited = await farmItemConfig.contractInstance.userInfo(
     farmItemConfig.poolId,
     account
   );
 
-  const depositedBalance = ethers.utils.formatEther(
-    deposited?.amount.toString()
-  );
+  const depositedBalance = ethers.utils.formatEther(deposited?.amount);
 
   return {
     allowance,
@@ -78,9 +76,9 @@ const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
     tokenAddresses["WETH" as keyof typeof tokenAddresses]
   );
 
-  const token0Amount: number = Number(ethers.utils.formatUnits(_reserve0, 18));
+  const token0Amount: number = Number(ethers.utils.formatUnits(_reserve0));
 
-  const token1Amount: number = Number(ethers.utils.formatUnits(_reserve1, 18));
+  const token1Amount: number = Number(ethers.utils.formatUnits(_reserve1));
 
   const token0Usd = token0Amount * token0Price;
   const token1Usd = token1Amount * token1Price;
@@ -91,7 +89,7 @@ const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
   const token1Percent = (token1Usd / tokensSum) * 100;
 
   const userRewardParsed: number = Number(
-    ethers.utils.formatUnits(userInfo.amount, 18)
+    ethers.utils.formatUnits(userInfo.amount)
   );
 
   const userRewardInUsd = userRewardParsed * farmItemConfig.lpPrice;

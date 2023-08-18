@@ -6,11 +6,11 @@ export const getTVL = async (
   price: number
 ): Promise<number> => {
   try {
-    const ttl: number = Number(
-      utils.formatEther(stakingTokenTotalAmount.toString())
+    const tvl: number = Number(
+      utils.formatEther(stakingTokenTotalAmount)
     );
 
-    return ttl * price;
+    return tvl * price;
   } catch (error) {
     console.log(error);
     return 0;
