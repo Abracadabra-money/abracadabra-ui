@@ -174,7 +174,7 @@ export default {
 
       const { mimAllowance } = this.cauldron.userTokensInfo;
       const allowance = +utils.formatUnits(mimAllowance);
-      return allowance > 0;
+      return allowance > +this.borrowValue;
     },
 
     isActionDisabled() {

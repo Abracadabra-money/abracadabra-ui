@@ -104,7 +104,7 @@
               primary
               :disabled="isTokenApproved"
               @click="approveTokenHandler"
-              >Approve Token</BaseButton
+              >Approve</BaseButton
             >
             <BaseButton @click="actionHandler" :disabled="isActionDisabled"
               >{{ actionInfo.buttonText }}
@@ -210,7 +210,7 @@ export default {
         this.activeToken.decimals
       );
 
-      return allowance > 0;
+      return allowance > +this.collateralValue;
     },
 
     isActionDisabled() {

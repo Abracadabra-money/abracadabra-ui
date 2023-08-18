@@ -102,17 +102,17 @@
         <CollateralApyBlock v-if="cauldron" :cauldron="cauldron" />
 
         <template v-if="cauldron">
-          <div class="btn-wrap">
-            <BaseButton
+          <!-- <div class="btn-wrap"> -->
+            <!-- <BaseButton
               primary
-              :disabled="isTokenApproved"
+              :disabled="true"
               @click="approveTokenHandler"
-              >Approve Token</BaseButton
-            >
-            <BaseButton @click="actionHandler" :disabled="isActionDisabled"
+              >Approve</BaseButton
+            > -->
+            <BaseButton v-if="cauldron" @click="actionHandler" :disabled="isActionDisabled"
               >{{ actionInfo }}
             </BaseButton>
-          </div>
+          <!-- </div> -->
 
           <div class="main-info-wrap">
             <MainInfoBlock :cauldron="cauldron" />

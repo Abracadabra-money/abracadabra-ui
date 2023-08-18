@@ -186,7 +186,7 @@ export default {
         this.activeToken.decimals
       );
 
-      return allowance > 0;
+      return allowance > +this.collateralValue;
     },
 
     isActionDisabled() {
@@ -365,8 +365,6 @@ export default {
       const ltv =
         Math.round((this.expectedBorrowAmount / this.collateralInUsd) * 100) +
         1;
-
-      console.log("ltv", ltv);
 
       if (ltv <= +mcr) return parseFloat(ltv).toFixed(0);
       return +mcr;
