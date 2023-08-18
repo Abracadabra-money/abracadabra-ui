@@ -2,7 +2,7 @@ import store from "@/store";
 
 import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
-import { getMegicGlpApy } from "@/helpers/collateralsApy/getMegicGlpApy";
+import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
@@ -56,7 +56,7 @@ export const fetchTokenApy = async (pool) => {
 
   if (chainId === 42161) {
     if (pool.config.id === 2 || pool.config.id === 3) {
-      const response = await getMegicGlpApy(chainId);
+      const response = await getMagicGlpApy(chainId);
       if (pool.config.id === 2) return response.glpApy;
       if (pool.config.id === 3) return response.magicGlpApy;
     }

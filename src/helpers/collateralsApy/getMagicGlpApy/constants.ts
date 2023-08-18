@@ -1,12 +1,12 @@
-import rewardReaderAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/RewardReader";
-import glpManagerAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/GlpManager";
-import readerV2Abi from "@/helpers/collateralsApy/getMegicGlpApy/abi/ReaderV2";
-import uniPoolAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/UniPool";
-import vaultAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/Vault";
-import aggregatorAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/AbraWsGlp";
-import magicGlpHarvestorAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/MagicGlpHarvestor";
-import chainLinkAvaxAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/chainLinkAvax";
-import JoePairAbi from "@/helpers/collateralsApy/getMegicGlpApy/abi/JoePair";
+import rewardReaderAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/RewardReader";
+import glpManagerAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/GlpManager";
+import readerV2Abi from "@/helpers/collateralsApy/getMagicGlpApy/abi/ReaderV2";
+import uniPoolAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/UniPool";
+import vaultAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/Vault";
+import aggregatorAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/AbraWsGlp";
+import magicGlpHarvestorAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/MagicGlpHarvestor";
+import chainLinkAvaxAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/chainLinkAvax";
+import JoePairAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/JoePair";
 
 export const SECONDS_PER_YEAR = 31536000;
 export const BASIS_POINTS_DIVISOR = 10000;

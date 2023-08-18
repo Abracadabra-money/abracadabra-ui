@@ -1,7 +1,7 @@
 import {
   rewardTrackers,
   stakingDataKeys,
-} from "@/helpers/collateralsApy/getMegicGlpApy/constants";
+} from "@/helpers/collateralsApy/getMagicGlpApy/constants";
 
 export const getStakingData = async (
   address: string,

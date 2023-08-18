@@ -4,8 +4,8 @@ import { Token } from "@uniswap/sdk-core";
 import {
   GLP_DECIMALS,
   tokens,
-} from "@/helpers/collateralsApy/getMegicGlpApy/constants";
-import type { Prices } from "@/helpers/collateralsApy/getMegicGlpApy/types";
+} from "@/helpers/collateralsApy/getMagicGlpApy/constants";
+import type { Prices } from "@/helpers/collateralsApy/getMagicGlpApy/types";
 
 const precision = BigNumber.from(Math.pow(10, GLP_DECIMALS).toString());
 

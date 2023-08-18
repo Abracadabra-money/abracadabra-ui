@@ -1,6 +1,6 @@
 import type { BigNumber } from "ethers";
 
-export type MegicGlpApy = {
+export type MagicGlpApy = {
   glpApy: number;
   magicGlpApy: number;
 };
