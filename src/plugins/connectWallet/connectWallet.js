@@ -172,7 +172,7 @@ const onConnectNew = async () => {
       new ethers.providers.StaticJsonRpcProvider(currentRpc)
     );
 
-    const { signer } = unsupportedChain
+    const signer = unsupportedChain
       ? provider
       : await getEthersSigner({ chainId });
 
