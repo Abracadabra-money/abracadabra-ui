@@ -1,28 +1,43 @@
 <template>
-  <div class="est-apy-wrap">
+  <div class="est-apy-wrap" :style="{ background: config.color }">
     <div class="est-apy">
-      <img
-        class="est-apy-icon"
-        src="@/assets/images/glp/chart-apr.png"
-        alt="Icon"
-      />
+      <img class="est-apy-icon" :src="config.icon" alt="Icon" />
       <span class="est-apy-text">est. APY </span>
-      <span class="est-apy-percent" v-if="apy">{{ apy }}%</span>
+      <span class="est-apy-percent" :style="apyColor" v-if="apy"
+        >{{ apy }}%</span
+      >
 
-      <BaseLoader
-        v-else
-        type="loader"
-        color="linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%)"
-      />
+      <BaseLoader v-else type="loader" :color="config.color" />
     </div>
   </div>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
 export default {
   props: {
     apy: { type: String, required: true },
+    config: {
+      type: Object,
+      default: () => {
+        return {
+          icon: useImage("assets/images/glp/chart-apr.png"),
+          color: "linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%)",
+        };
+      },
+    },
+  },
+
+  computed: {
+    apyColor() {
+      return `
+      background: ${this.config.color};
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-fill-color: transparent;
+      `;
+    },
   },
 
   components: {
