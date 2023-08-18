@@ -1,6 +1,6 @@
 import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-import { config } from "@/helpers/collateralsApy/getApeApy/config";
+import { config } from "@/helpers/collateralsApy/getMegicApeApy/config";
 
 export const getMegicApeApy = async (
   provider: providers.JsonRpcProvider

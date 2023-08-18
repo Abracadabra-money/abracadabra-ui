@@ -176,7 +176,8 @@ export default {
       if (!this.account) return true;
       if (!this.isUnsupportedChain) return true;
       const { approvedAmount } = this.fromToken;
-      return approvedAmount > this.mainInputValue;
+
+      return approvedAmount >= this.mainInputValue;
     },
 
     isActionDisabled() {

@@ -6,7 +6,7 @@ import { getMegicGlpApy } from "@/helpers/collateralsApy/getMegicGlpApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
-import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
+import { getMegicApeApy } from "@/helpers/collateralsApy/getMegicApeApy";
 
 export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
@@ -47,7 +47,7 @@ export const fetchTokenApy = async (pool) => {
     if (pool.config.id === 31 || pool.config.id === 32)
       return await getStargateApy(pool, provider);
 
-    if (pool.config.id === 39) return await getApeApy(provider);
+    if (pool.config.id === 39) return await getMegicApeApy(provider);
   }
 
   if (chainId === 10) {
