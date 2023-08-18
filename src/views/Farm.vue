@@ -11,12 +11,20 @@
         </div>
 
         <div class="stake-unstake-switch" v-if="!isDepreciated">
-          <MarketsSwitch :name="selectedTab" :items="items" @select="selectTab($event.name)" />
+          <MarketsSwitch
+            :name="selectedTab"
+            :items="items"
+            @select="selectTab($event.name)"
+          />
         </div>
 
         <h4 class="sub-title">Farming Opportunities</h4>
 
-        <SelectFarm class="underline" :selectedFarm="selectedFarm" @openFarmsPopup="openFarmsPopup" />
+        <SelectFarm
+          class="underline"
+          :selectedFarm="selectedFarm"
+          @openFarmsPopup="openFarmsPopup"
+        />
 
         <h4 class="sub-title">
           {{ inputTitleText }}
@@ -24,21 +32,37 @@
         </h4>
 
         <div class="input-wrap underline">
-          <BaseTokenInput :value="inputAmount" @updateValue="inputAmount = $event"
-            :name="selectedFarm?.stakingToken?.name" :icon="selectedFarm?.icon" :max="max" :error="error"
-            :disabled="!selectedFarm" />
+          <BaseTokenInput
+            :value="inputAmount"
+            @updateValue="inputAmount = $event"
+            :name="selectedFarm?.stakingToken?.name"
+            :icon="selectedFarm?.icon"
+            :max="max"
+            :error="error"
+            :disabled="!selectedFarm"
+          />
         </div>
 
         <div class="btn-wrap">
-          <BaseButton @click="actionHandler" :disabled="isButtonDisabled" primary>{{ buttonText }}
+          <BaseButton
+            @click="actionHandler"
+            :disabled="isButtonDisabled"
+            primary
+            >{{ buttonText }}
           </BaseButton>
         </div>
 
         <FarmInfoBlock :selectedFarm="selectedFarm" v-if="selectedFarm" />
       </div>
     </div>
-    <LocalPopupWrap :isOpened="isFarmsPopupOpened" @closePopup="isFarmsPopupOpened = false">
-      <MarketsListPopup popupType="farms" @changeActiveMarket="changeActiveMarket" />
+    <LocalPopupWrap
+      :isOpened="isFarmsPopupOpened"
+      @closePopup="isFarmsPopupOpened = false"
+    >
+      <MarketsListPopup
+        popupType="farms"
+        @changeActiveMarket="changeActiveMarket"
+      />
     </LocalPopupWrap>
   </div>
 </template>
@@ -76,7 +100,7 @@ export default {
       ],
       farmsTimer: null,
       selectedFarm: null,
-      isActionProcessing: false
+      isActionProcessing: false,
     };
   },
 
@@ -120,18 +144,19 @@ export default {
     },
 
     buttonText() {
-      if (this.isActionProcessing) return 'Processing'
+      if (this.isActionProcessing) return "Processing...";
       const text = this.isUnstake ? "Unstake" : "Stake";
       return !this.isAllowed && !this.isUnstake ? "Approve" : text;
     },
 
     inputTitleText() {
-      return `${this.isUnstake ? "Unstake" : "Deposit"} ${this.selectedFarm ? this.selectedFarm.stakingToken.name : ""
-        } tokens`;
+      return `${this.isUnstake ? "Unstake" : "Deposit"} ${
+        this.selectedFarm ? this.selectedFarm.stakingToken.name : ""
+      } tokens`;
     },
 
     isButtonDisabled() {
-      return !this.isValid || !!this.error || this.isActionProcessing
+      return !this.isValid || !!this.error || this.isActionProcessing;
     },
   },
 
@@ -175,11 +200,11 @@ export default {
 
     async actionHandler() {
       if (this.isButtonDisabled) return false;
-      this.isActionProcessing = true
+      this.isActionProcessing = true;
       if (!this.isAllowed & !this.isUnstake) await this.approveHandler();
       else if (this.isUnstake) await this.unstakeHandler();
       else await this.stakeHandler();
-      this.isActionProcessing = false
+      this.isActionProcessing = false;
     },
 
     async stakeHandler() {
