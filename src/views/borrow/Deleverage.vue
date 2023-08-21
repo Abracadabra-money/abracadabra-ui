@@ -103,15 +103,18 @@
 
         <template v-if="cauldron">
           <!-- <div class="btn-wrap"> -->
-            <!-- <BaseButton
+          <!-- <BaseButton
               primary
               :disabled="true"
               @click="approveTokenHandler"
               >Approve</BaseButton
             > -->
-            <BaseButton v-if="cauldron" @click="actionHandler" :disabled="isActionDisabled"
-              >{{ actionInfo }}
-            </BaseButton>
+          <BaseButton
+            v-if="cauldron"
+            @click="actionHandler"
+            :disabled="isActionDisabled"
+            >{{ actionInfo }}
+          </BaseButton>
           <!-- </div> -->
 
           <div class="main-info-wrap">
@@ -205,8 +208,8 @@ export default {
     },
 
     isActionDisabled() {
-      if (!this.isTokenApproved) return true;
-      if (!this.repayMimAmount) return true;
+      // if (!this.isTokenApproved) return true;
+      if (this.repayMimAmount == 0) return true;
       return false;
     },
 
@@ -537,27 +540,28 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      const isTokenToCookApprove = await this.checkAllowance(
-        payload.collateralAmount
+      // const isTokenToCookApprove = await this.checkAllowance(
+      //   payload.collateralAmount
+      // );
+
+      // if (+isTokenToCookApprove) {
+      await this.cookDeleverage(
+        payload,
+        isMasterContractApproved,
+        this.cauldron,
+        this.account,
+        notificationId
       );
 
-      if (+isTokenToCookApprove) {
-        await this.cookDeleverage(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          this.account,
-          notificationId
-        );
-
-        return await this.createCauldronInfo();
-      }
+      return await this.createCauldronInfo();
+      // }
 
       await this.deleteNotification(notificationId);
       return await this.createNotification(notification.approveError);
     },
 
     async closePositionHandler() {
+      if (this.isDisabledClosePosition) return false;
       this.repayMimAmount = this.positionInfo.userBorrowAmount;
       this.removeCollateralAmount = this.maxRemoveCollateralAmount;
 
