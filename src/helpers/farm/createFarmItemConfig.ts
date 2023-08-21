@@ -23,7 +23,6 @@ type TokenPricesResponse = {
 export const tokenAddresses = {
   SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
   MIM: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3",
-  WETH: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 };
 
 export const createFarmItemConfig = async (
