@@ -139,7 +139,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicApeConfig } from "@/utils/stake/magicApeConfig";
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
-import { getMegicApeApy } from "@/helpers/collateralsApy/getMegicApeApy";
+import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
 
@@ -365,7 +365,7 @@ export default {
       );
 
       if (this.isUnsupportedChain) {
-        this.apy = await getMegicApeApy(this.provider);
+        this.apy = await getMagicApeApy(this.provider);
         this.totalRewards = await getTotalRewards();
       }
     },
