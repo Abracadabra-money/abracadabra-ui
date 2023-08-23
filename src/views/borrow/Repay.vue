@@ -171,7 +171,7 @@ export default {
 
     isTokenApproved() {
       if (!this.account) return true;
-
+      if (!this.borrowValue) return true;
       const { mimAllowance } = this.cauldron.userTokensInfo;
       const allowance = +utils.formatUnits(mimAllowance);
       return allowance > +this.borrowValue;
