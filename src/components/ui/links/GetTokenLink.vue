@@ -1,6 +1,7 @@
 <template>
   <a
     class="get-token-link"
+    :style="styles"
     :href="data.href"
     target="_blank"
     rel="noreferrer noopener"
@@ -14,6 +15,16 @@
 export default {
   props: {
     data: {},
+    background: { type: String, default: "rgba(157, 244, 255, 0.2)" },
+    color: { type: String, default: "#63caf8" },
+  },
+
+  computed: {
+    styles() {
+      return `
+        background: ${this.background};
+        border: ${this.color}`;
+    },
   },
 };
 </script>

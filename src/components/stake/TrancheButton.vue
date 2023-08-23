@@ -1,68 +1,47 @@
 <template>
-  <a
-    class="default-button"
+  <button
+    class="tranche-button"
     :class="[{ active: isActive }, type]"
     @click="$emit('changeToken')"
   >
-    <img :src="trancheIcon" class="tranche-icon" />
+    <img class="tranche-icon" :src="btnIcon" />
 
     <img
-      src="@/assets/images/stake/check-icon.svg"
       class="check-icon"
+      src="@/assets/images/stake/check-icon.svg"
       v-if="isActive"
     />
-    <div class="button-content">
-      <p class="button-title" :class="type + '-title'">{{ type }} Tranche</p>
-      <p class="apr">{{ apr }} <span>APR</span></p>
+
+    <div class="description">
+      <p class="title" :class="type + '-title'">{{ type }} Tranche</p>
+      <p class="value">{{ apr }} <span>APR</span></p>
     </div>
-  </a>
+  </button>
 </template>
+
 <script>
-import seniorIcon from "@/assets/images/stake/senior-icon.svg";
-import juniorIcon from "@/assets/images/stake/junior-icon.svg";
-import mezzanineIcon from "@/assets/images/stake/mezzanine-icon.svg";
+import { useImage } from "@/helpers/useImage";
+
 export default {
   props: {
-    type: String,
     isActive: Boolean,
-    apr: String,
+    apr: { type: String, default: "0" },
+    type: { type: String, required: true, default: "senior" },
   },
 
   computed: {
-    trancheIcon() {
-      if (this.type === "senior") return seniorIcon;
-      if (this.type === "mezzanine") return mezzanineIcon;
-      return juniorIcon;
+    btnIcon() {
+      if (this.type === "senior")
+        return useImage("assets/images/stake/senior-icon.svg");
+      if (this.type === "mezzanine")
+        return useImage("assets/images/stake/mezzanine-icon.svg");
+      return useImage("assets/images/stake/junior-icon.svg");
     },
   },
 };
 </script>
 <style lang="scss" scoped>
-.junior {
-  background: linear-gradient(
-      0deg,
-      rgba(255, 113, 0, 0.1),
-      rgba(255, 113, 0, 0.1)
-    ),
-    #2b2b3c;
-}
-.mezzanine {
-  background: linear-gradient(
-      0deg,
-      rgba(134, 78, 251, 0.1),
-      rgba(134, 78, 251, 0.1)
-    ),
-    #2b2b3c;
-}
-.senior {
-  background: linear-gradient(
-      0deg,
-      rgba(55, 202, 255, 0.1),
-      rgba(55, 202, 255, 0.1)
-    ),
-    #2a2835;
-}
-.default-button {
+.tranche-button {
   height: 65px;
   width: 100%;
   cursor: pointer;
@@ -72,61 +51,90 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  line-height: 24px;
   border-radius: 20px;
   border: 2px solid #403e4a;
+  text-align: left;
 
   &:hover {
     background: #616068;
   }
 }
-.default-button img {
-  position: absolute;
+
+.active {
+  border: 2px solid #8180ff;
 }
+
+.junior {
+  background: linear-gradient(
+      0deg,
+      rgba(255, 113, 0, 0.1),
+      rgba(255, 113, 0, 0.1)
+    ),
+    #2b2b3c;
+}
+
+.mezzanine {
+  background: linear-gradient(
+      0deg,
+      rgba(134, 78, 251, 0.1),
+      rgba(134, 78, 251, 0.1)
+    ),
+    #2b2b3c;
+}
+
+.senior {
+  background: linear-gradient(
+      0deg,
+      rgba(55, 202, 255, 0.1),
+      rgba(55, 202, 255, 0.1)
+    ),
+    #2a2835;
+}
+
 .tranche-icon {
+  position: absolute;
   top: 15px;
-  left: 11.7px;
+  left: 12px;
 }
+
 .check-icon {
+  position: absolute;
   top: 23px;
   right: 8px;
 }
-.button-content {
+
+.description {
   max-width: 90px;
   margin-left: 8px;
 }
-.button-title {
+
+.title {
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
   color: #ff7100;
 }
 
-.button-title:first-letter {
+.title:first-letter {
   text-transform: uppercase;
 }
 
-.button-title.mezzanine-title {
+.title.mezzanine-title {
   color: #c345fe;
 }
 
-.button-title.senior-title {
+.title.senior-title {
   color: #37caff;
 }
 
-.apr {
-  font-weight: 400;
+.value {
   font-size: 12px;
   line-height: 18px;
   letter-spacing: 0.025em;
   color: #fff;
 }
 
-.apr span {
+.value span {
   opacity: 0.5;
-}
-.active {
-  border: 2px solid #8180ff;
 }
 </style>

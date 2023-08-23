@@ -2,6 +2,7 @@ import { getTvl } from "@/helpers/stake/magicApe/subgraph/getTvl";
 import { getYield } from "@/helpers/stake/magicApe/subgraph/getYield";
 import { getPrice } from "@/helpers/stake/magicApe/subgraph/getPrice";
 import { getMagicGlpTvl } from "@/helpers/stake/magicGlp/subgraph/getChartData/";
+import { getMagicLvlApy } from "@/helpers/stake/magicLvl/subgraph/getMagicLvlApy";
 
 export const getChartData = async (
   type: any,
@@ -23,6 +24,9 @@ export const getChartData = async (
       break;
     case "magicGlpTvl":
       chartData = await getMagicGlpTvl(chainId, period, feePercent);
+      break;
+    case "magicLvlApy":
+      chartData = await getMagicLvlApy(feePercent);
       break;
     default:
       console.log("Error Get Chart Data");
