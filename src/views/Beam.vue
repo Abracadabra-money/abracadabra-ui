@@ -206,12 +206,19 @@ export default {
       );
     },
 
+    parseInputValue() {
+      return this.$ethers.utils.parseUnits(
+        filters.formatToFixed(this.amount || 0, 18),
+        18
+      );
+    },
+
     // TODO: fix naming & conditions
     isTokenApproved() {
-      if (this.chainId === 8453) return false;
-      if (this.chainId === 59144) return false;
+      if (this.chainId === 8453) return true;
+      if (this.chainId === 59144) return true;
 
-      return !this.beamConfig.isTokenApprove && this.chainId === 1;
+      return this.beamConfig.approvedAmount.gte(this.parseInputValue);
     },
 
     amountError() {
@@ -282,7 +289,7 @@ export default {
     actionBtnText() {
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
-      if (this.isTokenApproved) return "Approve";
+      if (!this.isTokenApproved) return "Approve";
       return "Beam";
     },
 
@@ -291,11 +298,12 @@ export default {
     },
 
     disableBtn() {
+      if (+this.amount === 0) return true;
       if (!this.account || !this.isSelectedChain) return true;
       if (this.isEnterDstAddress) return true;
       if (this.dstAddressError) return true;
       if (this.isTokenApproved) return false;
-      if (+this.amount === 0) return true;
+
       return !!this.amountError;
     },
 
@@ -428,25 +436,9 @@ export default {
       this.dstAddressError = error;
     },
 
-    async checkAllowance(wantedAmount) {
-      const allowedAmount =
-        await this.beamConfig.tokenContractInstance.allowance(
-          this.account,
-          this.beamConfig.contractInstance.address
-        );
-
-      if (allowedAmount.lt(wantedAmount)) {
-        return await approveToken(
-          this.beamConfig.tokenContractInstance,
-          this.beamConfig.contractInstance.address
-        );
-      }
-      return allowedAmount;
-    },
-
     async actionHandler() {
       if (this.disableBtn) return false;
-      if (this.isTokenApproved) {
+      if (!this.isTokenApproved) {
         const notificationId = await this.$store.dispatch(
           "notifications/new",
           notification.pending
@@ -457,13 +449,14 @@ export default {
           this.beamConfig.contractInstance.address
         );
 
-        if (isTokenApproved)
-          await this.$store.commit("notifications/delete", notificationId);
-        else
+        await this.$store.commit("notifications/delete", notificationId);
+
+        if (!isTokenApproved) {
           await this.$store.dispatch(
             "notifications/new",
             notification.approveError
           );
+        }
 
         return;
       }
@@ -476,15 +469,6 @@ export default {
       const mimPrice = (await getMimPrice()) || 1;
       this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
 
-      const mimAmount = this.$ethers.utils.parseUnits(
-        filters.formatToFixed(this.amount, 18),
-        18
-      );
-
-      const allowanceStatus = await this.checkAllowance(mimAmount);
-
-      if (!allowanceStatus) return false;
-
       const notificationId = await this.$store.dispatch(
         "notifications/new",
         notification.pending
@@ -492,7 +476,12 @@ export default {
 
       try {
         const { fees, params } = await this.getEstimatedFees(true);
-        this.tx = await sendFrom(fees, params, mimAmount, this.txConfig);
+        this.tx = await sendFrom(
+          fees,
+          params,
+          this.parseInputValue,
+          this.txConfig
+        );
         await this.$store.commit("notifications/delete", notificationId);
         this.isOpenSuccessPopup = true;
         this.successData = this.successConfig;
