@@ -209,6 +209,7 @@ export default {
     // TODO: fix naming & conditions
     isTokenApproved() {
       if (this.chainId === 8453) return false;
+      if (this.chainId === 59144) return false;
 
       return !this.beamConfig.isTokenApprove && this.chainId === 1;
     },
