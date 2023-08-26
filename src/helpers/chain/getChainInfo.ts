@@ -55,7 +55,7 @@ const tokens: any = {
   59144: {
     symbol: "ETH",
     icon: useImage("assets/images/tokens/ETH.png"),
-    scanUrl: "https://explorer.goerli.linea.build/tx/",
+    scanUrl: "https://lineascan.build/tx/",
   },
 };
 

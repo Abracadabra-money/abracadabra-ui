@@ -9,12 +9,12 @@ export const linea = {
   },
   blockExplorers: {
     etherscan: {
-      name: "Blockscout",
-      url: "https://explorer.goerli.linea.build/",
+      name: "Lineascan",
+      url: "https://lineascan.build/",
     },
     default: {
-      name: "Blockscout",
-      url: "https://explorer.goerli.linea.build/",
+      name: "Lineascan",
+      url: "https://lineascan.build/",
     },
   },
   contracts: {
