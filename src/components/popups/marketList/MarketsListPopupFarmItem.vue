@@ -29,12 +29,22 @@ export default {
 
   computed: {
     balance() {
+      if (this.marketItem.isDepreciated)
+        return +this.marketItem.accountInfo?.depositedBalance || 0;
       return +this.marketItem.accountInfo?.balance || 0;
     },
 
     balanceInUSD() {
       return this.balance * +this.marketItem.lpPrice;
     },
+    // Will be useful after redesign
+    // isVisible() {
+    //   return (
+    //     !this.marketItem.isDepreciated ||
+    //     this.balance > 0 ||
+    //     +this.marketItem.accountInfo?.depositedBalance > 0
+    //   );
+    // },
   },
 
   methods: {
@@ -60,6 +70,7 @@ export default {
 
 <style lang="scss" scoped>
 .market-item {
+  position: relative;
   padding: 10px 12px;
   background-color: transparent;
   border: none;
