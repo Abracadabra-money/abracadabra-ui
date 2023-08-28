@@ -51,7 +51,7 @@ export default {
 
       if (!config) return false;
 
-      return !!config.cauldronSettings?.isAlternativeInterest;
+      return !!config?.cauldronSettings?.isAlternativeInterest;
     },
   },
 

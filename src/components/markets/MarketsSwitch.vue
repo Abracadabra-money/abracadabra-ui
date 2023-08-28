@@ -68,4 +68,10 @@ export default {
     }
   }
 }
+
+@media (max-width: 400px) {
+  .switch-btn {
+    width: 110px;
+  }
+}
 </style>

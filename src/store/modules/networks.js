@@ -10,6 +10,8 @@ import kava from "@/assets/images/networks/kava.png";
 import base from "@/assets/images/networks/base.png";
 import linea from "@/assets/images/networks/linea.png";
 
+import { providers } from "ethers";
+
 export default {
   state: {
     networks: [
@@ -180,6 +182,12 @@ export default {
         (network) => network.chainId === +chainId
       );
       return network.icon;
+    },
+    getDefaultSigner: (state) => (chainId) => {
+      const chain = state.networks.find(
+        (network) => network.chainId == chainId
+      );
+      return new providers.StaticJsonRpcProvider(chain.rpc);
     },
   },
 };

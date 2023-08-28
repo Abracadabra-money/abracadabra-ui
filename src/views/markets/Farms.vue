@@ -8,8 +8,8 @@
       alt=""
     />
     <h2 class="title">Farming Opportunities</h2>
-    <EmptyState v-if="!currentPools.length && !farmLoading" />
-    <div v-else-if="!currentPools.length && farmLoading" class="loader-wrap">
+    <EmptyState v-if="!currentPools.length && !isFarmsLoading" />
+    <div v-else-if="!currentPools.length && isFarmsLoading" class="loader-wrap">
       <BaseLoader />
     </div>
     <div v-else class="stats-wrap">
@@ -78,9 +78,9 @@
 
         <template v-if="filteredPools.length">
           <MarketsFarmItem
-            v-for="pool in filteredPools"
-            :key="pool.id"
-            :pool="pool"
+            v-for="farm in filteredPools"
+            :key="farm.id"
+            :farm="farm"
           />
         </template>
         <EmptyState v-else />
@@ -90,13 +90,13 @@
 </template>
 
 <script>
-import farmPoolsMixin from "@/mixins/farmPools";
 import { mapGetters } from "vuex";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
 import DropdownWrap from "@/components/ui/DropdownWrap.vue";
 import MarketsFarmItem from "@/components/markets/FarmItem.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
+import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
 const sortKeys = {
   name: "name",
@@ -110,22 +110,23 @@ const sortKeys = {
 };
 
 export default {
-  mixins: [farmPoolsMixin],
-
   data() {
     return {
       selectedSort: sortKeys.name,
       sortReverse: false,
       search: "",
-      poolsInterval: null,
+      farmsInterval: null,
       isActiveMarkets: true,
       scrollPosition: 0,
+      farms: null,
+      isFarmsLoading: false,
     };
   },
 
   computed: {
     ...mapGetters({
-      farmLoading: "getFarmPoolLoading",
+      signer: "getSigner",
+      chainId: "getChainId",
     }),
 
     showButtonUp() {
@@ -147,7 +148,7 @@ export default {
     },
 
     currentPools() {
-      return this.pools || [];
+      return this.farms || [];
     },
 
     filteredPools() {
@@ -166,43 +167,43 @@ export default {
       this.selectedSort = name;
     },
 
-    filterBySearch(pools, search) {
+    filterBySearch(farms, search) {
       return search
-        ? pools.filter(
-            (pool) =>
-              pool.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+        ? farms.filter(
+            (farm) =>
+              farm.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
           )
-        : pools;
+        : farms;
     },
 
-    sortByTitle(pools) {
-      const sortedPools = [...pools];
+    sortByTitle(farms) {
+      const sortedPools = [...farms];
       if (this.selectedSortData !== null) {
-        const prepValue = (pool, sortData) => {
+        const prepValue = (farm, sortData) => {
           switch (sortData.name) {
             case sortKeys.name:
-              return pool.name;
+              return farm.name;
 
             case sortKeys.yield:
-              return +pool.poolYield;
+              return +farm.farmYield;
 
             case sortKeys.roi:
-              return +pool.poolRoi;
+              return +farm.farmRoi;
 
             case sortKeys.tvl:
-              return +pool.poolTvl;
+              return +farm.farmTvl;
 
             case sortKeys.totalMim:
-              return +pool.totalBorrow;
+              return +farm.totalBorrow;
 
             case sortKeys.mimsLeft:
-              return +pool.dynamicBorrowAmount;
+              return +farm.dynamicBorrowAmount;
 
             case sortKeys.interest:
-              return +pool.interest;
+              return +farm.interest;
 
             case sortKeys.liquidation:
-              return +pool.stabilityFee;
+              return +farm.stabilityFee;
           }
 
           return null;
@@ -223,15 +224,15 @@ export default {
       return sortedPools;
     },
 
-    sortByDepreciate(pools = []) {
+    sortByDepreciate(farms = []) {
       if (this.isActiveMarkets) {
-        return pools.filter((pool) => {
-          if (pool?.cauldronSettings)
-            return !pool.cauldronSettings.isDepreciated;
-          return !pool.isDepreciated;
+        return farms.filter((farm) => {
+          if (farm?.cauldronSettings)
+            return !farm.cauldronSettings.isDepreciated;
+          return !farm.isDepreciated;
         });
       } else {
-        return pools.sort((a, b) => {
+        return farms.sort((a, b) => {
           if (a?.cauldronSettings || b?.cauldronSettings) {
             return (
               +a.cauldronSettings.isDepreciated -
@@ -258,13 +259,18 @@ export default {
   },
 
   async created() {
-    await this.createFarmPools();
-    this.poolsInterval = setInterval(await this.createFarmPools(), 5000);
+    this.isFarmsLoading = true;
+    this.farms = await getFarmsList(this.chainId, this.signer);
+    this.isFarmsLoading = false;
+
+    this.farmsInterval = setInterval(async () => {
+      this.farms = await getFarmsList(this.chainId, this.signer);
+    }, 60000);
     window.addEventListener("scroll", this.onScroll);
   },
 
   beforeUnmount() {
-    clearInterval(this.poolsInterval);
+    clearInterval(this.farmsInterval);
     window.removeEventListener("scroll", this.onScroll);
   },
   components: {

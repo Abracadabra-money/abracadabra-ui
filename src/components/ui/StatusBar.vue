@@ -81,8 +81,7 @@ export default {
     },
 
     isNew() {
-      if (this.pool?.cauldronSettings)
-        return this.pool.cauldronSettings.isNew;
+      if (this.pool?.cauldronSettings) return this.pool.cauldronSettings.isNew;
 
       return false;
     },

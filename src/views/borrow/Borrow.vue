@@ -200,15 +200,13 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        filters.formatToFixed(parseFloat(this.collateralValue) || 0, decimals),
+        filters.formatToFixed(this.collateralValue || 0, decimals),
         decimals
       );
     },
 
     parseBorrowAmount() {
-      return utils.parseUnits(
-        filters.formatToFixed(parseFloat(this.borrowValue) || 0, 18)
-      );
+      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
     },
 
     expectedCollateralAmount() {
@@ -365,8 +363,6 @@ export default {
       const ltv =
         Math.round((this.expectedBorrowAmount / this.collateralInUsd) * 100) +
         1;
-
-      console.log("ltv", ltv);
 
       if (ltv <= +mcr) return parseFloat(ltv).toFixed(0);
       return +mcr;

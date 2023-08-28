@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
 import config from "@/utils/cauldronsConfig/ethereumCauldrons";
 import configArb from "@/utils/cauldronsConfig/arbitrumCauldrons";
-
 import { useImage } from "@/helpers/useImage";
 
 import { ethers } from "ethers";

@@ -8,6 +8,8 @@ import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
 
+import toAmount from "@/helpers/toAmount";
+
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
 // const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
@@ -174,7 +176,6 @@ export default {
         selAmount,
         swapper
       );
-
       return response.data;
     },
 
@@ -450,7 +451,8 @@ export default {
       slipage,
       is0x = false
     ) {
-      const { leverageSwapper } = this.cauldron.contracts;
+      const { leverageSwapper, bentoBox } = this.cauldron.contracts;
+      const mimAddress = this.cauldron.config.mimInfo.address;
       const swapperAddres = leverageSwapper.address;
       const userAddr = this.account;
 
@@ -485,12 +487,21 @@ export default {
         return cookData;
       }
 
-      const swapData = await this.get0xLeverageSwapData(pool, amount, slipage);
+      const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
+
+      // to be sure that sell amount in 0x and amountOut inside call will be same
+      const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
+
+      const swapData = await this.get0xLeverageSwapData(
+        pool,
+        amountToSwap,
+        slipage
+      );
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
         userAddr,
         minExpected,
-        amount,
+        shareFrom,
         swapData,
         {
           gasLimit: 1000000000,
