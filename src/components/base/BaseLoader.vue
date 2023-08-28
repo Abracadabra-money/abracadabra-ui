@@ -17,6 +17,13 @@ export default {
     type: {
       default: "spinner",
     },
+    color: {
+      default: "linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%)",
+    },
+  },
+
+  created() {
+    document.body.style.setProperty("--loader-color", this.color);
   },
 };
 </script>
@@ -67,7 +74,7 @@ i {
   width: 8px;
   animation: rectangle infinite 1s ease-in-out -0.2s;
   border-radius: 4px;
-  background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
+  background: var(--loader-color);
 }
 .loader:before,
 .loader:after {
@@ -76,7 +83,7 @@ i {
   height: 8px;
   border-radius: 4px;
   content: "";
-  background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
+  background: var(--loader-color);
 }
 .loader:before {
   left: -10px;
