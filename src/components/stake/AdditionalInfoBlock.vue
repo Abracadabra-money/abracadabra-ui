@@ -127,6 +127,7 @@ export default {
   .additional-block {
     display: flex;
     flex-direction: column;
+    gap: 15px;
   }
 
   .delimiter-line {
