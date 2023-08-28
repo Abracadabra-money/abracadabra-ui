@@ -11,6 +11,7 @@ export default {
     setMimInBentoDepositObject(state, payload) {
       state.mimInBentoDepositObject = payload;
     },
+
     setLoadingMLvlStake(state, payload) {
       state.isLoadingMLvlStake = payload;
     },
