@@ -20,7 +20,6 @@
 <script>
 import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
-import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
 import { getVeloManagementFee } from "@/helpers/collateralsApy/getVeloApy";
 import { utils } from "ethers";
 
@@ -34,7 +33,6 @@ export default {
   data() {
     return {
       veloManagementFee: null,
-      tokenApy: null,
     };
   },
 
@@ -114,12 +112,6 @@ export default {
 
       if (this.isGlpPool) {
         info.push({
-          name: "Repayment Rate",
-          value: `${this.tokenApy || 0}`,
-          tooltip: `The approximate rate at which users borrowed MIM will diminsh, thanks to GLP rewards.`,
-        });
-
-        info.push({
           name: "Management Fee",
           value: `${feePercent || 0}`,
           tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,
@@ -138,15 +130,7 @@ export default {
     },
   },
 
-  watch: {
-    async cauldron() {
-      if (this.isGlpPool) this.tokenApy = await getGlpApy();
-    },
-  },
-
   async created() {
-    if (this.isGlpPool) this.tokenApy = await getGlpApy();
-
     if (this.isVelodrome)
       this.veloManagementFee = await getVeloManagementFee(
         this.cauldron,
