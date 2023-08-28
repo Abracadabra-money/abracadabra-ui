@@ -12,6 +12,7 @@ import {
 } from "@wagmi/core/chains";
 import { kava } from "@/plugins/connectWallet/chains/kava";
 import { base } from "@/plugins/connectWallet/chains/base";
+import { linea } from "@/plugins/connectWallet/chains/linea";
 
 const chains = {
   1: mainnet,
@@ -24,6 +25,7 @@ const chains = {
   8453: base,
   42161: arbitrum,
   43114: avalanche,
+  59144: linea,
 };
 
 export default async (chainId) => {

@@ -206,9 +206,7 @@ export default {
     },
 
     parseBorrowAmount() {
-      return utils.parseUnits(
-        filters.formatToFixed(this.borrowValue || 0, 18)
-      );
+      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
     },
 
     expectedCollateralAmount() {
@@ -365,8 +363,6 @@ export default {
       const ltv =
         Math.round((this.expectedBorrowAmount / this.collateralInUsd) * 100) +
         1;
-
-      console.log("ltv", ltv);
 
       if (ltv <= +mcr) return parseFloat(ltv).toFixed(0);
       return +mcr;
@@ -565,7 +561,7 @@ export default {
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
-      
+
       await this.cookAddCollateral(
         payload,
         isMasterContractApproved,

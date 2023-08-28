@@ -140,7 +140,9 @@ import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 export default {
   data() {
     return {
-      acceptedNetworks: [1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453],
+      acceptedNetworks: [
+        1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453, 59144,
+      ],
       isShowDstAddress: false,
       toChainId: null,
       dstAddress: null,
@@ -202,7 +204,8 @@ export default {
 
     // TODO: fix naming & conditions
     isTokenApproved() {
-      if (this.chainId === 8453) return false;
+      if (this.chainId === 8453) return true;
+      if (this.chainId === 59144) return true;
 
       return this.beamConfig.approvedAmount.gte(this.parseInputValue);
     },
@@ -580,10 +583,13 @@ export default {
 
       if (
         String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
+        String(error?.data?.message).indexOf(
+          "insufficient balance for transfer"
+        ) !== -1 ||
         String(error).indexOf("insufficient funds") !== -1 ||
         String(error?.message).indexOf("insufficient funds") !== -1
       ) {
-        errorNotification.msg = "Insufficient funds";
+        errorNotification.msg = "Insufficient balance for transfer";
       }
 
       await this.deleteNotification(notificationId);
