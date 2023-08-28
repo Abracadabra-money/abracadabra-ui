@@ -150,6 +150,7 @@ import {
   COLLATERAL_EMPTY_DATA,
   MIM_EMPTY_DATA,
 } from "@/constants/cauldron.ts";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   mixins: [cookMixin],
@@ -206,9 +207,7 @@ export default {
     },
 
     parseBorrowAmount() {
-      return utils.parseUnits(
-        filters.formatToFixed(this.borrowValue || 0, 18)
-      );
+      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
     },
 
     expectedCollateralAmount() {
@@ -462,6 +461,11 @@ export default {
       return filters.formatTokenBalance(value);
     },
 
+    clearInputs() {
+      this.collateralValue = "";
+      this.borrowValue = "";
+    },
+
     changeToken(value) {
       this.collateralValue = "";
       this.borrowValue = "";
@@ -523,14 +527,26 @@ export default {
         notification.pending
       );
 
-      const isPermissionToCook = await this.checkPermissionToCook(
-        notificationId,
-        this.borrowValue || 0
-      );
+      try {
+        const isPermissionToCook = await this.checkPermissionToCook(
+          notificationId,
+          this.borrowValue || 0
+        );
 
-      if (!isPermissionToCook) return false;
+        if (!isPermissionToCook) return false;
 
-      return await this[this.actionInfo.methodName](notificationId);
+        await this[this.actionInfo.methodName](notificationId);
+      } catch (error) {
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+
+      this.clearInputs();
     },
 
     async addCollateralAndBorrowHandler(notificationId) {
@@ -565,7 +581,7 @@ export default {
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
-      
+
       await this.cookAddCollateral(
         payload,
         isMasterContractApproved,

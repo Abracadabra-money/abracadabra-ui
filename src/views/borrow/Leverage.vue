@@ -169,6 +169,7 @@ import {
   COLLATERAL_EMPTY_DATA,
   MAX_ALLOWANCE_VALUE,
 } from "@/constants/cauldron.ts";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   mixins: [cookMixin],
@@ -216,7 +217,7 @@ export default {
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
       if (this.errorCollateralValue) return true;
-      if (!this.collateralValue) return true;
+      if (this.collateralValue == 0) return true;
       return false;
     },
 
@@ -238,10 +239,7 @@ export default {
       const wrapInfo = this.cauldron.config?.wrapInfo;
       const { decimals } = this.activeToken;
 
-      const amount = filters.formatToFixed(
-        this.collateralValue || 0,
-        decimals
-      );
+      const amount = filters.formatToFixed(this.collateralValue || 0, decimals);
 
       const collateralAmount =
         wrapInfo && !this.useOtherToken
@@ -532,6 +530,10 @@ export default {
       return filters.formatTokenBalance(value);
     },
 
+    clearInputs() {
+      this.collateralValue = "";
+    },
+
     async checkAllowance(amount) {
       const { isNative, contract } = this.activeToken;
       const { bentoBox } = this.cauldron.contracts;
@@ -657,21 +659,32 @@ export default {
       const notificationId = await this.createNotification(
         notification.pending
       );
+      try {
+        const borrowValue =
+          this.multiplier > 1
+            ? utils.formatUnits(this.expectedBorrowPart)
+            : this.borrowValue;
 
-      const borrowValue =
-        this.multiplier > 1
-          ? utils.formatUnits(this.expectedBorrowPart)
-          : this.borrowValue;
+        const isPermissionToCook = await this.checkPermissionToCook(
+          notificationId,
+          borrowValue || 0,
+          this.collateralValue || 0
+        );
 
-      const isPermissionToCook = await this.checkPermissionToCook(
-        notificationId,
-        borrowValue || 0,
-        this.collateralValue || 0
-      );
+        if (!isPermissionToCook) return false;
 
-      if (!isPermissionToCook) return false;
+        await this[this.actionInfo.methodName](notificationId);
+      } catch (error) {
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
 
-      this[this.actionInfo.methodName](notificationId);
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+
+      this.clearInputs();
     },
 
     async addCollateralHandler(notificationId) {
