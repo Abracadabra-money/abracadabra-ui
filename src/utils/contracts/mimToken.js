@@ -71,4 +71,11 @@ export default [
     address: "0x4A3A6Dd60A34bB2Aba60D73B4C88315E9CeB6A3D",
     abi: tokensAbi.MIM,
   },
+  {
+    name: "MIM",
+    chainId: 59144,
+    decimals: 18,
+    address: "0xDD3B8084AF79B9BaE3D1b668c0De08CCC2C9429A",
+    abi: tokensAbi.MIM,
+  },
 ];
