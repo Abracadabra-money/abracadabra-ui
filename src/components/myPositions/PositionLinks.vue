@@ -3,7 +3,11 @@
     <router-link
       class="position-link"
       v-for="(action, idx) in actions"
-      :to="{ name: action.name, params: { id: action.id } }"
+      :to="{
+        name: action.name,
+        params: { id: action.id },
+        query: { action: action.title.toLowerCase() },
+      }"
       :key="idx"
     >
       <img class="position-link-icon" :src="action.icon" alt="Hammer" />
@@ -28,6 +32,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
+  width: 100%;
 }
 
 .position-link {
