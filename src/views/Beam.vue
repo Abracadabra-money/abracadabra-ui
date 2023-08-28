@@ -591,10 +591,13 @@ export default {
 
       if (
         String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
+        String(error?.data?.message).indexOf(
+          "insufficient balance for transfer"
+        ) !== -1 ||
         String(error).indexOf("insufficient funds") !== -1 ||
         String(error?.message).indexOf("insufficient funds") !== -1
       ) {
-        errorNotification.msg = "Insufficient funds";
+        errorNotification.msg = "Insufficient balance for transfer";
       }
 
       await this.$store.commit("notifications/delete", notificationId);
