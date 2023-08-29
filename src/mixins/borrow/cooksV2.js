@@ -883,6 +883,9 @@ export default {
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : collateral.address;
 
       let cookData = {
         events: [],
@@ -906,7 +909,7 @@ export default {
       cookData = await this.recipeAddCollatral(
         cookData,
         pool,
-        collateral.address,
+        tokenAddr,
         isWrap,
         this.account,
         collateralAmount,
