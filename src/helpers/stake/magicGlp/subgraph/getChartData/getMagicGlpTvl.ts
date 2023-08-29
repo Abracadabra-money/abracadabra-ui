@@ -2,7 +2,7 @@ import moment from "moment";
 import { getGlpData } from "@/helpers/stake/magicGlp/subgraph/getChartData/getGlpData";
 import { getGlpPerformanceData } from "@/helpers/stake/magicGlp/subgraph/getChartData/getGlpPerformanceData";
 
-export const getChartData = async (
+export const getMagicGlpTvl = async (
   chainId: number,
   month = 3,
   feePercent: any

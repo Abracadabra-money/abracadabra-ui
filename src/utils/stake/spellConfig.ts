@@ -1,7 +1,22 @@
 import { useImage } from "@/helpers/useImage";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 
-export const spellConfig = {
+type TokenConfig = {
+  name: string;
+  address?: string;
+  addresses?: Object;
+  decimals: number;
+  abi: Array<Object>;
+  icon: string;
+};
+
+type Config = {
+  spell: TokenConfig;
+  sSpell: TokenConfig;
+  mSpell: TokenConfig;
+};
+
+export const spellConfig: Config = {
   spell: {
     name: "SPELL",
     address: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
