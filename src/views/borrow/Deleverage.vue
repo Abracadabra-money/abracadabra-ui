@@ -8,7 +8,7 @@
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel :amount="formatTokenBalance(activeToken.balance)" />
+          <InputLabel :amount="activeToken.balance" />
           <SelectButton
             :activeToken="activeToken"
             @click="isOpenMarketListPopup = true"

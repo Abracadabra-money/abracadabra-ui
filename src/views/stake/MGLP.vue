@@ -13,10 +13,7 @@
 
       <div v-else>
         <div class="input-assets">
-          <InputLabel
-            :amount="formatTokenBalance(fromToken.balance)"
-            :title="action"
-          />
+          <InputLabel :amount="fromToken.balance" :title="action" />
 
           <BaseTokenInput
             :value="inputValue"
