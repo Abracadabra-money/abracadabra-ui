@@ -178,12 +178,6 @@ describe("MainInfoBlock.vue, GLP cauldron", async () => {
     expect(wrapper.vm.isGlpPool).toBe(true);
 
     expect(wrapper.vm.info).toContainEqual({
-      name: "Repayment Rate",
-      value: `0`,
-      tooltip: `The approximate rate at which users borrowed MIM will diminsh, thanks to GLP rewards.`,
-    });
-
-    expect(wrapper.vm.info).toContainEqual({
       name: "Management Fee",
       value: `5`,
       tooltip: `Percentage of rewards taken by the protocol when harvesting WETH rewards. This value changes dynamically to ensure a 15% APR for Abracadabra.`,

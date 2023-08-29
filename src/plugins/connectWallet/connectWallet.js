@@ -13,6 +13,7 @@ import { publicProvider } from "@wagmi/core/providers/public";
 import { mainnet } from "./chains/mainnet";
 import { kava } from "./chains/kava";
 import { base } from "./chains/base";
+import { linea } from "./chains/linea";
 
 import {
   optimism,
@@ -47,6 +48,7 @@ const rpc = {
   42161: "https://arb1.arbitrum.io/rpc",
   43114: "https://api.avax.network/ext/bc/C/rpc",
   2222: "https://evm.kava.io ",
+  59144: "https://rpc.linea.build",
 };
 
 // 1. Define constants
@@ -64,6 +66,7 @@ const chains = [
   moonriver,
   kava,
   base,
+  linea,
 ];
 
 // 2. Configure wagmi client
@@ -92,6 +95,8 @@ const web3modal = new Web3Modal(
     },
     chainImages: {
       2222: useImage("assets/images/networks/kava.png"),
+      8453: useImage("assets/images/networks/base.png"),
+      59144: useImage("assets/images/networks/linea.png"),
     },
   },
   ethereumClient
@@ -172,7 +177,7 @@ const onConnectNew = async () => {
       new ethers.providers.StaticJsonRpcProvider(currentRpc)
     );
 
-    const { signer } = unsupportedChain
+    const signer = unsupportedChain
       ? provider
       : await getEthersSigner({ chainId });
 

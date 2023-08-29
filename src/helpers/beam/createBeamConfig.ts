@@ -1,44 +1,46 @@
-import { Contract, providers } from "ethers";
+import { BigNumber, Contract, providers, utils } from "ethers";
 import mimConfigs from "@/utils/contracts/mimToken";
 import chainConfig from "@/utils/beam/chainConfig";
 import beamConfigs from "@/utils/beam/beamConfigs";
-import { isTokenApprowed } from "@/utils/approveHelpers.js";
 import { markRaw } from "vue";
-import { getUserBalance, getNativeTokenBalance } from "@/helpers/userInfo";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
 const emptyState = {
   contractInstance: null,
   balance: "0",
   nativeTokenBalance: "0",
-  isTokenApprove: false,
+  approvedAmount: BigNumber.from("0"),
   tokenContractInstance: null,
 };
 
 const getUserInfo = async (
-  signer: providers.BaseProvider,
+  provider: providers.BaseProvider,
   account: string,
   contract: Contract,
   address: string
 ): Promise<UserInfo> => {
-  if (!signer)
+  if (!provider)
     return {
       balance: "0.0",
       nativeTokenBalance: "0.0",
-      isTokenApprove: false,
+      approvedAmount: BigNumber.from("0"),
     };
 
+  const userBalamce = await contract.balanceOf(account);
+  const nativeTokenBalance = await provider.getBalance(account);
+
   return {
-    balance: await getUserBalance(contract, account, 18),
-    nativeTokenBalance: await getNativeTokenBalance(signer, account, 18),
-    isTokenApprove: await isTokenApprowed(contract, address, account, true),
+    balance: utils.formatUnits(userBalamce),
+    nativeTokenBalance: utils.formatUnits(nativeTokenBalance),
+    approvedAmount: await contract.allowance(account, address),
   };
 };
 
 export const createBeamConfig = async (
   chainId: number,
   signer: providers.BaseProvider,
-  account: string
+  account: string,
+  provider: providers.BaseProvider
 ): Promise<BeamConfig> => {
   const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
 
@@ -83,20 +85,20 @@ export const createBeamConfig = async (
     JSON.stringify(mimConfig!.abi),
     signer
   );
-  const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
-    signer,
+
+  const userInfo = await getUserInfo(
+    provider,
     account,
     tokenContractInstance,
     beamConfig!.contract.address
   );
+
   return markRaw({
     contractInstance,
-    balance,
-    nativeTokenBalance,
-    isTokenApprove,
     tokenContractInstance,
     chainsInfo: chainsInfo,
     fromChains,
     toChains,
+    ...userInfo,
   });
 };
