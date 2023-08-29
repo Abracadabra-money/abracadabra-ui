@@ -152,6 +152,7 @@ import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   mixins: [cookMixin],
@@ -415,6 +416,11 @@ export default {
       return filters.formatTokenBalance(amount);
     },
 
+    clearInputs() {
+      this.repayMimAmount = 0;
+      this.removeCollateralAmount = 0;
+    },
+
     formatToFixed(amount, decimals = 4) {
       return filters.formatToFixed(amount, decimals);
     },
@@ -550,11 +556,14 @@ export default {
           notificationId
         );
 
-        return await this.createCauldronInfo();
+        await this.createCauldronInfo();
+        this.clearInputs();
+        return;
       }
 
       await this.deleteNotification(notificationId);
-      return await this.createNotification(notification.approveError);
+      await this.createNotification(notification.approveError);
+      this.clearInputs();
     },
 
     async closePositionHandler() {
