@@ -117,7 +117,7 @@ export default {
 
     parsedAmount() {
       if (!this.amount) return false;
-      return ethers.utils.parseUnits(filters.formatToFixed(this.amount, 18));
+      return ethers.utils.parseUnits(filters.formatToFixed(+this.amount, 18));
     },
   },
 
