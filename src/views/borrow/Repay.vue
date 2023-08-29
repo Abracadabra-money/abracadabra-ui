@@ -154,9 +154,8 @@ export default {
 
     parseCollateralAmount() {
       const { decimals } = this.activeToken;
-
       return utils.parseUnits(
-        filters.formatToFixed(this.collateralValue || 0, decimals),
+        filters.formatToFixed(+this.collateralValue || 0, decimals),
         decimals
       );
     },
@@ -396,7 +395,6 @@ export default {
 
     updateBorrowValue(value) {
       this.borrowValue = value;
-      this.collateralValue = this.maxCollateralAmount;
     },
 
     async checkAllowance(amount) {
