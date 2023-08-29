@@ -86,10 +86,9 @@
 
       <div v-else>
         <div class="stand-info-wrap" v-if="isUnsupportedChain">
-          <GlpChartBlock
-            :chainId="chainId"
-            :apy="apy"
-            :feePercent="stakeInfo.feePercent"
+          <ChartBlock
+            :chartConfig="chartConfig"
+            :getChartOptions="getChartOptions"
           />
 
           <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
@@ -140,6 +139,7 @@ import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
+import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
 import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
 
 export default {
@@ -250,6 +250,21 @@ export default {
         ? { methodName: "deposit", options }
         : { methodName: "redeem", options };
     },
+
+    chartConfig() {
+      return {
+        title: "APY Chart",
+        type: "magicGlpTvl",
+        apy: this.apy,
+        feePercent: this.stakeInfo.feePercent,
+        intervalButtons: [
+          { label: "1m", time: 1 },
+          { label: "3m", time: 3 },
+          { label: "6m", time: 6 },
+          { label: "1y", time: 12 },
+        ],
+      };
+    },
   },
 
   watch: {
@@ -261,6 +276,7 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+    getChartOptions,
 
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
@@ -362,8 +378,8 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    GlpChartBlock: defineAsyncComponent(() =>
-      import("@/components/stake/GlpChartBlock.vue")
+    ChartBlock: defineAsyncComponent(() =>
+      import("@/components/stake/ChartBlock.vue")
     ),
     BalancesBlock: defineAsyncComponent(() =>
       import("@/components/stake/BalancesBlock.vue")

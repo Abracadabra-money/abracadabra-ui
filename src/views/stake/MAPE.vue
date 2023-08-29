@@ -79,7 +79,11 @@
 
       <template v-else>
         <div class="stand-info-wrap" v-if="isUnsupportedChain">
-          <ApeChartBlock :apy="apy" />
+          <ChartBlock
+            :chartConfig="chartConfig"
+            :apyConfig="apyConfig"
+            :getChartOptions="getChartOptions"
+          />
 
           <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
 
@@ -135,7 +139,8 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicApeConfig } from "@/utils/stake/magicApeConfig";
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
-import { getMegicApeApy } from "@/helpers/collateralsApy/getMegicApeApy";
+import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
 
 export default {
@@ -261,6 +266,28 @@ export default {
         "assets/images/ape/bg-info.png"
       )})`;
     },
+
+    chartConfig() {
+      return {
+        title: "Statistics",
+        type: "Yield",
+        apy: this.apy,
+        typeButtons: ["Yield", "TVL", "Price"],
+        intervalButtons: [
+          { label: "1m", time: 1 },
+          { label: "3m", time: 3 },
+          { label: "6m", time: 6 },
+          { label: "1y", time: 12 },
+        ],
+      };
+    },
+
+    apyConfig() {
+      return {
+        icon: useImage("assets/images/ape/apr.png"),
+        color: "#c0c53f",
+      };
+    },
   },
 
   watch: {
@@ -272,6 +299,7 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+    getChartOptions,
 
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
@@ -337,7 +365,7 @@ export default {
       );
 
       if (this.isUnsupportedChain) {
-        this.apy = await getMegicApeApy(this.provider);
+        this.apy = await getMagicApeApy(this.provider);
         this.totalRewards = await getTotalRewards();
       }
     },
@@ -376,8 +404,8 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    ApeChartBlock: defineAsyncComponent(() =>
-      import("@/components/stake/ApeChartBlock.vue")
+    ChartBlock: defineAsyncComponent(() =>
+      import("@/components/stake/ChartBlock.vue")
     ),
     BalancesBlock: defineAsyncComponent(() =>
       import("@/components/stake/BalancesBlock.vue")

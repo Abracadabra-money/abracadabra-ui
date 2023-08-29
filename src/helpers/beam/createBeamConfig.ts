@@ -1,5 +1,4 @@
 import { BigNumber, Contract, providers, utils } from "ethers";
-
 import mimConfigs from "@/utils/contracts/mimToken";
 import chainConfig from "@/utils/beam/chainConfig";
 import beamConfigs from "@/utils/beam/beamConfigs";
