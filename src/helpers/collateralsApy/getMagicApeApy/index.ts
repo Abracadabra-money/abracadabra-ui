@@ -1,9 +1,9 @@
 import filters from "@/filters";
 import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-import { config } from "@/helpers/collateralsApy/getMegicApeApy/config";
+import { config } from "@/helpers/collateralsApy/getMagicApeApy/config";
 
-export const getMegicApeApy = async (
+export const getMagicApeApy = async (
   provider: providers.JsonRpcProvider
 ): Promise<Number> => {
   const { magicApe, lens } = config;

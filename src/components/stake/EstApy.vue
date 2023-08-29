@@ -3,9 +3,9 @@
     <div class="est-apy">
       <img class="est-apy-icon" :src="config.icon" alt="Icon" />
       <span class="est-apy-text">est. APY </span>
-      <span class="est-apy-percent" :style="apyColor" v-if="apy"
-        >{{ apy }}%</span
-      >
+      <span class="est-apy-percent" :style="apyColor" v-if="apy">{{
+        estEpy
+      }}</span>
 
       <BaseLoader v-else type="loader" :color="config.color" />
     </div>
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 export default {
@@ -37,6 +38,10 @@ export default {
       -webkit-text-fill-color: transparent;
       text-fill-color: transparent;
       `;
+    },
+
+    estEpy() {
+      return filters.formatPercent(this.apy);
     },
   },
 

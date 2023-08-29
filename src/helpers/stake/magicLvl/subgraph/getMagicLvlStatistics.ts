@@ -5,8 +5,7 @@ const subgraphUrl =
 
 import { getFeeApy } from "./getFeeApy";
 
-//   getLevelFinanceStatistics
-export const getLevelFinanceStatistics = async () => {
+export const getMagicLvlStatistics = async () => {
   const query = `{
     levelFinances {
       junior {
@@ -30,7 +29,7 @@ export const getLevelFinanceStatistics = async () => {
         }
   }`;
 
-  const { data } = await axios.default.post(subgraphUrl, { query });
+  const { data } = await axios.post(subgraphUrl, { query });
   const { juniorApy, mezzanineApy, seniorApy, timestamp } =
     data.data.levelFinanceDailySnapshots[0];
 
