@@ -1,8 +1,7 @@
-import { Contract, providers, utils } from "ethers";
+import { BigNumber, Contract, providers, utils } from "ethers";
 import mimConfigs from "@/utils/contracts/mimToken";
 import chainConfig from "@/utils/beam/chainConfig";
 import beamConfigs from "@/utils/beam/beamConfigs";
-import { isTokenApprowed } from "@/utils/approveHelpers.js";
 import { markRaw } from "vue";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
@@ -10,7 +9,7 @@ const emptyState = {
   contractInstance: null,
   balance: "0",
   nativeTokenBalance: "0",
-  isTokenApprove: false,
+  approvedAmount: BigNumber.from("0"),
   tokenContractInstance: null,
 };
 
@@ -24,7 +23,7 @@ const getUserInfo = async (
     return {
       balance: "0.0",
       nativeTokenBalance: "0.0",
-      isTokenApprove: false,
+      approvedAmount: BigNumber.from("0"),
     };
 
   const userBalamce = await contract.balanceOf(account);
@@ -33,7 +32,7 @@ const getUserInfo = async (
   return {
     balance: utils.formatUnits(userBalamce),
     nativeTokenBalance: utils.formatUnits(nativeTokenBalance),
-    isTokenApprove: await isTokenApprowed(contract, address, account, true),
+    approvedAmount: await contract.allowance(account, address),
   };
 };
 
@@ -86,7 +85,8 @@ export const createBeamConfig = async (
     JSON.stringify(mimConfig!.abi),
     signer
   );
-  const { balance, isTokenApprove, nativeTokenBalance } = await getUserInfo(
+
+  const userInfo = await getUserInfo(
     provider,
     account,
     tokenContractInstance,
@@ -95,12 +95,10 @@ export const createBeamConfig = async (
 
   return markRaw({
     contractInstance,
-    balance,
-    nativeTokenBalance,
-    isTokenApprove,
     tokenContractInstance,
     chainsInfo: chainsInfo,
     fromChains,
     toChains,
+    ...userInfo,
   });
 };

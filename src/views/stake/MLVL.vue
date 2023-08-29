@@ -371,7 +371,7 @@ export default {
         this.parseMainInputValue
       );
 
-      if (isWithdrawAction) {
+      if (isWithdrawAction && this.isStakeAction) {
         const { error } = await this.withdrawHandler(notificationId);
         if (error) {
           await this.deleteNotification(notificationId);

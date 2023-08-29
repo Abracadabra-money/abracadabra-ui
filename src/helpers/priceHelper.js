@@ -27,6 +27,7 @@ const coingeckoChainId = {
   42161: "ethereum",
   43114: "avalanche-2",
   8453: "ethereum",
+  59144: "ethereum",
 };
 
 const coingeckoSymbol = {
