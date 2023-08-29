@@ -8,10 +8,7 @@
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel
-            title="Remove collateral"
-            :amount="formatTokenBalance(maxCollateralAmount)"
-          />
+          <InputLabel title="Remove collateral" :amount="maxCollateralAmount" />
 
           <BaseTokenInput
             :icon="activeToken.icon"
@@ -371,10 +368,6 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
-
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
 
     async changeActiveMarket(marketId) {
       clearInterval(this.updateInterval);
