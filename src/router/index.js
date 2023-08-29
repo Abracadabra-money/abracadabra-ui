@@ -1,5 +1,10 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
+function removeQueryParams(to) {
+  if (Object.keys(to.query).length)
+    return { path: to.path, query: {}, hash: to.hash };
+}
+
 const routes = [
   {
     path: "/",
@@ -27,14 +32,9 @@ const routes = [
     component: () => import("@/views/borrow/Repay.vue"),
   },
   {
-    path: "/sSPELL",
-    name: "Stake",
-    component: () => import("@/views/stake/SSpell.vue"),
-  },
-  {
-    path: "/mSPELL",
-    name: "mStake",
-    component: () => import("@/views/stake/MSpell.vue"),
+    path: "/spell",
+    name: "StakeSpell",
+    component: () => import("@/views/stake/Spell.vue"),
   },
   {
     path: "/magicGLP",
@@ -81,15 +81,16 @@ const routes = [
     redirect: "/beam",
   },
   {
-    path: "/farm",
+    path: "/farms",
     name: "MarketsFarm",
     component: () => import("@/views/markets/Farms.vue"),
   },
   {
-    path: "/farm/:id",
-    name: "FarmPool",
+    path: "/farm/:id?",
+    name: "Farm",
     component: () => import("@/views/Farm.vue"),
     props: true,
+    beforeEnter: [removeQueryParams],
   },
   {
     path: "/my-positions",

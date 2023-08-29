@@ -50,14 +50,8 @@
     <div class="stake-popup" v-if="showStake" @click="closeInnerPopup('stake')">
       <div class="tools">
         <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'Stake' }"
-            >sSpell</router-link
-          >
-        </div>
-
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'mStake' }"
-            >mSpell</router-link
+          <router-link class="popup-link" :to="{ name: 'StakeSpell' }"
+            >Spell</router-link
           >
         </div>
 

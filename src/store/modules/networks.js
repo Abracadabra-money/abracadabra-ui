@@ -8,6 +8,9 @@ import optimismIcon from "@/assets/images/networks/optimism-icon.svg";
 import moonriver from "@/assets/images/networks/moonriver.svg";
 import kava from "@/assets/images/networks/kava.png";
 import base from "@/assets/images/networks/base.png";
+import linea from "@/assets/images/networks/linea.png";
+
+import { providers } from "ethers";
 
 export default {
   state: {
@@ -164,6 +167,12 @@ export default {
         rpc: "https://mainnet.base.org",
         icon: base,
       },
+      {
+        chainId: 59144,
+        name: "Linea",
+        rpc: "https://rpc.linea.build",
+        icon: linea,
+      },
     ],
   },
   getters: {
@@ -173,6 +182,12 @@ export default {
         (network) => network.chainId === +chainId
       );
       return network.icon;
+    },
+    getDefaultSigner: (state) => (chainId) => {
+      const chain = state.networks.find(
+        (network) => network.chainId == chainId
+      );
+      return new providers.StaticJsonRpcProvider(chain.rpc);
     },
   },
 };

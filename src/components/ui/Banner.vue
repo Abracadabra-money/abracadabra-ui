@@ -49,7 +49,9 @@ export default {
         (config) => +config.id === +this.$route.params.id
       );
 
-      return !!config.cauldronSettings?.isAlternativeInterest;
+      if (!config) return false;
+
+      return !!config?.cauldronSettings?.isAlternativeInterest;
     },
   },
 
