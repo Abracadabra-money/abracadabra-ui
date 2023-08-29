@@ -6,24 +6,24 @@
         <img class="chain-icon" :src="getChainIcon" alt="Chain icon" />
       </div>
 
-      <div class="pool-info">
-        <BaseTokenIcon :name="pool.name" :icon="pool.icon" />
+      <div class="farm-info">
+        <BaseTokenIcon :name="farm.name" :icon="farm.icon" />
         <div>
-          <span class="pool-name">
-            {{ pool.name }}
+          <span class="farm-name">
+            {{ farm.name }}
           </span>
-          <span class="pool-deprecated" v-if="pool.isDepreciated"
+          <span class="farm-deprecated" v-if="farm.isDepreciated"
             >Deprecated</span
           >
         </div>
       </div>
 
-      <div v-for="(item, i) in stats" :key="i">
-        <span class="mobile-title">{{ item.title }}</span>
-        <span>{{ item.value }}</span>
+      <div v-for="(item, i) in farmInfo" :key="i">
+        <span class="item-title">{{ item.title }}</span>
+        <span class="item-value">{{ item.value }}</span>
       </div>
       <div class="links-wrap">
-        <div class="link-wrap" v-if="!pool.isDepreciated">
+        <div class="link-wrap" v-if="!farm.isDepreciated">
           <router-link :to="goToPage">Join farm</router-link>
         </div>
       </div>
@@ -32,57 +32,61 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
-    pool: {
+    farm: {
       type: Object,
     },
   },
 
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     goToPage() {
-      return { name: "FarmPool", params: { id: this.pool.id } };
+      return { name: "Farm", params: { id: this.farm.id } };
     },
 
-    stats() {
+    farmInfo() {
       return [
         {
           title: "APR",
-          value: filters.formatPercent(this.pool.poolRoi),
+          value: filters.formatPercent(this.farm.farmRoi),
         },
-        { title: "TVL", value: filters.formatUSD(this.pool.poolTvl) },
+        { title: "TVL", value: filters.formatUSD(this.farm.farmTvl) },
       ];
     },
 
     getChainIcon() {
       if (this.chainId === 56) {
-        return this.$image("assets/images/networks/BNB.svg");
+        return useImage("assets/images/networks/BNB.svg");
       }
 
       if (this.chainId === 250) {
-        return this.$image("assets/images/networks/fantom-icon.svg");
+        return useImage("assets/images/networks/fantom-icon.svg");
       }
 
       if (this.chainId === 43114) {
-        return this.$image("assets/images/networks/avalanche-icon.png");
+        return useImage("assets/images/networks/avalanche-icon.png");
       }
 
       if (this.chainId === 137) {
-        return this.$image("assets/images/networks/polygon-icon.svg");
+        return useImage("assets/images/networks/polygon-icon.svg");
       }
 
       if (this.chainId === 42161) {
-        return this.$image("assets/images/networks/Arbitrum.svg");
+        return useImage("assets/images/networks/Arbitrum.svg");
       }
 
       if (this.chainId === 10) {
-        return this.$image("assets/images/networks/optimism-icon.svg");
+        return useImage("assets/images/networks/optimism-icon.svg");
       }
 
-      return this.$image("assets/images/networks/ethereum-icon.svg");
+      return useImage("assets/images/networks/ethereum-icon.svg");
     },
   },
 
@@ -93,7 +97,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.pool-deprecated {
+.farm-deprecated {
   width: max-content;
   background: #d94844;
   border-radius: 8px;
@@ -140,20 +144,20 @@ export default {
   max-height: 26px;
 }
 
-.pool-info {
+.farm-info {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   font-size: 16px;
   margin-bottom: 6px;
 }
-.pool-name {
+.farm-name {
   display: flex;
   align-items: center;
   height: 32px;
 }
 
-.mobile-title {
+.item-title {
   display: block;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
@@ -201,14 +205,14 @@ export default {
     display: none;
   }
 
-  .pool-info {
+  .farm-info {
     margin-bottom: 0;
   }
-  .mobile-title {
+  .item-title {
     display: none;
   }
 
-  .pool-name {
+  .farm-name {
     height: 28px;
   }
   .link-wrap {

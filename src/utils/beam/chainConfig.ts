@@ -10,6 +10,7 @@ const optimismIcon = useImage(`assets/images/networks/optimism.svg`);
 const moonriver = useImage(`assets/images/networks/moonriver.svg`);
 const kava = useImage(`assets/images/networks/kava.png`);
 const base = useImage(`assets/images/networks/base.png`);
+const linea = useImage(`assets/images/networks/linea.png`);
 
 export type ChainConfig = {
   name: string;
@@ -78,6 +79,12 @@ const config: Array<ChainConfig> = [
     icon: base,
     chainId: 8453,
     lzChainId: 184,
+  },
+  {
+    name: "Linea",
+    icon: linea,
+    chainId: 59144,
+    lzChainId: 183,
   },
 ];
 

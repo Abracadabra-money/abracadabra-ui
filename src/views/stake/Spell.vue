@@ -182,6 +182,7 @@ export default {
 
     isActionDisabled() {
       if (this.isUserLocked) return true;
+      if (!this.isTokenApproved) return true;
       return !!(!this.mainInputValue || this.errorMainValue);
     },
 
