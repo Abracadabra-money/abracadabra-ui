@@ -8,7 +8,7 @@
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel :amount="formatTokenBalance(activeToken.balance.value)" />
+          <InputLabel :amount="activeToken.balance.value" />
 
           <BaseTokenInput
             :icon="activeToken.icon"
@@ -454,10 +454,6 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
-
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
 
     changeToken(value) {
       this.collateralValue = "";
