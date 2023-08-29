@@ -118,37 +118,24 @@
 </template>
 
 <script>
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import ChainsWrap from "@/components/beam/ChainsWrap.vue";
-import ChainsPopup from "@/components/beam/ChainsPopup.vue";
-import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import SettingsPopup from "@/components/beam/SettingsPopup.vue";
-import SuccessPopup from "@/components/beam/successPopup/SuccessPopup.vue";
-import WalletButton from "@/components/ui/buttons/WalletButton.vue";
-import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
-import InputAddress from "@/components/ui/inputs/InputAddress.vue";
-import InputLabel from "@/components/ui/inputs/InputLabel.vue";
-import ExpectedBlock from "@/components/beam/ExpectedBlock.vue";
-import BeamHistory from "@/components/beam/history/BeamHistory.vue";
-
-import { mapGetters } from "vuex";
-import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
-import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
-import { approveToken } from "@/helpers/approval.ts";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import {
   waitForMessageReceived,
   createClient,
 } from "@layerzerolabs/scan-client";
-import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
-import { sendFrom } from "@/helpers/beam/sendFrom.ts";
-import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
-import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
-import switchNetwork from "@/helpers/switchNetwork";
+import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import switchNetwork from "@/helpers/switchNetwork";
+import { approveToken } from "@/helpers/approval.ts";
+import { sendFrom } from "@/helpers/beam/sendFrom.ts";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
+import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
+import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
+import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
+import notification from "@/helpers/notification/notification.js";
+import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 
 export default {
   data() {
@@ -180,6 +167,8 @@ export default {
       beamHistory: [],
       historyPage: 1,
       quantityHistory: 5,
+      isApproving: false,
+      isBeaming: false,
     };
   },
 
@@ -289,8 +278,10 @@ export default {
     actionBtnText() {
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
-      if (!this.isTokenApproved) return "Approve";
-      return "Beam";
+      if (this.isApproving) return "Approving MIM";
+      if (!this.isTokenApproved) return "Approve MIM";
+      if (this.isBeaming) return "Beaming MIM";
+      return "Beam MIM";
     },
 
     mimBalance() {
@@ -299,6 +290,7 @@ export default {
 
     disableBtn() {
       if (+this.amount === 0) return true;
+      if (this.isApproving || this.isBeaming) return true;
       if (!this.account || !this.isSelectedChain) return true;
       if (this.isEnterDstAddress) return true;
       if (this.dstAddressError) return true;
@@ -408,6 +400,12 @@ export default {
   },
 
   methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      updateNotification: "notifications/updateTitle",
+    }),
+
     toggleDstAddress() {
       this.isShowDstAddress = !this.isShowDstAddress;
     },
@@ -438,41 +436,46 @@ export default {
 
     async actionHandler() {
       if (this.disableBtn) return false;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
       if (!this.isTokenApproved) {
-        const notificationId = await this.$store.dispatch(
-          "notifications/new",
-          notification.pending
-        );
+        this.isApproving = true;
+
+        this.updateNotification({
+          title: "1/2: Approve MIM",
+          id: notificationId,
+        });
 
         const isTokenApproved = await approveToken(
           this.beamConfig.tokenContractInstance,
           this.beamConfig.contractInstance.address
         );
 
-        await this.$store.commit("notifications/delete", notificationId);
+        this.isApproving = false;
 
         if (!isTokenApproved) {
-          await this.$store.dispatch(
-            "notifications/new",
-            notification.approveError
-          );
+          await this.deleteNotification(notificationId);
+          await this.createNotification(notification.approveError);
+          return false;
         }
 
-        return;
+        this.updateNotification({
+          title: "Step 2/2: Confirm Beam",
+          id: notificationId,
+        });
       }
 
-      await this.seendBeam();
+      await this.seendBeam(notificationId);
     },
 
-    async seendBeam() {
+    async seendBeam(notificationId) {
+      this.isBeaming = true;
       this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
       const mimPrice = (await getMimPrice()) || 1;
       this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
-
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
 
       try {
         const { fees, params } = await this.getEstimatedFees(true);
@@ -482,7 +485,8 @@ export default {
           this.parseInputValue,
           this.txConfig
         );
-        await this.$store.commit("notifications/delete", notificationId);
+        await this.deleteNotification(notificationId);
+        this.isBeaming = false;
         this.isOpenSuccessPopup = true;
         this.successData = this.successConfig;
         this.updateHistoryBeam(this.successData);
@@ -500,6 +504,7 @@ export default {
         this.updateHistoryBeam(this.successData);
       } catch (error) {
         console.log("Seend Beam Error:", error);
+        this.isBeaming = false;
         this.errorTransaction(error, notificationId);
       }
     },
@@ -587,8 +592,8 @@ export default {
         errorNotification.msg = "Insufficient balance for transfer";
       }
 
-      await this.$store.commit("notifications/delete", notificationId);
-      await this.$store.dispatch("notifications/new", errorNotification);
+      await this.deleteNotification(notificationId);
+      await this.createNotification(errorNotification);
     },
 
     async changeSettings(value) {
@@ -633,10 +638,7 @@ export default {
     },
 
     async beamNotAvailable() {
-      return await this.$store.dispatch(
-        "notifications/new",
-        notification.beamNotAvailable
-      );
+      return await this.createNotification(notification.beamNotAvailable);
     },
 
     async createBeamData() {
@@ -695,19 +697,45 @@ export default {
   },
 
   components: {
-    BaseTokenInput,
-    BaseButton,
-    ChainsWrap,
-    ChainsPopup,
-    LocalPopupWrap,
-    SettingsPopup,
-    SuccessPopup,
-    WalletButton,
-    SettingsButton,
-    InputAddress,
-    InputLabel,
-    ExpectedBlock,
-    BeamHistory,
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+    ChainsWrap: defineAsyncComponent(() =>
+      import("@/components/beam/ChainsWrap.vue")
+    ),
+    ChainsPopup: defineAsyncComponent(() =>
+      import("@/components/beam/ChainsPopup.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(() =>
+      import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    SettingsPopup: defineAsyncComponent(() =>
+      import("@/components/beam/SettingsPopup.vue")
+    ),
+    SuccessPopup: defineAsyncComponent(() =>
+      import("@/components/beam/successPopup/SuccessPopup.vue")
+    ),
+    WalletButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/WalletButton.vue")
+    ),
+    SettingsButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/SettingsButton.vue")
+    ),
+    InputAddress: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputAddress.vue")
+    ),
+    InputLabel: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputLabel.vue")
+    ),
+    ExpectedBlock: defineAsyncComponent(() =>
+      import("@/components/beam/ExpectedBlock.vue")
+    ),
+    BeamHistory: defineAsyncComponent(() =>
+      import("@/components/beam/history/BeamHistory.vue")
+    ),
   },
 };
 </script>
