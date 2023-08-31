@@ -9,3 +9,4 @@ export const SECONDS_PER_DAY: number = 86400;
 export const MAX_APPROVAL_AMOUNT: string =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 export const ARBITRUM_CHAIN_ID: number = 42161;
+export const MAINNET_CHAIN_ID: number = 1;
