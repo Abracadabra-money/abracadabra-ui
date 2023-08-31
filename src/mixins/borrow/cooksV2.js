@@ -14,6 +14,8 @@ import {
   bentoWithdrawEncodeHandler,
 } from "./cook/degenBoxHelper/actionHandlers";
 
+import { getDegenBoxHelperAddress } from "@/mixins/borrow/cook/degenBoxHelper/getDegenBoxHelperContract.js";
+
 // const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
@@ -203,15 +205,19 @@ export default {
     async checkAndSetMcApprove(cookData, pool, mcApproved) {
       const { bentoBox, cauldron } = pool.contracts;
 
-      const isApproved = this.cookHelper
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
+
+      const degenBoxHelperAddress = getDegenBoxHelperAddress(pool.chainId);
+
+      const isApproved = useDegenBoxHelper
         ? await bentoBox.masterContractApproved(
-            this.cookHelper.address,
+            degenBoxHelperAddress,
             this.account
           )
         : mcApproved;
 
-      const masterContract = this.cookHelper
-        ? this.cookHelper.address
+      const masterContract = useDegenBoxHelper
+        ? degenBoxHelperAddress
         : await cauldron.masterContract();
 
       if (!isApproved) {
@@ -607,6 +613,8 @@ export default {
       const { address } = pool.config.collateralInfo;
       const { cauldron } = pool.contracts;
 
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
+
       const token = itsDefaultBalance ? this.defaultTokenAddress : address;
       const value = itsDefaultBalance ? amount.toString() : 0;
       const to = this.account;
@@ -633,7 +641,7 @@ export default {
         value
       );
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
@@ -653,6 +661,8 @@ export default {
       const { address } = pool.config.mimInfo;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
       const { cauldron } = this.cauldron.contracts;
+
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
 
       const mim = address;
       const userAddr = this.account;
@@ -678,7 +688,7 @@ export default {
 
       cookData = await this.recipeBorrow(cookData, pool, amount, userAddr, mim);
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
@@ -702,6 +712,8 @@ export default {
       const { cauldron } = pool.contracts;
 
       const tokenAddr = itsDefaultBalance ? this.defaultTokenAddress : address;
+
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
 
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
@@ -739,7 +751,7 @@ export default {
         collateralValue
       );
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
@@ -760,6 +772,8 @@ export default {
       const tokenAddr = pool.config.collateralInfo.address;
       const userAddr = this.account;
 
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
+
       let cookData = {
         events: [],
         values: [],
@@ -779,7 +793,7 @@ export default {
         tokenAddr
       );
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
@@ -798,6 +812,8 @@ export default {
     ) {
       const { cauldron } = pool.contracts;
 
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
+
       let cookData = {
         events: [],
         values: [],
@@ -811,7 +827,7 @@ export default {
 
       cookData = await this.recipeRepay(cookData, pool, itsMax, amount);
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
@@ -831,6 +847,8 @@ export default {
       const { cauldron } = pool.contracts;
       const tokenAddr = pool.config.collateralInfo.address;
       const userAddr = this.account;
+
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -858,7 +876,7 @@ export default {
         tokenAddr
       );
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
@@ -891,6 +909,8 @@ export default {
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
+
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -943,7 +963,7 @@ export default {
         false
       );
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
@@ -975,6 +995,8 @@ export default {
       const collateralTokenAddr = collateral.address;
       const reverseSwapperAddr = liquidationSwapper.address;
       const userAddr = account;
+
+      const useDegenBoxHelper = pool.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -1031,7 +1053,7 @@ export default {
         );
       }
 
-      if (isApprowed && this.cookHelper)
+      if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
           cookData,
           pool,
