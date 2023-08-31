@@ -19,11 +19,11 @@ export const getAdditionalInfoViem = async (config: any) => {
   });
 
   //todo
-  const feePercentResult = feePercent.result / 10000;
+  // const feePercentResult = feePercent.result / 10000;
 
   return {
     // feePercent: feePercent / 10000,
-    feePercent: feePercentResult,
+    feePercent: feePercent,
     rewardTokenPrice: rewardTokenPrice.result,
     rewardToken,
   };
