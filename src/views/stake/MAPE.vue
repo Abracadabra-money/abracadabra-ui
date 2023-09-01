@@ -133,7 +133,7 @@
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { approveToken } from "@/helpers/approval";
+import { approveTokenViem } from "@/helpers/approval"; //todo
 import actions from "@/helpers/stake/magicApe/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicApeConfigViem } from "@/utils/stake/magicApeConfigViem";
@@ -191,14 +191,17 @@ export default {
       return !!(!this.mainInputValue || this.errorMainValue);
     },
 
+    precision() {
+      return parseUnits("1", this.mainToken.decimals);
+    },
+
     expectedAmount() {
-      const tokensRate = this.formatAmount(this.stakeInfo.tokensRate);
-
+      if (!this.isUnsupportedChain || !this.account) return 0;
       const amount = this.isStakeAction
-        ? this.mainInputValue / tokensRate
-        : this.mainInputValue * tokensRate;
+        ? (this.parsedInputValue * this.precision) / this.mainToken.rate
+        : (this.parsedInputValue * this.mainToken.rate) / this.precision;
 
-      return filters.formatToFixed(amount, 6);
+      return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
     expectedLeverageApy() {
@@ -246,6 +249,10 @@ export default {
 
     mainInputValue() {
       return Number(this.inputValue);
+    },
+
+    parsedInputValue() {
+      return parseUnits(this.inputValue, 18);
     },
 
     actionInfo() {
@@ -305,7 +312,7 @@ export default {
     getChartOptions,
 
     formatAmount(value) {
-      return formatUnits(value, this.mainToken.decimals);
+      return formatUnits(value, 18);
     },
 
     formatTokenBalance(value) {
@@ -329,7 +336,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveToken(
+      const approve = await approveTokenViem(
         this.stakeToken.contract,
         this.mainToken.contract.address
       );
