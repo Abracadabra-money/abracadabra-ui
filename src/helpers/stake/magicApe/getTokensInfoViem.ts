@@ -9,34 +9,12 @@ export const getTokensInfoViem = async (
 ): Promise<TokensInfo> => {
   const { mainToken, stakeToken, oracle } = config;
 
-  const [
-    peekSpot,
-    userApeBalance,
-    userMagicApeBalance,
-    allowanceAmount,
-    totalSupply,
-    tokensRate,
-  ]: any = await multicall({
+  const [peekSpot, totalSupply, tokensRate]: any = await multicall({
     contracts: [
       {
         ...oracle,
         functionName: "peekSpot",
         args: ["0x"],
-      },
-      {
-        ...stakeToken.contract,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        ...mainToken.contract,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        ...stakeToken.contract,
-        functionName: "allowance",
-        args: [account, mainToken.contract.address],
       },
       {
         ...mainToken.contract,
@@ -50,15 +28,43 @@ export const getTokensInfoViem = async (
       },
     ],
   });
-
+  let allowanceAmountResult = 0n;
+  let userApeBalanceResult = 0n;
+  let userMagicApeBalanceResult = 0n;
+  let userApeBalanceUsd = 0n;
+  let userMagicApeBalanceUsd = 0n;
   const apePrice = (MIM_PRICE * ONE_ETHER_VIEM) / peekSpot.result;
   const magicApePrice = (apePrice * tokensRate.result) / ONE_ETHER_VIEM;
-  console.log("balances", userApeBalance, userMagicApeBalance);
 
-  const userApeBalanceUsd = (userApeBalance.result * apePrice) / ONE_ETHER_VIEM;
+  if (account !== "0x") {
+    const [userApeBalance, userMagicApeBalance, allowanceAmount]: any =
+      await multicall({
+        contracts: [
+          {
+            ...stakeToken.contract,
+            functionName: "balanceOf",
+            args: [account],
+          },
+          {
+            ...mainToken.contract,
+            functionName: "balanceOf",
+            args: [account],
+          },
+          {
+            ...stakeToken.contract,
+            functionName: "allowance",
+            args: [account, mainToken.contract.address],
+          },
+        ],
+      });
 
-  const userMagicApeBalanceUsd =
-    (userMagicApeBalance.result * magicApePrice) / ONE_ETHER_VIEM;
+    allowanceAmountResult = allowanceAmount.result;
+    userApeBalanceResult = userApeBalance.result;
+    userMagicApeBalanceResult = userMagicApeBalanceResult;
+    userApeBalanceUsd = (userApeBalance.result * apePrice) / ONE_ETHER_VIEM;
+    userMagicApeBalanceUsd =
+      (userMagicApeBalance.result * magicApePrice) / ONE_ETHER_VIEM;
+  }
 
   const totalSupplyUsd = (totalSupply.result * magicApePrice) / ONE_ETHER_VIEM;
 
@@ -73,16 +79,16 @@ export const getTokensInfoViem = async (
       totalSupply: totalSupply.result,
       totalSupplyUsd,
       balanceUsd: userMagicApeBalanceUsd,
-      balance: userMagicApeBalance.result,
+      balance: userMagicApeBalanceResult,
     },
     stakeToken: {
       name: config.stakeToken.name,
       icon: config.stakeToken.icon,
       price: apePrice,
       decimals: config.stakeToken.decimals,
-      balance: userApeBalance.result,
+      balance: userApeBalanceResult,
       balanceUsd: userApeBalanceUsd,
-      approvedAmount: allowanceAmount.result,
+      approvedAmount: allowanceAmountResult,
     },
     tokensRate: tokensRate.result,
   };

@@ -45,5 +45,6 @@ export type EmptyState = {
 export type EmptyStateItem = {
   name: string;
   icon: string;
-  balance: BigInt;
+  balance: bigint;
+  decimals: number;
 };

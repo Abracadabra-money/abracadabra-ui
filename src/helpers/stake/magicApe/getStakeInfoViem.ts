@@ -13,6 +13,9 @@ const emptyState: EmptyState = {
     icon: magicApeConfigViem[
       MAINNET_CHAIN_ID as keyof typeof magicApeConfigViem
     ].mainToken.icon,
+    decimals:
+      magicApeConfigViem[MAINNET_CHAIN_ID as keyof typeof magicApeConfigViem]
+        .mainToken.decimals,
     balance: 0n,
   },
   stakeToken: {
@@ -22,6 +25,9 @@ const emptyState: EmptyState = {
     icon: magicApeConfigViem[
       MAINNET_CHAIN_ID as keyof typeof magicApeConfigViem
     ].stakeToken.icon,
+    decimals:
+      magicApeConfigViem[MAINNET_CHAIN_ID as keyof typeof magicApeConfigViem]
+        .stakeToken.decimals,
     balance: 0n,
   },
 };
@@ -30,8 +36,9 @@ export const getStakeInfoViem = async (
   chainId: number
 ): Promise<StakeInfo | EmptyState> => {
   const config = magicApeConfigViem[chainId as keyof typeof magicApeConfigViem];
-  const account = getAccount().address;
-  if (!config || !account) return emptyState;
+  let account = getAccount().address;
+  account = account ? account : "0x";
+  if (!config) return emptyState;
 
   const { mainToken, stakeToken, tokensRate } = await getTokensInfoViem(
     account,
