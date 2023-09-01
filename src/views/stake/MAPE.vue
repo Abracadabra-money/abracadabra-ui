@@ -136,9 +136,8 @@ import { useImage } from "@/helpers/useImage";
 import { approveToken } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicApe/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { magicApeConfig } from "@/utils/stake/magicApeConfig";
+import { magicApeConfigViem } from "@/utils/stake/magicApeConfigViem";
 import notification from "@/helpers/notification/notification.js";
-import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
@@ -174,7 +173,7 @@ export default {
     },
 
     isUnsupportedChain() {
-      return !!magicApeConfig[this.chainId];
+      return !!magicApeConfigViem[this.chainId];
     },
 
     isTokenApproved() {
@@ -367,12 +366,6 @@ export default {
 
     async createStakeInfo() {
       this.stakeInfo = await getStakeInfoViem(this.chainId);
-
-      // this.stakeInfo = await getStakeInfoViem(
-      //   this.provider,
-      //   this.signer,
-      //   this.chainId
-      // );
 
       if (this.isUnsupportedChain) {
         this.apy = await getMagicApeApy(this.provider);

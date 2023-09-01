@@ -1,8 +1,12 @@
 import { multicall } from "@wagmi/core";
 import type { Address } from "@wagmi/core";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
+import type { TokensInfo } from "@/types/magicApe/tokensInfo";
 
-export const getTokensInfoViem = async (account: Address, config: any) => {
+export const getTokensInfoViem = async (
+  account: Address,
+  config: any
+): Promise<TokensInfo> => {
   const { mainToken, stakeToken, oracle } = config;
 
   const [
@@ -49,6 +53,7 @@ export const getTokensInfoViem = async (account: Address, config: any) => {
 
   const apePrice = (MIM_PRICE * ONE_ETHER_VIEM) / peekSpot.result;
   const magicApePrice = (apePrice * tokensRate.result) / ONE_ETHER_VIEM;
+  console.log("balances", userApeBalance, userMagicApeBalance);
 
   const userApeBalanceUsd = (userApeBalance.result * apePrice) / ONE_ETHER_VIEM;
 
@@ -59,25 +64,25 @@ export const getTokensInfoViem = async (account: Address, config: any) => {
 
   return {
     mainToken: {
-      icon: config.mainToken.icon,
       name: config.mainToken.name,
+      icon: config.mainToken.icon,
       rateIcon: config.mainToken.rateIcon,
+      decimals: config.mainToken.decimals,
+      rate: tokensRate.result,
       price: magicApePrice,
-      balance: userMagicApeBalance.result,
-      balanceUsd: userMagicApeBalanceUsd,
       totalSupply: totalSupply.result,
       totalSupplyUsd,
-      rate: tokensRate.result,
-      decimals: config.mainToken.decimals,
+      balanceUsd: userMagicApeBalanceUsd,
+      balance: userMagicApeBalance.result,
     },
     stakeToken: {
-      icon: config.stakeToken.icon,
       name: config.stakeToken.name,
+      icon: config.stakeToken.icon,
       price: apePrice,
-      balance: userApeBalance.result,
-      approvedAmount: allowanceAmount.result,
-      balanceUsd: userApeBalanceUsd,
       decimals: config.stakeToken.decimals,
+      balance: userApeBalance.result,
+      balanceUsd: userApeBalanceUsd,
+      approvedAmount: allowanceAmount.result,
     },
     tokensRate: tokensRate.result,
   };

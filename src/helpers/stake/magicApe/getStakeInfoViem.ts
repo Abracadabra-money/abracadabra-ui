@@ -3,8 +3,9 @@ import { magicApeConfigViem } from "@/utils/stake/magicApeConfigViem";
 import { getTokensInfoViem } from "@/helpers/stake/magicApe/getTokensInfoViem";
 import { getAdditionalInfoViem } from "@/helpers/stake/magicApe/getAdditionalInfoViem";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
+import type { EmptyState, StakeInfo } from "@/types/magicApe/configsInfo";
 
-const emptyState = {
+const emptyState: EmptyState = {
   mainToken: {
     name: magicApeConfigViem[
       MAINNET_CHAIN_ID as keyof typeof magicApeConfigViem
@@ -12,7 +13,7 @@ const emptyState = {
     icon: magicApeConfigViem[
       MAINNET_CHAIN_ID as keyof typeof magicApeConfigViem
     ].mainToken.icon,
-    balance: "0",
+    balance: 0n,
   },
   stakeToken: {
     name: magicApeConfigViem[
@@ -21,11 +22,13 @@ const emptyState = {
     icon: magicApeConfigViem[
       MAINNET_CHAIN_ID as keyof typeof magicApeConfigViem
     ].stakeToken.icon,
-    balance: "0",
+    balance: 0n,
   },
 };
 
-export const getStakeInfoViem = async (chainId: number) => {
+export const getStakeInfoViem = async (
+  chainId: number
+): Promise<StakeInfo | EmptyState> => {
   const config = magicApeConfigViem[chainId as keyof typeof magicApeConfigViem];
   const account = getAccount().address;
   if (!config || !account) return emptyState;
@@ -38,9 +41,9 @@ export const getStakeInfoViem = async (chainId: number) => {
   const additionalInfo = await getAdditionalInfoViem(config);
 
   return {
-    ...additionalInfo,
     mainToken,
     stakeToken,
     tokensRate,
+    ...additionalInfo,
   };
 };
