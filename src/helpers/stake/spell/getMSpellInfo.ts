@@ -1,39 +1,55 @@
 import moment from "moment";
-import { utils } from "ethers";
-import { spellConfig } from "@/utils/stake/spellConfig";
-import type { MSpellInfo, SpellInfo } from "@/helpers/stake/spell/types";
-import { mSpellEmptyState } from "@/helpers/stake/spell/emptyStates";
+import { multicall } from "@wagmi/core";
+import { formatUnits, type Address } from "viem";
+import { ONE_ETHER_VIEM } from "@/constants/global";
+import type { ChainSpellConfig } from "@/types/spell/configsInfo";
+import type { MSpellInfo, SpellInfo } from "@/types/spell/stakeInfo";
 
 export const getMSpellInfo = async (
-  contracts: any,
-  account: string | undefined,
-  spellInfo: SpellInfo
+  { mSpell }: ChainSpellConfig,
+  spell: SpellInfo,
+  price: bigint,
+  account: Address
 ): Promise<MSpellInfo> => {
-  const { mSpell, spell } = contracts;
-  if (!mSpell || !account) return mSpellEmptyState;
+  const [allowanceAmount, mSpellUserInfo, rewardAmount]: any = await multicall({
+    contracts: [
+      {
+        ...spell.contract,
+        functionName: "allowance",
+        args: [account, mSpell.contract.address],
+      },
+      {
+        ...mSpell.contract,
+        functionName: "userInfo",
+        args: [account],
+      },
+      {
+        ...mSpell.contract,
+        functionName: "pendingReward",
+        args: [account],
+      },
+    ],
+  });
 
-  const [allowanceAmount, mSpellUserInfo, rewardAmount] = await Promise.all([
-    spell.allowance(account, mSpell.address),
-    mSpell.userInfo(account),
-    mSpell.pendingReward(account),
-  ]);
-
-  const lockTimestamp = +mSpellUserInfo.lastAdded
-    ? moment.unix(mSpellUserInfo.lastAdded.toString()).add(1, "d")
-    : moment.unix(0);
-
+  const [userMSpellBalance, _, lastAdded]: any = mSpellUserInfo.result;
+  const formatLastAdded = +formatUnits(lastAdded, 0);
   const currentTimestamp = moment();
-  const isLocked = lockTimestamp.isAfter(currentTimestamp);
+  const lastAddedTimestamp = formatLastAdded
+    ? moment.unix(formatLastAdded).add(1, "d")
+    : moment.unix(0);
+  const isLocked = lastAddedTimestamp.isAfter(currentTimestamp);
+  const lockTimestamp = isLocked ? lastAddedTimestamp.unix().toString() : "0";
 
   return {
-    name: spellConfig.mSpell.name,
-    icon: spellConfig.mSpell.icon,
-    contract: mSpell,
-    price: spellInfo.price,
-    rate: 1,
-    lockTimestamp: isLocked ? lockTimestamp.unix().toString() : "0",
-    balance: utils.formatUnits(mSpellUserInfo.amount),
-    allowanceAmount: utils.formatUnits(allowanceAmount),
-    claimableAmount: utils.formatUnits(rewardAmount),
+    name: mSpell.name,
+    icon: mSpell.icon,
+    decimals: mSpell.decimals,
+    contract: mSpell.contract,
+    price: price,
+    rate: ONE_ETHER_VIEM,
+    lockTimestamp,
+    balance: userMSpellBalance,
+    allowanceAmount: allowanceAmount.result,
+    claimableAmount: rewardAmount.result,
   };
 };
