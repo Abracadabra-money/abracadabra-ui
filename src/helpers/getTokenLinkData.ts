@@ -27,13 +27,13 @@ const configs: Array<Config> = [
   {
     id: 33,
     chain: 1,
-    href: "https://yearn.finance/#/vault/0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E",
+    href: "https://yearn.fi/vaults/1/0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E",
     label: "Get Yearn Tokens",
   },
   {
     id: 38,
     chain: 1,
-    href: "https://yearn.finance/vaults/1/0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3",
+    href: "https://yearn.fi/vaults/1/0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3",
     label: "Get Yearn Tokens",
   },
 ];
