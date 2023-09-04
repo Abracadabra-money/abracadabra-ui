@@ -1,3 +1,5 @@
+import type { ContractInfo } from "@/types/global";
+
 export type TokensInfo = {
   mainToken: MainTokenInfo;
   stakeToken: StakeTokenInfo;
@@ -7,6 +9,7 @@ export type TokensInfo = {
 export type MainTokenInfo = {
   name: string;
   icon: string;
+  contract: ContractInfo;
   rateIcon: string;
   decimals: number;
   price: bigint;
@@ -20,6 +23,7 @@ export type MainTokenInfo = {
 export type StakeTokenInfo = {
   name: string;
   icon: string;
+  contract: ContractInfo;
   decimals: number;
   price: bigint;
   balance: bigint;

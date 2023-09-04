@@ -256,9 +256,7 @@ export default {
     },
 
     actionInfo() {
-      const amount = this.$ethers.utils.parseEther(
-        filters.formatToFixed(this.inputValue || 0, 18)
-      );
+      const amount = this.parsedInputValue;
 
       const options = [amount, this.account];
 

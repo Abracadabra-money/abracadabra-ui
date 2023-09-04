@@ -74,6 +74,7 @@ export const getTokensInfo = async (
     mainToken: {
       name: config.mainToken.name,
       icon: config.mainToken.icon,
+      contract: mainToken.contract,
       rateIcon: config.mainToken.rateIcon,
       decimals: config.mainToken.decimals,
       rate: tokensRate.result,
@@ -86,6 +87,7 @@ export const getTokensInfo = async (
     stakeToken: {
       name: config.stakeToken.name,
       icon: config.stakeToken.icon,
+      contract: stakeToken.contract,
       price: apePrice,
       decimals: config.stakeToken.decimals,
       balance: userApeBalanceResult,
