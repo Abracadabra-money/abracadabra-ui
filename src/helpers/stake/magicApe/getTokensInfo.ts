@@ -62,7 +62,7 @@ export const getTokensInfo = async (
 
     allowanceAmountResult = allowanceAmount.result;
     userApeBalanceResult = userApeBalance.result;
-    userMagicApeBalanceResult = userMagicApeBalanceResult;
+    userMagicApeBalanceResult = userMagicApeBalance.result;
     userApeBalanceUsd = (userApeBalance.result * apePrice) / ONE_ETHER_VIEM;
     userMagicApeBalanceUsd =
       (userMagicApeBalance.result * magicApePrice) / ONE_ETHER_VIEM;

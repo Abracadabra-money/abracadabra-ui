@@ -43,7 +43,7 @@
           <BaseTokenInput
             :icon="toToken.icon"
             :name="toToken.name"
-            :value="formatAmount(expectedAmount)"
+            :value="expectedAmount"
             :disabled="true"
           />
         </div>
@@ -200,7 +200,6 @@ export default {
       const amount = this.isStakeAction
         ? (this.parsedInputValue * this.precision) / this.mainToken.rate
         : (this.parsedInputValue * this.mainToken.rate) / this.precision;
-
       return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
@@ -310,7 +309,7 @@ export default {
     getChartOptions,
 
     formatAmount(value) {
-      return formatUnits(value, 18);
+      return formatUnits(value, this.mainToken.decimals);
     },
 
     formatTokenBalance(value) {
