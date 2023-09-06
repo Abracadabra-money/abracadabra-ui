@@ -1,20 +1,24 @@
 import { mapGetters } from "vuex";
-import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
-import { signMasterContract } from "@/helpers/signature";
-import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import checkWhitelistLogic from "@/helpers/cauldron/cook/checkWhitelistLogic";
 import sendCook from "@/helpers/cauldron/cook/sendCook";
 
-import toAmount from "@/helpers/toAmount";
+import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
+import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
+import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
+import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
+import recipeLeverage from "@/helpers/cauldron/cook/recipies/recipeLeverage";
+import recipeDeleverage from "@/helpers/cauldron/cook/recipies/recipeDeleverage";
+
+import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBorrow";
+import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
+import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 
 import {
   repayEncodeHandler,
   bentoDepositEncodeHandler,
   bentoWithdrawEncodeHandler,
 } from "./cook/degenBoxHelper/actionHandlers";
-
-import { getDegenBoxHelperAddress } from "@/mixins/borrow/cook/degenBoxHelper/getDegenBoxHelperContract.js";
 
 // const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
@@ -33,562 +37,6 @@ export default {
     }),
   },
   methods: {
-
-    async signAndGetData(
-      cookData,
-      cauldronObject,
-      masterContract,
-      approved = true,
-      addNonce = 0
-    ) {
-      const user = this.account;
-      const { cauldron, bentoBox } = cauldronObject.contracts;
-      const verifyingContract = await cauldron.bentoBox();
-      const nonce = await bentoBox.nonces(user);
-
-      const parsedSignature = await signMasterContract(
-        this.signer,
-        cauldronObject.config.chainId,
-        verifyingContract,
-        user,
-        masterContract,
-        approved,
-        +nonce + addNonce
-      );
-
-      cookData = actions.bentoSetApproval(
-        cookData,
-        user,
-        masterContract,
-        approved,
-        parsedSignature.v,
-        parsedSignature.r,
-        parsedSignature.s
-      );
-
-      return cookData;
-    },
-
-    async get0xLeverageSwapData(cauldronObject, amount, slipage) {
-      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } =
-        cauldronObject.config.cauldronSettings;
-
-      if (isVelodrome) return "0x00";
-
-      const { collateral, mim, leverageSwapper } = cauldronObject.contracts;
-
-      let buyToken = collateral.address;
-      if (isMagicGLP) {
-        const leverageResp = await getGlpLevData(
-          this.signer,
-          cauldronObject,
-          amount,
-          42161,
-          slipage
-        );
-        return leverageResp.swapDataEncode;
-      }
-      if (isMagicApe) buyToken = apeAddress;
-
-      if (isStargateUSDT) buyToken = usdtAddress;
-
-      const swapResponse = await swap0xRequest(
-        cauldronObject.config.chainId,
-        buyToken,
-        mim.address,
-        slipage,
-        amount,
-        leverageSwapper.address
-      );
-
-      return swapResponse.data;
-    },
-
-    async get0xDeleverageSwapData(cauldronObject, collateralAmount, slipage) {
-      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } =
-        cauldronObject.config.cauldronSettings;
-
-      if (isVelodrome) return "0x00";
-
-      const {
-        collateral,
-        liquidationSwapper,
-        mim: mimContract,
-      } = cauldronObject.contracts;
-      const swapper = liquidationSwapper.address;
-      const mim = mimContract.address;
-      let selToken = collateral.address;
-      let selAmount = collateralAmount;
-
-      if (isMagicGLP) {
-        const deleverageResp = await getGlpLiqData(
-          this.signer,
-          cauldronObject,
-          collateralAmount,
-          42161,
-          slipage
-        );
-        return deleverageResp.swapDataEncode;
-      }
-
-      if (isMagicApe) {
-        selToken = apeAddress;
-        selAmount = await collateral.convertToAssets(collateralAmount);
-      }
-
-      if (isStargateUSDT) selToken = usdtAddress;
-
-      const response = await swap0xRequest(
-        cauldronObject.config.chainId,
-        mim,
-        selToken,
-        slipage,
-        selAmount,
-        swapper
-      );
-      return response.data;
-    },
-
-    async recipeSetMaxBorrow(
-      cookData,
-      { whitelisterContract, userWhitelistedInfo },
-      user
-    ) {
-      const setMaxBorrowTx =
-        await whitelisterContract.populateTransaction.setMaxBorrow(
-          user,
-          userWhitelistedInfo.userBorrowPart,
-          userWhitelistedInfo.proof
-        );
-
-      const data = setMaxBorrowTx.data;
-
-      cookData = await actions.call(
-        cookData,
-        whitelisterContract.address,
-        data,
-        false,
-        false,
-        0
-      );
-      return cookData;
-    },
-
-    async checkAndSetMcApprove(cookData, cauldronObject, mcApproved) {
-      const { bentoBox, cauldron } = cauldronObject.contracts;
-
-      const useDegenBoxHelper =
-        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
-
-      const degenBoxHelperAddress = getDegenBoxHelperAddress(
-        cauldronObject.chainId
-      );
-
-      const isApproved = useDegenBoxHelper
-        ? await bentoBox.masterContractApproved(
-            degenBoxHelperAddress,
-            this.account
-          )
-        : mcApproved;
-
-      const masterContract = useDegenBoxHelper
-        ? degenBoxHelperAddress
-        : await cauldron.masterContract();
-
-      if (!isApproved) {
-        cookData = await this.recipeApproveMC(
-          cookData,
-          cauldronObject,
-          true,
-          masterContract
-        );
-      }
-
-      return cookData;
-    },
-
-    async recipeApproveMC(
-      cookData,
-      cauldronObject,
-      approved = true,
-      masterContract
-    ) {
-      const addNonce = cookData.events.filter((value) => value === 24).length;
-
-      cookData = await this.signAndGetData(
-        cookData,
-        cauldronObject,
-        masterContract,
-        approved,
-        addNonce
-      );
-
-      return cookData;
-    },
-
-    async recipeAddCollatral(
-      cookData,
-      cauldronObject,
-      token,
-      isWrap,
-      to,
-      amount,
-      collateralValue
-    ) {
-      const { unwrappedToken, wrapper, cauldron } = cauldronObject.contracts;
-
-      if (isWrap) {
-        cookData = await bentoDepositEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          unwrappedToken.address,
-          to,
-          amount,
-          "0",
-          collateralValue,
-          false,
-          false,
-          2
-        );
-
-        cookData = await bentoWithdrawEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          unwrappedToken.address,
-          wrapper.address,
-          "0",
-          "-2",
-          false,
-          true,
-          1
-        );
-
-        const swapStaticTx = await wrapper.populateTransaction.wrap(
-          cauldron.address,
-          amount
-        );
-
-        const data = swapStaticTx.data.substring(0, 74);
-
-        cookData = await actions.call(
-          cookData,
-          wrapper.address,
-          data,
-          true,
-          false,
-          2
-        );
-      } else {
-        cookData = await bentoDepositEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          token,
-          cauldron.address,
-          amount,
-          "0",
-          collateralValue,
-          false,
-          false,
-          2
-        );
-      }
-
-      cookData = await actions.addCollateral(cookData, "-2", to, true);
-
-      return cookData;
-    },
-
-    async recipeRemoveCollateral(
-      cookData,
-      cauldronObject,
-      share,
-      userAddr,
-      tokenAddr
-    ) {
-      const wrapInfo = cauldronObject.config?.wrapInfo;
-      const { wrapper, unwrappedToken, collateral } = cauldronObject.contracts;
-      if (wrapInfo) {
-        cookData = await actions.removeCollateral(cookData, share, userAddr);
-
-        cookData = await bentoWithdrawEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          collateral.address,
-          wrapper.address,
-          "0",
-          share,
-          false,
-          false,
-          1
-        );
-
-        // 30 unwrap and deposit for alice in degenbox
-        const swapStaticTx = await wrapper.populateTransaction.unwrap(
-          userAddr,
-          share
-        );
-
-        const data = swapStaticTx.data.substring(0, 74);
-
-        cookData = await actions.call(
-          cookData,
-          wrapper.address,
-          data,
-          true,
-          false,
-          2
-        );
-
-        cookData = await bentoWithdrawEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          unwrappedToken.address,
-          userAddr,
-          "0",
-          "-2",
-          false,
-          true
-        );
-      } else {
-        cookData = await actions.removeCollateral(cookData, share, userAddr);
-
-        cookData = await bentoWithdrawEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          tokenAddr,
-          userAddr,
-          "0x00",
-          share
-        );
-      }
-
-      return cookData;
-    },
-
-    async recipeBorrow(cookData, cauldronObject, part, to, mim) {
-      cookData = await actions.borrow(cookData, part, to);
-      cookData = await bentoWithdrawEncodeHandler(
-        cookData,
-        cauldronObject, // TODO
-        mim,
-        to,
-        "0",
-        "-0x02",
-        false,
-        true
-      );
-      return cookData;
-    },
-
-    async recipeRepay(cookData, cauldronObject, itsMax, part) {
-      const { userBorrowPart } = cauldronObject.userPosition.borrowInfo;
-      const mim = cauldronObject.config.mimInfo.address;
-      const to = this.account;
-
-      if (!itsMax) {
-        cookData = await bentoDepositEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          mim,
-          to,
-          part,
-          "0",
-          "0",
-          false,
-          false,
-          2
-        );
-        cookData = await actions.getRepayPart(cookData, "-2");
-        cookData = await repayEncodeHandler(
-          cookData,
-          cauldronObject, // TODO
-          "-1",
-          to,
-          false,
-          true,
-          false,
-          0
-        );
-
-        return cookData;
-      }
-
-      cookData = await actions.getRepayShare(cookData, userBorrowPart);
-      cookData = await bentoDepositEncodeHandler(
-        cookData,
-        cauldronObject, // TODO
-        mim,
-        to,
-        "0",
-        "-1",
-        "0",
-        true,
-        false,
-        0
-      );
-      cookData = await repayEncodeHandler(
-        cookData,
-        cauldronObject, // TODO
-        userBorrowPart,
-        to
-      );
-
-      return cookData;
-    },
-
-    async recipeLeverage(
-      cookData,
-      cauldronObject,
-      amount,
-      minExpected,
-      slipage,
-      is0x = false
-    ) {
-      const { leverageSwapper, bentoBox } = cauldronObject.contracts;
-      const mimAddress = cauldronObject.config.mimInfo.address;
-      const swapperAddres = leverageSwapper.address;
-      const userAddr = this.account;
-
-      const { isMagicGLP } = cauldronObject.config.cauldronSettings;
-
-      if (isMagicGLP)
-        return await getGlpLevData(
-          cookData,
-          this.signer,
-          cauldronObject,
-          amount,
-          42161,
-          slipage
-        );
-
-      if (!is0x) {
-        const swapStaticTx = await leverageSwapper.populateTransaction.swap(
-          userAddr,
-          minExpected,
-          0
-        );
-
-        const swapCallByte = swapStaticTx.data.substr(0, 138);
-
-        cookData = await actions.call(
-          cookData,
-          swapperAddres,
-          swapCallByte,
-          false,
-          true,
-          2
-        );
-
-        return cookData;
-      }
-
-      const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
-
-      // to be sure that sell amount in 0x and amountOut inside call will be same
-      const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
-
-      const swapData = await this.get0xLeverageSwapData(
-        cauldronObject,
-        amountToSwap,
-        slipage
-      );
-
-      const swapStaticTx = await leverageSwapper.populateTransaction.swap(
-        userAddr,
-        minExpected,
-        shareFrom,
-        swapData,
-        {
-          gasLimit: 1000000000,
-        }
-      );
-
-      cookData = await actions.call(
-        cookData,
-        swapperAddres,
-        swapStaticTx.data,
-        false,
-        false,
-        2
-      );
-
-      return cookData;
-    },
-
-    async recipeDeleverage(
-      cookData,
-      cauldronObject,
-      shareFrom,
-      shareToMin,
-      slipage,
-      is0x
-    ) {
-      const {
-        collateral,
-        mim: mimContract,
-        liquidationSwapper,
-      } = cauldronObject.contracts;
-
-      const collateralTokenAddr = collateral.address;
-      const mim = mimContract.address;
-      const swapper = liquidationSwapper.address;
-      const userAddr = this.account;
-
-      if (!is0x) {
-        const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
-          collateralTokenAddr,
-          mim,
-          userAddr,
-          shareToMin,
-          shareFrom
-        );
-
-        const swapCallByte = swapStaticTx.data;
-
-        cookData = await actions.call(
-          cookData,
-          swapper,
-          swapCallByte,
-          false,
-          false,
-          2
-        );
-
-        return cookData;
-      }
-
-      const swapData = await this.get0xDeleverageSwapData(
-        cauldronObject,
-        shareFrom,
-        slipage
-      );
-
-      const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
-        collateralTokenAddr,
-        mim,
-        userAddr,
-        shareToMin,
-        shareFrom,
-        swapData,
-        {
-          gasLimit: 1000000000,
-        }
-      );
-
-      const swapCallByte = swapStaticTx.data;
-
-      cookData = await actions.call(
-        cookData,
-        swapper,
-        swapCallByte,
-        false,
-        false,
-        2
-      );
-
-      return cookData;
-    },
-
     async cookAddCollateral(
       { amount, updatePrice, itsDefaultBalance },
       isApprowed,
@@ -614,7 +62,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -623,7 +71,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeAddCollatral(
+      cookData = await recipeAddCollatral(
         cookData,
         cauldronObject,
         token,
@@ -634,7 +82,7 @@ export default {
       );
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
           cauldronObject,
           false,
@@ -666,7 +114,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -676,14 +124,14 @@ export default {
         cookData = await actions.updateExchangeRate(cookData, true);
 
       if (checkWhitelistLogic(cauldronObject)) {
-        cookData = await this.recipeSetMaxBorrow(
+        cookData = await recipeSetMaxBorrow(
           cookData,
           whitelistedInfo,
           userAddr
         );
       }
 
-      cookData = await this.recipeBorrow(
+      cookData = await recipeBorrow(
         cookData,
         cauldronObject,
         amount,
@@ -692,7 +140,7 @@ export default {
       );
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
           cauldronObject,
           false,
@@ -732,7 +180,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -741,7 +189,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeBorrow(
+      cookData = await recipeBorrow(
         cookData,
         cauldronObject,
         amount,
@@ -749,7 +197,7 @@ export default {
         pairToken
       );
 
-      cookData = await this.recipeAddCollatral(
+      cookData = await recipeAddCollatral(
         cookData,
         cauldronObject,
         tokenAddr,
@@ -760,7 +208,7 @@ export default {
       );
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
           cauldronObject,
           false,
@@ -789,7 +237,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -798,7 +246,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeRemoveCollateral(
+      cookData = await recipeRemoveCollateral(
         cookData,
         cauldronObject,
         amount,
@@ -807,7 +255,7 @@ export default {
       );
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
           cauldronObject,
           false,
@@ -834,7 +282,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -843,7 +291,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeRepay(
+      cookData = await recipeRepay(
         cookData,
         cauldronObject,
         itsMax,
@@ -851,9 +299,9 @@ export default {
       );
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
-          pcauldronObjectool,
+          cauldronObject,
           false,
           await cauldron.masterContract()
         );
@@ -880,7 +328,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -889,14 +337,14 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeRepay(
+      cookData = await recipeRepay(
         cookData,
         cauldronObject,
         itsMax,
         collateralAmount // mim part
       );
 
-      cookData = await this.recipeRemoveCollateral(
+      cookData = await recipeRemoveCollateral(
         cookData,
         cauldronObject,
         amount, // collateral share
@@ -905,7 +353,7 @@ export default {
       );
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
           cauldronObject,
           false,
@@ -947,7 +395,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -957,14 +405,14 @@ export default {
         cookData = await actions.updateExchangeRate(cookData, true);
 
       if (checkWhitelistLogic(cauldronObject)) {
-        cookData = await this.recipeSetMaxBorrow(
+        cookData = await recipeSetMaxBorrow(
           cookData,
           whitelistedInfo,
           userAddr
         );
       }
 
-      cookData = await this.recipeAddCollatral(
+      cookData = await recipeAddCollatral(
         cookData,
         cauldronObject,
         collateral.address,
@@ -980,7 +428,7 @@ export default {
         leverageSwapper.address
       );
 
-      cookData = await this.recipeLeverage(
+      cookData = await recipeLeverage(
         cookData,
         cauldronObject,
         amount,
@@ -997,7 +445,7 @@ export default {
       );
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
           cauldronObject,
           false,
@@ -1038,7 +486,7 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(
+      cookData = await checkAndSetMcApprove(
         cookData,
         cauldronObject,
         isApprowed
@@ -1053,7 +501,7 @@ export default {
         reverseSwapperAddr
       );
 
-      cookData = await this.recipeDeleverage(
+      cookData = await recipeDeleverage(
         cookData,
         cauldronObject,
         collateralAmount,
@@ -1082,7 +530,7 @@ export default {
       }
 
       if (+removeCollateralAmount > 0) {
-        cookData = await this.recipeRemoveCollateral(
+        cookData = await recipeRemoveCollateral(
           cookData,
           cauldronObject,
           removeCollateralAmount,
@@ -1092,7 +540,7 @@ export default {
       }
 
       if (isApprowed && useDegenBoxHelper)
-        cookData = await this.recipeApproveMC(
+        cookData = await recipeApproveMC(
           cookData,
           cauldronObject,
           false,

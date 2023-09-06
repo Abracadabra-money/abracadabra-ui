@@ -1,0 +1,64 @@
+import {
+  bentoDepositEncodeHandler,
+  repayEncodeHandler,
+} from "@/mixins/borrow/cook/degenBoxHelper/actionHandlers";
+import { actions } from "@/helpers/cauldron/cook/actions";
+
+const recipeRepay = async (cookData, cauldronObject, itsMax, part) => {
+  const { userBorrowPart } = cauldronObject.userPosition.borrowInfo;
+  const mim = cauldronObject.config.mimInfo.address;
+  const to = this.account; // TODO
+
+  if (!itsMax) {
+    cookData = await bentoDepositEncodeHandler(
+      cookData,
+      cauldronObject,
+      mim,
+      to,
+      part,
+      "0",
+      "0",
+      false,
+      false,
+      2
+    );
+    cookData = await actions.getRepayPart(cookData, "-2");
+    cookData = await repayEncodeHandler(
+      cookData,
+      cauldronObject,
+      "-1",
+      to,
+      false,
+      true,
+      false,
+      0
+    );
+
+    return cookData;
+  }
+
+  cookData = await actions.getRepayShare(cookData, userBorrowPart);
+  cookData = await bentoDepositEncodeHandler(
+    cookData,
+    cauldronObject,
+    mim,
+    to,
+    "0",
+    "-1",
+    "0",
+    true,
+    false,
+    0
+  );
+  cookData = await repayEncodeHandler(
+    cookData,
+    cauldronObject,
+    userBorrowPart,
+    to
+  );
+
+  return cookData;
+};
+
+
+export default recipeRepay;
