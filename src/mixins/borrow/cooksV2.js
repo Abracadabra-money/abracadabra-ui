@@ -3,8 +3,7 @@ import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { signMasterContract } from "@/helpers/signature";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
-å;
-
+import checkWhitelistLogic from "@/helpers/cauldron/cook/checkWhitelistLogic";
 import sendCook from "@/helpers/cauldron/cook/sendCook";
 
 import toAmount from "@/helpers/toAmount";
@@ -34,18 +33,6 @@ export default {
     }),
   },
   methods: {
-    checkWhitelistLogic(cauldronObject) {
-      if (!cauldronObject.config.cauldronSettings.hasWhitelistLogic)
-        return false;
-
-      const { whitelistedInfo } = cauldronObject.additionalInfo;
-      if (
-        +whitelistedInfo?.amountAllowedParsed < +whitelistedInfo?.userBorrowPart
-      )
-        return true;
-
-      return false;
-    },
 
     async signAndGetData(
       cookData,
@@ -688,7 +675,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      if (this.checkWhitelistLogic(cauldronObject)) {
+      if (checkWhitelistLogic(cauldronObject)) {
         cookData = await this.recipeSetMaxBorrow(
           cookData,
           whitelistedInfo,
@@ -969,7 +956,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      if (this.checkWhitelistLogic(cauldronObject)) {
+      if (checkWhitelistLogic(cauldronObject)) {
         cookData = await this.recipeSetMaxBorrow(
           cookData,
           whitelistedInfo,
