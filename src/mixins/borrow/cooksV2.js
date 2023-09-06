@@ -32,13 +32,14 @@ export default {
       chainId: "getChainId",
       signer: "getSigner",
     }),
+  },
+  methods: {
 
-    // TODO: move to config
-    needWhitelisterApprove() {
-      if (!this.cauldron.config.cauldronSettings.hasWhitelistLogic)
-        return false;
+    checkWhitelistLogic(cauldronObject) {
+      if (!cauldronObject.config.cauldronSettings.hasWhitelistLogic)
+      return false;
 
-      const { whitelistedInfo } = this.cauldron.additionalInfo;
+      const { whitelistedInfo } = cauldronObject.additionalInfo;
       if (
         +whitelistedInfo?.amountAllowedParsed < +whitelistedInfo?.userBorrowPart
       )
@@ -47,26 +48,6 @@ export default {
       return false;
     },
 
-    // TODO: move to config
-    isMagicGLP() {
-      return this.cauldron.config.cauldronSettings.isMagicGLP;
-    },
-
-    // TODO: move to config
-    isVelodrome() {
-      return this.cauldron.config.cauldronSettings.isVelodrome;
-    },
-
-    // TODO: move to config
-    isMagicApe() {
-      return this.cauldron.config.cauldronSettings.isMagicApe;
-    },
-
-    isStargateUSDT() {
-      return this.cauldron.config.cauldronSettings.isStargateUSDT;
-    },
-  },
-  methods: {
     async signAndGetData(
       cookData,
       cauldronObject,
@@ -103,12 +84,14 @@ export default {
     },
 
     async get0xLeverageSwapData(cauldronObject, amount, slipage) {
-      if (this.isVelodrome) return "0x00";
+      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } = this.cauldron.config.cauldronSettings;
+
+      if (isVelodrome) return "0x00";
 
       const { collateral, mim, leverageSwapper } = cauldronObject.contracts;
 
       let buyToken = collateral.address;
-      if (this.isMagicGLP) {
+      if (isMagicGLP) {
         const leverageResp = await getGlpLevData(
           this.signer,
           cauldronObject,
@@ -118,9 +101,9 @@ export default {
         );
         return leverageResp.swapDataEncode;
       }
-      if (this.isMagicApe) buyToken = apeAddress;
+      if (isMagicApe) buyToken = apeAddress;
 
-      if (this.isStargateUSDT) buyToken = usdtAddress;
+      if (isStargateUSDT) buyToken = usdtAddress;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -135,7 +118,9 @@ export default {
     },
 
     async get0xDeleverageSwapData(cauldronObject, collateralAmount, slipage) {
-      if (this.isVelodrome) return "0x00";
+      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } = this.cauldron.config.cauldronSettings;
+
+      if (isVelodrome) return "0x00";
 
       const {
         collateral,
@@ -147,7 +132,7 @@ export default {
       let selToken = collateral.address;
       let selAmount = collateralAmount;
 
-      if (this.isMagicGLP) {
+      if (isMagicGLP) {
         const deleverageResp = await getGlpLiqData(
           this.signer,
           cauldronObject,
@@ -158,12 +143,12 @@ export default {
         return deleverageResp.swapDataEncode;
       }
 
-      if (this.isMagicApe) {
+      if (isMagicApe) {
         selToken = apeAddress;
         selAmount = await collateral.convertToAssets(collateralAmount);
       }
 
-      if (this.isStargateUSDT) selToken = usdtAddress;
+      if (isStargateUSDT) selToken = usdtAddress;
 
       const response = await swap0xRequest(
         this.chainId,
@@ -462,7 +447,9 @@ export default {
       const swapperAddres = leverageSwapper.address;
       const userAddr = this.account;
 
-      if (this.isMagicGLP)
+      const { isMagicGLP } = this.cauldron.config.cauldronSettings;
+
+      if (isMagicGLP)
         return await getGlpLevData(
           cookData,
           this.signer,
@@ -676,7 +663,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      if (this.needWhitelisterApprove) {
+      if (this.checkWhitelistLogic(cauldronObject)) {
         cookData = await this.recipeSetMaxBorrow(
           cookData,
           whitelistedInfo,
@@ -921,7 +908,7 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      if (this.needWhitelisterApprove) {
+      if (this.checkWhitelistLogic(cauldronObject)) {
         cookData = await this.recipeSetMaxBorrow(
           cookData,
           whitelistedInfo,
