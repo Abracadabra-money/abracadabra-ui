@@ -37,7 +37,7 @@
 
         <div class="input-assets">
           <InputLabel
-            :amount="fromToken.balance"
+            :amount="formatTokenBalance(formatAmount(fromToken.balance))"
             :title="action"
           />
 
@@ -45,7 +45,7 @@
             :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :max="fromToken.balance"
+            :max="formatAmount(fromToken.balance)"
             :error="errorMainValue"
             @updateValue="updateMainValue"
           />
@@ -142,7 +142,8 @@
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { approveToken } from "@/helpers/approval";
+import { parseUnits, formatUnits } from "viem";
+import { approveTokenViem } from "@/helpers/approval"; //todo
 import actions from "@/helpers/stake/magicLvl/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
@@ -169,20 +170,8 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      provider: "getProvider",
-      signer: "getSigner",
       chainId: "getChainId",
     }),
-
-    mainInputValue() {
-      return Number(this.inputValue);
-    },
-
-    parseMainInputValue() {
-      return this.$ethers.utils.parseUnits(
-        filters.formatToFixed(this.inputValue || 0, 18)
-      );
-    },
 
     isInfoLoading() {
       return !!this.stakeInfo;
@@ -197,33 +186,42 @@ export default {
     },
 
     isTokenApproved() {
+      if (!this.isUnsupportedChain) return true;
       if (!this.isStakeAction) return true;
       if (this.errorMainValue) return true;
       if (!this.account) return true;
-      if (!this.isUnsupportedChain) return true;
-      const { approvedAmount } = this.fromToken;
 
-      return approvedAmount.gte(this.parseMainInputValue);
+      return this.toToken.approvedAmount >= this.parsedInputValue;
     },
 
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
-      return !!(!this.mainInputValue || this.errorMainValue);
+      return !!(!this.inputValue || this.errorMainValue);
+    },
+
+    precision() {
+      return parseUnits("1", this.mainToken.decimals);
     },
 
     expectedAmount() {
       const { tokensRate } = this.stakeInfo[this.tokenType];
 
       const amount = this.isStakeAction
-        ? this.mainInputValue / tokensRate
-        : this.mainInputValue * tokensRate;
+        ? (this.parsedInputValue * this.precision) / tokensRate
+        : (this.parsedInputValue * tokensRate) / this.precision;
 
-      return filters.formatToFixed(amount, 6);
+      return filters.formatToFixed(this.formatAmount(amount), 6);
+    },
+
+    parsedInputValue() {
+      return parseUnits(this.inputValue, 18);
     },
 
     errorMainValue() {
-      if (this.mainInputValue > +this.fromToken.balance) {
-        return `The value cannot be greater than ${this.fromToken.balance}`;
+      if (this.parsedInputValue > this.fromToken.balance) {
+        return `The value cannot be greater than ${this.formatAmount(
+          this.fromToken.balance
+        )}`;
       }
 
       return "";
@@ -257,7 +255,7 @@ export default {
     },
 
     actionInfo() {
-      const options = [this.parseMainInputValue, this.account];
+      const options = [this.parsedInputValue, this.account];
 
       return this.isStakeAction
         ? { methodName: "deposit", options }
@@ -322,6 +320,10 @@ export default {
       updateNotification: "notifications/updateTitle",
     }),
 
+    formatAmount(value) {
+      return formatUnits(value, this.mainToken.decimals);
+    },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -348,7 +350,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveToken(
+      const approve = await approveTokenViem(
         this.stakeToken.contract,
         this.mainToken.contract.address
       );
@@ -367,9 +369,8 @@ export default {
         notification.pending
       );
 
-      const isWithdrawAction = this.stakeToken.walletBalance.lt(
-        this.parseMainInputValue
-      );
+      const isWithdrawAction =
+        this.stakeToken.walletBalance < this.parsedInputValue;
 
       if (isWithdrawAction && this.isStakeAction) {
         const { error } = await this.withdrawHandler(notificationId);
@@ -404,10 +405,7 @@ export default {
       const { levelMasterContract, stakeToken } =
         this.stakeInfo[this.tokenType];
 
-      const withdrawAmount = this.parseMainInputValue.sub(
-        stakeToken.walletBalance
-      );
-
+      const withdrawAmount = this.parsedInputValue - stakeToken.walletBalance;
       const { error, result } = await actions.withdraw(
         levelMasterContract,
         withdrawAmount,
@@ -426,11 +424,7 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfo = await getStakeInfo(
-        this.provider,
-        this.signer,
-        this.chainId
-      );
+      this.stakeInfo = await getStakeInfo(this.chainId);
     },
   },
 
