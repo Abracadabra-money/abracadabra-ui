@@ -1,10 +1,11 @@
 import { mapGetters } from "vuex";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { signMasterContract } from "@/helpers/signature";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
-import { cook } from "@/helpers/cauldron/cauldron";
+å;
+
+import sendCook from "@/helpers/cauldron/cook/sendCook";
 
 import toAmount from "@/helpers/toAmount";
 
@@ -29,15 +30,13 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      chainId: "getChainId",
       signer: "getSigner",
     }),
   },
   methods: {
-
     checkWhitelistLogic(cauldronObject) {
       if (!cauldronObject.config.cauldronSettings.hasWhitelistLogic)
-      return false;
+        return false;
 
       const { whitelistedInfo } = cauldronObject.additionalInfo;
       if (
@@ -62,7 +61,7 @@ export default {
 
       const parsedSignature = await signMasterContract(
         this.signer,
-        this.chainId,
+        cauldronObject.config.chainId,
         verifyingContract,
         user,
         masterContract,
@@ -84,7 +83,8 @@ export default {
     },
 
     async get0xLeverageSwapData(cauldronObject, amount, slipage) {
-      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } = this.cauldron.config.cauldronSettings;
+      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } =
+        cauldronObject.config.cauldronSettings;
 
       if (isVelodrome) return "0x00";
 
@@ -106,7 +106,7 @@ export default {
       if (isStargateUSDT) buyToken = usdtAddress;
 
       const swapResponse = await swap0xRequest(
-        this.chainId,
+        cauldronObject.config.chainId,
         buyToken,
         mim.address,
         slipage,
@@ -118,7 +118,8 @@ export default {
     },
 
     async get0xDeleverageSwapData(cauldronObject, collateralAmount, slipage) {
-      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } = this.cauldron.config.cauldronSettings;
+      const { isMagicGLP, isVelodrome, isMagicApe, isStargateUSDT } =
+        cauldronObject.config.cauldronSettings;
 
       if (isVelodrome) return "0x00";
 
@@ -126,7 +127,7 @@ export default {
         collateral,
         liquidationSwapper,
         mim: mimContract,
-      } = this.cauldron.contracts;
+      } = cauldronObject.contracts;
       const swapper = liquidationSwapper.address;
       const mim = mimContract.address;
       let selToken = collateral.address;
@@ -151,7 +152,7 @@ export default {
       if (isStargateUSDT) selToken = usdtAddress;
 
       const response = await swap0xRequest(
-        this.chainId,
+        cauldronObject.config.chainId,
         mim,
         selToken,
         slipage,
@@ -189,9 +190,12 @@ export default {
     async checkAndSetMcApprove(cookData, cauldronObject, mcApproved) {
       const { bentoBox, cauldron } = cauldronObject.contracts;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
-      const degenBoxHelperAddress = getDegenBoxHelperAddress(cauldronObject.chainId);
+      const degenBoxHelperAddress = getDegenBoxHelperAddress(
+        cauldronObject.chainId
+      );
 
       const isApproved = useDegenBoxHelper
         ? await bentoBox.masterContractApproved(
@@ -216,7 +220,12 @@ export default {
       return cookData;
     },
 
-    async recipeApproveMC(cookData, cauldronObject, approved = true, masterContract) {
+    async recipeApproveMC(
+      cookData,
+      cauldronObject,
+      approved = true,
+      masterContract
+    ) {
       const addNonce = cookData.events.filter((value) => value === 24).length;
 
       cookData = await this.signAndGetData(
@@ -302,7 +311,13 @@ export default {
       return cookData;
     },
 
-    async recipeRemoveCollateral(cookData, cauldronObject, share, userAddr, tokenAddr) {
+    async recipeRemoveCollateral(
+      cookData,
+      cauldronObject,
+      share,
+      userAddr,
+      tokenAddr
+    ) {
       const wrapInfo = cauldronObject.config?.wrapInfo;
       const { wrapper, unwrappedToken, collateral } = cauldronObject.contracts;
       if (wrapInfo) {
@@ -447,7 +462,7 @@ export default {
       const swapperAddres = leverageSwapper.address;
       const userAddr = this.account;
 
-      const { isMagicGLP } = this.cauldron.config.cauldronSettings;
+      const { isMagicGLP } = cauldronObject.config.cauldronSettings;
 
       if (isMagicGLP)
         return await getGlpLevData(
@@ -525,7 +540,7 @@ export default {
         collateral,
         mim: mimContract,
         liquidationSwapper,
-      } = this.cauldron.contracts;
+      } = cauldronObject.contracts;
 
       const collateralTokenAddr = collateral.address;
       const mim = mimContract.address;
@@ -598,7 +613,8 @@ export default {
       const { address } = cauldronObject.config.collateralInfo;
       const { cauldron } = cauldronObject.contracts;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       const token = itsDefaultBalance ? this.defaultTokenAddress : address;
       const value = itsDefaultBalance ? amount.toString() : 0;
@@ -611,7 +627,11 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -634,7 +654,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, value, notificationId);
+      await sendCook(cauldron, cookData, value, notificationId);
     },
 
     async cookBorrow(
@@ -644,10 +664,11 @@ export default {
       notificationId
     ) {
       const { address } = cauldronObject.config.mimInfo;
-      const { whitelistedInfo } = this.cauldron.additionalInfo;
-      const { cauldron } = this.cauldron.contracts;
+      const { whitelistedInfo } = cauldronObject.additionalInfo;
+      const { cauldron } = cauldronObject.contracts;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       const mim = address;
       const userAddr = this.account;
@@ -658,7 +679,11 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -671,7 +696,13 @@ export default {
         );
       }
 
-      cookData = await this.recipeBorrow(cookData, cauldronObject, amount, userAddr, mim);
+      cookData = await this.recipeBorrow(
+        cookData,
+        cauldronObject,
+        amount,
+        userAddr,
+        mim
+      );
 
       if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
@@ -681,7 +712,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await sendCook(cauldron, cookData, 0, notificationId);
     },
 
     async cookAddCollateralAndBorrow(
@@ -698,7 +729,8 @@ export default {
 
       const tokenAddr = itsDefaultBalance ? this.defaultTokenAddress : address;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
@@ -713,7 +745,11 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -744,7 +780,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, collateralValue, notificationId);
+      await sendCook(cauldron, cookData, collateralValue, notificationId);
     },
 
     async cookRemoveCollateral(
@@ -757,7 +793,8 @@ export default {
       const tokenAddr = cauldronObject.config.collateralInfo.address;
       const userAddr = this.account;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -765,7 +802,11 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -786,7 +827,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await sendCook(cauldron, cookData, 0, notificationId);
     },
 
     async cookRepay(
@@ -797,7 +838,8 @@ export default {
     ) {
       const { cauldron } = cauldronObject.contracts;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -805,12 +847,21 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeRepay(cookData, cauldronObject, itsMax, amount);
+      cookData = await this.recipeRepay(
+        cookData,
+        cauldronObject,
+        itsMax,
+        amount
+      );
 
       if (isApprowed && useDegenBoxHelper)
         cookData = await this.recipeApproveMC(
@@ -820,7 +871,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await sendCook(cauldron, cookData, 0, notificationId);
     },
 
     async cookRemoveCollateralAndRepay(
@@ -833,7 +884,8 @@ export default {
       const tokenAddr = cauldronObject.config.collateralInfo.address;
       const userAddr = this.account;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -841,7 +893,11 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -869,7 +925,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await sendCook(cauldron, cookData, 0, notificationId);
     },
 
     async cookLeverage(
@@ -886,16 +942,17 @@ export default {
       notificationId,
       isWrap
     ) {
-      const { whitelistedInfo } = this.cauldron.additionalInfo;
-      const { collateral, leverageSwapper } = this.cauldron.contracts;
-      const { is0xSwap } = this.cauldron.config.cauldronSettings;
-      const { cauldron } = this.cauldron.contracts;
+      const { whitelistedInfo } = cauldronObject.additionalInfo;
+      const { collateral, leverageSwapper } = cauldronObject.contracts;
+      const { is0xSwap } = cauldronObject.config.cauldronSettings;
+      const { cauldron } = cauldronObject.contracts;
       const userAddr = this.account;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -903,7 +960,11 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -956,7 +1017,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, collateralValue, notificationId);
+      await sendCook(cauldron, cookData, collateralValue, notificationId);
     },
 
     async cookDeleverage(
@@ -974,14 +1035,15 @@ export default {
       notificationId
     ) {
       const { collateral, liquidationSwapper, cauldron } =
-      cauldronObject.contracts;
+        cauldronObject.contracts;
       const { userBorrowPart } = cauldronObject.userPosition.borrowInfo;
       const { is0xSwap } = cauldronObject.config.cauldronSettings;
       const collateralTokenAddr = collateral.address;
       const reverseSwapperAddr = liquidationSwapper.address;
       const userAddr = account;
 
-      const useDegenBoxHelper = cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+      const useDegenBoxHelper =
+        cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
       let cookData = {
         events: [],
@@ -989,7 +1051,11 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        isApprowed
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
@@ -1047,28 +1113,6 @@ export default {
         );
 
       await this.sendCook(cauldron, cookData, 0, notificationId);
-    },
-
-    async sendCook(cauldron, cookData, value, notificationId) {
-      try {
-        await cook(cauldron, cookData, value);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("cook Error:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
     },
   },
 };
