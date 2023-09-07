@@ -13,10 +13,7 @@
 
       <div v-else>
         <div class="input-assets">
-          <InputLabel
-            :amount="fromToken.balance"
-            :title="action"
-          />
+          <InputLabel :amount="fromToken.balance" :title="action" />
 
           <BaseTokenInput
             :value="inputValue"
@@ -191,12 +188,10 @@ export default {
     },
 
     expectedAmount() {
-      const { tokensRate } = this.stakeInfo;
-
+      const tokensRate = this.stakeInfo.mainToken.rate;
       const amount = this.isStakeAction
         ? this.mainInputValue / tokensRate
         : this.mainInputValue * tokensRate;
-
       return filters.formatToFixed(amount, 6);
     },
 
