@@ -31,6 +31,9 @@ const cookLeverage = async (
   const { cauldron } = cauldronObject.contracts;
   const userAddr = this.account; // TODO
   const collateralValue = itsDefaultBalance ? collateralAmount.toString() : 0;
+  const tokenAddr = itsDefaultBalance
+  ? this.defaultTokenAddress
+  : collateral.address;
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
@@ -52,7 +55,7 @@ const cookLeverage = async (
   cookData = await recipeAddCollatral(
     cookData,
     cauldronObject,
-    collateral.address,
+    tokenAddr,
     isWrap,
     this.account,
     collateralAmount,
