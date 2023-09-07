@@ -4,7 +4,7 @@
       <CrvPoolPopup v-if="popupActiveType === '3crv'" />
       <CrvRenPoolPopup v-if="popupActiveType === 'crv-ren'" />
       <ThreeCryptoPopup v-if="popupActiveType === 'three-crypto-deposit'" />
-      <MEMOWrapPopup v-if="popupActiveType === 'memo-wrap'" />
+
       <SucessPopup v-if="popupActiveType === 'success'" />
       <ClaimPopup v-if="popupActiveType === 'claim'" />
       <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
@@ -14,38 +14,40 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import CrvPoolPopup from "@/components/popups/Deposit/CrvPoolPopup.vue";
-import CrvRenPoolPopup from "@/components/popups/Deposit/CrvRenPoolPopup.vue";
-import ThreeCryptoPopup from "@/components/popups/Deposit/ThreeCryptoPopup.vue";
-import MEMOWrapPopup from "@/components/popups/Deposit/MEMOWrapPopup.vue";
-import SucessPopup from "@/components/popups/SuccessPopup.vue";
-import ApprovalsPopup from "@/components/popups/ApprovalsPopup.vue";
-import ClaimPopup from "@/components/popups/ClaimPopup.vue";
-import RouteOptimisationPopup from "@/components/popups/RouteOptimisationPopup.vue";
+import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
   computed: {
-    ...mapGetters({
-      popupActiveType: "getPopupType",
-      popupActiveData: "getPopupData",
-    }),
+    ...mapGetters({ popupActiveType: "getPopupType" }),
   },
+
   methods: {
-    closePopup() {
-      this.$store.commit("closePopups");
-    },
+    ...mapMutations({ closePopup: "closePopups" }),
   },
 
   components: {
-    CrvPoolPopup,
-    CrvRenPoolPopup,
-    ThreeCryptoPopup,
-    MEMOWrapPopup,
-    SucessPopup,
-    ClaimPopup,
-    RouteOptimisationPopup,
-    ApprovalsPopup,
+    CrvPoolPopup: defineAsyncComponent(() =>
+      import("@/components/popups/Deposit/CrvPoolPopup.vue")
+    ),
+    CrvRenPoolPopup: defineAsyncComponent(() =>
+      import("@/components/popups/Deposit/CrvRenPoolPopup.vue")
+    ),
+    ThreeCryptoPopup: defineAsyncComponent(() =>
+      import("@/components/popups/Deposit/ThreeCryptoPopup.vue")
+    ),
+    SucessPopup: defineAsyncComponent(() =>
+      import("@/components/popups/SuccessPopup.vue")
+    ),
+    ClaimPopup: defineAsyncComponent(() =>
+      import("@/components/popups/ClaimPopup.vue")
+    ),
+    RouteOptimisationPopup: defineAsyncComponent(() =>
+      import("@/components/popups/RouteOptimisationPopup.vue")
+    ),
+    ApprovalsPopup: defineAsyncComponent(() =>
+      import("@/components/popups/ApprovalsPopup.vue")
+    ),
   },
 };
 </script>

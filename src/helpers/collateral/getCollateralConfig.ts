@@ -40,12 +40,6 @@ const configs: Array<Config> = [
       address: "0x3Ba207c25A278524e1cC7FaAea950753049072A4",
     },
   },
-  {
-    id: 2,
-    chain: 43114,
-    title: "WRAP",
-    type: "memo-wrap",
-  },
 ];
 
 export const getCollateralConfig = (
