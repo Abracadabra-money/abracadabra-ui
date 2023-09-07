@@ -1,7 +1,7 @@
 import {
   bentoDepositEncodeHandler,
   repayEncodeHandler,
-} from "@/mixins/borrow/cook/degenBoxHelper/actionHandlers";
+} from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
 const recipeRepay = async (cookData, cauldronObject, itsMax, part) => {

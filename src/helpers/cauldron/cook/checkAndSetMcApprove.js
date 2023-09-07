@@ -1,4 +1,4 @@
-import { getDegenBoxHelperAddress } from "@/mixins/borrow/cook/degenBoxHelper/getDegenBoxHelperContract.js";
+import { getDegenBoxHelperAddress } from "@/helpers/cauldron/cook/degenBoxHelper/getDegenBoxHelperContract.js";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
 const checkAndSetMcApprove = async (cookData, cauldronObject, mcApproved) => {

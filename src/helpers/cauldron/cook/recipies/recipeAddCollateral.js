@@ -1,7 +1,7 @@
 import {
   bentoDepositEncodeHandler,
   bentoWithdrawEncodeHandler,
-} from "@/mixins/borrow/cook/degenBoxHelper/actionHandlers";
+} from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
 const recipeAddCollatral = async (

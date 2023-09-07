@@ -5,7 +5,7 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
 import recipeDeleverage from "@/helpers/cauldron/cook/recipies/recipeDeleverage";
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
-import { repayEncodeHandler } from "@/mixins/borrow/cook/degenBoxHelper/actionHandlers.js";
+import { repayEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 
 const cookDeleverage = async (
   {
