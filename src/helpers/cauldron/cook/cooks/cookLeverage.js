@@ -9,7 +9,7 @@ import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBor
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import recipeLeverage from "@/helpers/cauldron/cook/recipies/recipeLeverage";
 
-const defaultTokenAddress = "0x0000000000000000000000000000000000000000"; // FIX ADDRESS
+const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
 const cookLeverage = async (
   {
@@ -23,16 +23,16 @@ const cookLeverage = async (
   isApprowed,
   cauldronObject,
   notificationId,
-  isWrap
+  isWrap,
+  userAddr // TODO
 ) => {
   const { whitelistedInfo } = cauldronObject.additionalInfo;
   const { collateral, leverageSwapper } = cauldronObject.contracts;
   const { is0xSwap } = cauldronObject.config.cauldronSettings;
   const { cauldron } = cauldronObject.contracts;
-  const userAddr = this.account; // TODO
   const collateralValue = itsDefaultBalance ? collateralAmount.toString() : 0;
   const tokenAddr = itsDefaultBalance
-  ? this.defaultTokenAddress
+  ? defaultTokenAddress
   : collateral.address;
 
   const useDegenBoxHelper =
@@ -57,7 +57,7 @@ const cookLeverage = async (
     cauldronObject,
     tokenAddr,
     isWrap,
-    this.account,
+    userAddr,
     collateralAmount,
     collateralValue
   );
@@ -70,17 +70,19 @@ const cookLeverage = async (
     amount,
     minExpected,
     slipage,
-    is0xSwap
+    is0xSwap,
+    userAddr
   );
 
-  cookData = await actions.addCollateral(cookData, "-2", this.account, false);
+  cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
 
   if (isApprowed && useDegenBoxHelper)
     cookData = await recipeApproveMC(
       cookData,
       cauldronObject,
       false,
-      await cauldron.masterContract()
+      await cauldron.masterContract(),
+      userAddr
     );
 
   await sendCook(cauldron, cookData, collateralValue, notificationId);

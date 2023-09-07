@@ -11,7 +11,8 @@ const cookBorrow = async (
   { amount, updatePrice },
   isApprowed,
   cauldronObject,
-  notificationId
+  notificationId,
+  userAddr // TODO
 ) => {
   const { address } = cauldronObject.config.mimInfo;
   const { whitelistedInfo } = cauldronObject.additionalInfo;
@@ -21,7 +22,6 @@ const cookBorrow = async (
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
   const mim = address;
-  const userAddr = this.account; // TODO
 
   let cookData = {
     events: [],
@@ -50,7 +50,8 @@ const cookBorrow = async (
       cookData,
       cauldronObject,
       false,
-      await cauldron.masterContract()
+      await cauldron.masterContract(),
+      userAddr
     );
 
   await sendCook(cauldron, cookData, 0, notificationId);

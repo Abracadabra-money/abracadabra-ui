@@ -4,10 +4,9 @@ import {
 } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
-const recipeRepay = async (cookData, cauldronObject, itsMax, part) => {
+const recipeRepay = async (cookData, cauldronObject, itsMax, part, to) => {
   const { userBorrowPart } = cauldronObject.userPosition.borrowInfo;
   const mim = cauldronObject.config.mimInfo.address;
-  const to = this.account; // TODO
 
   if (!itsMax) {
     cookData = await bentoDepositEncodeHandler(

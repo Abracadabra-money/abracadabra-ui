@@ -6,9 +6,9 @@ const signAndGetData = async (
   cauldronObject,
   masterContract,
   approved = true,
-  addNonce = 0
+  addNonce = 0,
+  user
 ) => {
-  const user = this.account; // TODO
   const { cauldron, bentoBox } = cauldronObject.contracts;
   const verifyingContract = await cauldron.bentoBox();
   const nonce = await bentoBox.nonces(user);
@@ -40,7 +40,8 @@ const recipeApproveMC = async (
   cookData,
   cauldronObject,
   approved = true,
-  masterContract
+  masterContract,
+  user
 ) => {
   const addNonce = cookData.events.filter((value) => value === 24).length;
 
@@ -49,7 +50,8 @@ const recipeApproveMC = async (
     cauldronObject,
     masterContract,
     approved,
-    addNonce
+    addNonce,
+    user
   );
 
   return cookData;

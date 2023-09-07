@@ -14,7 +14,8 @@ const cookAddCollateralAndBorrow = async (
   cauldronObject,
   notificationId,
   isLpLogic = false,
-  isWrap = false
+  isWrap = false,
+  userAddr // TODO
 ) => {
   const { address } = cauldronObject.config.collateralInfo;
   const { address: mimAddress } = cauldronObject.config.mimInfo;
@@ -28,7 +29,6 @@ const cookAddCollateralAndBorrow = async (
   const collateralValue = itsDefaultBalance ? collateralAmount.toString() : 0;
 
   const pairToken = mimAddress;
-  const userAddr = this.account; // TODO
 
   let cookData = {
     events: [],
@@ -63,7 +63,8 @@ const cookAddCollateralAndBorrow = async (
       cookData,
       cauldronObject,
       false,
-      await cauldron.masterContract()
+      await cauldron.masterContract(),
+      userAddr
     );
 
   await sendCook(cauldron, cookData, collateralValue, notificationId);

@@ -47,12 +47,12 @@ const recipeLeverage = async (
   amount,
   minExpected,
   slipage,
-  is0x = false
+  is0x = false,
+  userAddr
 ) => {
   const { leverageSwapper, bentoBox } = cauldronObject.contracts;
   const mimAddress = cauldronObject.config.mimInfo.address;
   const swapperAddres = leverageSwapper.address;
-  const userAddr = this.account; // TODO
 
   const { isMagicGLP } = cauldronObject.config.cauldronSettings;
 

@@ -61,7 +61,8 @@ const recipeDeleverage = async (
   shareFrom,
   shareToMin,
   slipage,
-  is0x
+  is0x,
+  userAddr
 ) => {
   const {
     collateral,
@@ -72,8 +73,6 @@ const recipeDeleverage = async (
   const collateralTokenAddr = collateral.address;
   const mim = mimContract.address;
   const swapper = liquidationSwapper.address;
-  const userAddr = this.account; // TODO
-
   if (!is0x) {
     const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
       collateralTokenAddr,

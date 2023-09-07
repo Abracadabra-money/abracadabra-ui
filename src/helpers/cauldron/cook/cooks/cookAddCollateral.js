@@ -12,7 +12,8 @@ const cookAddCollateral = async (
   cauldronObject,
   notificationId,
   isLpLogic = false,
-  wrap = false
+  wrap = false,
+  to // TODO
 ) => {
   const { address } = cauldronObject.config.collateralInfo;
   const { cauldron } = cauldronObject.contracts;
@@ -22,7 +23,6 @@ const cookAddCollateral = async (
 
   const token = itsDefaultBalance ? defaultTokenAddress : address;
   const value = itsDefaultBalance ? amount.toString() : 0;
-  const to = this.account; // TODO
   const isWrap = wrap && isLpLogic;
 
   let cookData = {
@@ -50,7 +50,8 @@ const cookAddCollateral = async (
       cookData,
       cauldronObject,
       false,
-      await cauldron.masterContract()
+      await cauldron.masterContract(),
+      to
     );
 
   await sendCook(cauldron, cookData, value, notificationId);

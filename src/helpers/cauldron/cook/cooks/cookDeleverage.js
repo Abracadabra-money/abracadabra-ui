@@ -53,7 +53,8 @@ const cookDeleverage = async (
     collateralAmount,
     borrowAmount,
     slipage,
-    is0xSwap
+    is0xSwap,
+    userAddr
   );
 
   if (itsMax) {
@@ -90,7 +91,8 @@ const cookDeleverage = async (
       cookData,
       cauldronObject,
       false,
-      await cauldron.masterContract()
+      await cauldron.masterContract(),
+      userAddr
     );
 
   await sendCook(cauldron, cookData, 0, notificationId);

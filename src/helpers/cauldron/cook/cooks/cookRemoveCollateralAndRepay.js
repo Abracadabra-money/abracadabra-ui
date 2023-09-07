@@ -10,11 +10,11 @@ const cookRemoveCollateralAndRepay = async (
   { amount, collateralAmount, updatePrice, itsMax },
   isApprowed,
   cauldronObject,
-  notificationId
+  notificationId,
+  userAddr // TODO
 ) => {
   const { cauldron } = cauldronObject.contracts;
   const tokenAddr = cauldronObject.config.collateralInfo.address;
-  const userAddr = this.account; // TODO
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
@@ -33,7 +33,8 @@ const cookRemoveCollateralAndRepay = async (
     cookData,
     cauldronObject,
     itsMax,
-    collateralAmount // mim part
+    collateralAmount, // mim part
+    userAddr
   );
 
   cookData = await recipeRemoveCollateral(
@@ -49,7 +50,8 @@ const cookRemoveCollateralAndRepay = async (
       cookData,
       cauldronObject,
       false,
-      await cauldron.masterContract()
+      await cauldron.masterContract(),
+      userAddr
     );
 
   await sendCook(cauldron, cookData, 0, notificationId);

@@ -15,7 +15,7 @@ const recipeRemoveCollateral = async (
 
     cookData = await bentoWithdrawEncodeHandler(
       cookData,
-      cauldronObject, // TODO
+      cauldronObject,
       collateral.address,
       wrapper.address,
       "0",
