@@ -4,12 +4,11 @@
       <CrvPoolPopup v-if="popupActiveType === '3crv'" />
       <CrvRenPoolPopup v-if="popupActiveType === 'crv-ren'" />
       <ThreeCryptoPopup v-if="popupActiveType === 'three-crypto-deposit'" />
-      <OHMPopup v-if="popupActiveType === 'olimpus'" />
       <MEMOWrapPopup v-if="popupActiveType === 'memo-wrap'" />
       <SucessPopup v-if="popupActiveType === 'success'" />
       <ClaimPopup v-if="popupActiveType === 'claim'" />
       <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
-      <ApprovalsPopup v-if="popupActiveType === 'approvals'"/>
+      <ApprovalsPopup v-if="popupActiveType === 'approvals'" />
     </div>
   </div>
 </template>
@@ -19,7 +18,6 @@ import { mapGetters } from "vuex";
 import CrvPoolPopup from "@/components/popups/Deposit/CrvPoolPopup.vue";
 import CrvRenPoolPopup from "@/components/popups/Deposit/CrvRenPoolPopup.vue";
 import ThreeCryptoPopup from "@/components/popups/Deposit/ThreeCryptoPopup.vue";
-import OHMPopup from "@/components/popups/Deposit/OHMPopup/index.vue";
 import MEMOWrapPopup from "@/components/popups/Deposit/MEMOWrapPopup.vue";
 import SucessPopup from "@/components/popups/SuccessPopup.vue";
 import ApprovalsPopup from "@/components/popups/ApprovalsPopup.vue";
@@ -43,12 +41,11 @@ export default {
     CrvPoolPopup,
     CrvRenPoolPopup,
     ThreeCryptoPopup,
-    OHMPopup,
     MEMOWrapPopup,
     SucessPopup,
     ClaimPopup,
     RouteOptimisationPopup,
-    ApprovalsPopup
+    ApprovalsPopup,
   },
 };
 </script>

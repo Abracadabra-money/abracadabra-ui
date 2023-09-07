@@ -8,12 +8,6 @@ type Config = {
 
 const configs: Array<Config> = [
   {
-    id: 10,
-    chain: 1,
-    title: "WRAP",
-    type: "olimpus",
-  },
-  {
     id: 15,
     chain: 1,
     title: "Deposit",
@@ -45,12 +39,6 @@ const configs: Array<Config> = [
     data: {
       address: "0x3Ba207c25A278524e1cC7FaAea950753049072A4",
     },
-  },
-  {
-    id: 2,
-    chain: 43114,
-    title: "WRAP",
-    type: "memo-wrap",
   },
   {
     id: 2,
