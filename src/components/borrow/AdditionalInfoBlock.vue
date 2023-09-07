@@ -21,7 +21,9 @@
         </div>
         <div class="rate">
           <span class="currency from">1 {{ cauldron.config.name }}</span>
-          <span class="currency to">{{ collateralToMim }} MIM</span>
+          <span class="currency to"
+            >{{ formatTokenBalance(collateralToMim) }} MIM</span
+          >
         </div>
       </div>
     </div>
@@ -160,6 +162,12 @@ export default {
         console.log("createCollateralInfo err: ", e);
         return [];
       }
+    },
+  },
+
+  methods: {
+    formatTokenBalance(amount) {
+      return filters.formatTokenBalance(amount);
     },
   },
 

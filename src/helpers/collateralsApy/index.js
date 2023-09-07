@@ -2,11 +2,11 @@ import store from "@/store";
 
 import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
-import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
+import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
-import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
+import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 
 export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
@@ -47,7 +47,7 @@ export const fetchTokenApy = async (pool) => {
     if (pool.config.id === 31 || pool.config.id === 32)
       return await getStargateApy(pool, provider);
 
-    if (pool.config.id === 39) return await getApeApy(provider);
+    if (pool.config.id === 39) return await getMagicApeApy(provider);
   }
 
   if (chainId === 10) {
@@ -55,8 +55,11 @@ export const fetchTokenApy = async (pool) => {
   }
 
   if (chainId === 42161) {
-    if (pool.config.id === 2 || pool.config.id === 3)
-      return await getGlpApy(pool.config.id === 3);
+    if (pool.config.id === 2 || pool.config.id === 3) {
+      const response = await getMagicGlpApy(chainId);
+      if (pool.config.id === 2) return response.glpApy;
+      if (pool.config.id === 3) return response.magicGlpApy;
+    }
   }
 
   return await getYearnVaultsApy(pool);

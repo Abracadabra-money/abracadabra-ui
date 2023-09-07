@@ -8,7 +8,7 @@
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel :amount="formatTokenBalance(activeToken.balance)" />
+          <InputLabel :amount="activeToken.balance" />
 
           <BaseTokenInput
             :icon="activeToken.icon"
@@ -102,11 +102,13 @@
           <div class="btn-wrap">
             <BaseButton
               primary
-              :disabled="isTokenApproved"
+              :disabled="isTokenApproved || isActionDisabled"
               @click="approveTokenHandler"
-              >Approve Token</BaseButton
+              >Approve</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="isActionDisabled"
+            <BaseButton
+              @click="actionHandler"
+              :disabled="!isTokenApproved || isActionDisabled"
               >{{ actionInfo.buttonText }}
             </BaseButton>
           </div>
@@ -210,11 +212,10 @@ export default {
         this.activeToken.decimals
       );
 
-      return allowance > 0;
+      return allowance > +this.collateralValue;
     },
 
     isActionDisabled() {
-      if (!this.isTokenApproved) return true;
       if (this.errorCollateralValue) return true;
       if (!this.collateralValue) return true;
       return false;
@@ -238,10 +239,7 @@ export default {
       const wrapInfo = this.cauldron.config?.wrapInfo;
       const { decimals } = this.activeToken;
 
-      const amount = filters.formatToFixed(
-        parseFloat(this.collateralValue) || 0,
-        decimals
-      );
+      const amount = filters.formatToFixed(this.collateralValue || 0, decimals);
 
       const collateralAmount =
         wrapInfo && !this.useOtherToken
@@ -260,7 +258,7 @@ export default {
       const { decimals } = this.activeToken;
 
       return utils.parseUnits(
-        filters.formatToFixed(parseFloat(this.collateralValue) || 0, decimals),
+        filters.formatToFixed(this.collateralValue || 0, decimals),
         decimals
       );
     },
@@ -528,10 +526,6 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
-
     async checkAllowance(amount) {
       const { isNative, contract } = this.activeToken;
       const { bentoBox } = this.cauldron.contracts;
@@ -592,7 +586,7 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (this.isTokenApproved) return false;
+      if (this.isTokenApproved || this.isActionDisabled) return false;
 
       const { address } = this.cauldron.contracts.bentoBox;
 
@@ -652,6 +646,8 @@ export default {
     },
 
     async actionHandler() {
+      if (!this.isTokenApproved || this.isActionDisabled) return false;
+
       if (!this[this.actionInfo.methodName]) return false;
 
       const notificationId = await this.createNotification(

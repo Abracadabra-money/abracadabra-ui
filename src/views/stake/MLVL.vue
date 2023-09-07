@@ -1,208 +1,163 @@
 <template>
-  <div class="stake">
-    <div class="input-block">
+  <div class="stake-view">
+    <div class="deposit-block">
       <h4>Choose Chain</h4>
+
       <div class="underline">
         <NetworksList :active-list="[56]" />
       </div>
-      <div class="loader-wrap" v-if="isLoading">
+
+      <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
       </div>
 
-      <div class="tranches-wrap" v-if="tokensInfo">
-        <h4>
-          <span> Select tranche</span>
+      <div v-else-if="isUnsupportedChain">
+        <h4 class="tranche-title">
+          Select tranche
           <a
-            class="tranches-link"
+            class="tranche-link"
             href="https://docs.level.finance/tutorials/liquidity-tutorials/trading-pools-tranches"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src="@/assets/images/stake/info-Icon.svg" class="info-icon"
-          /></a>
+            <Tooltip />
+          </a>
         </h4>
-        <div class="tranches-buttons">
+
+        <div class="tranche-btns-wrap underline">
           <TrancheButton
-            type="senior"
-            :isActive="tokenLvl === 'senior'"
-            :apr="seniorApy"
-            @changeToken="changeTokenLvl('senior')"
-          />
-          <TrancheButton
-            type="mezzanine"
-            :apr="mezzanineApy"
-            :isActive="tokenLvl === 'mezzanine'"
-            @changeToken="changeTokenLvl('mezzanine')"
-          />
-          <TrancheButton
-            type="junior"
-            :apr="juniorApy"
-            :isActive="tokenLvl === 'junior'"
-            @changeToken="changeTokenLvl('junior')"
+            v-for="{ type, apr } in tranceBtnInfo"
+            :type="type"
+            :isActive="tokenType === type"
+            :apr="apr"
+            :key="type"
+            @changeToken="changeToken(type)"
           />
         </div>
-      </div>
 
-      <div class="swap-wrap" v-if="tokensInfo">
-        <div class="token-input">
-          <div class="header-balance">
-            <h4>{{ action }}</h4>
-            <p>Balance: {{ tokenBalance }}</p>
-          </div>
+        <div class="input-assets">
+          <InputLabel
+            :amount="fromToken.balance"
+            :title="action"
+          />
+
           <BaseTokenInput
+            :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :value="amount"
+            :max="fromToken.balance"
+            :error="errorMainValue"
             @updateValue="updateMainValue"
-            :max="fromToken.formatBalance"
-            :error="amountError"
           />
         </div>
-        <div class="swap-img">
+
+        <button class="swap-button">
           <img
             src="@/assets/images/swap.svg"
             @click="toggleAction"
-            alt="swap"
+            alt="Swap action"
           />
-        </div>
-        <div class="token-input">
-          <div class="header-balance">
-            <h4>Receive</h4>
-          </div>
+        </button>
+
+        <div class="input-assets">
+          <h4 class="input-labal">Receive</h4>
+
           <BaseTokenInput
             :icon="toToken.icon"
             :name="toToken.name"
-            :value="toTokenAmount"
+            :value="expectedAmount"
             :disabled="true"
           />
         </div>
-        <div class="profile-actions" v-if="tokensInfo && account">
+
+        <div class="actions-wrap">
           <BaseButton
-            @click="approveTokenHandler"
             primary
-            :disabled="disableApproveBtn"
+            :disabled="isTokenApproved"
+            @click="approveTokenHandler"
             >Approve
           </BaseButton>
-          <BaseButton @click="actionHandler" :disabled="disableActionBtn">
+
+          <BaseButton :disabled="isActionDisabled" @click="actionHandler">
             {{ action }}
           </BaseButton>
         </div>
       </div>
     </div>
 
-    <div class="profile" :style="`background-image: url(${profileBg})`">
+    <div class="stake-stand" :style="standBlockBackground">
       <h1 class="title">Magic Level Tranches</h1>
-      <div class="loader-wrap" v-if="isLoading">
+
+      <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
       </div>
 
-      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mlvl'" />
-
       <template v-else>
-        <div class="wrap wrap-chart" v-if="chartData.length && labels.length">
-          <div class="chart-row">
-            <h1 class="chart-title">APY Chart</h1>
-            <div class="chart-apt-wrap" :class="tokenLvl">
-              <div class="chart-apt">
-                <img :src="lvlApyIcon" alt="APY" />
-                <span class="chart-apt-text">est. APY</span>
-                <span class="chart-apt-percent" v-if="lvlApy">{{
-                  lvlApy
-                }}</span>
-                <div class="loader-wrap-mini" v-else>
-                  <p class="loader"></p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="stand-info-wrap" v-if="isUnsupportedChain">
+          <ChartBlock
+            :chartConfig="chartConfig"
+            :apyConfig="apyConfig"
+            :getChartOptions="getChartOptions"
+          />
 
-          <div class="chart-btns">
-            <button
-              class="chart-btn btn-3"
-              :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
-              @click="changeChartTime(1)"
-            >
-              3m
-            </button>
-          </div>
-          <TickChart v-if="chartData" :labels="labels" :datasets="chartData" />
+          <TranchesStatistics :stakeInfo="stakeInfo" />
+          <TokensBalancesBlock :stakeInfo="stakeInfo" />
+        </div>
+        <div class="empty-wrap" v-else>
+          <EmptyBlock :warningType="'mlvl'" />
         </div>
 
-        <div class="loader-wrap" v-if="!chartData">
-          <BaseLoader />
+        <div class="description">
+          <p>
+            Enjoy the benefits of compounding without having to worry about the
+            tedious work! Simply deposit your Level Tranches into Magic Level
+            and let it do its magic!
+          </p>
+          <p>Note: A 1% protocol fee is taken on the yields.</p>
         </div>
 
-        <TranchesStatistics :tokensInfo="tokensInfo" />
-        <LvlTokensBalance :tokensInfo="tokensInfo" v-if="tokensInfo" />
+        <div class="links-wrap" v-if="isUnsupportedChain">
+          <GetTokenLink
+            :data="{
+              href: `${trancheLinks[tokenType]}/buy`,
+              label: 'Buy LVL',
+            }"
+            background="linear-gradient(90deg,rgba(157, 244, 255, 0.2) 0%,rgba(121, 129, 255, 0.2) 100%)"
+          />
 
-        <p class="profile-subscribtion">
-          Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your Level Tranches into Magic Level and
-          let it do its magic!
-          <br />
-          Note: A 1% protocol fee is taken on the yields.
-        </p>
-        <div class="links-wrap">
-          <a
-            class="deposit"
-            :href="`${trancheLinks[tokenLvl]}/buy`"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
-              Buy LVL</span
-            ></a
-          >
-          <a
-            class="deposit"
-            :href="`${trancheLinks[tokenLvl]}/sell`"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <img src="@/assets/images/deposit.svg" alt="Deposit" />
-            <span>Sell LVL</span></a
-          >
+          <GetTokenLink
+            :data="{
+              href: `${trancheLinks[tokenType]}/sell`,
+              label: 'Sell LVL',
+            }"
+            background="linear-gradient(90deg,rgba(157, 244, 255, 0.2) 0%,rgba(121, 129, 255, 0.2) 100%)"
+          />
         </div>
       </template>
     </div>
   </div>
 </template>
+
 <script>
-import moment from "moment";
-import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import mLvlTokensMixin from "@/mixins/stake/mLVL.js";
-import { approveToken } from "@/utils/approveHelpers.js";
-import profileBg from "@/assets/images/stake/mGLPprofileBg.png";
+import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
+import { approveToken } from "@/helpers/approval";
+import actions from "@/helpers/stake/magicLvl/actions/";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
 import notification from "@/helpers/notification/notification.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getLevelFinanceChartData } from "@/helpers/subgraph/magicLvl/getLevelFinanceChartData.js";
-import BaseButton from "@/components/base/BaseButton.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import EmptyBlock from "@/components/stake/EmptyBlock.vue";
-import TickChart from "@/components/ui/charts/TickChartMagicLvl.vue";
-import TrancheButton from "@/components/stake/TrancheButton.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import LvlTokensBalance from "@/components/stake/LvlTokensBalance.vue";
-import TranchesStatistics from "@/components/stake/TranchesStatistics.vue";
+import { getStakeInfo } from "@/helpers/stake/magicLvl/getStakeInfo";
+import { getChartOptions } from "@/helpers/stake/magicLvl/getChartOptions";
 
 export default {
-  mixins: [mLvlTokensMixin],
   data() {
     return {
+      stakeInfo: null,
       action: "Stake",
-      amount: "",
-      amountError: "",
-      chartData: [],
-      labels: [],
+      tokenType: "senior",
+      inputValue: "",
       updateInterval: null,
-      chartActiveBtn: 3,
-      chartInterval: null,
-      // apy: "",
-      gasLimitConst: 5000,
-      tokenLvl: "senior",
-      profileBg,
       trancheLinks: {
         junior: "https://app.level.finance/liquidity/junior-tranche",
         mezzanine: "https://app.level.finance/liquidity/mezzanine-tranche",
@@ -213,352 +168,277 @@ export default {
 
   computed: {
     ...mapGetters({
-      isLoading: "getLoadingMLvlStake",
-      tokensInfo: "getMLvlObject",
       account: "getAccount",
-      itsMetamask: "getMetamaskActive",
+      provider: "getProvider",
+      signer: "getSigner",
+      chainId: "getChainId",
     }),
 
-    activeTokenInfo() {
-      return this.tokensInfo[this.tokenLvl];
+    mainInputValue() {
+      return Number(this.inputValue);
     },
 
-    stakeToken() {
-      return this.activeTokenInfo?.stakeToken;
+    parseMainInputValue() {
+      return this.$ethers.utils.parseUnits(
+        filters.formatToFixed(this.inputValue || 0, 18)
+      );
     },
 
-    tokenBalance() {
-      return filters.formatTokenBalance(this.fromToken.formatBalance);
+    isInfoLoading() {
+      return !!this.stakeInfo;
     },
 
-    mainToken() {
-      return this.activeTokenInfo?.mainToken;
+    isStakeAction() {
+      return this.action === "Stake";
     },
 
-    isActionApproved() {
-      if (this.action === "Stake") return this.stakeToken.isApproved;
-      return true;
+    isUnsupportedChain() {
+      return !!magicLvlConfig[this.chainId];
+    },
+
+    isTokenApproved() {
+      if (!this.isStakeAction) return true;
+      if (this.errorMainValue) return true;
+      if (!this.account) return true;
+      if (!this.isUnsupportedChain) return true;
+      const { approvedAmount } = this.fromToken;
+
+      return approvedAmount.gte(this.parseMainInputValue);
+    },
+
+    isActionDisabled() {
+      if (!this.isTokenApproved) return true;
+      return !!(!this.mainInputValue || this.errorMainValue);
+    },
+
+    expectedAmount() {
+      const { tokensRate } = this.stakeInfo[this.tokenType];
+
+      const amount = this.isStakeAction
+        ? this.mainInputValue / tokensRate
+        : this.mainInputValue * tokensRate;
+
+      return filters.formatToFixed(amount, 6);
+    },
+
+    errorMainValue() {
+      if (this.mainInputValue > +this.fromToken.balance) {
+        return `The value cannot be greater than ${this.fromToken.balance}`;
+      }
+
+      return "";
     },
 
     fromToken() {
-      if (this.action === "Stake") return this.stakeToken;
-      return this.mainToken;
+      return this.isStakeAction ? this.stakeToken : this.mainToken;
+    },
+
+    stakeToken() {
+      return this.stakeInfo[this.tokenType].stakeToken;
+    },
+
+    mainToken() {
+      return this.stakeInfo[this.tokenType].mainToken;
     },
 
     toToken() {
-      if (this.action === "Stake") return this.mainToken;
-      return this.stakeToken;
+      return this.isStakeAction ? this.mainToken : this.stakeToken;
     },
 
-    disableApproveBtn() {
-      return this.isActionApproved;
+    tranceBtnInfo() {
+      const { seniorApy, mezzanineApy, juniorApy } =
+        this.stakeInfo.tranchesStatistics;
+
+      return [
+        { type: "senior", apr: filters.formatPercent(seniorApy) },
+        { type: "mezzanine", apr: filters.formatPercent(mezzanineApy) },
+        { type: "junior", apr: filters.formatPercent(juniorApy) },
+      ];
     },
 
-    toTokenAmount() {
-      if (!this.amount || !this.tokensInfo) return "";
+    actionInfo() {
+      const options = [this.parseMainInputValue, this.account];
 
-      if (this.action === "Stake")
-        return filters.formatToFixed(
-          +this.amount / +this.activeTokenInfo?.tokensRate,
-          6
-        );
-
-      return filters.formatToFixed(
-        +this.amount * +this.activeTokenInfo?.tokensRate,
-        6
-      );
+      return this.isStakeAction
+        ? { methodName: "deposit", options }
+        : { methodName: "redeem", options };
     },
 
-    disableActionBtn() {
-      if (!this.isActionApproved) return true;
-      return !!(!+this.amount || this.amountError);
+    chartConfig() {
+      return {
+        title: "APY Chart",
+        type: "magicLvlApy",
+        apy: this.tokensApy,
+        feePercent: this.stakeInfo[this.tokenType].feePercent,
+        intervalButtons: [{ label: "3m", time: 3 }],
+      };
     },
 
-    lvlApy() {
-      if (this.tokenLvl === "senior") return this.seniorApy;
-      if (this.tokenLvl === "mezzanine") return this.mezzanineApy;
-      return this.juniorApy;
+    apyConfig() {
+      const apyColors = {
+        senior: "#37caff",
+        mezzanine: "#c345fe",
+        junior: "#ff7100",
+      };
+
+      return {
+        icon: useImage(`assets/images/stake/${this.tokenType}-apy.png`),
+        color: apyColors[this.tokenType],
+      };
     },
 
-    lvlApyIcon() {
-      if (this.tokenLvl === "senior")
-        return this.$image("assets/images/stake/senior-apy.png");
-      if (this.tokenLvl === "mezzanine")
-        return this.$image("assets/images/stake/mezzanine-apy.png");
-      return this.$image("assets/images/stake/junior-apy.png");
+    tokensApy() {
+      const { seniorApy, mezzanineApy, juniorApy } =
+        this.stakeInfo.tranchesStatistics;
+
+      switch (this.tokenType) {
+        case "senior":
+          return seniorApy;
+        case "mezzanine":
+          return mezzanineApy;
+        default:
+          return juniorApy;
+      }
     },
 
-    seniorApy() {
-      return filters.formatPercent(
-        this.tokensInfo.tranchesStatistics.seniorApy
-      );
-    },
-
-    mezzanineApy() {
-      return filters.formatPercent(
-        this.tokensInfo.tranchesStatistics.mezzanineApy
-      );
-    },
-
-    juniorApy() {
-      return filters.formatPercent(
-        this.tokensInfo.tranchesStatistics.juniorApy
-      );
+    standBlockBackground() {
+      return `background-image: url(${useImage(
+        "assets/images/stake/mGLPprofileBg.png"
+      )})`;
     },
   },
 
   watch: {
     async account(value) {
-      if (value) await this.createStakeData();
+      if (value) await this.createStakeInfo();
     },
   },
 
   methods: {
-    changeTokenLvl(lvl) {
-      this.tokenLvl = lvl;
-    },
+    getChartOptions,
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      updateNotification: "notifications/updateTitle",
+    }),
 
-    updateValue(amount) {
-      this.amount = amount ? amount : "";
-      this.amountError = "";
-    },
-
-    toggleAction() {
-      this.updateValue();
-      this.action = this.action === "Stake" ? "Unstake" : "Stake";
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
     },
 
     updateMainValue(amount) {
-      if (+amount > +this.fromToken.formatBalance)
-        this.amountError = `The value cannot be greater than ${this.fromToken.formatBalance}`;
-      else this.updateValue(amount);
+      this.inputValue = amount;
     },
 
-    async createNotification(msg) {
-      return await this.$store.dispatch("notifications/new", msg);
+    changeToken(type) {
+      this.tokenType = type;
+      this.inputValue = "";
     },
 
-    async deleteNotification(id) {
-      await this.$store.commit("notifications/delete", id);
+    toggleAction() {
+      this.inputValue = "";
+      this.action = this.action === "Stake" ? "Unstake" : "Stake";
     },
 
     async approveTokenHandler() {
-      const { approvePending, approveError } = notification;
+      if (!this.isUnsupportedChain) return false;
+      if (this.isTokenApproved) return false;
 
-      const notificationId = await this.createNotification(approvePending);
-
-      const approve = await approveToken(
-        this.stakeToken.contractInstance,
-        this.mainToken.address
+      const notificationId = await this.createNotification(
+        notification.approvePending
       );
 
+      const approve = await approveToken(
+        this.stakeToken.contract,
+        this.mainToken.contract.address
+      );
+
+      if (approve) await this.createStakeInfo();
       await this.deleteNotification(notificationId);
-
-      if (!approve) await this.createNotification(approveError);
-
+      if (!approve) await this.createNotification(notification.approveError);
       return false;
     },
 
     async actionHandler() {
-      if (!+this.amount || this.amountError || !this.isActionApproved)
-        return false;
+      if (this.isActionDisabled) return false;
+      if (!this.actionInfo.methodName) return false;
 
-      if (this.action === "Stake") {
-        await this.stake();
-      }
-      if (this.action === "Unstake") {
-        await this.unstake();
-      }
-    },
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
 
-    async stake() {
-      const { pending, success } = notification;
-      const parseAmount = this.$ethers.utils.parseEther(this.amount);
-      const isWithdraw = this.stakeToken.walletBalance.lt(parseAmount);
-      const notificationId = await this.createNotification(pending);
+      const isWithdrawAction = this.stakeToken.walletBalance.lt(
+        this.parseMainInputValue
+      );
 
-      try {
-        if (isWithdraw) {
-          this.$store.commit("notifications/updateTitle", {
-            title: "1/2 withdrawing Lps",
-            id: notificationId,
-          });
-
-          const withdrawAmount = parseAmount.sub(this.stakeToken.walletBalance);
-
-          const tx = await this.activeTokenInfo.levelMasterContract.withdraw(
-            this.stakeToken.pid.toString(),
-            withdrawAmount,
-            this.account
-          );
-
-          await tx.wait();
+      if (isWithdrawAction && this.isStakeAction) {
+        const { error } = await this.withdrawHandler(notificationId);
+        if (error) {
+          await this.deleteNotification(notificationId);
+          return await this.createNotification(error);
         }
+      }
 
-        if (isWithdraw) {
-          this.$store.commit("notifications/updateTitle", {
-            title: "2/2 staking to magicLVL",
-            id: notificationId,
-          });
-        }
+      const { error } = await actions[this.actionInfo.methodName](
+        this.mainToken.contract,
+        ...this.actionInfo.options
+      );
 
-        const amount = this.$ethers.utils.parseEther(this.amount.toString());
-
-        const estimateGas =
-          await this.mainToken.contractInstance.estimateGas.deposit(
-            amount,
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.mainToken.contractInstance.deposit(
-          amount,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        await tx.wait();
-
-        this.deleteNotification(notificationId);
-        this.createNotification(success);
-      } catch (error) {
-        console.log("Magic Level Stake Error:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.createStakeInfo();
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
       }
     },
 
-    async unstake() {
-      const { pending, success } = notification;
-      const notificationId = await this.createNotification(pending);
-
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-
-        const estimateGas =
-          await this.mainToken.contractInstance.estimateGas.redeem(
-            amount,
-            this.account,
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.mainToken.contractInstance.redeem(
-          amount,
-          this.account,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        await tx.wait();
-
-        this.deleteNotification(notificationId);
-        this.createNotification(success);
-      } catch (error) {
-        console.log("Magic Level Unstake Error:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
-      }
-    },
-
-    async createChartData(time = 3) {
-      this.labels = [];
-      const tickUpper = [];
-      const tickUpper2 = [];
-      const tickUpper3 = [];
-      const data = await getLevelFinanceChartData();
-
-      data.forEach((element) => {
-        this.labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        tickUpper.push(element.juniorApy * (1 - this.tokensInfo.feePercent));
-        tickUpper2.push(
-          element.mezzanineApy * (1 - this.tokensInfo.feePercent)
-        );
-        tickUpper3.push(element.seniorApy * (1 - this.tokensInfo.feePercent));
+    async withdrawHandler(notificationId) {
+      this.updateNotification({
+        title: "1/2 withdrawing Lps",
+        id: notificationId,
       });
 
-      const dataset1 = {
-        label: "Junior",
-        data: tickUpper,
-        borderColor: "#ff7101",
-        pointBackgroundColor: "#ff7101",
-        pointBorderColor: "#ff7101",
-        pointRadius: 0,
-        borderWidth: 4,
-      };
+      const { levelMasterContract, stakeToken } =
+        this.stakeInfo[this.tokenType];
 
-      const dataset2 = {
-        label: "Mezzanine",
-        data: tickUpper2,
-        borderColor: "#874efb",
-        pointBackgroundColor: "#874efb",
-        pointBorderColor: "#874efb",
-        pointRadius: 0,
-        borderWidth: 3,
-      };
+      const withdrawAmount = this.parseMainInputValue.sub(
+        stakeToken.walletBalance
+      );
 
-      const dataset3 = {
-        label: "Senior",
-        data: tickUpper3,
-        borderColor: "#58c6f9",
-        pointBackgroundColor: "#58c6f9",
-        pointBorderColor: "#58c6f9",
-        pointRadius: 0,
-        borderWidth: 3,
-      };
+      const { error, result } = await actions.withdraw(
+        levelMasterContract,
+        withdrawAmount,
+        this.account,
+        stakeToken.pid
+      );
 
-      this.chartData = [];
-      this.chartData.push(dataset1, dataset2, dataset3);
+      if (error) return { error };
+
+      this.updateNotification({
+        title: "2/2 staking to magicLVL",
+        id: notificationId,
+      });
+
+      return { result };
     },
 
-    // async changeChartTime(time) {
-    //   this.chartActiveBtn = time;
-    //   await this.createChartData(time);
-    // },
-
-    async createStakeData() {
-      await this.createStakePool();
-      this.updateInterval = setInterval(async () => {
-        await this.createStakePool();
-      }, 15000);
+    async createStakeInfo() {
+      this.stakeInfo = await getStakeInfo(
+        this.provider,
+        this.signer,
+        this.chainId
+      );
     },
   },
 
   async created() {
-    await this.createStakeData();
-    await this.createChartData(this.chartActiveBtn);
+    await this.createStakeInfo();
 
-    // const apy = await getGlpApy(true);
-    // this.apy = parseFloat(apy).toFixed(2);
-
-    this.chartInterval = setInterval(async () => {
-      await this.createChartData(this.chartActiveBtn);
-      // const apy = await getGlpApy(true);
-      // this.apy = parseFloat(apy).toFixed(2);
+    this.updateInterval = setInterval(async () => {
+      await this.createStakeInfo();
     }, 60000);
   },
 
@@ -567,22 +447,67 @@ export default {
   },
 
   components: {
-    TickChart,
-    BaseButton,
-    BaseTokenInput,
-    NetworksList,
-    BaseLoader,
-    EmptyBlock,
-    TrancheButton,
-    TranchesStatistics,
-    LvlTokensBalance,
+    NetworksList: defineAsyncComponent(() =>
+      import("@/components/ui/NetworksList.vue")
+    ),
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
+    ),
+    Tooltip: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
+    ),
+    TrancheButton: defineAsyncComponent(() =>
+      import("@/components/stake/TrancheButton.vue")
+    ),
+    InputLabel: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputLabel.vue")
+    ),
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+    ChartBlock: defineAsyncComponent(() =>
+      import("@/components/stake/ChartBlock.vue")
+    ),
+    TranchesStatistics: defineAsyncComponent(() =>
+      import("@/components/stake/TranchesStatistics.vue")
+    ),
+    TokensBalancesBlock: defineAsyncComponent(() =>
+      import("@/components/stake/TokensBalancesBlock.vue")
+    ),
+    EmptyBlock: defineAsyncComponent(() =>
+      import("@/components/stake/EmptyBlock.vue")
+    ),
+    GetTokenLink: defineAsyncComponent(() =>
+      import("@/components/ui/links/GetTokenLink.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.empty-link {
-  color: #759ffa;
+.stake-view {
+  display: grid;
+  grid-template-columns: 550px 1fr;
+  width: 1320px;
+  max-width: calc(100% - 20px);
+  grid-gap: 15px;
+  margin: 0 auto;
+  padding: 100px 0;
+}
+
+.deposit-block {
+  padding: 30px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.underline {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .loader-wrap {
@@ -592,300 +517,85 @@ export default {
   padding: 30px 10px;
 }
 
-.swap-img {
+.tranche-title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  & img {
-    transform: rotateX(0deg);
-    transition: all 0.3s;
-  }
-  & img.reflect {
-    transform: rotateX(180deg);
-  }
-}
-
-.tranches-wrap {
-  margin-top: 15px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-.tranches-wrap h4 {
-  margin-bottom: 6px;
+  gap: 10px;
+  padding: 15px 0 6px;
   font-weight: 600;
   font-size: 18px;
   line-height: 27px;
-  display: flex;
-  align-items: center;
   letter-spacing: 0.025em;
-  display: flex;
-  align-items: center;
 }
 
-.tranches-link {
+.tranche-link {
   display: flex;
 }
-.info-icon {
-  margin-left: 10px;
-}
-.tranches-buttons {
+
+.tranche-btns-wrap {
   display: flex;
   gap: 10px;
-}
-.choose-stake-input {
-  background-color: white;
+  padding-bottom: 15px;
 }
 
-.input-block {
-  padding: 30px;
+.input-assets {
+  padding: 22px 0 14px;
+}
+
+.swap-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.input-labal {
+  margin-bottom: 6px;
+}
+
+.actions-wrap {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.stake-stand {
+  padding: 30px 15px;
   border-radius: 30px;
   background-color: $clrBg2;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.token-input {
-  padding-top: 22px;
-  padding-bottom: 14px;
-}
-
-.underline {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.profile-subscribtion {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
   text-align: center;
-  letter-spacing: 0.025em;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 30px;
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.profile {
+  background-position: center;
   background-size: cover;
-  background-repeat: no-repeat;
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
 }
 
 .title {
   font-size: 24px;
   font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 30px;
+  margin: 0 0 30px;
+  letter-spacing: 0.025em;
 }
 
-.profile-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 20px;
-  margin: 30px 0;
-}
-
-.stake {
-  display: grid;
-  grid-template-columns: 550px 1fr;
-  width: 1320px;
-  max-width: calc(100% - 20px);
-  grid-gap: 30px;
-  margin: 0 auto;
-
-  padding: 100px 0;
-}
-
-.chart-row {
+.stand-info-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.chart-title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-}
-
-.chart-apt-wrap {
-  min-width: 180px;
-  width: max-content;
-  height: 32px;
-  background: linear-gradient(0deg, #37caff, #37caff);
-  display: flex;
-  align-items: center;
-  border-radius: 0px 30px 30px 0px;
-}
-
-.chart-apt-wrap.mezzanine {
-  background: linear-gradient(0deg, #864efb, #864efb);
-}
-
-.chart-apt-wrap.junior {
-  background: linear-gradient(0deg, #ff7100, #ff7100);
-}
-
-.chart-apt {
-  width: 178px;
-  height: 30px;
-  background: #23212d;
-  border-radius: 0px 30px 30px 0px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding-left: 30px;
-
-  img {
-    width: 44px;
-    height: 44px;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: -22px;
-  }
-}
-
-.chart-apt-text {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 27px;
-  margin-right: 10px;
-}
-
-.chart-apt-percent {
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 27px;
-  color: #37caff;
-}
-
-.mezzanine {
-  .chart-apt-percent {
-    color: #c345fe;
-  }
-}
-.junior {
-  .chart-apt-percent {
-    color: #ff7100;
-  }
-}
-
-.chart-btns {
-  display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 20px;
 }
 
-.chart-btn {
-  width: 32px;
-  background: #2a2835;
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 15px;
-  color: #fff;
-  cursor: pointer;
+.empty-wrap {
+  margin-bottom: 20px;
 }
 
-.chart-btn-active {
-  background: #343141;
-}
-
-.btn-3 {
-  border-radius: 4px 0 0 4px;
-}
-
-.btn-1y {
-  border-radius: 0 4px 4px 0;
-}
-
-.wrap {
-  width: 100%;
-  padding: 16px;
-  background: #2b2b3c;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(50px);
-  border-radius: 30px;
-}
-
-.balance-block {
-  margin: 16px 0;
-}
-
-.balance-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.balance-title {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-}
-
-.balance-ratio {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 21px;
-}
-
-.balance-ratio-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.balance-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  text-align: left;
-}
-
-.info-block {
-  grid-template-columns: 1fr 33px 1fr;
-}
-
-.balance-token {
-  display: flex;
-  font-weight: 400;
-  line-height: 22px;
-  font-size: 18px;
-}
-
-.token-icon {
-  display: flex;
-  align-items: center;
-}
-
-.token-icon-name {
-  display: none;
-}
-
-.token-balance {
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 30px;
-}
-
-.token-price {
-  font-size: 16px;
+.description {
+  line-height: 24px;
   color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .links-wrap {
@@ -894,165 +604,19 @@ export default {
   gap: 24px;
 }
 
-.deposit {
-  background: linear-gradient(
-    90deg,
-    rgba(157, 244, 255, 0.2) 0%,
-    rgba(121, 129, 255, 0.2) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 30px;
-  padding: 3px 8px;
-  color: #63caf8;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-
-  span {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 21px;
-    display: flex;
-    align-items: center;
-    letter-spacing: 0.025em;
-    background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-fill-color: transparent;
-  }
-
-  img {
-    margin-right: 5px;
-  }
-}
-
-.loader-wrap-mini {
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 35%;
-}
-
-.loader {
-  position: relative;
-  display: block;
-  width: 8px;
-  animation: rectangle infinite 1s ease-in-out -0.2s;
-  border-radius: 4px;
-  background: linear-gradient(0deg, #37caff, #37caff);
-}
-.loader:before,
-.loader:after {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  content: "";
-  background: linear-gradient(0deg, #37caff, #37caff);
-}
-.loader:before {
-  left: -10px;
-  animation: rectangle infinite 1s ease-in-out -0.4s;
-}
-.loader:after {
-  right: -10px;
-  animation: rectangle infinite 1s ease-in-out;
-}
-
-.link {
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-.wrap-chart {
-  margin-bottom: 16px;
-}
-
-@keyframes rectangle {
-  0%,
-  80%,
-  100% {
-    height: 6px;
-  }
-  40% {
-    height: 8px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .stake {
-    grid-gap: 15px;
-  }
-
-  .profile {
-    padding: 30px 15px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
-}
-
-@media (max-width: 1100px) {
-  .stake {
+@media (max-width: 1024px) {
+  .stake-view {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 600px) {
-  .input-block {
+  .deposit-block,
+  .stake-stand {
     padding: 30px 10px;
   }
 
-  .profile {
-    padding: 30px 10px;
-  }
-
-  .balance-top {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .info-block,
-  .balance-row {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .balance-row {
-    gap: 10px;
-  }
-
-  .balance-token {
-    justify-content: space-between;
-  }
-
-  .info-line,
-  .token-title {
-    display: none;
-  }
-
-  .token-icon-name {
-    display: block;
-  }
-
-  .chart-row {
-    flex-direction: column;
-  }
-
-  .wrap-chart {
-    max-width: 88vw;
-    margin: 0 auto;
-  }
-  .tranches-buttons {
+  .tranche-btns-wrap {
     flex-direction: column;
   }
 }

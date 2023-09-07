@@ -1,716 +1,432 @@
 <template>
-  <div class="stake">
-    <div class="input-block" :style="`background-image: url(${inputBlockBg})`">
+  <div class="stake-view">
+    <div class="deposit-block" :style="depositBlockBackground">
       <h4>Choose Chain</h4>
+
       <div class="underline">
         <NetworksList :active-list="[1]" />
       </div>
-      <div class="loader-wrap" v-if="isLoading">
+
+      <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
       </div>
 
-      <div class="swap-wrap" v-if="tokensInfo">
-        <div class="token-input">
-          <div class="header-balance">
-            <h4>{{ action }}</h4>
-            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
-          </div>
+      <div v-else>
+        <div class="input-assets">
+          <InputLabel :amount="fromToken.balance" :title="action" />
+
           <BaseTokenInput
+            :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :value="amount"
-            @updateValue="updateMainValue"
             :max="fromToken.balance"
-            :error="amountError"
+            :error="errorMainValue"
+            :disabled="!isUnsupportedChain"
+            @updateValue="updateMainValue"
           />
         </div>
-        <div class="swap-img">
+
+        <button class="swap-button">
           <img
             src="@/assets/images/swap.svg"
             @click="toggleAction"
-            alt="swap"
+            alt="Swap action"
           />
-        </div>
-        <div class="token-input">
-          <div class="header-balance">
-            <h4>Receive</h4>
-          </div>
+        </button>
+
+        <div class="input-assets">
+          <h4 class="input-labal">Receive</h4>
+
           <BaseTokenInput
             :icon="toToken.icon"
             :name="toToken.name"
-            :value="toTokenAmount"
+            :value="expectedAmount"
             :disabled="true"
           />
         </div>
-        <div class="profile-actions" v-if="tokensInfo && account">
+
+        <div class="actions-wrap">
           <BaseButton
-            @click="approveTokenHandler"
             primary
-            :disabled="disableApproveBtn"
+            :disabled="isTokenApproved"
+            @click="approveTokenHandler"
             >Approve
           </BaseButton>
-          <BaseButton @click="actionHandler" :disabled="disableActionBtn">
+          <BaseButton :disabled="isActionDisabled" @click="actionHandler">
             {{ action }}
           </BaseButton>
         </div>
       </div>
     </div>
 
-    <div class="profile" :style="`background-image: url(${profileBg})`">
+    <div class="stake-stand" :style="standBlockBackground">
       <h1 class="title">
         magic
-        <img class="title-img" src="@/assets/images/ape/ape.png" alt="" /> Ape
+        <img
+          class="title-icon"
+          src="@/assets/images/ape/ape.png"
+          alt="Ape icon"
+        />
+        Ape
       </h1>
-      <div class="loader-wrap" v-if="isLoading">
+
+      <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
       </div>
 
-      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mape'" />
-
       <template v-else>
-        <div class="wrap wrap-chart" :class="[chartActive]" v-if="chartData">
-          <div class="chart-row">
-            <h1 class="chart-title">Statistics</h1>
-            <div class="chart-apt-wrap">
-              <div class="chart-apt">
-                <img src="@/assets/images/ape/apr.png" alt="" />
-                <span class="chart-apt-text">est. APY</span>
-                <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
-                <div class="loader-wrap-mini" v-else>
-                  <p class="loader"></p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="stand-info-wrap" v-if="isUnsupportedChain">
+          <ChartBlock
+            :chartConfig="chartConfig"
+            :apyConfig="apyConfig"
+            :getChartOptions="getChartOptions"
+          />
 
-          <div class="chart-btns">
-            <div>
-              <button
-                class="chart-btn btn-start"
-                :class="{ 'chart-btn-active': chartActive === 'yield' }"
-                @click="updateChartData('yield', 1)"
-              >
-                Yield
-              </button>
-              <button
-                class="chart-btn"
-                :class="{ 'chart-btn-active': chartActive === 'tvl' }"
-                @click="updateChartData('tvl', 1)"
-              >
-                TVL
-              </button>
-              <button
-                class="chart-btn btn-last"
-                :class="{ 'chart-btn-active': chartActive === 'price' }"
-                @click="updateChartData('price', 1)"
-              >
-                Price
-              </button>
-            </div>
-            <div>
-              <button
-                class="chart-btn btn-start"
-                :class="{ 'chart-btn-active': chatrTime === 1 }"
-                @click="updateChartData(chartActive, 1)"
-              >
-                1m
-              </button>
-              <button
-                class="chart-btn btn-last"
-                :class="{ 'chart-btn-active': chatrTime === 3 }"
-                @click="updateChartData(chartActive, 3)"
-              >
-                3m
-              </button>
-            </div>
-          </div>
+          <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <TickChart
-            v-if="chartData"
-            :label="chartActive.toUpperCase()"
-            :labels="labels"
-            :datasets="chartData"
+          <AdditionalInfoBlock
+            :mainToken="mainToken"
+            :rewardToken="rewardToken"
           />
         </div>
-
-        <div class="loader-wrap" v-if="!chartData">
-          <BaseLoader />
+        <div class="empty-wrap" v-else>
+          <EmptyBlock :warningType="'mape'" />
         </div>
 
-        <div class="balance-block wrap" v-if="stakeToken && mainToken">
-          <div class="balance-top">
-            <h4 class="balance-title">Your balance</h4>
-            <div class="balance-ratio">
-              <img
-                class="balance-ratio-icon"
-                src="@/assets/images/ape/ape.png"
-                alt="mApe icon"
-              />
-              <span>1 magicAPE = {{ tokensRate }} APE</span>
-            </div>
-          </div>
-          <div class="balance-row">
-            <div class="balance-token">
-              <div class="token-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/ape/ape-circle.png')"
-                  size="60px"
-                />
-                <span class="token-icon-name">APE</span>
-              </div>
-              <div>
-                <p class="token-title">APE</p>
-                <p class="token-balance">
-                  {{ formatTokenBalance(stakeToken.balance) }}
-                </p>
-                <p class="token-price">
-                  {{ formatUSD(stakeToken.balanceUsd) }}
-                </p>
-              </div>
-            </div>
-            <div class="balance-token">
-              <div class="token-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/ape/mape-circle.png')"
-                  size="60px"
-                />
-                <span class="token-icon-name">magicAPE</span>
-              </div>
-              <div>
-                <p class="token-title">magicAPE</p>
-                <p class="token-balance">
-                  {{ formatTokenBalance(mainToken.balance) }}
-                </p>
-                <p class="token-price">
-                  {{ formatUSD(mainToken.balanceUsd) }}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div class="description">
+          <p>
+            Enjoy the benefits of compounding without having to worry about the
+            tedious work! Simply deposit your APE into MagicAPE and let it do
+            its magic!
+          </p>
+
+          <p>Note: A 1% protocol fee is taken on the yields.</p>
         </div>
 
-        <div class="info-block wrap">
-          <div>
-            <h5 class="info-title">Total Supply</h5>
-            <div class="info-item">
-              <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/ape/mape-circle.png')"
-                  size="40px"
-                />
-                <span>magicAPE</span>
-              </div>
-              <div class="info-balance">
-                <span class="info-value">{{
-                  Number(mainToken.totalSupply).toLocaleString()
-                }}</span>
-                <span class="info-usd">{{
-                  formatUSD(mainToken.totalSupplyUsd)
-                }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="info-line"></div>
-          <div>
-            <h5 class="info-title">Total Rewards Earned</h5>
-            <div class="info-item">
-              <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/ape/ape-circle.png')"
-                  size="40px"
-                />
-                <span>APE</span>
-              </div>
-              <div class="info-balance">
-                <span class="info-value">{{
-                  Number(totalRewardsEarned).toLocaleString()
-                }}</span>
-                <span class="info-usd">{{ formatUSD(totalRewardsUsd) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="profile-subscribtion">
-          Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your APE into MagicAPE and let it do its
-          magic!
-          <br />
-          Note: A 1% protocol fee is taken on the yields.
-        </p>
-        <div class="btns-wrap">
+        <div class="btns-wrap" v-if="isUnsupportedChain">
           <BaseButton @click="routeTo('BorrowId', 39)">
-            <div class="btn-ape-wrap">
+            <div class="btn-content">
               <img
-                class="btn-ape-img"
+                class="btn-img"
                 src="@/assets/images/ape/ape.b.png"
-                alt=""
+                alt="Ape icon"
               />
-              <span class="btn-ape-text">Borrow Against MagicAPE</span>
+              <span class="btn-text">Borrow Against MagicAPE</span>
             </div>
           </BaseButton>
+
           <BaseButton @click="routeTo('LeverageId', 39)">
-            <span class="btn-ape-text"
-              >Leverage your Yield (up to ≈{{ expectedApy }}%)</span
-            ></BaseButton
-          >
+            <span class="btn-text"
+              >Leverage your Yield (up to ≈{{ expectedLeverageApy }}%)
+            </span>
+          </BaseButton>
         </div>
       </template>
     </div>
   </div>
 </template>
+
 <script>
 import filters from "@/filters/index.js";
-import axios from "axios";
-import moment from "moment";
-import { mapGetters } from "vuex";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import EmptyBlock from "@/components/stake/EmptyBlock.vue";
-import TickChart from "@/components/ui/charts/TickChartMagicAPE.vue";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import { approveToken } from "@/utils/approveHelpers";
-import mAPETokenMixin from "@/mixins/stake/mAPEToken";
+import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
+import { approveToken } from "@/helpers/approval";
+import actions from "@/helpers/stake/magicApe/actions/";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import { magicApeConfig } from "@/utils/stake/magicApeConfig";
 import notification from "@/helpers/notification/notification.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import inputBlockBg from "@/assets/images/ape/bg.png";
-import profileBg from "@/assets/images/ape/bg-info.png";
-import { getApeApy } from "@/helpers/collateralsApy/getApeApy";
-import { getMagicApeYieldChartData } from "@/helpers/subgraph/magicApe/getMagicApeYieldChartData";
-import { getMagicApeTvlChartData } from "@/helpers/subgraph/magicApe/getMagicApeTvlChartData";
-import { getMagicApePriceChartData } from "@/helpers/subgraph/magicApe/getMagicApePriceChartData";
-import { getMagicApeTotalRewards } from "@/helpers/subgraph/magicApe/getMagicApeTotalRewards";
+import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
+import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
+import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
 
 export default {
-  mixins: [mAPETokenMixin],
   data() {
     return {
-      action: "Stake",
-      amount: "",
-      amountError: "",
-      chartData: null,
-      updateInterval: null,
-      chartInterval: null,
       apy: "",
-      gasLimitConst: 1000,
+      inputValue: "",
+      action: "Stake",
+      stakeInfo: null,
+      updateInterval: null,
       totalRewards: null,
-      inputBlockBg,
-      profileBg,
-      chatrTime: 1,
-      chartActive: "yield",
-      labels: [],
     };
   },
 
   computed: {
     ...mapGetters({
-      isLoading: "getLoadingMApeStake",
-      account: "getAccount",
-      tokensInfo: "getMApeObject",
-      itsMetamask: "getMetamaskActive",
-      provider: "getProvider",
       chainId: "getChainId",
+      account: "getAccount",
+      provider: "getProvider",
+      signer: "getSigner",
     }),
 
-    stakeToken() {
-      return this.tokensInfo?.stakeToken;
+    isInfoLoading() {
+      return !!this.stakeInfo;
     },
 
-    mainToken() {
-      return this.tokensInfo?.mainToken;
+    isStakeAction() {
+      return this.action === "Stake";
     },
 
-    isActionApproved() {
-      if (this.action === "Stake")
-        return !!this.tokensInfo?.stakeToken.isApproved;
-      return true;
+    isUnsupportedChain() {
+      return !!magicApeConfig[this.chainId];
     },
 
-    fromToken() {
-      if (this.action === "Stake") return this.stakeToken;
-      return this.mainToken;
+    isTokenApproved() {
+      if (!this.isStakeAction) return true;
+      if (this.errorMainValue) return true;
+      if (!this.account) return true;
+      if (!this.isUnsupportedChain) return true;
+      const { approvedAmount } = this.fromToken;
+
+      return approvedAmount >= this.mainInputValue;
     },
 
-    toToken() {
-      if (this.action === "Stake") return this.mainToken;
-      return this.stakeToken;
+    isActionDisabled() {
+      if (!this.isTokenApproved) return true;
+      return !!(!this.mainInputValue || this.errorMainValue);
     },
 
-    disableApproveBtn() {
-      return this.isActionApproved;
-    },
-
-    tokensRate() {
-      const amount = 1 * this.tokensInfo.tokensRate;
-      return filters.formatToFixed(amount, 4);
-    },
-
-    toTokenAmount() {
-      if (!this.amount || !this.tokensInfo) return "";
-
-      if (this.action === "Stake") {
-        const amount = this.amount / this.tokensInfo.tokensRate;
-        return filters.formatToFixed(amount, 6);
-      }
-
-      const amount = this.amount * this.tokensInfo.tokensRate;
+    expectedAmount() {
+      const tokensRate = this.stakeInfo.mainToken.rate;
+      const amount = this.isStakeAction
+        ? this.mainInputValue / tokensRate
+        : this.mainInputValue * tokensRate;
       return filters.formatToFixed(amount, 6);
     },
 
-    disableActionBtn() {
-      if (!this.isActionApproved) return true;
-      return !!(!+this.amount || this.amountError);
-    },
-
-    totalRewardsEarned() {
-      return this.totalRewards ? this.totalRewards : 0;
-    },
-
-    totalRewardsUsd() {
-      return this.totalRewards
-        ? parseFloat(
-            +this.totalRewardsEarned * +this.tokensInfo.stakeToken.price
-          ).toFixed(2)
-        : 0;
-    },
-
-    expectedApy() {
-      const multiplier = 15;
+    expectedLeverageApy() {
+      const multiplier = 16;
       const percentMultiplier = 0.7;
       const expectedLevearage =
         (1 - Math.pow(percentMultiplier, multiplier + 1)) /
         (1 - percentMultiplier);
 
-      return Math.floor(parseFloat(expectedLevearage * this.apy).toFixed(2));
+      return Math.floor(expectedLevearage * this.apy);
+    },
+
+    errorMainValue() {
+      if (this.mainInputValue > this.fromToken.balance) {
+        return `The value cannot be greater than ${this.fromToken.balance}`;
+      }
+
+      return "";
+    },
+
+    stakeToken() {
+      return this.stakeInfo?.stakeToken;
+    },
+
+    mainToken() {
+      return this.stakeInfo?.mainToken;
+    },
+
+    rewardToken() {
+      const { rewardToken } = this.stakeInfo;
+      const amount = +this.totalRewards ? +this.totalRewards : 0;
+      const amountUsd = this.totalRewards ? amount * this.stakeToken.price : 0;
+      return { ...rewardToken, amount, amountUsd };
+    },
+
+    fromToken() {
+      return this.isStakeAction ? this.stakeToken : this.mainToken;
+    },
+
+    toToken() {
+      return this.isStakeAction ? this.mainToken : this.stakeToken;
+    },
+
+    mainInputValue() {
+      return Number(this.inputValue);
+    },
+
+    actionInfo() {
+      const amount = this.$ethers.utils.parseEther(
+        filters.formatToFixed(this.inputValue || 0, 18)
+      );
+
+      const options = [amount, this.account];
+
+      return this.isStakeAction
+        ? { methodName: "deposit", options }
+        : { methodName: "redeem", options };
+    },
+
+    depositBlockBackground() {
+      return `background-image: url(${useImage("assets/images/ape/bg.png")})`;
+    },
+
+    standBlockBackground() {
+      return `background-image: url(${useImage(
+        "assets/images/ape/bg-info.png"
+      )})`;
+    },
+
+    chartConfig() {
+      return {
+        title: "Statistics",
+        type: "Yield",
+        apy: this.apy,
+        typeButtons: ["Yield", "TVL", "Price"],
+        intervalButtons: [
+          { label: "1m", time: 1 },
+          { label: "3m", time: 3 },
+          { label: "6m", time: 6 },
+          { label: "1y", time: 12 },
+        ],
+      };
+    },
+
+    apyConfig() {
+      return {
+        icon: useImage("assets/images/ape/apr.png"),
+        color: "#c0c53f",
+      };
     },
   },
 
   watch: {
     async account(value) {
-      if (value) await this.crateStakeData();
+      if (value) await this.createStakeInfo();
     },
   },
 
   methods: {
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    getChartOptions,
 
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
 
+    updateMainValue(amount) {
+      this.inputValue = amount;
+    },
+
     toggleAction() {
-      this.amount = "";
+      this.inputValue = "";
       this.action = this.action === "Stake" ? "Unstake" : "Stake";
     },
 
-    updateMainValue(amount) {
-      if (+amount > +this.fromToken.balance)
-        this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
-      else {
-        this.amount = amount;
-        this.amountError = "";
-      }
-    },
-
-    async createNotification(msg) {
-      return await this.$store.dispatch("notifications/new", msg);
-    },
-
-    async deleteNotification(id) {
-      await this.$store.commit("notifications/delete", id);
-    },
-
     async approveTokenHandler() {
-      const { approvePending, approveError } = notification;
+      if (!this.isUnsupportedChain) return false;
+      if (this.isTokenApproved) return false;
 
-      const notificationId = await this.createNotification(approvePending);
-
-      const approve = await approveToken(
-        this.stakeToken.contractInstance,
-        this.mainToken.address
+      const notificationId = await this.createNotification(
+        notification.approvePending
       );
 
+      const approve = await approveToken(
+        this.stakeToken.contract,
+        this.mainToken.contract.address
+      );
+
+      if (approve) await this.createStakeInfo();
       await this.deleteNotification(notificationId);
-
-      if (!approve) await this.createNotification(approveError);
-
+      if (!approve) await this.createNotification(notification.approveError);
       return false;
     },
 
     async actionHandler() {
-      if (!+this.amount || this.amountError || !this.isActionApproved)
-        return false;
+      if (this.isActionDisabled) return false;
+      if (!this.actionInfo.methodName) return false;
 
-      if (this.action === "Stake") await this.stake();
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
 
-      if (this.action === "Unstake") await this.unstake();
-    },
+      const { error } = await actions[this.actionInfo.methodName](
+        this.mainToken.contract,
+        ...this.actionInfo.options
+      );
 
-    async stake() {
-      const { pending, success } = notification;
-      const notificationId = await this.createNotification(pending);
-
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
-            amount,
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
-          amount,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
-
-        this.deleteNotification(notificationId);
-        this.createNotification(success);
-      } catch (e) {
-        console.log("stake err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.createStakeInfo();
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
       }
     },
 
-    async unstake() {
-      const { pending, success } = notification;
-      const notificationId = await this.createNotification(pending);
+    async createStakeInfo() {
+      this.stakeInfo = await getStakeInfo(
+        this.provider,
+        this.signer,
+        this.chainId
+      );
 
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.redeem(
-            amount,
-            this.account,
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.tokensInfo.mainToken.contractInstance.redeem(
-          amount,
-          this.account,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
-
-        this.deleteNotification(notificationId);
-        this.createNotification(success);
-      } catch (e) {
-        console.log("stake err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
+      if (this.isUnsupportedChain) {
+        this.apy = await getMagicApeApy(this.provider);
+        this.totalRewards = await getTotalRewards();
       }
-    },
-
-    async initChart(type = "yield", period = 1) {
-      await this.updateChartData(type, period);
-      await this.getEstApy();
-    },
-
-    async updateChartData(type = "yield", period = 1) {
-      this.chartActive = type;
-      this.chatrTime = period;
-      if (type === "yield") return await this.getYieldChartData();
-      if (type === "tvl") return await this.getTvlChartData();
-      if (type === "price") return await this.getPriceChartData();
-    },
-
-    async getYieldChartData() {
-      const chartData = await getMagicApeYieldChartData(this.chatrTime);
-      this.createDoubleChartDataset(chartData);
-    },
-
-    async getTvlChartData() {
-      const chartData = await getMagicApeTvlChartData(this.chatrTime);
-      this.createChartDataset(chartData, this.chartActive);
-    },
-
-    async getPriceChartData() {
-      const chartData = await getMagicApePriceChartData(this.chatrTime);
-      this.createChartDataset(chartData, this.chartActive);
-    },
-
-    async getEstApy() {
-      const apy = await getApeApy(this.provider);
-      this.apy = apy.toFixed(2);
-    },
-
-    createChartDataset(chartData, type) {
-      const reverseData = chartData.reverse();
-
-      this.labels = [];
-      const tickUpper = [];
-      reverseData.forEach((element) => {
-        this.labels.push(moment(element.date).format("DD.MM"));
-        tickUpper.push(element[type]);
-      });
-
-      const dataset = {
-        label: this.chartActive.toUpperCase(),
-        data: tickUpper,
-        borderColor: "#c0c53f",
-        pointBackgroundColor: "#c0c53f",
-        pointBorderColor: "#c0c53f",
-        pointRadius: 0,
-        borderWidth: 2,
-      };
-
-      this.chartData = [];
-      this.chartData.push(dataset);
-    },
-
-    createDoubleChartDataset(chartData) {
-      const reverseData = chartData.reverse();
-
-      this.labels = [];
-      const tickUpper = [];
-      const tickUpper2 = [];
-      reverseData.forEach((element) => {
-        this.labels.push(moment(element.date).format("DD.MM"));
-        tickUpper.push(element.apy);
-        tickUpper2.push(element.apr);
-      });
-
-      const dataset1 = {
-        label: "MagicAPE",
-        data: tickUpper,
-        borderColor: "#c0c53f",
-        pointBackgroundColor: "#c0c53f",
-        pointBorderColor: "#c0c53f",
-        pointRadius: 0,
-        borderWidth: 4,
-      };
-
-      const dataset2 = {
-        label: "APE",
-        data: tickUpper2,
-        borderColor: "#495B7C",
-        pointBackgroundColor: "#495B7C",
-        pointBorderColor: "#495B7C",
-        pointRadius: 0,
-        borderWidth: 2,
-      };
-
-      this.chartData = [];
-      this.chartData.push(dataset1, dataset2);
-    },
-
-    async changeChartTime(time) {
-      this.chatrTime = time;
-      this.changeChart(this.chartActive);
     },
 
     routeTo(name, id) {
       this.$router.push({ name, params: { id } });
     },
-
-    async crateStakeData() {
-      await this.createMagicApeData();
-      if (this.chainId !== 1) return false;
-      this.totalRewards = await getMagicApeTotalRewards();
-
-      this.updateInterval = setInterval(async () => {
-        await this.createMagicApeData();
-      }, 15000);
-
-      await this.initChart();
-
-      this.chartInterval = setInterval(async () => {
-        await this.initChart(this.chartActive, this.chatrTime);
-      }, 60000);
-    },
   },
 
   async created() {
-    this.crateStakeData();
+    this.createStakeInfo();
+    if (!this.isUnsupportedChain) return false;
+
+    this.updateInterval = setInterval(async () => {
+      await this.createStakeInfo();
+    }, 60000);
   },
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
-    clearInterval(this.chartInterval);
   },
 
   components: {
-    BaseTokenIcon,
-    TickChart,
-    BaseButton,
-    BaseTokenInput,
-    NetworksList,
-    BaseLoader,
-    EmptyBlock,
+    NetworksList: defineAsyncComponent(() =>
+      import("@/components/ui/NetworksList.vue")
+    ),
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
+    ),
+    InputLabel: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputLabel.vue")
+    ),
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+    ChartBlock: defineAsyncComponent(() =>
+      import("@/components/stake/ChartBlock.vue")
+    ),
+    BalancesBlock: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlock.vue")
+    ),
+    AdditionalInfoBlock: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlock.vue")
+    ),
+    EmptyBlock: defineAsyncComponent(() =>
+      import("@/components/stake/EmptyBlock.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.empty-link {
-  color: #759ffa;
+.stake-view {
+  display: grid;
+  grid-template-columns: 550px 1fr;
+  width: 1320px;
+  max-width: calc(100% - 20px);
+  grid-gap: 15px;
+  margin: 0 auto;
+  padding: 100px 0;
 }
 
-.loader-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 10px;
-}
-
-.swap-img {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  & img {
-    transform: rotateX(0deg);
-    transition: all 0.3s;
-  }
-  & img.reflect {
-    transform: rotateX(180deg);
-  }
-}
-
-.choose-stake-input {
-  background-color: white;
-}
-
-.input-block {
+.deposit-block {
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -720,24 +436,45 @@ export default {
   background-size: cover;
 }
 
-.token-input {
-  padding-top: 22px;
-  padding-bottom: 14px;
-}
-
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.profile-subscribtion {
-  line-height: 24px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 24px;
-  text-align: center;
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 10px;
 }
 
-.profile {
-  padding: 30px;
+.input-assets {
+  padding: 22px 0 14px;
+}
+
+.swap-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.input-labal {
+  margin-bottom: 6px;
+}
+
+.actions-wrap {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.stake-stand {
+  padding: 30px 15px;
   border-radius: 30px;
   background-color: $clrBg2;
   text-align: center;
@@ -748,285 +485,57 @@ export default {
 .title {
   font-weight: 600;
   font-size: 24px;
-  line-height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   letter-spacing: 0.025em;
-  text-transform: uppercase;
   margin: 0 0 30px;
   text-transform: uppercase;
 }
 
-.title-img {
-  max-width: 27px;
+.title-icon {
+  max-width: 28px;
   margin: 0 10px;
 }
 
-.profile-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 20px;
-  margin: 30px 0;
-}
-
-.stake {
-  display: grid;
-  grid-template-columns: 550px 1fr;
-  width: 1320px;
-  max-width: calc(100% - 20px);
-  grid-gap: 30px;
-  margin: 0 auto;
-
-  padding: 100px 0;
-}
-
-.chart-row {
+.stand-info-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.chart-title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-}
-
-.chart-apt-wrap {
-  width: 190px;
-  height: 32px;
-  background: #c0c53f;
-  display: flex;
-  align-items: center;
-  border-radius: 0px 30px 30px 0px;
-}
-
-.chart-apt {
-  width: 188px;
-  height: 30px;
-  background: #23212d;
-  border-radius: 0px 30px 30px 0px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 0 10px 0 30px;
-
-  img {
-    width: 44px;
-    height: 44px;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: -22px;
-  }
-}
-
-.chart-apt-text {
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 27px;
-  margin-right: 5px;
-}
-
-.chart-apt-percent {
-  font-weight: 700;
-  font-size: 17px;
-  line-height: 27px;
-  color: #c0c53f;
-}
-
-.chart-btns {
-  display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 20px;
 }
 
-.chart-btn {
-  max-width: 60px;
-  background: #2a2835;
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 15px;
-  color: #fff;
-  cursor: pointer;
+.empty-wrap {
+  margin-bottom: 20px;
 }
 
-.chart-btn-active {
-  background: #343141;
-}
-
-.btn-start {
-  border-radius: 4px 0 0 4px;
-}
-
-.btn-last {
-  border-radius: 0 4px 4px 0;
-}
-
-.wrap {
-  width: 100%;
-  padding: 16px;
-  background: #2b2b3c;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(50px);
-  border-radius: 30px;
-}
-
-.balance-block {
-  margin: 16px 0;
-}
-
-.balance-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.balance-title {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-}
-
-.balance-ratio {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 21px;
-}
-
-.balance-ratio-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.balance-row,
-.info-block {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  text-align: left;
-}
-
-.info-block {
-  grid-template-columns: 1fr 33px 1fr;
-}
-
-.balance-token {
-  display: flex;
-  font-weight: 400;
-  line-height: 22px;
-  font-size: 18px;
-}
-
-.token-icon {
-  display: flex;
-  align-items: center;
-}
-
-.token-icon-name {
-  display: none;
-}
-
-.token-balance {
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 30px;
-}
-
-.token-price {
-  font-size: 16px;
+.description {
+  line-height: 24px;
   color: rgba(255, 255, 255, 0.6);
-}
-
-.info-block {
   margin-bottom: 24px;
-}
-
-.info-title {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  margin-bottom: 14px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.info-icon {
-  display: flex;
-  align-items: center;
-}
-
-.info-balance {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.info-line {
-  position: relative;
-}
-
-.info-line::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: 1px;
-  height: 45px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.info-value {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  letter-spacing: 0.4px;
-}
-
-.info-usd {
-  font-size: 14px;
-  line-height: 21px;
-  display: flex;
-  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
 }
 
 .btns-wrap {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
 }
 
-.btn-ape-wrap {
+.btn-content {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
-.btn-ape-img {
-  max-width: 22px;
-  margin-right: 10px;
+.btn-img {
+  width: 22px;
 }
 
-.btn-ape-text {
+.btn-text {
   font-weight: 600;
-  font-size: 15px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 150%;
   display: flex;
   align-items: center;
   letter-spacing: 0.025em;
@@ -1037,170 +546,30 @@ export default {
   text-fill-color: transparent;
 }
 
-.deposit {
-  background: linear-gradient(
-    90deg,
-    rgba(157, 244, 255, 0.2) 0%,
-    rgba(121, 129, 255, 0.2) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 30px;
-  padding: 3px 8px;
-  color: #63caf8;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-
-  span {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 21px;
-    display: flex;
-    align-items: center;
-    letter-spacing: 0.025em;
-    background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-fill-color: transparent;
-  }
-
-  img {
-    margin-right: 5px;
-  }
-}
-
-.loader-wrap-mini {
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 35%;
-}
-
-.loader {
-  position: relative;
-  display: block;
-  width: 8px;
-  animation: rectangle infinite 1s ease-in-out -0.2s;
-  border-radius: 4px;
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
-}
-.loader:before,
-.loader:after {
-  position: absolute;
-
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-
-  content: "";
-
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
-}
-.loader:before {
-  left: -10px;
-  animation: rectangle infinite 1s ease-in-out -0.4s;
-}
-.loader:after {
-  right: -10px;
-  animation: rectangle infinite 1s ease-in-out;
-}
-
-.link {
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-@keyframes rectangle {
-  0%,
-  80%,
-  100% {
-    height: 6px;
-  }
-  40% {
-    height: 8px;
-  }
-}
-
 @media (max-width: 1200px) {
-  .stake {
-    grid-gap: 15px;
-  }
-
-  .profile {
-    padding: 30px 15px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
+  .btns-wrap {
+    flex-direction: column;
   }
 }
 
 @media (max-width: 1024px) {
-  .stake {
+  .stake-view {
     grid-template-columns: 1fr;
+  }
+
+  .btns-wrap {
+    flex-direction: row;
   }
 }
 
 @media (max-width: 600px) {
-  .input-block {
+  .deposit-block,
+  .stake-stand {
     padding: 30px 10px;
-  }
-
-  .profile {
-    padding: 30px 10px;
-  }
-
-  .balance-top {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .info-block,
-  .balance-row {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .balance-row {
-    gap: 10px;
-  }
-
-  .balance-token {
-    justify-content: space-between;
-  }
-
-  .info-line,
-  .token-title {
-    display: none;
-  }
-
-  .token-icon-name {
-    display: block;
-  }
-
-  .chart-row {
-    flex-direction: column;
-  }
-
-  .wrap-chart {
-    max-width: 88vw;
-    margin: 0 auto;
   }
 
   .btns-wrap {
     flex-direction: column;
-  }
-
-  .btn-ape-text {
-    font-size: 14px;
   }
 }
 </style>
