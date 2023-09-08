@@ -15,16 +15,7 @@ const get0xLeverageSwapData = async (cauldronObject, amount, slipage) => {
   const { collateral, mim, leverageSwapper } = cauldronObject.contracts;
 
   let buyToken = collateral.address;
-  if (isMagicGLP) {
-    const leverageResp = await getGlpLevData(
-      this.signer, // TODO
-      cauldronObject,
-      amount,
-      42161,
-      slipage
-    );
-    return leverageResp.swapDataEncode;
-  }
+  
   if (isMagicApe) buyToken = apeAddress;
 
   if (isStargateUSDT) buyToken = usdtAddress;
@@ -59,7 +50,6 @@ const recipeLeverage = async (
   if (isMagicGLP)
     return await getGlpLevData(
       cookData,
-      this.signer, // TODO
       cauldronObject,
       amount,
       42161,

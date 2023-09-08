@@ -28,7 +28,6 @@ const get0xDeleverageSwapData = async (
 
   if (isMagicGLP) {
     const deleverageResp = await getGlpLiqData(
-      this.signer, // TODO
       cauldronObject,
       collateralAmount,
       42161,

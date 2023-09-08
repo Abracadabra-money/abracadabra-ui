@@ -72,7 +72,6 @@ const getWhitelistedTokens = async () => {
 
 const getGlpLevData = async (
   cookData,
-  provider,
   pool,
   sellAmount,
   chainId,
@@ -231,7 +230,7 @@ const getGlpLevData = async (
   return cookData;
 };
 
-const getGlpLiqData = async (provider, pool, amount, chainId, slipage) => {
+const getGlpLiqData = async (pool, amount, chainId, slipage) => {
   store.commit("updateRouteData", []);
   store.commit("setPopupState", {
     type: "mglp-route",

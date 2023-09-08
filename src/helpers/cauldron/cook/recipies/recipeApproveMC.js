@@ -14,7 +14,6 @@ const signAndGetData = async (
   const nonce = await bentoBox.nonces(user);
 
   const parsedSignature = await signMasterContract(
-    this.signer, // TODO
     cauldronObject.config.chainId,
     verifyingContract,
     user,
