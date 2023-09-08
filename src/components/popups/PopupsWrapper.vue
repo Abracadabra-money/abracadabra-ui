@@ -2,7 +2,6 @@
   <div class="popup-wrap" v-if="popupActiveType">
     <div v-click-outside="closePopup">
       <CrvPoolPopup v-if="popupActiveType === '3crv'" />
-      <CrvRenPoolPopup v-if="popupActiveType === 'crv-ren'" />
       <ThreeCryptoPopup v-if="popupActiveType === 'three-crypto-deposit'" />
 
       <SucessPopup v-if="popupActiveType === 'success'" />
@@ -29,9 +28,6 @@ export default {
   components: {
     CrvPoolPopup: defineAsyncComponent(() =>
       import("@/components/popups/Deposit/CrvPoolPopup.vue")
-    ),
-    CrvRenPoolPopup: defineAsyncComponent(() =>
-      import("@/components/popups/Deposit/CrvRenPoolPopup.vue")
     ),
     ThreeCryptoPopup: defineAsyncComponent(() =>
       import("@/components/popups/Deposit/ThreeCryptoPopup.vue")
