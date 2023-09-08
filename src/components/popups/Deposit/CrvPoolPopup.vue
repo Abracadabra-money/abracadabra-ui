@@ -10,7 +10,7 @@
       />
     </div>
 
-    <div class="test">
+    <div>
       <InputLabel :amount="formatAmount(fromToken.balance)" />
       <BaseTokenInput
         :icon="fromToken.icon"

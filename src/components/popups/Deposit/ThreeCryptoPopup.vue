@@ -1,59 +1,40 @@
 <template>
-  <div class="popup" v-if="tokensInfo">
+  <div class="popup" v-if="stakeInfo">
     <div class="popup-header">
-      <p class="title">{{ action }}</p>
+      <h3 class="popup-title">{{ action }}</h3>
       <img
-        class="close"
-        @click="closePopup"
+        class="popup-btn-close"
         src="@/assets/images/close.svg"
-        alt="close"
+        @click="closePopup"
+        alt="Close button"
       />
     </div>
 
-    <div class="collateral-input underline">
-      <div class="header-balance">
-        <h4>Collateral assets</h4>
-        <p v-if="fromToken.balance">
-          {{ formatTokenBalance(fromToken.balance) }}
-        </p>
-      </div>
-
+    <div>
+      <InputLabel :amount="formatAmount(fromToken.balance)" />
       <BaseTokenInput
         :icon="fromToken.icon"
         :name="fromToken.name"
-        :value="amount"
-        :max="fromToken.balance || 0"
+        :max="formatAmount(fromToken.balance)"
+        :value="inputValue"
+        :error="errorMainValue"
         @updateValue="updateMainValue"
-        :error="amountError"
       />
     </div>
 
-    <div class="refresh-wrap">
-      <img
-        class="refresh-img"
-        src="@/assets/images/refresh.svg"
-        @click="toggleAction"
-        alt="refresh"
-      />
-    </div>
+    <SwapButton @click="toggleAction" />
 
-    <div class="collateral-input underline">
-      <div class="header-balance">
-        <h4>Collateral assets</h4>
-        <p v-if="toToken.balance">
-          {{ formatTokenBalance(toToken.balance) }}
-        </p>
-      </div>
-
+    <div>
+      <InputLabel :amount="formatAmount(toToken.balance)" />
       <BaseTokenInput
-        :value="toTokenAmount"
+        :value="expectedAmount"
         :icon="toToken.icon"
         :name="toToken.name"
         :disabled="true"
       />
     </div>
 
-    <BaseButton @click="actionHandler" :disabled="disabledBtn" primary>{{
+    <BaseButton primary :disabled="isActionDisabled" @click="actionHandler">{{
       actionBtnText
     }}</BaseButton>
   </div>
@@ -61,261 +42,199 @@
 
 <script>
 import filters from "@/filters/index.js";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import threeCryptoDeposit from "@/mixins/getCollateralLogic/threeCryptoDeposit";
-import { mapGetters } from "vuex";
-
-import { approveToken } from "@/utils/approveHelpers.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { defineAsyncComponent } from "vue";
+import { parseUnits, formatUnits } from "viem";
+import actions from "@/helpers/stake/crv/actions/";
+import { approveTokenViem } from "@/helpers/approval"; //todo
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import notification from "@/helpers/notification/notification.js";
+import { getCrv3cryptoStakeInfo } from "@/helpers/stake/crv3crypto/getCrv3cryptoStakeInfo.ts";
+
 export default {
-  mixins: [threeCryptoDeposit],
   data() {
     return {
+      inputValue: "",
+      stakeInfo: null,
       action: "Deposit",
-      amount: "",
-      amountError: "",
       updateInterval: null,
-      tokensInfo: null,
     };
   },
 
   computed: {
-    ...mapGetters({ account: "getAccount", popupData: "getPopupData" }),
+    ...mapGetters({
+      account: "getAccount",
+      chainId: "getChainId",
+      popupData: "getPopupData",
+    }),
+
+    isWithdraw() {
+      return this.action === "Withdraw";
+    },
+
+    mainToken() {
+      return this.stakeInfo.mainToken;
+    },
+
+    stakeToken() {
+      return this.stakeInfo.stakeToken;
+    },
 
     fromToken() {
-      if (this.action === "Deposit") return this.tokensInfo.depositToken;
-      if (this.action === "Withdraw") return this.tokensInfo.mainToken;
-
-      return "";
+      if (this.isWithdraw) return this.mainToken;
+      return this.stakeToken;
     },
 
     toToken() {
-      if (this.action === "Deposit") return this.tokensInfo.mainToken;
-      if (this.action === "Withdraw") return this.tokensInfo.depositToken;
+      if (this.isWithdraw) return this.stakeToken;
+      return this.mainToken;
+    },
+
+    parsedInputValue() {
+      return parseUnits(this.inputValue, this.fromToken.decimals);
+    },
+
+    precision() {
+      return parseUnits("1", this.fromToken.decimals);
+    },
+
+    expectedAmount() {
+      const { tokensRate } = this.stakeInfo;
+
+      const amount = this.isWithdraw
+        ? (this.parsedInputValue * tokensRate) / this.precision
+        : (this.parsedInputValue * this.precision) / tokensRate;
+
+      return filters.formatToFixed(this.formatAmount(amount), 6);
+    },
+
+    errorMainValue() {
+      if (this.parsedInputValue > this.fromToken.balance) {
+        return `The value cannot be greater than ${this.formatAmount(
+          this.fromToken.balance
+        )}`;
+      }
 
       return "";
     },
 
-    toTokenAmount() {
-      if (!this.amount) return "";
-      if (!this.tokensInfo) return "";
-
-      if (this.action === "Deposit") {
-        const amount = this.amount / this.tokensInfo.tokensRate;
-        return filters.formatToFixed(amount, 6);
-      }
-      if (this.action === "Withdraw") {
-        const amount = this.amount * this.tokensInfo.tokensRate;
-        return filters.formatToFixed(amount, 6);
-      }
-      return "";
+    isActionDisabled() {
+      return !!(!this.inputValue || this.errorMainValue);
     },
 
     actionBtnText() {
-      if (!+this.amount || this.amountError) return "Nothing to do";
-
-      if (!this.isTokenApprove) {
-        return "Approve";
-      }
-
+      if (this.isActionDisabled) return "Nothing to do";
+      if (!this.isTokenApproved) return "Approve";
       return this.action;
     },
 
-    disabledBtn() {
-      if (this.actionBtnText === "Nothing to do") return true;
-      return false;
+    isTokenApproved() {
+      if (this.isWithdraw) return true;
+      if (this.errorMainValue) return true;
+      return this.stakeToken.approvedAmount >= this.parsedInputValue;
     },
 
-    isTokenApprove() {
-      if (this.tokensInfo && this.account) {
-        return this.tokensInfo.depositToken.isTokenApprowed;
-      }
-
-      return true;
+    actionInfo() {
+      return this.isWithdraw
+        ? { methodName: "withdraw", options: [this.parsedInputValue] }
+        : {
+            methodName: "deposit",
+            options: [this.parsedInputValue, this.account],
+          };
     },
   },
 
   methods: {
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      updateNotification: "notifications/updateTitle",
+      closePopup: "closePopups",
+    }),
+
+    formatAmount(value) {
+      return formatUnits(value, this.fromToken.decimals);
     },
+
     toggleAction() {
-      this.amount = "";
-      this.amountError = "";
-
-      if (this.action === "Deposit") {
-        this.action = "Withdraw";
-        return false;
-      }
-
-      if (this.action === "Withdraw") {
-        this.action = "Deposit";
-        return false;
-      }
+      this.inputValue = "";
+      this.action = this.isWithdraw ? "Deposit" : "Withdraw";
     },
 
     updateMainValue(value) {
-      if (+value > +this.fromToken.balance) {
-        this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
-        return false;
-      }
+      this.inputValue = value;
+    },
 
-      this.amountError = "";
-      this.amount = value;
+    async approveTokenHandler() {
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      const approve = await approveTokenViem(
+        this.stakeToken.contract,
+        this.mainToken.contract.address
+      );
+
+      if (approve) await this.createStakeInfo();
+      await this.deleteNotification(notificationId);
+      if (!approve) await this.createNotification(notification.approveError);
+      return false;
     },
 
     async actionHandler() {
-      if (!this.isTokenApprove) {
-        const notificationId = await this.$store.dispatch(
-          "notifications/new",
-          notification.approvePending
-        );
+      if (this.isActionDisabled) return false;
+      if (!this.isTokenApproved) return this.approveTokenHandler();
 
-        let approve = await approveToken(
-          this.tokensInfo.depositToken.contractInstance,
-          this.tokensInfo.mainToken.contractInstance.address
-        );
-
-        if (approve) {
-          await this.$store.commit("notifications/delete", notificationId);
-        } else {
-          await this.$store.commit("notifications/delete", notificationId);
-          await this.$store.dispatch(
-            "notifications/new",
-            notification.approveError
-          );
-        }
-
-        return false;
-      }
-
-      if (!+this.amount || this.amountError) return false;
-
-      if (this.action === "Deposit") {
-        await this.deposit();
-        return false;
-      }
-      if (this.action === "Withdraw") {
-        await this.withdraw();
-        return false;
-      }
-    },
-
-    async deposit() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
+      const notificationId = await this.createNotification(
         notification.pending
       );
-      try {
-        const amount = this.$ethers.utils.parseUnits(
-          this.amount,
-          this.tokensInfo.depositToken.decimals
-        );
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
-            amount,
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
-          amount,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("Deposit", receipt);
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (e) {
-        console.log("stake err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-
-    async withdraw() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
+      const { error } = await actions[this.actionInfo.methodName](
+        this.mainToken.contract,
+        ...this.actionInfo.options
       );
-      try {
-        const amount = this.$ethers.utils.parseUnits(
-          this.amount,
-          this.tokensInfo.mainToken.decimals
-        );
 
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.withdrawAndUnwrap(
-            amount
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx =
-          await this.tokensInfo.mainToken.contractInstance.withdrawAndUnwrap(
-            amount,
-            {
-              gasLimit,
-            }
-          );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("Deposit", receipt);
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (e) {
-        console.log("stake err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.createStakeInfo();
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
       }
     },
 
-    closePopup() {
-      this.$store.commit("closePopups");
+    async createStakeInfo() {
+      this.stakeInfo = await getCrv3cryptoStakeInfo(this.chainId, this.account);
     },
   },
 
   async created() {
-    this.tokensInfo = await this.createCrvDeposit();
+    await this.createStakeInfo();
 
     this.updateInterval = setInterval(async () => {
-      this.tokensInfo = await this.createCrvDeposit();
-    }, 10000);
+      await this.createStakeInfo();
+    }, 60000);
   },
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
   },
 
-  components: { BaseTokenInput, BaseButton },
+  components: {
+    InputLabel: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputLabel.vue")
+    ),
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
+    ),
+    SwapButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/SwapButton.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+  },
 };
 </script>
 
@@ -325,8 +244,7 @@ export default {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   border-radius: 30px;
   padding: 15px 25px;
-  max-width: 540px;
-  width: 100%;
+  width: 540px;
 }
 
 .popup-header {
@@ -338,27 +256,23 @@ export default {
   margin-bottom: 40px;
 }
 
-.refresh-wrap {
-  display: flex;
-  padding: 15px 0;
-  justify-content: center;
-}
-
-.refresh-img {
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-}
-
-.title {
+.popup-title {
   font-weight: 600;
   font-size: 20px;
   line-height: 30px;
 }
 
-.close {
+.popup-btn-close {
   width: 14px;
   height: 14px;
   cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .popup {
+    max-width: 540px;
+    width: 100%;
+    padding: 15px 10px;
+  }
 }
 </style>
