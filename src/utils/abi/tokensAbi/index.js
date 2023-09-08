@@ -13,6 +13,7 @@ import yvYFI from "@/utils/abi/tokensAbi/yvYFI";
 import yvcrvSTETH from "@/utils/abi/tokensAbi/yvcrvSTETH";
 import FTM from "@/utils/abi/tokensAbi/FTM";
 import stkcvx3Crv from "@/utils/abi/tokensAbi/stkcvx3Crv";
+import crv from "@/utils/abi/tokensAbi/Crv";
 import stakedThreeCrypto from "@/utils/abi/tokensAbi/stkcvxcrv3crypto";
 import AGLD from "@/utils/abi/tokensAbi/AGLD";
 import cvxRen from "@/utils/abi/tokensAbi/cvxRen";
@@ -65,6 +66,7 @@ export default {
   yvYFI,
   yvcrvSTETH,
   FTM,
+  crv,
   stkcvx3Crv,
   stakedThreeCrypto,
   AGLD,

@@ -38,6 +38,7 @@ const configs: Array<Config> = [
     type: "3crv",
     data: {
       address: "0x3Ba207c25A278524e1cC7FaAea950753049072A4",
+      label: "(new)",
     },
   },
 ];
