@@ -1,6 +1,6 @@
 import type { CollateralConfig } from "@/types/crv/configsInfo";
 
-const configs: Array<CollateralConfig> = [
+const additionalStakeConfigs: Array<CollateralConfig> = [
   {
     id: 15,
     chain: 1,
@@ -40,11 +40,11 @@ const configs: Array<CollateralConfig> = [
   },
 ];
 
-export const getCollateralConfig = (
+export const getAdditionalStakeConfig = (
   cauldronId: number,
   chainId: number
 ): CollateralConfig => {
-  return configs.filter((config) => {
+  return additionalStakeConfigs.filter((config) => {
     if (config.id === cauldronId && config.chain === chainId) return true;
   })[0];
 };
