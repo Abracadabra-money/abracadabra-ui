@@ -1,12 +1,6 @@
-type Config = {
-  id: Number;
-  chain: Number;
-  title: String;
-  type: String;
-  data?: Object;
-};
+import type { CollateralConfig } from "@/types/crv/configsInfo";
 
-const configs: Array<Config> = [
+const configs: Array<CollateralConfig> = [
   {
     id: 15,
     chain: 1,
@@ -20,7 +14,10 @@ const configs: Array<Config> = [
     id: 16,
     chain: 1,
     title: "Deposit",
-    type: "three-crypto-deposit",
+    type: "3crv",
+    data: {
+      isThreeCrypto: true,
+    },
   },
   {
     id: 24,
@@ -46,7 +43,7 @@ const configs: Array<Config> = [
 export const getCollateralConfig = (
   cauldronId: number,
   chainId: number
-): Object => {
+): CollateralConfig => {
   return configs.filter((config) => {
     if (config.id === cauldronId && config.chain === chainId) return true;
   })[0];

@@ -1,4 +1,5 @@
-import type { ContractInfo } from "../global";
+import type { Address } from "viem";
+import type { ContractInfo } from "@/types/global";
 
 export type CrvStakeConfig = {
   1: {
@@ -8,9 +9,21 @@ export type CrvStakeConfig = {
   };
 };
 
-type CrvTokenConfig = {
+export type CrvTokenConfig = {
   name: string;
   icon: string;
   decimals: number;
   contract: ContractInfo;
+};
+
+export type CollateralConfig = {
+  id: Number;
+  chain: Number;
+  title: String;
+  type: String;
+  data: {
+    address?: Address;
+    isThreeCrypto?: boolean;
+    label?: string;
+  };
 };

@@ -49,6 +49,7 @@ import { approveTokenViem } from "@/helpers/approval"; //todo
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getCrvStakeInfo } from "@/helpers/stake/crv/getCrvStakeInfo.ts";
+import { getCrv3cryptoStakeInfo } from "@/helpers/stake/crv3crypto/getCrv3cryptoStakeInfo.ts";
 
 export default {
   data() {
@@ -90,13 +91,13 @@ export default {
     },
 
     fromTokenName() {
-      if (this.isWithdraw && this.popupData.label)
+      if (this.isWithdraw && this.popupData?.label)
         return `${this.fromToken.name} ${this.popupData.label}`;
       return this.fromToken.name;
     },
 
     toTokenName() {
-      if (!this.isWithdraw && this.popupData.label)
+      if (!this.isWithdraw && this.popupData?.label)
         return `${this.toToken.name} ${this.popupData.label}`;
       return this.toToken.name;
     },
@@ -217,11 +218,13 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfo = await getCrvStakeInfo(
-        this.chainId,
-        this.account,
-        this.popupData?.address
-      );
+      this.stakeInfo = this.popupData?.isThreeCrypto
+        ? await getCrv3cryptoStakeInfo(this.chainId, this.account)
+        : await getCrvStakeInfo(
+            this.chainId,
+            this.account,
+            this.popupData?.address
+          );
     },
   },
 
