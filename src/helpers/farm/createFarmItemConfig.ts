@@ -20,7 +20,7 @@ type TokenPrices = {
 };
 
 type TokenPricesResponse = {
-  address: Address;
+  address: string;
   price: number;
 };
 

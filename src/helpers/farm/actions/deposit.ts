@@ -3,7 +3,7 @@ import {
   waitForTransaction,
   writeContract,
 } from "@wagmi/core";
-import type { ContractInfo } from "@/types/global";
+import type { ContractInfo } from "@/utils/farmsConfig/types";
 
 export const deposit = async (
   contractInfo: ContractInfo,
