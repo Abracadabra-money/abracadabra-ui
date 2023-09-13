@@ -1,14 +1,11 @@
-import { utils } from "ethers";
-import type { BigNumber } from "ethers";
+import { formatUnits } from "viem";
 
 export const getTVL = async (
-  stakingTokenTotalAmount: BigNumber,
+  stakingTokenTotalAmount: bigint,
   price: number
 ): Promise<number> => {
   try {
-    const tvl: number = Number(
-      utils.formatEther(stakingTokenTotalAmount)
-    );
+    const tvl: number = Number(formatUnits(stakingTokenTotalAmount, 18));
 
     return tvl * price;
   } catch (error) {

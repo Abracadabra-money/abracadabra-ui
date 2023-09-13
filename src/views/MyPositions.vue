@@ -121,9 +121,7 @@ export default {
     totalAssetsData() {
       const spellFarmer = filters.formatTokenBalance(
         this.openUserFarms.reduce((calc, pool) => {
-          return (
-            calc + +this.$ethers.utils.formatEther(pool.accountInfo.userReward)
-          );
+          return calc + +pool.accountInfo.userReward;
         }, 0)
       );
 
@@ -148,8 +146,8 @@ export default {
     openUserFarms() {
       return this.farms.filter((farm) => {
         return (
-          !farm.accountInfo?.userReward.isZero() ||
-          !farm.accountInfo?.userInfo.amount.isZero()
+          farm.accountInfo?.userReward != 0 ||
+          farm.accountInfo?.userInfo.amount != 0
         );
       });
     },

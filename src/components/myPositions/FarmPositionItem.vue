@@ -122,13 +122,11 @@ export default {
 
   methods: {
     prepBalanceData(tokenValue, priceValue) {
-      const tokenValueParsed = this.$ethers.utils.formatEther(tokenValue);
-
-      const price = tokenValueParsed * priceValue;
+      const price = tokenValue * priceValue;
 
       return {
         usd: price,
-        balance: tokenValueParsed,
+        balance: tokenValue,
       };
     },
 

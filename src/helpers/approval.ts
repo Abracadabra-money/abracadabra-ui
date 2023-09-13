@@ -1,4 +1,12 @@
 import type { Contract } from "ethers";
+import {
+  prepareWriteContract,
+  waitForTransaction,
+  writeContract,
+} from "@wagmi/core";
+import type { ContractInfo } from "@/utils/farmsConfig/types";
+import type { Address } from "viem";
+import { MAX_APPROVAL_AMOUNT } from "@/constants/global";
 
 const APPROVE_AMOUNT: string =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
@@ -21,6 +29,27 @@ export const approveToken = async (
     });
 
     await tx.wait();
+    return true;
+  } catch (error) {
+    console.log("Approve Token:", error);
+    return false;
+  }
+};
+
+export const approveTokenViem = async (
+  contract: ContractInfo,
+  spender: Address
+) => {
+  try {
+    const config = await prepareWriteContract({
+      ...contract,
+      functionName: "approve",
+      args: [spender, MAX_APPROVAL_AMOUNT],
+    });
+
+    const { hash } = await writeContract(config);
+    await waitForTransaction({ hash });
+
     return true;
   } catch (error) {
     console.log("Approve Token:", error);
