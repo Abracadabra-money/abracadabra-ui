@@ -50,7 +50,7 @@ export const getFarmYieldAndLpPrice = async (
       };
     }
 
-    const price = await readContract({
+    const price: any = await readContract({
       address: stakingTokenContractInfo.address,
       abi: stakingTokenContractInfo.abi,
       functionName: "get_virtual_price",
@@ -158,7 +158,7 @@ const getLPYieldAndPrice = async (
         },
       ],
     });
-
+    const IceInSlpTotalResult: bigint = IceInSlpTotal.result;
     let icePerLp = 0n;
     if (IceInSlpTotal.result > 0n)
       icePerLp =
@@ -167,8 +167,7 @@ const getLPYieldAndPrice = async (
     let parsedTokenPrice = parseUnits((tokenPrice * 2).toString(), 18);
 
     const lpPrice =
-      ((IceInSlpTotal.result / totalTokensSLPMinted.result) *
-        parsedTokenPrice) /
+      ((IceInSlpTotalResult / totalTokensSLPMinted.result) * parsedTokenPrice) /
       ONE_ETHER_VIEM;
 
     let IcePer1000Bucks = 0;

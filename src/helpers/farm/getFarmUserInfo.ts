@@ -59,7 +59,7 @@ export const getFarmUserInfo = async (
 };
 
 const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
-  const reserves = await readContract({
+  const reserves: any = await readContract({
     ...farmItemConfig.stakingToken.contractInfo,
     functionName: "getReserves",
     args: [],
