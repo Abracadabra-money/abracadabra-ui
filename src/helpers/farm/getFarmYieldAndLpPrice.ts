@@ -1,4 +1,4 @@
-import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
+import { erc20ABI } from "@wagmi/core";
 import { multicall, readContract } from "@wagmi/core";
 import { formatUnits, parseUnits } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
@@ -146,7 +146,7 @@ const getLPYieldAndPrice = async (
       contracts: [
         {
           address: iceTokenAddress,
-          abi: erc20Abi,
+          abi: erc20ABI,
           functionName: "balanceOf",
           args: [stakingTokenContractInfo.address],
         },
