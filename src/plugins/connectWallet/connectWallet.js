@@ -30,7 +30,7 @@ import { useImage } from "@/helpers/useImage";
 import { getEthersSigner } from "./getEthersSigner";
 import { sanctionAbi } from "@/utils/abi/sanctionAbi";
 import { publicProvider } from "@wagmi/core/providers/public";
-// import { getChainsConfigs } from "@/plugins/connectWallet/getChainsConfigs.ts";
+import { getChainsConfigs } from "@/plugins/connectWallet/getChainsConfigs.ts";
 
 const rpc = {
   1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
@@ -50,21 +50,7 @@ const rpc = {
 const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
 if (!projectId) throw new Error("You need to provide projectId env");
 
-// const { chains, rpcUrls } = getChainsConfigs([
-//   mainnet,
-//   bsc,
-//   polygon,
-//   avalanche,
-//   fantom,
-//   arbitrum,
-//   optimism,
-//   moonriver,
-//   kava,
-//   base,
-//   linea,
-// ]);
-
-const chains = [
+const { chains, rpcUrls } = getChainsConfigs([
   mainnet,
   bsc,
   polygon,
@@ -76,9 +62,7 @@ const chains = [
   kava,
   base,
   linea,
-];
-
-const rpcUrls = null;
+]);
 
 // 2. Configure wagmi client
 const { publicClient } = configureChains(chains, [

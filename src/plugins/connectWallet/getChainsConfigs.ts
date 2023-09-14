@@ -1,4 +1,4 @@
-import { fromHex } from "viem";
+// import { fromHex } from "viem";
 import { TENDERLY_FORK_URL } from "@/constants/tenderly";
 
 export const getChainsConfigs = (chains: any) => {
@@ -7,10 +7,11 @@ export const getChainsConfigs = (chains: any) => {
 
   if (!tenderlyForkData?.length) return { chains, rpcUrls: null };
 
-  const currentChainId = fromHex(window.ethereum.chainId, "number");
+  // const currentChainId = fromHex(window.ethereum.chainId, "number");
 
   const activeForkData = tenderlyForkData.find((data: any) => {
-    if (data.forkChainId === currentChainId && data.useFork) return data;
+    // if (data.forkChainId === currentChainId && data.useFork) return data;
+    if (data.useFork) return data;
   });
 
   if (!activeForkData) return { chains, rpcUrls: null };
