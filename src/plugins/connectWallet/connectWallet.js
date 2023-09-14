@@ -1,20 +1,14 @@
-import store from "@/store";
-import { markRaw } from "vue";
-import { ethers } from "ethers";
 import {
   configureChains,
   createConfig,
   watchAccount,
   watchNetwork,
 } from "@wagmi/core";
-
-import { publicProvider } from "@wagmi/core/providers/public";
-
-import { mainnet } from "./chains/mainnet";
-import { kava } from "./chains/kava";
-import { base } from "./chains/base";
-import { linea } from "./chains/linea";
-
+import {
+  EthereumClient,
+  w3mConnectors,
+  w3mProvider,
+} from "@web3modal/ethereum";
 import {
   optimism,
   bsc,
@@ -24,18 +18,19 @@ import {
   arbitrum,
   avalanche,
 } from "@wagmi/core/chains";
-
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from "@web3modal/ethereum";
+import store from "@/store";
+import { markRaw } from "vue";
+import { ethers } from "ethers";
+import { kava } from "./chains/kava";
+import { base } from "./chains/base";
+import { linea } from "./chains/linea";
+import { mainnet } from "./chains/mainnet";
 import { Web3Modal } from "@web3modal/html";
-import { sanctionAbi } from "@/utils/abi/sanctionAbi";
-
-import { getEthersSigner } from "./getEthersSigner";
-
 import { useImage } from "@/helpers/useImage";
+import { getEthersSigner } from "./getEthersSigner";
+import { sanctionAbi } from "@/utils/abi/sanctionAbi";
+import { publicProvider } from "@wagmi/core/providers/public";
+import { getChainsConfigs } from "@/plugins/connectWallet/getChainsConfigs";
 
 const rpc = {
   1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
@@ -55,7 +50,7 @@ const rpc = {
 const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
 if (!projectId) throw new Error("You need to provide projectId env");
 
-const chains = [
+const { chains, rpcUrls } = getChainsConfigs([
   mainnet,
   bsc,
   polygon,
@@ -67,7 +62,7 @@ const chains = [
   kava,
   base,
   linea,
-];
+]);
 
 // 2. Configure wagmi client
 const { publicClient } = configureChains(chains, [
@@ -157,7 +152,11 @@ const onConnectNew = async () => {
     const activeChain = ethereumClient.getNetwork().chain;
     const chainId = activeChain.id;
     const unsupportedChain = !rpc[chainId];
-    const currentRpc = unsupportedChain ? rpc[1] : rpc[chainId];
+    const currentRpc = unsupportedChain
+      ? rpc[1]
+      : rpcUrls
+      ? rpcUrls[0]
+      : rpc[chainId];
 
     if (!unsupportedChain) {
       localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId);

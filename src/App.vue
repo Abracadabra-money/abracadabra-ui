@@ -8,6 +8,7 @@
   <Banner />
   <SkullBanner />
   <OldAllowanceBanner />
+  <TenderlyMod />
 </template>
 <script>
 import { mapGetters } from "vuex";
@@ -63,12 +64,25 @@ export default {
   },
 
   components: {
-    AppHeader: defineAsyncComponent(() => import("@/components/app/AppHeader.vue")),
-    NotificationContainer: defineAsyncComponent(() => import("@/components/notifications/NotificationContainer.vue")),
-    PopupsWrapper: defineAsyncComponent(() => import("@/components/popups/PopupsWrapper.vue")),
+    AppHeader: defineAsyncComponent(() =>
+      import("@/components/app/AppHeader.vue")
+    ),
+    NotificationContainer: defineAsyncComponent(() =>
+      import("@/components/notifications/NotificationContainer.vue")
+    ),
+    PopupsWrapper: defineAsyncComponent(() =>
+      import("@/components/popups/PopupsWrapper.vue")
+    ),
     Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
-    SkullBanner: defineAsyncComponent(() => import("@/components/ui/SkullBanner.vue")),
-    OldAllowanceBanner: defineAsyncComponent(() => import("@/components/ui/OldAllowanceBanner.vue")),
+    SkullBanner: defineAsyncComponent(() =>
+      import("@/components/ui/SkullBanner.vue")
+    ),
+    OldAllowanceBanner: defineAsyncComponent(() =>
+      import("@/components/ui/OldAllowanceBanner.vue")
+    ),
+    TenderlyMod: defineAsyncComponent(() =>
+      import("@/components/tenderly/TenderlyMod.vue")
+    ),
   },
 };
 </script>

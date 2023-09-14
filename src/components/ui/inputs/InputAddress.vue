@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="input-address-wrap">
     <input
       class="input-address"
       :class="{ error: addressEntryError }"
@@ -7,6 +7,7 @@
       @input="updateInput"
       type="text"
       placeholder="Add destination address"
+      :disabled="isDisabled"
     />
     <p class="error-message" :class="{ visibility: addressEntryError }">
       Invalid address
@@ -18,10 +19,28 @@
 import { utils } from "ethers";
 
 export default {
+  props: {
+    destinationAddress: {
+      type: String,
+      default: "",
+    },
+
+    isDisabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   data() {
     return {
-      address: null,
+      address: this.destinationAddress,
     };
+  },
+
+  watch: {
+    destinationAddress() {
+      this.address = this.destinationAddress;
+    },
   },
 
   computed: {
@@ -46,6 +65,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.input-address-wrap {
+  width: 100%;
+}
+
 .input-address {
   width: 100%;
   height: 50px;

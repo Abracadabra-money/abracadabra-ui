@@ -1,7 +1,7 @@
 <template>
   <a
     class="default-button"
-    :style="{ width: setWidth() }"
+    :style="{ 'max-width': setWidth() }"
     :class="{ primary: primary, disabled: disabled || loading, borderless }"
   >
     <div><slot></slot></div>
@@ -56,6 +56,8 @@ export default {
   line-height: 24px;
   overflow: hidden;
   border: 2px solid #648fcc;
+  width: 100%;
+
   &.disabled {
     cursor: not-allowed;
   }
