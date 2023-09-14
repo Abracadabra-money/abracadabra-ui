@@ -35,7 +35,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
 .fork-info-block {
   width: 100%;
   display: flex;
