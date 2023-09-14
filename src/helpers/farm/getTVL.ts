@@ -5,7 +5,7 @@ export const getTVL = async (
   price: number
 ): Promise<number> => {
   try {
-    const tvl: number = Number(formatUnits(stakingTokenTotalAmount, 18));
+    const tvl: number = Number(formatUnits(stakingTokenTotalAmount, 36));
 
     return tvl * price;
   } catch (error) {

@@ -57,8 +57,6 @@ export const getFarmYieldAndLpPrice = async (
       args: [],
     });
 
-    const lpPrice = Number(formatUnits(price, 18));
-
     const farmYield = await getFarmYield(
       contractInfo,
       1000n,
@@ -68,7 +66,7 @@ export const getFarmYieldAndLpPrice = async (
     );
 
     return {
-      lpPrice,
+      lpPrice: Number(price),
       farmYield,
     };
   } catch (e) {
@@ -167,8 +165,7 @@ const getLPYieldAndPrice = async (
     let parsedTokenPrice = parseUnits((tokenPrice * 2).toString(), 18);
 
     const lpPrice =
-      ((IceInSlpTotalResult / totalTokensSLPMinted.result) * parsedTokenPrice) /
-      ONE_ETHER_VIEM;
+      (IceInSlpTotalResult / totalTokensSLPMinted.result) * parsedTokenPrice;
 
     let IcePer1000Bucks = 0;
     if (tokenPrice > 0) IcePer1000Bucks = 1000 / tokenPrice;
