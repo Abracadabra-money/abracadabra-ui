@@ -69,6 +69,7 @@ export default {
       this.isTenderlyMod = !!localStorage.getItem("tenderly_fork_data");
     });
 
+    // todo Notification
     if (this.isTenderlyMod) {
       await this.createNotification({
         msg: "You have Tenderly mod enabled. Make sure that Fork is selected in your wallet. Or log out.",
