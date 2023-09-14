@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: "Button",
+  name: "BaseButton",
   props: {
     primary: {
       type: Boolean,

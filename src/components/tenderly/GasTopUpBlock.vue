@@ -5,34 +5,33 @@
       <InputAddress
         :destinationAddress="destinationAddress"
         :isDisabled="!useCustomAddress"
+        @update-input="updateDestinationAddress"
       />
 
       <button class="use-custom">
         Use custom
-        <CheckBox :value="useCustomAddress" @update="toggleActiveMarkets" />
+        <CheckBox :value="useCustomAddress" @update="toggleUseCustomAddress" />
       </button>
     </div>
 
     <div class="input-assets">
-      <!-- :disabled="!useCustomAddress" -->
-      <input
-        class="input"
-        v-model="gasInputValue"
-        type="number"
-        placeholder="1000"
-      />
+      <InputNumber @changeInputNumber="updateGasValue" />
 
-      <BaseButton width="160px" @click="actionHandler">Get Gas</BaseButton>
+      <BaseButton
+        width="160px"
+        :disabled="isDisabledGetGasBtn"
+        @click="actionHandler"
+        >Get Gas</BaseButton
+      >
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
 import { getAccount } from "@wagmi/core";
 import { defineAsyncComponent } from "vue";
+import { mapGetters, mapActions } from "vuex";
 import notification from "@/helpers/notification/notification.js";
-
 import { tenderlyAddBalance } from "@/helpers/tenderly/tenderlyAddBalance";
 
 const account = getAccount();
@@ -40,35 +39,44 @@ const account = getAccount();
 export default {
   data() {
     return {
-      gasInputAddress: account.address,
-      gasInputValue: "",
+      inputGasValue: "",
       useCustomAddress: false,
+      destinationAddress: account.address,
     };
   },
 
   computed: {
     ...mapGetters({ provider: "getProvider" }),
 
-    destinationAddress() {
-      if (this.useCustomAddress) return "";
-      return account.address;
+    isDisabledGetGasBtn() {
+      return !this.destinationAddress || !this.inputGasValue;
     },
   },
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
 
-    toggleActiveMarkets() {
+    updateGasValue(value) {
+      this.inputGasValue = value;
+    },
+
+    updateDestinationAddress(address) {
+      this.destinationAddress = address;
+    },
+
+    toggleUseCustomAddress() {
       this.useCustomAddress = !this.useCustomAddress;
 
-      if (this.useCustomAddress) this.gasInputAddress = "";
-      else this.gasInputAddress = account.address;
+      if (this.useCustomAddress) this.destinationAddress = "";
+      else this.destinationAddress = account.address;
     },
 
     async actionHandler() {
+      if (!this.destinationAddress) return false;
+
       const response = await tenderlyAddBalance(
-        account.address,
-        this.gasInputValue,
+        this.destinationAddress,
+        this.inputGasValue,
         this.provider
       );
 
@@ -77,14 +85,17 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    InputAddress: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputAddress.vue")
     ),
     CheckBox: defineAsyncComponent(() =>
       import("@/components/ui/CheckBox.vue")
     ),
-    InputAddress: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputAddress.vue")
+    InputNumber: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputNumber.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
     ),
   },
 };
@@ -123,22 +134,5 @@ export default {
   background: rgba(255, 255, 255, 0.06);
   justify-content: center;
   border: 2px solid #648fcc;
-}
-
-.input {
-  background-color: rgba(255, 255, 255, 0.1);
-  height: 50px;
-  text-align: center;
-  width: 70%;
-  font-size: 16px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
-  color: white;
-  width: 100%;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
 }
 </style>
