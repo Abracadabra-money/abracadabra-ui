@@ -3,3 +3,5 @@ export const TENDERLY_URL: string = `https://api.tenderly.co/api/v1/account/${
 }/project/${import.meta.env.VITE_APP_TENDERLY_PROJECT}/fork`;
 
 export const TENDERLY_FORK_URL: string = "https://rpc.tenderly.co/fork/";
+export const TENDERLY_CUSTOM_EVENT: string = "tenderly_fork_data-changed";
+export const TENDERLY_FORK_DATA: string = "tenderly_fork_data";
