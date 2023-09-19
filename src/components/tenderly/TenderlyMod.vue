@@ -62,6 +62,20 @@ export default {
     },
   },
 
+  watch: {
+    async chainId() {
+      const activeForkData = this.forksData.find((forkData) => {
+        if (forkData.useFork) return forkData;
+      });
+
+      const forkChainId = activeForkData?.forkChainId;
+
+      if (forkChainId && forkChainId !== this.chainId) {
+        await this.toggleTenderlyMod();
+      }
+    },
+  },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
 
