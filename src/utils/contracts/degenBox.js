@@ -8,10 +8,10 @@ export default [
     abi: degenBoxAbi,
   },
   {
-    chainId: 43114,
+    chainId: 10,
     name: "DegenBox",
-    contractChain: "0xa86a",
-    address: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
+    contractChain: "0x0a",
+    address: "0xa93C81f564579381116ee3E007C9fCFd2EBa1723",
     abi: degenBoxAbi,
   },
   {
@@ -29,17 +29,17 @@ export default [
     abi: degenBoxAbi,
   },
   {
-    chainId: 10,
-    name: "DegenBox",
-    contractChain: "0x0a",
-    address: "0xa93C81f564579381116ee3E007C9fCFd2EBa1723",
-    abi: degenBoxAbi,
-  },
-  {
     chainId: 42161,
     name: "DegenBox",
     contractChain: "0xa4b1",
     address: "0x7C8FeF8eA9b1fE46A7689bfb8149341C90431D38",
+    abi: degenBoxAbi,
+  },
+  {
+    chainId: 43114,
+    name: "DegenBox",
+    contractChain: "0xa86a",
+    address: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
     abi: degenBoxAbi,
   },
 ];

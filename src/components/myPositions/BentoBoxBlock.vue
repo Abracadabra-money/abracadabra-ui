@@ -1,7 +1,7 @@
 <template>
   <div class="bento-wrapper" v-if="isHide">
     <BentoBoxItem
-      v-if="+bentoBoxConfig.mimInDegenBalance"
+      v-if="bentoBoxConfig.mimInDegenBalance"
       @withdraw="openPopup(false, false)"
       @deposit="openPopup(false, true)"
       :balance="bentoBoxConfig.mimInDegenBalance"
@@ -9,7 +9,7 @@
     />
 
     <BentoBoxItem
-      v-if="+bentoBoxConfig.mimInBentoBalance"
+      v-if="bentoBoxConfig.mimInBentoBalance"
       @withdraw="openPopup(true, false)"
       @deposit="openPopup(true, true)"
       :balance="bentoBoxConfig.mimInBentoBalance"
@@ -38,6 +38,8 @@ import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 
+import { createBentoBoxConfig } from "@/helpers/bentoBox/createBentoBoxConfig.ts";
+
 const initialPopupData = {
   opened: false,
   isBento: null,
@@ -51,20 +53,21 @@ export default {
     return {
       popupData: { ...initialPopupData },
       bentoUpdateInterval: null,
+      bentoBoxConfig: null,
     };
   },
 
   computed: {
     ...mapGetters({
+      chainId: "getChainId",
       account: "getAccount",
-      bentoBoxConfig: "getMimInBentoDepositObject",
+      // bentoBoxConfig: "getMimInBentoDepositObject",
     }),
 
     isHide() {
       return (
-        this.bentoBoxConfig &&
-        (+this.bentoBoxConfig?.mimInBentoBalance ||
-          +this.bentoBoxConfig?.mimInDegenBalance) &&
+        (this.bentoBoxConfig?.mimInBentoBalance ||
+          this.bentoBoxConfig?.mimInDegenBalance) &&
         this.account
       );
     },
@@ -87,10 +90,19 @@ export default {
 
     async createMimBentoData() {
       if (!this.account) return false;
-      await this.createMimBentoInfo();
+      this.bentoBoxConfig = await createBentoBoxConfig(
+        this.chainId,
+        this.account
+      );
+
+      // await this.createMimBentoInfo();
 
       this.bentoUpdateInterval = setInterval(async () => {
-        await this.createMimBentoInfo();
+        this.bentoBoxConfig = await createBentoBoxConfig(
+          this.chainId,
+          this.account
+        );
+        // await this.createMimBentoInfo();
       }, 5000);
     },
   },
