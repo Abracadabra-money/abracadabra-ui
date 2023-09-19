@@ -15,7 +15,7 @@ type MimInfo = {
 
 export const createBentoBoxConfig = async (
   chainId: number,
-  account: Address
+  account: string
 ) => {
   const mimInfo = mimTokenInfo.find(
     (token: any) => token.name === "MIM" && token.chainId === chainId
