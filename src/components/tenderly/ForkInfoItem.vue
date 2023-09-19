@@ -1,5 +1,5 @@
 <template>
-  <div class="fork-info-item">
+  <div class="fork-info-item" :class="timeLine">
     <div class="info-row">
       <p>Chain ID</p>
       <p>{{ forkData.forkChainId }}</p>
@@ -16,22 +16,32 @@
     </div>
 
     <div class="btns-wrap">
-      <div class="toggle-use-fork">
+      <div class="toggle-use-fork" :class="{ disabled: isDisabled }">
         Use Fork
-        <CheckBox @click="toggleActiveMarkets" :value="useFork" />
+        <CheckBox
+          :value="useFork"
+          :disabled="isDisabled"
+          @click="toggleUseFork"
+        />
       </div>
-      <BaseButton @click="addForkToMetamaskAction">Add/Switch</BaseButton>
-      <BaseButton>Delete</BaseButton>
+
+      <BaseButton :disabled="isDisabled" @click="addAndSwitch">
+        Add/Switch
+      </BaseButton>
+
+      <BaseButton @click="deleteFork">Delete</BaseButton>
     </div>
   </div>
 </template>
 
 <script>
+import moment from "moment";
+import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { mapGetters, mapActions } from "vuex";
 import { TENDERLY_FORK_DATA } from "@/constants/tenderly";
-import { addForkToMetamask } from "@/helpers/tenderly/addForkToMetamask";
+import { addAndSwitchForkOnWallet } from "@/helpers/tenderly/addAndSwitchForkOnWallet";
 import { tenderlyDispatchEvent } from "@/helpers/tenderly/tenderlyDispatchEvent";
+import { deleteFork } from "@/helpers/tenderly/deleteFork";
 
 export default {
   props: {
@@ -50,10 +60,38 @@ export default {
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
 
+    timeLine() {
+      const timestamp = Date.parse(this.forkData?.timestamp);
+      const currentTimestamp = moment();
+
+      const isTwelveHoursPassed = moment(
+        new Date(timestamp + 60 * 60 * 12 * 1000)
+      ).isBefore(currentTimestamp);
+
+      if (isTwelveHoursPassed) return "high";
+
+      const isSixHoursPassed = moment(
+        new Date(timestamp + 60 * 60 * 6 * 1000)
+      ).isBefore(currentTimestamp);
+
+      if (isSixHoursPassed) return "medium";
+
+      return "safe";
+    },
+
     timestamp() {
       const timestamp = this.forkData?.timestamp;
       const parsedDate = new Date(Date.parse(timestamp));
-      return timestamp ? parsedDate.toLocaleDateString() : "xx";
+      const hours = parsedDate.getHours();
+      const minutes = parsedDate.getMinutes();
+
+      return timestamp
+        ? `${parsedDate.toLocaleDateString()} ${hours}:${minutes}`
+        : "xx";
+    },
+
+    isDisabled() {
+      return this.chainId !== this.forkData.forkChainId;
     },
   },
 
@@ -64,20 +102,10 @@ export default {
   },
 
   methods: {
-    ...mapActions({ createNotification: "notifications/new" }),
-
-    async toggleActiveMarkets() {
-      // todo Notification
-      if (this.chainId !== this.forkData.forkChainId) {
-        await this.createNotification({
-          msg: "Switch chain",
-          type: "warning",
-        });
-        return false;
-      }
+    async toggleUseFork() {
+      if (this.isDisabled) return false;
 
       this.useFork = !this.useFork;
-
       const data = JSON.parse(localStorage.getItem(TENDERLY_FORK_DATA));
 
       data.find((fork) => {
@@ -91,16 +119,37 @@ export default {
 
       localStorage.setItem(TENDERLY_FORK_DATA, JSON.stringify(data));
 
-      tenderlyDispatchEvent();
-
       setTimeout(() => {
         window.location.reload();
       }, 300);
     },
 
-    async addForkToMetamaskAction() {
-      await addForkToMetamask(this.forkData);
-      window.location.reload();
+    async addAndSwitch() {
+      if (this.chainId !== this.forkData.forkChainId) return false;
+      const { error } = await addAndSwitchForkOnWallet(this.forkData);
+      if (!error) window.location.reload();
+    },
+
+    async deleteFork() {
+      const { forkId, useFork } = this.forkData;
+
+      await deleteFork(forkId);
+
+      const localForksData = JSON.parse(
+        localStorage.getItem(TENDERLY_FORK_DATA)
+      );
+
+      const filteredForksData = localForksData.filter(
+        (fork) => fork.forkId !== this.forkData.forkId
+      );
+
+      localStorage.setItem(
+        TENDERLY_FORK_DATA,
+        JSON.stringify(filteredForksData)
+      );
+
+      if (useFork) window.location.reload();
+      else tenderlyDispatchEvent();
     },
   },
 
@@ -108,7 +157,6 @@ export default {
     CheckBox: defineAsyncComponent(() =>
       import("@/components/ui/CheckBox.vue")
     ),
-
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
@@ -125,6 +173,21 @@ export default {
   background: #2b2b3c;
   border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.safe {
+  border: 1px solid #63ff7b;
+  color: #fff;
+}
+
+.medium {
+  border: 1px solid #ffb800;
+  color: #fff;
+}
+
+.high {
+  border: 1px solid #fe1842;
+  color: #fff;
 }
 
 .info-row {
@@ -151,5 +214,11 @@ export default {
   background: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   border: 2px solid #648fcc;
+}
+
+.disabled {
+  cursor: not-allowed;
+  background: #403e4a;
+  color: rgba(255, 255, 255, 0.6);
 }
 </style>
