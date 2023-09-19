@@ -1,17 +1,17 @@
-// import { fromHex } from "viem";
-import { TENDERLY_FORK_URL } from "@/constants/tenderly";
+import type { Chain } from "viem";
+import type { ChainsConfigs, LocalForkData } from "@/types/tenderly";
+import { TENDERLY_FORK_DATA, TENDERLY_FORK_URL } from "@/constants/tenderly";
 
-export const getChainsConfigs = (chains: any) => {
-  const localForkData: any = localStorage.getItem("tenderly_fork_data");
-  const tenderlyForkData: any = JSON.parse(localForkData);
+export const getChainsConfigs = (chains: Chain[]): ChainsConfigs => {
+  const localForkData = localStorage.getItem(TENDERLY_FORK_DATA);
+  const tenderlyForkData: LocalForkData[] | null = localForkData
+    ? JSON.parse(localForkData)
+    : null;
 
   if (!tenderlyForkData?.length) return { chains, rpcUrls: null };
 
-  // const currentChainId = fromHex(window.ethereum.chainId, "number");
-
-  const activeForkData = tenderlyForkData.find((data: any) => {
-    // if (data.forkChainId === currentChainId && data.useFork) return data;
-    if (data.useFork) return data;
+  const activeForkData = tenderlyForkData.find((forkData: LocalForkData) => {
+    if (forkData.useFork) return forkData;
   });
 
   if (!activeForkData) return { chains, rpcUrls: null };
@@ -19,7 +19,7 @@ export const getChainsConfigs = (chains: any) => {
   const { forkChainId, forkId } = activeForkData;
   const rpcUrls = [`${TENDERLY_FORK_URL}${forkId}`];
 
-  chains.map((chain: any) => {
+  chains.map((chain: Chain) => {
     if (chain.id === forkChainId) {
       chain.rpcUrls.default.http = rpcUrls;
       chain.rpcUrls.public.http = rpcUrls;
