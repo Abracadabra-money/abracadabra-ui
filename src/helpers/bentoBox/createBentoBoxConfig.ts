@@ -9,7 +9,7 @@ type MimInfo = {
   name: string;
   chainId: number;
   decimals: number;
-  address: Address;
+  address: string;
   abi: any;
 };
 
@@ -18,7 +18,7 @@ export const createBentoBoxConfig = async (
   account: Address
 ) => {
   const mimInfo = mimTokenInfo.find(
-    (token: MimInfo) => token.name === "MIM" && token.chainId === chainId
+    (token: any) => token.name === "MIM" && token.chainId === chainId
   );
 
   if (!mimInfo) {
