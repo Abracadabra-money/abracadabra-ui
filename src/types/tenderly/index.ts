@@ -6,8 +6,13 @@ export type ChainsConfigs = {
 };
 
 export type LocalForkData = {
-  forkChainId: Number;
+  forkChainId: number;
   forkId: String;
   timestamp: String;
   useFork: Boolean;
+};
+
+export type AddAndSwitchForkOnWallet = {
+  success?: boolean;
+  error?: any;
 };
