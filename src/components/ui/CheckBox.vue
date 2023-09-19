@@ -1,5 +1,9 @@
 <template>
-  <div class="checkbox" :class="{ active: value }" @click="$emit('update')">
+  <div
+    class="checkbox"
+    :class="{ active: value, disabled: disabled }"
+    @click="$emit('update')"
+  >
     <div class="checkbox-indicator"></div>
   </div>
 </template>
@@ -9,6 +13,11 @@ export default {
   props: {
     value: {
       type: Boolean,
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
 };
@@ -34,6 +43,12 @@ export default {
       transform: translateY(-50%) translateX(-100%);
     }
   }
+}
+
+.disabled {
+  cursor: not-allowed;
+  background: #403e4a;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .checkbox-indicator {
