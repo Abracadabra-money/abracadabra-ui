@@ -37,7 +37,7 @@ export default {
     async createForkAction() {
       const localForksData =
         JSON.parse(localStorage.getItem(TENDERLY_FORK_DATA)) || [];
-      localForksData.push(await createFork(this.selectedForkId));
+      localForksData.unshift(await createFork(this.selectedForkId));
       localStorage.setItem(TENDERLY_FORK_DATA, JSON.stringify(localForksData));
       tenderlyDispatchEvent();
     },
