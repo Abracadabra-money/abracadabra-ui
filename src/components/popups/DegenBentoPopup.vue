@@ -216,8 +216,7 @@ export default {
         this.activeContract.address
       );
 
-      if (approve) await this.createStakeInfo();
-      await this.deleteNotification(notificationId);
+      if (approve) await await this.deleteNotification(notificationId);
 
       if (!approve) await this.createNotification(notification.approveError);
 
