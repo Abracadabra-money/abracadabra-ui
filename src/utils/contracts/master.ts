@@ -1,5 +1,6 @@
 import bentoBoxAbi from "@/utils/abi/bentoBox";
-export default [
+import type { ExtendedContractInfo } from "@/utils/contracts/types";
+export default <ExtendedContractInfo[]>[
   {
     chainId: 1,
     name: "BentoBoxV1",

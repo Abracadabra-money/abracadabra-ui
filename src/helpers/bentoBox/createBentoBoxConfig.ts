@@ -4,6 +4,7 @@ import degenBoxInfo from "@/utils/contracts/degenBox";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import { multicall, readContract } from "@wagmi/core";
 import type { Address } from "@wagmi/core";
+import type { ExtendedContractInfo } from "@/utils/contracts/types";
 
 type MimInfo = {
   name: string;
@@ -17,7 +18,7 @@ export const createBentoBoxConfig = async (
   chainId: number,
   account: Address
 ) => {
-  const mimInfo = mimTokenInfo.find(
+  const mimInfo: MimInfo | undefined = mimTokenInfo.find(
     (token: any) => token.name === "MIM" && token.chainId === chainId
   );
 
@@ -29,11 +30,11 @@ export const createBentoBoxConfig = async (
     degenContractInfo = null;
 
   bentoContractInfo = bentoContractsInfo.find(
-    (contractInfo: any) => contractInfo.chainId === chainId
+    (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
 
   degenContractInfo = degenBoxInfo.find(
-    (contractInfo: any) => contractInfo.chainId === chainId
+    (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
 
   const mimPrice = await getTokenPriceByAddress(
