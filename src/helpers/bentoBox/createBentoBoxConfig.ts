@@ -6,19 +6,11 @@ import { multicall, readContract } from "@wagmi/core";
 import type { Address } from "@wagmi/core";
 import type { ExtendedContractInfo } from "@/utils/contracts/types";
 
-type MimInfo = {
-  name: string;
-  chainId: number;
-  decimals: number;
-  address: Address;
-  abi: any;
-};
-
 export const createBentoBoxConfig = async (
   chainId: number,
   account: Address
 ) => {
-  const mimInfo: MimInfo | undefined = mimTokenInfo.find(
+  const mimInfo = mimTokenInfo.find(
     (token: any) => token.name === "MIM" && token.chainId === chainId
   );
 
