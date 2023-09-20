@@ -65,13 +65,13 @@ export const createBentoBoxConfig = async (
         address: mimInfo.address as Address,
         abi: mimInfo.abi as any,
         functionName: "allowance",
-        args: [account, bentoContractInfo?.address],
+        args: [account, bentoContractInfo?.address as Address],
       },
       {
         address: mimInfo.address as Address,
         abi: mimInfo.abi as any,
         functionName: "allowance",
-        args: [account, degenContractInfo?.address],
+        args: [account, degenContractInfo?.address as Address],
       },
       {
         address: mimInfo.address as Address,
