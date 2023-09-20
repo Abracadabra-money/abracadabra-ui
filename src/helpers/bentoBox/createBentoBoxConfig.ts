@@ -29,8 +29,6 @@ export const createBentoBoxConfig = async (
     (contractInfo: any) => contractInfo.chainId === chainId
   );
 
-  console.log("bentoContractInfo", bentoContractInfo);
-
   const degenContractInfo = degenBoxInfo.find(
     (contractInfo: any) => contractInfo.chainId === chainId
   );
@@ -49,14 +47,14 @@ export const createBentoBoxConfig = async (
   ]: any = await multicall({
     contracts: [
       {
-        address: bentoContractInfo.address as Address,
-        abi: bentoContractInfo.abi as any,
+        address: bentoContractInfo?.address as Address,
+        abi: bentoContractInfo?.abi as any,
         functionName: "balanceOf",
         args: [mimInfo.address, account],
       },
       {
-        address: degenContractInfo.address as Address,
-        abi: degenContractInfo.abi as any,
+        address: degenContractInfo?.address as Address,
+        abi: degenContractInfo?.abi as any,
         functionName: "balanceOf",
         args: [mimInfo.address, account],
       },
@@ -64,13 +62,13 @@ export const createBentoBoxConfig = async (
         address: mimInfo.address as Address,
         abi: mimInfo.abi as any,
         functionName: "allowance",
-        args: [account, bentoContractInfo.address],
+        args: [account, bentoContractInfo?.address],
       },
       {
         address: mimInfo.address as Address,
         abi: mimInfo.abi as any,
         functionName: "allowance",
-        args: [account, degenContractInfo.address],
+        args: [account, degenContractInfo?.address],
       },
       {
         address: mimInfo.address as Address,
