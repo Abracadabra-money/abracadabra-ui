@@ -24,12 +24,15 @@ export const createBentoBoxConfig = async (
   if (!mimInfo) {
     return false;
   }
-  //todo global types
-  const bentoContractInfo = bentoContractsInfo.find(
+
+  let bentoContractInfo,
+    degenContractInfo = null;
+
+  bentoContractInfo = bentoContractsInfo.find(
     (contractInfo: any) => contractInfo.chainId === chainId
   );
 
-  const degenContractInfo = degenBoxInfo.find(
+  degenContractInfo = degenBoxInfo.find(
     (contractInfo: any) => contractInfo.chainId === chainId
   );
 
