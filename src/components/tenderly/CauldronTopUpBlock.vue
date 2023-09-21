@@ -7,9 +7,14 @@
         <img class="chain-icon" :src="forkChainIcon" alt="Chain icon" />
         <span>{{ chainConfig.name }}</span>
       </div>
-      <button class="use-custom">
+
+      <button class="use-custom" :class="{ disabled: !activeFork }">
         Use custom
-        <CheckBox :value="useCustomFork" @update="toggleUseCustomFork" />
+        <CheckBox
+          :value="useCustomFork"
+          :disabled="!activeFork"
+          @update="toggleUseCustomFork"
+        />
       </button>
     </div>
 
@@ -126,6 +131,7 @@ export default {
     },
 
     toggleUseCustomFork() {
+      if (!this.activeFork) return false;
       this.useCustomFork = !this.useCustomFork;
       this.errorForkUrl = "";
 
@@ -241,5 +247,11 @@ export default {
   background: rgba(255, 255, 255, 0.06);
   justify-content: center;
   border: 2px solid #648fcc;
+}
+
+.disabled {
+  cursor: not-allowed;
+  background: #403e4a;
+  color: rgba(255, 255, 255, 0.6);
 }
 </style>
