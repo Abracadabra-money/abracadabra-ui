@@ -100,6 +100,14 @@ const formatExactPrice = (value) => {
   return `$ ${formatTokenBalance(value)}`;
 };
 
+const formatAddress = (address) => {
+  return (
+    address.substring(0, 5) +
+    "..." +
+    address.substring(address.length - 5, address.length)
+  );
+};
+
 const filters = {
   formatUSD,
   formatNumber,
@@ -108,6 +116,7 @@ const filters = {
   formatToFixed,
   formatPercent,
   formatExactPrice,
+  formatAddress,
 };
 
 export default filters;

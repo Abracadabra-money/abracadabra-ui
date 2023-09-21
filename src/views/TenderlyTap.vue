@@ -10,6 +10,8 @@
           </div>
 
           <GasTopUpBlock />
+          <div class="underline"></div>
+          <CauldronTopUpBlock :activeFork="activeFork" />
         </div>
 
         <ForksInfoBlock />
@@ -22,12 +24,29 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  data() {
+    return {
+      forksData: JSON.parse(localStorage.getItem("tenderly_fork_data")),
+    };
+  },
+
+  computed: {
+    activeFork() {
+      return this.forksData.find((forkData) => {
+        if (forkData.useFork) return forkData;
+      });
+    },
+  },
+
   components: {
     CreateForkBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/CreateForkBlock.vue")
     ),
     GasTopUpBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/GasTopUpBlock.vue")
+    ),
+    CauldronTopUpBlock: defineAsyncComponent(() =>
+      import("@/components/tenderly/CauldronTopUpBlock.vue")
     ),
     ForksInfoBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/ForksInfoBlock.vue")

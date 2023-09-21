@@ -1,8 +1,10 @@
 <template>
   <input
     class="input-number"
+    :class="{ disabled: isDisabled }"
     type="number"
     :placeholder="placeholder"
+    :disabled="isDisabled"
     @input="(event) => $emit('changeInputNumber', event.target.value)"
   />
 </template>
@@ -13,6 +15,10 @@ export default {
     placeholder: {
       type: String,
       default: "1000",
+    },
+    isDisabled: {
+      type: Boolean,
+      default: false,
     },
   },
 };
@@ -52,5 +58,9 @@ input[type="number"]::-webkit-outer-spin-button {
   &::placeholder {
     color: rgba(255, 255, 255, 0.3);
   }
+}
+
+.disabled {
+  cursor: not-allowed;
 }
 </style>

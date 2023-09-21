@@ -2,11 +2,11 @@
   <div class="input-address-wrap">
     <input
       class="input-address"
-      :class="{ error: addressEntryError }"
+      :class="{ error: addressEntryError, disabled: isDisabled }"
       v-model="address"
       @input="updateInput"
       type="text"
-      placeholder="Add destination address"
+      :placeholder="placeholder"
       :disabled="isDisabled"
     />
     <p class="error-message" :class="{ visibility: addressEntryError }">
@@ -24,10 +24,13 @@ export default {
       type: String,
       default: "",
     },
-
     isDisabled: {
       type: Boolean,
       default: false,
+    },
+    placeholder: {
+      type: String,
+      default: "Add destination address",
     },
   },
 
@@ -78,6 +81,11 @@ export default {
   outline: none;
   padding: 12px 20px;
   color: #fff;
+  font-size: 15px;
+}
+
+.disabled {
+  cursor: not-allowed;
 }
 
 .error {
