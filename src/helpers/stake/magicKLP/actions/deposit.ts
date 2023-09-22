@@ -23,7 +23,7 @@ export const deposit = async (
     console.log("Stake Deposit Handler Error:", error);
 
     return {
-      error: { type: "error", msg: await notificationErrorMsg(error) },
+      error: { type: "error", msg: await notificationErrorMsg(error, "mklp") },
     };
   }
 };

@@ -1,4 +1,4 @@
-export const notificationErrorMsg = (e) => {
+export const notificationErrorMsg = (e, type = "") => {
   let msg = null;
 
   if (
@@ -55,9 +55,17 @@ export const notificationErrorMsg = (e) => {
       "Some of your GLP tokens are reserved for vesting on gmx. Please insert the amount that is not reserved for vesting";
   }
 
-  if (!msg) msg = "Transaction encountered an Error";
+  if (
+    (String(e).indexOf(`BoringERC20: TransferFrom failed`) !== -1 ||
+      e?.data?.message === `BoringERC20: TransferFrom failed` ||
+      e?.message === `BoringERC20: TransferFrom failed`) &&
+    type === "mklp"
+  ) {
+    msg =
+      "Kintetik Finance applies a 15 minutes lock on all freshly minted KLP. Please wait 15 minutes and try again.";
+  }
 
-  console.log(msg);
+  if (!msg) msg = "Transaction encountered an Error";
 
   return msg;
 };
