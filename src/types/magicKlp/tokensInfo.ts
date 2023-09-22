@@ -28,4 +28,5 @@ export type StakeTokenInfo = {
   balance: bigint;
   balanceUsd: bigint;
   contract: ContractInfo;
+  lastAdded: string;
 };

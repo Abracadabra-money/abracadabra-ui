@@ -53,9 +53,12 @@
             @click="approveTokenHandler"
             >Approve
           </BaseButton>
-
-          <BaseButton :disabled="isActionDisabled" @click="actionHandler">
-            {{ action }}
+          <BaseButton
+            v-tooltip="tooltipText"
+            :disabled="isActionDisabled"
+            @click="actionHandler"
+          >
+            {{ actionButtonText }}
           </BaseButton>
         </div>
       </div>
@@ -118,6 +121,7 @@
 
 <script>
 import axios from "axios";
+import moment from "moment";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
@@ -138,6 +142,8 @@ export default {
       action: "Stake",
       inputValue: "",
       updateInterval: null,
+      timerCount: "Stake",
+      timeInterval: null,
     };
   },
 
@@ -146,6 +152,29 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    actionButtonText() {
+      if (!this.stakeToken && this.isStakeAction) return "Stake";
+      if (!this.stakeToken && !this.isStakeAction) return "Unstake";
+
+      if (this.isStakeAction && !!this.finalTime) return this.timerCount;
+      if (this.isStakeAction && !this.finalTime) return "Stake";
+      return "Unstake";
+    },
+
+    finalTime() {
+      const lockTimestamp = +this.stakeToken?.lastAdded
+        ? moment.unix(this.stakeToken.lastAdded).add(77, "minutes")
+        : moment.unix(0);
+
+      return this.timerCount ? lockTimestamp.unix().toString() : 0;
+    },
+
+    tooltipText() {
+      return this.timerCount
+        ? "Kintetix Finance applies a 15 minutes lock on all freshly minted KLP. Please wait"
+        : "";
+    },
 
     isInfoLoading() {
       return !!this.stakeInfo;
@@ -165,6 +194,8 @@ export default {
 
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
+      if (this.isStakeAction)
+        return !!(!this.inputValue || this.errorMainValue || +this.finalTime);
       return !!(!this.inputValue || this.errorMainValue);
     },
 
@@ -307,20 +338,52 @@ export default {
         await this.createNotification(notification.success);
       }
     },
+
+    isLocked() {
+      const start = moment(new Date());
+      const end = moment.unix(this.finalTime);
+      return end.isAfter(start);
+    },
+
+    checkDuration() {
+      this.timeInterval = setInterval(() => {
+        if (!this.finalTime) {
+          this.timerCount = 0;
+          return false;
+        }
+
+        const start = moment(new Date());
+        const end = moment.unix(this.finalTime);
+        const duration = end.diff(start);
+
+        const isLocked = end.isAfter(start);
+
+        this.timerCount = isLocked
+          ? `Unlocks in: ${moment.utc(duration).format("HH:mm:ss")}`
+          : 0;
+      }, 1000);
+    },
   },
 
   async created() {
     await this.createStakeInfo();
     if (!this.isUnsupportedChain) return false;
+    const isLocked = this.isLocked();
+
+    if (isLocked) this.checkDuration();
+    else this.timerCount = 0;
+
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();
     }, 60000);
+
     const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
     this.apy = filters.formatToFixed(data.apr, 2);
   },
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
+    clearInterval(this.timeInterval);
   },
 
   components: {
