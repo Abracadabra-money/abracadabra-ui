@@ -13,6 +13,8 @@ export type EmptyStateItem = {
   icon: string;
   rate?: bigint;
   balance: BigInt;
+  balanceUsd: bigint;
+  rateIcon?: string;
 };
 
 export type StakeInfo = {
