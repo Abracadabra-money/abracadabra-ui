@@ -13,6 +13,7 @@ export const emptyState: EmptyState = {
     balance: 0n,
     balanceUsd: 0n,
     rate: 1000000000000000000n,
+    decimals: 18,
     rateIcon: useImage("assets/images/tokens/KLP.png"),
   },
   stakeToken: {

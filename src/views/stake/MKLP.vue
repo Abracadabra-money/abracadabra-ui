@@ -78,6 +78,7 @@
           <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
 
           <AdditionalInfoBlockViem
+            v-if="account"
             :mainToken="mainToken"
             :rewardToken="stakeInfo?.rewardToken"
           />
@@ -210,7 +211,7 @@ export default {
     },
 
     parsedInputValue() {
-      return parseUnits(this.inputValue, 18);
+      return parseUnits(this.inputValue || "0", 18);
     },
 
     actionInfo() {
