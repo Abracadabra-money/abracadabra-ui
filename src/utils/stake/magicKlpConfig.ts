@@ -1,7 +1,10 @@
 import { useImage } from "@/helpers/useImage";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
+import managerAbi from "@/utils/abi/klp/manager";
+import readerAbi from "@/utils/abi/klp/reader";
+import type { MagicKlpConfigs } from "@/types/magicKlp/configsInfo";
 
-export const magicKlpConfig = {
+export const magicKlpConfig: MagicKlpConfigs = {
   2222: {
     mainToken: {
       name: "MagicKLP",
@@ -20,6 +23,18 @@ export const magicKlpConfig = {
       contract: {
         address: "0x98FD2baCAC66574aC054BB888c70d40BbF4F452e",
         abi: tokensAbi.sKLP,
+      },
+    },
+    manager: {
+      contract: {
+        address: "0x53e6d11b66abf344028b69f2468120c6afa47f53",
+        abi: managerAbi,
+      },
+    },
+    reader: {
+      contract: {
+        address: "0xE027Ee35939Dd0A5Dd6C7701656159e2f6e2BAE7",
+        abi: readerAbi,
       },
     },
   },

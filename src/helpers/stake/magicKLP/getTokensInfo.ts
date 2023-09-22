@@ -1,10 +1,13 @@
-import { ONE_ETHER_VIEM } from "@/constants/global";
 import { multicall } from "@wagmi/core";
 import type { Address } from "@wagmi/core";
-// import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
+import type { TokensInfo } from "@/types/magicKlp/tokensInfo";
+import { ONE_ETHER_VIEM, RANDOM_ACCOUNT } from "@/constants/global";
 
-export const getTokensInfo = async (address: Address, config: any) => {
-  const { mainToken, stakeToken } = config;
+export const getTokensInfo = async (
+  address: Address,
+  config: any
+): Promise<TokensInfo> => {
+  const { mainToken, stakeToken, manager, reader } = config;
 
   const [
     userMainTokenBalance,
@@ -12,6 +15,8 @@ export const getTokensInfo = async (address: Address, config: any) => {
     tokensRate,
     userStakeTokenBalance,
     allowanceAmount,
+    aums,
+    tokenBalancesWithSupplies,
   ]: any = await multicall({
     contracts: [
       {
@@ -39,20 +44,31 @@ export const getTokensInfo = async (address: Address, config: any) => {
         functionName: "allowance",
         args: [address, mainToken.contract.address],
       },
+      {
+        ...manager.contract,
+        functionName: "getAums",
+        args: [],
+      },
+      {
+        ...reader.contract,
+        functionName: "getTokenBalancesWithSupplies",
+        args: [RANDOM_ACCOUNT, [stakeToken.contract.address]],
+      },
     ],
   });
 
-  // const mainTokenPrice =
-  //   (MIM_PRICE * ONE_ETHER_VIEM) / oracleExchangeRate.result;
+  const aum = aums.result[0];
+  const klpSupply = tokenBalancesWithSupplies.result[1];
+  const stakeTokenPrice = (aum * 1000000n) / klpSupply;
 
-  // const stakeTokenPrice = (mainTokenPrice * ONE_ETHER_VIEM) / tokenRate;
+  const mainTokenPrice = (stakeTokenPrice * tokensRate.result) / ONE_ETHER_VIEM;
 
-  // const totalSupplyUsd = (totalSupply.result * mainTokenPrice) / ONE_ETHER_VIEM;
-  // const mainTokenBalanceUsd =
-  //   (userMainTokenBalance.result * mainTokenPrice) / ONE_ETHER_VIEM;
+  const totalSupplyUsd = (totalSupply.result * mainTokenPrice) / ONE_ETHER_VIEM;
+  const mainTokenBalanceUsd =
+    (userMainTokenBalance.result * mainTokenPrice) / ONE_ETHER_VIEM;
 
-  // const stakeTokenBalanceUsd =
-  //   (userStakeTokenBalance.result * stakeTokenPrice) / ONE_ETHER_VIEM;
+  const stakeTokenBalanceUsd =
+    (userStakeTokenBalance.result * stakeTokenPrice) / ONE_ETHER_VIEM;
 
   return {
     mainToken: {
@@ -60,12 +76,12 @@ export const getTokensInfo = async (address: Address, config: any) => {
       icon: mainToken.icon,
       rateIcon: mainToken.rateIcon,
       decimals: mainToken.decimals,
-      // price: mainTokenPrice,
-      rate: 1000000000000000000n,
+      price: mainTokenPrice,
+      rate: tokensRate.result,
       totalSupply: totalSupply.result,
-      // totalSupplyUsd,
+      totalSupplyUsd,
       balance: userMainTokenBalance.result,
-      // balanceUsd: mainTokenBalanceUsd,
+      balanceUsd: mainTokenBalanceUsd,
       approvedAmount: allowanceAmount.result,
       contract: mainToken.contract,
     },
@@ -73,9 +89,9 @@ export const getTokensInfo = async (address: Address, config: any) => {
       name: stakeToken.name,
       icon: stakeToken.icon,
       decimals: mainToken.decimals,
-      // price: stakeTokenPrice,
+      price: stakeTokenPrice,
       balance: userStakeTokenBalance.result,
-      // balanceUsd: stakeTokenBalanceUsd,
+      balanceUsd: stakeTokenBalanceUsd,
       contract: stakeToken.contract,
     },
   };

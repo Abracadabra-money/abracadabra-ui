@@ -46,8 +46,6 @@
           />
         </div>
 
-        {{ isTokenApproved }}
-
         <div class="btns-wrap">
           <BaseButton
             primary
@@ -60,26 +58,10 @@
             {{ action }}
           </BaseButton>
         </div>
-
-        <!-- <p class="leverage-link" v-if="stakeInfo.leverageInfo">
-          {{ stakeInfo.leverageInfo.label }}
-          <router-link
-            class="link"
-            v-if="stakeInfo.leverageInfo.id"
-            :to="{
-              name: 'LeverageId',
-              params: { id: stakeInfo.leverageInfo.id },
-            }"
-            >here.
-          </router-link>
-        </p> -->
       </div>
     </div>
 
-    <div
-      class="stake-stand"
-      :style="`background-image: url(${standBackground})`"
-    >
+    <div class="stake-stand">
       <h1 class="title">magicKLP</h1>
 
       <div class="loader-wrap" v-if="!isInfoLoading">
@@ -88,7 +70,7 @@
 
       <div v-else>
         <div class="stand-info-wrap" v-if="isUnsupportedChain">
-          <!-- <ChartBlock
+          <ChartBlock
             :chartConfig="chartConfig"
             :getChartOptions="getChartOptions"
           />
@@ -97,18 +79,18 @@
 
           <AdditionalInfoBlockViem
             :mainToken="mainToken"
-            :rewardToken="stakeInfo.rewardToken"
-          /> -->
+            :rewardToken="stakeInfo?.rewardToken"
+          />
         </div>
 
         <div class="empty-wrap" v-else>
-          <EmptyBlock :warningType="'mglp'" />
+          <EmptyBlock :warningType="'mklp'" />
         </div>
 
         <div class="description">
           <p>
             Enjoy the benefits of compounding without having to worry about the
-            tedious work! Simply deposit your GLP into MagicGLP and let it do
+            tedious work! Simply deposit your KLP into MagicKLP and let it do
             its magic!
           </p>
           <p>Note: A 1% protocol fee is taken on the yields.</p>
@@ -116,12 +98,15 @@
 
         <div class="links-wrap" v-if="isUnsupportedChain">
           <GetTokenLink
-            :data="{ href: 'https://app.gmx.io/#/buy_glp', label: 'Buy GLP' }"
+            :data="{
+              href: 'https://perps.kinetix.finance/#/liquidity',
+              label: 'Buy KLP',
+            }"
           />
           <GetTokenLink
             :data="{
-              href: 'https://app.gmx.io/#/buy_glp#redeem',
-              label: 'Sell GLP',
+              href: 'https://perps.kinetix.finance/#/liquidity#redeem',
+              label: 'Sell KLP',
             }"
           />
         </div>
@@ -131,19 +116,19 @@
 </template>
 
 <script>
+import axios from "axios";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
-// import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
+import { ANALYTICS_URK } from "@/constants/global";
 import { approveTokenViem } from "@/helpers/approval"; //todo
 import actions from "@/helpers/stake/magicKLP/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicKlpConfig } from "@/utils/stake/magicKlpConfig";
 import notification from "@/helpers/notification/notification.js";
-// import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-// import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
-
+import { getChartOptions } from "@/helpers/stake/magicKLP/getChartOptions";
 import { getStakeInfo } from "@/helpers/stake/magicKLP/getStakeInfo.ts";
+
 export default {
   data() {
     return {
@@ -224,14 +209,6 @@ export default {
       return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
-    //   standBackground() {
-    //     if (+this.chainId === 42161)
-    //       return useImage("assets/images/glp/arbitrum-bg.png");
-    //     if (+this.chainId === 43114)
-    //       return useImage("assets/images/glp/avax-bg.png");
-    //     return "";
-    //   },
-
     parsedInputValue() {
       return parseUnits(this.inputValue, 18);
     },
@@ -244,20 +221,15 @@ export default {
         : { methodName: "redeem", options };
     },
 
-    //   chartConfig() {
-    //     return {
-    //       title: "APY Chart",
-    //       type: "magicGlpTvl",
-    //       apy: this.apy,
-    //       feePercent: this.stakeInfo.feePercent,
-    //       intervalButtons: [
-    //         { label: "1m", time: 1 },
-    //         { label: "3m", time: 3 },
-    //         { label: "6m", time: 6 },
-    //         { label: "1y", time: 12 },
-    //       ],
-    //     };
-    //   },
+    chartConfig() {
+      return {
+        title: "APY Chart",
+        type: "magicKlpApy",
+        apy: this.apy,
+        feePercent: this.stakeInfo.feePercent,
+        intervalButtons: [{ label: "3m", time: 3 }],
+      };
+    },
   },
 
   watch: {
@@ -269,7 +241,7 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
-    //   getChartOptions,
+    getChartOptions,
 
     formatAmount(value) {
       return formatUnits(value, this.mainToken.decimals);
@@ -290,8 +262,6 @@ export default {
 
     async createStakeInfo() {
       this.stakeInfo = await getStakeInfo(this.chainId);
-
-      console.log("this.stakeInfo", this.stakeInfo);
     },
 
     async approveTokenHandler() {
@@ -321,9 +291,6 @@ export default {
         notification.pending
       );
 
-      console.log("actions", this.mainToken.contract);
-      console.log("actions", this.actionInfo.options);
-
       const { error } = await actions[this.actionInfo.methodName](
         this.mainToken.contract,
         ...this.actionInfo.options
@@ -347,8 +314,8 @@ export default {
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();
     }, 60000);
-    // const response = await getMagicGlpApy(this.chainId);
-    // this.apy = filters.formatToFixed(response.magicGlpApy, 2);
+    const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
+    this.apy = filters.formatToFixed(data.apr, 2);
   },
 
   beforeUnmount() {
@@ -371,17 +338,17 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    // ChartBlock: defineAsyncComponent(() =>
-    //   import("@/components/stake/ChartBlock.vue")
-    // ),
-    // // todo
-    // BalancesBlockViem: defineAsyncComponent(() =>
-    //   import("@/components/stake/BalancesBlockViem.vue")
-    // ),
-    // // todo
-    // AdditionalInfoBlockViem: defineAsyncComponent(() =>
-    //   import("@/components/stake/AdditionalInfoBlockViem.vue")
-    // ),
+    ChartBlock: defineAsyncComponent(() =>
+      import("@/components/stake/ChartBlock.vue")
+    ),
+    // todo
+    BalancesBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlockViem.vue")
+    ),
+    // todo
+    AdditionalInfoBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlockViem.vue")
+    ),
     EmptyBlock: defineAsyncComponent(() =>
       import("@/components/stake/EmptyBlock.vue")
     ),
