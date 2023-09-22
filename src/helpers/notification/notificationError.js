@@ -62,7 +62,7 @@ export const notificationErrorMsg = (e, type = "") => {
     type === "mklp"
   ) {
     msg =
-      "Kintetik Finance applies a 15 minutes lock on all freshly minted KLP. Please wait 15 minutes and try again.";
+      "Kintetix Finance applies a 15 minutes lock on all freshly minted KLP. Please wait 15 minutes and try again.";
   }
 
   if (!msg) msg = "Transaction encountered an Error";
