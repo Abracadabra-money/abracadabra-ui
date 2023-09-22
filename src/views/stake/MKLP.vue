@@ -164,7 +164,7 @@ export default {
 
     finalTime() {
       const lockTimestamp = +this.stakeToken?.lastAdded
-        ? moment.unix(this.stakeToken.lastAdded).add(77, "minutes")
+        ? moment.unix(this.stakeToken.lastAdded).add(15, "minutes")
         : moment.unix(0);
 
       return this.timerCount ? lockTimestamp.unix().toString() : 0;
