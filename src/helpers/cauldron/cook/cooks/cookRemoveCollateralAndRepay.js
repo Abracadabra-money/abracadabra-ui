@@ -11,7 +11,7 @@ const cookRemoveCollateralAndRepay = async (
   isApprowed,
   cauldronObject,
   notificationId,
-  userAddr // TODO
+  userAddr
 ) => {
   const { cauldron } = cauldronObject.contracts;
   const tokenAddr = cauldronObject.config.collateralInfo.address;

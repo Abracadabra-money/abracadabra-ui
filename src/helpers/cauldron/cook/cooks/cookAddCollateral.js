@@ -13,7 +13,7 @@ const cookAddCollateral = async (
   notificationId,
   isLpLogic = false,
   wrap = false,
-  to // TODO
+  to
 ) => {
   const { address } = cauldronObject.config.collateralInfo;
   const { cauldron } = cauldronObject.contracts;

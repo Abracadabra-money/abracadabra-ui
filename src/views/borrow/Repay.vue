@@ -121,14 +121,18 @@ import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { approveToken } from "@/helpers/approval";
-import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { COLLATERAL_EMPTY_DATA, MIM_EMPTY_DATA } from "@/constants/cauldron.ts";
 
+import {
+  cookRepay,
+  cookRemoveCollateral,
+  cookRemoveCollateralAndRepay,
+} from "@/helpers/cauldron/cook/cooks";
+
 export default {
-  mixins: [cookMixin],
   data() {
     return {
       cauldron: "",
@@ -444,11 +448,12 @@ export default {
       const isTokenToCookApprove = await this.checkAllowance(payload.amount);
 
       if (+isTokenToCookApprove) {
-        await this.cookRepay(
+        await cookRepay(
           payload,
           isMasterContractApproved,
           this.cauldron,
-          notificationId
+          notificationId,
+          this.account
         );
 
         return await this.createCauldronInfo();
@@ -477,11 +482,12 @@ export default {
         updatePrice,
       };
 
-      await this.cookRemoveCollateral(
+      await cookRemoveCollateral(
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId
+        notificationId,
+        this.account
       );
 
       return await this.createCauldronInfo();
@@ -520,11 +526,12 @@ export default {
       );
 
       if (+isTokenToCookApprove) {
-        await this.cookRemoveCollateralAndRepay(
+        await cookRemoveCollateralAndRepay(
           payload,
           isMasterContractApproved,
           this.cauldron,
-          notificationId
+          notificationId,
+          this.account
         );
 
         return await this.createCauldronInfo();

@@ -149,15 +149,15 @@ import { utils, BigNumber } from "ethers";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
 
+import { cookDeleverage } from "@/helpers/cauldron/cook/cooks";
+
 export default {
-  mixins: [cookMixin],
   data() {
     return {
       slippage: 1,
@@ -545,7 +545,7 @@ export default {
       // );
 
       // if (+isTokenToCookApprove) {
-      await this.cookDeleverage(
+      await cookDeleverage(
         payload,
         isMasterContractApproved,
         this.cauldron,

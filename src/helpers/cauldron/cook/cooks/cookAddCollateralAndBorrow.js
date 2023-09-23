@@ -15,7 +15,7 @@ const cookAddCollateralAndBorrow = async (
   notificationId,
   isLpLogic = false,
   isWrap = false,
-  userAddr // TODO
+  userAddr
 ) => {
   const { address } = cauldronObject.config.collateralInfo;
   const { address: mimAddress } = cauldronObject.config.mimInfo;

@@ -10,7 +10,7 @@ const cookRepay = async (
   isApprowed,
   cauldronObject,
   notificationId,
-  userAddr // TODO
+  userAddr
 ) => {
   const { cauldron } = cauldronObject.contracts;
 
@@ -27,7 +27,13 @@ const cookRepay = async (
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
-  cookData = await recipeRepay(cookData, cauldronObject, itsMax, amount, userAddr);
+  cookData = await recipeRepay(
+    cookData,
+    cauldronObject,
+    itsMax,
+    amount,
+    userAddr
+  );
 
   if (isApprowed && useDegenBoxHelper)
     cookData = await recipeApproveMC(
