@@ -1,0 +1,176 @@
+<template>
+  <div class="dropdown" v-click-outside="closeDropdown">
+    <button
+      class="dropdown-header"
+      :class="{ 'dropdown-open': isOpenDropdown, disabled: isDisabled }"
+      @click="toogleDropdown"
+    >
+      <div class="cauldron-info">
+        <img
+          class="cauldron-icon"
+          :src="cauldronInfo.icon"
+          :alt="cauldronInfo.name"
+          v-if="cauldronInfo?.icon"
+        />
+        <span>{{ cauldronInfo.name }}</span>
+      </div>
+
+      <img src="@/assets/images/arrow-down.svg" alt="Arrow" />
+    </button>
+
+    <div class="dropdown-list" v-show="isOpenDropdown">
+      <button
+        class="dropdown-item"
+        v-for="(data, i) in filteredCauldrons"
+        @click="changeDropdownValue(data.id)"
+        :key="i"
+      >
+        <img class="dropdown-item-icon" :src="data.icon" alt="" />
+        {{ data.name }}
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from "vuex";
+import cauldronsConfig from "@/utils/cauldronsConfig";
+
+export default {
+  props: {
+    isDisabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  data() {
+    return {
+      isOpenDropdown: false,
+      selectedCauldron: null,
+    };
+  },
+
+  computed: {
+    ...mapGetters({
+      chainId: "getChainId",
+    }),
+
+    filteredCauldrons() {
+      return cauldronsConfig.filter(
+        (config) => config.chainId === +this.chainId
+      );
+    },
+
+    cauldronInfo() {
+      if (!this.selectedCauldron)
+        return { icon: null, name: "Select Cauldron" };
+      return this.selectedCauldron;
+    },
+  },
+
+  methods: {
+    toogleDropdown() {
+      if (this.isDisabled) return false;
+      this.isOpenDropdown = !this.isOpenDropdown;
+    },
+
+    closeDropdown() {
+      this.isOpenDropdown = false;
+    },
+
+    changeDropdownValue(cauldronId) {
+      this.selectedCauldron = this.filteredCauldrons.find(
+        (cauldron) => cauldron.id === cauldronId
+      );
+
+      this.closeDropdown();
+      this.$emit("changeCauldron", this.selectedCauldron.contract.address);
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.dropdown {
+  position: relative;
+}
+
+.dropdown-header {
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 17px 0 12px;
+  border-radius: 20px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  background-color: hsla(0, 0%, 100%, 0.06);
+}
+
+.dropdown-header:hover {
+  background-color: #55535d;
+}
+
+.dropdown-open {
+  background: #55535d;
+  border-radius: 20px 20px 0 0;
+}
+
+.disabled {
+  cursor: not-allowed;
+  background: #403e4a;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.disabled:hover {
+  background: #403e4a;
+}
+
+.cauldron-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.cauldron-icon {
+  width: 20px;
+  max-height: 25px;
+}
+
+.dropdown-list {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  top: 50px;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0 0 20px 20px;
+}
+
+.dropdown-item {
+  height: 50px;
+  width: 100%;
+  border: none;
+  color: white;
+  cursor: pointer;
+  background-color: #55535d;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.dropdown-item :hover {
+  color: #76c3f5;
+}
+
+.dropdown-item-icon {
+  max-width: 20px;
+  width: 100%;
+  max-height: 25px;
+}
+</style>

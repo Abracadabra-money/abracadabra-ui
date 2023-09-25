@@ -3,38 +3,13 @@
     <h3 class="title">Cauldron Top Up</h3>
 
     <div class="input-assets">
-      <div class="fork-chain-info">
-        <img class="chain-icon" :src="forkChainIcon" alt="Chain icon" />
-        <span>{{ chainConfig.name }}</span>
-      </div>
-
-      <button class="use-custom" :class="{ disabled: !activeFork }">
-        Use custom
-        <CheckBox
-          :value="useCustomFork"
-          :disabled="!activeFork"
-          @update="toggleUseCustomFork"
-        />
-      </button>
+      <InputUrl :targetUrl="tenderlyForkUrl" :isDisabled="true" />
     </div>
 
-    <div class="input-assets">
-      <InputUrl
-        :targetUrl="tenderlyForkUrl"
-        :isDisabled="isDisabledInputUrl"
-        :error="errorForkUrl"
-        @update-input="updateForkUrl"
-      />
-    </div>
-
-    <div class="input-assets">
-      <InputAddress
-        :isDisabled="isDisabledCauldronaddress"
-        :destinationAddress="destinationAddress"
-        placeholder="Cauldron address"
-        @update-input="updateCauldronAddress"
-      />
-    </div>
+    <CauldronsDropdown
+      @changeCauldron="updateCauldronAddress"
+      :isDisabled="isDisabledCauldronsDropdown"
+    />
 
     <div class="input-assets">
       <InputNumber
@@ -52,11 +27,11 @@
 <script>
 import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { mapGetters, mapActions } from "vuex";
 import { TENDERLY_FORK_URL } from "@/constants/tenderly";
-import { getForkInfo } from "@/helpers/tenderly/getForkInfo";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 import { topUpCauldron } from "@/helpers/tenderly/topUpCauldron";
-import { networksConfig } from "@/utils/networks/networksConfig";
+import notification from "@/helpers/notification/notification.js";
+
 export default {
   props: {
     activeFork: {
@@ -66,10 +41,8 @@ export default {
 
   data() {
     return {
-      useCustomFork: false,
       tenderlyForkUrl: "",
       forkChainId: this.activeFork?.forkChainId,
-      errorForkUrl: "",
       cauldronAddress: "",
       cauldronAmount: null,
     };
@@ -81,77 +54,37 @@ export default {
       chainId: "getChainId",
     }),
 
-    currentChainId() {
-      return this.forkChainId ? this.forkChainId : this.chainId;
-    },
-
-    chainConfig() {
-      return networksConfig.find(
-        (network) => network.chainId === this.currentChainId
-      );
-    },
-
-    forkChainIcon() {
-      const activeChain = networksConfig.find(
-        (network) => network.chainId === this.currentChainId
-      );
-
-      return activeChain?.icon;
-    },
-
-    isDisabledInputUrl() {
-      if (!this.activeFork) return false;
-      return !this.useCustomFork;
-    },
-
-    isDisabledCauldronaddress() {
-      return !!this.errorForkUrl || !this.tenderlyForkUrl;
+    isDisabledCauldronsDropdown() {
+      return !this.tenderlyForkUrl;
     },
 
     isDisabledInputAmount() {
-      return this.isDisabledCauldronaddress || !this.cauldronAddress;
+      return !this.cauldronAddress;
     },
+
     isDisabledActionHandler() {
-      return this.isDisabledInputAmount || !this.cauldronAmount;
+      return !this.cauldronAddress || !this.cauldronAmount;
     },
   },
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    async updateForkUrl(url) {
-      this.errorForkUrl = "";
-      this.tenderlyForkUrl = url;
-      const forkInfo = await getForkInfo(url);
-      if (!forkInfo) {
-        this.errorForkUrl = "Invalid tenderly fork URL";
-      } else {
-        this.forkChainId = +forkInfo.network_id;
-      }
-    },
-
-    toggleUseCustomFork() {
-      if (!this.activeFork) return false;
-      this.useCustomFork = !this.useCustomFork;
-      this.errorForkUrl = "";
-
-      if (this.useCustomFork) this.tenderlyForkUrl = "";
-      else {
-        this.tenderlyForkUrl = `${TENDERLY_FORK_URL}${this.activeFork.forkId}`;
-        this.forkChainId = this.activeFork.forkChainId;
-      }
+    updateCauldronAmount(amount) {
+      this.cauldronAmount = amount;
     },
 
     updateCauldronAddress(address) {
       this.cauldronAddress = address;
     },
 
-    updateCauldronAmount(amount) {
-      this.cauldronAmount = amount;
-    },
-
     async actionHandler() {
       if (this.isDisabledActionHandler) return false;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
 
       const provider = this.activeFork
         ? this.provider
@@ -163,6 +96,8 @@ export default {
         this.forkChainId,
         provider
       );
+
+      await this.deleteNotification(notificationId);
 
       await this.createNotification({
         msg: msg,
@@ -178,14 +113,11 @@ export default {
   },
 
   components: {
-    CheckBox: defineAsyncComponent(() =>
-      import("@/components/ui/CheckBox.vue")
-    ),
     InputUrl: defineAsyncComponent(() =>
       import("@/components/ui/inputs/InputUrl.vue")
     ),
-    InputAddress: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputAddress.vue")
+    CauldronsDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/Cauldrons.vue")
     ),
     InputNumber: defineAsyncComponent(() =>
       import("@/components/ui/inputs/InputNumber.vue")
@@ -215,43 +147,5 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-}
-
-.fork-chain-info {
-  height: 50px;
-  width: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  padding: 15px;
-  border-radius: 20px;
-  background-color: hsla(0, 0%, 100%, 0.06);
-}
-
-.chain-icon {
-  width: 20px;
-  max-height: 25px;
-}
-
-.use-custom {
-  color: #fff;
-  height: 50px;
-  max-width: 160px;
-  width: 100%;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
-  justify-content: center;
-  border: 2px solid #648fcc;
-}
-
-.disabled {
-  cursor: not-allowed;
-  background: #403e4a;
-  color: rgba(255, 255, 255, 0.6);
 }
 </style>
