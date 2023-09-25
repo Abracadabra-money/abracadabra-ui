@@ -260,7 +260,7 @@ export default {
         type: "magicKlpApy",
         apy: this.apy,
         feePercent: this.stakeInfo.feePercent,
-        intervalButtons: [{ label: "3m", time: 3 }],
+        intervalButtons: [{ label: "1m", time: 1 }],
       };
     },
 
