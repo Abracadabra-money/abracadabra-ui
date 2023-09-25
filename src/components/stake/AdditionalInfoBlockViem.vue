@@ -22,9 +22,9 @@
       </div>
     </div>
 
-    <div class="delimiter-line"></div>
+    <div class="delimiter-line" v-if="rewardToken"></div>
 
-    <div>
+    <div v-if="rewardToken">
       <h3 class="title">Total Rewards Earned</h3>
 
       <div class="description">

@@ -54,6 +54,12 @@ export default {
         bottom: "If you want to learn more read our docs",
         link: false,
       },
+      emptyDataMKlp: {
+        img: useImage(`assets/images/empty_borrow.png`),
+        text: "Please use  Kava EVM Chain to obtain magicKLP",
+        bottom: "If you want to learn more read our docs",
+        link: false,
+      },
     };
   },
 
@@ -64,6 +70,7 @@ export default {
       if (this.warningType === "mglp") return this.emptyDataMGlp;
       if (this.warningType === "mape") return this.emptyDataMApe;
       if (this.warningType === "mlvl") return this.emptyDataMLvl;
+      if (this.warningType === "mklp") return this.emptyDataMKlp;
       return false;
     },
   },
