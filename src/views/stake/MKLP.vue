@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <div class="stake-stand">
+    <div class="stake-stand" :style="standBackground">
       <h1 class="title">magicKLP</h1>
 
       <div class="loader-wrap" v-if="!isInfoLoading">
@@ -124,6 +124,7 @@ import axios from "axios";
 import moment from "moment";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
 import { ANALYTICS_URK } from "@/constants/global";
 import { approveTokenViem } from "@/helpers/approval"; //todo
@@ -261,6 +262,12 @@ export default {
         feePercent: this.stakeInfo.feePercent,
         intervalButtons: [{ label: "3m", time: 3 }],
       };
+    },
+
+    standBackground() {
+      return `background-image: url(${useImage(
+        "assets/images/stake/mKlpStand.png"
+      )})`;
     },
   },
 
