@@ -1,5 +1,5 @@
-import { Wallet, utils } from "ethers";
 import { parseUnits } from "viem";
+import { Wallet, utils } from "ethers";
 
 export const ONE_ETHER: string = utils.parseEther("1").toString();
 export const ONE_ETHER_VIEM: bigint = parseUnits("1", 18);
