@@ -126,11 +126,8 @@ import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { COLLATERAL_EMPTY_DATA, MIM_EMPTY_DATA } from "@/constants/cauldron.ts";
 
-import {
-  cookRepay,
-  cookRemoveCollateral,
-  cookRemoveCollateralAndRepay,
-} from "@/helpers/cauldron/cook/cooks";
+import cooks from "@/helpers/cauldron/cook/cooks";
+const { cookRepay, cookRemoveCollateral, cookRemoveCollateralAndRepay } = cooks;
 
 export default {
   data() {

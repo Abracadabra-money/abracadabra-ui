@@ -147,11 +147,9 @@ import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 
-import {
-  cookAddCollateral,
-  cookAddCollateralAndBorrow,
-  cookBorrow,
-} from "@/helpers/cauldron/cook/cooks";
+import cooks from "@/helpers/cauldron/cook/cooks";
+
+const { cookAddCollateral, cookAddCollateralAndBorrow, cookBorrow } = cooks;
 
 import {
   MAX_ALLOWANCE_VALUE,

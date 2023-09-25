@@ -171,7 +171,8 @@ import {
   MAX_ALLOWANCE_VALUE,
 } from "@/constants/cauldron.ts";
 
-import { cookLeverage, cookAddCollateral } from "@/helpers/cauldron/cook/cooks";
+import cooks from "@/helpers/cauldron/cook/cooks";
+const { cookLeverage, cookAddCollateral } = cooks;
 
 export default {
   data() {
