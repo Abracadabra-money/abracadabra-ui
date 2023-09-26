@@ -100,8 +100,8 @@
             :getChartOptions="getChartOptions"
           />
 
-          <TranchesStatistics :stakeInfo="stakeInfo" />
-          <TokensBalancesBlock :stakeInfo="stakeInfo" />
+          <TranchesStatistics :stakeInfo="stakeInfo" v-if="account" />
+          <TokensBalancesBlock :stakeInfo="stakeInfo" v-if="account" />
         </div>
         <div class="empty-wrap" v-else>
           <EmptyBlock :warningType="'mlvl'" />

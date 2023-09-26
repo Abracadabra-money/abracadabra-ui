@@ -7,6 +7,7 @@ import { getAccount } from "@wagmi/core";
 import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
 import { getTokensInfo } from "@/helpers/stake/magicLvl/getTokensInfo";
 import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
+import { getEmptyState } from "./getEmptyState";
 
 export const getStakeInfo = async (
   chainId: number
@@ -14,7 +15,7 @@ export const getStakeInfo = async (
   const account = getAccount().address;
   const config = magicLvlConfig[chainId as keyof typeof magicLvlConfig];
 
-  if (!config || !account) return {};
+  if (!config || !account) return await getEmptyState();
 
   const { master, harvestor, tokensConfig } = config;
 
