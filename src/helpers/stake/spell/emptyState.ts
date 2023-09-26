@@ -7,13 +7,11 @@ import { getSpellToSSpellRate } from "@/helpers/stake/spell/getSpellToSSpellRate
 const config = spellConfig[1 as keyof typeof spellConfig];
 const { spell, sSpell, mSpell }: any = config;
 
-const spellToSSpellRate = await getSpellToSSpellRate(spell, sSpell.contract);
-
 export const sSpellEmptyState: EmptyTokenState = {
   icon: sSpell?.icon || useImage("assets/images/sspell-icon.svg"),
   name: sSpell?.name || "sSpell",
   balance: 0n,
-  rate: spellToSSpellRate,
+  rate: await getSpellToSSpellRate(spell, sSpell.contract),
   price: ONE_ETHER_VIEM,
   decimals: 18,
 };
