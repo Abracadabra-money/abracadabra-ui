@@ -201,7 +201,7 @@ const subscribeProvider = async () => {
   });
 };
 
-await watchAccount(({ isConnected }) => {
+watchAccount(({ isConnected }) => {
   isConnected ? onConnectNew() : initWithoutConnect();
 });
 
