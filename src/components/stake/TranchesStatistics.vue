@@ -61,6 +61,7 @@
   </div>
 </template>
 <script>
+import { formatUnits } from "viem";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
@@ -72,7 +73,6 @@ export default {
 
   computed: {
     statisticData() {
-      console.log("stakeInfo", this.stakeInfo);
       const { formatPercent, formatUSD } = filters;
       const { tranchesStatistics, senior, mezzanine, junior } = this.stakeInfo;
 
@@ -83,7 +83,12 @@ export default {
           icon: useImage("assets/images/stake/senior-icon.svg"),
           apr: formatPercent(tranchesStatistics.seniorApy),
           totalRewards: formatUSD(tranchesStatistics.seniorTotalRewardsUsd),
-          totalSupply: formatUSD(senior.mainToken.totalSupplyUsd),
+          totalSupply: formatUSD(
+            formatUnits(
+              senior.mainToken.totalSupplyUsd,
+              senior.mainToken.decimals
+            )
+          ),
         },
         {
           type: "Mezzanine",
@@ -91,7 +96,12 @@ export default {
           icon: useImage("assets/images/stake/mezzanine-icon.svg"),
           apr: formatPercent(tranchesStatistics.mezzanineApy),
           totalRewards: formatUSD(tranchesStatistics.mezzanineTotalRewardsUsd),
-          totalSupply: formatUSD(mezzanine.mainToken.totalSupplyUsd),
+          totalSupply: formatUSD(
+            formatUnits(
+              mezzanine.mainToken.totalSupplyUsd,
+              mezzanine.mainToken.decimals
+            )
+          ),
         },
         {
           type: "Junior",
@@ -99,7 +109,12 @@ export default {
           icon: useImage("assets/images/stake/junior-icon.svg"),
           apr: formatPercent(tranchesStatistics.juniorApy),
           totalRewards: formatUSD(tranchesStatistics.juniorTotalRewardsUsd),
-          totalSupply: formatUSD(junior.mainToken.totalSupplyUsd),
+          totalSupply: formatUSD(
+            formatUnits(
+              junior.mainToken.totalSupplyUsd,
+              junior.mainToken.decimals
+            )
+          ),
         },
       ];
     },
@@ -120,7 +135,7 @@ export default {
           name: "Magic Tranches",
           title: "Total Supply",
           icon: useImage("assets/images/tokens/magicTranches.png"),
-          value: formatUSD(totalSupplyUsd),
+          value: formatUSD(formatUnits(totalSupplyUsd, 18)),
         },
       ];
     },
