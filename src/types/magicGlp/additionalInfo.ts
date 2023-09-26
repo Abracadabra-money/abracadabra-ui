@@ -6,7 +6,10 @@ export type EmptyState = {
 export type EmptyStateItem = {
   name: string;
   icon: string;
-  balance: BigInt;
+  balance: bigint;
+  balanceUsd?: bigint;
+  rate?: bigint;
+  decimals?: number;
 };
 
 export type AdditionalInfo = {
