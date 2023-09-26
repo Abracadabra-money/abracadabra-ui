@@ -24,6 +24,7 @@
             :name="fromToken.name"
             :max="formatAmount(fromToken.balance)"
             :error="errorMainValue"
+            :disabled="!isUnsupportedChain"
             @updateValue="updateMainValue"
           />
         </div>
