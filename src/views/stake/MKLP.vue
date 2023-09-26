@@ -1,10 +1,10 @@
 <template>
   <div class="stake-view">
-    <div class="deposit-block" :style="depositBlockBackground">
+    <div class="deposit-block">
       <h4>Choose Chain</h4>
 
       <div class="underline">
-        <NetworksList :active-list="[1]" />
+        <NetworksList :active-list="[2222]" />
       </div>
 
       <div class="loader-wrap" v-if="!isInfoLoading">
@@ -13,15 +13,17 @@
 
       <div v-else>
         <div class="input-assets">
-          <InputLabel :amount="fromToken.balance" :title="action" />
+          <InputLabel
+            :amount="formatTokenBalance(formatAmount(fromToken.balance))"
+            :title="action"
+          />
 
           <BaseTokenInput
             :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :max="fromToken.balance"
+            :max="formatAmount(fromToken.balance)"
             :error="errorMainValue"
-            :disabled="!isUnsupportedChain"
             @updateValue="updateMainValue"
           />
         </div>
@@ -36,7 +38,6 @@
 
         <div class="input-assets">
           <h4 class="input-labal">Receive</h4>
-
           <BaseTokenInput
             :icon="toToken.icon"
             :name="toToken.name"
@@ -45,120 +46,136 @@
           />
         </div>
 
-        <div class="actions-wrap">
+        <div class="btns-wrap">
           <BaseButton
             primary
             :disabled="isTokenApproved"
             @click="approveTokenHandler"
             >Approve
           </BaseButton>
-          <BaseButton :disabled="isActionDisabled" @click="actionHandler">
-            {{ action }}
+          <BaseButton
+            v-tooltip="tooltipText"
+            :disabled="isActionDisabled"
+            @click="actionHandler"
+          >
+            {{ actionButtonText }}
           </BaseButton>
         </div>
       </div>
     </div>
 
-    <div class="stake-stand" :style="standBlockBackground">
-      <h1 class="title">
-        magic
-        <img
-          class="title-icon"
-          src="@/assets/images/ape/ape.png"
-          alt="Ape icon"
-        />
-        Ape
-      </h1>
+    <div class="stake-stand" :style="standBackground">
+      <h1 class="title">magicKLP</h1>
 
       <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
       </div>
 
-      <template v-else>
+      <div v-else>
         <div class="stand-info-wrap" v-if="isUnsupportedChain">
           <ChartBlock
             :chartConfig="chartConfig"
-            :apyConfig="apyConfig"
             :getChartOptions="getChartOptions"
           />
 
-          <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
+          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <AdditionalInfoBlock
+          <AdditionalInfoBlockViem
+            v-if="account"
             :mainToken="mainToken"
-            :rewardToken="rewardToken"
+            :rewardToken="stakeInfo?.rewardToken"
           />
         </div>
+
         <div class="empty-wrap" v-else>
-          <EmptyBlock :warningType="'mape'" />
+          <EmptyBlock :warningType="'mklp'" />
         </div>
 
         <div class="description">
           <p>
             Enjoy the benefits of compounding without having to worry about the
-            tedious work! Simply deposit your APE into MagicAPE and let it do
+            tedious work! Simply deposit your KLP into MagicKLP and let it do
             its magic!
           </p>
-
           <p>Note: A 1% protocol fee is taken on the yields.</p>
         </div>
 
-        <div class="btns-wrap" v-if="isUnsupportedChain">
-          <BaseButton @click="routeTo('BorrowId', 39)">
-            <div class="btn-content">
-              <img
-                class="btn-img"
-                src="@/assets/images/ape/ape.b.png"
-                alt="Ape icon"
-              />
-              <span class="btn-text">Borrow Against MagicAPE</span>
-            </div>
-          </BaseButton>
-
-          <BaseButton @click="routeTo('LeverageId', 39)">
-            <span class="btn-text"
-              >Leverage your Yield (up to ≈{{ expectedLeverageApy }}%)
-            </span>
-          </BaseButton>
+        <div class="links-wrap" v-if="isUnsupportedChain">
+          <GetTokenLink
+            :data="{
+              href: 'https://perps.kinetix.finance/#/liquidity',
+              label: 'Buy KLP',
+            }"
+          />
+          <GetTokenLink
+            :data="{
+              href: 'https://perps.kinetix.finance/#/liquidity#redeem',
+              label: 'Sell KLP',
+            }"
+          />
         </div>
-      </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import moment from "moment";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { approveToken } from "@/helpers/approval";
-import actions from "@/helpers/stake/magicApe/actions/";
+import { parseUnits, formatUnits } from "viem";
+import { ANALYTICS_URK } from "@/constants/global";
+import { approveTokenViem } from "@/helpers/approval"; //todo
+import actions from "@/helpers/stake/magicKLP/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { magicApeConfig } from "@/utils/stake/magicApeConfig";
+import { magicKlpConfig } from "@/utils/stake/magicKlpConfig";
 import notification from "@/helpers/notification/notification.js";
-import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
-import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
-import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
+import { getChartOptions } from "@/helpers/stake/magicKLP/getChartOptions";
+import { getStakeInfo } from "@/helpers/stake/magicKLP/getStakeInfo.ts";
 
 export default {
   data() {
     return {
       apy: "",
-      inputValue: "",
-      action: "Stake",
       stakeInfo: null,
+      action: "Stake",
+      inputValue: "",
       updateInterval: null,
-      totalRewards: null,
+      timerCount: "Stake",
+      timeInterval: null,
     };
   },
 
   computed: {
     ...mapGetters({
-      chainId: "getChainId",
       account: "getAccount",
-      provider: "getProvider",
-      signer: "getSigner",
+      chainId: "getChainId",
     }),
+
+    actionButtonText() {
+      if (!this.stakeToken && this.isStakeAction) return "Stake";
+      if (!this.stakeToken && !this.isStakeAction) return "Unstake";
+
+      if (this.isStakeAction && !!this.finalTime) return this.timerCount;
+      if (this.isStakeAction && !this.finalTime) return "Stake";
+      return "Unstake";
+    },
+
+    finalTime() {
+      const lockTimestamp = +this.stakeToken?.lastAdded
+        ? moment.unix(this.stakeToken.lastAdded).add(15, "minutes")
+        : moment.unix(0);
+
+      return this.timerCount ? lockTimestamp.unix().toString() : 0;
+    },
+
+    tooltipText() {
+      return this.timerCount
+        ? "Kintetix Finance applies a 15 minutes lock on all freshly minted KLP. Please wait"
+        : "";
+    },
 
     isInfoLoading() {
       return !!this.stakeInfo;
@@ -168,49 +185,23 @@ export default {
       return this.action === "Stake";
     },
 
-    isUnsupportedChain() {
-      return !!magicApeConfig[this.chainId];
-    },
-
     isTokenApproved() {
       if (!this.isStakeAction) return true;
       if (this.errorMainValue) return true;
       if (!this.account) return true;
       if (!this.isUnsupportedChain) return true;
-      const { approvedAmount } = this.fromToken;
-
-      return approvedAmount >= this.mainInputValue;
+      return this.toToken.approvedAmount >= this.parsedInputValue;
     },
 
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
-      return !!(!this.mainInputValue || this.errorMainValue);
+      if (this.isStakeAction)
+        return !!(!this.inputValue || this.errorMainValue || +this.finalTime);
+      return !!(!this.inputValue || this.errorMainValue);
     },
 
-    expectedAmount() {
-      const tokensRate = this.stakeInfo.mainToken.rate;
-      const amount = this.isStakeAction
-        ? this.mainInputValue / tokensRate
-        : this.mainInputValue * tokensRate;
-      return filters.formatToFixed(amount, 6);
-    },
-
-    expectedLeverageApy() {
-      const multiplier = 16;
-      const percentMultiplier = 0.7;
-      const expectedLevearage =
-        (1 - Math.pow(percentMultiplier, multiplier + 1)) /
-        (1 - percentMultiplier);
-
-      return Math.floor(expectedLevearage * this.apy);
-    },
-
-    errorMainValue() {
-      if (this.mainInputValue > this.fromToken.balance) {
-        return `The value cannot be greater than ${this.fromToken.balance}`;
-      }
-
-      return "";
+    isUnsupportedChain() {
+      return !!magicKlpConfig[this.chainId];
     },
 
     stakeToken() {
@@ -221,13 +212,6 @@ export default {
       return this.stakeInfo?.mainToken;
     },
 
-    rewardToken() {
-      const { rewardToken } = this.stakeInfo;
-      const amount = +this.totalRewards ? +this.totalRewards : 0;
-      const amountUsd = this.totalRewards ? amount * this.stakeToken.price : 0;
-      return { ...rewardToken, amount, amountUsd };
-    },
-
     fromToken() {
       return this.isStakeAction ? this.stakeToken : this.mainToken;
     },
@@ -236,52 +220,54 @@ export default {
       return this.isStakeAction ? this.mainToken : this.stakeToken;
     },
 
-    mainInputValue() {
-      return Number(this.inputValue);
+    errorMainValue() {
+      if (this.parsedInputValue > this.fromToken.balance) {
+        return `The value cannot be greater than ${this.formatAmount(
+          this.fromToken.balance
+        )}`;
+      }
+
+      return "";
+    },
+
+    precision() {
+      return parseUnits("1", this.mainToken.decimals);
+    },
+
+    expectedAmount() {
+      const amount = this.isStakeAction
+        ? (this.parsedInputValue * this.precision) / this.mainToken.rate
+        : (this.parsedInputValue * this.mainToken.rate) / this.precision;
+
+      return filters.formatToFixed(this.formatAmount(amount), 6);
+    },
+
+    parsedInputValue() {
+      return parseUnits(this.inputValue || "0", 18);
     },
 
     actionInfo() {
-      const amount = this.$ethers.utils.parseEther(
-        filters.formatToFixed(this.inputValue || 0, 18)
-      );
-
-      const options = [amount, this.account];
+      const options = [this.parsedInputValue, this.account];
 
       return this.isStakeAction
         ? { methodName: "deposit", options }
         : { methodName: "redeem", options };
     },
 
-    depositBlockBackground() {
-      return `background-image: url(${useImage("assets/images/ape/bg.png")})`;
-    },
-
-    standBlockBackground() {
-      return `background-image: url(${useImage(
-        "assets/images/ape/bg-info.png"
-      )})`;
-    },
-
     chartConfig() {
       return {
-        title: "Statistics",
-        type: "Yield",
+        title: "APY Chart",
+        type: "magicKlpApy",
         apy: this.apy,
-        typeButtons: ["Yield", "TVL", "Price"],
-        intervalButtons: [
-          { label: "1m", time: 1 },
-          { label: "3m", time: 3 },
-          { label: "6m", time: 6 },
-          { label: "1y", time: 12 },
-        ],
+        feePercent: this.stakeInfo.feePercent,
+        intervalButtons: [{ label: "1m", time: 1 }],
       };
     },
 
-    apyConfig() {
-      return {
-        icon: useImage("assets/images/ape/apr.png"),
-        color: "#c0c53f",
-      };
+    standBackground() {
+      return `background-image: url(${useImage(
+        "assets/images/stake/mKlpStand.png"
+      )})`;
     },
   },
 
@@ -296,6 +282,10 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
     getChartOptions,
 
+    formatAmount(value) {
+      return formatUnits(value, this.mainToken.decimals);
+    },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -309,6 +299,10 @@ export default {
       this.action = this.action === "Stake" ? "Unstake" : "Stake";
     },
 
+    async createStakeInfo() {
+      this.stakeInfo = await getStakeInfo(this.chainId);
+    },
+
     async approveTokenHandler() {
       if (!this.isUnsupportedChain) return false;
       if (this.isTokenApproved) return false;
@@ -317,7 +311,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveToken(
+      const approve = await approveTokenViem(
         this.stakeToken.contract,
         this.mainToken.contract.address
       );
@@ -352,35 +346,51 @@ export default {
       }
     },
 
-    async createStakeInfo() {
-      this.stakeInfo = await getStakeInfo(
-        this.provider,
-        this.signer,
-        this.chainId
-      );
-
-      if (this.isUnsupportedChain) {
-        this.apy = await getMagicApeApy(this.provider);
-        this.totalRewards = await getTotalRewards();
-      }
+    isLocked() {
+      const start = moment(new Date());
+      const end = moment.unix(this.finalTime);
+      return end.isAfter(start);
     },
 
-    routeTo(name, id) {
-      this.$router.push({ name, params: { id } });
+    checkDuration() {
+      this.timeInterval = setInterval(() => {
+        if (!this.finalTime) {
+          this.timerCount = 0;
+          return false;
+        }
+
+        const start = moment(new Date());
+        const end = moment.unix(this.finalTime);
+        const duration = end.diff(start);
+
+        const isLocked = end.isAfter(start);
+
+        this.timerCount = isLocked
+          ? `Unlocks in: ${moment.utc(duration).format("HH:mm:ss")}`
+          : 0;
+      }, 1000);
     },
   },
 
   async created() {
-    this.createStakeInfo();
+    await this.createStakeInfo();
     if (!this.isUnsupportedChain) return false;
+    const isLocked = this.isLocked();
+
+    if (isLocked) this.checkDuration();
+    else this.timerCount = 0;
 
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();
     }, 60000);
+
+    const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
+    this.apy = filters.formatToFixed(data.apr, 2);
   },
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
+    clearInterval(this.timeInterval);
   },
 
   components: {
@@ -402,14 +412,19 @@ export default {
     ChartBlock: defineAsyncComponent(() =>
       import("@/components/stake/ChartBlock.vue")
     ),
-    BalancesBlock: defineAsyncComponent(() =>
-      import("@/components/stake/BalancesBlock.vue")
+    // todo
+    BalancesBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlockViem.vue")
     ),
-    AdditionalInfoBlock: defineAsyncComponent(() =>
-      import("@/components/stake/AdditionalInfoBlock.vue")
+    // todo
+    AdditionalInfoBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlockViem.vue")
     ),
     EmptyBlock: defineAsyncComponent(() =>
       import("@/components/stake/EmptyBlock.vue")
+    ),
+    GetTokenLink: defineAsyncComponent(() =>
+      import("@/components/ui/links/GetTokenLink.vue")
     ),
   },
 };
@@ -432,8 +447,6 @@ export default {
   background-color: $clrBg2;
   max-width: 100%;
   overflow: hidden;
-  background-position: center;
-  background-size: cover;
 }
 
 .underline {
@@ -445,6 +458,14 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 30px 10px;
+}
+
+.loader-wrap-mini {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35%;
 }
 
 .input-assets {
@@ -466,11 +487,17 @@ export default {
   margin-bottom: 6px;
 }
 
-.actions-wrap {
+.btns-wrap {
   display: flex;
   justify-content: space-between;
   gap: 20px;
   margin: 30px 0;
+}
+
+.leverage-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-size: 15px;
 }
 
 .stake-stand {
@@ -483,19 +510,9 @@ export default {
 }
 
 .title {
-  font-weight: 600;
   font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: 0.025em;
+  font-weight: 600;
   margin: 0 0 30px;
-  text-transform: uppercase;
-}
-
-.title-icon {
-  max-width: 28px;
-  margin: 0 10px;
 }
 
 .stand-info-wrap {
@@ -516,49 +533,15 @@ export default {
   text-align: center;
 }
 
-.btns-wrap {
+.links-wrap {
   display: flex;
   justify-content: center;
-  gap: 20px;
-}
-
-.btn-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.btn-img {
-  width: 22px;
-}
-
-.btn-text {
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 150%;
-  display: flex;
-  align-items: center;
-  letter-spacing: 0.025em;
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-@media (max-width: 1200px) {
-  .btns-wrap {
-    flex-direction: column;
-  }
+  gap: 24px;
 }
 
 @media (max-width: 1024px) {
   .stake-view {
     grid-template-columns: 1fr;
-  }
-
-  .btns-wrap {
-    flex-direction: row;
   }
 }
 
@@ -566,10 +549,6 @@ export default {
   .deposit-block,
   .stake-stand {
     padding: 30px 10px;
-  }
-
-  .btns-wrap {
-    flex-direction: column;
   }
 }
 </style>
