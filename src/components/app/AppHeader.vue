@@ -46,6 +46,9 @@
           <router-link class="list-link" :to="{ name: 'magicLVL' }"
             >magicLVL</router-link
           >
+          <router-link class="list-link" :to="{ name: 'magicKLP' }"
+            >magicKLP</router-link
+          >
         </div>
       </div>
 

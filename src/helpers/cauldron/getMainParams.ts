@@ -1,11 +1,12 @@
 import { Contract, BigNumber } from "ethers";
 import type { providers } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
+import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 import lensAbi from "@/utils/abi/marketLens.js";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 export const getMainParams = async (
-  configs: Array<Object | undefined>,
+  configs: Array<CauldronConfig>,
   provider: providers.BaseProvider,
   chainId: number,
   cauldron?: Contract | undefined
@@ -25,14 +26,17 @@ export const getMainParams = async (
     ? await Promise.all([cauldron?.exchangeRate()])
     : null;
 
-  return marketInfoResp.map((info: any) => {
+  return marketInfoResp.map((info: any, index) => {
     const updatePrice = contractExchangeRate
       ? !contractExchangeRate[0].eq(info.oracleExchangeRate)
       : false;
 
+    const localInterest = configs[index].interest;
+    const interest = localInterest ? localInterest : Number(info.interestPerYear) / 100;
+
     return {
       borrowFee: Number(info.borrowFee) / 100,
-      interest: Number(info.interestPerYear) / 100,
+      interest,
       liquidationFee: Number(info.liquidationFee) / 100,
       collateralPrice: info.collateralPrice,
       mimLeftToBorrow: info.marketMaxBorrow,
