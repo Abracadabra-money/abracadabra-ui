@@ -1,7 +1,12 @@
+import { formatUnits } from "viem";
+import type { MagicLvlAdditionalInfo } from "@/types/magicLvl/stakeInfo";
 import { getMagicLvlStatistics } from "@/helpers/stake/magicLvl/subgraph/getMagicLvlStatistics";
-import { utils } from "ethers";
 
-export const getAdditionalInfo = async (stakeInfo: any) => {
+export const getAdditionalInfo = async (
+  stakeInfo: any
+): Promise<MagicLvlAdditionalInfo> => {
+  const decimals = 18;
+
   const { juniorApy, mezzanineApy, seniorApy, junior, mezzanine, senior } =
     await getMagicLvlStatistics();
 
@@ -9,7 +14,7 @@ export const getAdditionalInfo = async (stakeInfo: any) => {
     junior;
 
   const juniorTotalRewardsUsd =
-    +utils.formatUnits(juniorTotalRewards) * +juniorLpPriceUsd;
+    +formatUnits(juniorTotalRewards, decimals) * +juniorLpPriceUsd;
 
   const {
     totalRewards: mezzanineTotalRewards,
@@ -17,13 +22,13 @@ export const getAdditionalInfo = async (stakeInfo: any) => {
   } = mezzanine;
 
   const mezzanineTotalRewardsUsd =
-    +utils.formatEther(mezzanineTotalRewards) * +mezzanineLpPriceUsd;
+    +formatUnits(mezzanineTotalRewards, decimals) * +mezzanineLpPriceUsd;
 
   const { totalRewards: seniorTotalRewards, lpPriceUsd: seniorLpPriceUsd } =
     senior;
 
   const seniorTotalRewardsUsd =
-    +utils.formatEther(seniorTotalRewards) * +seniorLpPriceUsd;
+    +formatUnits(seniorTotalRewards, decimals) * +seniorLpPriceUsd;
 
   const totalRewardsUsd =
     juniorTotalRewardsUsd + mezzanineTotalRewardsUsd + seniorTotalRewardsUsd;
@@ -33,7 +38,7 @@ export const getAdditionalInfo = async (stakeInfo: any) => {
     stakeInfo.mezzanine.mainToken;
   const { totalSupplyUsd: juniorTotalSupplyUsd } = stakeInfo.junior.mainToken;
 
-  const totalSupplyUsd =
+  const totalSupplyUsd: bigint =
     seniorTotalSupplyUsd + mezzanineTotalSupplyUsd + juniorTotalSupplyUsd;
 
   return {
