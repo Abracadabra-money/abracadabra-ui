@@ -39,6 +39,7 @@
 <script>
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
+import { parseUnits, formatUnits } from "viem";
 
 export default {
   props: {
@@ -54,30 +55,38 @@ export default {
 
   computed: {
     positionInfo() {
+      const precision = parseUnits("1", this.mainToken.decimals);
+      const stakeTokenAmountUsd = this.formatAmount(
+        (this.stakeToken.balance * this.stakeToken.price) / precision
+      );
+      const mainTokenAmountUsd = this.formatAmount(
+        (this.mainToken.balance * this.mainToken.price) / precision
+      );
+
       return [
         {
           name: this.stakeToken.name,
           icon: [this.stakeToken.icon],
           title: "Your balance",
-          value: filters.formatTokenBalance(this.stakeToken.balance) || "0.0",
-          valueInUsd: filters.formatUSD(
-            this.stakeToken.balance * this.stakeToken.price
+          value: filters.formatTokenBalance(
+            this.formatAmount(this.stakeToken.balance)
           ),
+          valueInUsd: filters.formatUSD(stakeTokenAmountUsd),
         },
         {
           name: this.mainToken.name,
           icon: [this.mainToken.icon],
           title: "Staked",
-          value: filters.formatTokenBalance(this.mainToken.balance),
-          valueInUsd: filters.formatUSD(
-            this.mainToken.balance * this.mainToken.price
+          value: filters.formatTokenBalance(
+            this.formatAmount(this.mainToken.balance)
           ),
+          valueInUsd: filters.formatUSD(mainTokenAmountUsd),
         },
         {
           name: "Ratio",
           icon: [this.stakeToken.icon],
           text: `1 ${this.mainToken.name} = ${filters.formatToFixed(
-            this.mainToken.rate,
+            this.formatAmount(this.mainToken.rate),
             4
           )} ${this.stakeToken.name}`,
         },
@@ -87,6 +96,12 @@ export default {
           text: filters.formatPercent(this.mainToken.apr),
         },
       ];
+    },
+  },
+
+  methods: {
+    formatAmount(value) {
+      return formatUnits(value, this.mainToken.decimals) || "0.0";
     },
   },
 
