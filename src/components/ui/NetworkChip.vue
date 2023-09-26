@@ -35,7 +35,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 50px;
-  min-width: 110px;
+  min-width: 120px;
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   cursor: pointer;

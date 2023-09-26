@@ -190,7 +190,7 @@ export default {
       if (!this.isTokenApproved) return true;
       return !!(!this.mainInputValue || this.errorMainValue);
     },
-
+    
     precision() {
       return parseUnits("1", this.mainToken.decimals);
     },

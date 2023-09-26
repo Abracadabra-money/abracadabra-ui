@@ -105,7 +105,7 @@ describe("SpecialInfoBlock.vue", async () => {
     expect(wrapper.vm.tokenLinkData).toMatchObject({
       id: 38,
       chain: 1,
-      href: "https://yearn.finance/vaults/1/0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3",
+      href: "https://yearn.fi/vaults/1/0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3",
       label: "Get Yearn Tokens",
     });
   });

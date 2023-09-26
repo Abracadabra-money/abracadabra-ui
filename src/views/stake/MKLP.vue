@@ -4,7 +4,7 @@
       <h4>Choose Chain</h4>
 
       <div class="underline">
-        <NetworksList :active-list="[42161, 43114]" />
+        <NetworksList :active-list="[2222]" />
       </div>
 
       <div class="loader-wrap" v-if="!isInfoLoading">
@@ -53,32 +53,19 @@
             @click="approveTokenHandler"
             >Approve
           </BaseButton>
-
-          <BaseButton :disabled="isActionDisabled" @click="actionHandler">
-            {{ action }}
+          <BaseButton
+            v-tooltip="tooltipText"
+            :disabled="isActionDisabled"
+            @click="actionHandler"
+          >
+            {{ actionButtonText }}
           </BaseButton>
         </div>
-
-        <p class="leverage-link" v-if="stakeInfo.leverageInfo">
-          {{ stakeInfo.leverageInfo.label }}
-          <router-link
-            class="link"
-            v-if="stakeInfo.leverageInfo.id"
-            :to="{
-              name: 'LeverageId',
-              params: { id: stakeInfo.leverageInfo.id },
-            }"
-            >here.
-          </router-link>
-        </p>
       </div>
     </div>
 
-    <div
-      class="stake-stand"
-      :style="`background-image: url(${standBackground})`"
-    >
-      <h1 class="title">magicGLP</h1>
+    <div class="stake-stand" :style="standBackground">
+      <h1 class="title">magicKLP</h1>
 
       <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
@@ -94,19 +81,20 @@
           <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
 
           <AdditionalInfoBlockViem
+            v-if="account"
             :mainToken="mainToken"
-            :rewardToken="stakeInfo.rewardToken"
+            :rewardToken="stakeInfo?.rewardToken"
           />
         </div>
 
         <div class="empty-wrap" v-else>
-          <EmptyBlock :warningType="'mglp'" />
+          <EmptyBlock :warningType="'mklp'" />
         </div>
 
         <div class="description">
           <p>
             Enjoy the benefits of compounding without having to worry about the
-            tedious work! Simply deposit your GLP into MagicGLP and let it do
+            tedious work! Simply deposit your KLP into MagicKLP and let it do
             its magic!
           </p>
           <p>Note: A 1% protocol fee is taken on the yields.</p>
@@ -114,12 +102,15 @@
 
         <div class="links-wrap" v-if="isUnsupportedChain">
           <GetTokenLink
-            :data="{ href: 'https://app.gmx.io/#/buy_glp', label: 'Buy GLP' }"
+            :data="{
+              href: 'https://perps.kinetix.finance/#/liquidity',
+              label: 'Buy KLP',
+            }"
           />
           <GetTokenLink
             :data="{
-              href: 'https://app.gmx.io/#/buy_glp#redeem',
-              label: 'Sell GLP',
+              href: 'https://perps.kinetix.finance/#/liquidity#redeem',
+              label: 'Sell KLP',
             }"
           />
         </div>
@@ -129,18 +120,20 @@
 </template>
 
 <script>
+import axios from "axios";
+import moment from "moment";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
+import { ANALYTICS_URK } from "@/constants/global";
 import { approveTokenViem } from "@/helpers/approval"; //todo
-import actions from "@/helpers/stake/magicGlp/actions/";
+import actions from "@/helpers/stake/magicKLP/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
+import { magicKlpConfig } from "@/utils/stake/magicKlpConfig";
 import notification from "@/helpers/notification/notification.js";
-import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo.ts";
-import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
+import { getChartOptions } from "@/helpers/stake/magicKLP/getChartOptions";
+import { getStakeInfo } from "@/helpers/stake/magicKLP/getStakeInfo.ts";
 
 export default {
   data() {
@@ -150,6 +143,8 @@ export default {
       action: "Stake",
       inputValue: "",
       updateInterval: null,
+      timerCount: "Stake",
+      timeInterval: null,
     };
   },
 
@@ -158,6 +153,29 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    actionButtonText() {
+      if (!this.stakeToken && this.isStakeAction) return "Stake";
+      if (!this.stakeToken && !this.isStakeAction) return "Unstake";
+
+      if (this.isStakeAction && !!this.finalTime) return this.timerCount;
+      if (this.isStakeAction && !this.finalTime) return "Stake";
+      return "Unstake";
+    },
+
+    finalTime() {
+      const lockTimestamp = +this.stakeToken?.lastAdded
+        ? moment.unix(this.stakeToken.lastAdded).add(15, "minutes")
+        : moment.unix(0);
+
+      return this.timerCount ? lockTimestamp.unix().toString() : 0;
+    },
+
+    tooltipText() {
+      return this.timerCount
+        ? "Kintetix Finance applies a 15 minutes lock on all freshly minted KLP. Please wait"
+        : "";
+    },
 
     isInfoLoading() {
       return !!this.stakeInfo;
@@ -177,11 +195,13 @@ export default {
 
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
+      if (this.isStakeAction)
+        return !!(!this.inputValue || this.errorMainValue || +this.finalTime);
       return !!(!this.inputValue || this.errorMainValue);
     },
 
     isUnsupportedChain() {
-      return !!magicGlpConfig[this.chainId];
+      return !!magicKlpConfig[this.chainId];
     },
 
     stakeToken() {
@@ -222,16 +242,8 @@ export default {
       return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
-    standBackground() {
-      if (+this.chainId === 42161)
-        return useImage("assets/images/glp/arbitrum-bg.png");
-      if (+this.chainId === 43114)
-        return useImage("assets/images/glp/avax-bg.png");
-      return "";
-    },
-
     parsedInputValue() {
-      return parseUnits(this.inputValue, 18);
+      return parseUnits(this.inputValue || "0", 18);
     },
 
     actionInfo() {
@@ -245,16 +257,17 @@ export default {
     chartConfig() {
       return {
         title: "APY Chart",
-        type: "magicGlpTvl",
+        type: "magicKlpApy",
         apy: this.apy,
         feePercent: this.stakeInfo.feePercent,
-        intervalButtons: [
-          { label: "1m", time: 1 },
-          { label: "3m", time: 3 },
-          { label: "6m", time: 6 },
-          { label: "1y", time: 12 },
-        ],
+        intervalButtons: [{ label: "1m", time: 1 }],
       };
+    },
+
+    standBackground() {
+      return `background-image: url(${useImage(
+        "assets/images/stake/mKlpStand.png"
+      )})`;
     },
   },
 
@@ -332,23 +345,52 @@ export default {
         await this.createNotification(notification.success);
       }
     },
+
+    isLocked() {
+      const start = moment(new Date());
+      const end = moment.unix(this.finalTime);
+      return end.isAfter(start);
+    },
+
+    checkDuration() {
+      this.timeInterval = setInterval(() => {
+        if (!this.finalTime) {
+          this.timerCount = 0;
+          return false;
+        }
+
+        const start = moment(new Date());
+        const end = moment.unix(this.finalTime);
+        const duration = end.diff(start);
+
+        const isLocked = end.isAfter(start);
+
+        this.timerCount = isLocked
+          ? `Unlocks in: ${moment.utc(duration).format("HH:mm:ss")}`
+          : 0;
+      }, 1000);
+    },
   },
 
   async created() {
     await this.createStakeInfo();
-
     if (!this.isUnsupportedChain) return false;
+    const isLocked = this.isLocked();
+
+    if (isLocked) this.checkDuration();
+    else this.timerCount = 0;
 
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();
     }, 60000);
 
-    const response = await getMagicGlpApy(this.chainId);
-    this.apy = filters.formatToFixed(response.magicGlpApy, 2);
+    const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
+    this.apy = filters.formatToFixed(data.apr, 2);
   },
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
+    clearInterval(this.timeInterval);
   },
 
   components: {
