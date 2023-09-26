@@ -201,9 +201,9 @@ const subscribeProvider = async () => {
   });
 };
 
-if (ethereumClient.getAccount().isConnected) {
-  onConnectNew();
-} else initWithoutConnect();
+await watchAccount(({ isConnected }) => {
+  isConnected ? onConnectNew() : initWithoutConnect();
+});
 
 store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
 
