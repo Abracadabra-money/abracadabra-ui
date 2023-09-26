@@ -157,8 +157,6 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      provider: "getProvider",
-      signer: "getSigner",
     }),
 
     isInfoLoading() {
