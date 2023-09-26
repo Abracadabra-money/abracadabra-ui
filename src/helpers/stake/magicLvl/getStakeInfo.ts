@@ -9,6 +9,7 @@ import { getTokensInfo } from "@/helpers/stake/magicLvl/getTokensInfo";
 import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
 import { getEmptyState } from "./getEmptyState";
 
+//
 export const getStakeInfo = async (
   chainId: number
 ): Promise<MagicLvlStakeInfo> => {
