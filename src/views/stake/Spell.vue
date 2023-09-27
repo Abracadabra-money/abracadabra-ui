@@ -118,13 +118,11 @@
       <div class="stake-description">
         <p v-for="description in stakeDescriptions" :key="description.text">
           {{ description.text }}
-          <a
-            v-if="description.link"
-            class="description-link"
-            :href="description.link"
-            target="_blank"
-            >here</a
-          >!
+          <span v-if="description.link">
+            <a class="description-link" :href="description.link" target="_blank"
+              >here</a
+            >!
+          </span>
         </p>
       </div>
     </div>
@@ -305,7 +303,7 @@ export default {
 
       const mSpell = [
         {
-          text: "Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Take part in the fee sharing mechanism of Abracadabra and earn MIM! Find out more here!",
+          text: "Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Take part in the fee sharing mechanism of Abracadabra and earn MIM! Find out more ",
           link: "https://abracadabramoney.gitbook.io/intro/stake/mspell",
         },
         {
