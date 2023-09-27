@@ -2,7 +2,9 @@ export type EmptyTokenState = {
   icon: string;
   name: string;
   balance: bigint;
-  rate: bigint;
+  rate?: bigint;
+  price?: bigint;
+  decimals?: number;
 };
 
 export type EmptySpellState = {
