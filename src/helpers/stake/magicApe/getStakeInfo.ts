@@ -1,48 +1,52 @@
 import { getAccount } from "@wagmi/core";
-import { MulticallWrapper } from "ethers-multicall-provider";
 import { magicApeConfig } from "@/utils/stake/magicApeConfig";
-import { getContracts } from "@/helpers/stake/magicApe/getContracts";
 import { getTokensInfo } from "@/helpers/stake/magicApe/getTokensInfo";
 import { getAdditionalInfo } from "@/helpers/stake/magicApe/getAdditionalInfo";
-
-const emptyState = {
-  mainToken: {
-    name: magicApeConfig[1].mainToken.name,
-    icon: magicApeConfig[1].mainToken.icon,
-    balance: "0",
-  },
-  stakeToken: {
-    name: magicApeConfig[1].stakeToken.name,
-    icon: magicApeConfig[1].stakeToken.icon,
-    balance: "0",
-  },
-};
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import type { EmptyState, StakeInfo } from "@/types/magicApe/configsInfo";
 
 export const getStakeInfo = async (
-  provider: any,
-  signer: any,
   chainId: number
-) => {
+): Promise<StakeInfo | EmptyState> => {
   const config = magicApeConfig[chainId as keyof typeof magicApeConfig];
-  const account = getAccount().address;
-  if (!config || !account) return emptyState;
+  let account = getAccount().address;
+  account = account ? account : "0x";
+  if (!config) return emptyState;
 
-  const userSigner = account ? signer : provider;
-  const multicallProvider = MulticallWrapper.wrap(provider);
-  const multicallContracts = await getContracts(multicallProvider, config);
-
-  const { mainToken, stakeToken } = await getTokensInfo(
-    multicallContracts,
-    userSigner,
+  const { mainToken, stakeToken, tokensRate } = await getTokensInfo(
     account,
     config
   );
 
-  const additionalInfo = await getAdditionalInfo(multicallContracts, config);
+  const additionalInfo = await getAdditionalInfo(config);
 
   return {
-    ...additionalInfo,
     mainToken,
     stakeToken,
+    tokensRate,
+    ...additionalInfo,
   };
+};
+
+const emptyState: EmptyState = {
+  mainToken: {
+    name: magicApeConfig[MAINNET_CHAIN_ID as keyof typeof magicApeConfig]
+      .mainToken.name,
+    icon: magicApeConfig[MAINNET_CHAIN_ID as keyof typeof magicApeConfig]
+      .mainToken.icon,
+    decimals:
+      magicApeConfig[MAINNET_CHAIN_ID as keyof typeof magicApeConfig].mainToken
+        .decimals,
+    balance: 0n,
+  },
+  stakeToken: {
+    name: magicApeConfig[MAINNET_CHAIN_ID as keyof typeof magicApeConfig]
+      .stakeToken.name,
+    icon: magicApeConfig[MAINNET_CHAIN_ID as keyof typeof magicApeConfig]
+      .stakeToken.icon,
+    decimals:
+      magicApeConfig[MAINNET_CHAIN_ID as keyof typeof magicApeConfig].stakeToken
+        .decimals,
+    balance: 0n,
+  },
 };

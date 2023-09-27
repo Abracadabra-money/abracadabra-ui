@@ -1,19 +1,28 @@
+import type { ContractInfo } from "@/types/global";
+import { waitForTransaction, type Address } from "@wagmi/core";
+import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import type { Contract, BigNumber } from "ethers";
 
 export const withdraw = async (
-  contract: Contract,
-  withdrawAmount: BigNumber,
-  account: string,
-  pid: string
+  contract: ContractInfo,
+  withdrawAmount: bigint,
+  account: Address,
+  pid: number,
+  chainId = 56
 ) => {
   try {
-    const tx = await contract.withdraw(pid, withdrawAmount, account);
-    const result = await tx.wait();
-    return { result };
-  } catch (error) {
-    console.log("Stake Withdraw Error:", error);
+    const config = await prepareWriteContract({
+      ...contract,
+      functionName: "withdraw",
+      args: [pid, withdrawAmount, account],
+    });
 
+    const { hash } = await writeContract(config);
+
+    const data = await waitForTransaction({ chainId, hash });
+    return data;
+  } catch (error) {
+    console.log("Magic LVL Stake Withdraw Error:", error);
     return {
       error: { type: "error", msg: await notificationErrorMsg(error) },
     };

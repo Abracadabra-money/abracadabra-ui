@@ -1,13 +1,17 @@
-import type { Contract, BigNumber } from "ethers";
+import { waitForTransaction } from "@wagmi/core";
+import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
-export const deposit = async (contract: Contract, amount: BigNumber) => {
+export const deposit = async (contract: any, amount: any) => {
   try {
-    const estimateGas = await contract.estimateGas.deposit(amount);
-    const gasLimit = 1000 + +estimateGas.toString();
-    const tx = await contract.deposit(amount, { gasLimit });
-    const result = await tx.wait();
-    return { result };
+    const config = await prepareWriteContract({
+      ...contract,
+      functionName: "deposit",
+      args: [amount],
+    });
+
+    const { hash } = await writeContract(config);
+    return await waitForTransaction({ hash });
   } catch (error) {
     console.log("Stake Deposit Handler Error:", error);
     return {

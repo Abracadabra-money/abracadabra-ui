@@ -13,13 +13,16 @@
 
       <div v-else>
         <div class="input-assets">
-          <InputLabel :amount="fromToken.balance" :title="action" />
+          <InputLabel
+            :amount="formatAmount(fromToken.balance)"
+            :title="action"
+          />
 
           <BaseTokenInput
             :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :max="fromToken.balance"
+            :max="formatAmount(fromToken.balance)"
             :error="errorMainValue"
             :disabled="!isUnsupportedChain"
             @updateValue="updateMainValue"
@@ -82,9 +85,9 @@
             :getChartOptions="getChartOptions"
           />
 
-          <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
+          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <AdditionalInfoBlock
+          <AdditionalInfoBlockViem
             :mainToken="mainToken"
             :rewardToken="rewardToken"
           />
@@ -130,15 +133,16 @@
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { approveToken } from "@/helpers/approval";
+import { approveTokenViem } from "@/helpers/approval"; //todo
 import actions from "@/helpers/stake/magicApe/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicApeConfig } from "@/utils/stake/magicApeConfig";
 import notification from "@/helpers/notification/notification.js";
-import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
+import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
+import { parseUnits, formatUnits } from "viem";
 
 export default {
   data() {
@@ -186,13 +190,17 @@ export default {
       if (!this.isTokenApproved) return true;
       return !!(!this.mainInputValue || this.errorMainValue);
     },
+    
+    precision() {
+      return parseUnits("1", this.mainToken.decimals);
+    },
 
     expectedAmount() {
-      const tokensRate = this.stakeInfo.mainToken.rate;
+      if (!this.isUnsupportedChain || !this.account) return 0;
       const amount = this.isStakeAction
-        ? this.mainInputValue / tokensRate
-        : this.mainInputValue * tokensRate;
-      return filters.formatToFixed(amount, 6);
+        ? (this.parsedInputValue * this.precision) / this.mainToken.rate
+        : (this.parsedInputValue * this.mainToken.rate) / this.precision;
+      return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
     expectedLeverageApy() {
@@ -224,7 +232,9 @@ export default {
     rewardToken() {
       const { rewardToken } = this.stakeInfo;
       const amount = +this.totalRewards ? +this.totalRewards : 0;
-      const amountUsd = this.totalRewards ? amount * this.stakeToken.price : 0;
+      const amountUsd = this.totalRewards
+        ? amount * formatUnits(this.stakeToken.price, this.stakeToken.decimals)
+        : 0;
       return { ...rewardToken, amount, amountUsd };
     },
 
@@ -240,10 +250,12 @@ export default {
       return Number(this.inputValue);
     },
 
+    parsedInputValue() {
+      return parseUnits(this.inputValue, 18);
+    },
+
     actionInfo() {
-      const amount = this.$ethers.utils.parseEther(
-        filters.formatToFixed(this.inputValue || 0, 18)
-      );
+      const amount = this.parsedInputValue;
 
       const options = [amount, this.account];
 
@@ -296,6 +308,10 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
     getChartOptions,
 
+    formatAmount(value) {
+      return formatUnits(value, this.mainToken.decimals);
+    },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -317,7 +333,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveToken(
+      const approve = await approveTokenViem(
         this.stakeToken.contract,
         this.mainToken.contract.address
       );
@@ -353,11 +369,7 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfo = await getStakeInfo(
-        this.provider,
-        this.signer,
-        this.chainId
-      );
+      this.stakeInfo = await getStakeInfo(this.chainId);
 
       if (this.isUnsupportedChain) {
         this.apy = await getMagicApeApy(this.provider);
@@ -402,11 +414,11 @@ export default {
     ChartBlock: defineAsyncComponent(() =>
       import("@/components/stake/ChartBlock.vue")
     ),
-    BalancesBlock: defineAsyncComponent(() =>
-      import("@/components/stake/BalancesBlock.vue")
+    BalancesBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlockViem.vue")
     ),
-    AdditionalInfoBlock: defineAsyncComponent(() =>
-      import("@/components/stake/AdditionalInfoBlock.vue")
+    AdditionalInfoBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlockViem.vue")
     ),
     EmptyBlock: defineAsyncComponent(() =>
       import("@/components/stake/EmptyBlock.vue")
