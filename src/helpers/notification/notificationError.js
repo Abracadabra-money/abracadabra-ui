@@ -57,8 +57,6 @@ export const notificationErrorMsg = (e) => {
 
   if (!msg) msg = "Transaction encountered an Error";
 
-  console.log(msg);
-
   return msg;
 };
 
