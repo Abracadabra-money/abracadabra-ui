@@ -10,10 +10,14 @@ export const emptyState: EmptyState = {
     name: mainToken.name,
     icon: mainToken.icon,
     balance: 0n,
+    balanceUsd: 0n,
+    rate: 1000000000000000000n,
+    decimals: 18,
   },
   stakeToken: {
     name: stakeToken.name,
     icon: stakeToken.icon,
     balance: 0n,
+    balanceUsd: 0n,
   },
 };

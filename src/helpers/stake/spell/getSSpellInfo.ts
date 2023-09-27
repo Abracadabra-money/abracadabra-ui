@@ -4,7 +4,7 @@ import { formatUnits, type Address } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { EmptyTokenState } from "@/types/spell/empyState";
 import type { ChainSpellConfig } from "@/types/spell/configsInfo";
-import { sSpellEmptyState } from "@/helpers/stake/spell/emptyState";
+import { getSSpellEmptyState } from "@/helpers/stake/spell/emptyState";
 import type { SSpellInfo, SpellInfo } from "@/types/spell/stakeInfo";
 
 export const getSSpellInfo = async (
@@ -13,7 +13,7 @@ export const getSSpellInfo = async (
   spellPrice: bigint,
   account: Address
 ): Promise<SSpellInfo | EmptyTokenState> => {
-  if (!sSpell) return sSpellEmptyState;
+  if (!sSpell) return await getSSpellEmptyState();
 
   const [
     allowanceAmount,

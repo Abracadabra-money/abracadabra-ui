@@ -2,7 +2,7 @@ import { parseUnits } from "viem";
 import { getAccount } from "@wagmi/core";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { spellConfig } from "@/utils/stake/spellConfig";
-import { emptyState } from "@/helpers/stake/spell/emptyState";
+import { getSpellEmptyState } from "@/helpers/stake/spell/emptyState";
 import type { SpellStakeInfo } from "@/types/spell/stakeInfo";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import { MAINNET_SPELL_ADDRESS } from "@/constants/tokensAddress";
@@ -16,7 +16,7 @@ export const getStakeInfo = async (
 ): Promise<SpellStakeInfo> => {
   const account = getAccount().address;
   const config = spellConfig[chainId as keyof typeof spellConfig];
-  if (!config || !account) return emptyState;
+  if (!config || !account) return await getSpellEmptyState();
 
   const price: number = await getTokenPriceByAddress(
     MAINNET_CHAIN_ID,
