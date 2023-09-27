@@ -13,6 +13,7 @@ import yvYFI from "@/utils/abi/tokensAbi/yvYFI";
 import yvcrvSTETH from "@/utils/abi/tokensAbi/yvcrvSTETH";
 import FTM from "@/utils/abi/tokensAbi/FTM";
 import stkcvx3Crv from "@/utils/abi/tokensAbi/stkcvx3Crv";
+import crv from "@/utils/abi/tokensAbi/Crv";
 import stakedThreeCrypto from "@/utils/abi/tokensAbi/stkcvxcrv3crypto";
 import AGLD from "@/utils/abi/tokensAbi/AGLD";
 import cvxRen from "@/utils/abi/tokensAbi/cvxRen";
@@ -50,6 +51,7 @@ import lvlSenior from "@/utils/abi/tokensAbi/lvlSenior";
 import mLvlSenior from "@/utils/abi/tokensAbi/mLvlSenior";
 import yvCurveMIMf from "@/utils/abi/tokensAbi/yvCurveMIMf";
 import StargateUSDT from "@/utils/abi/tokensAbi/StargateUSDT";
+import crv3crypto from "@/utils/abi/tokensAbi/crv3crypto";
 import mKLP from "@/utils/abi/tokensAbi/mKLP";
 import sKLP from "@/utils/abi/tokensAbi/sKLP";
 
@@ -67,6 +69,7 @@ export default {
   yvYFI,
   yvcrvSTETH,
   FTM,
+  crv,
   stkcvx3Crv,
   stakedThreeCrypto,
   AGLD,
@@ -106,6 +109,7 @@ export default {
   mLvlSenior,
   yvCurveMIMf,
   StargateUSDT,
+  crv3crypto,
   mKLP,
   sKLP,
 };

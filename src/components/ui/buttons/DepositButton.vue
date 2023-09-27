@@ -15,7 +15,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { getCollateralConfig } from "@/helpers/collateral/getCollateralConfig.ts";
+import { getAdditionalStakeConfig } from "@/helpers/stake/getAdditionalStakeConfig.ts";
 export default {
   props: {
     cauldron: { type: Object, required: true },
@@ -29,7 +29,7 @@ export default {
 
     depositConfig() {
       if (!this.account) return false;
-      return getCollateralConfig(this.cauldron.config.id, this.chainId);
+      return getAdditionalStakeConfig(this.cauldron.config.id, this.chainId);
     },
   },
 

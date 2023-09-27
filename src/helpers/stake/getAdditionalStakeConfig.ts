@@ -1,18 +1,6 @@
-type Config = {
-  id: Number;
-  chain: Number;
-  title: String;
-  type: String;
-  data?: Object;
-};
+import type { CollateralConfig } from "@/types/crv/configsInfo";
 
-const configs: Array<Config> = [
-  {
-    id: 10,
-    chain: 1,
-    title: "WRAP",
-    type: "olimpus",
-  },
+const additionalStakeConfigs: Array<CollateralConfig> = [
   {
     id: 15,
     chain: 1,
@@ -26,7 +14,10 @@ const configs: Array<Config> = [
     id: 16,
     chain: 1,
     title: "Deposit",
-    type: "three-crypto-deposit",
+    type: "3crv",
+    data: {
+      isThreeCrypto: true,
+    },
   },
   {
     id: 24,
@@ -44,27 +35,16 @@ const configs: Array<Config> = [
     type: "3crv",
     data: {
       address: "0x3Ba207c25A278524e1cC7FaAea950753049072A4",
+      label: "(new)",
     },
-  },
-  {
-    id: 2,
-    chain: 43114,
-    title: "WRAP",
-    type: "memo-wrap",
-  },
-  {
-    id: 2,
-    chain: 43114,
-    title: "WRAP",
-    type: "memo-wrap",
   },
 ];
 
-export const getCollateralConfig = (
+export const getAdditionalStakeConfig = (
   cauldronId: number,
   chainId: number
-): Object => {
-  return configs.filter((config) => {
+): CollateralConfig => {
+  return additionalStakeConfigs.filter((config) => {
     if (config.id === cauldronId && config.chain === chainId) return true;
   })[0];
 };
