@@ -260,11 +260,11 @@ export default {
 
   async created() {
     this.isFarmsLoading = true;
-    this.farms = await getFarmsList(this.chainId, this.signer);
+    this.farms = await getFarmsList(this.chainId);
     this.isFarmsLoading = false;
 
     this.farmsInterval = setInterval(async () => {
-      this.farms = await getFarmsList(this.chainId, this.signer);
+      this.farms = await getFarmsList(this.chainId, this);
     }, 60000);
     window.addEventListener("scroll", this.onScroll);
   },
