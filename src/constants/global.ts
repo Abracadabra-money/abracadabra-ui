@@ -10,6 +10,8 @@ export const MAX_APPROVAL_AMOUNT: string =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 export const ARBITRUM_CHAIN_ID: number = 42161;
 export const MAINNET_CHAIN_ID: number = 1;
+
 export const ANALYTICS_URK: string = "https://analytics.abracadabra.money/api";
 export const RANDOM_ACCOUNT: string = Wallet.createRandom().address;
 export const KAVA_CHAIN_ID: number = 2222;
+

@@ -47,8 +47,6 @@ export default {
       return [
         {
           title: "Earned",
-          //todo
-          //is always SPELL?
           symbol: "SPELL",
           icon: spellIcon,
           amount: filters.formatTokenBalance(this.earnedData.balance),
@@ -115,20 +113,18 @@ export default {
     depositedData() {
       return this.prepBalanceData(
         this.farmConfig.accountInfo?.userInfo.amount,
-        this.farmConfig.lpPrice
+        this.farmConfig.lpPrice / 1e18
       );
     },
   },
 
   methods: {
     prepBalanceData(tokenValue, priceValue) {
-      const tokenValueParsed = this.$ethers.utils.formatEther(tokenValue);
-
-      const price = tokenValueParsed * priceValue;
+      const price = tokenValue * priceValue;
 
       return {
         usd: price,
-        balance: tokenValueParsed,
+        balance: tokenValue,
       };
     },
 
