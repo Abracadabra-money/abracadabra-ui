@@ -1,13 +1,14 @@
-import { BigNumber, ethers } from "ethers";
-import { getAccount } from "@wagmi/core";
+import { getAccount, multicall, readContract } from "@wagmi/core";
 import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
 import { tokenAddresses } from "@/helpers/farm/createFarmItemConfig";
 import type { FarmAccountInfo, FarmItem } from "@/utils/farmsConfig/types";
 
+import { formatUnits } from "viem";
+
 type UserInfo = {
-  amount: BigNumber;
-  rewardDebt: BigNumber;
-  remainingIceTokenReward: BigNumber;
+  amount: string;
+  rewardDebt: string;
+  remainingIceTokenReward: string;
 };
 
 export const getFarmUserInfo = async (
@@ -15,51 +16,54 @@ export const getFarmUserInfo = async (
 ): Promise<FarmAccountInfo> => {
   const account = await getAccount().address;
 
-  const allowance = await farmItemConfig.stakingToken.contract.allowance(
-    account,
-    farmItemConfig.contractInstance.address
-  );
+  const [accountBalance, allowance, userInfo, userReward]: any =
+    await multicall({
+      contracts: [
+        {
+          ...farmItemConfig.stakingToken.contractInfo,
+          functionName: "balanceOf",
+          args: [account!],
+        },
+        {
+          ...farmItemConfig.stakingToken.contractInfo,
+          functionName: "allowance",
+          args: [account!, farmItemConfig.contractInfo.address],
+        },
+        {
+          ...farmItemConfig.contractInfo,
+          functionName: "userInfo",
+          args: [farmItemConfig.poolId, account!],
+        },
+        {
+          ...farmItemConfig.contractInfo,
+          functionName: "pendingIce",
+          args: [farmItemConfig.poolId, account!],
+        },
+      ],
+    });
 
-  const userInfo: UserInfo = await farmItemConfig.contractInstance.userInfo(
-    farmItemConfig.poolId,
-    account
-  );
-
-  const userReward = await farmItemConfig.contractInstance.pendingIce(
-    farmItemConfig.poolId,
-    account
-  );
+  const userInfoParsed = await getUserInfo(userInfo.result);
 
   const tokensBalanceInfo = farmItemConfig.depositedBalance
-    ? await getSLPBalances(farmItemConfig, userInfo)
+    ? await getSLPBalances(farmItemConfig, userInfoParsed)
     : null;
 
-  const accountBalance = await farmItemConfig.stakingToken.contract.balanceOf(
-    account
-  );
-
-  const balance = ethers.utils.formatEther(accountBalance);
-
-  const deposited = await farmItemConfig.contractInstance.userInfo(
-    farmItemConfig.poolId,
-    account
-  );
-
-  const depositedBalance = ethers.utils.formatEther(deposited?.amount);
-
   return {
-    allowance,
-    userInfo,
-    userReward,
+    allowance: formatUnits(allowance.result, 18),
+    userInfo: userInfoParsed,
+    userReward: formatUnits(userReward.result, 18),
     tokensBalanceInfo,
-    balance,
-    depositedBalance,
+    balance: formatUnits(accountBalance.result, 18),
+    depositedBalance: userInfoParsed.amount,
   };
 };
 
 const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
-  const { _reserve0, _reserve1 } =
-    await farmItemConfig.stakingToken.contract.getReserves();
+  const reserves: any = await readContract({
+    ...farmItemConfig.stakingToken.contractInfo,
+    functionName: "getReserves",
+    args: [],
+  });
 
   //MIM or SPELL
   const token0Price = await getTokenPriceByAddress(
@@ -76,9 +80,9 @@ const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
     tokenAddresses["WETH" as keyof typeof tokenAddresses]
   );
 
-  const token0Amount: number = Number(ethers.utils.formatUnits(_reserve0));
+  const token0Amount: number = Number(formatUnits(reserves[0], 18));
 
-  const token1Amount: number = Number(ethers.utils.formatUnits(_reserve1));
+  const token1Amount: number = Number(formatUnits(reserves[1], 18));
 
   const token0Usd = token0Amount * token0Price;
   const token1Usd = token1Amount * token1Price;
@@ -88,16 +92,14 @@ const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
   const token0Percent = (token0Usd / tokensSum) * 100;
   const token1Percent = (token1Usd / tokensSum) * 100;
 
-  const userRewardParsed: number = Number(
-    ethers.utils.formatUnits(userInfo.amount)
-  );
+  const userRewardParsed: number = Number(userInfo.amount);
 
   const userRewardInUsd = userRewardParsed * farmItemConfig.lpPrice;
 
   const token0UserAmount =
-    ((userRewardInUsd / 100) * token0Percent) / token0Price;
+    ((userRewardInUsd / 100) * token0Percent) / token0Price / 1e18;
   const token1UserAmount =
-    ((userRewardInUsd / 100) * token1Percent) / token1Price;
+    ((userRewardInUsd / 100) * token1Percent) / token1Price / 1e18;
 
   return {
     token0: {
@@ -110,5 +112,16 @@ const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
       amount: token1UserAmount,
       amountInUsd: token1UserAmount * token1Price,
     },
+  };
+};
+
+const getUserInfo = async (userInfo: any): Promise<UserInfo> => {
+  const [amountBigInt, rewardDebtBigInt, remainingIceTokenRewardBigInt] =
+    userInfo;
+
+  return {
+    amount: formatUnits(amountBigInt, 18),
+    remainingIceTokenReward: formatUnits(remainingIceTokenRewardBigInt, 18),
+    rewardDebt: formatUnits(rewardDebtBigInt, 18),
   };
 };

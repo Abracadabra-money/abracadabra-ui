@@ -1,20 +1,25 @@
-import { ethers } from "ethers";
-import erc20Abi from "@/utils/farmPools/abi/erc20Abi";
-
-import type { BigNumber, Contract, Signer } from "ethers";
-import type { FarmConfig, PoolInfo } from "@/utils/farmsConfig/types";
+import { erc20ABI } from "@wagmi/core";
+import { multicall, readContract } from "@wagmi/core";
+import { formatUnits, parseUnits } from "viem";
+import { ONE_ETHER_VIEM } from "@/constants/global";
+import type { Address } from "@wagmi/core";
+import type {
+  FarmConfig,
+  PoolInfo,
+  ContractInfo,
+} from "@/utils/farmsConfig/types";
 
 const MIMAddress = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3";
 const SPELLAddress = "0x090185f2135308bad17527004364ebcc2d37e5f6";
 
 export const getFarmYieldAndLpPrice = async (
-  stakingTokenContract: Contract,
-  contractInstance: Contract,
+  stakingTokenContractInfo: ContractInfo,
+  contractInfo: ContractInfo,
   poolInfo: PoolInfo,
   farmInfo: FarmConfig,
-  signer: Signer,
   mimPrice: number,
-  spellPrice: number
+  spellPrice: number,
+  chainId: number
 ) => {
   try {
     if (farmInfo.depositedBalance) {
@@ -26,25 +31,19 @@ export const getFarmYieldAndLpPrice = async (
       const tokenPrice =
         farmInfo.depositedBalance.token0.name === "MIM" ? mimPrice : spellPrice;
 
-      const tokenContract = new ethers.Contract(
-        tokenAddress,
-        JSON.stringify(erc20Abi),
-        signer
-      );
-
       const lpYieldAndPrice = await getLPYieldAndPrice(
-        poolInfo.stakingToken,
-        tokenContract,
-        stakingTokenContract,
+        stakingTokenContractInfo,
+        tokenAddress,
         tokenPrice
       );
 
       const farmYield = await getFarmYield(
-        contractInstance,
+        contractInfo,
         lpYieldAndPrice?.lpYield,
         poolInfo.stakingTokenTotalAmount,
         poolInfo.allocPoint,
-        poolInfo.accIcePerShare
+        poolInfo.accIcePerShare,
+        chainId
       );
 
       return {
@@ -53,19 +52,25 @@ export const getFarmYieldAndLpPrice = async (
       };
     }
 
-    const price = await stakingTokenContract.get_virtual_price();
+    const price: any = await readContract({
+      address: stakingTokenContractInfo.address,
+      abi: stakingTokenContractInfo.abi,
+      functionName: "get_virtual_price",
+      args: [],
+      chainId,
+    });
 
-    const lpPrice = Number(ethers.utils.formatEther(price));
     const farmYield = await getFarmYield(
-      contractInstance,
-      1000,
+      contractInfo,
+      1000n * BigInt(1e36),
       poolInfo.stakingTokenTotalAmount,
       poolInfo.allocPoint,
-      poolInfo.accIcePerShare
+      poolInfo.accIcePerShare,
+      chainId
     );
 
     return {
-      lpPrice,
+      lpPrice: Number(price),
       farmYield,
     };
   } catch (e) {
@@ -79,40 +84,56 @@ export const getFarmYieldAndLpPrice = async (
 };
 
 const getFarmYield = async (
-  contractInstance: Contract,
-  amount = 1000,
-  stakingTokenTotalAmount: BigNumber,
+  contractInfo: ContractInfo,
+  amount = 1000n,
+  stakingTokenTotalAmount: bigint,
   allocPoint: number,
-  accIcePerShare: BigNumber
+  accIcePerShare: bigint,
+  chainId: number
 ) => {
   try {
-    const divide =
-      Number(ethers.utils.formatEther(stakingTokenTotalAmount)) + amount;
+    const [icePerSecond, totalAllocPoint]: any = await multicall({
+      chainId,
+      contracts: [
+        {
+          address: contractInfo.address,
+          abi: contractInfo.abi,
+          functionName: "icePerSecond",
+          args: [],
+        },
+        {
+          address: contractInfo.address,
+          abi: contractInfo.abi,
+          functionName: "totalAllocPoint",
+          args: [],
+        },
+      ],
+    });
 
-    const multiplier = 86400;
+    const parsedAmount = amount / BigInt(1e18);
 
-    const icePerSecond = await contractInstance.icePerSecond();
+    const divide = stakingTokenTotalAmount + parsedAmount;
 
-    const totalAllocPoint = await contractInstance.totalAllocPoint();
+    const multiplier = 86400n;
 
-    let iceReward = (multiplier * icePerSecond * allocPoint) / totalAllocPoint;
+    const parsedAllocPoint = BigInt(allocPoint);
 
-    let loacalAccIcePerShare =
-      Number(accIcePerShare) + (iceReward * Math.pow(10, 12)) / divide;
+    let iceReward =
+      (multiplier * icePerSecond.result * parsedAllocPoint) /
+      totalAllocPoint.result;
+
+    const power = BigInt(Math.pow(10, 30));
+
+    let loacalAccIcePerShare = accIcePerShare + (iceReward * power) / divide;
 
     const accIcePerShareConst =
-      loacalAccIcePerShare + (iceReward * Math.pow(10, 12)) / divide;
+      loacalAccIcePerShare + (iceReward * power) / divide;
 
-    const rewardDebt = (amount * loacalAccIcePerShare) / Math.pow(10, 12);
+    const rewardDebt = (parsedAmount * loacalAccIcePerShare) / power;
 
-    const pending =
-      (amount * accIcePerShareConst) / Math.pow(10, 12) - rewardDebt;
+    const pending = (parsedAmount * accIcePerShareConst) / power - rewardDebt;
 
-    return Number(
-      ethers.utils.formatUnits(
-        pending.toLocaleString("fullwide", { useGrouping: false })
-      )
-    );
+    return Number(formatUnits(pending, 18));
   } catch (error) {
     console.log("getFarmYield", error);
     return 0;
@@ -120,24 +141,45 @@ const getFarmYield = async (
 };
 
 const getLPYieldAndPrice = async (
-  stakingToken: string,
-  iceInstance: Contract,
-  stakingTokenContract: Contract,
+  stakingTokenContractInfo: ContractInfo,
+  iceTokenAddress: Address,
   tokenPrice: number
 ) => {
   try {
-    let IceInSlpTotal = await iceInstance.balanceOf(stakingToken);
-    let totalTokensSLPMinted = await stakingTokenContract.totalSupply();
+    let [IceInSlpTotal, totalTokensSLPMinted]: any = await multicall({
+      contracts: [
+        {
+          address: iceTokenAddress,
+          abi: erc20ABI,
+          functionName: "balanceOf",
+          args: [stakingTokenContractInfo.address],
+        },
+        {
+          address: stakingTokenContractInfo.address,
+          abi: stakingTokenContractInfo.abi,
+          functionName: "totalSupply",
+          args: [],
+        },
+      ],
+    });
+    const IceInSlpTotalResult: bigint = IceInSlpTotal.result;
+    let icePerLp = 0n;
+    if (IceInSlpTotal.result > 0n)
+      icePerLp =
+        (totalTokensSLPMinted.result * ONE_ETHER_VIEM) / IceInSlpTotal.result;
 
-    let icePerLp = 0;
-    if (IceInSlpTotal > 0) icePerLp = totalTokensSLPMinted / IceInSlpTotal;
+    let parsedTokenPrice = parseUnits((tokenPrice * 2).toString(), 18);
 
-    const lpPrice = (IceInSlpTotal / totalTokensSLPMinted) * tokenPrice * 2;
+    const lpPrice =
+      (IceInSlpTotalResult / totalTokensSLPMinted.result) * parsedTokenPrice;
 
     let IcePer1000Bucks = 0;
     if (tokenPrice > 0) IcePer1000Bucks = 1000 / tokenPrice;
 
-    let res = (IcePer1000Bucks * icePerLp) / 2; // for LP pool
+    let parsedIcePer1000Bucks = parseUnits(IcePer1000Bucks.toString(), 18);
+
+    let res = (parsedIcePer1000Bucks * icePerLp) / 2n; // for LP pool
+
     return { lpYield: res, lpPrice };
   } catch (error) {
     console.log(error);

@@ -81,7 +81,9 @@ import FarmInfoBlock from "@/components/farm/FarmInfoBlock.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
-import { utils } from "ethers";
+import { parseUnits } from "viem";
+import { approveTokenViem } from "@/helpers/approval";
+import actions from "@/helpers/farm/actions";
 
 export default {
   props: {
@@ -117,10 +119,7 @@ export default {
 
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
-      return (
-        utils.formatUnits(this.selectedFarm?.accountInfo?.allowance) >
-        this.inputAmount
-      );
+      return this.selectedFarm?.accountInfo?.allowance > this.inputAmount;
     },
 
     isValid() {
@@ -135,6 +134,10 @@ export default {
       return !this.isUnstake
         ? this.selectedFarm?.accountInfo?.balance
         : this.selectedFarm?.accountInfo?.depositedBalance;
+    },
+
+    parsedInputAmount() {
+      return parseUnits(this.inputAmount, 18);
     },
 
     error() {
@@ -216,16 +219,11 @@ export default {
         notification.pending
       );
       try {
-        const parseAmount = this.$ethers.utils.parseEther(
-          this.inputAmount.toString()
-        );
-
-        const tx = await this.selectedFarm.contractInstance.deposit(
+        const { error, result } = await actions.deposit(
+          this.selectedFarm.contractInfo,
           this.selectedFarm.poolId,
-          parseAmount
+          this.parsedInputAmount
         );
-
-        await tx.wait();
 
         await this.getSelectedFarm();
 
@@ -250,16 +248,11 @@ export default {
         notification.pending
       );
       try {
-        const parseAmount = this.$ethers.utils.parseEther(
-          this.inputAmount.toString()
-        );
-
-        const tx = await this.selectedFarm.contractInstance.withdraw(
+        const { error, result } = await actions.withdraw(
+          this.selectedFarm.contractInfo,
           this.selectedFarm.poolId,
-          parseAmount
+          this.parsedInputAmount
         );
-
-        await tx.wait();
 
         await this.getSelectedFarm();
 
@@ -285,24 +278,10 @@ export default {
       );
 
       try {
-        const estimateGas =
-          await this.selectedFarm.stakingToken.contract.estimateGas.approve(
-            this.selectedFarm.contractAddress,
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.selectedFarm.stakingToken.contract.approve(
-          this.selectedFarm.contractAddress,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
+        await approveTokenViem(
+          this.selectedFarm.stakingToken.contractInfo,
+          this.selectedFarm.contractInfo.address
         );
-
-        await tx.wait();
-
         await this.getSelectedFarm();
 
         await this.$store.commit("notifications/delete", notificationId);
@@ -323,7 +302,6 @@ export default {
       this.selectedFarm = await createFarmItemConfig(
         this.id,
         this.chainId,
-        this.signer,
         this.account
       );
     },

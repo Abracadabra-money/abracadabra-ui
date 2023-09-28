@@ -2,14 +2,10 @@ import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
 import { getAccount } from "@wagmi/core";
 
 import farmsConfig from "@/utils/farmsConfig/farms";
-import type { Signer } from "ethers";
+import type { Address } from "viem";
 
-export const getFarmsList = async (
-  chainId: number,
-  signer: Signer,
-  isExtended = true
-) => {
-  const account: string | undefined = await getAccount().address;
+export const getFarmsList = async (chainId: number, isExtended = true) => {
+  const account: Address | undefined = await getAccount().address;
 
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId
@@ -17,7 +13,7 @@ export const getFarmsList = async (
 
   const farmsList = await Promise.all(
     farmsOnChain.map(async (farm) =>
-      createFarmItemConfig(farm.id, chainId!, signer, account, isExtended)
+      createFarmItemConfig(farm.id, chainId!, account, isExtended)
     )
   );
 
