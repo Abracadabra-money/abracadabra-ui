@@ -18,7 +18,8 @@ export const getFarmYieldAndLpPrice = async (
   poolInfo: PoolInfo,
   farmInfo: FarmConfig,
   mimPrice: number,
-  spellPrice: number
+  spellPrice: number,
+  chainId: number
 ) => {
   try {
     if (farmInfo.depositedBalance) {
@@ -41,7 +42,8 @@ export const getFarmYieldAndLpPrice = async (
         lpYieldAndPrice?.lpYield,
         poolInfo.stakingTokenTotalAmount,
         poolInfo.allocPoint,
-        poolInfo.accIcePerShare
+        poolInfo.accIcePerShare,
+        chainId
       );
 
       return {
@@ -55,14 +57,16 @@ export const getFarmYieldAndLpPrice = async (
       abi: stakingTokenContractInfo.abi,
       functionName: "get_virtual_price",
       args: [],
+      chainId,
     });
 
     const farmYield = await getFarmYield(
       contractInfo,
-      1000n,
+      1000n * BigInt(1e36),
       poolInfo.stakingTokenTotalAmount,
       poolInfo.allocPoint,
-      poolInfo.accIcePerShare
+      poolInfo.accIcePerShare,
+      chainId
     );
 
     return {
@@ -84,10 +88,12 @@ const getFarmYield = async (
   amount = 1000n,
   stakingTokenTotalAmount: bigint,
   allocPoint: number,
-  accIcePerShare: bigint
+  accIcePerShare: bigint,
+  chainId: number
 ) => {
   try {
     const [icePerSecond, totalAllocPoint]: any = await multicall({
+      chainId,
       contracts: [
         {
           address: contractInfo.address,

@@ -49,7 +49,8 @@ export const createFarmItemConfig = async (
 
   const poolInfo: PoolInfo = await getPoolInfo(
     farmInfo.contract,
-    farmInfo.poolId
+    farmInfo.poolId,
+    chainId
   );
 
   const contractInfo = {
@@ -67,7 +68,8 @@ export const createFarmItemConfig = async (
     poolInfo,
     farmInfo,
     MIMPrice,
-    SPELLPrice
+    SPELLPrice,
+    chainId
   );
 
   const farmRoi = farmYield ? await getRoi(farmYield, SPELLPrice) : farmYield;
@@ -112,7 +114,8 @@ export const createFarmItemConfig = async (
 
 const getPoolInfo = async (
   contract: ContractInfo,
-  poolId: number
+  poolId: number,
+  chainId: number
 ): Promise<PoolInfo> => {
   const [
     stakingToken,
@@ -125,6 +128,7 @@ const getPoolInfo = async (
     abi: contract.abi,
     functionName: "poolInfo",
     args: [poolId],
+    chainId,
   });
   return {
     stakingToken,
