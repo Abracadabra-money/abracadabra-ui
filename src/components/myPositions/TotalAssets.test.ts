@@ -30,7 +30,7 @@ describe("TotalAssets.vue", () => {
     const title = wrapper?.findAll("p.title").at(2)!;
     const value = wrapper.findAll("p.value").at(2)!;
     expect(title.text()).toBe("SPELL Farmed");
-    expect(value.text()).toBe("1000.0");
+    expect(value.text()).toBe("1,000");
   });
 
   it("Should render without routerLink if has routeName", () => {
