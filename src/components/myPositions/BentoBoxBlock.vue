@@ -61,7 +61,6 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      // bentoBoxConfig: "getMimInBentoDepositObject",
     }),
 
     isHide() {
@@ -95,14 +94,11 @@ export default {
         this.account
       );
 
-      // await this.createMimBentoInfo();
-
       this.bentoUpdateInterval = setInterval(async () => {
         this.bentoBoxConfig = await createBentoBoxConfig(
           this.chainId,
           this.account
         );
-        // await this.createMimBentoInfo();
       }, 5000);
     },
   },
