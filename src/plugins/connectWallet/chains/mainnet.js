@@ -13,14 +13,10 @@ export const mainnet = {
       webSocket: ["wss://mainnet.infura.io/ws/v3"],
     },
     public: {
-      http: [
-        "https://rpc.tenderly.co/fork/c91a38e2-7309-4f9f-b842-c48ee95c9203",
-      ],
+      http: ["https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
     },
     default: {
-      http: [
-        "https://rpc.tenderly.co/fork/c91a38e2-7309-4f9f-b842-c48ee95c9203",
-      ],
+      http: ["https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
     },
   },
   blockExplorers: {
