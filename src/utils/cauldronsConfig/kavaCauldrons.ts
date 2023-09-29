@@ -1,5 +1,6 @@
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
+import { erc20ABI } from "@wagmi/core";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import MagicCurveLpLevSwapper from "@/utils/abi/lp/MagicCurveLpLevSwapper";
 import MagicCurveLpSwapper from "@/utils/abi/lp/MagicCurveLpSwapper";
@@ -62,7 +63,7 @@ const config: Array<CauldronConfig> = [
         name: "MIMUSDt-f",
         icon: useImage(`assets/images/tokens/GLP.png`), //
         address: "0x591199E16E006Dec3eDcf79AE0fCea1Dd0F5b69D",
-        abi: tokensAbi.sGLP, //todo
+        abi: erc20ABI, //todo
       },
       wrapper: {
         address: "0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC",
