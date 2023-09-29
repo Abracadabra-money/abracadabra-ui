@@ -21,12 +21,18 @@
     <div class="dropdown-list" v-show="isOpenDropdown">
       <button
         class="dropdown-item"
-        v-for="(data, i) in filteredCauldrons"
+        v-for="(data, i) in cauldronData"
         @click="changeDropdownValue(data.id)"
         :key="i"
       >
-        <img class="dropdown-item-icon" :src="data.icon" alt="" />
-        {{ data.name }}
+        <span class="dropdown-item-info">
+          <img class="dropdown-item-icon" :src="data.icon" alt="" />
+          <span>{{ data.name }}</span>
+          <span class="interest">{{ data.interest || 0 }}%</span>
+        </span>
+        <span>{{
+          `${data.address.slice(0, 6)}...${data.address.slice(-6)}`
+        }}</span>
       </button>
     </div>
   </div>
@@ -34,7 +40,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import { getCauldronList } from "@/helpers/tenderly/getCauldronList";
 
 export default {
   props: {
@@ -48,6 +54,7 @@ export default {
     return {
       isOpenDropdown: false,
       selectedCauldron: null,
+      cauldronData: null,
     };
   },
 
@@ -55,12 +62,6 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
     }),
-
-    filteredCauldrons() {
-      return cauldronsConfig.filter(
-        (config) => config.chainId === +this.chainId
-      );
-    },
 
     cauldronInfo() {
       if (!this.selectedCauldron)
@@ -80,13 +81,17 @@ export default {
     },
 
     changeDropdownValue(cauldronId) {
-      this.selectedCauldron = this.filteredCauldrons.find(
+      this.selectedCauldron = this.cauldronData.find(
         (cauldron) => cauldron.id === cauldronId
       );
 
       this.closeDropdown();
-      this.$emit("changeCauldron", this.selectedCauldron.contract.address);
+      this.$emit("changeCauldron", this.selectedCauldron.address);
     },
+  },
+
+  async created() {
+    this.cauldronData = await getCauldronList(this.chainId);
   },
 };
 </script>
@@ -102,7 +107,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 17px 0 12px;
+  padding: 10px 25px;
   border-radius: 20px;
   border: none;
   color: #fff;
@@ -160,17 +165,29 @@ export default {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 15px;
+  padding: 10px 25px;
 }
 
 .dropdown-item :hover {
   color: #76c3f5;
 }
 
+.dropdown-item-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .dropdown-item-icon {
   max-width: 20px;
   width: 100%;
   max-height: 25px;
+}
+
+.interest {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
 }
 </style>

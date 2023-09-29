@@ -7,8 +7,8 @@
     </div>
 
     <CauldronsDropdown
-      @changeCauldron="updateCauldronAddress"
       :isDisabled="isDisabledCauldronsDropdown"
+      @changeCauldron="updateCauldronAddress"
     />
 
     <div class="input-assets">

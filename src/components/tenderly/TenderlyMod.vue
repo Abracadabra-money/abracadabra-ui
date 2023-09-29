@@ -56,6 +56,7 @@ export default {
     }),
 
     activeForkData() {
+      if (!this.forksData) return null;
       return this.forksData.find((data) => {
         if (data?.useFork) return data;
       });

@@ -3,7 +3,7 @@ import type { Address } from "viem";
 
 export const sendTransaction = async (
   contract: any,
-  fromAddress: Address,
+  fromAddress: Address | string,
   method: string,
   transactionArgs: any[],
   provider: any

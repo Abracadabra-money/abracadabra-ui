@@ -9,9 +9,22 @@
             <CreateForkBlock />
           </div>
 
-          <GasTopUpBlock />
-          <div class="underline"></div>
-          <CauldronTopUpBlock :activeFork="activeFork" />
+          <div class="btn-wrap">
+            <BaseButton @click="changeTabComponent('WalletTopUpBlock')"
+              >Wallet Top Up</BaseButton
+            >
+            <BaseButton @click="changeTabComponent('GasTopUpBlock')"
+              >Gas Top Up</BaseButton
+            >
+            <BaseButton @click="changeTabComponent('CauldronTopUpBlock')"
+              >Cauldron Top Up</BaseButton
+            >
+          </div>
+
+          <component
+            v-bind:is="currentTabComponent"
+            :activeFork="activeFork"
+          ></component>
         </div>
 
         <ForksInfoBlock />
@@ -27,20 +40,34 @@ export default {
   data() {
     return {
       forksData: JSON.parse(localStorage.getItem("tenderly_fork_data")),
+      currentTabComponent: "WalletTopUpBlock",
     };
   },
 
   computed: {
     activeFork() {
+      if (!this.forksData) return null;
       return this.forksData.find((forkData) => {
         if (forkData.useFork) return forkData;
       });
     },
   },
 
+  methods: {
+    changeTabComponent(componentName) {
+      this.currentTabComponent = componentName;
+    },
+  },
+
   components: {
     CreateForkBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/CreateForkBlock.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+    WalletTopUpBlock: defineAsyncComponent(() =>
+      import("@/components/tenderly/WalletTopUpBlock.vue")
     ),
     GasTopUpBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/GasTopUpBlock.vue")
@@ -99,9 +126,16 @@ export default {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.btn-wrap {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
 @media screen and (max-width: 1024px) {
   .wrapper {
     flex-direction: column;
+    gap: 30px;
   }
 }
 </style>

@@ -32,6 +32,10 @@ export default {
       type: String,
       default: "Add destination address",
     },
+    validation: {
+      type: Boolean,
+      default: true,
+    },
   },
 
   data() {
@@ -48,6 +52,7 @@ export default {
 
   computed: {
     checkInputAddress() {
+      if (!this.validation) return true;
       return this.address ? utils.isAddress(this.address.toLowerCase()) : false;
     },
 

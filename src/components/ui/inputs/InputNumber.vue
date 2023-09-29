@@ -1,12 +1,16 @@
 <template>
-  <input
-    class="input-number"
-    :class="{ disabled: isDisabled }"
-    type="number"
-    :placeholder="placeholder"
-    :disabled="isDisabled"
-    @input="(event) => $emit('changeInputNumber', event.target.value)"
-  />
+  <div class="input-number-wrapper">
+    <input
+      class="input-number"
+      :class="{ disabled: isDisabled }"
+      type="number"
+      :value="inputValue"
+      :placeholder="placeholder"
+      :disabled="isDisabled"
+      @input="(event) => $emit('changeInputNumber', event.target.value)"
+    />
+    <button class="btn-max" @click="getMax" v-if="+max">max</button>
+  </div>
 </template>
 
 <script>
@@ -19,6 +23,29 @@ export default {
     isDisabled: {
       type: Boolean,
       default: false,
+    },
+    max: {
+      type: Number,
+      default: 0,
+    },
+  },
+
+  data() {
+    return {
+      inputValue: "",
+    };
+  },
+
+  watch: {
+    max() {
+      if (this.inputValue) this.inputValue = "";
+    },
+  },
+
+  methods: {
+    getMax() {
+      this.inputValue = this.max;
+      this.$emit("changeInputNumber", this.max);
     },
   },
 };
@@ -45,6 +72,11 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+.input-number-wrapper {
+  width: 100%;
+  position: relative;
+}
+
 .input-number {
   height: 50px;
   text-align: center;
@@ -62,5 +94,21 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .disabled {
   cursor: not-allowed;
+}
+
+.btn-max {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  cursor: pointer;
+  height: 32px;
+  border-radius: 10px;
+  padding: 10px;
 }
 </style>
