@@ -54,6 +54,8 @@ import StargateUSDT from "@/utils/abi/tokensAbi/StargateUSDT";
 import crv3crypto from "@/utils/abi/tokensAbi/crv3crypto";
 import mKLP from "@/utils/abi/tokensAbi/mKLP";
 import sKLP from "@/utils/abi/tokensAbi/sKLP";
+import mimUsdtCurveLp from "@/utils/abi/tokensAbi/mimUsdtCurveLp";
+import TetherUSDtLP from "@/utils/abi/tokensAbi/TetherUSDtLP";
 
 export default {
   ALCX,
@@ -112,4 +114,6 @@ export default {
   crv3crypto,
   mKLP,
   sKLP,
+  mimUsdtCurveLp,
+  TetherUSDtLP,
 };
