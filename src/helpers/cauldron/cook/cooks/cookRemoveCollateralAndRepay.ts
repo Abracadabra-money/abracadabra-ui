@@ -1,29 +1,23 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
 import sendCook from "@/helpers/cauldron/cook/sendCook";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
-import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
-const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
+import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
+import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 
-const cookAddCollateral = async (
-  { amount, updatePrice, itsDefaultBalance },
-  isApprowed,
-  cauldronObject,
-  notificationId,
-  isLpLogic = false,
-  wrap = false,
-  to
-) => {
-  const { address } = cauldronObject.config.collateralInfo;
+const cookRemoveCollateralAndRepay = async (
+  { amount, collateralAmount, updatePrice, itsMax }: any,
+  isApprowed: boolean,
+  cauldronObject: any,
+  notificationId: number,
+  userAddr: string
+): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
+  const tokenAddr = cauldronObject.config.collateralInfo.address;
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
-
-  const token = itsDefaultBalance ? defaultTokenAddress : address;
-  const value = itsDefaultBalance ? amount.toString() : 0;
-  const isWrap = wrap && isLpLogic;
 
   let cookData = {
     events: [],
@@ -35,14 +29,20 @@ const cookAddCollateral = async (
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
-  cookData = await recipeAddCollatral(
+  cookData = await recipeRepay(
     cookData,
     cauldronObject,
-    token,
-    isWrap,
-    to,
-    amount,
-    value
+    itsMax,
+    collateralAmount, // mim part
+    userAddr
+  );
+
+  cookData = await recipeRemoveCollateral(
+    cookData,
+    cauldronObject,
+    amount, // collateral share
+    userAddr,
+    tokenAddr
   );
 
   if (isApprowed && useDegenBoxHelper)
@@ -51,10 +51,10 @@ const cookAddCollateral = async (
       cauldronObject,
       false,
       await cauldron.masterContract(),
-      to
+      userAddr
     );
 
-  await sendCook(cauldron, cookData, value, notificationId);
+  await sendCook(cauldron, cookData, 0, notificationId);
 };
 
-export default cookAddCollateral;
+export default cookRemoveCollateralAndRepay;

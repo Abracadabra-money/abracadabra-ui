@@ -2,13 +2,13 @@ import { actions } from "@/helpers/cauldron/cook/actions";
 import getDelev0xData from "../0xSwapData/deleverage/getDelev0xData";
 
 const recipe0xDeleverage = async (
-  cookData,
-  cauldronObject,
-  shareFrom,
-  shareToMin,
-  slipage,
-  userAddr
-) => {
+  cookData: any,
+  cauldronObject: any,
+  shareFrom: any,
+  shareToMin: any,
+  slipage: any,
+  userAddr: string
+): Promise<any> => {
   const { collateral, mim, liquidationSwapper } = cauldronObject.contracts;
 
   const swapData = await getDelev0xData(cauldronObject, shareFrom, slipage);
@@ -40,12 +40,12 @@ const recipe0xDeleverage = async (
 };
 
 const recipeBasicDeleverage = async (
-  cookData,
-  cauldronObject,
-  shareFrom,
-  shareToMin,
-  userAddr
-) => {
+  cookData: any,
+  cauldronObject: any,
+  shareFrom: any,
+  shareToMin: any,
+  userAddr: string
+): Promise<any> => {
   const { collateral, mim, liquidationSwapper } = cauldronObject.contracts;
 
   const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
@@ -71,14 +71,14 @@ const recipeBasicDeleverage = async (
 };
 
 const recipeDeleverage = async (
-  cookData,
-  cauldronObject,
-  shareFrom,
-  shareToMin,
-  slipage,
-  is0x,
-  userAddr
-) => {
+  cookData: any,
+  cauldronObject: any,
+  shareFrom: any,
+  shareToMin: any,
+  slipage: any,
+  is0x: boolean,
+  userAddr: string
+): Promise<any> => {
   if (is0x)
     return await recipe0xDeleverage(
       cookData,

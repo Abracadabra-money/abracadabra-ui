@@ -6,12 +6,12 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
 
 const cookRepay = async (
-  { amount, updatePrice, itsMax },
-  isApprowed,
-  cauldronObject,
-  notificationId,
-  userAddr
-) => {
+  { amount, updatePrice, itsMax } : any,
+  isApprowed: boolean,
+  cauldronObject: any,
+  notificationId: number,
+  userAddr: string
+): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
 
   const useDegenBoxHelper =

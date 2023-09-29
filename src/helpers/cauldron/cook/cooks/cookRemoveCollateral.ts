@@ -3,25 +3,20 @@ import sendCook from "@/helpers/cauldron/cook/sendCook";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
-import checkWhitelistLogic from "@/helpers/cauldron/cook/checkWhitelistLogic";
-import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBorrow";
-import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
+import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 
-const cookBorrow = async (
-  { amount, updatePrice },
-  isApprowed,
-  cauldronObject,
-  notificationId,
-  userAddr // TODO
-) => {
-  const { address } = cauldronObject.config.mimInfo;
-  const { whitelistedInfo } = cauldronObject.additionalInfo;
+const cookRemoveCollateral = async (
+  { amount, updatePrice }: any,
+  isApprowed: boolean,
+  cauldronObject: any,
+  notificationId: number,
+  userAddr: string
+): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
+  const tokenAddr = cauldronObject.config.collateralInfo.address;
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
-
-  const mim = address;
 
   let cookData = {
     events: [],
@@ -33,16 +28,12 @@ const cookBorrow = async (
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
-  if (checkWhitelistLogic(cauldronObject)) {
-    cookData = await recipeSetMaxBorrow(cookData, whitelistedInfo, userAddr);
-  }
-
-  cookData = await recipeBorrow(
+  cookData = await recipeRemoveCollateral(
     cookData,
     cauldronObject,
     amount,
     userAddr,
-    mim
+    tokenAddr
   );
 
   if (isApprowed && useDegenBoxHelper)
@@ -57,4 +48,4 @@ const cookBorrow = async (
   await sendCook(cauldron, cookData, 0, notificationId);
 };
 
-export default cookBorrow;
+export default cookRemoveCollateral;

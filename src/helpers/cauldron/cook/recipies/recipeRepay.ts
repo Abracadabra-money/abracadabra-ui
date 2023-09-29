@@ -4,7 +4,13 @@ import {
 } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
-const recipeRepay = async (cookData, cauldronObject, itsMax, part, to) => {
+const recipeRepay = async (
+  cookData: any,
+  cauldronObject: any,
+  itsMax: boolean,
+  part: any,
+  to: string
+): Promise<any> => {
   const { userBorrowPart } = cauldronObject.userPosition.borrowInfo;
   const mim = cauldronObject.config.mimInfo.address;
 
@@ -58,6 +64,5 @@ const recipeRepay = async (cookData, cauldronObject, itsMax, part, to) => {
 
   return cookData;
 };
-
 
 export default recipeRepay;

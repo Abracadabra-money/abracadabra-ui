@@ -5,11 +5,11 @@ import toAmount from "@/helpers/toAmount";
 import getLev0xData from "../0xSwapData/leverage/getLev0xData";
 
 const recipeBasicLeverage = async (
-  cookData,
-  cauldronObject,
-  minExpected,
-  userAddr
-) => {
+  cookData: any,
+  cauldronObject: any,
+  minExpected: any,
+  userAddr: string
+): Promise<any> => {
   const { leverageSwapper } = cauldronObject.contracts;
   const swapperAddres = leverageSwapper.address;
 
@@ -34,13 +34,13 @@ const recipeBasicLeverage = async (
 };
 
 const recipe0xLeverage = async (
-  cookData,
-  cauldronObject,
-  amount,
-  minExpected,
-  slipage,
-  userAddr
-) => {
+  cookData: any,
+  cauldronObject: any,
+  amount: any,
+  minExpected: any,
+  slipage: any,
+  userAddr: string
+): Promise<any> => {
   const { leverageSwapper, bentoBox } = cauldronObject.contracts;
   const mimAddress = cauldronObject.config.mimInfo.address;
   const swapperAddres = leverageSwapper.address;
@@ -75,14 +75,14 @@ const recipe0xLeverage = async (
 };
 
 const recipeLeverage = async (
-  cookData,
-  cauldronObject,
-  amount,
-  minExpected,
-  slipage,
-  is0x = false,
-  userAddr
-) => {
+  cookData: any,
+  cauldronObject: any,
+  amount: any,
+  minExpected: any,
+  slipage: any,
+  is0x: boolean = false,
+  userAddr: string
+): Promise<any> => {
   const { isMagicGLP } = cauldronObject.config.cauldronSettings;
 
   // TODO refactoring magic glp logic to move into recipe0xLeverage

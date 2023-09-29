@@ -1,10 +1,10 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
 
 const recipeSetMaxBorrow = async (
-  cookData,
-  { whitelisterContract, userWhitelistedInfo },
-  user
-) => {
+  cookData: any,
+  { whitelisterContract, userWhitelistedInfo }: any,
+  user: string
+): Promise<any> => {
   const setMaxBorrowTx =
     await whitelisterContract.populateTransaction.setMaxBorrow(
       user,

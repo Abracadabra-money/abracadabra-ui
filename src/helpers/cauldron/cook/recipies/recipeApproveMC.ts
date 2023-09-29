@@ -2,18 +2,18 @@ import { signMasterContract } from "@/helpers/signature";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
 const signAndGetData = async (
-  cookData,
-  cauldronObject,
-  masterContract,
-  approved = true,
-  addNonce = 0,
-  user
-) => {
+  cookData: any,
+  cauldronObject: any,
+  masterContract: string,
+  approved: boolean = true,
+  addNonce: number = 0,
+  user: string
+): Promise<any> => {
   const { cauldron, bentoBox } = cauldronObject.contracts;
   const verifyingContract = await cauldron.bentoBox();
   const nonce = await bentoBox.nonces(user);
 
-  const parsedSignature = await signMasterContract(
+  const parsedSignature: any = await signMasterContract(
     cauldronObject.config.chainId,
     verifyingContract,
     user,
@@ -36,13 +36,15 @@ const signAndGetData = async (
 };
 
 const recipeApproveMC = async (
-  cookData,
-  cauldronObject,
-  approved = true,
-  masterContract,
-  user
-) => {
-  const addNonce = cookData.events.filter((value) => value === 24).length;
+  cookData: any,
+  cauldronObject: any,
+  approved: boolean = true,
+  masterContract: string,
+  user: string
+): Promise<any> => {
+  const addNonce = cookData.events.filter(
+    (value: number) => value === 24
+  ).length;
 
   cookData = await signAndGetData(
     cookData,

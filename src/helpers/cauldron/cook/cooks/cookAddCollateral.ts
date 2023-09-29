@@ -1,34 +1,29 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
 import sendCook from "@/helpers/cauldron/cook/sendCook";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
+import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
-import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
-import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
-
-const cookAddCollateralAndBorrow = async (
-  { collateralAmount, amount, updatePrice, itsDefaultBalance },
-  isApprowed,
-  cauldronObject,
-  notificationId,
-  isLpLogic = false,
-  isWrap = false,
-  userAddr
-) => {
+const cookAddCollateral = async (
+  { amount, updatePrice, itsDefaultBalance }: any,
+  isApprowed: boolean,
+  cauldronObject: any,
+  notificationId: number,
+  isLpLogic: boolean = false,
+  wrap: boolean = false,
+  to: string
+): Promise<void> => {
   const { address } = cauldronObject.config.collateralInfo;
-  const { address: mimAddress } = cauldronObject.config.mimInfo;
   const { cauldron } = cauldronObject.contracts;
-
-  const tokenAddr = itsDefaultBalance ? defaultTokenAddress : address;
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
-  const collateralValue = itsDefaultBalance ? collateralAmount.toString() : 0;
-
-  const pairToken = mimAddress;
+  const token = itsDefaultBalance ? defaultTokenAddress : address;
+  const value = itsDefaultBalance ? amount.toString() : 0;
+  const isWrap = wrap && isLpLogic;
 
   let cookData = {
     events: [],
@@ -40,22 +35,14 @@ const cookAddCollateralAndBorrow = async (
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
-  cookData = await recipeBorrow(
-    cookData,
-    cauldronObject,
-    amount,
-    userAddr,
-    pairToken
-  );
-
   cookData = await recipeAddCollatral(
     cookData,
     cauldronObject,
-    tokenAddr,
-    isLpLogic && isWrap,
-    userAddr,
-    collateralAmount,
-    collateralValue
+    token,
+    isWrap,
+    to,
+    amount,
+    value
   );
 
   if (isApprowed && useDegenBoxHelper)
@@ -64,10 +51,10 @@ const cookAddCollateralAndBorrow = async (
       cauldronObject,
       false,
       await cauldron.masterContract(),
-      userAddr
+      to
     );
 
-  await sendCook(cauldron, cookData, collateralValue, notificationId);
+  await sendCook(cauldron, cookData, value, notificationId);
 };
 
-export default cookAddCollateralAndBorrow;
+export default cookAddCollateral;

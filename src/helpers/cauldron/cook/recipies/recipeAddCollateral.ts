@@ -5,14 +5,14 @@ import {
 import { actions } from "@/helpers/cauldron/cook/actions";
 
 const recipeAddCollatral = async (
-  cookData,
-  cauldronObject,
-  token,
-  isWrap,
-  to,
-  amount,
-  collateralValue
-) => {
+  cookData: any,
+  cauldronObject: any,
+  token: string,
+  isWrap: boolean,
+  to: string,
+  amount: any,
+  collateralValue: any
+): Promise<any> => {
   const { unwrappedToken, wrapper, cauldron } = cauldronObject.contracts;
 
   if (isWrap) {

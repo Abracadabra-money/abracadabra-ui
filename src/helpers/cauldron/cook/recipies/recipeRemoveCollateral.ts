@@ -2,12 +2,12 @@ import { actions } from "@/helpers/cauldron/cook/actions";
 import { bentoWithdrawEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 
 const recipeRemoveCollateral = async (
-  cookData,
-  cauldronObject,
-  share,
-  userAddr,
-  tokenAddr
-) => {
+  cookData: any,
+  cauldronObject: any,
+  share: any,
+  userAddr: string,
+  tokenAddr: string
+): Promise<any> => {
   const wrapInfo = cauldronObject.config?.wrapInfo;
   const { wrapper, unwrappedToken, collateral } = cauldronObject.contracts;
   if (wrapInfo) {

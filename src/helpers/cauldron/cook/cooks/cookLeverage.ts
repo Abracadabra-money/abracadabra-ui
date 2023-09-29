@@ -19,13 +19,13 @@ const cookLeverage = async (
     minExpected,
     itsDefaultBalance,
     slipage,
-  },
-  isApprowed,
-  cauldronObject,
-  notificationId,
-  isWrap,
-  userAddr // TODO
-) => {
+  }: any,
+  isApprowed: boolean,
+  cauldronObject: any,
+  notificationId: number,
+  isWrap: boolean,
+  userAddr: string
+): Promise<void> => {
   const { whitelistedInfo } = cauldronObject.additionalInfo;
   const { collateral, leverageSwapper } = cauldronObject.contracts;
   const { is0xSwap } = cauldronObject.config.cauldronSettings;

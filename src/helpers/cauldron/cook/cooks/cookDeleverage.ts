@@ -15,12 +15,12 @@ const cookDeleverage = async (
     updatePrice,
     itsMax,
     slipage,
-  },
-  isApprowed,
-  cauldronObject,
-  account,
-  notificationId
-) => {
+  }: any,
+  isApprowed: boolean,
+  cauldronObject: any,
+  account: string,
+  notificationId: number
+): Promise<void> => {
   const { collateral, liquidationSwapper, cauldron } = cauldronObject.contracts;
   const { userBorrowPart } = cauldronObject.userPosition.borrowInfo;
   const { is0xSwap } = cauldronObject.config.cauldronSettings;
