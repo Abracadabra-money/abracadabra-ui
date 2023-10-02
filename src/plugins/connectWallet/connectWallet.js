@@ -67,6 +67,13 @@ const chains = [
   linea,
 ];
 
+const metadata = {
+  name: "Web3Modal",
+  description: "Web3Modal Example",
+  url: "https://web3modal.com",
+  icons: ["https://avatars.githubusercontent.com/u/37784886"],
+};
+
 // 2. Configure wagmi client
 const { publicClient } = configureChains(chains, [
   publicProvider(),
@@ -75,7 +82,12 @@ const { publicClient } = configureChains(chains, [
 
 const wagmiConfig = createConfig({
   autoConnect: true,
-  connectors: w3mConnectors({ chains, version: 1, projectId }),
+  connectors: w3mConnectors({
+    chains,
+    version: 1,
+    projectId,
+    options: { metadata },
+  }),
   publicClient,
 });
 
