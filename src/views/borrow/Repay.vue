@@ -435,6 +435,9 @@ export default {
 
     async actionHandler() {
       if (!this[this.actionInfo.methodName]) return false;
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
       try {
         await this[this.actionInfo.methodName]();
       } catch (error) {
