@@ -1,4 +1,4 @@
-import type { Contract } from "viem/dist/types/types/multicall";
+import type { MulticallContract } from "viem/types/multicall";
 
 export type SpellStakingApr = {
   sSpellApr: string;
@@ -10,7 +10,7 @@ export type MSpellInfo = {
   icon: string;
   rate: number;
   lockTimestamp: string;
-  contract: Contract | null;
+  contract: MulticallContract | null;
   balance: string;
   claimableAmount: string;
   allowanceAmount: string;
@@ -23,7 +23,7 @@ export type SSpellInfo = {
   icon: string;
   rate: number;
   lockTimestamp: string;
-  contract: Contract | null;
+  contract: MulticallContract | null;
   balance: string;
   allowanceAmount: string;
   unsupportedChain?: boolean;
