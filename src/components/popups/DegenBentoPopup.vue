@@ -19,34 +19,35 @@
       </div>
     </div>
 
-    <BaseButton v-if="!isApproved && isDeposit" primary @click="approveToken"
+    <BaseButton
+      v-if="!isApproved && isDeposit"
+      :disabled="isDisabled"
+      primary
+      @click="approveToken"
       >Approve</BaseButton
     >
     <template v-else>
-      <BaseButton
-        v-if="isDeposit"
-        @click="deposit"
-        :disabled="!isValid || !!error"
-        >Deposit</BaseButton
-      >
-      <BaseButton v-else @click="withdraw" :disabled="!isValid || !!error"
-        >Withdraw</BaseButton
-      >
+      <BaseButton @click="actionHandler" :disabled="isDisabled">{{
+        buttonText
+      }}</BaseButton>
     </template>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
+import actions from "@/helpers/bentoBox/actions";
+import { approveTokenViem } from "@/helpers/approval";
+
+import { formatUnits, parseUnits } from "viem";
 
 export default {
-  components: { BaseTokenInput, BaseButton },
   props: {
     infoObject: {
       type: Object,
@@ -55,6 +56,7 @@ export default {
     isBento: { type: Boolean, default: false },
     isDeposit: { type: Boolean, default: false },
   },
+
   data() {
     return {
       amount: "",
@@ -62,163 +64,27 @@ export default {
       updateInfoInterval: null,
     };
   },
-  methods: {
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
-    async withdraw() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-        const account = this.account;
-        const tokenAddress = this.infoObject.mimContract.address;
-
-        const estimateGas = await this.activeContract.estimateGas.withdraw(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0"
-        );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.activeContract.withdraw(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0",
-          {
-            gasLimit,
-          }
-        );
-
-        const receipt = await tx.wait();
-
-        this.closePopup();
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (e) {
-        console.log("withdraw err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-    async deposit() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.pending
-      );
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-        const account = this.account;
-        const tokenAddress = this.infoObject.mimContract.address;
-
-        const estimateGas = await this.activeContract.estimateGas.deposit(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0"
-        );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.activeContract.deposit(
-          tokenAddress,
-          account,
-          account,
-          amount,
-          "0",
-          {
-            gasLimit,
-          }
-        );
-
-        const receipt = await tx.wait();
-
-        console.log("deposit", receipt);
-
-        this.closePopup();
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
-      } catch (e) {
-        console.log("deposit err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-    async approveToken() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
-        notification.approvePending
-      );
-      try {
-        const estimateGas =
-          await this.infoObject.mimContract.estimateGas.approve(
-            this.activeContract.address,
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.infoObject.mimContract.approve(
-          this.activeContract.address,
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-          {
-            gasLimit,
-          }
-        );
-        const receipt = await tx.wait();
-        console.log("APPROVE RESP:", receipt);
-        await this.$store.commit("notifications/delete", notificationId);
-      } catch (e) {
-        console.log("isApprowed err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
-    },
-    closePopup() {
-      this.$emit("close");
-    },
-  },
   computed: {
     ...mapGetters({
       account: "getAccount",
     }),
+
+    parsedAmount() {
+      return parseUnits(this.amount, 18);
+    },
+
     activeContract() {
       return this.isBento
-        ? this.infoObject.bentoBoxContract
-        : this.infoObject.degenBoxContract;
+        ? this.infoObject.bentoContractInfo
+        : this.infoObject.degenContractInfo;
     },
+
     isApproved() {
       return this.isBento
-        ? this.infoObject.bentoAllowance
-        : this.infoObject.degenAllowance;
+        ? this.infoObject.bentoAllowance > this.parsedAmount
+        : this.infoObject.degenAllowance > this.parsedAmount;
     },
+
     balance() {
       const balance = this.isDeposit
         ? this.infoObject.mimBalance
@@ -226,25 +92,147 @@ export default {
         ? this.infoObject.mimInBentoBalance
         : this.infoObject.mimInDegenBalance;
 
-      return this.$ethers.utils.formatEther(balance.toString());
+      return formatUnits(balance.toString(), 18);
     },
+
+    isDisabled() {
+      return !this.isValid || !!this.error;
+    },
+
     isValid() {
-      return !!(this.amount && +this.amount);
+      return !!this.parsedAmount;
     },
+
     error() {
       if (+this.amount > +this.balance)
         return `The value cannot be greater than ${this.balance}`;
       return null;
     },
+
     title() {
       return `${this.isBento ? "BentoBox" : "DegenBox"} ${
         this.isDeposit ? "Deposit" : "Withdraw"
       }`;
     },
+
+    buttonText() {
+      return this.isDeposit ? "Deposit" : "Withdraw";
+    },
   },
+
+  methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+
+    async actionHandler() {
+      if (this.isDisabled) return false;
+      if (this.isDeposit) {
+        await this.deposit();
+      } else {
+        await this.withdraw();
+      }
+    },
+
+    async withdraw() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+      const tokenAddress = this.infoObject.tokenInfo.address;
+      const contractInfo = {
+        address: this.activeContract.address,
+        abi: this.activeContract.abi,
+      };
+
+      const { error } = await actions.withdraw(
+        contractInfo,
+        tokenAddress,
+        this.account,
+        this.parsedAmount
+      );
+
+      if (error) {
+        const errorNotification = {
+          msg: await notificationErrorMsg({ message: error.msg }),
+          type: "error",
+        };
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      } else {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
+
+      this.closePopup();
+    },
+
+    async deposit() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+      const tokenAddress = this.infoObject.tokenInfo.address;
+      const contractInfo = {
+        address: this.activeContract.address,
+        abi: this.activeContract.abi,
+      };
+      const { error } = await actions.deposit(
+        contractInfo,
+        tokenAddress,
+        this.account,
+        this.parsedAmount
+      );
+
+      if (error) {
+        const errorNotification = {
+          msg: await notificationErrorMsg({ message: error.msg }),
+          type: "error",
+        };
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      } else {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
+
+      this.closePopup();
+    },
+
+    async approveToken() {
+      if (this.isDisabled) return false;
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      const mimContractInfo = {
+        address: this.infoObject.tokenInfo.address,
+        abi: this.infoObject.tokenInfo.abi,
+      };
+
+      const approve = await approveTokenViem(
+        mimContractInfo,
+        this.activeContract.address
+      );
+
+      if (approve) await await this.deleteNotification(notificationId);
+
+      if (!approve) await this.createNotification(notification.approveError);
+
+      return false;
+    },
+
+    closePopup() {
+      this.$emit("close");
+    },
+  },
+
   beforeUnmount() {
     clearInterval(this.updateInfoInterval);
   },
+
+  components: { BaseTokenInput, BaseButton },
 };
 </script>
 
