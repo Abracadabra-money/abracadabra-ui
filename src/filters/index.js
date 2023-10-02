@@ -70,8 +70,15 @@ const formatToFixed = (value, fixed) => {
 const formatTokenBalance = (value) => {
   if (isNaN(Number(value)) || +value === 0) return "0.0";
 
-  if (+value >= 1) return formatToFixed(value, 4);
-  if (+value > 0.000001) return formatToFixed(value, 6);
+  if (+value >= 1)
+    return (+formatToFixed(value, 4)).toLocaleString("en-US", {
+      currency: "USD",
+    });
+
+  if (+value > 0.000001)
+    return (+formatToFixed(value, 6)).toLocaleString("en-US", {
+      currency: "USD",
+    });
 
   const stringValue = formatToFixed(value, 18);
 

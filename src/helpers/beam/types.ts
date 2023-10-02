@@ -16,7 +16,7 @@ export type BeamConfig = {
   contractInstance: Contract | null;
   balance: string;
   nativeTokenBalance: string | BigNumber | undefined;
-  isTokenApprove: boolean;
+  approvedAmount: BigNumber;
   tokenContractInstance: Contract | null;
   chainsInfo: Array<ChainsConfig>;
   fromChains: Array<NetworksConfig>;
@@ -26,5 +26,5 @@ export type BeamConfig = {
 export type UserInfo = {
   balance: string;
   nativeTokenBalance: string | BigNumber | undefined;
-  isTokenApprove: boolean;
+  approvedAmount: BigNumber;
 };

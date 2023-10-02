@@ -36,6 +36,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { getPopupList } from "@/helpers/cauldron/lists/getPopupList.ts";
+import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import PopupSearch from "@/components/popups/ui/PopupSearch.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
@@ -44,10 +45,6 @@ import PopupEmptyState from "@/components/popups/ui/PopupEmptyState.vue";
 
 export default {
   props: {
-    farmsList: {
-      type: Array,
-    },
-
     popupType: {
       type: String,
       required: true,
@@ -58,6 +55,7 @@ export default {
     return {
       search: "",
       cauldronsList: [],
+      farmsList: [],
       cauldronsListIsLoading: true,
     };
   },
@@ -66,6 +64,7 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
+      signer: "getSigner",
       provider: "getProvider",
       isLoadedFarms: "getFarmPoolLoading",
     }),
@@ -172,6 +171,9 @@ export default {
     },
 
     async getMarketsList() {
+      if (this.popupType === "farms")
+        this.farmsList = await getFarmsList(this.chainId, false);
+
       this.cauldronsList = await getPopupList(
         this.chainId,
         this.provider,

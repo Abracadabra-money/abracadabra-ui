@@ -8,7 +8,7 @@
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel :amount="formatTokenBalance(activeToken.balance)" />
+          <InputLabel :amount="activeToken.balance" />
 
           <BaseTokenInput
             :icon="activeToken.icon"
@@ -102,11 +102,13 @@
           <div class="btn-wrap">
             <BaseButton
               primary
-              :disabled="isTokenApproved"
+              :disabled="isTokenApproved || isActionDisabled"
               @click="approveTokenHandler"
-              >Approve Token</BaseButton
+              >Approve</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="isActionDisabled"
+            <BaseButton
+              @click="actionHandler"
+              :disabled="!isTokenApproved || isActionDisabled"
               >{{ actionInfo.buttonText }}
             </BaseButton>
           </div>
@@ -211,11 +213,10 @@ export default {
         this.activeToken.decimals
       );
 
-      return allowance > 0;
+      return allowance > +this.collateralValue;
     },
 
     isActionDisabled() {
-      if (!this.isTokenApproved) return true;
       if (this.errorCollateralValue) return true;
       if (this.collateralValue == 0) return true;
       return false;
@@ -594,7 +595,7 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (this.isTokenApproved) return false;
+      if (this.isTokenApproved || this.isActionDisabled) return false;
 
       const { address } = this.cauldron.contracts.bentoBox;
 
@@ -624,7 +625,7 @@ export default {
         return await this.createNotification(notification.liquidation);
       }
 
-      if (!+leftToBorrow) {
+      if (!+leftToBorrow < +borrowAmount) {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.allowBorrow);
         return false;
@@ -654,6 +655,8 @@ export default {
     },
 
     async actionHandler() {
+      if (!this.isTokenApproved || this.isActionDisabled) return false;
+
       if (!this[this.actionInfo.methodName]) return false;
 
       const notificationId = await this.createNotification(
