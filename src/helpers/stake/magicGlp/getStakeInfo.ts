@@ -1,48 +1,25 @@
 import { getAccount } from "@wagmi/core";
-import { MulticallWrapper } from "ethers-multicall-provider";
+import { getTokensInfo } from "./getTokensInfo";
 import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
-import { getContracts } from "@/helpers/stake/magicGlp/getContracts";
-import { getTokensInfo } from "@/helpers/stake/magicGlp/getTokensInfo";
+import { emptyState } from "@/helpers/stake/magicGlp/emptyState";
+import type { EmptyState } from "@/types/magicGlp/additionalInfo";
+import type { ChainConfig, StakeInfo } from "@/types/magicGlp/configsInfo";
 import { getAdditionalInfo } from "@/helpers/stake/magicGlp/getAdditionalInfo";
 
-const emptyState = {
-  mainToken: {
-    name: magicGlpConfig[42161].mainToken.name,
-    icon: magicGlpConfig[42161].mainToken.icon,
-    balance: "0",
-  },
-  stakeToken: {
-    name: magicGlpConfig[42161].stakeToken.name,
-    icon: magicGlpConfig[42161].stakeToken.icon,
-    balance: "0",
-  },
-};
-
 export const getStakeInfo = async (
-  provider: any,
-  signer: any,
   chainId: number
-) => {
-  const config = magicGlpConfig[chainId as keyof typeof magicGlpConfig];
+): Promise<StakeInfo | EmptyState> => {
   const account = getAccount().address;
+  const config: ChainConfig =
+    magicGlpConfig[chainId as keyof typeof magicGlpConfig];
   if (!config || !account) return emptyState;
 
-  const userSigner = account ? signer : provider;
-  const multicallProvider = MulticallWrapper.wrap(provider);
-  const multicallContracts = await getContracts(multicallProvider, config);
-
-  const { mainToken, stakeToken } = await getTokensInfo(
-    multicallContracts,
-    account,
-    config,
-    userSigner
-  );
-
-  const additionalInfo = await getAdditionalInfo(multicallContracts, config);
+  const { mainToken, stakeToken } = await getTokensInfo(account, config);
+  const additionalInfo = await getAdditionalInfo(config, chainId);
 
   return {
-    ...additionalInfo,
     mainToken,
     stakeToken,
+    ...additionalInfo,
   };
 };

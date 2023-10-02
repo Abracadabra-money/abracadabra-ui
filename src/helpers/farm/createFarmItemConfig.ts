@@ -1,14 +1,18 @@
 import { markRaw } from "vue";
-import { Signer, ethers } from "ethers";
 import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
 import { getFarmUserInfo } from "@/helpers/farm/getFarmUserInfo";
 import farmsConfig from "@/utils/farmsConfig/farms";
-import store from "@/store";
-
-import type { FarmConfig, FarmItem, PoolInfo } from "@/utils/farmsConfig/types";
+import type {
+  FarmConfig,
+  FarmItem,
+  PoolInfo,
+  ContractInfo,
+} from "@/utils/farmsConfig/types";
+import { readContract } from "@wagmi/core";
+import type { Address } from "viem";
 
 type TokenPrices = {
   SPELLPrice: number;
@@ -28,8 +32,7 @@ export const tokenAddresses = {
 export const createFarmItemConfig = async (
   farmId: number | string,
   chainId: number,
-  signer: Signer,
-  account: string | undefined,
+  account: Address | undefined,
   isExtended = true
 ): Promise<FarmItem | null> => {
   const farmsOnChain = farmsConfig.filter(
@@ -44,30 +47,29 @@ export const createFarmItemConfig = async (
 
   const { SPELLPrice, MIMPrice } = await getTokensPrices();
 
-  if (!signer) signer = store.getters.getDefaultSigner(chainId);
-
-  const contractInstance = new ethers.Contract(
-    farmInfo.contract.address,
-    JSON.stringify(farmInfo.contract.abi),
-    signer
+  const poolInfo: PoolInfo = await getPoolInfo(
+    farmInfo.contract,
+    farmInfo.poolId,
+    chainId
   );
 
-  const poolInfo: PoolInfo = await contractInstance.poolInfo(farmInfo.poolId);
-
-  const stakingTokenContract = new ethers.Contract(
-    poolInfo.stakingToken,
-    JSON.stringify(farmInfo.stakingToken.abi),
-    signer
-  );
+  const contractInfo = {
+    address: farmInfo.contract.address,
+    abi: farmInfo.contract.abi,
+  };
+  const stakingTokenContractInfo = {
+    address: poolInfo.stakingToken,
+    abi: farmInfo.stakingToken.abi,
+  };
 
   const { farmYield, lpPrice } = await getFarmYieldAndLpPrice(
-    stakingTokenContract,
-    contractInstance,
+    stakingTokenContractInfo,
+    contractInfo,
     poolInfo,
     farmInfo,
-    signer,
     MIMPrice,
-    SPELLPrice
+    SPELLPrice,
+    chainId
   );
 
   const farmRoi = farmYield ? await getRoi(farmYield, SPELLPrice) : farmYield;
@@ -84,11 +86,13 @@ export const createFarmItemConfig = async (
       link: farmInfo.stakingToken.link,
       name: farmInfo.stakingToken.name,
       type: farmInfo.stakingToken.type,
-      contract: stakingTokenContract,
+      contractInfo: {
+        address: poolInfo.stakingToken,
+        abi: farmInfo.stakingToken.abi,
+      },
     },
     depositedBalance: farmInfo.depositedBalance,
-    contractInstance,
-    contractAddress: farmInfo.contract.address,
+    contractInfo,
     farmRoi,
     farmYield,
     lpPrice,
@@ -106,6 +110,33 @@ export const createFarmItemConfig = async (
     return markRaw(farmItemConfig);
   }
   return markRaw(farmItemConfig);
+};
+
+const getPoolInfo = async (
+  contract: ContractInfo,
+  poolId: number,
+  chainId: number
+): Promise<PoolInfo> => {
+  const [
+    stakingToken,
+    stakingTokenTotalAmount,
+    accIcePerShare,
+    lastRewardTime,
+    allocPoint,
+  ]: any = await readContract({
+    address: contract.address,
+    abi: contract.abi,
+    functionName: "poolInfo",
+    args: [poolId],
+    chainId,
+  });
+  return {
+    stakingToken,
+    stakingTokenTotalAmount,
+    accIcePerShare,
+    lastRewardTime,
+    allocPoint,
+  };
 };
 
 const getTokensPrices = async (): Promise<TokenPrices> => {

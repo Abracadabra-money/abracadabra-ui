@@ -1,10 +1,11 @@
 import oracleAbi from "@/utils/abi/oracle";
-import { useImage } from "@/helpers/useImage";
+import { useImage } from "@/helpers/useImage.js";
 import chainLinkAbi from "@/utils/abi/chainLink";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import magicGlpHarvestorAbi from "@/utils/abi/MagicGlpHarvestor";
+import type { MagicGlpConfigs } from "@/types/magicGlp/configsInfo";
 
-export const magicGlpConfig = {
+export const magicGlpConfig: MagicGlpConfigs = {
   42161: {
     harvestor: {
       address: "0x588d402C868aDD9053f8F0098c2DC3443c991d17",
@@ -12,18 +13,22 @@ export const magicGlpConfig = {
     },
     mainToken: {
       name: "magicGLP",
-      address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
       decimals: 18,
-      abi: tokensAbi.magicGLP,
       icon: useImage("assets/images/tokens/mGlpToken.png"),
       rateIcon: useImage("assets/images/glp/mGlpNew.png"),
+      contract: {
+        address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
+        abi: tokensAbi.magicGLP,
+      },
     },
     stakeToken: {
       name: "GLP",
-      address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       decimals: 18,
-      abi: tokensAbi.sGLP,
       icon: useImage(`assets/images/tokens/GLP.png`),
+      contract: {
+        address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
+        abi: tokensAbi.sGLP,
+      },
     },
     oracle: {
       address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
@@ -53,18 +58,22 @@ export const magicGlpConfig = {
     },
     mainToken: {
       name: "magicGLP",
-      address: "0x5EFC10C353FA30C5758037fdF0A233e971ECc2e0",
       decimals: 18,
-      abi: tokensAbi.magicGLP,
       icon: useImage("assets/images/tokens/mGlpToken.png"),
       rateIcon: useImage("assets/images/glp/mGlpNew.png"),
+      contract: {
+        address: "0x5EFC10C353FA30C5758037fdF0A233e971ECc2e0",
+        abi: tokensAbi.magicGLP,
+      },
     },
     stakeToken: {
       name: "GLP",
-      address: "0xae64d55a6f09e4263421737397d1fdfa71896a69",
       decimals: 18,
-      abi: tokensAbi.sGLP,
       icon: useImage(`assets/images/tokens/GLP.png`),
+      contract: {
+        address: "0xae64d55a6f09e4263421737397d1fdfa71896a69",
+        abi: tokensAbi.sGLP,
+      },
     },
     oracle: {
       address: "0x3Cc89EA432c36c8F96731765997722192202459D",

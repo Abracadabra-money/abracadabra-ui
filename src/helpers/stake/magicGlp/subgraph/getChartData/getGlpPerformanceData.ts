@@ -23,6 +23,8 @@ export const getGlpPerformanceData = async (
     const glpItem = glpDataById[timestamp] || lastGlpItem;
     lastGlpItem = glpItem;
 
+    if (!glpItem) return accumulator;
+
     const { distributedUsdPerGlp, glpPrice } = glpItem;
 
     const glpApr = isArbitrumChain

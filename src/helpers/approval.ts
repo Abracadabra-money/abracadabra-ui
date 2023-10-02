@@ -8,8 +8,6 @@ import type { Address } from "@wagmi/core";
 import type { ContractInfo } from "@/types/global";
 import { MAX_APPROVAL_AMOUNT } from "@/constants/global";
 
-const APPROVE_AMOUNT: string =
-  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 const APPROVE_GAS_LIMIT: number = 1000;
 
 export const approveToken = async (
@@ -19,12 +17,12 @@ export const approveToken = async (
   try {
     const estimateGas = await contract.estimateGas.approve(
       spender,
-      APPROVE_AMOUNT
+      MAX_APPROVAL_AMOUNT
     );
 
     const gasLimit = APPROVE_GAS_LIMIT + +estimateGas.toString();
 
-    const tx = await contract.approve(spender, APPROVE_AMOUNT, {
+    const tx = await contract.approve(spender, MAX_APPROVAL_AMOUNT, {
       gasLimit,
     });
 

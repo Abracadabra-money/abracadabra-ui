@@ -29,8 +29,11 @@
 </template>
 
 <script>
+import { formatUnits } from "viem";
 import filters from "@/filters/index.js";
 import { useImage } from "@/helpers/useImage";
+import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
+
 export default {
   props: {
     stakeInfo: { type: Object, required: true },
@@ -39,16 +42,40 @@ export default {
   computed: {
     balancesInfo() {
       const { senior, mezzanine, junior } = this.stakeInfo;
-      const mSeniorRate = filters.formatToFixed(1 * senior.tokensRate, 4);
-      const mMezzanineRate = filters.formatToFixed(1 * mezzanine.tokensRate, 4);
-      const mJuniorRate = filters.formatToFixed(1 * junior.tokensRate, 4);
+      const mSeniorRate = filters.formatToFixed(
+        formatUnits(
+          (MIM_PRICE * senior.tokensRate) / ONE_ETHER_VIEM,
+          senior.stakeToken.decimals
+        ),
+        4
+      );
+      const mMezzanineRate = filters.formatToFixed(
+        formatUnits(
+          (MIM_PRICE * mezzanine.tokensRate) / ONE_ETHER_VIEM,
+          mezzanine.stakeToken.decimals
+        ),
+        4
+      );
+      const mJuniorRate = filters.formatToFixed(
+        formatUnits(
+          (MIM_PRICE * junior.tokensRate) / ONE_ETHER_VIEM,
+          junior.stakeToken.decimals
+        ),
+        4
+      );
 
       return [
         {
           icon: useImage("assets/images/stake/senior-icon.svg"),
           title: "Senior Tranche",
-          stakeBalance: senior.stakeToken.balance,
-          mainBalance: senior.mainToken.balance,
+          stakeBalance: formatUnits(
+            senior.stakeToken.balance,
+            senior.stakeToken.decimals
+          ),
+          mainBalance: formatUnits(
+            senior.mainToken.balance,
+            senior.mainToken.decimals
+          ),
           stakeTokenName: senior.stakeToken.name,
           mainTokenName: senior.mainToken.name,
           rate: mSeniorRate,
@@ -56,8 +83,14 @@ export default {
         {
           icon: useImage("assets/images/stake/mezzanine-icon.svg"),
           title: "Mezzanine Tranche",
-          stakeBalance: mezzanine.stakeToken.balance,
-          mainBalance: mezzanine.mainToken.balance,
+          stakeBalance: formatUnits(
+            mezzanine.stakeToken.balance,
+            mezzanine.stakeToken.decimals
+          ),
+          mainBalance: formatUnits(
+            mezzanine.mainToken.balance,
+            mezzanine.mainToken.decimals
+          ),
           stakeTokenName: mezzanine.stakeToken.name,
           mainTokenName: mezzanine.mainToken.name,
           rate: mMezzanineRate,
@@ -65,8 +98,14 @@ export default {
         {
           icon: useImage("assets/images/stake/junior-icon.svg"),
           title: "Junior Tranche",
-          stakeBalance: junior.stakeToken.balance,
-          mainBalance: junior.mainToken.balance,
+          stakeBalance: formatUnits(
+            junior.stakeToken.balance,
+            junior.stakeToken.decimals
+          ),
+          mainBalance: formatUnits(
+            junior.mainToken.balance,
+            junior.mainToken.decimals
+          ),
           stakeTokenName: junior.stakeToken.name,
           mainTokenName: junior.mainToken.name,
           rate: mJuniorRate,

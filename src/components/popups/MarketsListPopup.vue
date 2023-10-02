@@ -172,7 +172,7 @@ export default {
 
     async getMarketsList() {
       if (this.popupType === "farms")
-        this.farmsList = await getFarmsList(this.chainId, this.signer, false);
+        this.farmsList = await getFarmsList(this.chainId, false);
 
       this.cauldronsList = await getPopupList(
         this.chainId,

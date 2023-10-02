@@ -1,42 +1,38 @@
-import { markRaw } from "vue";
+import { parseUnits } from "viem";
 import { getAccount } from "@wagmi/core";
-import { MulticallWrapper } from "ethers-multicall-provider";
-import { getContracts } from "@/helpers/stake/spell/getContracts";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { spellConfig } from "@/utils/stake/spellConfig";
+import { getSpellEmptyState } from "@/helpers/stake/spell/emptyState";
+import type { SpellStakeInfo } from "@/types/spell/stakeInfo";
+import { getTokenPriceByAddress } from "@/helpers/priceHelper";
+import { MAINNET_SPELL_ADDRESS } from "@/constants/tokensAddress";
 import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
 import { getMSpellInfo } from "@/helpers/stake/spell/getMSpellInfo";
 import { getSSpellInfo } from "@/helpers/stake/spell/getSSpellInfo";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 
 export const getStakeInfo = async (
-  provider: any,
-  signer: any,
   chainId: number
-) => {
+): Promise<SpellStakeInfo> => {
   const account = getAccount().address;
-  const userSigner = account ? signer : provider;
-  const multicallProvider = MulticallWrapper.wrap(provider);
+  const config = spellConfig[chainId as keyof typeof spellConfig];
+  if (!config || !account) return await getSpellEmptyState();
 
-  const multicallContracts = await getContracts(multicallProvider, chainId);
-  const spellInfo: any = await getSpellInfo(multicallContracts, account);
-
-  const sSpellInfo: any = await getSSpellInfo(
-    multicallContracts,
-    account,
-    spellInfo
+  const price: number = await getTokenPriceByAddress(
+    MAINNET_CHAIN_ID,
+    MAINNET_SPELL_ADDRESS
   );
+  const spellPrice = parseUnits(price.toString(), 18);
 
-  const mSpellInfo: any = await getMSpellInfo(
-    multicallContracts,
-    account,
-    spellInfo
-  );
+  const spell = await getSpellInfo(config, spellPrice, account);
+  const mSpell = await getMSpellInfo(config, spell, spellPrice, account);
+  const sSpell = await getSSpellInfo(config, spell, spellPrice, account);
 
-  const { sSpellApr, mSpellApr }: any = await getSpellStakingApr();
-  const { spell, sSpell, mSpell } = await getContracts(userSigner, chainId);
+  const { sSpellApr, mSpellApr } = await getSpellStakingApr();
 
   return {
-    spell: markRaw({ ...spellInfo, contract: spell }),
-    sSpell: markRaw({ ...sSpellInfo, contract: sSpell, apr: sSpellApr }),
-    mSpell: markRaw({ ...mSpellInfo, contract: mSpell, apr: mSpellApr }),
+    spell,
+    mSpell: { ...mSpell, apr: mSpellApr },
+    sSpell: { ...sSpell, apr: sSpellApr },
   };
 };

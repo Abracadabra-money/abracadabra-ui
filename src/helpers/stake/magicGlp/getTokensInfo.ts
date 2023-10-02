@@ -1,25 +1,14 @@
-import { markRaw } from "vue";
-import { utils, BigNumber } from "ethers";
-
-const precision = BigNumber.from(Math.pow(10, 18).toString());
+import { multicall } from "@wagmi/core";
+import type { Address } from "@wagmi/core";
+import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
+import type { ChainConfig } from "@/types/magicGlp/configsInfo";
+import type { TokensInfo } from "@/types/magicGlp/tokensInfo";
 
 export const getTokensInfo = async (
-  contracts: any,
-  address: any,
-  config: any,
-  signer: any
-) => {
-  const { decimals } = config.mainToken;
-  const { magicGlpContract, glpContract, oracleContract } = contracts;
-
-  const multicallArr = [
-    magicGlpContract.balanceOf(address),
-    magicGlpContract.totalSupply(),
-    glpContract.balanceOf(address),
-    glpContract.allowance(address, magicGlpContract.address),
-    oracleContract.peekSpot("0x"),
-    glpContract.balanceOf(magicGlpContract.address),
-  ];
+  address: Address,
+  config: ChainConfig
+): Promise<TokensInfo> => {
+  const { mainToken, stakeToken, oracle } = config;
 
   const [
     userMagicGlpBalance,
@@ -28,47 +17,77 @@ export const getTokensInfo = async (
     allowanceAmount,
     oracleExchangeRate,
     magicGlpAmount,
-  ] = await Promise.all(multicallArr);
+  ]: any = await multicall({
+    contracts: [
+      {
+        ...mainToken.contract,
+        functionName: "balanceOf",
+        args: [address],
+      },
+      {
+        ...mainToken.contract,
+        functionName: "totalSupply",
+        args: [],
+      },
+      {
+        ...stakeToken.contract,
+        functionName: "balanceOf",
+        args: [address],
+      },
+      {
+        ...stakeToken.contract,
+        functionName: "allowance",
+        args: [address, mainToken.contract.address],
+      },
+      {
+        ...oracle,
+        functionName: "peekSpot",
+        args: ["0x"],
+      },
+      {
+        ...stakeToken.contract,
+        functionName: "balanceOf",
+        args: [mainToken.contract.address],
+      },
+    ],
+  });
 
-  const mainTokenPrice = utils
-    .parseUnits("1", decimals)
-    .mul(precision)
-    .div(oracleExchangeRate);
+  const mainTokenPrice =
+    (MIM_PRICE * ONE_ETHER_VIEM) / oracleExchangeRate.result;
+  const tokenRate =
+    (magicGlpAmount.result * ONE_ETHER_VIEM) / totalSupply.result;
+  const stakeTokenPrice = (mainTokenPrice * ONE_ETHER_VIEM) / tokenRate;
 
-  const tokenRate = magicGlpAmount.mul(precision).div(totalSupply);
-  const stakeTokenPrice = mainTokenPrice.mul(precision).div(tokenRate);
-  const formatMainTokenPrice = +utils.formatUnits(mainTokenPrice);
-  const formatTotalSupply = utils.formatUnits(totalSupply);
-  const totalSupplyUsd = +formatTotalSupply * formatMainTokenPrice;
-  const mainTokenBalance = utils.formatUnits(userMagicGlpBalance);
-  const mainTokenBalanceUsd = +mainTokenBalance * formatMainTokenPrice;
-  const formatStakeTokenBalance = utils.formatUnits(userGlpBalance);
-  const formastakeTokenPrice = +utils.formatUnits(stakeTokenPrice);
-  const stakeTokenBalanceUsd = +formatStakeTokenBalance * formastakeTokenPrice;
+  const totalSupplyUsd = (totalSupply.result * mainTokenPrice) / ONE_ETHER_VIEM;
+  const mainTokenBalanceUsd =
+    (userMagicGlpBalance.result * mainTokenPrice) / ONE_ETHER_VIEM;
+
+  const stakeTokenBalanceUsd =
+    (userGlpBalance.result * stakeTokenPrice) / ONE_ETHER_VIEM;
 
   return {
     mainToken: {
-      name: config.mainToken.name,
-      icon: config.mainToken.icon,
-      rateIcon: config.mainToken.rateIcon,
-      decimals: config.mainToken.decimals,
-      price: formatMainTokenPrice,
-      rate: +utils.formatUnits(tokenRate),
-      totalSupply: utils.formatUnits(totalSupply),
+      name: mainToken.name,
+      icon: mainToken.icon,
+      rateIcon: mainToken.rateIcon,
+      decimals: mainToken.decimals,
+      price: mainTokenPrice,
+      rate: tokenRate,
+      totalSupply: totalSupply.result,
       totalSupplyUsd,
-      balance: mainTokenBalance,
+      balance: userMagicGlpBalance.result,
       balanceUsd: mainTokenBalanceUsd,
-      approvedAmount: utils.formatUnits(allowanceAmount),
-      contract: markRaw(magicGlpContract.connect(signer)),
+      approvedAmount: allowanceAmount.result,
+      contract: mainToken.contract,
     },
     stakeToken: {
-      name: config.stakeToken.name,
-      icon: config.stakeToken.icon,
-      decimals: config.mainToken.decimals,
-      price: +utils.formatUnits(stakeTokenPrice),
-      balance: formatStakeTokenBalance,
+      name: stakeToken.name,
+      icon: stakeToken.icon,
+      decimals: mainToken.decimals,
+      price: stakeTokenPrice,
+      balance: userGlpBalance.result,
       balanceUsd: stakeTokenBalanceUsd,
-      contract: markRaw(glpContract.connect(signer)),
+      contract: stakeToken.contract,
     },
   };
 };
