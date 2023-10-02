@@ -7,6 +7,8 @@ import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook } from "@/helpers/cauldron/cauldron";
+import { KAVA_USDT_ADDRESS } from "@/constants/tokensAddress";
+import { getOpenoceanData } from "@/helpers/getOpenoceanData.ts";
 
 import toAmount from "@/helpers/toAmount";
 
@@ -449,7 +451,8 @@ export default {
       amount,
       minExpected,
       slipage,
-      is0x = false
+      is0x = false,
+      isOpenocean = false
     ) {
       const { leverageSwapper, bentoBox } = this.cauldron.contracts;
       const mimAddress = this.cauldron.config.mimInfo.address;
@@ -466,7 +469,9 @@ export default {
           slipage
         );
 
-      if (!is0x) {
+      const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
+
+      if (!is0x && !isOpenocean) {
         const swapStaticTx = await leverageSwapper.populateTransaction.swap(
           userAddr,
           minExpected,
@@ -487,16 +492,19 @@ export default {
         return cookData;
       }
 
-      const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
-
       // to be sure that sell amount in 0x and amountOut inside call will be same
       const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
 
-      const swapData = await this.get0xLeverageSwapData(
-        pool,
-        amountToSwap,
-        slipage
-      );
+      const swapData = isOpenocean
+        ? await getOpenoceanData(
+            mimAddress,
+            KAVA_USDT_ADDRESS,
+            amount,
+            slipage,
+            userAddr,
+            pool?.config?.cauldronSettings?.isMimUsdtCurveLp
+          )
+        : await this.get0xLeverageSwapData(pool, amountToSwap, slipage);
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
         userAddr,
@@ -526,7 +534,8 @@ export default {
       shareFrom,
       shareToMin,
       slipage,
-      is0x
+      is0x,
+      isOpenocean
     ) {
       const {
         collateral,
@@ -539,7 +548,7 @@ export default {
       const swapper = liquidationSwapper.address;
       const userAddr = this.account;
 
-      if (!is0x) {
+      if (!is0x && !isOpenocean) {
         const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
           collateralTokenAddr,
           mim,
@@ -562,11 +571,9 @@ export default {
         return cookData;
       }
 
-      const swapData = await this.get0xDeleverageSwapData(
-        pool,
-        shareFrom,
-        slipage
-      );
+      const swapData = isOpenocean
+        ? getOpenoceanData(KAVA_USDT_ADDRESS, mim, shareFrom, slipage, userAddr)
+        : await this.get0xDeleverageSwapData(pool, shareFrom, slipage);
 
       const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
         collateralTokenAddr,
@@ -878,6 +885,7 @@ export default {
       const { whitelistedInfo } = this.cauldron.additionalInfo;
       const { collateral, leverageSwapper } = this.cauldron.contracts;
       const { is0xSwap } = this.cauldron.config.cauldronSettings;
+      const { isOpenocean } = this.cauldron.config.cauldronSettings;
       const { cauldron } = this.cauldron.contracts;
       const userAddr = this.account;
       const collateralValue = itsDefaultBalance
@@ -928,7 +936,8 @@ export default {
         amount,
         minExpected,
         slipage,
-        is0xSwap
+        is0xSwap,
+        isOpenocean
       );
 
       cookData = await actions.addCollateral(
@@ -967,6 +976,7 @@ export default {
         this.cauldron.contracts;
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
       const { is0xSwap } = this.cauldron.config.cauldronSettings;
+      const { isOpenocean } = this.cauldron.config.cauldronSettings;
       const collateralTokenAddr = collateral.address;
       const reverseSwapperAddr = liquidationSwapper.address;
       const userAddr = account;
@@ -994,7 +1004,8 @@ export default {
         collateralAmount,
         borrowAmount,
         slipage,
-        is0xSwap
+        is0xSwap,
+        isOpenocean
       );
 
       if (itsMax) {

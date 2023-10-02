@@ -243,6 +243,7 @@ export default {
     },
 
     expectedCollateralAmount() {
+      const { decimals } = this.activeToken;
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
 
@@ -250,7 +251,9 @@ export default {
         this.parseCollateralAmount
       );
 
-      return +expectedAmount < 0 ? 0 : utils.formatUnits(expectedAmount);
+      return +expectedAmount < 0
+        ? 0
+        : utils.formatUnits(expectedAmount, decimals);
     },
 
     expectedBorrowAmount() {
@@ -281,7 +284,7 @@ export default {
         userBorrowAmount: +utils.formatUnits(userBorrowAmount),
         oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
         maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
-        userCollateralAmount: utils.formatUnits(userCollateralAmount),
+        userCollateralAmount: utils.formatUnits(userCollateralAmount, decimals),
       };
     },
 

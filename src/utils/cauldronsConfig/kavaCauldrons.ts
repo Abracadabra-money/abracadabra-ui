@@ -33,6 +33,7 @@ const config: Array<CauldronConfig> = [
     cauldronSettings: {
       isSwappersActive: true,
       is0xSwap: true,
+      isOpenocean: true,
       isDegenBox: true,
       strategyLink: "",
       isDepreciated: false,
@@ -43,6 +44,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isNew: true,
+      isMimUsdtCurveLp: true,
     },
     contract: {
       name: "CauldronV4",
@@ -92,6 +94,7 @@ const config: Array<CauldronConfig> = [
     cauldronSettings: {
       isSwappersActive: true,
       is0xSwap: true,
+      isOpenocean: true,
       isDegenBox: true,
       strategyLink: "", //
       isDepreciated: false,
@@ -110,7 +113,7 @@ const config: Array<CauldronConfig> = [
     },
     collateralInfo: {
       name: "TetherUSDt-LP",
-      decimals: 18,
+      decimals: 6,
       address: "0xAad094F6A75A14417d39f04E690fC216f080A41a",
       abi: tokensAbi.TetherUSDtLP,
     },

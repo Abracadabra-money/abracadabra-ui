@@ -14,4 +14,4 @@ export const MAINNET_CHAIN_ID: number = 1;
 export const ANALYTICS_URK: string = "https://analytics.abracadabra.money/api";
 export const RANDOM_ACCOUNT: string = Wallet.createRandom().address;
 export const KAVA_CHAIN_ID: number = 2222;
-
+export const OPENOCEAN_BASE_URL: string = "https://ethapi.openocean.finance/v2";
