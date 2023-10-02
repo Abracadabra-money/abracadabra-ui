@@ -21,7 +21,7 @@ const mimInfo = {
 
 const config: Array<CauldronConfig> = [
   {
-    icon: useImage(`assets/images/tokens/mGlpToken.png`), //
+    icon: useImage(`assets/images/tokens/Curve-MIM-USDT.png`),
     name: "MIM/USDT Curve LP",
     chainId: 2222,
     id: 1,
@@ -61,7 +61,7 @@ const config: Array<CauldronConfig> = [
       useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "MIMUSDt-f",
-        icon: useImage(`assets/images/tokens/GLP.png`), //
+        icon: useImage(`assets/images/tokens/Curve-MIM-USDT.png`),
         address: "0x591199E16E006Dec3eDcf79AE0fCea1Dd0F5b69D",
         abi: erc20ABI, //todo
       },
@@ -80,7 +80,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/mGlpToken.png`), //
+    icon: useImage(`assets/images/tokens/Stargate-USDT.png`),
     name: "TetherUSDt-LP",
     chainId: 2222,
     id: 2,
