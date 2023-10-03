@@ -29,10 +29,10 @@ export const getOpenoceanDeleverageSwapData = async (
   cauldronConfig: any,
   amount: string,
   slipage: number,
-  userAddr: Address,
   provider: providers.BaseProvider
 ) => {
   const { isMimUsdtCurveLp } = cauldronConfig.config.cauldronSettings;
+  const { address } = cauldronConfig.config.leverageInfo;
   const { mim } = cauldronConfig.contracts;
 
   const calcAmount = isMimUsdtCurveLp
@@ -44,7 +44,7 @@ export const getOpenoceanDeleverageSwapData = async (
     mim.address,
     calcAmount,
     slipage,
-    userAddr,
+    address,
     2222
   );
 

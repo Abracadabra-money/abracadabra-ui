@@ -497,7 +497,6 @@ export default {
             pool,
             amountToSwap,
             slipage,
-            userAddr,
             this.provider
           )
         : await this.get0xLeverageSwapData(pool, amountToSwap, slipage);
@@ -572,7 +571,6 @@ export default {
             pool,
             shareFrom,
             slipage,
-            userAddr,
             this.provider
           )
         : await this.get0xDeleverageSwapData(pool, shareFrom, slipage);
