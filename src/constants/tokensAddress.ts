@@ -1,4 +1,12 @@
-export const MAINNET_SPELL_ADDRESS: string =
+import type { Address } from "viem";
+
+export const DEFAULT_TOKEN_ADDRESS: Address =
+  "0x0000000000000000000000000000000000000000";
+export const MAINNET_SPELL_ADDRESS: Address =
   "0x090185f2135308BaD17527004364eBcC2D37e5F6";
-export const KAVA_USDT_ADDRESS: string =
+export const MAINNET_USDT_ADDRESS: Address =
+  "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+export const MAINNET_APE_ADDRESS: Address =
+  "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
+export const KAVA_USDT_ADDRESS: Address =
   "0x919c1c267bc06a7039e03fcc2ef738525769109c";
