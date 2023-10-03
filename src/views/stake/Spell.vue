@@ -4,7 +4,7 @@
       <h4>Choose Chain</h4>
 
       <div class="underline">
-        <NetworksList />
+        <NetworksList :active-list="[1, 250, 42161, 43114]" />
       </div>
 
       <div class="loader-wrap" v-if="!isConfigLoading">
@@ -109,7 +109,7 @@
         <ClaimMimBlock
           class="claim-wrap"
           v-if="isClaimMimBlock"
-          :claimAmount="mainToken.claimableAmount"
+          :claimAmount="formatAmount(mainToken.claimableAmount)"
           :isDisableClaimButton="isDisableClaimButton"
           @claimMim="claimMimHandler"
         />
@@ -118,13 +118,11 @@
       <div class="stake-description">
         <p v-for="description in stakeDescriptions" :key="description.text">
           {{ description.text }}
-          <a
-            v-if="description.link"
-            class="description-link"
-            :href="description.link"
-            target="_blank"
-            >here</a
-          >!
+          <span v-if="description.link">
+            <a class="description-link" :href="description.link" target="_blank"
+              >here</a
+            >!
+          </span>
         </p>
       </div>
     </div>
@@ -134,12 +132,13 @@
 <script>
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
-import { approveToken } from "@/helpers/approval";
-import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
+import { parseUnits, formatUnits } from "viem";
+import actions from "@/helpers/stake/spell/actions/";
+import { approveTokenViem } from "@/helpers/approval"; //todo
+import { spellConfig } from "@/utils/stake/spellConfig";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
-import actions from "@/helpers/stake/spell/actions/";
-import { spellConfig } from "@/utils/stake/spellConfig";
+import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
 
 export default {
   data() {
@@ -155,8 +154,6 @@ export default {
   computed: {
     ...mapGetters({
       chainId: "getChainId",
-      signer: "getSigner",
-      provider: "getProvider",
       account: "getAccount",
     }),
 
@@ -165,7 +162,8 @@ export default {
     },
 
     isUnsupportedChain() {
-      return !!spellConfig[this.selectedToken].addresses[this.chainId];
+      if (!spellConfig[this.chainId]) return false;
+      return !!spellConfig[this.chainId][this.selectedToken];
     },
 
     isStakeAction() {
@@ -173,35 +171,38 @@ export default {
     },
 
     isTokenApproved() {
+      if (!this.isUnsupportedChain) return true;
       if (!this.isStakeAction) return true;
       if (this.errorMainValue) return true;
       if (!this.account) return true;
-      if (!this.isUnsupportedChain) return true;
-      return +this.toToken.allowanceAmount >= this.mainInputValue;
+
+      return this.toToken.allowanceAmount >= this.parsedInputValue;
     },
 
     isActionDisabled() {
+      if (!this.isUnsupportedChain) return true;
       if (this.isUserLocked) return true;
-      return !!(!this.mainInputValue || this.errorMainValue);
+      if (!this.isTokenApproved) return true;
+      return !!(!this.inputValue || this.errorMainValue);
     },
 
     isClaimMimBlock() {
       return (
-        this.selectedToken === "mSpell" && +this.mainToken?.claimableAmount
+        this.selectedToken === "mSpell" && !!this.mainToken?.claimableAmount
       );
     },
 
     isDisableClaimButton() {
       if (+this.mainToken?.lockTimestamp) return true;
-      return +this.mainToken?.claimableAmount <= 0;
+      return this.mainToken?.claimableAmount <= 0n;
     },
 
     isInputDisabled() {
-      return this.isUserLocked || !this.isUnsupportedChain;
+      return !!this.isUserLocked || !this.isUnsupportedChain;
     },
 
-    mainInputValue() {
-      return Number(this.inputValue);
+    parsedInputValue() {
+      return parseUnits(this.inputValue, 18);
     },
 
     stakeToken() {
@@ -218,7 +219,9 @@ export default {
     },
 
     fromTokenBalance() {
-      return !this.isUnsupportedChain ? "0" : this.fromToken.balance;
+      return !this.isUnsupportedChain
+        ? "0"
+        : this.formatAmount(this.fromToken.balance);
     },
 
     toToken() {
@@ -231,24 +234,31 @@ export default {
       return !!+lockTimestamp && !this.isStakeAction;
     },
 
-    expectedAmount() {
-      const amount = this.isStakeAction
-        ? this.mainInputValue / this.toToken.rate
-        : this.mainInputValue * this.fromToken.rate;
+    precision() {
+      return parseUnits("1", this.mainToken.decimals);
+    },
 
-      return filters.formatToFixed(amount, 6);
+    expectedAmount() {
+      if (!this.inputValue) return "";
+
+      const amount = this.isStakeAction
+        ? (this.parsedInputValue * this.precision) / this.mainToken.rate
+        : (this.parsedInputValue * this.mainToken.rate) / this.precision;
+
+      return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
     errorMainValue() {
-      if (this.inputValue > +this.fromToken.balance) {
-        return `The value cannot be greater than ${this.fromToken.balance}`;
+      if (this.parsedInputValue > this.fromToken.balance) {
+        return `The value cannot be greater than ${this.formatAmount(
+          this.fromToken.balance
+        )}`;
       }
 
       return "";
     },
 
     actionInfo() {
-      const { contract } = this.mainToken;
       const isMspell = this.selectedToken === "mSpell";
       const info = { methodName: null };
 
@@ -260,25 +270,21 @@ export default {
 
       if (this.isUserLocked || this.errorMainValue) return info;
 
-      const amount = this.$ethers.utils.parseEther(
-        filters.formatToFixed(this.inputValue || 0, 18)
-      );
-
       if (this.isStakeAction) {
         if (this.selectedToken === "sSpell") {
           info.methodName = "mint";
-          info.options = [amount];
+          info.options = [this.parsedInputValue];
         } else {
           info.methodName = "deposit";
-          info.options = [amount];
+          info.options = [this.parsedInputValue];
         }
       } else if (!this.isStakeAction) {
         if (this.selectedToken === "sSpell") {
           info.methodName = "burn";
-          info.options = [this.account, amount];
+          info.options = [this.account, this.parsedInputValue];
         } else {
           info.methodName = "withdraw";
-          info.options = [amount];
+          info.options = [this.parsedInputValue];
         }
       }
 
@@ -297,7 +303,7 @@ export default {
 
       const mSpell = [
         {
-          text: "Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Take part in the fee sharing mechanism of Abracadabra and earn MIM! Find out more here!",
+          text: "Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Take part in the fee sharing mechanism of Abracadabra and earn MIM! Find out more ",
           link: "https://abracadabramoney.gitbook.io/intro/stake/mspell",
         },
         {
@@ -334,6 +340,10 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    formatAmount(value) {
+      return formatUnits(value, this.mainToken.decimals);
+    },
+
     changeToken(token) {
       localStorage.setItem("SPELL_SELECTED_TOKEN", token);
       this.selectedToken = token;
@@ -351,15 +361,16 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (!this.isUnsupportedChain) return true;
       if (this.isTokenApproved) return false;
 
       const notificationId = await this.createNotification(
         notification.approvePending
       );
 
-      const { address } = this.mainToken.contract;
-      const approve = await approveToken(this.stakeToken.contract, address);
+      const approve = await approveTokenViem(
+        this.stakeToken.contract,
+        this.mainToken.contract.address
+      );
 
       if (approve) await this.createStakeInfo();
       await this.deleteNotification(notificationId);
@@ -400,7 +411,7 @@ export default {
         notification.pending
       );
 
-      const { error } = await actions.withdraw(this.mainToken.contract, 0);
+      const { error } = await actions.withdraw(this.mainToken.contract, 0n);
 
       if (error) {
         await this.deleteNotification(notificationId);
@@ -413,11 +424,7 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeConfig = await getStakeInfo(
-        this.provider,
-        this.signer,
-        this.chainId
-      );
+      this.stakeConfig = await getStakeInfo(this.chainId);
     },
   },
 
@@ -429,7 +436,7 @@ export default {
 
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();
-    }, 15000);
+    }, 60000);
   },
 
   beforeUnmount() {

@@ -8,10 +8,7 @@
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel
-            title="Remove collateral"
-            :amount="formatTokenBalance(maxCollateralAmount)"
-          />
+          <InputLabel title="Remove collateral" :amount="maxCollateralAmount" />
 
           <BaseTokenInput
             :icon="activeToken.icon"
@@ -87,11 +84,13 @@
           <div class="btn-wrap">
             <BaseButton
               primary
-              :disabled="isTokenApproved"
+              :disabled="isTokenApproved || isActionDisabled"
               @click="approveTokenHandler"
               >Approve</BaseButton
             >
-            <BaseButton @click="actionHandler" :disabled="isActionDisabled"
+            <BaseButton
+              @click="actionHandler"
+              :disabled="!isTokenApproved || isActionDisabled"
               >{{ actionInfo.buttonText }}
             </BaseButton>
           </div>
@@ -152,9 +151,8 @@ export default {
 
     parseCollateralAmount() {
       const { decimals } = this.activeToken;
-
       return utils.parseUnits(
-        filters.formatToFixed(this.collateralValue || 0, decimals),
+        filters.formatToFixed(+this.collateralValue || 0, decimals),
         decimals
       );
     },
@@ -169,14 +167,13 @@ export default {
 
     isTokenApproved() {
       if (!this.account) return true;
-
+      if (!this.borrowValue) return true;
       const { mimAllowance } = this.cauldron.userTokensInfo;
       const allowance = +utils.formatUnits(mimAllowance);
-      return allowance > 0;
+      return allowance > +this.borrowValue;
     },
 
     isActionDisabled() {
-      if (!this.isTokenApproved) return true;
       if (this.errorCollateralValue || this.errorBorrowValue) return true;
       if (!this.collateralValue && !this.borrowValue) return true;
       return false;
@@ -415,7 +412,7 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (this.isTokenApproved) return false;
+      if (this.isTokenApproved || this.isActionDisabled) return false;
 
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -433,6 +430,7 @@ export default {
     },
 
     async actionHandler() {
+      if (!this.isTokenApproved || this.isActionDisabled) return false;
       if (!this[this.actionInfo.methodName]) return false;
       await this[this.actionInfo.methodName]();
       this.clearInputs();

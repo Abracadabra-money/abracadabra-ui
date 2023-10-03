@@ -8,7 +8,7 @@
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel :amount="formatTokenBalance(activeToken.balance)" />
+          <InputLabel :amount="activeToken.balance" />
           <SelectButton
             :activeToken="activeToken"
             @click="isOpenMarketListPopup = true"
@@ -102,17 +102,20 @@
         <CollateralApyBlock v-if="cauldron" :cauldron="cauldron" />
 
         <template v-if="cauldron">
-          <div class="btn-wrap">
-            <BaseButton
+          <!-- <div class="btn-wrap"> -->
+          <!-- <BaseButton
               primary
-              :disabled="isTokenApproved"
+              :disabled="true"
               @click="approveTokenHandler"
-              >Approve Token</BaseButton
-            >
-            <BaseButton @click="actionHandler" :disabled="isActionDisabled"
-              >{{ actionInfo }}
-            </BaseButton>
-          </div>
+              >Approve</BaseButton
+            > -->
+          <BaseButton
+            v-if="cauldron"
+            @click="actionHandler"
+            :disabled="isActionDisabled"
+            >{{ actionInfo }}
+          </BaseButton>
+          <!-- </div> -->
 
           <div class="main-info-wrap">
             <MainInfoBlock :cauldron="cauldron" />
@@ -205,8 +208,8 @@ export default {
     },
 
     isActionDisabled() {
-      if (!this.isTokenApproved) return true;
-      if (!this.repayMimAmount) return true;
+      // if (!this.isTokenApproved) return true;
+      if (this.repayMimAmount == 0) return true;
       return false;
     },
 
@@ -542,8 +545,17 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      const isTokenToCookApprove = await this.checkAllowance(
-        payload.collateralAmount
+      // const isTokenToCookApprove = await this.checkAllowance(
+      //   payload.collateralAmount
+      // );
+
+      // if (+isTokenToCookApprove) {
+      await this.cookDeleverage(
+        payload,
+        isMasterContractApproved,
+        this.cauldron,
+        this.account,
+        notificationId
       );
 
       if (+isTokenToCookApprove) {
@@ -566,6 +578,7 @@ export default {
     },
 
     async closePositionHandler() {
+      if (this.isDisabledClosePosition) return false;
       this.repayMimAmount = this.positionInfo.userBorrowAmount;
       this.removeCollateralAmount = this.maxRemoveCollateralAmount;
 

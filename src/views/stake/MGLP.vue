@@ -1,656 +1,406 @@
 <template>
-  <div class="stake">
-    <div class="input-block">
+  <div class="stake-view">
+    <div class="deposit-block">
       <h4>Choose Chain</h4>
+
       <div class="underline">
-        <NetworksList :active-list="acceptChain" />
+        <NetworksList :active-list="[42161, 43114]" />
       </div>
-      <div class="loader-wrap" v-if="isLoading">
+
+      <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
       </div>
 
-      <div class="swap-wrap" v-if="tokensInfo">
-        <div class="token-input">
-          <div class="header-balance">
-            <h4>{{ action }}</h4>
-            <p>Balance: {{ formatTokenBalance(fromToken.balance) }}</p>
-          </div>
+      <div v-else>
+        <div class="input-assets">
+          <InputLabel
+            :amount="formatTokenBalance(formatAmount(fromToken.balance))"
+            :title="action"
+          />
+
           <BaseTokenInput
+            :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :value="amount"
+            :max="formatAmount(fromToken.balance)"
+            :error="errorMainValue"
+            :disabled="!isUnsupportedChain"
             @updateValue="updateMainValue"
-            :max="fromToken.balance"
-            :error="amountError"
           />
         </div>
-        <div class="swap-img">
+
+        <button class="swap-button">
           <img
             src="@/assets/images/swap.svg"
             @click="toggleAction"
-            alt="swap"
+            alt="Swap action"
           />
-        </div>
-        <div class="token-input">
-          <div class="header-balance">
-            <h4>Receive</h4>
-          </div>
+        </button>
+
+        <div class="input-assets">
+          <h4 class="input-labal">Receive</h4>
           <BaseTokenInput
             :icon="toToken.icon"
             :name="toToken.name"
-            :value="toTokenAmount"
+            :value="expectedAmount"
             :disabled="true"
           />
         </div>
-        <div class="profile-actions" v-if="tokensInfo && account">
+
+        <div class="btns-wrap">
           <BaseButton
-            @click="approveTokenHandler"
             primary
-            :disabled="disableApproveBtn"
+            :disabled="isTokenApproved"
+            @click="approveTokenHandler"
             >Approve
           </BaseButton>
-          <BaseButton @click="actionHandler" :disabled="disableActionBtn">
+
+          <BaseButton :disabled="isActionDisabled" @click="actionHandler">
             {{ action }}
           </BaseButton>
         </div>
-        <p class="profile-subscribtion">
-          {{ leverageText }}
-          <router-link class="link" v-if="leverageLink" :to="leverageLink"
-            >here.</router-link
-          >
+
+        <p class="leverage-link" v-if="stakeInfo.leverageInfo">
+          {{ stakeInfo.leverageInfo.label }}
+          <router-link
+            class="link"
+            v-if="stakeInfo.leverageInfo.id"
+            :to="{
+              name: 'LeverageId',
+              params: { id: stakeInfo.leverageInfo.id },
+            }"
+            >here.
+          </router-link>
         </p>
       </div>
     </div>
 
-    <div class="profile" :style="`background-image: url(${stakeBg})`">
+    <div
+      class="stake-stand"
+      :style="`background-image: url(${standBackground})`"
+    >
       <h1 class="title">magicGLP</h1>
-      <div class="loader-wrap" v-if="isLoading">
+
+      <div class="loader-wrap" v-if="!isInfoLoading">
         <BaseLoader />
       </div>
 
-      <EmptyBlock v-else-if="!isLoading && !tokensInfo" :warningType="'mglp'" />
+      <div v-else>
+        <div class="stand-info-wrap" v-if="isUnsupportedChain">
+          <ChartBlock
+            :chartConfig="chartConfig"
+            :getChartOptions="getChartOptions"
+          />
 
-      <template v-else>
-        <div class="wrap wrap-chart" v-if="chartData">
-          <div class="chart-row">
-            <h1 class="chart-title">APY Chart</h1>
-            <div class="chart-apt-wrap">
-              <div class="chart-apt">
-                <img src="@/assets/images/glp/chart-apr.png" alt="" />
-                <span class="chart-apt-text">est. APY</span>
-                <span class="chart-apt-percent" v-if="apy">{{ apy }}%</span>
-                <div class="loader-wrap-mini" v-else>
-                  <p class="loader"></p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <div class="chart-btns">
-            <button
-              class="chart-btn btn-3"
-              :class="{ 'chart-btn-active': chartActiveBtn === 1 }"
-              @click="changeChartTime(1)"
-            >
-              1m
-            </button>
-            <button
-              class="chart-btn"
-              :class="{ 'chart-btn-active': chartActiveBtn === 3 }"
-              @click="changeChartTime(3)"
-            >
-              3m
-            </button>
-            <button
-              class="chart-btn"
-              :class="{ 'chart-btn-active': chartActiveBtn === 6 }"
-              @click="changeChartTime(6)"
-            >
-              6m
-            </button>
-            <button
-              class="chart-btn btn-1y"
-              :class="{ 'chart-btn-active': chartActiveBtn === 12 }"
-              @click="changeChartTime(12)"
-            >
-              1y
-            </button>
-          </div>
-          <TickChart
-            v-if="chartData"
-            :labels="chartData.labels"
-            :tickUpper="chartData.tickUpper"
+          <AdditionalInfoBlockViem
+            :mainToken="mainToken"
+            :rewardToken="stakeInfo.rewardToken"
           />
         </div>
 
-        <div class="loader-wrap" v-if="!chartData">
-          <BaseLoader />
+        <div class="empty-wrap" v-else>
+          <EmptyBlock :warningType="'mglp'" />
         </div>
 
-        <div class="balance-block wrap" v-if="stakeToken && mainToken">
-          <div class="balance-top">
-            <h4 class="balance-title">Your balance</h4>
-            <div class="balance-ratio">
-              <img
-                class="balance-ratio-icon"
-                src="@/assets/images/glp/mGlpNew.png"
-                alt="mGlp icon"
-              />
-              <span>1 magicGLP = {{ tokensRate }} GLP</span>
-            </div>
-          </div>
-          <div class="balance-row">
-            <div class="balance-token">
-              <div class="token-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/tokens/GLP.png')"
-                  size="60px"
-                />
-                <span class="token-icon-name">GLP</span>
-              </div>
-              <div>
-                <p class="token-title">GLP</p>
-                <p class="token-balance">
-                  {{ formatTokenBalance(stakeToken.balance) }}
-                </p>
-                <p class="token-price">
-                  {{ formatUSD(stakeToken.balanceUsd) }}
-                </p>
-              </div>
-            </div>
-            <div class="balance-token">
-              <div class="token-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/tokens/mGlpToken.png')"
-                  size="60px"
-                />
-                <span class="token-icon-name">magicGLP</span>
-              </div>
-              <div>
-                <p class="token-title">magicGLP</p>
-                <p class="token-balance">
-                  {{ formatTokenBalance(mainToken.balance) }}
-                </p>
-                <p class="token-price">
-                  {{ formatUSD(mainToken.balanceUsd) }}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div class="description">
+          <p>
+            Enjoy the benefits of compounding without having to worry about the
+            tedious work! Simply deposit your GLP into MagicGLP and let it do
+            its magic!
+          </p>
+          <p>Note: A 1% protocol fee is taken on the yields.</p>
         </div>
 
-        <div class="info-block wrap">
-          <div>
-            <h5 class="info-title">Total Supply</h5>
-            <div class="info-item">
-              <div class="info-icon">
-                <BaseTokenIcon
-                  :icon="$image('assets/images/tokens/mGlpToken.png')"
-                  size="40px"
-                />
-                <span>magicGLP</span>
-              </div>
-              <div class="info-balance">
-                <span class="info-value">{{
-                  Number(mainToken.totalSupply).toLocaleString()
-                }}</span>
-                <span class="info-usd">{{
-                  formatUSD(mainToken.totalSupplyUsd)
-                }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="info-line"></div>
-          <div>
-            <h5 class="info-title">Total Rewards Earned</h5>
-            <div class="info-item">
-              <div class="info-icon">
-                <BaseTokenIcon :icon="rewardsTokenIcon" size="40px" />
-                <span>{{ rewardsTokenSymbol }}</span>
-              </div>
-              <div class="info-balance">
-                <span class="info-value">{{
-                  Number(totalRewardsEarned).toLocaleString()
-                }}</span>
-                <span class="info-usd">{{ formatUSD(totalRewardsUsd) }}</span>
-              </div>
-            </div>
-          </div>
+        <div class="links-wrap" v-if="isUnsupportedChain">
+          <GetTokenLink
+            :data="{ href: 'https://app.gmx.io/#/buy_glp', label: 'Buy GLP' }"
+          />
+          <GetTokenLink
+            :data="{
+              href: 'https://app.gmx.io/#/buy_glp#redeem',
+              label: 'Sell GLP',
+            }"
+          />
         </div>
-        <p class="profile-subscribtion">
-          Enjoy the benefits of compounding without having to worry about the
-          tedious work! Simply deposit your GLP into MagicGLP and let it do its
-          magic!
-          <br />
-          Note: A 1% protocol fee is taken on the yields.
-        </p>
-        <div class="links-wrap">
-          <a
-            class="deposit"
-            href="https://app.gmx.io/#/buy_glp"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <img src="@/assets/images/deposit.svg" alt="Deposit" /><span>
-              Buy GLP</span
-            ></a
-          >
-          <a
-            class="deposit"
-            href="https://app.gmx.io/#/buy_glp#redeem"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <img src="@/assets/images/deposit.svg" alt="Deposit" />
-            <span>Sell GLP</span></a
-          >
-        </div>
-      </template>
+      </div>
     </div>
   </div>
 </template>
+
 <script>
 import filters from "@/filters/index.js";
-import axios from "axios";
-import moment from "moment";
-import { mapGetters } from "vuex";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import EmptyBlock from "@/components/stake/EmptyBlock.vue";
-import TickChart from "@/components/ui/charts/TickChart.vue";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import { getGlpApy } from "@/helpers/collateralsApy/getGlpApy";
-import { approveToken } from "@/utils/approveHelpers";
-import mGlpTokenMixin from "@/mixins/stake/mGlpToken";
+import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
+import { parseUnits, formatUnits } from "viem";
+import { approveTokenViem } from "@/helpers/approval"; //todo
+import actions from "@/helpers/stake/magicGlp/actions/";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 import notification from "@/helpers/notification/notification.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getMagicGlpTotalRewards } from "@/helpers/subgraph/magicGlp/getMagicGlpTotalRewards";
-import { getMagicGlpChartData } from "@/helpers/subgraph/magicGlp/getMagicGlpChartData";
-import { getGlpApyAvaxChain } from "@/helpers/collateralsApy/getGlpApyAvaxChain";
-import arbitrumBg from "@/assets/images/glp/arbitrum-bg.png";
-import avaxBg from "@/assets/images/glp/avax-bg.png";
+import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo.ts";
+import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
+import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
 
 export default {
-  mixins: [mGlpTokenMixin],
   data() {
     return {
-      action: "Stake",
-      amount: "",
-      amountError: "",
-      chartData: null,
-      updateInterval: null,
-      chartActiveBtn: 1,
-      chartInterval: null,
       apy: "",
-      gasLimitConst: 1000,
-      totalRewards: null,
-      acceptChain: [42161, 43114],
+      stakeInfo: null,
+      action: "Stake",
+      inputValue: "",
+      updateInterval: null,
     };
   },
 
   computed: {
     ...mapGetters({
-      isLoading: "getLoadingMGlpStake",
       account: "getAccount",
-      tokensInfo: "getMGlpObject",
-      itsMetamask: "getMetamaskActive",
       chainId: "getChainId",
     }),
 
+    isInfoLoading() {
+      return !!this.stakeInfo;
+    },
+
+    isStakeAction() {
+      return this.action === "Stake";
+    },
+
+    isTokenApproved() {
+      if (!this.isStakeAction) return true;
+      if (this.errorMainValue) return true;
+      if (!this.account) return true;
+      if (!this.isUnsupportedChain) return true;
+      return this.toToken.approvedAmount >= this.parsedInputValue;
+    },
+
+    isActionDisabled() {
+      if (!this.isTokenApproved) return true;
+      return !!(!this.inputValue || this.errorMainValue);
+    },
+
+    isUnsupportedChain() {
+      return !!magicGlpConfig[this.chainId];
+    },
+
     stakeToken() {
-      return this.tokensInfo?.stakeToken;
+      return this.stakeInfo?.stakeToken;
     },
 
     mainToken() {
-      return this.tokensInfo?.mainToken;
-    },
-
-    isActionApproved() {
-      if (this.action === "Stake")
-        return !!this.tokensInfo?.stakeToken.isApproved;
-      return true;
+      return this.stakeInfo?.mainToken;
     },
 
     fromToken() {
-      if (this.action === "Stake") return this.stakeToken;
-      return this.mainToken;
+      return this.isStakeAction ? this.stakeToken : this.mainToken;
     },
 
     toToken() {
-      if (this.action === "Stake") return this.mainToken;
-      return this.stakeToken;
+      return this.isStakeAction ? this.mainToken : this.stakeToken;
     },
 
-    disableApproveBtn() {
-      return this.isActionApproved;
-    },
-
-    tokensRate() {
-      const amount = 1 * this.tokensInfo.tokensRate;
-      return filters.formatToFixed(amount, 4);
-    },
-
-    toTokenAmount() {
-      if (!this.amount || !this.tokensInfo) return "";
-
-      if (this.action === "Stake") {
-        const amount = this.amount / this.tokensInfo.tokensRate;
-        return filters.formatToFixed(amount, 6);
+    errorMainValue() {
+      if (this.parsedInputValue > this.fromToken.balance) {
+        return `The value cannot be greater than ${this.formatAmount(
+          this.fromToken.balance
+        )}`;
       }
 
-      const amount = this.amount * this.tokensInfo.tokensRate;
-      return filters.formatToFixed(amount, 6);
+      return "";
     },
 
-    disableActionBtn() {
-      if (!this.isActionApproved) return true;
-      return !!(!+this.amount || this.amountError);
+    precision() {
+      return parseUnits("1", this.mainToken.decimals);
     },
 
-    totalRewardsEarned() {
-      return this.totalRewards ? this.totalRewards : 0;
+    expectedAmount() {
+      const amount = this.isStakeAction
+        ? (this.parsedInputValue * this.precision) / this.mainToken.rate
+        : (this.parsedInputValue * this.mainToken.rate) / this.precision;
+
+      return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
-    totalRewardsUsd() {
-      return this.totalRewards
-        ? parseFloat(
-            +this.totalRewardsEarned * +this.tokensInfo.rewardsTokenPrice
-          ).toFixed(2)
-        : 0;
-    },
-
-    rewardsTokenSymbol() {
-      return this.chainId === 43114 ? "AVAX" : "ETH";
-    },
-
-    rewardsTokenIcon() {
-      return this.chainId === 43114
-        ? this.$image("assets/images/tokens/AVAX.png")
-        : this.$image("assets/images/tokens/ETH2.png");
-    },
-
-    stakeBg() {
-      return +this.chainId === 42161 ? arbitrumBg : avaxBg;
-    },
-
-    leverageText() {
+    standBackground() {
       if (+this.chainId === 42161)
-        return " Amplify your yield with the Abracadabra Leverage Engine";
-      else
-        return " Abracadabra Leverage Engine is being developed, stay tuned!";
+        return useImage("assets/images/glp/arbitrum-bg.png");
+      if (+this.chainId === 43114)
+        return useImage("assets/images/glp/avax-bg.png");
+      return "";
     },
 
-    leverageLink() {
-      if (+this.chainId === 42161)
-        return { name: "Leverage", params: { id: 3 } };
-      return false;
+    parsedInputValue() {
+      return parseUnits(this.inputValue, 18);
+    },
+
+    actionInfo() {
+      const options = [this.parsedInputValue, this.account];
+
+      return this.isStakeAction
+        ? { methodName: "deposit", options }
+        : { methodName: "redeem", options };
+    },
+
+    chartConfig() {
+      return {
+        title: "APY Chart",
+        type: "magicGlpTvl",
+        apy: this.apy,
+        feePercent: this.stakeInfo.feePercent,
+        intervalButtons: [
+          { label: "1m", time: 1 },
+          { label: "3m", time: 3 },
+          { label: "6m", time: 6 },
+          { label: "1y", time: 12 },
+        ],
+      };
     },
   },
 
   watch: {
     async account(value) {
-      if (value) await this.createStakePool();
-    },
-    async chainId() {
-      if (this.chainId === 42161) await this.crateStakeData();
+      if (value) await this.createStakeInfo();
     },
   },
 
   methods: {
-    formatUSD(value) {
-      return filters.formatUSD(value);
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    getChartOptions,
+
+    formatAmount(value) {
+      return formatUnits(value, this.mainToken.decimals);
     },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
-    updateValue(amount) {
-      this.amount = amount ? amount : "";
-      this.amountError = "";
+
+    updateMainValue(amount) {
+      this.inputValue = amount;
     },
 
     toggleAction() {
-      this.updateValue();
+      this.inputValue = "";
       this.action = this.action === "Stake" ? "Unstake" : "Stake";
     },
 
-    updateMainValue(amount) {
-      if (+amount > +this.fromToken.balance)
-        this.amountError = `The value cannot be greater than ${this.fromToken.balance}`;
-      else this.updateValue(amount);
-    },
-
-    async createNotification(msg) {
-      return await this.$store.dispatch("notifications/new", msg);
-    },
-
-    async deleteNotification(id) {
-      await this.$store.commit("notifications/delete", id);
+    async createStakeInfo() {
+      this.stakeInfo = await getStakeInfo(this.chainId);
     },
 
     async approveTokenHandler() {
-      const { approvePending, approveError } = notification;
+      if (!this.isUnsupportedChain) return false;
+      if (this.isTokenApproved) return false;
 
-      const notificationId = await this.createNotification(approvePending);
-
-      const approve = await approveToken(
-        this.stakeToken.contractInstance,
-        this.mainToken.address
+      const notificationId = await this.createNotification(
+        notification.approvePending
       );
 
+      const approve = await approveTokenViem(
+        this.stakeToken.contract,
+        this.mainToken.contract.address
+      );
+
+      if (approve) await this.createStakeInfo();
       await this.deleteNotification(notificationId);
-
-      if (!approve) await this.createNotification(approveError);
-
+      if (!approve) await this.createNotification(notification.approveError);
       return false;
     },
 
     async actionHandler() {
-      if (!+this.amount || this.amountError || !this.isActionApproved)
-        return false;
+      if (this.isActionDisabled) return false;
+      if (!this.actionInfo.methodName) return false;
 
-      if (this.action === "Stake") {
-        await this.stake();
-      }
-      if (this.action === "Unstake") {
-        await this.unstake();
-      }
-    },
-
-    async stake() {
-      const { pending, success } = notification;
-      const notificationId = await this.createNotification(pending);
-
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.deposit(
-            amount,
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.tokensInfo.mainToken.contractInstance.deposit(
-          amount,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
-
-        this.deleteNotification(notificationId);
-        this.createNotification(success);
-      } catch (e) {
-        console.log("stake err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
-      }
-    },
-
-    async unstake() {
-      const { pending, success } = notification;
-      const notificationId = await this.createNotification(pending);
-
-      try {
-        const amount = this.$ethers.utils.parseEther(this.amount);
-
-        const estimateGas =
-          await this.tokensInfo.mainToken.contractInstance.estimateGas.redeem(
-            amount,
-            this.account,
-            this.account
-          );
-
-        const gasLimit = 1000 + +estimateGas.toString();
-
-        const tx = await this.tokensInfo.mainToken.contractInstance.redeem(
-          amount,
-          this.account,
-          this.account,
-          {
-            gasLimit,
-          }
-        );
-
-        this.amount = "";
-        this.amountError = "";
-
-        const receipt = await tx.wait();
-
-        console.log("stake", receipt);
-
-        this.deleteNotification(notificationId);
-        this.createNotification(success);
-      } catch (e) {
-        console.log("stake err:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
-      }
-    },
-
-    async createChartData() {
-      const labels = [];
-      const tickUpper = [];
-
-      const data = await getMagicGlpChartData(
-        this.chainId,
-        this.chartActiveBtn
+      const notificationId = await this.createNotification(
+        notification.pending
       );
 
-      data.forEach((element) => {
-        labels.push(moment.unix(element.timestamp).format("DD.MM"));
-        tickUpper.push(element.glpApy * (1 - this.tokensInfo.feePercent));
-      });
+      const { error } = await actions[this.actionInfo.methodName](
+        this.mainToken.contract,
+        ...this.actionInfo.options
+      );
 
-      this.chartData = { labels, tickUpper };
-    },
-
-    async changeChartTime(time) {
-      this.chartActiveBtn = time;
-      await this.createChartData();
-    },
-
-    async getEstApy() {
-      let apy = 0;
-      if (this.chainId === 42161) apy = await getGlpApy(true);
-      if (this.chainId === 43114) apy = await getGlpApyAvaxChain(true);
-      return parseFloat(apy).toFixed(2);
-    },
-  },
-
-  filters: {
-    localAmountFilter(val) {
-      return Number(val).toLocaleString();
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.createStakeInfo();
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
     },
   },
 
   async created() {
-    await this.createStakePool();
+    await this.createStakeInfo();
 
-    if (!this.acceptChain.includes(this.chainId)) return false;
-    this.totalRewards = await getMagicGlpTotalRewards(this.chainId);
+    if (!this.isUnsupportedChain) return false;
 
     this.updateInterval = setInterval(async () => {
-      await this.createStakePool();
-    }, 15000);
-
-    await this.createChartData();
-    this.apy = await this.getEstApy();
-
-    this.chartInterval = setInterval(async () => {
-      await this.createChartData();
-      this.apy = await this.getEstApy();
+      await this.createStakeInfo();
     }, 60000);
+
+    const response = await getMagicGlpApy(this.chainId);
+    this.apy = filters.formatToFixed(response.magicGlpApy, 2);
   },
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
   },
+
   components: {
-    BaseTokenIcon,
-    TickChart,
-    BaseButton,
-    BaseTokenInput,
-    NetworksList,
-    BaseLoader,
-    EmptyBlock,
+    NetworksList: defineAsyncComponent(() =>
+      import("@/components/ui/NetworksList.vue")
+    ),
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
+    ),
+    InputLabel: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputLabel.vue")
+    ),
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+    ChartBlock: defineAsyncComponent(() =>
+      import("@/components/stake/ChartBlock.vue")
+    ),
+    // todo
+    BalancesBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlockViem.vue")
+    ),
+    // todo
+    AdditionalInfoBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlockViem.vue")
+    ),
+    EmptyBlock: defineAsyncComponent(() =>
+      import("@/components/stake/EmptyBlock.vue")
+    ),
+    GetTokenLink: defineAsyncComponent(() =>
+      import("@/components/ui/links/GetTokenLink.vue")
+    ),
   },
 };
 </script>
+
 <style lang="scss" scoped>
-.empty-link {
-  color: #759ffa;
+.stake-view {
+  display: grid;
+  grid-template-columns: 550px 1fr;
+  width: 1320px;
+  max-width: calc(100% - 20px);
+  grid-gap: 15px;
+  margin: 0 auto;
+  padding: 100px 0;
 }
 
-.loader-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 10px;
-}
-
-.swap-img {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  & img {
-    transform: rotateX(0deg);
-    transition: all 0.3s;
-  }
-  & img.reflect {
-    transform: rotateX(180deg);
-  }
-}
-
-.choose-stake-input {
-  background-color: white;
-}
-
-.input-block {
+.deposit-block {
   padding: 30px;
   border-radius: 30px;
   background-color: $clrBg2;
@@ -658,320 +408,15 @@ export default {
   overflow: hidden;
 }
 
-.token-input {
-  padding-top: 22px;
-  padding-bottom: 14px;
-}
-
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.profile-subscribtion {
-  line-height: 24px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.profile {
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
-  background-position: center;
-  background-size: cover;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 30px;
-}
-
-.profile-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 20px;
-  margin: 30px 0;
-}
-
-.stake {
-  display: grid;
-  grid-template-columns: 550px 1fr;
-  width: 1320px;
-  max-width: calc(100% - 20px);
-  grid-gap: 30px;
-  margin: 0 auto;
-
-  padding: 100px 0;
-}
-
-.chart-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.chart-title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-}
-
-.chart-apt-wrap {
-  width: 178px;
-  height: 32px;
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
+.loader-wrap {
   display: flex;
   align-items: center;
-  border-radius: 0px 30px 30px 0px;
-}
-
-.chart-apt {
-  width: 176px;
-  height: 30px;
-  background: #23212d;
-  border-radius: 0px 30px 30px 0px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding-left: 30px;
-
-  img {
-    width: 44px;
-    height: 44px;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: -22px;
-  }
-}
-
-.chart-apt-text {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 27px;
-  margin-right: 10px;
-}
-
-.chart-apt-percent {
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-.chart-btns {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
-.chart-btn {
-  width: 32px;
-  background: #2a2835;
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 15px;
-  color: #fff;
-  cursor: pointer;
-}
-
-.chart-btn-active {
-  background: #343141;
-}
-
-.btn-3 {
-  border-radius: 4px 0 0 4px;
-}
-
-.btn-1y {
-  border-radius: 0 4px 4px 0;
-}
-
-.wrap {
-  width: 100%;
-  padding: 16px;
-  background: #2b2b3c;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(50px);
-  border-radius: 30px;
-}
-
-.balance-block {
-  margin: 16px 0;
-}
-
-.balance-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.balance-title {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-}
-
-.balance-ratio {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 21px;
-}
-
-.balance-ratio-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.balance-row,
-.info-block {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  text-align: left;
-}
-
-.info-block {
-  grid-template-columns: 1fr 33px 1fr;
-}
-
-.balance-token {
-  display: flex;
-  font-weight: 400;
-  line-height: 22px;
-  font-size: 18px;
-}
-
-.token-icon {
-  display: flex;
-  align-items: center;
-}
-
-.token-icon-name {
-  display: none;
-}
-
-.token-balance {
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 30px;
-}
-
-.token-price {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.info-block {
-  margin-bottom: 24px;
-}
-
-.info-title {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  margin-bottom: 14px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.info-icon {
-  display: flex;
-  align-items: center;
-}
-
-.info-balance {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.info-line {
-  position: relative;
-}
-
-.info-line::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: 1px;
-  height: 45px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.info-value {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  letter-spacing: 0.4px;
-}
-
-.info-usd {
-  font-size: 14px;
-  line-height: 21px;
-  display: flex;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.links-wrap {
-  display: flex;
   justify-content: center;
-  gap: 24px;
-}
-
-.deposit {
-  background: linear-gradient(
-    90deg,
-    rgba(157, 244, 255, 0.2) 0%,
-    rgba(121, 129, 255, 0.2) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 30px;
-  padding: 3px 8px;
-  color: #63caf8;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-
-  span {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 21px;
-    display: flex;
-    align-items: center;
-    letter-spacing: 0.025em;
-    background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-fill-color: transparent;
-  }
-
-  img {
-    margin-right: 5px;
-  }
+  padding: 30px 10px;
 }
 
 .loader-wrap-mini {
@@ -982,121 +427,87 @@ export default {
   width: 35%;
 }
 
-.loader {
-  position: relative;
-  display: block;
-  width: 8px;
-  animation: rectangle infinite 1s ease-in-out -0.2s;
-  border-radius: 4px;
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
-}
-.loader:before,
-.loader:after {
-  position: absolute;
-
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-
-  content: "";
-
-  background: linear-gradient(92.08deg, #63ff7b 0%, #6b9ef8 100%);
-}
-.loader:before {
-  left: -10px;
-  animation: rectangle infinite 1s ease-in-out -0.4s;
-}
-.loader:after {
-  right: -10px;
-  animation: rectangle infinite 1s ease-in-out;
+.input-assets {
+  padding: 22px 0 14px;
 }
 
-.link {
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+.swap-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
-@keyframes rectangle {
-  0%,
-  80%,
-  100% {
-    height: 6px;
-  }
-  40% {
-    height: 8px;
-  }
+.input-labal {
+  margin-bottom: 6px;
 }
 
-@media (max-width: 1200px) {
-  .stake {
-    grid-gap: 15px;
-  }
-
-  .profile {
-    padding: 30px 15px;
-  }
+.btns-wrap {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 30px 0;
 }
 
-@media (min-width: 1024px) {
-  .choose {
-    padding: 30px;
-  }
+.leverage-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-size: 15px;
+}
+
+.stake-stand {
+  padding: 30px 15px;
+  border-radius: 30px;
+  background-color: $clrBg2;
+  text-align: center;
+  background-position: center;
+  background-size: cover;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 30px;
+}
+
+.stand-info-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.empty-wrap {
+  margin-bottom: 20px;
+}
+
+.description {
+  line-height: 24px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.links-wrap {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
 }
 
 @media (max-width: 1024px) {
-  .stake {
+  .stake-view {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 600px) {
-  .input-block {
+  .deposit-block,
+  .stake-stand {
     padding: 30px 10px;
-  }
-
-  .profile {
-    padding: 30px 10px;
-  }
-
-  .balance-top {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 5px;
-  }
-
-  .info-block,
-  .balance-row {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .balance-row {
-    gap: 10px;
-  }
-
-  .balance-token {
-    justify-content: space-between;
-  }
-
-  .info-line,
-  .token-title {
-    display: none;
-  }
-
-  .token-icon-name {
-    display: block;
-  }
-
-  .chart-row {
-    flex-direction: column;
-  }
-
-  .wrap-chart {
-    max-width: 88vw;
-    margin: 0 auto;
   }
 }
 </style>

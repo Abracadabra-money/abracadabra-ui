@@ -1,190 +1,213 @@
 <template>
-  <div class="info-block wrap">
-    <div>
-      <h5 class="info-title">Tranche Statistics</h5>
-      <div class="tranches-boxes">
-        <div class="tranche-box" v-for="(data, idx) in staticData" :key="idx">
-          <div class="tranche-header">
-            <div class="tranche-logo">
-              <img :src="data.icon" class="tranche-icon" />
-              <h6 class="logo-title">
+  <div class="statistics-block">
+    <div class="tokens-info">
+      <h3 class="title">Tranche Statistics</h3>
+
+      <div class="tokens-info-wrap">
+        <div
+          class="token-info-item"
+          v-for="data in statisticData"
+          :key="data.type"
+        >
+          <div class="token-info">
+            <div class="token-logo-wrap">
+              <img class="token-icon" :src="data.icon" />
+              <h6 class="token-name">
                 {{ data.type }} <br />
                 Tranche
               </h6>
             </div>
-            <span class="risk-marker" :class="data.risk"
-              >{{ data.risk }} risk</span
-            >
+            <span class="token-risk" :class="data.risk"
+              >{{ data.risk }} risk
+            </span>
           </div>
-          <ul class="tranche-box-info">
-            <li class="info-field">
-              <span class="field-title">APR</span>
-              <span class="field-value">{{ data.apr }}</span>
+
+          <ul class="token-list-info">
+            <li class="list-info-item">
+              <span class="info-title">APR</span>
+              <span class="info-value">{{ data.apr }}</span>
             </li>
-            <li class="info-field">
-              <span class="field-title">Total Rewards</span>
-              <span class="field-value">{{ data.totalRewards }}</span>
+            <li class="list-info-item">
+              <span class="info-title">Total Rewards</span>
+              <span class="info-value">{{ data.totalRewards }}</span>
             </li>
-            <li class="info-field">
-              <span class="field-title">Total supply</span>
-              <span class="field-value">{{ data.totalSupply }}</span>
+            <li class="list-info-item">
+              <span class="info-title">Total supply</span>
+              <span class="info-value">{{ data.totalSupply }}</span>
             </li>
           </ul>
         </div>
       </div>
     </div>
-    <div class="supply-rewards">
+
+    <div class="rewards-info-wrap">
       <div
-        class="supply-rewards-block"
-        v-for="(data, idx) in totalData"
-        :key="idx"
+        class="rewards-info-item"
+        v-for="{ title, icon, name, value } in rewardData"
+        :key="title"
       >
-        <h5 class="info-title">{{ data.title }}</h5>
-        <div class="info-item">
-          <div class="info-icon">
-            <BaseTokenIcon :icon="data.icon" size="40px" />
-            <span>{{ data.name }}</span>
+        <h3 class="title">{{ title }}</h3>
+
+        <div class="reward-info">
+          <div class="reward-icon">
+            <BaseTokenIcon :icon="icon" size="40px" />
+            <span>{{ name }}</span>
           </div>
-          <div class="info-balance">
-            <span class="info-value">{{ data.value }}</span>
-          </div>
+
+          <div class="reward-amount">{{ value }}</div>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import seniorIcon from "@/assets/images/stake/senior-icon.svg";
-import mezzanineIcon from "@/assets/images/stake/mezzanine-icon.svg";
-import juniorIcon from "@/assets/images/stake/junior-icon.svg";
-import magicTranchesLvlIcon from "@/assets/images/tokens/magicTranches.png";
-import lvlIcon from "@/assets/images/tokens/LVL.png";
+import { formatUnits } from "viem";
 import filters from "@/filters/index.js";
+import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
+
 export default {
   props: {
-    tokensInfo: { type: Object },
+    stakeInfo: { type: Object },
   },
 
   computed: {
-    staticData() {
+    statisticData() {
+      const { formatPercent, formatUSD } = filters;
+      const { tranchesStatistics, senior, mezzanine, junior } = this.stakeInfo;
+
       return [
         {
-          icon: seniorIcon,
           type: "Senior",
           risk: "low",
-          apr: filters.formatPercent(
-            this.tokensInfo.tranchesStatistics.seniorApy
-          ),
-          totalRewards: filters.formatUSD(
-            this.tokensInfo.tranchesStatistics.seniorTotalRewardsUsd
-          ),
-          totalSupply: filters.formatUSD(
-            this.tokensInfo.senior.mainToken.totalSupplyUsd
+          icon: useImage("assets/images/stake/senior-icon.svg"),
+          apr: formatPercent(tranchesStatistics.seniorApy),
+          totalRewards: formatUSD(tranchesStatistics.seniorTotalRewardsUsd),
+          totalSupply: formatUSD(
+            formatUnits(
+              senior.mainToken.totalSupplyUsd,
+              senior.mainToken.decimals
+            )
           ),
         },
         {
-          icon: mezzanineIcon,
           type: "Mezzanine",
           risk: "medium",
-          apr: filters.formatPercent(
-            this.tokensInfo.tranchesStatistics.mezzanineApy
-          ),
-          totalRewards: filters.formatUSD(
-            this.tokensInfo.tranchesStatistics.mezzanineTotalRewardsUsd
-          ),
-          totalSupply: filters.formatUSD(
-            this.tokensInfo.mezzanine.mainToken.totalSupplyUsd
+          icon: useImage("assets/images/stake/mezzanine-icon.svg"),
+          apr: formatPercent(tranchesStatistics.mezzanineApy),
+          totalRewards: formatUSD(tranchesStatistics.mezzanineTotalRewardsUsd),
+          totalSupply: formatUSD(
+            formatUnits(
+              mezzanine.mainToken.totalSupplyUsd,
+              mezzanine.mainToken.decimals
+            )
           ),
         },
         {
-          icon: juniorIcon,
           type: "Junior",
           risk: "high",
-          apr: filters.formatPercent(
-            this.tokensInfo.tranchesStatistics.juniorApy
-          ),
-          totalRewards: filters.formatUSD(
-            this.tokensInfo.tranchesStatistics.juniorTotalRewardsUsd
-          ),
-          totalSupply: filters.formatUSD(
-            this.tokensInfo.junior.mainToken.totalSupplyUsd
+          icon: useImage("assets/images/stake/junior-icon.svg"),
+          apr: formatPercent(tranchesStatistics.juniorApy),
+          totalRewards: formatUSD(tranchesStatistics.juniorTotalRewardsUsd),
+          totalSupply: formatUSD(
+            formatUnits(
+              junior.mainToken.totalSupplyUsd,
+              junior.mainToken.decimals
+            )
           ),
         },
       ];
     },
 
-    totalData() {
+    rewardData() {
+      const { formatUSD } = filters;
+      const { totalRewardsUsd, totalSupplyUsd } =
+        this.stakeInfo.tranchesStatistics;
+
       return [
         {
-          title: "Total Rewards Earned",
-          icon: lvlIcon,
           name: "LVL",
-          value: filters.formatUSD(
-            this.tokensInfo.tranchesStatistics.totalRewardsUsd
-          ),
+          title: "Total Rewards Earned",
+          icon: useImage("assets/images/tokens/LVL.png"),
+          value: formatUSD(totalRewardsUsd),
         },
         {
-          title: "Total Supply",
-          icon: magicTranchesLvlIcon,
           name: "Magic Tranches",
-          value: filters.formatUSD(
-            this.tokensInfo.tranchesStatistics.totalSupplyUsd
-          ),
+          title: "Total Supply",
+          icon: useImage("assets/images/tokens/magicTranches.png"),
+          value: formatUSD(formatUnits(totalSupplyUsd, 18)),
         },
       ];
     },
   },
 
   components: {
-    BaseTokenIcon,
+    BaseTokenIcon: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenIcon.vue")
+    ),
   },
 };
 </script>
+
 <style lang="scss" scoped>
-.info-block {
+.statistics-block {
+  width: 100%;
+  padding: 16px;
+  background: #2b2b3c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
+  backdrop-filter: blur(50px);
+  border-radius: 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-.info-title {
+
+.title {
   text-align: left;
+  line-height: 150%;
+  margin-bottom: 10px;
 }
-.tranches-boxes {
+
+.tokens-info-wrap {
   display: flex;
   justify-content: space-between;
-  gap: 9px;
-  margin: 10px auto 16px auto;
+  gap: 10px;
+  margin: 0 auto 16px;
 }
-.tranche-box {
+
+.token-info-item {
   width: 100%;
   height: 114px;
   padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 20px;
 }
-.tranche-header {
+
+.token-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 4px;
 }
-.tranche-logo {
+
+.token-logo-wrap {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
 }
-.logo-title {
+
+.token-name {
   text-align: left;
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
   letter-spacing: 0.025em;
 }
-.risk-marker {
-  font-weight: 400;
+
+.token-risk {
   font-size: 10px;
-  line-height: 15px;
+  line-height: 150%;
   text-align: right;
   text-transform: uppercase;
   color: #92e2ff;
@@ -193,33 +216,38 @@ export default {
 .medium {
   color: #9f71ff;
 }
+
 .high {
   color: #ffb274;
 }
-.tranche-box-info {
+
+.token-list-info {
   width: 100%;
   list-style: none;
 }
-.info-field {
+
+.list-info-item {
   width: 100%;
   display: flex;
   justify-content: space-between;
 }
-.field-title {
+
+.info-title {
   text-align: left;
-  font-weight: 400;
   font-size: 12px;
-  line-height: 18px;
+  line-height: 150%;
   color: rgba(255, 255, 255, 0.8);
 }
-.field-value {
+
+.info-value {
   text-align: right;
   font-weight: 600;
   font-size: 12px;
   line-height: 18px;
   color: #ffffff;
 }
-.supply-rewards {
+
+.rewards-info-wrap {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -227,7 +255,7 @@ export default {
   position: relative;
 }
 
-.supply-rewards::after {
+.rewards-info-wrap::after {
   content: "";
   position: absolute;
   top: 60%;
@@ -238,93 +266,40 @@ export default {
   background: rgba(255, 255, 255, 0.1);
   margin: 0 auto;
 }
-.supply-rewards-block {
+
+.rewards-info-item {
   width: 100%;
   text-align: left;
 }
-.balance-token {
-  display: flex;
-  font-weight: 400;
-  line-height: 22px;
-  font-size: 18px;
-}
 
-.token-icon {
-  display: flex;
-  align-items: center;
-}
-
-.token-icon-name {
-  display: none;
-}
-
-.token-balance {
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 30px;
-}
-
-.token-price {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.info-block {
-  margin-bottom: 24px;
-}
-
-.info-title {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  margin-bottom: 14px;
-}
-
-.info-item {
+.reward-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.info-icon {
+.reward-icon {
   display: flex;
   align-items: center;
 }
 
-.info-balance {
+.reward-amount {
   display: flex;
   flex-direction: column;
   align-items: end;
-}
-
-.info-value {
   font-weight: 700;
   font-size: 18px;
   line-height: 27px;
   letter-spacing: 0.4px;
 }
 
-.info-usd {
-  font-size: 14px;
-  line-height: 21px;
-  display: flex;
-  color: rgba(255, 255, 255, 0.6);
-}
+@media screen and (max-width: 1200px) {
+  .tokens-info-wrap,
+  .rewards-info-wrap {
+    flex-direction: column;
+  }
 
-@media screen and (max-width: 1340px) {
-  .tranches-boxes {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 770px) {
-  .tranches-boxes {
-    flex-direction: column;
-  }
-  .supply-rewards {
-    flex-direction: column;
-  }
-  .supply-rewards::after {
+  .rewards-info-wrap::after {
     display: none;
   }
 }
