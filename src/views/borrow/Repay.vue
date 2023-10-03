@@ -127,7 +127,6 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { COLLATERAL_EMPTY_DATA, MIM_EMPTY_DATA } from "@/constants/cauldron.ts";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   mixins: [cookMixin],
@@ -435,21 +434,7 @@ export default {
 
     async actionHandler() {
       if (!this[this.actionInfo.methodName]) return false;
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-      try {
-        await this[this.actionInfo.methodName]();
-      } catch (error) {
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
-
+      await this[this.actionInfo.methodName]();
       this.clearInputs();
     },
 

@@ -150,7 +150,6 @@ import {
   COLLATERAL_EMPTY_DATA,
   MIM_EMPTY_DATA,
 } from "@/constants/cauldron.ts";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   mixins: [cookMixin],
@@ -527,24 +526,14 @@ export default {
         notification.pending
       );
 
-      try {
-        const isPermissionToCook = await this.checkPermissionToCook(
-          notificationId,
-          this.borrowValue || 0
-        );
+      const isPermissionToCook = await this.checkPermissionToCook(
+        notificationId,
+        this.borrowValue || 0
+      );
 
-        if (!isPermissionToCook) return false;
+      if (!isPermissionToCook) return false;
 
-        await this[this.actionInfo.methodName](notificationId);
-      } catch (error) {
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
+      await this[this.actionInfo.methodName](notificationId);
 
       this.clearInputs();
     },
