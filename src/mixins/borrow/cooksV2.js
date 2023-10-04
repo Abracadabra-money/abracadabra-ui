@@ -536,6 +536,7 @@ export default {
         collateral,
         mim: mimContract,
         liquidationSwapper,
+        bentoBox,
       } = this.cauldron.contracts;
 
       const collateralTokenAddr = collateral.address;
@@ -566,10 +567,17 @@ export default {
         return cookData;
       }
 
+      // to be sure that sell amount in openacean and amountOut inside call will be same
+      const amountToSwap = await toAmount(
+        bentoBox,
+        collateralTokenAddr,
+        shareFrom
+      );
+
       const swapData = isOpenocean
-        ? getOpenoceanDeleverageSwapData(
+        ? await getOpenoceanDeleverageSwapData(
             pool,
-            shareFrom,
+            amountToSwap,
             slipage,
             this.provider
           )

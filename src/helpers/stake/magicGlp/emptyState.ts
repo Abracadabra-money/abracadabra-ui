@@ -1,3 +1,4 @@
+import { useImage } from "@/helpers/useImage.js";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 import type { EmptyState } from "@/types/magicGlp/additionalInfo";
@@ -13,6 +14,7 @@ export const emptyState: EmptyState = {
     balanceUsd: 0n,
     rate: 1000000000000000000n,
     decimals: 18,
+    rateIcon: useImage("assets/images/glp/mGlpNew.png"),
   },
   stakeToken: {
     name: stakeToken.name,

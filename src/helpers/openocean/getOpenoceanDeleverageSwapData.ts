@@ -1,6 +1,5 @@
-import type { Address } from "viem";
-import { Contract, providers, utils } from "ethers";
 import { KAVA_USDT_ADDRESS } from "@/constants/tokensAddress";
+import { BigNumber, Contract, providers, utils } from "ethers";
 import { fetchOpenocenSwapData } from "@/helpers/openocean/fetchOpenocenSwapData";
 
 const LPAbi = [
@@ -11,8 +10,8 @@ const LPAbi = [
 
 const calcWithdrawAmount = async (
   cauldronConfig: any,
-  provider: any,
-  amount: any
+  provider: providers.BaseProvider,
+  amount: BigNumber
 ) => {
   const { unwrappedToken } = cauldronConfig.contracts;
 
@@ -27,13 +26,13 @@ const calcWithdrawAmount = async (
 
 export const getOpenoceanDeleverageSwapData = async (
   cauldronConfig: any,
-  amount: string,
+  amount: BigNumber,
   slipage: number,
   provider: providers.BaseProvider
 ) => {
-  const { isMimUsdtCurveLp } = cauldronConfig.config.cauldronSettings;
-  const { address } = cauldronConfig.config.leverageInfo;
   const { mim } = cauldronConfig.contracts;
+  const { address } = cauldronConfig.config.deleverageInfo;
+  const { isMimUsdtCurveLp } = cauldronConfig.config.cauldronSettings;
 
   const calcAmount = isMimUsdtCurveLp
     ? await calcWithdrawAmount(cauldronConfig, provider, amount)

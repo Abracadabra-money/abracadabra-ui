@@ -497,6 +497,7 @@ export default {
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
+      const { decimals } = this.cauldron.config.collateralInfo;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -509,8 +510,9 @@ export default {
       const amountFrom = utils.parseUnits(
         filters.formatToFixed(
           this.expectedRepayBorrowAmount * oracleExchangeRate,
-          18
-        )
+          decimals
+        ),
+        decimals
       );
 
       const slippage = BigNumber.from(
