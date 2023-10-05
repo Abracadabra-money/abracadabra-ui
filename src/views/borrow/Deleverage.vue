@@ -102,20 +102,12 @@
         <CollateralApyBlock v-if="cauldron" :cauldron="cauldron" />
 
         <template v-if="cauldron">
-          <!-- <div class="btn-wrap"> -->
-          <!-- <BaseButton
-              primary
-              :disabled="true"
-              @click="approveTokenHandler"
-              >Approve</BaseButton
-            > -->
           <BaseButton
             v-if="cauldron"
             @click="actionHandler"
             :disabled="isActionDisabled"
             >{{ actionInfo }}
           </BaseButton>
-          <!-- </div> -->
 
           <div class="main-info-wrap">
             <MainInfoBlock :cauldron="cauldron" />
@@ -189,17 +181,6 @@ export default {
       return !(this.cauldron && this.positionInfo.userBorrowAmount);
     },
 
-    isTokenApproved() {
-      if (!this.account) return true;
-
-      const allowance = +utils.formatUnits(
-        this.activeToken.allowance,
-        this.activeToken.decimals
-      );
-
-      return allowance > 0;
-    },
-
     isMaxRepayMimAmount() {
       return (
         filters.formatToFixed(this.repayMimAmount, 4) ===
@@ -208,7 +189,6 @@ export default {
     },
 
     isActionDisabled() {
-      // if (!this.isTokenApproved) return true;
       if (this.repayMimAmount == 0) return true;
       return false;
     },
@@ -476,24 +456,6 @@ export default {
       this.isOpenMarketListPopup = false;
     },
 
-    async approveTokenHandler() {
-      if (this.isTokenApproved) return false;
-
-      const notificationId = await this.createNotification(
-        notification.approvePending
-      );
-
-      const { address } = this.cauldron.contracts.bentoBox;
-      const approve = await approveToken(this.activeToken.contract, address);
-
-      if (approve) await this.createCauldronInfo();
-      await this.deleteNotification(notificationId);
-
-      if (!approve) await this.createNotification(notification.approveError);
-
-      return false;
-    },
-
     async actionHandler() {
       if (!+this.repayMimAmount || !this.slippage) return false;
 
@@ -545,11 +507,6 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      // const isTokenToCookApprove = await this.checkAllowance(
-      //   payload.collateralAmount
-      // );
-
-      // if (+isTokenToCookApprove) {
       await this.cookDeleverage(
         payload,
         isMasterContractApproved,
@@ -558,22 +515,7 @@ export default {
         notificationId
       );
 
-      if (+isTokenToCookApprove) {
-        await this.cookDeleverage(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          this.account,
-          notificationId
-        );
-
-        await this.createCauldronInfo();
-        this.clearInputs();
-        return;
-      }
-
-      await this.deleteNotification(notificationId);
-      await this.createNotification(notification.approveError);
+      await this.createCauldronInfo();
       this.clearInputs();
     },
 

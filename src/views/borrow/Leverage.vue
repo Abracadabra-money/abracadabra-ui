@@ -526,10 +526,6 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
-
     clearInputs() {
       this.collateralValue = "";
     },
