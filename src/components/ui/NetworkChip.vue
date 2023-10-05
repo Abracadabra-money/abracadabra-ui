@@ -35,12 +35,13 @@ export default {
   justify-content: center;
   align-items: center;
   height: 50px;
-  min-width: 120px;
+  min-width: 110px;
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   cursor: pointer;
   border: 2px solid rgba(118, 195, 245, 0);
   color: white;
+  font-size: 15px;
 
   &-no-image {
     grid-template-columns: 1fr;
@@ -64,6 +65,6 @@ export default {
 }
 
 .network-icon {
-  height: 20px;
+  height: 18px;
 }
 </style>
