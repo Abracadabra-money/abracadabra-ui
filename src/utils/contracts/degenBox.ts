@@ -1,5 +1,6 @@
 import degenBoxAbi from "@/utils/abi/degenBox";
-export default [
+import type { ExtendedContractInfo } from "@/utils/contracts/types";
+export default <ExtendedContractInfo[]>[
   {
     chainId: 1,
     name: "DegenBox",
@@ -8,10 +9,10 @@ export default [
     abi: degenBoxAbi,
   },
   {
-    chainId: 43114,
+    chainId: 10,
     name: "DegenBox",
-    contractChain: "0xa86a",
-    address: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
+    contractChain: "0x0a",
+    address: "0xa93C81f564579381116ee3E007C9fCFd2EBa1723",
     abi: degenBoxAbi,
   },
   {
@@ -29,11 +30,10 @@ export default [
     abi: degenBoxAbi,
   },
   {
-    chainId: 10,
+    chainId: 2222,
     name: "DegenBox",
-    contractChain: "0x0a",
-    address: "0xa93C81f564579381116ee3E007C9fCFd2EBa1723",
-    abi: degenBoxAbi,
+    contractChain: "0x8ae",
+    address: "0x630FC1758De85C566Bdec1D75A894794E1819d7E",
   },
   {
     chainId: 42161,
@@ -43,10 +43,10 @@ export default [
     abi: degenBoxAbi,
   },
   {
-    chainId: 2222,
+    chainId: 43114,
     name: "DegenBox",
-    contractChain: "0x8ae",
-    address: "0x630FC1758De85C566Bdec1D75A894794E1819d7E",
+    contractChain: "0xa86a",
+    address: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
     abi: degenBoxAbi,
   },
 ];

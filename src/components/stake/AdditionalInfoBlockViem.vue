@@ -22,25 +22,27 @@
       </div>
     </div>
 
-    <div class="delimiter-line"></div>
+    <template v-if="rewardToken">
+      <div class="delimiter-line"></div>
 
-    <div>
-      <h3 class="title">Total Rewards Earned</h3>
+      <div>
+        <h3 class="title">Total Rewards Earned</h3>
 
-      <div class="description">
-        <div class="token-info">
-          <BaseTokenIcon :icon="rewardToken.icon" size="40px" />
-          <span class="token-symbol">{{ rewardToken.symbol }}</span>
-        </div>
+        <div class="description">
+          <div class="token-info">
+            <BaseTokenIcon :icon="rewardToken.icon" size="40px" />
+            <span class="token-symbol">{{ rewardToken.symbol }}</span>
+          </div>
 
-        <div class="info-balance">
-          <span class="amount">{{
-            formatTokenBalance(rewardToken.amount)
-          }}</span>
-          <span class="price">{{ formatUSD(rewardToken.amountUsd) }}</span>
+          <div class="info-balance">
+            <span class="amount">{{
+              formatTokenBalance(rewardToken.amount)
+            }}</span>
+            <span class="price">{{ formatUSD(rewardToken.amountUsd) }}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -51,7 +53,7 @@ import { formatUnits } from "viem";
 export default {
   props: {
     mainToken: { type: Object, required: true },
-    rewardToken: { type: Object, required: true },
+    rewardToken: { type: Object },
   },
 
   methods: {
