@@ -26,7 +26,7 @@ export default {
   actions: {
     async fetchTokenVaults() {
       try {
-        const url = "https://api.yearn.fi/v1/chains/1/vaults/all";
+        const url = "https://api.yexporter.io/v1/chains/1/vaults/all";
         const response = await axios.get(url);
         return response.data;
       } catch (e) {

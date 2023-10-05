@@ -617,7 +617,7 @@ export default {
         return await this.createNotification(notification.liquidation);
       }
 
-      if (!+leftToBorrow) {
+      if (!+leftToBorrow < +borrowAmount) {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.allowBorrow);
         return false;
