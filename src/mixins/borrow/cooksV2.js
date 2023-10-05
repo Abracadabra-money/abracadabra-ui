@@ -493,12 +493,7 @@ export default {
       const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
 
       const swapData = isOpenocean
-        ? await getOpenoceanLeverageSwapData(
-            pool,
-            amountToSwap,
-            slipage,
-            this.provider
-          )
+        ? await getOpenoceanLeverageSwapData(pool, amountToSwap, slipage)
         : await this.get0xLeverageSwapData(pool, amountToSwap, slipage);
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
@@ -575,12 +570,7 @@ export default {
       );
 
       const swapData = isOpenocean
-        ? await getOpenoceanDeleverageSwapData(
-            pool,
-            amountToSwap,
-            slipage,
-            this.provider
-          )
+        ? await getOpenoceanDeleverageSwapData(pool, amountToSwap, slipage)
         : await this.get0xDeleverageSwapData(pool, shareFrom, slipage);
 
       const swapStaticTx = await liquidationSwapper.populateTransaction.swap(

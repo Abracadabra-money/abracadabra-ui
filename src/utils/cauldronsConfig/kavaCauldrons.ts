@@ -73,11 +73,11 @@ const config: Array<CauldronConfig> = [
       },
     },
     leverageInfo: {
-      address: "0xD4D19f90Fbd30aDE4535b6C52429d938eABf4C4B",
+      address: "0x29BE2644721689c45a5A317d5Fb452747E454DcE",
       abi: MagicCurveLpLevSwapper,
     },
     deleverageInfo: {
-      address: "0x9b0b1c5df1bfE11dbC189c00de58d36C6cA3F583",
+      address: "0xE427f03A5D41eb80d79F6D35B86f6fb7054a21a8",
       abi: MagicCurveLpSwapper,
     },
   },

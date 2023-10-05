@@ -37,6 +37,7 @@
           />
 
           <DynamicallyEstimatedPrice
+            v-if="chainId !== 2222"
             :itsClose="true"
             :amount="repayMimAmount"
             :mimAddress="cauldron.config.mimInfo.address"
