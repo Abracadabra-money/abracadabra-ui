@@ -59,7 +59,7 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     wrapInfo: {
-      isHiddenWrap: false,
+      isHiddenWrap: true,
       useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "MIMUSDt-f",
