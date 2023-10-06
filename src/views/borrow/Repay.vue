@@ -38,6 +38,7 @@
           />
 
           <DynamicallyEstimatedPrice
+            v-if="chainId !== 2222"
             :isClose="true"
             :amount="borrowValue"
             :mimAddress="borrowToken.address"

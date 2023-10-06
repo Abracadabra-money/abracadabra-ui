@@ -171,6 +171,7 @@ export default {
       removeCollateralAmount: 0,
       showAdditionalInfo: true,
       isOpenMarketListPopup: false,
+      isActionClosePosition: false,
     };
   },
 
@@ -187,6 +188,7 @@ export default {
     },
 
     isDisabledClosePosition() {
+      if (this.isActionClosePosition) return true;
       return !(this.cauldron && this.positionInfo.userBorrowAmount);
     },
 
@@ -565,6 +567,7 @@ export default {
 
     async closePositionHandler() {
       if (this.isDisabledClosePosition) return false;
+      this.isActionClosePosition = true;
       this.repayMimAmount = this.positionInfo.userBorrowAmount;
       this.removeCollateralAmount = this.maxRemoveCollateralAmount;
 
@@ -572,6 +575,7 @@ export default {
 
       this.repayMimAmount = 0;
       this.removeCollateralAmount = 0;
+      this.isActionClosePosition = false;
     },
 
     async checkAllowance(amount) {
