@@ -19,6 +19,7 @@
 
       <BaseButton
         width="160px"
+        :primary="!isDisabledGetGasBtn"
         :disabled="isDisabledGetGasBtn"
         @click="actionHandler"
         >Get Gas</BaseButton
@@ -72,7 +73,7 @@ export default {
     },
 
     async actionHandler() {
-      if (!this.destinationAddress) return false;
+      if (!this.destinationAddress || this.isDisabledGetGasBtn) return false;
 
       const response = await tenderlyAddBalance(
         this.destinationAddress,

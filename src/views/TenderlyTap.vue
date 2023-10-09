@@ -10,13 +10,19 @@
           </div>
 
           <div class="btn-wrap">
-            <BaseButton @click="changeTabComponent('WalletTopUpBlock')"
+            <BaseButton
+              :primary="currentTabComponent === 'WalletTopUpBlock'"
+              @click="changeTabComponent('WalletTopUpBlock')"
               >Wallet Top Up</BaseButton
             >
-            <BaseButton @click="changeTabComponent('GasTopUpBlock')"
+            <BaseButton
+              :primary="currentTabComponent === 'GasTopUpBlock'"
+              @click="changeTabComponent('GasTopUpBlock')"
               >Gas Top Up</BaseButton
             >
-            <BaseButton @click="changeTabComponent('CauldronTopUpBlock')"
+            <BaseButton
+              :primary="currentTabComponent === 'CauldronTopUpBlock'"
+              @click="changeTabComponent('CauldronTopUpBlock')"
               >Cauldron Top Up</BaseButton
             >
           </div>

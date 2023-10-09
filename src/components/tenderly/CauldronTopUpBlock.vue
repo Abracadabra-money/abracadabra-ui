@@ -18,7 +18,10 @@
       />
     </div>
 
-    <BaseButton :disabled="isDisabledActionHandler" @click="actionHandler"
+    <BaseButton
+      :primary="!isDisabledActionHandler"
+      :disabled="isDisabledActionHandler"
+      @click="actionHandler"
       >Submit</BaseButton
     >
   </div>
