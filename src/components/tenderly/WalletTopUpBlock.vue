@@ -34,6 +34,7 @@
     <div class="input-assets">
       <InputNumber
         :max="holdersAmount"
+        :isDisabled="!tokensInfo?.address"
         @changeInputNumber="updateAmountValue"
       />
     </div>
@@ -45,15 +46,18 @@
     <div class="input-assets">
       <InputAddress
         :destinationAddress="holdersAddresses"
-        :isDisabled="!tokensInfo"
+        :isDisabled="!tokensInfo?.address"
         placeholder="Holder addresses must be separated by commas"
         :validation="false"
         @update-input="updateHoldersAddresses"
       />
     </div>
 
-    <BaseButton :disabled="isDisabledGetGasBtn" @click="actionHandler"
-      >Get Gas</BaseButton
+    <BaseButton
+      :disabled="!isDisabledGetGasBtn"
+      :primary="isDisabledGetGasBtn"
+      @click="actionHandler"
+      >Top Up</BaseButton
     >
   </div>
 </template>
@@ -85,6 +89,10 @@ export default {
       chainId: "getChainId",
       provider: "getProvider",
     }),
+
+    isDisabledGetGasBtn() {
+      return !!this.tokensInfo?.address && this.amount > 0;
+    },
 
     destinationAddress() {
       if (this.account && !this.useCustomDestinationAddress)
@@ -161,6 +169,7 @@ export default {
     },
 
     async actionHandler() {
+      if (!this.isDisabledGetGasBtn) return false;
       const notificationId = await this.createNotification(
         notification.pending
       );

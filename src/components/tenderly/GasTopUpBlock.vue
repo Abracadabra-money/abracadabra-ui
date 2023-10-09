@@ -15,7 +15,10 @@
     </div>
 
     <div class="input-assets">
-      <InputNumber @changeInputNumber="updateGasValue" />
+      <InputNumber
+        :isDisabled="!activeFork"
+        @changeInputNumber="updateGasValue"
+      />
 
       <BaseButton
         width="160px"
@@ -38,6 +41,12 @@ import { tenderlyAddBalance } from "@/helpers/tenderly/tenderlyAddBalance";
 const account = getAccount();
 
 export default {
+  props: {
+    activeFork: {
+      type: Object,
+    },
+  },
+
   data() {
     return {
       inputGasValue: "",
