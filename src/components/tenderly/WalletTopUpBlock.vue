@@ -7,6 +7,7 @@
       <InputDropdown
         :destinationAddress="tokensInfo?.address"
         :dropdownList="tokenList"
+        :isDisabled="!activeFork"
         placeholder="Enter the token address or select from the list"
         @changeTokenAddress="changeTokenAddress"
         @update-input="updateTokenAddress"
@@ -72,6 +73,12 @@ import notification from "@/helpers/notification/notification.js";
 import { getTotalAmountByHolders } from "@/helpers/tenderly/getTotalAmountByHolders";
 
 export default {
+  props: {
+    activeFork: {
+      type: Object,
+    },
+  },
+
   data() {
     return {
       useCustomDestinationAddress: false,

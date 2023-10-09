@@ -1,15 +1,20 @@
 <template>
   <div class="input-number-wrapper">
-    <input
-      class="input-number"
-      :class="{ disabled: isDisabled }"
-      type="number"
-      :value="inputValue"
-      :placeholder="placeholder"
-      :disabled="isDisabled"
-      @input="(event) => $emit('changeInputNumber', event.target.value)"
-    />
-    <button class="btn-max" @click="getMax" v-if="+max">max</button>
+    <div class="input-wrapper">
+      <input
+        class="input-number"
+        :class="{ disabled: isDisabled, error: errorAmount }"
+        type="number"
+        :value="inputValue"
+        :placeholder="placeholder"
+        :disabled="isDisabled"
+        @input="updateInputValue"
+      />
+      <button class="btn-max" @click="getMax" v-if="+max">max</button>
+    </div>
+    <p class="error-message" :class="{ visibility: errorAmount }">
+      Our holders do not have enough tokens. Enter holders
+    </p>
   </div>
 </template>
 
@@ -36,9 +41,9 @@ export default {
     };
   },
 
-  watch: {
-    max() {
-      if (this.inputValue) this.inputValue = "";
+  computed: {
+    errorAmount() {
+      return +this.inputValue > +this.max;
     },
   },
 
@@ -46,6 +51,11 @@ export default {
     getMax() {
       this.inputValue = this.max;
       this.$emit("changeInputNumber", this.max);
+    },
+
+    updateInputValue({ target }) {
+      this.inputValue = target.value;
+      this.$emit("changeInputNumber", target.value);
     },
   },
 };
@@ -74,6 +84,10 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .input-number-wrapper {
   width: 100%;
+}
+
+.input-wrapper {
+  width: 100%;
   position: relative;
 }
 
@@ -96,6 +110,10 @@ input[type="number"]::-webkit-outer-spin-button {
   cursor: not-allowed;
 }
 
+.error {
+  border: 1px solid $clrErrorBorder;
+}
+
 .btn-max {
   position: absolute;
   top: 50%;
@@ -110,5 +128,18 @@ input[type="number"]::-webkit-outer-spin-button {
   height: 32px;
   border-radius: 10px;
   padding: 10px;
+}
+
+.error-message {
+  color: $clrError;
+  font-size: 10px;
+  margin-top: 5px;
+  margin-left: 10px;
+  height: 12px;
+  opacity: 0;
+}
+
+.visibility {
+  opacity: 1;
 }
 </style>

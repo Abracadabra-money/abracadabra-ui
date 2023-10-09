@@ -99,7 +99,7 @@ export default {
 .tenderly-tap {
   background: #2a2835;
   padding: 50px 30px;
-  max-width: 1260px;
+  max-width: 1100px;
   width: 100%;
   border-radius: 30px;
   display: flex;

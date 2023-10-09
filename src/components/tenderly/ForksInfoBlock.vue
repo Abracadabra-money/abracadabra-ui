@@ -37,6 +37,7 @@ export default {
 
 <style lang="scss" scoped>
 .fork-info-block {
+  max-width: 380px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -52,5 +53,11 @@ export default {
   font-weight: 600;
   text-align: center;
   text-transform: uppercase;
+}
+
+@media screen and (max-width: 1024px) {
+  .fork-info-block {
+    max-width: 100%;
+  }
 }
 </style>

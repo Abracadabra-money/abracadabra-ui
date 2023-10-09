@@ -16,7 +16,7 @@ export const getTotalAmountByHolders = async (
 
   const decimals = await getTokenDecimals(tokenAddress);
 
-  if (holders.length === 0) return 0n;
+  if (holders.length === 0) return 0;
   if (holders.length === 1) {
     return filters.formatToFixed(formatUnits(holders[0].amount, decimals));
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="input-address-wrap">
+  <div class="input-address-wrap" v-click-outside="closeDropdown">
     <div class="dropdown-wrap">
       <img
         class="token-icon"
@@ -25,27 +25,39 @@
       />
 
       <div class="dropdown">
-        <button class="dropdown-button" @click="toggleDropdown">
-          <img src="@/assets/images/arrow-down.svg" alt="Arrow" />
+        <button
+          class="dropdown-button"
+          :class="{ disabled: isDisabled }"
+          @click="toggleDropdown"
+        >
+          <img
+            src="@/assets/images/arrow-down.svg"
+            :class="{ disabled: isDisabled }"
+            alt="Arrow"
+          />
         </button>
-
         <div class="dropdown-list" v-show="isOpenDropdown">
-          <button
-            class="dropdown-item"
-            v-for="(data, i) in dropdownList"
-            @click="changeDropdownValue(data)"
-            :key="i"
-          >
-            <span class="dropdown-item-info">
-              <img class="dropdown-item-icon" :src="data.icon" alt="" />
-              <span> {{ data.name }}</span>
-            </span>
-            <span>
-              {{
-                `${data.address.slice(0, 6)}...${data.address.slice(-6)}`
-              }}</span
+          <template v-if="filteredList.length">
+            <button
+              class="dropdown-item"
+              v-for="(data, i) in filteredList"
+              @click="changeDropdownValue(data)"
+              :key="i"
             >
-          </button>
+              <span class="dropdown-item-info">
+                <img class="dropdown-item-icon" :src="data.icon" alt="" />
+                <span> {{ data.name }}</span>
+              </span>
+              <span>
+                {{
+                  `${data.address.slice(0, 6)}...${data.address.slice(-6)}`
+                }}</span
+              >
+            </button>
+          </template>
+          <p class="dropdown-item" v-else>
+            There are no results for "{{ address }}"
+          </p>
         </div>
       </div>
     </div>
@@ -85,6 +97,7 @@ export default {
       address: this.destinationAddress,
       activeTokenInfo: null,
       isOpenDropdown: false,
+      searchValue: "",
     };
   },
 
@@ -108,17 +121,29 @@ export default {
       if (!this.address) return false;
       return !this.checkInputAddress;
     },
+
+    filteredList() {
+      return this.dropdownList.filter((item) => {
+        return (
+          item.name.toLowerCase().includes(this.searchValue.toLowerCase()) ||
+          item.address.toLowerCase().includes(this.searchValue.toLowerCase())
+        );
+      });
+    },
   },
 
   methods: {
     useImage,
-    updateInput() {
+    updateInput({ target }) {
+      this.searchValue = target.value;
+      this.isOpenDropdown = true;
       if (!this.addressEntryError)
         return this.$emit("update-input", this.address, this.addressEntryError);
       return this.$emit("error-input", this.addressEntryError);
     },
 
     toggleDropdown() {
+      if (this.isDisabled) return false;
       this.isOpenDropdown = !this.isOpenDropdown;
     },
 
@@ -127,9 +152,10 @@ export default {
     },
 
     changeDropdownValue(data) {
-      this.closeDropdown();
+      this.searchValue = "";
       this.activeTokenInfo = data;
       this.$emit("changeTokenAddress", data);
+      this.closeDropdown();
     },
   },
 };

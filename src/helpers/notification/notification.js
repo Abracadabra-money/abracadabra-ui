@@ -4,6 +4,11 @@ export default {
     type: "success",
   },
 
+  clipboard: {
+    msg: `Copied RPC link to clipboard`,
+    type: "success",
+  },
+
   pending: {
     discription: "Confirm in wallet and wait for confirmation",
     type: "pending",
