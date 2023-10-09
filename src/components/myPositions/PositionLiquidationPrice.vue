@@ -18,7 +18,7 @@ export default {
       type: String,
     },
     liquidationPrice: {
-      type: Number,
+      type: [Number, String],
     },
   },
 

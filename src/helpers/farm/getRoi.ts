@@ -3,7 +3,7 @@ export const getRoi = async (
   price: number
 ): Promise<number> => {
   try {
-    return Number(((farmYield * price * 100) / 1000) * 365);
+    return ((farmYield * price * 100) / 1000) * 365;
   } catch (error) {
     console.log("getRoi", error);
     return 0;

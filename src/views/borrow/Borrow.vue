@@ -599,7 +599,7 @@ export default {
       const leftToBorrow = utils.formatUnits(mimLeftToBorrow);
       const borrowLimit = utils.formatUnits(userMaxBorrow);
 
-      if (!+leftToBorrow) {
+      if (+leftToBorrow < +borrowAmount) {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.allowBorrow);
         return false;

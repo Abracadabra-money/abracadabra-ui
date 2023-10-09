@@ -1,27 +1,34 @@
-import { utils } from "ethers";
-import { spellConfig } from "@/utils/stake/spellConfig";
-import { getTokenPriceByAddress } from "@/helpers/priceHelper";
-import type { SpellInfo } from "@/helpers/stake/spell/types";
-import { spellEmptyState } from "@/helpers/stake/spell/emptyStates";
-
-const mainnetSpellAddress = "0x090185f2135308BaD17527004364eBcC2D37e5F6";
+import { readContract, type Address } from "@wagmi/core";
+import type { SpellInfo } from "@/types/spell/stakeInfo";
+import type { ChainSpellConfig } from "@/types/spell/configsInfo";
 
 export const getSpellInfo = async (
-  contracts: any,
-  account: string | undefined
+  { mSpell, spell }: ChainSpellConfig,
+  price: bigint,
+  account: Address
 ): Promise<SpellInfo> => {
-  const { spell } = contracts;
+  const spellAddress: any = await readContract({
+    ...mSpell.contract,
+    functionName: "spell",
+    args: [],
+  });
 
-  if (!spell || !account) return spellEmptyState;
-
-  const [spellUserBalance] = await Promise.all([spell.balanceOf(account)]);
-
-  const price = await getTokenPriceByAddress(1, mainnetSpellAddress);
+  const spellUserBalance: any = await readContract({
+    address: spellAddress,
+    abi: spell.abi,
+    functionName: "balanceOf",
+    args: [account],
+  });
 
   return {
-    icon: spellConfig.spell.icon,
-    name: spellConfig.spell.name,
-    balance: utils.formatUnits(spellUserBalance),
+    icon: spell.icon,
+    name: spell.name,
+    decimals: spell.decimals,
+    balance: spellUserBalance,
     price,
+    contract: {
+      address: spellAddress,
+      abi: spell.abi,
+    },
   };
 };

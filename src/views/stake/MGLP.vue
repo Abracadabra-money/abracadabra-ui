@@ -13,14 +13,18 @@
 
       <div v-else>
         <div class="input-assets">
-          <InputLabel :amount="fromToken.balance" :title="action" />
+          <InputLabel
+            :amount="formatTokenBalance(formatAmount(fromToken.balance))"
+            :title="action"
+          />
 
           <BaseTokenInput
             :value="inputValue"
             :icon="fromToken.icon"
             :name="fromToken.name"
-            :max="fromToken.balance"
+            :max="formatAmount(fromToken.balance)"
             :error="errorMainValue"
+            :disabled="!isUnsupportedChain"
             @updateValue="updateMainValue"
           />
         </div>
@@ -88,11 +92,11 @@
             :getChartOptions="getChartOptions"
           />
 
-          <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
+          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <AdditionalInfoBlock
+          <AdditionalInfoBlockViem
             :mainToken="mainToken"
-            :rewardToken="rewardToken"
+            :rewardToken="stakeInfo.rewardToken"
           />
         </div>
 
@@ -129,15 +133,15 @@
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { approveToken } from "@/helpers/approval";
+import { parseUnits, formatUnits } from "viem";
+import { approveTokenViem } from "@/helpers/approval"; //todo
 import actions from "@/helpers/stake/magicGlp/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 import notification from "@/helpers/notification/notification.js";
-import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
+import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo.ts";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
-import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
 
 export default {
   data() {
@@ -145,7 +149,6 @@ export default {
       apy: "",
       stakeInfo: null,
       action: "Stake",
-      totalRewards: null,
       inputValue: "",
       updateInterval: null,
     };
@@ -155,8 +158,6 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      provider: "getProvider",
-      signer: "getSigner",
     }),
 
     isInfoLoading() {
@@ -172,13 +173,12 @@ export default {
       if (this.errorMainValue) return true;
       if (!this.account) return true;
       if (!this.isUnsupportedChain) return true;
-      const { approvedAmount } = this.toToken;
-      return approvedAmount > this.mainInputValue;
+      return this.toToken.approvedAmount >= this.parsedInputValue;
     },
 
     isActionDisabled() {
       if (!this.isTokenApproved) return true;
-      return !!(!this.mainInputValue || this.errorMainValue);
+      return !!(!this.inputValue || this.errorMainValue);
     },
 
     isUnsupportedChain() {
@@ -202,19 +202,25 @@ export default {
     },
 
     errorMainValue() {
-      if (this.mainInputValue > this.fromToken.balance) {
-        return `The value cannot be greater than ${this.fromToken.balance}`;
+      if (this.parsedInputValue > this.fromToken.balance) {
+        return `The value cannot be greater than ${this.formatAmount(
+          this.fromToken.balance
+        )}`;
       }
 
       return "";
     },
 
+    precision() {
+      return parseUnits("1", this.mainToken.decimals);
+    },
+
     expectedAmount() {
       const amount = this.isStakeAction
-        ? this.mainInputValue / this.mainToken.rate
-        : this.mainInputValue * this.mainToken.rate;
+        ? (this.parsedInputValue * this.precision) / this.mainToken.rate
+        : (this.parsedInputValue * this.mainToken.rate) / this.precision;
 
-      return filters.formatToFixed(amount, 6);
+      return filters.formatToFixed(this.formatAmount(amount), 6);
     },
 
     standBackground() {
@@ -225,23 +231,12 @@ export default {
       return "";
     },
 
-    rewardToken() {
-      const { rewardToken, rewardTokenPrice } = this.stakeInfo;
-      const amount = +this.totalRewards ? +this.totalRewards : 0;
-      const amountUsd = this.totalRewards ? amount * rewardTokenPrice : 0;
-      return { ...rewardToken, amount, amountUsd };
-    },
-
-    mainInputValue() {
-      return Number(this.inputValue);
+    parsedInputValue() {
+      return parseUnits(this.inputValue, 18);
     },
 
     actionInfo() {
-      const amount = this.$ethers.utils.parseEther(
-        filters.formatToFixed(this.inputValue || 0, 18)
-      );
-
-      const options = [amount, this.account];
+      const options = [this.parsedInputValue, this.account];
 
       return this.isStakeAction
         ? { methodName: "deposit", options }
@@ -275,6 +270,10 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
     getChartOptions,
 
+    formatAmount(value) {
+      return formatUnits(value, this.mainToken.decimals);
+    },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -289,11 +288,7 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfo = await getStakeInfo(
-        this.provider,
-        this.signer,
-        this.chainId
-      );
+      this.stakeInfo = await getStakeInfo(this.chainId);
     },
 
     async approveTokenHandler() {
@@ -304,7 +299,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveToken(
+      const approve = await approveTokenViem(
         this.stakeToken.contract,
         this.mainToken.contract.address
       );
@@ -349,8 +344,6 @@ export default {
       await this.createStakeInfo();
     }, 60000);
 
-    this.totalRewards = await getTotalRewards(this.chainId);
-
     const response = await getMagicGlpApy(this.chainId);
     this.apy = filters.formatToFixed(response.magicGlpApy, 2);
   },
@@ -378,11 +371,13 @@ export default {
     ChartBlock: defineAsyncComponent(() =>
       import("@/components/stake/ChartBlock.vue")
     ),
-    BalancesBlock: defineAsyncComponent(() =>
-      import("@/components/stake/BalancesBlock.vue")
+    // todo
+    BalancesBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlockViem.vue")
     ),
-    AdditionalInfoBlock: defineAsyncComponent(() =>
-      import("@/components/stake/AdditionalInfoBlock.vue")
+    // todo
+    AdditionalInfoBlockViem: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlockViem.vue")
     ),
     EmptyBlock: defineAsyncComponent(() =>
       import("@/components/stake/EmptyBlock.vue")

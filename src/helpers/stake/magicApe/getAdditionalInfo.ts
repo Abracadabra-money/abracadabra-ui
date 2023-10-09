@@ -1,17 +1,29 @@
-import { utils } from "ethers";
+import { multicall } from "@wagmi/core";
+import type { AdditionalInfo } from "@/types/magicApe/additionalInfo";
 
-export const getAdditionalInfo = async (contracts: any, config: any) => {
-  const { magicApeContract, chainLinkContract } = contracts;
-  const { rewardToken } = config;
+export const getAdditionalInfo = async (
+  config: any
+): Promise<AdditionalInfo> => {
+  const { mainToken, chainLink, rewardToken } = config;
 
-  const [feePercent, rewardTokenPrice] = await Promise.all([
-    magicApeContract.feePercentBips(),
-    chainLinkContract.latestAnswer(),
-  ]);
+  const [feePercent, rewardTokenPrice]: any = await multicall({
+    contracts: [
+      {
+        ...mainToken.contract,
+        functionName: "feePercentBips",
+        args: [],
+      },
+      {
+        ...chainLink,
+        functionName: "latestAnswer",
+        args: [],
+      },
+    ],
+  });
 
   return {
-    feePercent: feePercent / 10000,
-    rewardTokenPrice: utils.formatUnits(rewardTokenPrice, 8),
+    feePercent: feePercent?.result ? feePercent.result / 10000 : 0,
+    rewardTokenPrice: rewardTokenPrice.result ? rewardTokenPrice.result : 0n,
     rewardToken,
   };
 };
