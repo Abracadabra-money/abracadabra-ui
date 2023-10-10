@@ -78,9 +78,9 @@
             :getChartOptions="getChartOptions"
           />
 
-          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
+          <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <AdditionalInfoBlockViem
+          <AdditionalInfoBlock
             v-if="account"
             :mainToken="mainToken"
             :rewardToken="stakeInfo?.rewardToken"
@@ -412,13 +412,11 @@ export default {
     ChartBlock: defineAsyncComponent(() =>
       import("@/components/stake/ChartBlock.vue")
     ),
-    // todo
-    BalancesBlockViem: defineAsyncComponent(() =>
-      import("@/components/stake/BalancesBlockViem.vue")
+    BalancesBlock: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlock.vue")
     ),
-    // todo
-    AdditionalInfoBlockViem: defineAsyncComponent(() =>
-      import("@/components/stake/AdditionalInfoBlockViem.vue")
+    AdditionalInfoBlock: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlock.vue")
     ),
     EmptyBlock: defineAsyncComponent(() =>
       import("@/components/stake/EmptyBlock.vue")

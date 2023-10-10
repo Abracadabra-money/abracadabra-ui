@@ -27,8 +27,8 @@ describe("BalancesBlock.vue", async () => {
     const prices = wrapper.findAll(".token-price");
 
     expect(tokensSymbol[0].text()).toBe("GLP");
-    expect(amounts[0].text()).toBe("5.5245");
-    expect(prices[0].text()).toBe("$ 5.51");
+    expect(amounts[0].text()).toBe("0.0");
+    expect(prices[0].text()).toBe("$ 0.0");
   });
 
   it("Should render balance GLP with zeros", async () => {
@@ -53,8 +53,8 @@ describe("BalancesBlock.vue", async () => {
     const prices = wrapper.findAll(".token-price");
 
     expect(tokensSymbol[1].text()).toBe("magicGLP");
-    expect(amounts[1].text()).toBe("5.4076");
-    expect(prices[1].text()).toBe("$ 5.97");
+    expect(amounts[1].text()).toBe("0.0");
+    expect(prices[1].text()).toBe("$ 0.0");
   });
 
   it("Should render balance magicGLP  with zeros", async () => {

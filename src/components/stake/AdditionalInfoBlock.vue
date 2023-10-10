@@ -11,45 +11,53 @@
 
         <div class="info-balance">
           <span class="amount">{{
-            formatTokenBalance(mainToken.totalSupply)
+            formatTokenBalance(
+              formatUnits(mainToken.totalSupply, mainToken.decimals)
+            )
           }}</span>
-          <span class="price">{{ formatUSD(mainToken.totalSupplyUsd) }}</span>
+          <span class="price">{{
+            formatUSD(formatUnits(mainToken.totalSupplyUsd, mainToken.decimals))
+          }}</span>
         </div>
       </div>
     </div>
 
-    <div class="delimiter-line"></div>
+    <template v-if="rewardToken">
+      <div class="delimiter-line"></div>
 
-    <div>
-      <h3 class="title">Total Rewards Earned</h3>
+      <div>
+        <h3 class="title">Total Rewards Earned</h3>
 
-      <div class="description">
-        <div class="token-info">
-          <BaseTokenIcon :icon="rewardToken.icon" size="40px" />
-          <span class="token-symbol">{{ rewardToken.symbol }}</span>
-        </div>
+        <div class="description">
+          <div class="token-info">
+            <BaseTokenIcon :icon="rewardToken.icon" size="40px" />
+            <span class="token-symbol">{{ rewardToken.symbol }}</span>
+          </div>
 
-        <div class="info-balance">
-          <span class="amount">{{
-            formatTokenBalance(rewardToken.amount)
-          }}</span>
-          <span class="price">{{ formatUSD(rewardToken.amountUsd) }}</span>
+          <div class="info-balance">
+            <span class="amount">{{
+              formatTokenBalance(rewardToken.amount)
+            }}</span>
+            <span class="price">{{ formatUSD(rewardToken.amountUsd) }}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script>
 import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { formatUnits } from "viem";
 export default {
   props: {
     mainToken: { type: Object, required: true },
-    rewardToken: { type: Object, required: true },
+    rewardToken: { type: Object },
   },
 
   methods: {
+    formatUnits,
     formatUSD(value) {
       return filters.formatUSD(value);
     },
@@ -127,7 +135,6 @@ export default {
   .additional-block {
     display: flex;
     flex-direction: column;
-    gap: 15px;
   }
 
   .delimiter-line {
