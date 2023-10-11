@@ -2,6 +2,7 @@ import { useImage } from "@/helpers/useImage";
 
 export const lineaConfig = {
   id: 59144,
+  chainId: 59144,
   name: "Linea",
   network: "Linea Mainnet",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
@@ -29,5 +30,4 @@ export const lineaConfig = {
   icon: useImage("assets/images/networks/linea.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
   lzChainId: 183,
-  switchData: {},
 };

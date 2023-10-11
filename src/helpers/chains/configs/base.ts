@@ -2,6 +2,7 @@ import { useImage } from "@/helpers/useImage";
 
 export const baseConfig = {
   id: 8453,
+  chainId: 8453,
   name: "Base",
   network: "base-mainnet",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
@@ -23,5 +24,4 @@ export const baseConfig = {
   icon: useImage("assets/images/networks/base.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
   lzChainId: 184,
-  switchData: {},
 };

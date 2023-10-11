@@ -8,11 +8,9 @@ config.rpcUrls.public.http = MAINNET_RPC_URLS;
 
 export const mainnetConfig = {
   ...config,
+  chainId: config.id,
   symbol: "ETH",
   icon: useImage("assets/images/networks/ethereum-icon.svg"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
   lzChainId: 101,
-  switchData: {
-    chainId: "0x01",
-  },
 };

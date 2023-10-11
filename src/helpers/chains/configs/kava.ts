@@ -2,6 +2,7 @@ import { useImage } from "@/helpers/useImage";
 
 export const kavaConfig = {
   id: 2222,
+  chainId: 2222,
   name: "Kava EVM",
   network: "Kava EVM",
   nativeCurrency: {
@@ -27,10 +28,4 @@ export const kavaConfig = {
   icon: useImage("assets/images/networks/kava.png"),
   baseTokenIcon: useImage("assets/images/tokens/KAVA.png"),
   lzChainId: 177,
-  switchData: {
-    chainId: "0x8ae",
-    chainName: "Kava EVM",
-    rpcUrls: ["https://evm.kava.io"],
-    blockExplorerUrls: ["https://explorer.kava.io"],
-  },
 };
