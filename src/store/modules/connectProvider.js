@@ -7,7 +7,6 @@ export default {
     signer: null,
     account: null,
     ensName: null,
-    chainId: null,
     isMetamaskActive: false,
     isCoinbase: false,
     isWalletConnected: false,
@@ -25,9 +24,6 @@ export default {
     },
     setENSName(state, payload) {
       state.ensName = payload;
-    },
-    setChainId(state, payload) {
-      state.chainId = payload;
     },
     setWalletConnection(state, payload) {
       state.isWalletConnected = payload;
@@ -61,7 +57,6 @@ export default {
     getSigner: (state) => state.signer,
     getAccount: (state) => state.account,
     getEnsName: (state) => state.ensName,
-    getChainId: (state) => state.chainId,
     getWalletIsConnected: (state) => state.isWalletConnected,
     getMetamaskActive: (state) => state.isMetamaskActive,
   },
