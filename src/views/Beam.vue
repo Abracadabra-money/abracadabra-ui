@@ -125,7 +125,6 @@ import {
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { getChainById } from "@/helpers/chains";
 import { approveToken } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 import { mapGetters, mapActions, mapMutations } from "vuex";
@@ -178,6 +177,7 @@ export default {
       signer: "getSigner",
       provider: "getProvider",
       chainId: "getChainId",
+      getChainById: "getChainById",
     }),
 
     isUnsupportedNetwork() {
@@ -308,11 +308,11 @@ export default {
     },
 
     srcTokenInfo() {
-      return getChainById(this.chainId);
+      return this.getChainById(this.chainId);
     },
 
     dstTokenInfo() {
-      return getChainById(this.targetToChain);
+      return this.getChainById(this.targetToChain);
     },
 
     getFee() {

@@ -6,5 +6,8 @@ export default {
   },
   getters: {
     getAvailableNetworks: (state) => state.networks,
+    getChainById: (state) => (chainId) => {
+      return state.networks.find((chain) => chain.chainId === chainId);
+    },
   },
 };

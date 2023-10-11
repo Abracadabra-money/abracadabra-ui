@@ -34,7 +34,6 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import { getChainById } from "@/helpers/chains";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
@@ -45,7 +44,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", getChainById: "getChainById" }),
 
     goToPage() {
       return { name: "Farm", params: { id: this.farm.id } };
@@ -62,7 +61,7 @@ export default {
     },
 
     chainIcon() {
-      return getChainById(this.chainId).icon;
+      return this.getChainById(this.chainId).icon;
     },
   },
 

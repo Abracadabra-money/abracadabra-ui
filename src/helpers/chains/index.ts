@@ -51,6 +51,3 @@ export const defaultRpc = {
   2222: "https://evm.kava.io ",
   59144: "https://rpc.linea.build",
 };
-
-export const getChainById = (chainId: number): Object =>
-  chainsList[chainId as keyof typeof chainsList];
