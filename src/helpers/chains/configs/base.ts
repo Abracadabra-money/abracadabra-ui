@@ -23,5 +23,6 @@ export const baseConfig = {
   symbol: "Base",
   icon: useImage("assets/images/networks/base.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
+  networkIcon: useImage(`assets/images/networks/base.png`),
   lzChainId: 184,
 };

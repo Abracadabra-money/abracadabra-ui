@@ -7,5 +7,6 @@ export const arbitrumConfig = {
   symbol: "AETH",
   icon: useImage("assets/images/networks/arbitrum-icon.svg"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
+  networkIcon: useImage(`assets/images/networks/arbitrum-chain.svg`),
   lzChainId: 110,
 };

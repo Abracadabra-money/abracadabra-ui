@@ -27,5 +27,6 @@ export const kavaConfig = {
   symbol: "Kava EVM",
   icon: useImage("assets/images/networks/kava.png"),
   baseTokenIcon: useImage("assets/images/tokens/KAVA.png"),
+  networkIcon: useImage(`assets/images/networks/kava.png`),
   lzChainId: 177,
 };

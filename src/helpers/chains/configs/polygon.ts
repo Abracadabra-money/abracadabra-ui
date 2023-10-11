@@ -7,5 +7,6 @@ export const polygonConfig = {
   symbol: "MATIC",
   icon: useImage("assets/images/networks/polygon-icon.svg"),
   baseTokenIcon: useImage("assets/images/tokens/MATIC.png"),
+  networkIcon: useImage(`assets/images/networks/polygon.svg`),
   lzChainId: 109,
 };

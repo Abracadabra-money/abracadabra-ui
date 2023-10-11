@@ -1,22 +1,8 @@
 import abi from "@/utils/abi/beam/";
-import { useImage } from "@/helpers/useImage";
-
-const ethIcon = useImage(`assets/images/networks/ethereum.svg`);
-const binanceIcon = useImage(`assets/images/networks/binance.svg`);
-const fantomIcon = useImage(`assets/images/networks/fantom.svg`);
-const avalancheIcon = useImage(`assets/images/networks/avalanche.svg`);
-const arbitrumIcon = useImage(`assets/images/networks/arbitrum-chain.svg`);
-const polygonIcon = useImage(`assets/images/networks/polygon.svg`);
-const optimismIcon = useImage(`assets/images/networks/optimism.svg`);
-const moonriver = useImage(`assets/images/networks/moonriver.svg`);
-const kava = useImage(`assets/images/networks/kava.png`);
-const base = useImage(`assets/images/networks/base.png`);
-const linea = useImage(`assets/images/networks/linea.png`);
 
 export type BeamConfig = {
   chainId: number;
   chainName: string;
-  chainIcon: string;
   contract: {
     address: string;
     abi: any;
@@ -28,7 +14,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 1,
     chainName: "Ethereum",
-    chainIcon: ethIcon,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -48,7 +33,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 56,
     chainName: "BSC",
-    chainIcon: binanceIcon,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -69,7 +53,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 42161,
     chainName: "Arbitrum",
-    chainIcon: arbitrumIcon,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -90,7 +73,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 137,
     chainName: "Polygon",
-    chainIcon: polygonIcon,
     contract: {
       address: "0xE1261E47b08a22Df93af46889EE504C2Aa6DfD4c",
       abi: abi.OFTWrapper,
@@ -111,7 +93,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 10,
     chainName: "Optimism",
-    chainIcon: optimismIcon,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -132,7 +113,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 43114,
     chainName: "Avalanche",
-    chainIcon: avalancheIcon,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -153,7 +133,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 250,
     chainName: "Fantom",
-    chainIcon: fantomIcon,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -174,7 +153,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 1285,
     chainName: "Moonriver",
-    chainIcon: moonriver,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -195,7 +173,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 2222,
     chainName: "Kava EVM",
-    chainIcon: kava,
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
@@ -216,7 +193,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 8453,
     chainName: "Base",
-    chainIcon: base,
     contract: {
       address: "0x4035957323FC05AD9704230E3dc1E7663091d262",
       abi: abi.LzIndirectOFTV2,
@@ -237,7 +213,6 @@ const config: Array<BeamConfig> = [
   {
     chainId: 59144,
     chainName: "Linea",
-    chainIcon: linea,
     contract: {
       address: "0x60bbeFE16DC584f9AF10138Da1dfbB4CDf25A097",
       abi: abi.LzIndirectOFTV2,

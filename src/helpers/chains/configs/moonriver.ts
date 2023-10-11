@@ -7,5 +7,6 @@ export const moonriverConfig = {
   symbol: "Moonriver",
   icon: useImage("assets/images/networks/moonriver.svg"),
   baseTokenIcon: useImage("assets/images/tokens/MOVR.png"),
+  networkIcon: useImage(`assets/images/networks/moonriver.svg`),
   lzChainId: 167,
 };
