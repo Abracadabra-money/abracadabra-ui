@@ -144,6 +144,7 @@ import { useImage } from "@/helpers/useImage";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
@@ -507,16 +508,30 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      await this.cookDeleverage(
-        payload,
-        isMasterContractApproved,
-        this.cauldron,
-        this.account,
-        notificationId
-      );
+      try {
+        await this.cookDeleverage(
+          payload,
+          isMasterContractApproved,
+          this.cauldron,
+          this.account
+        );
 
-      await this.createCauldronInfo();
-      this.clearInputs();
+        this.clearInputs();
+
+        await this.createCauldronInfo();
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("deleverage error", error);
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
 
     async closePositionHandler() {

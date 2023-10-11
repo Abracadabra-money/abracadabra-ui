@@ -164,6 +164,7 @@ import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
@@ -671,12 +672,25 @@ export default {
 
       if (!isPermissionToCook) return false;
 
-      await this[this.actionInfo.methodName](notificationId);
+      try {
+        await this[this.actionInfo.methodName]();
 
-      this.clearInputs();
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("leverage error", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
 
-    async addCollateralHandler(notificationId) {
+    async addCollateralHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
@@ -690,15 +704,16 @@ export default {
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId,
         !!this.cauldron.config?.wrapInfo,
         !this.useOtherToken
       );
 
+      this.clearInputs();
+
       return await this.createCauldronInfo();
     },
 
-    async leverageUpHandler(notificationId) {
+    async leverageUpHandler() {
       const { bentoBox, collateral } = this.cauldron.contracts;
       const { updatePrice } = this.cauldron.mainParams;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
@@ -722,9 +737,10 @@ export default {
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId,
         !this.useOtherToken && !!this.cauldron.config.wrapInfo
       );
+
+      this.clearInputs();
 
       return await this.createCauldronInfo();
     },
