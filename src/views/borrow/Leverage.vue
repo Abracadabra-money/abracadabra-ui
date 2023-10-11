@@ -160,9 +160,9 @@ import { utils, BigNumber } from "ethers";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import { getChainById } from "@/helpers/chains";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
@@ -473,13 +473,13 @@ export default {
     },
 
     nativeToken() {
-      const { symbol, icon } = getChainInfo(this.chainId);
+      const { symbol, baseTokenIcon } = getChainById(this.chainId);
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
       const { collateral } = this.cauldron.contracts;
 
       return {
         name: symbol,
-        icon,
+        icon: baseTokenIcon,
         balance: utils.formatUnits(nativeTokenBalance),
         decimals: 18,
         allowance: BigNumber.from(MAX_ALLOWANCE_VALUE),

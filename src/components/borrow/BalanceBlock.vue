@@ -64,7 +64,7 @@ import { mapGetters } from "vuex";
 import { utils } from "ethers";
 import filters from "@/filters/index.js";
 import { useImage } from "@/helpers/useImage";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
+import { getChainById } from "@/helpers/chains";
 import { defineAsyncComponent } from "vue";
 import { ONE_ETHER } from "@/constants/global";
 export default {
@@ -89,9 +89,9 @@ export default {
       if (!acceptUseDefaultBalance) return null;
 
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
-      const { symbol, icon } = getChainInfo(this.chainId);
+      const { symbol, baseTokenIcon } = getChainById(this.chainId);
       const balance = utils.formatUnits(nativeTokenBalance);
-      return { name: symbol, icon, balance };
+      return { name: symbol, icon: baseTokenIcon, balance };
     },
 
     mimInfo() {

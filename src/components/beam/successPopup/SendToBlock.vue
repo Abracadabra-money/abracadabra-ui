@@ -48,7 +48,7 @@
 <script>
 import filters from "@/filters/index.js";
 import { useImage } from "@/helpers/useImage";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
+import { getChainById } from "@/helpers/chains";
 import ExplorerLink from "@/components/beam/successPopup/ExplorerLink.vue";
 export default {
   props: {
@@ -73,7 +73,9 @@ export default {
     dstScanUrl() {
       const { txInfo, dstChain } = this.config;
       if (!txInfo || txInfo?.status === "INFLIGHT") return "";
-      return `${getChainInfo(dstChain.chainId).scanUrl}${txInfo.dstTxHash}`;
+      return `${
+        getChainById(dstChain.chainId).blockExplorers.etherscan.url
+      }/tx/${txInfo.dstTxHash}`;
     },
 
     destinationTokenUsd() {
