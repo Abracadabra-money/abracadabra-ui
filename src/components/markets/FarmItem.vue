@@ -3,7 +3,7 @@
     <div class="stats-wrap">
       <div>
         <p class="chain-title">CHAIN</p>
-        <img class="chain-icon" :src="getChainIcon" alt="Chain icon" />
+        <img class="chain-icon" :src="chainIcon" alt="Chain icon" />
       </div>
 
       <div class="farm-info">
@@ -34,8 +34,8 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
+import { getChainById } from "@/helpers/chains";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
@@ -61,32 +61,8 @@ export default {
       ];
     },
 
-    getChainIcon() {
-      if (this.chainId === 56) {
-        return useImage("assets/images/networks/BNB.svg");
-      }
-
-      if (this.chainId === 250) {
-        return useImage("assets/images/networks/fantom-icon.svg");
-      }
-
-      if (this.chainId === 43114) {
-        return useImage("assets/images/networks/avalanche-icon.png");
-      }
-
-      if (this.chainId === 137) {
-        return useImage("assets/images/networks/polygon-icon.svg");
-      }
-
-      if (this.chainId === 42161) {
-        return useImage("assets/images/networks/Arbitrum.svg");
-      }
-
-      if (this.chainId === 10) {
-        return useImage("assets/images/networks/optimism-icon.svg");
-      }
-
-      return useImage("assets/images/networks/ethereum-icon.svg");
+    chainIcon() {
+      return getChainById(this.chainId).icon;
     },
   },
 

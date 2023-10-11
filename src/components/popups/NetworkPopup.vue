@@ -17,7 +17,7 @@
           @click="switchHandler(network.chainId)"
         >
           <img class="network-image" :src="network.icon" alt="network" />
-          <span>{{ network.title }}</span>
+          <span>{{ network.symbol }}</span>
         </button>
       </div>
     </div>

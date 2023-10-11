@@ -3,7 +3,7 @@
     <div class="cauldron-info">
       <div class="chain-info">
         <p class="chain-title">Chain</p>
-        <BaseTokenIcon :icon="getChainIcon(chainId)" size="26px" />
+        <BaseTokenIcon :icon="chainIcon" size="26px" />
       </div>
 
       <div class="collateral-info">
@@ -41,9 +41,10 @@
 </template>
 
 <script>
-import filters from "@/filters/index.js";
 import { utils } from "ethers";
 import { mapGetters } from "vuex";
+import filters from "@/filters/index.js";
+import { getChainById } from "@/helpers/chains";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
@@ -54,7 +55,10 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId", getChainIcon: "getChainIcon" }),
+    ...mapGetters({ chainId: "getChainId" }),
+    chainIcon() {
+      return getChainById(this.chainId).icon;
+    },
 
     goToCauldron() {
       const name = this.isDeprecatedCauldron ? "RepayId" : "BorrowId";

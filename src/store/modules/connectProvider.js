@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { MAINNET_RPC_URLS } from "@/constants/chains";
 
 export default {
   state: {
@@ -46,12 +47,10 @@ export default {
     async checkENSName({ commit }, address) {
       try {
         const ensName = await new ethers.providers.StaticJsonRpcProvider(
-          "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+          MAINNET_RPC_URLS
         ).lookupAddress(address);
 
-        if (ensName) {
-          commit("setENSName", ensName);
-        }
+        if (ensName) commit("setENSName", ensName);
       } catch (error) {
         console.log("fetchENSName ERR:", error);
       }
@@ -64,8 +63,6 @@ export default {
     getEnsName: (state) => state.ensName,
     getChainId: (state) => state.chainId,
     getWalletIsConnected: (state) => state.isWalletConnected,
-    getWalletCheckInProcess: (state) => state.walletCheckInProcess,
     getMetamaskActive: (state) => state.isMetamaskActive,
-    getIsCoinbase: (state) => state.isCoinbase,
   },
 };

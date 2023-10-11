@@ -330,7 +330,7 @@ export default {
       return filters.formatTokenBalance(value);
     },
     async actionHandler() {
-      if (!this.account) await this.$connectWallet();
+      if (!this.account) await this.$openWeb3modal();
       else {
         if (this.isApproveMasterContracts) {
           const arr = this.isEthChain

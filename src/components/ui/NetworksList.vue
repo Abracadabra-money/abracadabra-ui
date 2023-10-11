@@ -12,7 +12,7 @@
           v-for="network in activeNetworks"
           :key="network.chainId"
           :selected="network.chainId === chainId"
-          :name="network.name"
+          :name="network.symbol"
           :icon="network.icon"
           :disabled="loading"
           @click="changeNetwork(network.chainId)"
