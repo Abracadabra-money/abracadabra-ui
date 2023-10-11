@@ -36,7 +36,7 @@
 <script>
 import { mapGetters } from "vuex";
 import NetworkChip from "@/components/ui/NetworkChip.vue";
-import switchNetwork from "@/helpers/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   name: "NetworksList",
@@ -59,7 +59,7 @@ export default {
       try {
         await switchNetwork(chainId);
       } catch (error) {
-        console.log(error)
+        console.log("Switch Network Error", error);
       } finally {
         this.loading = false;
       }

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import switchNetwork from "@/helpers/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   props: {
