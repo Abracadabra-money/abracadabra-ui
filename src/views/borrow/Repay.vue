@@ -436,6 +436,9 @@ export default {
 
       try {
         await this[this.actionInfo.methodName]();
+
+        this.clearInputs();
+
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
       } catch (error) {
@@ -466,8 +469,6 @@ export default {
       if (+isTokenToCookApprove) {
         await this.cookRepay(payload, isMasterContractApproved, this.cauldron);
 
-        this.clearInputs();
-
         return await this.createCauldronInfo();
       }
     },
@@ -492,8 +493,6 @@ export default {
         isMasterContractApproved,
         this.cauldron
       );
-
-      this.clearInputs();
 
       return await this.createCauldronInfo();
     },
@@ -532,8 +531,6 @@ export default {
           isMasterContractApproved,
           this.cauldron
         );
-
-        this.clearInputs();
 
         return await this.createCauldronInfo();
       }

@@ -516,9 +516,9 @@ export default {
           this.account
         );
 
-        this.clearInputs();
-
         await this.createCauldronInfo();
+
+        this.clearInputs();
 
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);

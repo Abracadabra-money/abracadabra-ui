@@ -675,6 +675,8 @@ export default {
       try {
         await this[this.actionInfo.methodName]();
 
+        this.clearInputs();
+
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
       } catch (error) {
@@ -708,8 +710,6 @@ export default {
         !this.useOtherToken
       );
 
-      this.clearInputs();
-
       return await this.createCauldronInfo();
     },
 
@@ -739,8 +739,6 @@ export default {
         this.cauldron,
         !this.useOtherToken && !!this.cauldron.config.wrapInfo
       );
-
-      this.clearInputs();
 
       return await this.createCauldronInfo();
     },

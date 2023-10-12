@@ -533,6 +533,9 @@ export default {
 
       try {
         await this[this.actionInfo.methodName]();
+
+        this.clearInputs();
+
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
       } catch (error) {
@@ -566,8 +569,6 @@ export default {
         !this.useOtherToken
       );
 
-      this.clearInputs();
-
       return await this.createCauldronInfo();
     },
 
@@ -589,8 +590,6 @@ export default {
         !this.useOtherToken
       );
 
-      this.clearInputs();
-
       return await this.createCauldronInfo();
     },
 
@@ -604,8 +603,6 @@ export default {
       };
 
       await this.cookBorrow(payload, isMasterContractApproved, this.cauldron);
-
-      this.clearInputs();
 
       return await this.createCauldronInfo();
     },
