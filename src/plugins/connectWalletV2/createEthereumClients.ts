@@ -9,7 +9,7 @@ import { publicProvider } from "@wagmi/core/providers/public";
 import { createWeb3Modal, useWeb3Modal } from "@web3modal/wagmi/vue";
 import { useImage } from "@/helpers/useImage";
 
-export const createEthereumClients = async () => {
+export const createEthereumClients = () => {
   // 1. Define constants
   const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
   if (!projectId) throw new Error("You need to provide projectId env");
