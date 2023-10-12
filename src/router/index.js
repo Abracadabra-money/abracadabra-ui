@@ -118,6 +118,11 @@ const routes = [
     component: () => import("@/views/Claim.vue"),
   },
   {
+    path: "/magicKLP",
+    name: "magicKLP",
+    component: () => import("@/views/stake/MKLP.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },

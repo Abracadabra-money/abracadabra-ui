@@ -39,10 +39,12 @@ import filters from "@/filters/index.js";
 
 import { ethers, BigNumber } from "ethers";
 
+import { formatUnits } from "viem";
+
 export default {
   props: {
     isBento: { type: Boolean, default: false },
-    balance: { type: [String, BigNumber], default: "0" },
+    balance: { type: [String, BigInt], default: "0" },
     mimPrice: { type: Number, default: 0 },
   },
 
@@ -56,7 +58,7 @@ export default {
 
   computed: {
     isDisabled() {
-      return !+this.balance;
+      return !this.balance;
     },
 
     boxIcon() {
@@ -73,7 +75,7 @@ export default {
     },
 
     parsedBalance() {
-      return ethers.utils.formatEther(this.balance);
+      return formatUnits(this.balance, 18);
     },
 
     balanceInUsd() {

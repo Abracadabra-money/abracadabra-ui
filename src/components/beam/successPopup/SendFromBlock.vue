@@ -64,9 +64,9 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import { useImage } from "@/helpers/useImage";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import ExplorerLink from "@/components/beam/successPopup/ExplorerLink.vue";
 export default {
   props: {
@@ -77,11 +77,14 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ getChainById: "getChainById" }),
+
     fromScanUrl() {
       if (!this.config.tx?.hash) return "";
-      return `${getChainInfo(this.config.originChain.chainId).scanUrl}${
-        this.config.tx.hash
-      }`;
+      return `${
+        this.getChainById(this.config.originChain.chainId).blockExplorers
+          .etherscan.url
+      }/tx/${this.config.tx.hash}`;
     },
 
     sendFromCheck() {

@@ -1,4 +1,4 @@
-import type { BigNumber, Contract } from "ethers";
+import type { Address } from "viem";
 
 export type FarmConfig = {
   name: string;
@@ -18,7 +18,7 @@ export type FarmConfig = {
   };
   contract: {
     name: string;
-    address: string;
+    address: Address;
     abi: any;
   };
   depositedBalance?: {
@@ -43,14 +43,13 @@ export type FarmItem = {
     link: string;
     name: string;
     type: string;
-    contract: Contract;
+    contractInfo: ContractInfo;
   };
   depositedBalance?: {
     token0: { name: string; icon: string };
     token1: { name: string; icon: string };
   };
-  contractInstance: Contract;
-  contractAddress: string;
+  contractInfo: ContractInfo;
   farmRoi: number;
   lpPrice: number;
   isDepreciated: boolean;
@@ -60,7 +59,7 @@ export type FarmItem = {
 };
 
 export type FarmAccountInfo = {
-  allowance: BigNumber;
+  allowance: string;
   userInfo: object;
   userReward: string;
   tokensBalanceInfo: {
@@ -80,9 +79,14 @@ export type FarmAccountInfo = {
 };
 
 export type PoolInfo = {
-  stakingToken: string;
-  stakingTokenTotalAmount: BigNumber;
-  accIcePerShare: BigNumber;
+  stakingToken: Address;
+  stakingTokenTotalAmount: bigint;
+  accIcePerShare: bigint;
   lastRewardTime: number;
   allocPoint: number;
+};
+
+export type ContractInfo = {
+  address: Address;
+  abi: any;
 };

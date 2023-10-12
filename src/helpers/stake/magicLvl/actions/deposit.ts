@@ -1,20 +1,24 @@
+import type { ContractInfo } from "@/types/global";
+import { waitForTransaction, type Address } from "@wagmi/core";
+import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import type { Contract, BigNumber } from "ethers";
 
 export const deposit = async (
-  contract: Contract,
-  amount: BigNumber,
-  account: string
+  contract: ContractInfo,
+  amount: bigint,
+  account: Address
 ) => {
   try {
-    const estimateGas = await contract.estimateGas.deposit(amount, account);
-    const gasLimit = 1000 + +estimateGas.toString();
-    const tx = await contract.deposit(amount, account, { gasLimit });
-    const result = await tx.wait();
-    return { result };
-  } catch (error) {
-    console.log("Stake Deposit Handler Error:", error);
+    const config = await prepareWriteContract({
+      ...contract,
+      functionName: "deposit",
+      args: [amount, account],
+    });
 
+    const { hash } = await writeContract(config);
+    return await waitForTransaction({ hash });
+  } catch (error) {
+    console.log("Mafic LVL Stake Deposit Handler Error:", error);
     return {
       error: { type: "error", msg: await notificationErrorMsg(error) },
     };

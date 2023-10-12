@@ -41,6 +41,7 @@ export default {
   cursor: pointer;
   border: 2px solid rgba(118, 195, 245, 0);
   color: white;
+  font-size: 15px;
 
   &-no-image {
     grid-template-columns: 1fr;
@@ -64,6 +65,6 @@ export default {
 }
 
 .network-icon {
-  height: 20px;
+  height: 18px;
 }
 </style>

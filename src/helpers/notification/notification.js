@@ -66,4 +66,10 @@ export default {
     msg: "You have Tenderly mod enabled. Make sure that Fork is selected in your wallet. Or log out.",
     type: "warning",
   },
+
+  sanctionAddress: {
+    title: "Sanction address Warning",
+    msg: "It looks like the address you have connected to Abracadabra UI is on a Sanction List. Abracadabra Money is not offering services to sanctioned addresses.",
+    type: "error",
+  },
 };

@@ -46,6 +46,9 @@
           <router-link class="list-link" :to="{ name: 'magicLVL' }"
             >magicLVL</router-link
           >
+          <router-link class="list-link" :to="{ name: 'magicKLP' }"
+            >magicKLP</router-link
+          >
         </div>
       </div>
 
@@ -185,7 +188,7 @@
       <NetworkPopup
         :isOpen="isOpenNetworkPopup"
         @closePopup="closeNetworkPopup"
-        :networksArr="popupNetworksArr"
+        :networksArr="networksArr"
         :activeChain="chainId"
       />
 
@@ -220,18 +223,10 @@ export default {
       networksArr: "getAvailableNetworks",
     }),
 
-    popupNetworksArr() {
-      return this.networksArr.map((chain) => {
-        if (chain?.title) return chain;
-        chain.title = chain.name;
-        return chain;
-      });
-    },
-
     networcIcon() {
       if (!this.chainId) return "";
-      if (this.popupNetworksArr.length && this.chainId) {
-        const chain = this.popupNetworksArr.find((chain) => {
+      if (this.networksArr.length && this.chainId) {
+        const chain = this.networksArr.find((chain) => {
           if (chain.chainId === this.chainId) return chain;
         });
 
@@ -242,7 +237,7 @@ export default {
     },
 
     isUnsupportedChain() {
-      const chain = this.popupNetworksArr.find((chain) => {
+      const chain = this.networksArr.find((chain) => {
         if (chain.chainId === this.chainId) return chain;
       });
 

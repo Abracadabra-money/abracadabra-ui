@@ -1,54 +1,80 @@
 import moment from "moment";
-import { utils, BigNumber } from "ethers";
-import { spellConfig } from "@/utils/stake/spellConfig";
-import type { SSpellInfo } from "@/helpers/stake/spell/types";
-import { sSpellEmptyState } from "@/helpers/stake/spell/emptyStates";
-
-const precision = BigNumber.from(Math.pow(10, 18).toString());
+import { multicall } from "@wagmi/core";
+import { formatUnits, type Address } from "viem";
+import { ONE_ETHER_VIEM } from "@/constants/global";
+import type { EmptyTokenState } from "@/types/spell/empyState";
+import type { ChainSpellConfig } from "@/types/spell/configsInfo";
+import { getSSpellEmptyState } from "@/helpers/stake/spell/emptyState";
+import type { SSpellInfo, SpellInfo } from "@/types/spell/stakeInfo";
 
 export const getSSpellInfo = async (
-  contracts: any,
-  account: string | undefined,
-  spellInfo: any
-): Promise<SSpellInfo> => {
-  const { sSpell, spell } = contracts;
-  if (!sSpell || !account) return sSpellEmptyState;
+  { sSpell }: ChainSpellConfig,
+  spell: SpellInfo,
+  spellPrice: bigint,
+  account: Address
+): Promise<SSpellInfo | EmptyTokenState> => {
+  if (!sSpell) return await getSSpellEmptyState();
 
   const [
     allowanceAmount,
+    spellSSpellBalance,
     aSpellUserBalance,
     sSpellUserInfo,
-    spellSSpellBalance,
     totalSupply,
-  ] = await Promise.all([
-    spell.allowance(account, sSpell.address),
-    sSpell.balanceOf(account),
-    sSpell.users(account),
-    spell.balanceOf(sSpell.address),
-    sSpell.totalSupply(),
-  ]);
+  ]: any = await multicall({
+    contracts: [
+      {
+        ...spell.contract,
+        functionName: "allowance",
+        args: [account, sSpell.contract.address],
+      },
+      {
+        ...spell.contract,
+        functionName: "balanceOf",
+        args: [sSpell.contract.address],
+      },
+      {
+        ...sSpell.contract,
+        functionName: "balanceOf",
+        args: [account],
+      },
+      {
+        ...sSpell.contract,
+        functionName: "users",
+        args: [account],
+      },
+      {
+        ...sSpell.contract,
+        functionName: "totalSupply",
+        args: [],
+      },
+    ],
+  });
 
-  const lockTimestamp = +sSpellUserInfo.lockedUntil
-    ? moment.unix(sSpellUserInfo.lockedUntil).add(1, "d")
-    : moment.unix(0);
+  const spellToSSpellRate =
+    (spellSSpellBalance.result * ONE_ETHER_VIEM) / totalSupply.result;
+
+  const sSpellPrice = (spellPrice * spellToSSpellRate) / ONE_ETHER_VIEM;
 
   const currentTimestamp = moment();
-  const isLocked = lockTimestamp.isAfter(currentTimestamp);
+  const [_, lockedUntil]: any = sSpellUserInfo.result;
+  const formatLockedUntil = +formatUnits(lockedUntil, 0);
+  const lockedUntilTimestamp = formatLockedUntil
+    ? moment.unix(formatLockedUntil)
+    : moment.unix(0);
 
-  const spellToSSpellRate = +utils.formatUnits(
-    spellSSpellBalance.mul(precision).div(totalSupply)
-  );
-
-  const sSpellPrice = spellInfo.price * spellToSSpellRate;
+  const isLocked = lockedUntilTimestamp.isAfter(currentTimestamp);
+  const lockTimestamp = isLocked ? lockedUntilTimestamp.unix().toString() : "0";
 
   return {
-    name: spellConfig.sSpell.name,
-    icon: spellConfig.sSpell.icon,
-    contract: sSpell,
+    name: sSpell.name,
+    icon: sSpell.icon,
+    decimals: sSpell.decimals,
+    contract: sSpell.contract,
     price: sSpellPrice,
     rate: spellToSSpellRate,
-    lockTimestamp: isLocked ? lockTimestamp.unix().toString() : "0",
-    balance: utils.formatUnits(aSpellUserBalance),
-    allowanceAmount: utils.formatUnits(allowanceAmount),
+    lockTimestamp,
+    balance: aSpellUserBalance.result,
+    allowanceAmount: allowanceAmount.result,
   };
 };
