@@ -50,8 +50,6 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
 import { TENDERLY_FORK_DATA } from "@/constants/tenderly";
 import { deleteFork } from "@/helpers/tenderly/deleteFork";
-import { getChainInfo } from "@/helpers/chain/getChainInfo";
-import { networksConfig } from "@/utils/networks/networksConfig";
 import notification from "@/helpers/notification/notification.js";
 import { tenderlyDispatchEvent } from "@/helpers/tenderly/tenderlyDispatchEvent";
 import { addAndSwitchForkOnWallet } from "@/helpers/tenderly/addAndSwitchForkOnWallet";
@@ -73,6 +71,7 @@ export default {
   computed: {
     ...mapGetters({
       chainId: "getChainId",
+      getChainById: "getChainById",
     }),
 
     timeLine() {
@@ -110,7 +109,7 @@ export default {
     },
 
     chainInfo() {
-      return getChainInfo(this.forkData.forkChainId);
+      return this.getChainById(this.forkData.forkChainId);
     },
   },
 
@@ -145,15 +144,7 @@ export default {
     },
 
     async addAndSwitch() {
-      const networkConfig = networksConfig.find(
-        (network) => network.chainId === this.forkData.forkChainId
-      );
-
-      const { error } = await addAndSwitchForkOnWallet(
-        this.forkData,
-        networkConfig.switchData
-      );
-
+      const { error } = await addAndSwitchForkOnWallet(this.forkData);
       if (!error) window.location.reload();
     },
 

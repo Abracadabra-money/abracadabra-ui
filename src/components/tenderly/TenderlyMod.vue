@@ -38,6 +38,7 @@ import {
   TENDERLY_EVENT_CHANGED_DATA,
 } from "@/constants/tenderly";
 import { mapActions, mapGetters } from "vuex";
+// todo chain
 import { networksConfig } from "@/utils/networks/networksConfig";
 import notification from "@/helpers/notification/notification.js";
 import { addAndSwitchForkOnWallet } from "@/helpers/tenderly/addAndSwitchForkOnWallet";

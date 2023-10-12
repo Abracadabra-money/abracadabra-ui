@@ -32,6 +32,7 @@
 </template>
 
 <script>
+// todo chain
 import { networksConfig } from "@/utils/networks/networksConfig";
 
 export default {
