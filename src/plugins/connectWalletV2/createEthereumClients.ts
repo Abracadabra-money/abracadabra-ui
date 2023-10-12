@@ -1,12 +1,11 @@
-import { Web3Modal } from "@web3modal/html";
-import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
-import { chains, chainsList } from "@/helpers/chains";
+import { EthereumClient } from "@web3modal/ethereum";
+import { InjectedConnector } from "@wagmi/core";
+import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
+import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
+import { chains } from "@/helpers/chains";
 import { configureChains, createConfig } from "@wagmi/core";
-import { walletConnectProvider } from "@web3modal/wagmi";
-
+import { walletConnectProvider, EIP6963Connector } from "@web3modal/wagmi";
 import { publicProvider } from "@wagmi/core/providers/public";
-import { w3mProvider } from "@web3modal/ethereum";
-
 import { createWeb3Modal, useWeb3Modal } from "@web3modal/wagmi/vue";
 import { useImage } from "@/helpers/useImage";
 
@@ -30,12 +29,18 @@ export const createEthereumClients = async () => {
 
   const wagmiConfig = createConfig({
     autoConnect: true,
-    connectors: w3mConnectors({
-      chains,
-      version: 1,
-      projectId,
-      options: { metadata },
-    }),
+    connectors: [
+      new WalletConnectConnector({
+        chains,
+        options: { projectId, showQrModal: false, metadata },
+      }),
+      new EIP6963Connector({ chains }),
+      new InjectedConnector({ chains, options: { shimDisconnect: true } }),
+      new CoinbaseWalletConnector({
+        chains,
+        options: { appName: metadata.name },
+      }),
+    ],
     publicClient,
   });
 

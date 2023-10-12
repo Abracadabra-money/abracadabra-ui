@@ -21,7 +21,7 @@ export const onConnectNew = async (ethereumClient: EthereumClient) => {
       localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
     }
 
-    if (await checkSanctionAddress(account)) return false;
+    if (await checkSanctionAddress(account!)) return false;
 
     watchAccount(({ address }) => {
       if (account !== address) window.location.reload();
