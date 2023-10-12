@@ -16,6 +16,12 @@ import PositionTokensInfo from "@/components/myPositions/PositionTokensInfo.vue"
 import PositionLinks from "@/components/myPositions/PositionLinks.vue";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 
+import {
+  prepareWriteContract,
+  waitForTransaction,
+  writeContract,
+} from "@wagmi/core";
+
 export default {
   props: {
     farmConfig: { type: Object, required: true },
@@ -130,12 +136,15 @@ export default {
 
     async harvest() {
       try {
-        const tx = await this.farmConfig.contractInstance.withdraw(
-          utils.parseUnits(this.farmConfig.poolId.toString()),
-          utils.parseUnits("0")
-        );
+        const config = await prepareWriteContract({
+          ...this.farmConfig.contractInfo,
+          functionName: "withdraw",
+          args: [this.farmConfig.poolId, 0],
+        });
 
-        await tx.wait();
+        const { hash } = await writeContract(config);
+
+        await waitForTransaction({ hash });
       } catch (error) {
         console.log("harvest err:", error);
       }
