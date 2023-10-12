@@ -47,26 +47,22 @@ export const createEthereumClients = async () => {
   // 3. Create ethereum and modal clients
   const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
-  createWeb3Modal(
-    {
-      wagmiConfig,
-      projectId,
-      themeMode: "dark",
-      themeVariables: {
-        "--w3m-font-family": "'Prompt', sans-serif",
-        "--w3m-background-color": "rgba(60, 60, 60, 0.8)",
-        "--w3m-accent-color": "#76c3f5",
-        "--w3m-z-index": "1000",
-      },
-      chainImages: {
-        2222: useImage("assets/images/networks/kava.png"),
-        8453: useImage("assets/images/networks/base.png"),
-        59144: useImage("assets/images/networks/linea.png"),
-      },
-      chains,
+  createWeb3Modal({
+    wagmiConfig,
+    projectId,
+    themeMode: "dark",
+    themeVariables: {
+      "--w3m-font-family": "'Prompt', sans-serif",
+      "--w3m-accent": "#76c3f5",
+      "--w3m-z-index": 1000,
     },
-    ethereumClient
-  );
+    chainImages: {
+      2222: useImage("assets/images/networks/kava.png"),
+      8453: useImage("assets/images/networks/base.png"),
+      59144: useImage("assets/images/networks/linea.png"),
+    },
+    chains,
+  });
   const web3modal = useWeb3Modal();
 
   return { web3modal, ethereumClient };
