@@ -2,7 +2,10 @@
   <div class="fork-info-item">
     <div class="info-row">
       <p>Chain</p>
-      <img class="chain-icon" :src="chainInfo.icon" :alt="chainInfo.symbol" />
+      <p class="chain-info">
+        {{ forkData.forkChainId }}
+        <img class="chain-icon" :src="chainInfo.icon" :alt="chainInfo.symbol" />
+      </p>
     </div>
 
     <div class="info-row">
@@ -24,13 +27,9 @@
     </div>
 
     <div class="btns-wrap">
-      <div class="toggle-use-fork" :class="{ disabled: isDisabled }">
+      <div class="toggle-use-fork">
         Use Fork
-        <CheckBox
-          :value="useFork"
-          :disabled="isDisabled"
-          @click="toggleUseFork"
-        />
+        <CheckBox :value="useFork" @click="toggleUseFork" />
       </div>
 
       <BaseButton v-tooltip="'Add/Switch'" @click="addAndSwitch">
@@ -104,10 +103,6 @@ export default {
         : "xx";
     },
 
-    isDisabled() {
-      return this.chainId !== this.forkData.forkChainId;
-    },
-
     chainInfo() {
       return this.getChainById(this.forkData.forkChainId);
     },
@@ -122,30 +117,32 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     async toggleUseFork() {
-      if (this.isDisabled) return false;
-
       this.useFork = !this.useFork;
       const data = JSON.parse(localStorage.getItem(TENDERLY_FORK_DATA));
 
-      data.find((fork) => {
-        if (
-          fork.forkId === this.forkData.forkId &&
-          this.chainId === this.forkData.forkChainId
-        )
-          fork.useFork = this.useFork;
+      data.map((fork) => {
+        if (fork.forkId === this.forkData.forkId) fork.useFork = this.useFork;
         else fork.useFork = false;
+        return fork;
       });
 
       localStorage.setItem(TENDERLY_FORK_DATA, JSON.stringify(data));
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 300);
+      if (this.chainId !== this.forkData.forkChainId) await this.addAndSwitch();
+      else this.reload();
     },
 
     async addAndSwitch() {
       const { error } = await addAndSwitchForkOnWallet(this.forkData);
-      if (!error) window.location.reload();
+      if (!error) this.reload();
+    },
+
+    reload() {
+      localStorage.setItem("MAGIC_MONEY_CHAIN_ID", this.forkData.forkChainId);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
     },
 
     async deleteFork() {
@@ -203,6 +200,11 @@ export default {
   justify-content: space-between;
 }
 
+.chain-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .chain-icon {
   max-width: 25px;
 }
@@ -254,12 +256,6 @@ export default {
   background: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
   border: 2px solid #648fcc;
-}
-
-.disabled {
-  cursor: not-allowed;
-  background: #403e4a;
-  color: rgba(255, 255, 255, 0.6);
 }
 
 .metamask-icon {
