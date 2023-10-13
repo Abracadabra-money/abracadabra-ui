@@ -2,7 +2,7 @@
   <div
     class="checkbox"
     :class="{ active: value, disabled: disabled }"
-    @click="$emit('update')"
+    @click="updateCheckbox"
   >
     <div class="checkbox-indicator"></div>
   </div>
@@ -20,6 +20,13 @@ export default {
       default: false,
     },
   },
+
+  methods: {
+    updateCheckbox() {
+      if (this.disabled) return false;
+      this.$emit("update");
+    },
+  },
 };
 </script>
 
@@ -33,15 +40,15 @@ export default {
   border-radius: 18px;
   transition: all 0.3s ease;
   cursor: pointer;
+}
 
-  &.active {
-    background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-    border: transparent;
+.active {
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
+  border: transparent;
 
-    .checkbox-indicator {
-      left: calc(100% - 3px);
-      transform: translateY(-50%) translateX(-100%);
-    }
+  .checkbox-indicator {
+    left: calc(100% - 3px);
+    transform: translateY(-50%) translateX(-100%);
   }
 }
 

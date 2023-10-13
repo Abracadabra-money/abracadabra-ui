@@ -7,10 +7,13 @@
         :isDisabled="!useCustomAddress"
         @update-input="updateDestinationAddress"
       />
-
-      <button class="use-custom">
+      <button class="use-custom" :class="{ disabled: isDisabledCheckbox }">
         Use custom
-        <CheckBox :value="useCustomAddress" @update="toggleUseCustomAddress" />
+        <CheckBox
+          :value="useCustomAddress"
+          :disabled="isDisabledCheckbox"
+          @update="toggleUseCustomAddress"
+        />
       </button>
     </div>
 
@@ -32,6 +35,7 @@
 </template>
 
 <script>
+import { providers } from "ethers";
 import { getAccount } from "@wagmi/core";
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
@@ -58,6 +62,11 @@ export default {
   computed: {
     ...mapGetters({ provider: "getProvider" }),
 
+    isDisabledCheckbox() {
+      if (!account.address) return true;
+      return false;
+    },
+
     isDisabledGetGasBtn() {
       return !this.destinationAddress || !this.inputGasValue;
     },
@@ -83,15 +92,22 @@ export default {
 
     async actionHandler() {
       if (!this.destinationAddress || this.isDisabledGetGasBtn) return false;
+      const provider = account.address
+        ? this.provider
+        : new providers.StaticJsonRpcProvider(this.activeFork.rpcUrl);
 
       const response = await tenderlyAddBalance(
         this.destinationAddress,
         this.inputGasValue,
-        this.provider
+        provider
       );
 
       await this.createNotification(notification[response]);
     },
+  },
+
+  mounted() {
+    if (!account.address) this.useCustomAddress = true;
   },
 
   components: {
@@ -144,5 +160,10 @@ export default {
   background: rgba(255, 255, 255, 0.06);
   justify-content: center;
   border: 2px solid #648fcc;
+}
+
+.disabled {
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.6);
 }
 </style>
