@@ -26,9 +26,12 @@
           </div>
 
           <component
+            v-if="activeFork"
             v-bind:is="currentTabComponent"
             :activeFork="activeFork"
           ></component>
+
+          <EmptyState v-else />
         </div>
 
         <ForksInfoBlock />
@@ -81,6 +84,9 @@ export default {
     ),
     ForksInfoBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/ForksInfoBlock.vue")
+    ),
+    EmptyState: defineAsyncComponent(() =>
+      import("@/components/tenderly/EmptyState.vue")
     ),
   },
 };
