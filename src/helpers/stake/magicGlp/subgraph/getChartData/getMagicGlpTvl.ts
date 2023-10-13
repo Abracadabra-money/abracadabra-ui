@@ -5,7 +5,7 @@ import { getGlpPerformanceData } from "@/helpers/stake/magicGlp/subgraph/getChar
 export const getMagicGlpTvl = async (
   chainId: number,
   month = 3,
-  feePercent = 0.01
+  feePercent: any
 ) => {
   const pastMonth = moment().subtract(month, "month").toDate();
   const pastDay = moment().subtract(1, "day").toDate();

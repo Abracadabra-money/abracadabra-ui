@@ -92,14 +92,9 @@
             :getChartOptions="getChartOptions"
           />
 
-          <BalancesBlockViem
-            v-if="account"
-            :mainToken="mainToken"
-            :stakeToken="stakeToken"
-          />
+          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
 
           <AdditionalInfoBlockViem
-            v-if="account"
             :mainToken="mainToken"
             :rewardToken="stakeInfo.rewardToken"
           />
