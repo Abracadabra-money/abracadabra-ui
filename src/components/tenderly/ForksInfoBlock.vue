@@ -21,6 +21,7 @@ export default {
 
   computed: {
     sortData() {
+      if (!this.ForksData?.length) return [];
       return [...this.ForksData].sort((fork) => (fork.useFork ? -1 : 1));
     },
   },
