@@ -610,6 +610,7 @@ export default {
     },
 
     async checkPermissionToCook(notificationId, borrowAmount) {
+      if (borrowAmount == 0) return true;
       const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
       const { id } = this.cauldron.config;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
@@ -636,14 +637,6 @@ export default {
       if (!whitelistedInfo && this.chainId === 1 && id === 33) {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.whitelisted);
-        return false;
-      }
-
-      const allowance = await this.checkAllowance(this.parseCollateralValue);
-
-      if (!allowance) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.approveError);
         return false;
       }
 
