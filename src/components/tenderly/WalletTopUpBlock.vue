@@ -22,10 +22,11 @@
         @update-input="updateDestinationAddress"
       />
 
-      <button class="use-custom">
+      <button class="use-custom" :class="{ disabled: !account }">
         Use custom
         <CheckBox
           :value="useCustomDestinationAddress"
+          :disabled="!account"
           @update="toggleUseDestinationAddress"
         />
       </button>
@@ -65,6 +66,7 @@
 </template>
 
 <script>
+import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import cauldronsConfig from "@/utils/cauldronsConfig";
@@ -179,15 +181,19 @@ export default {
     async actionHandler() {
       if (!this.isDisabledGetGasBtn) return false;
       const notificationId = await this.createNotification(
-        notification.pending
+        notification.tenderlyPending
       );
+
+      const provider = this.account
+        ? this.provider
+        : await new providers.JsonRpcProvider(this.activeFork.rpcUrl);
 
       await tokenTransfer(
         this.chainId,
         this.tokensInfo.address,
         this.toAddress ? this.toAddress : this.account,
         this.amount,
-        this.provider,
+        provider,
         this.holdersAddresses
       );
 
@@ -199,6 +205,10 @@ export default {
       await this.deleteNotification(notificationId);
       await this.createNotification(notification.success);
     },
+  },
+
+  created() {
+    if (!this.account) this.useCustomDestinationAddress = true;
   },
 
   components: {
@@ -254,6 +264,11 @@ export default {
   background: rgba(255, 255, 255, 0.06);
   justify-content: center;
   border: 2px solid #648fcc;
+}
+
+.disabled {
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .row {

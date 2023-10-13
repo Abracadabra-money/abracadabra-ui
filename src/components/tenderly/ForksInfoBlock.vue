@@ -2,7 +2,7 @@
   <div class="fork-info-block">
     <h3 class="title">Forks Info</h3>
     <ForkInfoItem
-      v-for="forkData in testForkData"
+      v-for="forkData in sortData"
       :forkData="forkData"
       :key="forkData.forkId"
     />
@@ -15,15 +15,19 @@ import { defineAsyncComponent } from "vue";
 export default {
   data() {
     return {
-      testForkData: JSON.parse(localStorage.getItem("tenderly_fork_data")),
+      ForksData: JSON.parse(localStorage.getItem("tenderly_fork_data")),
     };
+  },
+
+  computed: {
+    sortData() {
+      return [...this.ForksData].sort((fork) => (fork.useFork ? -1 : 1));
+    },
   },
 
   async mounted() {
     window.addEventListener("tenderly_fork_data-changed", () => {
-      this.testForkData = JSON.parse(
-        localStorage.getItem("tenderly_fork_data")
-      );
+      this.ForksData = JSON.parse(localStorage.getItem("tenderly_fork_data"));
     });
   },
 

@@ -1,12 +1,16 @@
 <template>
   <div class="cauldron-top-up">
     <h3 class="title">Cauldron Top Up</h3>
-
     <div class="input-assets">
-      <InputUrl :targetUrl="tenderlyForkUrl" :isDisabled="true" />
+      <InputUrl
+        :targetUrl="activeFork?.rpcUrl"
+        :icon="forkIcon"
+        :isDisabled="true"
+      />
     </div>
 
     <CauldronsDropdown
+      :forkChainId="activeFork.forkChainId"
       :isDisabled="isDisabledCauldronsDropdown"
       @changeCauldron="updateCauldronAddress"
     />
@@ -30,7 +34,6 @@
 <script>
 import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { TENDERLY_FORK_URL } from "@/constants/tenderly";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { topUpCauldron } from "@/helpers/tenderly/topUpCauldron";
 import notification from "@/helpers/notification/notification.js";
@@ -44,7 +47,6 @@ export default {
 
   data() {
     return {
-      tenderlyForkUrl: "",
       forkChainId: this.activeFork?.forkChainId,
       cauldronAddress: "",
       cauldronAmount: null,
@@ -53,12 +55,14 @@ export default {
 
   computed: {
     ...mapGetters({
+      account: "getAccount",
       provider: "getProvider",
       chainId: "getChainId",
+      getChainById: "getChainById",
     }),
 
     isDisabledCauldronsDropdown() {
-      return !this.tenderlyForkUrl;
+      return !this.activeFork?.rpcUrl;
     },
 
     isDisabledInputAmount() {
@@ -67,6 +71,10 @@ export default {
 
     isDisabledActionHandler() {
       return !this.cauldronAddress || !this.cauldronAmount;
+    },
+
+    forkIcon() {
+      return this.getChainById(this.activeFork.forkChainId).icon;
     },
   },
 
@@ -86,12 +94,12 @@ export default {
       if (this.isDisabledActionHandler) return false;
 
       const notificationId = await this.createNotification(
-        notification.pending
+        notification.tenderlyPending
       );
 
-      const provider = this.activeFork
+      const provider = this.account
         ? this.provider
-        : await new providers.JsonRpcProvider(this.tenderlyForkUrl);
+        : await new providers.JsonRpcProvider(this.activeFork.rpcUrl);
 
       const { status, msg } = await topUpCauldron(
         this.cauldronAmount,
@@ -107,12 +115,6 @@ export default {
         type: status,
       });
     },
-  },
-
-  created() {
-    this.tenderlyForkUrl = this.activeFork?.forkId
-      ? `${TENDERLY_FORK_URL}${this.activeFork?.forkId}`
-      : "";
   },
 
   components: {

@@ -11,14 +11,14 @@
     <div class="info-row">
       <p>Fork ID</p>
       <p class="clipboard" @click="clipboard">
-        {{ `${forkData.forkId.slice(0, 4)}...${forkData.forkId.slice(-4)}` }}
+        {{ `${forkData.rpcUrl.slice(0, 4)}...${forkData.rpcUrl.slice(-4)}` }}
         <img src="@/assets/images/clipboard.svg" alt="" />
       </p>
     </div>
 
     <div class="info-row">
       <p>Created</p>
-      <p class="time-line" :class="timeLine">
+      <p class="time-line" :class="timeLine" v-tooltip="timestampTooltip">
         <span class="emoji" v-if="timeLine === 'high'">&#128545;</span>
         <span class="emoji" v-if="timeLine === 'medium'">&#128528;</span>
         <span class="emoji" v-if="timeLine === 'safe'">&#128512;</span>
@@ -69,6 +69,7 @@ export default {
 
   computed: {
     ...mapGetters({
+      account: "getAccount",
       chainId: "getChainId",
       getChainById: "getChainById",
     }),
@@ -106,6 +107,12 @@ export default {
     chainInfo() {
       return this.getChainById(this.forkData.forkChainId);
     },
+
+    timestampTooltip() {
+      if (this.timeLine === "safe") return "New fork";
+      if (this.timeLine === "medium") return "Normal fork";
+      return "Bad fork";
+    },
   },
 
   watch: {
@@ -126,15 +133,23 @@ export default {
         return fork;
       });
 
-      localStorage.setItem(TENDERLY_FORK_DATA, JSON.stringify(data));
-
-      if (this.chainId !== this.forkData.forkChainId) await this.addAndSwitch();
-      else this.reload();
+      if (
+        this.chainId !== this.forkData.forkChainId &&
+        this.useFork &&
+        this.account
+      ) {
+        const response = await this.addAndSwitch();
+        if (response)
+          localStorage.setItem(TENDERLY_FORK_DATA, JSON.stringify(data));
+        else this.useFork = !this.useFork;
+      } else {
+        localStorage.setItem(TENDERLY_FORK_DATA, JSON.stringify(data));
+        this.reload();
+      }
     },
 
     async addAndSwitch() {
-      const { error } = await addAndSwitchForkOnWallet(this.forkData);
-      if (!error) this.reload();
+      return await addAndSwitchForkOnWallet(this.forkData);
     },
 
     reload() {
@@ -168,7 +183,7 @@ export default {
     },
 
     clipboard() {
-      navigator.clipboard.writeText(this.forkData.forkId);
+      navigator.clipboard.writeText(this.forkData.rpcUrl);
       this.createNotification(notification.clipboard);
     },
   },

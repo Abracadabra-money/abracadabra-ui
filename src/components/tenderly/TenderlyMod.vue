@@ -15,10 +15,10 @@
     <img
       class="switch-mod"
       v-show="isAdditionalButtons"
-      v-tooltip="'Toggle use fork'"
+      v-tooltip="'Disconnect fork'"
       @click="toggleTenderlyMod"
       src="@/assets/images/tenderly/disconnect_fork.png"
-      alt="Toggle use fork"
+      alt="Disconnect fork"
     />
 
     <img
@@ -26,7 +26,7 @@
       v-show="isAdditionalButtons"
       v-tooltip="'Add fork to metamask'"
       @click="addAndSwitch"
-      src="@/assets/images/tenderly/add_fork.png"
+      src="@/assets/images/metamask.svg"
       alt="Add fork to metamask"
     />
   </div>
@@ -38,8 +38,7 @@ import {
   TENDERLY_EVENT_CHANGED_DATA,
 } from "@/constants/tenderly";
 import { mapActions, mapGetters } from "vuex";
-// todo chain
-import { networksConfig } from "@/utils/networks/networksConfig";
+import { chains } from "@/helpers/chains";
 import notification from "@/helpers/notification/notification.js";
 import { addAndSwitchForkOnWallet } from "@/helpers/tenderly/addAndSwitchForkOnWallet";
 
@@ -64,20 +63,6 @@ export default {
     },
   },
 
-  watch: {
-    async chainId() {
-      const activeForkData = this.forksData.find((forkData) => {
-        if (forkData.useFork) return forkData;
-      });
-
-      const forkChainId = activeForkData?.forkChainId;
-
-      if (forkChainId && forkChainId !== this.chainId) {
-        await this.toggleTenderlyMod();
-      }
-    },
-  },
-
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
 
@@ -95,7 +80,7 @@ export default {
     },
 
     async addAndSwitch() {
-      const networkConfig = networksConfig.find(
+      const networkConfig = chains.find(
         (network) => network.chainId === this.chainId
       );
 

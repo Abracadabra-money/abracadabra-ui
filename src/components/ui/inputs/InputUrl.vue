@@ -1,14 +1,17 @@
 <template>
   <div class="input-url-wrap">
-    <input
-      class="input-url"
-      :class="{ error: error }"
-      v-model="url"
-      @input="updateInput"
-      type="text"
-      :placeholder="placeholder"
-      :disabled="isDisabled"
-    />
+    <div class="input-wrap">
+      <img class="icon" :src="icon" v-if="icon" alt="" />
+      <input
+        class="input-url"
+        :class="{ error: error, 'icon-gap': icon }"
+        v-model="url"
+        @input="updateInput"
+        type="text"
+        :placeholder="placeholder"
+        :disabled="isDisabled"
+      />
+    </div>
     <p class="error-message" :class="{ visibility: error }">
       {{ error }}
     </p>
@@ -19,6 +22,10 @@
 export default {
   props: {
     targetUrl: {
+      type: String,
+      default: "",
+    },
+    icon: {
       type: String,
       default: "",
     },
@@ -61,6 +68,18 @@ export default {
   width: 100%;
 }
 
+.input-wrap {
+  position: relative;
+}
+
+.icon {
+  max-width: 30px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 12px;
+}
+
 .input-url {
   width: 100%;
   height: 50px;
@@ -71,6 +90,10 @@ export default {
   padding: 12px 20px;
   color: #fff;
   font-size: 14px;
+}
+
+.icon-gap {
+  padding: 12px 20px 12px 50px;
 }
 
 .error {

@@ -9,9 +9,9 @@
         <img
           class="chain-icon"
           :src="activeChain.icon"
-          :alt="activeChain.name"
+          :alt="activeChain.symbol"
         />
-        <span>{{ activeChain.name }}</span>
+        <span>{{ activeChain.symbol }}</span>
       </div>
 
       <img src="@/assets/images/arrow-down.svg" alt="Arrow" />
@@ -25,29 +25,28 @@
         :key="i"
       >
         <img class="dropdown-item-icon" :src="data.icon" alt="" />
-        {{ data.name }} {{ data.id }}
+        {{ data.symbol }}
       </button>
     </div>
   </div>
 </template>
 
 <script>
-// todo chain
-import { networksConfig } from "@/utils/networks/networksConfig";
+import { chains } from "@/helpers/chains";
 
 export default {
   data() {
     return {
-      networksConfig,
+      chains,
       isOpenDropdown: false,
-      activeChain: networksConfig[0],
+      activeChain: chains[0],
       unsupportedChain: [2222, 59144],
     };
   },
 
   computed: {
     filteredNetworks() {
-      return networksConfig.filter(
+      return chains.filter(
         (network) =>
           ![...this.unsupportedChain, this.activeChain.chainId].includes(
             network.chainId
@@ -68,9 +67,7 @@ export default {
     changeDropdownValue(chainId) {
       this.closeDropdown();
       this.$emit("changeForkId", chainId);
-      this.activeChain = networksConfig.find(
-        (network) => network.chainId === chainId
-      );
+      this.activeChain = chains.find((network) => network.chainId === chainId);
     },
   },
 };

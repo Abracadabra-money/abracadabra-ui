@@ -1,12 +1,12 @@
 import { getWalletClient } from "@wagmi/core";
 import { chainsList } from "@/helpers/chains/index";
+import type { LocalForkData } from "@/types/tenderly";
 import { TENDERLY_FORK_URL } from "@/constants/tenderly";
-import type { AddAndSwitchForkOnWallet, LocalForkData } from "@/types/tenderly";
 
 export const addAndSwitchForkOnWallet = async ({
   forkChainId,
   forkId,
-}: LocalForkData): Promise<AddAndSwitchForkOnWallet> => {
+}: LocalForkData): Promise<boolean> => {
   try {
     const walletClient = await getWalletClient();
 
@@ -19,14 +19,15 @@ export const addAndSwitchForkOnWallet = async ({
       forkChainConfig.name = `Fork (${name}) - ${tenderlyForkId}`;
       forkChainConfig.rpcUrls.default.http = [`${TENDERLY_FORK_URL}${forkId}`];
       forkChainConfig.rpcUrls.public.http = [`${TENDERLY_FORK_URL}${forkId}`];
-      await walletClient!.addChain({ chain: forkChainConfig });
+      await walletClient.addChain({ chain: forkChainConfig });
+      await walletClient.switchChain({ id: forkChainId });
     } else {
       localStorage.setItem("MAGIC_MONEY_CHAIN_ID", forkChainId.toString());
     }
 
-    return { success: true };
+    return true;
   } catch (error) {
     console.log("Add Fork To Metamask Error:", error);
-    return { error };
+    return false;
   }
 };

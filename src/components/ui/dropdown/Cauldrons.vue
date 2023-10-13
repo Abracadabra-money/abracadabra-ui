@@ -17,29 +17,32 @@
 
       <img src="@/assets/images/arrow-down.svg" alt="Arrow" />
     </button>
-
     <div class="dropdown-list" v-show="isOpenDropdown">
-      <button
-        class="dropdown-item"
-        v-for="(data, i) in cauldronData"
-        @click="changeDropdownValue(data.id)"
-        :key="i"
-      >
-        <span class="dropdown-item-info">
-          <img class="dropdown-item-icon" :src="data.icon" alt="" />
-          <span>{{ data.name }}</span>
-          <span class="interest">{{ data.interest || 0 }}%</span>
-        </span>
-        <span>{{
-          `${data.address.slice(0, 6)}...${data.address.slice(-6)}`
-        }}</span>
+      <template v-if="cauldronData?.length">
+        <button
+          class="dropdown-item"
+          v-for="(data, i) in cauldronData"
+          @click="changeDropdownValue(data.id)"
+          :key="i"
+        >
+          <span class="dropdown-item-info">
+            <img class="dropdown-item-icon" :src="data.icon" alt="" />
+            <span>{{ data.name }}</span>
+            <span class="interest">{{ data.interest || 0 }}%</span>
+          </span>
+          <span>{{
+            `${data.address.slice(0, 6)}...${data.address.slice(-6)}`
+          }}</span>
+        </button>
+      </template>
+      <button class="dropdown-item" v-else>
+        No borrow on this network In the future they will be displayed here
       </button>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { getCauldronList } from "@/helpers/tenderly/getCauldronList";
 
 export default {
@@ -47,6 +50,10 @@ export default {
     isDisabled: {
       type: Boolean,
       default: false,
+    },
+    forkChainId: {
+      type: Number,
+      default: 1,
     },
   },
 
@@ -59,10 +66,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      chainId: "getChainId",
-    }),
-
     cauldronInfo() {
       if (!this.selectedCauldron)
         return { icon: null, name: "Select Cauldron" };
@@ -91,7 +94,7 @@ export default {
   },
 
   async created() {
-    this.cauldronData = await getCauldronList(this.chainId);
+    this.cauldronData = await getCauldronList(this.forkChainId);
   },
 };
 </script>
