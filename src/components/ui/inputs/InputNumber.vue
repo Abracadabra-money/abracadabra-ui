@@ -33,6 +33,10 @@ export default {
       type: Number,
       default: 0,
     },
+    isValidation: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -43,7 +47,7 @@ export default {
 
   computed: {
     errorAmount() {
-      return +this.inputValue > +this.max;
+      return this.isValidation && +this.inputValue > +this.max;
     },
   },
 

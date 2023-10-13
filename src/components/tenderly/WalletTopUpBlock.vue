@@ -35,6 +35,7 @@
     <div class="input-assets">
       <InputNumber
         :max="holdersAmount"
+        :isValidation="true"
         :isDisabled="!tokensInfo?.address"
         @changeInputNumber="updateAmountValue"
       />
