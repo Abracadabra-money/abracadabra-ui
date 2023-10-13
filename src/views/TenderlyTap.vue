@@ -7,23 +7,10 @@
         <div class="actions">
           <CreateForkBlock />
 
-          <div class="btn-wrap">
-            <BaseButton
-              :primary="currentTabComponent === 'WalletTopUpBlock'"
-              @click="changeTabComponent('WalletTopUpBlock')"
-              >Wallet Top Up</BaseButton
-            >
-            <BaseButton
-              :primary="currentTabComponent === 'GasTopUpBlock'"
-              @click="changeTabComponent('GasTopUpBlock')"
-              >Gas Top Up</BaseButton
-            >
-            <BaseButton
-              :primary="currentTabComponent === 'CauldronTopUpBlock'"
-              @click="changeTabComponent('CauldronTopUpBlock')"
-              >Cauldron Top Up</BaseButton
-            >
-          </div>
+          <ForkActionsBlock
+            :primaryTab="currentTabComponent"
+            @changeTab="changeTabComponent"
+          />
 
           <component
             v-if="activeFork"
@@ -70,8 +57,8 @@ export default {
     CreateForkBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/CreateForkBlock.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    ForkActionsBlock: defineAsyncComponent(() =>
+      import("@/components/tenderly/ForkActionsBlock.vue")
     ),
     WalletTopUpBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/WalletTopUpBlock.vue")
@@ -133,12 +120,6 @@ export default {
 
 .underline {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.btn-wrap {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
 }
 
 @media screen and (max-width: 1024px) {
