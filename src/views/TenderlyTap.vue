@@ -5,9 +5,7 @@
 
       <div class="wrapper">
         <div class="actions">
-          <div class="underline">
-            <CreateForkBlock />
-          </div>
+          <CreateForkBlock />
 
           <div class="btn-wrap">
             <BaseButton
@@ -125,7 +123,6 @@ export default {
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  padding: 15px 0 0;
 }
 
 .underline {

@@ -1,18 +1,19 @@
 <template>
   <div class="create-fork-block">
-    <div class="network-dropdown-wrap">
-      <NetworkDropdown @changeForkId="changeForkId" />
-    </div>
+    <h3 class="title">Fork Creation</h3>
+    <div class="create-fork">
+      <div class="network-dropdown-wrap">
+        <NetworkDropdown @changeForkId="changeForkId" />
+      </div>
 
-    <BaseButton @click="createForkAction">
-      <span class="create-button">
+      <button class="create-button" @click="createForkAction">
         <img
           class="tenderly-icon"
           src="@/assets/images/tenderly/tenderly_icon.png"
           alt="Tenderly icon"
         />Create Fork
-      </span>
-    </BaseButton>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -47,9 +48,6 @@ export default {
     NetworkDropdown: defineAsyncComponent(() =>
       import("@/components/ui/dropdown/Netwoks.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
   },
 };
 </script>
@@ -57,21 +55,51 @@ export default {
 <style lang="scss" scoped>
 .create-fork-block {
   display: flex;
+  flex-direction: column;
   gap: 15px;
-  padding: 0 0 15px;
+  padding: 20px 15px;
+  background-color: rgba(35, 33, 45, 0.3019607843);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 30px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.create-fork {
+  cursor: pointer;
+  border-radius: 20px;
+  background: #403e4a;
+  height: 50px;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .network-dropdown-wrap {
-  max-width: 200px;
   width: 100%;
 }
 
 .create-button {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 15px;
-  align-items: center;
+  width: 100%;
+  height: 50px;
+  border-radius: 20px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.create-button:hover {
+  background: #616068;
 }
 
 .tenderly-icon {

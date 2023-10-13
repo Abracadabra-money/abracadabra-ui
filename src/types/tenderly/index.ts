@@ -7,14 +7,10 @@ export type ChainsConfigs = {
 
 export type LocalForkData = {
   forkChainId: number;
+  rpcUrl: string;
   forkId: String;
   timestamp: String;
   useFork: Boolean;
-};
-
-export type AddAndSwitchForkOnWallet = {
-  success?: boolean;
-  error?: any;
 };
 
 export type TopUpCauldron = {
