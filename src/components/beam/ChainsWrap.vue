@@ -8,10 +8,7 @@
       </div>
     </button>
 
-    <button
-      class="switch-chain-button"
-      :disabled="fromChain.isUnsupportedNetwork"
-    >
+    <button class="switch-chain-button" :disabled="isNetworkToChangeDisabled">
       <img
         class="switch-chain-image"
         @click="$emit('switch-chain')"
@@ -23,7 +20,7 @@
     <button
       class="select-item"
       @click="$emit('changeNetwork', 'to')"
-      :disabled="fromChain.isUnsupportedNetwork"
+      :disabled="isNetworkToChangeDisabled"
     >
       <h3 class="title">Destination Chain</h3>
       <div class="description">
@@ -35,6 +32,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { useImage } from "@/helpers/useImage";
 export default {
   props: {
@@ -53,6 +51,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ account: "getAccount" }),
+
     destinationChain() {
       if (!this.selectChain || !this.toChain)
         return {
@@ -60,6 +60,10 @@ export default {
           icon: useImage(`assets/images/networks/no-chain.svg`),
         };
       return this.toChain;
+    },
+
+    isNetworkToChangeDisabled() {
+      return this.fromChain.isUnsupportedNetwork || !this.account;
     },
   },
 };

@@ -8,12 +8,12 @@
           <WalletButton
             :active="isShowDstAddress"
             @click="toggleDstAddress"
-            :disabled="isUnsupportedNetwork"
+            :disabled="isActionsDisabled"
           />
           <SettingsButton
             :active="isSettingsOpened"
             @click="isSettingsOpened = true"
-            :disabled="isUnsupportedNetwork"
+            :disabled="isActionsDisabled"
           />
         </div>
       </div>
@@ -36,7 +36,7 @@
             :icon="$image('assets/images/tokens/MIM.png')"
             :error="amountError"
             @update-value="updateMainValue"
-            :disabled="isUnsupportedNetwork"
+            :disabled="isActionsDisabled"
           />
         </div>
 
@@ -286,6 +286,10 @@ export default {
 
     mimBalance() {
       return this.beamConfig?.balance || 0;
+    },
+
+    isActionsDisabled() {
+      return this.isUnsupportedNetwork || !this.account;
     },
 
     disableBtn() {
