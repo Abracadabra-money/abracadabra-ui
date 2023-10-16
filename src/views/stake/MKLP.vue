@@ -24,6 +24,7 @@
             :name="fromToken.name"
             :max="formatAmount(fromToken.balance)"
             :error="errorMainValue"
+            :disabled="!isUnsupportedChain"
             @updateValue="updateMainValue"
           />
         </div>
@@ -78,10 +79,9 @@
             :getChartOptions="getChartOptions"
           />
 
-          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
+          <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <AdditionalInfoBlockViem
-            v-if="account"
+          <AdditionalInfoBlock
             :mainToken="mainToken"
             :rewardToken="stakeInfo?.rewardToken"
           />
@@ -412,13 +412,11 @@ export default {
     ChartBlock: defineAsyncComponent(() =>
       import("@/components/stake/ChartBlock.vue")
     ),
-    // todo
-    BalancesBlockViem: defineAsyncComponent(() =>
-      import("@/components/stake/BalancesBlockViem.vue")
+    BalancesBlock: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlock.vue")
     ),
-    // todo
-    AdditionalInfoBlockViem: defineAsyncComponent(() =>
-      import("@/components/stake/AdditionalInfoBlockViem.vue")
+    AdditionalInfoBlock: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlock.vue")
     ),
     EmptyBlock: defineAsyncComponent(() =>
       import("@/components/stake/EmptyBlock.vue")

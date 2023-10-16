@@ -1,13 +1,11 @@
-import type {
-  MagicLvlStakeInfo,
-  MagicLvlTokensInfo,
-  MagicLvlTranchesInfo,
-} from "@/types/magicLvl/stakeInfo";
 import { getAccount } from "@wagmi/core";
 import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
+import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
+import type { MagicLvlTokensInfo } from "@/types/magicLvl/stakeInfo";
+import type { MagicLvlTranchesInfo } from "@/types/magicLvl/stakeInfo";
 import { getTokensInfo } from "@/helpers/stake/magicLvl/getTokensInfo";
+import { getEmptyState } from "@/helpers/stake/magicLvl/getEmptyState";
 import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
-import { getEmptyState } from "./getEmptyState";
 
 //
 export const getStakeInfo = async (
@@ -16,7 +14,7 @@ export const getStakeInfo = async (
   const account = getAccount().address;
   const config = magicLvlConfig[chainId as keyof typeof magicLvlConfig];
 
-  if (!config || !account) return await getEmptyState();
+  if (!config || !account) return await getEmptyState(config);
 
   const { master, harvestor, tokensConfig } = config;
 
