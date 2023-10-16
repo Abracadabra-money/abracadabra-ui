@@ -24,6 +24,7 @@
             :name="fromToken.name"
             :max="formatAmount(fromToken.balance)"
             :error="errorMainValue"
+            :disabled="!isUnsupportedChain"
             @updateValue="updateMainValue"
           />
         </div>
@@ -81,7 +82,6 @@
           <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
 
           <AdditionalInfoBlock
-            v-if="account"
             :mainToken="mainToken"
             :rewardToken="stakeInfo?.rewardToken"
           />

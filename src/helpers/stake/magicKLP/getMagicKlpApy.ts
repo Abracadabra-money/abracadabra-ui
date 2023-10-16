@@ -27,8 +27,6 @@ export const getMagicKlpApy = async () => {
       count = 1;
     }
 
-    console.log("index", index);
-
     if (data.chart.length - 1 === index) {
       chartData.labels.push(date);
       chartData.tickUpper.push(apr / count);
