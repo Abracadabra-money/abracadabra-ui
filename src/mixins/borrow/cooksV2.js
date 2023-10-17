@@ -1,5 +1,4 @@
 import { mapGetters } from "vuex";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { signMasterContract } from "@/helpers/signature";
@@ -598,7 +597,6 @@ export default {
       { amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
-      notificationId,
       isLpLogic = false,
       wrap = false
     ) {
@@ -639,15 +637,10 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, value, notificationId);
+      await cook(cauldron, cookData, value);
     },
 
-    async cookBorrow(
-      { amount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
+    async cookBorrow({ amount, updatePrice }, isApprowed, pool) {
       const { address } = pool.config.mimInfo;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
       const { cauldron } = this.cauldron.contracts;
@@ -684,14 +677,13 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await cook(cauldron, cookData, 0);
     },
 
     async cookAddCollateralAndBorrow(
       { collateralAmount, amount, updatePrice, itsDefaultBalance },
       isApprowed,
       pool,
-      notificationId,
       isLpLogic = false,
       isWrap = false
     ) {
@@ -739,15 +731,10 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, collateralValue, notificationId);
+      await cook(cauldron, cookData, collateralValue);
     },
 
-    async cookRemoveCollateral(
-      { amount, updatePrice },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
+    async cookRemoveCollateral({ amount, updatePrice }, isApprowed, pool) {
       const { cauldron } = pool.contracts;
       const tokenAddr = pool.config.collateralInfo.address;
       const userAddr = this.account;
@@ -779,15 +766,10 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await cook(cauldron, cookData, 0);
     },
 
-    async cookRepay(
-      { amount, updatePrice, itsMax },
-      isApprowed,
-      pool,
-      notificationId
-    ) {
+    async cookRepay({ amount, updatePrice, itsMax }, isApprowed, pool) {
       const { cauldron } = pool.contracts;
 
       let cookData = {
@@ -811,14 +793,13 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await cook(cauldron, cookData, 0);
     },
 
     async cookRemoveCollateralAndRepay(
       { amount, collateralAmount, updatePrice, itsMax },
       isApprowed,
-      pool,
-      notificationId
+      pool
     ) {
       const { cauldron } = pool.contracts;
       const tokenAddr = pool.config.collateralInfo.address;
@@ -858,7 +839,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
+      await cook(cauldron, cookData, 0);
     },
 
     async cookLeverage(
@@ -872,7 +853,6 @@ export default {
       },
       isApprowed,
       pool,
-      notificationId,
       isWrap
     ) {
       const { whitelistedInfo } = this.cauldron.additionalInfo;
@@ -946,7 +926,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, collateralValue, notificationId);
+      await cook(cauldron, cookData, collateralValue);
     },
 
     async cookDeleverage(
@@ -960,8 +940,7 @@ export default {
       },
       isApprowed,
       pool,
-      account,
-      notificationId
+      account
     ) {
       const { collateral, liquidationSwapper, cauldron } =
         this.cauldron.contracts;
@@ -1034,29 +1013,7 @@ export default {
           await cauldron.masterContract()
         );
 
-      await this.sendCook(cauldron, cookData, 0, notificationId);
-    },
-
-    async sendCook(cauldron, cookData, value, notificationId) {
-      try {
-        await cook(cauldron, cookData, value);
-
-        await this.$store.commit("notifications/delete", notificationId);
-        this.$store.commit("setPopupState", {
-          type: "success",
-          isShow: true,
-        });
-      } catch (e) {
-        console.log("cook Error:", e);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(e),
-          type: "error",
-        };
-
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
-      }
+      await cook(cauldron, cookData, 0);
     },
   },
 };
