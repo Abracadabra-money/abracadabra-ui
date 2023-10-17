@@ -141,11 +141,15 @@ import { utils, BigNumber } from "ethers";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
+
+import cooks from "@/helpers/cauldron/cook/cooks";
+
+const { cookAddCollateral, cookAddCollateralAndBorrow, cookBorrow } = cooks;
+
 import {
   MAX_ALLOWANCE_VALUE,
   COLLATERAL_EMPTY_DATA,
@@ -153,7 +157,6 @@ import {
 } from "@/constants/cauldron.ts";
 
 export default {
-  mixins: [cookMixin],
   data() {
     return {
       cauldron: "",
@@ -539,13 +542,14 @@ export default {
         itsDefaultBalance: !!this.activeToken.isNative,
       };
 
-      await this.cookAddCollateralAndBorrow(
+      await cookAddCollateralAndBorrow(
         payload,
         isMasterContractApproved,
         this.cauldron,
         notificationId,
         !!this.cauldron.config?.wrapInfo,
-        !this.useOtherToken
+        !this.useOtherToken,
+        this.account
       );
 
       return await this.createCauldronInfo();
@@ -561,13 +565,14 @@ export default {
         itsDefaultBalance: !!this.activeToken.isNative,
       };
 
-      await this.cookAddCollateral(
+      await cookAddCollateral(
         payload,
         isMasterContractApproved,
         this.cauldron,
         notificationId,
         !!this.cauldron.config?.wrapInfo,
-        !this.useOtherToken
+        !this.useOtherToken,
+        this.account
       );
 
       return await this.createCauldronInfo();
@@ -582,11 +587,12 @@ export default {
         updatePrice,
       };
 
-      await this.cookBorrow(
+      await cookBorrow(
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId
+        notificationId,
+        this.account
       );
 
       return await this.createCauldronInfo();

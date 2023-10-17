@@ -160,7 +160,6 @@ import { utils, BigNumber } from "ethers";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
@@ -171,8 +170,10 @@ import {
   MAX_ALLOWANCE_VALUE,
 } from "@/constants/cauldron.ts";
 
+import cooks from "@/helpers/cauldron/cook/cooks";
+const { cookLeverage, cookAddCollateral } = cooks;
+
 export default {
-  mixins: [cookMixin],
   data() {
     return {
       slippage: 1,
@@ -673,13 +674,14 @@ export default {
         itsDefaultBalance: !!this.activeToken?.isNative,
       };
 
-      await this.cookAddCollateral(
+      await cookAddCollateral(
         payload,
         isMasterContractApproved,
         this.cauldron,
         notificationId,
         !!this.cauldron.config?.wrapInfo,
-        !this.useOtherToken
+        !this.useOtherToken,
+        this.account
       );
 
       return await this.createCauldronInfo();
@@ -705,12 +707,13 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      await this.cookLeverage(
+      await cookLeverage(
         payload,
         isMasterContractApproved,
         this.cauldron,
         notificationId,
-        !this.useOtherToken && !!this.cauldron.config.wrapInfo
+        !this.useOtherToken && !!this.cauldron.config.wrapInfo,
+        this.account
       );
 
       return await this.createCauldronInfo();
