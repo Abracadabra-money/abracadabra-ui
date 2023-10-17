@@ -496,8 +496,6 @@ export default {
       const { bentoBox } = this.cauldron.contracts;
       const { oracleExchangeRate } = this.positionInfo;
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -520,13 +518,13 @@ export default {
 
       const slippageAmount = amountFrom.div(100).mul(slippage).div(1e10);
 
-      const collateralAmount = await bentoBox.toShare(
+      const collateralShare = await bentoBox.toShare(
         this.activeToken.contract.address,
         amountFrom.add(slippageAmount),
         false
       );
 
-      const removeCollateralAmount = await bentoBox.toShare(
+      const removeCollateralShare = await bentoBox.toShare(
         this.activeToken.contract.address,
         this.finalRemoveCollateralAmount,
         true
@@ -534,28 +532,19 @@ export default {
 
       const payload = {
         borrowAmount: this.isMaxRepayMimAmount ? userBorrowPart : repayAmount,
-        collateralAmount,
-        removeCollateralAmount,
-        updatePrice,
+        collateralShare,
+        removeCollateralShare,
         itsMax: this.isMaxRepayMimAmount,
         slipage: this.slippage, // todo type
+        to: this.account
       };
 
-      // const isTokenToCookApprove = await this.checkAllowance(
-      //   payload.collateralAmount
-      // );
-
-      // if (+isTokenToCookApprove) {
       await cookDeleverage(
         payload,
-        isMasterContractApproved,
         this.cauldron,
-        this.account,
-        notificationId
       );
 
       return await this.createCauldronInfo();
-      // }
 
       await this.deleteNotification(notificationId);
       return await this.createNotification(notification.approveError);

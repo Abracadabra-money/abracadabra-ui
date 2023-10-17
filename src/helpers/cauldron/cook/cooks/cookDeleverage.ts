@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import sendCook from "@/helpers/cauldron/cook/sendCook";
+import { cook } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
@@ -10,26 +10,20 @@ import { repayEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actio
 const cookDeleverage = async (
   {
     borrowAmount,
-    collateralAmount,
-    removeCollateralAmount,
-    updatePrice,
+    collateralShare,
+    removeCollateralShare,
     itsMax,
     slipage,
+    to,
   }: any,
-  isApprowed: boolean,
-  cauldronObject: any,
-  account: string,
-  notificationId: number
+  cauldronObject: any
 ): Promise<void> => {
   const { collateral, liquidationSwapper, cauldron } = cauldronObject.contracts;
   const { userBorrowPart } = cauldronObject.userPosition.borrowInfo;
-  const { is0xSwap } = cauldronObject.config.cauldronSettings;
-  const collateralTokenAddr = collateral.address;
-  const reverseSwapperAddr = liquidationSwapper.address;
-  const userAddr = account;
-
-  const useDegenBoxHelper =
-    cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+  const { is0xSwap, useDegenBoxHelper } =
+    cauldronObject.config.cauldronSettings;
+  const { isMasterContractApproved } = cauldronObject.additionalInfo;
+  const { updatePrice } = cauldronObject.mainParams;
 
   let cookData = {
     events: [],
@@ -37,24 +31,28 @@ const cookDeleverage = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
   cookData = await actions.removeCollateral(
     cookData,
-    collateralAmount,
-    reverseSwapperAddr
+    collateralShare,
+    liquidationSwapper.address
   );
 
   cookData = await recipeDeleverage(
     cookData,
     cauldronObject,
-    collateralAmount,
+    collateralShare,
     borrowAmount,
     slipage,
     is0xSwap,
-    userAddr
+    to
   );
 
   if (itsMax) {
@@ -62,7 +60,7 @@ const cookDeleverage = async (
       cookData,
       cauldronObject,
       userBorrowPart,
-      userAddr
+      to
     );
   } else {
     cookData = await actions.getRepayPart(cookData, "-2");
@@ -70,32 +68,32 @@ const cookDeleverage = async (
       cookData,
       cauldronObject,
       "-1",
-      userAddr,
+      to,
       false,
       true
     );
   }
 
-  if (+removeCollateralAmount > 0) {
+  if (+removeCollateralShare > 0) {
     cookData = await recipeRemoveCollateral(
       cookData,
       cauldronObject,
-      removeCollateralAmount,
-      userAddr,
-      collateralTokenAddr
+      removeCollateralShare,
+      to,
+      collateral.address
     );
   }
 
-  if (isApprowed && useDegenBoxHelper)
+  if (isMasterContractApproved && useDegenBoxHelper)
     cookData = await recipeApproveMC(
       cookData,
       cauldronObject,
       false,
       await cauldron.masterContract(),
-      userAddr
+      to
     );
 
-  await sendCook(cauldron, cookData, 0, notificationId);
+  await cook(cauldron, cookData, 0);
 };
 
 export default cookDeleverage;
