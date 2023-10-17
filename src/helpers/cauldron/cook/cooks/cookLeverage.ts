@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import sendCook from "@/helpers/cauldron/cook/sendCook";
+import { cook } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
@@ -14,29 +14,24 @@ const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 const cookLeverage = async (
   {
     collateralAmount,
-    amount,
-    updatePrice,
-    minExpected,
-    itsDefaultBalance,
+    mimAmount,
+    shareToMin,
+    useNativeToken,
     slipage,
+    useWrapper,
+    to
   }: any,
-  isApprowed: boolean,
   cauldronObject: any,
-  notificationId: number,
-  isWrap: boolean,
-  userAddr: string
 ): Promise<void> => {
-  const { whitelistedInfo } = cauldronObject.additionalInfo;
-  const { collateral, leverageSwapper } = cauldronObject.contracts;
-  const { is0xSwap } = cauldronObject.config.cauldronSettings;
-  const { cauldron } = cauldronObject.contracts;
-  const collateralValue = itsDefaultBalance ? collateralAmount.toString() : 0;
-  const tokenAddr = itsDefaultBalance
+  const { whitelistedInfo, isMasterContractApproved } = cauldronObject.additionalInfo;
+  const { collateral, leverageSwapper, cauldron } = cauldronObject.contracts;
+  const { is0xSwap, useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
+  const { updatePrice } = cauldronObject.mainParams;
+
+  const value = useNativeToken ? collateralAmount.toString() : 0;
+  const tokenAddr = useNativeToken
   ? defaultTokenAddress
   : collateral.address;
-
-  const useDegenBoxHelper =
-    cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
   let cookData = {
     events: [],
@@ -44,48 +39,48 @@ const cookLeverage = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isMasterContractApproved);
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
   if (checkWhitelistLogic(cauldronObject)) {
-    cookData = await recipeSetMaxBorrow(cookData, whitelistedInfo, userAddr);
+    cookData = await recipeSetMaxBorrow(cookData, whitelistedInfo, to);
   }
 
   cookData = await recipeAddCollatral(
     cookData,
     cauldronObject,
     tokenAddr,
-    isWrap,
-    userAddr,
+    useWrapper,
+    to,
     collateralAmount,
-    collateralValue
+    value
   );
 
-  cookData = await actions.borrow(cookData, amount, leverageSwapper.address);
+  cookData = await actions.borrow(cookData, mimAmount, leverageSwapper.address);
 
   cookData = await recipeLeverage(
     cookData,
     cauldronObject,
-    amount,
-    minExpected,
+    mimAmount,
+    shareToMin,
     slipage,
     is0xSwap,
-    userAddr
+    to
   );
 
-  cookData = await actions.addCollateral(cookData, "-2", userAddr, false);
+  cookData = await actions.addCollateral(cookData, "-2", to, false);
 
-  if (isApprowed && useDegenBoxHelper)
+  if (isMasterContractApproved && useDegenBoxHelper)
     cookData = await recipeApproveMC(
       cookData,
       cauldronObject,
       false,
       await cauldron.masterContract(),
-      userAddr
+      to
     );
 
-  await sendCook(cauldron, cookData, collateralValue, notificationId);
+  await cook(cauldron, cookData, value);
 };
 
 export default cookLeverage;

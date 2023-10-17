@@ -682,8 +682,6 @@ export default {
 
     async leverageUpHandler(notificationId) {
       const { bentoBox, collateral } = this.cauldron.contracts;
-      const { updatePrice } = this.cauldron.mainParams;
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
 
       const shareToMin = await bentoBox.toShare(
         collateral.address,
@@ -693,20 +691,17 @@ export default {
 
       const payload = {
         collateralAmount: this.parseCollateralValue.toString(),
-        amount: this.expectedBorrowPart.toString(),
+        mimAmount: this.expectedBorrowPart.toString(),
         minExpected: shareToMin.toString(),
-        updatePrice,
-        itsDefaultBalance: !!this.activeToken?.isNative,
-        slipage: this.slippage, // todo type
+        useNativeToken: !!this.activeToken?.isNative,
+        slipage: this.slippage,
+        useWrapper: !this.useOtherToken,
+        to: this.account
       };
 
       await cookLeverage(
         payload,
-        isMasterContractApproved,
-        this.cauldron,
-        notificationId,
-        !this.useOtherToken && !!this.cauldron.config.wrapInfo,
-        this.account
+        this.cauldron
       );
 
       return await this.createCauldronInfo();
