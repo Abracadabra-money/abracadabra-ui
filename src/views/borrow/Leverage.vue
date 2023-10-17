@@ -665,21 +665,15 @@ export default {
     },
 
     async addCollateralHandler(notificationId) {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
-
       const payload = {
         amount: this.parseCollateralValue,
-        updatePrice,
-        itsDefaultBalance: !!this.activeToken?.isNative,
+        useNativeToken: !!this.activeToken?.isNative,
       };
 
       await cookAddCollateral(
         payload,
-        isMasterContractApproved,
         this.cauldron,
         notificationId,
-        !!this.cauldron.config?.wrapInfo,
         !this.useOtherToken,
         this.account
       );

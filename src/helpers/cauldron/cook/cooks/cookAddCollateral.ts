@@ -7,23 +7,20 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
 const cookAddCollateral = async (
-  { amount, updatePrice, itsDefaultBalance }: any,
-  isApprowed: boolean,
+  { amount, useNativeToken }: any,
   cauldronObject: any,
   notificationId: number,
-  isLpLogic: boolean = false,
-  wrap: boolean = false,
+  useWrapper: boolean = false,
   to: string
 ): Promise<void> => {
   const { address } = cauldronObject.config.collateralInfo;
   const { cauldron } = cauldronObject.contracts;
+  const { isMasterContractApproved } = cauldronObject.additionalInfo;
+  const { updatePrice } = cauldronObject.mainParams;
+  const { useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
 
-  const useDegenBoxHelper =
-    cauldronObject.config.cauldronSettings.useDegenBoxHelper;
-
-  const token = itsDefaultBalance ? defaultTokenAddress : address;
-  const value = itsDefaultBalance ? amount.toString() : 0;
-  const isWrap = wrap && isLpLogic;
+  const token = useNativeToken ? defaultTokenAddress : address;
+  const value = useNativeToken ? amount.toString() : 0;
 
   let cookData = {
     events: [],
@@ -31,7 +28,11 @@ const cookAddCollateral = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
@@ -39,13 +40,13 @@ const cookAddCollateral = async (
     cookData,
     cauldronObject,
     token,
-    isWrap,
+    useWrapper,
     to,
     amount,
     value
   );
 
-  if (isApprowed && useDegenBoxHelper)
+  if (isMasterContractApproved && useDegenBoxHelper)
     cookData = await recipeApproveMC(
       cookData,
       cauldronObject,
