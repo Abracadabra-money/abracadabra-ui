@@ -555,38 +555,31 @@ export default {
       return await this.createCauldronInfo();
     },
 
-    async addCollateralHandler(notificationId) {
+    async addCollateralHandler() {
       const payload = {
         amount: this.parseCollateralAmount,
         useNativeToken: !!this.activeToken.isNative,
+        useWrapper: !this.useOtherToken,
+        to: this.account
       };
 
       await cookAddCollateral(
         payload,
         this.cauldron,
-        notificationId,
-        !this.useOtherToken,
-        this.account
       );
 
       return await this.createCauldronInfo();
     },
 
-    async borrowHandler(notificationId) {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
-
+    async borrowHandler() {
       const payload = {
         amount: this.parseBorrowAmount,
-        updatePrice,
+        to: this.account
       };
 
       await cookBorrow(
         payload,
-        isMasterContractApproved,
-        this.cauldron,
-        notificationId,
-        this.account
+        this.cauldron
       );
 
       return await this.createCauldronInfo();

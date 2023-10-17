@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import sendCook from "@/helpers/cauldron/cook/sendCook";
+import { cook } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
@@ -7,11 +7,8 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
 const cookAddCollateral = async (
-  { amount, useNativeToken }: any,
+  { amount, useNativeToken, useWrapper, to }: any,
   cauldronObject: any,
-  notificationId: number,
-  useWrapper: boolean = false,
-  to: string
 ): Promise<void> => {
   const { address } = cauldronObject.config.collateralInfo;
   const { cauldron } = cauldronObject.contracts;
@@ -55,7 +52,7 @@ const cookAddCollateral = async (
       to
     );
 
-  await sendCook(cauldron, cookData, value, notificationId);
+  await cook(cauldron, cookData, value);
 };
 
 export default cookAddCollateral;

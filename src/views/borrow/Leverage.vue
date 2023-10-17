@@ -664,18 +664,17 @@ export default {
       this[this.actionInfo.methodName](notificationId);
     },
 
-    async addCollateralHandler(notificationId) {
+    async addCollateralHandler() {
       const payload = {
         amount: this.parseCollateralValue,
         useNativeToken: !!this.activeToken?.isNative,
+        useWrapper: !this.useOtherToken,
+        to: this.account
       };
 
       await cookAddCollateral(
         payload,
         this.cauldron,
-        notificationId,
-        !this.useOtherToken,
-        this.account
       );
 
       return await this.createCauldronInfo();

@@ -8,15 +8,15 @@ import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBor
 import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
 
 const cookBorrow = async (
-  { amount, updatePrice }: any,
-  isApprowed: boolean,
+  { amount, to }: any,
   cauldronObject: any,
   notificationId: number,
-  userAddr: string
 ): Promise<void> => {
   const { address } = cauldronObject.config.mimInfo;
   const { whitelistedInfo } = cauldronObject.additionalInfo;
   const { cauldron } = cauldronObject.contracts;
+  const { isMasterContractApproved } = cauldronObject.additionalInfo;
+  const { updatePrice } = cauldronObject.mainParams;
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
@@ -29,29 +29,29 @@ const cookBorrow = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isMasterContractApproved);
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
   if (checkWhitelistLogic(cauldronObject)) {
-    cookData = await recipeSetMaxBorrow(cookData, whitelistedInfo, userAddr);
+    cookData = await recipeSetMaxBorrow(cookData, whitelistedInfo, to);
   }
 
   cookData = await recipeBorrow(
     cookData,
     cauldronObject,
     amount,
-    userAddr,
+    to,
     mim
   );
 
-  if (isApprowed && useDegenBoxHelper)
+  if (isMasterContractApproved && useDegenBoxHelper)
     cookData = await recipeApproveMC(
       cookData,
       cauldronObject,
       false,
       await cauldron.masterContract(),
-      userAddr
+      to
     );
 
   await sendCook(cauldron, cookData, 0, notificationId);
