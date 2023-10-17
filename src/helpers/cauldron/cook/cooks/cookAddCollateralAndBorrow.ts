@@ -5,11 +5,19 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
+import type { CookData, PayloadAddCollateralAndBorrow } from "./types";
+
 import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 
 const cookAddCollateralAndBorrow = async (
-  { collateralAmount, mimAmount, useNativeToken, useWrapper, to }: any,
+  {
+    collateralAmount,
+    mimAmount,
+    useNativeToken,
+    useWrapper,
+    to,
+  }: PayloadAddCollateralAndBorrow,
   cauldronObject: any
 ): Promise<void> => {
   const { address } = cauldronObject.config.collateralInfo;
@@ -22,7 +30,7 @@ const cookAddCollateralAndBorrow = async (
   const tokenAddr = useNativeToken ? defaultTokenAddress : address;
   const value = useNativeToken ? collateralAmount.toString() : 0;
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],

@@ -5,8 +5,10 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 
+import type { CookData, PayloadRemoveCollateral } from "./types";
+
 const cookRemoveCollateral = async (
-  { collateralShare, to }: any,
+  { collateralShare, to }: PayloadRemoveCollateral,
   cauldronObject: any
 ): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
@@ -15,7 +17,7 @@ const cookRemoveCollateral = async (
   const { updatePrice } = cauldronObject.mainParams;
   const { useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],

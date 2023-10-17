@@ -7,6 +7,8 @@ import recipeDeleverage from "@/helpers/cauldron/cook/recipies/recipeDeleverage"
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 import { repayEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 
+import type { CookData, PayloadDeleverage } from "./types";
+
 const cookDeleverage = async (
   {
     borrowAmount,
@@ -15,7 +17,7 @@ const cookDeleverage = async (
     itsMax,
     slipage,
     to,
-  }: any,
+  }: PayloadDeleverage,
   cauldronObject: any
 ): Promise<void> => {
   const { collateral, liquidationSwapper, cauldron } = cauldronObject.contracts;
@@ -25,7 +27,7 @@ const cookDeleverage = async (
   const { isMasterContractApproved } = cauldronObject.additionalInfo;
   const { updatePrice } = cauldronObject.mainParams;
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],

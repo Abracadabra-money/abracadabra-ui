@@ -7,11 +7,13 @@ import checkWhitelistLogic from "@/helpers/cauldron/cook/checkWhitelistLogic";
 import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBorrow";
 import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
 
+import type { CookData, PayloadBorrow } from "./types";
+
 const cookBorrow = async (
-  { amount, to }: any,
+  { amount, to }: PayloadBorrow,
   cauldronObject: any,
 ): Promise<void> => {
-  const { address } = cauldronObject.config.mimInfo;
+  const { address: mimAddress } = cauldronObject.config.mimInfo;
   const { whitelistedInfo } = cauldronObject.additionalInfo;
   const { cauldron } = cauldronObject.contracts;
   const { isMasterContractApproved } = cauldronObject.additionalInfo;
@@ -20,9 +22,7 @@ const cookBorrow = async (
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
-  const mim = address;
-
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],
@@ -41,7 +41,7 @@ const cookBorrow = async (
     cauldronObject,
     amount,
     to,
-    mim
+    mimAddress
   );
 
   if (isMasterContractApproved && useDegenBoxHelper)

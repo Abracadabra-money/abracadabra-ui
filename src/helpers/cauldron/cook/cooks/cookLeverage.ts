@@ -9,6 +9,8 @@ import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBor
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import recipeLeverage from "@/helpers/cauldron/cook/recipies/recipeLeverage";
 
+import type { CookData, PayloadLeverage } from "./types";
+
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
 const cookLeverage = async (
@@ -20,7 +22,7 @@ const cookLeverage = async (
     slipage,
     useWrapper,
     to
-  }: any,
+  }: PayloadLeverage,
   cauldronObject: any,
 ): Promise<void> => {
   const { whitelistedInfo, isMasterContractApproved } = cauldronObject.additionalInfo;
@@ -33,7 +35,7 @@ const cookLeverage = async (
   ? defaultTokenAddress
   : collateral.address;
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],

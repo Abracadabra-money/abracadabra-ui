@@ -5,8 +5,10 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
 import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
 
+import type { CookData, PayloadRepay } from "./types";
+
 const cookRepay = async (
-  { amount, itsMax, to }: any,
+  { amount, itsMax, to }: PayloadRepay,
   cauldronObject: any
 ): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
@@ -14,7 +16,7 @@ const cookRepay = async (
   const { updatePrice } = cauldronObject.mainParams;
   const { useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],
