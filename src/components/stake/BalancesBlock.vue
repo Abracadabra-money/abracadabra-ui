@@ -52,7 +52,9 @@
 </template>
 
 <script>
+import { formatUnits } from "viem";
 import filters from "@/filters/index.js";
+import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 export default {
   props: {
@@ -62,18 +64,26 @@ export default {
 
   computed: {
     tokensRate() {
-      const rate = filters.formatToFixed(1 * this.mainToken.rate, 4);
-      return `1 ${this.mainToken.name} = ${rate} ${this.stakeToken.name}`;
+      const rate = formatUnits(
+        (MIM_PRICE * this.mainToken.rate) / ONE_ETHER_VIEM,
+        this.mainToken.decimals
+      );
+
+      return `1 ${this.mainToken.name} = ${filters.formatToFixed(rate, 4)} ${
+        this.stakeToken.name
+      }`;
     },
   },
 
   methods: {
     formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
+      return filters.formatTokenBalance(
+        formatUnits(value, this.mainToken.decimals)
+      );
     },
 
     formatUSD(value) {
-      return filters.formatUSD(value);
+      return filters.formatUSD(formatUnits(value, this.mainToken.decimals));
     },
   },
 

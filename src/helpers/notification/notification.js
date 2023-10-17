@@ -51,8 +51,15 @@ export default {
     msg: "The amount you are borrowing is higher than the maximum per wallet allowance. Please borrow less and try again.",
     type: "error",
   },
+
   whitelisted: {
     msg: "Your wallet is not currently whitelisted. Please try again once the whitelist is removed.",
+    type: "error",
+  },
+
+  sanctionAddress: {
+    title: "Sanction address Warning",
+    msg: "It looks like the address you have connected to Abracadabra UI is on a Sanction List. Abracadabra Money is not offering services to sanctioned addresses.",
     type: "error",
   },
 };

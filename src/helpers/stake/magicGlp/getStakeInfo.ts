@@ -1,8 +1,8 @@
 import { getAccount } from "@wagmi/core";
-import { getTokensInfo } from "./getTokensInfo";
 import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
-import { emptyState } from "@/helpers/stake/magicGlp/emptyState";
 import type { EmptyState } from "@/types/magicGlp/additionalInfo";
+import { getTokensInfo } from "@/helpers/stake/magicGlp/getTokensInfo";
+import { getEmptyState } from "@/helpers/stake/magicGlp/getEmptyState";
 import type { ChainConfig, StakeInfo } from "@/types/magicGlp/configsInfo";
 import { getAdditionalInfo } from "@/helpers/stake/magicGlp/getAdditionalInfo";
 
@@ -12,7 +12,7 @@ export const getStakeInfo = async (
   const account = getAccount().address;
   const config: ChainConfig =
     magicGlpConfig[chainId as keyof typeof magicGlpConfig];
-  if (!config || !account) return emptyState;
+  if (!config || !account) return getEmptyState(config, chainId);
 
   const { mainToken, stakeToken } = await getTokensInfo(account, config);
   const additionalInfo = await getAdditionalInfo(config, chainId);
