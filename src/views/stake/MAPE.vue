@@ -85,9 +85,9 @@
             :getChartOptions="getChartOptions"
           />
 
-          <BalancesBlockViem :mainToken="mainToken" :stakeToken="stakeToken" />
+          <BalancesBlock :mainToken="mainToken" :stakeToken="stakeToken" />
 
-          <AdditionalInfoBlockViem
+          <AdditionalInfoBlock
             :mainToken="mainToken"
             :rewardToken="rewardToken"
           />
@@ -190,7 +190,7 @@ export default {
       if (!this.isTokenApproved) return true;
       return !!(!this.mainInputValue || this.errorMainValue);
     },
-    
+
     precision() {
       return parseUnits("1", this.mainToken.decimals);
     },
@@ -414,11 +414,11 @@ export default {
     ChartBlock: defineAsyncComponent(() =>
       import("@/components/stake/ChartBlock.vue")
     ),
-    BalancesBlockViem: defineAsyncComponent(() =>
-      import("@/components/stake/BalancesBlockViem.vue")
+    BalancesBlock: defineAsyncComponent(() =>
+      import("@/components/stake/BalancesBlock.vue")
     ),
-    AdditionalInfoBlockViem: defineAsyncComponent(() =>
-      import("@/components/stake/AdditionalInfoBlockViem.vue")
+    AdditionalInfoBlock: defineAsyncComponent(() =>
+      import("@/components/stake/AdditionalInfoBlock.vue")
     ),
     EmptyBlock: defineAsyncComponent(() =>
       import("@/components/stake/EmptyBlock.vue")

@@ -142,7 +142,6 @@ import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
@@ -177,6 +176,7 @@ export default {
       account: "getAccount",
       provider: "getProvider",
       signer: "getSigner",
+      getChainById: "getChainById",
     }),
 
     isCauldronLoading() {
@@ -267,12 +267,12 @@ export default {
     },
 
     nativeToken() {
-      const { symbol, icon } = getChainInfo(this.chainId);
+      const { symbol, baseTokenIcon } = this.getChainById(this.chainId);
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
 
       return {
         name: symbol,
-        icon,
+        icon: baseTokenIcon,
         balance: {
           hex: nativeTokenBalance,
           value: utils.formatUnits(nativeTokenBalance),
@@ -599,6 +599,7 @@ export default {
     },
 
     async checkPermissionToCook(notificationId, borrowAmount) {
+      if (borrowAmount == 0) return true;
       const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
       const { id } = this.cauldron.config;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
@@ -620,14 +621,6 @@ export default {
       if (!whitelistedInfo && this.chainId === 1 && id === 33) {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.whitelisted);
-        return false;
-      }
-
-      const allowance = await this.checkAllowance(this.parseCollateralAmount);
-
-      if (!allowance) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.approveError);
         return false;
       }
 

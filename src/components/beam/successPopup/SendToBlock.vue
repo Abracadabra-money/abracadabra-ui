@@ -46,9 +46,9 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import { useImage } from "@/helpers/useImage";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import ExplorerLink from "@/components/beam/successPopup/ExplorerLink.vue";
 export default {
   props: {
@@ -59,6 +59,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ getChainById: "getChainById" }),
+
     sendToCheck() {
       if (this.dstScanUrl) return useImage("assets/images/beam/complete.png");
       return useImage("assets/images/beam/check.png");
@@ -73,7 +75,9 @@ export default {
     dstScanUrl() {
       const { txInfo, dstChain } = this.config;
       if (!txInfo || txInfo?.status === "INFLIGHT") return "";
-      return `${getChainInfo(dstChain.chainId).scanUrl}${txInfo.dstTxHash}`;
+      return `${
+        this.getChainById(dstChain.chainId).blockExplorers.etherscan.url
+      }/tx/${txInfo.dstTxHash}`;
     },
 
     destinationTokenUsd() {

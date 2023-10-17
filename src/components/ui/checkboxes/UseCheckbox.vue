@@ -13,7 +13,6 @@
 <script>
 import { mapGetters } from "vuex";
 import { useImage } from "@/helpers/useImage";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 export default {
   props: {
     config: {
@@ -31,6 +30,7 @@ export default {
   computed: {
     ...mapGetters({
       chainId: "getChainId",
+      getChainById: "getChainById",
     }),
 
     isVisibility() {
@@ -48,7 +48,7 @@ export default {
 
     tokenSymbol() {
       if (this.config?.cauldronSettings?.acceptUseDefaultBalance)
-        return getChainInfo(this.chainId).symbol;
+        return this.getChainById(this.chainId).symbol;
       return this.config.collateralInfo.name;
     },
   },

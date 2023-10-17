@@ -17,7 +17,7 @@
           @click="switchHandler(network.chainId)"
         >
           <img class="network-image" :src="network.icon" alt="network" />
-          <span>{{ network.title }}</span>
+          <span>{{ network.symbol }}</span>
         </button>
       </div>
     </div>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import switchNetwork from "@/helpers/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   props: {
