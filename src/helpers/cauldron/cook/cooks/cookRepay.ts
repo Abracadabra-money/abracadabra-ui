@@ -1,21 +1,18 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import sendCook from "@/helpers/cauldron/cook/sendCook";
+import { cook } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
 import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
 
 const cookRepay = async (
-  { amount, updatePrice, itsMax } : any,
-  isApprowed: boolean,
-  cauldronObject: any,
-  notificationId: number,
-  userAddr: string
+  { amount, itsMax, to }: any,
+  cauldronObject: any
 ): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
-
-  const useDegenBoxHelper =
-    cauldronObject.config.cauldronSettings.useDegenBoxHelper;
+  const { isMasterContractApproved } = cauldronObject.additionalInfo;
+  const { updatePrice } = cauldronObject.mainParams;
+  const { useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
 
   let cookData = {
     events: [],
@@ -23,28 +20,26 @@ const cookRepay = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
-  cookData = await recipeRepay(
-    cookData,
-    cauldronObject,
-    itsMax,
-    amount,
-    userAddr
-  );
+  cookData = await recipeRepay(cookData, cauldronObject, itsMax, amount, to);
 
-  if (isApprowed && useDegenBoxHelper)
+  if (isMasterContractApproved && useDegenBoxHelper)
     cookData = await recipeApproveMC(
       cookData,
       cauldronObject,
       false,
       await cauldron.masterContract(),
-      userAddr
+      to
     );
 
-  await sendCook(cauldron, cookData, 0, notificationId);
+  await cook(cauldron, cookData, 0);
 };
 
 export default cookRepay;

@@ -428,8 +428,6 @@ export default {
     },
 
     async repayHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.positionInfo;
 
       const notificationId = await this.createNotification(
@@ -438,20 +436,14 @@ export default {
 
       const payload = {
         amount: this.parseBorrowAmount,
-        updatePrice,
         itsMax: +this.borrowValue === +userBorrowAmount,
+        to: this.account,
       };
 
       const isTokenToCookApprove = await this.checkAllowance(payload.amount);
 
       if (+isTokenToCookApprove) {
-        await cookRepay(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          notificationId,
-          this.account
-        );
+        await cookRepay(payload, this.cauldron);
 
         return await this.createCauldronInfo();
       }
