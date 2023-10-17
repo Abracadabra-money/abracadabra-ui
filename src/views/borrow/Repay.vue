@@ -455,28 +455,23 @@ export default {
     async removeCollateralHandler() {
       const { bentoBox } = this.cauldron.contracts;
       const { address } = this.activeToken;
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
       );
 
       const payload = {
-        amount: await bentoBox.toShare(
+        collateralShare: await bentoBox.toShare(
           address,
           this.parseCollateralAmount,
           true
         ),
-        updatePrice,
+        to: this.account
       };
 
       await cookRemoveCollateral(
         payload,
-        isMasterContractApproved,
         this.cauldron,
-        notificationId,
-        this.account
       );
 
       return await this.createCauldronInfo();
