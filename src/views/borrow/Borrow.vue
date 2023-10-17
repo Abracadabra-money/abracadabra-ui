@@ -531,25 +531,18 @@ export default {
       return await this[this.actionInfo.methodName](notificationId);
     },
 
-    async addCollateralAndBorrowHandler(notificationId) {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
-
+    async addCollateralAndBorrowHandler() {
       const payload = {
         collateralAmount: this.parseCollateralAmount,
-        amount: this.parseBorrowAmount,
-        updatePrice,
-        itsDefaultBalance: !!this.activeToken.isNative,
+        mimAmount: this.parseBorrowAmount,
+        useNativeToken: !!this.activeToken.isNative,
+        useWrapper: !this.useOtherToken,
+        to: this.account
       };
 
       await cookAddCollateralAndBorrow(
         payload,
-        isMasterContractApproved,
         this.cauldron,
-        notificationId,
-        !!this.cauldron.config?.wrapInfo,
-        !this.useOtherToken,
-        this.account
       );
 
       return await this.createCauldronInfo();

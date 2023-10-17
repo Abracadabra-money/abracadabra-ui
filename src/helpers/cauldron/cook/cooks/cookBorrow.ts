@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import sendCook from "@/helpers/cauldron/cook/sendCook";
+import { cook } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
@@ -10,7 +10,6 @@ import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
 const cookBorrow = async (
   { amount, to }: any,
   cauldronObject: any,
-  notificationId: number,
 ): Promise<void> => {
   const { address } = cauldronObject.config.mimInfo;
   const { whitelistedInfo } = cauldronObject.additionalInfo;
@@ -54,7 +53,7 @@ const cookBorrow = async (
       to
     );
 
-  await sendCook(cauldron, cookData, 0, notificationId);
+  await cook(cauldron, cookData, 0);
 };
 
 export default cookBorrow;
