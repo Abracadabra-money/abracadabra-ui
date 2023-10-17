@@ -479,43 +479,38 @@ export default {
 
     async removeAndRepayHandler() {
       const { bentoBox } = this.cauldron.contracts;
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { userCollateralShare } = this.cauldron.userPosition.collateralInfo;
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
       const { address } = this.activeToken;
-      const { updatePrice } = this.cauldron.mainParams;
 
       const notificationId = await this.createNotification(
         notification.pending
       );
 
       const payload = {
-        collateralAmount: this.parseBorrowAmount,
-        amount: await bentoBox.toShare(
+        mimPart: this.parseBorrowAmount,
+        collateralShare: await bentoBox.toShare(
           address,
           this.parseCollateralAmount,
           true
         ),
-        updatePrice,
+        to: this.account
       };
 
       if (this.isMaxBorrow) {
         payload.itsMax = true;
-        payload.collateralAmount = userBorrowPart;
-        payload.amount = userCollateralShare;
+        payload.mimPart = userBorrowPart;
+        payload.collateralShare = userCollateralShare;
       }
 
       const isTokenToCookApprove = await this.checkAllowance(
-        payload.collateralAmount
+        payload.mimPart
       );
 
       if (+isTokenToCookApprove) {
         await cookRemoveCollateralAndRepay(
           payload,
-          isMasterContractApproved,
           this.cauldron,
-          notificationId,
-          this.account
         );
 
         return await this.createCauldronInfo();

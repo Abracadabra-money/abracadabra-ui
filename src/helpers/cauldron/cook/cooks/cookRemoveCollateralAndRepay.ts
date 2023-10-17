@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import sendCook from "@/helpers/cauldron/cook/sendCook";
+import { cook } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
@@ -7,15 +7,13 @@ import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 
 const cookRemoveCollateralAndRepay = async (
-  { amount, collateralAmount, updatePrice, itsMax }: any,
-  isApprowed: boolean,
+  { collateralShare, mimPart, itsMax, to }: any,
   cauldronObject: any,
-  notificationId: number,
-  userAddr: string
 ): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
   const tokenAddr = cauldronObject.config.collateralInfo.address;
-
+  const { isMasterContractApproved } = cauldronObject.additionalInfo;
+  const { updatePrice } = cauldronObject.mainParams;
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
@@ -25,7 +23,7 @@ const cookRemoveCollateralAndRepay = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isApprowed);
+  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isMasterContractApproved);
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
@@ -33,28 +31,28 @@ const cookRemoveCollateralAndRepay = async (
     cookData,
     cauldronObject,
     itsMax,
-    collateralAmount, // mim part
-    userAddr
+    mimPart,
+    to
   );
 
   cookData = await recipeRemoveCollateral(
     cookData,
     cauldronObject,
-    amount, // collateral share
-    userAddr,
+    collateralShare,
+    to,
     tokenAddr
   );
 
-  if (isApprowed && useDegenBoxHelper)
+  if (isMasterContractApproved && useDegenBoxHelper)
     cookData = await recipeApproveMC(
       cookData,
       cauldronObject,
       false,
       await cauldron.masterContract(),
-      userAddr
+      to
     );
 
-  await sendCook(cauldron, cookData, 0, notificationId);
+  await cook(cauldron, cookData, 0);
 };
 
 export default cookRemoveCollateralAndRepay;
