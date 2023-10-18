@@ -1,3 +1,5 @@
+import type { Address } from "viem";
+
 type CauldronSettings = {
   isSwappersActive: boolean;
   is0xSwap?: boolean;
@@ -25,7 +27,7 @@ type MimInfo = {
   name: string;
   icon: string;
   decimals: number;
-  address: string;
+  address: Address;
   abi: any;
 };
 
@@ -42,13 +44,13 @@ export type CauldronConfig = {
   cauldronSettings: CauldronSettings;
   contract: {
     name: string;
-    address: string;
+    address: Address;
     abi: any;
   };
   collateralInfo: {
     name: string;
     decimals: number;
-    address: string;
+    address: Address;
     abi: any;
   };
   mimInfo: MimInfo;
@@ -58,7 +60,7 @@ export type CauldronConfig = {
     unwrappedToken: {
       name: string;
       icon: string;
-      address: string;
+      address: Address;
       abi: any;
     };
     wrapper: {
