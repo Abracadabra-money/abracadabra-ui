@@ -1,4 +1,3 @@
-import { formatUnits } from "viem";
 import type { PublicClient } from "viem";
 import type { MainParams } from "@/types/cauldron";
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
@@ -20,7 +19,7 @@ export const getMainParamsViem = async (
 
   return await Promise.all(
     cauldronMarketInfo.map(async (marketInfo: any, index: number) => {
-      const { contract, interest: localInterest } = configs[index];
+      const { contract, interest } = configs[index];
 
       const contractExchangeRate = await publicClient.readContract({
         ...contract,
@@ -32,14 +31,11 @@ export const getMainParamsViem = async (
         ? contractExchangeRate !== marketInfo.oracleExchangeRate
         : false;
 
-      const interest = localInterest
-        ? localInterest
-        : +formatUnits(marketInfo.interestPerYear, 0) / 100;
-
       return {
-        borrowFee: +formatUnits(marketInfo.borrowFee, 0) / 100,
-        interest,
-        liquidationFee: +formatUnits(marketInfo.liquidationFee, 2),
+        updatePrice,
+        borrowFee: Number(marketInfo.borrowFee) / 100,
+        liquidationFee: Number(marketInfo.liquidationFee) / 100,
+        interest: interest || Number(marketInfo.interestPerYear) / 100,
         collateralPrice: marketInfo.collateralPrice,
         mimLeftToBorrow: marketInfo.marketMaxBorrow,
         maximumCollateralRatio: marketInfo.maximumCollateralRatio,
@@ -47,7 +43,6 @@ export const getMainParamsViem = async (
         totalBorrowed: marketInfo.totalBorrowed,
         tvl: marketInfo.totalCollateral.value,
         userMaxBorrow: marketInfo.userMaxBorrow,
-        updatePrice,
       };
     })
   );
