@@ -1677,6 +1677,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      is0xSwap: true,
       isMigrated: false,
       isNew: true,
     },
