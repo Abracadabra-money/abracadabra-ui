@@ -9,6 +9,8 @@ import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
+import YearnCurveLevSwapper from "@/utils/abi/YearnCurveLevSwapper";
+import YearnCurveSwapper from "@/utils/abi/YearnCurveSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
@@ -1692,11 +1694,11 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     leverageInfo: {
       address: "0x5c1Abf00c65D02308e950035D30399b16CCABa8C",
-      abi: swapAbi,
+      abi: YearnCurveLevSwapper,
     },
     deleverageInfo: {
       address: "0xfD29DD1722badB444ae10081E713C19C23e1d8f8",
-      abi: reverseSwapAbi,
+      abi: YearnCurveSwapper,
     },
   },
 ];
