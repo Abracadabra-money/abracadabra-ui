@@ -52,23 +52,38 @@ export default {
 
   async beforeCreate() {
     const location = await axios.get(
-      `https://ipwhois.pro/?key=${import.meta.env.VITE_APP_IPWHOIS_API_KEY}`
+      `https://ipwhois.pro/?key=${
+        import.meta.env.VITE_APP_IPWHOIS_API_KEY
+      }&security=1`
     );
+
+    const isVPN = location.data.security.vpn;
 
     if (
       this.country.includes(location.data.country) ||
-      this.region.includes(location.data.region)
+      this.region.includes(location.data.region) ||
+      isVPN
     )
       document.location.href = "https://abracadabra.money/location";
   },
 
   components: {
-    AppHeader: defineAsyncComponent(() => import("@/components/app/AppHeader.vue")),
-    NotificationContainer: defineAsyncComponent(() => import("@/components/notifications/NotificationContainer.vue")),
-    PopupsWrapper: defineAsyncComponent(() => import("@/components/popups/PopupsWrapper.vue")),
+    AppHeader: defineAsyncComponent(() =>
+      import("@/components/app/AppHeader.vue")
+    ),
+    NotificationContainer: defineAsyncComponent(() =>
+      import("@/components/notifications/NotificationContainer.vue")
+    ),
+    PopupsWrapper: defineAsyncComponent(() =>
+      import("@/components/popups/PopupsWrapper.vue")
+    ),
     Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
-    SkullBanner: defineAsyncComponent(() => import("@/components/ui/SkullBanner.vue")),
-    OldAllowanceBanner: defineAsyncComponent(() => import("@/components/ui/OldAllowanceBanner.vue")),
+    SkullBanner: defineAsyncComponent(() =>
+      import("@/components/ui/SkullBanner.vue")
+    ),
+    OldAllowanceBanner: defineAsyncComponent(() =>
+      import("@/components/ui/OldAllowanceBanner.vue")
+    ),
   },
 };
 </script>
