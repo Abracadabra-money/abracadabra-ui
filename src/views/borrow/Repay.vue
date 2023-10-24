@@ -283,7 +283,7 @@ export default {
         userBorrowAmount: +utils.formatUnits(userBorrowAmount),
         oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
         maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
-        userCollateralAmount: utils.formatUnits(userCollateralAmount),
+        userCollateralAmount: utils.formatUnits(userCollateralAmount, decimals),
       };
     },
 
