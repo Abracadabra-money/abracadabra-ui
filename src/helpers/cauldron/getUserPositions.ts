@@ -2,6 +2,7 @@ import { Contract, BigNumber, utils } from "ethers";
 import lensAbi from "@/utils/abi/marketLens.js";
 import type { providers } from "ethers";
 import type { UserPositions } from "@/helpers/cauldron/types";
+import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 const emptyPosition = {
@@ -18,7 +19,7 @@ const emptyPosition = {
 };
 
 export const getUserPositions = async (
-  configs: Array<Object | undefined>,
+  configs: Array<CauldronConfig | undefined>,
   provider: providers.BaseProvider,
   account: string | undefined,
   cauldronContracts: Array<Contract | undefined>,
@@ -69,7 +70,7 @@ export const getUserPositions = async (
         userBorrowAmount: position.borrowValue,
         userBorrowPart: userBorrowPart[idx],
       },
-      liquidationPrice: utils.formatUnits(position.liquidationPrice),
+      liquidationPrice: utils.formatUnits(position.liquidationPrice, configs[idx]?.collateralInfo.decimals),
       oracleRate: oracleExchangeRate[idx],
     };
   });
