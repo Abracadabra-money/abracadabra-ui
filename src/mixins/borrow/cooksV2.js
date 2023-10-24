@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { mapGetters } from "vuex";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
+import { getSellAmount } from "@/helpers/yvTricryptoData/getSellAmount";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
@@ -180,6 +181,11 @@ export default {
 
       if (this.isSUSDT) selToken = usdtAddress;
 
+      if (this.isYvTricryptoUSDT) {
+        selToken = usdtAddress;
+        selAmount = await getSellAmount(this.signer, collateralAmount);
+      }
+
       const response = await swap0xRequest(
         this.chainId,
         mim,
@@ -188,6 +194,15 @@ export default {
         selAmount,
         swapper
       );
+
+      if (this.isYvTricryptoUSDT) {
+        const swapData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "bytes"],
+          [0, response.data]
+        );
+        return swapData;
+      }
+
       return response.data;
     },
 
