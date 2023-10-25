@@ -159,7 +159,7 @@ export default {
     },
 
     parseBorrowAmount() {
-      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
+      return utils.parseUnits(this.borrowValue || 0, 18);
     },
 
     isCauldronLoading() {
@@ -171,7 +171,7 @@ export default {
       if (!this.borrowValue) return true;
       const { mimAllowance } = this.cauldron.userTokensInfo;
       const allowance = +utils.formatUnits(mimAllowance);
-      return allowance > +this.borrowValue;
+      return allowance >= +this.borrowValue;
     },
 
     isActionDisabled() {
