@@ -198,7 +198,7 @@ export default {
       const { userBorrowAmount, oracleExchangeRate, maxWithdrawAmount } =
         this.positionInfo;
 
-      if (+this.borrowValue === userBorrowAmount || !userBorrowAmount) {
+      if (+this.borrowValue === +userBorrowAmount || !userBorrowAmount) {
         if (maxWithdrawAmount && maxWithdrawAmount < +userCollateralAmount) {
           return maxWithdrawAmount;
         }
@@ -224,7 +224,7 @@ export default {
 
       const { mimBalance } = this.borrowToken;
       const { userBorrowAmount } = this.positionInfo;
-      if (userBorrowAmount > mimBalance) return mimBalance;
+      if (+userBorrowAmount > +mimBalance) return mimBalance;
       return userBorrowAmount;
     },
 
@@ -259,7 +259,7 @@ export default {
 
     expectedBorrowAmount() {
       const { userBorrowAmount } = this.positionInfo;
-      const expectedAmount = userBorrowAmount - +this.borrowValue;
+      const expectedAmount = +userBorrowAmount - +this.borrowValue;
       return expectedAmount < 0 ? 0 : expectedAmount;
     },
 
@@ -282,7 +282,7 @@ export default {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
       return {
-        userBorrowAmount: +utils.formatUnits(userBorrowAmount),
+        userBorrowAmount: utils.formatUnits(userBorrowAmount),
         oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
         maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
         userCollateralAmount: utils.formatUnits(userCollateralAmount, decimals),
