@@ -246,13 +246,15 @@ export default {
     expectedCollateralAmount() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
-        const { decimals } = this.activeToken;
+      const { decimals } = this.activeToken;
 
       const expectedAmount = userCollateralAmount.sub(
         this.parseCollateralAmount
       );
 
-      return +expectedAmount < 0 ? 0 : utils.formatUnits(expectedAmount, decimals);
+      return +expectedAmount < 0
+        ? 0
+        : utils.formatUnits(expectedAmount, decimals);
     },
 
     expectedBorrowAmount() {
@@ -309,7 +311,7 @@ export default {
         name,
         icon,
         address,
-        mimBalance: +utils.formatUnits(mimBalance),
+        mimBalance: utils.formatUnits(mimBalance),
       };
     },
 
