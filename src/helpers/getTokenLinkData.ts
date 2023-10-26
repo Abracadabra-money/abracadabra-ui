@@ -39,7 +39,7 @@ const configs: Array<Config> = [
   {
     id: 43,
     chain: 1,
-    href: "https://curve.fi/#/ethereum/pools/factory-tricrypto-1/deposit",
+    href: "https://yearn.fi/vaults/1/0x7845Ebf66c9575Fc5f5A0dBb9a34a706Ad997a3f",
     label: "Get Yearn Token",
   },
 ];

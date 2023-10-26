@@ -1687,7 +1687,7 @@ const config: Array<CauldronConfig> = [
       abi: poolsAbi.CauldronV4,
     },
     collateralInfo: {
-      name: "Curve TriCryptoUSDT Factory yVault",
+      name: "TriCryptoUSDT",
       decimals: 18,
       address: "0x7845Ebf66c9575Fc5f5A0dBb9a34a706Ad997a3f",
       abi: tokensAbi.curveTriCryptoUSDT,
