@@ -12,7 +12,9 @@ export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
 
   if (chainId === 1) {
-    cauldronsIds = [6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39];
+    cauldronsIds = [
+      6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39, 43,
+    ];
   }
 
   if (chainId === 10) {

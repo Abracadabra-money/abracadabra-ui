@@ -1,6 +1,8 @@
+import { ethers } from "ethers";
 import { mapGetters } from "vuex";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
+import { getSellAmount } from "@/helpers/yvTricryptoData/getSellAmount";
 import { signMasterContract } from "@/helpers/signature";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { swap0xRequest } from "@/helpers/0x";
@@ -67,6 +69,10 @@ export default {
     isSUSDT() {
       return this.chainId === 1 && this.cauldron.config.id === 42;
     },
+
+    isYvTricryptoUSDT() {
+      return this.chainId === 1 && this.cauldron.config.id === 43;
+    },
   },
   methods: {
     async signAndGetData(
@@ -122,7 +128,7 @@ export default {
       }
       if (this.isApe) buyToken = apeAddress;
 
-      if (this.isSUSDT) buyToken = usdtAddress;
+      if (this.isSUSDT || this.isYvTricryptoUSDT) buyToken = usdtAddress;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -132,6 +138,14 @@ export default {
         amount,
         leverageSwapper.address
       );
+
+      if (this.isYvTricryptoUSDT) {
+        const swapData = ethers.utils.defaultAbiCoder.encode(
+          ["address", "uint256", "bytes"],
+          [usdtAddress, 0, swapResponse.data]
+        );
+        return swapData;
+      }
 
       return swapResponse.data;
     },
@@ -167,6 +181,11 @@ export default {
 
       if (this.isSUSDT) selToken = usdtAddress;
 
+      if (this.isYvTricryptoUSDT) {
+        selToken = usdtAddress;
+        selAmount = await getSellAmount(this.signer, collateralAmount);
+      }
+
       const response = await swap0xRequest(
         this.chainId,
         mim,
@@ -175,6 +194,15 @@ export default {
         selAmount,
         swapper
       );
+
+      if (this.isYvTricryptoUSDT) {
+        const swapData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "bytes"],
+          [0, response.data]
+        );
+        return swapData;
+      }
+
       return response.data;
     },
 

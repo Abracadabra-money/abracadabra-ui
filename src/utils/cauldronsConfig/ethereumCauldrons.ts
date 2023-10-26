@@ -9,6 +9,8 @@ import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
+import YearnCurveLevSwapper from "@/utils/abi/YearnCurveLevSwapper";
+import YearnCurveSwapper from "@/utils/abi/YearnCurveSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/privateCauldrons";
 
@@ -1652,6 +1654,52 @@ const config: Array<CauldronConfig> = [
     deleverageInfo: {
       address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
       abi: ERC4626LiqSwapper,
+    },
+  },
+  {
+    icon: useImage(`assets/images/tokens/yv-3crypto.png`),
+    name: "yvTricryptoUSDT",
+    chainId: 1,
+    id: 43,
+    liquidationFee: 4,
+    mcr: 90,
+    borrowFee: 0,
+    interest: 6,
+    version: 4,
+    cauldronSettings: {
+      isSwappersActive: true,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+      is0xSwap: true,
+      isMigrated: false,
+      isNew: true,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x9E423f56407c7C08C098F32a0c78458DA98b93B6",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "TriCryptoUSDT",
+      decimals: 18,
+      address: "0x7845Ebf66c9575Fc5f5A0dBb9a34a706Ad997a3f",
+      abi: tokensAbi.curveTriCryptoUSDT,
+    },
+    mimInfo,
+    leverageInfo: {
+      address: "0x5c1Abf00c65D02308e950035D30399b16CCABa8C",
+      abi: YearnCurveLevSwapper,
+    },
+    deleverageInfo: {
+      address: "0xfD29DD1722badB444ae10081E713C19C23e1d8f8",
+      abi: YearnCurveSwapper,
     },
   },
 ];
