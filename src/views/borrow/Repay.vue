@@ -159,7 +159,7 @@ export default {
     },
 
     parseBorrowAmount() {
-      return utils.parseUnits(this.borrowValue || 0, 18);
+      return utils.parseUnits(this.borrowValue || "0", 18);
     },
 
     isCauldronLoading() {
@@ -170,8 +170,7 @@ export default {
       if (!this.account) return true;
       if (!this.borrowValue) return true;
       const { mimAllowance } = this.cauldron.userTokensInfo;
-      const allowance = +utils.formatUnits(mimAllowance);
-      return allowance >= +this.borrowValue;
+      return mimAllowance.gte(this.parseBorrowAmount);
     },
 
     isActionDisabled() {
@@ -184,7 +183,7 @@ export default {
       const { userBorrowAmount, userCollateralAmount } = this.positionInfo;
 
       return (
-        +this.borrowValue === +userBorrowAmount &&
+        userBorrowAmount.eq(this.parseBorrowAmount) &&
         +this.collateralValue === +userCollateralAmount
       );
     },
@@ -198,7 +197,7 @@ export default {
       const { userBorrowAmount, oracleExchangeRate, maxWithdrawAmount } =
         this.positionInfo;
 
-      if (+this.borrowValue === +userBorrowAmount || !userBorrowAmount) {
+      if (userBorrowAmount.eq(this.parseBorrowAmount) || !userBorrowAmount) {
         if (maxWithdrawAmount && maxWithdrawAmount < +userCollateralAmount) {
           return maxWithdrawAmount;
         }
@@ -221,11 +220,10 @@ export default {
 
     maxBorrowValue() {
       if (!this.cauldron) return 0;
-
       const { mimBalance } = this.borrowToken;
       const { userBorrowAmount } = this.positionInfo;
-      if (+userBorrowAmount > +mimBalance) return mimBalance;
-      return userBorrowAmount;
+      if (userBorrowAmount.gt(mimBalance)) return utils.formatUnits(mimBalance);
+      return utils.formatUnits(userBorrowAmount);
     },
 
     errorCollateralValue() {
@@ -259,8 +257,8 @@ export default {
 
     expectedBorrowAmount() {
       const { userBorrowAmount } = this.positionInfo;
-      const expectedAmount = +userBorrowAmount - +this.borrowValue;
-      return expectedAmount < 0 ? 0 : expectedAmount;
+      const expectedAmount = userBorrowAmount.sub(this.parseBorrowAmount);
+      return expectedAmount.lt(0) ? 0 : +utils.formatUnits(expectedAmount);
     },
 
     expectedLiquidationPrice() {
@@ -282,7 +280,7 @@ export default {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
       return {
-        userBorrowAmount: utils.formatUnits(userBorrowAmount),
+        userBorrowAmount,
         oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
         maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
         userCollateralAmount: utils.formatUnits(userCollateralAmount, decimals),
@@ -311,7 +309,7 @@ export default {
         name,
         icon,
         address,
-        mimBalance: utils.formatUnits(mimBalance),
+        mimBalance,
       };
     },
 
@@ -464,7 +462,7 @@ export default {
       const payload = {
         amount: this.parseBorrowAmount,
         updatePrice,
-        itsMax: +this.borrowValue === +userBorrowAmount,
+        itsMax: userBorrowAmount.eq(this.parseBorrowAmount),
       };
 
       const isTokenToCookApprove = await this.checkAllowance(payload.amount);
