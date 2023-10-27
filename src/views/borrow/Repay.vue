@@ -68,7 +68,7 @@
                 v-if="showAdditionalInfo"
                 :cauldron="cauldron"
                 :expectedCollateralAmount="+expectedCollateralAmount"
-                :expectedBorrowAmount="expectedBorrowAmount"
+                :expectedBorrowAmount="+expectedBorrowAmount"
                 :expectedLiquidationPrice="expectedLiquidationPrice"
               />
 
@@ -116,7 +116,7 @@
 </template>
 
 <script>
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
@@ -198,24 +198,31 @@ export default {
         this.positionInfo;
 
       if (userBorrowAmount.eq(this.parseBorrowAmount) || !userBorrowAmount) {
-        if (maxWithdrawAmount && maxWithdrawAmount < +userCollateralAmount) {
+        if (maxWithdrawAmount && maxWithdrawAmount.lt(userCollateralAmount)) {
           return maxWithdrawAmount;
         }
 
-        return userCollateralAmount;
+        return utils.formatUnits(userCollateralAmount, decimals);
       }
 
-      const collateralInUsd = +userCollateralAmount / oracleExchangeRate;
-      const maxBorrow =
-        (collateralInUsd / 100) * (mcr - 1) - this.expectedBorrowAmount;
-      const borrowLeft = ((maxBorrow * oracleExchangeRate) / mcr) * 100;
+      const collateralInUsd = userCollateralAmount.div(oracleExchangeRate);
 
-      if (borrowLeft < 0) return "0";
-      if (maxWithdrawAmount && maxWithdrawAmount < +borrowLeft) {
-        return maxWithdrawAmount;
+      const maxBorrow = collateralInUsd
+        .div(BigNumber.from(100))
+        .mul(BigNumber.from(mcr - 1))
+        .sub(utils.parseUnits(this.expectedBorrowAmount));
+
+      const borrowLeft = maxBorrow
+        .mul(oracleExchangeRate)
+        .div(BigNumber.from(mcr))
+        .mul(BigNumber.from(100));
+
+      if (borrowLeft.lt(0)) return "0";
+      if (maxWithdrawAmount && maxWithdrawAmount.lt(borrowLeft)) {
+        return utils.formatUnits(maxWithdrawAmount, decimals);
       }
 
-      return filters.formatToFixed(borrowLeft, decimals);
+      return utils.formatUnits(borrowLeft, decimals);
     },
 
     maxBorrowValue() {
@@ -249,16 +256,15 @@ export default {
       const expectedAmount = userCollateralAmount.sub(
         this.parseCollateralAmount
       );
-
-      return +expectedAmount < 0
-        ? 0
+      return expectedAmount.lt(0)
+        ? "0"
         : utils.formatUnits(expectedAmount, decimals);
     },
 
     expectedBorrowAmount() {
       const { userBorrowAmount } = this.positionInfo;
       const expectedAmount = userBorrowAmount.sub(this.parseBorrowAmount);
-      return expectedAmount.lt(0) ? 0 : +utils.formatUnits(expectedAmount);
+      return expectedAmount.lt(0) ? "0" : utils.formatUnits(expectedAmount);
     },
 
     expectedLiquidationPrice() {
@@ -281,9 +287,9 @@ export default {
 
       return {
         userBorrowAmount,
-        oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
-        maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
-        userCollateralAmount: utils.formatUnits(userCollateralAmount, decimals),
+        oracleExchangeRate: oracleRate,
+        maxWithdrawAmount: maxWithdrawAmount,
+        userCollateralAmount: userCollateralAmount,
       };
     },
 
@@ -315,7 +321,6 @@ export default {
 
     activeToken() {
       if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
-
       return this.collateralToken;
     },
 
