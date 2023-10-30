@@ -1,6 +1,7 @@
 import { useImage } from "@/helpers/useImage";
+import type { Address } from "viem";
 
-export const MAX_ALLOWANCE_VALUE: String =
+export const MAX_ALLOWANCE_VALUE: Address =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
 export const COLLATERAL_EMPTY_DATA: Object = {

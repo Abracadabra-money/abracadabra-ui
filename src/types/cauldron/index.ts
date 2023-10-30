@@ -27,14 +27,12 @@ export type UserPositions = {
   liquidationPrice: String;
 };
 
+// todo
 export type UserTokensInfo = {
-  collateralBalance: bigint;
-  mimBalance: bigint;
-  nativeTokenBalance: bigint;
-  collateralAllowance: bigint;
-  mimAllowance: bigint;
-  unwrappedTokenBalance: bigint;
-  unwrappedTokenAllowance: bigint;
+  collateralToken: any;
+  nativeToken: any;
+  borrowToken: any;
+  unwrappedToken: any;
 };
 
 export type AdditionalInfo = {

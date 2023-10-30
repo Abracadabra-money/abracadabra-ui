@@ -22,6 +22,11 @@ const routes = [
     component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
+    path: "/borrowViem/:id",
+    name: "BorrowId",
+    component: () => import("@/views/borrow/BorrowViem.vue"),
+  },
+  {
     path: "/repay",
     name: "Repay",
     component: () => import("@/views/borrow/Repay.vue"),

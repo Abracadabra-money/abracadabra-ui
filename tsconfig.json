@@ -11,6 +11,7 @@
       "path": "./tsconfig.vitest.json"
     }
   ],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
     "allowJs": true,

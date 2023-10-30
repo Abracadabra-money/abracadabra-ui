@@ -2,7 +2,7 @@ import type { providers } from "ethers";
 import { getAccount } from "@wagmi/core";
 import cauldronsConfig from "@/utils/cauldronsConfig";
 import type { CauldronInfo } from "@/types/cauldron/index";
-import { getPublicClient } from "@/helpers/cauldron/getPublicClient";
+import { getPublicClient } from "@/helpers/getPublicClient";
 import { getMainParamsViem } from "@/helpers/cauldron/getMainParamsViem";
 import { getUserPositionsViem } from "@/helpers/cauldron/getUserPositionsViem";
 import { getUserTokensInfoViem } from "@/helpers/cauldron/getUserTokensInfoViem";
@@ -18,7 +18,7 @@ export const getCauldronInfoViem = async (
   const contractProvider = address ? signer : provider;
 
   const config = cauldronsConfig.find(
-    (config) => +config.id === +cauldronId && +config.chainId === +chainId
+    (config) => config.id === cauldronId && config.chainId === chainId
   );
 
   if (!config) return null;
