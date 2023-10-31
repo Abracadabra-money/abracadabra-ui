@@ -118,6 +118,11 @@ const routes = [
     component: () => import("@/views/stake/MKLP.vue"),
   },
   {
+    path: "/analytics",
+    name: "analytics",
+    component: () => import("@/views/Analytics.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
