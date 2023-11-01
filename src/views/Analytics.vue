@@ -3,7 +3,7 @@
     <h1 class="title">Analytics</h1>
     <TotalInfo :cauldronsData="cauldronsData" v-if="cauldronsData" />
     <hr />
-    <GraphInfo :cauldronsData="cauldronsData" />
+    <GraphInfo :cauldronsData="cauldronsData" v-if="cauldronsData" />
   </div>
 </template>
 
