@@ -1,7 +1,7 @@
 <template>
   <div class="analytics">
     <h1 class="title">Analytics</h1>
-    <TotalInfo :cauldronsData="cauldronsData" />
+    <TotalInfo :cauldronsData="cauldronsData" v-if="cauldronsData" />
     <hr />
     <GraphInfo :cauldronsData="cauldronsData" />
   </div>
