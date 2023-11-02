@@ -9,8 +9,6 @@ export const getTotalValueLockedSnapshots = async (
   count = 0,
   data: any = []
 ): Promise<any> => {
-  console.log("count", count);
-
   const query = `query MyQuery {
         protocols {
           dailySnapshots(first: ${first}, skip: ${skip}) {
