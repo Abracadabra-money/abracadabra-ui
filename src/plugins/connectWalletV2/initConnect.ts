@@ -14,7 +14,7 @@ export const onConnectNew = async (ethereumClient: EthereumClient) => {
     const activeChain = await ethereumClient.getNetwork().chain;
     const chainId = activeChain!.id;
     const unsupportedChain = !defaultRpc[chainId as keyof typeof defaultRpc];
-    const { rpcUrls } = getChainsConfigs([]);
+    const { rpcUrls } = getChainsConfigs();
 
     const currentRpc = unsupportedChain
       ? defaultRpc[1]
