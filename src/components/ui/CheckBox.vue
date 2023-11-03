@@ -1,5 +1,9 @@
 <template>
-  <div class="checkbox" :class="{ active: value }" @click="$emit('update')">
+  <div
+    class="checkbox"
+    :class="{ active: value, disabled: disabled }"
+    @click="updateCheckbox"
+  >
     <div class="checkbox-indicator"></div>
   </div>
 </template>
@@ -9,6 +13,18 @@ export default {
   props: {
     value: {
       type: Boolean,
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  methods: {
+    updateCheckbox() {
+      if (this.disabled) return false;
+      this.$emit("update");
     },
   },
 };
@@ -24,16 +40,22 @@ export default {
   border-radius: 18px;
   transition: all 0.3s ease;
   cursor: pointer;
+}
 
-  &.active {
-    background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-    border: transparent;
+.active {
+  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
+  border: transparent;
 
-    .checkbox-indicator {
-      left: calc(100% - 3px);
-      transform: translateY(-50%) translateX(-100%);
-    }
+  .checkbox-indicator {
+    left: calc(100% - 3px);
+    transform: translateY(-50%) translateX(-100%);
   }
+}
+
+.disabled {
+  cursor: not-allowed;
+  background: #403e4a;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .checkbox-indicator {

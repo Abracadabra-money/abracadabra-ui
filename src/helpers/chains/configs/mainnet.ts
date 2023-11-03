@@ -8,6 +8,14 @@ config.rpcUrls.public.http = MAINNET_RPC_URLS;
 
 export const mainnetConfig = {
   ...config,
+  rpcUrls: {
+    public: {
+      http: ["https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+    },
+    default: {
+      http: ["https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+    },
+  },
   chainId: config.id,
   symbol: "ETH",
   icon: useImage("assets/images/networks/ethereum-icon.svg"),

@@ -8,6 +8,7 @@
   <Banner />
   <SkullBanner />
   <OldAllowanceBanner />
+  <TenderlyMod />
 </template>
 <script>
 import { mapGetters } from "vuex";
@@ -83,6 +84,9 @@ export default {
     ),
     OldAllowanceBanner: defineAsyncComponent(() =>
       import("@/components/ui/OldAllowanceBanner.vue")
+    ),
+    TenderlyMod: defineAsyncComponent(() =>
+      import("@/components/tenderly/TenderlyMod.vue")
     ),
   },
 };
