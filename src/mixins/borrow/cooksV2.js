@@ -11,7 +11,7 @@ import toAmount from "@/helpers/toAmount";
 
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
-// const usdcAddress = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
+const USDC_ADDRESS = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
@@ -1014,6 +1014,207 @@ export default {
         );
 
       await cook(cauldron, cookData, 0);
+    },
+
+    async recipeCreateLeverageOrder(cookData, inputAmount) {
+      const inputToken = USDC_ADDRESS;
+      const deposit = true;
+      const executionFee = 0; // todo
+      const minOutput = 0; // todo
+      const minOutLong = 0; // ok for leverage
+
+      cookData = actions.createOrder(
+        cookData,
+        inputToken,
+        0,
+        inputAmount,
+        deposit,
+        inputAmount,
+        executionFee,
+        minOutput,
+        minOutLong
+      );
+
+      return cookData;
+    },
+
+    async recipeCreateDeleverageOrder(cookData, inputAmount) {
+      const inputToken = "GM_TOKEN"; // TODO
+      const deposit = false;
+      const executionFee = 0; // todo
+      const minOutput = 0; // todo
+      const minOutLong = 0; // ok for leverage
+
+      cookData = actions.createOrder(
+        cookData,
+        inputToken,
+        0,
+        inputAmount,
+        deposit,
+        inputAmount,
+        executionFee,
+        minOutput,
+        minOutLong
+      );
+
+      return cookData;
+    },
+
+    async recipeLeverageGM(pool, amount, slipage) {
+      const { leverageSwapper, bentoBox, mim } = pool.contracts;
+      const mimAddress = pool.config.mimInfo.address;
+      const userAddr = this.account;
+      const buyToken = USDC_ADDRESS;
+
+      const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
+
+      // to be sure that sell amount in 0x and amountOut inside call will be same
+      const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
+
+      const swapResponse = await swap0xRequest(
+        this.chainId,
+        buyToken,
+        mim.address,
+        slipage,
+        amountToSwap,
+        leverageSwapper.address
+      );
+
+      const swapData = swapResponse.data;
+      const minExpected = swapResponse.buyAmount; // TODO check is correct
+
+      const swapStaticTx = await leverageSwapper.populateTransaction.swap(
+        userAddr,
+        minExpected,
+        shareFrom,
+        swapData,
+        {
+          gasLimit: 1000000000,
+        }
+      );
+
+      return { swapStaticTx, buyAmount: swapResponse.buyAmount };
+    },
+
+    async cookLeverageGM(
+      {
+        collateralAmount,
+        amount,
+        updatePrice,
+        minExpected,
+        itsDefaultBalance,
+        slipage,
+      },
+      isApprowed,
+      pool,
+      isWrap
+    ) {
+      const { collateral, leverageSwapper, cauldron } = this.cauldron.contracts;
+      const userAddr = this.account;
+
+      const collateralValue = itsDefaultBalance
+        ? collateralAmount.toString()
+        : 0;
+      const tokenAddr = itsDefaultBalance
+        ? this.defaultTokenAddress
+        : collateral.address;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
+
+      cookData = await this.recipeAddCollatral(
+        cookData,
+        pool,
+        tokenAddr,
+        isWrap,
+        userAddr,
+        collateralAmount,
+        collateralValue
+      );
+
+      cookData = await actions.borrow(
+        cookData,
+        amount,
+        leverageSwapper.address
+      );
+
+      const { swapStaticTx, buyAmount } = await this.recipeLeverageGM(
+        pool,
+        amount,
+        slipage
+      );
+
+      cookData = await actions.call(
+        cookData,
+        leverageSwapper.address,
+        swapStaticTx.data,
+        false,
+        false,
+        2
+      );
+
+      // here order encode
+      cookData = await this.recipeCreateLeverageOrder(cookData, buyAmount);
+
+      await cook(cauldron, cookData, collateralValue);
+    },
+
+    async cookDeleverageGM(
+      {
+        borrowAmount,
+        collateralAmount, // share TODO
+        removeCollateralAmount,
+        updatePrice,
+        itsMax,
+        slipage,
+      },
+      isApprowed,
+      pool,
+      account
+    ) {
+      const { collateral, cauldron, bentoBox } =
+        this.cauldron.contracts;
+      const collateralTokenAddr = collateral.address;
+
+      const gmAgentAddress = "placeholder"
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
+
+      if (updatePrice)
+        cookData = await actions.updateExchangeRate(cookData, true);
+
+
+      // remove collateral to order agent & create order
+      cookData = await actions.removeCollateral(
+        cookData,
+        collateralAmount,
+        gmAgentAddress
+      ); 
+
+      const amount = await toAmount(bentoBox, collateralTokenAddr, collateralAmount);
+      cookData = await this.recipeCreateDeleverageOrder(cookData, amount);
+
+      await cook(cauldron, cookData, 0);
+
+      // wait to order complete
+
+      // deleverage from order
+
+
     },
   },
 };

@@ -182,6 +182,21 @@ const call = (
   return cookData;
 };
 
+const createOrder = (cookData, value, inputToken, deposit, inputAmount, executionFee, minOutput, minOutLong) => {
+  const methodId = 101;
+
+  const encode = ethers.utils.defaultAbiCoder.encode(
+    ["address", "bool", "uint128", "uint128", "uint128", "uint128"],
+    [inputToken, deposit, inputAmount, executionFee, minOutput, minOutLong]
+  );
+
+  cookData.events.push(methodId);
+  cookData.values.push(value);
+  cookData.datas.push(encode);
+
+  return cookData;
+};
+
 const actions = {
   repay,
   removeCollateral,
@@ -194,6 +209,7 @@ const actions = {
   bentoWithdraw,
   bentoSetApproval,
   call,
+  createOrder
 };
 
 export { actions };
