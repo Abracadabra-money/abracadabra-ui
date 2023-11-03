@@ -18,8 +18,8 @@ describe("AdditionalInfoBlock.vue", async () => {
     const prices = wrapper.findAll(".price");
 
     expect(tokensSymbol[0].text()).toBe("magicGLP");
-    expect(amounts[0].text()).toBe("1081.8821");
-    expect(prices[0].text()).toBe("$ 882.83");
+    expect(amounts[0].text()).toBe("0.0");
+    expect(prices[0].text()).toBe("$ 0.0");
   });
 
   it("Should render Total Supply with zeros", async () => {

@@ -6,10 +6,13 @@ export type EmptyState = {
 export type EmptyStateItem = {
   name: string;
   icon: string;
+  rateIcon?: string;
   balance: bigint;
   balanceUsd?: bigint;
   rate?: bigint;
   decimals?: number;
+  totalSupply?: bigint;
+  totalSupplyUsd?: bigint;
 };
 
 export type AdditionalInfo = {

@@ -67,7 +67,7 @@ export const createBeamConfig = async (
     };
   });
 
-  if (!beamConfig && !mimConfig)
+  if ((!beamConfig && !mimConfig) || !account)
     return markRaw({
       ...emptyState,
       chainsInfo,
