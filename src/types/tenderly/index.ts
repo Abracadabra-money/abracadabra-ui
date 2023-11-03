@@ -2,7 +2,7 @@ import type { Chain } from "viem";
 
 export type ChainsConfigs = {
   chains: Chain[];
-  rpcUrls: String[] | null;
+  rpcUrls: string[] | null;
 };
 
 export type LocalForkData = {

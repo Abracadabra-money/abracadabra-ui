@@ -4,11 +4,7 @@ import {
   watchAccount,
   watchNetwork,
 } from "@wagmi/core";
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from "@web3modal/ethereum";
+import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
 import {
   optimism,
   bsc,
@@ -25,7 +21,10 @@ import { kava } from "./chains/kava";
 import { base } from "./chains/base";
 import { linea } from "./chains/linea";
 import { mainnet } from "./chains/mainnet";
-import { Web3Modal } from "@web3modal/html";
+
+import { walletConnectProvider } from "@web3modal/wagmi";
+import { createWeb3Modal, useWeb3Modal } from "@web3modal/wagmi/vue";
+
 import { useImage } from "@/helpers/useImage";
 import { getEthersSigner } from "./getEthersSigner";
 import { sanctionAbi } from "@/utils/abi/sanctionAbi";
@@ -64,22 +63,36 @@ const { chains, rpcUrls } = getChainsConfigs([
   linea,
 ]);
 
+const metadata = {
+  name: "Web3Modal",
+  description: "Web3Modal Example",
+  url: "https://web3modal.com",
+  icons: ["https://avatars.githubusercontent.com/u/37784886"],
+};
+
 // 2. Configure wagmi client
 const { publicClient } = configureChains(chains, [
   publicProvider(),
-  w3mProvider({ projectId }),
+  walletConnectProvider({ projectId }),
 ]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
-  connectors: w3mConnectors({ chains, version: 1, projectId }),
+  connectors: w3mConnectors({
+    chains,
+    version: 1,
+    projectId,
+    options: { metadata },
+  }),
   publicClient,
 });
 
 // 3. Create ethereum and modal clients
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
-const web3modal = new Web3Modal(
+
+createWeb3Modal(
   {
+    wagmiConfig,
     projectId,
     themeMode: "dark",
     themeVariables: {
@@ -93,9 +106,11 @@ const web3modal = new Web3Modal(
       8453: useImage("assets/images/networks/base.png"),
       59144: useImage("assets/images/networks/linea.png"),
     },
+    chains,
   },
   ethereumClient
 );
+const web3modal = useWeb3Modal();
 
 const checkSanctionAddress = async (address) => {
   const provider = new ethers.providers.JsonRpcProvider(
@@ -191,38 +206,35 @@ const onConnectNew = async () => {
   }
 };
 
-const subscribeProvider = async (web3modal) => {
-  await web3modal.subscribeEvents(({ data }) => {
-    console.log("herter", data);
-    if (data.name === "ACCOUNT_CONNECTED") onConnectNew();
-    if (data.name === "ACCOUNT_DISCONNECTED") window.location.reload();
+const subscribeProvider = async () => {
+  await watchAccount(({ isConnected }) => {
+    console.log("herter isConnected", isConnected);
+    isConnected ? onConnectNew() : window.location.reload();
   });
 };
 
-if (ethereumClient.getAccount().isConnected) {
-  onConnectNew();
-} else initWithoutConnect();
+watchAccount(({ isConnected }) => {
+  isConnected ? onConnectNew() : initWithoutConnect();
+});
 
 store.commit("SET_WALLET_CHECK_IN_PROCCESS", false);
 
 export default {
   async install(Vue) {
     Vue.config.globalProperties.$connectWallet = async () => {
-      await subscribeProvider(web3modal);
+      await subscribeProvider();
     };
 
     Vue.config.globalProperties.$openWeb3modal = async () => {
-      await web3modal.openModal();
+      await web3modal.open();
     };
 
     Vue.config.globalProperties.$openNetworkModal = async () => {
-      await web3modal.openModal({
-        route: "SelectNetwork",
-      });
+      await web3modal.open({ view: "Networks" });
     };
 
     Vue.config.globalProperties.$closeWeb3modal = async () => {
-      web3modal.closeModal();
+      await web3modal.close();
     };
   },
 };

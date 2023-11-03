@@ -72,6 +72,7 @@ export default {
     msg: "It looks like the address you have connected to Abracadabra UI is on a Sanction List. Abracadabra Money is not offering services to sanctioned addresses.",
     type: "error",
   },
+
   tenderlyPending: {
     discription: "Transaction in progress",
     type: "pending",
