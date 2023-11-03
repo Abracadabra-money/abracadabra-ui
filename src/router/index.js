@@ -12,6 +12,11 @@ const routes = [
     component: () => import("@/views/Home.vue"),
   },
   {
+    path: "/tenderlyTap",
+    name: "TenderlyTap",
+    component: () => import("@/views/TenderlyTap.vue"),
+  },
+  {
     path: "/borrow",
     name: "Borrow",
     component: () => import("@/views/borrow/Borrow.vue"),
