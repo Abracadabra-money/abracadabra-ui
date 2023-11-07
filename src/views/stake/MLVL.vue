@@ -26,11 +26,11 @@
 
         <div class="tranche-btns-wrap underline">
           <TrancheButton
-            v-for="{ type, apr, depreciated } in tranceBtnInfo"
+            v-for="{ type, apr, deprecated } in tranceBtnInfo"
             :type="type"
             :isActive="tokenType === type"
             :apr="apr"
-            :depreciated="depreciated"
+            :deprecated="deprecated"
             :key="type"
             @changeToken="changeToken(type)"
           />
@@ -165,7 +165,7 @@ export default {
         mezzanine: "https://app.level.finance/liquidity/mezzanine-tranche",
         senior: "https://app.level.finance/liquidity/senior-tranche",
       },
-      depreciated: ["mezzanine", "junior"],
+      deprecated: ["mezzanine", "junior"],
     };
   },
 
@@ -203,7 +203,7 @@ export default {
     },
 
     isBlockToggleAction() {
-      if (this.depreciated.includes(this.tokenType)) return true;
+      if (this.deprecated.includes(this.tokenType)) return true;
       return false;
     },
 
@@ -258,10 +258,10 @@ export default {
         {
           type: "senior",
           apr: filters.formatPercent(seniorApy),
-          depreciated: false,
+          deprecated: false,
         },
-        { type: "mezzanine", apr: filters.formatPercent(0), depreciated: true },
-        { type: "junior", apr: filters.formatPercent(0), depreciated: true },
+        { type: "mezzanine", apr: filters.formatPercent(0), deprecated: true },
+        { type: "junior", apr: filters.formatPercent(0), deprecated: true },
       ];
     },
 
@@ -327,7 +327,7 @@ export default {
       this.tokenType = type;
       this.inputValue = "";
 
-      if (this.depreciated.includes(type)) this.action = "Unstake";
+      if (this.deprecated.includes(type)) this.action = "Unstake";
       else this.action = "Stake";
     },
 

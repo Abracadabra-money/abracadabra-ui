@@ -16,11 +16,11 @@
       <p class="title" :class="type + '-title'">{{ type }} Tranche</p>
       <p class="value">
         <img
-          class="depreciated-icon"
-          v-tooltip="'Depreciated'"
-          v-if="depreciated"
+          class="deprecated-icon"
+          v-tooltip="'Deprecated'"
+          v-if="deprecated"
           src="@/assets/images/info-bar/depreciated.png"
-          alt="Depreciated icon"
+          alt="Deprecated icon"
         />
         {{ apr }}
         <span>APR</span>
@@ -36,7 +36,7 @@ export default {
   props: {
     isActive: Boolean,
     apr: { type: String, default: "0" },
-    depreciated: { type: Boolean, default: false },
+    deprecated: { type: Boolean, default: false },
     type: { type: String, required: true, default: "senior" },
   },
 
@@ -149,7 +149,7 @@ export default {
   gap: 5px;
 }
 
-.depreciated-icon {
+.deprecated-icon {
   max-width: 15px;
 }
 
