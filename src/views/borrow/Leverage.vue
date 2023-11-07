@@ -46,8 +46,8 @@
             @updateValue="updateMultiplier"
           />
           <div class="multiplier-value">( {{ multiplier }}x)</div>
-
           <DynamicallyEstimatedPrice
+            v-if="chainId !== 2222"
             :amount="expectedBorrowAmount"
             :mimAddress="cauldron.config.mimInfo.address"
           />

@@ -4,6 +4,7 @@ import avalancheCauldrons from "@/utils/cauldronsConfig/avalancheCauldrons";
 import arbitrumCauldrons from "@/utils/cauldronsConfig/arbitrumCauldrons";
 import bscCauldrons from "@/utils/cauldronsConfig/bscCauldrons";
 import optimismCauldrons from "@/utils/cauldronsConfig/optimismCauldrons";
+import kavaCauldrons from "@/utils/cauldronsConfig/kavaCauldrons";
 
 export default [
   ...ethereumCauldrons,
@@ -12,4 +13,5 @@ export default [
   ...arbitrumCauldrons,
   ...bscCauldrons,
   ...optimismCauldrons,
+  ...kavaCauldrons,
 ];

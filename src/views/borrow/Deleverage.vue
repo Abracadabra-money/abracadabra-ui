@@ -37,6 +37,7 @@
           />
 
           <DynamicallyEstimatedPrice
+            v-if="chainId !== 2222"
             :itsClose="true"
             :amount="repayMimAmount"
             :mimAddress="cauldron.config.mimInfo.address"
@@ -163,6 +164,7 @@ export default {
       removeCollateralAmount: 0,
       showAdditionalInfo: true,
       isOpenMarketListPopup: false,
+      isActionClosePosition: false,
     };
   },
 
@@ -179,6 +181,7 @@ export default {
     },
 
     isDisabledClosePosition() {
+      if (this.isActionClosePosition) return true;
       return !(this.cauldron && this.positionInfo.userBorrowAmount);
     },
 
@@ -465,6 +468,7 @@ export default {
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
+      const { decimals } = this.cauldron.config.collateralInfo;
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -477,8 +481,9 @@ export default {
       const amountFrom = utils.parseUnits(
         filters.formatToFixed(
           this.expectedRepayBorrowAmount * oracleExchangeRate,
-          18
-        )
+          decimals
+        ),
+        decimals
       );
 
       const slippage = BigNumber.from(
@@ -536,6 +541,7 @@ export default {
 
     async closePositionHandler() {
       if (this.isDisabledClosePosition) return false;
+      this.isActionClosePosition = true;
       this.repayMimAmount = this.positionInfo.userBorrowAmount;
       this.removeCollateralAmount = this.maxRemoveCollateralAmount;
 
@@ -543,6 +549,7 @@ export default {
 
       this.repayMimAmount = 0;
       this.removeCollateralAmount = 0;
+      this.isActionClosePosition = false;
     },
 
     async checkAllowance(amount) {

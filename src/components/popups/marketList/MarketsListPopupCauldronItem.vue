@@ -5,33 +5,37 @@
       <div class="cauldron-info">
         <BaseTokenIcon :icon="configItem.icon" :name="configItem.name" />
         <div>
-          <span>{{ configItem.name }}</span>
-          <span class="tooltip" v-tooltip="'Interest'"
-            >{{ marketItem.interest }}%</span
-          >
+          <div class="value-title">
+            <span class="cauldron name">{{ configItem.name }}</span>
+            <span class="tooltip" v-tooltip="'Interest'"
+              >{{ marketItem.interest }}%</span
+            >
+          </div>
           <MiniStatusTag v-if="isMigrated" />
-          <MiniStatusTag v-if="isUnrappedToken" text="Leverage" />
+          <MiniStatusTag v-if="isLeverageLabel" text="Leverage" />
         </div>
       </div>
 
-      <div class="cauldron-balance" v-if="isUnrappedToken">
-        <p>
+      <div class="cauldron-balance" v-if="isUserTotalBalance">
+        <div class="value-title">
           {{ formatTokenBalance(userInfo.collateralAmount) }}
-          {{ configItem.name }}
-        </p>
-        <p>
+          <span class="token name">{{ configItem.name }}</span>
+        </div>
+        <div class="value-title">
           {{ formatTokenBalance(userInfo.unwrappedTokenAmount) }}
-          {{ configItem.wrapInfo.unwrappedToken.name }}
-        </p>
+          <span class="token name">{{
+            configItem.wrapInfo.unwrappedToken.name
+          }}</span>
+        </div>
         <p class="price" v-if="userTotalBalance">
           Total amount: {{ formatUSD(userTotalBalance) }}
         </p>
       </div>
 
       <div class="cauldron-balance" v-else>
-        <p>{{ formatTokenBalance(userInfo.collateralAmount) }}</p>
-        <p class="price" v-if="+userInfo.collateralAmount">
-          {{ formatUSD(userInfo.collateralAmountUsd) }}
+        <p>{{ formatTokenBalance(userBalance.amount) }}</p>
+        <p class="price" v-if="+userBalance.amount">
+          {{ formatUSD(userBalance.amountUsd) }}
         </p>
       </div>
     </button>
@@ -68,10 +72,33 @@ export default {
       return !!this.configItem.cauldronSettings?.isMigrated;
     },
 
-    isUnrappedToken() {
+    isUserTotalBalance() {
       return (
         this.configItem?.wrapInfo && !this.configItem?.wrapInfo?.isHiddenWrap
       );
+    },
+
+    isLeverageLabel() {
+      return (
+        this.configItem?.wrapInfo && !this.configItem?.wrapInfo?.isHiddenWrap
+      );
+    },
+
+    userBalance() {
+      if (
+        this.configItem?.wrapInfo &&
+        this.configItem?.wrapInfo?.isHiddenWrap
+      ) {
+        return {
+          amount: this.userInfo.unwrappedTokenAmount,
+          amountUsd: this.userInfo.unwrappedTokenAmountUsd,
+        };
+      }
+
+      return {
+        amount: this.userInfo.collateralAmount,
+        amountUsd: this.userInfo.collateralAmountUsd,
+      };
     },
 
     userTotalBalance() {
@@ -143,9 +170,22 @@ export default {
   align-items: center;
 }
 
+.value-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.name {
+  display: inline-block;
+  max-width: 120px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: start;
+}
+
 .tooltip {
   display: inline-block;
-  margin-left: 5px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
 }

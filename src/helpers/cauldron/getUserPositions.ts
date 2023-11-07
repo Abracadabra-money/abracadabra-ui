@@ -45,6 +45,9 @@ export const getUserPositions = async (
         .catch(() => "0x00");
     })
   );
+  const decimals: any = configs.map((config: any) => {
+    return { decimals: config.collateralInfo.decimals };
+  });
 
   const userCollateralShares = await Promise.all(
     cauldronContracts.map((contract: any) =>
@@ -70,7 +73,10 @@ export const getUserPositions = async (
         userBorrowAmount: position.borrowValue,
         userBorrowPart: userBorrowPart[idx],
       },
-      liquidationPrice: utils.formatUnits(position.liquidationPrice, configs[idx]?.collateralInfo.decimals),
+      liquidationPrice: utils.formatUnits(
+        position.liquidationPrice,
+        configs[idx]?.collateralInfo.decimals
+      ),
       oracleRate: oracleExchangeRate[idx],
     };
   });

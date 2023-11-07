@@ -38,6 +38,7 @@
           />
 
           <DynamicallyEstimatedPrice
+            v-if="chainId !== 2222"
             :isClose="true"
             :amount="borrowValue"
             :mimAddress="borrowToken.address"
@@ -244,15 +245,17 @@ export default {
     },
 
     expectedCollateralAmount() {
+      const { decimals } = this.activeToken;
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
-        const { decimals } = this.activeToken;
 
       const expectedAmount = userCollateralAmount.sub(
         this.parseCollateralAmount
       );
 
-      return +expectedAmount < 0 ? 0 : utils.formatUnits(expectedAmount, decimals);
+      return +expectedAmount < 0
+        ? 0
+        : utils.formatUnits(expectedAmount, decimals);
     },
 
     expectedBorrowAmount() {
