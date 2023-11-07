@@ -12,7 +12,7 @@
             >
           </div>
           <MiniStatusTag v-if="isMigrated" />
-          <MiniStatusTag v-if="isLavarageLabel" text="Leverage" />
+          <MiniStatusTag v-if="isLeverageLabel" text="Leverage" />
         </div>
       </div>
 
@@ -78,7 +78,7 @@ export default {
       );
     },
 
-    isLavarageLabel() {
+    isLeverageLabel() {
       return (
         this.configItem?.wrapInfo && !this.configItem?.wrapInfo?.isHiddenWrap
       );
