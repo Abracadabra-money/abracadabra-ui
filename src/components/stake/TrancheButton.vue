@@ -14,7 +14,17 @@
 
     <div class="description">
       <p class="title" :class="type + '-title'">{{ type }} Tranche</p>
-      <p class="value">{{ apr }} <span>APR</span></p>
+      <p class="value">
+        <img
+          class="deprecated-icon"
+          v-tooltip="'Deprecated'"
+          v-if="deprecated"
+          src="@/assets/images/info-bar/depreciated.png"
+          alt="Deprecated icon"
+        />
+        {{ apr }}
+        <span>APR</span>
+      </p>
     </div>
   </button>
 </template>
@@ -26,6 +36,7 @@ export default {
   props: {
     isActive: Boolean,
     apr: { type: String, default: "0" },
+    deprecated: { type: Boolean, default: false },
     type: { type: String, required: true, default: "senior" },
   },
 
@@ -113,6 +124,7 @@ export default {
   font-size: 14px;
   line-height: 16px;
   color: #ff7100;
+  margin-bottom: 5px;
 }
 
 .title:first-letter {
@@ -132,6 +144,13 @@ export default {
   line-height: 18px;
   letter-spacing: 0.025em;
   color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.deprecated-icon {
+  max-width: 15px;
 }
 
 .value span {
