@@ -36,6 +36,18 @@ const configs: Array<Config> = [
     href: "https://yearn.fi/vaults/1/0x8078198Fc424986ae89Ce4a910Fc109587b6aBF3",
     label: "Get Yearn Tokens",
   },
+  {
+    id: 1,
+    chain: 2222,
+    href: "https://curve.fi/#/kava/pools/factory-v2-17/deposit",
+    label: "Get Curve Token",
+  },
+  {
+    id: 2,
+    chain: 2222,
+    href: "https://stargate.finance/pool/USDT-KAVA/add",
+    label: "Get Stargate Token",
+  },
 ];
 
 export const getTokenLinkData = (

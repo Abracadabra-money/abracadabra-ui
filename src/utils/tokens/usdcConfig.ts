@@ -9,6 +9,7 @@ export type ChainsUsdcConfigs = {
   56: UsdcConfig;
   137: UsdcConfig;
   250: UsdcConfig;
+  2222: UsdcConfig;
   42161: UsdcConfig;
   43114: UsdcConfig;
 };
@@ -32,6 +33,10 @@ export const chainsUsdcConfigs: ChainsUsdcConfigs = {
   },
   250: {
     address: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+    decimals: 6,
+  },
+  2222: {
+    address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     decimals: 6,
   },
   42161: {

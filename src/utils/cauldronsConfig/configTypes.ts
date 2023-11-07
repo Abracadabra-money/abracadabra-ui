@@ -1,6 +1,7 @@
 type CauldronSettings = {
   isSwappersActive: boolean;
   is0xSwap?: boolean;
+  isOpenocean?: boolean;
   isDegenBox: boolean;
   strategyLink: boolean | string;
   isDepreciated: boolean;
@@ -19,6 +20,7 @@ type CauldronSettings = {
   isAlternativeInterest?: boolean;
   isMagicApe?: boolean;
   isSSpell?: boolean;
+  isMimUsdtCurveLp?: boolean;
 };
 
 type MimInfo = {
