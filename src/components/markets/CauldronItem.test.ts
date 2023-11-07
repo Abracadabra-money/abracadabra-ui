@@ -47,9 +47,6 @@ const store = new Vuex.Store({
       state: {
         chainIcon: useImage("assets/images/networks/arbitrum-icon.svg"),
       },
-      getters: {
-        getChainIcon: (state) => (chainId: number) => state.chainIcon,
-      },
     },
   },
 });

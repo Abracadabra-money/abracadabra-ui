@@ -60,12 +60,11 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { utils } from "ethers";
+import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import { useImage } from "@/helpers/useImage";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
 import { ONE_ETHER } from "@/constants/global";
 export default {
   props: {
@@ -82,16 +81,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", getChainById: "getChainById" }),
 
     nativeTokenInfo() {
       const { acceptUseDefaultBalance } = this.cauldron.config.cauldronSettings;
       if (!acceptUseDefaultBalance) return null;
 
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
-      const { symbol, icon } = getChainInfo(this.chainId);
+      const { symbol, baseTokenIcon } = this.getChainById(this.chainId);
       const balance = utils.formatUnits(nativeTokenBalance);
-      return { name: symbol, icon, balance };
+      return { name: symbol, icon: baseTokenIcon, balance };
     },
 
     mimInfo() {

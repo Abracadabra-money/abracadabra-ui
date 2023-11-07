@@ -75,10 +75,12 @@ const formatTokenBalance = (value) => {
       currency: "USD",
     });
 
-  if (+value > 0.000001)
-    return (+formatToFixed(value, 6)).toLocaleString("en-US", {
+  if (+value > 0.001)
+    return (+formatToFixed(value, 4)).toLocaleString("en-US", {
       currency: "USD",
     });
+
+  if (+value > 0.000001) return +formatToFixed(value, 6);
 
   const stringValue = formatToFixed(value, 18);
 
@@ -100,6 +102,14 @@ const formatExactPrice = (value) => {
   return `$ ${formatTokenBalance(value)}`;
 };
 
+const formatAddress = (address) => {
+  return (
+    address.substring(0, 5) +
+    "..." +
+    address.substring(address.length - 5, address.length)
+  );
+};
+
 const filters = {
   formatUSD,
   formatNumber,
@@ -108,6 +118,7 @@ const filters = {
   formatToFixed,
   formatPercent,
   formatExactPrice,
+  formatAddress,
 };
 
 export default filters;

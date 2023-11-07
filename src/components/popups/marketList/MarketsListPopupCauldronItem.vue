@@ -12,11 +12,11 @@
             >
           </div>
           <MiniStatusTag v-if="isMigrated" />
-          <MiniStatusTag v-if="isUnrappedToken" text="Leverage" />
+          <MiniStatusTag v-if="isLavarageLabel" text="Leverage" />
         </div>
       </div>
 
-      <div class="cauldron-balance" v-if="isUnrappedToken">
+      <div class="cauldron-balance" v-if="isUserTotalBalance">
         <div class="value-title">
           {{ formatTokenBalance(userInfo.collateralAmount) }}
           <span class="token name">{{ configItem.name }}</span>
@@ -33,9 +33,9 @@
       </div>
 
       <div class="cauldron-balance" v-else>
-        <p>{{ formatTokenBalance(userInfo.collateralAmount) }}</p>
-        <p class="price" v-if="+userInfo.collateralAmount">
-          {{ formatUSD(userInfo.collateralAmountUsd) }}
+        <p>{{ formatTokenBalance(userBalance.amount) }}</p>
+        <p class="price" v-if="+userBalance.amount">
+          {{ formatUSD(userBalance.amountUsd) }}
         </p>
       </div>
     </button>
@@ -72,10 +72,33 @@ export default {
       return !!this.configItem.cauldronSettings?.isMigrated;
     },
 
-    isUnrappedToken() {
+    isUserTotalBalance() {
       return (
         this.configItem?.wrapInfo && !this.configItem?.wrapInfo?.isHiddenWrap
       );
+    },
+
+    isLavarageLabel() {
+      return (
+        this.configItem?.wrapInfo && !this.configItem?.wrapInfo?.isHiddenWrap
+      );
+    },
+
+    userBalance() {
+      if (
+        this.configItem?.wrapInfo &&
+        this.configItem?.wrapInfo?.isHiddenWrap
+      ) {
+        return {
+          amount: this.userInfo.unwrappedTokenAmount,
+          amountUsd: this.userInfo.unwrappedTokenAmountUsd,
+        };
+      }
+
+      return {
+        amount: this.userInfo.collateralAmount,
+        amountUsd: this.userInfo.collateralAmountUsd,
+      };
     },
 
     userTotalBalance() {

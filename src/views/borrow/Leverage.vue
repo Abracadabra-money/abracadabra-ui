@@ -162,8 +162,8 @@ import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
@@ -198,6 +198,7 @@ export default {
       account: "getAccount",
       provider: "getProvider",
       signer: "getSigner",
+      getChainById: "getChainById",
     }),
 
     isCauldronLoading() {
@@ -217,7 +218,7 @@ export default {
 
     isActionDisabled() {
       if (this.errorCollateralValue) return true;
-      if (!this.collateralValue) return true;
+      if (this.collateralValue == 0) return true;
       return false;
     },
 
@@ -473,13 +474,13 @@ export default {
     },
 
     nativeToken() {
-      const { symbol, icon } = getChainInfo(this.chainId);
+      const { symbol, baseTokenIcon } = this.getChainById(this.chainId);
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
       const { collateral } = this.cauldron.contracts;
 
       return {
         name: symbol,
-        icon,
+        icon: baseTokenIcon,
         balance: utils.formatUnits(nativeTokenBalance),
         decimals: 18,
         allowance: BigNumber.from(MAX_ALLOWANCE_VALUE),
@@ -525,6 +526,10 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    clearInputs() {
+      this.collateralValue = "";
+    },
 
     async checkAllowance(amount) {
       const { isNative, contract } = this.activeToken;
@@ -605,6 +610,7 @@ export default {
     },
 
     async checkPermissionToCook(notificationId, borrowAmount) {
+      if (borrowAmount == 0) return true;
       const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
       const { id } = this.cauldron.config;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
@@ -634,14 +640,6 @@ export default {
         return false;
       }
 
-      const allowance = await this.checkAllowance(this.parseCollateralValue);
-
-      if (!allowance) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.approveError);
-        return false;
-      }
-
       return true;
     },
 
@@ -667,10 +665,27 @@ export default {
 
       if (!isPermissionToCook) return false;
 
-      this[this.actionInfo.methodName](notificationId);
+      try {
+        await this[this.actionInfo.methodName]();
+
+        this.clearInputs();
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("leverage error", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
 
-    async addCollateralHandler(notificationId) {
+    async addCollateralHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
@@ -684,7 +699,6 @@ export default {
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId,
         !!this.cauldron.config?.wrapInfo,
         !this.useOtherToken
       );
@@ -692,7 +706,7 @@ export default {
       return await this.createCauldronInfo();
     },
 
-    async leverageUpHandler(notificationId) {
+    async leverageUpHandler() {
       const { bentoBox, collateral } = this.cauldron.contracts;
       const { updatePrice } = this.cauldron.mainParams;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
@@ -716,7 +730,6 @@ export default {
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId,
         !this.useOtherToken && !!this.cauldron.config.wrapInfo
       );
 

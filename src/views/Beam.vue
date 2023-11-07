@@ -8,12 +8,12 @@
           <WalletButton
             :active="isShowDstAddress"
             @click="toggleDstAddress"
-            :disabled="isUnsupportedNetwork"
+            :disabled="isActionsDisabled"
           />
           <SettingsButton
             :active="isSettingsOpened"
             @click="isSettingsOpened = true"
-            :disabled="isUnsupportedNetwork"
+            :disabled="isActionsDisabled"
           />
         </div>
       </div>
@@ -36,7 +36,7 @@
             :icon="$image('assets/images/tokens/MIM.png')"
             :error="amountError"
             @update-value="updateMainValue"
-            :disabled="isUnsupportedNetwork"
+            :disabled="isActionsDisabled"
           />
         </div>
 
@@ -125,13 +125,12 @@ import {
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import switchNetwork from "@/helpers/switchNetwork";
 import { approveToken } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import notification from "@/helpers/notification/notification.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
@@ -178,6 +177,7 @@ export default {
       signer: "getSigner",
       provider: "getProvider",
       chainId: "getChainId",
+      getChainById: "getChainById",
     }),
 
     isUnsupportedNetwork() {
@@ -288,6 +288,10 @@ export default {
       return this.beamConfig?.balance || 0;
     },
 
+    isActionsDisabled() {
+      return this.isUnsupportedNetwork || !this.account;
+    },
+
     disableBtn() {
       if (+this.amount === 0) return true;
       if (this.isApproving || this.isBeaming) return true;
@@ -308,11 +312,11 @@ export default {
     },
 
     srcTokenInfo() {
-      return getChainInfo(this.chainId);
+      return this.getChainById(this.chainId);
     },
 
     dstTokenInfo() {
-      return getChainInfo(this.targetToChain);
+      return this.getChainById(this.targetToChain);
     },
 
     getFee() {
@@ -337,7 +341,7 @@ export default {
 
     settingConfig() {
       return {
-        icon: this.dstTokenInfo.icon,
+        icon: this.dstTokenInfo.baseTokenIcon,
         nativeTokenBalance: this.beamConfig.nativeTokenBalance,
         nativeSymbol: this.srcTokenInfo?.symbol,
         contract: this.beamConfig.contractInstance,

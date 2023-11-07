@@ -103,20 +103,12 @@
         <CollateralApyBlock v-if="cauldron" :cauldron="cauldron" />
 
         <template v-if="cauldron">
-          <!-- <div class="btn-wrap"> -->
-          <!-- <BaseButton
-              primary
-              :disabled="true"
-              @click="approveTokenHandler"
-              >Approve</BaseButton
-            > -->
           <BaseButton
             v-if="cauldron"
             @click="actionHandler"
             :disabled="isActionDisabled"
             >{{ actionInfo }}
           </BaseButton>
-          <!-- </div> -->
 
           <div class="main-info-wrap">
             <MainInfoBlock :cauldron="cauldron" />
@@ -153,6 +145,7 @@ import { useImage } from "@/helpers/useImage";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
@@ -192,17 +185,6 @@ export default {
       return !(this.cauldron && this.positionInfo.userBorrowAmount);
     },
 
-    isTokenApproved() {
-      if (!this.account) return true;
-
-      const allowance = +utils.formatUnits(
-        this.activeToken.allowance,
-        this.activeToken.decimals
-      );
-
-      return allowance > 0;
-    },
-
     isMaxRepayMimAmount() {
       return (
         filters.formatToFixed(this.repayMimAmount, 4) ===
@@ -211,7 +193,6 @@ export default {
     },
 
     isActionDisabled() {
-      // if (!this.isTokenApproved) return true;
       if (this.repayMimAmount == 0) return true;
       return false;
     },
@@ -421,6 +402,11 @@ export default {
       return filters.formatTokenBalance(amount);
     },
 
+    clearInputs() {
+      this.repayMimAmount = 0;
+      this.removeCollateralAmount = 0;
+    },
+
     formatToFixed(amount, decimals = 4) {
       return filters.formatToFixed(amount, decimals);
     },
@@ -472,24 +458,6 @@ export default {
       if (!duplicate) this.$router.push(`/deleverage/${marketId}`);
 
       this.isOpenMarketListPopup = false;
-    },
-
-    async approveTokenHandler() {
-      if (this.isTokenApproved) return false;
-
-      const notificationId = await this.createNotification(
-        notification.approvePending
-      );
-
-      const { address } = this.cauldron.contracts.bentoBox;
-      const approve = await approveToken(this.activeToken.contract, address);
-
-      if (approve) await this.createCauldronInfo();
-      await this.deleteNotification(notificationId);
-
-      if (!approve) await this.createNotification(notification.approveError);
-
-      return false;
     },
 
     async actionHandler() {
@@ -545,24 +513,30 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      // const isTokenToCookApprove = await this.checkAllowance(
-      //   payload.collateralAmount
-      // );
+      try {
+        await this.cookDeleverage(
+          payload,
+          isMasterContractApproved,
+          this.cauldron,
+          this.account
+        );
 
-      // if (+isTokenToCookApprove) {
-      await this.cookDeleverage(
-        payload,
-        isMasterContractApproved,
-        this.cauldron,
-        this.account,
-        notificationId
-      );
+        await this.createCauldronInfo();
 
-      return await this.createCauldronInfo();
-      // }
+        this.clearInputs();
 
-      await this.deleteNotification(notificationId);
-      return await this.createNotification(notification.approveError);
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("deleverage error", error);
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
 
     async closePositionHandler() {

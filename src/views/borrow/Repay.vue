@@ -125,6 +125,7 @@ import { approveToken } from "@/helpers/approval";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { COLLATERAL_EMPTY_DATA, MIM_EMPTY_DATA } from "@/constants/cauldron.ts";
 
@@ -373,6 +374,11 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    clearInputs() {
+      this.borrowValue = "";
+      this.collateralValue = "";
+    },
+
     async changeActiveMarket(marketId) {
       clearInterval(this.updateInterval);
       this.cauldronId = marketId;
@@ -427,17 +433,34 @@ export default {
     async actionHandler() {
       if (!this.isTokenApproved || this.isActionDisabled) return false;
       if (!this[this.actionInfo.methodName]) return false;
-      this[this.actionInfo.methodName]();
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        await this[this.actionInfo.methodName]();
+
+        this.clearInputs();
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("repay error", error);
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
 
     async repayHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.positionInfo;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
 
       const payload = {
         amount: this.parseBorrowAmount,
@@ -448,18 +471,10 @@ export default {
       const isTokenToCookApprove = await this.checkAllowance(payload.amount);
 
       if (+isTokenToCookApprove) {
-        await this.cookRepay(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          notificationId
-        );
+        await this.cookRepay(payload, isMasterContractApproved, this.cauldron);
 
         return await this.createCauldronInfo();
       }
-
-      await this.deleteNotification(notificationId);
-      return await this.createNotification(notification.approveError);
     },
 
     async removeCollateralHandler() {
@@ -467,10 +482,6 @@ export default {
       const { address } = this.activeToken;
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
 
       const payload = {
         amount: await bentoBox.toShare(
@@ -484,8 +495,7 @@ export default {
       await this.cookRemoveCollateral(
         payload,
         isMasterContractApproved,
-        this.cauldron,
-        notificationId
+        this.cauldron
       );
 
       return await this.createCauldronInfo();
@@ -498,10 +508,6 @@ export default {
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
       const { address } = this.activeToken;
       const { updatePrice } = this.cauldron.mainParams;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
 
       const payload = {
         collateralAmount: this.parseBorrowAmount,
@@ -527,15 +533,11 @@ export default {
         await this.cookRemoveCollateralAndRepay(
           payload,
           isMasterContractApproved,
-          this.cauldron,
-          notificationId
+          this.cauldron
         );
 
         return await this.createCauldronInfo();
       }
-
-      await this.deleteNotification(notificationId);
-      return await this.createNotification(notification.approveError);
     },
 
     async createCauldronInfo() {

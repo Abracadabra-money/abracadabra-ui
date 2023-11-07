@@ -1,8 +1,8 @@
-import { BigNumber, Contract, providers, utils } from "ethers";
-import mimConfigs from "@/utils/contracts/mimToken";
-import chainConfig from "@/utils/beam/chainConfig";
-import beamConfigs from "@/utils/beam/beamConfigs";
 import { markRaw } from "vue";
+import beamConfigs from "@/utils/beam/beamConfigs";
+import mimConfigs from "@/utils/contracts/mimToken";
+import { chains, chainsList } from "@/helpers/chains";
+import { BigNumber, Contract, providers, utils } from "ethers";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
 const emptyState = {
@@ -47,26 +47,27 @@ export const createBeamConfig = async (
   const beamConfig = beamConfigs.find((item) => item.chainId === chainId);
 
   const fromChains = beamConfigs.map((configItem) => {
+    const { chainId } = configItem;
     return {
       chainId: configItem.chainId,
       title: configItem.chainName,
-      icon: configItem.chainIcon,
+      icon: chainsList[chainId as keyof typeof chainsList].networkIcon,
       defaultValue: configItem.defaultValue,
     };
   });
 
-  const chainsInfo = chainConfig.filter((chain) => chain.chainId !== chainId);
+  const chainsInfo = chains.filter((chain) => chain.chainId !== chainId);
 
   const toChains = chainsInfo.map((chainItem) => {
     return {
       chainId: chainItem.chainId,
       lzChainId: chainItem.lzChainId,
-      title: chainItem.name,
-      icon: chainItem.icon,
+      title: chainItem.symbol,
+      icon: chainItem.networkIcon,
     };
   });
 
-  if (!beamConfig && !mimConfig)
+  if ((!beamConfig && !mimConfig) || !account)
     return markRaw({
       ...emptyState,
       chainsInfo,

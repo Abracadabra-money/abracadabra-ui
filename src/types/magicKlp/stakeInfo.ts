@@ -16,6 +16,8 @@ export type EmptyStateItem = {
   balanceUsd: bigint;
   rateIcon?: string;
   decimals?: number;
+  totalSupply?: bigint;
+  totalSupplyUsd?: bigint;
 };
 
 export type StakeInfo = {

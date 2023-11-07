@@ -143,8 +143,8 @@ import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { getChainInfo } from "@/helpers/chain/getChainInfo.ts";
 import notification from "@/helpers/notification/notification.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import {
@@ -174,6 +174,7 @@ export default {
       account: "getAccount",
       provider: "getProvider",
       signer: "getSigner",
+      getChainById: "getChainById",
     }),
 
     isCauldronLoading() {
@@ -264,12 +265,12 @@ export default {
     },
 
     nativeToken() {
-      const { symbol, icon } = getChainInfo(this.chainId);
+      const { symbol, baseTokenIcon } = this.getChainById(this.chainId);
       const { nativeTokenBalance } = this.cauldron.userTokensInfo;
 
       return {
         name: symbol,
-        icon,
+        icon: baseTokenIcon,
         balance: {
           hex: nativeTokenBalance,
           value: utils.formatUnits(nativeTokenBalance),
@@ -455,6 +456,11 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    clearInputs() {
+      this.collateralValue = "";
+      this.borrowValue = "";
+    },
+
     changeToken(value) {
       this.collateralValue = "";
       this.borrowValue = "";
@@ -525,10 +531,26 @@ export default {
 
       if (!isPermissionToCook) return false;
 
-      return await this[this.actionInfo.methodName](notificationId);
+      try {
+        await this[this.actionInfo.methodName]();
+
+        this.clearInputs();
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("borrow error", error);
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
 
-    async addCollateralAndBorrowHandler(notificationId) {
+    async addCollateralAndBorrowHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
@@ -543,7 +565,6 @@ export default {
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId,
         !!this.cauldron.config?.wrapInfo,
         !this.useOtherToken
       );
@@ -551,7 +572,7 @@ export default {
       return await this.createCauldronInfo();
     },
 
-    async addCollateralHandler(notificationId) {
+    async addCollateralHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
@@ -565,7 +586,6 @@ export default {
         payload,
         isMasterContractApproved,
         this.cauldron,
-        notificationId,
         !!this.cauldron.config?.wrapInfo,
         !this.useOtherToken
       );
@@ -573,7 +593,7 @@ export default {
       return await this.createCauldronInfo();
     },
 
-    async borrowHandler(notificationId) {
+    async borrowHandler() {
       const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
 
@@ -582,17 +602,13 @@ export default {
         updatePrice,
       };
 
-      await this.cookBorrow(
-        payload,
-        isMasterContractApproved,
-        this.cauldron,
-        notificationId
-      );
+      await this.cookBorrow(payload, isMasterContractApproved, this.cauldron);
 
       return await this.createCauldronInfo();
     },
 
     async checkPermissionToCook(notificationId, borrowAmount) {
+      if (borrowAmount == 0) return true;
       const { userMaxBorrow, mimLeftToBorrow } = this.cauldron.mainParams;
       const { id } = this.cauldron.config;
       const { whitelistedInfo } = this.cauldron.additionalInfo;
@@ -614,14 +630,6 @@ export default {
       if (!whitelistedInfo && this.chainId === 1 && id === 33) {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.whitelisted);
-        return false;
-      }
-
-      const allowance = await this.checkAllowance(this.parseCollateralAmount);
-
-      if (!allowance) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.approveError);
         return false;
       }
 

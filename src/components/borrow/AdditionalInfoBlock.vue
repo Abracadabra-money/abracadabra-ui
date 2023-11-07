@@ -68,9 +68,7 @@ export default {
 
     userBorrowAmount() {
       return +utils.formatUnits(
-        this.cauldron.userPosition?.borrowInfo.userBorrowAmount,
-        this.cauldron.config.collateralInfo.decimals
-      );
+        this.cauldron.userPosition?.borrowInfo.userBorrowAmount);
     },
 
     collateralToMim() {
