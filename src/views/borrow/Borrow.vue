@@ -189,7 +189,7 @@ export default {
         this.activeToken.decimals
       );
 
-      return allowance > +this.collateralValue;
+      return allowance >= +this.collateralValue;
     },
 
     isActionDisabled() {
