@@ -172,6 +172,49 @@ const config: Array<CauldronConfig> = [
       abi: magicGlpSwapperAbi,
     },
   },
+  {
+    icon: useImage(`assets/images/tokens/GLP.png`),
+    name: "GM",
+    chainId: 42161,
+    id: 4,
+    liquidationFee: 6,
+    mcr: 75,
+    borrowFee: 0.15,
+    version: 4,
+    cauldronSettings: {
+      isSwappersActive: true,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+      isGMXMarket: true
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x9d54c9fe517ff084a621d482e8dd40bd2f818938",
+      abi: poolsAbi.GmxV2CauldronV4,
+    },
+    collateralInfo: {
+      name: "GM",
+      decimals: 18,
+      address: "0xC25cEf6061Cf5dE5eb761b50E4743c1F5D7E5407",
+      abi: tokensAbi.GM,
+    },
+    mimInfo,
+    leverageInfo: {
+      address: "0xd1140b6dcf3f1a125f5cb9d87d1ab3ca46acf528",
+      abi: zeroXLevSwapperAbi,
+    },
+    deleverageInfo: {
+      address: "0xab0fbe08b8d41508e6a8bbd5f9046d4246992116",
+      abi: zeroXLiqSwapperAbi,
+    },
+  },
 ];
 
 export default config;

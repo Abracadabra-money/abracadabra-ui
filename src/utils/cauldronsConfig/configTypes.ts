@@ -19,6 +19,7 @@ type CauldronSettings = {
   isAlternativeInterest?: boolean;
   isMagicApe?: boolean;
   isSSpell?: boolean;
+  isGMXMarket?: boolean;
 };
 
 type MimInfo = {

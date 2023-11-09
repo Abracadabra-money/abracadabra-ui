@@ -15,6 +15,9 @@ const USDC_ADDRESS = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
+import GMXReaderAbi from "@/utils/abi/gm/GMXReaderAbi";
+import { Contract } from "ethers";
+
 export default {
   mixins: [degenBoxCookHelperMixin],
   data() {
@@ -1019,15 +1022,14 @@ export default {
     async recipeCreateLeverageOrder(cookData, inputAmount) {
       const inputToken = USDC_ADDRESS;
       const deposit = true;
-      const executionFee = 0; // todo
+      const executionFee = "300000000000000000"; // todo
       const minOutput = 0; // todo
       const minOutLong = 0; // ok for leverage
 
-      cookData = actions.createOrder(
+      updatedCookData = actions.createOrder(
         cookData,
+        executionFee,
         inputToken,
-        0,
-        inputAmount,
         deposit,
         inputAmount,
         executionFee,
@@ -1035,7 +1037,7 @@ export default {
         minOutLong
       );
 
-      return cookData;
+      return {updatedCookData, executionFee};
     },
 
     async recipeCreateDeleverageOrder(cookData, inputAmount) {
@@ -1161,13 +1163,12 @@ export default {
         2
       );
 
-      // here order encode
-      cookData = await this.recipeCreateLeverageOrder(cookData, buyAmount);
+      const {updatedCookData, executionFee} = await this.recipeCreateLeverageOrder(cookData, buyAmount);
 
-      await cook(cauldron, cookData, collateralValue);
+      await cook(cauldron, updatedCookData, executionFee);
     },
 
-    async cookDeleverageGM(
+    async cookCreateDeleverageOrderGM(
       {
         borrowAmount,
         collateralAmount, // share TODO
@@ -1214,7 +1215,15 @@ export default {
 
       // deleverage from order
 
+      {
+        let cookData = {
+          events: [],
+          values: [],
+          datas: [],
+        };
 
+
+      }
     },
   },
 };
