@@ -17,9 +17,7 @@
                 Tranche
               </h6>
             </div>
-            <span class="token-risk" :class="data.risk"
-              >{{ data.risk }} risk
-            </span>
+            <span class="token-risk" :class="data.risk">{{ data.risk }} </span>
           </div>
 
           <ul class="token-list-info">
@@ -79,7 +77,7 @@ export default {
       return [
         {
           type: "Senior",
-          risk: "low",
+          risk: "low risk",
           icon: useImage("assets/images/stake/senior-icon.svg"),
           apr: formatPercent(tranchesStatistics.seniorApy),
           totalRewards: formatUSD(tranchesStatistics.seniorTotalRewardsUsd),
@@ -92,9 +90,9 @@ export default {
         },
         {
           type: "Mezzanine",
-          risk: "medium",
+          risk: "deprecated",
           icon: useImage("assets/images/stake/mezzanine-icon.svg"),
-          apr: formatPercent(tranchesStatistics.mezzanineApy),
+          apr: formatPercent(0),
           totalRewards: formatUSD(tranchesStatistics.mezzanineTotalRewardsUsd),
           totalSupply: formatUSD(
             formatUnits(
@@ -105,9 +103,9 @@ export default {
         },
         {
           type: "Junior",
-          risk: "high",
+          risk: "deprecated",
           icon: useImage("assets/images/stake/junior-icon.svg"),
-          apr: formatPercent(tranchesStatistics.juniorApy),
+          apr: formatPercent(0),
           totalRewards: formatUSD(tranchesStatistics.juniorTotalRewardsUsd),
           totalSupply: formatUSD(
             formatUnits(
@@ -217,8 +215,8 @@ export default {
   color: #9f71ff;
 }
 
-.high {
-  color: #ffb274;
+.deprecated {
+  color: $clrError;
 }
 
 .token-list-info {

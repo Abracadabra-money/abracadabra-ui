@@ -4,6 +4,11 @@ export default {
     type: "success",
   },
 
+  clipboard: {
+    msg: `Copied RPC link to clipboard`,
+    type: "success",
+  },
+
   pending: {
     discription: "Confirm in wallet and wait for confirmation",
     type: "pending",
@@ -57,9 +62,19 @@ export default {
     type: "error",
   },
 
+  tenderlyMod: {
+    msg: "You have Tenderly mod enabled. Make sure that Fork is selected in your wallet. Or log out.",
+    type: "warning",
+  },
+
   sanctionAddress: {
     title: "Sanction address Warning",
     msg: "It looks like the address you have connected to Abracadabra UI is on a Sanction List. Abracadabra Money is not offering services to sanctioned addresses.",
     type: "error",
+  },
+
+  tenderlyPending: {
+    discription: "Transaction in progress",
+    type: "pending",
   },
 };

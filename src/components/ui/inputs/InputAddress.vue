@@ -1,12 +1,13 @@
 <template>
-  <div>
+  <div class="input-address-wrap">
     <input
       class="input-address"
-      :class="{ error: addressEntryError }"
+      :class="{ error: addressEntryError, disabled: isDisabled }"
       v-model="address"
       @input="updateInput"
       type="text"
-      placeholder="Add destination address"
+      :placeholder="placeholder"
+      :disabled="isDisabled"
     />
     <p class="error-message" :class="{ visibility: addressEntryError }">
       Invalid address
@@ -18,14 +19,40 @@
 import { utils } from "ethers";
 
 export default {
+  props: {
+    destinationAddress: {
+      type: String,
+      default: "",
+    },
+    isDisabled: {
+      type: Boolean,
+      default: false,
+    },
+    placeholder: {
+      type: String,
+      default: "Add destination address",
+    },
+    validation: {
+      type: Boolean,
+      default: true,
+    },
+  },
+
   data() {
     return {
-      address: null,
+      address: this.destinationAddress,
     };
+  },
+
+  watch: {
+    destinationAddress() {
+      this.address = this.destinationAddress;
+    },
   },
 
   computed: {
     checkInputAddress() {
+      if (!this.validation) return true;
       return this.address ? utils.isAddress(this.address.toLowerCase()) : false;
     },
 
@@ -46,6 +73,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.input-address-wrap {
+  width: 100%;
+}
+
 .input-address {
   width: 100%;
   height: 50px;
@@ -55,6 +86,11 @@ export default {
   outline: none;
   padding: 12px 20px;
   color: #fff;
+  font-size: 15px;
+}
+
+.disabled {
+  cursor: not-allowed;
 }
 
 .error {

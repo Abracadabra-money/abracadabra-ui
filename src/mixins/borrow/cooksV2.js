@@ -1,19 +1,24 @@
 import { mapGetters } from "vuex";
-import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
-import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
-import { signMasterContract } from "@/helpers/signature";
-import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
-import { swap0xRequest } from "@/helpers/0x";
-import { actions } from "@/helpers/cauldron/cook/actions";
-import { cook } from "@/helpers/cauldron/cauldron";
-
 import toAmount from "@/helpers/toAmount";
-
+import { swap0xRequest } from "@/helpers/0x";
+import { cook } from "@/helpers/cauldron/cauldron";
+import { signMasterContract } from "@/helpers/signature";
+import { actions } from "@/helpers/cauldron/cook/actions";
+import { MAINNET_APE_ADDRESS } from "@/constants/tokensAddress";
+import { MAINNET_USDT_ADDRESS } from "@/constants/tokensAddress";
+import { DEFAULT_TOKEN_ADDRESS } from "@/constants/tokensAddress";
+import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
+import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
 const USDC_ADDRESS = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
+
+import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
+import { getOpenoceanLeverageSwapData } from "@/helpers/openocean/getOpenoceanLeverageSwapData";
+import { getOpenoceanDeleverageSwapData } from "@/helpers/openocean/getOpenoceanDeleverageSwapData";
+
 
 import GMXReaderAbi from "@/utils/abi/gm/GMXReaderAbi";
 import { Contract } from "ethers";
@@ -22,7 +27,6 @@ export default {
   mixins: [degenBoxCookHelperMixin],
   data() {
     return {
-      defaultTokenAddress: "0x0000000000000000000000000000000000000000",
       glpPoolsId: [2, 3], // TODO: move to config
     };
   },
@@ -32,6 +36,7 @@ export default {
       itsMetamask: "getMetamaskActive",
       chainId: "getChainId",
       signer: "getSigner",
+      provider: "getProvider",
     }),
 
     // TODO: move to config
@@ -123,9 +128,9 @@ export default {
         );
         return leverageResp.swapDataEncode;
       }
-      if (this.isApe) buyToken = apeAddress;
+      if (this.isApe) buyToken = MAINNET_APE_ADDRESS;
 
-      if (this.isSUSDT) buyToken = usdtAddress;
+      if (this.isSUSDT) buyToken = MAINNET_USDT_ADDRESS;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -164,11 +169,11 @@ export default {
       }
 
       if (this.isApe) {
-        selToken = apeAddress;
+        selToken = MAINNET_APE_ADDRESS;
         selAmount = await collateral.convertToAssets(collateralAmount);
       }
 
-      if (this.isSUSDT) selToken = usdtAddress;
+      if (this.isSUSDT) selToken = MAINNET_USDT_ADDRESS;
 
       const response = await swap0xRequest(
         this.chainId,
@@ -451,7 +456,8 @@ export default {
       amount,
       minExpected,
       slipage,
-      is0x = false
+      is0x = false,
+      isOpenocean = false
     ) {
       const { leverageSwapper, bentoBox } = this.cauldron.contracts;
       const mimAddress = this.cauldron.config.mimInfo.address;
@@ -468,7 +474,9 @@ export default {
           slipage
         );
 
-      if (!is0x) {
+      const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
+
+      if (!is0x && !isOpenocean) {
         const swapStaticTx = await leverageSwapper.populateTransaction.swap(
           userAddr,
           minExpected,
@@ -489,16 +497,12 @@ export default {
         return cookData;
       }
 
-      const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
-
       // to be sure that sell amount in 0x and amountOut inside call will be same
       const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
 
-      const swapData = await this.get0xLeverageSwapData(
-        pool,
-        amountToSwap,
-        slipage
-      );
+      const swapData = isOpenocean
+        ? await getOpenoceanLeverageSwapData(pool, amountToSwap, slipage)
+        : await this.get0xLeverageSwapData(pool, amountToSwap, slipage);
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
         userAddr,
@@ -528,12 +532,14 @@ export default {
       shareFrom,
       shareToMin,
       slipage,
-      is0x
+      is0x,
+      isOpenocean
     ) {
       const {
         collateral,
         mim: mimContract,
         liquidationSwapper,
+        bentoBox,
       } = this.cauldron.contracts;
 
       const collateralTokenAddr = collateral.address;
@@ -541,7 +547,7 @@ export default {
       const swapper = liquidationSwapper.address;
       const userAddr = this.account;
 
-      if (!is0x) {
+      if (!is0x && !isOpenocean) {
         const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
           collateralTokenAddr,
           mim,
@@ -564,11 +570,16 @@ export default {
         return cookData;
       }
 
-      const swapData = await this.get0xDeleverageSwapData(
-        pool,
-        shareFrom,
-        slipage
+      // to be sure that sell amount in openacean and amountOut inside call will be same
+      const amountToSwap = await toAmount(
+        bentoBox,
+        collateralTokenAddr,
+        shareFrom
       );
+
+      const swapData = isOpenocean
+        ? await getOpenoceanDeleverageSwapData(pool, amountToSwap, slipage)
+        : await this.get0xDeleverageSwapData(pool, shareFrom, slipage);
 
       const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
         collateralTokenAddr,
@@ -606,7 +617,7 @@ export default {
       const { address } = pool.config.collateralInfo;
       const { cauldron } = pool.contracts;
 
-      const token = itsDefaultBalance ? this.defaultTokenAddress : address;
+      const token = itsDefaultBalance ? DEFAULT_TOKEN_ADDRESS : address;
       const value = itsDefaultBalance ? amount.toString() : 0;
       const to = this.account;
       const isWrap = wrap && isLpLogic;
@@ -694,7 +705,7 @@ export default {
       const { address: mimAddress } = pool.config.mimInfo;
       const { cauldron } = pool.contracts;
 
-      const tokenAddr = itsDefaultBalance ? this.defaultTokenAddress : address;
+      const tokenAddr = itsDefaultBalance ? DEFAULT_TOKEN_ADDRESS : address;
 
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
@@ -861,13 +872,14 @@ export default {
       const { whitelistedInfo } = this.cauldron.additionalInfo;
       const { collateral, leverageSwapper } = this.cauldron.contracts;
       const { is0xSwap } = this.cauldron.config.cauldronSettings;
+      const { isOpenocean } = this.cauldron.config.cauldronSettings;
       const { cauldron } = this.cauldron.contracts;
       const userAddr = this.account;
       const collateralValue = itsDefaultBalance
         ? collateralAmount.toString()
         : 0;
       const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
+        ? DEFAULT_TOKEN_ADDRESS
         : collateral.address;
 
       let cookData = {
@@ -911,7 +923,8 @@ export default {
         amount,
         minExpected,
         slipage,
-        is0xSwap
+        is0xSwap,
+        isOpenocean
       );
 
       cookData = await actions.addCollateral(
@@ -949,6 +962,7 @@ export default {
         this.cauldron.contracts;
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
       const { is0xSwap } = this.cauldron.config.cauldronSettings;
+      const { isOpenocean } = this.cauldron.config.cauldronSettings;
       const collateralTokenAddr = collateral.address;
       const reverseSwapperAddr = liquidationSwapper.address;
       const userAddr = account;
@@ -976,7 +990,8 @@ export default {
         collateralAmount,
         borrowAmount,
         slipage,
-        is0xSwap
+        is0xSwap,
+        isOpenocean
       );
 
       if (itsMax) {

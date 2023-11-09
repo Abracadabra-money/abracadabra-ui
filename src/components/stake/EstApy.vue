@@ -18,7 +18,7 @@ import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 export default {
   props: {
-    apy: { type: String, required: true },
+    apy: { type: [String, Number], required: true },
     config: {
       type: Object,
       default: () => {

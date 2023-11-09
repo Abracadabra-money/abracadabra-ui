@@ -26,10 +26,11 @@
 
         <div class="tranche-btns-wrap underline">
           <TrancheButton
-            v-for="{ type, apr } in tranceBtnInfo"
+            v-for="{ type, apr, deprecated } in tranceBtnInfo"
             :type="type"
             :isActive="tokenType === type"
             :apr="apr"
+            :deprecated="deprecated"
             :key="type"
             @changeToken="changeToken(type)"
           />
@@ -50,8 +51,7 @@
             @updateValue="updateMainValue"
           />
         </div>
-
-        <button class="swap-button">
+        <button class="swap-button" :class="{ disabled: isBlockToggleAction }">
           <img
             src="@/assets/images/swap.svg"
             @click="toggleAction"
@@ -165,6 +165,7 @@ export default {
         mezzanine: "https://app.level.finance/liquidity/mezzanine-tranche",
         senior: "https://app.level.finance/liquidity/senior-tranche",
       },
+      deprecated: ["mezzanine", "junior"],
     };
   },
 
@@ -196,8 +197,14 @@ export default {
     },
 
     isActionDisabled() {
+      if (this.isBlockToggleAction && this.tokenType === "stake") return true;
       if (!this.isTokenApproved) return true;
       return !!(!this.inputValue || this.errorMainValue);
+    },
+
+    isBlockToggleAction() {
+      if (this.deprecated.includes(this.tokenType)) return true;
+      return false;
     },
 
     precision() {
@@ -245,13 +252,16 @@ export default {
     },
 
     tranceBtnInfo() {
-      const { seniorApy, mezzanineApy, juniorApy } =
-        this.stakeInfo.tranchesStatistics;
+      const { seniorApy } = this.stakeInfo.tranchesStatistics;
 
       return [
-        { type: "senior", apr: filters.formatPercent(seniorApy) },
-        { type: "mezzanine", apr: filters.formatPercent(mezzanineApy) },
-        { type: "junior", apr: filters.formatPercent(juniorApy) },
+        {
+          type: "senior",
+          apr: filters.formatPercent(seniorApy),
+          deprecated: false,
+        },
+        { type: "mezzanine", apr: filters.formatPercent(0), deprecated: true },
+        { type: "junior", apr: filters.formatPercent(0), deprecated: true },
       ];
     },
 
@@ -267,37 +277,17 @@ export default {
       return {
         title: "APY Chart",
         type: "magicLvlApy",
-        apy: this.tokensApy,
+        apy: this.stakeInfo.tranchesStatistics.seniorApy,
         feePercent: this.stakeInfo[this.tokenType].feePercent,
         intervalButtons: [{ label: "3m", time: 3 }],
       };
     },
 
     apyConfig() {
-      const apyColors = {
-        senior: "#37caff",
-        mezzanine: "#c345fe",
-        junior: "#ff7100",
-      };
-
       return {
-        icon: useImage(`assets/images/stake/${this.tokenType}-apy.png`),
-        color: apyColors[this.tokenType],
+        icon: useImage(`assets/images/stake/senior-apy.png`),
+        color: "#37caff",
       };
-    },
-
-    tokensApy() {
-      const { seniorApy, mezzanineApy, juniorApy } =
-        this.stakeInfo.tranchesStatistics;
-
-      switch (this.tokenType) {
-        case "senior":
-          return seniorApy;
-        case "mezzanine":
-          return mezzanineApy;
-        default:
-          return juniorApy;
-      }
     },
 
     standBlockBackground() {
@@ -336,9 +326,13 @@ export default {
     changeToken(type) {
       this.tokenType = type;
       this.inputValue = "";
+
+      if (this.deprecated.includes(type)) this.action = "Unstake";
+      else this.action = "Stake";
     },
 
     toggleAction() {
+      if (this.isBlockToggleAction) return false;
       this.inputValue = "";
       this.action = this.action === "Stake" ? "Unstake" : "Stake";
     },
@@ -597,6 +591,10 @@ export default {
   display: flex;
   justify-content: center;
   gap: 24px;
+}
+
+.disabled {
+  cursor: not-allowed;
 }
 
 @media (max-width: 1024px) {
