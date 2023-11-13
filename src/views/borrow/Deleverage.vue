@@ -65,7 +65,7 @@
         </BaseButton>
 
         <OrdersManager
-          v-if="cauldron"
+          v-if="cauldron?.config.cauldronSettings.isGMXMarket"
           :cauldronObject="cauldron"
           :deleverageSuccessPayload="gmDelevSuccessPayload"
           :deleverageFromOrder="gmDeleverageFromOrder"

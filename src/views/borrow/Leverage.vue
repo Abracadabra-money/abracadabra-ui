@@ -61,7 +61,7 @@
         </div>
 
         <OrdersManager
-          v-if="cauldron"
+          v-if="cauldron?.config.cauldronSettings.isGMXMarket"
           :cauldronObject="cauldron"
           :refundWeth="gmRefundWETH"
           :recoverLeverage="gmRecoverLeverageOrder"
