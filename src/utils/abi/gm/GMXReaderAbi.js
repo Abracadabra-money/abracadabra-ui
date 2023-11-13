@@ -2705,8 +2705,8 @@ export default [
     ],
     name: "getWithdrawalAmountOut",
     outputs: [
-      { internalType: "uint256", name: "", type: "uint256" },
-      { internalType: "uint256", name: "", type: "uint256" },
+      { internalType: "uint256", name: "longAmountOut", type: "uint256" },
+      { internalType: "uint256", name: "shortAmountOut", type: "uint256" },
     ],
     stateMutability: "view",
     type: "function",

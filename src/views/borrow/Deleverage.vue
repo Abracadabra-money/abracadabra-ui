@@ -64,6 +64,14 @@
           >Close Position
         </BaseButton>
 
+        <OrdersManager
+          v-if="cauldron"
+          :cauldronObject="cauldron"
+          :deleverageSuccessPayload="gmDelevSuccessPayload"
+          :deleverageFromOrder="gmDeleverageFromOrder"
+          :recoverDeleverageOrder="gmRecoverDeleverageOrder"
+        />
+
         <router-link class="position-link link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
         >
@@ -150,6 +158,14 @@ import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
 
+import {
+  saveOrder,
+  deleteOrder,
+  monitorOrderStatus,
+} from "@/helpers/gm/orders";
+
+import { ZERO_ADDRESS } from "@/constants/gm";
+
 export default {
   mixins: [cookMixin],
   data() {
@@ -165,6 +181,9 @@ export default {
       showAdditionalInfo: true,
       isOpenMarketListPopup: false,
       isActionClosePosition: false,
+      isOpenGMPopup: false,
+      activeOrder: null,
+      gmDelevSuccessPayload: null,
     };
   },
 
@@ -514,12 +533,21 @@ export default {
       };
 
       try {
-        await this.cookDeleverage(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          this.account
-        );
+        if (this.cauldron.config.cauldronSettings.isGMXMarket) {
+          await this.gmDeleverageHandler(
+            payload,
+            isMasterContractApproved,
+            this.cauldron,
+            this.account
+          );
+        } else {
+          await this.cookDeleverage(
+            payload,
+            isMasterContractApproved,
+            this.cauldron,
+            this.account
+          );
+        }
 
         await this.createCauldronInfo();
 
@@ -539,6 +567,62 @@ export default {
       }
     },
 
+    async gmDeleverageHandler(
+      cookPayload,
+      mcApproved,
+      cauldronObject,
+      account
+    ) {
+      // withdraw collateral & create order
+      await this.cookWitdrawToOrderGM(
+        cookPayload,
+        mcApproved,
+        cauldronObject,
+        account
+      );
+
+      this.gmDelevSuccessPayload = cookPayload;
+
+      const { cauldron } = cauldronObject.contracts;
+      const order = await cauldron.orders(account);
+
+      const itsZero = order === ZERO_ADDRESS;
+      if (itsZero) return false; // TODO EDGE CASE
+
+      // save order to ls
+      saveOrder(order, this.account);
+      this.activeOrder = order;
+      this.isOpenGMPopup = true;
+    },
+
+    async gmDeleverageFromOrder(order, successPayload) {
+      await this.cookDeleverageFromOrder(
+        successPayload,
+        this.cauldron,
+        this.account,
+        order
+      );
+
+
+      deleteOrder(order, this.account);
+      this.isOpenGMPopup = false;
+      this.activeOrder = null;
+      this.gmDelevSuccessPayload = null;
+    },
+
+    async gmRecoverDeleverageOrder(order) {
+      // run recover (must be approved by user?)
+      await this.cookRecoverFaliedDeleverage(this.cauldron, order);
+
+      const { cauldron } = this.cauldron.contracts;
+      const newOrder = await cauldron.orders(this.account);
+
+      // delete old one
+      deleteOrder(order, this.account);
+      // save order to ls & re-start status monitoring
+      saveOrder(newOrder, this.account);
+      this.activeOrder = newOrder;
+    },
     async closePositionHandler() {
       if (this.isDisabledClosePosition) return false;
       this.isActionClosePosition = true;
@@ -661,6 +745,9 @@ export default {
     ),
     MarketsListPopup: defineAsyncComponent(() =>
       import("@/components/popups/MarketsListPopup.vue")
+    ),
+    OrdersManager: defineAsyncComponent(() =>
+      import("@/components/borrow/OrdersManager.vue")
     ),
   },
 };

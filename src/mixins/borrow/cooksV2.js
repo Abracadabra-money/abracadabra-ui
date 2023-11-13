@@ -11,17 +11,30 @@ import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 
-const USDC_ADDRESS = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
-const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
+import {
+  USDC_ADDRESS,
+  WETH_ADDRESS,
+  ORDER_AGENT,
+  GM_ADDRESS,
+} from "@/constants/gm";
 
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { getOpenoceanLeverageSwapData } from "@/helpers/openocean/getOpenoceanLeverageSwapData";
 import { getOpenoceanDeleverageSwapData } from "@/helpers/openocean/getOpenoceanDeleverageSwapData";
 
+import {
+  estimateExecuteDepositGasLimit,
+  estimateExecuteWithdrawalGasLimit,
+  getExecutionFee,
+} from "@/helpers/gm/fee/getExecutionFee";
 
-import GMXReaderAbi from "@/utils/abi/gm/GMXReaderAbi";
-import { Contract } from "ethers";
+import { getGasLimits } from "@/helpers/gm/fee/getGasLimits";
+
+import { getDepositAmount } from "@/helpers/gm/getDepositAmount";
+import getWithdrawalAmounts from "@/helpers/gm/getWithdrawalAmounts";
+
+import { getOrderBalances } from "@/helpers/gm/orders";
+import { BigNumber } from "ethers";
 
 export default {
   mixins: [degenBoxCookHelperMixin],
@@ -1037,11 +1050,22 @@ export default {
     async recipeCreateLeverageOrder(cookData, inputAmount) {
       const inputToken = USDC_ADDRESS;
       const deposit = true;
-      const executionFee = "300000000000000000"; // todo
-      const minOutput = 0; // todo
+
+      const gasLimits = await getGasLimits(this.provider);
+      const estimatedDepositGasLimit = await estimateExecuteDepositGasLimit(
+        gasLimits
+      );
+
+      const executionFee = await getExecutionFee(
+        gasLimits,
+        estimatedDepositGasLimit,
+        this.provider
+      );
+
+      const minOutput = await getDepositAmount(0, inputAmount, this.provider);
       const minOutLong = 0; // ok for leverage
 
-      updatedCookData = actions.createOrder(
+      const updatedCookData = actions.createOrder(
         cookData,
         executionFee,
         inputToken,
@@ -1052,35 +1076,54 @@ export default {
         minOutLong
       );
 
-      return {updatedCookData, executionFee};
+      return { updatedCookData, executionFee, minOutput };
     },
 
-    async recipeCreateDeleverageOrder(cookData, inputAmount) {
-      const inputToken = "GM_TOKEN"; // TODO
+    async recipeCreateDeleverageOrder(cookData, inputToken, inputAmount) {
       const deposit = false;
-      const executionFee = 0; // todo
-      const minOutput = 0; // todo
-      const minOutLong = 0; // ok for leverage
 
-      cookData = actions.createOrder(
-        cookData,
-        inputToken,
-        0,
+      const gasLimits = await getGasLimits(this.provider);
+      const estimatedWithdrawGasLimit = await estimateExecuteWithdrawalGasLimit(
+        gasLimits
+      );
+
+      const executionFee = await getExecutionFee(
+        gasLimits,
+        estimatedWithdrawGasLimit,
+        this.provider
+      );
+
+      // TODO CHECK FEE
+      const additionalTestFee = executionFee.div(100).mul(120);
+
+      const { shortAmountOut, longAmountOut } = await getWithdrawalAmounts(
         inputAmount,
+        this.provider
+      );
+
+      const minOutput = shortAmountOut;
+      const minOutLong = longAmountOut;
+
+      const updatedCookData = actions.createOrder(
+        cookData,
+        executionFee.add(additionalTestFee),
+        inputToken,
         deposit,
         inputAmount,
-        executionFee,
+        executionFee.add(additionalTestFee),
         minOutput,
         minOutLong
       );
 
-      return cookData;
+      return {
+        updatedCookData,
+        executionFee: executionFee.add(additionalTestFee),
+      };
     },
 
     async recipeLeverageGM(pool, amount, slipage) {
       const { leverageSwapper, bentoBox, mim } = pool.contracts;
       const mimAddress = pool.config.mimInfo.address;
-      const userAddr = this.account;
       const buyToken = USDC_ADDRESS;
 
       const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
@@ -1098,11 +1141,13 @@ export default {
       );
 
       const swapData = swapResponse.data;
-      const minExpected = swapResponse.buyAmount; // TODO check is correct
+
+      // base buyAmount must be enough in mainnet
+      const minExpected = swapResponse.buyAmount.div(100).mul(100 - slipage); // TODO check is correct
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
-        userAddr,
-        minExpected,
+        ORDER_AGENT,
+        minExpected, //TEST
         shareFrom,
         swapData,
         {
@@ -1110,31 +1155,59 @@ export default {
         }
       );
 
-      return { swapStaticTx, buyAmount: swapResponse.buyAmount };
+      return { swapStaticTx, buyAmount: minExpected };
     },
 
-    async cookLeverageGM(
-      {
-        collateralAmount,
-        amount,
-        updatePrice,
-        minExpected,
-        itsDefaultBalance,
-        slipage,
-      },
-      isApprowed,
-      pool,
-      isWrap
-    ) {
-      const { collateral, leverageSwapper, cauldron } = this.cauldron.contracts;
-      const userAddr = this.account;
+    async recipeDeleverageGM(cookData, pool, shareFrom, shareToMin, slipage) {
+      const { mim, liquidationSwapper, bentoBox } = this.cauldron.contracts;
 
-      const collateralValue = itsDefaultBalance
-        ? collateralAmount.toString()
-        : 0;
-      const tokenAddr = itsDefaultBalance
-        ? this.defaultTokenAddress
-        : collateral.address;
+      const userAddr = this.account;
+      const sellToken = USDC_ADDRESS;
+
+      const amountToSwap = await toAmount(bentoBox, sellToken, shareFrom);
+
+      const swapResponse = await swap0xRequest(
+        this.chainId,
+        mim,
+        sellToken,
+        slipage,
+        amountToSwap,
+        liquidationSwapper.address
+      );
+
+      const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
+        sellToken,
+        mim.address,
+        userAddr,
+        shareToMin,
+        shareFrom,
+        swapResponse.data,
+        {
+          gasLimit: 1000000000,
+        }
+      );
+
+      const swapCallByte = swapStaticTx.data;
+
+      cookData = await actions.call(
+        cookData,
+        liquidationSwapper.address,
+        swapCallByte,
+        false,
+        false,
+        2
+      );
+
+      return cookData;
+    },
+
+    async cookRecoverFaliedLeverage(cauldronObject, order, account) {
+      const { cauldron } = cauldronObject.contracts;
+
+      const { balanceUSDC, balanceWETH } = await getOrderBalances(
+        order,
+        this.provider
+      );
 
       let cookData = {
         events: [],
@@ -1142,19 +1215,131 @@ export default {
         datas: [],
       };
 
-      cookData = await this.checkAndSetMcApprove(cookData, pool, isApprowed);
+      cookData = await actions.withdrawFromOrder(
+        cookData,
+        WETH_ADDRESS,
+        account,
+        balanceWETH,
+        false
+      );
+
+      cookData = await actions.withdrawFromOrder(
+        cookData,
+        USDC_ADDRESS,
+        ORDER_AGENT,
+        balanceUSDC,
+        true
+      );
+
+      const { updatedCookData, executionFee } =
+        await this.recipeCreateLeverageOrder(cookData, balanceUSDC);
+
+      await cook(cauldron, updatedCookData, executionFee);
+    },
+
+    async cookRecoverFaliedDeleverage(cauldronObject, order) {
+      const { cauldron } = cauldronObject.contracts;
+
+      const { balanceGM, balanceWETH } = await getOrderBalances(
+        order,
+        this.provider
+      );
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await actions.withdrawFromOrder(
+        cookData,
+        WETH_ADDRESS,
+        account,
+        balanceWETH,
+        false
+      );
+
+      cookData = await actions.withdrawFromOrder(
+        cookData,
+        GM_ADDRESS,
+        ORDER_AGENT,
+        balanceGM,
+        true
+      );
+
+      const { updatedCookData, executionFee } =
+        await this.recipeCreateDeleverageOrder(cookData, GM_ADDRESS, balanceGM);
+
+      await cook(cauldron, updatedCookData, executionFee);
+    },
+
+    async cookRefundEthFromOrder(cauldronObject, order, close = true) {
+      const { cauldron } = cauldronObject.contracts;
+      const { balanceWETH } = await getOrderBalances(order, this.provider);
+      console.log("balanceWETH", balanceWETH.toString())
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await actions.withdrawFromOrder(
+        cookData,
+        WETH_ADDRESS,
+        this.account,
+        balanceWETH,
+        close
+      );
+
+      await cook(cauldron, cookData, 0);
+    },
+
+    async cookCancelOrder(cauldronObject, order) {
+      const { cauldron } = cauldronObject.contracts;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = actions.cancelOrder(cookData, order);
+
+      await cook(cauldron, cookData, 0);
+    },
+
+    async cookLeverageGM(
+      { collateralAmount, amount, updatePrice, slipage },
+      mcApproved,
+      cauldronObject,
+      isWrap = false
+    ) {
+      const { collateral, leverageSwapper, cauldron } =
+        cauldronObject.contracts;
+
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
+
+      cookData = await this.checkAndSetMcApprove(
+        cookData,
+        cauldronObject,
+        mcApproved
+      );
 
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
       cookData = await this.recipeAddCollatral(
         cookData,
-        pool,
-        tokenAddr,
+        cauldronObject,
+        collateral.address,
         isWrap,
-        userAddr,
+        this.account,
         collateralAmount,
-        collateralValue
+        0
       );
 
       cookData = await actions.borrow(
@@ -1164,7 +1349,7 @@ export default {
       );
 
       const { swapStaticTx, buyAmount } = await this.recipeLeverageGM(
-        pool,
+        cauldronObject,
         amount,
         slipage
       );
@@ -1178,12 +1363,13 @@ export default {
         2
       );
 
-      const {updatedCookData, executionFee} = await this.recipeCreateLeverageOrder(cookData, buyAmount);
+      const { updatedCookData, executionFee } =
+        await this.recipeCreateLeverageOrder(cookData, buyAmount);
 
       await cook(cauldron, updatedCookData, executionFee);
     },
 
-    async cookCreateDeleverageOrderGM(
+    async cookWitdrawToOrderGM(
       {
         borrowAmount,
         collateralAmount, // share TODO
@@ -1196,11 +1382,7 @@ export default {
       pool,
       account
     ) {
-      const { collateral, cauldron, bentoBox } =
-        this.cauldron.contracts;
-      const collateralTokenAddr = collateral.address;
-
-      const gmAgentAddress = "placeholder"
+      const { collateral, cauldron, bentoBox } = this.cauldron.contracts;
 
       let cookData = {
         events: [],
@@ -1213,31 +1395,105 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-
       // remove collateral to order agent & create order
       cookData = await actions.removeCollateral(
         cookData,
         collateralAmount,
-        gmAgentAddress
-      ); 
+        ORDER_AGENT
+      );
 
-      const amount = await toAmount(bentoBox, collateralTokenAddr, collateralAmount);
-      cookData = await this.recipeCreateDeleverageOrder(cookData, amount);
+      const amount = await toAmount(
+        bentoBox,
+        collateral.address,
+        collateralAmount
+      );
 
-      await cook(cauldron, cookData, 0);
+      const { updatedCookData, executionFee } =
+        await this.recipeCreateDeleverageOrder(
+          cookData,
+          collateral.address,
+          amount
+        );
 
-      // wait to order complete
+      await cook(cauldron, updatedCookData, executionFee);
+    },
 
-      // deleverage from order
-
+    async cookDeleverageFromOrder(
       {
-        let cookData = {
-          events: [],
-          values: [],
-          datas: [],
-        };
+        borrowAmount,
+        collateralAmount, // share TODO
+        removeCollateralAmount,
+        updatePrice,
+        itsMax,
+        slipage,
+      },
+      pool,
+      account,
+      order
+    ) {
+      const { balanceUSDC, balanceWETH } = await getOrderBalances(
+        order,
+        this.provider
+      );
 
+      let cookData = {
+        events: [],
+        values: [],
+        datas: [],
+      };
 
+      cookData = actions.withdrawFromOrder(
+        cookData,
+        WETH_ADDRESS,
+        account,
+        balanceWETH,
+        false
+      );
+
+      cookData = actions.withdrawFromOrder(
+        cookData,
+        USDC_ADDRESS,
+        liquidationSwapper.address,
+        balanceUSDC,
+        true
+      );
+
+      cookData = await this.recipeDeleverageGM(
+        cookData,
+        pool,
+        usdcAmount,
+        borrowAmount,
+        slipage
+      );
+
+      if (itsMax) {
+        const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
+        cookData = await this.repayEncodeHandler(
+          cookData,
+          cauldron.address,
+          userBorrowPart,
+          userAddr
+        );
+      } else {
+        cookData = await actions.getRepayPart(cookData, "-2");
+        cookData = await this.repayEncodeHandler(
+          cookData,
+          cauldron.address,
+          "-1",
+          userAddr,
+          false,
+          true
+        );
+      }
+
+      if (+removeCollateralAmount > 0) {
+        cookData = await this.recipeRemoveCollateral(
+          cookData,
+          pool,
+          removeCollateralAmount,
+          userAddr,
+          collateralTokenAddr
+        );
       }
     },
   },

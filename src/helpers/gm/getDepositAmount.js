@@ -6,29 +6,27 @@ import { getMarketInfo } from "./getMarketInfo";
 
 import { GMX_READER, DATA_STORE, ZERO_ADDRESS } from "@/constants/gm";
 
-export const getWithdrawalAmounts = async (
-  amount,
+export const getDepositAmount = async (
+  longTokenAmount,
+  shortTokenAmount,
   provider
 ) => {
   const GMXReaderContract = new Contract(GMX_READER, GMXReaderAbi, provider);
 
   const marketInfo = await getMarketInfo(provider);
 
-  const gmarketTokenAmount = amount;
   const uiFeeReceiver = ZERO_ADDRESS;
-
   const prices = await getContractMarketPrices(marketInfo);
 
-  const withdrawalAmountsOut = await GMXReaderContract.getWithdrawalAmountOut(
+  const depositAmountOut = await GMXReaderContract.getDepositAmountOut(
     DATA_STORE,
     marketInfo,
     prices,
-    gmarketTokenAmount,
+    longTokenAmount,
+    shortTokenAmount,
     uiFeeReceiver
   );
 
-  console.log(withdrawalAmountsOut);
-  return withdrawalAmountsOut;
+  console.log(depositAmountOut.toString());
+  return depositAmountOut;
 };
-
-export default getWithdrawalAmounts;

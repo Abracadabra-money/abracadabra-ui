@@ -207,7 +207,7 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0xd1140b6dcf3f1a125f5cb9d87d1ab3ca46acf528",
+      address: "0x4B4C275A5BBBb68a4DCC99C7C47be3ec04108940",
       abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
