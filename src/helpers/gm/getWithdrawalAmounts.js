@@ -169,7 +169,7 @@ export const getWithdrawalAmountsByMarket = async (
 
   return {
     shortAmountOut: applySlippageToMinOut(DEFAULT_SLIPPAGE_AMOUNT, values.shortTokenAmount),
-    longAmountOut: applySlippageToMinOut(50, values.longTokenAmount),
+    longAmountOut: applySlippageToMinOut(100, values.longTokenAmount),
   };
 };
 export default getWithdrawalAmounts;
