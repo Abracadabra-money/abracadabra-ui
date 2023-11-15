@@ -1188,11 +1188,13 @@ export default {
         liquidationSwapper.address
       );
 
+      const buyShare = await bentoBox.toShare(mim.address, swapResponse.buyAmount, false);
+
       const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
         sellToken,
         mim.address,
         userAddr,
-        shareToMin,
+        shareToMin.eq(0) ? buyShare : shareToMin,
         shareFrom,
         swapResponse.data,
         {
@@ -1376,7 +1378,7 @@ export default {
       order
     ) {
       const { liquidationSwapper, cauldron } = cauldronObject.contracts;
-
+      const collateralAddress = cauldronObject.config.collateralInfo.address;
       const { balanceUSDC } = await getOrderBalances(order, this.provider);
 
       let cookData = {
@@ -1427,7 +1429,7 @@ export default {
           cauldronObject,
           removeCollateralAmount,
           account,
-          collateralTokenAddr
+          collateralAddress
         );
       }
 

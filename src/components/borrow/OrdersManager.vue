@@ -1,7 +1,15 @@
 <template>
   <div class="orders-manager" v-if="orders.length">
     <h4>Orders Manager</h4>
-    <OrderItem @update="checkOrders" :deleverageFromOrder="deleverageFromOrder" :recoverLeverage="recoverLeverage" :cauldronObject="cauldronObject" :order="order" v-for="order in orders" :key="order" />
+    <OrderItem
+      @updateInfo="checkOrders"
+      :deleverageFromOrder="deleverageFromOrder"
+      :recoverLeverage="recoverLeverage"
+      :cauldronObject="cauldronObject"
+      :order="order"
+      v-for="order in orders"
+      :key="order"
+    />
   </div>
 </template>
 
@@ -9,10 +17,13 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { saveOrder } from "@/helpers/gm/orders";
-
+import { ZERO_ADDRESS } from "@/constants/gm";
 export default {
   name: "OrdersManager",
   props: {
+    activeOrder: {
+      type: String,
+    },
     cauldronObject: {
       type: Object,
       required: true,
@@ -36,6 +47,11 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+  },
+  watch: {
+    async activeOrder() {
+      this.orders = saveOrder(ZERO_ADDRESS, this.account);
+    },
   },
   methods: {
     async checkOrders() {

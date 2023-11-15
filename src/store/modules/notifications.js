@@ -17,6 +17,9 @@ export default {
         (item) => item.id !== id
       );
     },
+    deleteAll(state) {
+      state.notifications = [];
+    },
     updateTitle(state, payload) {
       state.notifications.find((notification) => {
         if (notification.id === payload.id) notification.title = payload.title;

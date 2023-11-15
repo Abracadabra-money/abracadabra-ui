@@ -5,7 +5,7 @@
     </div>
     <div class="popup-content">
       <div class="status-wrap raw">
-        <p>Status:</p>
+        <p>Current Staus:</p>
         <p class="status-text">{{ stateText }}</p>
       </div>
 
@@ -21,7 +21,7 @@
       </div>
 
       <div class="raw btns-wrap">
-        <button :disabled="buttonDisable" class="btn">{{ buttonText }}</button>
+        <button @click="actionHandler" :disabled="buttonDisable" class="btn">{{ buttonText }}</button>
       </div>
     </div>
   </div>
@@ -31,7 +31,7 @@
 import { useImage } from "@/helpers/useImage";
 import filters from "@/filters/index.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-
+import notification from "@/helpers/notification/notification.js";
 import { utils } from "ethers";
 
 import {
@@ -95,11 +95,15 @@ export default {
     deleverageFromOrder: {
       type: Function,
     },
+    successLeverageCallback: {
+      type: Function,
+    },
   },
   data() {
     return {
       processState: STATE_PENDING, // by default
       balances: null,
+      deleverageinProgress: false
     };
   },
   watch: {
@@ -114,6 +118,7 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+    ...mapActions({ createNotification: "notifications/new" }),
     popupTitle() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) return "GM Leverage";
       if (this.orderType === ORDER_TYPE_DELEVERAGE) return "GM Deleverage";
@@ -128,7 +133,11 @@ export default {
         if (this.processState === STATE_FAIL) return "Recover";
       }
       if (this.orderType === ORDER_TYPE_DELEVERAGE) {
-        if (this.processState === STATE_FAIL) return "Recover";
+        if (
+          this.processState === STATE_DELEVERAGE &&
+          this.deleverageinProgress === false
+        )
+          return "Retry Deleverage";
       }
 
       return "...";
@@ -168,12 +177,20 @@ export default {
     },
   },
   methods: {
-    async actionHanlder() {
+    async actionHandler() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) {
         if (this.processState === STATE_FAIL) {
           this.$emit("recoverLeverageOrder");
           this.processState = STATE_RECOVER;
         }
+      }
+
+      if (this.orderType === ORDER_TYPE_DELEVERAGE) {
+        if (
+          this.processState === STATE_DELEVERAGE &&
+          this.deleverageinProgress === false
+        )
+          return await this.runDeleverage()
       }
     },
     async monitoringHandler(order) {
@@ -205,13 +222,13 @@ export default {
         provider
       );
 
-      console.log("STATUS CHANGED", orderStatus)
-
       if (orderStatus === ORDER_SUCCESS) {
         this.processState = STATE_SUCCESS;
+        await this.successLeverageCallback(order);
       }
 
       if (orderStatus === ORDER_FAIL) {
+        await this.createNotification(notification.gmLeverageOrderFailes);
         const balances = await getOrderBalances(order, provider);
         this.balances = balances;
         this.processState = STATE_FAIL;
@@ -236,16 +253,18 @@ export default {
       if (orderStatus === ORDER_SUCCESS) {
         this.balances = await getOrderBalances(order, provider);
         this.processState = STATE_DELEVERAGE;
-        await this.deleverageFromOrder(
-          this.order,
-          this.deleverageSuccessPayload
-        );
+        await this.runDeleverage();
       }
 
       if (orderStatus === ORDER_FAIL) {
         this.balances = await getOrderBalances(order, provider);
         this.processState = ORDER_FAIL;
       }
+    },
+    async runDeleverage() {
+      this.deleverageinProgress = true;
+      await this.deleverageFromOrder(this.order, this.deleverageSuccessPayload);
+      this.deleverageinProgress = false;
     },
     formatTokenBalance(amount) {
       return filters.formatTokenBalance(amount);
@@ -256,8 +275,8 @@ export default {
     },
   },
   created() {
-    this.monitoringHandler(this.order)
-  }
+    this.monitoringHandler(this.order);
+  },
 };
 </script>
 

@@ -62,6 +62,7 @@
 
         <OrdersManager
           v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+          :activeOrder="activeOrder"
           :cauldronObject="cauldron"
           :recoverLeverage="gmRecoverLeverageOrder"
         />
@@ -167,6 +168,7 @@
         :order="activeOrder"
         :orderType="1"
         :cauldronObject="cauldron"
+        :successLeverageCallback="successGmLeverageCallback"
     /></LocalPopupWrap>
   </div>
 </template>
@@ -194,9 +196,7 @@ import {
   monitorOrderStatus,
 } from "@/helpers/gm/orders";
 
-import {
-  ZERO_ADDRESS,
-} from "@/constants/gm";
+import { ZERO_ADDRESS } from "@/constants/gm";
 
 export default {
   mixins: [cookMixin],
@@ -754,7 +754,7 @@ export default {
       };
 
       if (this.cauldron.config.cauldronSettings.isGMXMarket) {
-        await this.gmLeverageHandler(
+        return await this.gmLeverageHandler(
           payload,
           isMasterContractApproved,
           this.cauldron
@@ -778,10 +778,12 @@ export default {
       const { cauldron } = cauldronObject.contracts;
       const order = await cauldron.orders(this.account);
 
-      console.log("crated order", order)
-
       const itsZero = order === ZERO_ADDRESS;
-      if(itsZero) return false; // instant success
+
+      // instant success
+      if (itsZero) {
+        return await this.createCauldronInfo();
+      } 
 
       // save order to ls
       saveOrder(order, this.account);
@@ -790,15 +792,50 @@ export default {
     },
 
     async gmRecoverLeverageOrder(order) {
-      await this.cookRecoverFaliedLeverage(this.cauldron, order, this.account);
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
 
-      const { cauldron } = this.cauldron.contracts;
-      const newOrder = await cauldron.orders(this.account);
+      try {
+        await this.cookRecoverFaliedLeverage(
+          this.cauldron,
+          order,
+          this.account
+        );
 
-      deleteOrder(order, this.account);
-      saveOrder(newOrder, this.account);
+        const { cauldron } = this.cauldron.contracts;
+        const newOrder = await cauldron.orders(this.account);
 
-      this.activeOrder = newOrder;
+        deleteOrder(order, this.account);
+
+        const itsZero = order === ZERO_ADDRESS;
+        // instant success
+        if (itsZero) {
+          this.deleteNotification(notificationId);
+          await this.successGmLeverageCallback();
+          return false;
+        }
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+        saveOrder(newOrder, this.account);
+        this.activeOrder = newOrder;
+
+      } catch (error) {
+        console.log("gmRecoverLeverageOrder err:", error);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.error);
+      }
+    },
+
+    async successGmLeverageCallback(order) {
+      await this.createCauldronInfo();
+
+      if (order) deleteOrder(order, this.account);
+      this.isOpenGMPopup = false;
+      this.activeOrder = null;
+      this.createNotification(notification.gmLeverageOrderSuccess);
     },
 
     async createCauldronInfo() {

@@ -66,6 +66,7 @@
 
         <OrdersManager
           v-if="cauldron?.config.cauldronSettings.isGMXMarket"
+          :activeOrder="activeOrder"
           :cauldronObject="cauldron"
           :deleverageSuccessPayload="gmDelevSuccessPayload"
           :deleverageFromOrder="gmDeleverageFromOrder"
@@ -545,11 +546,12 @@ export default {
 
       try {
         if (this.cauldron.config.cauldronSettings.isGMXMarket) {
-          await this.gmDeleverageHandler(
+          return await this.gmDeleverageHandler(
             payload,
             isMasterContractApproved,
             this.cauldron,
-            this.account
+            this.account,
+            notificationId
           );
         } else {
           await this.cookDeleverage(
@@ -582,7 +584,8 @@ export default {
       cookPayload,
       mcApproved,
       cauldronObject,
-      account
+      account,
+      notificationId
     ) {
       // withdraw collateral & create order
       await this.cookWitdrawToOrderGM(
@@ -592,13 +595,21 @@ export default {
         account
       );
 
+      this.clearInputs();
+
       const { cauldron } = cauldronObject.contracts;
       const order = await cauldron.orders(account);
 
-      console.log("SAVED ORDER", order)
-
       const itsZero = order === ZERO_ADDRESS;
-      if (itsZero) return false; // TODO EDGE CASE
+
+      this.deleteNotification(notificationId);
+
+      if (itsZero) {
+        await this.createNotification(
+          notification.gmDeleverageFailedOrder
+        );
+        return false; // order instantly failed
+      }
 
       // save order to ls
       saveOrder(order, this.account);
@@ -608,19 +619,33 @@ export default {
     },
 
     async gmDeleverageFromOrder(order, successPayload) {
-      await this.cookDeleverageFromOrder(
-        successPayload,
-        this.cauldron,
-        this.account,
-        order
+      const notificationId = await this.createNotification(
+        notification.gmDeleverageFromOrder
       );
 
-      deleteOrder(order, this.account);
-      this.isOpenGMPopup = false;
-      this.activeOrder = null;
-      this.gmDelevSuccessPayload = null;
+      try {
+        await this.cookDeleverageFromOrder(
+          successPayload,
+          this.cauldron,
+          this.account,
+          order
+        );
 
-      await this.createCauldronInfo();
+        await this.createCauldronInfo();
+
+        deleteOrder(order, this.account);
+        this.isOpenGMPopup = false;
+        this.activeOrder = null;
+        this.gmDelevSuccessPayload = null;
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("gmDeleverageFromOrder err:", error);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.error);
+      }
     },
     async closePositionHandler() {
       if (this.isDisabledClosePosition) return false;

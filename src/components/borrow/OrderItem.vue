@@ -60,6 +60,7 @@ import {
 
 export default {
   name: "OrderItem",
+  emits: ['updateInfo'],
   props: {
     cauldronObject: {
       type: Object,
@@ -174,13 +175,13 @@ export default {
       if (this.type === ORDER_TYPE_LEVERAGE) {
         if (this.status === ORDER_FAIL) {
           await this.recoverLeverage(this.order);
-          this.$emit("update");
+          this.$emit("updateInfo");
         }
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
         if (this.status === ORDER_SUCCESS) return await this.deleverageHandler();
-        this.$emit("update");
+        this.$emit("updateInfo");
       }
     },
     async deleverageHandler() {
