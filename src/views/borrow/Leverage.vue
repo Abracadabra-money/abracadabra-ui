@@ -62,7 +62,6 @@
 
         <OrdersManager
           v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
-          :activeOrder="activeOrder"
           :cauldronObject="cauldron"
           :recoverLeverage="gmRecoverLeverageOrder"
         />
@@ -783,7 +782,7 @@ export default {
       // instant success
       if (itsZero) {
         return await this.createCauldronInfo();
-      } 
+      }
 
       // save order to ls
       saveOrder(order, this.account);
@@ -820,7 +819,6 @@ export default {
         this.createNotification(notification.success);
         saveOrder(newOrder, this.account);
         this.activeOrder = newOrder;
-
       } catch (error) {
         console.log("gmRecoverLeverageOrder err:", error);
 
@@ -830,7 +828,9 @@ export default {
     },
 
     async successGmLeverageCallback(order) {
-      await this.createCauldronInfo();
+      setTimeout(() => {
+        this.createCauldronInfo();
+      }, 1000);
 
       if (order) deleteOrder(order, this.account);
       this.isOpenGMPopup = false;

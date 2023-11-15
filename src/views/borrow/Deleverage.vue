@@ -66,7 +66,6 @@
 
         <OrdersManager
           v-if="cauldron?.config.cauldronSettings.isGMXMarket"
-          :activeOrder="activeOrder"
           :cauldronObject="cauldron"
           :deleverageSuccessPayload="gmDelevSuccessPayload"
           :deleverageFromOrder="gmDeleverageFromOrder"
@@ -616,6 +615,8 @@ export default {
       this.gmDelevSuccessPayload = cookPayload;
       this.activeOrder = order;
       this.isOpenGMPopup = true;
+
+      // await this.createCauldronInfo();
     },
 
     async gmDeleverageFromOrder(order, successPayload) {
@@ -631,7 +632,10 @@ export default {
           order
         );
 
-        await this.createCauldronInfo();
+        setTimeout(()=> {
+          this.createCauldronInfo();
+        }, 1000)
+
 
         deleteOrder(order, this.account);
         this.isOpenGMPopup = false;

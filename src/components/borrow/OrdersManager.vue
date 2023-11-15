@@ -1,6 +1,6 @@
 <template>
   <div class="orders-manager" v-if="orders.length">
-    <h4>Orders Manager</h4>
+    <h4>Active Order</h4>
     <OrderItem
       @updateInfo="checkOrders"
       :deleverageFromOrder="deleverageFromOrder"
@@ -21,9 +21,6 @@ import { ZERO_ADDRESS } from "@/constants/gm";
 export default {
   name: "OrdersManager",
   props: {
-    activeOrder: {
-      type: String,
-    },
     cauldronObject: {
       type: Object,
       required: true,
@@ -49,15 +46,19 @@ export default {
     }),
   },
   watch: {
-    async activeOrder() {
-      this.orders = saveOrder(ZERO_ADDRESS, this.account);
+    async cauldronObject() {
+      await this.checkOrders();
     },
   },
   methods: {
     async checkOrders() {
       const { cauldron } = this.cauldronObject.contracts;
       const currentOrder = await cauldron.orders(this.account);
-      this.orders = saveOrder(currentOrder, this.account);
+
+      const itsZero = currentOrder === ZERO_ADDRESS;
+
+      if (itsZero) return false;
+      this.orders = [currentOrder];
     },
   },
   async created() {

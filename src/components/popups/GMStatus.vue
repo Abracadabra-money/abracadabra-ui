@@ -118,7 +118,6 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
-    ...mapActions({ createNotification: "notifications/new" }),
     popupTitle() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) return "GM Leverage";
       if (this.orderType === ORDER_TYPE_DELEVERAGE) return "GM Deleverage";
@@ -177,6 +176,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
     async actionHandler() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) {
         if (this.processState === STATE_FAIL) {
@@ -257,7 +257,7 @@ export default {
       }
 
       if (orderStatus === ORDER_FAIL) {
-        this.balances = await getOrderBalances(order, provider);
+        await this.createNotification(notification.gmDeleverageFailedOrder);
         this.processState = ORDER_FAIL;
       }
     },

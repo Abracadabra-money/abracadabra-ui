@@ -94,7 +94,7 @@ export default {
   },
 
   gmDeleverageFailedOrder: {
-    discription: "dev] Order failed, GM tokens are returned to position",
+    discription: "[dev] Order failed, GM tokens are returned to position",
     type: "error",
   },
 };
