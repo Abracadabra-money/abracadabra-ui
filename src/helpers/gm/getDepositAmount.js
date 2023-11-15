@@ -5,6 +5,8 @@ import { getContractMarketPrices } from "./getContractMarketPrices";
 import { getMarketInfo } from "./getMarketInfo";
 
 import { GMX_READER, DATA_STORE, ZERO_ADDRESS } from "@/constants/gm";
+import { applySlippageToMinOut } from "./applySlippageToMinOut";
+import { DEFAULT_SLIPPAGE_AMOUNT } from "./applySlippageToMinOut";
 
 export const getDepositAmount = async (
   longTokenAmount,
@@ -27,6 +29,5 @@ export const getDepositAmount = async (
     uiFeeReceiver
   );
 
-  console.log(depositAmountOut.toString());
-  return depositAmountOut;
+  return applySlippageToMinOut(DEFAULT_SLIPPAGE_AMOUNT, depositAmountOut);
 };

@@ -44,9 +44,9 @@ import {
   getOrderBalances,
 } from "@/helpers/gm/orders";
 
-const STATE_PENDING = 1;
-const STATE_SUCCESS = 2;
-const STATE_FAIL = 3;
+const STATE_PENDING = 0;
+const STATE_SUCCESS = 1;
+const STATE_FAIL = 2;
 const STATE_RECOVER = 5;
 const STATE_DELEVERAGE = 6;
 const STATE_REFUND = 7;
@@ -85,7 +85,6 @@ export default {
     orderType: {
       type: Number,
       required: true,
-      // default: 1
     },
     deleverageSuccessPayload: {
       type: Object,
@@ -94,9 +93,6 @@ export default {
       type: Function,
     },
     deleverageFromOrder: {
-      type: Function,
-    },
-    recoverDeleverageOrder: {
       type: Function,
     },
   },
@@ -108,24 +104,7 @@ export default {
   },
   watch: {
     async order(order) {
-      this.clearInfo();
-
-      if (this.orderType === ORDER_TYPE_LEVERAGE)
-        return await orderMonitorLeverage(
-          order,
-          this.cauldronObject,
-          this.account,
-          this.provider
-        );
-
-      if (this.orderType === ORDER_TYPE_DELEVERAGE)
-        return await orderMonitorDeleverage(
-          order,
-          this.cauldronObject,
-          this.account,
-          this.provider,
-          this.deleverageSuccessPayload
-        );
+      await this.monitoringHandler(order);
     },
   },
   computed: {
@@ -142,16 +121,13 @@ export default {
       return "GM transaction status";
     },
     stateText() {
-      return stateTitles[ORDER_TYPE_LEVERAGE][this.processState]; // TODO this.orderType
+      return stateTitles[this.orderType][this.processState]; // TODO this.orderType
     },
     buttonText() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) {
-        // if (this.processState === STATE_PENDING) return "Cancel";
-        if (this.processState === STATE_SUCCESS) return "Refund WETH";
         if (this.processState === STATE_FAIL) return "Recover";
       }
       if (this.orderType === ORDER_TYPE_DELEVERAGE) {
-        // if (this.processState === STATE_PENDING) return "Cancel";
         if (this.processState === STATE_FAIL) return "Recover";
       }
 
@@ -164,10 +140,6 @@ export default {
       if (!this.balances) return [];
 
       const { balanceWETH, balanceUSDC, balanceGM } = this.balances;
-
-      // const balanceWETH = utils.parseUnits("0.0000234");
-      // const balanceUSDC = utils.parseUnits("444.124", 6);
-      // const balanceGM = utils.parseUnits("435.1754");
 
       const balances = [];
 
@@ -198,29 +170,31 @@ export default {
   methods: {
     async actionHanlder() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) {
-        if (this.processState === STATE_PENDING) {
-          this.$emit("cancelOrder");
-          this.processState = STATE_CANCEL;
-        }
-        if (this.processState === STATE_SUCCESS) {
-          this.processState = STATE_REFUND;
-          await this.refundWeth();
-        }
         if (this.processState === STATE_FAIL) {
           this.$emit("recoverLeverageOrder");
           this.processState = STATE_RECOVER;
         }
       }
-      if (this.orderType === ORDER_TYPE_DELEVERAGE) {
-        if (this.processState === STATE_PENDING) {
-          this.$emit("cancelOrder");
-          this.processState = STATE_CANCEL;
-        }
-        if (this.processState === STATE_FAIL) {
-          this.recoverDeleverageOrder(this.order);
-          this.processState = STATE_RECOVER;
-        }
-      }
+    },
+    async monitoringHandler(order) {
+      this.clearInfo();
+
+      if (this.orderType === ORDER_TYPE_LEVERAGE)
+        return await this.orderMonitorLeverage(
+          order,
+          this.cauldronObject,
+          this.account,
+          this.provider
+        );
+
+      if (this.orderType === ORDER_TYPE_DELEVERAGE)
+        return await this.orderMonitorDeleverage(
+          order,
+          this.cauldronObject,
+          this.account,
+          this.provider,
+          this.deleverageSuccessPayload
+        );
     },
     async orderMonitorLeverage(order, cauldronObject, account, provider) {
       const { cauldron } = cauldronObject.contracts;
@@ -231,13 +205,15 @@ export default {
         provider
       );
 
+      console.log("STATUS CHANGED", orderStatus)
+
       if (orderStatus === ORDER_SUCCESS) {
-        this.balances = getOrderBalances(order, provider);
         this.processState = STATE_SUCCESS;
       }
 
       if (orderStatus === ORDER_FAIL) {
-        this.balances = getOrderBalances(order, provider);
+        const balances = await getOrderBalances(order, provider);
+        this.balances = balances;
         this.processState = STATE_FAIL;
       }
     },
@@ -258,10 +234,7 @@ export default {
       );
 
       if (orderStatus === ORDER_SUCCESS) {
-        this.balances = getOrderBalances(order, provider);
-        // this.processState = STATE_SUCCESS;
-        // TODO add timeout
-
+        this.balances = await getOrderBalances(order, provider);
         this.processState = STATE_DELEVERAGE;
         await this.deleverageFromOrder(
           this.order,
@@ -270,7 +243,7 @@ export default {
       }
 
       if (orderStatus === ORDER_FAIL) {
-        this.balances = getOrderBalances(order, provider);
+        this.balances = await getOrderBalances(order, provider);
         this.processState = ORDER_FAIL;
       }
     },
@@ -282,6 +255,9 @@ export default {
       this.balances = null;
     },
   },
+  created() {
+    this.monitoringHandler(this.order)
+  }
 };
 </script>
 

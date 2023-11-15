@@ -1,7 +1,7 @@
 <template>
   <div class="orders-manager" v-if="orders.length">
     <h4>Orders Manager</h4>
-    <OrderItem @update="checkOrders" :refundWeth="refundWeth" :recoverLeverage="recoverLeverage" :cauldronObject="cauldronObject" :order="order" v-for="order in orders" :key="order" />
+    <OrderItem @update="checkOrders" :deleverageFromOrder="deleverageFromOrder" :recoverLeverage="recoverLeverage" :cauldronObject="cauldronObject" :order="order" v-for="order in orders" :key="order" />
   </div>
 </template>
 
@@ -17,10 +17,10 @@ export default {
       type: Object,
       required: true,
     },
-    refundWeth: {
+    recoverLeverage: {
       type: Function,
     },
-    recoverLeverage: {
+    deleverageFromOrder: {
       type: Function,
     },
   },

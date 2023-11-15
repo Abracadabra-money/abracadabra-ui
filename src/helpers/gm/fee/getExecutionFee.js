@@ -7,8 +7,12 @@ export const estimateExecuteDepositGasLimit = async (gasLimits) => {
   return depositGasLimit.add(gasPerSwap);
 };
 
-export const estimateExecuteWithdrawalGasLimit = async (gasLimits) => {
-  return gasLimits.withdrawalMultiToken;
+export const estimateExecuteWithdrawalGasLimit = async (
+  gasLimits,
+  callbackGasLimit
+) => {
+  const swapCount = 1; // TODO check
+  return gasLimits.withdrawalMultiToken.add(callbackGasLimit).add(gasLimits.singleSwap.mul(swapCount));
 };
 
 export const getExecutionFee = async (

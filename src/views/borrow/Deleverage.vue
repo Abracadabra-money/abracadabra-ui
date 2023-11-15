@@ -69,7 +69,6 @@
           :cauldronObject="cauldron"
           :deleverageSuccessPayload="gmDelevSuccessPayload"
           :deleverageFromOrder="gmDeleverageFromOrder"
-          :recoverDeleverageOrder="gmRecoverDeleverageOrder"
         />
 
         <router-link class="position-link link" :to="{ name: 'MyPositions' }"
@@ -141,6 +140,18 @@
       <MarketsListPopup
         popupType="borrow"
         @changeActiveMarket="changeActiveMarket($event)"
+    /></LocalPopupWrap>
+
+    <LocalPopupWrap
+      :isOpened="isOpenGMPopup"
+      @closePopup="isOpenGMPopup = false"
+    >
+      <GMStatus
+        :order="activeOrder"
+        :orderType="2"
+        :cauldronObject="cauldron"
+        :deleverageSuccessPayload="gmDelevSuccessPayload"
+        :deleverageFromOrder="gmDeleverageFromOrder"
     /></LocalPopupWrap>
   </div>
 </template>
@@ -581,16 +592,17 @@ export default {
         account
       );
 
-      this.gmDelevSuccessPayload = cookPayload;
-
       const { cauldron } = cauldronObject.contracts;
       const order = await cauldron.orders(account);
+
+      console.log("SAVED ORDER", order)
 
       const itsZero = order === ZERO_ADDRESS;
       if (itsZero) return false; // TODO EDGE CASE
 
       // save order to ls
       saveOrder(order, this.account);
+      this.gmDelevSuccessPayload = cookPayload;
       this.activeOrder = order;
       this.isOpenGMPopup = true;
     },
@@ -603,25 +615,12 @@ export default {
         order
       );
 
-
       deleteOrder(order, this.account);
       this.isOpenGMPopup = false;
       this.activeOrder = null;
       this.gmDelevSuccessPayload = null;
-    },
 
-    async gmRecoverDeleverageOrder(order) {
-      // run recover (must be approved by user?)
-      await this.cookRecoverFaliedDeleverage(this.cauldron, order);
-
-      const { cauldron } = this.cauldron.contracts;
-      const newOrder = await cauldron.orders(this.account);
-
-      // delete old one
-      deleteOrder(order, this.account);
-      // save order to ls & re-start status monitoring
-      saveOrder(newOrder, this.account);
-      this.activeOrder = newOrder;
+      await this.createCauldronInfo();
     },
     async closePositionHandler() {
       if (this.isDisabledClosePosition) return false;
@@ -745,6 +744,9 @@ export default {
     ),
     MarketsListPopup: defineAsyncComponent(() =>
       import("@/components/popups/MarketsListPopup.vue")
+    ),
+    GMStatus: defineAsyncComponent(() =>
+      import("@/components/popups/GMStatus.vue")
     ),
     OrdersManager: defineAsyncComponent(() =>
       import("@/components/borrow/OrdersManager.vue")

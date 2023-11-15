@@ -1,5 +1,8 @@
 import { hashString, hashData } from "./hash";
 
+export const MAX_PNL_FACTOR_FOR_TRADERS_KEY = hashString("MAX_PNL_FACTOR_FOR_TRADERS");
+export const POOL_AMOUNT_KEY = hashString("POOL_AMOUNT");
+export const SWAP_FEE_FACTOR_KEY = hashString("SWAP_FEE_FACTOR");
 export const ESTIMATED_GAS_FEE_BASE_AMOUNT = hashString(
   "ESTIMATED_GAS_FEE_BASE_AMOUNT"
 );
@@ -20,4 +23,12 @@ export function singleSwapGasLimitKey() {
 
 export function withdrawalGasLimitKey() {
   return hashData(["bytes32"], [WITHDRAWAL_GAS_LIMIT_KEY]);
+}
+
+export function poolAmountKey(market: string, token: string) {
+  return hashData(["bytes32", "address", "address"], [POOL_AMOUNT_KEY, market, token]);
+}
+
+export function swapFeeFactorKey(market: string, forPositiveImpact: boolean) {
+  return hashData(["bytes32", "address", "bool"], [SWAP_FEE_FACTOR_KEY, market, forPositiveImpact]);
 }

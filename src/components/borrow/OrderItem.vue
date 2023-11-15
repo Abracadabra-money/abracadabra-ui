@@ -69,10 +69,10 @@ export default {
       type: String,
       required: true,
     },
-    refundWeth: {
+    recoverLeverage: {
       type: Function,
     },
-    recoverLeverage: {
+    deleverageFromOrder: {
       type: Function,
     },
   },
@@ -126,21 +126,12 @@ export default {
     },
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
-        // if (this.processState === STATE_PENDING) return "Cancel";
-        if (this.status === ORDER_SUCCESS) return "Refund WETH";
         if (this.status === ORDER_FAIL) return "Recover";
       }
+
       if (this.type === ORDER_TYPE_DELEVERAGE) {
-        // if (this.processState === STATE_PENDING) return "Cancel";
-        if (this.status === ORDER_FAIL) return "Recover";
+        if (this.status === ORDER_SUCCESS) return "Deleverage";
       }
-
-      if (this.status === ORDER_SUCCESS && this.balances?.balanceWETH.gt(0))
-        return "Refund WETH";
-
-      if (this.status === ORDER_SUCCESS && this.balances?.balanceWETH.eq(0))
-        return "Delete";
-
 
       return "...";
     },
@@ -151,9 +142,6 @@ export default {
       if (!this.balances) return [];
 
       const { balanceWETH, balanceUSDC, balanceGM } = this.balances;
-      // const balanceWETH = utils.parseUnits("0.0000234");
-      //   const balanceUSDC = utils.parseUnits("444.124", 6);
-      //   const balanceGM = utils.parseUnits("435.1754");
 
       const balances = [];
 
@@ -184,27 +172,26 @@ export default {
   methods: {
     async actionHandler() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
-        // if (this.processState === STATE_PENDING) return "Cancel";
-        if (this.status === ORDER_SUCCESS) return "Refund WETH";
         if (this.status === ORDER_FAIL) {
           await this.recoverLeverage(this.order);
           this.$emit("update");
         }
       }
+
       if (this.type === ORDER_TYPE_DELEVERAGE) {
-        // if (this.processState === STATE_PENDING) return "Cancel";
-        if (this.status === ORDER_FAIL) return "Recover";
-      }
-
-      if (this.status === ORDER_SUCCESS && this.balances?.balanceWETH.gt(0)) {
-        await this.refundWeth(this.order);
+        if (this.status === ORDER_SUCCESS) return await this.deleverageHandler();
         this.$emit("update");
       }
-
-      if (this.status === ORDER_SUCCESS && this.balances?.balanceWETH.eq(0)) {
-        deleteOrder(this.order, this.account)
-        this.$emit("update");
+    },
+    async deleverageHandler() {
+      const payload = {
+        itsMax: false,
+        slipage: this.slippage,
+        removeCollateralAmount: BigNumber.from(0),
+        borrowAmount: BigNumber.from(0)// TODO share to min
       }
+
+      await this.deleverageFromOrder(this.order, payload)
     },
     changeSlippage(slippage) {
       if (!slippage) this.slippage = 1;
@@ -217,7 +204,7 @@ export default {
     },
     async updateOrderInfo(status) {
       this.balances = await getOrderBalances(this.order, this.provider);
-      this.type = await getOrderType(this.balances, status);
+      this.type = await getOrderType(this.order, this.provider);
     },
     async fetchOrderInfo() {
       const { cauldron } = this.cauldronObject.contracts;

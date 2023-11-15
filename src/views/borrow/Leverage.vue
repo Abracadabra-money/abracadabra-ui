@@ -61,9 +61,8 @@
         </div>
 
         <OrdersManager
-          v-if="cauldron?.config.cauldronSettings.isGMXMarket"
+          v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
           :cauldronObject="cauldron"
-          :refundWeth="gmRefundWETH"
           :recoverLeverage="gmRecoverLeverageOrder"
         />
 
@@ -168,7 +167,6 @@
         :order="activeOrder"
         :orderType="1"
         :cauldronObject="cauldron"
-        :refundWeth="gmRefundWETH"
     /></LocalPopupWrap>
   </div>
 </template>
@@ -780,9 +778,10 @@ export default {
       const { cauldron } = cauldronObject.contracts;
       const order = await cauldron.orders(this.account);
 
+      console.log("crated order", order)
 
       const itsZero = order === ZERO_ADDRESS;
-      if(itsZero) return false; // TODO EDGE CASE
+      if(itsZero) return false; // instant success
 
       // save order to ls
       saveOrder(order, this.account);
@@ -790,18 +789,10 @@ export default {
       this.isOpenGMPopup = true;
     },
 
-    async gmRefundWETH(order) {
-      await this.cookRefundEthFromOrder(this.cauldron, order);
-
-      deleteOrder(order, this.account);
-      this.isOpenGMPopup = false;
-      this.activeOrder = null;
-    },
-
     async gmRecoverLeverageOrder(order) {
       await this.cookRecoverFaliedLeverage(this.cauldron, order, this.account);
 
-      const { cauldron } = cauldronObject.contracts;
+      const { cauldron } = this.cauldron.contracts;
       const newOrder = await cauldron.orders(this.account);
 
       deleteOrder(order, this.account);

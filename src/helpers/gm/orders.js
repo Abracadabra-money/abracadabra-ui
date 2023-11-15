@@ -43,25 +43,25 @@ export const getOrderStatus = async (
 
   const currentOrder = await cauldron.orders(user);
   const itsZero = currentOrder === ZERO_ADDRESS;
-  if (itsZero) return ORDER_SUCCESS;
+  const isDeposit = await orderContract.depositType();
+  const { balanceUSDC, balanceGM } = await getOrderBalances(orderContract.address, provider);
+  
+  if(isDeposit && itsZero) return ORDER_SUCCESS;
+
+  if(isDeposit && balanceGM.eq(0) && balanceUSDC.eq(0)) return ORDER_SUCCESS;
+  
+  if(!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
 
   return ORDER_FAIL;
 };
 
-export const getOrderType = async (balances, status) => {
-  const hasUSDC = balances.balanceUSDC.gt(0);
-  const hasGM = balances.balanceGM.gt(0);
+export const getOrderType = async (order, provider) => {
+  const orderContract = new Contract(order, orderAbi, provider);
+  const isDeposit = await orderContract.depositType();
 
-  if (status === ORDER_SUCCESS && hasGM) {
-    return ORDER_TYPE_DELEVERAGE;
-  }
+  if(isDeposit) return ORDER_TYPE_LEVERAGE;
 
-  if (status === ORDER_FAIL) {
-    if (hasUSDC) return ORDER_TYPE_LEVERAGE;
-    if (hasGM) return ORDER_TYPE_DELEVERAGE;
-  }
-
-  return ORDER_TYPE_UNKNOWN;
+  return ORDER_TYPE_DELEVERAGE;
 };
 
 export const monitorOrderStatus = (order, cauldron, user, provider) => {

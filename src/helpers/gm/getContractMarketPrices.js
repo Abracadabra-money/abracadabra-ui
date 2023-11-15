@@ -1,4 +1,5 @@
 import { fetchTokenPrices } from "./fetchTokenPrices";
+import { BigNumber } from "ethers";
 
 export const getContractMarketPrices = async (market) => {
   const tokenPrices = await fetchTokenPrices();
@@ -21,16 +22,16 @@ export const getContractMarketPrices = async (market) => {
 
   return {
     indexTokenPrice: {
-      min: indexToken.minPrice,
-      max: indexToken.maxPrice,
+      min: BigNumber.from(indexToken.minPrice),
+      max: BigNumber.from(indexToken.maxPrice),
     },
     longTokenPrice: {
-      min: longToken.minPrice,
-      max: longToken.maxPrice,
+      min: BigNumber.from(longToken.minPrice),
+      max: BigNumber.from(longToken.maxPrice),
     },
     shortTokenPrice: {
-      min: shortToken.minPrice,
-      max: shortToken.maxPrice,
+      min: BigNumber.from(shortToken.minPrice),
+      max: BigNumber.from(shortToken.maxPrice),
     },
   };
 };

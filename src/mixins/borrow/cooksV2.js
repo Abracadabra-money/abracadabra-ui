@@ -10,7 +10,6 @@ import { DEFAULT_TOKEN_ADDRESS } from "@/constants/tokensAddress";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
-
 import {
   USDC_ADDRESS,
   WETH_ADDRESS,
@@ -31,10 +30,11 @@ import {
 import { getGasLimits } from "@/helpers/gm/fee/getGasLimits";
 
 import { getDepositAmount } from "@/helpers/gm/getDepositAmount";
-import getWithdrawalAmounts from "@/helpers/gm/getWithdrawalAmounts";
+import { getWithdrawalAmountsByMarket } from "@/helpers/gm/getWithdrawalAmounts";
 
 import { getOrderBalances } from "@/helpers/gm/orders";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
+import OrderAgentAbi from "@/utils/abi/gm/OrderAgentAbi";
 
 export default {
   mixins: [degenBoxCookHelperMixin],
@@ -1076,15 +1076,28 @@ export default {
         minOutLong
       );
 
-      return { updatedCookData, executionFee, minOutput };
+      return {
+        updatedCookData,
+        executionFee: executionFee,
+        minOutput,
+      };
     },
 
     async recipeCreateDeleverageOrder(cookData, inputToken, inputAmount) {
       const deposit = false;
 
       const gasLimits = await getGasLimits(this.provider);
+
+      const orderAgentContract = new Contract(
+        ORDER_AGENT,
+        OrderAgentAbi,
+        this.provider
+      );
+      const callbackGasLimit = await orderAgentContract.callbackGasLimit();
+
       const estimatedWithdrawGasLimit = await estimateExecuteWithdrawalGasLimit(
-        gasLimits
+        gasLimits,
+        callbackGasLimit
       );
 
       const executionFee = await getExecutionFee(
@@ -1093,31 +1106,23 @@ export default {
         this.provider
       );
 
-      // TODO CHECK FEE
-      const additionalTestFee = executionFee.div(100).mul(120);
-
-      const { shortAmountOut, longAmountOut } = await getWithdrawalAmounts(
-        inputAmount,
-        this.provider
-      );
-
-      const minOutput = shortAmountOut;
-      const minOutLong = longAmountOut;
+      const { shortAmountOut, longAmountOut } =
+        await getWithdrawalAmountsByMarket(inputAmount, this.provider);
 
       const updatedCookData = actions.createOrder(
         cookData,
-        executionFee.add(additionalTestFee),
+        executionFee,
         inputToken,
         deposit,
         inputAmount,
-        executionFee.add(additionalTestFee),
-        minOutput,
-        minOutLong
+        executionFee,
+        shortAmountOut,
+        longAmountOut
       );
 
       return {
         updatedCookData,
-        executionFee: executionFee.add(additionalTestFee),
+        executionFee: executionFee,
       };
     },
 
@@ -1142,12 +1147,20 @@ export default {
 
       const swapData = swapResponse.data;
 
-      // base buyAmount must be enough in mainnet
-      const minExpected = swapResponse.buyAmount.div(100).mul(100 - slipage); // TODO check is correct
+      // // base buyAmount must be enough in mainnet
+      // const slippageBN = BigNumber.from(
+      //   parseFloat(slipage * 1e10).toFixed(0)
+      // );
+
+      // const slippageAmount = swapResponse.buyAmount.div(100).mul(slippageBN).div(1e10);
+
+      // const minExpected = swapResponse.buyAmount.sub(slippageAmount); // TODO check is correct
+
+      const minExpected = swapResponse.buyAmount;
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
         ORDER_AGENT,
-        minExpected, //TEST
+        minExpected,
         shareFrom,
         swapData,
         {
@@ -1168,7 +1181,7 @@ export default {
 
       const swapResponse = await swap0xRequest(
         this.chainId,
-        mim,
+        mim.address,
         sellToken,
         slipage,
         amountToSwap,
@@ -1215,13 +1228,15 @@ export default {
         datas: [],
       };
 
-      cookData = await actions.withdrawFromOrder(
-        cookData,
-        WETH_ADDRESS,
-        account,
-        balanceWETH,
-        false
-      );
+      cookData = balanceWETH.gt(0)
+        ? await actions.withdrawFromOrder(
+            cookData,
+            WETH_ADDRESS,
+            account,
+            balanceWETH,
+            false
+          )
+        : cookData;
 
       cookData = await actions.withdrawFromOrder(
         cookData,
@@ -1235,77 +1250,6 @@ export default {
         await this.recipeCreateLeverageOrder(cookData, balanceUSDC);
 
       await cook(cauldron, updatedCookData, executionFee);
-    },
-
-    async cookRecoverFaliedDeleverage(cauldronObject, order) {
-      const { cauldron } = cauldronObject.contracts;
-
-      const { balanceGM, balanceWETH } = await getOrderBalances(
-        order,
-        this.provider
-      );
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await actions.withdrawFromOrder(
-        cookData,
-        WETH_ADDRESS,
-        account,
-        balanceWETH,
-        false
-      );
-
-      cookData = await actions.withdrawFromOrder(
-        cookData,
-        GM_ADDRESS,
-        ORDER_AGENT,
-        balanceGM,
-        true
-      );
-
-      const { updatedCookData, executionFee } =
-        await this.recipeCreateDeleverageOrder(cookData, GM_ADDRESS, balanceGM);
-
-      await cook(cauldron, updatedCookData, executionFee);
-    },
-
-    async cookRefundEthFromOrder(cauldronObject, order, close = true) {
-      const { cauldron } = cauldronObject.contracts;
-      const { balanceWETH } = await getOrderBalances(order, this.provider);
-      console.log("balanceWETH", balanceWETH.toString())
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = await actions.withdrawFromOrder(
-        cookData,
-        WETH_ADDRESS,
-        this.account,
-        balanceWETH,
-        close
-      );
-
-      await cook(cauldron, cookData, 0);
-    },
-
-    async cookCancelOrder(cauldronObject, order) {
-      const { cauldron } = cauldronObject.contracts;
-
-      let cookData = {
-        events: [],
-        values: [],
-        datas: [],
-      };
-
-      cookData = actions.cancelOrder(cookData, order);
-
-      await cook(cauldron, cookData, 0);
     },
 
     async cookLeverageGM(
@@ -1427,28 +1371,19 @@ export default {
         itsMax,
         slipage,
       },
-      pool,
+      cauldronObject,
       account,
       order
     ) {
-      const { balanceUSDC, balanceWETH } = await getOrderBalances(
-        order,
-        this.provider
-      );
+      const { liquidationSwapper, cauldron } = cauldronObject.contracts;
+
+      const { balanceUSDC } = await getOrderBalances(order, this.provider);
 
       let cookData = {
         events: [],
         values: [],
         datas: [],
       };
-
-      cookData = actions.withdrawFromOrder(
-        cookData,
-        WETH_ADDRESS,
-        account,
-        balanceWETH,
-        false
-      );
 
       cookData = actions.withdrawFromOrder(
         cookData,
@@ -1460,8 +1395,8 @@ export default {
 
       cookData = await this.recipeDeleverageGM(
         cookData,
-        pool,
-        usdcAmount,
+        cauldronObject,
+        balanceUSDC,
         borrowAmount,
         slipage
       );
@@ -1472,7 +1407,7 @@ export default {
           cookData,
           cauldron.address,
           userBorrowPart,
-          userAddr
+          account
         );
       } else {
         cookData = await actions.getRepayPart(cookData, "-2");
@@ -1480,7 +1415,7 @@ export default {
           cookData,
           cauldron.address,
           "-1",
-          userAddr,
+          account,
           false,
           true
         );
@@ -1489,12 +1424,14 @@ export default {
       if (+removeCollateralAmount > 0) {
         cookData = await this.recipeRemoveCollateral(
           cookData,
-          pool,
+          cauldronObject,
           removeCollateralAmount,
-          userAddr,
+          account,
           collateralTokenAddr
         );
       }
+
+      await cook(cauldron, cookData, 0);
     },
   },
 };
