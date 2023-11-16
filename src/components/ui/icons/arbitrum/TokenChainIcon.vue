@@ -18,6 +18,7 @@ export default {
 <style scoped lang="scss">
 .token-chain-icon {
   position: relative;
+  width: 42px;
 }
 
 .chain-icon {

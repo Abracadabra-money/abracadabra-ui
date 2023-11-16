@@ -39,7 +39,7 @@
 import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import TokenChainIcon from "@/components/ui/icons/arb-new/TokenChainIcon.vue";
+import TokenChainIcon from "@/components/ui/icons/arbitrum/TokenChainIcon.vue";
 
 export default {
   props: {

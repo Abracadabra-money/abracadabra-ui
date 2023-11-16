@@ -69,12 +69,13 @@
           <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
         </div>
 
+        <FarmCard />
         <template v-if="filteredPools.length">
-          <ArbMarketsFarmItem
+          <!-- <MarketsFarmItem
             v-for="farm in filteredPools"
             :key="farm.id"
             :farm="farm"
-          />
+          /> -->
         </template>
         <EmptyState v-else />
       </div>
@@ -87,7 +88,8 @@ import { mapGetters } from "vuex";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
 import DropdownWrap from "@/components/ui/DropdownWrap.vue";
-import ArbMarketsFarmItem from "@/components/markets/arb-new/ArbFarmItem.vue";
+import MarketsFarmItem from "@/components/markets/arbitrum/FarmItem.vue";
+import FarmCard from "@/components/markets/arbitrum/FarmCard.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
@@ -270,8 +272,9 @@ export default {
     EmptyState,
     BaseLoader,
     DropdownWrap,
-    ArbMarketsFarmItem,
+    MarketsFarmItem,
     CheckBox,
+    FarmCard,
   },
 };
 </script>

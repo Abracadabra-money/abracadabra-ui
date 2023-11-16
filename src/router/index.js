@@ -125,7 +125,7 @@ const routes = [
   {
     path: "/arb-cauldrons",
     name: "ArbCauldrons",
-    component: () => import("@/views/arb-new/ArbitrumNewCauldrons.vue"),
+    component: () => import("@/views/markets/arbitrum/ArbitrumCauldrons.vue"),
   },
   {
     path: "/:catchAll(.*)",

@@ -27,7 +27,7 @@
         </div>
 
         <template v-if="filteredCouldrons.length">
-          <ArbCauldronItem
+          <CauldronItem
             v-for="cauldron in filteredCouldrons"
             :key="cauldron.id"
             :cauldron="cauldron"
@@ -47,7 +47,7 @@ import { mapGetters } from "vuex";
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList.ts";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
-import ArbCauldronItem from "@/components/markets/arb-new/ArbCauldronItem.vue";
+import CauldronItem from "@/components/markets/arbitrum/CauldronItem.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
 import ScrollToTop from "@/components/ui/ScrollToTop.vue";
 import Search from "@/components/ui/search/CauldronsSearch.vue";
@@ -206,7 +206,7 @@ export default {
     Search,
     EmptyState,
     BaseLoader,
-    ArbCauldronItem,
+    CauldronItem,
     CheckBox,
   },
 };

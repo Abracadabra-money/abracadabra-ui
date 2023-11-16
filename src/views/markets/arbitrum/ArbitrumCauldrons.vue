@@ -1,18 +1,18 @@
 <template>
   <div class="arbitrum-page">
     <img class="banner" src="@/assets/images/arbitrym-banner.png" alt="" />
-    <ArbFarms />
-    <ArbCauldrons />
+    <Farms />
+    <Cauldrons />
   </div>
 </template>
 <script>
-import ArbCauldrons from "@/views/arb-new/ArbCauldrons.vue";
-import ArbFarms from "@/views/arb-new/ArbFarms.vue";
+import Cauldrons from "@/views/markets/arbitrum/Cauldrons.vue";
+import Farms from "@/views/markets/arbitrum/Farms.vue";
 
 export default {
   components: {
-    ArbCauldrons,
-    ArbFarms,
+    Cauldrons,
+    Farms,
   },
 };
 </script>
