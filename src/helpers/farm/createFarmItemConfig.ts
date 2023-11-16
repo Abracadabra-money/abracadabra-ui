@@ -15,11 +15,6 @@ import type { Address } from "viem";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
 
-export const tokenAddresses = {
-  SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
-  MIM: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3",
-};
-
 export const createFarmItemConfig = async (
   farmId: number | string,
   chainId: number,

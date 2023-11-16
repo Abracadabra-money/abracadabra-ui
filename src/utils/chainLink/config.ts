@@ -59,12 +59,10 @@ export const nativeTokenschainLink = {
 };
 
 export const tokensChainLink: any = {
-  mim: {
-    chainId: 1,
-    address: "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
-  },
-  spell: {
-    chainId: 1,
-    address: "0x8c110b94c5f1d347facf5e1e938ab2db60e3c9a8",
-  },
+  mim: { chainId: 1, address: "0x7A364e8770418566e3eb2001A96116E6138Eb32F" },
+  spell: { chainId: 1, address: "0x8c110b94c5f1d347facf5e1e938ab2db60e3c9a8" },
+  crv: { chainId: 1, address: "0xcd627aa160a6fa45eb793d19ef54f5062f20f33f" },
+  cvx: { chainId: 1, address: "0xd962fc30a72a84ce50161031391756bf2876af5d" },
+  stg: { chainId: 1, address: "0x7a9f34a0aa917d438e9b6e630067062b7f8f6f3d" }, // Stargate
+  eth: { chainId: 1, address: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419" },
 };

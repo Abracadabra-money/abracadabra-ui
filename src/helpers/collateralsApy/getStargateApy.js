@@ -1,11 +1,12 @@
 import { ethers } from "ethers";
-import { getTokenPriceByAddress } from "../priceHelper";
+import DegenBoxAbi from "@/utils/abi/degenBox";
+import stargatePoolAbi from "@/utils/abi/StargatePool";
+import { tokensChainLink } from "@/utils/chainLink/config";
 import { getStargateBasicApy } from "@/helpers/stargateFarmApy";
+import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import mainnetStargateLPStrategyAbi from "@/utils/abi/MainnetStargateLPStrategy";
 
 const DegenBoxAddress = "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce";
-import DegenBoxAbi from "@/utils/abi/degenBox";
-import mainnetStargateLPStrategyAbi from "@/utils/abi/MainnetStargateLPStrategy";
-import stargatePoolAbi from "@/utils/abi/StargatePool";
 
 const fetchBasicApy = async (provider, collateralAddress) => {
   const poolContract = new ethers.Contract(
@@ -16,9 +17,9 @@ const fetchBasicApy = async (provider, collateralAddress) => {
 
   const poolId = (await poolContract.poolId()) - 1;
 
-  const rewardPrice = await getTokenPriceByAddress(
-    1,
-    "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6" // Stargate token price
+  const rewardPrice = await getTokenPriceByChain(
+    tokensChainLink.stg.chainId,
+    tokensChainLink.stg.address
   );
 
   const price = ethers.utils.parseEther(String(rewardPrice));

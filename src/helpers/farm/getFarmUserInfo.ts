@@ -1,6 +1,6 @@
+import { tokensChainLink } from "@/utils/chainLink/config";
 import { getAccount, multicall, readContract } from "@wagmi/core";
-import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
-import { tokenAddresses } from "@/helpers/farm/createFarmItemConfig";
+import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
 import type { FarmAccountInfo, FarmItem } from "@/utils/farmsConfig/types";
 
 import { formatUnits } from "viem";
@@ -66,18 +66,21 @@ const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
   });
 
   //MIM or SPELL
-  const token0Price = await getTokenPriceByAddress(
-    1,
-    tokenAddresses[
-      farmItemConfig.depositedBalance?.token0
-        .name as keyof typeof tokenAddresses
-    ]
+  const token0Name =
+    farmItemConfig.depositedBalance?.token0.name.toLocaleLowerCase();
+
+  const token0Price = await getTokenPriceByChain(
+    tokensChainLink[token0Name as keyof typeof tokensChainLink].chainId,
+    tokensChainLink[token0Name as keyof typeof tokensChainLink].address
   );
 
   // ETH always
-  const token1Price = await getTokenPriceByAddress(
-    1,
-    tokenAddresses["WETH" as keyof typeof tokenAddresses]
+  const token1Name =
+    farmItemConfig.depositedBalance?.token1.name.toLocaleLowerCase();
+
+  const token1Price = await getTokenPriceByChain(
+    tokensChainLink[token1Name as keyof typeof tokensChainLink].chainId,
+    tokensChainLink[token1Name as keyof typeof tokensChainLink].address
   );
 
   const token0Amount: number = Number(formatUnits(reserves[0], 18));

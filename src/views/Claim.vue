@@ -153,11 +153,12 @@
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import { getTokenPriceByAddress } from "@/helpers/priceHelper";
 import degenBoxAbi from "@/utils/abi/degenBox.js";
 import { mapGetters } from "vuex";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
 import filters from "@/filters/index.js";
+import { tokensChainLink } from "@/utils/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";
@@ -447,9 +448,9 @@ export default {
 
       this.crvBalance = this.$ethers.utils.formatUnits(crvBalance, 18);
 
-      this.crvBalanceUsd = await getTokenPriceByAddress(
-        this.chainId,
-        crvAddress
+      this.crvBalanceUsd = await getTokenPriceByChain(
+        tokensChainLink.crv.chainId,
+        tokensChainLink.crv.address
       );
 
       const mimBalance = await this.claimContract.amounts(
@@ -459,9 +460,9 @@ export default {
 
       this.mimBalance = this.$ethers.utils.formatUnits(mimBalance, 18);
 
-      this.mimBalanceUsd = await getTokenPriceByAddress(
-        this.chainId,
-        ethMimAddress
+      this.mimBalanceUsd = await getTokenPriceByChain(
+        tokensChainLink.mim.chainId,
+        tokensChainLink.mim.address
       );
     },
 
@@ -490,9 +491,9 @@ export default {
 
       this.mimBalance = this.$ethers.utils.formatUnits(mimBalance, 18);
 
-      this.mimBalanceUsd = await getTokenPriceByAddress(
-        this.chainId,
-        aethMimAddress
+      this.mimBalanceUsd = await getTokenPriceByChain(
+        tokensChainLink.mim.chainId,
+        tokensChainLink.mim.address
       );
     },
   },
