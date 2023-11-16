@@ -3,7 +3,6 @@ import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
 import { Contract } from "ethers";
 
 import {
-  GM_ADDRESS,
   USDC_ADDRESS,
   WETH_ADDRESS,
   ZERO_ADDRESS,
@@ -20,15 +19,12 @@ export const ORDER_TYPE_DELEVERAGE = 2;
 export const getOrderBalances = async (order, provider) => {
   const WETHContract = new Contract(WETH_ADDRESS, ERC20, provider);
   const USDCContract = new Contract(USDC_ADDRESS, ERC20, provider);
-  const GMContract = new Contract(GM_ADDRESS, ERC20, provider);
   const balanceWETH = await WETHContract.balanceOf(order);
   const balanceUSDC = await USDCContract.balanceOf(order);
-  const balanceGM = await GMContract.balanceOf(order);
 
   return {
     balanceWETH,
-    balanceUSDC,
-    balanceGM,
+    balanceUSDC
   };
 };
 
@@ -44,12 +40,10 @@ export const getOrderStatus = async (
   const currentOrder = await cauldron.orders(user);
   const itsZero = currentOrder === ZERO_ADDRESS;
   const isDeposit = await orderContract.depositType();
-  const { balanceUSDC, balanceGM } = await getOrderBalances(orderContract.address, provider);
+  const { balanceUSDC } = await getOrderBalances(orderContract.address, provider);
   
   if(isDeposit && itsZero) return ORDER_SUCCESS;
 
-  if(isDeposit && balanceGM.eq(0) && balanceUSDC.eq(0)) return ORDER_SUCCESS;
-  
   if(!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
 
   return ORDER_FAIL;

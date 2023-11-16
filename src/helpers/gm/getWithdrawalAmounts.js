@@ -19,8 +19,6 @@ import {
   GMX_READER,
   DATA_STORE,
   ZERO_ADDRESS,
-  GM_MARKET,
-  GM_ADDRESS,
 } from "@/constants/gm";
 
 export const getWithdrawalAmounts = async (amount, provider) => {
@@ -55,15 +53,16 @@ export const getWithdrawalAmounts = async (amount, provider) => {
 
 // TODO optimize helpers
 export const getWithdrawalAmountsByMarket = async (
+  market,
   marketTokenAmount,
   provider
 ) => {
   const dataStoreContract = new Contract(DATA_STORE, DataStoreAbi, provider);
 
-  const marketTokenContract = new Contract(GM_ADDRESS, ERC20, provider);
+  const marketTokenContract = new Contract(market, ERC20, provider);
   const marketTokenTotalSupply = await marketTokenContract.totalSupply();
 
-  const marketInfo = await getMarketInfo(provider);
+  const marketInfo = await getMarketInfo(provider, market);
   const prices = await getContractMarketPrices(marketInfo);
   const { marketTokenPriceMax } = await getMarkeTokemPrice(
     marketInfo,
@@ -71,7 +70,7 @@ export const getWithdrawalAmountsByMarket = async (
     provider
   );
   const swapFeeFactorForNegativeImpact = await dataStoreContract.getUint(
-    swapFeeFactorKey(GM_MARKET, false)
+    swapFeeFactorKey(market, false)
   );
 
   // 30 decimals
@@ -91,10 +90,10 @@ export const getWithdrawalAmountsByMarket = async (
   };
 
   const longPoolAmount = await dataStoreContract.getUint(
-    poolAmountKey(GM_MARKET, marketInfo.longToken)
+    poolAmountKey(market, marketInfo.longToken)
   );
   const shortPoolAmount = await dataStoreContract.getUint(
-    poolAmountKey(GM_MARKET, marketInfo.shortToken)
+    poolAmountKey(market, marketInfo.shortToken)
   );
 
   const longPoolUsd = convertToUsd(
@@ -168,8 +167,11 @@ export const getWithdrawalAmountsByMarket = async (
   );
 
   return {
-    shortAmountOut: applySlippageToMinOut(DEFAULT_SLIPPAGE_AMOUNT, values.shortTokenAmount),
-    longAmountOut: applySlippageToMinOut(100, values.longTokenAmount),
+    shortAmountOut: applySlippageToMinOut(
+      DEFAULT_SLIPPAGE_AMOUNT,
+      values.shortTokenAmount
+    ),
+    longAmountOut: applySlippageToMinOut(DEFAULT_SLIPPAGE_AMOUNT * 2, values.longTokenAmount),
   };
 };
 export default getWithdrawalAmounts;

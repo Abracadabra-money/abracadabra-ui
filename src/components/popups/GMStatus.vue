@@ -147,7 +147,7 @@ export default {
     balancesInfo() {
       if (!this.balances) return [];
 
-      const { balanceWETH, balanceUSDC, balanceGM } = this.balances;
+      const { balanceWETH, balanceUSDC } = this.balances;
 
       const balances = [];
 
@@ -156,13 +156,6 @@ export default {
           name: "USDC",
           icon: useImage(`assets/images/tokens/USDC.png`),
           balance: this.formatTokenBalance(utils.formatUnits(balanceUSDC, 6)),
-        });
-
-      if (balanceGM.gt(0))
-        balances.push({
-          name: "GM",
-          icon: useImage(`assets/images/tokens/GLP.png`),
-          balance: this.formatTokenBalance(utils.formatUnits(balanceGM)),
         });
 
       if (balanceWETH.gt(0))

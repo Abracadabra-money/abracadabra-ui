@@ -14,7 +14,6 @@ import {
   USDC_ADDRESS,
   WETH_ADDRESS,
   ORDER_AGENT,
-  GM_ADDRESS,
 } from "@/constants/gm";
 
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
@@ -1047,7 +1046,7 @@ export default {
       await cook(cauldron, cookData, 0);
     },
 
-    async recipeCreateLeverageOrder(cookData, inputAmount) {
+    async recipeCreateLeverageOrder(cookData, market, inputAmount) {
       const inputToken = USDC_ADDRESS;
       const deposit = true;
 
@@ -1062,7 +1061,7 @@ export default {
         this.provider
       );
 
-      const minOutput = await getDepositAmount(0, inputAmount, this.provider);
+      const minOutput = await getDepositAmount(market, 0, inputAmount, this.provider);
       const minOutLong = 0; // ok for leverage
 
       const updatedCookData = actions.createOrder(
@@ -1107,7 +1106,7 @@ export default {
       );
 
       const { shortAmountOut, longAmountOut } =
-        await getWithdrawalAmountsByMarket(inputAmount, this.provider);
+        await getWithdrawalAmountsByMarket(inputToken, inputAmount, this.provider);
 
       const updatedCookData = actions.createOrder(
         cookData,
@@ -1217,7 +1216,7 @@ export default {
     },
 
     async cookRecoverFaliedLeverage(cauldronObject, order, account) {
-      const { cauldron } = cauldronObject.contracts;
+      const { cauldron, collateral } = cauldronObject.contracts;
 
       const { balanceUSDC, balanceWETH } = await getOrderBalances(
         order,
@@ -1249,7 +1248,7 @@ export default {
       );
 
       const { updatedCookData, executionFee } =
-        await this.recipeCreateLeverageOrder(cookData, balanceUSDC);
+        await this.recipeCreateLeverageOrder(cookData, collateral.address, balanceUSDC);
 
       await cook(cauldron, updatedCookData, executionFee);
     },
@@ -1310,7 +1309,7 @@ export default {
       );
 
       const { updatedCookData, executionFee } =
-        await this.recipeCreateLeverageOrder(cookData, buyAmount);
+        await this.recipeCreateLeverageOrder(cookData, collateral.address, buyAmount);
 
       await cook(cauldron, updatedCookData, executionFee);
     },

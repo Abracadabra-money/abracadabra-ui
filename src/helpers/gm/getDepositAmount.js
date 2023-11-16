@@ -9,13 +9,14 @@ import { applySlippageToMinOut } from "./applySlippageToMinOut";
 import { DEFAULT_SLIPPAGE_AMOUNT } from "./applySlippageToMinOut";
 
 export const getDepositAmount = async (
+  market,
   longTokenAmount,
   shortTokenAmount,
   provider
 ) => {
   const GMXReaderContract = new Contract(GMX_READER, GMXReaderAbi, provider);
 
-  const marketInfo = await getMarketInfo(provider);
+  const marketInfo = await getMarketInfo(provider, market);
 
   const uiFeeReceiver = ZERO_ADDRESS;
   const prices = await getContractMarketPrices(marketInfo);
