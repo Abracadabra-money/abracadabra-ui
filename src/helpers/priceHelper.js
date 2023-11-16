@@ -68,18 +68,6 @@ const getTokenPriceByAddress = async (chainId, address) => {
   }
 };
 
-const getNativeTokenPrice = async (chainId) => {
-  try {
-    const id = coingeckoChainId[chainId];
-    const url = `https://${apiDomain}/api/v3/coins/${id}`;
-    const response = await axios.get(url, config);
-    return response.data.market_data.current_price.usd;
-  } catch (error) {
-    console.log("Get token price Error:", error);
-    return "0.0";
-  }
-};
-
 const getTokenArrayPriceByPeriod = async (symbol, period) => {
   const now = Date.now() / 1000;
   const days = Math.ceil(now / 86400) - Math.ceil(period / 86400) - 1;
@@ -99,8 +87,4 @@ const getTokenArrayPriceByPeriod = async (symbol, period) => {
   });
 };
 
-export {
-  getTokenPriceByAddress,
-  getNativeTokenPrice,
-  getTokenArrayPriceByPeriod,
-};
+export { getTokenPriceByAddress, getTokenArrayPriceByPeriod };

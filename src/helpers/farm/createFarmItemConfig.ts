@@ -12,8 +12,8 @@ import type {
 } from "@/utils/farmsConfig/types";
 import { readContract } from "@wagmi/core";
 import type { Address } from "viem";
-import { getTokensPriceByChainLink } from "@/helpers/getTokensPriceByChainLink";
-import { chainLinkConfig } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/utils/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
 
 export const tokenAddresses = {
   SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
@@ -36,10 +36,15 @@ export const createFarmItemConfig = async (
 
   if (!farmInfo) return null;
 
-  const [MIMPrice, SPELLPrice]: any = await getTokensPriceByChainLink([
-    chainLinkConfig[1].mim,
-    chainLinkConfig[1].spell,
-  ]);
+  const MIMPrice = await getTokenPriceByChain(
+    tokensChainLink.mim.chainId,
+    tokensChainLink.mim.address
+  );
+
+  const SPELLPrice = await getTokenPriceByChain(
+    tokensChainLink.spell.chainId,
+    tokensChainLink.spell.address
+  );
 
   const poolInfo: PoolInfo = await getPoolInfo(
     farmInfo.contract,

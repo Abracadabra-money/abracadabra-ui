@@ -130,11 +130,12 @@ import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import notification from "@/helpers/notification/notification.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { nativeTokenschainLink } from "@/utils/chainLink/config";
 
 export default {
   data() {
@@ -477,7 +478,10 @@ export default {
 
     async seendBeam(notificationId) {
       this.isBeaming = true;
-      this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
+
+      const { chainId, address } = nativeTokenschainLink[this.toChainId];
+      this.dstTokenPrice = await getTokenPriceByChain(chainId, address);
+
       const mimPrice = (await getMimPrice()) || 1;
       this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
 
