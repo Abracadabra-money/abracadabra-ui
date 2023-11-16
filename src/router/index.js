@@ -123,6 +123,11 @@ const routes = [
     component: () => import("@/views/stake/MKLP.vue"),
   },
   {
+    path: "/arb-cauldrons",
+    name: "ArbCauldrons",
+    component: () => import("@/views/arb-new/ArbitrumNewCauldrons.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
