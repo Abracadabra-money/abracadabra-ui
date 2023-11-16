@@ -1,10 +1,9 @@
 <template>
-  <img
-    src="@/assets/images/networks/arbitrum-icon.svg"
-    class="arb-cauldrons-banner"
-  />
-  <ArbFarms />
-  <ArbCauldrons />
+  <div class="arbitrum-page">
+    <img class="banner" src="@/assets/images/arbitrym-banner.png" alt="" />
+    <ArbFarms />
+    <ArbCauldrons />
+  </div>
 </template>
 <script>
 import ArbCauldrons from "@/views/arb-new/ArbCauldrons.vue";
@@ -18,14 +17,17 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.arb-cauldrons-banner {
-  display: block;
-  padding-top: 160px;
-  padding-bottom: 0;
+.arbitrum-page {
+  padding: 160px 0 100px;
   margin: 0 auto;
-  height: 366px;
-  width: 940px;
+  width: 960px;
   max-width: calc(100% - 20px);
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.banner {
+  width: 100%;
 }
 </style>

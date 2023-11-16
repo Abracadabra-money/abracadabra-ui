@@ -214,10 +214,7 @@ export default {
 
 <style lang="scss" scoped>
 .cauldrons-page {
-  padding: 60px 0 100px;
-  margin: 0 auto;
-  width: 940px;
-  max-width: calc(100% - 20px);
+  width: 100%;
 }
 
 .title {

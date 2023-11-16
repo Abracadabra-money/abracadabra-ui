@@ -5,6 +5,7 @@ export const switchNetwork = async (chainId: number) => {
   const walletClient = await getWalletClient();
   if (walletClient) {
     try {
+      localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
       await walletClient.switchChain({ id: chainId });
     } catch (error) {
       if (String(error).indexOf("Unrecognized chain ID") !== -1) {

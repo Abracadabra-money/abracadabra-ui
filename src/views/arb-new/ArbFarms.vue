@@ -285,12 +285,7 @@ export default {
   cursor: pointer;
 }
 .wrapper {
-  padding-top: 160px;
-  padding-bottom: 0;
-  margin: 0 auto;
-  width: 940px;
-  max-width: calc(100% - 20px);
-  box-sizing: border-box;
+  width: 100%;
 }
 
 .title {
