@@ -1,5 +1,5 @@
 import { Contract, BigNumber } from "ethers";
-
+import { MulticallWrapper } from "ethers-multicall-provider";
 import DataStoreAbi from "@/utils/abi/gm/DataStoreAbi";
 import { DATA_STORE } from "@/constants/gm";
 
@@ -12,21 +12,27 @@ import {
 } from "./dataStore";
 
 export const getGasLimits = async (provider) => {
-  const dataStoreContract = new Contract(DATA_STORE, DataStoreAbi, provider);
+  const multicallProvider = MulticallWrapper.wrap(provider);
 
-  const depositSingleToken = await dataStoreContract.getUint(
-    depositGasLimitKey(true)
+  const dataStoreContract = new Contract(
+    DATA_STORE,
+    DataStoreAbi,
+    multicallProvider
   );
-  const withdrawalMultiToken = await dataStoreContract.getUint(
-    withdrawalGasLimitKey()
-  );
-  const singleSwap = await dataStoreContract.getUint(singleSwapGasLimitKey());
-  const estimatedFeeBaseGasLimit = await dataStoreContract.getUint(
-    ESTIMATED_GAS_FEE_BASE_AMOUNT
-  );
-  const estimatedFeeMultiplierFactor = await dataStoreContract.getUint(
-    ESTIMATED_GAS_FEE_MULTIPLIER_FACTOR
-  );
+
+  const [
+    depositSingleToken,
+    withdrawalMultiToken,
+    singleSwap,
+    estimatedFeeBaseGasLimit,
+    estimatedFeeMultiplierFactor,
+  ] = await Promise.all([
+    dataStoreContract.getUint(depositGasLimitKey(true)),
+    dataStoreContract.getUint(withdrawalGasLimitKey()),
+    dataStoreContract.getUint(singleSwapGasLimitKey()),
+    dataStoreContract.getUint(ESTIMATED_GAS_FEE_BASE_AMOUNT),
+    dataStoreContract.getUint(ESTIMATED_GAS_FEE_MULTIPLIER_FACTOR),
+  ]);
 
   return {
     depositSingleToken: BigNumber.from(depositSingleToken),

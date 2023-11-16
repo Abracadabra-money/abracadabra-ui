@@ -15,3 +15,11 @@ export const getMarketInfo = async (provider, market) => {
     shortToken: marketInfo.shortToken,
   };
 };
+
+export const getMarketFullInfo = async (provider, prices, market) => {
+  const readerContract = new Contract(GMX_READER, GMXReaderAbi, provider);
+
+  const marketInfo = await readerContract.getMarketInfo(DATA_STORE, prices, market);
+
+  return marketInfo;
+};
