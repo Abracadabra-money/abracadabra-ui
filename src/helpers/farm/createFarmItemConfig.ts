@@ -1,5 +1,4 @@
 import { markRaw } from "vue";
-import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
@@ -13,16 +12,8 @@ import type {
 } from "@/utils/farmsConfig/types";
 import { readContract } from "@wagmi/core";
 import type { Address } from "viem";
-
-type TokenPrices = {
-  SPELLPrice: number;
-  MIMPrice: number;
-};
-
-type TokenPricesResponse = {
-  address: string;
-  price: number;
-};
+import { getTokensPriceByChainLink } from "@/helpers/getTokensPriceByChainLink";
+import { chainLinkConfig } from "@/utils/chainLink/config";
 
 export const tokenAddresses = {
   SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
@@ -45,7 +36,10 @@ export const createFarmItemConfig = async (
 
   if (!farmInfo) return null;
 
-  const { SPELLPrice, MIMPrice } = await getTokensPrices();
+  const [MIMPrice, SPELLPrice]: any = await getTokensPriceByChainLink([
+    chainLinkConfig[1].mim,
+    chainLinkConfig[1].spell,
+  ]);
 
   const poolInfo: PoolInfo = await getPoolInfo(
     farmInfo.contract,
@@ -136,31 +130,5 @@ const getPoolInfo = async (
     accIcePerShare,
     lastRewardTime,
     allocPoint,
-  };
-};
-
-const getTokensPrices = async (): Promise<TokenPrices> => {
-  const tokenAddressesArray = [tokenAddresses.SPELL, tokenAddresses.MIM];
-
-  const tokensPrices = await getTokensArrayPrices(1, tokenAddressesArray);
-
-  let SPELLPrice = 0,
-    MIMPrice = 0;
-
-  if (tokensPrices)
-    tokensPrices.map((token: TokenPricesResponse) => {
-      switch (token.address) {
-        case tokenAddresses.SPELL:
-          SPELLPrice = token.price;
-          break;
-        case tokenAddresses.MIM:
-          MIMPrice = token.price;
-          break;
-      }
-    });
-
-  return {
-    SPELLPrice,
-    MIMPrice,
   };
 };

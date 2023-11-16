@@ -44,33 +44,6 @@ const config = {
   },
 };
 
-const getTokensArrayPrices = async (chainId, addressArr) => {
-  try {
-    const chainCoinGeckoId = chainCoinGeckoIds[chainId];
-
-    if (!chainCoinGeckoId) return false;
-
-    const pricesResponse = await axios.get(
-      `https://${apiDomain}/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${addressArr.join()}&vs_currencies=usd`,
-      config
-    );
-
-    const respToArray = [];
-
-    for (const property in pricesResponse.data) {
-      respToArray.push({
-        address: property.toLowerCase(),
-        price: pricesResponse.data[property].usd,
-      });
-    }
-
-    return respToArray;
-  } catch (e) {
-    console.log("TOKEN PRICE ERR:", e);
-    return false;
-  }
-};
-
 const getTokenPriceByAddress = async (chainId, address) => {
   try {
     const chainCoinGeckoId = chainCoinGeckoIds[chainId];
@@ -93,10 +66,6 @@ const getTokenPriceByAddress = async (chainId, address) => {
     console.log("TOKEN PRICE ERR:", e);
     return false;
   }
-};
-
-const numberWithCommas = (x) => {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 const getNativeTokenPrice = async (chainId) => {
@@ -132,8 +101,6 @@ const getTokenArrayPriceByPeriod = async (symbol, period) => {
 
 export {
   getTokenPriceByAddress,
-  getTokensArrayPrices,
-  numberWithCommas,
   getNativeTokenPrice,
   getTokenArrayPriceByPeriod,
 };
