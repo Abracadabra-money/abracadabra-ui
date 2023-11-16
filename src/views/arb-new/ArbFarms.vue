@@ -1,12 +1,5 @@
 <template>
   <div class="wrapper">
-    <img
-      class="button-up"
-      src="@/assets/images/button-up.svg"
-      @click="scrollToTop"
-      v-if="showButtonUp"
-      alt=""
-    />
     <h2 class="title">Farming Opportunities</h2>
     <EmptyState v-if="!currentPools.length && !isFarmsLoading" />
     <div v-else-if="!currentPools.length && isFarmsLoading" class="loader-wrap">

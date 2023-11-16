@@ -2,7 +2,7 @@
   <router-link :to="goToCauldron" class="cauldron-item">
     <div class="cauldron-info">
       <div class="collateral-info">
-        <BaseTokenIcon
+        <TokenChainIcon
           :name="cauldronConfig.name"
           :icon="cauldronConfig.icon"
         />
@@ -39,7 +39,7 @@
 import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import TokenChainIcon from "@/components/ui/icons/arb-new/TokenChainIcon.vue";
 
 export default {
   props: {
@@ -120,7 +120,7 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
+    TokenChainIcon,
   },
 };
 </script>

@@ -2,7 +2,7 @@
   <router-link :to="goToPage" class="markets-link">
     <div class="stats-wrap">
       <div class="farm-info">
-        <BaseTokenIcon :name="farm.name" :icon="farm.icon" />
+        <TokenChainIcon :name="farm.name" :icon="farm.icon" />
         <div>
           <span class="farm-name">
             {{ farm.name }}
@@ -29,7 +29,7 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import TokenChainIcon from "@/components/ui/icons/arb-new/TokenChainIcon.vue";
 
 export default {
   props: {
@@ -61,7 +61,7 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
+    TokenChainIcon,
   },
 };
 </script>
