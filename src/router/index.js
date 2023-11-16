@@ -141,4 +141,11 @@ const router = createRouter({
   },
 });
 
+router.beforeEach((to) => {
+  const chainId = localStorage.getItem("MAGIC_MONEY_CHAIN_ID");
+  if (to.name === "Cauldrons" && +chainId === 42161) {
+    return { name: "ArbCauldrons" };
+  }
+});
+
 export default router;
