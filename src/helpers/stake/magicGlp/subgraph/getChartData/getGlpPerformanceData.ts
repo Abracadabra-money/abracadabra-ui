@@ -1,12 +1,26 @@
-import { getTokenArrayPriceByPeriod } from "@/helpers/priceHelper";
+import { getTokenPricesByPeriod } from "@/helpers/getTokenPricesByPeriod";
+// import { getTokenArrayPriceByPeriod } from "@/helpers/priceHelper";
 import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 
 export const getGlpPerformanceData = async (
   glpData: any,
-  { from, chainId = 42161 }: any
+  { from, chainId = 42161, month = 1 }: any
 ) => {
-  const btcPrices = await getTokenArrayPriceByPeriod("BTC", from);
-  const avaxPrices = await getTokenArrayPriceByPeriod("AVAX", from);
+  // todo from
+  // const btcPrices = await getTokenArrayPriceByPeriod("BTC", from);
+
+  const btcPrices = await getTokenPricesByPeriod(
+    "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    month
+  );
+
+  // const avaxPrices = await getTokenArrayPriceByPeriod("AVAX", from);
+
+  const avaxPrices = await getTokenPricesByPeriod(
+    "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
+    month
+  );
+
   const { isArbitrumChain }: any | undefined =
     magicGlpConfig[chainId as keyof typeof magicGlpConfig].additionalInfo;
 
