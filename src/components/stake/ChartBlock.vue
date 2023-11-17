@@ -12,7 +12,7 @@
             class="action-btn"
             v-for="typeBtn in chartConfig.typeButtons"
             :class="{ 'active-btn': chartActive === typeBtn }"
-            @click="updateChartData(typeBtn, 1)"
+            @click="updateChart(typeBtn, 1)"
             :key="typeBtn"
           >
             {{ typeBtn }}
@@ -25,7 +25,7 @@
           class="action-btn"
           v-for="{ time, label } in chartConfig.intervalButtons"
           :class="{ 'active-btn': chatrPeriod === time }"
-          @click="updateChartData(chartActive, time)"
+          @click="updateChart(chartActive, time)"
           :key="label"
         >
           {{ label }}
@@ -59,6 +59,7 @@ export default {
       chatrPeriod: 1,
       chartData: null,
       updateInterval: null,
+      chartDataPerYear: null,
     };
   },
 
@@ -67,6 +68,45 @@ export default {
   },
 
   methods: {
+    async updateChart(chartType, period) {
+      if (chartType === "magicGlpTvl") {
+        this.updateMagicGlpData(chartType, period);
+      } else this.updateChartData(chartType, period);
+    },
+
+    async updateMagicGlpData(type, period) {
+      this.chartActive = type;
+      this.chatrPeriod = period;
+
+      if (!this.chartDataPerYear) {
+        this.chartDataPerYear = await getChartData(
+          type,
+          12,
+          this.chainId,
+          this.chartConfig.feePercent
+        );
+      }
+
+      const { datasets, labels } = this.chartDataPerYear;
+
+      this.chartData = {
+        labels: [...labels].splice(labels?.length - period * 30),
+        datasets: [
+          {
+            borderColor: "#73b6f6 ",
+            borderWidth: 2,
+            data: [...datasets[0].data].splice(
+              datasets[0].data?.length - period * 30
+            ),
+            label: "APY",
+            pointBackgroundColor: "#73b6f6",
+            pointBorderColor: "#73b6f6",
+            pointRadius: 0,
+          },
+        ],
+      };
+    },
+
     async updateChartData(type, period) {
       this.chartActive = type;
       this.chatrPeriod = period;
@@ -81,10 +121,10 @@ export default {
   },
 
   async created() {
-    await this.updateChartData(this.chartConfig.type, 1);
+    await this.updateChart(this.chartConfig.type, 1);
 
     this.updateInterval = setInterval(async () => {
-      await this.updateChartData(this.chartActive, this.chatrPeriod);
+      await this.updateChart(this.chartActive, this.chatrPeriod);
     }, 60000);
   },
 
