@@ -1,7 +1,11 @@
 import { getSpread } from "../utils";
 import { HIGH_SPREAD_THRESHOLD } from "@/constants/gm";
+import type { TokenPrices } from "../types";
 
-export const getSwapSpread = (fromTokenPrices, toTokenPrices) => {
+export const getSwapSpread = (
+  fromTokenPrices: TokenPrices,
+  toTokenPrices: TokenPrices
+) => {
   const fromSpread = getSpread(fromTokenPrices);
   const toSpread = getSpread(toTokenPrices);
 

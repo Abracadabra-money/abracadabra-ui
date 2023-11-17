@@ -9,7 +9,7 @@ export type GasLimits = {
   estimatedFeeMultiplierFactor: BigNumber;
 };
 
-type TokenPrices = {
+export type TokenPrices = {
   min: BigNumber;
   max: BigNumber;
 };
@@ -54,3 +54,17 @@ export type DataStoreInfo = {
   reserveFactorLong: BigNumber;
   reserveFactorShort: BigNumber;
 };
+
+export type SwapMarketInfo = DataStoreInfo & {
+  longTokenAddress: Address,
+  shortTokenAddress: Address,
+  marketTokenAddress: Address,
+  longTokenDecimals: number,
+  shortTokenDecimals: number,
+  indexTokenDecimals: number,
+  prices: MarketPrices,
+  virtualPoolAmountForLongToken: BigNumber,
+  virtualPoolAmountForShortToken: BigNumber,
+  longInterestInTokens: BigNumber,
+  shortInterestUsd: BigNumber,
+}

@@ -42,7 +42,7 @@ export const getOrderStatus = async (
   const isDeposit = await orderContract.depositType();
   const { balanceUSDC } = await getOrderBalances(orderContract.address, provider);
   
-  if(isDeposit && itsZero) return ORDER_SUCCESS;
+  if(isDeposit && itsZero || isDeposit && balanceUSDC.eq(0)) return ORDER_SUCCESS;
 
   if(!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
 

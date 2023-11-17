@@ -3,14 +3,16 @@ import { getPriceImpactForSwap, applySwapImpactWithCap } from "./priceImpact";
 import { getSwapFee } from "./getSwapFee";
 import { getAvailableUsdLiquidityForCollateral } from "./getAvailableUsdLiquidityForCollateral";
 import { BigNumber } from "ethers";
+import type { SwapMarketInfo } from "../types";
+import type { Address } from "viem";
 
-export const getSwapStats = ({
-  marketInfo,
-  tokenInAddress,
-  tokenOutAddress,
-  usdIn,
-  shouldApplyPriceImpact,
-}) => {
+export const getSwapStats = (
+  marketInfo: SwapMarketInfo,
+  tokenInAddress: Address,
+  tokenOutAddress: Address,
+  usdIn: BigNumber,
+  shouldApplyPriceImpact: boolean
+) => {
   const tokenIn = tokenInAddress;
   const tokenOut = tokenOutAddress;
 
@@ -54,7 +56,11 @@ export const getSwapStats = ({
       },
       priceImpactDeltaUsd
     );
-    cappedImpactDeltaUsd = convertToUsd(positiveImpactAmount, shortTokenDecimals, priceOut);
+    cappedImpactDeltaUsd = convertToUsd(
+      positiveImpactAmount,
+      shortTokenDecimals,
+      priceOut
+    );
   } else {
     const negativeImpactAmount = applySwapImpactWithCap(
       marketInfo,
@@ -65,7 +71,11 @@ export const getSwapStats = ({
       },
       priceImpactDeltaUsd
     );
-    cappedImpactDeltaUsd = convertToUsd(negativeImpactAmount, longTokenDecimals, priceIn);
+    cappedImpactDeltaUsd = convertToUsd(
+      negativeImpactAmount,
+      longTokenDecimals,
+      priceIn
+    );
   }
 
   if (shouldApplyPriceImpact) {
@@ -99,14 +109,14 @@ export const getSwapStats = ({
   };
 };
 
-export function getSwapPathStats({
-  marketInfo,
-  swapPath,
-  tokenInAddress,
-  tokenOutAddress,
-  usdIn,
-  shouldApplyPriceImpact,
-}) {
+export function getSwapPathStats(
+  marketInfo: SwapMarketInfo,
+  swapPath: Array<Address>,
+  tokenInAddress: Address,
+  tokenOutAddress: Address,
+  usdIn: BigNumber,
+  shouldApplyPriceImpact: boolean
+) {
   if (swapPath.length === 0) {
     return undefined;
   }
@@ -119,13 +129,13 @@ export function getSwapPathStats({
   let totalSwapFeeUsd = BigNumber.from(0);
 
   for (let i = 0; i < swapPath.length; i++) {
-    const swapStep = getSwapStats({
+    const swapStep = getSwapStats(
       marketInfo,
       tokenInAddress,
       tokenOutAddress,
-      usdIn: usdOut,
-      shouldApplyPriceImpact,
-    });
+      usdOut,
+      shouldApplyPriceImpact
+    );
 
     tokenInAddress = swapStep.tokenOutAddress;
     usdOut = swapStep.usdOut;

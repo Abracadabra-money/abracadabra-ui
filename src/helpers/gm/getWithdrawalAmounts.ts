@@ -1,5 +1,5 @@
-import { Contract, BigNumber } from "ethers";
-
+import { Contract, BigNumber, type providers } from "ethers";
+import type { Address } from "viem";
 import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
 
 import { convertToUsd, convertToTokenAmount } from "./utils";
@@ -7,12 +7,12 @@ import { applyFactor } from "./fee/applyFactor";
 import { expandDecimals } from "./fee/expandDecials";
 import { getMarketPoolValue } from "./getMarketPoolValue";
 import { getContractMarketPrices } from "./getContractMarketPrices";
-import { getMarketInfo, getMarketVirtualInventory } from "./getMarketInfo";
+import { getMarketInfo } from "./getMarketInfo";
 import { marketTokenAmountToUsd } from "./marketTokenAmountToUsd";
 import { applySlippageToMinOut } from "./applySlippageToMinOut";
 import { DEFAULT_SLIPPAGE_AMOUNT } from "./applySlippageToMinOut";
-import { getSwapAmountsByFromValue } from "./trade/swap";
 import { getDataStoreInfo } from "./getDataStoreInfo";
+import { getLongToShortSwapAmounts } from "./trade/getLongToShortSwapAmounts";
 
 const WBTC_ADDRESS = "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f";
 const USDC_DECIMALS = 6;
@@ -20,16 +20,16 @@ const GM_DECIMALS = 18;
 const WBTC_DECIMALS = 8;
 const DEFAULT_DECIMALS = 18;
 
-const getLongTokenDecimals = (longToken) => {
+const getLongTokenDecimals = (longToken: Address): number => {
   if (longToken.toLowerCase() === WBTC_ADDRESS.toLocaleLowerCase())
     return WBTC_DECIMALS;
   return DEFAULT_DECIMALS;
 };
 
 export const getWithdrawalAmountsByMarket = async (
-  market,
-  marketTokenAmount,
-  provider
+  market: Address,
+  marketTokenAmount: BigNumber,
+  provider: providers.BaseProvider
 ) => {
   const marketTokenContract = new Contract(market, ERC20, provider);
   const marketTokenTotalSupply = await marketTokenContract.totalSupply();
@@ -39,10 +39,6 @@ export const getWithdrawalAmountsByMarket = async (
   const longTokenDecimals = getLongTokenDecimals(marketInfo.longToken);
   const shortTokenDecimals = USDC_DECIMALS; // always USDC
   const indexTokenDecimals = GM_DECIMALS;
-
-  marketInfo.longTokenDecimals = longTokenDecimals;
-  marketInfo.shortTokenDecimals = shortTokenDecimals;
-  marketInfo.indexTokenDecimals = indexTokenDecimals;
 
   const prices = await getContractMarketPrices(marketInfo);
 
@@ -150,9 +146,14 @@ export const getWithdrawalAmountsByMarket = async (
     parsedPrices.longTokenPrice.max
   );
 
-  const { minOutputAmount } = await estimateLongToShortSwap(
+  const { minOutputAmount } = await getLongToShortSwapAmounts(
     market,
     marketInfo,
+    {
+      longTokenDecimals,
+      shortTokenDecimals,
+      indexTokenDecimals,
+    },
     parsedPrices,
     dataStoreInfo,
     fromTokenAmount,
@@ -182,59 +183,4 @@ export const getWithdrawalAmountsByMarket = async (
     shortAmountOut,
     longAmountOut,
   };
-};
-
-const estimateLongToShortSwap = async (
-  market,
-  marketInfo,
-  prices,
-  dataStoreInfo,
-  fromTokenAmount,
-  provider
-) => {
-  const virtualInventory = await getMarketVirtualInventory(
-    provider,
-    prices,
-    market
-  );
-
-  const virtualPoolAmountForLongToken =
-    virtualInventory.virtualPoolAmountForLongToken;
-  const virtualPoolAmountForShortToken =
-    virtualInventory.virtualPoolAmountForShortToken;
-
-  const longInterestInTokens =
-    dataStoreInfo.longInterestInTokensUsingLongToken.add(
-      dataStoreInfo.longInterestInTokensUsingShortToken
-    );
-  const shortInterestUsd = dataStoreInfo.shortInterestUsingLongToken.add(
-    dataStoreInfo.shortInterestUsingShortToken
-  );
-
-  const marketInfoData = {
-    longTokenAddress: marketInfo.longToken,
-    shortTokenAddress: marketInfo.shortToken,
-    longTokenDecimals: marketInfo.longTokenDecimals,
-    shortTokenDecimals: marketInfo.shortTokenDecimals,
-    indexTokenDecimals: marketInfo.indexTokenDecimals,
-    marketTokenAddress: market,
-    isSameCollaterals: false,
-    isDisabled: false,
-    prices,
-    virtualPoolAmountForLongToken,
-    virtualPoolAmountForShortToken,
-    longInterestInTokens,
-    shortInterestUsd,
-    ...dataStoreInfo,
-  };
-
-  const swapAmounts = getSwapAmountsByFromValue({
-    marketInfo: marketInfoData,
-    market,
-    tokenIn: marketInfo.longToken,
-    tokenOut: marketInfo.shortToken,
-    amountIn: fromTokenAmount,
-  });
-
-  return swapAmounts;
 };

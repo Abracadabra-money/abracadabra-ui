@@ -3,26 +3,18 @@ import { expandDecimals } from "./fee/expandDecials";
 import { PRECISION } from "@/constants/gm";
 
 export function convertToUsd(
-  tokenAmount: BigNumber | undefined,
-  tokenDecimals: number | undefined,
-  price: BigNumber | undefined
-) {
-  if (!tokenAmount || typeof tokenDecimals !== "number" || !price) {
-    return undefined;
-  }
-
+  tokenAmount: BigNumber,
+  tokenDecimals: number,
+  price: BigNumber
+): BigNumber {
   return tokenAmount.mul(price).div(expandDecimals(1, tokenDecimals));
 }
 
 export function convertToTokenAmount(
-  usd: BigNumber | undefined,
-  tokenDecimals: number | undefined,
-  price: BigNumber | undefined
-) {
-  if (!usd || typeof tokenDecimals !== "number" || !price?.gt(0)) {
-    return undefined;
-  }
-
+  usd: BigNumber,
+  tokenDecimals: number,
+  price: BigNumber
+): BigNumber {
   return usd.mul(expandDecimals(1, tokenDecimals)).div(price);
 }
 

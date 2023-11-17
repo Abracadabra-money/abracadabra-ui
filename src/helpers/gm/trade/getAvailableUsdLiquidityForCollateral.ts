@@ -1,12 +1,11 @@
 import { getPoolUsdWithoutPnl, getReservedUsd } from "../utils";
 import { PRECISION } from "@/constants/gm";
+import type { SwapMarketInfo } from "../types";
+import { BigNumber } from "ethers";
 
-export const getAvailableUsdLiquidityForCollateral = (marketInfo, isLong) => {
+export const getAvailableUsdLiquidityForCollateral = (marketInfo: SwapMarketInfo, isLong: boolean): BigNumber => {
     const poolUsd = getPoolUsdWithoutPnl(marketInfo, isLong, "minPrice");
-  
-    if (marketInfo.isSpotOnly) {
-      return poolUsd;
-    }
+
   
     const reservedUsd = getReservedUsd(marketInfo, isLong);
     const maxReserveFactor = isLong ? marketInfo.reserveFactorLong : marketInfo.reserveFactorShort;
