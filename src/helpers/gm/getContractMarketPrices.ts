@@ -1,8 +1,13 @@
 import { fetchTokenPrices } from "./fetchTokenPrices";
 import { BigNumber } from "ethers";
+import type { MarketInfo } from "./types";
 
-export const getContractMarketPrices = async (market) => {
-  const tokenPrices = await fetchTokenPrices();
+import type { TokenPriceResponce, MarketPrices } from "./types";
+
+export const getContractMarketPrices = async (
+  market: MarketInfo
+): Promise<MarketPrices> => {
+  const tokenPrices: Array<TokenPriceResponce> = await fetchTokenPrices();
 
   const indexToken = tokenPrices.find(
     (item) =>
@@ -17,6 +22,7 @@ export const getContractMarketPrices = async (market) => {
   );
 
   if (!indexToken || !longToken || !shortToken) {
+    // @ts-ignore
     return undefined;
   }
 

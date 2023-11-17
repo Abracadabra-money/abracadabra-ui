@@ -1,7 +1,8 @@
-import { Contract, BigNumber } from "ethers";
+import { Contract, BigNumber, type providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import DataStoreAbi from "@/utils/abi/gm/DataStoreAbi";
 import { DATA_STORE } from "@/constants/gm";
+import type { GasLimits } from "../types";
 
 import {
   ESTIMATED_GAS_FEE_BASE_AMOUNT,
@@ -11,7 +12,7 @@ import {
   withdrawalGasLimitKey,
 } from "./dataStore";
 
-export const getGasLimits = async (provider) => {
+export const getGasLimits = async (provider: providers.BaseProvider): Promise<GasLimits> => {
   const multicallProvider = MulticallWrapper.wrap(provider);
 
   const dataStoreContract = new Contract(

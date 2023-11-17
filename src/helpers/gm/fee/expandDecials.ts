@@ -1,6 +1,6 @@
-import { BigNumber } from "ethers";
+import { BigNumber, type BigNumberish } from "ethers";
 
-export function bigNumberify(n) {
+export function bigNumberify(n: BigNumberish) {
   try {
     return BigNumber.from(n);
   } catch (e) {
@@ -10,6 +10,7 @@ export function bigNumberify(n) {
   }
 }
 
-export function expandDecimals(n, decimals) {
+export function expandDecimals(n: BigNumberish, decimals: number): BigNumber {
+  // @ts-ignore
   return bigNumberify(n).mul(bigNumberify(10).pow(decimals));
 }

@@ -1,24 +1,26 @@
+import type { BigNumber, providers } from "ethers";
 import { getGasPrice } from "./getGasPrice";
 import { applyFactor } from "./applyFactor";
+import type { GasLimits } from "../types";
 
-export const estimateExecuteDepositGasLimit = async (gasLimits) => {
+export const estimateExecuteDepositGasLimit = (gasLimits: GasLimits): BigNumber => {
   const gasPerSwap = gasLimits.singleSwap;
   const depositGasLimit = gasLimits.depositSingleToken;
   return depositGasLimit.add(gasPerSwap);
 };
 
-export const estimateExecuteWithdrawalGasLimit = async (
-  gasLimits,
-  callbackGasLimit
-) => {
-  const swapCount = 1; // TODO check
+export const estimateExecuteWithdrawalGasLimit = (
+  gasLimits: GasLimits,
+  callbackGasLimit: BigNumber
+): BigNumber => {
+  const swapCount = 1;
   return gasLimits.withdrawalMultiToken.add(callbackGasLimit).add(gasLimits.singleSwap.mul(swapCount));
 };
 
 export const getExecutionFee = async (
-  gasLimts,
-  estimatedGasLimit,
-  provider
+  gasLimts: GasLimits,
+  estimatedGasLimit: BigNumber,
+  provider: providers.BaseProvider
 ) => {
   const gasPrice = await getGasPrice(provider);
 

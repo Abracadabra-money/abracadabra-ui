@@ -1051,7 +1051,7 @@ export default {
       const deposit = true;
 
       const gasLimits = await getGasLimits(this.provider);
-      const estimatedDepositGasLimit = await estimateExecuteDepositGasLimit(
+      const estimatedDepositGasLimit = estimateExecuteDepositGasLimit(
         gasLimits
       );
 
@@ -1094,7 +1094,7 @@ export default {
       );
       const callbackGasLimit = await orderAgentContract.callbackGasLimit();
 
-      const estimatedWithdrawGasLimit = await estimateExecuteWithdrawalGasLimit(
+      const estimatedWithdrawGasLimit = estimateExecuteWithdrawalGasLimit(
         gasLimits,
         callbackGasLimit
       );

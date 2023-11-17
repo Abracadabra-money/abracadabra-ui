@@ -5,18 +5,14 @@ import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
 import { convertToUsd, convertToTokenAmount } from "./utils";
 import { applyFactor } from "./fee/applyFactor";
 import { expandDecimals } from "./fee/expandDecials";
-import { getMarkeTokemPrice } from "./getMarketPrice";
+import { getMarketPoolValue } from "./getMarketPoolValue";
 import { getContractMarketPrices } from "./getContractMarketPrices";
-import { getMarketInfo, getMarketFullInfo } from "./getMarketInfo";
+import { getMarketInfo, getMarketVirtualInventory } from "./getMarketInfo";
 import { marketTokenAmountToUsd } from "./marketTokenAmountToUsd";
 import { applySlippageToMinOut } from "./applySlippageToMinOut";
 import { DEFAULT_SLIPPAGE_AMOUNT } from "./applySlippageToMinOut";
-
 import { getSwapAmountsByFromValue } from "./trade/swap";
-
 import { getDataStoreInfo } from "./getDataStoreInfo";
-
-import { getSwapSpread } from "./trade/getSwapSpread";
 
 const WBTC_ADDRESS = "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f";
 const USDC_DECIMALS = 6;
@@ -52,11 +48,8 @@ export const getWithdrawalAmountsByMarket = async (
 
   const dataStoreInfo = await getDataStoreInfo(market, marketInfo, provider);
 
-  const { marketTokenPriceMax } = await getMarkeTokemPrice(
-    marketInfo,
-    prices,
-    provider
-  );
+  const poolValue = await getMarketPoolValue(marketInfo, prices, provider);
+
   const parsedPrices = {
     indexTokenPrice: {
       min: prices.indexTokenPrice.min.mul(
@@ -113,7 +106,7 @@ export const getWithdrawalAmountsByMarket = async (
 
   values.marketTokenUsd = marketTokenAmountToUsd(
     marketTokenTotalSupply,
-    marketTokenPriceMax[1].poolValue,
+    poolValue,
     marketTokenAmount
   );
 
@@ -199,12 +192,16 @@ const estimateLongToShortSwap = async (
   fromTokenAmount,
   provider
 ) => {
-  const marketFullInfo = await getMarketFullInfo(provider, prices, market);
+  const virtualInventory = await getMarketVirtualInventory(
+    provider,
+    prices,
+    market
+  );
 
   const virtualPoolAmountForLongToken =
-    marketFullInfo.virtualInventory.virtualPoolAmountForLongToken;
+    virtualInventory.virtualPoolAmountForLongToken;
   const virtualPoolAmountForShortToken =
-    marketFullInfo.virtualInventory.virtualPoolAmountForShortToken;
+    virtualInventory.virtualPoolAmountForShortToken;
 
   const longInterestInTokens =
     dataStoreInfo.longInterestInTokensUsingLongToken.add(

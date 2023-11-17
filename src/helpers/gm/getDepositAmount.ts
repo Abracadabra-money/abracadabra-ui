@@ -1,3 +1,6 @@
+import type { Address } from "viem";
+import type { BigNumber, providers } from "ethers";
+
 import GMXReaderAbi from "@/utils/abi/gm/GMXReaderAbi";
 import { Contract } from "ethers";
 
@@ -9,11 +12,11 @@ import { applySlippageToMinOut } from "./applySlippageToMinOut";
 import { DEFAULT_SLIPPAGE_AMOUNT } from "./applySlippageToMinOut";
 
 export const getDepositAmount = async (
-  market,
-  longTokenAmount,
-  shortTokenAmount,
-  provider
-) => {
+  market:Address,
+  longTokenAmount: BigNumber,
+  shortTokenAmount: BigNumber,
+  provider: providers.BaseProvider
+): Promise<BigNumber> => {
   const GMXReaderContract = new Contract(GMX_READER, GMXReaderAbi, provider);
 
   const marketInfo = await getMarketInfo(provider, market);

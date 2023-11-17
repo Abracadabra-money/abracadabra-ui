@@ -1,7 +1,9 @@
 import { MulticallWrapper } from "ethers-multicall-provider";
-import { Contract } from "ethers";
+import {  Contract, type providers } from "ethers";
 import { DATA_STORE } from "@/constants/gm";
 import DataStoreAbi from "@/utils/abi/gm/DataStoreAbi";
+import type { Address } from "viem";
+import type { DataStoreInfo, MarketInfo } from "./types";
 
 import {
   poolAmountKey,
@@ -15,7 +17,11 @@ import {
   reserveFactorKey,
 } from "./fee/dataStore";
 
-export const getDataStoreInfo = async (market, marketInfo, provider) => {
+export const getDataStoreInfo = async (
+  market: Address,
+  marketInfo: MarketInfo,
+  provider: providers.BaseProvider
+): Promise<DataStoreInfo> => {
   const multicallProvider = MulticallWrapper.wrap(provider);
 
   const dataStoreContract = new Contract(
