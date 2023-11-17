@@ -3,7 +3,7 @@ import DegenBoxAbi from "@/utils/abi/degenBox";
 import stargatePoolAbi from "@/utils/abi/StargatePool";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getStargateBasicApy } from "@/helpers/stargateFarmApy";
-import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import mainnetStargateLPStrategyAbi from "@/utils/abi/MainnetStargateLPStrategy";
 
 const DegenBoxAddress = "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce";

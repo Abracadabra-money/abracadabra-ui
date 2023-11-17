@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import stabilityPoolAbi from "@/utils/abi/StabilityPoolLUSD";
 import { MAINNET_LQTY_ADDRESS } from "@/constants/tokensAddress";
 import communityIssuanceAbi from "@/utils/abi/communityIssuacneLUSD";
-import { getTokenPriceByCoinGecko } from "@/helpers/getTokenPriceByCoinGecko";
+import { getTokenPriceByAddress } from "@/helpers/prices/getTokenPriceByAddress";
 
 const stabilityPoolAddress = "0x66017D22b0f8556afDd19FC67041899Eb65a21bb";
 const communityIssuanceAddress = "0xD8c9D9071123a059C6E0A945cF0e0c82b508d816";
@@ -21,7 +21,7 @@ const getLUSDApy = async (provider) => {
       provider
     );
 
-    const lqtyPrice = await getTokenPriceByCoinGecko(1, MAINNET_LQTY_ADDRESS);
+    const lqtyPrice = await getTokenPriceByAddress(1, MAINNET_LQTY_ADDRESS);
     if (!lqtyPrice) return 0;
 
     const totalLQTYIssued = await communityIssuanceContract.totalLQTYIssued();

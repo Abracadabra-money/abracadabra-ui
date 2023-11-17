@@ -1,4 +1,5 @@
 import axios from "axios";
+import { COINGECKO_URL } from "@/constants/urls";
 
 const coinGeckoIds = {
   1: "ethereum",
@@ -12,7 +13,7 @@ const coinGeckoIds = {
   43114: "avalanche",
 };
 
-export const getTokenPriceByCoinGecko = async (
+export const getTokenPriceByAddress = async (
   chainId: number,
   address: string
 ) => {
@@ -22,7 +23,7 @@ export const getTokenPriceByCoinGecko = async (
     if (!chainCoinGeckoId) return 0;
 
     const pricesResponse = await axios.get(
-      `https://api.coingecko.com/api/v3/simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`
+      `${COINGECKO_URL}simple/token_price/${chainCoinGeckoId}?contract_addresses=${address}&vs_currencies=usd`
     );
 
     let price = null;

@@ -158,7 +158,7 @@ import { mapGetters } from "vuex";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
 import filters from "@/filters/index.js";
 import { tokensChainLink } from "@/utils/chainLink/config";
-import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";

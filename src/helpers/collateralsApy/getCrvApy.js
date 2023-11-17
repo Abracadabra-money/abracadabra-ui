@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import crvRewardPoolAbi from "@/utils/abi/crvRewardPoolAbi";
 import tokenCVXAbi from "@/utils/abi/tokensAbi/CVX";
 import { tokensChainLink } from "@/utils/chainLink/config";
-import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 let crvTokenPrice = null;
 let cvxTokenPrice = null;

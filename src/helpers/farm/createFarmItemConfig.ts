@@ -13,7 +13,7 @@ import type {
 import { readContract } from "@wagmi/core";
 import type { Address } from "viem";
 import { tokensChainLink } from "@/utils/chainLink/config";
-import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export const createFarmItemConfig = async (
   farmId: number | string,

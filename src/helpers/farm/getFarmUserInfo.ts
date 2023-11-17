@@ -1,6 +1,6 @@
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getAccount, multicall, readContract } from "@wagmi/core";
-import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import type { FarmAccountInfo, FarmItem } from "@/utils/farmsConfig/types";
 
 import { formatUnits } from "viem";

@@ -7,7 +7,7 @@ import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
 import { getMSpellInfo } from "@/helpers/stake/spell/getMSpellInfo";
 import { getSSpellInfo } from "@/helpers/stake/spell/getSSpellInfo";
 import { getSpellEmptyState } from "@/helpers/stake/spell/emptyState";
-import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 
 export const getStakeInfo = async (

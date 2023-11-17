@@ -4,7 +4,7 @@ import bentoContractsInfo from "@/utils/contracts/master";
 import degenBoxInfo from "@/utils/contracts/degenBox";
 import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { tokensChainLink } from "@/utils/chainLink/config";
-import { getTokenPriceByChain } from "@/helpers/getTokenPriceByChain";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {
   computed: {
