@@ -127,14 +127,15 @@ import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { approveToken } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
+import { tokensChainLink } from "@/utils/chainLink/config";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { getMimPrice } from "@/helpers/prices/getMimPrice.ts";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { getNativeTokenPrice } from "@/helpers/priceHelper.js";
+import { nativeTokenschainLink } from "@/utils/chainLink/config";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import notification from "@/helpers/notification/notification.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {
   data() {
@@ -477,8 +478,14 @@ export default {
 
     async seendBeam(notificationId) {
       this.isBeaming = true;
-      this.dstTokenPrice = await getNativeTokenPrice(this.toChainId);
-      const mimPrice = (await getMimPrice()) || 1;
+
+      const { chainId, address } = nativeTokenschainLink[this.toChainId];
+      this.dstTokenPrice = await getTokenPriceByChain(chainId, address);
+
+      const mimPrice = await getTokenPriceByChain(
+        tokensChainLink.mim.chainId,
+        tokensChainLink.mim.address
+      );
       this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
 
       try {

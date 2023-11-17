@@ -1,6 +1,10 @@
 <template>
-  <div :class="{ 'apy-is-not-exist': !isApyExist }">
-    <div class="apy-wrap" v-if="isApyExist">
+  <div
+    :class="{
+      'apy-is-not-exist': !isShowApyBlock,
+    }"
+  >
+    <div class="apy-wrap" v-if="isShowApyBlock">
       <img class="apy-bg" :src="apyInfo.bg" />
 
       <div class="apy-content">
@@ -85,6 +89,10 @@ export default {
     isApproximate() {
       return this.collateralApy < this.calculateCollateralApy ? "≈" : "";
     },
+
+    isShowApyBlock() {
+      return this.isApyExist && this.collateralApy;
+    },
   },
 
   watch: {
@@ -100,6 +108,7 @@ export default {
       if (!this.isApyExist) return false;
       this.isLoadingApy = true;
       this.collateralApy = await fetchTokenApy(this.cauldron);
+      this.isApyExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
       this.isLoadingApy = false;
     },
   },
