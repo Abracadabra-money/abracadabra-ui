@@ -14,7 +14,8 @@ export const getMagicGlpTvl = async (
   const from = Math.floor(+new Date(pastMonth) / 1000);
   const to = Math.floor(+new Date(pastDay) / 1000);
 
-  const params = { from, to, groupPeriod, chainId };
+  // todo params
+  const params = { from, to, groupPeriod, chainId, month };
 
   const glpData = await getGlpData(params);
 
