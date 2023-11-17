@@ -15,14 +15,18 @@ import { getDataStoreInfo } from "./getDataStoreInfo";
 import { getLongToShortSwapAmounts } from "./trade/getLongToShortSwapAmounts";
 
 const WBTC_ADDRESS = "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f";
+const WSOL_ADDRESS = "0x2bcC6D6CdBbDC0a4071e48bb3B969b06B3330c07";
 const USDC_DECIMALS = 6;
 const GM_DECIMALS = 18;
 const WBTC_DECIMALS = 8;
+const WSOL_DECIMALS = 9;
 const DEFAULT_DECIMALS = 18;
 
 const getLongTokenDecimals = (longToken: Address): number => {
   if (longToken.toLowerCase() === WBTC_ADDRESS.toLocaleLowerCase())
     return WBTC_DECIMALS;
+  if (longToken.toLowerCase() === WSOL_ADDRESS.toLocaleLowerCase())
+    return WSOL_DECIMALS;
   return DEFAULT_DECIMALS;
 };
 
