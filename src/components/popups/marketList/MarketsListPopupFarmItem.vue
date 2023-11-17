@@ -35,7 +35,7 @@ export default {
     },
 
     balanceInUSD() {
-      return this.balance * +this.marketItem.lpPrice;
+      return (this.balance * +this.marketItem.lpPrice) / 1e18;
     },
     // Will be useful after redesign
     // isVisible() {
