@@ -1,6 +1,6 @@
 <template>
   <div class="arbitrum-page">
-    <img class="banner" src="@/assets/images/arbitrym-banner.png" alt="" />
+    <img class="banner" src="./book_01.gif" alt="" />
     <Farms />
     <Cauldrons />
   </div>
