@@ -207,7 +207,7 @@ const createOrder = (
   minOutput,
   minOutLong
 ) => {
-  const methodId = 101;
+  const methodId = 3;
 
   const encode = ethers.utils.defaultAbiCoder.encode(
     ["address", "bool", "uint128", "uint128", "uint128", "uint128"],

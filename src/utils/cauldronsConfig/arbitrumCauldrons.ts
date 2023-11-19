@@ -179,7 +179,7 @@ const config: Array<CauldronConfig> = [
     id: 4,
     liquidationFee: 6,
     mcr: 75,
-    borrowFee: 0.15,
+    borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
       isSwappersActive: true,
@@ -196,7 +196,7 @@ const config: Array<CauldronConfig> = [
     },
     contract: {
       name: "CauldronV4",
-      address: "0x9d54c9fe517ff084a621d482e8dd40bd2f818938",
+      address: "0x0352CB4eF3061E7656846cB3F5eDbe3124274B9e",
       abi: poolsAbi.GmxV2CauldronV4,
     },
     collateralInfo: {
@@ -222,7 +222,7 @@ const config: Array<CauldronConfig> = [
     id: 5,
     liquidationFee: 6,
     mcr: 75,
-    borrowFee: 0.15,
+    borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
       isSwappersActive: true,
@@ -239,7 +239,7 @@ const config: Array<CauldronConfig> = [
     },
     contract: {
       name: "CauldronV4",
-      address: "0xa6651989613FF83Be9a1dc492d44061A3b693E08",
+      address: "0x0FC68D1d3a740126F46512B4B07Cd210e1aC748c",
       abi: poolsAbi.GmxV2CauldronV4,
     },
     collateralInfo: {
@@ -265,7 +265,7 @@ const config: Array<CauldronConfig> = [
     id: 6,
     liquidationFee: 6,
     mcr: 75,
-    borrowFee: 0.15,
+    borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
       isSwappersActive: true,
@@ -282,7 +282,7 @@ const config: Array<CauldronConfig> = [
     },
     contract: {
       name: "CauldronV4",
-      address: "0x14bACAC3c9Dc89Da59C6A4F9cc01cc126b972e2B",
+      address: "0x7BE4B2fC4C6E6423560771DDE4f6d114B930Bd31",
       abi: poolsAbi.GmxV2CauldronV4,
     },
     collateralInfo: {
@@ -325,7 +325,7 @@ const config: Array<CauldronConfig> = [
     },
     contract: {
       name: "CauldronV4",
-      address: "0x45A7dc3dBA1aC8fF8b4DCf6D73Ab812d8529656B",
+      address: "0x7fB753F85cD4B6A48553c0Fc7BfF4D5645ab86A8",
       abi: poolsAbi.GmxV2CauldronV4,
     },
     collateralInfo: {
