@@ -51,22 +51,22 @@ export default {
     }),
   },
 
-  async beforeCreate() {
-    const location = await axios.get(
-      `https://ipwhois.pro/?key=${
-        import.meta.env.VITE_APP_IPWHOIS_API_KEY
-      }&security=1`
-    );
+  // async beforeCreate() {
+  //   const location = await axios.get(
+  //     `https://ipwhois.pro/?key=${
+  //       import.meta.env.VITE_APP_IPWHOIS_API_KEY
+  //     }&security=1`
+  //   );
 
-    const isVPN = location.data.security.vpn;
+  //   const isVPN = location.data.security.vpn;
 
-    if (
-      this.country.includes(location.data.country) ||
-      this.region.includes(location.data.region) ||
-      isVPN
-    )
-      document.location.href = "https://abracadabra.money/location";
-  },
+  //   if (
+  //     this.country.includes(location.data.country) ||
+  //     this.region.includes(location.data.region) ||
+  //     isVPN
+  //   )
+  //     document.location.href = "https://abracadabra.money/location";
+  // },
 
   components: {
     AppHeader: defineAsyncComponent(() =>
