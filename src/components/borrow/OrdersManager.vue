@@ -16,8 +16,8 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { saveOrder } from "@/helpers/gm/orders";
 import { ZERO_ADDRESS } from "@/constants/gm";
+import { getSavedOrders } from "@/helpers/gm/orders";
 export default {
   name: "OrdersManager",
   props: {
@@ -57,7 +57,21 @@ export default {
 
       const itsZero = currentOrder === ZERO_ADDRESS;
 
-      if (itsZero) return false;
+      if (itsZero) {
+        this.orders = [];
+        return false;
+      }
+
+      const savedOrders = getSavedOrders(this.account);
+
+      const isActiveSaved = savedOrders.indexOf(currentOrder) !== -1;
+
+      // the order has been saved as successful, but the cauldron has not yet been updated
+      if (isActiveSaved) {
+        this.orders = [];
+        return false;
+      }
+
       this.orders = [currentOrder];
     },
   },

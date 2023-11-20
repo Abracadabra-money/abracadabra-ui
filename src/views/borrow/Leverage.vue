@@ -187,11 +187,7 @@ import {
   MAX_ALLOWANCE_VALUE,
 } from "@/constants/cauldron.ts";
 
-import {
-  saveOrder,
-  deleteOrder,
-  monitorOrderStatus,
-} from "@/helpers/gm/orders";
+import { monitorOrderStatus, saveOrder } from "@/helpers/gm/orders";
 
 import { ZERO_ADDRESS } from "@/constants/gm";
 
@@ -793,8 +789,6 @@ export default {
         return await this.createCauldronInfo();
       }
 
-      // save order to ls
-      saveOrder(order, this.account);
       this.activeOrder = order;
       this.isOpenGMPopup = true;
     },
@@ -814,8 +808,6 @@ export default {
         const { cauldron } = this.cauldron.contracts;
         const newOrder = await cauldron.orders(this.account);
 
-        deleteOrder(order, this.account);
-
         const itsZero = order === ZERO_ADDRESS;
         // instant success
         if (itsZero) {
@@ -826,7 +818,6 @@ export default {
 
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
-        saveOrder(newOrder, this.account);
         this.activeOrder = newOrder;
       } catch (error) {
         console.log("gmRecoverLeverageOrder err:", error);
@@ -849,9 +840,11 @@ export default {
           order
         );
 
+        // save as success
+        saveOrder(order, this.account);
+
         await this.createCauldronInfo();
 
-        deleteOrder(order, this.account);
         this.isOpenGMPopup = false;
         this.activeOrder = null;
 
@@ -872,11 +865,13 @@ export default {
     },
 
     async successGmLeverageCallback(order) {
+      // save as success
+      if (order) saveOrder(order, this.account);
+
       setTimeout(() => {
         this.createCauldronInfo();
       }, 1000);
 
-      if (order) deleteOrder(order, this.account);
       this.isOpenGMPopup = false;
       this.activeOrder = null;
       this.createNotification(notification.gmLeverageOrderSuccess);

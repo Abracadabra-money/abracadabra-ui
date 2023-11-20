@@ -142,10 +142,7 @@
         @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
 
-    <LocalPopupWrap
-      :isOpened="isOpenGMPopup"
-      @closePopup="closeGMPopup"
-    >
+    <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
       <GMStatus
         :order="activeOrder"
         :orderType="2"
@@ -169,11 +166,7 @@ import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
 
-import {
-  saveOrder,
-  deleteOrder,
-  monitorOrderStatus,
-} from "@/helpers/gm/orders";
+import { monitorOrderStatus, saveOrder } from "@/helpers/gm/orders";
 
 import { ZERO_ADDRESS } from "@/constants/gm";
 
@@ -426,7 +419,10 @@ export default {
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete", deleteAllNotification: "notifications/deleteAll", }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      deleteAllNotification: "notifications/deleteAll",
+    }),
 
     formatTokenBalance(amount) {
       return filters.formatTokenBalance(amount);
@@ -592,9 +588,8 @@ export default {
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
         this.createNotification(notification.gmOrderExist);
-        return false
+        return false;
       }
-
 
       // withdraw collateral & create order
       await this.cookWitdrawToOrderGM(
@@ -613,19 +608,13 @@ export default {
       this.deleteNotification(notificationId);
 
       if (itsZero) {
-        await this.createNotification(
-          notification.gmDeleverageFailedOrder
-        );
+        await this.createNotification(notification.gmDeleverageFailedOrder);
         return false; // order instantly failed
       }
 
-      // save order to ls
-      saveOrder(order, this.account);
       this.gmDelevSuccessPayload = cookPayload;
       this.activeOrder = order;
       this.isOpenGMPopup = true;
-
-      // await this.createCauldronInfo();
     },
 
     async gmDeleverageFromOrder(order, successPayload) {
@@ -641,18 +630,17 @@ export default {
           order
         );
 
-        setTimeout(()=> {
-          this.createCauldronInfo();
-        }, 1000)
+        // save as success
+        saveOrder(order, this.account);
 
-
-        deleteOrder(order, this.account);
         this.isOpenGMPopup = false;
         this.activeOrder = null;
         this.gmDelevSuccessPayload = null;
 
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
+
+        await this.createCauldronInfo();
       } catch (error) {
         console.log("gmDeleverageFromOrder err:", error);
 

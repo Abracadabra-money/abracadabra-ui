@@ -2,11 +2,7 @@ import orderAbi from "@/utils/abi/gm/order";
 import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
 import { Contract } from "ethers";
 
-import {
-  USDC_ADDRESS,
-  WETH_ADDRESS,
-  ZERO_ADDRESS,
-} from "@/constants/gm";
+import { USDC_ADDRESS, WETH_ADDRESS, ZERO_ADDRESS } from "@/constants/gm";
 
 export const ORDER_PENDING = 0;
 export const ORDER_SUCCESS = 1;
@@ -24,7 +20,7 @@ export const getOrderBalances = async (order, provider) => {
 
   return {
     balanceWETH,
-    balanceUSDC
+    balanceUSDC,
   };
 };
 
@@ -40,11 +36,15 @@ export const getOrderStatus = async (
   const currentOrder = await cauldron.orders(user);
   const itsZero = currentOrder === ZERO_ADDRESS;
   const isDeposit = await orderContract.depositType();
-  const { balanceUSDC } = await getOrderBalances(orderContract.address, provider);
-  
-  if(isDeposit && itsZero || isDeposit && balanceUSDC.eq(0)) return ORDER_SUCCESS;
+  const { balanceUSDC } = await getOrderBalances(
+    orderContract.address,
+    provider
+  );
 
-  if(!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
+  if ((isDeposit && itsZero) || (isDeposit && balanceUSDC.eq(0)))
+    return ORDER_SUCCESS;
+
+  if (!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
 
   return ORDER_FAIL;
 };
@@ -53,7 +53,7 @@ export const getOrderType = async (order, provider) => {
   const orderContract = new Contract(order, orderAbi, provider);
   const isDeposit = await orderContract.depositType();
 
-  if(isDeposit) return ORDER_TYPE_LEVERAGE;
+  if (isDeposit) return ORDER_TYPE_LEVERAGE;
 
   return ORDER_TYPE_DELEVERAGE;
 };
@@ -72,7 +72,7 @@ export const monitorOrderStatus = (order, cauldron, user, provider) => {
 
       if (status !== ORDER_PENDING) {
         resolve(status);
-        clearInterval(monitoringInterval)
+        clearInterval(monitoringInterval);
       }
     }, 1000);
   });
@@ -97,6 +97,20 @@ export const saveOrder = (order, account) => {
   }
 
   return orders;
+};
+
+export const getSavedOrders = (account) => {
+  const itemName = `OrderGM-${account.toLowerCase()}`;
+  const lsOrdersData = localStorage.getItem(itemName);
+
+  if (!lsOrdersData) return [];
+
+  try {
+    const orders = JSON.parse(lsOrdersData);
+    return orders;
+  } catch (error) {
+    return [];
+  }
 };
 
 export const deleteOrder = (order, account) => {

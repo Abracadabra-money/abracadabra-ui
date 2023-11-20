@@ -55,7 +55,6 @@ import {
   monitorOrderStatus,
   getOrderBalances,
   getOrderType,
-  deleteOrder,
 } from "@/helpers/gm/orders";
 
 export default {
