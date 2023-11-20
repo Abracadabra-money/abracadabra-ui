@@ -138,8 +138,6 @@ export default {
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
-        if (this.currentPageType === ORDER_TYPE_LEVERAGE)
-          return "To Deleverage";
         if (this.status === ORDER_SUCCESS) return "Deleverage";
       }
 
@@ -182,8 +180,6 @@ export default {
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
-        if (this.currentPageType === ORDER_TYPE_LEVERAGE)
-          return this.toDeleverage();
         if (this.status === ORDER_SUCCESS)
           return await this.deleverageHandler();
         this.$emit("updateInfo");

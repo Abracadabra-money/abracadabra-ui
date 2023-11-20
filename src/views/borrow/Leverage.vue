@@ -64,6 +64,7 @@
           v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
           :cauldronObject="cauldron"
           :recoverLeverage="gmRecoverLeverageOrder"
+          :deleverageFromOrder="gmDeleverageFromOrder"
         />
 
         <router-link class="position-link link" :to="{ name: 'MyPositions' }"
@@ -777,7 +778,7 @@ export default {
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
         this.createNotification(notification.gmOrderExist);
-        return false
+        return false;
       }
 
       // leverage & create order
@@ -829,6 +830,35 @@ export default {
         this.activeOrder = newOrder;
       } catch (error) {
         console.log("gmRecoverLeverageOrder err:", error);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.error);
+      }
+    },
+
+    async gmDeleverageFromOrder(order, successPayload) {
+      const notificationId = await this.createNotification(
+        notification.gmDeleverageFromOrder
+      );
+
+      try {
+        await this.cookDeleverageFromOrder(
+          successPayload,
+          this.cauldron,
+          this.account,
+          order
+        );
+
+        await this.createCauldronInfo();
+
+        deleteOrder(order, this.account);
+        this.isOpenGMPopup = false;
+        this.activeOrder = null;
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("gmDeleverageFromOrder err:", error);
 
         this.deleteNotification(notificationId);
         this.createNotification(notification.error);
