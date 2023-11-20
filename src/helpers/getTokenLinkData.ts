@@ -48,6 +48,30 @@ const configs: Array<Config> = [
     href: "https://stargate.finance/pool/USDT-KAVA/add",
     label: "Get Stargate Token",
   },
+  {
+    id: 4,
+    chain: 42161,
+    href: "https://app.gmx.io/#/pools",
+    label: "Get GM Token",
+  },
+  {
+    id: 5,
+    chain: 42161,
+    href: "https://app.gmx.io/#/pools",
+    label: "Get GM Token",
+  },
+  {
+    id: 6,
+    chain: 42161,
+    href: "https://app.gmx.io/#/pools",
+    label: "Get GM Token",
+  },
+  {
+    id: 7,
+    chain: 42161,
+    href: "https://app.gmx.io/#/pools",
+    label: "Get GM Token",
+  },
 ];
 
 export const getTokenLinkData = (
