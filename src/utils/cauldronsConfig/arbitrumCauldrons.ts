@@ -173,7 +173,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/GLP.png`),
+    icon: useImage(`assets/images/tokens/GM_ARB.png`),
     name: "GM (ARB)",
     chainId: 42161,
     id: 4,
@@ -216,7 +216,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/GLP.png`),
+    icon: useImage(`assets/images/tokens/GM_BTC.png`),
     name: "GM (BTC)",
     chainId: 42161,
     id: 5,
@@ -259,7 +259,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/GLP.png`),
+    icon: useImage(`assets/images/tokens/GM_ETH.png`),
     name: "GM (ETH)",
     chainId: 42161,
     id: 6,
@@ -302,7 +302,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/GLP.png`),
+    icon: useImage(`assets/images/tokens/GM_SOL.png`),
     name: "GM (SOL)",
     chainId: 42161,
     id: 7,
