@@ -1,6 +1,10 @@
 <template>
   <div class="arbitrum-page">
-    <img class="banner" src="./book_01.gif" alt="" />
+    <div class="banner-wrap">
+      <img class="coins" src="./Coins_animation.gif" alt="">
+      <img class="banner" src="./Book_background.png" alt="" />
+    </div>
+
     <Farms />
     <Cauldrons />
   </div>
@@ -26,7 +30,17 @@ export default {
   flex-direction: column;
   gap: 60px;
 }
+.banner-wrap {
+  width: 100%;
+  position: relative;
 
+  .coins {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+  }
+}
 .banner {
   width: 100%;
 }
