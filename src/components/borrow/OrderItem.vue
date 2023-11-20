@@ -55,12 +55,12 @@ import {
   monitorOrderStatus,
   getOrderBalances,
   getOrderType,
-  deleteOrder
+  deleteOrder,
 } from "@/helpers/gm/orders";
 
 export default {
   name: "OrderItem",
-  emits: ['updateInfo'],
+  emits: ["updateInfo"],
   props: {
     cauldronObject: {
       type: Object,
@@ -112,6 +112,13 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+    currentPageType() {
+      const isLeverage = this.$route.name === "LeverageId";
+      const isDeleverage = this.$route.name === "Deleverage";
+
+      if (isLeverage) return ORDER_TYPE_LEVERAGE;
+      if (isDeleverage) return ORDER_TYPE_DELEVERAGE;
+    },
     orderType() {
       if (this.type === ORDER_TYPE_UNKNOWN) return null;
       if (this.type === ORDER_TYPE_LEVERAGE) return "Leverage";
@@ -131,6 +138,8 @@ export default {
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
+        if (this.currentPageType === ORDER_TYPE_LEVERAGE)
+          return "To Deleverage";
         if (this.status === ORDER_SUCCESS) return "Deleverage";
       }
 
@@ -173,19 +182,26 @@ export default {
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
-        if (this.status === ORDER_SUCCESS) return await this.deleverageHandler();
+        if (this.currentPageType === ORDER_TYPE_LEVERAGE)
+          return this.toDeleverage();
+        if (this.status === ORDER_SUCCESS)
+          return await this.deleverageHandler();
         this.$emit("updateInfo");
       }
+    },
+    toDeleverage() {
+      const currentID = this.$route.params.id;
+      this.$router.push({ name: "DeleverageId", params: { id: currentID } });
     },
     async deleverageHandler() {
       const payload = {
         itsMax: false,
         slipage: this.slippage,
         removeCollateralAmount: BigNumber.from(0),
-        borrowAmount: BigNumber.from(0)// TODO share to min
-      }
+        borrowAmount: BigNumber.from(0), // TODO share to min
+      };
 
-      await this.deleverageFromOrder(this.order, payload)
+      await this.deleverageFromOrder(this.order, payload);
     },
     changeSlippage(slippage) {
       if (!slippage) this.slippage = 1;

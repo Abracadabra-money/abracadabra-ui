@@ -98,7 +98,7 @@ export default {
     type: "error",
   },
   gmOrderExist: {
-    discription: "[dev] Looks like you already have existiong order",
+    discription: "[dev] Looks like you already have existing order",
     type: "warning",
   },
 };
