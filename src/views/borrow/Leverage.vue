@@ -161,7 +161,7 @@
 
     <LocalPopupWrap
       :isOpened="isOpenGMPopup"
-      @closePopup="isOpenGMPopup = false"
+      @closePopup="closeGMPopup"
     >
       <GMStatus
         :order="activeOrder"
@@ -825,6 +825,12 @@ export default {
         this.deleteNotification(notificationId);
         this.createNotification(notification.error);
       }
+    },
+
+    async closeGMPopup() {
+      this.isOpenGMPopup = false;
+      this.activeOrder = null;
+      await this.createCauldronInfo();
     },
 
     async successGmLeverageCallback(order) {
