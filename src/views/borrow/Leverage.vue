@@ -159,10 +159,7 @@
         @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
 
-    <LocalPopupWrap
-      :isOpened="isOpenGMPopup"
-      @closePopup="closeGMPopup"
-    >
+    <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
       <GMStatus
         :order="activeOrder"
         :orderType="1"
@@ -551,7 +548,10 @@ export default {
   },
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      deleteAllNotification: "notifications/deleteAll",
+    }),
 
     clearInputs() {
       this.collateralValue = "";
@@ -771,10 +771,18 @@ export default {
     },
 
     async gmLeverageHandler(cookPayload, mcApproved, cauldronObject) {
+      const { cauldron } = cauldronObject.contracts;
+      const cauldronActiveOrder = await cauldron.orders(this.account);
+
+      if (cauldronActiveOrder !== ZERO_ADDRESS) {
+        this.deleteAllNotification();
+        this.createNotification(notification.gmOrderExist);
+        return false
+      }
+
       // leverage & create order
       await this.cookLeverageGM(cookPayload, mcApproved, cauldronObject);
 
-      const { cauldron } = cauldronObject.contracts;
       const order = await cauldron.orders(this.account);
 
       const itsZero = order === ZERO_ADDRESS;

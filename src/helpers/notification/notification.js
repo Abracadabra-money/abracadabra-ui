@@ -97,4 +97,8 @@ export default {
     discription: "[dev] Order failed, GM tokens are returned to position",
     type: "error",
   },
+  gmOrderExist: {
+    discription: "[dev] Looks like you already have existiong order",
+    type: "warning",
+  },
 };

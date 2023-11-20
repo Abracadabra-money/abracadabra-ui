@@ -426,7 +426,7 @@ export default {
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    ...mapMutations({ deleteNotification: "notifications/delete", deleteAllNotification: "notifications/deleteAll", }),
 
     formatTokenBalance(amount) {
       return filters.formatTokenBalance(amount);
@@ -586,6 +586,16 @@ export default {
       account,
       notificationId
     ) {
+      const { cauldron } = cauldronObject.contracts;
+      const cauldronActiveOrder = await cauldron.orders(account);
+
+      if (cauldronActiveOrder !== ZERO_ADDRESS) {
+        this.deleteAllNotification();
+        this.createNotification(notification.gmOrderExist);
+        return false
+      }
+
+
       // withdraw collateral & create order
       await this.cookWitdrawToOrderGM(
         cookPayload,
@@ -596,7 +606,6 @@ export default {
 
       this.clearInputs();
 
-      const { cauldron } = cauldronObject.contracts;
       const order = await cauldron.orders(account);
 
       const itsZero = order === ZERO_ADDRESS;
