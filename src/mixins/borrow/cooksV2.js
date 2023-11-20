@@ -10,11 +10,7 @@ import { DEFAULT_TOKEN_ADDRESS } from "@/constants/tokensAddress";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
-import {
-  USDC_ADDRESS,
-  WETH_ADDRESS,
-  ORDER_AGENT,
-} from "@/constants/gm";
+import { USDC_ADDRESS, WETH_ADDRESS, ORDER_AGENT } from "@/constants/gm";
 
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { getOpenoceanLeverageSwapData } from "@/helpers/openocean/getOpenoceanLeverageSwapData";
@@ -1051,9 +1047,8 @@ export default {
       const deposit = true;
 
       const gasLimits = await getGasLimits(this.provider);
-      const estimatedDepositGasLimit = estimateExecuteDepositGasLimit(
-        gasLimits
-      );
+      const estimatedDepositGasLimit =
+        estimateExecuteDepositGasLimit(gasLimits);
 
       const executionFee = await getExecutionFee(
         gasLimits,
@@ -1061,7 +1056,12 @@ export default {
         this.provider
       );
 
-      const minOutput = await getDepositAmount(market, 0, inputAmount, this.provider);
+      const minOutput = await getDepositAmount(
+        market,
+        0,
+        inputAmount,
+        this.provider
+      );
       const minOutLong = 0; // ok for leverage
 
       const updatedCookData = actions.createOrder(
@@ -1106,7 +1106,11 @@ export default {
       );
 
       const { shortAmountOut, longAmountOut } =
-        await getWithdrawalAmountsByMarket(inputToken, inputAmount, this.provider);
+        await getWithdrawalAmountsByMarket(
+          inputToken,
+          inputAmount,
+          this.provider
+        );
 
       const updatedCookData = actions.createOrder(
         cookData,
@@ -1145,16 +1149,7 @@ export default {
       );
 
       const swapData = swapResponse.data;
-
-      // // base buyAmount must be enough in mainnet
-      // const slippageBN = BigNumber.from(
-      //   parseFloat(slipage * 1e10).toFixed(0)
-      // );
-
-      // const slippageAmount = swapResponse.buyAmount.div(100).mul(slippageBN).div(1e10);
-
-      // const minExpected = swapResponse.buyAmount.sub(slippageAmount); // TODO check is correct
-
+      
       const minExpected = swapResponse.buyAmount;
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
@@ -1187,7 +1182,11 @@ export default {
         liquidationSwapper.address
       );
 
-      const buyShare = await bentoBox.toShare(mim.address, swapResponse.buyAmount, false);
+      const buyShare = await bentoBox.toShare(
+        mim.address,
+        swapResponse.buyAmount,
+        false
+      );
 
       const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
         sellToken,
@@ -1212,7 +1211,7 @@ export default {
         2
       );
 
-      return cookData;
+      return { cookData, buyAmount: swapResponse.buyAmount };
     },
 
     async cookRecoverFaliedLeverage(cauldronObject, order, account) {
@@ -1248,7 +1247,11 @@ export default {
       );
 
       const { updatedCookData, executionFee } =
-        await this.recipeCreateLeverageOrder(cookData, collateral.address, balanceUSDC);
+        await this.recipeCreateLeverageOrder(
+          cookData,
+          collateral.address,
+          balanceUSDC
+        );
 
       await cook(cauldron, updatedCookData, executionFee);
     },
@@ -1309,7 +1312,11 @@ export default {
       );
 
       const { updatedCookData, executionFee } =
-        await this.recipeCreateLeverageOrder(cookData, collateral.address, buyAmount);
+        await this.recipeCreateLeverageOrder(
+          cookData,
+          collateral.address,
+          buyAmount
+        );
 
       await cook(cauldron, updatedCookData, executionFee);
     },
@@ -1394,16 +1401,19 @@ export default {
         true
       );
 
-      cookData = await this.recipeDeleverageGM(
+      const deleverageData = await this.recipeDeleverageGM(
         cookData,
         cauldronObject,
         balanceUSDC,
         borrowAmount,
         slipage
       );
+      
+      cookData = deleverageData.cookData;
 
-      if (itsMax) {
-        const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
+      const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;
+
+      if (itsMax || deleverageData.buyAmount.gt(userBorrowPart)) {
         cookData = await this.repayEncodeHandler(
           cookData,
           cauldron.address,
