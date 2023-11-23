@@ -14,7 +14,7 @@ export type TokenPrices = {
   max: BigNumber;
 };
 
-export type TokenPriceResponce = {
+export type TokenPriceResponse = {
   tokenAddress: Address;
   tokenSymbol: String;
   minPrice: String;

@@ -10,9 +10,11 @@ import { getMarketInfo } from "./getMarketInfo";
 import { GMX_READER, DATA_STORE, ZERO_ADDRESS } from "@/constants/gm";
 import { applySlippageToMinOut } from "./applySlippageToMinOut";
 import { DEFAULT_SLIPPAGE_AMOUNT } from "./applySlippageToMinOut";
+import { fetchTokenPrices } from "./fetchTokenPrices";
+import type { TokenPriceResponse } from "./types";
 
 export const getDepositAmount = async (
-  market:Address,
+  market: Address,
   longTokenAmount: BigNumber,
   shortTokenAmount: BigNumber,
   provider: providers.BaseProvider
@@ -22,7 +24,8 @@ export const getDepositAmount = async (
   const marketInfo = await getMarketInfo(provider, market);
 
   const uiFeeReceiver = ZERO_ADDRESS;
-  const prices = await getContractMarketPrices(marketInfo);
+  const tokenPricesResponse: Array<TokenPriceResponse> = await fetchTokenPrices();
+  const prices = getContractMarketPrices(tokenPricesResponse, marketInfo);
 
   const depositAmountOut = await GMXReaderContract.getDepositAmountOut(
     DATA_STORE,

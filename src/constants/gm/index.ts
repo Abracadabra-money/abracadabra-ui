@@ -12,3 +12,13 @@ export const WETH_ADDRESS: Address= "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
 export const USD_DECIMALS = 30;
 export const PRECISION = expandDecimals(1, 30);
 export const HIGH_SPREAD_THRESHOLD = expandDecimals(1, 30).div(100); // 1%
+
+export const GM_ARB = "0xC25cEf6061Cf5dE5eb761b50E4743c1F5D7E5407";
+export const GM_SOL = "0x09400D9DB990D5ed3f35D7be61DfAEB900Af03C9";
+export const GM_ETH = "0x70d95587d40A2caf56bd97485aB3Eec10Bee6336";
+export const GM_BTC = "0x47c031236e19d024b42f8AE6780E44A573170703";
+
+export const DAYS_CONSIDERED = 7;
+export const MARKET_FEES_URL =
+  "https://subgraph.satsuma-prod.com/3b2ced13c8d9/gmx/synthetics-arbitrum-stats/version/incentives3-231113223003-25eb066/api";
+export const INCENTIVE_STATS_URL = "https://arbitrum-api.gmxinfra.io/incentives/stip";

@@ -2,13 +2,12 @@ import { fetchTokenPrices } from "./fetchTokenPrices";
 import { BigNumber } from "ethers";
 import type { MarketInfo } from "./types";
 
-import type { TokenPriceResponce, MarketPrices } from "./types";
+import type { TokenPriceResponse, MarketPrices } from "./types";
 
-export const getContractMarketPrices = async (
+export const getContractMarketPrices = (
+  tokenPrices: Array<TokenPriceResponse>,
   market: MarketInfo
-): Promise<MarketPrices> => {
-  const tokenPrices: Array<TokenPriceResponce> = await fetchTokenPrices();
-
+): MarketPrices => {
   const indexToken = tokenPrices.find(
     (item) =>
       item.tokenAddress.toLowerCase() === market.indexToken.toLowerCase()
