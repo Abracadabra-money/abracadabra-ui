@@ -123,6 +123,11 @@ const routes = [
     component: () => import("@/views/stake/MKLP.vue"),
   },
   {
+    path: "/arb-cauldrons",
+    name: "ArbCauldrons",
+    component: () => import("@/views/markets/arbitrum/ArbitrumCauldrons.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
@@ -134,6 +139,18 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 };
   },
+});
+
+router.beforeEach((to) => {
+  const chainId = localStorage.getItem("MAGIC_MONEY_CHAIN_ID");
+
+  if (to.name === "ArbCauldrons" && +chainId !== 42161) {
+    return { name: "Cauldrons" };
+  }
+
+  if (to.name === "Cauldrons" && +chainId === 42161) {
+    return { name: "ArbCauldrons" };
+  }
 });
 
 export default router;
