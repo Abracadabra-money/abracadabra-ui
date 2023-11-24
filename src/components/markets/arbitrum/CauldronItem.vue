@@ -71,7 +71,7 @@ export default {
     },
 
     apyRange() {
-      if (this.collateralApy) return `${filters.formatToFixed(this.collateralApy, 1)}% - ${filters.formatToFixed(this.collateralApy * 4, 1)}%`
+      if (this.collateralApy) return `${filters.formatPercent(this.collateralApy)} - ${filters.formatPercent(this.collateralApy * 4)}`
       return '-'
     },
 
@@ -96,7 +96,7 @@ export default {
             utils.formatUnits(this.cauldron.mimLeftToBorrow)
           ),
         },
-        { title: "INTEREST", value: `${this.cauldron.interest}%` }
+        { title: "INTEREST", value: `${filters.formatPercent(this.cauldron.interest)}` }
       ];
     },
 

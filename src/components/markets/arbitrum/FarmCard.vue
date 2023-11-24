@@ -13,7 +13,7 @@
         <p class="title">
           APR
         </p>
-        <p class="value">{{ boostedYield }}%</p>
+        <p class="value">{{ apr }}</p>
       </div>
 
       <p class="tvl">
@@ -35,7 +35,9 @@ export default {
 
   computed: {
     tvl() { return filters.formatUSD(this.farm.farmTvl) },
-    boostedYield() { return filters.formatToFixed(this.farm.farmYield, 2) },
+
+    apr() { return filters.formatPercent(this.farm.farmRoi) },
+
     goToPage() {
       return { name: "Farm", params: { id: this.farm.id } };
     },

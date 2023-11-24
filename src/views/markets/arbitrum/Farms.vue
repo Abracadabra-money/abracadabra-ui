@@ -436,4 +436,10 @@ export default {
     justify-content: center;
   }
 }
+
+@media screen and (max-width: 660px) {
+  .stats-list-wrap{
+    justify-content: center;
+  }
+}
 </style>
