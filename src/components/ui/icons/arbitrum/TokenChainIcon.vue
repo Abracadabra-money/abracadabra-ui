@@ -1,7 +1,7 @@
 <template>
   <div class="token-chain-icon">
     <BaseTokenIcon :name="name" :icon="icon" />
-    <img src="@/assets/images/networks/arbitrum-icon.svg" class="chain-icon" />
+    <img class="chain-icon" src="@/assets/images/networks/arb-icon-new-page.png" />
   </div>
 </template>
 <script>
@@ -23,8 +23,8 @@ export default {
 
 .chain-icon {
   position: absolute;
-  bottom: 6px;
-  right: 4px;
+  top: -4px;
+  right: 2px;
   width: 16px;
   height: 16px;
   border-radius: 4px;

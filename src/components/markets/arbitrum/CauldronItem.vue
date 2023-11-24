@@ -2,34 +2,30 @@
   <router-link :to="goToCauldron" class="cauldron-item">
     <div class="cauldron-info">
       <div class="collateral-info">
-        <TokenChainIcon
-          :name="cauldronConfig.name"
-          :icon="cauldronConfig.icon"
-        />
+        <TokenChainIcon :name="cauldronConfig.name" :icon="cauldronConfig.icon" />
         <div class="collateral-labels">
           <span>{{ cauldronConfig.name }}</span>
           <span class="new-label" v-if="isNewLabel">New</span>
-          <span class="deprecated-label" v-if="isDeprecatedCauldron"
-            >Deprecated</span
-          >
+          <span class="deprecated-label" v-if="isDeprecatedCauldron">Deprecated</span>
         </div>
       </div>
 
       <div class="cauldron-stats" v-for="(stats, i) in cauldronInfo" :key="i">
         <span class="stats-title">{{ stats.title }}</span>
-        <span>{{ stats.value }}</span>
+        <span class="stats-value">{{ stats.value }}</span>
+
+      </div>
+      <div class="loader-wrap" v-if="isLoadingApy">
+        <Loader type="loader" />
+      </div>
+      <div v-else>
+        <span class="stats-title">APY RANGE</span>
+        <span class="stats-value">{{ apyRange }}</span>
       </div>
 
       <div class="cauldron-links" v-if="!isDeprecatedCauldron">
-        <router-link class="cauldron-link" :to="goToPage('BorrowId')"
-          >Borrow</router-link
-        >
-        <router-link
-          class="cauldron-link"
-          v-if="hasLeverage"
-          :to="goToPage('LeverageId')"
-          >Leverage</router-link
-        >
+        <router-link class="cauldron-link" :to="goToPage('BorrowId')">Borrow</router-link>
+        <router-link class="cauldron-link" v-if="hasLeverage" :to="goToPage('LeverageId')">Leverage</router-link>
       </div>
     </div>
   </router-link>
@@ -40,12 +36,22 @@ import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import TokenChainIcon from "@/components/ui/icons/arbitrum/TokenChainIcon.vue";
+import Loader from "@/components/base/BaseLoader.vue";
+import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 
 export default {
   props: {
     cauldron: {
       type: Object,
     },
+  },
+
+  data() {
+    return {
+      isApyExist: false,
+      isLoadingApy: false,
+      collateralApy: null,
+    };
   },
 
   computed: {
@@ -63,6 +69,12 @@ export default {
         params: { id: this.cauldronConfig.id },
       };
     },
+
+    apyRange() {
+      if (this.collateralApy) return `${filters.formatToFixed(this.collateralApy, 1)}% - ${filters.formatToFixed(this.collateralApy * 4, 1)}%`
+      return '-'
+    },
+
 
     cauldronInfo() {
       return [
@@ -84,7 +96,7 @@ export default {
             utils.formatUnits(this.cauldron.mimLeftToBorrow)
           ),
         },
-        { title: "INTEREST", value: `${this.cauldron.interest}%` },
+        { title: "INTEREST", value: `${this.cauldron.interest}%` }
       ];
     },
 
@@ -117,10 +129,23 @@ export default {
     goToPage(name) {
       return { name, params: { id: this.cauldronConfig.id } };
     },
+
+    async initApy() {
+      this.isApyExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
+      if (!this.isApyExist) return false;
+      this.isLoadingApy = true;
+      this.collateralApy = await fetchTokenApy(this.cauldron);
+      this.isLoadingApy = false;
+    },
+  },
+
+  async created() {
+    await this.initApy();
   },
 
   components: {
     TokenChainIcon,
+    Loader
   },
 };
 </script>
@@ -151,7 +176,7 @@ export default {
 
 .cauldron-info {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 180px;
+  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr 180px;
   align-items: center;
   width: 100%;
   height: 36px;
@@ -218,6 +243,7 @@ export default {
     border-radius: 30px;
     height: auto;
   }
+
   .cauldron-info {
     display: flex;
     flex-direction: column;

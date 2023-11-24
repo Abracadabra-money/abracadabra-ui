@@ -6,76 +6,11 @@
       <BaseLoader />
     </div>
     <div v-else class="stats-wrap">
-      <div class="tools-wrap">
-        <div class="search-wrap">
-          <img
-            class="search-icon"
-            src="@/assets/images/search.svg"
-            alt="search"
-          />
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Search"
-            class="search-input"
-          />
-        </div>
-
-        <DropdownWrap class="dropdown">
-          <template v-slot:btn>
-            <button class="sort-btn open-btn">
-              <span class="sort-title-wrap">
-                <button
-                  @click.stop="sortReverse = !sortReverse"
-                  @mousedown.prevent.stop=""
-                  class="sort-icon-wrap"
-                >
-                  <img
-                    class="sort-icon"
-                    :class="{ 'sort-icon-reverse': sortReverse }"
-                    src="@/assets/images/filter.svg"
-                    alt="filter"
-                  />
-                </button>
-                <span>{{ `Sorted by ${selectedSortData.title}` }}</span>
-              </span>
-              <img
-                class="arrow-icon"
-                src="@/assets/images/arrow-down.svg"
-                alt="filter"
-              />
-            </button>
-          </template>
-          <template v-slot:list>
-            <button
-              class="sort-btn sort-item"
-              v-for="(titleData, i) in sortList.filter(
-                ({ name }) => name !== selectedSort
-              )"
-              :key="i"
-              @click="select(titleData.name)"
-            >
-              {{ titleData.title }}
-            </button>
-          </template>
-        </DropdownWrap>
-        <div class="active-markets">
-          active markets only
-          <CheckBox @update="toggleActiveMarkets" :value="isActiveMarkets" />
-        </div>
-      </div>
       <div class="stats-list-wrap">
-        <div class="stats-list-header">
-          <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
-        </div>
 
-        <FarmCard />
         <template v-if="filteredPools.length">
-          <!-- <MarketsFarmItem
-            v-for="farm in filteredPools"
-            :key="farm.id"
-            :farm="farm"
-          /> -->
+          <FarmCard v-for="farm in filteredPools" :key="farm.id" :farm="farm" />
+          <EmpowerCard />
         </template>
         <EmptyState v-else />
       </div>
@@ -87,10 +22,8 @@
 import { mapGetters } from "vuex";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
-import DropdownWrap from "@/components/ui/DropdownWrap.vue";
-import MarketsFarmItem from "@/components/markets/arbitrum/FarmItem.vue";
 import FarmCard from "@/components/markets/arbitrum/FarmCard.vue";
-import CheckBox from "@/components/ui/CheckBox.vue";
+import EmpowerCard from "@/components/markets/arbitrum/EmpowerCard.vue"
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
 const sortKeys = {
@@ -165,9 +98,9 @@ export default {
     filterBySearch(farms, search) {
       return search
         ? farms.filter(
-            (farm) =>
-              farm.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
-          )
+          (farm) =>
+            farm.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+        )
         : farms;
     },
 
@@ -271,10 +204,8 @@ export default {
   components: {
     EmptyState,
     BaseLoader,
-    DropdownWrap,
-    MarketsFarmItem,
-    CheckBox,
     FarmCard,
+    EmpowerCard
   },
 };
 </script>
@@ -287,6 +218,7 @@ export default {
   z-index: 9;
   cursor: pointer;
 }
+
 .wrapper {
   width: 100%;
 }
@@ -296,6 +228,7 @@ export default {
   text-transform: uppercase;
   margin-bottom: 40px;
 }
+
 .tools-wrap {
   display: grid;
   grid-template-columns: 1fr;
@@ -305,6 +238,7 @@ export default {
 
 .dropdown {
   grid-column: auto / span 1;
+
   &:focus-within {
     .open-btn {
       border-bottom-left-radius: 0;
@@ -312,8 +246,10 @@ export default {
       background-color: #55535d;
       color: white !important;
     }
+
     .sort-btn {
       background-color: #55535d;
+
       &:hover {
         color: #76c3f5;
       }
@@ -336,9 +272,11 @@ export default {
 
   .sort-icon {
     width: 20px;
+
     &-reverse {
       transform: rotate(180deg);
     }
+
     &-wrap {
       display: flex;
       justify-content: center;
@@ -406,10 +344,11 @@ export default {
 }
 
 .stats-list-wrap {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 10px;
-  grid-column: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-top: 10px;
 }
 
@@ -430,6 +369,7 @@ export default {
     grid-template-columns: 1fr 1fr 1fr 60px;
   }
 }
+
 .loader-wrap {
   width: 100%;
   display: flex;
@@ -454,12 +394,15 @@ export default {
   .dropdown {
     grid-column: auto / span 5;
   }
+
   .search-wrap {
     grid-column: auto / span 3;
   }
+
   .active-markets {
     grid-column: auto / span 4;
   }
+
   .tools-wrap {
     grid-template-columns: repeat(12, 1fr);
   }
@@ -469,16 +412,20 @@ export default {
   .dropdown {
     grid-column: auto / span 5;
   }
+
   .search-wrap {
     grid-column: auto / span 4;
   }
+
   .active-markets {
     grid-column: auto / span 3;
   }
+
   .stats-list-wrap {
     grid-column: 1 / 5;
     margin-top: 0;
   }
+
   .stats-list-header {
     display: grid;
   }

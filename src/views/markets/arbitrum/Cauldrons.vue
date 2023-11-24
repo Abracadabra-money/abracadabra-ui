@@ -8,12 +8,8 @@
     <template v-else>
       <div class="tools">
         <Search @changeSearch="changeSearch" />
-        <DropdownSortBy
-          :sortList="sortList"
-          :activeSortValue="activeSortValue"
-          @changeDropdownValue="changeDropdownValue"
-          @changeSortOrder="changeSortOrder"
-        />
+        <DropdownSortBy :sortList="sortList" :activeSortValue="activeSortValue" @changeDropdownValue="changeDropdownValue"
+          @changeSortOrder="changeSortOrder" />
 
         <div class="toggle-markets">
           active markets only
@@ -23,15 +19,13 @@
 
       <div class="cauldrons-list">
         <div class="list-header">
-          <div v-for="title in tableHeaders" :key="title">{{ title }}</div>
+          <div class="table-header" v-for="{ title, tooltipText } in tableHeaders" :key="title">
+            <Tooltip :tooltip="tooltipText" style="width: 20px;" v-if="title != 'COLLATERAL'" />{{ title }}
+          </div>
         </div>
 
         <template v-if="filteredCouldrons.length">
-          <CauldronItem
-            v-for="cauldron in filteredCouldrons"
-            :key="cauldron.id"
-            :cauldron="cauldron"
-          />
+          <CauldronItem v-for="cauldron in filteredCouldrons" :key="cauldron.id" :cauldron="cauldron" />
         </template>
 
         <EmptyState text="No cauldrons found with this name" v-else />
@@ -52,6 +46,8 @@ import CheckBox from "@/components/ui/CheckBox.vue";
 import ScrollToTop from "@/components/ui/ScrollToTop.vue";
 import Search from "@/components/ui/search/CauldronsSearch.vue";
 import DropdownSortBy from "@/components/ui/dropdown/SortBy.vue";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
+
 export default {
   data() {
     return {
@@ -70,11 +66,12 @@ export default {
         { title: "Fee", name: "fee" },
       ],
       tableHeaders: [
-        "COLLATERAL",
-        "TOTAL MIM BORROWED",
-        "TVL",
-        "MIMS LEFT TO BORROW",
-        "INTEREST",
+        { title: "COLLATERAL", tooltipText: '' },
+        { title: "TMB", tooltipText: 'Total MIM Borrowed' },
+        { title: "TVL", tooltipText: 'Total Value Locked ' },
+        { title: "MLB", tooltipText: 'MIMs Left to Borrow' },
+        { title: "INTEREST", tooltipText: 'This is the annualized percent that your debt will increase each year' },
+        { title: "APY RANGE", tooltipText: 'Annual Percentage Yield' }
       ],
     };
   },
@@ -208,6 +205,7 @@ export default {
     BaseLoader,
     CauldronItem,
     CheckBox,
+    Tooltip
   },
 };
 </script>
@@ -259,7 +257,7 @@ export default {
 
 .list-header {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 180px;
+  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr 180px;
   align-items: center;
   padding: 0 20px;
   height: 60px;
@@ -271,11 +269,18 @@ export default {
   text-transform: uppercase;
 }
 
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 @media screen and (max-width: 1024px) {
   .tools {
     display: flex;
     flex-direction: column;
   }
+
   .toggle-markets {
     justify-content: center;
   }
