@@ -11,8 +11,7 @@
     <div class="card-stats">
       <div class="boosted-yield">
         <p class="title">
-          <Tooltip class="tooltip" />
-          Boosted Yield
+          APR
         </p>
         <p class="value">{{ boostedYield }}%</p>
       </div>
@@ -25,7 +24,6 @@
 </template>
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import Tooltip from "@/components/ui/icons/Tooltip.vue"
 import filters from "@/filters/index"
 
 export default {
@@ -44,8 +42,7 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
-    Tooltip
+    BaseTokenIcon
   },
 };
 </script>
@@ -127,7 +124,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 16px 11px;
+  margin-top: 8px;
+  padding: 16px 11px 0 11px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   color: white;
   font-size: 16px;
