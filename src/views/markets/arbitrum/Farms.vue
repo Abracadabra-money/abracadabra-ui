@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <h2 class="title">Farming Opportunities</h2>
+    <h2 class="title">Explore the Abracadabra Ecosystem on Arbitrum!</h2>
     <EmptyState v-if="!currentPools.length && !isFarmsLoading" />
     <div v-else-if="!currentPools.length && isFarmsLoading" class="loader-wrap">
       <BaseLoader />
