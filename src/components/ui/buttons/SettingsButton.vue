@@ -35,8 +35,8 @@ export default {
 }
 
 .settings-icon {
-  width: 17px;
-  height: 17px;
+  width: 20px;
+  height: 20px;
 }
 
 .active {

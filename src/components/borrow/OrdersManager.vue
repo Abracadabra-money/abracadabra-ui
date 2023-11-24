@@ -1,6 +1,5 @@
 <template>
   <div class="orders-manager" v-if="orders.length">
-    <h4>Active Order</h4>
     <OrderItem
       @updateInfo="checkOrders"
       :deleverageFromOrder="deleverageFromOrder"
@@ -85,3 +84,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.orders-manager {
+  margin-top: 20px;
+}
+</style>

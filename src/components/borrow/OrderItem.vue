@@ -1,30 +1,40 @@
 <template>
   <div class="order-item">
-    <div class="setting-button-wrap">
-      <SettingsButton
-        v-if="orderType === 'Deleverage'"
-        @click="isSettingsOpen = true"
-      />
-    </div>
-    <div class="order-info">
-      <p class="order-address">{{ orderText }}</p>
-      <MiniStatusTag v-if="orderType" :text="orderType" :rounded="true" />
-      <p class="status-info">
-        {{ activeStatusInfo.emoji }} {{ activeStatusInfo.name }}
-      </p>
-    </div>
-    <div class="balances-info info-wrap" v-if="balancesInfo.length">
-      <p class="title">Orders balances:</p>
-      <div class="raw" v-for="(info, idx) in balancesInfo" :key="idx">
-        <div class="token-info">
-          <img class="token-icon" img :src="info.icon" />
-          {{ info.name }}
-        </div>
-        <p>{{ info.balance }}</p>
+    <div class="title-wrap">
+      <p class="title">Active Order</p>
+      <div class="setting-button-wrap">
+        <SettingsButton
+          v-if="orderType === 'Deleverage'"
+          @click="isSettingsOpen = true"
+        />
       </div>
     </div>
 
-    <div class="raw btns-wrap">
+    <div class="order-info">
+      <p class="order-address">{{ orderText }}</p>
+      <a class="open-link" :href="orderUrl" target="_blank"
+        ><img src="@/assets/images/open-link.svg" alt=""
+      /></a>
+      <p class="status-info">
+        <img v-if="activeStatusInfo.icon" :src="activeStatusInfo.icon" alt="" />
+        {{ activeStatusInfo.name }}
+      </p>
+    </div>
+
+    <div class="raw" v-if="balancesInfo.length">
+      <div class="balances-info" v-if="balancesInfo.length">
+        <p class="title">Orders balances:</p>
+        <div
+          class="balance-item"
+          v-for="(info, idx) in balancesInfo"
+          :key="idx"
+        >
+          <div class="token-info">
+            <img class="token-icon" img :src="info.icon" />
+            <p>{{ info.balance }}</p>
+          </div>
+        </div>
+      </div>
       <button :disabled="disableAction" @click="actionHandler" class="btn">
         {{ buttonText }}
       </button>
@@ -57,6 +67,9 @@ import {
   getOrderType,
 } from "@/helpers/gm/orders";
 
+import FAIL_ICON from "@/assets/images/order-fail.svg";
+import SUCCESS_ICON from "@/assets/images/order-success.svg";
+
 export default {
   name: "OrderItem",
   emits: ["updateInfo"],
@@ -86,15 +99,14 @@ export default {
       statuses: {
         0: {
           name: "Pending...",
-          emoji: "🤖",
         },
         1: {
-          name: "Success",
-          emoji: "🏆",
+          name: "Order created",
+          icon: SUCCESS_ICON,
         },
         2: {
-          name: "Fail",
-          emoji: "☠️",
+          name: "Order failed",
+          icon: FAIL_ICON,
         },
       },
     };
@@ -131,6 +143,9 @@ export default {
     activeStatusInfo() {
       return this.statuses[this.status];
     },
+    orderUrl() {
+      return `https://arbiscan.io/address/${this.order}`
+    },
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
         if (this.status === ORDER_FAIL) return "Recover";
@@ -148,7 +163,7 @@ export default {
     balancesInfo() {
       if (!this.balances) return [];
 
-      const { balanceWETH, balanceUSDC } = this.balances;
+      const { balanceUSDC } = this.balances;
 
       const balances = [];
 
@@ -159,12 +174,12 @@ export default {
           balance: this.formatTokenBalance(utils.formatUnits(balanceUSDC, 6)),
         });
 
-      if (balanceWETH.gt(0))
-        balances.push({
-          name: "WETH",
-          icon: useImage(`assets/images/tokens/WETH.png`),
-          balance: this.formatTokenBalance(utils.formatUnits(balanceWETH)),
-        });
+      // if (balanceWETH.gt(0))
+      //   balances.push({
+      //     name: "WETH",
+      //     icon: useImage(`assets/images/tokens/WETH.png`),
+      //     balance: this.formatTokenBalance(utils.formatUnits(balanceWETH)),
+      //   });
 
       return balances;
     },
@@ -225,9 +240,6 @@ export default {
     this.fetchOrderInfo();
   },
   components: {
-    MiniStatusTag: defineAsyncComponent(() =>
-      import("@/components/ui/MiniStatusTag.vue")
-    ),
     LocalPopupWrap: defineAsyncComponent(() =>
       import("@/components/popups/LocalPopupWrap.vue")
     ),
@@ -242,13 +254,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.setting-button-wrap {
-  position: absolute;
-  top: 0;
-  right: 10px;
-  display: flex;
-  justify-content: flex-end;
-}
 .order-item {
   position: relative;
   display: flex;
@@ -256,10 +261,46 @@ export default {
   align-items: center;
   width: 100%;
   margin: 8px 0;
-  padding: 10px 15px;
-  background: #2b2b3c;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px;
+
   border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #2b2b3c;
+  box-shadow: 0px 1px 10px 0px rgba(1, 1, 1, 0.05);
+  backdrop-filter: blur(50px);
+}
+
+.title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 16px;
+
+  .title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.45px;
+  }
+}
+
+.open-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 4px;
+
+  img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
 }
 
 .token-info {
@@ -267,10 +308,10 @@ export default {
   align-items: center;
 
   .token-icon {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
-    margin-right: 5px;
+    margin-right: 4px;
   }
 }
 
@@ -286,16 +327,23 @@ export default {
 .info-wrap,
 .order-info {
   width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 0;
 }
 
 .order-info {
   display: flex;
   align-items: center;
-
+  padding-bottom: 12px;
   .status-info {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+
+    img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      margin-right: 4px;
+    }
   }
 }
 
@@ -304,28 +352,32 @@ export default {
   width: 100%;
   justify-content: space-between;
   padding: 4px 0;
-}
-
-.btns-wrap {
-  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .balances-info {
   font-size: 14px;
+  display: flex;
+  align-items: center;
 
   .title {
     font-size: 16px;
-    margin-bottom: 5px;
+  }
+
+  .balance-item {
+    display: flex;
+    align-items: center;
+    margin-left: 12px;
   }
 }
 
 .btn {
   min-width: 84px;
   height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  margin: 3px 0;
-  padding: 10px;
+  background: linear-gradient(108deg, #5552fd -3.19%, #76c3f5 101.2%);
+  border-radius: 20px;
+  padding: 6px 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -336,11 +388,12 @@ export default {
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(90deg, #7c82fd 0%, #8ec2f9 100%);
   }
 
-  &:disabled {
-    color: rgba(255, 255, 255, 0.5);
+  &.disabled {
+    background: #40557e;
+    background: linear-gradient(107.5deg, #393b80 -3.19%, #435e7e 101.2%);
     pointer-events: none;
   }
 }
