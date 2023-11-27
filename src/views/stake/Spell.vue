@@ -320,7 +320,7 @@ export default {
       if (this.selectedToken === "mSpell" && !this.isStakeAction)
         return "Withdraw";
       if (this.selectedToken === "sSpell" && !this.isStakeAction)
-        return "Untake";
+        return "Unstake";
 
       return "Stake";
     },
