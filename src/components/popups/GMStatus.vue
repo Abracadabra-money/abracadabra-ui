@@ -63,6 +63,9 @@
             <p v-if="isFailedDeleverage" class="info-subtitle">
               Transaction rejected
             </p>
+            <p v-else class="info-subtitle">
+              Confirm transaction in your wallet
+            </p>
           </div>
         </div>
       </div>
