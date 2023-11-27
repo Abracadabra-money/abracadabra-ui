@@ -195,7 +195,7 @@ export default {
     },
     isCreatedDeleverage() {
       return this.orderType === 2 && this.processState !== 0;
-    }.
+    },
     isFailedLeverage() {
       return this.orderType === 1 && this.processState === 2;
     },
