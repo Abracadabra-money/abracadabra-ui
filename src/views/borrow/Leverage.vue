@@ -812,6 +812,7 @@ export default {
         // instant success
         if (itsZero) {
           this.deleteNotification(notificationId);
+          saveOrder(order, this.account);
           await this.successGmLeverageCallback();
           return false;
         }

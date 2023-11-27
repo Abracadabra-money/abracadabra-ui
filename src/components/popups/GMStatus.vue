@@ -1,33 +1,92 @@
 <template>
   <div class="popup-wrap">
     <div class="popup-header">
-      <h4 class="popup-title">GM Leverage/Deleverage</h4>
+      <img :src="cauldronObject.config.icon" alt="" class="cauldron-icon" />
+      <h4 class="popup-title">{{ popupTitle }}</h4>
     </div>
     <div class="popup-content">
-      <div class="status-wrap raw">
-        <p>Current Staus:</p>
-        <p class="status-text">{{ stateText }}</p>
-      </div>
+      <div class="failed-wrap" v-if="isFailedLeverage">
+        <img src="@/assets/images/order-fail.svg" alt="" class="status-img" />
+        <p class="status-text">Failed due to the slippage error</p>
 
-      <div class="balances-info info-wrap" v-if="balancesInfo.length">
-        <p class="title">Orders balances:</p>
-        <div class="raw" v-for="(info, idx) in balancesInfo" :key="idx">
-          <div class="token-info">
-            <img class="token-icon" img :src="info.icon" />
-            {{ info.name }}
+        <div class="balance-info" v-if="balancesInfo.length">
+          <p class="balance-title">Order balance:</p>
+          <div
+            class="token-info"
+            v-for="(info, idx) in balancesInfo"
+            :key="idx"
+          >
+            <img class="token-icon" :src="info.icon" />
+            {{ info.balance }}
           </div>
-          <p>{{ info.balance }}</p>
         </div>
       </div>
 
-      <div class="raw btns-wrap">
-        <button @click="actionHandler" :disabled="buttonDisable" class="btn">{{ buttonText }}</button>
+      <div class="proccess-wrap" v-else-if="isCreatedDeleverage">
+        <div class="step-wrap">
+          <div class="indecator-wrap">
+            <img :src="successIcon" alt="" class="status-icon" />
+            <div class="line success"></div>
+          </div>
+          <div class="info-wrap">
+            <p class="info-title">Order created</p>
+            <div class="balance-info" v-if="balancesInfo.length">
+              <p class="balance-title">Order balance:</p>
+              <div
+                class="token-info"
+                v-for="(info, idx) in balancesInfo"
+                :key="idx"
+              >
+                <img class="token-icon" :src="info.icon" />
+                {{ info.balance }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-wrap">
+          <div class="indecator-wrap">
+            <div
+              class="line"
+              :class="{
+                failed: isFailedDeleverage,
+              }"
+            ></div>
+            <img
+              :src="isFailedDeleverage ? failedIcon : pendingIcon"
+              alt=""
+              class="status-icon"
+            />
+          </div>
+          <div class="info-wrap second-step">
+            <p class="info-title">Deleverage</p>
+            <p v-if="isFailedDeleverage" class="info-subtitle">
+              Transaction rejected
+            </p>
+          </div>
+        </div>
       </div>
+
+      <div class="pending-wrap" v-else>
+        <BaseLoader />
+      </div>
+    </div>
+
+    <div class="btns-wrap" v-if="!buttonDisable">
+      <button
+        class="retry-btn"
+        @click="actionHandler"
+        :disabled="buttonDisable"
+      >
+        <img src="@/assets/images/retry-btn.svg" alt="" />
+        {{ buttonText }}
+      </button>
     </div>
   </div>
 </template>
 
 <script>
+import BaseLoader from "@/components/base/BaseLoader.vue";
 import { useImage } from "@/helpers/useImage";
 import filters from "@/filters/index.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
@@ -71,6 +130,10 @@ const stateTitles = {
   },
 };
 
+import FAIL_ICON from "@/assets/images/order-fail.svg";
+import SUCCESS_ICON from "@/assets/images/order-success.svg";
+import PENDING_ICON from "@/assets/images/order-pending.svg";
+
 export default {
   name: "GMStatusPopup",
   props: {
@@ -103,7 +166,10 @@ export default {
     return {
       processState: STATE_PENDING, // by default
       balances: null,
-      deleverageinProgress: false
+      deleverageinProgress: false,
+      successIcon: SUCCESS_ICON,
+      failedIcon: FAIL_ICON,
+      pendingIcon: PENDING_ICON,
     };
   },
   watch: {
@@ -124,12 +190,21 @@ export default {
 
       return "GM transaction status";
     },
+    isFailedDeleverage() {
+      return this.processState === 6 && this.deleverageinProgress === false
+    },
+    isCreatedDeleverage() {
+      return this.orderType === 2 && this.processState !== 0;
+    }.
+    isFailedLeverage() {
+      return this.orderType === 1 && this.processState === 2;
+    },
     stateText() {
-      return stateTitles[this.orderType][this.processState]; // TODO this.orderType
+      return stateTitles[this.orderType][this.processState];
     },
     buttonText() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) {
-        if (this.processState === STATE_FAIL) return "Recover";
+        if (this.processState === STATE_FAIL) return "Retry Leverage";
       }
       if (this.orderType === ORDER_TYPE_DELEVERAGE) {
         if (
@@ -183,7 +258,7 @@ export default {
           this.processState === STATE_DELEVERAGE &&
           this.deleverageinProgress === false
         )
-          return await this.runDeleverage()
+          return await this.runDeleverage();
       }
     },
     async monitoringHandler(order) {
@@ -270,6 +345,9 @@ export default {
   created() {
     this.monitoringHandler(this.order);
   },
+  components: {
+    BaseLoader,
+  },
 };
 </script>
 
@@ -277,34 +355,192 @@ export default {
 .popup-wrap {
   display: grid;
   grid-template-rows: auto 1fr;
-  width: 380px;
+  width: 320px;
   max-width: 100%;
+  padding: 8px 10px 2px;
 }
 
 .popup-header {
-  padding: 10px 10px 20px 10px;
-  border-bottom: solid 1px rgba(255, 255, 255, 0.1);
-}
-
-.popup-title {
+  font-size: 20px;
   font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+
+  .cauldron-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    margin-right: 8px;
+  }
 }
 
 .popup-content {
-  padding: 10px 10px 20px 10px;
 }
 
-.raw {
+.pending-wrap {
   display: flex;
-  width: 100%;
-  justify-content: space-between;
-  padding: 4px 0;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 20px;
+}
 
-  &.btns-wrap {
-    justify-content: flex-end;
+.failed-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .status-img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    margin-bottom: 8px;
+  }
+
+  .status-text {
+    font-size: 18px;
+    font-weight: 400;
+    max-width: 230px;
+    text-align: center;
+    padding-bottom: 20px;
+  }
+
+  .balance-info {
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .balance-title {
+      font-size: 14px;
+    }
+
+    .token-info {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      margin-left: 20px;
+
+      .token-icon {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+        margin-right: 3px;
+      }
+    }
+  }
+}
+
+.proccess-wrap {
+  width: 100%;
+  padding-bottom: 10px;
+
+  .step-wrap {
+    display: flex;
+
+    .indecator-wrap {
+      width: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .status-icon {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+      }
+
+      .line {
+        display: block;
+        height: calc(100% - 20px);
+        border-left: 1px dashed #fff;
+
+        &.success {
+          border-left: 1px dashed #63ff7b;
+        }
+
+        &.failed {
+          border-left: 1px dashed #d94844;
+        }
+      }
+    }
+
+    .info-wrap {
+      padding-left: 12px;
+
+      &.second-step {
+        padding-top: 10px;
+      }
+
+      .info-title {
+        font-size: 16px;
+        font-weight: 400;
+        line-height: normal;
+      }
+
+      .info-subtitle {
+        font-size: 12px;
+      }
+
+      .balance-info {
+        padding-bottom: 10px;
+        .balance-title {
+          font-size: 14px;
+        }
+
+        .token-info {
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          padding-top: 3px;
+
+          .token-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            margin-right: 3px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.btns-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding: 13px 20px;
+
+  .retry-btn {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    background: linear-gradient(108deg, #5282fd -3.19%, #76c3f5 101.2%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    &:hover {
+      img {
+        transform: rotate(360deg);
+        margin-right: 10px;
+      }
+    }
+
+    img {
+      width: 20px;
+      height: 20px;
+      object-fit: cover;
+      margin-right: 6px;
+      transition: all 0.6s ease;
+    }
   }
 }
 
@@ -327,13 +563,6 @@ export default {
     object-fit: contain;
     margin-right: 5px;
   }
-}
-
-.info-wrap,
-.status-wrap {
-  width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 0;
 }
 
 .btn {
