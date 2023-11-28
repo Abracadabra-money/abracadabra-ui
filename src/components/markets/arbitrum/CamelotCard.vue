@@ -70,6 +70,7 @@ export default {
   created() {
     // this.fetchTVL();
     // this.fetchAPR();
+
   },
 };
 </script>
