@@ -2,7 +2,7 @@
   <div class="camelot-card-background">
     <a
       class="camelot-card"
-      href="https://app.camelot.exchange/pools/0xb4E0a7698c7cfB03508787C80647419364CcB8D0"
+      href="https://app.camelot.exchange/liquidity/?token1=0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A&token2=0x912CE59144191C1204E64559FE8253a0e49E6548&mode=auto&provider=gamma"
       target="_blank"
       rel="noreferrer noopener"
     >
