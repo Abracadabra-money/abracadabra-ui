@@ -1,6 +1,6 @@
 <template>
   <AppHeader />
-  <div class="router-wrap" v-if="checkInProcess">
+  <div class="router-wrap" :style="pageBackground" v-if="checkInProcess">
     <router-view />
   </div>
   <NotificationContainer />
@@ -44,11 +44,20 @@ export default {
       ],
     };
   },
+
   computed: {
     ...mapGetters({
       checkInProcess: "getWalletIsConnected",
       signer: "getSigner",
     }),
+
+    pageBackground() {
+      if (this.$route.name === "ArbCauldrons") {
+        return "background:linear-gradient(291deg, #102649 -26.37%, #0C0F1C 40.92%, #131728 62.83%, #212555 123.87%)";
+      }
+
+      return "";
+    },
   },
 
   // async beforeCreate() {

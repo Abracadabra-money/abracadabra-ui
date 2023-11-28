@@ -12,3 +12,5 @@ export const KAVA_USDT_ADDRESS: Address =
   "0x919c1c267bc06a7039e03fcc2ef738525769109c";
 export const SANCTIONS_LIST_ADDRESS: Address =
   "0x40c57923924b5c5c5455c48d93317139addac8fb";
+export const MAINNET_LQTY_ADDRESS: Address =
+  "0x6dea81c8171d0ba574754ef6f8b412f2ed88c54d";
