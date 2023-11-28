@@ -221,21 +221,6 @@ const createOrder = (
   return cookData;
 };
 
-const cancelOrder = (cookData, order) => {
-  const methodId = 102;
-
-  // const encode = ethers.utils.defaultAbiCoder.encode(
-  //   ["address", "bool", "uint128", "uint128", "uint128", "uint128"],
-  //   [inputToken, deposit, inputAmount, executionFee, minOutput, minOutLong]
-  // );
-
-  cookData.events.push(methodId);
-  cookData.values.push(0);
-  cookData.datas.push("0x00");
-
-  return cookData;
-}
-
 const actions = {
   repay,
   removeCollateral,
@@ -250,7 +235,6 @@ const actions = {
   call,
   createOrder,
   withdrawFromOrder,
-  cancelOrder
 };
 
 export { actions };
