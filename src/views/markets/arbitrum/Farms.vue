@@ -7,9 +7,9 @@
     </div>
     <div v-else class="stats-wrap">
       <div class="stats-list-wrap">
-
         <template v-if="filteredPools.length">
           <FarmCard v-for="farm in filteredPools" :key="farm.id" :farm="farm" />
+          <CamelotCard />
           <EmpowerCard />
         </template>
         <EmptyState v-else />
@@ -23,7 +23,8 @@ import { mapGetters } from "vuex";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
 import FarmCard from "@/components/markets/arbitrum/FarmCard.vue";
-import EmpowerCard from "@/components/markets/arbitrum/EmpowerCard.vue"
+import EmpowerCard from "@/components/markets/arbitrum/EmpowerCard.vue";
+import CamelotCard from "@/components/markets/arbitrum/CamelotCard.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
 const sortKeys = {
@@ -98,9 +99,9 @@ export default {
     filterBySearch(farms, search) {
       return search
         ? farms.filter(
-          (farm) =>
-            farm.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
-        )
+            (farm) =>
+              farm.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+          )
         : farms;
     },
 
@@ -205,7 +206,8 @@ export default {
     EmptyState,
     BaseLoader,
     FarmCard,
-    EmpowerCard
+    EmpowerCard,
+    CamelotCard,
   },
 };
 </script>
@@ -438,7 +440,7 @@ export default {
 }
 
 @media screen and (max-width: 660px) {
-  .stats-list-wrap{
+  .stats-list-wrap {
     justify-content: center;
   }
 }
