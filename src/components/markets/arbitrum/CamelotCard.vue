@@ -14,11 +14,11 @@
       <ul class="secondary paragraph">
         <li>
           <span class="title">TVL:</span>
-          <span class="value">{{ formattedTvl }}</span>
+          <span class="value">≈ {{ formattedTvl }}</span>
         </li>
         <li>
           <span class="title">APR:</span>
-          <span class="value">{{ formattedApr }}</span>
+          <span class="value">≈ {{ formattedApr }}</span>
         </li>
       </ul>
     </a>
@@ -31,8 +31,8 @@ import filters from "@/filters/index";
 export default {
   data() {
     return {
-      tvl: 0,
-      apr: 0,
+      tvl: 115000,
+      apr: 180.03,
     };
   },
 
@@ -46,32 +46,30 @@ export default {
   },
 
   methods: {
-    async fetchTVL() {
-      const res = await axios.get(
-        `https://wire2.gamma.xyz/camelot/arbitrum/hypervisors/allData`
-      );
-      const { tvlUSD } = Object.values(res.data).find(
-        (element) =>
-          element.poolAddress == "0xb4e0a7698c7cfb03508787c80647419364ccb8d0"
-      );
-      this.tvl = +tvlUSD;
-    },
-
-    async fetchAPR() {
-      const res = await axios.get(
-        `https://api.camelot.exchange/v2/liquidity-v3-data`
-      );
-
-      this.apr =
-        res.data.data.pools[
-          "0xb4E0a7698c7cfB03508787C80647419364CcB8D0"
-        ].activeTvlAverageAPR;
-    },
+    // async fetchTVL() {
+    //   const res = await axios.get(
+    //     `https://wire2.gamma.xyz/camelot/arbitrum/hypervisors/allData`
+    //   );
+    //   const { tvlUSD } = Object.values(res.data).find(
+    //     (element) =>
+    //       element.poolAddress == "0xb4e0a7698c7cfb03508787c80647419364ccb8d0"
+    //   );
+    //   this.tvl = +tvlUSD;
+    // },
+    // async fetchAPR() {
+    //   const res = await axios.get(
+    //     `https://api.camelot.exchange/v2/liquidity-v3-data`
+    //   );
+    //   this.apr =
+    //     res.data.data.pools[
+    //       "0xb4E0a7698c7cfB03508787C80647419364CcB8D0"
+    //     ].activeTvlAverageAPR;
+    // },
   },
 
   created() {
-    this.fetchTVL();
-    this.fetchAPR();
+    // this.fetchTVL();
+    // this.fetchAPR();
   },
 };
 </script>
