@@ -56,6 +56,11 @@ export default {
     },
 
     assetsInfo() {
+      const disableEarnedButton = this.farmConfig.isMultiReward
+        ? this.multiRewardsTokens?.filter((tokenInfo) => +tokenInfo.amount > 0)
+            .length === 0
+        : !+this.earnedData.balance;
+
       return [
         {
           title: "Earned",
@@ -68,7 +73,7 @@ export default {
             : false,
           actions: {
             visibility: this.farmConfig.accountInfo,
-            disabled: !+this.earnedData.balance,
+            disabled: disableEarnedButton,
             event: "harvest",
           },
         },
@@ -92,6 +97,8 @@ export default {
     },
 
     multiRewardsTokens() {
+      if(!this.farmConfig.isMultiReward) return false;
+
       const { rewardTokensInfo } = this.farmConfig.accountInfo;
 
       const tokensList = rewardTokensInfo.map((tokenInfo) => {

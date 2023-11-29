@@ -253,10 +253,14 @@ export default {
         notification.pending
       );
       try {
-        const { error, result } = await actions.withdraw(
-          this.selectedFarm.contractInfo,
+        const args = this.selectedFarm.isMultiReward ? [this.parsedInputAmount] : [
           this.selectedFarm.poolId,
           this.parsedInputAmount
+        ]
+
+        const { error, result } = await actions.withdraw(
+          this.selectedFarm.contractInfo,
+          args
         );
 
         await this.getSelectedFarm();

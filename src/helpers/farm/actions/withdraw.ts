@@ -7,14 +7,13 @@ import type { ContractInfo } from "@/utils/farmsConfig/types";
 
 export const withdraw = async (
   contractInfo: ContractInfo,
-  poolId: number,
-  amount: bigint
+  args: any
 ) => {
   try {
     const config = await prepareWriteContract({
       ...contractInfo,
       functionName: "withdraw",
-      args: [poolId, amount],
+      args,
     });
 
     const { hash } = await writeContract(config);
