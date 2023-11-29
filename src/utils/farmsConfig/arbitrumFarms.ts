@@ -29,7 +29,7 @@ const arbitrumFarms: FarmConfig[] = [
     },
   },
   {
-    name: "MIM-2Crv",
+    name: "MIM-2Crv (new)",
     icon: useImage(`assets/images/tokens/Curve-MIM.png`),
     contractChain: 42161,
     id: 4,
