@@ -47,6 +47,7 @@ export const createFarmItemConfig = async (
 
   const poolInfo: PoolInfo = await getPoolInfo(
     farmInfo.contract,
+      // @ts-ignore
     farmInfo.poolId,
     chainId
   );
@@ -78,6 +79,7 @@ export const createFarmItemConfig = async (
     name: farmInfo.name,
     icon: farmInfo.icon,
     id: farmInfo.id,
+    // @ts-ignore
     poolId: farmInfo.poolId,
     earnedTokenPrice: SPELLPrice,
     stakingToken: {

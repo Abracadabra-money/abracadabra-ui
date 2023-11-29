@@ -4,7 +4,7 @@ import chainLinkAbi from "@/utils/abi/chainLink";
 import { chainsList } from "@/helpers/chains";
 import { getRewardTokenApy } from "./getRewardTokenApy";
 
-export const createMultiRewardFarm = async (config, account, provider) => {
+export const createMultiRewardFarm = async (config, account) => {
   const chain = chainsList[config.contractChain];
 
   const publicClient = createPublicClient({
