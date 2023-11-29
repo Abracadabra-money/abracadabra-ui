@@ -4,7 +4,12 @@
       <PositionTokensInfo :position="farmConfig" />
       <PositionLinks :actions="positionActions" />
     </div>
-    <PositionAssets :assetsInfo="assetsInfo" @harvest="harvest" />
+    <MultiRewardAssets
+      v-if="farmConfig.isMultiReward"
+      :assetsInfo="assetsInfo"
+      @harvest="getReward"
+    />
+    <PositionAssets v-else :assetsInfo="assetsInfo" @harvest="harvest" />
   </div>
 </template>
 
@@ -15,6 +20,7 @@ import spellIcon from "@/assets/images/tokens/SPELL.png";
 import PositionTokensInfo from "@/components/myPositions/PositionTokensInfo.vue";
 import PositionLinks from "@/components/myPositions/PositionLinks.vue";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
+import MultiRewardAssets from "@/components/myPositions/MultiRewardAssets.vue";
 
 import {
   prepareWriteContract,
@@ -57,6 +63,9 @@ export default {
           icon: spellIcon,
           amount: filters.formatTokenBalance(this.earnedData.balance),
           amountUsd: filters.formatUSD(this.earnedData.usd),
+          tokensList: this.farmConfig.isMultiReward
+            ? this.multiRewardsTokens
+            : false,
           actions: {
             visibility: this.farmConfig.accountInfo,
             disabled: !+this.earnedData.balance,
@@ -80,6 +89,21 @@ export default {
           },
         },
       ];
+    },
+
+    multiRewardsTokens() {
+      const { rewardTokensInfo } = this.farmConfig.accountInfo;
+
+      const tokensList = rewardTokensInfo.map((tokenInfo) => {
+        return {
+          symbol: tokenInfo.name,
+          icon: tokenInfo.icon,
+          amount: filters.formatTokenBalance(tokenInfo.rewards),
+          amountUsd: filters.formatUSD(tokenInfo.rewards * tokenInfo.price),
+        };
+      });
+
+      return tokensList.filter((e) => e.symbol && e.amount);
     },
 
     tokensList() {
@@ -134,6 +158,22 @@ export default {
       };
     },
 
+    async getReward() {
+      try {
+        const config = await prepareWriteContract({
+          ...this.farmConfig.contractInfo,
+          functionName: "getRewards",
+          args: [],
+        });
+
+        const { hash } = await writeContract(config);
+
+        await waitForTransaction({ hash });
+      } catch (error) {
+        console.log("harvest err:", error);
+      }
+    },
+
     async harvest() {
       try {
         const config = await prepareWriteContract({
@@ -155,6 +195,7 @@ export default {
     PositionTokensInfo,
     PositionLinks,
     PositionAssets,
+    MultiRewardAssets,
   },
 };
 </script>

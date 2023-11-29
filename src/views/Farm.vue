@@ -219,11 +219,16 @@ export default {
         notification.pending
       );
       try {
-        const { error, result } = await actions.deposit(
-          this.selectedFarm.contractInfo,
-          this.selectedFarm.poolId,
-          this.parsedInputAmount
-        );
+        const { error, result } = this.selectedFarm.isMultiReward
+          ? await actions.stake(
+              this.selectedFarm.contractInfo,
+              this.parsedInputAmount
+            )
+          : await actions.deposit(
+              this.selectedFarm.contractInfo,
+              this.selectedFarm.poolId,
+              this.parsedInputAmount
+            );
 
         await this.getSelectedFarm();
 

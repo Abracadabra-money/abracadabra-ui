@@ -14,12 +14,13 @@ import { readContract } from "@wagmi/core";
 import type { Address } from "viem";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { createMultiRewardFarm } from "./createMultiRewardFarm";
 
 export const createFarmItemConfig = async (
   farmId: number | string,
   chainId: number,
   account: Address | undefined,
-  isExtended = true
+  isExtended = true,
 ): Promise<FarmItem | null> => {
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId
@@ -30,6 +31,9 @@ export const createFarmItemConfig = async (
   );
 
   if (!farmInfo) return null;
+
+  // @ts-ignore
+  if(farmInfo.isMultiReward) return await createMultiRewardFarm(farmInfo, account)
 
   const MIMPrice = await getTokenPriceByChain(
     tokensChainLink.mim.chainId,
