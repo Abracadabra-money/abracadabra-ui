@@ -68,20 +68,24 @@ export default {
   height: 201px;
   width: 302px;
   border-radius: 16px;
-  border: 1px solid #2d4a96;
+  border: 1px solid #4666b9;
   background: linear-gradient(
     146deg,
     rgba(0, 10, 35, 0.07) 0%,
     rgba(0, 80, 156, 0.07) 101.49%
   );
-  backdrop-filter: blur(12.5px);
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  color: white;
-  transition: 0.3s;
-}
 
-.farm-card:hover {
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.21);
+  box-shadow: 0px 0px 43.7px 0px rgba(113, 91, 208, 0.78),
+    0px 4px 17.9px 0px #4651ab inset;
+  backdrop-filter: blur(12.5px);
+  color: white;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border: 1px solid #5c7ed6;
+    box-shadow: 0px 0px 43.7px 0px rgba(113, 91, 208, 0.82),
+      0px 4px 17.9px 0px #4651ab inset;
+  }
 }
 
 .card-header {

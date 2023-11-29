@@ -35,12 +35,12 @@ export default {};
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);
   color: white;
-  opacity: 0.6;
   transition: 0.3s;
 }
 
 .empower-card:hover {
-  opacity: 1;
+  border: 1px solid #526fbc;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.21);
 }
 
 .paragraph {

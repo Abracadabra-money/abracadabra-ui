@@ -81,9 +81,14 @@ export default {
     },
 
     filteredPools() {
-      return this.sortByDepreciate(
-        this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
+      const multiRewardFarm = this.currentPools.find(
+        (farm) => farm.isMultiReward
       );
+      
+      return [multiRewardFarm];
+      // return this.sortByDepreciate(
+      //   this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
+      // );
     },
 
     headers() {

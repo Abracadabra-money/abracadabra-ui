@@ -70,7 +70,6 @@ export default {
   created() {
     // this.fetchTVL();
     // this.fetchAPR();
-
   },
 };
 </script>
@@ -91,10 +90,10 @@ export default {
   width: 302px;
   background-image: url("../../../assets/images/background_camelot.png");
   border-radius: 16px;
-  border: 1px solid #ffbc01;
+  border: 1px solid #2d4a96;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   background-position: 50% 50%;
-  background-size: 704px 522px;
+  background-size: 100%;
   background-repeat: no-repeat;
   color: white;
   text-transform: uppercase;
@@ -103,7 +102,9 @@ export default {
 }
 
 .camelot-card:hover {
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.21);
+  border: 1px solid #526fbc;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06),
+    0px 4px 32px 0px rgba(103, 103, 103, 0.21);
 }
 
 .primary {

@@ -3,6 +3,7 @@ import { formatUnits, createPublicClient, http } from "viem";
 import chainLinkAbi from "@/utils/abi/chainLink";
 import { chainsList } from "@/helpers/chains";
 import { getRewardTokenApy, calculateAPR } from "./getRewardTokenApy";
+import { markRaw } from "vue";
 
 export const createMultiRewardFarm = async (config, account) => {
   const chain = chainsList[config.contractChain];
@@ -110,7 +111,7 @@ export const createMultiRewardFarm = async (config, account) => {
   if (account)
     farmItem.accountInfo = await getUserInfo(config, rewardPrices, account);
 
-  return farmItem;
+  return markRaw(farmItem);
 };
 
 const getUserInfo = async (config, rewardPrices, account) => {
