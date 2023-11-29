@@ -119,7 +119,10 @@ export default {
 
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
-      return Number(this.selectedFarm?.accountInfo?.allowance) >= Number(this.inputAmount);
+      return (
+        Number(this.selectedFarm?.accountInfo?.allowance) >=
+        Number(this.inputAmount)
+      );
     },
 
     isValid() {
@@ -253,15 +256,15 @@ export default {
         notification.pending
       );
       try {
-        const args = this.selectedFarm.isMultiReward ? [this.parsedInputAmount] : [
-          this.selectedFarm.poolId,
-          this.parsedInputAmount
-        ]
+        const args = this.selectedFarm.isMultiReward
+          ? [this.parsedInputAmount]
+          : [this.selectedFarm.poolId, this.parsedInputAmount];
 
-        const { error, result } = await actions.withdraw(
-          this.selectedFarm.contractInfo,
-          args
-        );
+        const isExit = this.inputAmount === this.max;
+
+        const { error, result } = isExit
+          ? await actions.exit(this.selectedFarm.contractInfo)
+          : await actions.withdraw(this.selectedFarm.contractInfo, args);
 
         await this.getSelectedFarm();
 
