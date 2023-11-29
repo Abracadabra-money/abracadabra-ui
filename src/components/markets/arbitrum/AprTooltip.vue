@@ -54,6 +54,8 @@ export default {
 
 <style lang="scss" scoped>
 .tooltip-wrap {
+  width: 16px;
+  height: 16px;
   margin-right: 3px;
   position: relative;
 

@@ -7,6 +7,7 @@
     <MultiRewardAssets
       v-if="farmConfig.isMultiReward"
       :assetsInfo="assetsInfo"
+      :farmInfo="farmConfig"
       @harvest="getReward"
     />
     <PositionAssets v-else :assetsInfo="assetsInfo" @harvest="harvest" />

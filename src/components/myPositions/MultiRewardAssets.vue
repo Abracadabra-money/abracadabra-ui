@@ -50,7 +50,8 @@
         </div>
       </div>
 
-      <div class="assets-desc" v-else>
+      <template v-else>
+      <div class="assets-desc" >
         <div class="token-info">
           <BaseTokenIcon :name="asset.symbol" :icon="asset.icon" size="50px" />
           <p>{{ asset.symbol }}</p>
@@ -63,6 +64,15 @@
           </p>
         </div>
       </div>
+
+      <div class="boosted-yield">
+        <p class="title">
+          <AprTooltip :farm="farmInfo" />
+          Boosted Yield
+        </p>
+        <p class="value">{{ apr }}</p>
+      </div>
+    </template>
     </div>
   </div>
 </template>
@@ -70,22 +80,59 @@
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import GetLpLink from "@/components/ui/GetLpLink.vue";
+import AprTooltip from "@/components/markets/arbitrum/AprTooltip.vue";
+import filters from "@/filters/index";
+
 export default {
   props: {
+    farmInfo: {
+      type: Object,
+      required: true,
+    },
     assetsInfo: {
       type: Object,
       required: true,
     },
   },
 
+  computed: {
+    apr() {
+      return filters.formatPercent(this.farmInfo.farmRoi);
+    },
+  },
+
   components: {
     BaseTokenIcon,
     GetLpLink,
+    AprTooltip
   },
 };
 </script>
 
 <style lang="scss" scoped>
+
+.boosted-yield {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+
+  .title {
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+  
+  .value {
+    font-size: 20px;
+    font-weight: 600;
+    margin-left: auto;
+    text-align: right;
+  }
+}
 .assets-wrap {
   display: flex;
   justify-content: space-between;
