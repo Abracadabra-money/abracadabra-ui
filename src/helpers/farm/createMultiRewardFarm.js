@@ -12,8 +12,6 @@ export const createMultiRewardFarm = async (config, account) => {
     transport: http(),
   });
 
-  console.log(publicClient);
-
   const { stakingToken, contract } = config;
 
   const [virtualPrice, totalSupply] = await multicall({
@@ -97,8 +95,6 @@ export const createMultiRewardFarm = async (config, account) => {
   if (account)
     farmItem.accountInfo = await getUserInfo(config, rewardPrices, account);
 
-  console.log("farmItem", farmItem);
-
   return farmItem;
 };
 
@@ -127,6 +123,8 @@ const getUserInfo = async (config, rewardPrices, account) => {
       },
     ],
   });
+
+  console.log("allowance", allowance)
 
   const rewardTokensInfo = await Promise.all(
     config.rewardTokens.map(async (tokenInfo) => {

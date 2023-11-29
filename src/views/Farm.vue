@@ -119,7 +119,7 @@ export default {
 
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
-      return this.selectedFarm?.accountInfo?.allowance >= this.inputAmount;
+      return Number(this.selectedFarm?.accountInfo?.allowance) >= Number(this.inputAmount);
     },
 
     isValid() {
