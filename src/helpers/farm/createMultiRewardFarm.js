@@ -15,6 +15,7 @@ export const createMultiRewardFarm = async (config, account) => {
   const { stakingToken, contract } = config;
 
   const [virtualPrice, totalSupply] = await multicall({
+    chainId: config.contractChain,
     contracts: [
       {
         address: stakingToken.address,
@@ -60,7 +61,7 @@ export const createMultiRewardFarm = async (config, account) => {
       };
     })
   );
-
+  
   const farmTvl = Number(
     formatUnits(totalSupply.result, stakingToken.decimals) *
       formatUnits(virtualPrice.result, stakingToken.decimals)
@@ -123,8 +124,6 @@ const getUserInfo = async (config, rewardPrices, account) => {
       },
     ],
   });
-
-  console.log("allowance", allowance)
 
   const rewardTokensInfo = await Promise.all(
     config.rewardTokens.map(async (tokenInfo) => {
