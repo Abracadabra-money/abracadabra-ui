@@ -59,8 +59,8 @@ export default {
 
   &:hover {
     .apr-info {
-      opacity: 1;
       z-index: 100;
+      display: block;
     }
   }
 
@@ -72,7 +72,7 @@ export default {
   }
 
   .apr-info {
-    opacity: 0;
+    display: none;
     z-index: -100;
     position: absolute;
     left: -92px;
