@@ -73,6 +73,7 @@ export const createMultiRewardFarm = async (config, account) => {
   );
 
   const farmItem = {
+    config,
     name: config.name,
     icon: config.icon,
     id: config.id,
@@ -89,6 +90,7 @@ export const createMultiRewardFarm = async (config, account) => {
     contractInfo: config.contract,
     farmRoi: apy, // TODO update ui
     lpPrice: Number(virtualPrice.result), // TODO update ui
+    rewardsApy,
     farmTvl,
     isDepreciated: false, // TODO fix naming
   };
