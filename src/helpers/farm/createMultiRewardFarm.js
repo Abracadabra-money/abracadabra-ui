@@ -2,7 +2,7 @@ import { multicall } from "@wagmi/core";
 import { formatUnits, createPublicClient, http } from "viem";
 import chainLinkAbi from "@/utils/abi/chainLink";
 import { chainsList } from "@/helpers/chains";
-import { getRewardTokenApy } from "./getRewardTokenApy";
+import { getRewardTokenApy, calculateAPR } from "./getRewardTokenApy";
 
 export const createMultiRewardFarm = async (config, account) => {
   const chain = chainsList[config.contractChain];
@@ -47,30 +47,42 @@ export const createMultiRewardFarm = async (config, account) => {
     })
   );
 
-  const rewardsApy = await Promise.all(
-    config.rewardTokens.map(async (tokenInfo) => {
-      const apy = await getRewardTokenApy(
-        contract.address,
-        contract.abi,
-        tokenInfo.address
-      );
-
+  const { totalApr, tokensApr } = await calculateAPR(
+    contract.address,
+    contract.abi,
+    formatUnits(virtualPrice.result, stakingToken.decimals),
+    rewardPrices.map((item) => {
       return {
-        apy,
-        address: tokenInfo.address,
+        address: item.address,
+        price: formatUnits(item.latestAnswer, 8),
       };
     })
   );
-  
+
+  // const rewardsApy = await Promise.all(
+  //   config.rewardTokens.map(async (tokenInfo) => {
+  //     const apy = await getRewardTokenApy(
+  //       contract.address,
+  //       contract.abi,
+  //       tokenInfo.address
+  //     );
+
+  //     return {
+  //       apy,
+  //       address: tokenInfo.address,
+  //     };
+  //   })
+  // );
+
   const farmTvl = Number(
     formatUnits(totalSupply.result, stakingToken.decimals) *
       formatUnits(virtualPrice.result, stakingToken.decimals)
   );
 
-  const apy = rewardsApy.reduce(
-    (accumulator, currentItem) => accumulator + currentItem.apy,
-    0
-  );
+  // const apy = rewardsApy.reduce(
+  //   (accumulator, currentItem) => accumulator + currentItem.apy,
+  //   0
+  // );
 
   const farmItem = {
     config,
@@ -88,9 +100,9 @@ export const createMultiRewardFarm = async (config, account) => {
       },
     },
     contractInfo: config.contract,
-    farmRoi: apy, // TODO update ui
+    farmRoi: totalApr, // TODO update ui
     lpPrice: Number(virtualPrice.result), // TODO update ui
-    rewardsApy,
+    tokensApr,
     farmTvl,
     isDepreciated: false, // TODO fix naming
   };

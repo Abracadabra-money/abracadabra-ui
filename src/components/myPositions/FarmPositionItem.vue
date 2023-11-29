@@ -80,7 +80,7 @@ export default {
         {
           title: `${this.farmConfig.stakingToken.type} deposited`,
           type: this.farmConfig.stakingToken.type,
-          symbol: this.farmConfig.name,
+          symbol: this.farmConfig.stakingToken.name,
           icon: this.farmConfig.icon,
           lpLink: this.farmConfig.stakingToken.link,
           isDepreciated: this.farmConfig.isDepreciated,
@@ -105,8 +105,8 @@ export default {
         return {
           symbol: tokenInfo.name,
           icon: tokenInfo.icon,
-          amount: filters.formatTokenBalance(tokenInfo.rewards),
-          amountUsd: filters.formatUSD(tokenInfo.rewards * tokenInfo.price),
+          amount: filters.formatTokenBalance(tokenInfo.earned),
+          amountUsd: filters.formatUSD(tokenInfo.earned * tokenInfo.price),
         };
       });
 

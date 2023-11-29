@@ -4,7 +4,7 @@ import store from "@/store";
 export const getRewardTokenApy = async (
   contractAddress: string,
   contractABI: any,
-  rewardTokenAddress: string,
+  rewardTokenAddress: string
 ): Promise<number> => {
   const provider = store.getters.getProvider;
 
@@ -33,5 +33,54 @@ export const getRewardTokenApy = async (
   } catch (error) {
     console.error("Error calculating APY:", error);
     throw error;
+  }
+};
+
+export const calculateAPR = async (
+  contractAddress: string,
+  contractABI: any,
+  stakingTokenPrice: any,
+  rewardTokensInfo: any
+): Promise<any> => {
+  try {
+    const provider = store.getters.getProvider;
+    const contract = new Contract(contractAddress, contractABI, provider);
+
+    const totalSupply = await contract.totalSupply();
+
+    const totalStakedInUSD =
+      // @ts-ignore
+      utils.formatUnits(totalSupply, 18) * stakingTokenPrice;
+
+    let totalAnnualRewardsInUSD = 0;
+    const tokensApr = [];
+
+    for (const tokenInfo of rewardTokensInfo) {
+      const rewardData = await contract.rewardData(tokenInfo.address);
+      const rewardTokenPrice = tokenInfo.price;
+
+      const annualReward =
+        //@ts-ignore
+        utils.formatUnits(rewardData.rewardRate, 18) *
+        (365 * 24 * 60 * 60) *
+        // rewardData.rewardsDuration *
+        rewardTokenPrice;
+
+      const tokenApr = (annualReward / totalStakedInUSD) * 100;
+
+      tokensApr.push({
+        address: tokenInfo.address,
+        apr: tokenApr,
+      });
+
+      totalAnnualRewardsInUSD += annualReward;
+    }
+
+    const totalApr = (totalAnnualRewardsInUSD / totalStakedInUSD) * 100;
+
+    return { totalApr, tokensApr };
+  } catch (error) {
+    console.error("Error calculating APR:", error);
+    return 0;
   }
 };

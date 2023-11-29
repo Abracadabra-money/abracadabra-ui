@@ -29,7 +29,7 @@ const arbitrumFarms: FarmConfig[] = [
     },
   },
   {
-    name: "MIM-2Crv (new)",
+    name: "MIM-2Crv STIP Boosted",
     icon: useImage(`assets/images/tokens/Curve-MIM.png`),
     contractChain: 42161,
     id: 4,
@@ -38,7 +38,7 @@ const arbitrumFarms: FarmConfig[] = [
       name: "MIM-2Crv",
       type: "LP",
       decimals: 18,
-      link: "https://arbitrum.curve.fi/factory/0/deposit",
+      link: "https://curve.fi/#/arbitrum/pools/factory-v2-0/deposit",
       address: "0x30dF229cefa463e991e29D42DB0bae2e122B2AC7",
       abi: crvStakeTokenAbi,
     },

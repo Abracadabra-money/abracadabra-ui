@@ -2,7 +2,7 @@
   <div class="tooltip-wrap">
     <img class="tooltip-icon" src="@/assets/images/info.svg" alt="info" />
     <div class="apr-info">
-      <div class="apr-item" v-for="item in tekensInfo" :key="item.address">
+      <div class="apr-item" v-for="item in tokensInfo" :key="item.address">
         <img :src="item.icon" alt="" class="token-icon" />
         <p class="name">{{ item.title }}:</p>
         <p class="apr">{{ item.apr }}</p>
@@ -27,20 +27,20 @@ export default {
     },
   },
   computed: {
-    tekensInfo() {
-      const { rewardsApy } = this.farm;
+    tokensInfo() {
+      const { tokensApr } = this.farm;
       const { rewardTokens } = this.farm.config;
 
       return rewardTokens.map((tokenItem, index) => {
         const title = index === 0 ? "Base APR" : "Boosted";
 
-        const { apy } = rewardsApy.find(
+        const { apr } = tokensApr.find(
           (item) => item.address === tokenItem.address
         );
 
         return {
           ...tokenItem,
-          apr: filters.formatPercent(apy),
+          apr: filters.formatPercent(apr),
           title,
         };
       });
