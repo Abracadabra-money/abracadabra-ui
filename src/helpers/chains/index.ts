@@ -39,7 +39,7 @@ export const chainsList = {
 };
 
 export const defaultRpc = {
-  1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+  1: "https://eth.llamarpc.com",
   10: "https://mainnet.optimism.io",
   56: "https://bsc-dataseed.binance.org/",
   137: "https://polygon-rpc.com",
