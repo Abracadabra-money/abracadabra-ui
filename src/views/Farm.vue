@@ -122,7 +122,7 @@ export default {
     }),
 
     isUserPositionOpen() {
-      if (!this.selectedFarm) return false;
+      if (!this.selectedFarm || !this.account) return false;
 
       const isOpenMultiReward = this.selectedFarm.isMultiReward
         ? +this.selectedFarm.accountInfo.depositedBalance > 0 ||
