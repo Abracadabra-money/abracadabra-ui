@@ -50,6 +50,14 @@
             primary
             >{{ buttonText }}
           </BaseButton>
+
+          <template v-if="isUserPositionOpen">
+            <router-link
+              class="position-link link"
+              :to="{ name: 'MyPositions' }"
+              >Monitor your Farming Position</router-link
+            >
+          </template>
         </div>
 
         <FarmInfoBlock :selectedFarm="selectedFarm" v-if="selectedFarm" />
@@ -112,6 +120,25 @@ export default {
       account: "getAccount",
       signer: "getSigner",
     }),
+
+    isUserPositionOpen() {
+      if (!this.selectedFarm) return false;
+
+      const isOpenMultiReward = this.selectedFarm.isMultiReward
+        ? +this.selectedFarm.accountInfo.depositedBalance > 0 ||
+          this.selectedFarm.accountInfo.rewardTokensInfo.filter(
+            (item) => +item.earned > 0
+          ).length > 0
+        : false;
+
+      const isOpenLegacyFarm =
+        this.selectedFarm.accountInfo?.userReward != 0 ||
+        this.selectedFarm.accountInfo?.userInfo.amount != 0;
+
+      return this.selectedFarm.isMultiReward
+        ? isOpenMultiReward
+        : isOpenLegacyFarm;
+    },
 
     isUnstake() {
       return this.selectedTab === "unstake";
@@ -409,7 +436,7 @@ export default {
   display: grid;
   grid-template-rows: repeat(auto-fill, 1fr);
   row-gap: 1rem;
-  margin-bottom: 119px;
+  margin-bottom: 80px;
 }
 
 .stake-unstake-switch {
