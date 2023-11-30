@@ -31,8 +31,8 @@ import filters from "@/filters/index";
 export default {
   data() {
     return {
-      tvl: 115000,
-      apr: 180.03,
+      tvl: 120000,
+      apr: 156,
     };
   },
 
