@@ -1,18 +1,30 @@
 import type { Address } from "viem";
 
+type RewardToken = {
+  name: String,
+  icon: String,
+  address: Address,
+  decimals: number,
+  abi: any,
+  oracle: Address,
+}
+
 export type FarmConfig = {
   name: string;
   icon: string;
   contractChain: number;
   id: number;
-  poolId: number;
+  poolId?: number;
+  isMultiReward?: boolean;
   stakingToken: {
     name: string;
+    address?: Address;
+    decimals?: number;
     type: string;
     link: string;
     abi: any;
   };
-  earnedToken: {
+  earnedToken?: {
     name: string;
     abi: any;
   };
@@ -31,6 +43,7 @@ export type FarmConfig = {
       icon: string;
     };
   };
+  rewardTokens?: Array<RewardToken>
 };
 
 export type FarmItem = {

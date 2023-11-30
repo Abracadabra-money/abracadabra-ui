@@ -145,10 +145,14 @@ export default {
 
     openUserFarms() {
       return this.farms.filter((farm) => {
-        return (
-          farm.accountInfo?.userReward != 0 ||
+        const isOpenMultiReward = farm.isMultiReward ?
+        +farm.accountInfo.depositedBalance > 0 ||
+        farm.accountInfo.rewardTokensInfo.filter(item => +item.earned > 0).length > 0 : false
+
+        const isOpenLegacyFarm = farm.accountInfo?.userReward != 0 ||
           farm.accountInfo?.userInfo.amount != 0
-        );
+
+        return farm.isMultiReward ? isOpenMultiReward : isOpenLegacyFarm;
       });
     },
 
