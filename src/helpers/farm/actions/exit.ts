@@ -5,15 +5,12 @@ import {
 } from "@wagmi/core";
 import type { ContractInfo } from "@/utils/farmsConfig/types";
 
-export const withdraw = async (
-  contractInfo: ContractInfo,
-  args: any
-) => {
+export const exit = async (contractInfo: ContractInfo) => {
   try {
     const config = await prepareWriteContract({
       ...contractInfo,
-      functionName: "withdraw",
-      args,
+      functionName: "exit",
+      args: [],
     });
 
     const { hash } = await writeContract(config);
