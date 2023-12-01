@@ -12,6 +12,8 @@ import { applySlippageToMinOut } from "./applySlippageToMinOut";
 import { DEFAULT_SLIPPAGE_AMOUNT } from "./applySlippageToMinOut";
 import { fetchTokenPrices } from "./fetchTokenPrices";
 import type { TokenPriceResponse } from "./types";
+import { getDataStoreInfo } from "./getDataStoreInfo";
+import { getMintableMarketTokens } from "./utils";
 
 export const getDepositAmount = async (
   market: Address,
@@ -26,6 +28,17 @@ export const getDepositAmount = async (
   const uiFeeReceiver = ZERO_ADDRESS;
   const tokenPricesResponse: Array<TokenPriceResponse> = await fetchTokenPrices();
   const prices = getContractMarketPrices(tokenPricesResponse, marketInfo);
+
+  const dataStoreInfo = await getDataStoreInfo(market, marketInfo, provider);
+
+  const {
+    shortDepositCapacityAmount,
+  } = getMintableMarketTokens(dataStoreInfo)
+
+
+  if(shortTokenAmount.gt(shortDepositCapacityAmount)) {
+    throw new Error('GM Capcity');
+  }
 
   const depositAmountOut = await GMXReaderContract.getDepositAmountOut(
     DATA_STORE,

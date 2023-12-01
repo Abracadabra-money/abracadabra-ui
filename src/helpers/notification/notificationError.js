@@ -55,6 +55,10 @@ export const notificationErrorMsg = (e) => {
       "Some of your GLP tokens are reserved for vesting on gmx. Please insert the amount that is not reserved for vesting";
   }
 
+  if (String(e).indexOf("GM Capcity")) {
+    msg = "Max GM Pool Capacity Reached";
+  }
+
   if (!msg) msg = "Transaction encountered an Error";
 
   return msg;

@@ -603,10 +603,15 @@ export default {
         this.createNotification(notification.success);
         this.activeOrder = newOrder;
       } catch (error) {
-        console.log("gmRecoverLeverageOrder err:", error);
+        const errorType = String(error).indexOf("GM Capcity") ? "warning": "error"
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: errorType,
+        };
 
         this.deleteNotification(notificationId);
-        this.createNotification(notification.error);
+        this.createNotification(errorNotification);
       }
     },
 
