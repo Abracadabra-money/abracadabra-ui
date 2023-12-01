@@ -15,7 +15,7 @@ import { USDC_ADDRESS, WETH_ADDRESS, ORDER_AGENT } from "@/constants/gm";
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { getOpenoceanLeverageSwapData } from "@/helpers/openocean/getOpenoceanLeverageSwapData";
 import { getOpenoceanDeleverageSwapData } from "@/helpers/openocean/getOpenoceanDeleverageSwapData";
-
+// import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
 import {
   estimateExecuteDepositGasLimit,
   estimateExecuteWithdrawalGasLimit,
@@ -1149,7 +1149,7 @@ export default {
       );
 
       const swapData = swapResponse.data;
-      
+
       const minExpected = swapResponse.buyAmount;
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
@@ -1181,6 +1181,11 @@ export default {
         amountToSwap,
         liquidationSwapper.address
       );
+
+      // const buyAmountMin = applySlippageToMinOut(
+      //   slipage * 10,
+      //   BigNumber.from(swapResponse.buyAmount)
+      // );
 
       const buyShare = await bentoBox.toShare(
         mim.address,
@@ -1383,7 +1388,8 @@ export default {
       account,
       order
     ) {
-      const { liquidationSwapper, cauldron } = cauldronObject.contracts;
+      const { liquidationSwapper, cauldron, bentoBox } =
+        cauldronObject.contracts;
       const collateralAddress = cauldronObject.config.collateralInfo.address;
       const { balanceUSDC } = await getOrderBalances(order, this.provider);
 
@@ -1401,14 +1407,20 @@ export default {
         true
       );
 
+      const shareFrom = await bentoBox.toShare(
+        USDC_ADDRESS,
+        balanceUSDC,
+        false
+      );
+
       const deleverageData = await this.recipeDeleverageGM(
         cookData,
         cauldronObject,
-        balanceUSDC,
+        shareFrom,
         borrowAmount,
         slipage
       );
-      
+
       cookData = deleverageData.cookData;
 
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;

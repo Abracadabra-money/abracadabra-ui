@@ -4,7 +4,7 @@
       <p class="title">Active Order</p>
       <div class="setting-button-wrap">
         <SettingsButton
-          v-if="orderType === 'Deleverage'"
+          v-if="orderType === 'Deleverage' || showDeleverageButton"
           @click="isSettingsOpen = true"
         />
       </div>
@@ -35,9 +35,15 @@
           </div>
         </div>
       </div>
-      <button :disabled="disableAction" @click="actionHandler" class="btn">
-        {{ buttonText }}
-      </button>
+      <div class="btns-wrap">
+        <button :disabled="disableAction" @click="actionHandler" class="btn">
+          {{ buttonText }}
+        </button>
+        <button v-if="showDeleverageButton" :disabled="disableAction" @click="deleverageHandler" class="btn">
+          Deleverage
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -160,6 +166,9 @@ export default {
     disableAction() {
       return this.buttonText === "...";
     },
+    showDeleverageButton() {
+      return this.type === ORDER_TYPE_LEVERAGE && this.status === ORDER_FAIL
+    },
     balancesInfo() {
       if (!this.balances) return [];
 
@@ -254,6 +263,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.btns-wrap {
+  display: grid;
+  gap: 5px 0;
+}
 .order-item {
   position: relative;
   display: flex;
