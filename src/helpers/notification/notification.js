@@ -79,26 +79,26 @@ export default {
   },
 
   gmLeverageOrderSuccess: {
-    discription: "[dev] Order filled & funds send to user position",
+    discription: "Order filled & funds send to user position",
     type: "success",
   },
 
   gmLeverageOrderFailes: {
-    discription: "[dev] Order failed, please try to recover using Order Manager",
+    discription: "Order failed, please try to recover using Order Manager",
     type: "error",
   },
 
   gmDeleverageFromOrder: {
-    discription: "[dev] Deleverage from order in progress",
+    discription: "Deleverage from order in progress",
     type: "pending",
   },
 
   gmDeleverageFailedOrder: {
-    discription: "[dev] Order failed, GM tokens are returned to position",
+    discription: "Order failed, GM tokens are returned to position",
     type: "error",
   },
   gmOrderExist: {
-    discription: "[dev] Looks like you already have existing order",
+    discription: "Looks like you already have existing order",
     type: "warning",
   },
 };
