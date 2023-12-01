@@ -4,7 +4,7 @@
       <p class="title">Active Order</p>
       <div class="setting-button-wrap">
         <SettingsButton
-          v-if="orderType === 'Deleverage' || showDeleverageButton"
+          v-if="showSettingBtn"
           @click="isSettingsOpen = true"
         />
       </div>
@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div class="btns-wrap">
+      <div class="btns-wrap" v-if="!isPositionPage">
         <button :disabled="disableAction" @click="actionHandler" class="btn">
           {{ buttonText }}
         </button>
@@ -46,6 +46,14 @@
           class="btn"
         >
           Deleverage
+        </button>
+      </div>
+      <div class="btns-wrap" v-else>
+        <button @click="toLeverage" class="btn">
+          To Leverage
+        </button>
+        <button @click="toDeleverage" class="btn">
+          To Deleverage
         </button>
       </div>
     </div>
@@ -85,6 +93,10 @@ export default {
   emits: ["updateInfo"],
   props: {
     cauldronObject: {
+      type: Object,
+      required: true,
+    },
+    cauldron: {
       type: Object,
       required: true,
     },
@@ -173,6 +185,12 @@ export default {
     showDeleverageButton() {
       return this.type === ORDER_TYPE_LEVERAGE && this.status === ORDER_FAIL;
     },
+    isPositionPage() {
+      return this.$route.name === "MyPositions"
+    },
+    showSettingBtn() {
+      return (this.orderType === 'Deleverage' || this.showDeleverageButton) && !this.isPositionPage
+    },
     balancesInfo() {
       if (!this.balances) return [];
 
@@ -213,12 +231,12 @@ export default {
       }
     },
     toDeleverage() {
-      const currentID = this.$route.params.id;
+      const currentID = this.cauldronObject.config.id || this.$route.params.id;
       this.$router.push({ name: "DeleverageId", params: { id: currentID } });
     },
     toLeverage() {
-      const currentID = this.$route.params.id;
-      this.$router.push({ name: "DeleverageId", params: { id: currentID } });
+      const currentID = this.cauldronObject.config.id || this.$route.params.id;
+      this.$router.push({ name: "LeverageId", params: { id: currentID } });
     },
     async deleverageHandler() {
       const payload = {
@@ -244,10 +262,9 @@ export default {
       this.type = await getOrderType(this.order, this.provider);
     },
     async fetchOrderInfo() {
-      const { cauldron } = this.cauldronObject.contracts;
       this.status = await monitorOrderStatus(
         this.order,
-        cauldron,
+        this.cauldron,
         this.account,
         this.provider
       );
