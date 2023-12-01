@@ -69,6 +69,7 @@
           :cauldronObject="cauldron"
           :deleverageSuccessPayload="gmDelevSuccessPayload"
           :deleverageFromOrder="gmDeleverageFromOrder"
+          :recoverLeverage="gmRecoverLeverageOrder"
         />
 
         <router-link class="position-link link" :to="{ name: 'MyPositions' }"
@@ -572,6 +573,40 @@ export default {
 
         this.deleteNotification(notificationId);
         this.createNotification(errorNotification);
+      }
+    },
+
+    async gmRecoverLeverageOrder(order) {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        await this.cookRecoverFaliedLeverage(
+          this.cauldron,
+          order,
+          this.account
+        );
+
+        const { cauldron } = this.cauldron.contracts;
+        const newOrder = await cauldron.orders(this.account);
+
+        const itsZero = order === ZERO_ADDRESS;
+        // instant success
+        if (itsZero) {
+          this.deleteNotification(notificationId);
+          await this.successGmLeverageCallback(order);
+          return false;
+        }
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+        this.activeOrder = newOrder;
+      } catch (error) {
+        console.log("gmRecoverLeverageOrder err:", error);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.error);
       }
     },
 

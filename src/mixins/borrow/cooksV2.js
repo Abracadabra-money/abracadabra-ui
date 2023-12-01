@@ -1258,6 +1258,8 @@ export default {
           balanceUSDC
         );
 
+        console.log(updatedCookData)
+
       await cook(cauldron, updatedCookData, executionFee);
     },
 

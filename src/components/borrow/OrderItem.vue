@@ -39,11 +39,15 @@
         <button :disabled="disableAction" @click="actionHandler" class="btn">
           {{ buttonText }}
         </button>
-        <button v-if="showDeleverageButton" :disabled="disableAction" @click="deleverageHandler" class="btn">
+        <button
+          v-if="showDeleverageButton"
+          :disabled="disableAction"
+          @click="deleverageHandler"
+          class="btn"
+        >
           Deleverage
         </button>
       </div>
-
     </div>
   </div>
 
@@ -150,11 +154,11 @@ export default {
       return this.statuses[this.status];
     },
     orderUrl() {
-      return `https://arbiscan.io/address/${this.order}`
+      return `https://arbiscan.io/address/${this.order}`;
     },
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
-        if (this.status === ORDER_FAIL) return "Retry";
+        if (this.status === ORDER_FAIL) return "Retry Order";
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
@@ -167,7 +171,7 @@ export default {
       return this.buttonText === "...";
     },
     showDeleverageButton() {
-      return this.type === ORDER_TYPE_LEVERAGE && this.status === ORDER_FAIL
+      return this.type === ORDER_TYPE_LEVERAGE && this.status === ORDER_FAIL;
     },
     balancesInfo() {
       if (!this.balances) return [];
@@ -209,6 +213,10 @@ export default {
       }
     },
     toDeleverage() {
+      const currentID = this.$route.params.id;
+      this.$router.push({ name: "DeleverageId", params: { id: currentID } });
+    },
+    toLeverage() {
       const currentID = this.$route.params.id;
       this.$router.push({ name: "DeleverageId", params: { id: currentID } });
     },
@@ -263,7 +271,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .btns-wrap {
   display: grid;
   gap: 5px 0;
