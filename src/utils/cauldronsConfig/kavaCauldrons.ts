@@ -43,7 +43,6 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isNew: true,
       isMimUsdtCurveLp: true,
     },
     contract: {
@@ -104,7 +103,6 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isNew: true,
     },
     contract: {
       name: "CauldronV4",

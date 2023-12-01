@@ -64,6 +64,13 @@
           >Close Position
         </BaseButton>
 
+        <OrdersManager
+          v-if="cauldron?.config.cauldronSettings.isGMXMarket"
+          :cauldronObject="cauldron"
+          :deleverageSuccessPayload="gmDelevSuccessPayload"
+          :deleverageFromOrder="gmDeleverageFromOrder"
+        />
+
         <router-link class="position-link link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
         >
@@ -134,6 +141,15 @@
         popupType="borrow"
         @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
+
+    <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
+      <GMStatus
+        :order="activeOrder"
+        :orderType="2"
+        :cauldronObject="cauldron"
+        :deleverageSuccessPayload="gmDelevSuccessPayload"
+        :deleverageFromOrder="gmDeleverageFromOrder"
+    /></LocalPopupWrap>
   </div>
 </template>
 
@@ -150,6 +166,10 @@ import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
 
+import { monitorOrderStatus, saveOrder } from "@/helpers/gm/orders";
+
+import { ZERO_ADDRESS } from "@/constants/gm";
+
 export default {
   mixins: [cookMixin],
   data() {
@@ -165,6 +185,9 @@ export default {
       showAdditionalInfo: true,
       isOpenMarketListPopup: false,
       isActionClosePosition: false,
+      isOpenGMPopup: false,
+      activeOrder: null,
+      gmDelevSuccessPayload: null,
     };
   },
 
@@ -396,7 +419,10 @@ export default {
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      deleteAllNotification: "notifications/deleteAll",
+    }),
 
     formatTokenBalance(amount) {
       return filters.formatTokenBalance(amount);
@@ -514,12 +540,22 @@ export default {
       };
 
       try {
-        await this.cookDeleverage(
-          payload,
-          isMasterContractApproved,
-          this.cauldron,
-          this.account
-        );
+        if (this.cauldron.config.cauldronSettings.isGMXMarket) {
+          return await this.gmDeleverageHandler(
+            payload,
+            isMasterContractApproved,
+            this.cauldron,
+            this.account,
+            notificationId
+          );
+        } else {
+          await this.cookDeleverage(
+            payload,
+            isMasterContractApproved,
+            this.cauldron,
+            this.account
+          );
+        }
 
         await this.createCauldronInfo();
 
@@ -537,6 +573,86 @@ export default {
         this.deleteNotification(notificationId);
         this.createNotification(errorNotification);
       }
+    },
+
+    async gmDeleverageHandler(
+      cookPayload,
+      mcApproved,
+      cauldronObject,
+      account,
+      notificationId
+    ) {
+      const { cauldron } = cauldronObject.contracts;
+      const cauldronActiveOrder = await cauldron.orders(account);
+
+      if (cauldronActiveOrder !== ZERO_ADDRESS) {
+        this.deleteAllNotification();
+        this.createNotification(notification.gmOrderExist);
+        return false;
+      }
+
+      // withdraw collateral & create order
+      await this.cookWitdrawToOrderGM(
+        cookPayload,
+        mcApproved,
+        cauldronObject,
+        account
+      );
+
+      this.clearInputs();
+
+      const order = await cauldron.orders(account);
+
+      const itsZero = order === ZERO_ADDRESS;
+
+      this.deleteNotification(notificationId);
+
+      if (itsZero) {
+        await this.createNotification(notification.gmDeleverageFailedOrder);
+        return false; // order instantly failed
+      }
+
+      this.gmDelevSuccessPayload = cookPayload;
+      this.activeOrder = order;
+      this.isOpenGMPopup = true;
+    },
+
+    async gmDeleverageFromOrder(order, successPayload) {
+      const notificationId = await this.createNotification(
+        notification.gmDeleverageFromOrder
+      );
+
+      try {
+        await this.cookDeleverageFromOrder(
+          successPayload,
+          this.cauldron,
+          this.account,
+          order
+        );
+
+        // save as success
+        saveOrder(order, this.account);
+
+        this.isOpenGMPopup = false;
+        this.activeOrder = null;
+        this.gmDelevSuccessPayload = null;
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+
+        await this.createCauldronInfo();
+      } catch (error) {
+        console.log("gmDeleverageFromOrder err:", error);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.error);
+      }
+    },
+    async closeGMPopup() {
+      this.isOpenGMPopup = false;
+      this.activeOrder = null;
+      this.gmDelevSuccessPayload = null;
+      await this.createCauldronInfo();
     },
 
     async closePositionHandler() {
@@ -661,6 +777,12 @@ export default {
     ),
     MarketsListPopup: defineAsyncComponent(() =>
       import("@/components/popups/MarketsListPopup.vue")
+    ),
+    GMStatus: defineAsyncComponent(() =>
+      import("@/components/popups/GMStatus.vue")
+    ),
+    OrdersManager: defineAsyncComponent(() =>
+      import("@/components/borrow/OrdersManager.vue")
     ),
   },
 };

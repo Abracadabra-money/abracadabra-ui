@@ -7,6 +7,7 @@ import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+import { getGMApr } from "./getGMApr";
 
 export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
@@ -20,7 +21,7 @@ export const isApyCalcExist = (chainId, poolId) => {
   }
 
   if (chainId === 42161) {
-    cauldronsIds = [2, 3];
+    cauldronsIds = [2, 3, 4, 5, 6, 7];
   }
 
   return cauldronsIds.indexOf(poolId) !== -1;
@@ -59,6 +60,11 @@ export const fetchTokenApy = async (pool) => {
       const response = await getMagicGlpApy(chainId);
       if (pool.config.id === 2) return response.glpApy;
       if (pool.config.id === 3) return response.magicGlpApy;
+    }
+
+    if(pool.config.cauldronSettings.isGMXMarket) {
+      const market = pool.config.collateralInfo.address.toLowerCase();
+      return await getGMApr(market, provider)
     }
   }
 
