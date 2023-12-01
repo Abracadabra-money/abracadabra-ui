@@ -19,6 +19,8 @@ export const SWAP_IMPACT_POOL_AMOUNT_KEY = hashString("SWAP_IMPACT_POOL_AMOUNT")
 export const OPEN_INTEREST_IN_TOKENS_KEY = hashString("OPEN_INTEREST_IN_TOKENS");
 export const OPEN_INTEREST_KEY = hashString("OPEN_INTEREST");
 export const RESERVE_FACTOR_KEY = hashString("RESERVE_FACTOR");
+export const MAX_POOL_AMOUNT_FOR_DEPOSIT_KEY = hashString("MAX_POOL_AMOUNT_FOR_DEPOSIT");
+export const MAX_POOL_AMOUNT_KEY = hashString("MAX_POOL_AMOUNT");
 
 export function depositGasLimitKey(singleToken: boolean) {
   return hashData(["bytes32", "bool"], [DEPOSIT_GAS_LIMIT_KEY, singleToken]);
@@ -69,4 +71,12 @@ export function openInterestKey(market: string, collateralToken: string, isLong:
 
 export function reserveFactorKey(market: string, isLong: boolean) {
   return hashData(["bytes32", "address", "bool"], [RESERVE_FACTOR_KEY, market, isLong]);
+}
+
+export function maxPoolAmountForDepositKey(market: string, token: string) {
+  return hashData(["bytes32", "address", "address"], [MAX_POOL_AMOUNT_FOR_DEPOSIT_KEY, market, token]);
+}
+
+export function maxPoolAmountKey(market: string, token: string) {
+  return hashData(["bytes32", "address", "address"], [MAX_POOL_AMOUNT_KEY, market, token]);
 }

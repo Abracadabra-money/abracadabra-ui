@@ -32,6 +32,11 @@
         <p class="drop-value">{{ formatUSD(leftToDrop) }}</p>
       </div>
     </div>
+
+    <OrdersManager
+      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+      :cauldronObject="cauldron"
+    />
   </div>
 </template>
 
@@ -44,6 +49,7 @@ import PositionLinks from "@/components/myPositions/PositionLinks.vue";
 import PositionLiquidationPrice from "@/components/myPositions/PositionLiquidationPrice.vue";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
+import OrdersManager from "@/components/borrow/OrdersManager.vue";
 import { ethers } from "ethers";
 import { useImage } from "@/helpers/useImage";
 
@@ -188,6 +194,7 @@ export default {
     PositionLiquidationPrice,
     PositionAssets,
     HealthProgress,
+    OrdersManager
   },
 };
 </script>

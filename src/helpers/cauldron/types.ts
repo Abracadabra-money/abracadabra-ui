@@ -14,7 +14,7 @@ export type UserPositions = {
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
   oracleRate: BigNumber;
-  liquidationPrice: String;
+  liquidationPrice: String | number;
 };
 
 export type MainParams = {

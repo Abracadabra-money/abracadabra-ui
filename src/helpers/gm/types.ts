@@ -53,6 +53,10 @@ export type DataStoreInfo = {
   shortInterestUsingShortToken: BigNumber;
   reserveFactorLong: BigNumber;
   reserveFactorShort: BigNumber;
+  maxLongPoolAmountForDeposit: BigNumber;
+  maxShortPoolAmountForDeposit: BigNumber;
+  maxLongPoolAmount: BigNumber;
+  maxShortPoolAmount: BigNumber;
 };
 
 export type SwapMarketInfo = DataStoreInfo & {
