@@ -4,7 +4,7 @@
       <p class="title">Active Order</p>
       <div class="setting-button-wrap">
         <SettingsButton
-          v-if="orderType === 'Deleverage'"
+          v-if="showSettingBtn"
           @click="isSettingsOpen = true"
         />
       </div>
@@ -35,9 +35,27 @@
           </div>
         </div>
       </div>
-      <button :disabled="disableAction" @click="actionHandler" class="btn">
-        {{ buttonText }}
-      </button>
+      <div class="btns-wrap" v-if="!isPositionPage">
+        <button :disabled="disableAction" @click="actionHandler" class="btn">
+          {{ buttonText }}
+        </button>
+        <button
+          v-if="showDeleverageButton"
+          :disabled="disableAction"
+          @click="deleverageHandler"
+          class="btn"
+        >
+          Deleverage
+        </button>
+      </div>
+      <div class="btns-wrap" v-else>
+        <button @click="toLeverage" class="btn">
+          Retry Order
+        </button>
+        <button @click="toDeleverage" class="btn">
+          To Deleverage
+        </button>
+      </div>
     </div>
   </div>
 
@@ -75,6 +93,10 @@ export default {
   emits: ["updateInfo"],
   props: {
     cauldronObject: {
+      type: Object,
+      required: true,
+    },
+    cauldron: {
       type: Object,
       required: true,
     },
@@ -144,11 +166,11 @@ export default {
       return this.statuses[this.status];
     },
     orderUrl() {
-      return `https://arbiscan.io/address/${this.order}`
+      return `https://arbiscan.io/address/${this.order}`;
     },
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
-        if (this.status === ORDER_FAIL) return "Recover";
+        if (this.status === ORDER_FAIL) return "Retry Order";
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
@@ -159,6 +181,15 @@ export default {
     },
     disableAction() {
       return this.buttonText === "...";
+    },
+    showDeleverageButton() {
+      return this.type === ORDER_TYPE_LEVERAGE && this.status === ORDER_FAIL;
+    },
+    isPositionPage() {
+      return this.$route.name === "MyPositions"
+    },
+    showSettingBtn() {
+      return (this.orderType === 'Deleverage' || this.showDeleverageButton) && !this.isPositionPage
     },
     balancesInfo() {
       if (!this.balances) return [];
@@ -200,8 +231,12 @@ export default {
       }
     },
     toDeleverage() {
-      const currentID = this.$route.params.id;
+      const currentID = this.cauldronObject.config.id || this.$route.params.id;
       this.$router.push({ name: "DeleverageId", params: { id: currentID } });
+    },
+    toLeverage() {
+      const currentID = this.cauldronObject.config.id || this.$route.params.id;
+      this.$router.push({ name: "LeverageId", params: { id: currentID } });
     },
     async deleverageHandler() {
       const payload = {
@@ -227,10 +262,9 @@ export default {
       this.type = await getOrderType(this.order, this.provider);
     },
     async fetchOrderInfo() {
-      const { cauldron } = this.cauldronObject.contracts;
       this.status = await monitorOrderStatus(
         this.order,
-        cauldron,
+        this.cauldron,
         this.account,
         this.provider
       );
@@ -254,6 +288,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.btns-wrap {
+  display: grid;
+  gap: 5px 0;
+}
 .order-item {
   position: relative;
   display: flex;

@@ -15,6 +15,8 @@ import {
   openInterestInTokensKey,
   openInterestKey,
   reserveFactorKey,
+  maxPoolAmountForDepositKey,
+  maxPoolAmountKey
 } from "./fee/dataStore";
 
 export const getDataStoreInfo = async (
@@ -48,6 +50,10 @@ export const getDataStoreInfo = async (
     shortInterestUsingShortToken,
     reserveFactorLong,
     reserveFactorShort,
+    maxLongPoolAmountForDeposit,
+    maxShortPoolAmountForDeposit,
+    maxLongPoolAmount,
+    maxShortPoolAmount
   ] = await Promise.all([
     dataStoreContract.getUint(swapFeeFactorKey(market, false)),
     dataStoreContract.getUint(swapFeeFactorKey(market, true)),
@@ -82,6 +88,11 @@ export const getDataStoreInfo = async (
     ),
     dataStoreContract.getUint(reserveFactorKey(market, true)),
     dataStoreContract.getUint(reserveFactorKey(market, true)),
+    dataStoreContract.getUint(maxPoolAmountForDepositKey(market, marketInfo.longToken)),
+    dataStoreContract.getUint(maxPoolAmountForDepositKey(market, marketInfo.shortToken)),
+    
+    dataStoreContract.getUint(maxPoolAmountKey(market, marketInfo.longToken)),
+    dataStoreContract.getUint(maxPoolAmountKey(market, marketInfo.shortToken)),
   ]);
 
   return {
@@ -102,5 +113,9 @@ export const getDataStoreInfo = async (
     shortInterestUsingShortToken,
     reserveFactorLong,
     reserveFactorShort,
+    maxLongPoolAmountForDeposit,
+    maxShortPoolAmountForDeposit,
+    maxLongPoolAmount,
+    maxShortPoolAmount
   };
 };

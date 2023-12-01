@@ -15,7 +15,6 @@ import { USDC_ADDRESS, WETH_ADDRESS, ORDER_AGENT } from "@/constants/gm";
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { getOpenoceanLeverageSwapData } from "@/helpers/openocean/getOpenoceanLeverageSwapData";
 import { getOpenoceanDeleverageSwapData } from "@/helpers/openocean/getOpenoceanDeleverageSwapData";
-
 import {
   estimateExecuteDepositGasLimit,
   estimateExecuteWithdrawalGasLimit,
@@ -1149,8 +1148,8 @@ export default {
       );
 
       const swapData = swapResponse.data;
-      
-      const minExpected = swapResponse.buyAmount;
+
+      const minExpected = swapResponse.buyAmountWithSlippage;
 
       const swapStaticTx = await leverageSwapper.populateTransaction.swap(
         ORDER_AGENT,
@@ -1184,7 +1183,7 @@ export default {
 
       const buyShare = await bentoBox.toShare(
         mim.address,
-        swapResponse.buyAmount,
+        swapResponse.buyAmountWithSlippage,
         false
       );
 
@@ -1211,7 +1210,7 @@ export default {
         2
       );
 
-      return { cookData, buyAmount: swapResponse.buyAmount };
+      return { cookData, buyAmount: swapResponse.buyAmountWithSlippage };
     },
 
     async cookRecoverFaliedLeverage(cauldronObject, order, account) {
@@ -1252,6 +1251,8 @@ export default {
           collateral.address,
           balanceUSDC
         );
+
+        console.log(updatedCookData)
 
       await cook(cauldron, updatedCookData, executionFee);
     },
@@ -1383,7 +1384,8 @@ export default {
       account,
       order
     ) {
-      const { liquidationSwapper, cauldron } = cauldronObject.contracts;
+      const { liquidationSwapper, cauldron, bentoBox } =
+        cauldronObject.contracts;
       const collateralAddress = cauldronObject.config.collateralInfo.address;
       const { balanceUSDC } = await getOrderBalances(order, this.provider);
 
@@ -1401,14 +1403,20 @@ export default {
         true
       );
 
+      const shareFrom = await bentoBox.toShare(
+        USDC_ADDRESS,
+        balanceUSDC,
+        false
+      );
+
       const deleverageData = await this.recipeDeleverageGM(
         cookData,
         cauldronObject,
-        balanceUSDC,
+        shareFrom,
         borrowAmount,
         slipage
       );
-      
+
       cookData = deleverageData.cookData;
 
       const { userBorrowPart } = this.cauldron.userPosition.borrowInfo;

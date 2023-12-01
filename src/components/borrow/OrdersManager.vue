@@ -5,6 +5,7 @@
       :deleverageFromOrder="deleverageFromOrder"
       :recoverLeverage="recoverLeverage"
       :cauldronObject="cauldronObject"
+      :cauldron="cauldron"
       :order="order"
       v-for="order in orders"
       :key="order"
@@ -17,12 +18,13 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { ZERO_ADDRESS } from "@/constants/gm";
 import { getSavedOrders } from "@/helpers/gm/orders";
+import { Contract } from "ethers";
+
 export default {
   name: "OrdersManager",
   props: {
     cauldronObject: {
       type: Object,
-      required: true,
     },
     recoverLeverage: {
       type: Function,
@@ -34,6 +36,7 @@ export default {
   data() {
     return {
       orders: [],
+      cauldronContract: null,
     };
   },
   computed: {
@@ -51,7 +54,16 @@ export default {
   },
   methods: {
     async checkOrders() {
-      const { cauldron } = this.cauldronObject.contracts;
+      const cauldron =
+        this.cauldronObject.contracts?.cauldron ||
+        new Contract(
+          this.cauldronObject.config.contract.address,
+          this.cauldronObject.config.contract.abi,
+          this.provider
+        );
+
+      this.cauldron = cauldron;
+
       const currentOrder = await cauldron.orders(this.account);
 
       const itsZero = currentOrder === ZERO_ADDRESS;
