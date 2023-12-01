@@ -112,7 +112,9 @@ const getLiquidationPrice = (
 ): number => {
   const borrowPartParsed = utils.formatUnits(borrowPart);
   const collateralAmountParsed = utils.formatUnits(collateralAmount);
-  return Number(borrowPartParsed) / Number(collateralAmountParsed) / (mcr / 100);
+  return (
+    Number(borrowPartParsed) / Number(collateralAmountParsed) / (mcr / 100)
+  );
 };
 
 const getOrdersCollateralBalance = async (
@@ -122,6 +124,14 @@ const getOrdersCollateralBalance = async (
   cauldronContracts: Array<Contract>,
   chainId: number
 ) => {
+  if (chainId !== 42161 || !account)
+    return cauldronContracts.map(() => {
+      return {
+        share: BigNumber.from(0),
+        amount: BigNumber.from(0),
+      };
+    });
+
   const bentoBoxAddress = "0x7C8FeF8eA9b1fE46A7689bfb8149341C90431D38"; //TODO
 
   const bentoBox = new Contract(bentoBoxAddress, bentoBoxAbi, provider);
