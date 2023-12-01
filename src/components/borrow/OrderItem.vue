@@ -154,7 +154,7 @@ export default {
     },
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
-        if (this.status === ORDER_FAIL) return "Recover";
+        if (this.status === ORDER_FAIL) return "Retry";
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
