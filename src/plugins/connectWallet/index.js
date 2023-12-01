@@ -11,7 +11,7 @@ const walletconnect = {
   package: WalletConnectProvider,
   options: {
     rpc: {
-      1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      1: "https://eth.llamarpc.com",
       10: "https://mainnet.optimism.io",
       56: "https://bsc-dataseed.binance.org/",
       250: "https://rpc.ftm.tools/",
@@ -28,7 +28,7 @@ const coinbasewallet = {
   options: {
     appName: "abracadabra.money", // Required
     rpc: {
-      1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+      1: "https://eth.llamarpc.com",
       10: "https://mainnet.optimism.io",
       56: "https://bsc-dataseed.binance.org/",
       137: "https://polygon-rpc.com",
@@ -106,7 +106,7 @@ const initWithoutConnect = async () => {
 
 const checkSanctionAddress = async (address) => {
   const provider = new ethers.providers.StaticJsonRpcProvider(
-    "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+    "https://eth.llamarpc.com"
   );
 
   const contract = new ethers.Contract(

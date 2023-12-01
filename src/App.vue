@@ -66,7 +66,7 @@ export default {
         import.meta.env.VITE_APP_IPWHOIS_API_KEY
       }&security=1`
     );
-
+    
     const isVPN = location.data.security.vpn;
 
     if (

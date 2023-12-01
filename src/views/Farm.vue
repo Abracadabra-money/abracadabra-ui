@@ -50,6 +50,14 @@
             primary
             >{{ buttonText }}
           </BaseButton>
+
+          <template v-if="isUserPositionOpen">
+            <router-link
+              class="position-link link"
+              :to="{ name: 'MyPositions' }"
+              >Monitor your Farming Position</router-link
+            >
+          </template>
         </div>
 
         <FarmInfoBlock :selectedFarm="selectedFarm" v-if="selectedFarm" />
@@ -113,13 +121,35 @@ export default {
       signer: "getSigner",
     }),
 
+    isUserPositionOpen() {
+      if (!this.selectedFarm || !this.account) return false;
+
+      const isOpenMultiReward = this.selectedFarm.isMultiReward
+        ? +this.selectedFarm.accountInfo.depositedBalance > 0 ||
+          this.selectedFarm.accountInfo.rewardTokensInfo.filter(
+            (item) => +item.earned > 0
+          ).length > 0
+        : false;
+
+      const isOpenLegacyFarm =
+        this.selectedFarm.accountInfo?.userReward != 0 ||
+        this.selectedFarm.accountInfo?.userInfo.amount != 0;
+
+      return this.selectedFarm.isMultiReward
+        ? isOpenMultiReward
+        : isOpenLegacyFarm;
+    },
+
     isUnstake() {
       return this.selectedTab === "unstake";
     },
 
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
-      return this.selectedFarm?.accountInfo?.allowance >= this.inputAmount;
+      return (
+        Number(this.selectedFarm?.accountInfo?.allowance) >=
+        Number(this.inputAmount)
+      );
     },
 
     isValid() {
@@ -219,11 +249,16 @@ export default {
         notification.pending
       );
       try {
-        const { error, result } = await actions.deposit(
-          this.selectedFarm.contractInfo,
-          this.selectedFarm.poolId,
-          this.parsedInputAmount
-        );
+        const { error, result } = this.selectedFarm.isMultiReward
+          ? await actions.stake(
+              this.selectedFarm.contractInfo,
+              this.parsedInputAmount
+            )
+          : await actions.deposit(
+              this.selectedFarm.contractInfo,
+              this.selectedFarm.poolId,
+              this.parsedInputAmount
+            );
 
         await this.getSelectedFarm();
 
@@ -248,11 +283,15 @@ export default {
         notification.pending
       );
       try {
-        const { error, result } = await actions.withdraw(
-          this.selectedFarm.contractInfo,
-          this.selectedFarm.poolId,
-          this.parsedInputAmount
-        );
+        const args = this.selectedFarm.isMultiReward
+          ? [this.parsedInputAmount]
+          : [this.selectedFarm.poolId, this.parsedInputAmount];
+
+        const isExit = this.inputAmount === this.max;
+
+        const { error, result } = isExit
+          ? await actions.exit(this.selectedFarm.contractInfo)
+          : await actions.withdraw(this.selectedFarm.contractInfo, args);
 
         await this.getSelectedFarm();
 
@@ -397,7 +436,7 @@ export default {
   display: grid;
   grid-template-rows: repeat(auto-fill, 1fr);
   row-gap: 1rem;
-  margin-bottom: 119px;
+  margin-bottom: 80px;
 }
 
 .stake-unstake-switch {

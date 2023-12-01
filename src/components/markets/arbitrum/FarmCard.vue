@@ -5,13 +5,16 @@
         <BaseTokenIcon :name="farm.name" :icon="farm.icon" />
         <span class="farm-card-name">{{ farm.name }}</span>
       </div>
-      <img class="chain-icon" src="@/assets/images/networks/arbitrum-chain.svg">
+      <img
+        class="chain-icon"
+        src="@/assets/images/networks/arbitrum-chain.svg"
+      />
     </div>
-
     <div class="card-stats">
       <div class="boosted-yield">
         <p class="title">
-          APR
+          <AprTooltip v-if="showAprTooltip" :farm="farm" />
+          {{ aprTitle }}
         </p>
         <p class="value">{{ apr }}</p>
       </div>
@@ -24,7 +27,8 @@
 </template>
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import filters from "@/filters/index"
+import AprTooltip from "@/components/markets/arbitrum/AprTooltip.vue";
+import filters from "@/filters/index";
 
 export default {
   props: {
@@ -34,9 +38,19 @@ export default {
   },
 
   computed: {
-    tvl() { return filters.formatUSD(this.farm.farmTvl) },
+    showAprTooltip() {
+      return this.farm.isMultiReward;
+    },
+    aprTitle() {
+      return this.farm.isMultiReward ? "Boosted Yield" : "APR";
+    },
+    tvl() {
+      return filters.formatUSD(this.farm.farmTvl);
+    },
 
-    apr() { return filters.formatPercent(this.farm.farmRoi) },
+    apr() {
+      return filters.formatPercent(this.farm.farmRoi);
+    },
 
     goToPage() {
       return { name: "Farm", params: { id: this.farm.id } };
@@ -44,7 +58,8 @@ export default {
   },
 
   components: {
-    BaseTokenIcon
+    BaseTokenIcon,
+    AprTooltip,
   },
 };
 </script>
@@ -53,18 +68,24 @@ export default {
   height: 201px;
   width: 302px;
   border-radius: 16px;
-  border: 1px solid #2d4a96;
-  background: linear-gradient(146deg,
-      rgba(0, 10, 35, 0.07) 0%,
-      rgba(0, 80, 156, 0.07) 101.49%);
-  backdrop-filter: blur(12.5px);
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  color: white;
-  transition: 0.3s;
-}
+  border: 1px solid #4666b9;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
 
-.farm-card:hover {
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.21);
+  box-shadow: 0px 0px 43.7px 0px rgba(113, 91, 208, 0.78),
+    0px 4px 17.9px 0px #4651ab inset;
+  backdrop-filter: blur(12.5px);
+  color: white;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border: 1px solid #5c7ed6;
+    box-shadow: 0px 0px 43.7px 0px rgba(113, 91, 208, 0.82),
+      0px 4px 17.9px 0px #4651ab inset;
+  }
 }
 
 .card-header {
@@ -114,7 +135,7 @@ export default {
 }
 
 .boosted-yield .value {
-  color: #67A069;
+  color: #67a069;
   text-align: center;
   font-size: 39px;
   font-weight: 600;
