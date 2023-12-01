@@ -1,6 +1,6 @@
-import type { BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import { expandDecimals } from "./fee/expandDecials";
-import { PRECISION } from "@/constants/gm";
+import { PRECISION, USD_DECIMALS } from "@/constants/gm";
 
 export function convertToUsd(
   tokenAmount: BigNumber,
@@ -73,4 +73,31 @@ export function getReservedUsd(marketInfo: any, isLong: boolean) {
 export function getSpread(p: { min: BigNumber; max: BigNumber }): BigNumber {
   const diff = p.max.sub(p.min);
   return diff.mul(PRECISION).div(p.max.add(p.min).div(2));
+}
+
+export function getMaxPoolAmountForDeposit(marketInfo: any, isLong: boolean) {
+  const maxAmountForDeposit = isLong ? marketInfo.maxLongPoolAmountForDeposit : marketInfo.maxShortPoolAmountForDeposit;
+  const maxAmountForSwap = isLong ? marketInfo.maxLongPoolAmount : marketInfo.maxShortPoolAmount;
+
+  return maxAmountForDeposit.lt(maxAmountForSwap) ? maxAmountForDeposit : maxAmountForSwap;
+}
+
+
+export function getDepositCollateralCapacityAmount(marketInfo: any, isLong: boolean) {
+  const poolAmount = isLong ? marketInfo.longPoolAmount : marketInfo.shortPoolAmount;
+  const maxPoolAmount = getMaxPoolAmountForDeposit(marketInfo, isLong);
+
+  const capacityAmount = maxPoolAmount.sub(poolAmount);
+
+  return capacityAmount.gt(0) ? capacityAmount : BigNumber.from(0);
+}
+
+export function getMintableMarketTokens(marketInfo: any) {
+  const longDepositCapacityAmount = getDepositCollateralCapacityAmount(marketInfo, true);
+  const shortDepositCapacityAmount = getDepositCollateralCapacityAmount(marketInfo, false);
+
+  return {
+    longDepositCapacityAmount,
+    shortDepositCapacityAmount,
+  };
 }
