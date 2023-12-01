@@ -50,7 +50,7 @@
       </div>
       <div class="btns-wrap" v-else>
         <button @click="toLeverage" class="btn">
-          To Leverage
+          Retry Order
         </button>
         <button @click="toDeleverage" class="btn">
           To Deleverage
