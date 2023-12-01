@@ -60,6 +60,13 @@
           />
         </div>
 
+        <OrdersManager
+          v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+          :cauldronObject="cauldron"
+          :recoverLeverage="gmRecoverLeverageOrder"
+          :deleverageFromOrder="gmDeleverageFromOrder"
+        />
+
         <router-link class="position-link link" :to="{ name: 'MyPositions' }"
           >Go to Positions</router-link
         >
@@ -152,6 +159,14 @@
         popupType="leverage"
         @changeActiveMarket="changeActiveMarket($event)"
     /></LocalPopupWrap>
+
+    <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
+      <GMStatus
+        :order="activeOrder"
+        :orderType="1"
+        :cauldronObject="cauldron"
+        :successLeverageCallback="successGmLeverageCallback"
+    /></LocalPopupWrap>
   </div>
 </template>
 
@@ -172,6 +187,10 @@ import {
   MAX_ALLOWANCE_VALUE,
 } from "@/constants/cauldron.ts";
 
+import { monitorOrderStatus, saveOrder } from "@/helpers/gm/orders";
+
+import { ZERO_ADDRESS } from "@/constants/gm";
+
 export default {
   mixins: [cookMixin],
   data() {
@@ -189,6 +208,8 @@ export default {
       maxLeverageMultiplier: 5,
       showAdditionalInfo: true,
       isOpenMarketListPopup: false,
+      isOpenGMPopup: false,
+      activeOrder: null,
     };
   },
 
@@ -522,10 +543,12 @@ export default {
       }
     },
   },
-
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      deleteAllNotification: "notifications/deleteAll",
+    }),
 
     clearInputs() {
       this.collateralValue = "";
@@ -726,14 +749,132 @@ export default {
         slipage: this.slippage, // todo type
       };
 
-      await this.cookLeverage(
-        payload,
-        isMasterContractApproved,
-        this.cauldron,
-        !this.useOtherToken && !!this.cauldron.config.wrapInfo
-      );
+      if (this.cauldron.config.cauldronSettings.isGMXMarket) {
+        return await this.gmLeverageHandler(
+          payload,
+          isMasterContractApproved,
+          this.cauldron
+        );
+      } else {
+        await this.cookLeverage(
+          payload,
+          isMasterContractApproved,
+          this.cauldron,
+          !this.useOtherToken && !!this.cauldron.config.wrapInfo
+        );
+      }
 
       return await this.createCauldronInfo();
+    },
+
+    async gmLeverageHandler(cookPayload, mcApproved, cauldronObject) {
+      const { cauldron } = cauldronObject.contracts;
+      const cauldronActiveOrder = await cauldron.orders(this.account);
+
+      if (cauldronActiveOrder !== ZERO_ADDRESS) {
+        this.deleteAllNotification();
+        this.createNotification(notification.gmOrderExist);
+        return false;
+      }
+
+      // leverage & create order
+      await this.cookLeverageGM(cookPayload, mcApproved, cauldronObject);
+
+      const order = await cauldron.orders(this.account);
+
+      const itsZero = order === ZERO_ADDRESS;
+
+      // instant success
+      if (itsZero) {
+        return await this.createCauldronInfo();
+      }
+
+      this.activeOrder = order;
+      this.isOpenGMPopup = true;
+    },
+
+    async gmRecoverLeverageOrder(order) {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        await this.cookRecoverFaliedLeverage(
+          this.cauldron,
+          order,
+          this.account
+        );
+
+        const { cauldron } = this.cauldron.contracts;
+        const newOrder = await cauldron.orders(this.account);
+
+        const itsZero = order === ZERO_ADDRESS;
+        // instant success
+        if (itsZero) {
+          this.deleteNotification(notificationId);
+          await this.successGmLeverageCallback(order);
+          return false;
+        }
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+        this.activeOrder = newOrder;
+      } catch (error) {
+        console.log("gmRecoverLeverageOrder err:", error);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.error);
+      }
+    },
+
+    async gmDeleverageFromOrder(order, successPayload) {
+      const notificationId = await this.createNotification(
+        notification.gmDeleverageFromOrder
+      );
+
+      try {
+        await this.cookDeleverageFromOrder(
+          successPayload,
+          this.cauldron,
+          this.account,
+          order
+        );
+
+        // save as success
+        saveOrder(order, this.account);
+
+        await this.createCauldronInfo();
+
+        this.isOpenGMPopup = false;
+        this.activeOrder = null;
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("gmDeleverageFromOrder err:", error);
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.error);
+      }
+    },
+
+    async closeGMPopup() {
+      this.isOpenGMPopup = false;
+      this.activeOrder = null;
+      await this.createCauldronInfo();
+    },
+
+    async successGmLeverageCallback(order) {
+      // save as success
+      if (order) saveOrder(order, this.account);
+
+      setTimeout(() => {
+        this.createCauldronInfo();
+      }, 1000);
+
+      this.isOpenGMPopup = false;
+      this.activeOrder = null;
+      this.createNotification(notification.gmLeverageOrderSuccess);
     },
 
     async createCauldronInfo() {
@@ -835,6 +976,12 @@ export default {
     ),
     MarketsListPopup: defineAsyncComponent(() =>
       import("@/components/popups/MarketsListPopup.vue")
+    ),
+    GMStatus: defineAsyncComponent(() =>
+      import("@/components/popups/GMStatus.vue")
+    ),
+    OrdersManager: defineAsyncComponent(() =>
+      import("@/components/borrow/OrdersManager.vue")
     ),
   },
 };

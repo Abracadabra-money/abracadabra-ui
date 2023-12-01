@@ -8,7 +8,7 @@ export const cook = async (contract, cookData, value) => {
       }
     );
   
-    const gasLimit = estimateGas.add(1000);
+    const gasLimit = estimateGas.add(5000);
   
     const tx = await contract.cook(
       cookData.events,
