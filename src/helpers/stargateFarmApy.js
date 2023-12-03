@@ -1,5 +1,5 @@
 import { BigNumber, providers, Contract } from "ethers";
-const url = "https://eth.llamarpc.com";
+const url = "https://ethereum.publicnode.com";
 import { Percent, CurrencyAmount, Token } from "@uniswap/sdk";
 
 import lpStakingAbi from "@/utils/abi/StargateLPStaking";
