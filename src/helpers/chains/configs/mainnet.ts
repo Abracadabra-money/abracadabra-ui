@@ -10,10 +10,10 @@ export const mainnetConfig = {
   ...config,
   rpcUrls: {
     public: {
-      http: ["https://eth.llamarpc.com"],
+      http: ["https://ethereum.publicnode.com"],
     },
     default: {
-      http: ["https://eth.llamarpc.com"],
+      http: ["https://ethereum.publicnode.com"],
     },
   },
   chainId: config.id,

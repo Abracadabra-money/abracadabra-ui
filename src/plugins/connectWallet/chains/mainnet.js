@@ -13,10 +13,10 @@ export const mainnet = {
       webSocket: ["wss://mainnet.infura.io/ws/v3"],
     },
     public: {
-      http: ["https://eth.llamarpc.com"],
+      http: ["https://ethereum.publicnode.com"],
     },
     default: {
-      http: ["https://eth.llamarpc.com"],
+      http: ["https://ethereum.publicnode.com"],
     },
   },
   blockExplorers: {

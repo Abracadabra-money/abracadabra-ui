@@ -32,7 +32,7 @@ import { publicProvider } from "@wagmi/core/providers/public";
 import { getChainsConfigs } from "@/plugins/connectWallet/getChainsConfigs.ts";
 
 const rpc = {
-  1: "https://eth.llamarpc.com",
+  1: "https://ethereum.publicnode.com",
   10: "https://mainnet.optimism.io",
   56: "https://bsc-dataseed.binance.org/",
   137: "https://polygon-rpc.com",
@@ -114,9 +114,9 @@ const web3modal = useWeb3Modal();
 
 const checkSanctionAddress = async (address) => {
   const provider = new ethers.providers.JsonRpcProvider(
-    "https://eth.llamarpc.com"
+    "https://ethereum.publicnode.com"
   );
-
+  
   const contract = new ethers.Contract(
     "0x40c57923924b5c5c5455c48d93317139addac8fb",
     JSON.stringify(sanctionAbi),
