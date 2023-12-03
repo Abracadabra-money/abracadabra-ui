@@ -39,7 +39,7 @@ export const chainsList = {
 };
 
 export const defaultRpc = {
-  1: "https://eth.llamarpc.com",
+  1: "https://ethereum.publicnode.com",
   10: "https://mainnet.optimism.io",
   56: "https://bsc-dataseed.binance.org/",
   137: "https://polygon-rpc.com",
