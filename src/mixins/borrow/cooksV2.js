@@ -1210,7 +1210,7 @@ export default {
         2
       );
 
-      return { cookData, buyAmount: swapResponse.buyAmountWithSlippage };
+      return { cookData, buyAmount: swapResponse.buyAmount };
     },
 
     async cookRecoverFaliedLeverage(cauldronObject, order, account) {
