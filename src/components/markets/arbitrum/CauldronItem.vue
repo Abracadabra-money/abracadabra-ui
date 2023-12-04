@@ -176,7 +176,7 @@ export default {
 
 .cauldron-info {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr 180px;
+  grid-template-columns: 1.2fr 0.7fr 0.7fr 0.7fr 0.7fr 1fr 180px;
   align-items: center;
   width: 100%;
   height: 36px;
