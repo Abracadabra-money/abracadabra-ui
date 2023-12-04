@@ -257,7 +257,7 @@ export default {
 
 .list-header {
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr 180px;
+  grid-template-columns: 1.2fr 0.7fr 0.7fr 0.7fr 0.7fr 1fr 180px;
   align-items: center;
   padding: 0 20px;
   height: 60px;
