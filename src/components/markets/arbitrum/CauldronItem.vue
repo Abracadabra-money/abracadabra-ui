@@ -1,19 +1,27 @@
 <template>
-  <router-link :to="goToCauldron" class="cauldron-item">
+  <router-link
+    :to="goToCauldron"
+    class="cauldron-item"
+    :class="{ outline: cauldronSettings.isGMXMarket }"
+  >
     <div class="cauldron-info">
       <div class="collateral-info">
-        <TokenChainIcon :name="cauldronConfig.name" :icon="cauldronConfig.icon" />
+        <TokenChainIcon
+          :name="cauldronConfig.name"
+          :icon="cauldronConfig.icon"
+        />
         <div class="collateral-labels">
           <span>{{ cauldronConfig.name }}</span>
           <span class="new-label" v-if="isNewLabel">New</span>
-          <span class="deprecated-label" v-if="isDeprecatedCauldron">Deprecated</span>
+          <span class="deprecated-label" v-if="isDeprecatedCauldron"
+            >Deprecated</span
+          >
         </div>
       </div>
 
       <div class="cauldron-stats" v-for="(stats, i) in cauldronInfo" :key="i">
         <span class="stats-title">{{ stats.title }}</span>
         <span class="stats-value">{{ stats.value }}</span>
-
       </div>
       <div class="loader-wrap" v-if="isLoadingApy">
         <Loader type="loader" />
@@ -24,8 +32,15 @@
       </div>
 
       <div class="cauldron-links" v-if="!isDeprecatedCauldron">
-        <router-link class="cauldron-link" :to="goToPage('BorrowId')">Borrow</router-link>
-        <router-link class="cauldron-link" v-if="hasLeverage" :to="goToPage('LeverageId')">Leverage</router-link>
+        <router-link class="cauldron-link" :to="goToPage('BorrowId')"
+          >Borrow</router-link
+        >
+        <router-link
+          class="cauldron-link"
+          v-if="hasLeverage"
+          :to="goToPage('LeverageId')"
+          >Leverage</router-link
+        >
       </div>
     </div>
   </router-link>
@@ -71,10 +86,12 @@ export default {
     },
 
     apyRange() {
-      if (this.collateralApy) return `${filters.formatPercent(this.collateralApy)} - ${filters.formatPercent(this.collateralApy * 4)}`
-      return '-'
+      if (this.collateralApy)
+        return `${filters.formatPercent(
+          this.collateralApy
+        )} - ${filters.formatPercent(this.collateralApy * 4)}`;
+      return "-";
     },
-
 
     cauldronInfo() {
       return [
@@ -96,7 +113,10 @@ export default {
             utils.formatUnits(this.cauldron.mimLeftToBorrow)
           ),
         },
-        { title: "INTEREST", value: `${filters.formatPercent(this.cauldron.interest)}` }
+        {
+          title: "INTEREST",
+          value: `${filters.formatPercent(this.cauldron.interest)}`,
+        },
       ];
     },
 
@@ -145,7 +165,7 @@ export default {
 
   components: {
     TokenChainIcon,
-    Loader
+    Loader,
   },
 };
 </script>
@@ -168,6 +188,11 @@ export default {
   transition: all 0.2s;
   height: 70px;
   border-radius: 30px;
+
+  &.outline {
+    box-shadow: 0px 0px 8px 0px rgba(113, 91, 208, 0.2),
+      0px 0px 3px 0px #4651ab;
+  }
 }
 
 .cauldron-item:hover {

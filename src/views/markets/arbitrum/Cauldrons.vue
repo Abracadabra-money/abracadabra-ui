@@ -54,7 +54,7 @@ export default {
       isShowDeprecated: false,
       cauldrons: [],
       cauldronsLoading: true,
-      activeSortValue: "mimLeftToBorrow",
+      activeSortValue: "name",
       sortOrder: false,
       searchValue: "",
       updateInterval: null,
