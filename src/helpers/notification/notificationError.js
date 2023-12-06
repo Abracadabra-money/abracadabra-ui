@@ -59,6 +59,10 @@ export const notificationErrorMsg = (e) => {
     msg = "Max GM Pool Capacity Reached";
   }
 
+  if (String(e).indexOf("GM Order exist") !== -1) {
+    msg = "Looks like you already have existing order";
+  }
+
   if (!msg) msg = "Transaction encountered an Error";
 
   return msg;
