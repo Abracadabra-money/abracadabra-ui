@@ -20,5 +20,5 @@ export const GM_BTC = "0x47c031236e19d024b42f8AE6780E44A573170703";
 
 export const DAYS_CONSIDERED = 7;
 export const MARKET_FEES_URL =
-  "https://subgraph.satsuma-prod.com/3b2ced13c8d9/gmx/synthetics-arbitrum-stats/version/incentives3-231113223003-25eb066/api";
+  "https://subgraph.satsuma-prod.com/3b2ced13c8d9/gmx/synthetics-arbitrum-stats/api";
 export const INCENTIVE_STATS_URL = "https://arbitrum-api.gmxinfra.io/incentives/stip";
