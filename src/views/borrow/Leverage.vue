@@ -698,7 +698,7 @@ export default {
       } catch (error) {
         console.log("leverage error", error);
 
-        const errorType = String(error).indexOf("GM Capcity") ? "warning": "error"
+        const errorType = String(error).indexOf("GM") !== -1 ? "warning": "error"
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -775,8 +775,8 @@ export default {
 
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
-        this.createNotification(notification.gmOrderExist);
-        return false;
+        // this.createNotification(notification.gmOrderExist);
+        throw new Error('GM Order exist');
       }
 
       // leverage & create order
