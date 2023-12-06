@@ -79,7 +79,7 @@ export default {
   },
 
   gmLeverageOrderSuccess: {
-    discription: "Order filled & funds send to user position",
+    discription: "Order filled & funds sent to user position",
     type: "success",
   },
 
