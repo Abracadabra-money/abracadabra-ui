@@ -1,7 +1,7 @@
 import { useImage } from "@/helpers/useImage";
 import { createPublicClient, http } from "viem";
 import { KAVA_CHAIN_ID } from "@/constants/global";
-import { kava } from "@/plugins/connectWallet/chains/kava";
+import { kavaConfig } from "@/helpers/chains/configs/kava";
 import type { EmptyState } from "@/types/magicKlp/stakeInfo";
 import { magicKlpConfig } from "@/utils/stake/magicKlpConfig";
 import { ONE_ETHER_VIEM, RANDOM_ACCOUNT } from "@/constants/global";
@@ -36,7 +36,7 @@ export const getEmptyState = async (config: any) => {
   // todo new chain config
   const publicClient = createPublicClient({
     // @ts-ignore
-    chain: kava,
+    chain: kavaConfig,
     transport: http(),
   });
 

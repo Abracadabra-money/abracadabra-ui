@@ -1,5 +1,5 @@
-import { type WalletClient, getWalletClient } from "@wagmi/core";
 import { providers } from "ethers";
+import { type WalletClient, getWalletClient } from "@wagmi/core";
 
 export async function walletClientToSigner(walletClient: WalletClient) {
   const { account, chain, transport } = walletClient;
@@ -17,6 +17,7 @@ export async function walletClientToSigner(walletClient: WalletClient) {
 /** Action to convert a viem Wallet Client to an ethers.js Signer. */
 export async function getEthersSigner({ chainId }: { chainId?: number } = {}) {
   const walletClient = await getWalletClient({ chainId });
+
   if (!walletClient) return undefined;
   return await walletClientToSigner(walletClient);
 }
