@@ -1,6 +1,6 @@
-import { onConnectNew } from "@/plugins/connectWalletV2/initConnect";
-import { initWithoutConnect } from "@/plugins/connectWalletV2/initWithoutConnect";
-import { createEthereumClients } from "@/plugins/connectWalletV2/createEthereumClients";
+import { onConnectNew } from "@/plugins/connectWallet/initConnect";
+import { initWithoutConnect } from "@/plugins/connectWallet/initWithoutConnect";
+import { createEthereumClients } from "@/plugins/connectWallet/createEthereumClients";
 import { watchAccount } from "@wagmi/core";
 
 const { web3modal, ethereumClient } = createEthereumClients();

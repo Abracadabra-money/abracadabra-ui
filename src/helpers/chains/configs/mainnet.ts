@@ -1,19 +1,19 @@
 import { mainnet } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { MAINNET_RPC_URLS } from "@/constants/chains";
+import { RPC_ETH } from "@/constants/rpc";
 
 const config = JSON.parse(JSON.stringify(mainnet));
-config.rpcUrls.default.http = MAINNET_RPC_URLS;
-config.rpcUrls.public.http = MAINNET_RPC_URLS;
+config.rpcUrls.default.http = [RPC_ETH];
+config.rpcUrls.public.http = [RPC_ETH];
 
 export const mainnetConfig = {
   ...config,
   rpcUrls: {
     public: {
-      http: ["https://ethereum.publicnode.com"],
+      http: [RPC_ETH],
     },
     default: {
-      http: ["https://ethereum.publicnode.com"],
+      http: [RPC_ETH],
     },
   },
   chainId: config.id,

@@ -3,10 +3,10 @@ import { markRaw } from "vue";
 import { providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import { watchAccount, watchNetwork } from "@wagmi/core";
-import { getEthersSigner } from "@/plugins/connectWalletV2/getEthersSigner";
-import { checkSanctionAddress } from "@/plugins/connectWalletV2/checkSanctionAddress";
+import { getEthersSigner } from "@/plugins/connectWallet/getEthersSigner";
+import { checkSanctionAddress } from "@/plugins/connectWallet/checkSanctionAddress";
 import type { EthereumClient } from "@web3modal/ethereum";
-import { getChainsConfigs } from "@/plugins/connectWallet/getChainsConfigs";
+import { getChainsConfigs } from "@/helpers/getChainsConfigs";
 
 export const onConnectNew = async (ethereumClient: EthereumClient) => {
   try {
