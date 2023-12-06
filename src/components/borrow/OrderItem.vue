@@ -3,10 +3,7 @@
     <div class="title-wrap">
       <p class="title">Active Order</p>
       <div class="setting-button-wrap">
-        <SettingsButton
-          v-if="showSettingBtn"
-          @click="isSettingsOpen = true"
-        />
+        <SettingsButton v-if="showSettingBtn" @click="isSettingsOpen = true" />
       </div>
     </div>
 
@@ -49,12 +46,10 @@
         </button>
       </div>
       <div class="btns-wrap" v-else>
-        <button @click="toLeverage" class="btn">
+        <button @click="toLeverage" class="btn" v-if="showToLeverageButton">
           Retry Order
         </button>
-        <button @click="toDeleverage" class="btn">
-          To Deleverage
-        </button>
+        <button @click="toDeleverage" class="btn">To Deleverage</button>
       </div>
     </div>
   </div>
@@ -185,11 +180,17 @@ export default {
     showDeleverageButton() {
       return this.type === ORDER_TYPE_LEVERAGE && this.status === ORDER_FAIL;
     },
+    showToLeverageButton() {
+      return this.type === ORDER_TYPE_LEVERAGE;
+    },
     isPositionPage() {
-      return this.$route.name === "MyPositions"
+      return this.$route.name === "MyPositions";
     },
     showSettingBtn() {
-      return (this.orderType === 'Deleverage' || this.showDeleverageButton) && !this.isPositionPage
+      return (
+        (this.orderType === "Deleverage" || this.showDeleverageButton) &&
+        !this.isPositionPage
+      );
     },
     balancesInfo() {
       if (!this.balances) return [];
