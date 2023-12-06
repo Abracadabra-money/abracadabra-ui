@@ -86,10 +86,14 @@ export default {
     },
 
     apyRange() {
+      let maxLoop = 4;
+
+      if (this.cauldron.config.mcr === 85) maxLoop = 6.4;
+
       if (this.collateralApy)
         return `${filters.formatPercent(
           this.collateralApy
-        )} - ${filters.formatPercent(this.collateralApy * 4)}`;
+        )} - ${filters.formatPercent(this.collateralApy * maxLoop)}`;
       return "-";
     },
 
@@ -190,8 +194,7 @@ export default {
   border-radius: 30px;
 
   &.outline {
-    box-shadow: 0px 0px 8px 0px rgba(113, 91, 208, 0.2),
-      0px 0px 3px 0px #4651ab;
+    box-shadow: 0px 0px 8px 0px rgba(113, 91, 208, 0.2), 0px 0px 3px 0px #4651ab;
   }
 }
 
