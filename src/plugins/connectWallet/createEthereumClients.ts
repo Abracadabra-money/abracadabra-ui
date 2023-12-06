@@ -5,7 +5,7 @@ import { configureChains, createConfig } from "@wagmi/core";
 import { publicProvider } from "@wagmi/core/providers/public";
 import { createWeb3Modal, useWeb3Modal } from "@web3modal/wagmi/vue";
 import { walletConnectProvider, EIP6963Connector } from "@web3modal/wagmi";
-import { getChainsConfigs } from "@/plugins/connectWallet/getChainsConfigs";
+import { getChainsConfigs } from "@/helpers/getChainsConfigs";
 import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 

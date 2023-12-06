@@ -1,11 +1,11 @@
 import { BigNumber, providers, Contract } from "ethers";
-const url = "https://ethereum.publicnode.com";
+import { RPC_ETH } from "@/constants/rpc";
 import { Percent, CurrencyAmount, Token } from "@uniswap/sdk";
 
 import lpStakingAbi from "@/utils/abi/StargateLPStaking";
 import poolAbi from "@/utils/abi/StargatePool";
 
-const provider = new providers.StaticJsonRpcProvider(url);
+const provider = new providers.StaticJsonRpcProvider(RPC_ETH);
 const YEAR = 31536000;
 
 const stgToken = new Token(1, "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6", 18);

@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { MAINNET_RPC_URLS } from "@/constants/chains";
+import { RPC_ETH } from "@/constants/rpc";
 
 export default {
   state: {
@@ -43,7 +43,7 @@ export default {
     async checkENSName({ commit }, address) {
       try {
         const ensName = await new ethers.providers.StaticJsonRpcProvider(
-          MAINNET_RPC_URLS
+          RPC_ETH
         ).lookupAddress(address);
 
         if (ensName) commit("setENSName", ensName);

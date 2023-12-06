@@ -10,6 +10,20 @@ import { arbitrumConfig } from "@/helpers/chains/configs/arbitrum";
 import { avalancheConfig } from "@/helpers/chains/configs/avalanche";
 import { lineaConfig } from "@/helpers/chains/configs/linea";
 
+import {
+  RPC_ETH,
+  RPC_OPTIMISM,
+  RPC_BSC,
+  RPC_POLYGON,
+  RPC_FTM,
+  RPC_MOONRIVER,
+  RPC_BASE,
+  RPC_ARB,
+  RPC_AVAX,
+  RPC_KAVA,
+  PRC_LINEA,
+} from "@/constants/rpc";
+
 export const chains = [
   mainnetConfig,
   optimismConfig,
@@ -39,17 +53,17 @@ export const chainsList = {
 };
 
 export const defaultRpc = {
-  1: "https://ethereum.publicnode.com",
-  10: "https://mainnet.optimism.io",
-  56: "https://bsc-dataseed.binance.org/",
-  137: "https://polygon-rpc.com",
-  250: "https://rpc.ftm.tools/",
-  1285: "https://rpc.api.moonriver.moonbeam.network",
-  8453: "https://mainnet.base.org",
-  42161: "https://arb1.arbitrum.io/rpc",
-  43114: "https://api.avax.network/ext/bc/C/rpc",
-  2222: "https://evm.kava.io ",
-  59144: "https://rpc.linea.build",
+  1: RPC_ETH,
+  10: RPC_OPTIMISM,
+  56: RPC_BSC,
+  137: RPC_POLYGON,
+  250: RPC_FTM,
+  1285: RPC_MOONRIVER,
+  8453: RPC_BASE,
+  42161: RPC_ARB,
+  43114: RPC_AVAX,
+  2222: RPC_KAVA,
+  59144: PRC_LINEA,
 };
 
 export const getChainById = (chainId: number): Object =>

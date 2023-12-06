@@ -3,7 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 import { ethers } from "ethers";
 import { createApp } from "vue";
-import connectWallet from "./plugins/connectWalletV2/connectWallet";
+import connectWallet from "./plugins/connectWallet/connectWallet";
 import clickOutside from "./directives/clickOutside";
 import VueTippy from "vue-tippy";
 import { useImage } from "./helpers/useImage";
