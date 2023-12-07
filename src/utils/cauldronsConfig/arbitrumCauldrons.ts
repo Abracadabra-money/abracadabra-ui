@@ -347,7 +347,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/GM_SOL.png`),
+    icon: useImage(`assets/images/tokens/GM_LINK.png`),
     name: "GM (LINK)",
     chainId: 42161,
     id: 8,
