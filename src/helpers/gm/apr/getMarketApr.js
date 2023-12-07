@@ -176,7 +176,6 @@ const checkAndGetCachedData = () => {
     const currentTime = new Date().getTime();
     const timeDiff = currentTime - time;
     const minutes = Math.floor(timeDiff / 1000 / 60);
-    console.log(minutes)
     if(minutes > allowedTime) return false;
 
     return marketsApr;
