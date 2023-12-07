@@ -86,12 +86,15 @@ const getIncentivesBonusApr = async (provider) => {
 
     return {
       ...acc,
-      [marketAddress.toLowerCase()]: incentivesApr,
+      [marketAddress.toLowerCase()]: incentivesApr.toString(),
     };
   }, {});
 };
 
 export const getMarketsApr = async (provider) => {
+  const cachedData = checkAndGetCachedData();
+  if(cachedData) return cachedData;
+
   const graphClient = new ApolloClient({
     uri: MARKET_FEES_URL,
     cache: new InMemoryCache(),
@@ -128,7 +131,7 @@ export const getMarketsApr = async (provider) => {
       .mul(yearMultiplier)
       .div(expandDecimals(1, 26));
 
-    acc[marketAddress.toLowerCase()] = apr;
+    acc[marketAddress.toLowerCase()] = apr.toString();
 
     return acc;
   }, {});
@@ -137,13 +140,48 @@ export const getMarketsApr = async (provider) => {
     .reduce((acc, apr) => {
       return acc.add(apr);
     }, BigNumber.from(0))
-    .div(marketAddresses.length);
+    .div(marketAddresses.length)
+    .toString();
 
   const marketsTokensIncentiveAprData = await getIncentivesBonusApr(provider);
 
-  return {
+  const marketsApr = {
     marketsTokensIncentiveAprData,
     marketsTokensAPRData,
     avgMarketsAPR,
   };
+
+  // save to ls
+  const time = new Date().getTime();
+  localStorage.setItem(
+    "GM_APRS",
+    JSON.stringify({
+      marketsApr,
+      time,
+    })
+  );
+
+  return marketsApr;
+};
+
+const checkAndGetCachedData = () => {
+  const cachedData = localStorage.getItem("GM_APRS");
+  const allowedTime = 5; // 5 min
+
+  if(!cachedData) return false;
+
+  try {
+    const { marketsApr, time } = JSON.parse(cachedData);
+
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - time;
+    const minutes = Math.floor(timeDiff / 1000 / 60);
+    console.log(minutes)
+    if(minutes > allowedTime) return false;
+
+    return marketsApr;
+  } catch (error) {
+    console.log("checkAndGetCachedData err:", error);
+    return false;
+  }
 };
