@@ -21,7 +21,7 @@ export const isApyCalcExist = (chainId, poolId) => {
   }
 
   if (chainId === 42161) {
-    cauldronsIds = [2, 3, 4, 5, 6, 7];
+    cauldronsIds = [2, 3, 4, 5, 6, 7, 8];
   }
 
   return cauldronsIds.indexOf(poolId) !== -1;

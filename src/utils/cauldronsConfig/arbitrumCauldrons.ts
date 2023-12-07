@@ -346,6 +346,50 @@ const config: Array<CauldronConfig> = [
       abi: zeroXLiqSwapperAbi,
     },
   },
+  {
+    icon: useImage(`assets/images/tokens/GM_SOL.png`),
+    name: "GM (LINK)",
+    chainId: 42161,
+    id: 8,
+    liquidationFee: 6,
+    mcr: 70,
+    borrowFee: 1,
+    version: 4,
+    cauldronSettings: {
+      isNew: true,
+      isSwappersActive: true,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+      isGMXMarket: true
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x66805F6e719d7e67D46e8b2501C1237980996C6a",
+      abi: poolsAbi.GmxV2CauldronV4,
+    },
+    collateralInfo: {
+      name: "GM (LINK)",
+      decimals: 18,
+      address: "0x7f1fa204bb700853D36994DA19F830b6Ad18455C",
+      abi: tokensAbi.GM,
+    },
+    mimInfo,
+    leverageInfo: {
+      address: "0x4B4C275A5BBBb68a4DCC99C7C47be3ec04108940",
+      abi: zeroXLevSwapperAbi,
+    },
+    deleverageInfo: {
+      address: "0xab0fbe08b8d41508e6a8bbd5f9046d4246992116",
+      abi: zeroXLiqSwapperAbi,
+    },
+  },
 ];
 
 export default config;

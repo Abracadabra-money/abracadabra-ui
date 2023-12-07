@@ -11,6 +11,7 @@ import {
   GM_SOL,
   GM_ETH,
   GM_BTC,
+  GM_LINK,
   DAYS_CONSIDERED,
   MARKET_FEES_URL,
 } from "@/constants/gm";
@@ -48,7 +49,7 @@ const marketFeesQuery = (marketAddress) => {
 
 const getIncentivesBonusApr = async (provider) => {
   const rawIncentivesStats = await fetchIncentiveStats();
-  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC];
+  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC, GM_LINK];
 
   const tokenPricesResponse = await fetchTokenPrices();
   const marketsPoolValueInfoMin = await getMarketsPoolValueInfoMin(
@@ -97,7 +98,7 @@ export const getMarketsApr = async (provider) => {
     cache: new InMemoryCache(),
   });
 
-  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC];
+  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC, GM_LINK];
   const query = marketAddresses.reduce(
     (acc, marketAddress) => acc + marketFeesQuery(marketAddress),
     ""
