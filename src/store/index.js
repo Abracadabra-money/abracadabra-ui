@@ -7,6 +7,7 @@ import popups from "@/store/modules/popups";
 import stake from "@/store/modules/stake";
 import borrowPools from "@/store/modules/borrowPools";
 import farms from "@/store/modules/farms";
+import notifi from "@/store/modules/notifi";
 
 export default createStore({
   state: {
@@ -28,5 +29,6 @@ export default createStore({
     stake,
     borrowPools,
     farms,
+    notifi,
   },
 });

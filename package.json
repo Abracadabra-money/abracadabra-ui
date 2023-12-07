@@ -40,7 +40,10 @@
     "vue-router": "^4.1.6",
     "vue-tippy": "^6.0.0",
     "vuex": "^4.0.2",
-    "web3modal": "^1.9.9"
+    "web3modal": "^1.9.9",
+    "@notifi-network/notifi-react-card": "0.88.2-alpha.1",
+    "@notifi-network/notifi-frontend-client": "0.88.2-alpha.1",
+    "veaury": "^2.3.12"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",

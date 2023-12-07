@@ -98,6 +98,19 @@
       <div class="header-link header-connect">
         <ConnectButton />
       </div>
+      <BellButton
+        v-if="notifiCardId && notifiWalletBlockchain"
+        :notifiCardId="notifiCardId"
+        :notifiWalletBlockchain="notifiWalletBlockchain"
+        :unreadNotificationCount="unreadNotificationCount"
+        :isSignedUp="isSignedUp"
+        :isOpenNotifiModal="isOpenNotifiModal"
+        @toggleNotifiModal="toggleNotifiModal"
+      />
+      <NotifiSubscriptionCardModal
+        :isOpenNotifiModal="isOpenNotifiModal"
+        @toggleNotifiModal="toggleNotifiModal"
+      />
       <div
         class="dropdown-other header-link"
         :class="{ active: isDropdownOther }"
@@ -205,6 +218,8 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import { newFrontendClient } from "@notifi-network/notifi-frontend-client";
+
 export default {
   data() {
     return {
@@ -213,6 +228,10 @@ export default {
       isDropdownOther: false,
       isOpenNetworkPopup: false,
       mobileMenu: false,
+      isOpenNotifiModal: false,
+      unreadNotificationCount: 0,
+      unreadNotificationCountChecker: null,
+      isSignedUp: false,
     };
   },
 
@@ -221,6 +240,8 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
       networksArr: "getAvailableNetworks",
+      notifiCardId: "getNotifiCardId",
+      notifiWalletBlockchain: "getNotifiWalletBlockchain",
     }),
 
     networcIcon() {
@@ -262,6 +283,27 @@ export default {
   },
 
   methods: {
+    async updateUnreadNotificationCount() {
+      const configInput = {
+        account: {
+          publicKey: this.account,
+        },
+        tenantId: "abracadabra",
+        walletBlockchain: this.notifiWalletBlockchain,
+        env: "Production",
+      };
+      const frontendClient = newFrontendClient(configInput);
+      await frontendClient.initialize();
+      if (frontendClient.userState.status !== "authenticated") {
+        this.isSignedUp = false;
+        return;
+      }
+      this.isSignedUp = true;
+      const { count } =
+        await frontendClient.getUnreadNotificationHistoryCount();
+      this.unreadNotificationCount = count;
+    },
+
     toHome() {
       this.$router.push({ name: "Home" });
     },
@@ -300,6 +342,10 @@ export default {
       this.isOpenNetworkPopup = false;
     },
 
+    toggleNotifiModal() {
+      this.isOpenNotifiModal = !this.isOpenNotifiModal;
+    },
+
     toggleMobileMenu() {
       this.mobileMenu = !this.mobileMenu;
     },
@@ -317,10 +363,22 @@ export default {
 
   mounted() {
     window.addEventListener("popstate", this.hideAllDropdowns, false);
+    setTimeout(() => {
+      // wait for indexedDB to be ready
+      this.updateUnreadNotificationCount();
+    }, 1000);
+    this.unreadNotificationCountChecker = setInterval(
+      () => {
+        this.updateUnreadNotificationCount();
+      },
+      // a random number between 5 and 8 seconds
+      Math.floor(Math.random() * (8000 - 5000 + 1) + 5000)
+    );
   },
 
   beforeUnmount() {
     window.removeEventListener("popstate", this.hideAllDropdowns);
+    clearInterval(this.unreadCountNotificationChecker);
   },
 
   components: {
@@ -346,6 +404,12 @@ export default {
     Lens: defineAsyncComponent(() => import("@/components/icons/Lens.vue")),
     Mirror: defineAsyncComponent(() => import("@/components/icons/Mirror.vue")),
     GitHub: defineAsyncComponent(() => import("@/components/icons/GitHub.vue")),
+    NotifiSubscriptionCardModal: defineAsyncComponent(() =>
+      import("@/components/notifi/NotifiSubscriptionCardModal.vue")
+    ),
+    BellButton: defineAsyncComponent(() =>
+      import("@/components/notifi/BellButton.vue")
+    ),
   },
 };
 </script>
