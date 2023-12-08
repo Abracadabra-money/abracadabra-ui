@@ -48,7 +48,7 @@
           <div class="multiplier-value">( {{ multiplier }}x)</div>
           <DynamicallyEstimatedPrice
             v-if="chainId !== 2222"
-            :amount="expectedBorrowAmount"
+            :amount="parsedBorrowPart"
             :mimAddress="cauldron.config.mimInfo.address"
           />
 
@@ -331,6 +331,10 @@ export default {
       return this.expectedToSwapAmount
         .mul(String(1e18))
         .div(oracleExchangeRate);
+    },
+
+    parsedBorrowPart() {
+      return utils.formatUnits(this.expectedBorrowPart);
     },
 
     expectedBorrowAmount() {
