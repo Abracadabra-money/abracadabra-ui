@@ -12,15 +12,6 @@ const formatUSD = (value) => {
   return `$ ${formatAmount.toLocaleString("en-US", { currency: "USD" })}`;
 };
 
-const formatNumber = (value) => {
-  if (isNaN(Number(value)) || +value === 0 || +value < 0.0001) return "$ 0.0";
-  const decimals = +value < 1 ? 4 : 2;
-
-  const formatAmount = +parseFloat(value).toFixed(decimals);
-
-  return formatAmount.toLocaleString("en-US", { currency: "USD" });
-};
-
 const formatPercent = (value) => {
   if (isNaN(Number(value)) || +value === 0 || +value < 0.0001) return "0.0%";
   const decimals = +value < 1 ? 4 : 2;
@@ -112,7 +103,6 @@ const formatAddress = (address) => {
 
 const filters = {
   formatUSD,
-  formatNumber,
   formatTokenBalance,
   formatLargeSum,
   formatToFixed,
