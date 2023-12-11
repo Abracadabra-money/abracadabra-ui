@@ -58,7 +58,8 @@ export default {
 
     assetsInfo() {
       const disableEarnedButton = this.farmConfig.isMultiReward
-        ? this.multiRewardsTokens?.find((tokenInfo) => tokenInfo.amount !== "0.0") === undefined
+        ? this.farmConfig.accountInfo?.rewardTokensInfo?.filter((tokenInfo) => +tokenInfo.earned > 0)
+            .length === 0
         : !+this.earnedData.balance;
 
       return [
