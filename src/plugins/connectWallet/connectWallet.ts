@@ -3,7 +3,7 @@ import { initWithoutConnect } from "@/plugins/connectWallet/initWithoutConnect";
 import { createEthereumClients } from "@/plugins/connectWallet/createEthereumClients";
 import { watchAccount } from "@wagmi/core";
 
-const { web3modal, ethereumClient } = createEthereumClients();
+const { web3modal, ethereumClient } = await createEthereumClients();
 
 const subscribeProvider = async () => {
   await watchAccount(({ isConnected }) => {

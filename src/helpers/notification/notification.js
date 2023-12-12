@@ -101,4 +101,8 @@ export default {
     discription: "Looks like you already have existing order",
     type: "warning",
   },
+  web3modalProjectId: {
+    discription: "You need to provide projectId env",
+    type: "warning",
+  },
 };

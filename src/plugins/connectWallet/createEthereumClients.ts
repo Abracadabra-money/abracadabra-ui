@@ -1,4 +1,6 @@
 import { useImage } from "@/helpers/useImage";
+import notification from "@/helpers/notification/notification.js";
+import store from "@/store";
 import { InjectedConnector } from "@wagmi/core";
 import { EthereumClient } from "@web3modal/ethereum";
 import { configureChains, createConfig } from "@wagmi/core";
@@ -10,7 +12,7 @@ import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 import type { Chain } from "viem";
 
-export const createEthereumClients = () => {
+export const createEthereumClients = async () => {
   // 1. Define constants
   const projectId = import.meta.env.VITE_APP_CONNECT_KEY || "";
 
@@ -30,6 +32,7 @@ export const createEthereumClients = () => {
 
   if (!projectId) {
     console.log("Web3Modal error: \nYou need to provide projectId env");
+    await store.dispatch("notifications/new", notification.web3modalProjectId);
     return { ethereumClient };
   }
 
