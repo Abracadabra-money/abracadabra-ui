@@ -182,10 +182,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
-import {
-  COLLATERAL_EMPTY_DATA,
-  MAX_ALLOWANCE_VALUE,
-} from "@/constants/cauldron.ts";
+import { MAX_APPROVAL_AMOUNT } from "@/constants/global.ts";
 
 import { monitorOrderStatus, saveOrder } from "@/helpers/gm/orders";
 
@@ -221,6 +218,14 @@ export default {
       signer: "getSigner",
       getChainById: "getChainById",
     }),
+
+    COLLATERAL_EMPTY_DATA() {
+      return {
+        name: "",
+        icon: "",
+        balance: { value: 0 },
+      };
+    },
 
     isCauldronLoading() {
       return !!(this.$route.params.id && !this.cauldron);
@@ -449,7 +454,7 @@ export default {
     },
 
     activeToken() {
-      if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
+      if (!this.cauldron) return this.COLLATERAL_EMPTY_DATA;
 
       const { acceptUseDefaultBalance } = this.cauldron.config.cauldronSettings;
       const useUnwrappedByDefault =
@@ -508,7 +513,7 @@ export default {
         icon: baseTokenIcon,
         balance: utils.formatUnits(nativeTokenBalance),
         decimals: 18,
-        allowance: BigNumber.from(MAX_ALLOWANCE_VALUE),
+        allowance: BigNumber.from(MAX_APPROVAL_AMOUNT),
         contract: collateral,
         isNative: true,
       };
@@ -702,7 +707,8 @@ export default {
       } catch (error) {
         console.log("leverage error", error);
 
-        const errorType = String(error).indexOf("GM") !== -1 ? "warning": "error"
+        const errorType =
+          String(error).indexOf("GM") !== -1 ? "warning" : "error";
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -780,7 +786,7 @@ export default {
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
         // this.createNotification(notification.gmOrderExist);
-        throw new Error('GM Order exist');
+        throw new Error("GM Order exist");
       }
 
       // leverage & create order
@@ -826,7 +832,9 @@ export default {
         this.createNotification(notification.success);
         this.activeOrder = newOrder;
       } catch (error) {
-        const errorType = String(error).indexOf("GM Capcity") ? "warning": "error"
+        const errorType = String(error).indexOf("GM Capcity")
+          ? "warning"
+          : "error";
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),

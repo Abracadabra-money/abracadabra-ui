@@ -127,7 +127,6 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
-import { COLLATERAL_EMPTY_DATA, MIM_EMPTY_DATA } from "@/constants/cauldron.ts";
 
 export default {
   mixins: [cookMixin],
@@ -150,6 +149,21 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+
+    MIM_EMPTY_DATA() {
+      return {
+        name: "MIM",
+        icon: useImage(`assets/images/tokens/MIM.png`),
+      };
+    },
+
+    COLLATERAL_EMPTY_DATA() {
+      return {
+        name: "",
+        icon: "",
+        balance: { value: 0 },
+      };
+    },
 
     parseCollateralAmount() {
       const { decimals } = this.activeToken;
@@ -303,7 +317,7 @@ export default {
     },
 
     borrowToken() {
-      if (!this.cauldron) return MIM_EMPTY_DATA;
+      if (!this.cauldron) return this.MIM_EMPTY_DATA;
 
       const { name, icon, address } = this.cauldron.config.mimInfo;
       const { mimBalance } = this.cauldron.userTokensInfo;
@@ -317,7 +331,7 @@ export default {
     },
 
     activeToken() {
-      if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
+      if (!this.cauldron) return this.COLLATERAL_EMPTY_DATA;
 
       return this.collateralToken;
     },

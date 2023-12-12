@@ -147,11 +147,7 @@ import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
-import {
-  MAX_ALLOWANCE_VALUE,
-  COLLATERAL_EMPTY_DATA,
-  MIM_EMPTY_DATA,
-} from "@/constants/cauldron.ts";
+import { MAX_APPROVAL_AMOUNT } from "@/constants/global.ts";
 
 export default {
   mixins: [cookMixin],
@@ -176,6 +172,21 @@ export default {
       signer: "getSigner",
       getChainById: "getChainById",
     }),
+
+    MIM_EMPTY_DATA() {
+      return {
+        name: "MIM",
+        icon: useImage(`assets/images/tokens/MIM.png`),
+      };
+    },
+
+    COLLATERAL_EMPTY_DATA() {
+      return {
+        name: "",
+        icon: "",
+        balance: { value: 0 },
+      };
+    },
 
     isCauldronLoading() {
       return !!(this.$route.params.id && !this.cauldron);
@@ -276,7 +287,7 @@ export default {
           value: utils.formatUnits(nativeTokenBalance),
         },
         decimals: 18,
-        allowance: BigNumber.from(MAX_ALLOWANCE_VALUE),
+        allowance: BigNumber.from(MAX_APPROVAL_AMOUNT),
         isNative: true,
       };
     },
@@ -322,13 +333,13 @@ export default {
     },
 
     borrowToken() {
-      if (!this.cauldron) return MIM_EMPTY_DATA;
+      if (!this.cauldron) return this.MIM_EMPTY_DATA;
       const { name, icon } = this.cauldron.config.mimInfo;
       return { name, icon };
     },
 
     activeToken() {
-      if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
+      if (!this.cauldron) return this.COLLATERAL_EMPTY_DATA;
 
       const { acceptUseDefaultBalance } = this.cauldron.config.cauldronSettings;
       const useUnwrappedByDefault =

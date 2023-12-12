@@ -17,3 +17,4 @@ export const RANDOM_ACCOUNT: string = Wallet.createRandom().address;
 export const KAVA_CHAIN_ID: number = 2222;
 export const OPENOCEAN_BASE_URL: string = "https://ethapi.openocean.finance/v2";
 export const BSC_CHAIN_ID: number = 56;
+export const COINGECKO_URL: string = "https://api.coingecko.com/api/v3/";

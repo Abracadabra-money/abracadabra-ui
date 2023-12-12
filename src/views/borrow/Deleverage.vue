@@ -165,7 +165,6 @@ import notification from "@/helpers/notification/notification.js";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { approveToken } from "@/helpers/approval";
-import { COLLATERAL_EMPTY_DATA } from "@/constants/cauldron.ts";
 
 import { monitorOrderStatus, saveOrder } from "@/helpers/gm/orders";
 
@@ -199,6 +198,14 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+
+    COLLATERAL_EMPTY_DATA() {
+      return {
+        name: "",
+        icon: "",
+        balance: { value: 0 },
+      };
+    },
 
     isCauldronLoading() {
       return !!(this.$route.params.id && !this.cauldron);
@@ -370,7 +377,7 @@ export default {
     },
 
     activeToken() {
-      if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
+      if (!this.cauldron) return this.COLLATERAL_EMPTY_DATA;
       return this.collateralToken;
     },
 
@@ -603,7 +610,9 @@ export default {
         this.createNotification(notification.success);
         this.activeOrder = newOrder;
       } catch (error) {
-        const errorType = String(error).indexOf("GM Capcity") ? "warning": "error"
+        const errorType = String(error).indexOf("GM Capcity")
+          ? "warning"
+          : "error";
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
