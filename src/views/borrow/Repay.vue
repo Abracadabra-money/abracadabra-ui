@@ -4,17 +4,20 @@
       <div class="cauldron-deposit" :style="backgroundInfo.deposit">
         <div class="underline">
           <h4>Choose Chain</h4>
+
           <NetworksList />
         </div>
 
         <div class="collateral-assets underline">
-          <InputLabel title="Remove collateral" :amount="maxCollateralAmount" />
-
+          <InputLabel
+            title="Remove collateral"
+            :amount="formatUnits(maxCollateralAmount)"
+          />
           <BaseTokenInput
             :icon="activeToken.icon"
             :name="activeToken.name"
             :value="collateralValue"
-            :max="maxCollateralAmount"
+            :max="formatUnits(maxCollateralAmount)"
             :error="errorCollateralValue"
             :disabled="!cauldron"
             @updateValue="updateCollateralValue"
@@ -31,7 +34,7 @@
             :name="borrowToken.name"
             :icon="borrowToken.icon"
             :value="borrowValue"
-            :max="maxBorrowValue"
+            :max="formatUnits(maxBorrowValue, MIM_DECIMALS)"
             :error="errorBorrowValue"
             :disabled="!cauldron"
             @updateValue="updateBorrowValue"
@@ -68,9 +71,15 @@
               <PositionInfoBlock
                 v-if="showAdditionalInfo"
                 :cauldron="cauldron"
-                :expectedCollateralAmount="+expectedCollateralAmount"
-                :expectedBorrowAmount="expectedBorrowAmount"
-                :expectedLiquidationPrice="expectedLiquidationPrice"
+                :expectedCollateralAmount="
+                  +formatUnits(expectedCollateralAmount, activeToken.decimals)
+                "
+                :expectedBorrowAmount="
+                  +formatUnits(expectedBorrowAmount, MIM_DECIMALS)
+                "
+                :expectedLiquidationPrice="
+                  +formatUnits(expectedLiquidationPrice, MIM_DECIMALS)
+                "
               />
 
               <AdditionalInfoBlock v-else :cauldron="cauldron" />
@@ -117,17 +126,20 @@
 </template>
 
 <script>
-import { utils } from "ethers";
 import filters from "@/filters/index.js";
+import { utils, BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { approveToken } from "@/helpers/approval";
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { COLLATERAL_EMPTY_DATA, MIM_EMPTY_DATA } from "@/constants/cauldron.ts";
+
+const zeroValue = BigNumber.from(0);
+const MIM_DECIMALS = 18;
 
 export default {
   mixins: [cookMixin],
@@ -151,16 +163,22 @@ export default {
       signer: "getSigner",
     }),
 
+    precision() {
+      return BigNumber.from(Math.pow(10, this.activeToken.decimals).toString());
+    },
+
     parseCollateralAmount() {
       const { decimals } = this.activeToken;
       return utils.parseUnits(
-        filters.formatToFixed(+this.collateralValue || 0, decimals),
+        filters.formatToFixed(this.collateralValue || 0, decimals),
         decimals
       );
     },
 
     parseBorrowAmount() {
-      return utils.parseUnits(filters.formatToFixed(this.borrowValue || 0, 18));
+      return utils.parseUnits(
+        filters.formatToFixed(this.borrowValue || 0, MIM_DECIMALS)
+      );
     },
 
     isCauldronLoading() {
@@ -171,81 +189,121 @@ export default {
       if (!this.account) return true;
       if (!this.borrowValue) return true;
       const { mimAllowance } = this.cauldron.userTokensInfo;
-      const allowance = +utils.formatUnits(mimAllowance);
-      return allowance >= +this.borrowValue;
+      return mimAllowance.gte(this.parseBorrowAmount);
     },
 
     isActionDisabled() {
       if (this.errorCollateralValue || this.errorBorrowValue) return true;
-      if (!this.collateralValue && !this.borrowValue) return true;
+      if (
+        this.parseCollateralAmount.isZero() &&
+        this.parseBorrowAmount.isZero()
+      )
+        return true;
+
       return false;
     },
 
     isMaxBorrow() {
-      const { userBorrowAmount, userCollateralAmount } = this.positionInfo;
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
       return (
-        +this.borrowValue === +userBorrowAmount &&
-        +this.collateralValue === +userCollateralAmount
+        userBorrowAmount.lte(this.parseBorrowAmount) &&
+        userCollateralAmount.lte(this.parseCollateralAmount)
       );
     },
 
     maxCollateralAmount() {
-      if (!this.cauldron) return 0;
+      if (!this.cauldron) return zeroValue;
+      const { userPosition, additionalInfo } = this.cauldron;
+      const { oracleRate } = userPosition;
+      const { maxWithdrawAmount } = additionalInfo;
+      const { userCollateralAmount } = userPosition.collateralInfo;
+      const { userBorrowAmount } = userPosition.borrowInfo;
 
-      const { mcr } = this.cauldron.config;
-      const { decimals } = this.activeToken;
-      const { userCollateralAmount } = this.positionInfo;
-      const { userBorrowAmount, oracleExchangeRate, maxWithdrawAmount } =
-        this.positionInfo;
+      const differenceDecimals = MIM_DECIMALS - this.activeToken.decimals;
 
-      if (+this.borrowValue === userBorrowAmount || !userBorrowAmount) {
-        if (maxWithdrawAmount && maxWithdrawAmount < +userCollateralAmount) {
+      if (
+        this.parseBorrowAmount.eq(userBorrowAmount) ||
+        userBorrowAmount.isZero()
+      ) {
+        if (
+          !maxWithdrawAmount.isZero() &&
+          maxWithdrawAmount.lt(userCollateralAmount)
+        ) {
           return maxWithdrawAmount;
         }
 
         return userCollateralAmount;
       }
 
-      const collateralInUsd = +userCollateralAmount / oracleExchangeRate;
-      const maxBorrow =
-        (collateralInUsd / 100) * (mcr - 1) - this.expectedBorrowAmount;
-      const borrowLeft = ((maxBorrow * oracleExchangeRate) / mcr) * 100;
+      const collateralUsd = userCollateralAmount
+        .mul(this.precision)
+        .div(oracleRate);
 
-      if (borrowLeft < 0) return "0";
-      if (maxWithdrawAmount && maxWithdrawAmount < +borrowLeft) {
+      const mcr = utils.parseUnits(
+        this.cauldron.config.mcr.toString(),
+        this.activeToken.decimals
+      );
+
+      let maxBorrow;
+      if (!differenceDecimals) {
+        maxBorrow = collateralUsd
+          .div(BigNumber.from(100))
+          .mul(mcr.sub(utils.parseUnits("1", this.activeToken.decimals)))
+          .div(this.precision)
+          .sub(this.expectedBorrowAmount);
+      } else {
+        maxBorrow = collateralUsd
+          .div(BigNumber.from(100))
+          .mul(mcr.sub(utils.parseUnits("1", this.activeToken.decimals)))
+          .div(this.precision)
+          .mul(BigNumber.from(Math.pow(10, differenceDecimals).toString()))
+          .sub(this.expectedBorrowAmount)
+          .div(BigNumber.from(Math.pow(10, differenceDecimals).toString()));
+      }
+
+      const borrowLeft = maxBorrow.mul(oracleRate).div(mcr).mul(100);
+
+      if (borrowLeft.lt(0)) return zeroValue;
+
+      if (!maxWithdrawAmount.isZero() && maxWithdrawAmount.lt(borrowLeft)) {
         return maxWithdrawAmount;
       }
 
-      return filters.formatToFixed(borrowLeft, decimals);
+      return borrowLeft;
     },
 
     maxBorrowValue() {
-      if (!this.cauldron) return 0;
-
+      if (!this.cauldron) return zeroValue;
       const { mimBalance } = this.borrowToken;
-      const { userBorrowAmount } = this.positionInfo;
-      if (userBorrowAmount > mimBalance) return mimBalance;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      if (userBorrowAmount.gt(mimBalance)) return mimBalance;
       return userBorrowAmount;
     },
 
     errorCollateralValue() {
       if (isNaN(this.collateralValue)) return "Please input valid value";
-      if (+this.collateralValue > +this.maxCollateralAmount)
-        return `The value cannot be greater than ${this.maxCollateralAmount}`;
+      if (this.parseCollateralAmount.gt(this.maxCollateralAmount))
+        return `The value cannot be greater than ${this.formatUnits(
+          this.maxCollateralAmount
+        )}`;
       return "";
     },
 
     errorBorrowValue() {
       if (isNaN(this.borrowValue)) return "Please input valid value";
-      if (+this.borrowValue > +this.maxBorrowValue)
-        return `The value cannot be greater than ${this.maxBorrowValue}`;
+      if (this.parseBorrowAmount.gt(this.maxBorrowValue))
+        return `The value cannot be greater than ${this.formatUnits(
+          this.maxBorrowValue
+        )}`;
 
       return "";
     },
 
     expectedCollateralAmount() {
-      const { decimals } = this.activeToken;
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
 
@@ -253,53 +311,25 @@ export default {
         this.parseCollateralAmount
       );
 
-      return +expectedAmount < 0
-        ? 0
-        : utils.formatUnits(expectedAmount, decimals);
+      return expectedAmount.lt(0) ? zeroValue : expectedAmount;
     },
 
     expectedBorrowAmount() {
-      const { userBorrowAmount } = this.positionInfo;
-      const expectedAmount = userBorrowAmount - +this.borrowValue;
-      return expectedAmount < 0 ? 0 : expectedAmount;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      const expectedAmount = userBorrowAmount.sub(this.parseBorrowAmount);
+      return expectedAmount.lt(0) ? zeroValue : expectedAmount;
     },
 
     expectedLiquidationPrice() {
-      if (!this.expectedCollateralAmount) return 0;
+      if (this.expectedCollateralAmount.isZero()) return 0;
 
-      return (
-        this.expectedBorrowAmount /
-        this.expectedCollateralAmount /
-        (+this.cauldron.config.mcr / 100)
-      );
-    },
+      const mcr = utils.parseUnits((this.cauldron.config.mcr / 100).toString());
 
-    positionInfo() {
-      const { decimals } = this.activeToken;
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-      const { oracleRate } = this.cauldron.userPosition;
-      const { maxWithdrawAmount } = this.cauldron.additionalInfo;
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-
-      return {
-        userBorrowAmount: +utils.formatUnits(userBorrowAmount),
-        oracleExchangeRate: +utils.formatUnits(oracleRate, decimals),
-        maxWithdrawAmount: +utils.formatUnits(maxWithdrawAmount, decimals),
-        userCollateralAmount: utils.formatUnits(userCollateralAmount, decimals),
-      };
-    },
-
-    collateralToken() {
-      const { icon } = this.cauldron.config;
-      const { name, decimals, address } = this.cauldron.config.collateralInfo;
-
-      return {
-        name,
-        address,
-        icon,
-        decimals,
-      };
+      return this.expectedBorrowAmount
+        .mul(Math.pow(10, MIM_DECIMALS).toString())
+        .div(this.expectedCollateralAmount)
+        .mul(BigNumber.from(Math.pow(10, this.activeToken.decimals).toString()))
+        .div(mcr);
     },
 
     borrowToken() {
@@ -312,14 +342,22 @@ export default {
         name,
         icon,
         address,
-        mimBalance: +utils.formatUnits(mimBalance),
+        mimBalance,
       };
     },
 
     activeToken() {
       if (!this.cauldron) return COLLATERAL_EMPTY_DATA;
 
-      return this.collateralToken;
+      const { icon } = this.cauldron.config;
+      const { name, decimals, address } = this.cauldron.config.collateralInfo;
+
+      return {
+        name,
+        address,
+        icon,
+        decimals,
+      };
     },
 
     actionInfo() {
@@ -330,13 +368,13 @@ export default {
 
       if (this.isActionDisabled) return info;
 
-      if (+this.borrowValue && +this.collateralValue) {
+      if (this.parseCollateralAmount.gt(0) && this.parseBorrowAmount.gt(0)) {
         info.methodName = "removeAndRepayHandler";
         info.buttonText = "Remove and Repay";
-      } else if (+this.borrowValue) {
+      } else if (this.parseBorrowAmount.gt(0)) {
         info.methodName = "repayHandler";
         info.buttonText = "Repay";
-      } else if (+this.collateralValue) {
+      } else if (this.parseCollateralAmount.gt(0)) {
         info.methodName = "removeCollateralHandler";
         info.buttonText = "Remove collateral";
       }
@@ -458,14 +496,17 @@ export default {
     },
 
     async repayHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
-      const { userBorrowAmount } = this.positionInfo;
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      const itsMax = userBorrowAmount.eq(this.parseBorrowAmount);
+      const amount = itsMax ? userBorrowAmount : this.parseBorrowAmount;
 
       const payload = {
-        amount: this.parseBorrowAmount,
+        amount,
+        itsMax,
         updatePrice,
-        itsMax: +this.borrowValue === +userBorrowAmount,
       };
 
       const isTokenToCookApprove = await this.checkAllowance(payload.amount);
@@ -478,17 +519,18 @@ export default {
     },
 
     async removeCollateralHandler() {
-      const { bentoBox } = this.cauldron.contracts;
       const { address } = this.activeToken;
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+      const { bentoBox } = this.cauldron.contracts;
       const { updatePrice } = this.cauldron.mainParams;
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+
+      const itsMax = userCollateralAmount.lte(this.parseCollateralAmount);
+      const amount = itsMax ? userCollateralAmount : this.parseCollateralAmount;
 
       const payload = {
-        amount: await bentoBox.toShare(
-          address,
-          this.parseCollateralAmount,
-          true
-        ),
+        amount: await bentoBox.toShare(address, amount, true),
         updatePrice,
       };
 
@@ -559,6 +601,10 @@ export default {
           this.signer
         );
       }, 60000);
+    },
+
+    formatUnits(value, decimals = this.activeToken.decimals) {
+      return utils.formatUnits(value, decimals);
     },
   },
 
