@@ -40,8 +40,8 @@
     >
       <div class="signup-cta-title">Get Notifications</div>
       <div class="signup-cta-content">
-        Get real time alerts like announcements, order fill & trade
-        confirmations, and take profit reminders.
+        Get real time alerts like announcements, liquidation, and position
+        health alerts.
       </div>
       <div class="signup-cta">
         <div @click="openSignupView">Set up now</div>
@@ -236,7 +236,7 @@ export default {
   cursor: pointer;
 }
 
-@media (max-width: 1110px) {
+@media (max-width: 1024px) {
   .signup-cta-popover {
     transform: translateX(20%);
   }

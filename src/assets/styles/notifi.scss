@@ -5,6 +5,7 @@
   --notifi-color-card: #2b2b3b;
   --notifi-color-gray-secondary: #3b394a;
   --notifi-color-heather: #b6b8d5;
+  --notifi-color-gray-tooltip: #4c4c61;
   --notifi-color-light-green: #b4e2ac;
   --notifi-lineart-gradient-dark: linear-gradient(
     90.09deg,
@@ -138,8 +139,25 @@
   left: 16px !important;
 }
 
+.configAlertModal__EventTypeHealthCheckRow__ButtonContainer,
+.configAlertModal__EventTypeFusionHealthCheckRow__ButtonContainer,
+.configAlertModal__EventTypeCustomHealthCheckRow__ButtonContainer {
+  padding-bottom: 20px !important;
+}
+
 .configAlertModal__EventTypeContainer {
   padding: 0px 14px !important;
+  .NotifiTooltip__infoIcon {
+    fill: var(--notifi-color-heather) !important;
+  }
+  .NotifiEmailInput__errorMessage,
+  .NotifiSmsInput__errorMessage,
+  .NotifiTelegramInput__errorMessage {
+    display: block !important;
+    padding-left: 12px !important;
+    margin-top: -33px;
+    text-align: start !important;
+  }
 }
 
 .configDestinationModal__emailResendLink {
@@ -199,7 +217,8 @@
 }
 
 .NotifiTooltip__infoIcon {
-  fill: var(--notifi-color-heather) !important;
+  width: 16px !important;
+  height: 16px !important;
 }
 
 .NotifiTooltip__body::before {
@@ -229,6 +248,12 @@
     outline: none !important;
     border: none !important;
   }
+}
+
+.NotifiEmailInput__errorMessage,
+.NotifiSmsInput__errorMessage,
+.NotifiTelegramInput__errorMessage {
+  color: var(--notifi-checkmark-color) !important;
 }
 
 @media screen and (max-width: 1024px) {

@@ -607,7 +607,7 @@ export default {
   }
 }
 
-@media (max-width: 1110px) {
+@media (max-width: 1024px) {
   .header-link {
     display: none;
   }
