@@ -5,17 +5,21 @@ import { initWithoutConnect } from "@/plugins/connectWallet/initWithoutConnect";
 import { createEthereumClients } from "@/plugins/connectWallet/createEthereumClients";
 import { watchAccount } from "@wagmi/core";
 
-const { web3modal, ethereumClient } = createEthereumClients();
+const { web3modal, ethereumClient, projectId } = createEthereumClients();
 
 const subscribeProvider = async () => {
   await watchAccount(({ isConnected }) => {
     console.log("herter isConnected", isConnected);
-    isConnected ? onConnectNew(ethereumClient!) : window.location.reload();
+    isConnected && projectId
+      ? onConnectNew(ethereumClient!)
+      : window.location.reload();
   });
 };
 
 watchAccount(({ isConnected }) => {
-  isConnected ? onConnectNew(ethereumClient!) : initWithoutConnect();
+  isConnected && projectId
+    ? onConnectNew(ethereumClient!)
+    : initWithoutConnect();
 });
 
 export default {

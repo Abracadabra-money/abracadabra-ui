@@ -78,5 +78,5 @@ export const createEthereumClients = () => {
   });
   const web3modal = useWeb3Modal();
 
-  return { web3modal, ethereumClient };
+  return { web3modal, ethereumClient, projectId };
 };
