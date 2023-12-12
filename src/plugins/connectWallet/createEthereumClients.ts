@@ -8,46 +8,30 @@ import { walletConnectProvider, EIP6963Connector } from "@web3modal/wagmi";
 import { getChainsConfigs } from "@/helpers/getChainsConfigs";
 import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
+import type { Chain } from "viem";
 
 export const createEthereumClients = () => {
   // 1. Define constants
-  const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
-  if (!projectId) throw new Error("You need to provide projectId env");
-
-  const metadata = {
-    name: "Web3Modal",
-    description: "Web3Modal Example",
-    url: "https://web3modal.com",
-    icons: ["https://avatars.githubusercontent.com/u/37784886"],
-  };
+  const projectId = import.meta.env.VITE_APP_CONNECT_KEY || "";
 
   const { chains } = getChainsConfigs();
 
   // 2. Configure wagmi client
-  const { publicClient } = configureChains(chains, [
-    publicProvider(),
-    walletConnectProvider({ projectId }),
-  ]);
+  const { publicClient } = createPublicClient(chains, projectId);
 
   const wagmiConfig = createConfig({
     autoConnect: true,
-    connectors: [
-      new WalletConnectConnector({
-        chains,
-        options: { projectId, showQrModal: false, metadata },
-      }),
-      new EIP6963Connector({ chains }),
-      new InjectedConnector({ chains, options: { shimDisconnect: true } }),
-      new CoinbaseWalletConnector({
-        chains,
-        options: { appName: metadata.name },
-      }),
-    ],
+    connectors: createConnectors(chains, projectId),
     publicClient,
   });
 
   // 3. Create ethereum and modal clients
   const ethereumClient = new EthereumClient(wagmiConfig, chains);
+
+  if (!projectId) {
+    console.log("Web3Modal error: \nYou need to provide projectId env");
+    return { ethereumClient };
+  }
 
   createWeb3Modal({
     wagmiConfig,
@@ -68,4 +52,49 @@ export const createEthereumClients = () => {
   const web3modal = useWeb3Modal();
 
   return { web3modal, ethereumClient };
+};
+
+const createPublicClient = (chains: Chain[], projectId: string) => {
+  if (projectId) return configureChains(chains, [publicProvider()]);
+  return configureChains(chains, [
+    publicProvider(),
+    walletConnectProvider({ projectId }),
+  ]);
+};
+
+const createConnectors = (chains: Chain[], projectId: string) => {
+  const metadata = {
+    name: "Web3Modal",
+    description: "Web3Modal Example",
+    url: "https://web3modal.com",
+    icons: ["https://avatars.githubusercontent.com/u/37784886"],
+  };
+
+  const connectors: (
+    | WalletConnectConnector
+    | EIP6963Connector
+    | InjectedConnector
+    | CoinbaseWalletConnector
+  )[] = [
+    new EIP6963Connector({ chains }),
+    new InjectedConnector({ chains, options: { shimDisconnect: true } }),
+    new CoinbaseWalletConnector({
+      chains,
+      options: { appName: metadata.name },
+    }),
+  ];
+
+  if (projectId)
+    connectors.push(
+      new WalletConnectConnector({
+        chains,
+        options: {
+          projectId,
+          showQrModal: false,
+          metadata,
+        },
+      })
+    );
+
+  return connectors;
 };

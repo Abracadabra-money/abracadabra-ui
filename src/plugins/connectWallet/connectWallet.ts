@@ -25,15 +25,15 @@ export default {
     };
 
     Vue.config.globalProperties.$openWeb3modal = async () => {
-      await web3modal.open();
+      await web3modal?.open();
     };
 
     Vue.config.globalProperties.$openNetworkModal = async () => {
-      await web3modal.open({ view: "Networks" });
+      await web3modal?.open({ view: "Networks" });
     };
 
     Vue.config.globalProperties.$closeWeb3modal = async () => {
-      await web3modal.close();
+      await web3modal?.close();
     };
   },
 };
