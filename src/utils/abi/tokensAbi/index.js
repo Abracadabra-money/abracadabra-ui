@@ -6,10 +6,7 @@ import mSPELL from "@/utils/abi/tokensAbi/mSpell";
 import wsOHM from "@/utils/abi/tokensAbi/wsOHM";
 import xSUSHI from "@/utils/abi/tokensAbi/xSUSHI";
 import yvcrvIB from "@/utils/abi/tokensAbi/yvcrvIB";
-import yvUSDC from "@/utils/abi/tokensAbi/yvUSDC";
-import yvUSDT from "@/utils/abi/tokensAbi/yvUSDT";
 import yvWETH from "@/utils/abi/tokensAbi/yvWETH";
-import yvYFI from "@/utils/abi/tokensAbi/yvYFI";
 import yvcrvSTETH from "@/utils/abi/tokensAbi/yvcrvSTETH";
 import FTM from "@/utils/abi/tokensAbi/FTM";
 import stkcvx3Crv from "@/utils/abi/tokensAbi/stkcvx3Crv";
@@ -58,7 +55,6 @@ import GM from "@/utils/abi/tokensAbi/GM";
 import mimUsdtCurveLp from "@/utils/abi/tokensAbi/mimUsdtCurveLp";
 import TetherUSDtLP from "@/utils/abi/tokensAbi/TetherUSDtLP";
 
-
 export default {
   ALCX,
   MIM,
@@ -67,10 +63,7 @@ export default {
   wsOHM,
   xSUSHI,
   yvcrvIB,
-  yvUSDC,
-  yvUSDT,
   yvWETH,
-  yvYFI,
   yvcrvSTETH,
   FTM,
   crv,
