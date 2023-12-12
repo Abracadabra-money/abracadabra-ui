@@ -12,7 +12,7 @@ import { WalletConnectConnector } from "@wagmi/core/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 import type { Chain } from "viem";
 
-export const createEthereumClients = async () => {
+export const createEthereumClients = () => {
   // 1. Define constants
   const projectId = import.meta.env.VITE_APP_CONNECT_KEY || "";
 
@@ -32,7 +32,7 @@ export const createEthereumClients = async () => {
 
   if (!projectId) {
     console.log("Web3Modal error: \nYou need to provide projectId env");
-    await store.dispatch("notifications/new", notification.web3modalProjectId);
+    store.dispatch("notifications/new", notification.web3modalProjectId);
     return { ethereumClient };
   }
 
