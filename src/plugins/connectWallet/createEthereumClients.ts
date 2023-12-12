@@ -1,4 +1,6 @@
 import { useImage } from "@/helpers/useImage";
+import notification from "@/helpers/notification/notification.js";
+import store from "@/store";
 import { InjectedConnector } from "@wagmi/core";
 import { EthereumClient } from "@web3modal/ethereum";
 import { configureChains, createConfig } from "@wagmi/core";
@@ -11,8 +13,19 @@ import { CoinbaseWalletConnector } from "@wagmi/core/connectors/coinbaseWallet";
 
 export const createEthereumClients = () => {
   // 1. Define constants
+  const { chains } = getChainsConfigs();
+
   const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
-  if (!projectId) throw new Error("You need to provide projectId env");
+  if (!projectId) {
+    const { publicClient } = configureChains(chains, [publicProvider()]);
+    createConfig({
+      autoConnect: true,
+      publicClient,
+    });
+    console.log("Connect env error: \nYou need to provide projectId env");
+    store.dispatch("notifications/new", notification.connectEnvError);
+    return {};
+  }
 
   const metadata = {
     name: "Web3Modal",
@@ -20,8 +33,6 @@ export const createEthereumClients = () => {
     url: "https://web3modal.com",
     icons: ["https://avatars.githubusercontent.com/u/37784886"],
   };
-
-  const { chains } = getChainsConfigs();
 
   // 2. Configure wagmi client
   const { publicClient } = configureChains(chains, [
