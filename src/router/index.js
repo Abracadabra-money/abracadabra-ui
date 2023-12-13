@@ -105,7 +105,7 @@ const routes = [
   {
     path: "/cauldrons",
     name: "Cauldrons",
-    component: () => import("@/views/markets/Cauldrons.vue"),
+    component: () => import("@/views/Cauldrons.vue"),
   },
   {
     path: "/markets",
