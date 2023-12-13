@@ -35,7 +35,7 @@
       <div class="popup-link popup-connect">
         <ConnectButton />
       </div>
-      <button v-if="account" class="popup-link" @click="$disconnectWallet">
+      <button v-if="account" class="popup-link" @click="$openWeb3modal">
         Disconnect
       </button>
       <button class="popup-link" @click.stop="openInnerPopup('other')">
