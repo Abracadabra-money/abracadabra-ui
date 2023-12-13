@@ -1,17 +1,15 @@
 <template>
-  <div class="switch-wrap">
-    <div class="switch">
-      <button
-        v-for="(item, i) in items"
-        :key="i"
-        class="switch-btn"
-        :class="{ 'switch-btn-active': name === item.name }"
-        @click="$emit('select', item)"
-        :disabled="currentName === item.name"
-      >
-        {{ item.title }}
-      </button>
-    </div>
+  <div class="switch">
+    <button
+      v-for="(item, i) in items"
+      class="switch-btn"
+      :class="{ 'switch-btn-active': name === item.name }"
+      :key="i"
+      @click="$emit('select', item)"
+      :disabled="currentName === item.name"
+    >
+      {{ item.title }}
+    </button>
   </div>
 </template>
 
@@ -37,41 +35,32 @@ export default {
 
 <style lang="scss" scoped>
 .switch {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  column-gap: 8px;
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 2px 4px;
-  border-radius: 20px;
-  max-width: 100%;
-
-  &-wrap {
-    display: flex;
-    justify-content: center;
-  }
-  &-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.06);
-    height: 50px;
-    width: 150px;
-    border-radius: inherit;
-    border: none;
-    cursor: pointer;
-    color: white;
-    font-weight: 600;
-
-    &-active {
-      background-color: rgba(255, 255, 255, 0.2);
-      cursor: default;
-    }
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 220px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.38);
+  padding: 6px;
 }
 
-@media (max-width: 400px) {
-  .switch-btn {
-    width: 110px;
-  }
+.switch-btn {
+  padding: 6px 24px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.switch-btn-active {
+  color: #7088cc;
+  background-color: rgba(111, 111, 111, 0.06);
 }
 </style>

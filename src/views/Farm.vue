@@ -1,68 +1,38 @@
 <template>
   <div class="farm-view">
-    <div class="farm-wrap">
-      <div class="farm">
-        <h3 class="title">Farm</h3>
-
-        <h4 class="sub-title">Choose Chain</h4>
-
-        <div class="networks-list-wrap underline">
-          <NetworksList :activeList="activeNetworks" />
+    <div class="farm">
+      <div class="farm-header">
+        <div class="title-desc">
+          <h3 class="title">Farm</h3>
+          <p class="description">Send your MIM across networks</p>
         </div>
 
-        <div class="stake-unstake-switch" v-if="!isDepreciated">
-          <MarketsSwitch
-            :name="selectedTab"
-            :items="items"
-            @select="selectTab($event.name)"
-          />
-        </div>
-
-        <h4 class="sub-title">Farming Opportunities</h4>
-
-        <SelectFarm
-          class="underline"
-          :selectedFarm="selectedFarm"
-          @openFarmsPopup="openFarmsPopup"
+        <MarketsSwitch
+          :name="selectedTab"
+          :items="items"
+          @select="selectTab($event.name)"
+          v-if="!isDepreciated"
         />
-
-        <h4 class="sub-title">
-          {{ inputTitleText }}
-          <span class="deposit-balance" v-if="max">Balance: {{ max }}</span>
-        </h4>
-
-        <div class="input-wrap underline">
-          <BaseTokenInput
-            :value="inputAmount"
-            @updateValue="inputAmount = $event"
-            :name="selectedFarm?.stakingToken?.name"
-            :icon="selectedFarm?.icon"
-            :max="max"
-            :error="error"
-            :disabled="!selectedFarm"
-          />
-        </div>
-
-        <div class="btn-wrap">
-          <BaseButton
-            @click="actionHandler"
-            :disabled="isButtonDisabled"
-            primary
-            >{{ buttonText }}
-          </BaseButton>
-
-          <template v-if="isUserPositionOpen">
-            <router-link
-              class="position-link link"
-              :to="{ name: 'MyPositions' }"
-              >Monitor your Farming Position</router-link
-            >
-          </template>
-        </div>
-
-        <FarmInfoBlock :selectedFarm="selectedFarm" v-if="selectedFarm" />
       </div>
+
+      <FarmingOpportunities
+        :selectedFarm="selectedFarm"
+        @openFarmsPopup="openFarmsPopup"
+      />
+
+      <FarmActionBlock
+        :selectedFarm="selectedFarm"
+        :inputTitleText="inputTitleText"
+        :max="max"
+        :inputAmount="inputAmount"
+        :error="error"
+        :buttonText="buttonText"
+        :isButtonDisabled="isButtonDisabled"
+        @updateValue="inputAmount = $event"
+        @actionHandler="actionHandler"
+      />
     </div>
+
     <LocalPopupWrap
       :isOpened="isFarmsPopupOpened"
       @closePopup="isFarmsPopupOpened = false"
@@ -77,9 +47,9 @@
 
 <script>
 import { mapGetters } from "vuex";
-import NetworksList from "@/components/ui/NetworksList.vue";
 import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
-import SelectFarm from "@/components/farm/SelectFarm.vue";
+import FarmingOpportunities from "@/components/farm/FarmingOpportunities.vue";
+import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
@@ -364,88 +334,45 @@ export default {
 
   components: {
     BaseTokenIcon,
-    NetworksList,
     BaseTokenInput,
     BaseButton,
     LocalPopupWrap,
     MarketsListPopup,
     MarketsSwitch,
-    SelectFarm,
     FarmInfoBlock,
+
+    FarmingOpportunities,
+    FarmActionBlock,
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .farm-view {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   max-width: calc(100% - 20px);
-  width: 740px;
+  width: 533px;
+  height: 100vh;
   padding: 100px 0;
   margin: 0 auto;
 }
 
-.farm-wrap {
-  margin: 0 auto;
-  padding: 30px 95px;
-  background: #2a2835;
-  backdrop-filter: blur(100px);
-  border-radius: 30px;
-}
-
 .farm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   padding: 0 30px;
+  width: 100%;
 }
 
-.title {
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 36px;
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.sub-title {
+.farm-header {
   display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-  margin-bottom: 10px;
-}
-
-.deposit-balance {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.networks-list-wrap {
-  margin-bottom: 17px;
-}
-
-.underline {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.input-wrap {
-  padding-bottom: 20px;
-  margin-bottom: 40px;
-}
-
-.btn-wrap {
-  display: grid;
-  grid-template-rows: repeat(auto-fill, 1fr);
-  row-gap: 1rem;
-  margin-bottom: 80px;
-}
-
-.stake-unstake-switch {
-  margin-bottom: 27px;
-}
-
-.loader-wrap {
-  display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  width: 100%;
+  margin-bottom: 16px;
 }
 
 @media (max-width: 768px) {
