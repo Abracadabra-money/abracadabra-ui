@@ -18,6 +18,8 @@ import { getMintableMarketTokens } from "./utils";
 import { getMarketTokenInfo } from "./getMarketTokenInfo";
 import { getDepositAmounts } from "./deposit";
 
+import { getFees } from "./fee/getFees";
+
 export const getDepositAmount = async (
   market: Address,
   longTokenAmount: BigNumber,
@@ -50,60 +52,61 @@ export const getDepositAmount = async (
     uiFeeReceiver
   );
 
-  const marketFullInfo = await getMarketFullInfo(
-    provider,
-    tokenPricesResponse,
-    market
-  );
-
-  const marketTokenInfo = getMarketTokenInfo(marketFullInfo, true);
-
-  const { virtualInventory } = marketFullInfo.marketInfo;
-
-  const virtualPoolAmountForLongToken =
-    virtualInventory.virtualPoolAmountForLongToken;
-  const virtualPoolAmountForShortToken =
-    virtualInventory.virtualPoolAmountForShortToken;
-
-  const longInterestInTokens =
-    dataStoreInfo.longInterestInTokensUsingLongToken.add(
-      dataStoreInfo.longInterestInTokensUsingShortToken
+  // alternative calculation
+  {
+    const marketFullInfo = await getMarketFullInfo(
+      provider,
+      tokenPricesResponse,
+      market
     );
 
-  const shortInterestUsd = dataStoreInfo.shortInterestUsingLongToken.add(
-    dataStoreInfo.shortInterestUsingShortToken
-  );
+    const marketTokenInfo = getMarketTokenInfo(marketFullInfo, true);
 
-  const poolValue = marketFullInfo.marketTokenPriceTradeMax[1].poolValue;
+    const { virtualInventory } = marketFullInfo.marketInfo;
 
-  const marketInfoData = {
-    longTokenAddress: marketInfo.longToken,
-    shortTokenAddress: marketInfo.shortToken,
-    marketTokenAddress: market,
-    prices: marketFullInfo.parsedPrices,
-    virtualPoolAmountForLongToken,
-    virtualPoolAmountForShortToken,
-    longInterestInTokens,
-    shortInterestUsd,
-    longTokenDecimals: marketFullInfo.longTokenDecimals,
-    shortTokenDecimals: marketFullInfo.shortTokenDecimals,
-    indexTokenDecimals: marketFullInfo.indexTokenDecimals,
-    poolValueMax: poolValue,
-    ...dataStoreInfo,
-  };
+    const virtualPoolAmountForLongToken =
+      virtualInventory.virtualPoolAmountForLongToken;
+    const virtualPoolAmountForShortToken =
+      virtualInventory.virtualPoolAmountForShortToken;
 
-  const depositAmounts = getDepositAmounts(
-    marketInfoData,
-    marketTokenInfo,
-    BigNumber.from(0),
-    shortTokenAmount,
-    "byCollaterals",
-    BigNumber.from(0)
-  );
+    const longInterestInTokens =
+      dataStoreInfo.longInterestInTokensUsingLongToken.add(
+        dataStoreInfo.longInterestInTokensUsingShortToken
+      );
 
-  console.log("depositAmounts", depositAmounts);
-  console.log("marketToken", depositAmounts.marketTokenAmount.toString());
-  console.log("depositAmountOut", depositAmountOut.toString());
+    const shortInterestUsd = dataStoreInfo.shortInterestUsingLongToken.add(
+      dataStoreInfo.shortInterestUsingShortToken
+    );
+
+    const poolValue = marketFullInfo.marketTokenPriceTradeMax[1].poolValue;
+
+    const marketInfoData = {
+      longTokenAddress: marketInfo.longToken,
+      shortTokenAddress: marketInfo.shortToken,
+      marketTokenAddress: market,
+      prices: marketFullInfo.parsedPrices,
+      virtualPoolAmountForLongToken,
+      virtualPoolAmountForShortToken,
+      longInterestInTokens,
+      shortInterestUsd,
+      longTokenDecimals: marketFullInfo.longTokenDecimals,
+      shortTokenDecimals: marketFullInfo.shortTokenDecimals,
+      indexTokenDecimals: marketFullInfo.indexTokenDecimals,
+      poolValueMax: poolValue,
+      ...dataStoreInfo,
+    };
+
+    const depositAmounts = getDepositAmounts(
+      marketInfoData,
+      marketTokenInfo,
+      BigNumber.from(0),
+      shortTokenAmount,
+      "byCollaterals",
+      BigNumber.from(0)
+    );
+
+    const { fees, isHighPriceImpact } = getFees(depositAmounts, true);
+  }
 
   return applySlippageToMinOut(DEFAULT_SLIPPAGE_AMOUNT, depositAmountOut);
 };

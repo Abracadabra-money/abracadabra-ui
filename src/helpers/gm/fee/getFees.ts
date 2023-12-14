@@ -16,7 +16,8 @@ export type GmSwapFees = {
   uiFee?: FeeItem;
 };
 
-const getFees = async (amounts: any, isDeposit: boolean) => {
+// Use for basic deposit/withdraw of tokens in GM
+export const getFees = (amounts: any, isDeposit: boolean) => {
   const basisUsd = isDeposit
     ? BigNumber.from(0)
         .add(amounts?.longTokenUsd || 0)
@@ -32,6 +33,11 @@ const getFees = async (amounts: any, isDeposit: boolean) => {
   const totalFees = getTotalFeeItem(
     [swapPriceImpact, swapFee, uiFee].filter(Boolean) as FeeItem[]
   );
+
+  const isHighPriceImpact =
+    swapPriceImpact?.deltaUsd.lt(0) &&
+    swapPriceImpact.bps.abs().gte(HIGH_PRICE_IMPACT_BPS);
+
   const fees: GmSwapFees = {
     swapFee,
     swapPriceImpact,
@@ -39,24 +45,39 @@ const getFees = async (amounts: any, isDeposit: boolean) => {
     uiFee,
   };
 
-  return {
-    fees,
-  };
+  return { fees, isHighPriceImpact };
 };
 
-export function getIsHighPriceImpact(
-  positionPriceImpact?: FeeItem,
-  swapPriceImpact?: FeeItem
-) {
-  const totalPriceImpact = getTotalFeeItem([
-    positionPriceImpact,
-    swapPriceImpact,
-  ]);
-  return (
-    totalPriceImpact.deltaUsd.lt(0) &&
-    totalPriceImpact.bps.abs().gte(HIGH_PRICE_IMPACT_BPS)
+// Use for swap
+export const getTradeFees = (amounts: any) => {
+  const initialCollateralUsd = amounts.usdIn;
+  const swapSteps = amounts.swapPathStats.swapSteps;
+  const swapPriceImpactDeltaUsd =
+    amounts.swapPathStats.totalSwapPriceImpactDeltaUsd;
+
+  const swapFees = initialCollateralUsd.gt(0)
+    ? swapSteps.map((step: any) => ({
+        tokenInAddress: step.tokenInAddress,
+        tokenOutAddress: step.tokenOutAddress,
+        marketAddress: step.marketAddress,
+        deltaUsd: step.swapFeeUsd.mul(-1),
+        bps: !step.usdIn.eq(0)
+          ? getBasisPoints(step.swapFeeUsd.mul(-1), step.usdIn)
+          : BigNumber.from(0),
+      }))
+    : undefined;
+
+  const swapPriceImpact = getFeeItem(
+    swapPriceImpactDeltaUsd,
+    initialCollateralUsd
   );
-}
+
+  const isHighPriceImpact =
+    swapPriceImpact?.deltaUsd.lt(0) &&
+    swapPriceImpact.bps.abs().gte(HIGH_PRICE_IMPACT_BPS);
+
+  return { swapFees, swapPriceImpact, isHighPriceImpact };
+};
 
 export function getFeeItem(
   feeDeltaUsd?: BigNumber,
