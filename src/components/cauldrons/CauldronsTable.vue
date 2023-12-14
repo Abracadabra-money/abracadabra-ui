@@ -15,36 +15,41 @@
       <CauldronsTableHead />
 
       <div class="cauldrons-items-wrap">
-        <CauldronsTableItem type="new" />
-        <CauldronsTableItem type="deprecated" />
-        <CauldronsTableItem type="open" />
-        <CauldronsTableItem />
+        <CauldronsTableItem
+          v-for="cauldron in cauldrons"
+          :key="cauldron.config.contract.address"
+          :cauldron="cauldron"
+        />
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineAsyncComponent } from "vue";
 
 export default {
+  props: {
+    cauldrons: Array,
+  },
+
   data() {
     return {};
   },
 
   components: {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    ChainsDropdown: defineAsyncComponent(
-      () => import("@/components/ui/ChainsDropdown.vue")
+    ChainsDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/ChainsDropdown.vue")
     ),
-    InputSearch: defineAsyncComponent(
-      () => import("@/components/ui/inputs/InputSearch.vue")
+    InputSearch: defineAsyncComponent(() =>
+      import("@/components/ui/inputs/InputSearch.vue")
     ),
-    CauldronsTableHead: defineAsyncComponent(
-      () => import("@/components/cauldrons/CauldronsTableHead.vue")
+    CauldronsTableHead: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CauldronsTableHead.vue")
     ),
-    CauldronsTableItem: defineAsyncComponent(
-      () => import("@/components/cauldrons/CauldronsTableItem.vue")
+    CauldronsTableItem: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CauldronsTableItem.vue")
     ),
   },
 };
