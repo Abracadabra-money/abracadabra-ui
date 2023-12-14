@@ -1,53 +1,82 @@
 <template>
   <ul class="cauldron-table-head">
-    <li class="table-item" v-for="item in headItems" :key="item.text">
-      <img
-        class="item-icon"
-        src="@/assets/images/cauldrons/sort.svg"
-        alt="Sort icon"
+    <li
+      class="table-item"
+      v-for="{ tableKey, tooltip } in tableKeys"
+      :key="tableKey"
+    >
+      <Arrows
+        v-if="tableKey != 'Collateral'"
+        :sortOrder="getSortOrder(tableKey)"
+        @click.stop="updateSort(tableKey)"
       />
-      <span class="item-text">{{ item.text }}</span>
+
+      <span class="item-text">{{ tableKey }}</span>
+
       <img
         class="item-tooltip"
         src="@/assets/images/cauldrons/tooltip.svg"
-        v-if="item.tooltip"
-        v-tooltip="item.tooltip"
+        v-if="tooltip"
+        v-tooltip="tooltip"
         alt="Tooltip icon"
       />
     </li>
   </ul>
 </template>
 
-<script lang="ts">
+<script>
+import { defineAsyncComponent } from "vue";
+
 export default {
   data() {
     return {
-      headItems: [
+      sortKey: "",
+      sortOrder: true,
+      tableKeys: [
         {
-          text: "Collateral",
+          tableKey: "Collateral",
         },
         {
-          text: "TVL",
+          tableKey: "TVL",
           tooltip: "tooltip",
         },
         {
-          text: "TMB",
+          tableKey: "TMB",
           tooltip: "tooltip",
         },
         {
-          text: "MIMS LB",
+          tableKey: "MIMS LB",
           tooltip: "tooltip",
         },
         {
-          text: "Interest",
+          tableKey: "Interest",
           tooltip: "tooltip",
         },
         {
-          text: "APR",
+          tableKey: "APR",
           tooltip: "tooltip",
         },
       ],
     };
+  },
+
+  methods: {
+    updateSort(key) {
+      if (key === this.sortKey) this.sortOrder = !this.sortOrder;
+      else {
+        this.sortKey = key;
+        this.sortOrder = true;
+      }
+
+      this.$emit("updateSort", key, !this.sortOrder);
+    },
+
+    getSortOrder(key) {
+      return key === this.sortKey ? this.sortOrder : null;
+    },
+  },
+  components: {
+    Arrows: defineAsyncComponent(() => import("@/components/icons/Arrows.vue")),
   },
 };
 </script>

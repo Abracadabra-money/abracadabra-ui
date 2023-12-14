@@ -2,23 +2,36 @@
   <div class="cauldrons-table-wrap">
     <div class="additional-logic">
       <div class="toggles-wrap">
-        <Toggle text="My positions" />
-        <Toggle text="Active Cauldrons" />
+        <Toggle
+          text="My positions"
+          :selected="showMyPositions"
+          @updateToggle="updateToggleMyPositions"
+        />
+        <Toggle
+          text="Active Cauldrons"
+          :selected="showActiveCauldrons"
+          @updateToggle="updateToggleActiveCauldrons"
+        />
       </div>
       <div class="filters-wrap">
         <ChainsDropdown />
-        <InputSearch />
+        <InputSearch @changeSearch="updateSearch" />
       </div>
     </div>
 
-    <div class="table-wrap">
-      <CauldronsTableHead />
+    <div>
+      <CauldronsTableHead @updateSort="updateSortKeys" />
 
       <div class="cauldrons-items-wrap">
         <CauldronsTableItem
-          v-for="cauldron in cauldrons"
-          :key="cauldron.config.contract.address"
+          v-for="(cauldron, index) in cauldronsToRender"
+          :key="index"
           :cauldron="cauldron"
+        />
+
+        <EmptyBlock
+          v-if="showEmptyBlock"
+          :cauldronsLoading="cauldronsLoading"
         />
       </div>
     </div>
@@ -30,11 +43,129 @@ import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
-    cauldrons: Array,
+    cauldrons: {
+      type: Array,
+      required: true,
+    },
+    cauldronsLoading: { type: Boolean },
   },
 
   data() {
-    return {};
+    return {
+      searchValue: "",
+      showMyPositions: false,
+      showActiveCauldrons: true,
+      sortKey: "",
+      sortOrder: "",
+    };
+  },
+
+  computed: {
+    showEmptyBlock() {
+      return this.cauldronsLoading || !this.cauldronsToRender.length;
+    },
+
+    cauldronsToRender() {
+      const filteredByDepreciate = this.filterByActiveCauldrons(this.cauldrons);
+      const filteredByPositions = this.filterPositions(filteredByDepreciate);
+      const sortedByNew = this.sortByNew(filteredByPositions);
+      const filteredByValue = this.filterBySearchValue(
+        sortedByNew,
+        this.searchValue
+      );
+
+      return this.sortByKey(filteredByValue, this.sortKey, this.sortOrder);
+    },
+  },
+
+  methods: {
+    updateToggleMyPositions() {
+      this.showMyPositions = !this.showMyPositions;
+    },
+
+    updateToggleActiveCauldrons() {
+      this.showActiveCauldrons = !this.showActiveCauldrons;
+    },
+
+    updateSortKeys(key, order) {
+      this.sortKey = key;
+      this.sortOrder = order;
+    },
+
+    updateSearch(value) {
+      this.searchValue = value.toLowerCase();
+    },
+
+    filterByActiveCauldrons(cauldrons) {
+      if (this.showActiveCauldrons) {
+        return cauldrons.filter((cauldron) => {
+          return !cauldron.config?.cauldronSettings?.isDepreciated;
+        });
+      }
+
+      return cauldrons.sort((a, b) => {
+        const settingsA = a?.config?.cauldronSettings;
+        const settingsB = b?.config?.cauldronSettings;
+        if (settingsA || settingsB) {
+          return +settingsA?.isDepreciated - +settingsB?.isDepreciated;
+        }
+
+        return a;
+      });
+    },
+
+    filterPositions(cauldrons) {
+      if (this.showMyPositions) {
+        return cauldrons.filter(({ userPosition }) => {
+          return (
+            userPosition.collateralInfo.userCollateralShare.gt(0) ||
+            userPosition.borrowInfo.userBorrowPart.gt(0)
+          );
+        });
+      }
+
+      return cauldrons.filter(({ userPosition }) => {
+        return (
+          userPosition.collateralInfo.userCollateralShare.eq(0) &&
+          userPosition.borrowInfo.userBorrowPart.eq(0)
+        );
+      });
+    },
+
+    filterBySearchValue(cauldrons, value) {
+      return cauldrons.filter(
+        ({ config }) => config.name.toLowerCase().indexOf(value) !== -1
+      );
+    },
+
+    sortByNew(cauldrons) {
+      return cauldrons.sort((a, b) => {
+        const isNewA = +!!a?.config?.cauldronSettings?.isNew;
+        const isNewB = +!!b?.config?.cauldronSettings?.isNew;
+        if (isNewA || isNewB) return isNewB - isNewA;
+        return a;
+      });
+    },
+
+    sortByKey(cauldrons, key) {
+      if (!key) return cauldrons;
+
+      return cauldrons.sort((cauldronA, cauldronB) => {
+        const a = this.getSortKey(cauldronA, key);
+        const b = this.getSortKey(cauldronB, key);
+
+        const factor = this.sortOrder ? -1 : 1;
+        if (key === "Interest") return a < b ? factor : -factor;
+        return a.lt(b) ? factor : -factor;
+      });
+    },
+
+    getSortKey(cauldron, key) {
+      if (key === "TVL") return cauldron.mainParams.tvl;
+      if (key === "TMB") return cauldron.mainParams.totalBorrowed;
+      if (key === "MIMS LB") return cauldron.mainParams.mimLeftToBorrow;
+      if (key === "Interest") return cauldron.mainParams.interest;
+    },
   },
 
   components: {
@@ -50,6 +181,9 @@ export default {
     ),
     CauldronsTableItem: defineAsyncComponent(() =>
       import("@/components/cauldrons/CauldronsTableItem.vue")
+    ),
+    EmptyBlock: defineAsyncComponent(() =>
+      import("@/components/cauldrons/EmptyBlock.vue")
     ),
   },
 };

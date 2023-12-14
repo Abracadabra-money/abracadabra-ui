@@ -1,31 +1,33 @@
 <template>
-  <div :class="['cauldrons-table-item', type]">
-    <div class="label">{{ type }}</div>
+  <div
+    :class="['cauldrons-table-item', cauldronLabel, { open: isOpenPosition }]"
+  >
+    <div class="label">{{ cauldronLabel }}</div>
     <div class="column">
       <div class="cauldron-info">
         <div class="icons-wrap">
-          <img
-            class="cauldron-icon"
-            src="@/assets/images/tokens/yv-3crypto.png"
-            alt=""
-          />
+          <img class="cauldron-icon" :src="cauldron.config.icon" alt="" />
           <img
             class="chain-icon"
-            src="@/assets/images/networks/ETH.svg"
+            :src="getChainIcon(cauldron.config.chainId)"
             alt=""
           />
         </div>
-        yv-3Crypto
+        {{ cauldron.config.name }}
       </div>
     </div>
 
-    <div class="column">$612.12k</div>
+    <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
 
-    <div class="column">292.9k</div>
+    <div class="column">
+      {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
+    </div>
 
-    <div class="column">4.71M</div>
+    <div class="column">
+      {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
+    </div>
 
-    <div class="column">7%</div>
+    <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
     <div class="column">
       <span class="apr">700.28% - 1000.82%</span>
@@ -33,12 +35,43 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
+import { utils } from "ethers";
+import filters from "@/filters/index.js";
+import { getChainIcon } from "@/helpers/chains/getChainIcon.ts";
+
 export default {
   props: {
-    type: {
-      type: String,
-      default: "",
+    cauldron: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  computed: {
+    isOpenPosition() {
+      return (
+        this.cauldron.userPosition.collateralInfo.userCollateralShare.gt(0) ||
+        this.cauldron.userPosition.borrowInfo.userBorrowPart.gt(0)
+      );
+    },
+
+    cauldronLabel() {
+      if (this.cauldron.config.cauldronSettings?.isNew) return "new";
+      if (this.cauldron.config.cauldronSettings?.isDepreciated)
+        return "deprecated";
+      return "";
+    },
+  },
+
+  methods: {
+    getChainIcon,
+    formatUnits(value) {
+      return utils.formatUnits(value);
+    },
+
+    formatLargeSum(value) {
+      return filters.formatLargeSum(utils.formatUnits(value));
     },
   },
 };

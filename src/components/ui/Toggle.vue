@@ -1,31 +1,31 @@
 <template>
   <div class="toggle-wrap">
-    <div
-      :class="['toggle', { selected: selected }]"
-      @click="emit('updateToggle', 0)"
-    >
+    <div :class="['toggle', { selected: selected }]" @click="updateToggle">
       <div class="indicator"></div>
     </div>
     <span class="text">{{ text }}</span>
   </div>
 </template>
 
-<script setup lang="ts">
-import { defineEmits, defineProps } from "vue";
-
-defineProps({
-  selected: {
-    type: Boolean,
-    default: false,
+<script lang="ts">
+export default {
+  props: {
+    selected: {
+      type: Boolean,
+      default: false,
+    },
+    text: {
+      type: String,
+      default: "",
+    },
   },
 
-  text: {
-    type: String,
-    default: "",
+  methods: {
+    updateToggle() {
+      this.$emit("updateToggle");
+    },
   },
-});
-
-const emit = defineEmits(["updateToggle"]);
+};
 </script>
 
 <style lang="scss" scoped>

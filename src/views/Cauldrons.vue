@@ -13,27 +13,62 @@
         </h4>
       </div>
       <div class="cards-wrap">
-        <CauldronCard />
-        <CauldronCard />
-        <CauldronCard />
+        <CauldronCard v-for="item in 3" :key="item" />
       </div>
-      <div class="table-wrap">
-        <CauldronsTable />
-      </div>
+
+      <CauldronsTable
+        :cauldrons="cauldrons"
+        :cauldronsLoading="cauldronsLoading"
+      />
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script>
+import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
+import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
 
 export default {
+  data() {
+    return {
+      cauldrons: [],
+      cauldronsLoading: true,
+      updateInterval: null,
+    };
+  },
+
+  computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+  },
+
+  methods: {
+    async createCauldronsList() {
+      this.cauldrons = await getMarketList(this.account);
+      this.cauldronsLoading = false;
+      this.updateInterval = setInterval(
+        await getMarketList(this.account),
+        60000
+      );
+    },
+  },
+
+  async created() {
+    this.createCauldronsList();
+  },
+
+  beforeUnmount() {
+    clearInterval(this.updateInterval);
+  },
+
   components: {
-    CauldronCard: defineAsyncComponent(
-      () => import("@/components/cauldrons/CauldronCard.vue")
+    CauldronCard: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CauldronCard.vue")
     ),
-    CauldronsTable: defineAsyncComponent(
-      () => import("@/components/cauldrons/CauldronsTable.vue")
+    CauldronsTable: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CauldronsTable.vue")
     ),
   },
 };
