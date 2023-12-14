@@ -30,15 +30,19 @@
     <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
     <div class="column">
-      <span class="apr">700.28% - 1000.82%</span>
+      <span class="apr">{{ collateralApy }}</span>
     </div>
   </div>
 </template>
 
 <script>
-import { utils } from "ethers";
 import filters from "@/filters/index.js";
+import { utils, providers } from "ethers";
+import { defaultRpc } from "@/helpers/chains";
 import { getChainIcon } from "@/helpers/chains/getChainIcon.ts";
+import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+
+const APR_KEY = "abracadabraCauldronsApr";
 
 export default {
   props: {
@@ -46,6 +50,12 @@ export default {
       type: Object,
       required: true,
     },
+  },
+
+  data() {
+    return {
+      collateralApy: "-",
+    };
   },
 
   computed: {
@@ -73,6 +83,59 @@ export default {
     formatLargeSum(value) {
       return filters.formatLargeSum(utils.formatUnits(value));
     },
+
+    async fetchCollateralApy(chainId, address) {
+      const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+
+      const apr = await fetchTokenApy(this.cauldron, chainId, provider);
+
+      const localData = localStorage.getItem("abracadabraCauldronsApr");
+      const parsedData = localData ? JSON.parse(localData) : {};
+
+      parsedData[address] = {
+        chainId,
+        apr: Number(filters.formatToFixed(apr, 2)),
+        createdAt: new Date().getTime(),
+      };
+
+      localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
+
+      return filters.formatToFixed(apr, 2);
+    },
+
+    timeHasPassed(localData, address) {
+      if (!localData) return true;
+      if (!localData[address]) return true;
+
+      const allowedTime = 5;
+      const { createdAt } = localData[address];
+      const currentTime = new Date().getTime();
+      const timeDiff = currentTime - createdAt;
+      const minutes = Math.floor(timeDiff / 1000 / 60);
+      return minutes > allowedTime;
+    },
+
+    async initApy() {
+      const { chainId, id, contract } = this.cauldron.config;
+      const isApyExist = isApyCalcExist(chainId, id);
+
+      if (isApyExist) {
+        const localApr = localStorage.getItem("abracadabraCauldronsApr");
+        const parseLocalApr = localApr ? JSON.parse(localApr) : null;
+
+        const isOutdated = this.timeHasPassed(parseLocalApr, contract.address);
+
+        const collateralApy = !isOutdated
+          ? parseLocalApr[contract.address].apr
+          : await this.fetchCollateralApy(chainId, contract.address);
+
+        this.collateralApy = `${collateralApy}% - ${collateralApy * 4}%`;
+      }
+    },
+  },
+
+  async created() {
+    await this.initApy();
   },
 };
 </script>
@@ -176,6 +239,7 @@ export default {
 }
 
 .apr {
+  text-align: center;
   text-shadow: 0px 0px 16px #ab5de8;
   background: linear-gradient(90deg, #7a91cc 0%, #8b71d2 50.52%, #411fc8 100%);
   background-clip: text;
