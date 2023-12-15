@@ -137,21 +137,22 @@
 </template>
 
 <script>
-import { utils, BigNumber } from "ethers";
-import filters from "@/filters/index.js";
-import { defineAsyncComponent } from "vue";
-import { useImage } from "@/helpers/useImage";
-import cookMixin from "@/mixins/borrow/cooksV2.js";
-import { mapGetters, mapActions, mapMutations } from "vuex";
-import notification from "@/helpers/notification/notification.js";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
-import { approveToken } from "@/helpers/approval";
 import {
   MAX_ALLOWANCE_VALUE,
   COLLATERAL_EMPTY_DATA,
   MIM_EMPTY_DATA,
 } from "@/constants/cauldron.ts";
+import filters from "@/filters/index.js";
+import { defineAsyncComponent } from "vue";
+import { defaultRpc } from "@/helpers/chains";
+import { useImage } from "@/helpers/useImage";
+import { approveToken } from "@/helpers/approval";
+import cookMixin from "@/mixins/borrow/cooksV2.js";
+import { utils, BigNumber, providers } from "ethers";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import notification from "@/helpers/notification/notification.js";
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   mixins: [cookMixin],
@@ -165,6 +166,7 @@ export default {
       showAdditionalInfo: true,
       cauldronId: null,
       updateInterval: null,
+      cauldronChainId: null,
     };
   },
 
@@ -193,6 +195,7 @@ export default {
     },
 
     isActionDisabled() {
+      if (this.cauldronChainId !== this.chainId) return true;
       if (this.errorCollateralValue || this.errorBorrowValue) return true;
       if (!this.collateralValue && !this.borrowValue) return true;
       return false;
@@ -409,6 +412,11 @@ export default {
         buttonText: "Nothing to do",
       };
 
+      if (this.cauldronChainId !== this.chainId) {
+        info.buttonText = "Switch chain";
+        return info;
+      }
+
       if (this.isActionDisabled) return info;
       if (isCollateralLocked) return info;
 
@@ -469,6 +477,7 @@ export default {
 
     async changeActiveMarket(marketId) {
       clearInterval(this.updateInterval);
+      this.cauldronChainId = null;
       this.cauldronId = marketId;
       this.cauldron = "";
       this.useOtherToken = false;
@@ -656,26 +665,40 @@ export default {
     async createCauldronInfo() {
       if (!this.cauldronId) return false;
 
-      const userSigner = this.account ? this.signer : this.provider;
+      const currentChainId = this.cauldronChainId
+        ? this.cauldronChainId
+        : this.chainId;
+
+      const chainProvider = new providers.StaticJsonRpcProvider(
+        defaultRpc[currentChainId]
+      );
+
+      const userSigner = this.account ? this.signer : chainProvider;
+
+      const currentUserSigner = this.cauldronChainId
+        ? chainProvider
+        : userSigner;
+
       this.cauldron = await getCauldronInfo(
         this.cauldronId,
-        this.chainId,
-        this.provider,
-        userSigner
+        currentChainId,
+        chainProvider,
+        currentUserSigner
       );
 
       this.updateInterval = await setInterval(async () => {
         this.cauldron = await getCauldronInfo(
           this.cauldronId,
-          this.chainId,
-          this.provider,
-          this.signer
+          currentChainId,
+          chainProvider,
+          currentUserSigner
         );
       }, 60000);
     },
   },
 
   async created() {
+    this.cauldronChainId = +this.$route?.query?.chainId;
     this.cauldronId = this.$route.params.id;
   },
 

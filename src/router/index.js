@@ -22,7 +22,7 @@ const routes = [
     component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
-    path: "/borrow/:id",
+    path: "/borrow/:id?",
     name: "BorrowId",
     component: () => import("@/views/borrow/Borrow.vue"),
   },

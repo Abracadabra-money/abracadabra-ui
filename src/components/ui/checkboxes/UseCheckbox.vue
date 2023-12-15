@@ -29,7 +29,6 @@ export default {
 
   computed: {
     ...mapGetters({
-      chainId: "getChainId",
       getChainById: "getChainById",
     }),
 
@@ -48,7 +47,7 @@ export default {
 
     tokenSymbol() {
       if (this.config?.cauldronSettings?.acceptUseDefaultBalance)
-        return this.getChainById(this.chainId).symbol;
+        return this.getChainById(this.config?.chainId).symbol;
       return this.config.collateralInfo.name;
     },
   },

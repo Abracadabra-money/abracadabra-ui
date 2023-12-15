@@ -1,6 +1,7 @@
 <template>
-  <div
+  <router-link
     :class="['cauldrons-table-item', cauldronLabel, { open: isOpenPosition }]"
+    :to="goToPage(cauldron)"
   >
     <div class="label">{{ cauldronLabel }}</div>
     <div class="column">
@@ -32,7 +33,7 @@
     <div class="column">
       <span class="apr">{{ collateralApy }}</span>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script>
@@ -76,6 +77,15 @@ export default {
   },
 
   methods: {
+    goToPage(cauldron) {
+      const { chainId, id } = cauldron.config;
+      return {
+        name: "BorrowId",
+        params: { id },
+        query: { chainId },
+      };
+    },
+
     getChainIcon,
     formatUnits(value) {
       return utils.formatUnits(value);
@@ -148,6 +158,7 @@ export default {
 
 <style lang="scss" scoped>
 .cauldrons-table-item {
+  color: inherit;
   border-radius: 16px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: rgba(8, 14, 31, 0.6);
