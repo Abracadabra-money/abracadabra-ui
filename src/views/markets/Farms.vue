@@ -72,10 +72,6 @@
         </div>
       </div>
       <div class="stats-list-wrap">
-        <div class="stats-list-header">
-          <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
-        </div>
-
         <template v-if="filteredPools.length">
           <MarketsFarmItem
             v-for="farm in filteredPools"
@@ -415,11 +411,9 @@ export default {
 }
 
 .stats-list-wrap {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 10px;
-  grid-column: 1;
-  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .stats-list-header {

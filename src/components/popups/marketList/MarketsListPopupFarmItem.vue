@@ -30,8 +30,8 @@ export default {
   computed: {
     balance() {
       if (this.marketItem.isDepreciated)
-        return +this.marketItem.accountInfo?.depositedBalance || 0;
-      return +this.marketItem.accountInfo?.balance || 0;
+        return this.marketItem.accountInfo?.depositedBalance || 0;
+      return Number(this.marketItem.accountInfo?.balance) / 1e18 || 0;
     },
 
     balanceInUSD() {
