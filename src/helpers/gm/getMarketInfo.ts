@@ -36,7 +36,8 @@ export const getMarketInfo = async (
 export const getMarketFullInfo = async (
   provider: providers.BaseProvider,
   pricesResponce: Array<TokenPriceResponse>,
-  market: Address
+  market: Address,
+  marketPropsInfo: MarketInfo | undefined
 ) => {
   const multicallProvider = MulticallWrapper.wrap(provider);
 
@@ -46,7 +47,9 @@ export const getMarketFullInfo = async (
     multicallProvider
   );
 
-  const marketProps = await getMarketInfo(provider, market);
+  const marketProps = marketPropsInfo
+    ? marketPropsInfo
+    : await getMarketInfo(provider, market);
 
   const marketTokenContract = new Contract(
     marketProps.marketToken,
