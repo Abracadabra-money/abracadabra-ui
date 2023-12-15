@@ -41,6 +41,7 @@ import { utils, providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import { getChainIcon } from "@/helpers/chains/getChainIcon.ts";
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 
 const APR_KEY = "abracadabraCauldronsApr";
 
@@ -129,7 +130,12 @@ export default {
           ? parseLocalApr[contract.address].apr
           : await this.fetchCollateralApy(chainId, contract.address);
 
-        this.collateralApy = `${collateralApy}% - ${collateralApy * 4}%`;
+        const multiplier = getMaxLeverageMultiplier(this.cauldron);
+
+        this.collateralApy = `${collateralApy}% - ${filters.formatToFixed(
+          collateralApy * multiplier,
+          2
+        )}%`;
       }
     },
   },

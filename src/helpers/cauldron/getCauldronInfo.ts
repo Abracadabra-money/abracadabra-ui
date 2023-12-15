@@ -45,7 +45,7 @@ export const getCauldronInfo = async (
   const userTokensInfo = await getUserTokensInfo(
     multicallContracts,
     address,
-    signer
+    provider
   );
 
   const additionalInfo = await getAdditionalInfo(

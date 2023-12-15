@@ -1,4 +1,4 @@
-import { providers, Contract } from "ethers";
+import { providers, Contract, utils } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import cauldronsConfig from "@/utils/cauldronsConfig";
 import { MulticallWrapper } from "ethers-multicall-provider";
@@ -10,6 +10,7 @@ type CauldronListItem = {
   config: object;
   mainParams: object;
   userPosition: object;
+  additionalInfo: object;
 };
 
 const filteredByChainId = (chainId: number) => {
@@ -79,6 +80,9 @@ export const getMarketList = async (
           config,
           mainParams: mainParams[idx],
           userPosition: userPositions[idx],
+          additionalInfo: {
+            tokensRate: utils.parseUnits("1", config.collateralInfo.decimals),
+          },
         });
       });
     })
