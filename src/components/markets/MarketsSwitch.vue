@@ -1,5 +1,5 @@
 <template>
-  <div class="switch">
+  <div class="switch" v-if="!isDepreciated">
     <button
       v-for="(item, i) in items"
       class="switch-btn"
@@ -10,6 +10,17 @@
     >
       {{ item.title }}
     </button>
+  </div>
+
+  <div class="depreciated" v-if="isDepreciated">
+    <img
+      class="depreciated-icon"
+      src="@/assets/images/info-bar/depreciated.png"
+    />
+    <div class="depreciated-text">
+      <h4 class="title">Depreciated</h4>
+      <p class="description">Only unstake available</p>
+    </div>
   </div>
 </template>
 
@@ -24,7 +35,11 @@ export default {
       type: Array,
       default: () => [],
     },
+    isDepreciated: { type: Boolean },
   },
+
+  emits: ["select"],
+
   computed: {
     currentName() {
       return this.$route.name;
@@ -62,5 +77,42 @@ export default {
 .switch-btn-active {
   color: #7088cc;
   background-color: rgba(111, 111, 111, 0.06);
+}
+
+.depreciated {
+  display: flex;
+  padding: 6px 16px;
+  align-items: center;
+  gap: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 12, 13, 0);
+  background: linear-gradient(
+    103deg,
+    rgba(50, 10, 10, 0.32) 2.48%,
+    rgba(135, 29, 31, 0.32) 100%
+  );
+  box-shadow: 0px 4px 9px 0px rgba(230, 92, 92, 0.08);
+}
+
+.depreciated-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.depreciated-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.depreciated-text .title {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.depreciated-text .description {
+  color: #878b93;
+  font-size: 12px;
+  font-weight: 400;
 }
 </style>

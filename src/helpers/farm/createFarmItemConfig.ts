@@ -20,7 +20,7 @@ export const createFarmItemConfig = async (
   farmId: number | string,
   chainId: number,
   account: Address | undefined,
-  isExtended = true,
+  isExtended = true
 ): Promise<FarmItem | null> => {
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId
@@ -33,7 +33,8 @@ export const createFarmItemConfig = async (
   if (!farmInfo) return null;
 
   // @ts-ignore
-  if(farmInfo.isMultiReward) return await createMultiRewardFarm(farmInfo, account)
+  if (farmInfo.isMultiReward)
+    return await createMultiRewardFarm(farmInfo, account);
 
   const MIMPrice = await getTokenPriceByChain(
     tokensChainLink.mim.chainId,
@@ -47,7 +48,7 @@ export const createFarmItemConfig = async (
 
   const poolInfo: PoolInfo = await getPoolInfo(
     farmInfo.contract,
-      // @ts-ignore
+    // @ts-ignore
     farmInfo.poolId,
     chainId
   );
@@ -79,6 +80,7 @@ export const createFarmItemConfig = async (
     name: farmInfo.name,
     icon: farmInfo.icon,
     id: farmInfo.id,
+    chainId,
     // @ts-ignore
     poolId: farmInfo.poolId,
     earnedTokenPrice: SPELLPrice,

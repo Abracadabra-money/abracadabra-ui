@@ -11,7 +11,7 @@
           :name="selectedTab"
           :items="items"
           @select="selectTab($event.name)"
-          v-if="!isDepreciated"
+          :isDepreciated="isDepreciated"
         />
       </div>
 
@@ -30,6 +30,12 @@
         :isButtonDisabled="isButtonDisabled"
         @updateValue="inputAmount = $event"
         @actionHandler="actionHandler"
+      />
+
+      <FarmPosition
+        class="farm-position"
+        :selectedFarm="selectedFarm"
+        v-if="isUserPositionOpen"
       />
     </div>
 
@@ -50,12 +56,9 @@ import { mapGetters } from "vuex";
 import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
 import FarmingOpportunities from "@/components/farm/FarmingOpportunities.vue";
 import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
+import FarmPosition from "@/components/farm/FarmPosition.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import FarmInfoBlock from "@/components/farm/FarmInfoBlock.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
@@ -72,7 +75,7 @@ export default {
     return {
       activeNetworks: [1, 250, 43114, 42161],
       isFarmsPopupOpened: false,
-      inputAmount: "",
+      inputAmount: null,
       selectedTab: "stake",
       items: [
         { title: "Stake", name: "stake" },
@@ -118,12 +121,12 @@ export default {
       if (!this.account || !this.selectedFarm) return false;
       return (
         Number(this.selectedFarm?.accountInfo?.allowance) >=
-        Number(this.inputAmount)
+        Number(this.inputAmount) / 1e18
       );
     },
 
     isValid() {
-      return !!+this.inputAmount;
+      return !!Number(this.inputAmount);
     },
 
     isDepreciated() {
@@ -133,7 +136,7 @@ export default {
     max() {
       return !this.isUnstake
         ? this.selectedFarm?.accountInfo?.balance
-        : this.selectedFarm?.accountInfo?.depositedBalance;
+        : this.selectedFarm?.accountInfo?.depositedBalanceBigInt;
     },
 
     parsedInputAmount() {
@@ -142,7 +145,7 @@ export default {
 
     error() {
       return Number(this.inputAmount) > Number(this.max)
-        ? `The value cannot be greater than ${this.max}`
+        ? `The value cannot be greater than ${Number(this.max) / 1e18}`
         : null;
     },
 
@@ -181,7 +184,7 @@ export default {
     },
 
     max() {
-      this.inputAmount = "";
+      this.inputAmount = BigInt(0);
     },
 
     isDepreciated(status) {
@@ -209,7 +212,6 @@ export default {
       if (!this.isAllowed & !this.isUnstake) await this.approveHandler();
       else if (this.isUnstake) await this.unstakeHandler();
       else await this.stakeHandler();
-
       this.isActionProcessing = false;
     },
 
@@ -222,12 +224,12 @@ export default {
         const { error, result } = this.selectedFarm.isMultiReward
           ? await actions.stake(
               this.selectedFarm.contractInfo,
-              this.parsedInputAmount
+              this.inputAmount
             )
           : await actions.deposit(
               this.selectedFarm.contractInfo,
               this.selectedFarm.poolId,
-              this.parsedInputAmount
+              this.inputAmount
             );
 
         await this.getSelectedFarm();
@@ -254,10 +256,11 @@ export default {
       );
       try {
         const args = this.selectedFarm.isMultiReward
-          ? [this.parsedInputAmount]
-          : [this.selectedFarm.poolId, this.parsedInputAmount];
+          ? [this.inputAmount]
+          : [this.selectedFarm.poolId, this.inputAmount];
 
-        const isExit = this.inputAmount === this.max;
+        const isExit =
+          this.inputAmount === this.max && this.selectedFarm.isMultiReward;
 
         const { error, result } = isExit
           ? await actions.exit(this.selectedFarm.contractInfo)
@@ -333,16 +336,12 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
-    BaseTokenInput,
-    BaseButton,
     LocalPopupWrap,
     MarketsListPopup,
     MarketsSwitch,
-    FarmInfoBlock,
-
     FarmingOpportunities,
     FarmActionBlock,
+    FarmPosition,
   },
 };
 </script>
@@ -353,26 +352,48 @@ export default {
   justify-content: center;
   align-items: center;
   max-width: calc(100% - 20px);
-  width: 533px;
   height: 100vh;
   padding: 100px 0;
   margin: 0 auto;
 }
 
 .farm {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 0 30px;
-  width: 100%;
+  width: 593px;
 }
 
 .farm-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 25px;
   width: 100%;
   margin-bottom: 16px;
+}
+
+.farm-position {
+  position: absolute;
+  top: 82px;
+  right: -300px;
+}
+
+.title-desc {
+  flex-grow: 1;
+}
+
+.title-desc .title {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.title-desc .description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  font-weight: 400;
 }
 
 @media (max-width: 768px) {

@@ -14,32 +14,20 @@
 
       <div class="token-input-info">
         <div class="token-info">
-          <BaseTokenIcon
-            :icon="icon"
-            :type="isChooseToken ? 'select' : 'token'"
-            :name="name"
-            size="28px"
-          />
+          <BaseTokenIcon :icon="icon" :name="name" size="28px" />
           <span class="token-name">
-            {{ farmName }}
+            {{ name }}
           </span>
-          <img
-            v-if="isChooseToken"
-            class="token-arrow"
-            src="@/assets/images/arrow.svg"
-            alt="arrow"
-          />
         </div>
 
         <p class="wallet-balance">
           <img
             class="wallet-icon"
             src="@/assets/images/farm/wallet-icon.png"
-            v-if="+max >= 0 && showMax"
-            @click="currentValue = max"
+            @click="currentValue = formattedMax"
             :disabled="disabled"
           />
-          {{ formatTokenBalance(max) }}
+          {{ formatTokenBalance(formattedMax) }}
         </p>
       </div>
     </div>
@@ -56,50 +44,39 @@ import filters from "@/filters/index";
 
 export default {
   props: {
-    showMax: {
-      type: Boolean,
-      default: true,
-    },
     max: {
-      type: [Number, String],
-      default: 0,
+      type: BigInt,
     },
     value: {
-      type: [Number, String],
-      default: 0,
+      type: BigInt,
     },
     disabled: {
       type: Boolean,
       default: false,
     },
-    isChooseToken: {
-      type: Boolean,
-      default: false,
-    },
     error: {
       type: String,
-      default: "",
     },
     icon: {
       type: String,
     },
     name: {
       type: String,
+      default: "Select Farm",
     },
     lpPrice: { type: Number },
   },
 
   data() {
     return {
-      currentValue: this.value,
+      currentValue: null,
     };
   },
 
   computed: {
-    farmName() {
-      if (this.name) return this.name;
-      if (this.isChooseToken) return "Select to";
-      return "Symbol";
+    formattedMax() {
+      this.currentValue = null;
+      return Number(this.max) / 1e18;
     },
 
     usdEquivalent() {
@@ -108,12 +85,12 @@ export default {
   },
 
   watch: {
+    value(newValue) {
+      this.currentValue = Number(newValue) / 1e18 || null;
+    },
+
     currentValue(value, oldValue) {
-      if (isNaN(value)) {
-        this.currentValue = oldValue;
-        return false;
-      }
-      this.$emit("updateValue", value);
+      this.$emit("updateValue", BigInt(value * 1e18));
     },
   },
 
@@ -163,9 +140,6 @@ export default {
   max-width: 50%;
 }
 
-.token-input-info {
-}
-
 .text-field {
   height: 32px;
   color: #fff;
@@ -184,6 +158,10 @@ export default {
   color: #575c62;
   font-size: 14px;
   font-weight: 400;
+}
+
+.token-input-info {
+  align-items: end;
 }
 
 .token-info {

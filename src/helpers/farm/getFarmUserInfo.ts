@@ -7,6 +7,7 @@ import { formatUnits } from "viem";
 
 type UserInfo = {
   amount: string;
+  amountBigInt: BigInt;
   rewardDebt: string;
   remainingIceTokenReward: string;
 };
@@ -53,8 +54,9 @@ export const getFarmUserInfo = async (
     userInfo: userInfoParsed,
     userReward: formatUnits(userReward.result, 18),
     tokensBalanceInfo,
-    balance: formatUnits(accountBalance.result, 18),
+    balance: accountBalance.result,
     depositedBalance: userInfoParsed.amount,
+    depositedBalanceBigInt: userInfoParsed.amountBigInt,
   };
 };
 
@@ -124,6 +126,7 @@ const getUserInfo = async (userInfo: any): Promise<UserInfo> => {
 
   return {
     amount: formatUnits(amountBigInt, 18),
+    amountBigInt,
     remainingIceTokenReward: formatUnits(remainingIceTokenRewardBigInt, 18),
     rewardDebt: formatUnits(rewardDebtBigInt, 18),
   };
