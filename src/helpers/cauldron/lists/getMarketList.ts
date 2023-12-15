@@ -7,6 +7,7 @@ import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
 type CauldronListItem = {
+  apr: object;
   config: object;
   mainParams: object;
   userPosition: object;
@@ -77,6 +78,10 @@ export const getMarketList = async (
 
       filteredConfigs.forEach((config, idx) => {
         cauldronsInfo.push({
+          apr: {
+            value: 0,
+            multiplier: 0,
+          },
           config,
           mainParams: mainParams[idx],
           userPosition: userPositions[idx],

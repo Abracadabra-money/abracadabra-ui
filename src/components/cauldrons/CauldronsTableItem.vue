@@ -31,7 +31,7 @@
     <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
     <div class="column">
-      <span class="apr">{{ collateralApy }}</span>
+      <span class="apr">{{ loopApr }}</span>
     </div>
   </router-link>
 </template>
@@ -74,6 +74,16 @@ export default {
         return "deprecated";
       return "";
     },
+
+    loopApr() {
+      if (this.cauldron.apr.value) {
+        return `${this.cauldron.apr.value}% - ${filters.formatToFixed(
+          this.cauldron.apr.value * this.cauldron.apr.multiplier,
+          2
+        )}%`;
+      }
+      return "-";
+    },
   },
 
   methods: {
@@ -94,64 +104,6 @@ export default {
     formatLargeSum(value) {
       return filters.formatLargeSum(utils.formatUnits(value));
     },
-
-    async fetchCollateralApy(chainId, address) {
-      const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
-
-      const apr = await fetchTokenApy(this.cauldron, chainId, provider);
-
-      const localData = localStorage.getItem("abracadabraCauldronsApr");
-      const parsedData = localData ? JSON.parse(localData) : {};
-
-      parsedData[address] = {
-        chainId,
-        apr: Number(filters.formatToFixed(apr, 2)),
-        createdAt: new Date().getTime(),
-      };
-
-      localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
-
-      return filters.formatToFixed(apr, 2);
-    },
-
-    timeHasPassed(localData, address) {
-      if (!localData) return true;
-      if (!localData[address]) return true;
-
-      const allowedTime = 5;
-      const { createdAt } = localData[address];
-      const currentTime = new Date().getTime();
-      const timeDiff = currentTime - createdAt;
-      const minutes = Math.floor(timeDiff / 1000 / 60);
-      return minutes > allowedTime;
-    },
-
-    async initApy() {
-      const { chainId, id, contract } = this.cauldron.config;
-      const isApyExist = isApyCalcExist(chainId, id);
-
-      if (isApyExist) {
-        const localApr = localStorage.getItem("abracadabraCauldronsApr");
-        const parseLocalApr = localApr ? JSON.parse(localApr) : null;
-
-        const isOutdated = this.timeHasPassed(parseLocalApr, contract.address);
-
-        const collateralApy = !isOutdated
-          ? parseLocalApr[contract.address].apr
-          : await this.fetchCollateralApy(chainId, contract.address);
-
-        const multiplier = getMaxLeverageMultiplier(this.cauldron);
-
-        this.collateralApy = `${collateralApy}% - ${filters.formatToFixed(
-          collateralApy * multiplier,
-          2
-        )}%`;
-      }
-    },
-  },
-
-  async created() {
-    await this.initApy();
   },
 };
 </script>

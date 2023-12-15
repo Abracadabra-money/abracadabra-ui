@@ -191,7 +191,8 @@ export default {
         const b = this.getSortKey(cauldronB, key);
 
         const factor = this.sortOrder ? -1 : 1;
-        if (key === "Interest") return a < b ? factor : -factor;
+        if (key === "Interest" || key === "APR")
+          return a < b ? factor : -factor;
         return a.lt(b) ? factor : -factor;
       });
     },
@@ -201,6 +202,7 @@ export default {
       if (key === "TMB") return cauldron.mainParams.totalBorrowed;
       if (key === "MIMS LB") return cauldron.mainParams.mimLeftToBorrow;
       if (key === "Interest") return cauldron.mainParams.interest;
+      if (key === "APR") return +cauldron.apr.value;
     },
   },
 
