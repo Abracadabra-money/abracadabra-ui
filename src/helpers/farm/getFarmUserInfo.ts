@@ -33,12 +33,12 @@ export const getFarmUserInfo = async (
         {
           ...farmItemConfig.contractInfo,
           functionName: "userInfo",
-          args: [farmItemConfig.poolId, account!],
+          args: [farmItemConfig.poolId!, account!],
         },
         {
           ...farmItemConfig.contractInfo,
           functionName: "pendingIce",
-          args: [farmItemConfig.poolId, account!],
+          args: [farmItemConfig.poolId!, account!],
         },
       ],
     });

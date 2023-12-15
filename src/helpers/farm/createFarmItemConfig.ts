@@ -21,7 +21,7 @@ export const createFarmItemConfig = async (
   chainId: number,
   account: Address | undefined,
   isExtended = true
-): Promise<FarmItem | null> => {
+): Promise<any> => {
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain === chainId
   );
