@@ -1,7 +1,7 @@
 import { useImage } from "@/helpers/useImage";
 
 // todo transfer to config
-export const getChainIcon = (chainId: number) => {
+export const getChainIcon = (chainId: number): string => {
   switch (chainId) {
     case 1:
       return useImage("assets/images/chains/ethereum.svg");

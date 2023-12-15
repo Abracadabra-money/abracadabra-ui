@@ -3,7 +3,7 @@
     <div :class="['toggle', { selected: selected }]" @click="updateToggle">
       <div class="indicator"></div>
     </div>
-    <span class="text">{{ text }}</span>
+    <span class="text" v-if="text">{{ text }}</span>
   </div>
 </template>
 

@@ -14,7 +14,10 @@
         />
       </div>
       <div class="filters-wrap">
-        <ChainsDropdown />
+        <ChainsDropdown
+          :selectedChains="selectedChains"
+          @updateSelectedChain="updateSelectedChain"
+        />
         <InputSearch @changeSearch="updateSearch" />
       </div>
     </div>
@@ -57,6 +60,7 @@ export default {
       showActiveCauldrons: true,
       sortKey: "",
       sortOrder: "",
+      selectedChains: [],
     };
   },
 
@@ -66,15 +70,27 @@ export default {
     },
 
     cauldronsToRender() {
-      const filteredByDepreciate = this.filterByActiveCauldrons(this.cauldrons);
+      const filteredByChain = this.filterByChain(
+        this.cauldrons,
+        this.selectedChains
+      );
+      const filteredByDepreciate =
+        this.filterByActiveCauldrons(filteredByChain);
       const filteredByPositions = this.filterPositions(filteredByDepreciate);
+
       const sortedByNew = this.sortByNew(filteredByPositions);
       const filteredByValue = this.filterBySearchValue(
         sortedByNew,
         this.searchValue
       );
 
-      return this.sortByKey(filteredByValue, this.sortKey, this.sortOrder);
+      const sortedByChain = this.sortByKey(
+        filteredByValue,
+        this.sortKey,
+        this.sortOrder
+      );
+
+      return sortedByChain;
     },
   },
 
@@ -94,6 +110,21 @@ export default {
 
     updateSearch(value) {
       this.searchValue = value.toLowerCase();
+    },
+
+    updateSelectedChain(chainId) {
+      if (!chainId) return (this.selectedChains = []);
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
+    },
+
+    filterByChain(cauldrons, selectedChains) {
+      if (!selectedChains.length) return cauldrons;
+      return cauldrons.filter((cauldron) => {
+        return selectedChains.includes(cauldron.config?.chainId);
+      });
     },
 
     filterByActiveCauldrons(cauldrons) {
@@ -171,7 +202,7 @@ export default {
   components: {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     ChainsDropdown: defineAsyncComponent(() =>
-      import("@/components/ui/ChainsDropdown.vue")
+      import("@/components/ui/dropdown/ChainsDropdown.vue")
     ),
     InputSearch: defineAsyncComponent(() =>
       import("@/components/ui/inputs/InputSearch.vue")
