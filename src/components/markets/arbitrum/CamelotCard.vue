@@ -11,14 +11,14 @@
         <span class="on-camelot">ON CAMELOT</span>
         <span class="token-pair">ARB / MIM</span>
       </p>
-      <ul class="secondary paragraph" v-if="tvl && apr">
+      <ul class="secondary paragraph" v-if="tvl && aprRange">
         <li>
           <span class="title">TVL:</span>
           <span class="value">{{ formattedTvl }}</span>
         </li>
         <li>
           <span class="title">APR:</span>
-          <span class="value">{{ formattedApr }}</span>
+          <span class="value">{{ aprRange }}</span>
         </li>
       </ul>
     </a>
@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       tvl: null,
-      apr: null,
+      aprRange: null,
     };
   },
 
@@ -40,18 +40,39 @@ export default {
     formattedTvl() {
       return filters.formatLargeSum(this.tvl);
     },
-    formattedApr() {
-      return filters.formatPercent(this.apr);
-    },
   },
 
   methods: {
     async fetchData() {
-      const res = await axios.get(`https://api.camelot.exchange/nitros/`);
-      const data =
-        res.data.data.nitros["0x4B081b3600B3B1bcE242cDc291f85e475532B0B4"];
-      this.tvl = data.tvlUSD;
-      this.apr = data.incentivesApr;
+      const nitroRes = await axios.get(`https://api.camelot.exchange/nitros/`);
+      const rangeRes = await axios.get(
+        `https://api.camelot.exchange/nft-pools/`
+      );
+      const strategyRes = await axios.get(
+        `https://wire2.gamma.xyz/camelot/arbitrum/hypervisors/allData`
+      );
+
+      const nitroApr =
+        nitroRes.data.data.nitros["0x4B081b3600B3B1bcE242cDc291f85e475532B0B4"]
+          .incentivesApr;
+
+      const strategyApr =
+        strategyRes.data["0x1164191754f726edb85466f84ae5f14f43c111a9"].returns
+          .daily.feeApr * 100;
+
+      const { minIncentivesApr, maxIncentivesApr, tvlUSD } =
+        rangeRes.data.data.nftPools[
+          "0xDe6f99A9e63a8528fF43C3c1f13A07F541f761e5"
+        ];
+
+      const minApr = minIncentivesApr + nitroApr + strategyApr;
+      const maxApr = maxIncentivesApr + nitroApr + strategyApr;
+
+      this.aprRange = `${filters.formatPercent(
+        minApr
+      )} - ${filters.formatPercent(maxApr)}`;
+
+      this.tvl = tvlUSD;
     },
   },
 
