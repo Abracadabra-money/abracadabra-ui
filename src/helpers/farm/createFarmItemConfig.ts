@@ -80,7 +80,7 @@ export const createFarmItemConfig = async (
     name: farmInfo.name,
     icon: farmInfo.icon,
     id: farmInfo.id,
-    chainId,
+    chainId: farmInfo.contractChain,
     // @ts-ignore
     poolId: farmInfo.poolId,
     earnedTokenPrice: SPELLPrice,

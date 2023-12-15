@@ -90,6 +90,7 @@ export const createMultiRewardFarm = async (config, account) => {
     name: config.name,
     icon: config.icon,
     id: config.id,
+    chainId: config.contractChain,
     isMultiReward: true,
     stakingToken: {
       link: config.stakingToken.link,
