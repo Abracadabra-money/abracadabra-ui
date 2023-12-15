@@ -11,14 +11,14 @@
         <span class="on-camelot">ON CAMELOT</span>
         <span class="token-pair">ARB / MIM</span>
       </p>
-      <ul class="secondary paragraph">
+      <ul class="secondary paragraph" v-if="tvl && apr">
         <li>
           <span class="title">TVL:</span>
-          <span class="value">≈ {{ formattedTvl }}</span>
+          <span class="value">{{ formattedTvl }}</span>
         </li>
         <li>
           <span class="title">APR:</span>
-          <span class="value">≈ {{ formattedApr }}</span>
+          <span class="value">{{ formattedApr }}</span>
         </li>
       </ul>
     </a>
@@ -31,8 +31,8 @@ import filters from "@/filters/index";
 export default {
   data() {
     return {
-      tvl: 120000,
-      apr: 156,
+      tvl: null,
+      apr: null,
     };
   },
 
@@ -46,30 +46,17 @@ export default {
   },
 
   methods: {
-    // async fetchTVL() {
-    //   const res = await axios.get(
-    //     `https://wire2.gamma.xyz/camelot/arbitrum/hypervisors/allData`
-    //   );
-    //   const { tvlUSD } = Object.values(res.data).find(
-    //     (element) =>
-    //       element.poolAddress == "0xb4e0a7698c7cfb03508787c80647419364ccb8d0"
-    //   );
-    //   this.tvl = +tvlUSD;
-    // },
-    // async fetchAPR() {
-    //   const res = await axios.get(
-    //     `https://api.camelot.exchange/v2/liquidity-v3-data`
-    //   );
-    //   this.apr =
-    //     res.data.data.pools[
-    //       "0xb4E0a7698c7cfB03508787C80647419364CcB8D0"
-    //     ].activeTvlAverageAPR;
-    // },
+    async fetchData() {
+      const res = await axios.get(`https://api.camelot.exchange/nitros/`);
+      const data =
+        res.data.data.nitros["0x4B081b3600B3B1bcE242cDc291f85e475532B0B4"];
+      this.tvl = data.tvlUSD;
+      this.apr = data.incentivesApr;
+    },
   },
 
   created() {
-    // this.fetchTVL();
-    // this.fetchAPR();
+    this.fetchData();
   },
 };
 </script>
