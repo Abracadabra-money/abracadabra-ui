@@ -47,7 +47,7 @@
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
-          :selected="!selectedChains.length"
+          :selected="selectedChains.includes(0)"
           @updateToggle="updateSelectedChain"
         />
       </div>
@@ -98,7 +98,7 @@ export default {
   props: {
     selectedChains: {
       type: Array,
-      default: () => [],
+      default: () => [0],
     },
   },
 

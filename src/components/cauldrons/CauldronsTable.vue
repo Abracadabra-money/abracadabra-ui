@@ -60,7 +60,7 @@ export default {
       showActiveCauldrons: true,
       sortKey: "",
       sortOrder: "",
-      selectedChains: [],
+      selectedChains: [0],
     };
   },
 
@@ -113,7 +113,12 @@ export default {
     },
 
     updateSelectedChain(chainId) {
-      if (!chainId) return (this.selectedChains = []);
+      if (!chainId) {
+        const value = this.selectedChains.includes(0) ? [] : [0];
+        return (this.selectedChains = value);
+      }
+
+      if (this.selectedChains.includes(0)) this.selectedChains = [];
 
       const index = this.selectedChains.indexOf(chainId);
       if (index === -1) this.selectedChains.push(chainId);
@@ -121,7 +126,7 @@ export default {
     },
 
     filterByChain(cauldrons, selectedChains) {
-      if (!selectedChains.length) return cauldrons;
+      if (selectedChains.includes(0)) return cauldrons;
       return cauldrons.filter((cauldron) => {
         return selectedChains.includes(cauldron.config?.chainId);
       });
