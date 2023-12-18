@@ -1,37 +1,39 @@
 <template>
   <router-link
-    :class="['cauldrons-table-item', cauldronLabel, { open: isOpenPosition }]"
+    :class="['cauldrons-table-link', cauldronLabel, { open: isOpenPosition }]"
     :to="goToPage(cauldron)"
   >
-    <div class="label">{{ cauldronLabel }}</div>
-    <div class="column">
-      <div class="cauldron-info">
-        <div class="icons-wrap">
-          <img class="cauldron-icon" :src="cauldron.config.icon" alt="" />
-          <img
-            class="chain-icon"
-            :src="getChainIcon(cauldron.config.chainId)"
-            alt=""
-          />
+    <div class="cauldrons-table-item">
+      <div class="label">{{ cauldronLabel }}</div>
+      <div class="column">
+        <div class="cauldron-info">
+          <div class="icons-wrap">
+            <img class="cauldron-icon" :src="cauldron.config.icon" alt="" />
+            <img
+              class="chain-icon"
+              :src="getChainIcon(cauldron.config.chainId)"
+              alt=""
+            />
+          </div>
+          {{ cauldron.config.name }}
         </div>
-        {{ cauldron.config.name }}
       </div>
-    </div>
 
-    <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
+      <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
 
-    <div class="column">
-      {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
-    </div>
+      <div class="column">
+        {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
+      </div>
 
-    <div class="column">
-      {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
-    </div>
+      <div class="column">
+        {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
+      </div>
 
-    <div class="column">{{ cauldron.mainParams.interest }}%</div>
+      <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
-    <div class="column apr">
-      {{ loopApr }}
+      <div class="column apr">
+        {{ loopApr }}
+      </div>
     </div>
   </router-link>
 </template>
@@ -104,11 +106,42 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.cauldrons-table-item {
-  color: inherit;
+.cauldrons-table-link {
+  padding: 1px;
   border-radius: 16px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: rgba(8, 14, 31, 0.6);
+  color: inherit;
+}
+
+.new {
+  background: linear-gradient(
+    90deg,
+    rgba(100, 156, 102, 1) 0%,
+    rgba(72, 111, 73, 0) 60%
+  );
+
+  .label {
+    display: block;
+    background: linear-gradient(180deg, #67a069 0%, #446a46 100%);
+  }
+}
+
+.deprecated {
+  background: linear-gradient(
+    90deg,
+    rgba(123, 25, 24, 1) 0%,
+    rgba(56, 12, 13, 0) 60%
+  );
+
+  .label {
+    display: block;
+    background: linear-gradient(180deg, #320a0a 0%, #871d1f 100%),
+      linear-gradient(180deg, #67a069 0%, #446a46 100%);
+  }
+}
+
+.cauldrons-table-item {
+  border-radius: 16px;
+  background: rgba(8, 14, 31, 1);
   padding: 20px 32px;
   display: grid;
   display: flex;
@@ -133,25 +166,6 @@ export default {
 
   &::first-letter {
     text-transform: uppercase;
-  }
-}
-
-.new {
-  border: 1px solid #649c66;
-
-  .label {
-    display: block;
-    background: linear-gradient(180deg, #67a069 0%, #446a46 100%);
-  }
-}
-
-.deprecated {
-  border: 1px solid #48161e;
-
-  .label {
-    display: block;
-    background: linear-gradient(180deg, #320a0a 0%, #871d1f 100%),
-      linear-gradient(180deg, #67a069 0%, #446a46 100%);
   }
 }
 
