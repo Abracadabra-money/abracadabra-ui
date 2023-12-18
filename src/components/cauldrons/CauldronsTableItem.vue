@@ -139,6 +139,12 @@ export default {
   }
 }
 
+.open {
+  .cauldrons-table-item {
+    background: url("@/assets/images/cauldrons/table-item-background.png");
+  }
+}
+
 .cauldrons-table-item {
   border-radius: 16px;
   background: rgba(8, 14, 31, 1);
@@ -169,10 +175,6 @@ export default {
   }
 }
 
-.open {
-  background: url("@/assets/images/cauldrons/table-item-background.png");
-}
-
 .column {
   max-width: 180px;
   width: 100%;
@@ -201,6 +203,7 @@ export default {
   position: absolute;
   top: -5px;
   right: -10px;
+  border: 1px solid #0d1427;
 }
 
 .apr {

@@ -181,12 +181,7 @@ export default {
         });
       }
 
-      return cauldrons.filter(({ userPosition }) => {
-        return (
-          userPosition.collateralInfo.userCollateralShare.eq(0) &&
-          userPosition.borrowInfo.userBorrowPart.eq(0)
-        );
-      });
+      return cauldrons;
     },
 
     filterSwappersActive(cauldrons) {

@@ -1,5 +1,11 @@
 <template>
   <div class="cauldrons-page">
+    <img class="bg-top" src="@/assets/images/cauldrons/bg-top.png" alt="" />
+    <img
+      class="bg-bottom"
+      src="@/assets/images/cauldrons/bg-bottom.png"
+      alt=""
+    />
     <div class="cauldrons-container">
       <div class="text-wrap">
         <h3 class="title">Available Cauldrons</h3>
@@ -13,7 +19,9 @@
         </h4>
       </div>
       <div class="cards-wrap">
-        <CauldronCard v-for="item in 3" :key="item" />
+        <CamelotCard />
+        <EmpowerCard />
+        <CamelotUsdcMimCard />
       </div>
 
       <CauldronsTable
@@ -132,8 +140,14 @@ export default {
   },
 
   components: {
-    CauldronCard: defineAsyncComponent(() =>
-      import("@/components/cauldrons/CauldronCard.vue")
+    CamelotCard: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CamelotCard.vue")
+    ),
+    EmpowerCard: defineAsyncComponent(() =>
+      import("@/components/cauldrons/EmpowerCard.vue")
+    ),
+    CamelotUsdcMimCard: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CamelotUsdcMimCard.vue")
     ),
     CauldronsTable: defineAsyncComponent(() =>
       import("@/components/cauldrons/CauldronsTable.vue")
@@ -150,9 +164,21 @@ export default {
   min-height: 100vh;
   width: 100%;
   height: 100%;
-  background: url("@/assets/images/cauldrons/background.png");
+  background: url("@/assets/images/cauldrons/background.svg");
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.bg-top {
+  position: absolute;
+  top: 118px;
+  left: 0;
+}
+
+.bg-bottom {
+  position: absolute;
+  top: 85vh;
+  right: 70px;
 }
 
 .cauldrons-container {
@@ -184,9 +210,9 @@ export default {
 }
 
 .cards-wrap {
-  display: flex;
+  display: grid;
   gap: 16px;
   align-items: center;
-  justify-content: space-between;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 </style>
