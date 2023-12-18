@@ -30,21 +30,16 @@
 
     <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
-    <div class="column">
-      <span class="apr">{{ loopApr }}</span>
+    <div class="column apr">
+      {{ loopApr }}
     </div>
   </router-link>
 </template>
 
 <script>
+import { utils } from "ethers";
 import filters from "@/filters/index.js";
-import { utils, providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
 import { getChainIcon } from "@/helpers/chains/getChainIcon.ts";
-import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
-import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
-
-const APR_KEY = "abracadabraCauldronsApr";
 
 export default {
   props: {
@@ -144,12 +139,6 @@ export default {
 .new {
   border: 1px solid #649c66;
 
-  .apr {
-    padding: 5px 10px;
-    border-radius: 10px;
-    border: 1px solid #2d4a96;
-  }
-
   .label {
     display: block;
     background: linear-gradient(180deg, #67a069 0%, #446a46 100%);
@@ -168,13 +157,6 @@ export default {
 
 .open {
   background: url("@/assets/images/cauldrons/table-item-background.png");
-
-  .apr {
-    border-radius: 10px;
-    padding: 5px 10px;
-    background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
-    -webkit-text-fill-color: #fff;
-  }
 }
 
 .column {
@@ -208,11 +190,8 @@ export default {
 }
 
 .apr {
-  text-align: center;
   text-shadow: 0px 0px 16px #ab5de8;
-  background: linear-gradient(90deg, #7a91cc 0%, #8b71d2 50.52%, #411fc8 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  line-height: 150%;
 }
 </style>
