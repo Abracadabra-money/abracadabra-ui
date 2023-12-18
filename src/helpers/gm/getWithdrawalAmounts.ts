@@ -17,6 +17,7 @@ import { fetchTokenPrices } from "./fetchTokenPrices";
 import type { TokenPriceResponse } from "./types";
 import type { MarketInfo, DataStoreInfo } from "./types";
 import { getTradeFees } from "./fee/getFees";
+import { getMarketVirtualInventory } from "./getMarketInfo";
 
 const WBTC_ADDRESS = "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f";
 const WSOL_ADDRESS = "0x2bcC6D6CdBbDC0a4071e48bb3B969b06B3330c07";
@@ -156,7 +157,13 @@ export const getWithdrawalAmountsByMarket = async (
     parsedPrices.longTokenPrice.max
   );
 
-  const { minOutputAmount } = await getLongToShortSwapAmounts(
+  const virtualInventory = await getMarketVirtualInventory(
+    provider,
+    prices,
+    market
+  );
+
+  const { minOutputAmount } = getLongToShortSwapAmounts(
     market,
     marketInfo,
     {
@@ -167,7 +174,7 @@ export const getWithdrawalAmountsByMarket = async (
     parsedPrices,
     dataStoreInfo,
     fromTokenAmount,
-    provider
+    virtualInventory
   );
 
   const swapMinOutputAmount = applySlippageToMinOut(
@@ -195,12 +202,11 @@ export const getWithdrawalAmountsByMarket = async (
   };
 };
 
-export const getWithdrawalAmountsAndFees = async (
+export const getWithdrawalAmountsAndFees = (
   marketInfo: MarketInfo,
   marketFullInfo: any,
   dataStoreInfo: DataStoreInfo,
   marketTokenAmount: BigNumber,
-  provider: providers.BaseProvider
 ) => {
   const { longTokenDecimals, shortTokenDecimals, indexTokenDecimals } =
     marketFullInfo;
@@ -286,7 +292,11 @@ export const getWithdrawalAmountsAndFees = async (
     parsedPrices.longTokenPrice.max
   );
 
-  const amounts = await getLongToShortSwapAmounts(
+  console.log("fromTokenAmount", fromTokenAmount.toString())
+
+  const { virtualInventory } = marketFullInfo.marketInfo;
+
+  const amounts = getLongToShortSwapAmounts(
     marketFullInfo.market,
     marketInfo,
     {
@@ -297,7 +307,7 @@ export const getWithdrawalAmountsAndFees = async (
     parsedPrices,
     dataStoreInfo,
     fromTokenAmount,
-    provider
+    virtualInventory
   );
 
   const swapMinOutputAmount = applySlippageToMinOut(
@@ -321,9 +331,9 @@ export const getWithdrawalAmountsAndFees = async (
 
   const fees = getTradeFees(amounts)
 
-  console.log(fees)
-
   return {
+    fees,
+    isHighPriceImpact: fees.isHighPriceImpact,
     shortAmountOut,
     longAmountOut,
   };

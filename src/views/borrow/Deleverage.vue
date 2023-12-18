@@ -64,6 +64,14 @@
           >Close Position
         </BaseButton>
 
+
+        <GmSwapFee
+          v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+          :cauldronObject="cauldron"
+          :amount="finalCollateralAmount"
+          :actionType="2"
+        />
+
         <OrdersManager
           v-if="cauldron?.config.cauldronSettings.isGMXMarket"
           :cauldronObject="cauldron"
@@ -823,6 +831,9 @@ export default {
     ),
     OrdersManager: defineAsyncComponent(() =>
       import("@/components/borrow/OrdersManager.vue")
+    ),
+    GmSwapFee: defineAsyncComponent(() =>
+      import("@/components/borrow/GmSwapFee.vue")
     ),
   },
 };

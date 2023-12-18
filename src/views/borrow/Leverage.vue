@@ -60,6 +60,12 @@
           />
         </div>
 
+        <GmSwapFee
+          v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+          :cauldronObject="cauldron"
+          :amount="parsedBorrowPart"
+        />
+
         <OrdersManager
           v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
           :cauldronObject="cauldron"
@@ -702,7 +708,8 @@ export default {
       } catch (error) {
         console.log("leverage error", error);
 
-        const errorType = String(error).indexOf("GM") !== -1 ? "warning": "error"
+        const errorType =
+          String(error).indexOf("GM") !== -1 ? "warning" : "error";
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -780,7 +787,7 @@ export default {
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
         // this.createNotification(notification.gmOrderExist);
-        throw new Error('GM Order exist');
+        throw new Error("GM Order exist");
       }
 
       // leverage & create order
@@ -826,7 +833,9 @@ export default {
         this.createNotification(notification.success);
         this.activeOrder = newOrder;
       } catch (error) {
-        const errorType = String(error).indexOf("GM Capcity") ? "warning": "error"
+        const errorType = String(error).indexOf("GM Capcity")
+          ? "warning"
+          : "error";
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -993,6 +1002,9 @@ export default {
     ),
     OrdersManager: defineAsyncComponent(() =>
       import("@/components/borrow/OrdersManager.vue")
+    ),
+    GmSwapFee: defineAsyncComponent(() =>
+      import("@/components/borrow/GmSwapFee.vue")
     ),
   },
 };
