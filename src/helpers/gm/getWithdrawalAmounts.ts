@@ -159,7 +159,7 @@ export const getWithdrawalAmountsByMarket = async (
 
   const virtualInventory = await getMarketVirtualInventory(
     provider,
-    prices,
+    parsedPrices,
     market
   );
 
@@ -293,7 +293,6 @@ export const getWithdrawalAmountsAndFees = (
   );
 
   const { virtualInventory } = marketFullInfo.marketInfo;
-
 
   const amounts = getLongToShortSwapAmounts(
     marketFullInfo.market,
