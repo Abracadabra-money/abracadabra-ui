@@ -1,7 +1,7 @@
 <template>
   <div class="arrows-wrap">
     <svg
-      :class="['arrow-up', { active: sortOrder }]"
+      :class="['arrow-up', { active: sortOrder === 'up' }]"
       width="10"
       height="6"
       viewBox="0 0 10 6"
@@ -15,7 +15,7 @@
     </svg>
 
     <svg
-      :class="['arrow-down', { active: sortOrder === false }]"
+      :class="['arrow-down', { active: sortOrder === 'down' }]"
       width="10"
       height="6"
       viewBox="0 0 10 6"

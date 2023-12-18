@@ -62,13 +62,16 @@ export default {
 
   methods: {
     updateSort(key) {
-      if (key === this.sortKey) this.sortOrder = !this.sortOrder;
-      else {
+      if (key === this.sortKey) {
+        if (!this.sortOrder) this.sortOrder = "up";
+        else if (this.sortOrder === "up") this.sortOrder = "down";
+        else if (this.sortOrder === "down") this.sortOrder = false;
+      } else {
         this.sortKey = key;
-        this.sortOrder = true;
+        this.sortOrder = "up";
       }
 
-      this.$emit("updateSort", key, !this.sortOrder);
+      this.$emit("updateSort", key, this.sortOrder);
     },
 
     getSortOrder(key) {

@@ -66,7 +66,7 @@ export default {
       showActiveCauldrons: true,
       isSwappersActive: true,
       sortKey: "",
-      sortOrder: "",
+      sortOrder: false,
       selectedChains: [0],
     };
   },
@@ -214,14 +214,14 @@ export default {
       });
     },
 
-    sortByKey(cauldrons, key) {
-      if (!key) return cauldrons;
+    sortByKey(cauldrons, key, sortOrder) {
+      if (!key || !sortOrder) return cauldrons;
 
       return cauldrons.sort((cauldronA, cauldronB) => {
         const a = this.getSortKey(cauldronA, key);
         const b = this.getSortKey(cauldronB, key);
 
-        const factor = this.sortOrder ? -1 : 1;
+        const factor = sortOrder === "down" ? -1 : 1;
         if (key === "Interest" || key === "APR")
           return a < b ? factor : -factor;
         return a.lt(b) ? factor : -factor;
