@@ -82,12 +82,15 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
 .camelot-card-background {
   background: linear-gradient(146deg, #1a0604 0%, #000 101.49%);
   border-radius: 16px;
 }
 
 .camelot-card {
+  @include font;
   position: relative;
   display: flex;
   flex-direction: column;
