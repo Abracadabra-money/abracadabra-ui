@@ -20,6 +20,7 @@
       </div>
       <div class="filters-wrap">
         <ChainsDropdown
+          :activeChains="activeChains"
           :selectedChains="selectedChains"
           @updateSelectedChain="updateSelectedChain"
         />
@@ -100,6 +101,13 @@ export default {
       );
 
       return sortedByChain;
+    },
+
+    activeChains() {
+      return this.cauldrons.reduce((acc, { config }) => {
+        if (!acc.includes(config.chainId)) acc.push(config.chainId);
+        return acc;
+      }, []);
     },
   },
 

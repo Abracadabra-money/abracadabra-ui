@@ -52,11 +52,7 @@
         />
       </div>
 
-      <div
-        class="list-item"
-        v-for="chainId in Object.keys(defaultRpc)"
-        :key="chainId"
-      >
+      <div class="list-item" v-for="chainId in activeChains" :key="chainId">
         <div class="chain-info">
           <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
           <span class="chain-name">{{ getChainSymbol(+chainId) }}</span>
@@ -89,13 +85,17 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defaultRpc, getChainById } from "@/helpers/chains";
+<script>
+import { getChainById } from "@/helpers/chains";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
+    activeChains: {
+      type: Array,
+      default: () => [],
+    },
     selectedChains: {
       type: Array,
       default: () => [0],
@@ -104,13 +104,12 @@ export default {
 
   data() {
     return {
-      defaultRpc,
       showDropdownList: false,
     };
   },
 
   computed: {
-    chains(): any {
+    chains() {
       if (this.selectedChains.includes(0)) return [];
       else return [...this.selectedChains].splice(0, 3) || [];
     },
@@ -123,12 +122,13 @@ export default {
 
   methods: {
     getChainIcon,
-    getChainSymbol(chainId: number) {
-      const chain: any = getChainById(chainId);
+    getChainSymbol(chainId) {
+      const chain = getChainById(chainId);
       return chain.symbol;
     },
 
     toogleDropdown() {
+      if (!this.activeChains.length) return false;
       this.showDropdownList = !this.showDropdownList;
     },
 
@@ -136,7 +136,7 @@ export default {
       this.showDropdownList = false;
     },
 
-    updateSelectedChain(value: number | undefined) {
+    updateSelectedChain(value) {
       this.$emit("updateSelectedChain", value);
     },
   },
