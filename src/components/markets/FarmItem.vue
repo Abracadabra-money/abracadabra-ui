@@ -1,11 +1,15 @@
 <template>
   <router-link
     :to="goToPage"
-    class="farm-item"
-    :style="`border-color: ${border}`"
+    :class="['farm-item', { positionOpened: isOpenedPosition }]"
+    :style="farmStatusStyles.border"
   >
-    <div class="status-flag" :style="`${statusFlag.color}`" v-if="statusFlag">
-      <span class="status-flag-text">{{ statusFlag.text }}</span>
+    <div
+      class="status-flag"
+      :style="farmStatusStyles.color"
+      v-if="farmStatusStyles.text"
+    >
+      <span class="status-flag-text">{{ farmStatusStyles.text }}</span>
     </div>
 
     <div class="item-header">
@@ -70,26 +74,30 @@ export default {
       return filters.formatUSD(this.farm.farmTvl);
     },
 
-    border() {
-      if (this.farm.isDepreciated) return "#871D1F";
-      if (this.farm.isNew) return "#649C66";
-      return "#2d4a96";
-    },
-
-    statusFlag() {
+    farmStatusStyles() {
       if (this.farm.isDepreciated)
         return {
           text: "Depreciated",
           color:
             "background: linear-gradient(270deg, #320A0A 0%, #871D1F 100%), linear-gradient(90deg, #67A069 0%, #446A46 100%);",
+          border: "border-color: #871D1F",
         };
       if (this.farm.isNew)
         return {
           text: "new",
           color:
             "background: linear-gradient(218deg, #67A069 23.2%, #446A46 79.7%);",
+          border: "border-color: #649C66",
         };
-      return false;
+      return {
+        text: "",
+        color: "",
+        border: "border-color: #2d4a96",
+      };
+    },
+
+    isOpenedPosition() {
+      return !!this.farm.accountInfo.balance;
     },
   },
 
@@ -169,7 +177,8 @@ export default {
 }
 
 .apr .tag-value {
-  color: #67a069;
+  color: white;
+  text-shadow: 0px 0px 16px rgba(171, 93, 232, 0.55);
   font-size: 30px;
   font-weight: 600;
 }
@@ -207,5 +216,21 @@ export default {
   color: #fff;
   font-size: 9px;
   font-weight: 500;
+}
+
+.positionOpened {
+  background: linear-gradient(
+      91deg,
+      rgba(27, 24, 68, 0.6) 14.68%,
+      rgba(13, 19, 38, 0.6) 76.58%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
+    ),
+    url("../../assets/images/farm/farm-opened-position-background.png");
+
+  background-repeat: no-repeat;
 }
 </style>

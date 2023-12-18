@@ -4,7 +4,7 @@
       <div class="farm-header">
         <div class="title-desc">
           <h3 class="title">Farm</h3>
-          <p class="description">Send your MIM across networks</p>
+          <p class="description">Stake LP tokens and earn rewards</p>
         </div>
 
         <MarketsSwitch
@@ -351,10 +351,13 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: calc(100% - 20px);
+  width: 100%;
   height: 100vh;
   padding: 100px 0;
   margin: 0 auto;
+  background: url("../assets/images/farm/farm-page-background.png");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .farm {
