@@ -292,9 +292,8 @@ export const getWithdrawalAmountsAndFees = (
     parsedPrices.longTokenPrice.max
   );
 
-  console.log("fromTokenAmount", fromTokenAmount.toString())
-
   const { virtualInventory } = marketFullInfo.marketInfo;
+
 
   const amounts = getLongToShortSwapAmounts(
     marketFullInfo.market,

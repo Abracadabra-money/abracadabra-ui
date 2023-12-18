@@ -1,18 +1,20 @@
 <template>
-  <div class="swap-fee" :class="{ warning: priceImpact.isHighPriceImpact }">
+  <div class="swap-fee" :class="{ warning: priceImpact?.isHighPriceImpact }">
     <span class="fee-title">
-      <Tooltip class="tooltip" :tooltip="tooltipText" />
+      <!-- <Tooltip class="tooltip" :tooltip="tooltipText" /> -->
       Price Impact
     </span>
-    <span class="price-value">{{ priceImpact.swapFee }}</span>
+    <span class="price-value">{{
+      priceImpact?.swapFee ? priceImpact.swapFee : 0
+    }}</span>
   </div>
-  <p class="warning" v-if="priceImpact.isHighPriceImpact">
+  <p class="warning-text" v-if="priceImpact?.isHighPriceImpact">
     Warning! Swap impact is high.
   </p>
 </template>
 
 <script>
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
+// import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import { getDepositAmountsAndFee } from "@/helpers/gm/getDepositAmount";
 import { getWithdrawalAmountsAndFees } from "@/helpers/gm/getWithdrawalAmounts";
 import { BigNumber, utils } from "ethers";
@@ -21,42 +23,48 @@ import { formatDeltaUsd } from "@/helpers/gm/numbers.ts";
 const ACTION_LEVERAGE = 1;
 const ACTION_DELEVERAGE = 2;
 
+const emptyState = {
+  swapFee: 0,
+  isHighPriceImpact: false,
+};
+
 export default {
   props: {
     cauldronObject: {
       type: Object,
     },
-    amount: {
-      default: BigNumber.from(0),
-    },
+    amount: {},
     actionType: {
       default: ACTION_LEVERAGE,
     },
   },
-
   data() {
     return {
       tooltipText: "Swap price impact",
     };
   },
-
   computed: {
     isWarning() {
       return false;
     },
     toShortTokenAmount() {
-      const shortAmount = utils.parseUnits(utils.formatUnits(this.amount), 6);
-      console.log(shortAmount.toString());
+      const shortAmount = this.amount.div(1e12);
       return shortAmount;
     },
     priceImpact() {
-      if (!this.cauldronObject) return 0;
+      if (!this.cauldronObject) return emptyState;
 
       if (this.actionType === ACTION_LEVERAGE) return this.priceImpactDeposit;
       if (this.actionType === ACTION_DELEVERAGE)
         return this.priceImpactWithdraw;
     },
     priceImpactDeposit() {
+      if (
+        this.actionType !== ACTION_LEVERAGE ||
+        (this.amount && +this.amount === 0)
+      )
+        return emptyState;
+
       const { gmInfo } = this.cauldronObject.additionalInfo;
 
       const { fees, isHighPriceImpact } = getDepositAmountsAndFee(
@@ -74,13 +82,18 @@ export default {
       };
     },
     priceImpactWithdraw() {
+      if (
+        this.actionType !== ACTION_DELEVERAGE ||
+        (this.amount && +this.amount === 0)
+      )
+        return emptyState;
       const { gmInfo } = this.cauldronObject.additionalInfo;
 
-      const { fees, isHighPriceImpact } = getDepositAmountsAndFee(
+      const { fees, isHighPriceImpact } = getWithdrawalAmountsAndFees(
         gmInfo.marketInfo,
         gmInfo.marketFullInfo,
         gmInfo.dataStoreInfo,
-        this.toShortTokenAmount
+        this.amount
       );
 
       const { swapPriceImpact } = fees;
@@ -92,7 +105,7 @@ export default {
     },
   },
 
-  components: { Tooltip },
+  // components: { Tooltip },
 };
 </script>
 
@@ -128,7 +141,7 @@ export default {
   cursor: pointer;
 }
 
-.warning {
+.warning-text {
   text-align: left;
   color: #cc123f;
   font-size: 10px;

@@ -63,7 +63,7 @@
         <GmSwapFee
           v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
           :cauldronObject="cauldron"
-          :amount="parsedBorrowPart"
+          :amount="expectedBorrowPart"
         />
 
         <OrdersManager

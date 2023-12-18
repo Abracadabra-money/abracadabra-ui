@@ -54,6 +54,13 @@
             @updateValue="updateRemoveCollateralAmount"
           />
           <div class="repay-amount">{{ formatRemoveCollateralAmount }}</div>
+
+          <GmSwapFee
+            v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+            :cauldronObject="cauldron"
+            :amount="finalCollateralAmountParsed"
+            :actionType="2"
+          />
         </div>
 
         <BaseButton
@@ -63,14 +70,6 @@
           @click="closePositionHandler"
           >Close Position
         </BaseButton>
-
-
-        <GmSwapFee
-          v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
-          :cauldronObject="cauldron"
-          :amount="finalCollateralAmount"
-          :actionType="2"
-        />
 
         <OrdersManager
           v-if="cauldron?.config.cauldronSettings.isGMXMarket"
@@ -313,6 +312,10 @@ export default {
         borrowAmount * oracleExchangeRate * slippageMutiplier,
         decimals
       );
+    },
+
+    finalCollateralAmountParsed() {
+      return utils.parseUnits(this.finalCollateralAmount)
     },
 
     finalRemoveCollateralAmount() {
@@ -611,7 +614,9 @@ export default {
         this.createNotification(notification.success);
         this.activeOrder = newOrder;
       } catch (error) {
-        const errorType = String(error).indexOf("GM Capcity") ? "warning": "error"
+        const errorType = String(error).indexOf("GM Capcity")
+          ? "warning"
+          : "error";
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),

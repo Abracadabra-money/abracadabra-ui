@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 // V2
 export const HIGH_PRICE_IMPACT_BPS = 80; // 0.8%
+export const HIGH_PRICE_IMPACT_BPS_TRADE = 150; // 1.5%
 export const DEFAULT_ACCEPABLE_PRICE_IMPACT_BPS = 100; // 1%
 export const BASIS_POINTS_DIVISOR = 10000;
 
@@ -74,7 +75,7 @@ export const getTradeFees = (amounts: any) => {
 
   const isHighPriceImpact =
     swapPriceImpact?.deltaUsd.lt(0) &&
-    swapPriceImpact.bps.abs().gte(HIGH_PRICE_IMPACT_BPS);
+    swapPriceImpact.bps.abs().gte(HIGH_PRICE_IMPACT_BPS_TRADE);
 
   return { swapFees, swapPriceImpact, isHighPriceImpact };
 };
