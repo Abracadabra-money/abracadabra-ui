@@ -92,7 +92,7 @@ const getFarmYield = async (
   stakingTokenTotalAmount: bigint,
   allocPoint: number,
   accIcePerShare: bigint,
-  chainId: number,
+  chainId: number | string,
   publicClient: any
 ) => {
   try {
