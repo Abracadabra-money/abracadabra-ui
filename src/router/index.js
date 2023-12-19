@@ -27,6 +27,11 @@ const routes = [
     component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
+    path: "/market",
+    name: "Market",
+    component: () => import("@/views/Market.vue"),
+  },
+  {
     path: "/repay",
     name: "Repay",
     component: () => import("@/views/borrow/Repay.vue"),
