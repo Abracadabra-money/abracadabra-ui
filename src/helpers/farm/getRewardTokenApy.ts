@@ -44,17 +44,12 @@ export const calculateAPR = async (
   publicClient: any
 ): Promise<any> => {
   try {
-    const provider = store.getters.getProvider;
-    const contract = new Contract(contractAddress, contractABI, provider);
-
     const totalSupply = await publicClient.readContract({
       address: contractAddress,
       abi: contractABI,
       functionName: "totalSupply",
       args: [],
     });
-
-    // const totalSupply = await contract.totalSupply();
 
     const totalStakedInUSD =
       // @ts-ignore
@@ -70,7 +65,6 @@ export const calculateAPR = async (
         functionName: "rewardData",
         args: [tokenInfo.address],
       });
-      // const rewardData = await contract.rewardData(tokenInfo.address);
       const rewardTokenPrice = tokenInfo.price;
 
       const annualReward =

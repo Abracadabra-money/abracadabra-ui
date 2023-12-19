@@ -1,5 +1,4 @@
 import { erc20ABI } from "@wagmi/core";
-import { multicall, readContract } from "@wagmi/core";
 import { formatUnits, parseUnits } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { Address } from "@wagmi/core";
