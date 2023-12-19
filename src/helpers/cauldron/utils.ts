@@ -38,12 +38,10 @@ export const getMaxToBorrow = (
   collateralAmount: BigNumber,
   userBorrowAmount: BigNumber,
   mcr: number,
-  oracleExchangeRate: BigNumber,
-  collateralDecimals: number
+  oracleExchangeRate: BigNumber
 ): BigNumber => {
   const collateralInMim = collateralAmount
-    .mul(expandDecimals(1, MIM_DECIMALS - collateralDecimals))
-    .mul(expandDecimals(1, collateralDecimals))
+    .mul(expandDecimals(1, MIM_DECIMALS))
     .div(oracleExchangeRate);
 
   const maxToBorrow = collateralInMim
@@ -58,12 +56,10 @@ export const getMaxToBorrow = (
 export const getUserLtv = (
   collateralAmount: BigNumber,
   userBorrowAmount: BigNumber,
-  oracleExchangeRate: BigNumber,
-  collateralDecimals: number
+  oracleExchangeRate: BigNumber
 ): BigNumber => {
   const collateralInMim = collateralAmount
-    .mul(expandDecimals(1, MIM_DECIMALS - collateralDecimals))
-    .mul(expandDecimals(1, collateralDecimals))
+    .mul(expandDecimals(1, MIM_DECIMALS))
     .div(oracleExchangeRate);
 
   const ltvBps = userBorrowAmount
@@ -77,8 +73,7 @@ export const getMimToBorrowByLtv = (
   mcr: number,
   collateralAmount: BigNumber,
   userBorrowAmount: BigNumber,
-  oracleExchangeRate: BigNumber,
-  collateralDecimals: number
+  oracleExchangeRate: BigNumber
 ): BigNumber => {
   if (ltv > mcr) return BigNumber.from(0);
   const ltvBps = expandDecimals(ltv, BPS_PRESITION);
@@ -86,15 +81,13 @@ export const getMimToBorrowByLtv = (
   const currentLtvBps = getUserLtv(
     collateralAmount,
     userBorrowAmount,
-    oracleExchangeRate,
-    collateralDecimals
+    oracleExchangeRate
   );
 
   if (ltvBps.lte(currentLtvBps)) return BigNumber.from(0);
 
   const collateralInMim = collateralAmount
-    .mul(expandDecimals(1, MIM_DECIMALS - collateralDecimals))
-    .mul(expandDecimals(1, collateralDecimals))
+    .mul(expandDecimals(1, MIM_DECIMALS))
     .div(oracleExchangeRate);
 
   const mimPerPercent = collateralInMim.div(100);
@@ -117,8 +110,7 @@ export const getMaxCollateralToRemove = (
     collateralAmount,
     userBorrowAmount,
     mcr,
-    oracleExchangeRate,
-    collateralDecimals
+    oracleExchangeRate
   );
 
   const getMaxCollateralToRemove = leftToBorrow
