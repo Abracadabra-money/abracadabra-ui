@@ -19,7 +19,8 @@ export const getFarmYieldAndLpPrice = async (
   farmInfo: FarmConfig,
   mimPrice: number,
   spellPrice: number,
-  chainId: number
+  chainId: number | string,
+  publicClient: any
 ) => {
   try {
     if (farmInfo.depositedBalance) {
@@ -34,7 +35,8 @@ export const getFarmYieldAndLpPrice = async (
       const lpYieldAndPrice = await getLPYieldAndPrice(
         stakingTokenContractInfo,
         tokenAddress,
-        tokenPrice
+        tokenPrice,
+        publicClient
       );
 
       const farmYield = await getFarmYield(
@@ -43,7 +45,8 @@ export const getFarmYieldAndLpPrice = async (
         poolInfo.stakingTokenTotalAmount,
         poolInfo.allocPoint,
         poolInfo.accIcePerShare,
-        chainId
+        chainId,
+        publicClient
       );
 
       return {
@@ -52,7 +55,7 @@ export const getFarmYieldAndLpPrice = async (
       };
     }
 
-    const price: any = await readContract({
+    const price: any = await publicClient.readContract({
       address: stakingTokenContractInfo.address,
       abi: stakingTokenContractInfo.abi,
       functionName: "get_virtual_price",
@@ -66,7 +69,8 @@ export const getFarmYieldAndLpPrice = async (
       poolInfo.stakingTokenTotalAmount,
       poolInfo.allocPoint,
       poolInfo.accIcePerShare,
-      chainId
+      chainId,
+      publicClient
     );
 
     return {
@@ -89,10 +93,11 @@ const getFarmYield = async (
   stakingTokenTotalAmount: bigint,
   allocPoint: number,
   accIcePerShare: bigint,
-  chainId: number
+  chainId: number,
+  publicClient: any
 ) => {
   try {
-    const [icePerSecond, totalAllocPoint]: any = await multicall({
+    const [icePerSecond, totalAllocPoint]: any = await publicClient.multicall({
       chainId,
       contracts: [
         {
@@ -143,25 +148,27 @@ const getFarmYield = async (
 const getLPYieldAndPrice = async (
   stakingTokenContractInfo: ContractInfo,
   iceTokenAddress: Address,
-  tokenPrice: number
+  tokenPrice: number,
+  publicClient: any
 ) => {
   try {
-    let [IceInSlpTotal, totalTokensSLPMinted]: any = await multicall({
-      contracts: [
-        {
-          address: iceTokenAddress,
-          abi: erc20ABI,
-          functionName: "balanceOf",
-          args: [stakingTokenContractInfo.address],
-        },
-        {
-          address: stakingTokenContractInfo.address,
-          abi: stakingTokenContractInfo.abi,
-          functionName: "totalSupply",
-          args: [],
-        },
-      ],
-    });
+    let [IceInSlpTotal, totalTokensSLPMinted]: any =
+      await publicClient.multicall({
+        contracts: [
+          {
+            address: iceTokenAddress,
+            abi: erc20ABI,
+            functionName: "balanceOf",
+            args: [stakingTokenContractInfo.address],
+          },
+          {
+            address: stakingTokenContractInfo.address,
+            abi: stakingTokenContractInfo.abi,
+            functionName: "totalSupply",
+            args: [],
+          },
+        ],
+      });
     const IceInSlpTotalResult: bigint = IceInSlpTotal.result;
     let icePerLp = 0n;
     if (IceInSlpTotal.result > 0n)

@@ -69,6 +69,7 @@ import actions from "@/helpers/farm/actions";
 export default {
   props: {
     id: { type: String },
+    farmChainId: { type: String },
   },
 
   data() {
@@ -313,7 +314,7 @@ export default {
     async getSelectedFarm() {
       this.selectedFarm = await createFarmItemConfig(
         this.id,
-        this.chainId,
+        this.farmChainId,
         this.account
       );
     },

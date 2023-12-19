@@ -1,8 +1,7 @@
 import { tokensChainLink } from "@/utils/chainLink/config";
-import { getAccount, multicall, readContract } from "@wagmi/core";
+import { getAccount } from "@wagmi/core";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import type { FarmAccountInfo, FarmItem } from "@/utils/farmsConfig/types";
-
 import { formatUnits } from "viem";
 
 type UserInfo = {
@@ -13,12 +12,13 @@ type UserInfo = {
 };
 
 export const getFarmUserInfo = async (
-  farmItemConfig: FarmItem
+  farmItemConfig: FarmItem,
+  publicClient: any
 ): Promise<FarmAccountInfo> => {
   const account = await getAccount().address;
 
   const [accountBalance, allowance, userInfo, userReward]: any =
-    await multicall({
+    await publicClient.multicall({
       contracts: [
         {
           ...farmItemConfig.stakingToken.contractInfo,
@@ -46,7 +46,7 @@ export const getFarmUserInfo = async (
   const userInfoParsed = await getUserInfo(userInfo.result);
 
   const tokensBalanceInfo = farmItemConfig.depositedBalance
-    ? await getSLPBalances(farmItemConfig, userInfoParsed)
+    ? await getSLPBalances(farmItemConfig, userInfoParsed, publicClient)
     : null;
 
   return {
@@ -60,8 +60,12 @@ export const getFarmUserInfo = async (
   };
 };
 
-const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
-  const reserves: any = await readContract({
+const getSLPBalances = async (
+  farmItemConfig: FarmItem,
+  userInfo: UserInfo,
+  publicClient: any
+) => {
+  const reserves: any = await publicClient.readContract({
     ...farmItemConfig.stakingToken.contractInfo,
     functionName: "getReserves",
     args: [],

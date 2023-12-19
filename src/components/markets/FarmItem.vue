@@ -1,48 +1,49 @@
 <template>
-  <router-link
-    :to="goToPage"
-    :class="['farm-item', { positionOpened: isOpenedPosition }]"
-    :style="farmStatusStyles.border"
-  >
-    <div
-      class="status-flag"
-      :style="farmStatusStyles.color"
-      v-if="farmStatusStyles.text"
+  <div class="gradient-background" :style="farmStatusStyles.backgroundColor">
+    <router-link
+      :to="goToPage"
+      :class="['farm-item', { positionOpened: isOpenedPosition }]"
     >
-      <span class="status-flag-text">{{ farmStatusStyles.text }}</span>
-    </div>
-
-    <div class="item-header">
-      <div class="token-info">
-        <BaseTokenIcon
-          class="token-icon"
-          siza="38px"
-          :name="farm.name"
-          :icon="farm.icon"
-        />
-        <span class="token-name">{{ farm.name }}</span>
+      <div
+        class="status-flag"
+        :style="farmStatusStyles.flagColor"
+        v-if="farmStatusStyles.text"
+      >
+        <span class="status-flag-text">{{ farmStatusStyles.text }}</span>
       </div>
-      <ChainTag :chainId="farm.chainId" />
-    </div>
 
-    <div class="item-info">
-      <div class="apr">
-        <div class="tag-title">
-          APR
-          <Tooltip
-            class="tooltip"
-            :tooltip="'Annual Return on Staked tokens at current price'"
+      <div class="item-header">
+        <div class="token-info">
+          <BaseTokenIcon
+            class="token-icon"
+            siza="38px"
+            :name="farm.name"
+            :icon="farm.icon"
           />
+          <span class="token-name">{{ farm.name }}</span>
         </div>
-        <p class="tag-value">{{ apr }}</p>
+        <ChainTag :chainId="farm.chainId" />
       </div>
 
-      <div class="tvl">
-        <div class="tag-title">TVL</div>
-        <p class="tag-value">{{ tvl }}</p>
+      <div class="item-info">
+        <div class="apr">
+          <div class="tag-title">
+            APR
+            <Tooltip
+              class="tooltip"
+              :tooltip="'Annual Return on Staked tokens at current price'"
+            />
+          </div>
+          <p class="tag-value">{{ apr }}</p>
+        </div>
+
+        <div class="tvl">
+          <div class="tag-title">TVL</div>
+          <p class="tag-value">{{ tvl }}</p>
+        </div>
       </div>
-    </div>
-  </router-link>
+    </router-link>
+  </div>
 </template>
 
 <script>
@@ -63,7 +64,10 @@ export default {
     ...mapGetters({ chainId: "getChainId", getChainById: "getChainById" }),
 
     goToPage() {
-      return { name: "Farm", params: { id: this.farm.id } };
+      return {
+        name: "Farm",
+        params: { id: this.farm.id, farmChainId: this.farm.chainId },
+      };
     },
 
     apr() {
@@ -78,26 +82,29 @@ export default {
       if (this.farm.isDepreciated)
         return {
           text: "Depreciated",
-          color:
+          flagColor:
             "background: linear-gradient(270deg, #320A0A 0%, #871D1F 100%), linear-gradient(90deg, #67A069 0%, #446A46 100%);",
-          border: "border-color: #871D1F",
+          backgroundColor:
+            "background: linear-gradient(90deg, rgba(50,10,10,1) 0%, rgba(50,10,10,1) 50%, rgba(0,0,0,0) 100%); backdrop-filter: blur(12.5px);",
         };
       if (this.farm.isNew)
         return {
           text: "new",
-          color:
+          flagColor:
             "background: linear-gradient(218deg, #67A069 23.2%, #446A46 79.7%);",
-          border: "border-color: #649C66",
+          backgroundColor:
+            "background: linear-gradient(90deg, rgba(103,160,105,1) 0%, rgba(68,106,70,1) 50%, rgba(0,0,0,0) 100%); backdrop-filter: blur(12.5px);",
         };
       return {
         text: "",
-        color: "",
-        border: "border-color: #2d4a96",
+        flagColor: "",
+        backgroundColor:
+          "background: linear-gradient(90deg, rgba(45,74,150,1) 0%, rgba(45,88,150,1) 50%, rgba(0,0,0,0) 100%); backdrop-filter: blur(12.5px);",
       };
     },
 
     isOpenedPosition() {
-      return !!this.farm.accountInfo.balance;
+      return !!Number(this.farm.accountInfo.balance);
     },
   },
 
@@ -110,21 +117,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.gradient-background {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 302px;
+  height: 160px;
+  border-radius: 16px;
+}
+
 .farm-item {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 302px;
-  height: 160px;
+  width: 300px;
+  height: 158px;
   border-radius: 16px;
   padding: 21px 12px 16px 12px;
-  border: 1px solid #2d4a96;
   background: linear-gradient(
     146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
+    rgb(1, 12, 39) 50%,
+    rgb(7, 26, 46) 101.49%
   );
+
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);
   transition: box-shadow 0.5s;
@@ -214,22 +230,18 @@ export default {
 .status-flag-text {
   text-align: center;
   color: #fff;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
 }
 
 .positionOpened {
-  background: linear-gradient(
-      91deg,
-      rgba(27, 24, 68, 0.6) 14.68%,
-      rgba(13, 19, 38, 0.6) 76.58%
-    ),
+  background: url("../../assets/images/farm/farm-opened-position-background.png"),
     linear-gradient(
-      146deg,
-      rgba(0, 10, 35, 0.07) 0%,
-      rgba(0, 80, 156, 0.07) 101.49%
-    ),
-    url("../../assets/images/farm/farm-opened-position-background.png");
+      90deg,
+      rgb(26, 14, 78) 0%,
+      rgb(15, 8, 62) 50%,
+      rgb(1, 12, 39) 100%
+    );
 
   background-repeat: no-repeat;
 }

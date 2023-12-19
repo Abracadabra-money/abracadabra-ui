@@ -10,20 +10,20 @@ import type {
   PoolInfo,
   ContractInfo,
 } from "@/utils/farmsConfig/types";
-import { readContract } from "@wagmi/core";
 import type { Address } from "viem";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { createMultiRewardFarm } from "./createMultiRewardFarm";
+import { getPublicClient } from "@/helpers/getPublicClient";
 
 export const createFarmItemConfig = async (
   farmId: number | string,
-  chainId: number,
+  chainId: number | string,
   account: Address | undefined,
   isExtended = true
 ): Promise<any> => {
   const farmsOnChain = farmsConfig.filter(
-    (farm) => farm.contractChain === chainId
+    (farm) => farm.contractChain == chainId
   );
 
   const farmInfo: FarmConfig | undefined = farmsOnChain.find(
@@ -31,6 +31,8 @@ export const createFarmItemConfig = async (
   );
 
   if (!farmInfo) return null;
+
+  const publicClient = getPublicClient(chainId);
 
   // @ts-ignore
   if (farmInfo.isMultiReward)
@@ -50,7 +52,8 @@ export const createFarmItemConfig = async (
     farmInfo.contract,
     // @ts-ignore
     farmInfo.poolId,
-    chainId
+    chainId,
+    publicClient
   );
 
   const contractInfo = {
@@ -69,7 +72,8 @@ export const createFarmItemConfig = async (
     farmInfo,
     MIMPrice,
     SPELLPrice,
-    chainId
+    chainId,
+    publicClient
   );
 
   const farmRoi = farmYield ? await getRoi(farmYield, SPELLPrice) : farmYield;
@@ -108,7 +112,10 @@ export const createFarmItemConfig = async (
     );
 
   if (account) {
-    farmItemConfig.accountInfo = await getFarmUserInfo(farmItemConfig);
+    farmItemConfig.accountInfo = await getFarmUserInfo(
+      farmItemConfig,
+      publicClient
+    );
     return markRaw(farmItemConfig);
   }
   return markRaw(farmItemConfig);
@@ -117,7 +124,8 @@ export const createFarmItemConfig = async (
 const getPoolInfo = async (
   contract: ContractInfo,
   poolId: number,
-  chainId: number
+  chainId: number | string,
+  publicClient: any
 ): Promise<PoolInfo> => {
   const [
     stakingToken,
@@ -125,7 +133,7 @@ const getPoolInfo = async (
     accIcePerShare,
     lastRewardTime,
     allocPoint,
-  ]: any = await readContract({
+  ]: any = await publicClient.readContract({
     address: contract.address,
     abi: contract.abi,
     functionName: "poolInfo",

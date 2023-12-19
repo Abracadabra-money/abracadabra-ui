@@ -91,7 +91,7 @@ const routes = [
     component: () => import("@/views/markets/Farms.vue"),
   },
   {
-    path: "/farm/:id?",
+    path: "/farm/:id?/:farmChainId?",
     name: "Farm",
     component: () => import("@/views/Farm.vue"),
     props: true,

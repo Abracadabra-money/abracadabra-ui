@@ -57,7 +57,8 @@ export const createMultiRewardFarm = async (config, account) => {
         address: item.address,
         price: formatUnits(item.latestAnswer, 8),
       };
-    })
+    }),
+    publicClient
   );
 
   // const rewardsApy = await Promise.all(
@@ -110,15 +111,20 @@ export const createMultiRewardFarm = async (config, account) => {
   };
 
   if (account)
-    farmItem.accountInfo = await getUserInfo(config, rewardPrices, account);
+    farmItem.accountInfo = await getUserInfo(
+      config,
+      rewardPrices,
+      account,
+      publicClient
+    );
 
   return markRaw(farmItem);
 };
 
-const getUserInfo = async (config, rewardPrices, account) => {
+const getUserInfo = async (config, rewardPrices, account, publicClient) => {
   const { contract, stakingToken } = config;
 
-  const [stakedBalance, balance, allowance] = await multicall({
+  const [stakedBalance, balance, allowance] = await publicClient.multicall({
     contracts: [
       {
         address: contract.address,
@@ -143,34 +149,35 @@ const getUserInfo = async (config, rewardPrices, account) => {
 
   const rewardTokensInfo = await Promise.all(
     config.rewardTokens.map(async (tokenInfo) => {
-      const [balanceOf, allowance, rewards, earned] = await multicall({
-        contracts: [
-          {
-            address: tokenInfo.address,
-            abi: tokenInfo.abi,
-            functionName: "balanceOf",
-            args: [account],
-          },
-          {
-            address: tokenInfo.address,
-            abi: tokenInfo.abi,
-            functionName: "allowance",
-            args: [account, contract.address],
-          },
-          {
-            address: contract.address,
-            abi: contract.abi,
-            functionName: "rewards",
-            args: [account, tokenInfo.address],
-          },
-          {
-            address: contract.address,
-            abi: contract.abi,
-            functionName: "earned",
-            args: [account, tokenInfo.address],
-          },
-        ],
-      });
+      const [balanceOf, allowance, rewards, earned] =
+        await publicClient.multicall({
+          contracts: [
+            {
+              address: tokenInfo.address,
+              abi: tokenInfo.abi,
+              functionName: "balanceOf",
+              args: [account],
+            },
+            {
+              address: tokenInfo.address,
+              abi: tokenInfo.abi,
+              functionName: "allowance",
+              args: [account, contract.address],
+            },
+            {
+              address: contract.address,
+              abi: contract.abi,
+              functionName: "rewards",
+              args: [account, tokenInfo.address],
+            },
+            {
+              address: contract.address,
+              abi: contract.abi,
+              functionName: "earned",
+              args: [account, tokenInfo.address],
+            },
+          ],
+        });
 
       const latestAnswer = rewardPrices.find(
         (item) => item.address === tokenInfo.address

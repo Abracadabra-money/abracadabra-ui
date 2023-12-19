@@ -1,6 +1,6 @@
 <template>
   <div class="farms-view">
-    <div class="farms">
+    <div class="farms-wrap">
       <img
         class="button-up"
         src="@/assets/images/button-up.svg"
@@ -15,8 +15,8 @@
         <BaseLoader />
       </div>
 
-      <div v-else class="farms-wrap">
-        <FarmsInfo />
+      <div v-else class="farms">
+        <FarmsInfo :farms="filteredFarms" />
         <div class="farms-list-head">
           <div class="togglers">
             <Toggle
@@ -37,7 +37,11 @@
               <SortButton :sortOrder="aprOrder" @click="changeAprOrder"
                 >APR</SortButton
               >
-              <ChainsDropDown />
+              <ChainsDropdown
+                :activeChains="activeChains"
+                :selectedChains="selectedChains"
+                @updateSelectedChain="updateSelectedChain"
+              />
             </div>
 
             <InputSearch @changeSearch="updateSearch" />
@@ -45,10 +49,10 @@
         </div>
 
         <div class="farms-list">
-          <template v-if="filteredPools.length">
+          <template v-if="filteredFarms.length">
             <MarketsFarmItem
-              v-for="farm in filteredPools"
-              :key="farm.id"
+              v-for="farm in filteredFarms"
+              :key="farm.contractInfo.address"
               :farm="farm"
             />
           </template>
@@ -66,7 +70,7 @@ import EmptyState from "@/components/markets/EmptyState.vue";
 import MarketsFarmItem from "@/components/markets/FarmItem.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
 import Toggle from "@/components/ui/Toggle.vue";
-import ChainsDropDown from "@/components/ui/ChainsDropdown.vue";
+import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import InputSearch from "@/components/ui/inputs/InputSearch.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
 import FarmsInfo from "@/components/farm/FarmsInfo.vue";
@@ -82,6 +86,7 @@ export default {
       aprOrder: null,
       scrollPosition: 0,
       farms: null,
+      selectedChains: [0],
       isFarmsLoading: false,
     };
   },
@@ -100,14 +105,23 @@ export default {
       return this.farms || [];
     },
 
-    filteredPools() {
+    filteredFarms() {
       return this.sortByApr(
-        this.sortByDepreciate(
-          this.filterByOpenedPositions(
-            this.filterBySearch(this.currentPools, this.search)
+        this.filterByChain(
+          this.sortByDepreciate(
+            this.filterByOpenedPositions(
+              this.filterBySearch(this.currentPools, this.search)
+            )
           )
         )
       );
+    },
+
+    activeChains() {
+      return this.farms.reduce((acc, farm) => {
+        if (!acc.includes(farm.chainId)) acc.push(farm.chainId);
+        return acc;
+      }, []);
     },
   },
 
@@ -130,7 +144,7 @@ export default {
         return farms.filter((farm) => {
           if (farm?.cauldronSettings)
             return !farm.cauldronSettings.isDepreciated;
-          return !farm.isDepreciated;
+          return !farm?.isDepreciated;
         });
       } else {
         return farms.sort((a, b) => {
@@ -160,9 +174,7 @@ export default {
 
     filterByOpenedPositions(farms = []) {
       if (this.isMyPositions) {
-        return farms
-          .filter((farm) => farm.accountInfo.balance)
-          .sort((a, b) => a.accountInfo.balance - b.accountInfo.balance);
+        return farms.filter((farm) => Number(farm.accountInfo.balance));
       }
 
       return farms;
@@ -175,6 +187,26 @@ export default {
     changeAprOrder() {
       this.aprOrder =
         this.aprOrder === null ? true : this.aprOrder ? false : null;
+    },
+
+    filterByChain(farms) {
+      if (this.selectedChains.includes(0)) return farms;
+      return farms.filter((farm) => {
+        return this.selectedChains.includes(farm.chainId);
+      });
+    },
+
+    updateSelectedChain(chainId) {
+      if (!chainId) {
+        const value = this.selectedChains.includes(0) ? [] : [0];
+        return (this.selectedChains = value);
+      }
+
+      if (this.selectedChains.includes(0)) this.selectedChains = [];
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
     },
 
     scrollToTop() {
@@ -190,7 +222,6 @@ export default {
     this.isFarmsLoading = true;
     this.farms = await getFarmsList(this.chainId);
     this.isFarmsLoading = false;
-
     this.farmsInterval = setInterval(async () => {
       this.farms = await getFarmsList(this.chainId, this);
     }, 60000);
@@ -206,7 +237,7 @@ export default {
     BaseLoader,
     MarketsFarmItem,
     Toggle,
-    ChainsDropDown,
+    ChainsDropdown,
     InputSearch,
     SortButton,
     FarmsInfo,
@@ -233,7 +264,7 @@ export default {
   cursor: pointer;
 }
 
-.farms {
+.farms-wrap {
   margin: 150px 0 60px 0;
   width: 1280px;
   max-width: 100%;
@@ -269,7 +300,13 @@ export default {
   margin-right: 4px;
 }
 
+.farms {
+  position: relative;
+}
+
 .farms-list-head {
+  position: relative;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -317,5 +354,11 @@ export default {
 .sort-buttons {
   display: flex;
   gap: 20px;
+}
+
+@media screen and (max-width: 1280px) {
+  .farms-list {
+    justify-content: center;
+  }
 }
 </style>

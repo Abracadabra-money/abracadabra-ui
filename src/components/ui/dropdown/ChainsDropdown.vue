@@ -1,48 +1,8 @@
-<script setup lang="ts">
-// import { CAULDRON_CHAINS } from "@/constants";
-// import Toggle from "@/components/ui/Toggle.vue";
-// import { ref, defineProps, Ref, computed, ComputedRef } from "vue";
-import { ref } from "vue";
-// import { getChainIcon, getChainName, getChainColor } from "@/helpers/chains";
-
-// const props = defineProps({
-//   selectedChains: {
-//     type: Array,
-//     default: () => [0],
-//   },
-// });
-
-const showDropdownList: any = ref(false);
-// const emit = defineEmits(["updateSelectedChain"]);
-
-// const chains: any = computed(() => {
-//   if (props.selectedChains.includes(0)) return [];
-//   else return [...props.selectedChains].splice(0, 3) || [];
-// });
-
-// const chainsStyle: ComputedRef<string> = computed(() => {
-//   if (!chains.value.length) return "";
-//   return `width: ${20 + 10 * (chains.value.length - 1)}px`;
-// });
-
-// const updateSelectedChain = (value: number): void => {
-//   emit("updateSelectedChain", value);
-// };
-
-const toogleDropdown = (): void => {
-  showDropdownList.value = !showDropdownList.value;
-};
-
-const closeDropdown = (): void => {
-  showDropdownList.value = false;
-};
-</script>
-
 <template>
   <div class="dropdown" v-click-outside="closeDropdown">
     <button class="dropdown-btn" @click="toogleDropdown">
       Chains
-      <!-- <div
+      <div
         :class="[
           'selected-chains',
           { 'chains-list': selectedChains.length > 3 },
@@ -57,7 +17,7 @@ const closeDropdown = (): void => {
           alt=""
         />
         <div class="count">{{ selectedChains.length - 3 }}+</div>
-      </div> -->
+      </div>
 
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -83,70 +43,111 @@ const closeDropdown = (): void => {
       </svg>
     </button>
 
-    <!-- <div class="dropdown-list" v-if="showDropdownList">
-      <div class="toggle-wrap">
+    <div class="dropdown-list" v-if="showDropdownList">
+      <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
           :selected="selectedChains.includes(0)"
-          @updateToggle="updateSelectedChain"
+          @updateToggle="updateSelectedChain(0)"
         />
       </div>
 
-      <div class="list-item" v-for="chainId in CAULDRON_CHAINS" :key="chainId">
+      <div class="list-item" v-for="chainId in activeChains" :key="chainId">
         <div class="chain-info">
-          <div
-            class="marker"
-            :style="{ background: getChainColor(chainId) }"
-          ></div>
-          <img class="chain-icon" :src="getChainIcon(chainId)" alt="" />
-          <span class="chain-name">{{ getChainName(chainId) }}</span>
+          <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
+          <span class="chain-name">{{ getChainSymbol(+chainId) }}</span>
         </div>
 
         <div
-          :class="['checkbox', { active: selectedChains.includes(chainId) }]"
-          @click="updateSelectedChain(chainId)"
+          :class="['checkbox', { active: selectedChains.includes(+chainId) }]"
+          @click="updateSelectedChain(+chainId)"
         >
-          <img
-            v-show="selectedChains.includes(chainId)"
+          <svg
             class="checked"
-            src="@/assets/images/dropdown_check.png"
-            alt=""
-          />
+            v-show="selectedChains.includes(+chainId)"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <path
+              d="M15.5 5.5L8.83333 12.5L5.5 9"
+              stroke="#7088CC"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </div>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 
+<script>
+import { getChainById } from "@/helpers/chains";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { defineAsyncComponent } from "vue";
+
+export default {
+  props: {
+    activeChains: {
+      type: Array,
+      default: () => [],
+    },
+    selectedChains: {
+      type: Array,
+      default: () => [0],
+    },
+  },
+
+  data() {
+    return {
+      showDropdownList: false,
+    };
+  },
+
+  computed: {
+    chains() {
+      if (this.selectedChains.includes(0)) return [];
+      else return [...this.selectedChains].splice(0, 3) || [];
+    },
+
+    chainsStyle() {
+      if (!this.chains.length) return "";
+      return `width: ${20 + 10 * (this.chains.length - 1)}px`;
+    },
+  },
+
+  methods: {
+    getChainIcon,
+    getChainSymbol(chainId) {
+      const chain = getChainById(chainId);
+      return chain.symbol;
+    },
+
+    toogleDropdown() {
+      if (!this.activeChains.length) return false;
+      this.showDropdownList = !this.showDropdownList;
+    },
+
+    closeDropdown() {
+      this.showDropdownList = false;
+    },
+
+    updateSelectedChain(value) {
+      this.$emit("updateSelectedChain", value);
+    },
+  },
+
+  components: {
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+  },
+};
+</script>
+
 <style lang="scss" scoped>
-$clr-secondary: #99a0b2;
-
-@mixin button {
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-}
-
-@mixin scrollbar {
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
 @include scrollbar;
 
 .dropdown {
@@ -156,11 +157,12 @@ $clr-secondary: #99a0b2;
 .dropdown-btn {
   @include button;
   padding: 6px 10px;
-  color: $clr-secondary;
+  color: #878b93;
   display: flex;
   align-items: center;
   transition: all 0.3s ease-in;
   cursor: pointer;
+  height: 36px;
 }
 
 .dropdown-btn:hover {
@@ -249,18 +251,20 @@ path {
   flex-direction: column;
   gap: 16px;
   width: 200px;
-  height: 200px;
+  height: 220px;
   overflow: hidden;
   overflow-y: scroll;
+  z-index: 1;
 }
 
-.toggle-wrap {
+.select-all {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .list-title {
+  font-size: 16px;
   color: #878b93;
 }
 
@@ -274,13 +278,6 @@ path {
   display: flex;
   gap: 4px;
   align-items: center;
-}
-
-.marker {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  background: #6d50c0;
 }
 
 .chain-icon {
