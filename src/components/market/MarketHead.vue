@@ -6,7 +6,7 @@
           <TokenInfo />
         </div>
 
-        <IconButton wallet link />
+        <IconButton wallet />
         <IconButton link tag-name="a" href="https://etherscan.io/" />
 
         <BaseLink href="google.com" target="_blank" text="DEGENBOX" />
@@ -44,8 +44,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
 .market-head-wrap {
   background: linear-gradient(
     90deg,

@@ -40,7 +40,7 @@ export default {
   width: 30px;
   height: 10px;
   border-radius: 3px;
-  background: rgba(37, 42, 85, 0.5);
+  background: #252a55;
   cursor: pointer;
 }
 
@@ -57,7 +57,7 @@ export default {
 }
 .selected .indicator {
   left: 100%;
-  background: #2881d6;
+  background: #7088cc;
   transform: translateY(-50%) translateX(-100%);
 }
 

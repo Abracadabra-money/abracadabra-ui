@@ -34,6 +34,7 @@ export default {
 
 <style lang="scss" scoped>
 .token-info {
+  @include font;
   display: flex;
   gap: 8px;
   align-items: center;

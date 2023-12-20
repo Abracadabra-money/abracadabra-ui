@@ -1,0 +1,173 @@
+<template>
+  <div class="cauldron-info">
+    <div class="row">
+      <h3 class="title">Cauldron Stats</h3>
+      <div class="apr">
+        <TooltipIcon :width="20" :height="20" fill="#878B93" tooltip="APR" />
+        APR:211.94% - 421.88%
+      </div>
+    </div>
+
+    <div class="cauldron-fees">
+      <h3 class="fees-title">Cauldron Fees</h3>
+
+      <div class="fees-row">
+        <div class="fees-title">
+          <PercentIcon />
+          Borrow fee
+          <TooltipIcon
+            :width="20"
+            :height="20"
+            fill="#878B93"
+            tooltip="Borrow fee"
+          />
+        </div>
+        <div class="fees-percent">4%</div>
+      </div>
+      <div class="fees-row">
+        <div class="fees-title">
+          <PercentIcon />
+          Interest fee
+          <TooltipIcon
+            :width="20"
+            :height="20"
+            fill="#878B93"
+            tooltip="Interest fee"
+          />
+        </div>
+        <div class="fees-percent">4%</div>
+      </div>
+      <div class="fees-row">
+        <div class="fees-title">
+          <PercentIcon />
+          Liquidation fee
+          <TooltipIcon
+            :width="20"
+            :height="20"
+            fill="#878B93"
+            tooltip="Liquidation fee"
+          />
+        </div>
+        <div class="fees-percent">4%</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <MimLTBGaugeChart :chartData="chartData" />
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
+
+export default {
+  computed: {
+    chartData() {
+      return {
+        max: 200,
+        data: [{ value: 135.54 }],
+      };
+    },
+  },
+
+  components: {
+    TooltipIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    PercentIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/PercentIcon.vue")
+    ),
+    MimLTBGaugeChart: defineAsyncComponent(
+      () => import("@/components/charts/MimLTBGaugeChart.vue")
+    ),
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.cauldron-info {
+  display: flex;
+  padding: 24px;
+  flex-direction: column;
+  gap: 24px;
+  border-radius: 16px;
+  align-self: stretch;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.apr {
+  display: flex;
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 150%;
+}
+
+.cauldron-fees {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fees-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.fees-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fees-title {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: #878b93;
+  line-height: 150%;
+}
+
+.fees-percent {
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.chart-wrap {
+  height: 240px;
+  width: 100%;
+}
+</style>
