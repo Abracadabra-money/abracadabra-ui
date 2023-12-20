@@ -3,6 +3,7 @@
     <span class="inner-wrap">
       <WalletIcon v-if="wallet" />
       <LinkIcon v-else-if="link" />
+      <SetingIcon v-else-if="seting" />
     </span>
   </component>
 </template>
@@ -17,6 +18,10 @@ export default {
       default: false,
     },
     link: {
+      type: Boolean,
+      default: false,
+    },
+    seting: {
       type: Boolean,
       default: false,
     },
@@ -40,6 +45,9 @@ export default {
     ),
     LinkIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/LinkIcon.vue")
+    ),
+    SetingIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/SetingIcon.vue")
     ),
   },
 };

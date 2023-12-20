@@ -40,7 +40,9 @@
     <div class="borrow-block">
       <div>
         <div class="row">
-          <h3 class="title">Borrow MIM</h3>
+          <h3 class="title">
+            {{ borrowBlockTitle }} <IconButton seting v-if="useLeverage" />
+          </h3>
 
           <Toggle
             :selected="useLeverage"
@@ -49,21 +51,57 @@
           />
         </div>
 
-        <h4 class="subtitle">
-          Select the amount of MIM to borrow from the Cauldron
-        </h4>
+        <h4 class="subtitle">{{ borrowBlockSubtitle }}</h4>
       </div>
 
-      <div
-        style="
-          height: 79px;
-          border-radius: 16px;
-          border: 1px solid rgba(73, 70, 97, 0.4);
-          background: rgba(8, 14, 31, 0.6);
-        "
-      ></div>
+      <template v-if="!useLeverage">
+        <div
+          style="
+            height: 79px;
+            border-radius: 16px;
+            border: 1px solid rgba(73, 70, 97, 0.4);
+            background: rgba(8, 14, 31, 0.6);
+          "
+        ></div>
+        <LtvRange
+          :value="multiplier"
+          :max="10"
+          :min="0"
+          :step="0.1"
+          :risk="'medium'"
+          :collateralValue="5"
+          :disabled="false"
+          tooltipText="Allows users to leverage their position. Read more about this in the documents!"
+          @updateValue="updateMultiplier"
+        />
+      </template>
 
-      <div style="height: 80px"></div>
+      <template v-else>
+        <LeverageRange
+          :value="multiplier"
+          :max="10.999999"
+          :min="0"
+          :step="0.1"
+          :risk="'medium'"
+          :collateralValue="1"
+          :disabled="false"
+          tooltipText="Allows users to leverage their position. Read more about this in the documents!"
+          @updateValue="updateMultiplier"
+        />
+
+        <div class="dynamic-fee">
+          <div class="dynamic-fee-title">
+            Dynamic Opening Fee
+            <TooltipIcon
+              :width="20"
+              :height="20"
+              fill="#878B93"
+              tooltip="Dynamic Opening Fee"
+            />
+          </div>
+          <div class="dynamic-fee-value">$8.88 / 0.13%</div>
+        </div>
+      </template>
 
       <div
         style="
@@ -84,10 +122,27 @@ export default {
     return {
       useOtherToken: true,
       useLeverage: false,
+      multiplier: 0,
     };
   },
 
+  computed: {
+    borrowBlockTitle() {
+      if (this.useLeverage) return "Leverage Up";
+      return "Borrow MIM";
+    },
+
+    borrowBlockSubtitle() {
+      if (this.useLeverage) return "Select leverage ‘’x’’";
+      return "Select the amount of MIM to borrow from the Cauldron";
+    },
+  },
+
   methods: {
+    updateMultiplier(value: any) {
+      this.multiplier = value;
+    },
+
     updateActiveToken() {
       this.useOtherToken = !this.useOtherToken;
     },
@@ -95,14 +150,22 @@ export default {
     updateActionType() {
       this.useLeverage = !this.useLeverage;
     },
-
-    updateMultiplier(value: any) {
-      console.log("1111", value);
-    },
   },
 
   components: {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    LtvRange: defineAsyncComponent(
+      () => import("@/components/ui/range/LtvRange.vue")
+    ),
+    LeverageRange: defineAsyncComponent(
+      () => import("@/components/ui/range/LeverageRange.vue")
+    ),
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+    TooltipIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
   },
 };
 </script>
@@ -134,6 +197,10 @@ export default {
   gap: 16px;
 }
 
+.borrow-block {
+  height: 350px;
+}
+
 .row {
   display: flex;
   align-items: center;
@@ -144,8 +211,7 @@ export default {
   font-size: 18px;
   font-style: normal;
   font-weight: 500;
-  line-height: normal;
-  letter-spacing: 0.45px;
+  line-height: 150%;
 }
 
 .subtitle {
@@ -153,5 +219,36 @@ export default {
   font-size: 12px;
   font-weight: 400;
   line-height: 20px;
+}
+
+.dynamic-fee {
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dynamic-fee-title {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dynamic-fee-value {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
+  text-transform: uppercase;
 }
 </style>
