@@ -4,11 +4,15 @@
 
     <ArrowRightIcon />
 
-    <img
-      class="token-icon"
-      src="@/assets/images/tokens/AETH.png"
-      alt="Token icon"
-    />
+    <div class="icons-wrap">
+      <img
+        class="token-icon"
+        src="@/assets/images/tokens/AETH.png"
+        alt="Token icon"
+      />
+
+      <img class="chain-icon" :src="getChainIcon(42161)" alt="" />
+    </div>
 
     <div>
       <div class="token-name">MagicGLP</div>
@@ -19,8 +23,11 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
+  methods: { getChainIcon },
+
   components: {
     CauldronIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/CauldronIcon.vue")
@@ -40,10 +47,26 @@ export default {
   align-items: center;
 }
 
-.token-icon {
+.icons-wrap {
+  position: relative;
   width: 50px;
   height: 50px;
   margin-right: 6px;
+}
+
+.token-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.chain-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  border: 1px solid #0d1427;
 }
 
 .token-name {

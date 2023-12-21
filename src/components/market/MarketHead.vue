@@ -14,7 +14,6 @@
       </div>
 
       <div class="column">
-        <InfoButton title="Chain" value="ARB" />
         <InfoButton title="TMB" value="8.88m" />
         <InfoButton title="TVL" value="8.88m" />
       </div>
