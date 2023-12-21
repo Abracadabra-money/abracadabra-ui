@@ -3,9 +3,10 @@
     <div class="ltv-range-wrap">
       <div class="base-track">
         <div class="progress-track" :style="{ background: gradientRangeTrack }">
-          <div class="progress-value" :style="progressValuePosition">
+          <span class="progress-value" :style="progressValuePosition">
             {{ progressPercent }}
-          </div>
+          </span>
+          <span class="progress-percent-max" v-show="showMrcPercent">80%</span>
           <input
             :class="['range', risk]"
             :style="updateTrackPosition"
@@ -17,15 +18,15 @@
             :disabled="disabled"
             @input="updateRange"
           />
-          <span class="progress-percent-max">80%</span>
+          <span class="tooltipLtv" :style="progressValuePosition"
+            >LTV <TooltipIcon :width="13" :height="13" tooltip="LTV"
+          /></span>
+
+          <span class="tooltipMcr" v-show="showMrcPercent"
+            >MRC
+            <TooltipIcon :width="13" :height="13" fill="#878B93" tooltip="MRC"
+          /></span>
         </div>
-        <span class="tooltipLtv"
-          >LTV <TooltipIcon :width="13" :height="13" tooltip="LTV"
-        /></span>
-        <span class="tooltipMcr"
-          >MRC
-          <TooltipIcon :width="13" :height="13" fill="#878B93" tooltip="MRC"
-        /></span>
       </div>
     </div>
   </div>
@@ -83,7 +84,6 @@ export default {
       const max = this.max ? this.max : 1;
 
       if (this.min > 0) {
-        // todo
         if (this.inputValue === 1) return 0;
         if (this.inputValue === max) return 100;
         return Math.floor(
@@ -99,6 +99,10 @@ export default {
         "--track-position",
         this.gradientPercent + "%"
       );
+    },
+
+    showMrcPercent() {
+      return +this.gradientPercent <= 85 ? true : false;
     },
   },
 
@@ -116,8 +120,6 @@ export default {
     },
   },
 
-  mounted() {},
-
   components: {
     TooltipIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
@@ -126,7 +128,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 :root {
   --track-position: 100%;
 }
@@ -164,14 +166,24 @@ export default {
   position: relative;
 }
 
-.progress-value {
+.progress-value,
+.tooltipLtv {
   width: 20px;
   text-align: center;
   position: absolute;
-  top: -130%;
+  top: -150%;
   transform: translateX(-50%);
   font-size: 14px;
   line-height: 150%;
+}
+
+.tooltipLtv {
+  width: 40px;
+  display: flex;
+  top: auto;
+  gap: 4px;
+  align-items: center;
+  bottom: -150%;
 }
 
 .range::-webkit-slider-thumb {
@@ -211,24 +223,27 @@ export default {
 }
 
 .progress-percent-max {
+  width: 30px;
   position: absolute;
+  top: -150%;
   right: 0;
-  transform: translateX(130%);
+  transform: translateX(65%);
   color: #878b93;
   font-size: 14px;
-  line-height: 16px;
+  line-height: 150%;
 }
 
-.tooltipLtv,
 .tooltipMcr {
   position: absolute;
-  right: 50%;
-  bottom: 0;
-  transform: translate(50%, 120%);
+  right: 0;
+  transform: translateX(165%);
+  width: 55px;
   display: flex;
-  gap: 2px;
+  top: auto;
+  gap: 4px;
   align-items: center;
-  font-size: 12px;
+  bottom: -150%;
+  font-size: 14px;
   line-height: 150%;
 }
 

@@ -1,24 +1,26 @@
 <template>
-  <div class="leverage-range">
-    <div class="range-track" :style="{ background: gradientRangeTrack }">
-      <div class="leverage-x" :style="`right: ${95 - gradientPercent}%`">
-        {{ gradientPercent }}X
-      </div>
+  <div class="leverage-range-wrap">
+    <div class="progress-track" :style="{ background: gradientRangeTrack }">
+      <span class="progress-value" :style="progressValuePosition">
+        {{ leverageStep }}
+      </span>
 
       <input
+        :class="['range']"
+        :style="updateTrackPosition"
         type="range"
-        v-model="range"
+        v-model="inputValue"
         :min="min"
         :max="max"
         :step="step"
-        :class="risk"
         :disabled="disabled"
+        @input="updateRange"
       />
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" scoped>
 export default {
   props: {
     value: { type: [Number, String], default: 0 },
@@ -32,6 +34,7 @@ export default {
 
   data(): any {
     return {
+      inputValue: +this.collateralValue,
       colors: {
         safe: { start: "#356D37", end: "#67A069" },
         medium: { start: "#A78300", end: "#FED84F" },
@@ -40,7 +43,16 @@ export default {
       },
     };
   },
+
   computed: {
+    progressValuePosition() {
+      return `left: ${this.gradientPercent}%`;
+    },
+
+    leverageStep() {
+      return `${Math.round((80 / 100) * this.gradientPercent)}X`;
+    },
+
     gradientRangeTrack() {
       const risk = this.collateralValue ? this.risk : "default";
 
@@ -55,55 +67,80 @@ export default {
     },
 
     gradientPercent() {
-      let max = 1;
-      if (this.max) max = this.max;
+      const max = this.max ? this.max : 1;
 
       if (this.min > 0) {
-        if (+this.range === 1) return 0;
-        if (+this.range === max) return 100;
-        return Math.floor((100 / (max - this.min)) * (+this.range - this.min));
+        if (this.inputValue === 1) return 0;
+        if (this.inputValue === max) return 100;
+        return Math.floor(
+          (100 / (max - this.min)) * (this.inputValue - this.min)
+        );
       }
 
-      return Math.floor(100 * Math.abs(+this.range / max));
+      return Math.floor(100 * Math.abs(this.inputValue / max));
     },
 
-    range: {
-      get() {
-        return this.value;
-      },
-      set(value: string) {
-        const arr = String(this.max).split("");
-        const index = arr.indexOf(".");
-        const max = arr.slice(0, index + 5).join("");
+    updateTrackPosition() {
+      return document.documentElement.style.setProperty(
+        "--track-position",
+        this.gradientPercent + "%"
+      );
+    },
+  },
 
-        if (max === value) this.$emit("updateValue", this.max);
-        else this.$emit("updateValue", value);
-      },
+  methods: {
+    updateRange(event: any) {
+      const value = event.target.value;
+      this.inputValue = +value;
+
+      const arr = String(this.max).split("");
+      const index = arr.indexOf(".");
+      const max = arr.slice(0, index + 5).join("");
+
+      if (max === value) this.$emit("updateValue", this.max);
+      else this.$emit("updateValue", value);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+:root {
+  --track-position: 100%;
+}
+
 @include range;
 
-.leverage-range {
+.leverage-range-wrap {
   height: 62px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
 }
 
-.range-track {
+.progress-track {
   display: flex;
   border-radius: 12px;
   height: 16px;
   position: relative;
 }
 
-.leverage-x {
-  top: -100%;
+.progress-value {
+  width: 20px;
+  text-align: center;
   position: absolute;
-  transform: translateY(-50%);
+  top: -150%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  line-height: 150%;
+}
+
+.range::-webkit-slider-thumb {
+  position: absolute;
+  left: var(--track-position);
+  width: 22px;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 </style>
