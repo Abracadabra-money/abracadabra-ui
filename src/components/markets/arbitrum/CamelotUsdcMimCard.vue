@@ -2,14 +2,14 @@
   <div class="camelot-card-background">
     <a
       class="camelot-card"
-      href="https://app.camelot.exchange/liquidity/?token1=0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A&token2=0x912CE59144191C1204E64559FE8253a0e49E6548&mode=auto&provider=gamma"
+      href="https://app.camelot.exchange/liquidity/?type=v3&token1=0xaf88d065e77c8cc2239327c5edb3a432268e5831&token2=0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a"
       target="_blank"
       rel="noreferrer noopener"
     >
       <p class="primary paragraph">
-        <span class="card-title">NEW V3 POOL</span>
+        <span class="card-title">Stable V3 Pool</span>
         <span class="on-camelot">ON CAMELOT</span>
-        <span class="token-pair">ARB / MIM</span>
+        <span class="token-pair">USDC / MIM</span>
       </p>
       <ul class="secondary paragraph" v-if="tvl && aprRange">
         <li>
@@ -44,35 +44,23 @@ export default {
 
   methods: {
     async fetchData() {
-      const nitroRes = await axios.get(`https://api.camelot.exchange/nitros/`);
-      const rangeRes = await axios.get(
-        `https://api.camelot.exchange/nft-pools/`
+      const camelotPool = "0x0e7AC13617Cc1A289B222E4602BdAaA53ea4dc61";
+      const arbChainId = 42161;
+
+      const poolsInfo = await axios.get(
+        "https://api.angle.money/v2/merkl?chainIds[]=42161"
       );
-      const strategyRes = await axios.get(
-        `https://wire2.gamma.xyz/camelot/arbitrum/hypervisors/allData`
+      const liquidityV3Data = await axios.get(
+        "https://api.camelot.exchange/v2/liquidity-v3-data"
       );
 
-      const nitroApr =
-        nitroRes.data.data.nitros["0x4B081b3600B3B1bcE242cDc291f85e475532B0B4"]
-          .incentivesApr;
+      const { tvl, meanAPR } = poolsInfo.data[arbChainId].pools[camelotPool];
 
-      const strategyApr =
-        strategyRes.data["0x1164191754f726edb85466f84ae5f14f43c111a9"].returns
-          .daily.feeApr * 100;
+      const { activeTvlAverageAPR } =
+        liquidityV3Data.data.data.pools[camelotPool];
 
-      const { minIncentivesApr, maxIncentivesApr, tvlUSD } =
-        rangeRes.data.data.nftPools[
-          "0xDe6f99A9e63a8528fF43C3c1f13A07F541f761e5"
-        ];
-
-      const minApr = minIncentivesApr + nitroApr + strategyApr;
-      const maxApr = maxIncentivesApr + nitroApr + strategyApr;
-
-      this.aprRange = `${filters.formatPercent(
-        minApr
-      )} - ${filters.formatPercent(maxApr)}`;
-
-      this.tvl = tvlUSD;
+      this.tvl = tvl;
+      this.aprRange = filters.formatPercent(meanAPR + activeTvlAverageAPR);
     },
   },
 
@@ -96,7 +84,7 @@ export default {
   padding: 20px 20px 11px 20px;
   height: 201px;
   width: 302px;
-  background-image: url("@/assets/images/camelot/background_camelot.png");
+  background-image: url("@/assets/images/camelot/background-usdc-mim.png");
   border-radius: 16px;
   border: 1px solid #2d4a96;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
@@ -122,7 +110,7 @@ export default {
 }
 
 .card-title {
-  font-size: 26px;
+  font-size: 24px;
 }
 
 .on-camelot {
