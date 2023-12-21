@@ -14,15 +14,12 @@
 
       <div class="item-header">
         <div class="token-info">
-          <BaseTokenIcon
-            class="token-icon"
-            siza="38px"
-            :name="farm.name"
-            :icon="farm.icon"
-          />
+          <div class="token-info-icon">
+            <BaseTokenIcon :icon="farm.icon" :name="farm.name" size="32px" />
+            <img class="token-chain" :src="getChainIcon(farm.chainId)" />
+          </div>
           <span class="token-name">{{ farm.name }}</span>
         </div>
-        <ChainTag :chainId="farm.chainId" />
       </div>
 
       <div class="item-info">
@@ -52,6 +49,7 @@ import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import ChainTag from "@/components/ui/ChainTag.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
   props: {
@@ -104,8 +102,13 @@ export default {
     },
 
     isOpenedPosition() {
-      return !!Number(this.farm.accountInfo.balance);
+      console.log(this.farm);
+      return !!Number(this.farm.accountInfo?.depositedBalance);
     },
+  },
+
+  methods: {
+    getChainIcon,
   },
 
   components: {
@@ -159,6 +162,18 @@ export default {
 .token-info {
   display: flex;
   align-items: start;
+}
+
+.token-info-icon {
+  position: relative;
+}
+
+.token-chain {
+  position: absolute;
+  top: -4px;
+  right: 4px;
+  width: 15px;
+  height: 15px;
 }
 
 .token-name {

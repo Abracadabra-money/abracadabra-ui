@@ -65,6 +65,7 @@ import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
 import { parseUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/farm/actions";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   props: {
@@ -97,7 +98,6 @@ export default {
 
     isUserPositionOpen() {
       if (!this.selectedFarm || !this.account) return false;
-
       const isOpenMultiReward = this.selectedFarm.isMultiReward
         ? +this.selectedFarm.accountInfo.depositedBalance > 0 ||
           this.selectedFarm.accountInfo.rewardTokensInfo.filter(
@@ -135,6 +135,13 @@ export default {
     },
 
     max() {
+      if (this.selectedFarm?.isMultiReward) {
+        return !this.isUnstake
+          ? BigInt(Number(this.selectedFarm?.accountInfo?.balance) * 1e18)
+          : BigInt(
+              Number(this.selectedFarm?.accountInfo?.depositedBalance) * 1e18
+            );
+      }
       return !this.isUnstake
         ? this.selectedFarm?.accountInfo?.balance
         : this.selectedFarm?.accountInfo?.depositedBalanceBigInt;
@@ -151,6 +158,7 @@ export default {
     },
 
     buttonText() {
+      if (!this.isProperNetwork) return "Switch network";
       if (this.isActionProcessing) return "Processing...";
       const text = this.isUnstake ? "Unstake" : "Stake";
       return !this.isAllowed && !this.isUnstake ? "Approve" : text;
@@ -163,7 +171,14 @@ export default {
     },
 
     isButtonDisabled() {
-      return !this.isValid || !!this.error || this.isActionProcessing;
+      return (
+        (!this.isValid || !!this.error || this.isActionProcessing) &&
+        this.isProperNetwork
+      );
+    },
+
+    isProperNetwork() {
+      return this.chainId == this.farmChainId;
     },
   },
 
@@ -194,9 +209,9 @@ export default {
   },
 
   methods: {
-    changeActiveMarket(marketId) {
-      if (+marketId !== +this.id)
-        this.$router.push({ name: "Farm", params: { id: marketId } });
+    changeActiveMarket({ id, chainId }) {
+      if (+id != +this.id || +chainId != +this.chainId)
+        this.$router.push({ path: `/farm/${id}/${chainId}` });
 
       this.isFarmsPopupOpened = false;
     },
@@ -207,6 +222,7 @@ export default {
 
     async actionHandler() {
       if (this.isButtonDisabled) return false;
+      if (!this.isProperNetwork) return switchNetwork(this.farmChainId);
 
       this.isActionProcessing = true;
 

@@ -55,12 +55,15 @@ export default {
 }
 
 .popup {
-  padding: 10px 10px 16px;
-  background: #302e38;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
-  border-radius: 30px;
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
   position: relative;
-
+  width: 533px;
+  height: 574px;
   max-width: 95vw;
 
   .popup-content {

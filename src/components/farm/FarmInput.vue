@@ -41,6 +41,7 @@
 <script>
 import { defineAsyncComponent } from "vue";
 import filters from "@/filters/index";
+import { utils } from "ethers";
 
 export default {
   props: {
@@ -76,7 +77,7 @@ export default {
   computed: {
     formattedMax() {
       this.currentValue = null;
-      return Number(this.max) / 1e18;
+      return utils.formatUnits(this.max || 0, 18);
     },
 
     usdEquivalent() {
@@ -85,12 +86,12 @@ export default {
   },
 
   watch: {
-    value(newValue) {
-      this.currentValue = Number(newValue) / 1e18 || null;
-    },
-
     currentValue(value, oldValue) {
-      this.$emit("updateValue", BigInt(value * 1e18));
+      if (isNaN(value)) {
+        this.currentValue = oldValue;
+        return false;
+      }
+      this.$emit("updateValue", BigInt(Number(value) * 1e18));
     },
   },
 

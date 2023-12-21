@@ -27,7 +27,7 @@
 export default {
   methods: {
     changeSearch(event: any) {
-      this.$emit("changeSearch", event.target.value);
+      this.$emit("changeSearch", event.target.value || "");
     },
   },
 };

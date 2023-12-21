@@ -16,7 +16,7 @@
       </div>
 
       <div v-else class="farms">
-        <FarmsInfo :farms="filteredFarms" />
+        <FarmsInfo :farms="this.farms" />
         <div class="farms-list-head">
           <div class="togglers">
             <Toggle
@@ -52,7 +52,7 @@
           <template v-if="filteredFarms.length">
             <MarketsFarmItem
               v-for="farm in filteredFarms"
-              :key="farm.contractInfo.address"
+              :key="`${farm.id}-${farm.chainId}`"
               :farm="farm"
             />
           </template>
@@ -142,8 +142,6 @@ export default {
     sortByDepreciate(farms = []) {
       if (this.isActiveMarkets) {
         return farms.filter((farm) => {
-          if (farm?.cauldronSettings)
-            return !farm.cauldronSettings.isDepreciated;
           return !farm?.isDepreciated;
         });
       } else {
@@ -250,7 +248,7 @@ export default {
   display: flex;
   justify-content: center;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   background: url("../../assets/images/farm/farm-page-background.png");
   background-repeat: no-repeat;
   background-size: cover;
@@ -306,7 +304,7 @@ export default {
 
 .farms-list-head {
   position: relative;
-  z-index: 1000;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -14,7 +14,7 @@
       </p>
     </div>
 
-    <div class="reward-cards">
+    <div class="reward-cards" v-if="account">
       <div class="reward-card spell">
         <h4 class="reward-title">Total Spell Rewards</h4>
         <div class="reward-values">
@@ -50,6 +50,7 @@
 
 <script>
 import filters from "@/filters/index";
+import { mapGetters } from "vuex";
 
 export default {
   props: {
@@ -68,6 +69,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ account: "getAccount" }),
+
     formattedSpell() {
       return {
         amount: filters.formatTokenBalance(this.spell.toString()),
@@ -85,6 +88,7 @@ export default {
 
   methods: {
     calculateRewards() {
+      if (!this.account) return false;
       let spell = 0;
       let arbitrum = 0;
       this.farms.forEach((farm) => {
