@@ -29,6 +29,7 @@
               text="My farms"
               :selected="isMyPositions"
               @updateToggle="toggleMyPositions"
+              v-if="signer"
             />
           </div>
 
@@ -171,7 +172,9 @@ export default {
 
     filterByOpenedPositions(farms = []) {
       if (this.isMyPositions) {
-        return farms.filter((farm) => Number(farm.accountInfo.balance));
+        return farms.filter((farm) =>
+          Number(farm.accountInfo.depositedBalance)
+        );
       }
 
       return farms;
@@ -360,6 +363,10 @@ export default {
 }
 
 @media screen and (max-width: 1280px) {
+  .farms-wrap {
+    max-width: 90%;
+  }
+
   .farms-list {
     justify-content: center;
   }

@@ -15,7 +15,7 @@
       <div class="item-header">
         <div class="token-info">
           <div class="token-info-icon">
-            <BaseTokenIcon :icon="farm.icon" :name="farm.name" size="32px" />
+            <BaseTokenIcon :icon="farm.icon" :name="farm.name" size="44px" />
             <img class="token-chain" :src="getChainIcon(farm.chainId)" />
           </div>
           <span class="token-name">{{ farm.name }}</span>
@@ -160,7 +160,7 @@ export default {
 
 .token-info {
   display: flex;
-  align-items: start;
+  align-items: center;
 }
 
 .token-info-icon {
