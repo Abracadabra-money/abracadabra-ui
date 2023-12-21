@@ -98,7 +98,9 @@ export const getUserPositions = async (
         position.borrowValue,
         position.collateral.amount.add(collaterallInOrders[idx].amount),
         //@ts-ignore
-        configs[idx].mcr
+        configs[idx].mcr,
+        //@ts-ignore
+        configs[idx].collateralInfo.decimals
       ),
       oracleRate: oracleExchangeRate[idx],
     };
@@ -108,10 +110,11 @@ export const getUserPositions = async (
 const getLiquidationPrice = (
   borrowPart: BigNumber,
   collateralAmount: BigNumber,
-  mcr: number
+  mcr: number,
+  collateralDecimals: number
 ): number => {
   const borrowPartParsed = utils.formatUnits(borrowPart);
-  const collateralAmountParsed = utils.formatUnits(collateralAmount);
+  const collateralAmountParsed = utils.formatUnits(collateralAmount, collateralDecimals);
   return (
     Number(borrowPartParsed) / Number(collateralAmountParsed) / (mcr / 100)
   );

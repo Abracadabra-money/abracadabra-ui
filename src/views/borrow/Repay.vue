@@ -154,7 +154,7 @@ export default {
     parseCollateralAmount() {
       const { decimals } = this.activeToken;
       return utils.parseUnits(
-        filters.formatToFixed(+this.collateralValue || 0, decimals),
+        filters.formatToFixed(this.collateralValue || 0, decimals),
         decimals
       );
     },
@@ -182,11 +182,13 @@ export default {
     },
 
     isMaxBorrow() {
-      const { userBorrowAmount, userCollateralAmount } = this.positionInfo;
+      const { userPosition } = this.cauldron;
+      const { userBorrowAmount } = userPosition.borrowInfo;
+      const { userCollateralAmount } = userPosition.collateralInfo;
 
       return (
-        +this.borrowValue === +userBorrowAmount &&
-        +this.collateralValue === +userCollateralAmount
+        userBorrowAmount.lte(this.parseBorrowAmount) &&
+        userCollateralAmount.lte(this.parseCollateralAmount)
       );
     },
 
@@ -458,14 +460,17 @@ export default {
     },
 
     async repayHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
       const { updatePrice } = this.cauldron.mainParams;
-      const { userBorrowAmount } = this.positionInfo;
+      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      const itsMax = userBorrowAmount.eq(this.parseBorrowAmount);
+      const amount = itsMax ? userBorrowAmount : this.parseBorrowAmount;
 
       const payload = {
-        amount: this.parseBorrowAmount,
+        amount,
+        itsMax,
         updatePrice,
-        itsMax: +this.borrowValue === +userBorrowAmount,
       };
 
       const isTokenToCookApprove = await this.checkAllowance(payload.amount);
@@ -478,17 +483,18 @@ export default {
     },
 
     async removeCollateralHandler() {
-      const { bentoBox } = this.cauldron.contracts;
       const { address } = this.activeToken;
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
+      const { bentoBox } = this.cauldron.contracts;
       const { updatePrice } = this.cauldron.mainParams;
+      const { userPosition, additionalInfo } = this.cauldron;
+      const { isMasterContractApproved } = additionalInfo;
+      const { userCollateralAmount } = userPosition.collateralInfo;
+
+      const itsMax = userCollateralAmount.lte(this.parseCollateralAmount);
+      const amount = itsMax ? userCollateralAmount : this.parseCollateralAmount;
 
       const payload = {
-        amount: await bentoBox.toShare(
-          address,
-          this.parseCollateralAmount,
-          true
-        ),
+        amount: await bentoBox.toShare(address, amount, true),
         updatePrice,
       };
 

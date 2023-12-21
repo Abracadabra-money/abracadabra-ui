@@ -26,15 +26,15 @@ import {
 
 export const chains = [
   mainnetConfig,
-  optimismConfig,
-  binanceConfig,
-  polygonConfig,
-  fantomConfig,
-  moonriverConfig,
-  kavaConfig,
-  baseConfig,
   arbitrumConfig,
+  kavaConfig,
+  fantomConfig,
   avalancheConfig,
+  binanceConfig,
+  optimismConfig,
+  polygonConfig,
+  moonriverConfig,
+  baseConfig,
   lineaConfig,
 ];
 

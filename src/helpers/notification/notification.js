@@ -101,4 +101,8 @@ export default {
     discription: "Looks like you already have existing order",
     type: "warning",
   },
+  connectEnvError: {
+    discription: "You need to provide projectId env",
+    type: "warning",
+  },
 };

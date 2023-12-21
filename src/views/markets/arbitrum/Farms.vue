@@ -11,6 +11,7 @@
           <FarmCard v-for="farm in filteredPools" :key="farm.id" :farm="farm" />
           <CamelotCard />
           <EmpowerCard />
+          <CamelotUsdcMimCard />
         </template>
         <EmptyState v-else />
       </div>
@@ -25,6 +26,7 @@ import EmptyState from "@/components/markets/EmptyState.vue";
 import FarmCard from "@/components/markets/arbitrum/FarmCard.vue";
 import EmpowerCard from "@/components/markets/arbitrum/EmpowerCard.vue";
 import CamelotCard from "@/components/markets/arbitrum/CamelotCard.vue";
+import CamelotUsdcMimCard from "@/components/markets/arbitrum/CamelotUsdcMimCard.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
 const sortKeys = {
@@ -84,7 +86,7 @@ export default {
       const multiRewardFarm = this.currentPools.find(
         (farm) => farm.isMultiReward
       );
-      
+
       return [multiRewardFarm];
       // return this.sortByDepreciate(
       //   this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
@@ -213,6 +215,7 @@ export default {
     FarmCard,
     EmpowerCard,
     CamelotCard,
+    CamelotUsdcMimCard,
   },
 };
 </script>
