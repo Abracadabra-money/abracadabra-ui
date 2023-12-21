@@ -12,7 +12,7 @@
         v-else-if="!currentPools.length && isFarmsLoading"
         class="loader-wrap"
       >
-        <BaseLoader />
+        <img class="loader-gif" src="@/assets/gifs/MIM_loader.gif" />
       </div>
 
       <div v-else class="farms">
@@ -65,7 +65,6 @@
 
 <script>
 import { mapGetters } from "vuex";
-import BaseLoader from "@/components/base/BaseLoader.vue";
 import EmptyState from "@/components/markets/EmptyState.vue";
 import MarketsFarmItem from "@/components/markets/FarmItem.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
@@ -232,7 +231,6 @@ export default {
   },
   components: {
     EmptyState,
-    BaseLoader,
     MarketsFarmItem,
     Toggle,
     ChainsDropdown,
@@ -330,8 +328,15 @@ export default {
 
 .loader-wrap {
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.loader-gif {
+  width: 40%;
+  height: 50%;
 }
 
 .active-markets {

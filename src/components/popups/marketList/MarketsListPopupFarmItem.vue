@@ -96,7 +96,7 @@ export default {
     },
 
     isOpenedPosition() {
-      return !!Number(this.marketItem.accountInfo.depositedBalance);
+      return !!Number(this.marketItem.accountInfo?.depositedBalance);
     },
   },
 

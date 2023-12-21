@@ -102,7 +102,6 @@ export default {
     },
 
     isOpenedPosition() {
-      console.log(this.farm);
       return !!Number(this.farm.accountInfo?.depositedBalance);
     },
   },
