@@ -76,7 +76,6 @@ export default {
 
   computed: {
     formattedMax() {
-      this.currentValue = null;
       return utils.formatUnits(this.max || 0, 18);
     },
 
@@ -92,6 +91,10 @@ export default {
         return false;
       }
       this.$emit("updateValue", BigInt(Number(value) * 1e18));
+    },
+
+    max() {
+      this.currentValue = null;
     },
   },
 
