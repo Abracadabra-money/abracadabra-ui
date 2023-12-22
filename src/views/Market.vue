@@ -8,10 +8,10 @@
 
       <div class="market-info">
         <div class="actions-wrap">
-          <Tabs :name="selectedTab" :items="tabItems" @select="selectTab" />
+          <Tabs :name="activeTab" :items="tabItems" @select="selectTab" />
 
           <BorrowBlock
-            v-if="selectedTab === 'borrow'"
+            v-if="activeTab === 'borrow'"
             :cauldron="cauldron"
             :useUnwrapToken="useUnwrapToken"
             @updateCollateralValues="updateCollateralValues"
@@ -46,7 +46,7 @@
               :cauldron="cauldron"
               :expectedCollateralDeposit="expectedCollateralDeposit"
             />
-            <CauldronInfo />
+            <CauldronInfo :cauldron="cauldron" />
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export default {
         unwrapAmount: BigNumber.from(0),
       },
       useUnwrapToken: false,
-      selectedTab: "borrow",
+      activeTab: "borrow",
       tabItems: ["borrow", "repay"],
     };
   },
@@ -115,7 +115,7 @@ export default {
     },
 
     selectTab(action: string) {
-      this.selectedTab = action;
+      this.activeTab = action;
     },
 
     async createCauldronInfo() {

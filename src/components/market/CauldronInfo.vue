@@ -22,7 +22,7 @@
             tooltip="Borrow fee"
           />
         </div>
-        <div class="fees-percent">4%</div>
+        <div class="fees-percent">{{ cauldron.mainParams.borrowFee }}%</div>
       </div>
       <div class="fees-row">
         <div class="fees-title">
@@ -35,7 +35,7 @@
             tooltip="Interest fee"
           />
         </div>
-        <div class="fees-percent">4%</div>
+        <div class="fees-percent">{{ cauldron.mainParams.interest }}%</div>
       </div>
       <div class="fees-row">
         <div class="fees-title">
@@ -48,7 +48,22 @@
             tooltip="Liquidation fee"
           />
         </div>
-        <div class="fees-percent">4%</div>
+        <div class="fees-percent">
+          {{ cauldron.mainParams.liquidationFee }}%
+        </div>
+      </div>
+      <div class="fees-row">
+        <div class="fees-title">
+          <PercentIcon />
+          MCR
+          <TooltipIcon
+            :width="20"
+            :height="20"
+            fill="#878B93"
+            tooltip="Liquidation fee"
+          />
+        </div>
+        <div class="fees-percent">{{ cauldron.config.mcr }}%</div>
       </div>
     </div>
 
@@ -62,6 +77,12 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  props: {
+    cauldron: {
+      type: Object as any,
+    },
+  },
+
   computed: {
     chartData() {
       return {

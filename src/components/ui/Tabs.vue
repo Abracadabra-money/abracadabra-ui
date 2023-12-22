@@ -24,6 +24,8 @@ export default {
       default: () => [],
     },
   },
+
+  emits: ["select"],
 };
 </script>
 

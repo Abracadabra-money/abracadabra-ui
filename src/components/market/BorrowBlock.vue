@@ -1,6 +1,6 @@
 <template>
   <div class="market-actions-wrap">
-    <div class="block-wrap">
+    <div class="deposit-wrap">
       <DepositForm
         :useUnwrapToken="useUnwrapToken"
         :cauldron="cauldron"
@@ -9,7 +9,7 @@
       />
     </div>
 
-    <div class="borrow-block">
+    <div class="borrow-wrap">
       <div>
         <div class="row">
           <h3 class="title">
@@ -26,62 +26,11 @@
         <h4 class="subtitle">{{ borrowBlockSubtitle }}</h4>
       </div>
 
-      <template v-if="!useLeverage">
-        <div
-          style="
-            height: 79px;
-            border-radius: 16px;
-            border: 1px solid rgba(73, 70, 97, 0.4);
-            background: rgba(8, 14, 31, 0.6);
-          "
-        ></div>
-        <LtvRange
-          :value="multiplier"
-          :max="10"
-          :min="0"
-          :step="0.1"
-          :risk="'medium'"
-          :collateralValue="5"
-          :disabled="false"
-          tooltipText="Allows users to leverage their position. Read more about this in the documents!"
-          @updateValue="updateMultiplier"
-        />
-      </template>
+      <LeverageForm v-if="useLeverage" :cauldron="cauldron" />
+      <BorrowForm v-else :cauldron="cauldron" />
 
-      <template v-else>
-        <LeverageRange
-          :value="multiplier"
-          :max="10.999999"
-          :min="0"
-          :step="0.1"
-          :risk="'medium'"
-          :collateralValue="1"
-          :disabled="false"
-          tooltipText="Allows users to leverage their position. Read more about this in the documents!"
-          @updateValue="updateMultiplier"
-        />
-
-        <div class="dynamic-fee">
-          <div class="dynamic-fee-title">
-            Dynamic Opening Fee
-            <TooltipIcon
-              :width="20"
-              :height="20"
-              fill="#878B93"
-              tooltip="Dynamic Opening Fee"
-            />
-          </div>
-          <div class="dynamic-fee-value">$8.88 / 0.13%</div>
-        </div>
-      </template>
-
-      <div
-        style="
-          height: 48px;
-          border-radius: 16px;
-          background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
-        "
-      ></div>
+      <!-- :disabled="isButtonDisabled" -->
+      <BaseButton @click="$emit('actionHandler')" primary>Borrow </BaseButton>
     </div>
   </div>
 </template>
@@ -102,7 +51,6 @@ export default {
   data() {
     return {
       useLeverage: false,
-      multiplier: 0,
     };
   },
 
@@ -123,10 +71,6 @@ export default {
       this.$emit("updateCollateralValues", value);
     },
 
-    updateMultiplier(value: any) {
-      this.multiplier = value;
-    },
-
     updateActiveToken() {
       this.$emit("updateActiveToken");
     },
@@ -140,18 +84,18 @@ export default {
     DepositForm: defineAsyncComponent(
       () => import("@/components/market/DepositForm.vue")
     ),
-    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    LtvRange: defineAsyncComponent(
-      () => import("@/components/ui/range/LtvRange.vue")
-    ),
-    LeverageRange: defineAsyncComponent(
-      () => import("@/components/ui/range/LeverageRange.vue")
-    ),
     IconButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/IconButton.vue")
     ),
-    TooltipIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    BorrowForm: defineAsyncComponent(
+      () => import("@/components/market/BorrowForm.vue")
+    ),
+    LeverageForm: defineAsyncComponent(
+      () => import("@/components/market/LeverageForm.vue")
+    ),
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
   },
 };
@@ -167,34 +111,23 @@ export default {
   width: 100%;
 }
 
-.block-wrap {
+.deposit-wrap {
   @include block-wrap;
 }
 
-.borrow-block {
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid #00296b;
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
+.borrow-wrap {
+  @include block-wrap;
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.borrow-block {
-  height: 350px;
+  height: 370px;
 }
 
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 4px;
 }
 
 .title {

@@ -19,6 +19,7 @@
         />
 
         <BaseLink
+          v-if="tokenLinkData"
           :href="tokenLinkData.href"
           target="_blank"
           :text="tokenLinkData.label"

@@ -20,6 +20,7 @@
     :name="activeToken.name"
     :icon="activeToken.icon"
     :max="activeToken.balance"
+    :decimals="activeToken.decimals"
     :tokenPrice="2"
     isBigNumber
     @updateInputValue="updateInputValue"
@@ -47,7 +48,7 @@ export default {
 
     activeToken() {
       const { config, userTokensInfo } = this.cauldron;
-      const { wrapInfo, name, icon } = config;
+      const { wrapInfo, name, icon, collateralInfo } = config;
       const { collateralBalance, unwrappedTokenBalance } = userTokensInfo;
 
       if (wrapInfo?.useUnwrappedByDefault && !this.useUnwrapToken) {
@@ -55,6 +56,7 @@ export default {
           name: wrapInfo.unwrappedToken.name,
           icon: wrapInfo.unwrappedToken.icon,
           balance: unwrappedTokenBalance,
+          decimals: collateralInfo.decimals,
         };
       }
 
