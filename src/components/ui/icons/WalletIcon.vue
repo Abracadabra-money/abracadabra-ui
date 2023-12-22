@@ -1,6 +1,7 @@
 <template>
   <svg
     :style="`width: ${width}px; height: ${height}px`"
+    class="wallet-icon"
     viewBox="0 0 19 18"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -30,3 +31,9 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.wallet-icon {
+  cursor: pointer;
+}
+</style>

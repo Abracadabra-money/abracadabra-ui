@@ -11,7 +11,7 @@
           tooltip=" Collateral Deposit"
         />
       </h4>
-      <p class="item-value">10 ETH</p>
+      <p class="item-value">{{ formatUnits(expectedCollateralDeposit) }} ETH</p>
       <p class="item-price">$ 3,009</p>
     </div>
     <div class="position-info-item mim-to-repay">
@@ -53,9 +53,28 @@
 </template>
 
 <script lang="ts">
+import { utils } from "ethers";
+// @ts-ignore
+import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
 
 export default {
+  props: {
+    cauldron: {
+      type: Object as any,
+    },
+    expectedCollateralDeposit: {},
+  },
+
+  methods: {
+    formatUnits(value: any) {
+      return filters.formatToFixed(
+        utils.formatUnits(value, this.cauldron.config.collateralInfo.decimals),
+        2
+      );
+    },
+  },
+
   components: {
     TooltipIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")

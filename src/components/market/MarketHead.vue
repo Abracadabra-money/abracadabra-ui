@@ -3,28 +3,83 @@
     <div class="market-head">
       <div class="column">
         <div class="token-info-wrap">
-          <TokenInfo />
+          <TokenInfo :cauldron="cauldron" />
         </div>
 
+        <!-- todo add token to metamask -->
         <IconButton wallet />
-        <IconButton link tag-name="a" href="https://etherscan.io/" />
 
-        <BaseLink href="google.com" target="_blank" text="DEGENBOX" />
-        <BaseLink href="google.com" target="_blank" text="GET LP’s" />
+        <IconButton link tag-name="a" :href="cauldronScanUrl" target="_blank" />
+
+        <BaseLink
+          v-if="strategyLink"
+          :href="strategyLink"
+          target="_blank"
+          text="DEGENBOX"
+        />
+
+        <BaseLink
+          :href="tokenLinkData.href"
+          target="_blank"
+          :text="tokenLinkData.label"
+        />
       </div>
 
       <div class="column">
-        <InfoButton title="TMB" value="8.88m" />
-        <InfoButton title="TVL" value="8.88m" />
+        <InfoButton title="TMB" :value="totalMimBorrowed" />
+        <InfoButton title="TVL" :value="totalValueLocked" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { utils } from "ethers";
+// @ts-ignore
+import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
+import { getTokenLinkData } from "@/helpers/getTokenLinkData";
+import { chainsList } from "@/helpers/chains";
 
 export default {
+  props: {
+    cauldron: {
+      type: Object as any,
+    },
+  },
+
+  computed: {
+    strategyLink() {
+      return this.cauldron.config.cauldronSettings.strategyLink;
+    },
+
+    tokenLinkData(): any {
+      return getTokenLinkData(
+        this.cauldron.config.id,
+        this.cauldron.config.chainId
+      );
+    },
+
+    totalMimBorrowed() {
+      return filters.formatLargeSum(
+        utils.formatUnits(this.cauldron.mainParams.totalBorrowed)
+      );
+    },
+
+    totalValueLocked() {
+      return filters.formatLargeSum(
+        utils.formatUnits(this.cauldron.mainParams.tvl)
+      );
+    },
+
+    cauldronScanUrl() {
+      return `${
+        chainsList[this.cauldron.config.chainId as keyof typeof chainsList]
+          .blockExplorers.etherscan.url
+      }/address/${this.cauldron.config.contract.address}`;
+    },
+  },
+
   components: {
     TokenInfo: defineAsyncComponent(
       () => import("@/components/market/TokenInfo.vue")

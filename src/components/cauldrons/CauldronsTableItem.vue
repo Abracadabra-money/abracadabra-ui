@@ -87,9 +87,8 @@ export default {
     goToPage(cauldron) {
       const { chainId, id } = cauldron.config;
       return {
-        name: "BorrowId",
-        params: { id },
-        query: { chainId },
+        name: "Market",
+        params: { chainId, cauldronId: id },
       };
     },
 

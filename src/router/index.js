@@ -27,7 +27,7 @@ const routes = [
     component: () => import("@/views/borrow/Borrow.vue"),
   },
   {
-    path: "/market",
+    path: "/market/:chainId/:cauldronId",
     name: "Market",
     component: () => import("@/views/Market.vue"),
   },

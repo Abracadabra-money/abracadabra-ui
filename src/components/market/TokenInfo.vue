@@ -5,27 +5,52 @@
     <ArrowRightIcon />
 
     <div class="icons-wrap">
-      <img
-        class="token-icon"
-        src="@/assets/images/tokens/AETH.png"
-        alt="Token icon"
-      />
+      <img class="token-icon" :src="cauldron.config.icon" alt="Token icon" />
 
-      <img class="chain-icon" :src="getChainIcon(42161)" alt="" />
+      <img
+        class="chain-icon"
+        :src="getChainIcon(cauldron.config.chainId)"
+        alt="Chain icon"
+      />
     </div>
 
     <div>
-      <div class="token-name">MagicGLP</div>
-      <div class="tokens-rate">1 GLP = 4 MIM</div>
+      <div class="token-name">{{ cauldron.config.name }}</div>
+      <div class="tokens-rate">
+        1 {{ cauldron.config.name }} = {{ collateralToMim }} MIM
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { utils } from "ethers";
+// @ts-ignore
+import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 export default {
+  props: {
+    cauldron: {
+      type: Object as any,
+    },
+  },
+
+  computed: {
+    collateralToMim() {
+      const tokenToMim = utils
+        .parseEther("1")
+        .mul(expandDecimals(1, this.cauldron.config.collateralInfo.decimals))
+        .div(this.cauldron.mainParams.oracleExchangeRate);
+
+      const rate = +utils.formatUnits(tokenToMim);
+      const decimals = rate < 0.0001 ? 6 : 4;
+      return filters.formatTokenBalance(filters.formatToFixed(rate, decimals));
+    },
+  },
+
   methods: { getChainIcon },
 
   components: {

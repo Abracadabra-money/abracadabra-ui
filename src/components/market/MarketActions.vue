@@ -8,33 +8,18 @@
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.04);
         background: rgba(16, 18, 23, 0.38);
+        display: flex;
+        justify-content: space-between;
       "
     ></div>
 
-    <div class="deposit-block">
-      <div>
-        <div class="row">
-          <h3 class="title">Deposit collateral</h3>
-
-          <Toggle
-            :selected="useOtherToken"
-            text="Use magicGLP"
-            @updateToggle="updateActiveToken"
-          />
-        </div>
-        <h4 class="subtitle">
-          Select the amount of GLP to deposit in the Cauldron
-        </h4>
-      </div>
-
-      <div
-        style="
-          height: 79px;
-          border-radius: 16px;
-          border: 1px solid rgba(73, 70, 97, 0.4);
-          background: rgba(8, 14, 31, 0.6);
-        "
-      ></div>
+    <div class="block-wrap">
+      <DepositForm
+        :useUnwrapToken="useUnwrapToken"
+        :cauldron="cauldron"
+        @updateActiveToken="updateActiveToken"
+        @updateCollateralValues="updateCollateralValues"
+      />
     </div>
 
     <div class="borrow-block">
@@ -118,9 +103,17 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  props: {
+    cauldron: {
+      type: Object as any,
+    },
+    useUnwrapToken: {
+      type: Boolean,
+    },
+  },
+
   data() {
     return {
-      useOtherToken: true,
       useLeverage: false,
       multiplier: 0,
     };
@@ -139,12 +132,16 @@ export default {
   },
 
   methods: {
+    updateCollateralValues(value: any) {
+      this.$emit("updateCollateralValues", value);
+    },
+
     updateMultiplier(value: any) {
       this.multiplier = value;
     },
 
     updateActiveToken() {
-      this.useOtherToken = !this.useOtherToken;
+      this.$emit("updateActiveToken");
     },
 
     updateActionType() {
@@ -153,6 +150,9 @@ export default {
   },
 
   components: {
+    DepositForm: defineAsyncComponent(
+      () => import("@/components/market/DepositForm.vue")
+    ),
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     LtvRange: defineAsyncComponent(
       () => import("@/components/ui/range/LtvRange.vue")
@@ -180,7 +180,10 @@ export default {
   width: 100%;
 }
 
-.deposit-block,
+.block-wrap {
+  @include block-wrap;
+}
+
 .borrow-block {
   padding: 24px;
   border-radius: 16px;
