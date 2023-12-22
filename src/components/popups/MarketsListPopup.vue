@@ -1,5 +1,5 @@
 <template>
-  <div class="popup-wrap">
+  <div :class="['popup-wrap', { farmPopupWrap: isFarm }]">
     <div class="popup-header">
       <h4 class="popup-title">Select {{ popupTitle }}</h4>
       <PopupSearch v-if="!isLoadingMarkets" @input="changeSearch" />
@@ -21,7 +21,7 @@
           v-for="marketItem in filteredMarketList"
           :marketItem="marketItem"
           :key="`${marketItem.id}-${marketItem.chainId}`"
-          @changeActiveMarket="changeActiveMarket"
+          @changeActiveMarket="changeActiveFarm"
         />
       </template>
 
@@ -55,6 +55,11 @@ export default {
     popupType: {
       type: String,
       required: true,
+    },
+
+    isFarm: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -175,7 +180,12 @@ export default {
       this.search = target.value;
     },
 
-    changeActiveMarket({ id, chainId }) {
+    changeActiveMarket(marketId) {
+      this.$emit("changeActiveMarket", marketId);
+    },
+
+    //todo
+    changeActiveFarm({ id, chainId }) {
       this.$emit("changeActiveMarket", { id, chainId });
     },
 
@@ -212,21 +222,23 @@ export default {
 @include scrollbar;
 
 .popup-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 520px;
+  width: 380px;
   max-width: 100%;
 }
 
-.popup-title {
-  font-size: 20px;
-  font-weight: 500;
+.popup-header {
+  padding: 10px 10px 20px 10px;
+  border-bottom: solid 1px rgba(255, 255, 255, 0.1);
 }
 
-.input-search {
-  width: 100% !important;
-  height: 40px !important;
+.popup-title {
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 27px;
+  margin-bottom: 10px;
 }
 
 .loader-wrap {
@@ -239,7 +251,6 @@ export default {
 .markets-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   overflow-y: auto;
 }
 </style>

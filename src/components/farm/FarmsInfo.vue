@@ -91,7 +91,7 @@ export default {
       if (!this.account) return false;
       let spell = 0;
       let arbitrum = 0;
-      this.farms.forEach((farm) => {
+      this.farms?.forEach((farm) => {
         if (!farm.isMultiReward) {
           spell += Number(farm.accountInfo.userReward);
           this.spellPrice = farm.earnedTokenPrice;

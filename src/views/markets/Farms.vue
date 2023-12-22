@@ -7,13 +7,6 @@
         @click="scrollToTop"
         v-if="showButtonUp"
       />
-      <EmptyState v-if="!currentPools.length && !isFarmsLoading" />
-      <div
-        v-else-if="!currentPools.length && isFarmsLoading"
-        class="loader-wrap"
-      >
-        <img class="loader-gif" src="@/assets/gifs/MIM_loader.gif" />
-      </div>
 
       <div v-else class="farms">
         <FarmsInfo :farms="this.farms" />
@@ -57,7 +50,11 @@
               :farm="farm"
             />
           </template>
-          <EmptyState v-else />
+          <EmptyState
+            class="empty-state"
+            :isFarmsLoading="isFarmsLoading"
+            v-else
+          />
         </div>
       </div>
     </div>
@@ -66,7 +63,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import EmptyState from "@/components/markets/EmptyState.vue";
+import EmptyState from "@/components/farm/EmptyState.vue";
 import MarketsFarmItem from "@/components/markets/FarmItem.vue";
 import CheckBox from "@/components/ui/CheckBox.vue";
 import Toggle from "@/components/ui/Toggle.vue";
@@ -118,7 +115,7 @@ export default {
     },
 
     activeChains() {
-      return this.farms.reduce((acc, farm) => {
+      return this.farms?.reduce((acc, farm) => {
         if (!acc.includes(farm.chainId)) acc.push(farm.chainId);
         return acc;
       }, []);
@@ -326,6 +323,7 @@ export default {
 .farms-list {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 24px;
 }
 
@@ -360,6 +358,10 @@ export default {
 .sort-buttons {
   display: flex;
   gap: 20px;
+}
+
+.empty-state {
+  margin: auto;
 }
 
 @media screen and (max-width: 1280px) {

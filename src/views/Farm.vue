@@ -41,12 +41,10 @@
 
     <LocalPopupWrap
       :isOpened="isFarmsPopupOpened"
+      :isFarm="true"
       @closePopup="isFarmsPopupOpened = false"
     >
-      <MarketsListPopup
-        popupType="farms"
-        @changeActiveMarket="changeActiveMarket"
-      />
+      <FarmListPopup @changeActiveMarket="changeActiveMarket" />
     </LocalPopupWrap>
   </div>
 </template>
@@ -58,7 +56,7 @@ import FarmingOpportunities from "@/components/farm/FarmingOpportunities.vue";
 import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
 import FarmPosition from "@/components/farm/FarmPosition.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
+import FarmListPopup from "@/components/farm/FarmListPopup.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
@@ -354,7 +352,7 @@ export default {
 
   components: {
     LocalPopupWrap,
-    MarketsListPopup,
+    FarmListPopup,
     MarketsSwitch,
     FarmingOpportunities,
     FarmActionBlock,
