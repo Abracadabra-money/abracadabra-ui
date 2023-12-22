@@ -7,12 +7,25 @@
       <MarketHead :cauldron="cauldron" v-if="cauldron" />
 
       <div class="market-info">
-        <MarketActions
-          :cauldron="cauldron"
-          :useUnwrapToken="useUnwrapToken"
-          @updateCollateralValues="updateCollateralValues"
-          @updateActiveToken="updateActiveToken"
-        />
+        <div class="actions-wrap">
+          <Tabs :name="selectedTab" :items="tabItems" @select="selectTab" />
+
+          <BorrowBlock
+            v-if="selectedTab === 'borrow'"
+            :cauldron="cauldron"
+            :useUnwrapToken="useUnwrapToken"
+            @updateCollateralValues="updateCollateralValues"
+            @updateActiveToken="updateActiveToken"
+          />
+
+          <RepayBlock
+            v-else
+            :cauldron="cauldron"
+            :useUnwrapToken="useUnwrapToken"
+            @updateCollateralValues="updateCollateralValues"
+            @updateActiveToken="updateActiveToken"
+          />
+        </div>
 
         <div class="market-stats">
           <div class="row">
@@ -73,6 +86,8 @@ export default {
         unwrapAmount: BigNumber.from(0),
       },
       useUnwrapToken: false,
+      selectedTab: "borrow",
+      tabItems: ["borrow", "repay"],
     };
   },
 
@@ -97,6 +112,10 @@ export default {
 
     updateActiveToken() {
       this.useUnwrapToken = !this.useUnwrapToken;
+    },
+
+    selectTab(action: string) {
+      this.selectedTab = action;
     },
 
     async createCauldronInfo() {
@@ -139,8 +158,12 @@ export default {
     MarketHead: defineAsyncComponent(
       () => import("@/components/market/MarketHead.vue")
     ),
-    MarketActions: defineAsyncComponent(
-      () => import("@/components/market/MarketActions.vue")
+    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    BorrowBlock: defineAsyncComponent(
+      () => import("@/components/market/BorrowBlock.vue")
+    ),
+    RepayBlock: defineAsyncComponent(
+      () => import("@/components/market/RepayBlock.vue")
     ),
     PriceRange: defineAsyncComponent(
       () => import("@/components/ui/range/PriceRange.vue")
@@ -191,6 +214,15 @@ export default {
   margin: 0 auto;
   display: flex;
   gap: 24px;
+  z-index: 1;
+}
+
+.actions-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 411px;
+  width: 100%;
 }
 
 .market-stats {

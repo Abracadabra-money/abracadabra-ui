@@ -1,18 +1,5 @@
 <template>
   <div class="market-actions-wrap">
-    <div
-      class="tabs-wrap"
-      style="
-        height: 48px;
-        width: 215px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        background: rgba(16, 18, 23, 0.38);
-        display: flex;
-        justify-content: space-between;
-      "
-    ></div>
-
     <div class="block-wrap">
       <DepositForm
         :useUnwrapToken="useUnwrapToken"

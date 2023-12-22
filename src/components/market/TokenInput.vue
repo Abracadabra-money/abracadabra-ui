@@ -38,6 +38,7 @@ import { utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters/index";
 import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
 
 export default {
   props: {
@@ -64,7 +65,7 @@ export default {
     formattedMax() {
       if (this.isBigNumber)
         return utils.formatUnits(this.max || 0, this.decimals);
-      return utils.formatUnits(this.max || 0, 18);
+      return formatUnits(this.max || 0, 18);
     },
 
     usdEquivalent(): any {
