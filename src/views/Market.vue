@@ -15,6 +15,7 @@
             :cauldron="cauldron"
             :useUnwrapToken="useUnwrapToken"
             @updateCollateralValues="updateCollateralValues"
+            @updateBorrowValue="updateBorrowValue"
             @updateActiveToken="updateActiveToken"
           />
 
@@ -45,6 +46,7 @@
             <PositionInfo
               :cauldron="cauldron"
               :expectedCollateralDeposit="expectedCollateralDeposit"
+              :expectedBorrowRepay="expectedBorrowRepay"
             />
             <CauldronInfo :cauldron="cauldron" />
           </div>
@@ -65,9 +67,11 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { BigNumber, providers } from "ethers";
+import { BigNumber, providers, utils } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { getChainsConfigs } from "@/helpers/getChainsConfigs";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 type CollateralsValue = {
   amount: BigNumber;
@@ -81,10 +85,12 @@ export default {
       cauldronId: null as any,
       cauldron: null as any,
       updateInterval: null as any,
+      // todo collateralsAmounts
       collateralsValue: {
         amount: BigNumber.from(0),
         unwrapAmount: BigNumber.from(0),
       },
+      borrowAmount: BigNumber.from(0),
       useUnwrapToken: false,
       activeTab: "borrow",
       tabItems: ["borrow", "repay"],
@@ -103,11 +109,30 @@ export default {
 
       return userCollateralAmount.add(this.collateralsValue.amount);
     },
+
+    expectedBorrowRepay() {
+      const { borrowFee } = this.cauldron.mainParams;
+      const { decimals } = this.cauldron.config.mimInfo;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      // todo utils applyBorrowFee
+      const fee = this.borrowAmount
+        .mul(utils.parseUnits(borrowFee.toString()))
+        .div(expandDecimals(1, decimals))
+        .div(100);
+
+      if (borrowFee) return this.borrowAmount.add(fee).add(userBorrowAmount);
+      return this.borrowAmount.add(userBorrowAmount);
+    },
   },
 
   methods: {
     updateCollateralValues(value: CollateralsValue) {
       this.collateralsValue = value;
+    },
+
+    updateBorrowValue(value: any) {
+      this.borrowAmount = value;
     },
 
     updateActiveToken() {
@@ -121,9 +146,17 @@ export default {
     async createCauldronInfo() {
       if (!this.chainId || !this.cauldronId) return false;
 
-      const chainProvider = new providers.StaticJsonRpcProvider(
-        defaultRpc[this.chainId as keyof typeof defaultRpc]
-      );
+      const unsupportedChain =
+        !defaultRpc[this.chainId as keyof typeof defaultRpc];
+      const { rpcUrls } = getChainsConfigs();
+
+      const currentRpc = unsupportedChain
+        ? defaultRpc[1]
+        : rpcUrls
+        ? rpcUrls[0]
+        : defaultRpc[this.chainId as keyof typeof defaultRpc];
+
+      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
 
       const userSigner = this.account ? this.signer : chainProvider;
 

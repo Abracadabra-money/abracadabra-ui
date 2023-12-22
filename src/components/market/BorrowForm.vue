@@ -33,6 +33,8 @@ export default {
     },
   },
 
+  emits: ["updateBorrowValue"],
+
   data() {
     return {
       multiplier: 0,
@@ -58,7 +60,7 @@ export default {
     },
 
     updateInputValue(value: any) {
-      this.$emit("updateBorrowValues", value);
+      this.$emit("updateBorrowValue", value);
     },
   },
 

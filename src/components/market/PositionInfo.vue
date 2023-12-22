@@ -30,7 +30,7 @@
           src="@/assets/images/tokens/MIM.png"
           alt="Mim icon"
         />
-        112.212
+        {{ formatUnits(expectedBorrowRepay) }}
       </p>
     </div>
 
@@ -63,7 +63,12 @@ export default {
     cauldron: {
       type: Object as any,
     },
-    expectedCollateralDeposit: {},
+    expectedCollateralDeposit: {
+      type: Object as any,
+    },
+    expectedBorrowRepay: {
+      type: Object as any,
+    },
   },
 
   methods: {

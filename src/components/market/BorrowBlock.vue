@@ -27,7 +27,11 @@
       </div>
 
       <LeverageForm v-if="useLeverage" :cauldron="cauldron" />
-      <BorrowForm v-else :cauldron="cauldron" />
+      <BorrowForm
+        v-else
+        :cauldron="cauldron"
+        @updateBorrowValue="updateBorrowValue"
+      />
 
       <!-- :disabled="isButtonDisabled" -->
       <BaseButton @click="$emit('actionHandler')" primary>Borrow </BaseButton>
@@ -69,6 +73,10 @@ export default {
   methods: {
     updateCollateralValues(value: any) {
       this.$emit("updateCollateralValues", value);
+    },
+
+    updateBorrowValue(value: any) {
+      this.$emit("updateBorrowValue", value);
     },
 
     updateActiveToken() {
