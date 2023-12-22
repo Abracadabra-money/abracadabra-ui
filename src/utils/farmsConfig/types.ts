@@ -66,7 +66,7 @@ export type FarmItem = {
   contractInfo: ContractInfo;
   farmRoi: number;
   lpPrice: number;
-  isDepreciated: boolean;
+  isDeprecated: boolean;
   farmYield: number;
   accountInfo?: FarmAccountInfo;
   farmTvl?: number;

@@ -56,7 +56,7 @@ export default {
       if (this.marketItem.isMultiReward) {
         return Number(this.marketItem.accountInfo?.balance);
       }
-      if (this.marketItem.isDepreciated)
+      if (this.marketItem.isDeprecated)
         return this.marketItem.accountInfo?.depositedBalance || 0;
 
       return Number(this.marketItem.accountInfo?.balance) / 1e18 || 0;
@@ -71,7 +71,7 @@ export default {
     },
 
     farmStatusStyles() {
-      if (this.marketItem.isDepreciated)
+      if (this.marketItem.isDeprecated)
         return {
           text: "Depreciated",
           flagColor:

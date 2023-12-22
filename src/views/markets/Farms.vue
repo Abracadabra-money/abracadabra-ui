@@ -139,18 +139,18 @@ export default {
     sortByDepreciate(farms = []) {
       if (this.isActiveMarkets) {
         return farms.filter((farm) => {
-          return !farm?.isDepreciated;
+          return !farm?.isDeprecated;
         });
       } else {
         return farms.sort((a, b) => {
           if (a?.cauldronSettings || b?.cauldronSettings) {
             return (
-              +a.cauldronSettings.isDepreciated -
-              +b.cauldronSettings.isDepreciated
+              +a.cauldronSettings.isDeprecated -
+              +b.cauldronSettings.isDeprecated
             );
           }
 
-          return +a.isDepreciated - +b.isDepreciated;
+          return +a.isDeprecated - +b.isDeprecated;
         });
       }
     },

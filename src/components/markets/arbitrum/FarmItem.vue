@@ -7,7 +7,7 @@
           <span class="farm-name">
             {{ farm.name }}
           </span>
-          <span class="farm-deprecated" v-if="farm.isDepreciated"
+          <span class="farm-deprecated" v-if="farm.isDeprecated"
             >Deprecated</span
           >
         </div>
@@ -18,7 +18,7 @@
         <span class="item-value">{{ item.value }}</span>
       </div>
       <div class="links-wrap">
-        <div class="link-wrap" v-if="!farm.isDepreciated">
+        <div class="link-wrap" v-if="!farm.isDeprecated">
           <router-link :to="goToPage">Join farm</router-link>
         </div>
       </div>

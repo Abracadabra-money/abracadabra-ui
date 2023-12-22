@@ -1,5 +1,5 @@
 <template>
-  <div class="switch" v-if="!isDepreciated">
+  <div class="switch" v-if="!isDeprecated">
     <button
       v-for="(item, i) in items"
       class="switch-btn"
@@ -12,7 +12,7 @@
     </button>
   </div>
 
-  <div class="depreciated" v-if="isDepreciated">
+  <div class="depreciated" v-if="isDeprecated">
     <img
       class="depreciated-icon"
       src="@/assets/images/info-bar/depreciated.png"
@@ -35,7 +35,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    isDepreciated: { type: Boolean },
+    isDeprecated: { type: Boolean },
   },
 
   emits: ["select"],

@@ -50,7 +50,7 @@ export default {
     },
 
     marketsList() {
-      return this.farmsList.sort((a, b) => +a.isDepreciated - +b.isDepreciated);
+      return this.farmsList.sort((a, b) => +a.isDeprecated - +b.isDeprecated);
     },
 
     isLoader() {

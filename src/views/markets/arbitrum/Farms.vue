@@ -84,7 +84,7 @@ export default {
       const multiRewardFarm = this.currentPools.find(
         (farm) => farm.isMultiReward
       );
-      
+
       return [multiRewardFarm];
       // return this.sortByDepreciate(
       //   this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
@@ -162,19 +162,19 @@ export default {
       if (this.isActiveMarkets) {
         return farms.filter((farm) => {
           if (farm?.cauldronSettings)
-            return !farm.cauldronSettings.isDepreciated;
-          return !farm.isDepreciated;
+            return !farm.cauldronSettings.isDeprecated;
+          return !farm.isDeprecated;
         });
       } else {
         return farms.sort((a, b) => {
           if (a?.cauldronSettings || b?.cauldronSettings) {
             return (
-              +a.cauldronSettings.isDepreciated -
-              +b.cauldronSettings.isDepreciated
+              +a.cauldronSettings.isDeprecated -
+              +b.cauldronSettings.isDeprecated
             );
           }
 
-          return +a.isDepreciated - +b.isDepreciated;
+          return +a.isDeprecated - +b.isDeprecated;
         });
       }
     },

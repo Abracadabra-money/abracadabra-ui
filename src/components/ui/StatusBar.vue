@@ -77,7 +77,7 @@ export default {
       if (this.pool?.cauldronSettings)
         return this.pool.cauldronSettings.isDepreciated;
 
-      return this.pool.isDepreciated;
+      return this.pool.isDeprecated;
     },
 
     isNew() {

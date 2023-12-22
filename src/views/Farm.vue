@@ -11,7 +11,7 @@
           :name="selectedTab"
           :items="items"
           @select="selectTab($event.name)"
-          :isDepreciated="isDepreciated"
+          :isDeprecated="isDeprecated"
         />
       </div>
 
@@ -128,8 +128,8 @@ export default {
       return !!Number(this.inputAmount);
     },
 
-    isDepreciated() {
-      return this.selectedFarm?.isDepreciated;
+    isDeprecated() {
+      return this.selectedFarm?.isDeprecated;
     },
 
     max() {
@@ -201,7 +201,7 @@ export default {
       this.inputAmount = BigInt(0);
     },
 
-    isDepreciated(status) {
+    isDeprecated(status) {
       this.selectedTab = status ? "unstake" : "stake";
     },
   },

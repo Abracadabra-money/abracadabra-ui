@@ -76,7 +76,7 @@ export default {
     },
 
     farmStatusStyles() {
-      if (this.farm.isDepreciated)
+      if (this.farm.isDeprecated)
         return {
           text: "Depreciated",
           flagColor:

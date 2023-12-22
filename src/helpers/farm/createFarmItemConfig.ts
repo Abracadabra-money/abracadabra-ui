@@ -78,7 +78,7 @@ export const createFarmItemConfig = async (
 
   const farmRoi = farmYield ? await getRoi(farmYield, SPELLPrice) : farmYield;
 
-  const isDepreciated = farmRoi === 0;
+  const isDeprecated = farmRoi === 0;
 
   const farmItemConfig: FarmItem = {
     name: farmInfo.name,
@@ -102,7 +102,7 @@ export const createFarmItemConfig = async (
     farmRoi,
     farmYield,
     lpPrice,
-    isDepreciated,
+    isDeprecated,
   };
 
   if (isExtended)

@@ -45,7 +45,7 @@ export default {
         },
       ];
 
-      if (!this.farmConfig.isDepreciated)
+      if (!this.farmConfig.isDeprecated)
         actions.unshift({
           title: "Stake",
           icon: this.$image("assets/images/myposition/Stake.png"),
@@ -58,8 +58,9 @@ export default {
 
     assetsInfo() {
       const disableEarnedButton = this.farmConfig.isMultiReward
-        ? this.farmConfig.accountInfo?.rewardTokensInfo?.filter((tokenInfo) => +tokenInfo.earned > 0)
-            .length === 0
+        ? this.farmConfig.accountInfo?.rewardTokensInfo?.filter(
+            (tokenInfo) => +tokenInfo.earned > 0
+          ).length === 0
         : !+this.earnedData.balance;
 
       return [
@@ -84,7 +85,7 @@ export default {
           symbol: this.farmConfig.stakingToken.name,
           icon: this.farmConfig.icon,
           lpLink: this.farmConfig.stakingToken.link,
-          isDepreciated: this.farmConfig.isDepreciated,
+          isDepreciated: this.farmConfig.isDeprecated,
           amount: filters.formatTokenBalance(this.depositedData.balance),
           amountUsd: filters.formatUSD(this.depositedData.usd),
           tokensList: this.tokensList,
@@ -98,7 +99,7 @@ export default {
     },
 
     multiRewardsTokens() {
-      if(!this.farmConfig.isMultiReward) return false;
+      if (!this.farmConfig.isMultiReward) return false;
 
       const { rewardTokensInfo } = this.farmConfig.accountInfo;
 
