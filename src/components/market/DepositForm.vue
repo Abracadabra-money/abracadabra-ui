@@ -60,7 +60,12 @@ export default {
         };
       }
 
-      return { name, icon, balance: collateralBalance };
+      return {
+        name,
+        icon,
+        balance: collateralBalance,
+        decimals: collateralInfo.decimals,
+      };
     },
   },
 

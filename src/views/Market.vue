@@ -45,8 +45,9 @@
           <div class="row">
             <PositionInfo
               :cauldron="cauldron"
-              :expectedCollateralDeposit="expectedCollateralDeposit"
-              :expectedBorrowRepay="expectedBorrowRepay"
+              :expectedCollateralAmount="expectedCollateralAmount"
+              :expectedBorrowAmount="expectedBorrowAmount"
+              :expectedLiquidationPrice="expectedLiquidationPrice"
             />
             <CauldronInfo :cauldron="cauldron" />
           </div>
@@ -67,11 +68,12 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { BigNumber, providers, utils } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
-import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { BigNumber, providers, utils } from "ethers";
 import { getChainsConfigs } from "@/helpers/getChainsConfigs";
+import { getLiquidationPrice } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
 type CollateralsValue = {
   amount: BigNumber;
@@ -100,7 +102,7 @@ export default {
   computed: {
     ...mapGetters({ account: "getAccount", signer: "getSigner" }),
 
-    expectedCollateralDeposit() {
+    expectedCollateralAmount() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
 
@@ -110,7 +112,7 @@ export default {
       return userCollateralAmount.add(this.collateralsValue.amount);
     },
 
-    expectedBorrowRepay() {
+    expectedBorrowAmount() {
       const { borrowFee } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.mimInfo;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
@@ -123,6 +125,15 @@ export default {
 
       if (borrowFee) return this.borrowAmount.add(fee).add(userBorrowAmount);
       return this.borrowAmount.add(userBorrowAmount);
+    },
+
+    expectedLiquidationPrice() {
+      return getLiquidationPrice(
+        this.expectedBorrowAmount,
+        this.expectedCollateralAmount,
+        this.cauldron.config.mcr,
+        this.cauldron.config.collateralInfo.decimals
+      );
     },
   },
 

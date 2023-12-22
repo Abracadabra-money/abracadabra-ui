@@ -11,7 +11,9 @@
           tooltip=" Collateral Deposit"
         />
       </h4>
-      <p class="item-value">{{ formatUnits(expectedCollateralDeposit) }} ETH</p>
+      <p class="item-value">
+        {{ formatUnits(expectedCollateralAmount, collateralDecimals) }} ETH
+      </p>
       <p class="item-price">$ 3,009</p>
     </div>
     <div class="position-info-item mim-to-repay">
@@ -30,7 +32,7 @@
           src="@/assets/images/tokens/MIM.png"
           alt="Mim icon"
         />
-        {{ formatUnits(expectedBorrowRepay) }}
+        {{ formatUnits(expectedBorrowAmount) }}
       </p>
     </div>
 
@@ -46,7 +48,7 @@
             tooltip="MIM to repay"
           />
         </h4>
-        <p class="item-value">0.0</p>
+        <p class="item-value">{{ formatUnits(expectedLiquidationPrice) }}</p>
       </div>
     </div>
   </div>
@@ -63,20 +65,25 @@ export default {
     cauldron: {
       type: Object as any,
     },
-    expectedCollateralDeposit: {
+    expectedCollateralAmount: {
       type: Object as any,
     },
-    expectedBorrowRepay: {
+    expectedBorrowAmount: {
       type: Object as any,
+    },
+    expectedLiquidationPrice: {
+      type: Object as any,
+    },
+  },
+  computed: {
+    collateralDecimals() {
+      return this.cauldron.config.collateralInfo.decimals;
     },
   },
 
   methods: {
-    formatUnits(value: any) {
-      return filters.formatToFixed(
-        utils.formatUnits(value, this.cauldron.config.collateralInfo.decimals),
-        2
-      );
+    formatUnits(value: any, decimals = 18) {
+      return filters.formatToFixed(utils.formatUnits(value, decimals), 2);
     },
   },
 
