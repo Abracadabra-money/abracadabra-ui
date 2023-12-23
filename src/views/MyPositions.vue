@@ -1,59 +1,18 @@
 <template>
-  <div class="position-page">
-    <h2 class="title">My positions</h2>
+  <div class="my-positions-view">
+    <div class="position-page">
+      <MyPositionsInfo />
 
-    <div class="network-wrap">
-      <h4 class="network-title">Choose Chain</h4>
-      <NetworksList :items="activeNetwork" :activeList="activeNetworks" />
-    </div>
+      <div class="positions-list-head">
+        <SortButton>Health factor</SortButton>
+        <SortButton>Collateral deposited</SortButton>
+        <SortButton>MIM borrowed</SortButton>
+        <SortButton>APR</SortButton>
 
-    <TotalAssets v-if="showTotalAssets" :assets="totalAssetsData" />
-
-    <BentoBoxBlock />
-
-    <h2 class="title">Individual positions</h2>
-
-    <div v-if="isEmpyState" class="empty-wrap">
-      <EmptyState />
-    </div>
-
-    <div v-else class="positions-list">
-      <div v-if="isPositionsLoaded" class="loader-wrap">
-        <BaseLoader />
+        <ChainsDropdown />
       </div>
 
-      <template v-else>
-        <div class="positions-wrap" v-if="positionList.length">
-          <div class="positions-header">
-            <p>Borrow</p>
-            <button class="btn-more" @click="toggleShowMore">
-              <p class="btn-more-text">Show {{ showMoreText }}</p>
-              <img class="btn-more-icon" :src="showMoreIcon" alt="Show more" />
-            </button>
-          </div>
-
-          <div class="position-list">
-            <CauldronPositionItem
-              v-for="cauldron in positionList"
-              :key="cauldron.id"
-              :opened="isShowMore"
-              :cauldron="cauldron"
-            />
-          </div>
-        </div>
-
-        <div class="positions-wrap" v-if="openUserFarms.length">
-          <div class="positions-header">Farm</div>
-          <div class="position-list">
-            <FarmPositionItem
-              v-for="farm in openUserFarms"
-              :key="farm.id"
-              :opened="isShowMore"
-              :farmConfig="farm"
-            />
-          </div>
-        </div>
-      </template>
+      <div class="positions-list"></div>
     </div>
   </div>
 </template>
@@ -66,13 +25,13 @@ import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import TotalAssets from "@/components/myPositions/TotalAssets.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
-import EmptyState from "@/components/myPositions/EmptyState.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
 import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
+
+import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
+import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
+import SortButton from "@/components/ui/buttons/SortButton.vue";
 
 export default {
   data() {
@@ -145,12 +104,15 @@ export default {
 
     openUserFarms() {
       return this.farms.filter((farm) => {
-        const isOpenMultiReward = farm.isMultiReward ?
-        +farm.accountInfo.depositedBalance > 0 ||
-        farm.accountInfo.rewardTokensInfo.filter(item => +item.earned > 0).length > 0 : false
+        const isOpenMultiReward = farm.isMultiReward
+          ? +farm.accountInfo.depositedBalance > 0 ||
+            farm.accountInfo.rewardTokensInfo.filter((item) => +item.earned > 0)
+              .length > 0
+          : false;
 
-        const isOpenLegacyFarm = farm.accountInfo?.userReward != 0 ||
-          farm.accountInfo?.userInfo.amount != 0
+        const isOpenLegacyFarm =
+          farm.accountInfo?.userReward != 0 ||
+          farm.accountInfo?.userInfo.amount != 0;
 
         return farm.isMultiReward ? isOpenMultiReward : isOpenLegacyFarm;
       });
@@ -217,50 +179,53 @@ export default {
   },
 
   components: {
-    NetworksList,
-    TotalAssets,
     BentoBoxBlock,
-    EmptyState,
-    BaseLoader,
     CauldronPositionItem,
     FarmPositionItem,
+
+    MyPositionsInfo,
+    ChainsDropdown,
+    SortButton,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.position-page {
-  max-width: 780px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 130px 5px 160px;
+.my-positions-view {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.title {
-  text-align: center;
-  text-transform: uppercase;
-  margin: 16px 0;
-}
-
-.network-wrap {
-  overflow: hidden;
+  justify-content: center;
   width: 100%;
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
+  min-height: 100vh;
+  background: url("../assets/images/myPositions/my-positions-page-background.png");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.network-title {
-  padding-bottom: 14px;
+.position-page {
+  margin: 150px 0 60px 0;
+  width: 1280px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-.empty-wrap {
-  background-color: #2a2835;
-  border-radius: 30px;
-  padding: 50px 0;
+.positions-list-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 12px 24px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .positions-list {
@@ -269,68 +234,9 @@ export default {
   row-gap: 24px;
 }
 
-.loader-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.positions-wrap {
-  background: #2a2835;
-  border-radius: 30px;
-  padding: 20px;
-}
-
-.positions-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-
-.btn-more {
-  display: flex;
-  align-items: center;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-more-text {
-  font-size: 14px;
-  line-height: 21px;
-  background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-.btn-more-icon {
-  width: 20px;
-  height: auto;
-  object-fit: contain;
-  margin-left: 8px;
-}
-
 .position-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-@media (max-width: 1024px) {
-  .network-wrap {
-    padding: 20px 16px;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .positions-wrap {
-    padding: 20px 10px;
-  }
 }
 </style>
