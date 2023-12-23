@@ -14,10 +14,13 @@
             v-if="activeTab === 'borrow'"
             :cauldron="cauldron"
             :useUnwrapToken="useUnwrapToken"
+            :expectedCollateralAmount="expectedCollateralAmount"
+            :expectedBorrowAmount="expectedBorrowAmount"
             @updateCollateralValues="updateCollateralValues"
             @updateBorrowValue="updateBorrowValue"
             @updateActiveToken="updateActiveToken"
           />
+          <!-- toogleUseUnwrapToken -->
 
           <RepayBlock
             v-else

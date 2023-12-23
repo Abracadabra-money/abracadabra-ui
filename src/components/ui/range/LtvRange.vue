@@ -4,9 +4,11 @@
       <div class="base-track">
         <div class="progress-track" :style="{ background: gradientRangeTrack }">
           <span class="progress-value" :style="progressValuePosition">
-            {{ progressPercent }}
+            {{ progressValue }}
           </span>
-          <span class="progress-percent-max" v-show="showMrcPercent">80%</span>
+          <span class="progress-percent-max" v-show="showMrcPercent"
+            >{{ max }}%</span
+          >
           <input
             :class="['range', risk]"
             :style="updateTrackPosition"
@@ -43,6 +45,7 @@ export default {
     step: { type: Number, default: 1 },
     risk: { type: [String, Boolean], default: "default" },
     disabled: { type: Boolean, default: false },
+    mcr: { type: Boolean, default: false },
   },
 
   data(): any {
@@ -62,8 +65,8 @@ export default {
       return `left: ${this.gradientPercent}%`;
     },
 
-    progressPercent() {
-      return `${Math.round((80 / 100) * this.gradientPercent)}%`;
+    progressValue() {
+      return `${Math.round((this.max / 100) * this.gradientPercent)}%`;
     },
 
     gradientRangeTrack() {
@@ -80,18 +83,25 @@ export default {
           `;
     },
 
+    trackPercent() {
+      return Math.floor(
+        (100 / (this.max - this.min)) * (this.collateralValue - this.min)
+      );
+    },
+
+    progressPercent() {
+      return Math.floor(
+        (this.mcr / (this.max - this.min)) * (this.collateralValue - this.min)
+      );
+    },
+
     gradientPercent() {
-      const max = this.max ? this.max : 1;
+      if (this.progressPercent > this.max) return 100;
 
-      if (this.min > 0) {
-        if (this.inputValue === 1) return 0;
-        if (this.inputValue === max) return 100;
-        return Math.floor(
-          (100 / (max - this.min)) * (this.inputValue - this.min)
-        );
-      }
+      // if (this.progressPercent <= this.collateralValue)
+      //   return this.trackPercent;
 
-      return Math.floor(100 * Math.abs(this.inputValue / max));
+      return this.trackPercent;
     },
 
     updateTrackPosition() {
@@ -109,14 +119,7 @@ export default {
   methods: {
     updateRange(event: any) {
       const value = event.target.value;
-      this.inputValue = +value;
-
-      const arr = String(this.max).split("");
-      const index = arr.indexOf(".");
-      const max = arr.slice(0, index + 5).join("");
-
-      if (max === value) this.$emit("updateValue", this.max);
-      else this.$emit("updateValue", value);
+      this.$emit("updateValue", value);
     },
   },
 

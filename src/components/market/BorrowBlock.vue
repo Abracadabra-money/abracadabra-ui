@@ -30,6 +30,8 @@
       <BorrowForm
         v-else
         :cauldron="cauldron"
+        :expectedCollateralAmount="expectedCollateralAmount"
+        :expectedBorrowAmount="expectedBorrowAmount"
         @updateBorrowValue="updateBorrowValue"
       />
 
@@ -50,6 +52,8 @@ export default {
     useUnwrapToken: {
       type: Boolean,
     },
+    expectedCollateralAmount: {},
+    expectedBorrowAmount: {},
   },
 
   data() {

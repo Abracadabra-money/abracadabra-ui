@@ -1,5 +1,6 @@
 <template>
   <TokenInput
+    :value="inputValue"
     :name="borrowToken.name"
     :icon="borrowToken.icon"
     :max="borrowToken.balance"
@@ -11,24 +12,32 @@
   <div class="range-wrap">
     <LtvRange
       :value="multiplier"
-      :max="10"
+      :max="cauldron.config.mcr"
       :min="0"
-      :step="0.1"
+      :step="1"
       :risk="'medium'"
-      :collateralValue="5"
+      :collateralValue="positionLtv"
       :disabled="false"
-      tooltipText="Allows users to leverage their position. Read more about this in the documents!"
+      :mcr="cauldron.config.mcr"
       @updateValue="updateMultiplier"
     />
   </div>
 </template>
 
 <script lang="ts">
+import { utils } from "ethers";
 import { defineAsyncComponent } from "vue";
+import { getMimToBorrowByLtv, getUserLtv } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
     cauldron: {
+      type: Object as any,
+    },
+    expectedCollateralAmount: {
+      type: Object as any,
+    },
+    expectedBorrowAmount: {
       type: Object as any,
     },
   },
@@ -38,6 +47,7 @@ export default {
   data() {
     return {
       multiplier: 0,
+      inputValue: "" as number | string,
     };
   },
 
@@ -52,11 +62,39 @@ export default {
         price: 1,
       };
     },
+
+    positionLtv() {
+      return Math.round(
+        +utils.formatUnits(
+          getUserLtv(
+            this.expectedCollateralAmount,
+            this.expectedBorrowAmount,
+            this.cauldron.mainParams.oracleExchangeRate
+          ),
+          2
+        )
+      );
+    },
   },
 
   methods: {
-    updateMultiplier(value: any) {
-      this.multiplier = value;
+    updateMultiplier(ltv: any) {
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      const mimToBorrow = getMimToBorrowByLtv(
+        ltv,
+        this.cauldron.config.mcr,
+        this.expectedCollateralAmount,
+        userBorrowAmount,
+        this.cauldron.mainParams.oracleExchangeRate
+      );
+
+      const borrowMimAmount = +utils.formatUnits(
+        mimToBorrow.sub(userBorrowAmount)
+      );
+
+      if (borrowMimAmount <= 0) this.inputValue = 0;
+      else this.inputValue = borrowMimAmount;
     },
 
     updateInputValue(value: any) {

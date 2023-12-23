@@ -45,6 +45,7 @@ export default {
     decimals: { type: Number, default: 18 },
     isBigNumber: { type: Boolean, default: false },
     max: {},
+    value: {},
     icon: {
       type: String,
     },
@@ -57,7 +58,7 @@ export default {
 
   data(): any {
     return {
-      inputValue: null,
+      inputValue: this.value,
     };
   },
 
@@ -90,6 +91,10 @@ export default {
 
         this.$emit("updateInputValue", emitValue);
       } else this.$emit("updateInputValue", BigInt(Number(value) * 1e18));
+    },
+
+    value(val) {
+      this.inputValue = val;
     },
   },
 
