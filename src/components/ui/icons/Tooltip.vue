@@ -1,10 +1,10 @@
 <template>
-  <img
-    class="tooltip"
-    src="@/assets/images/info.svg"
-    alt="info"
-    v-tooltip="tooltip"
-  />
+  <svg class="tooltip" v-tooltip="tooltip" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="9.5" :stroke="tooltipColor" />
+    <path
+      d="M11.984 7.81601C11.7174 7.81601 11.4934 7.72534 11.312 7.54401C11.1307 7.36268 11.04 7.13868 11.04 6.87201C11.04 6.60534 11.1307 6.38134 11.312 6.20001C11.4934 6.01868 11.7174 5.92801 11.984 5.92801C12.2614 5.92801 12.4907 6.01868 12.672 6.20001C12.864 6.38134 12.96 6.60534 12.96 6.87201C12.96 7.13868 12.864 7.36268 12.672 7.54401C12.4907 7.72534 12.2614 7.81601 11.984 7.81601ZM11.168 9.32001H12.816V17H11.168V9.32001Z"
+      :fill="tooltipColor" />
+  </svg>
 </template>
 
 <script>
@@ -14,6 +14,7 @@ export default {
       type: String,
       default: "",
     },
+    tooltipColor: { type: String, default: '#fff' }
   },
 };
 </script>

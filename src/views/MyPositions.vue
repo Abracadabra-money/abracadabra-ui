@@ -12,7 +12,9 @@
         <ChainsDropdown />
       </div>
 
-      <div class="positions-list"></div>
+      <div class="positions-list">
+        <CauldronPositionItem />
+      </div>
     </div>
   </div>
 </template>
@@ -106,8 +108,8 @@ export default {
       return this.farms.filter((farm) => {
         const isOpenMultiReward = farm.isMultiReward
           ? +farm.accountInfo.depositedBalance > 0 ||
-            farm.accountInfo.rewardTokensInfo.filter((item) => +item.earned > 0)
-              .length > 0
+          farm.accountInfo.rewardTokensInfo.filter((item) => +item.earned > 0)
+            .length > 0
           : false;
 
         const isOpenLegacyFarm =
@@ -219,11 +221,9 @@ export default {
   margin-bottom: 20px;
   border-radius: 16px;
   border: 1px solid #00296b;
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
+  background: linear-gradient(146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
 }

@@ -1,12 +1,6 @@
 <template>
   <div class="health-progress">
-    <div
-      class="progress"
-      :class="positionRisk"
-      :style="{ width: `${percent}%` }"
-    >
-      &nbsp;
-    </div>
+
   </div>
 </template>
 
@@ -21,10 +15,8 @@ export default {
 
 <style lang="scss" scoped>
 .health-progress {
-  width: 100%;
-  height: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  width: 200px;
+  height: 110px;
 }
 .progress {
   border-radius: 20px;
@@ -32,12 +24,14 @@ export default {
 }
 
 .safe {
-  background: #63caf8;
+  color: #67A069;
 }
+
 .medium {
-  background: #ffb800;
+  color: #DDC237;
 }
+
 .high {
-  background: #fe1842;
+  color: #8C4040;
 }
 </style>

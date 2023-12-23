@@ -1,42 +1,33 @@
 <template>
-  <div class="position-item">
+  <div class="position">
+
     <div class="position-header">
-      <PositionTokensInfo :position="cauldron" :tokenName="collateralSymbol" />
-      <PositionLinks :actions="positionActions" />
-    </div>
-
-    <PositionLiquidationPrice
-      :positionRisk="positionRisk"
-      :liquidationPrice="cauldron.liquidationPrice"
-    />
-
-    <PositionAssets :assetsInfo="assetsInfo" />
-
-    <div class="position-health" v-if="opened">
-      <h4 class="title">Position health</h4>
-
-      <HealthProgress :positionRisk="positionRisk" :percent="positionHealth" />
-
-      <p class="health-parcent">{{ positionHealth }}% of 100%</p>
-
-      <div class="drop-price">
-        <div class="drop-text">
-          <img
-            class="tooltip"
-            v-tooltip="tooltipText"
-            src="@/assets/images/info.svg"
-            alt="Tooltip"
-          />
-          <p>Required Drop in price</p>
+      <div class="position-token">
+        <div class="token-icon">
+          <BaseTokenIcon size="54px" />
+          <img class="token-chain" :src="getChainIcon(1)" />
         </div>
-        <p class="drop-value">{{ formatUSD(leftToDrop) }}</p>
+        <div class="token-info">
+          <span class="token-name">MIM-2Crv</span>
+          <span class="apr">
+            <Tooltip />
+            APR 101.82%
+          </span>
+        </div>
       </div>
+
+      <button class="manage">Manage</button>
     </div>
 
-    <OrdersManager
-      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
-      :cauldronObject="cauldron"
-    />
+    <div class="position-info">
+      <ul class="position-indicators">
+        <PositionIndicator :value="0.54">Collateral price</PositionIndicator>
+        <PositionIndicator positionRisk="high" :value="0.54">Liquidation price</PositionIndicator>
+        <PositionIndicator :value="0.54">Required Drop in price</PositionIndicator>
+      </ul>
+      <HealthProgress />
+    </div>
+
   </div>
 </template>
 
@@ -53,10 +44,16 @@ import OrdersManager from "@/components/borrow/OrdersManager.vue";
 import { ethers } from "ethers";
 import { useImage } from "@/helpers/useImage";
 
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue"
+import BaseButton from "@/components/base/BaseButton.vue"
+import PositionIndicator from "@/components/myPositions/PositionIndicator.vue"
+import Tooltip from "@/components/ui/icons/Tooltip.vue"
+import { getChainIcon } from "@/helpers/chains/getChainIcon"
+
 export default {
   props: {
     opened: { type: Boolean, default: true },
-    cauldron: { type: Object, required: true },
+    cauldron: { type: Object },
   },
 
   data() {
@@ -179,6 +176,8 @@ export default {
   },
 
   methods: {
+    getChainIcon,
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -194,102 +193,100 @@ export default {
     PositionLiquidationPrice,
     PositionAssets,
     HealthProgress,
-    OrdersManager
+    OrdersManager,
+
+    BaseTokenIcon,
+    PositionIndicator,
+    BaseButton,
+    Tooltip
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.position-item {
+.position {
   display: flex;
+  width: 628px;
+  padding: 24px;
   flex-direction: column;
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 20px;
+  gap: 15px;
+  border-radius: 16px;
+  border: 1px solid #223667;
+  background: linear-gradient(146deg, rgba(0, 10, 35, 0.07) 0%, rgba(0, 80, 156, 0.07) 101.49%);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .position-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-row-gap: 20px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.title {
-  font-size: 18px;
-  line-height: 150%;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 20px;
-}
-
-.health-parcent {
-  text-align: right;
-  margin: 8px 0 14px;
-}
-
-.drop-price {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 0;
+}
+
+.position-token {
+  display: flex;
+  align-items: center;
+}
+
+.token-icon {
   position: relative;
-  font-size: 18px;
-  line-height: 27px;
 }
 
-.drop-price :after {
-  content: "";
+.token-chain {
   position: absolute;
-  bottom: 0;
-  left: 32px;
-  right: 32px;
-  height: 1px;
-  background-color: rgba(255, 255, 255, 0.1);
+  top: -4px;
+  right: 4px;
+  width: 15px;
+  height: 15px;
 }
 
-.drop-text {
+.token-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.token-name {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.apr {
   display: flex;
   align-items: center;
-  color: rgba(255, 255, 255, 0.8);
-  gap: 12px;
+  gap: 4px;
+  color: #FFF;
+  text-shadow: 0px 0px 16px #AB5DE8;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.tooltip {
-  width: 20px;
+.manage {
+  color: #7088CC;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 24px;
+  gap: 10px;
+  border-radius: 12px;
+  border: 2px solid #7088CC;
+  background: rgba(255, 255, 255, 0.01);
+  transition: opacity 0.7s ease;
+}
+
+.manage:hover {
+  opacity: 0.7;
   cursor: pointer;
 }
 
-.drop-value {
-  font-weight: 700;
+.position-info{
+  display: flex;
+  gap: 24px;
 }
 
-@media (max-width: 640px) {
-  .position-item {
-    padding: 20px 10px;
-  }
-
-  .position-header {
-    grid-template-columns: 1fr;
-  }
-}
-
-// ----------------
-
-@media (max-width: 640px) {
-  .pos-item .lp-data-token {
-    font-size: 16px;
-  }
-
-  .pos-item .lp-data-balance {
-    font-size: 15px;
-  }
-
-  .pos-item .footer-list-title,
-  .pos-item .footer-list-value {
-    font-size: 15px;
-  }
+.position-indicators{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
 }
 </style>
