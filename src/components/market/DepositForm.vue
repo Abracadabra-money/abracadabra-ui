@@ -7,7 +7,7 @@
         v-if="!!cauldron.config?.wrapInfo"
         :selected="useUnwrapToken"
         :text="toggleTokenName"
-        @updateToggle="$emit('updateActiveToken')"
+        @updateToggle="$emit('toogleUseUnwrapToken')"
       />
     </div>
     <h4 class="subtitle">
@@ -37,7 +37,7 @@ export default {
     cauldron: Object as any,
   },
 
-  emits: ["updateCollateralValues", "updateActiveToken"],
+  emits: ["updateCollateralValues", "toogleUseUnwrapToken"],
 
   computed: {
     toggleTokenName() {

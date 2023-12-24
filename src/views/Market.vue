@@ -8,26 +8,21 @@
 
       <div class="market-info">
         <div class="actions-wrap">
-          <Tabs :name="activeTab" :items="tabItems" @select="selectTab" />
+          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
           <BorrowBlock
-            v-if="activeTab === 'borrow'"
+            v-if="activeTab === borrowTabKey"
             :cauldron="cauldron"
             :useUnwrapToken="useUnwrapToken"
-            :expectedCollateralAmount="expectedCollateralAmount"
-            :expectedBorrowAmount="expectedBorrowAmount"
-            @updateCollateralValues="updateCollateralValues"
-            @updateBorrowValue="updateBorrowValue"
-            @updateActiveToken="updateActiveToken"
+            @updateAmounts="updateAmounts"
+            @toogleUseUnwrapToken="toogleUseUnwrapToken"
           />
-          <!-- toogleUseUnwrapToken -->
 
           <RepayBlock
             v-else
             :cauldron="cauldron"
             :useUnwrapToken="useUnwrapToken"
-            @updateCollateralValues="updateCollateralValues"
-            @updateActiveToken="updateActiveToken"
+            @updateActiveToken="toogleUseUnwrapToken"
           />
         </div>
 
@@ -48,9 +43,8 @@
           <div class="row">
             <PositionInfo
               :cauldron="cauldron"
-              :expectedCollateralAmount="expectedCollateralAmount"
-              :expectedBorrowAmount="expectedBorrowAmount"
-              :expectedLiquidationPrice="expectedLiquidationPrice"
+              :amounts="amounts"
+              :useUnwrapToken="useUnwrapToken"
             />
             <CauldronInfo :cauldron="cauldron" />
           </div>
@@ -72,30 +66,25 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { defaultRpc } from "@/helpers/chains";
-import { BigNumber, providers, utils } from "ethers";
+import { BigNumber, providers } from "ethers";
 import { getChainsConfigs } from "@/helpers/getChainsConfigs";
-import { getLiquidationPrice } from "@/helpers/cauldron/utils";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
-
-type CollateralsValue = {
-  amount: BigNumber;
-  unwrapAmount: BigNumber;
-};
 
 export default {
   data() {
     return {
+      borrowTabKey: "borrow",
       chainId: null as any,
       cauldronId: null as any,
       cauldron: null as any,
       updateInterval: null as any,
-      // todo collateralsAmounts
-      collateralsValue: {
-        amount: BigNumber.from(0),
-        unwrapAmount: BigNumber.from(0),
+      amounts: {
+        collateral: {
+          amount: BigNumber.from(0),
+          unwrapAmount: BigNumber.from(0),
+        },
+        borrow: BigNumber.from(0),
       },
-      borrowAmount: BigNumber.from(0),
       useUnwrapToken: false,
       activeTab: "borrow",
       tabItems: ["borrow", "repay"],
@@ -104,56 +93,18 @@ export default {
 
   computed: {
     ...mapGetters({ account: "getAccount", signer: "getSigner" }),
-
-    expectedCollateralAmount() {
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-
-      if (this.useUnwrapToken)
-        return userCollateralAmount.add(this.collateralsValue.unwrapAmount);
-
-      return userCollateralAmount.add(this.collateralsValue.amount);
-    },
-
-    expectedBorrowAmount() {
-      const { borrowFee } = this.cauldron.mainParams;
-      const { decimals } = this.cauldron.config.mimInfo;
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-
-      // todo utils applyBorrowFee
-      const fee = this.borrowAmount
-        .mul(utils.parseUnits(borrowFee.toString()))
-        .div(expandDecimals(1, decimals))
-        .div(100);
-
-      if (borrowFee) return this.borrowAmount.add(fee).add(userBorrowAmount);
-      return this.borrowAmount.add(userBorrowAmount);
-    },
-
-    expectedLiquidationPrice() {
-      return getLiquidationPrice(
-        this.expectedBorrowAmount,
-        this.expectedCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
-    },
   },
 
   methods: {
-    updateCollateralValues(value: CollateralsValue) {
-      this.collateralsValue = value;
+    updateAmounts(amounts: any) {
+      this.amounts = amounts;
     },
 
-    updateBorrowValue(value: any) {
-      this.borrowAmount = value;
-    },
-
-    updateActiveToken() {
+    toogleUseUnwrapToken() {
       this.useUnwrapToken = !this.useUnwrapToken;
     },
 
-    selectTab(action: string) {
+    changeTab(action: string) {
       this.activeTab = action;
     },
 

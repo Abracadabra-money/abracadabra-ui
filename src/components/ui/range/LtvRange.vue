@@ -45,7 +45,7 @@ export default {
     step: { type: Number, default: 1 },
     risk: { type: [String, Boolean], default: "default" },
     disabled: { type: Boolean, default: false },
-    mcr: { type: Boolean, default: false },
+    mcr: { type: Number, default: 0 },
   },
 
   data(): any {

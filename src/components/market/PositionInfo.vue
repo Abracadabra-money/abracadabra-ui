@@ -59,25 +59,50 @@ import { utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
+import { applyBorrowFee, getLiquidationPrice } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
     cauldron: {
       type: Object as any,
     },
-    expectedCollateralAmount: {
+    amounts: {
       type: Object as any,
     },
-    expectedBorrowAmount: {
-      type: Object as any,
-    },
-    expectedLiquidationPrice: {
-      type: Object as any,
+    useUnwrapToken: {
+      type: Boolean,
     },
   },
   computed: {
     collateralDecimals() {
       return this.cauldron.config.collateralInfo.decimals;
+    },
+
+    expectedCollateralAmount() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+
+      if (this.useUnwrapToken)
+        return userCollateralAmount.add(this.amounts.collateral.unwrapAmount);
+
+      return userCollateralAmount.add(this.amounts.collateral.amount);
+    },
+
+    expectedBorrowAmount() {
+      const { borrowFee } = this.cauldron.mainParams;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      return applyBorrowFee(this.amounts.borrow, borrowFee).add(
+        userBorrowAmount
+      );
+    },
+
+    expectedLiquidationPrice() {
+      return getLiquidationPrice(
+        this.expectedBorrowAmount,
+        this.expectedCollateralAmount,
+        this.cauldron.config.mcr,
+        this.cauldron.config.collateralInfo.decimals
+      );
     },
   },
 

@@ -58,6 +58,8 @@ export const getUserLtv = (
   userBorrowAmount: BigNumber,
   oracleExchangeRate: BigNumber
 ): BigNumber => {
+  if (collateralAmount.isZero()) return BigNumber.from(0);
+
   const collateralInMim = collateralAmount
     .mul(expandDecimals(1, MIM_DECIMALS))
     .div(oracleExchangeRate);

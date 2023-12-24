@@ -25,19 +25,20 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { getMimToBorrowByLtv, getUserLtv } from "@/helpers/cauldron/utils";
+import { getMimToBorrowByLtv } from "@/helpers/cauldron/utils";
+import { applyBorrowFee, getUserLtv } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
     cauldron: {
       type: Object as any,
     },
-    expectedCollateralAmount: {
-      type: Object as any,
+    useUnwrapToken: {
+      type: Boolean,
     },
-    expectedBorrowAmount: {
+    collateralAmounts: {
       type: Object as any,
     },
   },
@@ -48,6 +49,7 @@ export default {
     return {
       multiplier: 0,
       inputValue: "" as number | string,
+      borrowAmount: BigNumber.from(0),
     };
   },
 
@@ -61,6 +63,22 @@ export default {
         balance: userTokensInfo.mimBalance,
         price: 1,
       };
+    },
+
+    expectedCollateralAmount() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+
+      if (this.useUnwrapToken)
+        return userCollateralAmount.add(this.collateralAmounts.unwrapAmount);
+
+      return userCollateralAmount.add(this.collateralAmounts.amount);
+    },
+
+    expectedBorrowAmount() {
+      const { borrowFee } = this.cauldron.mainParams;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      return applyBorrowFee(this.borrowAmount, borrowFee).add(userBorrowAmount);
     },
 
     positionLtv() {
@@ -89,15 +107,13 @@ export default {
         this.cauldron.mainParams.oracleExchangeRate
       );
 
-      const borrowMimAmount = +utils.formatUnits(
-        mimToBorrow.sub(userBorrowAmount)
-      );
-
-      if (borrowMimAmount <= 0) this.inputValue = 0;
-      else this.inputValue = borrowMimAmount;
+      const borrowMimAmount = mimToBorrow.sub(userBorrowAmount);
+      if (borrowMimAmount.lte(0)) this.inputValue = 0;
+      else this.inputValue = +utils.formatUnits(borrowMimAmount);
     },
 
-    updateInputValue(value: any) {
+    updateInputValue(value: BigNumber) {
+      this.borrowAmount = value;
       this.$emit("updateBorrowValue", value);
     },
   },

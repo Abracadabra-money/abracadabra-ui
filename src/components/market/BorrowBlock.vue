@@ -4,7 +4,7 @@
       <DepositForm
         :useUnwrapToken="useUnwrapToken"
         :cauldron="cauldron"
-        @updateActiveToken="updateActiveToken"
+        @toogleUseUnwrapToken="toogleUseUnwrapToken"
         @updateCollateralValues="updateCollateralValues"
       />
     </div>
@@ -30,8 +30,8 @@
       <BorrowForm
         v-else
         :cauldron="cauldron"
-        :expectedCollateralAmount="expectedCollateralAmount"
-        :expectedBorrowAmount="expectedBorrowAmount"
+        :useUnwrapToken="useUnwrapToken"
+        :collateralAmounts="amounts.collateral"
         @updateBorrowValue="updateBorrowValue"
       />
 
@@ -42,6 +42,7 @@
 </template>
 
 <script lang="ts">
+import { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -52,13 +53,18 @@ export default {
     useUnwrapToken: {
       type: Boolean,
     },
-    expectedCollateralAmount: {},
-    expectedBorrowAmount: {},
   },
 
   data() {
     return {
       useLeverage: false,
+      amounts: {
+        collateral: {
+          amount: BigNumber.from(0),
+          unwrapAmount: BigNumber.from(0),
+        },
+        borrow: BigNumber.from(0),
+      },
     };
   },
 
@@ -76,15 +82,17 @@ export default {
 
   methods: {
     updateCollateralValues(value: any) {
-      this.$emit("updateCollateralValues", value);
+      this.amounts.collateral = value;
+      this.$emit("updateAmounts", this.amounts);
     },
 
     updateBorrowValue(value: any) {
-      this.$emit("updateBorrowValue", value);
+      this.amounts.borrow = value;
+      this.$emit("updateAmounts", this.amounts);
     },
 
-    updateActiveToken() {
-      this.$emit("updateActiveToken");
+    toogleUseUnwrapToken() {
+      this.$emit("toogleUseUnwrapToken");
     },
 
     updateActionType() {
