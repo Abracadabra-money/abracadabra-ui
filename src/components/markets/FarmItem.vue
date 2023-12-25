@@ -14,10 +14,12 @@
 
     <div class="item-header">
       <div class="token-info">
-        <div class="token-info-icon">
-          <BaseTokenIcon :icon="farm.icon" :name="farm.name" size="44px" />
-          <img class="token-chain" :src="getChainIcon(farm.chainId)" />
-        </div>
+        <TokenChainIcon
+          :icon="farm.icon"
+          :name="farm.name"
+          :chainId="farm.chainId"
+          size="44px"
+        />
         <span class="token-name">{{ farm.name }}</span>
       </div>
     </div>
@@ -45,10 +47,8 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import ChainTag from "@/components/ui/ChainTag.vue";
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
   props: {
@@ -105,13 +105,8 @@ export default {
     },
   },
 
-  methods: {
-    getChainIcon,
-  },
-
   components: {
-    BaseTokenIcon,
-    ChainTag,
+    TokenChainIcon,
     Tooltip,
   },
 };
@@ -151,18 +146,6 @@ export default {
 .token-info {
   display: flex;
   align-items: center;
-}
-
-.token-info-icon {
-  position: relative;
-}
-
-.token-chain {
-  position: absolute;
-  top: -4px;
-  right: 4px;
-  width: 15px;
-  height: 15px;
 }
 
 .token-name {
@@ -241,10 +224,14 @@ export default {
 .positionOpened {
   background: url("../../assets/images/farm/farm-opened-position-background.png"),
     linear-gradient(
-      90deg,
-      rgb(26, 14, 78) 0%,
-      rgb(15, 8, 62) 50%,
-      rgb(1, 12, 39) 100%
+      91deg,
+      rgba(27, 24, 68, 0.6) 14.68%,
+      rgba(13, 19, 38, 0.6) 76.58%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
     );
 
   background-repeat: no-repeat;

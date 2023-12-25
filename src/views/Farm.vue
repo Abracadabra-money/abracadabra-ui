@@ -7,12 +7,22 @@
           <p class="description">Stake LP tokens and earn rewards</p>
         </div>
 
-        <MarketsSwitch
-          :name="selectedTab"
-          :items="items"
-          @select="selectTab($event.name)"
-          :isDeprecated="isDeprecated"
-        />
+        <div class="farm-management">
+          <MarketsSwitch
+            :name="selectedTab"
+            :items="items"
+            @select="selectTab($event)"
+            :isDeprecated="isDeprecated"
+          />
+
+          <button
+            class="my-position-button"
+            @click="openMyPositionPopup"
+            v-if="isUserPositionOpen"
+          >
+            My position
+          </button>
+        </div>
       </div>
 
       <FarmingOpportunities
@@ -39,6 +49,12 @@
       />
     </div>
 
+    <FarmPositionMobilePopup
+      :selectedFarm="selectedFarm"
+      v-if="isUserPositionOpen && isMyPositionPopupOpened"
+      @closePopup="isMyPositionPopupOpened = false"
+    />
+
     <LocalPopupWrap
       :isOpened="isFarmsPopupOpened"
       :isFarm="true"
@@ -57,6 +73,7 @@ import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
 import FarmPosition from "@/components/farm/FarmPosition.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import FarmListPopup from "@/components/farm/FarmListPopup.vue";
+import FarmPositionMobilePopup from "@/components/farm/FarmPositionMobilePopup.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
@@ -75,12 +92,10 @@ export default {
     return {
       activeNetworks: [1, 250, 43114, 42161],
       isFarmsPopupOpened: false,
+      isMyPositionPopupOpened: false,
       inputAmount: null,
       selectedTab: "stake",
-      items: [
-        { title: "Stake", name: "stake" },
-        { title: "Unstake", name: "unstake" },
-      ],
+      items: ["stake", "unstake"],
       farmsTimer: null,
       selectedFarm: null,
       isActionProcessing: false,
@@ -336,6 +351,10 @@ export default {
     openFarmsPopup() {
       this.isFarmsPopupOpened = true;
     },
+
+    openMyPositionPopup() {
+      this.isMyPositionPopupOpened = true;
+    },
   },
 
   async created() {
@@ -353,6 +372,7 @@ export default {
   components: {
     LocalPopupWrap,
     FarmListPopup,
+    FarmPositionMobilePopup,
     MarketsSwitch,
     FarmingOpportunities,
     FarmActionBlock,
@@ -414,23 +434,58 @@ export default {
   font-weight: 400;
 }
 
-@media (max-width: 768px) {
+.farm-management {
+  display: flex;
+  justify-content: space-between;
+}
+
+.my-position-button {
+  display: none;
+  color: inherit;
+  padding: 8px 24px;
+  gap: 10px;
+  border-radius: 12px;
+  border: 2px solid #7088cc;
+  background: rgba(255, 255, 255, 0.01);
+  color: #7088cc;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.my-position-button:hover {
+  opacity: 0.7;
+}
+
+@media (max-width: 1300px) {
+  .farm-header {
+    flex-direction: column;
+    align-items: start;
+    gap: 16px;
+  }
+
+  .farm-management {
+    width: 100%;
+  }
+
+  .my-position-button {
+    display: block;
+  }
+
+  .farm-position {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
   .farm-wrap {
     padding: 30px;
   }
 
   .farm {
     padding: 0 15px;
-  }
-}
-
-@media (max-width: 600px) {
-  .farm-wrap {
-    padding: 30px 15px;
-  }
-
-  .farm {
-    padding: 0;
+    width: 100% !important;
   }
 }
 </style>

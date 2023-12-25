@@ -2,12 +2,16 @@
   <div class="farming-opportunities">
     <h4 class="subtitle">Farming Opportunities</h4>
 
-    <div class="select-glp">
+    <div class="select-lp">
       <SelectFarm
         :selectedFarm="selectedFarm"
         @openFarmsPopup="$emit('openFarmsPopup')"
       />
-      <GetLpLink :link="selectedFarm.stakingToken.link" v-if="selectedFarm" />
+      <GetLpLink
+        class="lp-link"
+        :link="selectedFarm.stakingToken.link"
+        v-if="selectedFarm"
+      />
     </div>
 
     <div class="farm-info">
@@ -65,6 +69,7 @@ export default {
 
 <style lang="scss" scoped>
 .farming-opportunities {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -89,7 +94,7 @@ export default {
   margin-bottom: 14px;
 }
 
-.select-glp {
+.select-lp {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -131,5 +136,36 @@ export default {
   height: 29px;
   background: rgba(255, 255, 255, 0.72);
   margin: 0 13px;
+}
+
+@media screen and (max-width: 600px) {
+  .subtitle {
+    margin-bottom: 0;
+    width: 170px;
+  }
+
+  .lp-link {
+    position: absolute;
+    height: 40px;
+    top: 24px;
+    right: 24px;
+  }
+
+  .farming-opportunities {
+    gap: 20px;
+  }
+
+  .farm-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .info-tag {
+    width: 100%;
+  }
+
+  .divider {
+    display: none;
+  }
 }
 </style>

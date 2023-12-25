@@ -14,14 +14,12 @@
 
     <div class="market-info">
       <div class="token-info">
-        <div class="token-info-icon" :style="farmStatusStyles.tokenInfoMargin">
-          <BaseTokenIcon
-            :icon="marketItem.icon"
-            :name="marketItem.name"
-            size="60px"
-          />
-          <img class="token-chain" :src="getChainIcon(marketItem.chainId)" />
-        </div>
+        <TokenChainIcon
+          :icon="marketItem.icon"
+          :name="marketItem.name"
+          :chainId="marketItem.chainId"
+          size="60px"
+        />
 
         <div class="name-apr">
           <p class="name">{{ marketItem.name }}</p>
@@ -40,8 +38,7 @@
 
 <script>
 import filters from "@/filters/index.js";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
 export default {
   props: {
@@ -104,8 +101,6 @@ export default {
   },
 
   methods: {
-    getChainIcon,
-
     formatUSD(value) {
       return filters.formatUSD(value);
     },
@@ -120,7 +115,7 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
+    TokenChainIcon,
   },
 };
 </script>
@@ -177,18 +172,6 @@ export default {
   height: 100%;
 }
 
-.token-info-icon {
-  position: relative;
-}
-
-.token-chain {
-  position: absolute;
-  top: -4px;
-  right: 4px;
-  width: 20px;
-  height: 20px;
-}
-
 .name-apr {
   display: flex;
   flex-direction: column;
@@ -226,10 +209,14 @@ export default {
 .positionOpened {
   background: url("../../../assets/images/farm/farm-opened-position-background.png"),
     linear-gradient(
-      90deg,
-      rgb(26, 14, 78) 0%,
-      rgb(15, 8, 62) 50%,
-      rgb(1, 12, 39) 100%
+      91deg,
+      rgba(27, 24, 68, 0.6) 14.68%,
+      rgba(13, 19, 38, 0.6) 76.58%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
     );
 
   background-repeat: no-repeat;

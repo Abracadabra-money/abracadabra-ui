@@ -217,4 +217,26 @@ export default {
   background-position: -30px 0;
   background-repeat: no-repeat;
 }
+
+@media screen and (max-width: 1050px) {
+  .farms-info {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .reward-cards {
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 620px) {
+  .reward-card {
+    width: 100%;
+  }
+
+  .arbitrum {
+    background-size: 140%, 100%;
+    background-position: -80px 0;
+  }
+}
 </style>

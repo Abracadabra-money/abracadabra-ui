@@ -1,18 +1,8 @@
 <template>
   <button class="select" @click="$emit('openFarmsPopup')">
     <div class="icon-text">
-      <div class="token-info-icon">
-        <BaseTokenIcon
-          :icon="selectedFarm?.icon"
-          :name="selectedFarm?.name"
-          size="32px"
-        />
-        <img
-          class="token-chain"
-          :src="getChainIcon(selectedFarm?.chainId)"
-          v-if="selectedFarm"
-        />
-      </div>
+      <TokenChainIcon :icon="selectedFarm?.icon" :name="selectedFarm?.name" :chainId="selectedFarm?.chainId"
+        size="38px" />
       <span class="select-text">
         {{ selectedFarm ? selectedFarm.name : "Select Farm" }}
       </span>
@@ -22,18 +12,14 @@
 </template>
 
 <script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import { useImage } from "@/helpers/useImage";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue"
 
 export default {
   props: {
     selectedFarm: { type: Object },
   },
 
-  methods: { getChainIcon },
-
-  components: { BaseTokenIcon },
+  components: { TokenChainIcon },
 };
 </script>
 
@@ -57,17 +43,6 @@ export default {
   cursor: default;
 }
 
-.token-info-icon {
-  position: relative;
-}
-
-.token-chain {
-  position: absolute;
-  top: -4px;
-  right: 4px;
-  width: 15px;
-  height: 15px;
-}
 
 .icon-text {
   display: flex;

@@ -5,7 +5,7 @@ import fantomFarms from "@/utils/farmsConfig/fantomFarms";
 
 export default [
   ...arbitrumFarms,
+  ...ethereumFarms,
   ...avaxFarms,
   ...fantomFarms,
-  ...ethereumFarms,
 ];

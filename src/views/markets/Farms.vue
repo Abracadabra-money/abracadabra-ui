@@ -26,25 +26,23 @@
             />
           </div>
 
-          <div class="sorters">
-            <div class="sort-buttons">
-              <SortButton :sortOrder="aprOrder" @click="changeAprOrder"
-                >APR</SortButton
-              >
-              <ChainsDropdown
-                :activeChains="activeChains"
-                :selectedChains="selectedChains"
-                @updateSelectedChain="updateSelectedChain"
-              />
-            </div>
-
-            <InputSearch @changeSearch="updateSearch" />
+          <div class="sort-buttons">
+            <SortButton :sortOrder="aprOrder" @click="changeAprOrder"
+              >APR</SortButton
+            >
+            <ChainsDropdown
+              :activeChains="activeChains"
+              :selectedChains="selectedChains"
+              @updateSelectedChain="updateSelectedChain"
+            />
           </div>
+
+          <InputSearch class="input-search" @changeSearch="updateSearch" />
         </div>
 
         <div class="farms-list">
           <template v-if="filteredFarms.length">
-            <MarketsFarmItem
+            <FarmItem
               v-for="farm in filteredFarms"
               :key="`${farm.id}-${farm.chainId}`"
               :farm="farm"
@@ -64,8 +62,7 @@
 <script>
 import { mapGetters } from "vuex";
 import EmptyState from "@/components/farm/EmptyState.vue";
-import MarketsFarmItem from "@/components/markets/FarmItem.vue";
-import CheckBox from "@/components/ui/CheckBox.vue";
+import FarmItem from "@/components/markets/FarmItem.vue";
 import Toggle from "@/components/ui/Toggle.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import InputSearch from "@/components/ui/inputs/InputSearch.vue";
@@ -142,7 +139,7 @@ export default {
           return !farm?.isDeprecated;
         });
       } else {
-        return farms.sort((a, b) => {
+        return [...farms].sort((a, b) => {
           if (a?.cauldronSettings || b?.cauldronSettings) {
             return (
               +a.cauldronSettings.isDeprecated -
@@ -229,9 +226,10 @@ export default {
     clearInterval(this.farmsInterval);
     window.removeEventListener("scroll", this.onScroll);
   },
+
   components: {
     EmptyState,
-    MarketsFarmItem,
+    FarmItem,
     Toggle,
     ChainsDropdown,
     InputSearch,
@@ -354,23 +352,64 @@ export default {
 }
 
 .togglers,
-.sorters,
 .sort-buttons {
   display: flex;
   gap: 20px;
+}
+
+.sort-buttons {
+  margin-left: auto;
+  margin-right: 20px;
 }
 
 .empty-state {
   margin: auto;
 }
 
-@media screen and (max-width: 1280px) {
+@media screen and (max-width: 1300px) {
   .farms-wrap {
     max-width: 90%;
   }
 
   .farms-list {
     justify-content: center;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .farms-list-head {
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 12px;
+  }
+
+  .input-search {
+    order: -1;
+    width: 100%;
+  }
+
+  .sort-buttons {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .farms-list-head {
+    align-items: start;
+  }
+
+  .input-search {
+    order: 1;
+    width: 100%;
+  }
+
+  .togglers {
+    order: 2;
+  }
+
+  .sort-buttons {
+    order: 3;
   }
 }
 </style>

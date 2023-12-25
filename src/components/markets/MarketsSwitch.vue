@@ -3,12 +3,12 @@
     <button
       v-for="(item, i) in items"
       class="switch-btn"
-      :class="{ 'switch-btn-active': name === item.name }"
+      :class="{ 'switch-btn-active': name === item }"
       :key="i"
       @click="$emit('select', item)"
-      :disabled="currentName === item.name"
+      :disabled="currentName === item"
     >
-      {{ item.title }}
+      {{ item }}
     </button>
   </div>
 
@@ -26,7 +26,6 @@
 
 <script>
 export default {
-  name: "MarketsSwitch",
   props: {
     name: {
       type: String,
@@ -70,6 +69,7 @@ export default {
   border-radius: 8px;
   background-color: transparent;
   border: none;
+  text-transform: capitalize;
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -114,5 +114,12 @@ export default {
   color: #878b93;
   font-size: 12px;
   font-weight: 400;
+}
+
+@media screen and (max-width: 600px) {
+  .switch {
+    width: 200px;
+    height: 43px;
+  }
 }
 </style>

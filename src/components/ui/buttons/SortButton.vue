@@ -56,4 +56,10 @@ export default {
   width: 20px;
   align-items: center;
 }
+
+@media screen and (max-width:600px){
+  .text{
+    font-size: 14px;
+  }
+}
 </style>
