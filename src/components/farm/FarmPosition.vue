@@ -71,6 +71,7 @@ import { getChainById } from "@/helpers/chains/index";
 export default {
   props: {
     selectedFarm: { type: Object },
+    isProperNetwork: { type: Boolean },
   },
 
   computed: {
@@ -125,11 +126,12 @@ export default {
     },
 
     disableEarnedButton() {
-      return this.selectedFarm.isMultiReward
+      const isInsufficientReward = this.selectedFarm.isMultiReward
         ? this.selectedFarm.accountInfo?.rewardTokensInfo?.filter(
             (tokenInfo) => +tokenInfo.earned > 0
           ).length === 0
         : !+this.rewardTokensInfo[0].value;
+      return isInsufficientReward || !this.isProperNetwork;
     },
   },
 

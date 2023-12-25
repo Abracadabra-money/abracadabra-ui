@@ -45,12 +45,14 @@
       <FarmPosition
         class="farm-position"
         :selectedFarm="selectedFarm"
+        :isProperNetwork="isProperNetwork"
         v-if="isUserPositionOpen"
       />
     </div>
 
     <FarmPositionMobilePopup
       :selectedFarm="selectedFarm"
+      :isProperNetwork="isProperNetwork"
       v-if="isUserPositionOpen && isMyPositionPopupOpened"
       @closePopup="isMyPositionPopupOpened = false"
     />

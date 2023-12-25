@@ -1,14 +1,7 @@
 <template>
   <div class="farms-view">
     <div class="farms-wrap">
-      <img
-        class="button-up"
-        src="@/assets/images/button-up.svg"
-        @click="scrollToTop"
-        v-if="showButtonUp"
-      />
-
-      <div v-else class="farms">
+      <div class="farms">
         <FarmsInfo :farms="this.farms" />
         <div class="farms-list-head">
           <div class="togglers">
@@ -55,6 +48,7 @@
           />
         </div>
       </div>
+      <ScrollToTop v-if="farms?.length" />
     </div>
   </div>
 </template>
@@ -68,6 +62,7 @@ import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import InputSearch from "@/components/ui/inputs/InputSearch.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
 import FarmsInfo from "@/components/farm/FarmsInfo.vue";
+import ScrollToTop from "@/components/ui/ScrollToTop.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
 export default {
@@ -78,7 +73,6 @@ export default {
       isActiveMarkets: true,
       isMyPositions: false,
       aprOrder: null,
-      scrollPosition: 0,
       farms: null,
       selectedChains: [0],
       isFarmsLoading: false,
@@ -202,14 +196,6 @@ export default {
       if (index === -1) this.selectedChains.push(chainId);
       else this.selectedChains.splice(index, 1);
     },
-
-    scrollToTop() {
-      window.scrollTo(0, 0);
-    },
-
-    onScroll() {
-      this.scrollPosition = window.scrollY;
-    },
   },
 
   async created() {
@@ -219,12 +205,10 @@ export default {
     this.farmsInterval = setInterval(async () => {
       this.farms = await getFarmsList(this.chainId, this);
     }, 60000);
-    window.addEventListener("scroll", this.onScroll);
   },
 
   beforeUnmount() {
     clearInterval(this.farmsInterval);
-    window.removeEventListener("scroll", this.onScroll);
   },
 
   components: {
@@ -235,6 +219,7 @@ export default {
     InputSearch,
     SortButton,
     FarmsInfo,
+    ScrollToTop,
   },
 };
 </script>
