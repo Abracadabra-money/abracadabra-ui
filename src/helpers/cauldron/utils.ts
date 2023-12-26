@@ -88,12 +88,15 @@ export const getMimToBorrowByLtv = (
     .mul(expandDecimals(1, MIM_DECIMALS))
     .div(oracleExchangeRate);
 
+  const maxToBorrow = collateralInMim.div(100).mul(mcr);
+  const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
   const mimPerPercent = collateralInMim.div(100);
 
   const mimToBorrow = mimPerPercent
     .mul(ltvBps.sub(currentLtvBps))
     .div(expandDecimals(1, BPS_PRESITION));
 
+  if (mimToBorrow.gt(leftToBorrow)) return leftToBorrow;
   return mimToBorrow;
 };
 
@@ -122,8 +125,8 @@ export const getMaxCollateralToRemove = (
 export const getPositionHealth = (
   liquidationPrice: BigNumber,
   oracleExchangeRate: BigNumber,
-  collateralDecimals: number,
-  healthMultiplier: number // ?
+  collateralDecimals: number
+  // healthMultiplier: number // ?
 ) => {
   const collateralPrice = expandDecimals(1, 18 + collateralDecimals).div(
     oracleExchangeRate

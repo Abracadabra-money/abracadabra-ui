@@ -39,9 +39,7 @@
     <div class="borrow-wrap">
       <div>
         <div class="row">
-          <h3 class="title">
-            Borrow MIM <IconButton seting v-if="useLeverage" />
-          </h3>
+          <h3 class="title">Borrow MIM</h3>
 
           <Toggle
             :selected="useLeverage"
@@ -92,6 +90,7 @@ import {
   getLiquidationPrice,
   getMaxToBorrow,
   getMimToBorrowByLtv,
+  getPositionHealth,
   getUserLtv,
 } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
@@ -118,13 +117,15 @@ export default {
     cauldron: {
       type: Object as any,
     },
+    useLeverage: {
+      type: Boolean,
+    },
   },
 
   data() {
     return {
       useNativeToken: false,
       useUnwrapToken: false,
-      useLeverage: false,
       depositInputValue: "",
       borrowInputValue: "",
       ltvRangeValue: "",
@@ -305,35 +306,28 @@ export default {
     },
 
     positionLtv() {
-      return Math.round(
-        +utils.formatUnits(
-          getUserLtv(
-            this.expectedCollateralAmount,
-            this.expectedBorrowAmount,
-            this.cauldron.mainParams.oracleExchangeRate
-          ),
-          2
-        )
+      return utils.formatUnits(
+        getUserLtv(
+          this.expectedCollateralAmount,
+          this.expectedBorrowAmount,
+          this.cauldron.mainParams.oracleExchangeRate
+        ),
+        2
       );
     },
 
     liquidationRisk() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.collateralInfo;
-      const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
 
-      const priceDifferens =
-        1 / exchangeRate -
-        +utils.formatUnits(this.expectedLiquidationPrice, decimals);
+      const riskPersent = getPositionHealth(
+        this.expectedLiquidationPrice,
+        oracleExchangeRate,
+        decimals
+      );
 
-      const riskPersent =
-        priceDifferens *
-        this.cauldron.config.cauldronSettings.healthMultiplier *
-        exchangeRate *
-        100;
-
-      if (riskPersent > 75) return "safe";
-      if (riskPersent > 5 && riskPersent <= 75) return "medium";
+      if (riskPersent.gte(0) && riskPersent.lte(25)) return "safe";
+      if (riskPersent.gt(25) && riskPersent.lte(75)) return "medium";
       return "high";
     },
 
@@ -423,14 +417,13 @@ export default {
       };
 
       this.$emit("updateAmounts", this.amounts);
-      console.log("value", value);
 
-      this.depositInputValue = +utils.formatUnits(value, decimals);
+      this.depositInputValue = utils.formatUnits(value, decimals);
     },
 
     updateBorrowValue(value: BigNumber) {
       this.amounts.borrow = value;
-      this.borrowInputValue = +utils.formatUnits(value);
+      this.borrowInputValue = utils.formatUnits(value);
       this.$emit("updateAmounts", this.amounts);
     },
 
@@ -445,13 +438,11 @@ export default {
         this.cauldron.mainParams.oracleExchangeRate
       );
 
-      const borrowMimAmount = mimToBorrow.sub(userBorrowAmount);
-      if (borrowMimAmount.lte(0)) this.borrowInputValue = 0;
-      else this.borrowInputValue = +utils.formatUnits(borrowMimAmount);
+      this.borrowInputValue = utils.formatUnits(mimToBorrow);
     },
 
     updateActionType() {
-      this.useLeverage = !this.useLeverage;
+      this.$emit("toogleUseLeverage");
     },
 
     async checkPermissionToCook(
@@ -611,9 +602,6 @@ export default {
   components: {
     TokenInput: defineAsyncComponent(
       () => import("@/components/market/TokenInput.vue")
-    ),
-    IconButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/IconButton.vue")
     ),
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     LtvRange: defineAsyncComponent(

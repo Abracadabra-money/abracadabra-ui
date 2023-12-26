@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters/index";
 import { defineAsyncComponent } from "vue";
@@ -83,7 +83,7 @@ export default {
 
       if (this.isBigNumber) {
         const emitValue = !value
-          ? utils.parseUnits("0", this.decimals)
+          ? BigNumber.from(0)
           : utils.parseUnits(
               filters.formatToFixed(value, this.decimals),
               this.decimals
