@@ -436,6 +436,7 @@ export default {
       this.amounts.deposit = {
         collateralTokenAmount,
         unwrapTokenAmount,
+        minToSwap: this.expectedMinToSwap,
       };
 
       this.$emit("updateAmounts", this.amounts);
@@ -476,7 +477,7 @@ export default {
       }
 
       if (this.isActionDisabled) return false;
-
+      // @ts-ignore
       if (!this[this.actionInfo.methodName]) return false;
 
       const notificationId = await this.createNotification(
@@ -491,6 +492,7 @@ export default {
       if (!isPermissionToCook) return false;
 
       try {
+        // @ts-ignore
         await this[this.actionInfo.methodName]();
 
         // todo
