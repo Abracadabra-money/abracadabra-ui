@@ -3,7 +3,7 @@
     <div class="deposit-wrap">
       <div>
         <div class="row">
-          <h3 class="title">Deposit collateral {{ expectedBorrowAmount }}</h3>
+          <h3 class="title">Deposit collateral</h3>
           <Toggle
             v-if="isNativeToken"
             :selected="useNativeToken"
@@ -601,7 +601,7 @@ export default {
     ),
     DynamicallyEstimatedPrice: defineAsyncComponent(
       // @ts-ignore
-      () => import("@/components/borrow/DynamicallyEstimatedPrice.vue")
+      () => import("@/components/market/DynamicallyEstimatedPrice.vue")
     ),
   },
 };
