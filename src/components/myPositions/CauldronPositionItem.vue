@@ -1,12 +1,8 @@
 <template>
-  <div class="position">
-
+  <div :class="['position', positionRisk]">
     <div class="position-header">
       <div class="position-token">
-        <div class="token-icon">
-          <BaseTokenIcon size="54px" />
-          <img class="token-chain" :src="getChainIcon(1)" />
-        </div>
+        <TokenChainIcon size="54px" name="NAME" icon="" :chainId="1" />
         <div class="token-info">
           <span class="token-name">MIM-2Crv</span>
           <span class="apr">
@@ -22,12 +18,17 @@
     <div class="position-info">
       <ul class="position-indicators">
         <PositionIndicator :value="0.54">Collateral price</PositionIndicator>
-        <PositionIndicator positionRisk="high" :value="0.54">Liquidation price</PositionIndicator>
-        <PositionIndicator :value="0.54">Required Drop in price</PositionIndicator>
+        <PositionIndicator :positionRisk="positionRisk" :value="0.54"
+          >Liquidation price</PositionIndicator
+        >
+        <PositionIndicator :value="0.54"
+          >Required Drop in price</PositionIndicator
+        >
       </ul>
-      <HealthProgress />
+      <HealthProgress :positionHealth="50" :positionRisk="positionRisk" />
     </div>
 
+    <PositionAssets />
   </div>
 </template>
 
@@ -35,20 +36,15 @@
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import PositionTokensInfo from "@/components/myPositions/PositionTokensInfo.vue";
-import PositionLinks from "@/components/myPositions/PositionLinks.vue";
-import PositionLiquidationPrice from "@/components/myPositions/PositionLiquidationPrice.vue";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
 import OrdersManager from "@/components/borrow/OrdersManager.vue";
 import { ethers } from "ethers";
 import { useImage } from "@/helpers/useImage";
 
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue"
-import BaseButton from "@/components/base/BaseButton.vue"
-import PositionIndicator from "@/components/myPositions/PositionIndicator.vue"
-import Tooltip from "@/components/ui/icons/Tooltip.vue"
-import { getChainIcon } from "@/helpers/chains/getChainIcon"
+import PositionIndicator from "@/components/myPositions/PositionIndicator.vue";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
 export default {
   props: {
@@ -88,6 +84,7 @@ export default {
     },
 
     positionHealth() {
+      return 50;
       const { liquidationPrice } = this.cauldron;
       const { healthMultiplier } = this.cauldron.config.cauldronSettings;
       const { userBorrowAmount } = this.cauldron.borrowInfo;
@@ -176,8 +173,6 @@ export default {
   },
 
   methods: {
-    getChainIcon,
-
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -188,17 +183,13 @@ export default {
   },
 
   components: {
-    PositionTokensInfo,
-    PositionLinks,
-    PositionLiquidationPrice,
     PositionAssets,
     HealthProgress,
     OrdersManager,
 
-    BaseTokenIcon,
     PositionIndicator,
-    BaseButton,
-    Tooltip
+    Tooltip,
+    TokenChainIcon,
   },
 };
 </script>
@@ -212,9 +203,14 @@ export default {
   gap: 15px;
   border-radius: 16px;
   border: 1px solid #223667;
-  background: linear-gradient(146deg, rgba(0, 10, 35, 0.07) 0%, rgba(0, 80, 156, 0.07) 101.49%);
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+  color: white;
 }
 
 .position-header {
@@ -226,18 +222,6 @@ export default {
 .position-token {
   display: flex;
   align-items: center;
-}
-
-.token-icon {
-  position: relative;
-}
-
-.token-chain {
-  position: absolute;
-  top: -4px;
-  right: 4px;
-  width: 15px;
-  height: 15px;
 }
 
 .token-info {
@@ -255,20 +239,20 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #FFF;
-  text-shadow: 0px 0px 16px #AB5DE8;
+  color: #fff;
+  text-shadow: 0px 0px 16px #ab5de8;
   font-size: 16px;
   font-weight: 600;
 }
 
 .manage {
-  color: #7088CC;
+  color: #7088cc;
   font-size: 14px;
   font-weight: 600;
   padding: 8px 24px;
   gap: 10px;
   border-radius: 12px;
-  border: 2px solid #7088CC;
+  border: 2px solid #7088cc;
   background: rgba(255, 255, 255, 0.01);
   transition: opacity 0.7s ease;
 }
@@ -278,15 +262,27 @@ export default {
   cursor: pointer;
 }
 
-.position-info{
+.position-info {
   display: flex;
   gap: 24px;
 }
 
-.position-indicators{
+.position-indicators {
   display: flex;
   flex-direction: column;
   gap: 14px;
   width: 100%;
+}
+
+.safe {
+  border-color: #67a069;
+}
+
+.medium {
+  border-color: #ddc237;
+}
+
+.high {
+  border-color: #8c4040;
 }
 </style>

@@ -3,6 +3,8 @@
     <div class="position-page">
       <MyPositionsInfo />
 
+      <BentoBoxBlock />
+
       <div class="positions-list-head">
         <SortButton>Health factor</SortButton>
         <SortButton>Collateral deposited</SortButton>
@@ -13,6 +15,7 @@
       </div>
 
       <div class="positions-list">
+        <CauldronPositionItem />
         <CauldronPositionItem />
       </div>
     </div>
@@ -29,7 +32,6 @@ import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPos
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
-import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
 
 import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
@@ -108,8 +110,8 @@ export default {
       return this.farms.filter((farm) => {
         const isOpenMultiReward = farm.isMultiReward
           ? +farm.accountInfo.depositedBalance > 0 ||
-          farm.accountInfo.rewardTokensInfo.filter((item) => +item.earned > 0)
-            .length > 0
+            farm.accountInfo.rewardTokensInfo.filter((item) => +item.earned > 0)
+              .length > 0
           : false;
 
         const isOpenLegacyFarm =
@@ -183,7 +185,6 @@ export default {
   components: {
     BentoBoxBlock,
     CauldronPositionItem,
-    FarmPositionItem,
 
     MyPositionsInfo,
     ChainsDropdown,
@@ -196,7 +197,6 @@ export default {
 .my-positions-view {
   display: flex;
   justify-content: center;
-  width: 100%;
   min-height: 100vh;
   background: url("../assets/images/myPositions/my-positions-page-background.png");
   background-repeat: no-repeat;
@@ -216,27 +216,31 @@ export default {
   display: flex;
   align-items: center;
   gap: 20px;
-  width: 100%;
+  max-width: 100%;
   padding: 12px 24px;
   margin-bottom: 20px;
   border-radius: 16px;
   border: 1px solid #00296b;
-  background: linear-gradient(146deg,
-      rgba(0, 10, 35, 0.07) 0%,
-      rgba(0, 80, 156, 0.07) 101.49%);
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
 }
 
 .positions-list {
-  display: grid;
-  grid-template-rows: repeat(auto-fill, auto);
-  row-gap: 24px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
 }
 
 .position-list {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   gap: 16px;
 }
 </style>

@@ -1,21 +1,8 @@
 <template>
-  <div class="bento-wrapper" v-if="isHide">
-    <BentoBoxItem
-      v-if="bentoBoxConfig.mimInDegenBalance"
-      @withdraw="openPopup(false, false)"
-      @deposit="openPopup(false, true)"
-      :balance="bentoBoxConfig.mimInDegenBalance"
-      :mimPrice="bentoBoxConfig.mimPrice"
-    />
+  <div class="bento-wrapper">
+    <BentoBoxItem />
 
-    <BentoBoxItem
-      v-if="bentoBoxConfig.mimInBentoBalance"
-      @withdraw="openPopup(true, false)"
-      @deposit="openPopup(true, true)"
-      :balance="bentoBoxConfig.mimInBentoBalance"
-      :mimPrice="bentoBoxConfig.mimPrice"
-      :isBento="true"
-    />
+    <BentoBoxItem :isBento="true" />
 
     <LocalPopupWrap
       :isOpened="popupData.opened"
@@ -121,14 +108,8 @@ export default {
 
 <style lang="scss" scoped>
 .bento-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 30px;
-}
-
-@media (max-width: 1024px) {
-  .bento-wrapper {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 </style>

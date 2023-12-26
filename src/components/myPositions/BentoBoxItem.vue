@@ -1,30 +1,42 @@
 <template>
-  <div class="bento-block" :class="{ disabled: isDisabled }">
-    <div class="bento-header">
+  <div :class="['bento-block', isBento ? 'bento-bg' : 'degen-bg']">
+    <div class="bento-info">
       <img class="bento-img" :src="boxIcon" alt="Box" />
-      <p>{{ title }}</p>
-    </div>
-
-    <div class="balances-wrap">
-      <BaseTokenIcon :icon="mimIcon" name="MIM" size="50px" />
-      <div>
-        <p class="balance">{{ formatTokenBalance(parsedBalance) }}</p>
-        <p class="balance-usd">{{ formatUSD(balanceInUsd) }}</p>
+      <div class="bento-title-amount">
+        <p class="bento-title">{{ title }}</p>
+        <div class="bento-amount">
+          <BaseTokenIcon :icon="mimIcon" name="MIM" size="24px" />
+          <p class="token-balance">{{ formatTokenBalance(parsedBalance) }}</p>
+        </div>
       </div>
     </div>
 
-    <div class="btns-wrap">
-      <BaseButton @click="$emit('withdraw')" :disabled="isDisabled">
-        Withdraw
-      </BaseButton>
-      <BaseButton @click="$emit('deposit')" selected>Deposit</BaseButton>
+    <div class="bento-chains">
+      <img class="chain-icon" :src="getChainIcon(1)" />
+      <img class="chain-icon" :src="getChainIcon(1)" />
+      <img class="chain-icon" :src="getChainIcon(1)" />
+      <img class="chain-icon" :src="getChainIcon(1)" />
+      <img class="chain-icon" :src="getChainIcon(1)" />
+      <img class="chain-icon" :src="getChainIcon(1)" />
+      <img class="chain-icon" :src="getChainIcon(1)" />
     </div>
 
-    <div class="description">
-      <p>MIM Balance on {{ title }}</p>
-      <a class="link" target="_blank" rel="noreferrer noopener" :href="link"
-        >Read More Here</a
+    <div class="button-description">
+      <BaseButton
+        class="withdraw-button"
+        @click="$emit('withdraw')"
+        :disabled="isDisabled"
       >
+        Withdraw
+      </BaseButton>
+
+      <div class="description">
+        MIM Balance on {{ title }}
+        <a class="link" target="_blank" rel="noreferrer noopener" :href="link">
+          <span class="link-text"> Read More</span>
+          <img class="link-arrow" src="@/assets/images/farm-lp-arrow.svg" />
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -36,10 +48,10 @@ import degenIcon from "@/assets/images/degenbox.svg";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import filters from "@/filters/index.js";
-
 import { ethers, BigNumber } from "ethers";
-
 import { formatUnits } from "viem";
+
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
   props: {
@@ -84,6 +96,8 @@ export default {
   },
 
   methods: {
+    getChainIcon,
+
     formatUSD(value) {
       return filters.formatUSD(value);
     },
@@ -101,18 +115,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.degen-bg {
+  background: url("../../assets/images/myPositions/degenbox-item-background.png");
+}
+
+.bento-bg {
+  background: url("../../assets/images/myPositions/bentobox-item-background.png");
+}
+
 .bento-block {
-  background: linear-gradient(
-    92.26deg,
-    rgba(34, 203, 245, 0.1) 0%,
-    rgba(255, 222, 104, 0.1) 40.06%,
-    rgba(167, 255, 181, 0.1) 61.92%,
-    rgba(122, 121, 250, 0.1) 100%
-  );
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 81px;
+  flex-grow: 1;
+  border-radius: 15px;
+  background-size: 120%;
+  background-position: 40% 40%;
+  background-repeat: no-repeat;
   border: 1px solid rgba(129, 128, 255, 0.2);
   box-shadow: 0 1px 10px rgba(1, 1, 1, 0.05);
-  border-radius: 20px;
-  padding: 13px 10px 25px;
+  padding: 12px 9px;
 }
 
 .disabled {
@@ -125,49 +149,93 @@ export default {
   );
 }
 
-.bento-header {
+.bento-info {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  padding: 0 0 13px 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .bento-img {
-  width: 24px;
-  height: auto;
+  width: 50px;
+  height: 44px;
   object-fit: contain;
   margin-right: 8px;
 }
 
-.balances-wrap {
+.bento-title-amount {
   display: flex;
-  gap: 14px;
-  padding: 16px 0;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.balance {
-  font-weight: 600;
-  font-size: 30px;
-  line-height: 30px;
+.bento-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.45px;
 }
-.balance-usd {
-  font-weight: 400;
+
+.bento-amount {
+  display: flex;
+  align-items: center;
+  color: #fff;
   font-size: 20px;
-  line-height: 20px;
+  font-weight: 600;
 }
 
-.btns-wrap {
+.bento-chains {
+  position: absolute;
   display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  top: 12px;
+  left: 30%;
+  max-width: 200px;
+}
+
+.chain-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.button-description {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 4px;
+}
+
+.withdraw-button {
+  display: flex;
+  padding: 9px 24px;
+  justify-content: center;
+  align-items: center;
+  width: 187px;
+  height: 39px;
+  border-radius: 10px;
+  border: 2px solid #fff;
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .description {
-  line-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  height: 20px;
 }
 
 .link {
-  color: #9695f8;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  color: #7088cc;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.link-text {
+  line-height: 20px;
 }
 </style>
