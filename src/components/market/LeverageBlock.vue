@@ -115,6 +115,16 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
+type ActiveToken = {
+  name: string;
+  icon: string;
+  balance: BigNumber;
+  decimals: number;
+  allowance: BigNumber;
+  isNative?: boolean;
+  price: string;
+};
+
 export default {
   mixins: [cookMixin],
   props: {
@@ -301,7 +311,7 @@ export default {
       };
     },
 
-    activeToken() {
+    activeToken(): ActiveToken {
       const useUnwrappedByDefault =
         this.cauldron.config?.wrapInfo?.useUnwrappedByDefault;
 
