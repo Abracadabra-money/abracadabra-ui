@@ -100,6 +100,7 @@ import { approveToken } from "@/helpers/approval";
 // @ts-ignore
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/cauldron";
+// @ts-ignore
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
