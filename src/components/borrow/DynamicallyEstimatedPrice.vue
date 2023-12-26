@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 // @ts-ignore
 import filters from "@/filters/index.js";
 // @ts-ignore
@@ -47,7 +47,7 @@ export default {
 
   data() {
     return {
-      price: null as any,
+      price: null,
       updateInterval: null,
       isFetching: false,
       isProfit: false,
@@ -112,16 +112,13 @@ export default {
     },
 
     buyToken() {
-      if (!this.isClose)
-        return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
-          .address;
+      if (!this.isClose) return chainsUsdcConfigs[this.chainId].address;
       return this.mimAddress;
     },
 
     sellToken() {
       if (!this.isClose) return this.mimAddress;
-      return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
-        .address;
+      return chainsUsdcConfigs[this.chainId].address;
     },
 
     parsedAmount() {
@@ -173,8 +170,8 @@ export default {
   },
 
   components: {
-    TooltipIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
+    TooltipIcon: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
