@@ -123,6 +123,7 @@ type ActiveToken = {
   allowance: BigNumber;
   isNative?: boolean;
   price: string;
+  contract?: any;
 };
 
 export default {
@@ -151,7 +152,7 @@ export default {
         deposit: {
           collateralTokenAmount: BigNumber.from(0),
           unwrapTokenAmount: BigNumber.from(0),
-          expectedMinToSwap: BigNumber.from(0),
+          minToSwap: BigNumber.from(0),
         },
         borrow: BigNumber.from(0),
       },
@@ -484,8 +485,7 @@ export default {
 
       const isPermissionToCook = await this.checkPermissionToCook(
         notificationId,
-        this.expectedBorrowAmount,
-        this.amounts.deposit.unwrapTokenAmount
+        this.expectedBorrowAmount
       );
 
       if (!isPermissionToCook) return false;
