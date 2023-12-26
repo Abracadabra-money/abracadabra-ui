@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 // @ts-ignore
 import filters from "@/filters/index.js";
 // @ts-ignore
