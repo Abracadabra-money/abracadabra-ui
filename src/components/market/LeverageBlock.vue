@@ -92,7 +92,7 @@
 
 <script lang="ts">
 import {
-  getLeverageAmounts,
+  // getLeverageAmounts,
   getLiquidationPrice,
   getMaxToBorrow,
   getPositionHealth,
@@ -337,7 +337,7 @@ export default {
       return "high";
     },
 
-    actionInfo() {
+    actionInfo(): any {
       const { isCollateralLocked } = this.cauldron.additionalInfo;
 
       const info = {
@@ -414,7 +414,7 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    formatUnits(value: string, decimals = 18) {
+    formatUnits(value: BigNumber, decimals = 18) {
       return Number(utils.formatUnits(value, decimals));
     },
 
@@ -449,19 +449,19 @@ export default {
 
     // todo
     updateMultiplier(value: number) {
-      const { oracleExchangeRate } = this.cauldron.mainParams;
+      // const { oracleExchangeRate } = this.cauldron.mainParams;
 
       this.multiplier = value;
       this.amounts.borrow = this.expectedBorrowAmount;
       this.amounts.deposit.minToSwap = this.expectedMinToSwap;
 
       // todo
-      const leverageAmounts = getLeverageAmounts(
-        this.amounts.deposit.unwrapTokenAmount,
-        this.multiplier * 100,
-        this.slippage,
-        oracleExchangeRate
-      );
+      // const leverageAmounts = getLeverageAmounts(
+      //   this.amounts.deposit.unwrapTokenAmount,
+      //   this.multiplier * 100,
+      //   this.slippage,
+      //   oracleExchangeRate
+      // );
     },
 
     async actionHandler() {

@@ -120,6 +120,7 @@ type ActiveToken = {
   allowance: BigNumber;
   isNative?: boolean;
   price: string;
+  contract?: any;
 };
 
 export default {
@@ -355,7 +356,7 @@ export default {
       );
     },
 
-    actionInfo() {
+    actionInfo(): any {
       const { borrow } = this.amounts;
       const { collateralTokenAmount } = this.amounts.deposit;
       const { isCollateralLocked } = this.cauldron.additionalInfo;
