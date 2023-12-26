@@ -53,7 +53,7 @@ export default {
       type: String,
       default: "Select Farm",
     },
-    tokenPrice: { type: Number },
+    tokenPrice: {},
   },
 
   data(): any {
@@ -93,8 +93,8 @@ export default {
       } else this.$emit("updateInputValue", BigInt(Number(value) * 1e18));
     },
 
-    value(val) {
-      this.inputValue = val;
+    value(value) {
+      this.inputValue = value;
     },
   },
 

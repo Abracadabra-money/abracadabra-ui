@@ -4,10 +4,17 @@
       <h3 class="title">Deposit collateral</h3>
 
       <Toggle
+        v-if="cauldron.config.cauldronSettings.acceptUseDefaultBalance"
+        :selected="useNativeToken"
+        :text="nativeTokenName"
+        @updateToggle="changeToggle('toogleUseNativeToken')"
+      />
+
+      <Toggle
         v-if="!!cauldron.config?.wrapInfo"
         :selected="useUnwrapToken"
         :text="toggleTokenName"
-        @updateToggle="$emit('toogleUseUnwrapToken')"
+        @updateToggle="changeToggle('toogleUseUnwrapToken')"
       />
     </div>
     <h4 class="subtitle">
@@ -17,27 +24,42 @@
 
   <!-- todo price -->
   <TokenInput
+    :value="inputValue"
     :name="activeToken.name"
     :icon="activeToken.icon"
     :max="activeToken.balance"
     :decimals="activeToken.decimals"
-    :tokenPrice="2"
+    :tokenPrice="activeToken.price"
     isBigNumber
     @updateInputValue="updateInputValue"
   />
 </template>
 
 <script lang="ts">
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
+import { getChainById } from "@/helpers/chains";
 
 export default {
   props: {
-    useUnwrapToken: Boolean,
+    useUnwrapToken: Boolean as any,
+    useNativeToken: Boolean as any,
     cauldron: Object as any,
+    depositInputValue: Object as any,
   },
 
-  emits: ["updateCollateralValues", "toogleUseUnwrapToken"],
+  emits: [
+    "updateCollateralValues",
+    "toogleUseUnwrapToken",
+    "toogleUseNativeToken",
+  ],
+
+  data() {
+    return {
+      inputValue: false,
+    };
+  },
 
   computed: {
     toggleTokenName() {
@@ -46,10 +68,30 @@ export default {
       return this.cauldron.config?.wrapInfo.unwrappedToken.name;
     },
 
+    nativeTokenName() {
+      const { symbol }: any = getChainById(this.cauldron.config.chainId);
+
+      return symbol;
+    },
+
     activeToken() {
-      const { config, userTokensInfo } = this.cauldron;
+      const { config, userTokensInfo, mainParams } = this.cauldron;
+      const { collateralPrice } = mainParams;
       const { wrapInfo, name, icon, collateralInfo } = config;
-      const { collateralBalance, unwrappedTokenBalance } = userTokensInfo;
+      const { collateralBalance, unwrappedTokenBalance, nativeTokenBalance } =
+        userTokensInfo;
+
+      if (this.useNativeToken) {
+        const { symbol, baseTokenIcon }: any = getChainById(config.chainId);
+
+        return {
+          name: symbol,
+          icon: baseTokenIcon,
+          balance: nativeTokenBalance,
+          decimals: 18,
+          price: utils.formatUnits(collateralPrice),
+        };
+      }
 
       if (wrapInfo?.useUnwrappedByDefault && !this.useUnwrapToken) {
         return {
@@ -57,6 +99,7 @@ export default {
           icon: wrapInfo.unwrappedToken.icon,
           balance: unwrappedTokenBalance,
           decimals: collateralInfo.decimals,
+          price: utils.formatUnits(collateralPrice),
         };
       }
 
@@ -65,18 +108,44 @@ export default {
         icon,
         balance: collateralBalance,
         decimals: collateralInfo.decimals,
+        price: utils.formatUnits(collateralPrice),
       };
     },
   },
 
+  watch: {
+    useUnwrapToken() {
+      this.inputValue = !this.inputValue;
+    },
+
+    depositInputValue() {
+      this.inputValue = !this.inputValue;
+    },
+  },
+
   methods: {
+    changeToggle(emit: any) {
+      this.$emit(emit);
+    },
+
     updateInputValue(value: any) {
       const { tokensRate } = this.cauldron.additionalInfo;
       const { decimals } = this.cauldron.config.collateralInfo;
 
+      const isUnwrapToken = this.cauldron.config?.wrapInfo
+        ?.useUnwrappedByDefault
+        ? !this.useUnwrapToken
+        : this.useUnwrapToken;
+
+      const collateralTokenAmount = isUnwrapToken
+        ? applyTokenWrapperRate(value, tokensRate, decimals)
+        : value;
+
+      const unwrapTokenAmount = value ? value : BigNumber.from(0);
+
       this.$emit("updateCollateralValues", {
-        amount: value,
-        unwrapAmount: applyTokenWrapperRate(value, tokensRate, decimals),
+        collateralTokenAmount,
+        unwrapTokenAmount,
       });
     },
   },

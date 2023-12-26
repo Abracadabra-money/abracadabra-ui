@@ -5,7 +5,6 @@
 
     <template v-if="cauldron">
       <MarketHead :cauldron="cauldron" v-if="cauldron" />
-
       <div class="market-info">
         <div class="actions-wrap">
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
@@ -13,17 +12,17 @@
           <BorrowBlock
             v-if="activeTab === borrowTabKey"
             :cauldron="cauldron"
-            :useUnwrapToken="useUnwrapToken"
+            :useNativeToken="useNativeToken"
             @updateAmounts="updateAmounts"
-            @toogleUseUnwrapToken="toogleUseUnwrapToken"
+            @toogleUseNativeToken="toogleUseNativeToken"
+            @updateMarket="createCauldronInfo"
           />
 
-          <RepayBlock
+          <!-- <RepayBlock
             v-else
             :cauldron="cauldron"
-            :useUnwrapToken="useUnwrapToken"
             @updateActiveToken="toogleUseUnwrapToken"
-          />
+          /> -->
         </div>
 
         <div class="market-stats">
@@ -41,11 +40,7 @@
           </div>
 
           <div class="row">
-            <PositionInfo
-              :cauldron="cauldron"
-              :amounts="amounts"
-              :useUnwrapToken="useUnwrapToken"
-            />
+            <PositionInfo :cauldron="cauldron" :amounts="amounts" />
             <CauldronInfo :cauldron="cauldron" />
           </div>
         </div>
@@ -79,13 +74,13 @@ export default {
       cauldron: null as any,
       updateInterval: null as any,
       amounts: {
-        collateral: {
-          amount: BigNumber.from(0),
-          unwrapAmount: BigNumber.from(0),
+        deposit: {
+          collateralTokenAmount: BigNumber.from(0),
+          unwrapTokenAmount: BigNumber.from(0),
         },
         borrow: BigNumber.from(0),
       },
-      useUnwrapToken: false,
+      useNativeToken: false,
       activeTab: "borrow",
       tabItems: ["borrow", "repay"],
     };
@@ -100,8 +95,8 @@ export default {
       this.amounts = amounts;
     },
 
-    toogleUseUnwrapToken() {
-      this.useUnwrapToken = !this.useUnwrapToken;
+    toogleUseNativeToken() {
+      this.useNativeToken = !this.useNativeToken;
     },
 
     changeTab(action: string) {
@@ -160,9 +155,9 @@ export default {
     BorrowBlock: defineAsyncComponent(
       () => import("@/components/market/BorrowBlock.vue")
     ),
-    RepayBlock: defineAsyncComponent(
-      () => import("@/components/market/RepayBlock.vue")
-    ),
+    // RepayBlock: defineAsyncComponent(
+    //   () => import("@/components/market/RepayBlock.vue")
+    // ),
     PriceRange: defineAsyncComponent(
       () => import("@/components/ui/range/PriceRange.vue")
     ),

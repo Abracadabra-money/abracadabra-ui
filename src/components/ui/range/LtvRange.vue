@@ -39,23 +39,22 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     value: { type: [Number, String], default: 0 },
-    collateralValue: { type: [Number, String], default: "" },
-    min: { type: Number, default: 0 },
-    max: { type: Number, default: 10 },
+    userLtv: { type: [Number, String], default: "" },
     step: { type: Number, default: 1 },
+    mcr: { type: Number, default: 0 },
+    min: { type: Number, default: 0 },
+    max: { type: Number, default: 75 },
     risk: { type: [String, Boolean], default: "default" },
     disabled: { type: Boolean, default: false },
-    mcr: { type: Number, default: 0 },
   },
 
   data(): any {
     return {
-      inputValue: +this.collateralValue,
+      inputValue: +this.userLtv,
       colors: {
         safe: { start: "#356D37", end: "#67A069" },
         medium: { start: "#A78300", end: "#FED84F" },
         high: { start: "#4F1717", end: "#8C4040" },
-        default: { start: "#0C0F1C", end: "#212555" },
       },
     };
   },
@@ -70,13 +69,10 @@ export default {
     },
 
     gradientRangeTrack() {
-      // todo risk
-      const risk = this.collateralValue ? this.risk : "default";
-
       return `linear-gradient(
             90deg,
-            ${this.colors[risk].start} 0%,
-            ${this.colors[risk].end} ${this.gradientPercent}%,
+            ${this.colors[this.risk].start} 0%,
+            ${this.colors[this.risk].end} ${this.gradientPercent}%,
             #0C0F1C ${this.gradientPercent}%,
             #212555 100%
           )
@@ -85,22 +81,18 @@ export default {
 
     trackPercent() {
       return Math.floor(
-        (100 / (this.max - this.min)) * (this.collateralValue - this.min)
+        (100 / (this.max - this.min)) * (this.userLtv - this.min)
       );
     },
 
     progressPercent() {
       return Math.floor(
-        (this.mcr / (this.max - this.min)) * (this.collateralValue - this.min)
+        (this.mcr / (this.max - this.min)) * (this.userLtv - this.min)
       );
     },
 
     gradientPercent() {
       if (this.progressPercent > this.max) return 100;
-
-      // if (this.progressPercent <= this.collateralValue)
-      //   return this.trackPercent;
-
       return this.trackPercent;
     },
 

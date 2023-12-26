@@ -44,13 +44,9 @@ export const getMaxToBorrow = (
     .mul(expandDecimals(1, MIM_DECIMALS))
     .div(oracleExchangeRate);
 
-  const maxToBorrow = collateralInMim
-    .div(100)
-    .mul(mcr - FENCING_AGAINST_LIQUIDATION);
+  const maxToBorrow = collateralInMim.div(100).mul(mcr);
 
-  const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
-
-  return leftToBorrow;
+  return maxToBorrow.sub(userBorrowAmount);
 };
 
 export const getUserLtv = (
@@ -200,6 +196,8 @@ export const applyBorrowFee = (
   borrowAmount: BigNumber,
   borrowOpeningFee: number // 1% === 1000
 ): BigNumber => {
+  if (borrowAmount.isZero()) return BigNumber.from(0);
+
   const fee = borrowAmount
     .mul(borrowOpeningFee)
     .div(expandDecimals(1, BORROW_OPENING_FEE_PRECISION));

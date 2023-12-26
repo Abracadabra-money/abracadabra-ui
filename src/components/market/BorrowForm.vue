@@ -41,6 +41,9 @@ export default {
     collateralAmounts: {
       type: Object as any,
     },
+    borrowInputValue: {
+      type: Object as any,
+    },
   },
 
   emits: ["updateBorrowValue"],
@@ -66,19 +69,17 @@ export default {
     },
 
     expectedCollateralAmount() {
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-
-      if (this.useUnwrapToken)
-        return userCollateralAmount.add(this.collateralAmounts.unwrapAmount);
-
-      return userCollateralAmount.add(this.collateralAmounts.amount);
+      return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
+        this.collateralAmounts.collateralTokenAmount
+      );
     },
 
     expectedBorrowAmount() {
       const { borrowFee } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      return applyBorrowFee(this.borrowAmount, borrowFee).add(userBorrowAmount);
+      return applyBorrowFee(this.borrowAmount, borrowFee * 1000).add(
+        userBorrowAmount
+      );
     },
 
     positionLtv() {
@@ -92,6 +93,12 @@ export default {
           2
         )
       );
+    },
+  },
+
+  watch: {
+    borrowInputValue() {
+      this.inputValue = "";
     },
   },
 
