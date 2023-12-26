@@ -9,33 +9,40 @@
         <div class="actions-wrap">
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
-          <BorrowBlock
-            v-if="activeTab === borrowTabKey"
-            :cauldron="cauldron"
-            :useNativeToken="useNativeToken"
-            @updateAmounts="updateAmounts"
-            @toogleUseNativeToken="toogleUseNativeToken"
-            @updateMarket="createCauldronInfo"
-          />
+          <div class="deposit-wrap">
+            <template v-if="!loadingBorrow">
+              <BorrowBlock
+                v-if="isBorrowBlock"
+                :cauldron="cauldron"
+                :useLeverage="useLeverage"
+                @updateAmounts="updateAmounts"
+                @updateMarket="createCauldronInfo"
+                @toogleUseLeverage="toogleUseLeverage"
+              />
 
-          <!-- <RepayBlock
-            v-else
-            :cauldron="cauldron"
-            @updateActiveToken="toogleUseUnwrapToken"
-          /> -->
+              <LeverageBlock
+                v-if="isLeverageBlock"
+                :cauldron="cauldron"
+                :useLeverage="useLeverage"
+                @updateAmounts="updateAmounts"
+                @updateMarket="createCauldronInfo"
+                @toogleUseLeverage="toogleUseLeverage"
+              />
+            </template>
+
+            <div class="loading" v-else>
+              <img
+                class="loading-icon"
+                src="@/assets/images/cauldrons/loader.gif"
+                alt="Loader icon"
+              />
+            </div>
+          </div>
         </div>
 
         <div class="market-stats">
           <div class="row">
-            <div
-              style="
-                height: 48px;
-                width: 215px;
-                border-radius: 12px;
-                border: 1px solid rgba(255, 255, 255, 0.04);
-                background: rgba(16, 18, 23, 0.38);
-              "
-            ></div>
+            <div></div>
             <PriceRange />
           </div>
 
@@ -80,14 +87,32 @@ export default {
         },
         borrow: BigNumber.from(0),
       },
-      useNativeToken: false,
       activeTab: "borrow",
       tabItems: ["borrow", "repay"],
+      useLeverage: false,
+      loadingBorrow: false,
     };
   },
 
   computed: {
     ...mapGetters({ account: "getAccount", signer: "getSigner" }),
+
+    isBorrowBlock() {
+      return this.activeTab === "borrow" && !this.useLeverage;
+    },
+
+    isLeverageBlock() {
+      return this.activeTab === "borrow" && this.useLeverage;
+    },
+  },
+
+  watch: {
+    useLeverage() {
+      this.loadingBorrow = true;
+      setTimeout(() => {
+        this.loadingBorrow = false;
+      }, 500);
+    },
   },
 
   methods: {
@@ -95,12 +120,12 @@ export default {
       this.amounts = amounts;
     },
 
-    toogleUseNativeToken() {
-      this.useNativeToken = !this.useNativeToken;
-    },
-
     changeTab(action: string) {
       this.activeTab = action;
+    },
+
+    toogleUseLeverage() {
+      this.useLeverage = !this.useLeverage;
     },
 
     async createCauldronInfo() {
@@ -155,9 +180,9 @@ export default {
     BorrowBlock: defineAsyncComponent(
       () => import("@/components/market/BorrowBlock.vue")
     ),
-    // RepayBlock: defineAsyncComponent(
-    //   () => import("@/components/market/RepayBlock.vue")
-    // ),
+    LeverageBlock: defineAsyncComponent(
+      () => import("@/components/market/LeverageBlock.vue")
+    ),
     PriceRange: defineAsyncComponent(
       () => import("@/components/ui/range/PriceRange.vue")
     ),

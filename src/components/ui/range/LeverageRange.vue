@@ -2,7 +2,7 @@
   <div class="leverage-range-wrap">
     <div class="progress-track" :style="{ background: gradientRangeTrack }">
       <span class="progress-value" :style="progressValuePosition">
-        {{ leverageStep }}
+        {{ leverageStep }}x
       </span>
 
       <input
@@ -50,7 +50,7 @@ export default {
     },
 
     leverageStep() {
-      return `${Math.round((80 / 100) * this.gradientPercent)}X`;
+      return this.value;
     },
 
     gradientRangeTrack() {
@@ -72,9 +72,10 @@ export default {
       if (this.min > 0) {
         if (this.inputValue === 1) return 0;
         if (this.inputValue === max) return 100;
-        return Math.floor(
+        const percent = Math.floor(
           (100 / (max - this.min)) * (this.inputValue - this.min)
         );
+        return percent < 0 ? 0 : percent;
       }
 
       return Math.floor(100 * Math.abs(this.inputValue / max));

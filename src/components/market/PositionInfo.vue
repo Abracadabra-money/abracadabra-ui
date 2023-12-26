@@ -79,6 +79,12 @@ export default {
     },
 
     expectedCollateralAmount() {
+      if (this.amounts.deposit.minToSwap) {
+        return this.cauldron.userPosition.collateralInfo.userCollateralAmount
+          .add(this.amounts.deposit.collateralTokenAmount)
+          .add(this.amounts.deposit.minToSwap);
+      }
+
       return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
         this.amounts.deposit.collateralTokenAmount
       );

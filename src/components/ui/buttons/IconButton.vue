@@ -1,6 +1,9 @@
 <template>
   <component class="button-wrap" :is="tagName" :href="href" :target="href">
-    <span class="inner-wrap">
+    <span
+      class="inner-wrap"
+      :style="`width: ${width}px; height: ${height}px; padding: ${padding};`"
+    >
       <WalletIcon v-if="wallet" />
       <LinkIcon v-else-if="link" />
       <SetingIcon v-else-if="seting" />
@@ -36,6 +39,18 @@ export default {
     target: {
       type: String,
       default: "_blank",
+    },
+    height: {
+      type: Number,
+      default: 30,
+    },
+    width: {
+      type: Number,
+      default: 32,
+    },
+    padding: {
+      type: String,
+      default: "6px 8px",
     },
   },
 

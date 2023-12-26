@@ -3,7 +3,7 @@
     <div class="deposit-wrap">
       <div>
         <div class="row">
-          <h3 class="title">Deposit collateral</h3>
+          <h3 class="title">Deposit collateral {{ expectedBorrowAmount }}</h3>
           <Toggle
             v-if="isNativeToken"
             :selected="useNativeToken"
@@ -39,7 +39,16 @@
     <div class="borrow-wrap">
       <div>
         <div class="row">
-          <h3 class="title">Borrow MIM</h3>
+          <h3 class="title">
+            Leverage Up
+            <IconButton
+              seting
+              v-if="useLeverage"
+              :width="20"
+              :height="20"
+              padding="4px"
+            />
+          </h3>
 
           <Toggle
             :selected="useLeverage"
@@ -48,29 +57,26 @@
           />
         </div>
 
-        <h4 class="subtitle">
-          Select the amount of MIM to borrow from the Cauldron
-        </h4>
-      </div>
+        <h4 class="subtitle">Select leverage ‘’x’’</h4>
 
-      <TokenInput
-        :value="borrowInputValue"
-        :name="borrowToken.name"
-        :icon="borrowToken.icon"
-        :max="borrowToken.balance"
-        :tokenPrice="borrowToken.price"
-        isBigNumber
-        @updateInputValue="updateBorrowValue"
-      />
+        <div class="range-wrap">
+          <LeverageRange
+            :value="multiplier"
+            :max="maxLeverageMultiplier"
+            :min="minRangeValue"
+            :step="rangeStep"
+            :risk="positionHealth"
+            :collateralValue="depositInputValue"
+            :disabled="!depositInputValue"
+            tooltipText="Allows users to leverage their position. Read more about this in the documents!"
+            @updateValue="updateMultiplier"
+          />
+        </div>
 
-      <div class="range-wrap">
-        <LtvRange
-          :value="ltvRangeValue"
-          :userLtv="positionLtv"
-          :mcr="cauldron.config.mcr"
-          :max="cauldron.config.mcr"
-          :risk="positionHealth"
-          @updateValue="updateBorrowValueByLtv"
+        <DynamicallyEstimatedPrice
+          v-if="chainId !== 2222"
+          :amount="formatUnits(expectedBorrowAmount)"
+          :mimAddress="cauldron.config.mimInfo.address"
         />
       </div>
 
@@ -86,12 +92,10 @@
 
 <script lang="ts">
 import {
-  applyBorrowFee,
+  getLeverageAmounts,
   getLiquidationPrice,
   getMaxToBorrow,
-  getMimToBorrowByLtv,
   getPositionHealth,
-  getUserLtv,
 } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
@@ -100,6 +104,7 @@ import { approveToken } from "@/helpers/approval";
 // @ts-ignore
 import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/cauldron";
+// @ts-ignore
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
@@ -108,8 +113,7 @@ import notification from "@/helpers/notification/notification.js";
 // @ts-ignore
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-
-const MIM_PRICE = 1;
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
 export default {
   mixins: [cookMixin],
@@ -124,15 +128,20 @@ export default {
 
   data() {
     return {
+      slippage: 1,
+      multiplier: 1,
+      rangeStep: 0.01,
+      minRangeValue: 1,
       useNativeToken: false,
       useUnwrapToken: false,
       depositInputValue: "",
-      borrowInputValue: "",
-      ltvRangeValue: "",
+      maxLeverageMultiplier: 5,
+      depositAmount: BigNumber.from(0),
       amounts: {
         deposit: {
           collateralTokenAmount: BigNumber.from(0),
           unwrapTokenAmount: BigNumber.from(0),
+          expectedMinToSwap: BigNumber.from(0),
         },
         borrow: BigNumber.from(0),
       },
@@ -163,44 +172,41 @@ export default {
     },
 
     isActionDisabled() {
-      const { collateralBalance, unwrappedTokenBalance, nativeTokenBalance } =
-        this.cauldron.userTokensInfo;
       const { unwrapTokenAmount } = this.amounts.deposit;
-      const { borrow } = this.amounts;
+      if (unwrapTokenAmount.isZero()) return true;
+      return unwrapTokenAmount.gt(this.activeToken.balance);
+    },
 
-      const wrapInfo = this.cauldron.config?.wrapInfo;
+    parseMultiplyer() {
+      return BigNumber.from(
+        parseFloat((this.multiplier * 1e10).toString()).toFixed(0)
+      );
+    },
 
-      if (unwrapTokenAmount.isZero() && borrow.isZero()) return true;
-
-      if (borrow.gt(this.maxBorrowAmount)) return true;
-
-      if (this.useNativeToken) {
-        return unwrapTokenAmount.gt(nativeTokenBalance);
-      }
-
-      if (wrapInfo?.useUnwrappedByDefault && !this.useUnwrapToken) {
-        return unwrapTokenAmount.gt(unwrappedTokenBalance);
-      }
-
-      if (wrapInfo?.useUnwrappedByDefault && this.useUnwrapToken) {
-        return unwrapTokenAmount.gt(collateralBalance);
-      }
-
-      return unwrapTokenAmount.gt(collateralBalance);
+    parseSlippage() {
+      return BigNumber.from(
+        parseFloat((this.slippage * 1e10).toString()).toFixed(0)
+      );
     },
 
     expectedCollateralAmount() {
-      return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
-        this.amounts.deposit.collateralTokenAmount
-      );
+      return this.amounts.deposit.unwrapTokenAmount.add(this.expectedMinToSwap);
     },
 
-    expectedBorrowAmount() {
-      const { borrowFee } = this.cauldron.mainParams;
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      return applyBorrowFee(this.amounts.borrow, borrowFee * 1000).add(
-        userBorrowAmount
-      );
+    expectedMinToSwap() {
+      const slippageAmount = this.expectedToSwapAmount
+        .div(100)
+        .mul(this.parseSlippage)
+        .div(1e10);
+
+      return this.expectedToSwapAmount.sub(slippageAmount);
+    },
+
+    expectedToSwapAmount() {
+      return this.amounts.deposit.unwrapTokenAmount
+        .mul(this.parseMultiplyer)
+        .div(1e10)
+        .sub(this.amounts.deposit.unwrapTokenAmount);
     },
 
     expectedLiquidationPrice() {
@@ -209,6 +215,16 @@ export default {
         this.expectedCollateralAmount,
         this.cauldron.config.mcr,
         this.cauldron.config.collateralInfo.decimals
+      );
+    },
+
+    expectedBorrowAmount() {
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      return (
+        this.expectedToSwapAmount
+          // .mul(expandDecimals(1, MIM_DESIMALS))
+          .mul(String(1e18))
+          .div(oracleExchangeRate)
       );
     },
 
@@ -295,27 +311,6 @@ export default {
       return this.collateralToken;
     },
 
-    borrowToken() {
-      const { config, userTokensInfo } = this.cauldron;
-      return {
-        name: config.mimInfo.name,
-        icon: config.mimInfo.icon,
-        balance: userTokensInfo.mimBalance,
-        price: MIM_PRICE,
-      };
-    },
-
-    positionLtv() {
-      return utils.formatUnits(
-        getUserLtv(
-          this.expectedCollateralAmount,
-          this.expectedBorrowAmount,
-          this.cauldron.mainParams.oracleExchangeRate
-        ),
-        2
-      );
-    },
-
     positionHealth() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.collateralInfo;
@@ -331,26 +326,11 @@ export default {
       return "high";
     },
 
-    maxBorrowAmount() {
-      const { borrowInfo, collateralInfo } = this.cauldron.userPosition;
-      const { userBorrowAmount } = borrowInfo;
-      const { userCollateralAmount } = collateralInfo;
-
-      return getMaxToBorrow(
-        userCollateralAmount.add(this.amounts.deposit.collateralTokenAmount),
-        userBorrowAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.mainParams.oracleExchangeRate
-      );
-    },
-
     actionInfo() {
-      const { borrow } = this.amounts;
-      const { collateralTokenAmount } = this.amounts.deposit;
       const { isCollateralLocked } = this.cauldron.additionalInfo;
 
-      const info: any = {
-        methodName: null,
+      const info = {
+        methodName: null as null | string,
         buttonText: "Nothing to do",
       };
 
@@ -367,18 +347,34 @@ export default {
       if (this.isActionDisabled) return info;
       if (isCollateralLocked) return info;
 
-      if (!borrow.isZero() && !collateralTokenAmount.isZero()) {
-        info.methodName = "addCollateralAndBorrowHandler";
-        info.buttonText = "Add collateral and borrow";
-      } else if (!borrow.isZero()) {
-        info.methodName = "borrowHandler";
-        info.buttonText = "Borrow";
+      const { collateralTokenAmount } = this.amounts.deposit;
+
+      if (!collateralTokenAmount.isZero() && this.multiplier > 1) {
+        info.methodName = "leverageUpHandler";
+        info.buttonText = "Leverage Up";
       } else if (!collateralTokenAmount.isZero()) {
         info.methodName = "addCollateralHandler";
         info.buttonText = "Add collateral";
       }
 
       return info;
+    },
+
+    // ------
+
+    // todo approv
+
+    maxBorrowAmount() {
+      const { borrowInfo, collateralInfo } = this.cauldron.userPosition;
+      const { userBorrowAmount } = borrowInfo;
+      const { userCollateralAmount } = collateralInfo;
+
+      return getMaxToBorrow(
+        userCollateralAmount.add(this.amounts.deposit.collateralTokenAmount),
+        userBorrowAmount,
+        this.cauldron.config.mcr,
+        this.cauldron.mainParams.oracleExchangeRate
+      );
     },
   },
 
@@ -390,11 +386,26 @@ export default {
     useNativeToken() {
       this.clearInputs();
     },
+
+    depositInputValue(value, oldValue) {
+      if (!Number(value) && value !== oldValue) {
+        const maxMultiplier = getMaxLeverageMultiplier(
+          this.cauldron,
+          Number(value)
+        );
+        if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
+        this.maxLeverageMultiplier = maxMultiplier;
+      }
+    },
   },
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    formatUnits(value: string, decimals = 18) {
+      return Number(utils.formatUnits(value, decimals));
+    },
 
     updateDepositValue(value: BigNumber) {
       const { tokensRate } = this.cauldron.additionalInfo;
@@ -417,32 +428,80 @@ export default {
       };
 
       this.$emit("updateAmounts", this.amounts);
-
+      if (value.isZero()) this.multiplier = 1;
       this.depositInputValue = utils.formatUnits(value, decimals);
-    },
-
-    updateBorrowValue(value: BigNumber) {
-      this.amounts.borrow = value;
-      this.borrowInputValue = utils.formatUnits(value);
-      this.$emit("updateAmounts", this.amounts);
-    },
-
-    updateBorrowValueByLtv(ltv: number) {
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-
-      const mimToBorrow = getMimToBorrowByLtv(
-        ltv,
-        this.cauldron.config.mcr,
-        this.expectedCollateralAmount,
-        userBorrowAmount,
-        this.cauldron.mainParams.oracleExchangeRate
-      );
-
-      this.borrowInputValue = utils.formatUnits(mimToBorrow);
     },
 
     updateActionType() {
       this.$emit("toogleUseLeverage");
+    },
+
+    // todo
+    updateMultiplier(value: number) {
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+
+      this.multiplier = value;
+      this.amounts.borrow = this.expectedBorrowAmount;
+      this.amounts.deposit.minToSwap = this.expectedMinToSwap;
+
+      // todo
+      const leverageAmounts = getLeverageAmounts(
+        this.amounts.deposit.unwrapTokenAmount,
+        this.multiplier * 100,
+        this.slippage,
+        oracleExchangeRate
+      );
+    },
+
+    async actionHandler() {
+      if (this.chainId !== this.cauldron.config.chainId) {
+        await switchNetwork(this.cauldron.config.chainId);
+        return false;
+      }
+
+      if (!this.isTokenApproved) {
+        this.approveTokenHandler();
+        return false;
+      }
+
+      if (this.isActionDisabled) return false;
+
+      if (!this[this.actionInfo.methodName]) return false;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const isPermissionToCook = await this.checkPermissionToCook(
+        notificationId,
+        this.expectedBorrowAmount,
+        this.amounts.deposit.unwrapTokenAmount
+      );
+
+      if (!isPermissionToCook) return false;
+
+      try {
+        await this[this.actionInfo.methodName]();
+
+        // todo
+        // this.clearInputs();
+
+        this.deleteNotification(notificationId);
+        this.createNotification(notification.success);
+      } catch (error) {
+        console.log("leverage error", error);
+
+        const errorType =
+          String(error).indexOf("GM") !== -1 ? "warning" : "error";
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: errorType,
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
 
     async checkPermissionToCook(
@@ -473,51 +532,6 @@ export default {
       }
 
       return true;
-    },
-
-    async actionHandler() {
-      if (this.chainId !== this.cauldron.config.chainId) {
-        await switchNetwork(this.cauldron.config.chainId);
-        return false;
-      }
-
-      if (!this.isTokenApproved) {
-        this.approveTokenHandler();
-        return false;
-      }
-
-      if (this.isActionDisabled) return false;
-
-      if (!this[this.actionInfo.methodName]) return false;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const isPermissionToCook = await this.checkPermissionToCook(
-        notificationId,
-        this.amounts.borrow
-      );
-
-      if (!isPermissionToCook) return false;
-
-      try {
-        await this[this.actionInfo.methodName]();
-
-        this.clearInputs();
-
-        this.deleteNotification(notificationId);
-        this.createNotification(notification.success);
-      } catch (error) {
-        console.log("borrow error", error);
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
-      }
     },
 
     async approveTokenHandler() {
@@ -560,45 +574,14 @@ export default {
       this.$emit("updateMarket");
     },
 
-    async borrowHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
+    // -----
 
-      const payload = {
-        amount: this.amounts.borrow,
-        updatePrice,
-      };
-
-      await this.cookBorrow(payload, isMasterContractApproved, this.cauldron);
-
-      this.$emit("updateMarket");
-    },
-
-    async addCollateralAndBorrowHandler() {
-      const { isMasterContractApproved } = this.cauldron.additionalInfo;
-      const { updatePrice } = this.cauldron.mainParams;
-
-      const payload = {
-        collateralAmount: this.amounts.deposit.unwrapTokenAmount,
-        amount: this.amounts.borrow,
-        updatePrice,
-        itsDefaultBalance: !!this.activeToken.isNative,
-      };
-
-      await this.cookAddCollateralAndBorrow(
-        payload,
-        isMasterContractApproved,
-        this.cauldron,
-        !!this.cauldron.config?.wrapInfo,
-        !this.useUnwrapToken
-      );
-
-      this.$emit("updateMarket");
+    async leverageUpHandler() {
+      console.log("leverageUpHandler");
     },
 
     clearInputs() {
       this.depositInputValue = "";
-      this.borrowInputValue = "";
     },
   },
 
@@ -606,12 +589,19 @@ export default {
     TokenInput: defineAsyncComponent(
       () => import("@/components/market/TokenInput.vue")
     ),
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
+    ),
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    LtvRange: defineAsyncComponent(
-      () => import("@/components/ui/range/LtvRange.vue")
+    LeverageRange: defineAsyncComponent(
+      () => import("@/components/ui/range/LeverageRange.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
+    ),
+    DynamicallyEstimatedPrice: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/borrow/DynamicallyEstimatedPrice.vue")
     ),
   },
 };
@@ -629,6 +619,7 @@ export default {
 
 .deposit-wrap {
   @include block-wrap;
+  min-height: 190px;
 }
 
 .borrow-wrap {
@@ -636,7 +627,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 370px;
+  height: 390px;
+  justify-content: space-between;
 }
 
 .row {
@@ -651,6 +643,9 @@ export default {
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .subtitle {
@@ -658,36 +653,10 @@ export default {
   font-size: 12px;
   font-weight: 400;
   line-height: 20px;
+  margin-bottom: 16px;
 }
 
-.dynamic-fee {
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid #2d4a96;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dynamic-fee-title {
-  color: #878b93;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.dynamic-fee-value {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  text-transform: uppercase;
+.range-wrap {
+  margin-bottom: 16px;
 }
 </style>

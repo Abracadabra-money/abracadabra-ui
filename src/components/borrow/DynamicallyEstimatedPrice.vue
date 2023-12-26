@@ -1,26 +1,30 @@
 <template>
-  <div class="dynamical-price-block">
-    <span class="estimation-description">
-      <img
-        class="tooltip"
-        src="@/assets/images/info.svg"
-        alt="info"
-        v-tooltip="tooltipText"
-      />
+  <div class="dynamic-fee">
+    <div class="dynamic-fee-title">
       {{ estimationDescription }}
-    </span>
-    <span class="estimation-result" :class="estimationResultTextColor">
+      <TooltipIcon
+        :width="20"
+        :height="20"
+        fill="#878B93"
+        :tooltip="tooltipText"
+      />
+    </div>
+    <div class="dynamic-fee-value">
       {{ estimationResult }}
-    </span>
+    </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-ignore
 import filters from "@/filters/index.js";
+// @ts-ignore
 import { swap0xRequest } from "@/helpers/0x";
 import { chainsUsdcConfigs } from "@/utils/tokens/usdcConfig";
+// @ts-ignore
 import { mapGetters } from "vuex";
 import { ethers } from "ethers";
+import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
@@ -29,7 +33,7 @@ export default {
       required: true,
     },
     amount: {
-      type: [String, Number],
+      type: Number,
     },
     slippage: {
       type: [String, Number],
@@ -56,7 +60,7 @@ export default {
     estimationResult() {
       if (this.isFetching) return "...Fetching";
 
-      if (!this.price || !+this.amount) return "≈";
+      if (!this.price || !this.amount) return "≈";
 
       return `$${this.estimateAmount} / ${this.estimatePercent}%`;
     },
@@ -74,18 +78,20 @@ export default {
     },
 
     estimateAmount() {
-      if (!this.price || !+this.amount) return false;
+      if (!this.price || !this.amount) return false;
 
       return parseFloat(
-        Math.abs(this.amount - this.price * this.amount)
+        Math.abs(this.amount - this.price * this.amount).toString()
       ).toFixed(2);
     },
 
     estimatePercent() {
-      if (!this.price || !+this.amount) return false;
+      if (!this.price || !this.amount) return false;
 
       return parseFloat(
-        Math.abs(100 - ((this.price * this.amount) / this.amount) * 100)
+        Math.abs(
+          100 - ((this.price * this.amount) / this.amount) * 100
+        ).toString()
       ).toFixed(2);
     },
 
@@ -106,13 +112,16 @@ export default {
     },
 
     buyToken() {
-      if (!this.isClose) return chainsUsdcConfigs[this.chainId].address;
+      if (!this.isClose)
+        return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
+          .address;
       return this.mimAddress;
     },
 
     sellToken() {
       if (!this.isClose) return this.mimAddress;
-      return chainsUsdcConfigs[this.chainId].address;
+      return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
+        .address;
     },
 
     parsedAmount() {
@@ -162,41 +171,44 @@ export default {
       this.isFetching = false;
     },
   },
+
+  components: {
+    TooltipIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.yellow {
-  color: #ffb800;
-}
-
-.blue {
-  color: #75c9ee;
-}
-
-.red {
-  color: #fe1842;
-}
-
-.dynamical-price-block {
-  margin: 5px 0;
-  padding: 10px 16px;
-  font-size: 14px;
-  line-height: 24px;
-  background: #3c394b;
-  border-radius: 20px;
+.dynamic-fee {
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.estimation-description {
+.dynamic-fee-title {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
   display: flex;
+  gap: 4px;
   align-items: center;
 }
 
-.estimation-description .tooltip {
-  margin-right: 5px;
-  cursor: pointer;
+.dynamic-fee-value {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
+  text-transform: uppercase;
 }
 </style>

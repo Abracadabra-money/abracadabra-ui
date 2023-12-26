@@ -153,7 +153,7 @@ export const getLeverageAmounts = (
 
   const collateralToSwap = collateralAmount
     .mul(leverageMultiplyerBps)
-    .div(expandDecimals(1, BPS_PRESITION))
+    .div(expandDecimals(1, 2))
     .sub(collateralAmount);
 
   const amountFrom = expandDecimals(collateralToSwap, MIM_DECIMALS).div(
