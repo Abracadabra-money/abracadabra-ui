@@ -111,6 +111,8 @@ import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 import { trimZeroDecimals } from "@/helpers/numbers";
 
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+
 const MIM_PRICE = 1;
 
 type ActiveToken = {
@@ -340,7 +342,7 @@ export default {
           this.expectedBorrowAmount,
           this.cauldron.mainParams.oracleExchangeRate
         ),
-        2
+        PERCENT_PRESITION
       );
 
       return Math.ceil(Number(positionLtv));
@@ -478,12 +480,14 @@ export default {
       this.$emit("updateAmounts", this.amounts);
     },
 
-    updateBorrowValueByLtv(ltv: number) {
+    updateBorrowValueByLtv(value: number) {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      const ltv = expandDecimals(value, PERCENT_PRESITION)
+      const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION)
 
       const mimToBorrow = getMimToBorrowByLtv(
         ltv,
-        this.cauldron.config.mcr,
+        mcr,
         this.expectedCollateralAmount,
         userBorrowAmount,
         this.cauldron.mainParams.oracleExchangeRate

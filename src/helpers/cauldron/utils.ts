@@ -7,6 +7,7 @@ const MIM_DECIMALS = 18;
 
 const COLATERIZATION_PRESITION = 5;
 const BORROW_OPENING_FEE_PRECISION = 5;
+export const PERCENT_PRESITION = 2;
 const BPS_PRESITION = 4;
 
 type SwapAmounts = {
@@ -60,22 +61,23 @@ export const getUserLtv = (
     oracleExchangeRate
   );
 
-  const ltv = expandDecimals(userBorrowAmount, BPS_PRESITION).div(
-    collateralInMim
-  );
+  const ltv = expandDecimals(userBorrowAmount, PERCENT_PRESITION)
+    .mul(100)
+    .div(collateralInMim);
+
+  console.log("ltv", ltv.toString());
 
   return ltv;
 };
 
 export const getMimToBorrowByLtv = (
-  ltv: number,
-  mcr: number,
+  ltv: BigNumber,
+  mcr: BigNumber,
   collateralAmount: BigNumber,
   userBorrowAmount: BigNumber,
   oracleExchangeRate: BigNumber
 ): BigNumber => {
-  if (ltv > mcr) return BigNumber.from(0);
-  const ltvBps = expandDecimals(ltv, 2);
+  if (ltv.gt(mcr)) return BigNumber.from(0);
 
   const currentLtv = getUserLtv(
     collateralAmount,
@@ -83,19 +85,19 @@ export const getMimToBorrowByLtv = (
     oracleExchangeRate
   );
 
-  if (ltvBps.lte(currentLtv)) return BigNumber.from(0);
+  if (ltv.lte(currentLtv)) return BigNumber.from(0);
 
   const collateralInMim = expandDecimals(collateralAmount, MIM_DECIMALS).div(
     oracleExchangeRate
   );
 
-  const maxToBorrow = collateralInMim.div(100).mul(mcr);
+  const maxToBorrow = collateralInMim.div(100).mul(mcr).div(PERCENT_PRESITION);
   const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
   const mimPerPercent = collateralInMim.div(100);
 
   const mimToBorrow = mimPerPercent
-    .mul(ltvBps.sub(currentLtv))
-    .div(expandDecimals(1, 2));
+    .mul(ltv.sub(currentLtv))
+    .div(expandDecimals(1, PERCENT_PRESITION));
 
   if (mimToBorrow.gt(leftToBorrow)) return leftToBorrow;
   return mimToBorrow;
