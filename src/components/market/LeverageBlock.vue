@@ -64,7 +64,6 @@
             :value="multiplier"
             :max="maxLeverageMultiplier"
             :min="minRangeValue"
-            :step="rangeStep"
             :risk="positionHealth"
             :collateralValue="depositInputValue"
             :disabled="!depositInputValue"
@@ -141,7 +140,6 @@ export default {
     return {
       slippage: 1,
       multiplier: 1,
-      rangeStep: 0.01,
       minRangeValue: 1,
       useNativeToken: false,
       useUnwrapToken: false,

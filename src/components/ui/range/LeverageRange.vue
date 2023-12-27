@@ -27,7 +27,7 @@ export default {
     collateralValue: { type: [Number, String], default: "" },
     min: { type: Number, default: 0 },
     max: { type: Number, default: 10 },
-    step: { type: Number, default: 1 },
+    step: { type: Number, default: 0.01 },
     risk: { type: [String, Boolean], default: "default" },
     disabled: { type: Boolean, default: false },
   },

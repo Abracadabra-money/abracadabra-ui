@@ -8,7 +8,6 @@ const MIM_DECIMALS = 18;
 const COLATERIZATION_PRESITION = 5;
 const BORROW_OPENING_FEE_PRECISION = 5;
 export const PERCENT_PRESITION = 2;
-const BPS_PRESITION = 4;
 
 type SwapAmounts = {
   amountFrom: BigNumber;
@@ -38,14 +37,13 @@ export const getLiquidationPrice = (
 export const getMaxToBorrow = (
   collateralAmount: BigNumber,
   userBorrowAmount: BigNumber,
-  mcr: number,
+  mcr: BigNumber,
   oracleExchangeRate: BigNumber
 ): BigNumber => {
-  const collateralInMim = collateralAmount
-    .mul(expandDecimals(1, MIM_DECIMALS))
+  const collateralInMim = expandDecimals(collateralAmount, MIM_DECIMALS)
     .div(oracleExchangeRate);
 
-  const maxToBorrow = collateralInMim.div(100).mul(mcr);
+  const maxToBorrow = collateralInMim.div(100).mul(mcr).div(expandDecimals(1, PERCENT_PRESITION));
 
   return maxToBorrow.sub(userBorrowAmount);
 };
@@ -91,8 +89,7 @@ export const getMimToBorrowByLtv = (
     oracleExchangeRate
   );
 
-  const maxToBorrow = collateralInMim.div(100).mul(mcr).div(PERCENT_PRESITION);
-  const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
+  const leftToBorrow = getMaxToBorrow(collateralAmount, userBorrowAmount, mcr, oracleExchangeRate);
   const mimPerPercent = collateralInMim.div(100);
 
   const mimToBorrow = mimPerPercent
@@ -113,7 +110,7 @@ export const getMaxCollateralToRemove = (
   const leftToBorrow = getMaxToBorrow(
     collateralAmount,
     userBorrowAmount,
-    mcr,
+    expandDecimals(mcr, PERCENT_PRESITION), // TODO
     oracleExchangeRate
   );
 
@@ -137,12 +134,12 @@ export const getPositionHealth = (
     oracleExchangeRate
   );
 
-  const currentRiskPercent = expandDecimals(liquidationPrice, BPS_PRESITION)
+  const currentRiskPercent = expandDecimals(liquidationPrice, PERCENT_PRESITION)
     .div(collateralPrice)
     .mul(100)
-    .div(expandDecimals(1, BPS_PRESITION));
+    .div(expandDecimals(1, PERCENT_PRESITION));
 
-  const percent = utils.formatUnits(currentRiskPercent, BPS_PRESITION);
+  const percent = utils.formatUnits(currentRiskPercent, PERCENT_PRESITION);
 
   return currentRiskPercent; // TODO test
 };
@@ -188,7 +185,7 @@ export const getDeleverageAmounts = (
   // slippage here is how much more we need remove collateral to repay
   const additionalSlippageAmount = collateralToSwapMin
     .mul(slippageBps)
-    .div(expandDecimals(1, BPS_PRESITION));
+    .div(expandDecimals(1, PERCENT_PRESITION));
 
   const collaterapToSwapAmount = collateralToSwapMin.add(
     additionalSlippageAmount
