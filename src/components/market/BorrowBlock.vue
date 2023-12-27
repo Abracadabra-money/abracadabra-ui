@@ -32,7 +32,7 @@
         :decimals="activeToken.decimals"
         :tokenPrice="activeToken.price"
         isBigNumber
-        @updateInputValue="updateDepositValue"
+        @updateInputValue="onUpdateDepositValue"
       />
     </div>
 
@@ -60,7 +60,7 @@
         :max="borrowToken.balance"
         :tokenPrice="borrowToken.price"
         isBigNumber
-        @updateInputValue="updateBorrowValue"
+        @updateInputValue="onUpdateBorrowValue"
       />
 
       <div class="range-wrap">
@@ -109,6 +109,8 @@ import notification from "@/helpers/notification/notification.js";
 // @ts-ignore
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 const MIM_PRICE = 1;
 
@@ -408,7 +410,19 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateDepositValue(value: BigNumber) {
+    onUpdateDepositValue(value: BigNumber | null) {
+      if (value === null) {
+        this.amounts.deposit = {
+          collateralTokenAmount: BigNumber.from(0),
+          unwrapTokenAmount: BigNumber.from(0),
+        };
+
+        this.$emit("updateAmounts", this.amounts);
+
+        this.depositInputValue = "";
+        return;
+      }
+
       const { tokensRate } = this.cauldron.additionalInfo;
       const { decimals } = this.cauldron.config.collateralInfo;
 
@@ -430,12 +444,21 @@ export default {
 
       this.$emit("updateAmounts", this.amounts);
 
-      this.depositInputValue = utils.formatUnits(value, decimals);
+      this.depositInputValue = trimZeroDecimals(
+        utils.formatUnits(value, decimals)
+      );
     },
 
-    updateBorrowValue(value: BigNumber) {
+    onUpdateBorrowValue(value: BigNumber | null) {
+      if (value === null) {
+        this.amounts.borrow = BigNumber.from(0);
+        this.borrowInputValue = "";
+        this.$emit("updateAmounts", this.amounts);
+        return;
+      }
+
       this.amounts.borrow = value;
-      this.borrowInputValue = utils.formatUnits(value);
+      this.borrowInputValue = trimZeroDecimals(utils.formatUnits(value));
       this.$emit("updateAmounts", this.amounts);
     },
 

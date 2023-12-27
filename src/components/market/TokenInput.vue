@@ -45,7 +45,7 @@ export default {
     decimals: { type: Number, default: 18 },
     isBigNumber: { type: Boolean, default: false },
     max: {},
-    value: {},
+    value: {}, // TODO: use bignumber (bigint) & parse in data.inputValue
     icon: {
       type: String,
     },
@@ -76,6 +76,11 @@ export default {
 
   watch: {
     inputValue(value, oldValue) {
+      if(!value) {
+        this.$emit("updateInputValue", null);
+        return;
+      }
+
       if (isNaN(value)) {
         this.inputValue = oldValue;
         return false;
