@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
@@ -79,13 +79,22 @@ export default {
     },
 
     expectedCollateralAmount() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+
+      if (this.amounts.actionType === "repay") {
+        if (this.amounts.deposit.unwrapTokenAmount.gt(userCollateralAmount))
+          return BigNumber.from(0);
+        return userCollateralAmount.sub(this.amounts.deposit.unwrapTokenAmount);
+      }
+
       if (this.amounts.deposit.minToSwap) {
-        return this.cauldron.userPosition.collateralInfo.userCollateralAmount
+        return userCollateralAmount
           .add(this.amounts.deposit.collateralTokenAmount)
           .add(this.amounts.deposit.minToSwap);
       }
 
-      return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
+      return userCollateralAmount.add(
         this.amounts.deposit.collateralTokenAmount
       );
     },
@@ -93,6 +102,12 @@ export default {
     expectedBorrowAmount() {
       const { borrowFee } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      if (this.amounts.actionType === "repay") {
+        if (this.amounts.borrow.gt(userBorrowAmount)) return BigNumber.from(0);
+        return userBorrowAmount.sub(this.amounts.borrow);
+      }
+
       return applyBorrowFee(this.amounts.borrow, borrowFee * 1000).add(
         userBorrowAmount
       );

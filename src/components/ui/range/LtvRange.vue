@@ -4,7 +4,7 @@
       <div class="base-track">
         <div class="progress-track" :style="{ background: gradientRangeTrack }">
           <span class="progress-value" :style="progressValuePosition">
-            {{ progressValue }}
+            {{ Math.round(userLtv) }}
           </span>
           <span class="progress-percent-max" v-show="showMrcPercent"
             >{{ max }}%</span

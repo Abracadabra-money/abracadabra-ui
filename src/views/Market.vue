@@ -9,7 +9,7 @@
         <div class="actions-wrap">
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
-          <div class="deposit-wrap">
+          <div class="deposit-wrap" v-if="isBorrow">
             <template v-if="!loadingBorrow">
               <BorrowBlock
                 v-if="isBorrowBlock"
@@ -38,6 +38,17 @@
               />
             </div>
           </div>
+
+          <div class="repay-wrap" v-if="isRepay">
+            <RepayBlock
+              v-if="isRepayBlock"
+              :cauldron="cauldron"
+              :useLeverage="useLeverage"
+              @updateAmounts="updateAmounts"
+              @updateMarket="createCauldronInfo"
+              @toogleUseLeverage="toogleUseLeverage"
+            />
+          </div>
         </div>
 
         <div class="market-stats">
@@ -65,6 +76,7 @@
 </template>
 
 <script lang="ts">
+// @ts-ignore
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { defaultRpc } from "@/helpers/chains";
@@ -75,7 +87,7 @@ import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 export default {
   data() {
     return {
-      borrowTabKey: "borrow",
+      borrowTabKey: "repay",
       chainId: null as any,
       cauldronId: null as any,
       cauldron: null as any,
@@ -103,6 +115,18 @@ export default {
 
     isLeverageBlock() {
       return this.activeTab === "borrow" && this.useLeverage;
+    },
+
+    isBorrow() {
+      return this.activeTab === "borrow";
+    },
+
+    isRepay() {
+      return this.activeTab === "repay";
+    },
+
+    isRepayBlock() {
+      return this.activeTab === "repay" && !this.useLeverage;
     },
   },
 
@@ -182,6 +206,9 @@ export default {
     ),
     LeverageBlock: defineAsyncComponent(
       () => import("@/components/market/LeverageBlock.vue")
+    ),
+    RepayBlock: defineAsyncComponent(
+      () => import("@/components/market/RepayBlock.vue")
     ),
     PriceRange: defineAsyncComponent(
       () => import("@/components/ui/range/PriceRange.vue")

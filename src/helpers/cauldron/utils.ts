@@ -74,6 +74,8 @@ export const getMimToBorrowByLtv = (
   oracleExchangeRate: BigNumber
 ): BigNumber => {
   if (ltv > mcr) return BigNumber.from(0);
+
+  const mcrBps = expandDecimals(mcr, BPS_PRESITION);
   const ltvBps = expandDecimals(ltv, BPS_PRESITION);
 
   const currentLtvBps = getUserLtv(
@@ -82,14 +84,26 @@ export const getMimToBorrowByLtv = (
     oracleExchangeRate
   );
 
-  if (ltvBps.lte(currentLtvBps)) return BigNumber.from(0);
+  if (ltvBps.div(100).lte(currentLtvBps)) return BigNumber.from(0);
 
   const collateralInMim = collateralAmount
     .mul(expandDecimals(1, MIM_DECIMALS))
     .div(oracleExchangeRate);
 
   const maxToBorrow = collateralInMim.div(100).mul(mcr);
-  const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
+
+  const leftToBorrow = maxToBorrow
+    .sub(userBorrowAmount)
+    .mul(expandDecimals(1, MIM_DECIMALS))
+    .div(
+      mcrBps
+        .sub(currentLtvBps.mul(expandDecimals(1, 2)))
+        .div(10000)
+        .mul(expandDecimals(1, 14))
+    )
+    .mul(ltvBps.sub(currentLtvBps.mul(expandDecimals(1, 2))).div(10000))
+    .div(expandDecimals(1, BPS_PRESITION));
+
   const mimPerPercent = collateralInMim.div(100);
 
   const mimToBorrow = mimPerPercent
@@ -97,8 +111,43 @@ export const getMimToBorrowByLtv = (
     .div(expandDecimals(1, BPS_PRESITION));
 
   if (mimToBorrow.gt(leftToBorrow)) return leftToBorrow;
+
   return mimToBorrow;
 };
+
+// export const getMimToBorrowByLtv = (
+//   ltv: number,
+//   mcr: number,
+//   collateralAmount: BigNumber,
+//   userBorrowAmount: BigNumber,
+//   oracleExchangeRate: BigNumber
+// ): BigNumber => {
+//   if (ltv > mcr) return BigNumber.from(0);
+//   const ltvBps = expandDecimals(ltv, BPS_PRESITION);
+
+//   const currentLtvBps = getUserLtv(
+//     collateralAmount,
+//     userBorrowAmount,
+//     oracleExchangeRate
+//   );
+
+//   if (ltvBps.lte(currentLtvBps)) return BigNumber.from(0);
+
+//   const collateralInMim = collateralAmount
+//     .mul(expandDecimals(1, MIM_DECIMALS))
+//     .div(oracleExchangeRate);
+
+//   const maxToBorrow = collateralInMim.div(100).mul(mcr);
+//   const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
+//   const mimPerPercent = collateralInMim.div(100);
+
+//   const mimToBorrow = mimPerPercent
+//     .mul(ltvBps.sub(currentLtvBps))
+//     .div(expandDecimals(1, BPS_PRESITION));
+
+//   if (mimToBorrow.gt(leftToBorrow)) return leftToBorrow;
+//   return mimToBorrow;
+// };
 
 export const getMaxCollateralToRemove = (
   collateralAmount: BigNumber,
@@ -115,9 +164,11 @@ export const getMaxCollateralToRemove = (
   );
 
   const getMaxCollateralToRemove = leftToBorrow
-    .mul(expandDecimals(1, collateralDecimals))
+    // .mul(expandDecimals(1, collateralDecimals))
     .mul(oracleExchangeRate)
-    .div(expandDecimals(1, MIM_DECIMALS - collateralDecimals));
+    .div(expandDecimals(mcr, collateralDecimals))
+    .mul(100);
+  // .div(expandDecimals(1, MIM_DECIMALS));
 
   return getMaxCollateralToRemove;
 };
