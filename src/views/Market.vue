@@ -11,8 +11,8 @@
 
           <div class="deposit-wrap" v-if="isBorrow">
             <template v-if="!loadingBorrow">
-              <BorrowBlock
-                v-if="isBorrowBlock"
+              <BorrowForm
+                v-if="isBorrowTab"
                 :cauldron="cauldron"
                 :useLeverage="useLeverage"
                 @updateAmounts="updateAmounts"
@@ -109,7 +109,7 @@ export default {
   computed: {
     ...mapGetters({ account: "getAccount", signer: "getSigner" }),
 
-    isBorrowBlock() {
+    isBorrowTab() {
       return this.activeTab === "borrow" && !this.useLeverage;
     },
 
@@ -201,8 +201,8 @@ export default {
       () => import("@/components/market/MarketHead.vue")
     ),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
-    BorrowBlock: defineAsyncComponent(
-      () => import("@/components/market/BorrowBlock.vue")
+    BorrowForm: defineAsyncComponent(
+      () => import("@/components/market/BorrowForm.vue")
     ),
     LeverageBlock: defineAsyncComponent(
       () => import("@/components/market/LeverageBlock.vue")

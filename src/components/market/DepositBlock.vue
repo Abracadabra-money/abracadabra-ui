@@ -1,5 +1,5 @@
 <template>
-  <div class="deposit-wrap">
+  <div>
     <div>
       <div class="row">
         <h3 class="title">Deposit collateral</h3>
