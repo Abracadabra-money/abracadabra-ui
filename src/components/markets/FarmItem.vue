@@ -236,4 +236,10 @@ export default {
 
   background-repeat: no-repeat;
 }
+
+@media screen and (max-width: 700px) {
+  .farm-item {
+    width: 100%;
+  }
+}
 </style>

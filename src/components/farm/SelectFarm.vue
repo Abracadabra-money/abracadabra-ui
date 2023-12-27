@@ -1,8 +1,12 @@
 <template>
   <button class="select" @click="$emit('openFarmsPopup')">
     <div class="icon-text">
-      <TokenChainIcon :icon="selectedFarm?.icon" :name="selectedFarm?.name" :chainId="selectedFarm?.chainId"
-        size="38px" />
+      <TokenChainIcon
+        :icon="selectedFarm?.icon"
+        :name="selectedFarm?.name"
+        :chainId="selectedFarm?.chainId"
+        size="38px"
+      />
       <span class="select-text">
         {{ selectedFarm ? selectedFarm.name : "Select Farm" }}
       </span>
@@ -12,7 +16,7 @@
 </template>
 
 <script>
-import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue"
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
 export default {
   props: {
@@ -27,11 +31,11 @@ export default {
 .select {
   flex-grow: 1;
   width: 100%;
-  height: 100%;
+  height: 54px;
   border-radius: 16px;
   border: 1px solid rgba(73, 70, 97, 0.4);
   background: rgba(8, 14, 31, 0.6);
-  padding: 8px 20px;
+  padding: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -42,7 +46,6 @@ export default {
 .select:disabled {
   cursor: default;
 }
-
 
 .icon-text {
   display: flex;

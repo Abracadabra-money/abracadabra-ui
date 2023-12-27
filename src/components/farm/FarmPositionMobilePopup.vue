@@ -214,7 +214,7 @@ export default {
   justify-content: center;
   align-items: end;
   background: rgba(25, 25, 25, 0.1);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(10px);
 }
 
 .farm-position-wrap {
@@ -230,9 +230,9 @@ export default {
     90deg,
     rgba(45, 74, 150, 0.22) 0%,
     rgba(116, 92, 210, 0.22) 100%
-    );
-    box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-    backdrop-filter: blur(20px);
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(20px);
 }
 
 .farm-position {

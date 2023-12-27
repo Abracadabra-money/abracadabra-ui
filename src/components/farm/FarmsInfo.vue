@@ -231,6 +231,10 @@ export default {
 }
 
 @media screen and (max-width: 620px) {
+  .reward-card {
+    width: 100%;
+  }
+
   .arbitrum {
     background-size: 140%, 100%;
     background-position: -80px 0;
