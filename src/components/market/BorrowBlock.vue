@@ -52,12 +52,11 @@
           Select the amount of MIM to borrow from the Cauldron
         </h4>
       </div>
-
       <TokenInput
         :value="borrowInputValue"
         :name="borrowToken.name"
         :icon="borrowToken.icon"
-        :max="borrowToken.balance"
+        :max="maxToBorrow"
         :tokenPrice="borrowToken.price"
         isBigNumber
         @updateInputValue="onUpdateBorrowValue"
@@ -66,7 +65,7 @@
       <div class="range-wrap">
         <LtvRange
           :value="ltvRangeValue"
-          :userLtv="positionLtv"
+          :positionLtv="positionLtv"
           :mcr="cauldron.config.mcr"
           :max="cauldron.config.mcr"
           :risk="positionHealth"
@@ -203,6 +202,21 @@ export default {
       return unwrapTokenAmount.gt(collateralBalance);
     },
 
+    maxToBorrow() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      const { mcr } = this.cauldron.config;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+
+      return getMaxToBorrow(
+        userCollateralAmount,
+        userBorrowAmount,
+        mcr,
+        oracleExchangeRate
+      );
+    },
+
     expectedCollateralAmount() {
       return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
         this.amounts.deposit.collateralTokenAmount
@@ -320,7 +334,7 @@ export default {
     },
 
     positionLtv() {
-      return utils.formatUnits(
+      const positionLtv = utils.formatUnits(
         getUserLtv(
           this.expectedCollateralAmount,
           this.expectedBorrowAmount,
@@ -328,6 +342,8 @@ export default {
         ),
         2
       );
+
+      return Math.ceil(Number(positionLtv));
     },
 
     positionHealth() {

@@ -56,14 +56,15 @@ export const getUserLtv = (
 ): BigNumber => {
   if (collateralAmount.isZero()) return BigNumber.from(0);
 
-  const collateralInMim = collateralAmount
-    .mul(expandDecimals(1, MIM_DECIMALS))
-    .div(oracleExchangeRate);
+  const collateralInMim = expandDecimals(collateralAmount, MIM_DECIMALS).div(
+    oracleExchangeRate
+  );
 
-  const ltvBps = userBorrowAmount
-    .mul(expandDecimals(1, BPS_PRESITION))
-    .div(collateralInMim);
-  return ltvBps;
+  const ltv = expandDecimals(userBorrowAmount, BPS_PRESITION).div(
+    collateralInMim
+  );
+
+  return ltv;
 };
 
 export const getMimToBorrowByLtv = (
@@ -74,80 +75,31 @@ export const getMimToBorrowByLtv = (
   oracleExchangeRate: BigNumber
 ): BigNumber => {
   if (ltv > mcr) return BigNumber.from(0);
+  const ltvBps = expandDecimals(ltv, 2);
 
-  const mcrBps = expandDecimals(mcr, BPS_PRESITION);
-  const ltvBps = expandDecimals(ltv, BPS_PRESITION);
-
-  const currentLtvBps = getUserLtv(
+  const currentLtv = getUserLtv(
     collateralAmount,
     userBorrowAmount,
     oracleExchangeRate
   );
 
-  if (ltvBps.div(100).lte(currentLtvBps)) return BigNumber.from(0);
+  if (ltvBps.lte(currentLtv)) return BigNumber.from(0);
 
-  const collateralInMim = collateralAmount
-    .mul(expandDecimals(1, MIM_DECIMALS))
-    .div(oracleExchangeRate);
+  const collateralInMim = expandDecimals(collateralAmount, MIM_DECIMALS).div(
+    oracleExchangeRate
+  );
 
   const maxToBorrow = collateralInMim.div(100).mul(mcr);
-
-  const leftToBorrow = maxToBorrow
-    .sub(userBorrowAmount)
-    .mul(expandDecimals(1, MIM_DECIMALS))
-    .div(
-      mcrBps
-        .sub(currentLtvBps.mul(expandDecimals(1, 2)))
-        .div(10000)
-        .mul(expandDecimals(1, 14))
-    )
-    .mul(ltvBps.sub(currentLtvBps.mul(expandDecimals(1, 2))).div(10000))
-    .div(expandDecimals(1, BPS_PRESITION));
-
+  const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
   const mimPerPercent = collateralInMim.div(100);
 
   const mimToBorrow = mimPerPercent
-    .mul(ltvBps.sub(currentLtvBps))
-    .div(expandDecimals(1, BPS_PRESITION));
+    .mul(ltvBps.sub(currentLtv))
+    .div(expandDecimals(1, 2));
 
   if (mimToBorrow.gt(leftToBorrow)) return leftToBorrow;
-
   return mimToBorrow;
 };
-
-// export const getMimToBorrowByLtv = (
-//   ltv: number,
-//   mcr: number,
-//   collateralAmount: BigNumber,
-//   userBorrowAmount: BigNumber,
-//   oracleExchangeRate: BigNumber
-// ): BigNumber => {
-//   if (ltv > mcr) return BigNumber.from(0);
-//   const ltvBps = expandDecimals(ltv, BPS_PRESITION);
-
-//   const currentLtvBps = getUserLtv(
-//     collateralAmount,
-//     userBorrowAmount,
-//     oracleExchangeRate
-//   );
-
-//   if (ltvBps.lte(currentLtvBps)) return BigNumber.from(0);
-
-//   const collateralInMim = collateralAmount
-//     .mul(expandDecimals(1, MIM_DECIMALS))
-//     .div(oracleExchangeRate);
-
-//   const maxToBorrow = collateralInMim.div(100).mul(mcr);
-//   const leftToBorrow = maxToBorrow.sub(userBorrowAmount);
-//   const mimPerPercent = collateralInMim.div(100);
-
-//   const mimToBorrow = mimPerPercent
-//     .mul(ltvBps.sub(currentLtvBps))
-//     .div(expandDecimals(1, BPS_PRESITION));
-
-//   if (mimToBorrow.gt(leftToBorrow)) return leftToBorrow;
-//   return mimToBorrow;
-// };
 
 export const getMaxCollateralToRemove = (
   collateralAmount: BigNumber,

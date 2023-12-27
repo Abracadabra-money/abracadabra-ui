@@ -4,7 +4,7 @@
       <div class="base-track">
         <div class="progress-track" :style="{ background: gradientRangeTrack }">
           <span class="progress-value" :style="progressValuePosition">
-            {{ Math.round(userLtv) }}
+            {{ Math.round(positionLtv) }}%
           </span>
           <span class="progress-percent-max" v-show="showMrcPercent"
             >{{ max }}%</span
@@ -39,7 +39,7 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     value: { type: [Number, String], default: 0 },
-    userLtv: { type: [Number, String], default: "" },
+    positionLtv: { type: [Number], default: 0 },
     step: { type: Number, default: 1 },
     mcr: { type: Number, default: 0 },
     min: { type: Number, default: 0 },
@@ -50,7 +50,7 @@ export default {
 
   data(): any {
     return {
-      inputValue: +this.userLtv,
+      inputValue: this.positionLtv,
       colors: {
         safe: { start: "#356D37", end: "#67A069" },
         medium: { start: "#A78300", end: "#FED84F" },
@@ -81,13 +81,13 @@ export default {
 
     trackPercent() {
       return Math.floor(
-        (100 / (this.max - this.min)) * (this.userLtv - this.min)
+        (100 / (this.max - this.min)) * (this.positionLtv - this.min)
       );
     },
 
     progressPercent() {
       return Math.floor(
-        (this.mcr / (this.max - this.min)) * (this.userLtv - this.min)
+        (this.mcr / (this.max - this.min)) * (this.positionLtv - this.min)
       );
     },
 
@@ -111,7 +111,7 @@ export default {
   methods: {
     updateRange(event: any) {
       const value = event.target.value;
-      this.$emit("updateValue", value);
+      this.$emit("updateValue", Number(value));
     },
   },
 
