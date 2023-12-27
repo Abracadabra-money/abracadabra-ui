@@ -1,20 +1,25 @@
 <template>
-  <div class="bento-wrapper">
-    <BentoBoxItem />
+  <div class="bento-wrapper" v-if="isVisible">
+    <BentoBoxItem
+      @withdraw="openPopup(false)"
+      :balance="bentoBoxConfig.mimInDegenBalance"
+      :mimPrice="bentoBoxConfig.mimPrice"
+    />
 
-    <BentoBoxItem :isBento="true" />
+    <BentoBoxItem
+      @withdraw="openPopup(true)"
+      :balance="bentoBoxConfig.mimInBentoBalance"
+      :mimPrice="bentoBoxConfig.mimPrice"
+      :isBento="true"
+    />
 
-    <LocalPopupWrap
-      :isOpened="popupData.opened"
-      @closePopup="popupData.opened = false"
-    >
-      <DegenBentoPopup
-        :infoObject="bentoBoxConfig"
-        :isBento="popupData.isBento"
-        :isDeposit="popupData.isDeposit"
-        @close="closePopup"
-      />
-    </LocalPopupWrap>
+    <DegenBentoPopup
+      v-if="popupData.opened"
+      :infoObject="bentoBoxConfig"
+      :isBento="popupData.isBento"
+      :isDeposit="popupData.isDeposit"
+      @close="popupData.opened = false"
+    />
   </div>
 </template>
 
@@ -50,7 +55,9 @@ export default {
       account: "getAccount",
     }),
 
-    isHide() {
+    isVisible() {
+      //
+      return this.bentoBoxConfig;
       return (
         (this.bentoBoxConfig?.mimInBentoBalance ||
           this.bentoBoxConfig?.mimInDegenBalance) &&
@@ -66,8 +73,8 @@ export default {
   },
 
   methods: {
-    openPopup(isBento, isDeposit) {
-      this.popupData = { opened: true, isBento, isDeposit };
+    openPopup(isBento) {
+      this.popupData = { opened: true, isBento };
     },
 
     closePopup() {

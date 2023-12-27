@@ -18,30 +18,26 @@
     </div>
 
     <div class="reward-cards">
-      <div class="reward-card">
-        <h4 class="reward-title">Total Collateral Deposit</h4>
+      <div
+        :class="['reward-card', { mim: index }]"
+        v-for="(data, index) in totalAssetsData"
+      >
+        <h4 class="reward-title">Total {{ data.title }}</h4>
         <div class="reward-values">
-          <div class="token-amount">$10332.03</div>
-        </div>
-      </div>
-
-      <div class="reward-card mim">
-        <h4 class="reward-title">Total MIM Borrowed</h4>
-        <div class="reward-values">
-          <div class="token-amount">
-            <img
-              class="token-icon"
-              src="@/assets/images/tokens/MIM.png"
-              alt="SPELL"
-            />10332.03
-          </div>
+          <div class="token-amount">{{ data.value }}</div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script></script>
+<script>
+export default {
+  props: {
+    totalAssetsData: { type: Array },
+  },
+};
+</script>
 
 <style lang="scss" scoped>
 .myPositions-info {
@@ -134,7 +130,7 @@
   font-weight: 500;
 }
 
-.reward-card.mim {
+.mim {
   border: 1px solid #25467c;
   background: linear-gradient(
       90deg,

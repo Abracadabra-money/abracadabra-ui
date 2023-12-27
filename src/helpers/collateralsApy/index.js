@@ -27,9 +27,11 @@ export const isApyCalcExist = (chainId, poolId) => {
   return cauldronsIds.indexOf(poolId) !== -1;
 };
 
-export const fetchTokenApy = async (pool) => {
-  let chainId = store.getters.getChainId;
-  let provider = store.getters.getProvider;
+export const fetchTokenApy = async (pool, chainId, provider) => {
+  if (!chainId || !provider) {
+    chainId = store.getters.getChainId;
+    provider = store.getters.getProvider;
+  }
 
   if (chainId === 1) {
     if (pool.config.id === 34) return await getLUSDApy(provider);
@@ -62,9 +64,9 @@ export const fetchTokenApy = async (pool) => {
       if (pool.config.id === 3) return response.magicGlpApy;
     }
 
-    if(pool.config.cauldronSettings.isGMXMarket) {
+    if (pool.config.cauldronSettings.isGMXMarket) {
       const market = pool.config.collateralInfo.address.toLowerCase();
-      return await getGMApr(market, provider)
+      return await getGMApr(market, provider);
     }
   }
 

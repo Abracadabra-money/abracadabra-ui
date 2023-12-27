@@ -1,36 +1,49 @@
 <template>
-  <div class="box-popup">
-    <p class="title">{{ title }}</p>
-    <div>
-      <div>
-        <div class="header-balance">
-          <h4>Collateral assets</h4>
-          <p>Balance: {{ formatTokenBalance(balance) }}</p>
-        </div>
+  <div class="backdrop">
+    <div class="box-popup">
+      <div class="box-header">
+        <p class="title">
+          <img class="bento-img" :src="boxIcon" alt="Box" /> {{ title }}
+        </p>
 
-        <BaseTokenInput
-          :icon="mimIcon"
-          name="MIM"
-          :value="amount"
-          @updateValue="amount = $event"
-          :max="balance"
-          :error="error"
+        <img
+          class="close-img"
+          src="@/assets/images/cross.svg"
+          alt="Close popup"
+          @click="closePopup"
         />
       </div>
-    </div>
 
-    <BaseButton
-      v-if="!isApproved && isDeposit"
-      :disabled="isDisabled"
-      primary
-      @click="approveToken"
-      >Approve</BaseButton
-    >
-    <template v-else>
-      <BaseButton @click="actionHandler" :disabled="isDisabled">{{
-        buttonText
-      }}</BaseButton>
-    </template>
+      <p class="description">
+        <span class="desc-line"> Withdraw your MIM from degenbox on </span>
+        <span class="desc-line">
+          <img :src="getChainIcon(1)" class="mim-symbol" />
+          Ethereum network
+        </span>
+      </p>
+
+      <BaseTokenInput
+        :icon="mimIcon"
+        name="MIM"
+        :value="amount"
+        @updateValue="amount = $event"
+        :max="balance"
+        :error="error"
+      />
+
+      <BaseButton
+        v-if="!isApproved && isDeposit"
+        :disabled="isDisabled"
+        primary
+        @click="approveToken"
+        >Approve</BaseButton
+      >
+      <template v-else>
+        <BaseButton @click="actionHandler" :disabled="isDisabled">{{
+          buttonText
+        }}</BaseButton>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -38,12 +51,15 @@
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
+import degenIcon from "@/assets/images/degenbox.svg";
+import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import filters from "@/filters/index.js";
 import actions from "@/helpers/bentoBox/actions";
 import { approveTokenViem } from "@/helpers/approval";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 import { formatUnits, parseUnits } from "viem";
 
@@ -64,6 +80,7 @@ export default {
       updateInfoInterval: null,
     };
   },
+
   computed: {
     ...mapGetters({
       account: "getAccount",
@@ -71,6 +88,10 @@ export default {
 
     parsedAmount() {
       return parseUnits(this.amount, 18);
+    },
+
+    boxIcon() {
+      return this.isBento ? bentoIcon : degenIcon;
     },
 
     activeContract() {
@@ -124,17 +145,15 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    getChainIcon,
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
 
     async actionHandler() {
       if (this.isDisabled) return false;
-      if (this.isDeposit) {
-        await this.deposit();
-      } else {
-        await this.withdraw();
-      }
+      await this.withdraw();
     },
 
     async withdraw() {
@@ -148,37 +167,6 @@ export default {
       };
 
       const { error } = await actions.withdraw(
-        contractInfo,
-        tokenAddress,
-        this.account,
-        this.parsedAmount
-      );
-
-      if (error) {
-        const errorNotification = {
-          msg: await notificationErrorMsg({ message: error.msg }),
-          type: "error",
-        };
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      } else {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      }
-
-      this.closePopup();
-    },
-
-    async deposit() {
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-      const tokenAddress = this.infoObject.tokenInfo.address;
-      const contractInfo = {
-        address: this.activeContract.address,
-        abi: this.activeContract.abi,
-      };
-      const { error } = await actions.deposit(
         contractInfo,
         tokenAddress,
         this.account,
@@ -237,20 +225,79 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.box-popup {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  padding: 0 10px;
-  width: 490px;
-  max-width: 100%;
-  height: 300px;
+.backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 300;
+  display: flex;
+  justify-content: center;
+  background: rgba(25, 25, 25, 0.1);
+  backdrop-filter: blur(10px);
 }
+
+.box-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 24px;
+  padding: 32px;
+  width: 533px;
+  max-width: 100%;
+  height: 351px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  margin-top: 270px;
+}
+
+.box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.bento-img {
+  width: 33px;
+  object-fit: contain;
+  margin-right: 8px;
+}
+
+.close-img {
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.close-img:hover {
+  opacity: 0.7;
+}
+
 .title {
+  display: flex;
+  align-items: center;
   font-weight: 600;
   font-size: 18px;
-  line-height: 27px;
-  padding: 8px 0 18px 0;
-  margin-bottom: 38px;
-  border-bottom: solid 1px rgba(255, 255, 255, 0.1);
+}
+
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.desc-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>

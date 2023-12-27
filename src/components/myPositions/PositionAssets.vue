@@ -1,30 +1,23 @@
 <template>
   <div class="assets-wrap">
-    <div class="asset">
-      <p class="asset-title">Collateral Deposited</p>
+    <div class="asset" v-for="asset in assetsInfo">
+      <p class="asset-title">{{ asset.title }}</p>
       <div class="asset-info">
         <div class="asset-token">
-          <BaseTokenIcon class="token-icon" size="44px" />
-          <span class="token-name">MIM-2Crv STIP Boosted</span>
+          <BaseTokenIcon
+            class="token-icon"
+            :icon="asset.icon"
+            :name="asset.name"
+            size="44px"
+          />
+          <span class="token-name">{{ asset.symbol }}</span>
         </div>
 
         <div class="asset-values">
-          <span class="token-value">2345325</span>
-          <span class="usd-equivalent">$456456</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="asset">
-      <p class="asset-title">Mim to Repay</p>
-      <div class="asset-info">
-        <div class="asset-token">
-          <BaseTokenIcon class="token-icon" size="44px" />
-          <span class="token-name">MIM</span>
-        </div>
-
-        <div class="asset-values">
-          <span class="token-value">2345325</span>
+          <span class="token-value">{{ asset.amount }}</span>
+          <span class="usd-equivalent" v-if="asset.amountUsd">{{
+            asset.amountUsd
+          }}</span>
         </div>
       </div>
     </div>
@@ -38,7 +31,6 @@ export default {
   props: {
     assetsInfo: {
       type: Object,
-      required: true,
     },
   },
 
@@ -62,7 +54,7 @@ export default {
   justify-content: space-between;
   width: 50%;
   padding: 16px;
-  gap: 32px;
+  gap: 12px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: linear-gradient(

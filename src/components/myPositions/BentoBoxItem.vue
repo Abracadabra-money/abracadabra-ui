@@ -22,11 +22,7 @@
     </div>
 
     <div class="button-description">
-      <BaseButton
-        class="withdraw-button"
-        @click="$emit('withdraw')"
-        :disabled="isDisabled"
-      >
+      <BaseButton class="withdraw-button" @click="$emit('withdraw')">
         Withdraw
       </BaseButton>
 
@@ -189,7 +185,7 @@ export default {
   flex-wrap: wrap;
   gap: 4px;
   top: 12px;
-  left: 30%;
+  left: 27%;
   max-width: 200px;
 }
 

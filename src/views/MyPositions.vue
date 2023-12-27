@@ -1,7 +1,7 @@
 <template>
   <div class="my-positions-view">
     <div class="position-page">
-      <MyPositionsInfo />
+      <MyPositionsInfo v-if="totalAssets" :totalAssetsData="totalAssetsData" />
 
       <BentoBoxBlock />
 
@@ -15,8 +15,11 @@
       </div>
 
       <div class="positions-list">
-        <CauldronPositionItem />
-        <CauldronPositionItem />
+        <CauldronPositionItem
+          v-for="cauldron in cauldrons"
+          :key="cauldron.id"
+          :cauldron="cauldron"
+        />
       </div>
     </div>
   </div>
@@ -26,16 +29,19 @@
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
-import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
-import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
-
 import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
+
+import { providers } from "ethers";
+import { defaultRpc } from "@/helpers/chains";
+import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
+const APR_KEY = "abracadabraCauldronsApr";
 
 export default {
   data() {
@@ -43,12 +49,10 @@ export default {
       activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
       activeNetwork: 5,
       updateInterval: null,
-      isShowMore: false,
-      positionList: [],
+      cauldrons: [],
       positionsIsLoading: true,
-      farmIsLoading: true,
       totalAssets: null,
-      farms: [],
+      sortKey: "",
     };
   },
 
@@ -60,74 +64,27 @@ export default {
       signer: "getSigner",
     }),
 
-    showTotalAssets() {
-      return this.account && !this.positionsIsLoading;
-    },
-
     isEmpyState() {
       return (
-        !this.account ||
-        (!this.positionList.length &&
-          !this.openUserFarms.length &&
-          !this.positionsIsLoading &&
-          !this.farmIsLoading)
+        !this.account || (!this.cauldrons.length && !this.positionsIsLoading)
       );
     },
 
     isPositionsLoaded() {
-      return (
-        (this.farmIsLoading && !this.openUserFarms.length) ||
-        (this.positionsIsLoading && !this.positionList.length)
-      );
+      return this.positionsIsLoading && !this.cauldrons.length;
     },
 
     totalAssetsData() {
-      const spellFarmer = filters.formatTokenBalance(
-        this.openUserFarms.reduce((calc, pool) => {
-          return calc + +pool.accountInfo.userReward;
-        }, 0)
-      );
-
       return [
         {
           title: "Collateral Deposit",
-          value: filters.formatUSD(this.totalAssets.collateralDepositedInUsd),
+          value: filters.formatUSD(this.totalAssets?.collateralDepositedInUsd),
         },
         {
           title: "MIM Borrowed",
-          value: filters.formatTokenBalance(this.totalAssets.mimBorrowed),
-        },
-        {
-          title: "SPELL Farmed",
-          value: spellFarmer,
-          routeName: "Farm",
-          hidden: spellFarmer === "0.0",
+          value: filters.formatTokenBalance(this.totalAssets?.mimBorrowed),
         },
       ].filter((item) => !item.hidden);
-    },
-
-    openUserFarms() {
-      return this.farms.filter((farm) => {
-        const isOpenMultiReward = farm.isMultiReward
-          ? +farm.accountInfo.depositedBalance > 0 ||
-            farm.accountInfo.rewardTokensInfo.filter((item) => +item.earned > 0)
-              .length > 0
-          : false;
-
-        const isOpenLegacyFarm =
-          farm.accountInfo?.userReward != 0 ||
-          farm.accountInfo?.userInfo.amount != 0;
-
-        return farm.isMultiReward ? isOpenMultiReward : isOpenLegacyFarm;
-      });
-    },
-
-    showMoreIcon() {
-      return this.isShowMore ? iconMinus : iconPlus;
-    },
-
-    showMoreText() {
-      return this.isShowMore ? "less" : "more";
     },
   },
 
@@ -138,8 +95,18 @@ export default {
   },
 
   methods: {
-    toggleShowMore() {
-      this.isShowMore = !this.isShowMore;
+    sortByKey(cauldrons, key) {
+      if (!key) return cauldrons;
+
+      return cauldrons.sort((cauldronA, cauldronB) => {
+        const a = this.getSortKey(cauldronA, key);
+        const b = this.getSortKey(cauldronB, key);
+
+        const factor = this.sortOrder ? -1 : 1;
+        if (key === "Interest" || key === "APR")
+          return a < b ? factor : -factor;
+        return a.lt(b) ? factor : -factor;
+      });
     },
 
     async createOpenPositions() {
@@ -148,29 +115,73 @@ export default {
         return false;
       }
 
-      this.positionList = await getUserOpenPositions(
+      this.cauldrons = await getUserOpenPositions(
         this.chainId,
         this.account,
         this.provider
       );
-
-      this.totalAssets = getUsersTotalAssets(this.positionList);
+      await this.getCollateralsApr();
+      this.totalAssets = getUsersTotalAssets(this.cauldrons);
       this.positionsIsLoading = false;
 
-      this.farms = await getFarmsList(this.chainId, this.signer);
-      this.farmIsLoading = false;
-
       this.updateInterval = setInterval(async () => {
-        this.positionList = await getUserOpenPositions(
+        this.cauldrons = await getUserOpenPositions(
           this.chainId,
           this.account,
           this.provider
         );
-
-        this.totalAssets = getUsersTotalAssets(this.positionList);
-
-        this.farms = await getFarmsList(this.chainId, this.signer);
+        await this.getCollateralsApr();
+        this.totalAssets = getUsersTotalAssets(this.cauldrons);
       }, 60000);
+    },
+
+    async fetchCollateralApy(cauldron, chainId, address) {
+      const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+      const apr = await fetchTokenApy(cauldron, chainId, provider);
+      const localData = localStorage.getItem("abracadabraCauldronsApr");
+      const parsedData = localData ? JSON.parse(localData) : {};
+      parsedData[address] = {
+        chainId,
+        apr: Number(filters.formatToFixed(apr, 2)),
+        createdAt: new Date().getTime(),
+      };
+      localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
+      return filters.formatToFixed(apr, 2);
+    },
+
+    timeHasPassed(localData, address) {
+      if (!localData) return true;
+      if (!localData[address]) return true;
+      const allowedTime = 5;
+      const { createdAt } = localData[address];
+      const currentTime = new Date().getTime();
+      const timeDiff = currentTime - createdAt;
+      const minutes = Math.floor(timeDiff / 1000 / 60);
+      return minutes > allowedTime;
+    },
+
+    async getCollateralApr(cauldron) {
+      const { chainId, id, contract } = cauldron.config;
+      const isApyExist = isApyCalcExist(chainId, id);
+      if (isApyExist) {
+        const localApr = localStorage.getItem("abracadabraCauldronsApr");
+        const parseLocalApr = localApr ? JSON.parse(localApr) : null;
+        const isOutdated = this.timeHasPassed(parseLocalApr, contract.address);
+        const collateralApy = !isOutdated
+          ? parseLocalApr[contract.address].apr
+          : await this.fetchCollateralApy(cauldron, chainId, contract.address);
+        return collateralApy;
+      } else return 0;
+    },
+
+    async getCollateralsApr() {
+      this.cauldrons = await Promise.all(
+        this.cauldrons.map(async (cauldron) => {
+          const apr = await this.getCollateralApr(cauldron);
+          cauldron.apr = apr;
+          return cauldron;
+        })
+      );
     },
   },
 
@@ -185,7 +196,6 @@ export default {
   components: {
     BentoBoxBlock,
     CauldronPositionItem,
-
     MyPositionsInfo,
     ChainsDropdown,
     SortButton,
@@ -195,6 +205,7 @@ export default {
 
 <style lang="scss" scoped>
 .my-positions-view {
+  position: relative;
   display: flex;
   justify-content: center;
   min-height: 100vh;

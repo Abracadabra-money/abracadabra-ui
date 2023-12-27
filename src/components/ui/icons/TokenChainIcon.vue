@@ -24,6 +24,9 @@ export default {
 <style scoped lang="scss">
 .token-info-icon {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .token-chain {

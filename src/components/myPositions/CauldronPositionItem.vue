@@ -2,12 +2,17 @@
   <div :class="['position', positionRisk]">
     <div class="position-header">
       <div class="position-token">
-        <TokenChainIcon size="54px" name="NAME" icon="" :chainId="1" />
+        <TokenChainIcon
+          size="54px"
+          :name="collateralSymbol"
+          :icon="cauldron.config.icon"
+          :chainId="cauldron.config.chainId"
+        />
         <div class="token-info">
-          <span class="token-name">MIM-2Crv</span>
+          <span class="token-name">{{ collateralSymbol }}</span>
           <span class="apr">
             <Tooltip />
-            APR 101.82%
+            {{ formatPercent(cauldron.apr) }}
           </span>
         </div>
       </div>
@@ -17,18 +22,25 @@
 
     <div class="position-info">
       <ul class="position-indicators">
-        <PositionIndicator :value="0.54">Collateral price</PositionIndicator>
-        <PositionIndicator :positionRisk="positionRisk" :value="0.54"
+        <PositionIndicator :value="collateralPrice"
+          >Collateral price</PositionIndicator
+        >
+        <PositionIndicator
+          :positionRisk="positionRisk"
+          :value="cauldron.liquidationPrice"
           >Liquidation price</PositionIndicator
         >
-        <PositionIndicator :value="0.54"
+        <PositionIndicator :value="leftToDrop"
           >Required Drop in price</PositionIndicator
         >
       </ul>
-      <HealthProgress :positionHealth="50" :positionRisk="positionRisk" />
+      <HealthProgress
+        :positionHealth="formatPercent(cauldron.positionHealth)"
+        :positionRisk="positionRisk"
+      />
     </div>
 
-    <PositionAssets />
+    <PositionAssets :assetsInfo="assetsInfo" />
   </div>
 </template>
 
@@ -48,7 +60,6 @@ import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
 export default {
   props: {
-    opened: { type: Boolean, default: true },
     cauldron: { type: Object },
   },
 
@@ -83,25 +94,17 @@ export default {
       return +this.collateralPrice - +this.cauldron.liquidationPrice;
     },
 
-    positionHealth() {
-      return 50;
-      const { liquidationPrice } = this.cauldron;
-      const { healthMultiplier } = this.cauldron.config.cauldronSettings;
-      const { userBorrowAmount } = this.cauldron.borrowInfo;
-
-      if (userBorrowAmount.toString() === "0" || isNaN(+liquidationPrice))
-        return 100;
-
-      const priceToDrop = this.leftToDrop * healthMultiplier;
-      const percent = (priceToDrop / this.collateralPrice) * 100;
-      if (percent > 100) return 100;
-      if (percent < 0) return 0;
-      return parseFloat(percent).toFixed(2);
-    },
-
     positionRisk() {
-      if (this.positionHealth >= 0 && this.positionHealth <= 5) return "high";
-      if (this.positionHealth > 5 && this.positionHealth <= 75) return "medium";
+      if (
+        this.cauldron.positionHealth >= 0 &&
+        this.cauldron.positionHealth <= 5
+      )
+        return "high";
+      if (
+        this.cauldron.positionHealth > 5 &&
+        this.cauldron.positionHealth <= 75
+      )
+        return "medium";
       return "safe";
     },
 
@@ -179,6 +182,10 @@ export default {
 
     formatUSD(value) {
       return filters.formatUSD(value);
+    },
+
+    formatPercent(value) {
+      return filters.formatPercent(value);
     },
   },
 
