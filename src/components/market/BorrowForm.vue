@@ -3,7 +3,7 @@
     <div class="deposit-wrap">
       <DepositBlock
         :cauldron="cauldron"
-        :inputAmpunt="amounts.deposit.inputAmount"
+        :inputAmpunt="borrowConfig.amounts.deposit.inputAmount"
         :useNativeToken="useNativeToken"
         :useUnwrapToken="useUnwrapToken"
         :toggleNativeToken="() => (useNativeToken = !useNativeToken)"
@@ -17,9 +17,9 @@
           <h3 class="title">Borrow MIM</h3>
 
           <Toggle
-            :selected="useLeverage"
+            :selected="borrowConfig.useLeverage"
             text="Leverage"
-            @updateToggle="updateActionType"
+            @updateToggle="onToggleLeverage"
           />
         </div>
 
@@ -27,12 +27,25 @@
           Select the amount of MIM to borrow from the Cauldron
         </h4>
       </div>
-      <BorrowBlock
+      <LeverageBlock
+        v-if="borrowConfig.useLeverage"
+        :depositCollateralAmount="
+          borrowConfig.amounts.deposit.collateralTokenAmount
+        "
+        :leverageAmounts="borrowConfig.amounts.leverageAmounts"
         :cauldron="cauldron"
-        :inputAmount="amounts.borrow"
-        :collateralTokenAmount="amounts.deposit.collateralTokenAmount"
+        @updateLeverageAmounts="onUpdateLeverageAmounts"
+      />
+      <BorrowBlock
+        v-else
+        :cauldron="cauldron"
+        :inputAmount="borrowConfig.amounts.borrowAmount"
+        :collateralTokenAmount="
+          borrowConfig.amounts.deposit.collateralTokenAmount
+        "
         @updateBorrowAmount="onUpdateBorrowAmount"
       />
+
       <BaseButton
         primary
         :disabled="actionInfo.buttonText === 'Nothing to do'"
@@ -44,10 +57,7 @@
 </template>
 
 <script lang="ts">
-import {
-  applyBorrowFee,
-  getMaxToBorrow,
-} from "@/helpers/cauldron/utils";
+import { applyBorrowFee, getMaxToBorrow } from "@/helpers/cauldron/utils";
 
 import { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
@@ -71,9 +81,6 @@ export default {
     cauldron: {
       type: Object as any,
     },
-    useLeverage: {
-      type: Boolean,
-    },
   },
 
   data() {
@@ -82,13 +89,21 @@ export default {
       useUnwrapToken: false,
       borrowInputValue: "",
       ltvRangeValue: "",
-      amounts: {
-        deposit: {
-          inputAmount: BigNumber.from(0),
-          collateralTokenAmount: BigNumber.from(0),
-          unwrapTokenAmount: BigNumber.from(0),
+      // TODO: add types
+      borrowConfig: {
+        useLeverage: false,
+        amounts: {
+          deposit: {
+            inputAmount: BigNumber.from(0),
+            collateralTokenAmount: BigNumber.from(0),
+            unwrapTokenAmount: BigNumber.from(0),
+          },
+          borrowAmount: BigNumber.from(0),
+          leverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
         },
-        borrow: BigNumber.from(0),
       },
     };
   },
@@ -105,7 +120,8 @@ export default {
       const { unwrappedTokenAllowance } = this.cauldron.userTokensInfo;
       const { collateralAllowance } = this.cauldron.userTokensInfo;
 
-      const { collateralTokenAmount, unwrapTokenAmount } = this.amounts.deposit;
+      const { collateralTokenAmount, unwrapTokenAmount } =
+        this.borrowConfig.amounts.deposit;
 
       if (this.useNativeToken) return true;
 
@@ -119,10 +135,10 @@ export default {
       const { collateralBalance, unwrappedTokenBalance, nativeTokenBalance } =
         this.cauldron.userTokensInfo;
 
-      const { inputAmount } = this.amounts.deposit;
-      const { borrow } = this.amounts;
+      const { inputAmount } = this.borrowConfig.amounts.deposit;
+      const { borrowAmount } = this.borrowConfig.amounts;
 
-      if (inputAmount.isZero() && borrow.isZero()) return true;
+      if (inputAmount.isZero() && borrowAmount.isZero()) return true;
 
       if (this.useNativeToken && inputAmount.gt(nativeTokenBalance))
         return true;
@@ -135,7 +151,7 @@ export default {
       )
         return true;
 
-      if (borrow.gt(this.maxToBorrow)) return true;
+      if (borrowAmount.gt(this.maxToBorrow)) return true;
 
       return false;
     },
@@ -155,21 +171,22 @@ export default {
 
     expectedCollateralAmount() {
       return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
-        this.amounts.deposit.collateralTokenAmount
+        this.borrowConfig.amounts.deposit.collateralTokenAmount
       );
     },
 
     expectedBorrowAmount() {
       const { borrowFee } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      return applyBorrowFee(this.amounts.borrow, borrowFee * 1000).add(
-        userBorrowAmount
-      );
+      return applyBorrowFee(
+        this.borrowConfig.amounts.borrowAmount,
+        borrowFee * 1000
+      ).add(userBorrowAmount);
     },
 
     actionInfo(): any {
-      const { borrow } = this.amounts;
-      const { collateralTokenAmount } = this.amounts.deposit;
+      const { borrowAmount } = this.borrowConfig.amounts;
+      const { collateralTokenAmount } = this.borrowConfig.amounts.deposit;
       const { isCollateralLocked } = this.cauldron.additionalInfo;
 
       const info: any = {
@@ -190,10 +207,10 @@ export default {
       if (this.isActionDisabled) return info;
       if (isCollateralLocked) return info;
 
-      if (!borrow.isZero() && !collateralTokenAmount.isZero()) {
+      if (!borrowAmount.isZero() && !collateralTokenAmount.isZero()) {
         info.methodName = "addCollateralAndBorrowHandler";
         info.buttonText = "Add collateral and borrow";
-      } else if (!borrow.isZero()) {
+      } else if (!borrowAmount.isZero()) {
         info.methodName = "borrowHandler";
         info.buttonText = "Borrow";
       } else if (!collateralTokenAmount.isZero()) {
@@ -207,11 +224,18 @@ export default {
 
   watch: {
     useUnwrapToken() {
-      this.clearInputs();
+      this.setEmptyState(); // NOTICE: do we need this?
     },
 
     useNativeToken() {
-      this.clearInputs();
+      this.setEmptyState(); // NOTICE: do we need this?
+    },
+
+    borrowConfig: {
+      handler(value) {
+        this.$emit("updateBorrowConfig", value);
+      },
+      deep: true,
     },
   },
 
@@ -219,18 +243,40 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    setEmptyState() {
+      this.borrowInputValue = "";
+      this.ltvRangeValue = "";
+      this.borrowConfig.amounts = {
+        deposit: {
+          inputAmount: BigNumber.from(0),
+          collateralTokenAmount: BigNumber.from(0),
+          unwrapTokenAmount: BigNumber.from(0),
+        },
+        borrowAmount: BigNumber.from(0),
+        leverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+      };
+    },
+
+    onToggleLeverage() {
+      this.borrowConfig.useLeverage = !this.borrowConfig.useLeverage;
+    },
+
     onUpdateDepositAmounts(amounts: any) {
-      this.amounts.deposit = amounts;
-      this.$emit("updateAmounts", this.amounts);
+      this.borrowConfig.amounts.deposit = amounts;
+      this.$emit("updateAmounts", this.borrowConfig.amounts);
     },
 
     onUpdateBorrowAmount(amount: BigNumber) {
-      this.amounts.borrow = amount;
-      this.$emit("updateAmounts", this.amounts);
+      this.borrowConfig.amounts.borrowAmount = amount;
+      this.$emit("updateAmounts", this.borrowConfig.amounts);
     },
 
-    updateActionType() {
-      this.$emit("toogleUseLeverage");
+    onUpdateLeverageAmounts(amounts: any) {
+      this.borrowConfig.amounts.leverageAmounts = amounts;
+      this.$emit("updateAmounts", this.borrowConfig.amounts);
     },
 
     async checkPermissionToCook(
@@ -284,7 +330,7 @@ export default {
 
       const isPermissionToCook = await this.checkPermissionToCook(
         notificationId,
-        this.amounts.borrow
+        this.borrowConfig.amounts.borrowAmount
       );
 
       if (!isPermissionToCook) return false;
@@ -333,7 +379,7 @@ export default {
       const { updatePrice } = this.cauldron.mainParams;
 
       const payload = {
-        amount: this.amounts.deposit.unwrapTokenAmount,
+        amount: this.borrowConfig.amounts.deposit.unwrapTokenAmount,
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
@@ -354,7 +400,7 @@ export default {
       const { updatePrice } = this.cauldron.mainParams;
 
       const payload = {
-        amount: this.amounts.borrow,
+        amount: this.borrowConfig.amounts.borrowAmount,
         updatePrice,
       };
 
@@ -368,8 +414,8 @@ export default {
       const { updatePrice } = this.cauldron.mainParams;
 
       const payload = {
-        collateralAmount: this.amounts.deposit.unwrapTokenAmount,
-        amount: this.amounts.borrow,
+        collateralAmount: this.borrowConfig.amounts.deposit.unwrapTokenAmount,
+        amount: this.borrowConfig.amounts.borrowAmount,
         updatePrice,
         itsDefaultBalance: !!this.activeToken.isNative,
       };
@@ -402,6 +448,10 @@ export default {
     ),
     BorrowBlock: defineAsyncComponent(
       () => import("@/components/market/BorrowBlock.vue")
+    ),
+    // TODO: remove new
+    LeverageBlock: defineAsyncComponent(
+      () => import("@/components/market/LeverageBlock.vue")
     ),
   },
 };

@@ -107,15 +107,6 @@ export default {
       );
     },
 
-    expectedLiquidationPrice() {
-      return getLiquidationPrice(
-        this.expectedBorrowAmount,
-        this.expectedCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
-    },
-
     borrowToken() {
       const { config, userTokensInfo } = this.cauldron;
       return {
@@ -143,15 +134,20 @@ export default {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.collateralInfo;
 
-      const riskPersent = getPositionHealth(
-        this.expectedLiquidationPrice,
+      const expectedLiquidationPrice = getLiquidationPrice(
+        this.expectedBorrowAmount,
+        this.expectedCollateralAmount,
+        this.cauldron.config.mcr,
+        this.cauldron.config.collateralInfo.decimals
+      );
+
+      const { status } = getPositionHealth(
+        expectedLiquidationPrice,
         oracleExchangeRate,
         decimals
       );
 
-      if (riskPersent.gte(0) && riskPersent.lte(25)) return "safe";
-      if (riskPersent.gt(25) && riskPersent.lte(75)) return "medium";
-      return "high";
+      return status;
     },
   },
 

@@ -12,9 +12,12 @@
         />
       </h4>
       <p class="item-value">
-        {{ formatUnits(expectedCollateralAmount, collateralDecimals) }} ETH
+        {{ formatUnits(expectedCollateralAmount, collateralDecimals) }}
+        {{ collateralName }}
       </p>
-      <p class="item-price">$ 3,009</p>
+      <p class="item-price">
+        $ {{ formatUnits(expectedCollateralInUsd, collateralDecimals) }}
+      </p>
     </div>
     <div class="position-info-item mim-to-repay">
       <h4 class="item-title">
@@ -60,17 +63,15 @@ import { BigNumber, utils } from "ethers";
 import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
 import { applyBorrowFee, getLiquidationPrice } from "@/helpers/cauldron/utils";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 export default {
   props: {
     cauldron: {
       type: Object as any,
     },
-    amounts: {
+    actionConfig: {
       type: Object as any,
-    },
-    useUnwrapToken: {
-      type: Boolean,
     },
   },
   computed: {
@@ -78,37 +79,42 @@ export default {
       return this.cauldron.config.collateralInfo.decimals;
     },
 
+    collateralName() {
+      return this.cauldron.config.collateralInfo.name;
+    },
+
     expectedCollateralAmount() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
 
-      if (this.amounts.actionType === "repay") {
-        if (this.amounts.deposit.unwrapTokenAmount.gt(userCollateralAmount))
-          return BigNumber.from(0);
-        return userCollateralAmount.sub(this.amounts.deposit.unwrapTokenAmount);
-      }
+      const { deposit, leverageAmounts } = this.actionConfig.amounts;
 
-      if (this.amounts.deposit.minToSwap) {
+      if (this.actionConfig.useLeverage)
         return userCollateralAmount
-          .add(this.amounts.deposit.collateralTokenAmount)
-          .add(this.amounts.deposit.minToSwap);
-      }
+          .add(deposit.collateralTokenAmount)
+          .add(leverageAmounts.amountToMin);
 
-      return userCollateralAmount.add(
-        this.amounts.deposit.collateralTokenAmount
-      );
+      return userCollateralAmount.add(deposit.collateralTokenAmount);
+    },
+
+    expectedCollateralInUsd() {
+      const price = this.cauldron.mainParams.collateralPrice;
+      return this.expectedCollateralAmount
+        .mul(price)
+        .div(expandDecimals(1, this.collateralDecimals));
     },
 
     expectedBorrowAmount() {
       const { borrowFee } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      const { leverageAmounts, borrowAmount } = this.actionConfig.amounts;
 
-      if (this.amounts.actionType === "repay") {
-        if (this.amounts.borrow.gt(userBorrowAmount)) return BigNumber.from(0);
-        return userBorrowAmount.sub(this.amounts.borrow);
-      }
+      if (this.actionConfig.useLeverage)
+        return applyBorrowFee(leverageAmounts.amountFrom, borrowFee * 1000).add(
+          userBorrowAmount
+        );
 
-      return applyBorrowFee(this.amounts.borrow, borrowFee * 1000).add(
+      return applyBorrowFee(borrowAmount, borrowFee * 1000).add(
         userBorrowAmount
       );
     },

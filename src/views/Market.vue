@@ -9,39 +9,17 @@
         <div class="actions-wrap">
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
-          <div class="deposit-wrap" v-if="isBorrow">
-            <template v-if="!loadingBorrow">
-              <BorrowForm
-                v-if="isBorrowTab"
-                :cauldron="cauldron"
-                :useLeverage="useLeverage"
-                @updateAmounts="updateAmounts"
-                @updateMarket="createCauldronInfo"
-                @toogleUseLeverage="toogleUseLeverage"
-              />
-
-              <LeverageBlock
-                v-if="isLeverageBlock"
-                :cauldron="cauldron"
-                :useLeverage="useLeverage"
-                @updateAmounts="updateAmounts"
-                @updateMarket="createCauldronInfo"
-                @toogleUseLeverage="toogleUseLeverage"
-              />
-            </template>
-
-            <div class="loading" v-else>
-              <img
-                class="loading-icon"
-                src="@/assets/images/cauldrons/loader.gif"
-                alt="Loader icon"
-              />
-            </div>
+          <div class="deposit-wrap" v-if="isBorrowTab">
+            <BorrowForm
+              :cauldron="cauldron"
+              @updateAmounts="updateAmounts"
+              @updateBorrowConfig="onUpdateBorrowConfig"
+              @updateMarket="createCauldronInfo"
+            />
           </div>
 
-          <div class="repay-wrap" v-if="isRepay">
+          <div class="repay-wrap" v-if="isRepayTab">
             <RepayBlock
-              v-if="isRepayBlock"
               :cauldron="cauldron"
               :useLeverage="useLeverage"
               @updateAmounts="updateAmounts"
@@ -58,7 +36,7 @@
           </div>
 
           <div class="row">
-            <PositionInfo :cauldron="cauldron" :amounts="amounts" />
+            <PositionInfo :cauldron="cauldron" :actionConfig="actionConfig" />
             <CauldronInfo :cauldron="cauldron" />
           </div>
         </div>
@@ -92,12 +70,38 @@ export default {
       cauldronId: null as any,
       cauldron: null as any,
       updateInterval: null as any,
+
+      // TODO: remove after RepayBlock update
       amounts: {
         deposit: {
+          inputAmount: BigNumber.from(0),
           collateralTokenAmount: BigNumber.from(0),
           unwrapTokenAmount: BigNumber.from(0),
         },
-        borrow: BigNumber.from(0),
+        borrowAmount: BigNumber.from(0),
+        leverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+      },
+
+      // TODO: add repay logic & types 
+      actionConfig: {
+        useLeverage: false,
+        amounts: {
+
+          // TODO: rename to depositAmounts
+          deposit: {
+            inputAmount: BigNumber.from(0),
+            collateralTokenAmount: BigNumber.from(0),
+            unwrapTokenAmount: BigNumber.from(0),
+          },
+          borrowAmount: BigNumber.from(0),
+          leverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+        },
       },
       activeTab: "borrow",
       tabItems: ["borrow", "repay"],
@@ -110,38 +114,21 @@ export default {
     ...mapGetters({ account: "getAccount", signer: "getSigner" }),
 
     isBorrowTab() {
-      return this.activeTab === "borrow" && !this.useLeverage;
-    },
-
-    isLeverageBlock() {
-      return this.activeTab === "borrow" && this.useLeverage;
-    },
-
-    isBorrow() {
       return this.activeTab === "borrow";
     },
 
-    isRepay() {
+    isRepayTab() {
       return this.activeTab === "repay";
-    },
-
-    isRepayBlock() {
-      return this.activeTab === "repay" && !this.useLeverage;
-    },
-  },
-
-  watch: {
-    useLeverage() {
-      this.loadingBorrow = true;
-      setTimeout(() => {
-        this.loadingBorrow = false;
-      }, 500);
     },
   },
 
   methods: {
     updateAmounts(amounts: any) {
       this.amounts = amounts;
+    },
+
+    onUpdateBorrowConfig(borrowConfig: any) {
+      this.actionConfig = borrowConfig;
     },
 
     changeTab(action: string) {
@@ -203,9 +190,6 @@ export default {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     BorrowForm: defineAsyncComponent(
       () => import("@/components/market/BorrowForm.vue")
-    ),
-    LeverageBlock: defineAsyncComponent(
-      () => import("@/components/market/LeverageBlock.vue")
     ),
     RepayBlock: defineAsyncComponent(
       () => import("@/components/market/RepayBlock.vue")

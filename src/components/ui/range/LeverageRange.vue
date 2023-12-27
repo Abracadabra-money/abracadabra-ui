@@ -2,7 +2,7 @@
   <div class="leverage-range-wrap">
     <div class="progress-track" :style="{ background: gradientRangeTrack }">
       <span class="progress-value" :style="progressValuePosition">
-        {{ leverageStep }}x
+        {{ value }}x
       </span>
 
       <input
@@ -24,8 +24,7 @@
 export default {
   props: {
     value: { type: [Number, String], default: 0 },
-    collateralValue: { type: [Number, String], default: "" },
-    min: { type: Number, default: 0 },
+    min: { type: Number, default: 1 },
     max: { type: Number, default: 10 },
     step: { type: Number, default: 0.01 },
     risk: { type: [String, Boolean], default: "default" },
@@ -34,7 +33,7 @@ export default {
 
   data(): any {
     return {
-      inputValue: +this.collateralValue,
+      inputValue: this.value,
       colors: {
         safe: { start: "#356D37", end: "#67A069" },
         medium: { start: "#A78300", end: "#FED84F" },
@@ -49,17 +48,11 @@ export default {
       return `left: ${this.gradientPercent}%`;
     },
 
-    leverageStep() {
-      return this.value;
-    },
-
     gradientRangeTrack() {
-      const risk = this.collateralValue ? this.risk : "default";
-
       return `linear-gradient(
             90deg,
-            ${this.colors[risk].start} 0%,
-            ${this.colors[risk].end} ${this.gradientPercent}%,
+            ${this.colors[this.risk].start} 0%,
+            ${this.colors[this.risk].end} ${this.gradientPercent}%,
             #0C0F1C ${this.gradientPercent}%,
             #212555 100%
           )
@@ -89,17 +82,16 @@ export default {
     },
   },
 
+  watch: {
+    value(value) {
+      this.inputValue = value;
+    },
+  },
+
   methods: {
     updateRange(event: any) {
       const value = event.target.value;
-      this.inputValue = +value;
-
-      const arr = String(this.max).split("");
-      const index = arr.indexOf(".");
-      const max = arr.slice(0, index + 5).join("");
-
-      if (max === value) this.$emit("updateValue", this.max);
-      else this.$emit("updateValue", value);
+      this.$emit("updateValue", Number(value));
     },
   },
 };

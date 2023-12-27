@@ -40,10 +40,14 @@ export const getMaxToBorrow = (
   mcr: BigNumber,
   oracleExchangeRate: BigNumber
 ): BigNumber => {
-  const collateralInMim = expandDecimals(collateralAmount, MIM_DECIMALS)
-    .div(oracleExchangeRate);
+  const collateralInMim = expandDecimals(collateralAmount, MIM_DECIMALS).div(
+    oracleExchangeRate
+  );
 
-  const maxToBorrow = collateralInMim.div(100).mul(mcr).div(expandDecimals(1, PERCENT_PRESITION));
+  const maxToBorrow = collateralInMim
+    .div(100)
+    .mul(mcr)
+    .div(expandDecimals(1, PERCENT_PRESITION));
 
   return maxToBorrow.sub(userBorrowAmount);
 };
@@ -62,8 +66,6 @@ export const getUserLtv = (
   const ltv = expandDecimals(userBorrowAmount, PERCENT_PRESITION)
     .mul(100)
     .div(collateralInMim);
-
-  console.log("ltv", ltv.toString());
 
   return ltv;
 };
@@ -89,7 +91,12 @@ export const getMimToBorrowByLtv = (
     oracleExchangeRate
   );
 
-  const leftToBorrow = getMaxToBorrow(collateralAmount, userBorrowAmount, mcr, oracleExchangeRate);
+  const leftToBorrow = getMaxToBorrow(
+    collateralAmount,
+    userBorrowAmount,
+    mcr,
+    oracleExchangeRate
+  );
   const mimPerPercent = collateralInMim.div(100);
 
   const mimToBorrow = mimPerPercent
@@ -134,27 +141,34 @@ export const getPositionHealth = (
     oracleExchangeRate
   );
 
-  const currentRiskPercent = expandDecimals(liquidationPrice, PERCENT_PRESITION)
-    .div(collateralPrice)
+  const percent = expandDecimals(liquidationPrice, PERCENT_PRESITION)
     .mul(100)
-    .div(expandDecimals(1, PERCENT_PRESITION));
+    .div(collateralPrice);
 
-  const percent = utils.formatUnits(currentRiskPercent, PERCENT_PRESITION);
+  const status = getHealthStatus(percent);
 
-  return currentRiskPercent; // TODO test
+  return { percent, status };
+};
+
+const getHealthStatus = (riskPercent: BigNumber) => {
+  const percent = Number(utils.formatUnits(riskPercent, PERCENT_PRESITION));
+
+  if (percent >= 0 && percent <= 70) return "safe";
+  if (percent > 70 && percent <= 90) return "medium";
+  return "high";
 };
 
 export const getLeverageAmounts = (
   collateralAmount: BigNumber,
-  leverageMultiplyerBps: number, // 1.36x == 136
-  slippageBps: number, // 1% === 100
+  leverageMultiplyer: BigNumber, // 1e2
+  slippage: BigNumber, // 1e2
   oracleExchangeRate: BigNumber
 ): SwapAmounts => {
   if (collateralAmount.eq(0))
     return { amountFrom: BigNumber.from(0), amountToMin: BigNumber.from(0) };
 
   const collateralToSwap = collateralAmount
-    .mul(leverageMultiplyerBps)
+    .mul(leverageMultiplyer)
     .div(expandDecimals(1, 2))
     .sub(collateralAmount);
 
@@ -162,7 +176,7 @@ export const getLeverageAmounts = (
     oracleExchangeRate
   );
 
-  const amountToMin = applySlippageToMinOut(slippageBps, collateralToSwap);
+  const amountToMin = applySlippageToMinOut(Number(slippage), collateralToSwap);
 
   return {
     amountFrom, // MIM amount to borrow & swap
