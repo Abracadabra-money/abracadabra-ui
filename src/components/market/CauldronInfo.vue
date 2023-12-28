@@ -68,7 +68,7 @@
     </div>
 
     <div class="chart-wrap">
-      <MimLTBGaugeChart :chartData="chartData" />
+      <MimLeftToBorrow :cauldron="cauldron" />
     </div>
   </div>
 </template>
@@ -99,8 +99,8 @@ export default {
     PercentIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/PercentIcon.vue")
     ),
-    MimLTBGaugeChart: defineAsyncComponent(
-      () => import("@/components/charts/MimLTBGaugeChart.vue")
+    MimLeftToBorrow: defineAsyncComponent(
+      () => import("@/components/market/MimLeftToBorrow.vue")
     ),
   },
 };
