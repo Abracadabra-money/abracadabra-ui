@@ -339,7 +339,7 @@ export default {
         // @ts-ignore
         await this[this.actionInfo.methodName]();
 
-        this.clearInputs();
+        // this.clearInputs();
 
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
@@ -433,13 +433,7 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
-    ),
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    LtvRange: defineAsyncComponent(
-      () => import("@/components/ui/range/LtvRange.vue")
-    ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),

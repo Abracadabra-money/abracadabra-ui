@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <div id="player"></div>
+    <div ref="player"></div>
   </div>
 </template>
 
@@ -20,12 +20,12 @@ export default {
 
   methods: {
     test() {
-      const player = LottiePlayer.loadAnimation({
+      LottiePlayer.loadAnimation({
         renderer: "svg",
         loop: false,
         autoplay: true,
         path: "/mim.json",
-        container: document.querySelector("#player"),
+        container: this.$refs.player,
       });
     },
   },

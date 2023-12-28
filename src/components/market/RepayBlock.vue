@@ -70,6 +70,7 @@
 
 <script lang="ts">
 import {
+  PERCENT_PRESITION,
   getLiquidationPrice,
   getMaxCollateralToRemove,
   getMimToBorrowByLtv,
@@ -339,15 +340,13 @@ export default {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.collateralInfo;
 
-      const riskPersent = getPositionHealth(
+      const { status } = getPositionHealth(
         this.expectedLiquidationPrice,
         oracleExchangeRate,
         decimals
       );
 
-      if (riskPersent.gte(0) && riskPersent.lte(25)) return "safe";
-      if (riskPersent.gt(25) && riskPersent.lte(75)) return "medium";
-      return "high";
+      return status;
     },
 
     // maxBorrowAmount() {
@@ -446,12 +445,15 @@ export default {
       this.$emit("updateAmounts", this.amounts);
     },
 
-    updateBorrowValueByLtv(ltv: number) {
+    updateBorrowValueByLtv(value: number) {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      const ltv = expandDecimals(value, PERCENT_PRESITION);
+      const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
 
       const mimToBorrow = getMimToBorrowByLtv(
         ltv,
-        this.cauldron.config.mcr,
+        mcr,
         this.expectedCollateralAmount,
         userBorrowAmount,
         this.cauldron.mainParams.oracleExchangeRate
