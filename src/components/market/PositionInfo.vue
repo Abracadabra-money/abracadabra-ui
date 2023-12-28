@@ -1,7 +1,13 @@
 <template>
   <div class="position-info">
     <h3 class="title">Open position</h3>
-    <div class="position-info-item collateral-deposit">
+
+    <div class="position-info-item">
+      <img
+        class="icon-left-top"
+        src="@/assets/images/market/m-icon.svg"
+        alt=""
+      />
       <h4 class="item-title">
         Collateral Deposit
         <TooltipIcon
@@ -19,7 +25,13 @@
         $ {{ formatUnits(expectedCollateralInUsd, collateralDecimals) }}
       </p>
     </div>
-    <div class="position-info-item mim-to-repay">
+
+    <div class="position-info-item">
+      <img
+        class="icon-right-center"
+        src="@/assets/images/market/m-icon.svg"
+        alt=""
+      />
       <h4 class="item-title">
         MIM to repay
         <TooltipIcon
@@ -39,30 +51,42 @@
       </p>
     </div>
 
-    <div class="position-info-item liquidation-price">
-      <div class="status">Safe</div>
-      <div class="inner-wrap">
-        <h4 class="item-title">
-          Liquidation price
-          <TooltipIcon
-            :width="20"
-            :height="20"
-            fill="#878B93"
-            tooltip="MIM to repay"
-          />
-        </h4>
-        <p class="item-value">{{ formatUnits(expectedLiquidationPrice) }}</p>
-      </div>
+    <div :class="['position-info-item', 'liquidation-price', positionHealth]">
+      <img
+        class="icon-left-bottom"
+        src="@/assets/images/market/m-icon.svg"
+        alt=""
+      />
+      <img
+        class="icon-right-top"
+        src="@/assets/images/market/m-icon.svg"
+        alt=""
+      />
+      <div class="position-health">{{ positionHealth }}</div>
+      <h4 class="item-title">
+        Liquidation price
+        <TooltipIcon
+          :width="20"
+          :height="20"
+          fill="#878B93"
+          tooltip="MIM to repay"
+        />
+      </h4>
+      <p class="item-value">{{ formatUnits(expectedLiquidationPrice) }}</p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
-import { applyBorrowFee, getLiquidationPrice } from "@/helpers/cauldron/utils";
+import {
+  applyBorrowFee,
+  getLiquidationPrice,
+  getPositionHealth,
+} from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 export default {
@@ -127,6 +151,19 @@ export default {
         this.cauldron.config.collateralInfo.decimals
       );
     },
+
+    positionHealth() {
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const { decimals } = this.cauldron.config.collateralInfo;
+
+      const { status } = getPositionHealth(
+        this.expectedLiquidationPrice,
+        oracleExchangeRate,
+        decimals
+      );
+
+      return status;
+    },
   },
 
   methods: {
@@ -173,6 +210,11 @@ export default {
 .position-info-item {
   width: 100%;
   padding: 24px;
+  height: 144px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(
@@ -182,11 +224,31 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-  height: 144px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-left-top {
+  position: absolute;
+  top: 17px;
+  left: -11px;
+}
+
+.icon-left-bottom {
+  position: absolute;
+  top: 86px;
+  left: 0;
+}
+.icon-right-center {
+  position: absolute;
+  top: 65px;
+  right: -21px;
+}
+
+.icon-right-top {
+  position: absolute;
+  top: 13px;
+  right: -13px;
 }
 
 .item-title {
@@ -224,43 +286,7 @@ export default {
   line-height: 150%;
 }
 
-.collateral-deposit {
-  background: url("@/assets/images/market/collateral-deposit-bg.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.mim-to-repay {
-  background: url("@/assets/images/market/mim-to-repay-bg.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.liquidation-price {
-  padding: 1px;
-  border: none;
-  background: linear-gradient(
-    134.52deg,
-    #67a069 5.28%,
-    rgba(103, 160, 105, 0) 104.52%
-  );
-  position: relative;
-
-  .inner-wrap {
-    width: 100%;
-    height: 100%;
-    border-radius: 16px;
-    background: url("@/assets/images/market/liquidation-price-bg.png");
-    background-repeat: no-repeat;
-    background-size: cover;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-.status {
+.position-health {
   position: absolute;
   top: 0;
   left: 0;
@@ -270,5 +296,39 @@ export default {
   background: #67a069;
   font-size: 14px;
   line-height: 150%;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.safe {
+  border: 1px solid rgba(103, 160, 105, 0.7);
+
+  .item-value {
+    color: #67a069;
+  }
+}
+
+.medium {
+  border: 1px solid rgba(167, 131, 0, 0.7);
+
+  .item-value {
+    color: #a78300;
+  }
+
+  .position-health {
+    background: #a78300;
+  }
+}
+
+.high {
+  border: 1px solid rgba(79, 23, 23, 0.7);
+
+  .item-value {
+    color: #4f1717;
+  }
+
+  .position-health {
+    background: #4f1717;
+  }
 }
 </style>
