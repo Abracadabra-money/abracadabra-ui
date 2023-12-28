@@ -112,19 +112,20 @@ export const getMaxCollateralToRemove = (
   userBorrowAmount: BigNumber,
   mcr: BigNumber,
   oracleExchangeRate: BigNumber
-): BigNumber => {
-  const leftToBorrow = getMaxToBorrow(
+) => {
+  if (userBorrowAmount.eq(0)) return collateralAmount;
+
+  const currentLtv = getUserLtv(
     collateralAmount,
     userBorrowAmount,
-    mcr,
     oracleExchangeRate
   );
 
-  const maxCollateralToRemove = leftToBorrow
-    .mul(oracleExchangeRate)
-    .div(expandDecimals(1, MIM_DECIMALS));
+  const minCollateralAmount = currentLtv.mul(collateralAmount).div(mcr);
 
-  return maxCollateralToRemove;
+  const maxToRemove = collateralAmount.sub(minCollateralAmount);
+
+  return maxToRemove.gt(collateralAmount) ? collateralAmount : maxToRemove;
 };
 
 export const getPositionHealth = (
@@ -153,7 +154,6 @@ const getHealthStatus = (riskPercent: BigNumber) => {
   if (percent > 70 && percent <= 90) return "medium";
   return "high";
 };
-
 export const getLeverageAmounts = (
   collateralAmount: BigNumber,
   leverageMultiplyer: BigNumber, // 1e2
@@ -182,7 +182,7 @@ export const getLeverageAmounts = (
 
 export const getDeleverageAmounts = (
   mimToRepayAmount: BigNumber,
-  slippageBps: number,
+  slippage: BigNumber, // 1e2
   oracleExchangeRate: BigNumber
 ): SwapAmounts => {
   if (mimToRepayAmount.eq(0))
@@ -192,10 +192,9 @@ export const getDeleverageAmounts = (
     .mul(oracleExchangeRate)
     .div(expandDecimals(1, MIM_DECIMALS));
 
-  // slippage here is how much more we need remove collateral to repay
   const additionalSlippageAmount = collateralToSwapMin
-    .mul(slippageBps)
-    .div(expandDecimals(1, PERCENT_PRESITION));
+    .mul(slippage)
+    .div(expandDecimals(100, PERCENT_PRESITION));
 
   const collaterapToSwapAmount = collateralToSwapMin.add(
     additionalSlippageAmount

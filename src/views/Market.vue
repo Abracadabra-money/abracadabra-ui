@@ -33,7 +33,11 @@
           </div>
 
           <div class="row">
-            <PositionInfo :cauldron="cauldron" :actionType="activeTab" :actionConfig="actionConfig" />
+            <PositionInfo
+              :cauldron="cauldron"
+              :actionType="activeTab"
+              :actionConfig="actionConfig"
+            />
             <CauldronInfo :cauldron="cauldron" />
           </div>
         </div>
@@ -81,12 +85,12 @@ export default {
         },
       },
 
-      // TODO: add repay logic & types 
+      // TODO: add repay logic & types
+      // IMPORTANT: remove config dublicates from Forms & provide this config
       actionConfig: {
         useLeverage: false,
         useDeleverage: false,
         amounts: {
-
           // TODO: rename to depositAmounts
           deposit: {
             inputAmount: BigNumber.from(0),
@@ -95,6 +99,10 @@ export default {
           },
           borrowAmount: BigNumber.from(0),
           leverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          deleverageAmounts: {
             amountFrom: BigNumber.from(0),
             amountToMin: BigNumber.from(0),
           },
@@ -178,8 +186,6 @@ export default {
     this.cauldronId = +this.$route.params.cauldronId;
 
     await this.createCauldronInfo();
-
-    console.log("cauldron", this.cauldron);
   },
 
   components: {

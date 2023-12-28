@@ -3,6 +3,7 @@
     <div class="val-input">
       <div class="token-input-wrap">
         <input
+          name="tokenInput"
           class="text-field"
           v-model="inputValue"
           type="text"
@@ -76,7 +77,7 @@ export default {
 
   watch: {
     inputValue(value, oldValue) {
-      if(!value) {
+      if (!value) {
         this.$emit("updateInputValue", null);
         return;
       }

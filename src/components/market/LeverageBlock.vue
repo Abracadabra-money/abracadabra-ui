@@ -23,6 +23,7 @@ import {
   getLiquidationPrice,
   getPositionHealth,
   applyBorrowFee,
+  PERCENT_PRESITION
 } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
@@ -40,6 +41,8 @@ export default {
       type: Object as any,
     },
   },
+
+  emits: ["updateLeverageAmounts"],
 
   data() {
     return {
@@ -124,8 +127,8 @@ export default {
 
     updateLeverageAmounts() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
-      const multiplier = utils.parseUnits(String(this.multiplier), 2);
-      const slippage = utils.parseUnits(String(this.slippage), 2);
+      const multiplier = utils.parseUnits(String(this.multiplier), PERCENT_PRESITION);
+      const slippage = utils.parseUnits(String(this.slippage), PERCENT_PRESITION);
 
       const leverageAmounts = getLeverageAmounts(
         //@ts-ignore

@@ -150,8 +150,11 @@ export default {
         this.cauldron.userPosition.collateralInfo;
 
       const { withdrawAmount } = this.actionConfig.amounts;
+      const { amountFrom } = this.actionConfig.amounts.deleverageAmounts;
 
-      const expectedCollateralAmount = userCollateralAmount.sub(withdrawAmount);
+      const expectedCollateralAmount = this.actionConfig.useDeleverage
+        ? userCollateralAmount.sub(withdrawAmount).sub(amountFrom)
+        : userCollateralAmount.sub(withdrawAmount);
 
       return expectedCollateralAmount.lt(0)
         ? BigNumber.from(0)
@@ -168,8 +171,11 @@ export default {
     expectedRepayMimAmount() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
       const { repayAmount } = this.actionConfig.amounts;
+      const { amountToMin } = this.actionConfig.amounts.deleverageAmounts;
 
-      const expectedMimAmount = userBorrowAmount.sub(repayAmount);
+      const expectedMimAmount = this.actionConfig.useDeleverage
+        ? userBorrowAmount.sub(amountToMin)
+        : userBorrowAmount.sub(repayAmount);
 
       return expectedMimAmount.lt(0) ? BigNumber.from(0) : expectedMimAmount;
     },

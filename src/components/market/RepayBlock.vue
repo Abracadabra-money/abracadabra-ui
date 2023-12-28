@@ -1,4 +1,11 @@
 <template>
+  <div>
+    <div class="row">
+      <h3 class="title">Repay MIM</h3>
+    </div>
+
+    <h4 class="subtitle">Select the amount of MIM to repay</h4>
+  </div>
   <TokenInput
     :value="inputValue"
     :name="borrowToken.name"
@@ -32,6 +39,8 @@ export default {
     },
   },
 
+  emits: ["updateRepayAmount"],
+
   data() {
     return {
       inputValue: "",
@@ -57,8 +66,8 @@ export default {
 
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-
-      return userBorrowAmount;
+      const { mimBalance } = this.cauldron.userTokensInfo;
+      return userBorrowAmount.gt(mimBalance) ? mimBalance : userBorrowAmount;
     },
   },
 

@@ -2,24 +2,19 @@
   <div>
     <div>
       <div class="row">
-        <h3 class="title">Remove collateral</h3>
+        <h3 class="title">To Remove</h3>
       </div>
 
       <h4 class="subtitle">
-        Select the amount of {{ collateralToken.name }} to withdraw from the
-        Cauldron
+        Chose the amount of collateral you want to remove
       </h4>
     </div>
 
-    <TokenInput
-      :value="inputValue"
-      :name="collateralToken.name"
-      :icon="collateralToken.icon"
-      :max="maxToRemove"
-      :decimals="collateralToken.decimals"
-      :tokenPrice="collateralToken.price"
-      isBigNumber
-      @updateInputValue="onUpdateWithdrawValue"
+    <AmountRange
+      :amount="withdrawAmount"
+      :maxAmount="maxToRemove"
+      :risk="positionHealth"
+      @updateAmount="onUpdateWithdrawValue"
     />
   </div>
 </template>
@@ -29,20 +24,28 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { mapGetters } from "vuex";
-import { trimZeroDecimals } from "@/helpers/numbers";
-import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";
+
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+
+import {
+  getLiquidationPrice,
+  getPositionHealth,
+  PERCENT_PRESITION,
+  getMaxCollateralToRemove
+} from "@/helpers/cauldron/utils";
 
 export default {
   props: {
     cauldron: {
       type: Object as any,
     },
-    inputAmount: {
-      type: BigNumber,
+    deleverageAmounts: {
+      default: {
+        amountFrom: BigNumber.from(0),
+        amountToMin: BigNumber.from(0),
+      },
     },
-    repayAmount: {
+    withdrawAmount: {
       type: BigNumber,
     },
   },
@@ -50,9 +53,7 @@ export default {
   emits: ["updateWithdrawAmount"],
 
   data() {
-    return {
-      inputValue: "",
-    };
+    return { slippage: 1, inputValue: 0 };
   },
 
   computed: {
@@ -61,63 +62,94 @@ export default {
       chainId: "getChainId",
     }),
 
-    collateralToken() {
-      const { config, userTokensInfo, mainParams } = this.cauldron;
-      const { collateralPrice } = mainParams;
-      const { icon } = config;
-      const { name, decimals } = config.collateralInfo;
-      const { collateralBalance, collateralAllowance } = userTokensInfo;
-
-      return {
-        name,
-        icon,
-        balance: collateralBalance,
-        decimals,
-        allowance: collateralAllowance,
-        contract: this.cauldron.contracts?.collateral,
-        price: utils.formatUnits(collateralPrice, decimals),
-      };
-    },
-
     maxToRemove() {
-      const { userCollateralAmount } =
+      const { userCollateralAmount, decimals } =
         this.cauldron.userPosition.collateralInfo;
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
       const { oracleExchangeRate } = this.cauldron.mainParams;
+      //@ts-ignore
+      const { amountFrom } = this.deleverageAmounts;
 
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
-      const expectedBorrowAmount = userBorrowAmount.sub(this.repayAmount);
 
+      // after swap
+      const expectedCollateralAmount = userCollateralAmount.sub(amountFrom);
       const maxToRemove = getMaxCollateralToRemove(
-        userCollateralAmount,
-        expectedBorrowAmount,
+        expectedCollateralAmount,
+        this.expectedBorrowAmount,
         mcr,
         oracleExchangeRate
       );
 
-      if(maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
+      if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
 
       return maxToRemove;
+    },
+
+    expectedBorrowAmount() {
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      //@ts-ignore
+      const { amountToMin } = this.deleverageAmounts;
+
+      const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
+
+      return expectedBorrowAmount.lt(0)
+        ? BigNumber.from(0)
+        : expectedBorrowAmount;
+    },
+
+    expectedCollateralAmount() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+      //@ts-ignore
+      const { amountFrom } = this.deleverageAmounts;
+
+      const expectedCollateralAmount = userCollateralAmount
+        .sub(amountFrom)
+        .sub(this.withdrawAmount);
+
+      return expectedCollateralAmount.lt(0)
+        ? BigNumber.from(0)
+        : expectedCollateralAmount;
+    },
+
+    expectedLiquidationPrice() {
+      return getLiquidationPrice(
+        this.expectedBorrowAmount,
+        this.expectedCollateralAmount,
+        this.cauldron.config.mcr,
+        this.cauldron.config.collateralInfo.decimals
+      );
+    },
+
+    positionHealth() {
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const { decimals } = this.cauldron.config.collateralInfo;
+
+      const { status } = getPositionHealth(
+        this.expectedLiquidationPrice,
+        oracleExchangeRate,
+        decimals
+      );
+
+      return status;
     },
   },
 
   watch: {
     inputAmpunt(value) {
-      const { decimals } = this.collateralToken;
-
       if (value.eq(0)) {
-        this.inputValue = "";
+        this.inputValue = 0;
         return false;
       }
 
-      this.inputValue = trimZeroDecimals(utils.formatUnits(value, decimals));
+      this.inputValue = Number(utils.formatUnits(value));
     },
   },
 
   methods: {
     setEmptyState() {
       this.$emit("updateWithdrawAmount", BigNumber.from(0));
-      this.inputValue = "";
     },
 
     onUpdateWithdrawValue(value: BigNumber | null) {
@@ -127,8 +159,8 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
+    AmountRange: defineAsyncComponent(
+      () => import("@/components/ui/range/AmountRange.vue")
     ),
   },
 };

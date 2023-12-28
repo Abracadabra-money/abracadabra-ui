@@ -87,12 +87,12 @@ export default {
     return {
       useNativeToken: false,
       useUnwrapToken: false,
-      borrowInputValue: "",
-      ltvRangeValue: "",
       // TODO: add types
       borrowConfig: {
         useLeverage: false,
+        useDeleverage: true,
         amounts: {
+          // TODO: rename to depositAmounts
           deposit: {
             inputAmount: BigNumber.from(0),
             collateralTokenAmount: BigNumber.from(0),
@@ -103,6 +103,12 @@ export default {
             amountFrom: BigNumber.from(0),
             amountToMin: BigNumber.from(0),
           },
+          deleverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          repayAmount: BigNumber.from(0),
+          withdrawAmount: BigNumber.from(0),
         },
       },
     };
@@ -244,24 +250,53 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     setEmptyState() {
-      this.borrowInputValue = "";
-      this.ltvRangeValue = "";
-      this.borrowConfig.amounts = {
-        deposit: {
-          inputAmount: BigNumber.from(0),
-          collateralTokenAmount: BigNumber.from(0),
-          unwrapTokenAmount: BigNumber.from(0),
-        },
-        borrowAmount: BigNumber.from(0),
-        leverageAmounts: {
-          amountFrom: BigNumber.from(0),
-          amountToMin: BigNumber.from(0),
+      this.borrowConfig = {
+        useLeverage: false,
+        useDeleverage: true,
+        amounts: {
+          // TODO: rename to depositAmounts
+          deposit: {
+            inputAmount: BigNumber.from(0),
+            collateralTokenAmount: BigNumber.from(0),
+            unwrapTokenAmount: BigNumber.from(0),
+          },
+          borrowAmount: BigNumber.from(0),
+          leverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          deleverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          repayAmount: BigNumber.from(0),
+          withdrawAmount: BigNumber.from(0),
         },
       };
     },
 
     onToggleLeverage() {
-      this.borrowConfig.useLeverage = !this.borrowConfig.useLeverage;
+      // IMPORTANT: fix this
+      this.borrowConfig = {
+        useLeverage: !this.borrowConfig.useLeverage,
+        useDeleverage: false,
+
+        amounts: {
+          // TODO: rename to depositAmounts
+          deposit: this.borrowConfig.amounts.deposit,
+          borrowAmount: BigNumber.from(0),
+          leverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          deleverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          repayAmount: BigNumber.from(0),
+          withdrawAmount: BigNumber.from(0),
+        },
+      };
     },
 
     onUpdateDepositAmounts(amounts: any) {
@@ -443,7 +478,6 @@ export default {
     BorrowBlock: defineAsyncComponent(
       () => import("@/components/market/BorrowBlock.vue")
     ),
-    // TODO: remove new
     LeverageBlock: defineAsyncComponent(
       () => import("@/components/market/LeverageBlock.vue")
     ),

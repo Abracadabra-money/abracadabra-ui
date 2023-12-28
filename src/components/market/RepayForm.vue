@@ -1,36 +1,45 @@
 <template>
   <div class="market-actions-wrap">
+    <div class="row">
+      <h3 class="title">Repay</h3>
+      <Toggle
+        :selected="repayConfig.useDeleverage"
+        text="Deleverge"
+        @updateToggle="onToggleDeleverage"
+      />
+    </div>
     <div class="deposit-wrap">
       <RemoveCollateralBlock
+        v-if="!repayConfig.useDeleverage"
         :cauldron="cauldron"
         :inputAmount="repayConfig.amounts.withdrawAmount"
         :repayAmount="repayConfig.amounts.repayAmount"
         @updateWithdrawAmount="onUpdateWithdrawAmount"
       />
+      <DeleverageBlock
+        v-else
+        :cauldron="cauldron"
+        :deleverageAmounts="repayConfig.amounts.deleverageAmounts"
+        :withdrawAmount="repayConfig.amounts.withdrawAmount"
+        @updateDeleverageAmounts="onUpdateDeleverageAmounts"
+      />
     </div>
 
     <div class="borrow-wrap">
-      <div>
-        <div class="row">
-          <h3 class="title">Borrow MIM</h3>
-
-          <Toggle
-            :selected="repayConfig.useDeleverage"
-            text="Deleverge"
-            @updateToggle="onToggleDeleverage"
-          />
-        </div>
-
-        <h4 class="subtitle">
-          Select the amount of MIM to borrow from the Cauldron
-        </h4>
-      </div>
-
       <RepayBlock
+        v-if="!repayConfig.useDeleverage"
         :cauldron="cauldron"
         :inputAmount="repayConfig.amounts.repayAmount"
         :withdrawAmount="repayConfig.amounts.withdrawAmount"
         @updateRepayAmount="onUpdateRepayAmount"
+      />
+
+      <RemoveCollateralRangeBlock
+        v-else
+        :cauldron="cauldron"
+        :deleverageAmounts="repayConfig.amounts.deleverageAmounts"
+        :withdrawAmount="repayConfig.amounts.withdrawAmount"
+        @updateWithdrawAmount="onUpdateWithdrawAmount"
       />
 
       <BaseButton primary disabled>Nothing to do </BaseButton>
@@ -53,8 +62,25 @@ export default {
   data() {
     return {
       repayConfig: {
-        useDeleverage: false,
+        useLeverage: false,
+        useDeleverage: true,
+
         amounts: {
+          // TODO: rename to depositAmounts
+          deposit: {
+            inputAmount: BigNumber.from(0),
+            collateralTokenAmount: BigNumber.from(0),
+            unwrapTokenAmount: BigNumber.from(0),
+          },
+          borrowAmount: BigNumber.from(0),
+          leverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          deleverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
           repayAmount: BigNumber.from(0),
           withdrawAmount: BigNumber.from(0),
         },
@@ -85,8 +111,35 @@ export default {
     onUpdateRepayAmount(amount: BigNumber) {
       this.repayConfig.amounts.repayAmount = amount;
     },
+    onUpdateDeleverageAmounts(amounts: any) {
+      this.repayConfig.amounts.deleverageAmounts = amounts;
+    },
     onToggleDeleverage() {
-      this.repayConfig.useDeleverage = !this.repayConfig.useDeleverage;
+      // IMPORTANT: fix this
+      this.repayConfig = {
+        useLeverage: false,
+        useDeleverage: !this.repayConfig.useDeleverage,
+
+        amounts: {
+          // TODO: rename to depositAmounts
+          deposit: {
+            inputAmount: BigNumber.from(0),
+            collateralTokenAmount: BigNumber.from(0),
+            unwrapTokenAmount: BigNumber.from(0),
+          },
+          borrowAmount: BigNumber.from(0),
+          leverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          deleverageAmounts: {
+            amountFrom: BigNumber.from(0),
+            amountToMin: BigNumber.from(0),
+          },
+          repayAmount: BigNumber.from(0),
+          withdrawAmount: BigNumber.from(0),
+        },
+      };
     },
   },
 
@@ -104,8 +157,14 @@ export default {
     RemoveCollateralBlock: defineAsyncComponent(
       () => import("@/components/market/RemoveCollateralBlock.vue")
     ),
+    RemoveCollateralRangeBlock: defineAsyncComponent(
+      () => import("@/components/market/RemoveCollateralRangeBlock.vue")
+    ),
     RepayBlock: defineAsyncComponent(
       () => import("@/components/market/RepayBlock.vue")
+    ),
+    DeleverageBlock: defineAsyncComponent(
+      () => import("@/components/market/DeleverageBlock.vue")
     ),
   },
 };
