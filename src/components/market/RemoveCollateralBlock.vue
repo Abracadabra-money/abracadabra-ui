@@ -1,14 +1,27 @@
 <template>
-  <TokenInput
-    :value="inputValue"
-    :name="borrowToken.name"
-    :icon="borrowToken.icon"
-    :max="maxToRepay"
-    :decimals="borrowToken.decimals"
-    :tokenPrice="borrowToken.price"
-    isBigNumber
-    @updateInputValue="onUpdateRepayValue"
-  />
+  <div>
+    <div>
+      <div class="row">
+        <h3 class="title">Remove collateral</h3>
+      </div>
+
+      <h4 class="subtitle">
+        Select the amount of {{ collateralToken.name }} to withdraw from the
+        Cauldron
+      </h4>
+    </div>
+
+    <TokenInput
+      :value="inputValue"
+      :name="collateralToken.name"
+      :icon="collateralToken.icon"
+      :max="maxToRemove"
+      :decimals="collateralToken.decimals"
+      :tokenPrice="collateralToken.price"
+      isBigNumber
+      @updateInputValue="onUpdateWithdrawValue"
+    />
+  </div>
 </template>
 
 <script lang="ts">
@@ -17,7 +30,9 @@ import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { mapGetters } from "vuex";
 import { trimZeroDecimals } from "@/helpers/numbers";
-const MIM_PRICE = 1;
+import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
@@ -27,7 +42,7 @@ export default {
     inputAmount: {
       type: BigNumber,
     },
-    withdrawAmount: {
+    repayAmount: {
       type: BigNumber,
     },
   },
@@ -44,44 +59,68 @@ export default {
       chainId: "getChainId",
     }),
 
-    borrowToken() {
-      const { config, userTokensInfo } = this.cauldron;
+    collateralToken() {
+      const { config, userTokensInfo, mainParams } = this.cauldron;
+      const { collateralPrice } = mainParams;
+      const { icon } = config;
+      const { name, decimals } = config.collateralInfo;
+      const { collateralBalance, collateralAllowance } = userTokensInfo;
+
       return {
-        name: config.mimInfo.name,
-        icon: config.mimInfo.icon,
-        balance: userTokensInfo.mimBalance,
-        decimals: 18,
-        price: MIM_PRICE,
+        name,
+        icon,
+        balance: collateralBalance,
+        decimals,
+        allowance: collateralAllowance,
+        contract: this.cauldron.contracts?.collateral,
+        price: utils.formatUnits(collateralPrice, decimals),
       };
     },
 
-    maxToRepay() {
+    maxToRemove() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
 
-      return userBorrowAmount;
+      const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
+      const expectedBorrowAmount = userBorrowAmount.sub(this.repayAmount);
+
+      const maxToRemove = getMaxCollateralToRemove(
+        userCollateralAmount,
+        expectedBorrowAmount,
+        mcr,
+        oracleExchangeRate
+      );
+
+      if(maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
+
+      return maxToRemove;
     },
   },
 
   watch: {
     inputAmpunt(value) {
+      const { decimals } = this.collateralToken;
+
       if (value.eq(0)) {
         this.inputValue = "";
         return false;
       }
 
-      this.inputValue = trimZeroDecimals(utils.formatUnits(value));
+      this.inputValue = trimZeroDecimals(utils.formatUnits(value, decimals));
     },
   },
 
   methods: {
     setEmptyState() {
-      this.$emit("updateRepayAmount", BigNumber.from(0));
+      this.$emit("updateWithdrawAmount", BigNumber.from(0));
       this.inputValue = "";
     },
 
-    onUpdateRepayValue(value: BigNumber | null) {
+    onUpdateWithdrawValue(value: BigNumber | null) {
       if (value === null) return this.setEmptyState();
-      this.$emit("updateRepayAmount", value);
+      this.$emit("updateWithdrawAmount", value);
     },
   },
 

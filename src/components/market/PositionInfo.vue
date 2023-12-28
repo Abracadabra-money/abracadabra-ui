@@ -18,11 +18,22 @@
         />
       </h4>
       <p class="item-value">
-        {{ formatUnits(expectedCollateralAmount, collateralDecimals) }}
+        {{
+          formatUnits(
+            expectedPositionAmounts.collateralAmount,
+            collateralDecimals
+          )
+        }}
         {{ collateralName }}
       </p>
       <p class="item-price">
-        $ {{ formatUnits(expectedCollateralInUsd, collateralDecimals) }}
+        $
+        {{
+          formatUnits(
+            expectedPositionAmounts.collateralInUds,
+            collateralDecimals
+          )
+        }}
       </p>
     </div>
 
@@ -47,7 +58,7 @@
           src="@/assets/images/tokens/MIM.png"
           alt="Mim icon"
         />
-        {{ formatUnits(expectedBorrowAmount) }}
+        {{ formatUnits(expectedPositionAmounts.mimAmount) }}
       </p>
     </div>
 
@@ -78,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
 // @ts-ignore
 import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
@@ -97,6 +108,9 @@ export default {
     actionConfig: {
       type: Object as any,
     },
+    actionType: {
+      type: String, // borrow or repay
+    },
   },
   computed: {
     collateralDecimals() {
@@ -107,7 +121,60 @@ export default {
       return this.cauldron.config.collateralInfo.name;
     },
 
-    expectedCollateralAmount() {
+    expectedPositionAmounts() {
+      if (this.actionType === "repay") {
+        return {
+          collateralAmount: this.expectedRepayCollateralAmount,
+          collateralInUds: this.expectedRepayCollateralInUsd,
+          mimAmount: this.expectedRepayMimAmount,
+        };
+      }
+
+      if (this.actionType === "borrow") {
+        return {
+          collateralAmount: this.expectedBorrowCollateralAmount,
+          collateralInUds: this.expectedBorrowCollateralInUsd,
+          mimAmount: this.expectedBorrowMimAmount,
+        };
+      }
+
+      return {
+        collateralAmount: BigNumber.from(0),
+        collateralInUds: BigNumber.from(0),
+        mimAmount: BigNumber.from(0),
+      };
+    },
+
+    expectedRepayCollateralAmount() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+
+      const { withdrawAmount } = this.actionConfig.amounts;
+
+      const expectedCollateralAmount = userCollateralAmount.sub(withdrawAmount);
+
+      return expectedCollateralAmount.lt(0)
+        ? BigNumber.from(0)
+        : expectedCollateralAmount;
+    },
+
+    expectedRepayCollateralInUsd() {
+      const price = this.cauldron.mainParams.collateralPrice;
+      return this.expectedRepayCollateralAmount
+        .mul(price)
+        .div(expandDecimals(1, this.collateralDecimals));
+    },
+
+    expectedRepayMimAmount() {
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+      const { repayAmount } = this.actionConfig.amounts;
+
+      const expectedMimAmount = userBorrowAmount.sub(repayAmount);
+
+      return expectedMimAmount.lt(0) ? BigNumber.from(0) : expectedMimAmount;
+    },
+
+    expectedBorrowCollateralAmount() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
 
@@ -121,14 +188,14 @@ export default {
       return userCollateralAmount.add(deposit.collateralTokenAmount);
     },
 
-    expectedCollateralInUsd() {
+    expectedBorrowCollateralInUsd() {
       const price = this.cauldron.mainParams.collateralPrice;
-      return this.expectedCollateralAmount
+      return this.expectedBorrowCollateralAmount
         .mul(price)
         .div(expandDecimals(1, this.collateralDecimals));
     },
 
-    expectedBorrowAmount() {
+    expectedBorrowMimAmount() {
       const { borrowFee } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
       const { leverageAmounts, borrowAmount } = this.actionConfig.amounts;
@@ -145,8 +212,8 @@ export default {
 
     expectedLiquidationPrice() {
       return getLiquidationPrice(
-        this.expectedBorrowAmount,
-        this.expectedCollateralAmount,
+        this.expectedPositionAmounts.mimAmount,
+        this.expectedPositionAmounts.collateralAmount,
         this.cauldron.config.mcr,
         this.cauldron.config.collateralInfo.decimals
       );

@@ -13,7 +13,7 @@
             <BorrowForm
               :cauldron="cauldron"
               @updateAmounts="updateAmounts"
-              @updateBorrowConfig="onUpdateBorrowConfig"
+              @updateBorrowConfig="onUpdateConfig"
               @updateMarket="createCauldronInfo"
             />
           </div>
@@ -21,10 +21,7 @@
           <div class="repay-wrap" v-if="isRepayTab">
             <RepayBlock
               :cauldron="cauldron"
-              :useLeverage="useLeverage"
-              @updateAmounts="updateAmounts"
-              @updateMarket="createCauldronInfo"
-              @toogleUseLeverage="toogleUseLeverage"
+              @updateRepayConfig="onUpdateConfig"
             />
           </div>
         </div>
@@ -36,7 +33,7 @@
           </div>
 
           <div class="row">
-            <PositionInfo :cauldron="cauldron" :actionConfig="actionConfig" />
+            <PositionInfo :cauldron="cauldron" :actionType="activeTab" :actionConfig="actionConfig" />
             <CauldronInfo :cauldron="cauldron" />
           </div>
         </div>
@@ -65,7 +62,6 @@ import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 export default {
   data() {
     return {
-      borrowTabKey: "repay",
       chainId: null as any,
       cauldronId: null as any,
       cauldron: null as any,
@@ -88,6 +84,7 @@ export default {
       // TODO: add repay logic & types 
       actionConfig: {
         useLeverage: false,
+        useDeleverage: false,
         amounts: {
 
           // TODO: rename to depositAmounts
@@ -101,6 +98,8 @@ export default {
             amountFrom: BigNumber.from(0),
             amountToMin: BigNumber.from(0),
           },
+          repayAmount: BigNumber.from(0),
+          withdrawAmount: BigNumber.from(0),
         },
       },
       activeTab: "borrow",
@@ -127,8 +126,8 @@ export default {
       this.amounts = amounts;
     },
 
-    onUpdateBorrowConfig(borrowConfig: any) {
-      this.actionConfig = borrowConfig;
+    onUpdateConfig(config: any) {
+      this.actionConfig = config;
     },
 
     changeTab(action: string) {
@@ -192,7 +191,7 @@ export default {
       () => import("@/components/market/BorrowForm.vue")
     ),
     RepayBlock: defineAsyncComponent(
-      () => import("@/components/market/RepayBlock.vue")
+      () => import("@/components/market/RepayForm.vue")
     ),
     PriceRange: defineAsyncComponent(
       () => import("@/components/ui/range/PriceRange.vue")
