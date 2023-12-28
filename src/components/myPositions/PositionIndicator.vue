@@ -71,4 +71,11 @@ export default {
 .high {
   color: #8c4040;
 }
+
+@media screen and (max-width: 700px) {
+  .title,
+  .value {
+    font-size: 14px;
+  }
+}
 </style>

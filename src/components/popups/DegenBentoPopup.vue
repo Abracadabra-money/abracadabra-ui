@@ -3,7 +3,8 @@
     <div class="box-popup">
       <div class="box-header">
         <p class="title">
-          <img class="bento-img" :src="boxIcon" alt="Box" /> {{ title }}
+          <img class="bento-img" :src="boxIcon" alt="Box" />
+          {{ title }} withdraw
         </p>
 
         <img
@@ -15,14 +16,15 @@
       </div>
 
       <p class="description">
-        <span class="desc-line"> Withdraw your MIM from degenbox on </span>
+        <span class="desc-line"> Withdraw your MIM from {{ title }} on </span>
         <span class="desc-line">
-          <img :src="getChainIcon(1)" class="mim-symbol" />
-          Ethereum network
+          <img :src="getChainIcon(infoObject.chainId)" class="mim-symbol" />
+          {{ chainInfo.name }} network
         </span>
       </p>
 
       <BaseTokenInput
+        class="withdraw-input"
         :icon="mimIcon"
         name="MIM"
         :value="amount"
@@ -60,6 +62,7 @@ import filters from "@/filters/index.js";
 import actions from "@/helpers/bentoBox/actions";
 import { approveTokenViem } from "@/helpers/approval";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { getChainById } from "@/helpers/chains/index";
 
 import { formatUnits, parseUnits } from "viem";
 
@@ -131,13 +134,15 @@ export default {
     },
 
     title() {
-      return `${this.isBento ? "BentoBox" : "DegenBox"} ${
-        this.isDeposit ? "Deposit" : "Withdraw"
-      }`;
+      return `${this.isBento ? "BentoBox" : "DegenBox"} `;
     },
 
     buttonText() {
       return this.isDeposit ? "Deposit" : "Withdraw";
+    },
+
+    chainInfo() {
+      return getChainById(this.infoObject.chainId);
     },
   },
 
@@ -299,5 +304,9 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.withdraw-input {
+  width: 100%;
 }
 </style>

@@ -2,20 +2,22 @@
   <div class="bento-wrapper" v-if="isVisible">
     <BentoBoxItem
       @withdraw="openPopup(false)"
-      :balance="bentoBoxConfig.mimInDegenBalance"
-      :mimPrice="bentoBoxConfig.mimPrice"
+      :balance="currentChainBentoConfig.mimInDegenBalance"
+      :mimPrice="currentChainBentoConfig.mimPrice"
+      :activeChains="activeChains.degen"
     />
 
     <BentoBoxItem
       @withdraw="openPopup(true)"
-      :balance="bentoBoxConfig.mimInBentoBalance"
-      :mimPrice="bentoBoxConfig.mimPrice"
+      :balance="currentChainBentoConfig.mimInBentoBalance"
+      :mimPrice="currentChainBentoConfig.mimPrice"
+      :activeChains="activeChains.bento"
       :isBento="true"
     />
 
     <DegenBentoPopup
       v-if="popupData.opened"
-      :infoObject="bentoBoxConfig"
+      :infoObject="currentChainBentoConfig"
       :isBento="popupData.isBento"
       :isDeposit="popupData.isDeposit"
       @close="popupData.opened = false"
@@ -41,11 +43,15 @@ const initialPopupData = {
 export default {
   mixins: [bentoBoxMixin],
 
+  props: {
+    activeNetworks: { type: Array },
+  },
+
   data() {
     return {
       popupData: { ...initialPopupData },
       bentoUpdateInterval: null,
-      bentoBoxConfig: null,
+      bentoBoxConfigs: null,
     };
   },
 
@@ -55,12 +61,26 @@ export default {
       account: "getAccount",
     }),
 
+    activeChains() {
+      let bento = [];
+      let degen = [];
+      this.bentoBoxConfigs.forEach((config) => {
+        if (config.mimInBentoBalance) bento.push(config.chainId);
+        if (config.mimInDegenBalance) degen.push(config.chainId);
+      });
+      return { bento, degen };
+    },
+
+    currentChainBentoConfig() {
+      return this.bentoBoxConfigs?.find(
+        (config) => this.chainId == config.chainId
+      );
+    },
+
     isVisible() {
-      //
-      return this.bentoBoxConfig;
       return (
-        (this.bentoBoxConfig?.mimInBentoBalance ||
-          this.bentoBoxConfig?.mimInDegenBalance) &&
+        (this.currentChainBentoConfig?.mimInBentoBalance ||
+          this.currentChainBentoConfig?.mimInDegenBalance) &&
         this.account
       );
     },
@@ -83,15 +103,19 @@ export default {
 
     async createMimBentoData() {
       if (!this.account) return false;
-      this.bentoBoxConfig = await createBentoBoxConfig(
-        this.chainId,
-        this.account
+      this.bentoBoxConfigs = await Promise.all(
+        this.activeNetworks.map(async (chainId) => {
+          const config = await createBentoBoxConfig(chainId, this.account);
+          return { chainId, ...config };
+        })
       );
 
       this.bentoUpdateInterval = setInterval(async () => {
-        this.bentoBoxConfig = await createBentoBoxConfig(
-          this.chainId,
-          this.account
+        this.bentoBoxConfigs = await Promise.all(
+          this.activeNetworks.map(async (chainId) => {
+            const config = await createBentoBoxConfig(chainId, this.account);
+            return { chainId, ...config };
+          })
         );
       }, 5000);
     },

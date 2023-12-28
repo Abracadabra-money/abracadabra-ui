@@ -12,13 +12,11 @@
     </div>
 
     <div class="bento-chains">
-      <img class="chain-icon" :src="getChainIcon(1)" />
-      <img class="chain-icon" :src="getChainIcon(1)" />
-      <img class="chain-icon" :src="getChainIcon(1)" />
-      <img class="chain-icon" :src="getChainIcon(1)" />
-      <img class="chain-icon" :src="getChainIcon(1)" />
-      <img class="chain-icon" :src="getChainIcon(1)" />
-      <img class="chain-icon" :src="getChainIcon(1)" />
+      <img
+        class="chain-icon"
+        v-for="chain in activeChains"
+        :src="getChainIcon(chain)"
+      />
     </div>
 
     <div class="button-description">
@@ -54,6 +52,7 @@ export default {
     isBento: { type: Boolean, default: false },
     balance: { type: [String, BigInt], default: "0" },
     mimPrice: { type: Number, default: 0 },
+    activeChains: { type: Array },
   },
 
   data() {

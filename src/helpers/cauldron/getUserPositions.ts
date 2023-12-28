@@ -105,26 +105,41 @@ export const getUserPositions = async (
       leftToDrop
     );
 
+    const userCollateralAmount = position.collateral.amount.add(
+      collaterallInOrders[idx].amount
+    );
+
+    const userBorrowAmount = position.borrowValue;
+
+    const collateralDeposited = Number(
+      utils.formatUnits(
+        userCollateralAmount,
+        configs[idx]?.collateralInfo.decimals
+      )
+    );
+
+    const mimBorrowed = Number(utils.formatUnits(userBorrowAmount));
+
     return {
       collateralInfo: {
         userCollateralShare: userCollateralShares[idx].add(
           collaterallInOrders[idx].share
         ),
-        userCollateralAmount: position.collateral.amount.add(
-          collaterallInOrders[idx].amount
-        ),
+        userCollateralAmount,
       },
       borrowInfo: {
-        userBorrowAmount: position.borrowValue,
+        userBorrowAmount,
         userBorrowPart: userBorrowPart[idx],
       },
       // liquidationPrice: utils.formatUnits(
       //   position.liquidationPrice,
       //   configs[idx]?.collateralInfo.decimals
       // ),
-      liquidationPrice,
       oracleRate: oracleExchangeRate[idx],
+      liquidationPrice,
       positionHealth,
+      collateralDeposited,
+      mimBorrowed,
     };
   });
 };

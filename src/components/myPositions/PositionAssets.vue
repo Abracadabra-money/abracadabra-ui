@@ -65,7 +65,6 @@ export default {
 }
 
 .asset-title {
-  font-family: Poppins;
   font-size: 16px;
   font-weight: 500;
 }
@@ -109,5 +108,31 @@ export default {
   color: rgba(255, 255, 255, 0.8);
   font-size: 12px;
   font-weight: 400;
+}
+
+@media screen and (max-width: 700px) {
+  .assets-wrap {
+    flex-direction: column;
+  }
+
+  .asset {
+    width: 100%;
+  }
+
+  .asset-title {
+    font-size: 14px;
+  }
+
+  .token-name {
+    font-size: 18px;
+  }
+
+  .token-value {
+    font-size: 14px;
+  }
+
+  .usd-equivalent {
+    font-size: 12px;
+  }
 }
 </style>

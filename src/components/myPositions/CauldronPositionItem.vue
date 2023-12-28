@@ -12,7 +12,7 @@
           <span class="token-name">{{ collateralSymbol }}</span>
           <span class="apr">
             <Tooltip />
-            {{ formatPercent(cauldron.apr) }}
+            APR {{ formatPercent(cauldron.apr) }}
           </span>
         </div>
       </div>
@@ -234,6 +234,7 @@ export default {
 .token-info {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .token-name {
@@ -282,14 +283,28 @@ export default {
 }
 
 .safe {
-  border-color: #67a069;
+  border-color: #355237;
 }
 
 .medium {
-  border-color: #ddc237;
+  border-color: #77681e;
 }
 
 .high {
-  border-color: #8c4040;
+  border-color: #401d1d;
+}
+
+@media screen and (max-width: 700px) {
+  .position-info {
+    flex-direction: column-reverse;
+  }
+
+  .token-name {
+    font-size: 20px;
+  }
+
+  .apr {
+    font-size: 14px;
+  }
 }
 </style>

@@ -3,20 +3,21 @@
     <div class="position-page">
       <MyPositionsInfo v-if="totalAssets" :totalAssetsData="totalAssetsData" />
 
-      <BentoBoxBlock />
+      <BentoBoxBlock :activeNetworks="activeNetworks" />
 
       <div class="positions-list-head">
-        <SortButton>Health factor</SortButton>
-        <SortButton>Collateral deposited</SortButton>
-        <SortButton>MIM borrowed</SortButton>
-        <SortButton>APR</SortButton>
-
+        <SortButton
+          v-for="data in sortersData"
+          :sortOrder="getSortOrder(data.key)"
+          @click="updateSortKey(data.key)"
+          >{{ data.text }}</SortButton
+        >
         <ChainsDropdown />
       </div>
 
       <div class="positions-list">
         <CauldronPositionItem
-          v-for="cauldron in cauldrons"
+          v-for="cauldron in sortedCauldrons"
           :key="cauldron.id"
           :cauldron="cauldron"
         />
@@ -46,13 +47,14 @@ const APR_KEY = "abracadabraCauldronsApr";
 export default {
   data() {
     return {
-      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
+      activeNetworks: [1, 56, 250, 43114, 42161],
       activeNetwork: 5,
       updateInterval: null,
       cauldrons: [],
       positionsIsLoading: true,
       totalAssets: null,
       sortKey: "",
+      sortOrder: null,
     };
   },
 
@@ -63,6 +65,10 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+
+    sortedCauldrons() {
+      return this.sortByKey([...this.cauldrons], this.sortKey);
+    },
 
     isEmpyState() {
       return (
@@ -86,6 +92,15 @@ export default {
         },
       ].filter((item) => !item.hidden);
     },
+
+    sortersData() {
+      return [
+        { key: "positionHealth", text: "Health factor" },
+        { key: "collateralDeposited", text: "Collateral deposited" },
+        { key: "mimBorrowed", text: "MIM borrowed" },
+        { key: "apr", text: "APR" },
+      ];
+    },
   },
 
   watch: {
@@ -95,18 +110,31 @@ export default {
   },
 
   methods: {
-    sortByKey(cauldrons, key) {
-      if (!key) return cauldrons;
+    sortByKey(cauldrons = [], key) {
+      if (this.sortOrder === null) return this.cauldrons;
+      const sortedByKey = cauldrons.sort((a, b) => b[key] - a[key]);
 
-      return cauldrons.sort((cauldronA, cauldronB) => {
-        const a = this.getSortKey(cauldronA, key);
-        const b = this.getSortKey(cauldronB, key);
+      if (this.sortOrder) return sortedByKey;
+      return sortedByKey.reverse();
+    },
 
-        const factor = this.sortOrder ? -1 : 1;
-        if (key === "Interest" || key === "APR")
-          return a < b ? factor : -factor;
-        return a.lt(b) ? factor : -factor;
-      });
+    updateSortKey(newKey) {
+      if (this.sortKey == newKey) {
+        this.updateSortOrder();
+        return;
+      }
+
+      this.sortKey = newKey;
+      this.sortOrder = true;
+    },
+
+    updateSortOrder() {
+      this.sortOrder =
+        this.sortOrder === null ? true : this.sortOrder ? false : null;
+    },
+
+    getSortOrder(key) {
+      return key === this.sortKey ? this.sortOrder : null;
     },
 
     async createOpenPositions() {
@@ -226,6 +254,7 @@ export default {
   z-index: 2;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 20px;
   max-width: 100%;
   padding: 12px 24px;
@@ -253,5 +282,15 @@ export default {
   flex-direction: column;
   flex-wrap: wrap;
   gap: 16px;
+}
+
+@media screen and (max-width: 1300px) {
+  .position-page {
+    max-width: 90%;
+  }
+
+  .positions-list {
+    justify-content: center;
+  }
 }
 </style>

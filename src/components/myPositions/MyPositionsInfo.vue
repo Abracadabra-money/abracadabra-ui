@@ -24,7 +24,15 @@
       >
         <h4 class="reward-title">Total {{ data.title }}</h4>
         <div class="reward-values">
-          <div class="token-amount">{{ data.value }}</div>
+          <div class="token-amount">
+            <img
+              class="token-icon"
+              src="@/assets/images/tokens/MIM.png"
+              alt="MIM"
+              v-if="index"
+            />
+            {{ data.value }}
+          </div>
         </div>
       </div>
     </div>
@@ -138,5 +146,35 @@ export default {
       rgba(116, 92, 210, 0.32) 100%
     ),
     url("../../assets/images/myPositions/reward-mim-background.png");
+}
+
+@media screen and (max-width: 1050px) {
+  .myPositions-info {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .reward-cards {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+@media screen and (max-width: 620px) {
+  .reward-card {
+    width: 100%;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .desc-line {
+    font-size: 14px;
+  }
+
+  .mim {
+    background-size: 140%, 100%;
+  }
 }
 </style>
