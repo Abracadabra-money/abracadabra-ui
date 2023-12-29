@@ -1,20 +1,35 @@
 <template>
-  <div class="slippage-popup">
-    <div class="title-wrap">
-      <h3 class="title">Transaction overview</h3>
+  <div class="settings-wrap">
+    <IconButton
+      seting
+      :width="26"
+      :height="26"
+      padding="4px"
+      @click="() => (showSlippagePopup = !showSlippagePopup)"
+    />
 
-      <TooltipIcon :width="24" :height="24" tooltip=" Collateral Deposit" />
-    </div>
+    <div class="slippage-popup" v-if="showSlippagePopup">
+      <div class="title-wrap">
+        <h3>Transaction overview</h3>
 
-    <div class="row">
-      <input class="input" v-model="inputValue" type="text" placeholder="0.0" />
+        <TooltipIcon :width="24" :height="24" tooltip=" Collateral Deposit" />
+      </div>
 
-      <button
-        :class="['auto-button', { active: isActiveAutoButton }]"
-        @click="getDefaultSlippage"
-      >
-        Auto
-      </button>
+      <div class="row">
+        <input
+          class="input"
+          v-model="inputValue"
+          type="text"
+          placeholder="0.0"
+        />
+
+        <button
+          :class="['auto-button', { active: isActiveAutoButton }]"
+          @click="getDefaultSlippage"
+        >
+          Auto
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -33,6 +48,7 @@ export default {
   data() {
     return {
       inputValue: this.defaultValue,
+      showSlippagePopup: false,
     };
   },
 
@@ -62,10 +78,17 @@ export default {
     TooltipIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
+    ),
   },
 };
 </script>
 <style lang="scss" scoped>
+.settings-wrap {
+  position: relative;
+}
+
 .slippage-popup {
   max-width: 360px;
   width: 100%;
@@ -78,23 +101,25 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 373px;
+  position: absolute;
+  top: 42px;
+  left: 0;
+  z-index: 10;
 }
 
 .title-wrap {
   display: flex;
   gap: 4px;
   align-items: center;
-}
-
-.title {
-  color: #fff;
+  font-size: 16px;
   font-weight: 500;
   line-height: 150%;
 }
 
 .row {
-  display: flex;
   gap: 16px;
+  display: flex;
   align-items: center;
   justify-content: space-between;
 }
