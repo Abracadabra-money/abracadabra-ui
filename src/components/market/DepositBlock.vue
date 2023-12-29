@@ -1,27 +1,26 @@
 <template>
   <div>
-    <div>
-      <div class="row">
-        <h3 class="title">Deposit collateral</h3>
-        <Toggle
-          v-if="acceptNativeToken && nativeToken"
-          :selected="useNativeToken"
-          :text="nativeToken.name"
-          @updateToggle="() => toggleNativeToken()"
-        />
+    <div class="row">
+      <h3 class="title">Deposit collateral</h3>
 
-        <Toggle
-          v-if="acceptUnwrapToken && unwrappedToken"
-          :selected="useUnwrapToken"
-          :text="unwrappedToken.name"
-          @updateToggle="() => toggleUnwrapToken()"
-        />
-      </div>
+      <Toggle
+        v-if="acceptNativeToken && nativeToken"
+        :selected="useNativeToken"
+        :text="nativeToken.name"
+        @updateToggle="() => toggleNativeToken()"
+      />
 
-      <h4 class="subtitle">
-        Select the amount of {{ activeToken.name }} to deposit in the Cauldron
-      </h4>
+      <Toggle
+        v-if="acceptUnwrapToken && unwrappedToken"
+        :selected="useUnwrapToken"
+        :text="unwrappedToken.name"
+        @updateToggle="() => toggleUnwrapToken()"
+      />
     </div>
+
+    <h4 class="subtitle">
+      Select the amount of {{ activeToken.name }} to deposit in the Cauldron
+    </h4>
 
     <TokenInput
       :value="inputValue"
@@ -37,16 +36,14 @@
 </template>
 
 <script lang="ts">
+import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { getChainById } from "@/helpers/chains";
+import { trimZeroDecimals } from "@/helpers/numbers";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/cauldron";
-// @ts-ignore
-import { mapGetters } from "vuex";
 import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-
-import { trimZeroDecimals } from "@/helpers/numbers";
 
 type ActiveToken = {
   name: string;
@@ -245,37 +242,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.market-actions-wrap {
-  @include font;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 410px;
-  width: 100%;
-}
-
-.deposit-wrap {
-  @include block-wrap;
-}
-
-.borrow-wrap {
-  @include block-wrap;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 370px;
-}
-
 .row {
   display: flex;
+  margin-bottom: 4px;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
 }
 
 .title {
   font-size: 18px;
-  font-style: normal;
   font-weight: 500;
   line-height: 150%;
 }
@@ -285,36 +260,6 @@ export default {
   font-size: 12px;
   font-weight: 400;
   line-height: 20px;
-}
-
-.dynamic-fee {
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid #2d4a96;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dynamic-fee-title {
-  color: #878b93;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.dynamic-fee-value {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  text-transform: uppercase;
+  margin-bottom: 16px;
 }
 </style>

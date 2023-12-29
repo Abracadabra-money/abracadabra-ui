@@ -6,11 +6,7 @@
           <TokenInfo :cauldron="cauldron" />
         </div>
 
-        <IconButton
-          v-if="isAddCollateralButton"
-          wallet
-          @click="addCollateral"
-        />
+        <IconButton v-if="isActiveChain" wallet @click="addCollateral" />
 
         <IconButton link tag-name="a" :href="cauldronScanUrl" target="_blank" />
 
@@ -29,10 +25,10 @@
         />
 
         <!-- todo style -->
-        <DepositButton :cauldron="cauldron" />
+        <DepositButton :cauldron="cauldron" v-if="isActiveChain" />
 
         <!-- todo style -->
-        <ClaimButton :cauldron="cauldron" />
+        <ClaimButton :cauldron="cauldron" v-if="isActiveChain" />
       </div>
 
       <div class="column">
@@ -94,7 +90,7 @@ export default {
       }/address/${this.cauldron.config.contract.address}`;
     },
 
-    isAddCollateralButton() {
+    isActiveChain() {
       return this.chainId === this.cauldron.config.chainId;
     },
   },

@@ -10,15 +10,10 @@
     />
   </div>
 
-  <div class="dynamic-wrap">
-    <DynamicallyEstimatedPrice
-      v-if="chainId !== 2222"
-      :amount="expectedBorrowAmount"
-      :mimAddress="cauldron.config.mimInfo.address"
-    />
-
-    <GmPriceImpact />
-  </div>
+  <DynamicallyEstimatedPrice
+    :cauldron="cauldron"
+    :amount="expectedBorrowAmount"
+  />
 </template>
 
 <script lang="ts">
@@ -29,10 +24,9 @@ import {
   applyBorrowFee,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
-import { mapGetters } from "vuex";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
 export default {
@@ -117,7 +111,7 @@ export default {
   },
 
   watch: {
-    depositCollateralAmount(value) {
+    depositCollateralAmount() {
       this.getMaxLeverageMultiplier();
       this.updateLeverageAmounts();
     },
@@ -174,94 +168,18 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
-    ),
-    IconButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/IconButton.vue")
-    ),
-    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     LeverageRange: defineAsyncComponent(
       () => import("@/components/ui/range/LeverageRange.vue")
     ),
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
-    ),
     DynamicallyEstimatedPrice: defineAsyncComponent(
-      // @ts-ignore
       () => import("@/components/market/DynamicallyEstimatedPrice.vue")
-    ),
-    GmPriceImpact: defineAsyncComponent(
-      () => import("@/components/market/GmPriceImpact.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.market-actions-wrap {
-  @include font;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 410px;
-  width: 100%;
-}
-
-.deposit-wrap {
-  @include block-wrap;
-  min-height: 190px;
-}
-
-.borrow-wrap {
-  @include block-wrap;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 390px;
-  justify-content: space-between;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.title {
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.subtitle {
-  color: #878b93;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
-  margin-bottom: 16px;
-}
-
 .range-wrap {
   margin-bottom: 16px;
-}
-
-.dynamic-wrap {
-  display: flex;
-  padding: 5px 12px;
-  flex-direction: column;
-  gap: 8px;
-  border-radius: 8px;
-  border: 1px solid #2d4a96;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
-  );
 }
 </style>

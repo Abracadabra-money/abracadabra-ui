@@ -1,14 +1,21 @@
 <template>
-  <div class="market-actions-wrap">
-    <div class="row">
-      <h3 class="title">Repay</h3>
-      <Toggle
-        :selected="repayConfig.useDeleverage"
-        text="Deleverge"
-        @updateToggle="onToggleDeleverage"
-      />
-    </div>
-    <div class="deposit-wrap">
+  <div class="repay-form">
+    <div class="block-wrap remove-block">
+      <div class="row">
+        <div class="title-wrap">
+          <h3>{{ titleText }}</h3>
+          <SlippagePopup v-if="repayConfig.useDeleverage" />
+        </div>
+
+        <Toggle
+          :selected="repayConfig.useDeleverage"
+          text="Deleverge"
+          @updateToggle="onToggleDeleverage"
+        />
+      </div>
+
+      <h4 class="subtitle">{{ subtitleText }}</h4>
+
       <RemoveCollateralBlock
         v-if="!repayConfig.useDeleverage"
         :cauldron="cauldron"
@@ -16,6 +23,7 @@
         :repayAmount="repayConfig.amounts.repayAmount"
         @updateWithdrawAmount="onUpdateWithdrawAmount"
       />
+
       <DeleverageBlock
         v-else
         :cauldron="cauldron"
@@ -25,24 +33,31 @@
       />
     </div>
 
-    <div class="borrow-wrap">
-      <RepayBlock
-        v-if="!repayConfig.useDeleverage"
-        :cauldron="cauldron"
-        :inputAmount="repayConfig.amounts.repayAmount"
-        :withdrawAmount="repayConfig.amounts.withdrawAmount"
-        @updateRepayAmount="onUpdateRepayAmount"
-      />
+    <div class="block-wrap repay-block">
+      <div class="repay-logic">
+        <RepayBlock
+          v-if="!repayConfig.useDeleverage"
+          :cauldron="cauldron"
+          :inputAmount="repayConfig.amounts.repayAmount"
+          :withdrawAmount="repayConfig.amounts.withdrawAmount"
+          @updateRepayAmount="onUpdateRepayAmount"
+        />
 
-      <RemoveCollateralRangeBlock
-        v-else
-        :cauldron="cauldron"
-        :deleverageAmounts="repayConfig.amounts.deleverageAmounts"
-        :withdrawAmount="repayConfig.amounts.withdrawAmount"
-        @updateWithdrawAmount="onUpdateWithdrawAmount"
-      />
+        <RemoveCollateralRangeBlock
+          v-else
+          :cauldron="cauldron"
+          :deleverageAmounts="repayConfig.amounts.deleverageAmounts"
+          :withdrawAmount="repayConfig.amounts.withdrawAmount"
+          @updateWithdrawAmount="onUpdateWithdrawAmount"
+        />
+      </div>
 
-      <BaseButton primary disabled>Nothing to do </BaseButton>
+      <div class="btns-wrap">
+        <BaseButton primary disabled>Nothing to do </BaseButton>
+        <BaseButton primary disabled v-if="repayConfig.useDeleverage"
+          >Close position
+        </BaseButton>
+      </div>
     </div>
   </div>
 </template>
@@ -61,6 +76,7 @@ export default {
 
   data() {
     return {
+      showSlippagePopup: false,
       repayConfig: {
         useLeverage: false,
         useDeleverage: true,
@@ -93,6 +109,19 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    titleText() {
+      const { useDeleverage } = this.repayConfig;
+      return useDeleverage ? "Deleverage" : "Remove collateral";
+    },
+
+    subtitleText() {
+      const { useDeleverage } = this.repayConfig;
+      const { name } = this.cauldron.config.collateralInfo;
+      return useDeleverage
+        ? "Choose the amount of MIM you want to repay"
+        : `Select the amount of ${name} to withdraw from the Cauldron`;
+    },
   },
 
   watch: {
@@ -144,12 +173,9 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
-    ),
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    LtvRange: defineAsyncComponent(
-      () => import("@/components/ui/range/LtvRange.vue")
+    SlippagePopup: defineAsyncComponent(
+      () => import("@/components/popups/SlippagePopup.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
@@ -171,78 +197,66 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.market-actions-wrap {
+.repay-form {
   @include font;
   display: flex;
   flex-direction: column;
   gap: 16px;
   max-width: 410px;
   width: 100%;
+  height: 100%;
 }
 
-.deposit-wrap {
+.block-wrap {
   @include block-wrap;
 }
 
-.borrow-wrap {
-  @include block-wrap;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 370px;
+.remove-block {
+  max-height: 206px;
+  height: 100%;
 }
 
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 30px;
   margin-bottom: 4px;
 }
 
-.title {
+.title-wrap {
+  gap: 16px;
+  display: flex;
+  align-items: center;
   font-size: 18px;
-  font-style: normal;
   font-weight: 500;
   line-height: 150%;
-  margin-bottom: 4px;
 }
 
 .subtitle {
   color: #878b93;
   font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
+  line-height: 16px;
   margin-bottom: 16px;
 }
 
-.dynamic-fee {
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid #2d4a96;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
-  );
+.repay-block {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: space-between;
+  gap: 16px;
+  height: 100%;
 }
 
-.dynamic-fee-title {
-  color: #878b93;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
+.repay-logic {
+  gap: 16px;
   display: flex;
-  gap: 4px;
-  align-items: center;
+  flex-direction: column;
 }
 
-.dynamic-fee-value {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  text-transform: uppercase;
+.btns-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

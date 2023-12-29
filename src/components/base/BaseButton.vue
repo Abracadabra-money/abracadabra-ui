@@ -57,6 +57,7 @@ export default {
   overflow: hidden;
   border: 2px solid #648fcc;
   width: 100%;
+  height: 48px;
 
   &.disabled {
     cursor: not-allowed;

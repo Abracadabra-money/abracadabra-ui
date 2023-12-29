@@ -1,27 +1,27 @@
 <template>
   <div>
-    <div>
-      <div class="row">
-        <h3 class="title">To Repay</h3>
-      </div>
-
-      <h4 class="subtitle">Chose the amount of MIM you want to repay</h4>
-    </div>
-
     <AmountRange
       :amount="deleverageAmounts.amountToMin"
       :maxAmount="maxToRepay"
       :risk="positionHealth"
       @updateAmount="onUpdateInputAmount"
     />
+
+    <div class="dynamic-wrap">
+      <DynamicFee
+        v-if="cauldron.config.chainId !== 2222"
+        :isClose="true"
+        :amount="deleverageAmounts.amountToMin"
+        :mimAddress="cauldron.config.mimInfo.address"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
+import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
-import { mapGetters } from "vuex";
 
 import {
   getLiquidationPrice,
@@ -49,7 +49,7 @@ export default {
   emits: ["updateDeleverageAmounts"],
 
   data() {
-    return { slippage: 1};
+    return { slippage: 1 };
   },
 
   computed: {
@@ -59,7 +59,6 @@ export default {
     }),
 
     maxToRepay() {
-      const { decimals } = this.cauldron.config.collateralInfo;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
       const { mimBalance } = this.cauldron.userTokensInfo;
       const maxToRepay = userBorrowAmount.gt(mimBalance)
@@ -72,7 +71,6 @@ export default {
     expectedBorrowAmount() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
-      //@ts-ignore
       const { amountToMin } = this.deleverageAmounts;
 
       const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
@@ -85,10 +83,11 @@ export default {
     expectedCollateralAmount() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
-      //@ts-ignore
       const { amountFrom } = this.deleverageAmounts;
 
-      const expectedCollateralAmount = userCollateralAmount.sub(amountFrom).sub(this.withdrawAmount);
+      const expectedCollateralAmount = userCollateralAmount
+        .sub(amountFrom)
+        .sub(this.withdrawAmount);
 
       return expectedCollateralAmount.lt(0)
         ? BigNumber.from(0)
@@ -140,55 +139,15 @@ export default {
     AmountRange: defineAsyncComponent(
       () => import("@/components/ui/range/AmountRange.vue")
     ),
+    DynamicFee: defineAsyncComponent(
+      () => import("@/components/market/DynamicFee.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.market-actions-wrap {
-  @include font;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 410px;
-  width: 100%;
-}
-
-.deposit-wrap {
-  @include block-wrap;
-}
-
-.borrow-wrap {
-  @include block-wrap;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 370px;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.title {
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
-}
-
-.subtitle {
-  color: #878b93;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
-}
-
-.dynamic-fee {
-  padding: 5px 12px;
+.dynamic-wrap {
   border-radius: 8px;
   border: 1px solid #2d4a96;
   background: linear-gradient(
@@ -196,25 +155,6 @@ export default {
     rgba(45, 74, 150, 0.12) 0%,
     rgba(116, 92, 210, 0.12) 100%
   );
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dynamic-fee-title {
-  color: #878b93;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.dynamic-fee-value {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  text-transform: uppercase;
+  padding: 5px 12px;
 }
 </style>

@@ -1,5 +1,9 @@
 <template>
-  <button class="deposit-button" @click.stop="openCollateralPopup">
+  <button
+    class="deposit-button"
+    v-if="!!depositConfig"
+    @click.stop="openCollateralPopup"
+  >
     <span class="inner-wrap">
       {{ depositConfig.title }}
       <ArrowTopRight />
@@ -23,8 +27,10 @@ export default {
     }),
 
     depositConfig(): any {
-      if (!this.account) return false;
-      return getAdditionalStakeConfig(this.cauldron.config.id, this.chainId);
+      return getAdditionalStakeConfig(
+        this.cauldron.config.id,
+        this.cauldron.config.chainId
+      );
     },
   },
 

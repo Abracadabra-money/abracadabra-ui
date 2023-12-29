@@ -18,7 +18,7 @@
             />
           </div>
 
-          <div class="repay-wrap" v-if="isRepayTab">
+          <div class="form-wrap" v-if="isRepayTab">
             <RepayBlock
               :cauldron="cauldron"
               @updateRepayConfig="onUpdateConfig"
@@ -269,6 +269,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  z-index: -1;
 }
 
 .position-health-wrap {
@@ -280,26 +281,6 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 24px;
-}
-
-.cauldron-info {
-  max-width: 410px;
-  padding: 24px;
-  width: 100%;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  align-self: stretch;
-  flex-direction: column;
-  border-radius: 16px;
-  border: 1px solid #00296b;
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
 }
 
 .loading {

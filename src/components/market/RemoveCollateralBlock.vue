@@ -1,27 +1,14 @@
 <template>
-  <div>
-    <div>
-      <div class="row">
-        <h3 class="title">Remove collateral</h3>
-      </div>
-
-      <h4 class="subtitle">
-        Select the amount of {{ collateralToken.name }} to withdraw from the
-        Cauldron
-      </h4>
-    </div>
-
-    <TokenInput
-      :value="inputValue"
-      :name="collateralToken.name"
-      :icon="collateralToken.icon"
-      :max="maxToRemove"
-      :decimals="collateralToken.decimals"
-      :tokenPrice="collateralToken.price"
-      isBigNumber
-      @updateInputValue="onUpdateWithdrawValue"
-    />
-  </div>
+  <TokenInput
+    :value="inputValue"
+    :name="collateralToken.name"
+    :icon="collateralToken.icon"
+    :max="maxToRemove"
+    :decimals="collateralToken.decimals"
+    :tokenPrice="collateralToken.price"
+    isBigNumber
+    @updateInputValue="onUpdateWithdrawValue"
+  />
 </template>
 
 <script lang="ts">
@@ -95,7 +82,7 @@ export default {
         oracleExchangeRate
       );
 
-      if(maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
+      if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
 
       return maxToRemove;
     },
@@ -134,77 +121,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.market-actions-wrap {
-  @include font;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 410px;
-  width: 100%;
-}
-
-.deposit-wrap {
-  @include block-wrap;
-}
-
-.borrow-wrap {
-  @include block-wrap;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 370px;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.title {
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
-}
-
-.subtitle {
-  color: #878b93;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
-}
-
-.dynamic-fee {
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid #2d4a96;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dynamic-fee-title {
-  color: #878b93;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.dynamic-fee-value {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
-  text-transform: uppercase;
-}
-</style>
+<style lang="scss" scoped></style>

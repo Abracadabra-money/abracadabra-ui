@@ -139,7 +139,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .leverage-range-wrap {
-  height: 62px;
+  height: 56px;
   display: flex;
   flex-direction: column;
   justify-content: center;
