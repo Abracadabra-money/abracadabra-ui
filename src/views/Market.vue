@@ -29,7 +29,7 @@
         <div class="market-stats">
           <div class="row">
             <div></div>
-            <PriceRange />
+            <PositionHealth :cauldron="cauldron" />
           </div>
 
           <div class="row">
@@ -199,8 +199,8 @@ export default {
     RepayBlock: defineAsyncComponent(
       () => import("@/components/market/RepayForm.vue")
     ),
-    PriceRange: defineAsyncComponent(
-      () => import("@/components/ui/range/PriceRange.vue")
+    PositionHealth: defineAsyncComponent(
+      () => import("@/components/market/PositionHealth.vue")
     ),
     PositionInfo: defineAsyncComponent(
       () => import("@/components/market/PositionInfo.vue")
