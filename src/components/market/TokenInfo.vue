@@ -1,6 +1,8 @@
 <template>
   <div class="token-info">
-    <CauldronIcon />
+    <router-link class="cauldrons-link" :to="{ name: 'Cauldrons' }">
+      <CauldronIcon />
+    </router-link>
 
     <ArrowRightIcon />
 
@@ -70,6 +72,11 @@ export default {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.cauldrons-link {
+  width: 20px;
+  height: 20px;
 }
 
 .icons-wrap {

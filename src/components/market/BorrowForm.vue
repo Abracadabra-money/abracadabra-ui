@@ -14,7 +14,17 @@
     <div class="borrow-wrap">
       <div>
         <div class="row">
-          <h3 class="title">Borrow MIM</h3>
+          <h3 class="title">
+            Borrow MIM
+            <IconButton
+              seting
+              :width="28"
+              :height="28"
+              padding="4px"
+              v-if="borrowConfig.useLeverage"
+              @click="() => (showSlippagePopup = !showSlippagePopup)"
+            />
+          </h3>
 
           <Toggle
             :selected="borrowConfig.useLeverage"
@@ -27,6 +37,10 @@
           Select the amount of MIM to borrow from the Cauldron
         </h4>
       </div>
+      <div v-if="borrowConfig.useLeverage && showSlippagePopup">
+        <SlippagePopup />
+      </div>
+
       <LeverageBlock
         v-if="borrowConfig.useLeverage"
         :depositCollateralAmount="
@@ -36,6 +50,7 @@
         :cauldron="cauldron"
         @updateLeverageAmounts="onUpdateLeverageAmounts"
       />
+
       <BorrowBlock
         v-else
         :cauldron="cauldron"
@@ -87,6 +102,7 @@ export default {
     return {
       useNativeToken: false,
       useUnwrapToken: false,
+      showSlippagePopup: false,
       // TODO: add types
       borrowConfig: {
         useLeverage: false,
@@ -468,18 +484,24 @@ export default {
   },
 
   components: {
-    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
-    ),
     DepositBlock: defineAsyncComponent(
       () => import("@/components/market/DepositBlock.vue")
+    ),
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    SlippagePopup: defineAsyncComponent(
+      () => import("@/components/popups/SlippagePopup.vue")
     ),
     BorrowBlock: defineAsyncComponent(
       () => import("@/components/market/BorrowBlock.vue")
     ),
     LeverageBlock: defineAsyncComponent(
       () => import("@/components/market/LeverageBlock.vue")
+    ),
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
   },
 };
@@ -504,7 +526,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 370px;
+  min-height: 370px;
 }
 
 .row {
@@ -515,6 +537,9 @@ export default {
 }
 
 .title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 18px;
   font-style: normal;
   font-weight: 500;
