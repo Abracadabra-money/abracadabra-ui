@@ -13,9 +13,10 @@
 
     <div class="bento-chains">
       <img
-        class="chain-icon"
+        :class="['chain-icon', { 'active-chain': chain == activeChain }]"
         v-for="chain in activeChains"
         :src="getChainIcon(chain)"
+        @click="$emit('chooseActiveChain', chain)"
       />
     </div>
 
@@ -25,7 +26,7 @@
       </BaseButton>
 
       <div class="description">
-        MIM Balance on {{ title }}
+        <span class="description"> MIM Balance on {{ title }}</span>
         <a class="link" target="_blank" rel="noreferrer noopener" :href="link">
           <span class="link-text"> Read More</span>
           <img class="link-arrow" src="@/assets/images/farm-lp-arrow.svg" />
@@ -53,6 +54,7 @@ export default {
     balance: { type: [String, BigInt], default: "0" },
     mimPrice: { type: Number, default: 0 },
     activeChains: { type: Array },
+    activeChain: { type: [Number, String] },
   },
 
   data() {
@@ -191,6 +193,19 @@ export default {
 .chain-icon {
   width: 24px;
   height: 24px;
+  border-radius: 17px;
+  transition: all 0.3s ease;
+}
+
+.chain-icon:hover {
+  cursor: pointer;
+  border: 1px solid #fff;
+  box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.38);
+}
+
+.active-chain {
+  border: 1px solid #fff;
+  box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.38);
 }
 
 .button-description {
@@ -224,7 +239,7 @@ export default {
 .link {
   margin-top: 1px;
   display: flex;
-  align-items: center;
+  flex-direction: row;
   color: #7088cc;
   font-size: 14px;
   font-weight: 400;
@@ -232,5 +247,49 @@ export default {
 
 .link-text {
   line-height: 20px;
+}
+
+@media screen and (max-width: 700px) {
+  .bento-chains {
+    top: 12px;
+    right: 12px;
+    left: auto;
+  }
+
+  .bento-block {
+    flex-direction: column;
+    height: 125px;
+    align-items: stretch;
+    background-size: 180% 200%;
+    background-position: 40% 50%;
+  }
+
+  .bento-title,
+  .token-balance {
+    font-size: 16px;
+  }
+
+  .button-description {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .description {
+    flex-direction: column;
+    align-items: start;
+    text-align: start;
+    height: auto;
+  }
+
+  .link {
+    justify-self: flex-start;
+  }
+
+  .withdraw-button {
+    width: 122px;
+    height: 37px;
+    font-size: 14px;
+  }
 }
 </style>

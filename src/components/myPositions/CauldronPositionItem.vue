@@ -76,13 +76,13 @@ export default {
     collateralSymbol() {
       return this.chainId === 42161 && this.cauldron.config.id === 2
         ? this.cauldron.config?.wrapInfo?.unwrappedToken?.name
-        : this.cauldron.config.collateralInfo.name;
+        : this.cauldron.config?.collateralInfo.name;
     },
 
     oracleRate() {
       return ethers.utils.formatUnits(
         this.cauldron.oracleRate,
-        this.cauldron.config.collateralInfo.decimals
+        this.cauldron.config?.collateralInfo.decimals
       );
     },
 

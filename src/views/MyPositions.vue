@@ -6,12 +6,20 @@
       <BentoBoxBlock :activeNetworks="activeNetworks" />
 
       <div class="positions-list-head">
-        <SortButton
-          v-for="data in sortersData"
-          :sortOrder="getSortOrder(data.key)"
-          @click="updateSortKey(data.key)"
-          >{{ data.text }}</SortButton
-        >
+        <button class="filters" @click="isFiltersPopupOpened = true">
+          <img src="@/assets/images/filters.png" />
+          Filters
+        </button>
+
+        <div class="sort-buttons">
+          <SortButton
+            v-for="data in sortersData"
+            :sortOrder="getSortOrder(data.key)"
+            @click="updateSortKey(data.key)"
+            >{{ data.text }}</SortButton
+          >
+        </div>
+
         <ChainsDropdown />
       </div>
 
@@ -23,6 +31,13 @@
         />
       </div>
     </div>
+
+    <FiltersPopup
+      v-if="isFiltersPopupOpened"
+      :sortersData="sortersData"
+      @updateSortKey="updateSortKey"
+      @close="isFiltersPopupOpened = false"
+    />
   </div>
 </template>
 
@@ -37,6 +52,7 @@ import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.
 import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
+import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
 
 import { providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
@@ -47,7 +63,7 @@ const APR_KEY = "abracadabraCauldronsApr";
 export default {
   data() {
     return {
-      activeNetworks: [1, 56, 250, 43114, 42161],
+      activeNetworks: [1, 56, 250, 42161, 43114],
       activeNetwork: 5,
       updateInterval: null,
       cauldrons: [],
@@ -55,6 +71,7 @@ export default {
       totalAssets: null,
       sortKey: "",
       sortOrder: null,
+      isFiltersPopupOpened: false,
     };
   },
 
@@ -118,7 +135,13 @@ export default {
       return sortedByKey.reverse();
     },
 
-    updateSortKey(newKey) {
+    updateSortKey(newKey, newOrder = null) {
+      if (newOrder !== null) {
+        this.sortKey = newKey;
+        this.sortOrder = newOrder;
+        return;
+      }
+
       if (this.sortKey == newKey) {
         this.updateSortOrder();
         return;
@@ -227,6 +250,7 @@ export default {
     MyPositionsInfo,
     ChainsDropdown,
     SortButton,
+    FiltersPopup,
   },
 };
 </script>
@@ -270,6 +294,35 @@ export default {
   backdrop-filter: blur(12.5px);
 }
 
+.sort-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.filters {
+  display: none;
+  height: 39px;
+  padding: 7px 14px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: rgba(25, 31, 47, 0.38);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  color: #5d7acd;
+  font-family: Prompt;
+  font-size: 16px;
+  font-weight: 400;
+  transition: opacity 0.3s ease;
+}
+
+.filters:hover {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
 .positions-list {
   display: flex;
   align-items: center;
@@ -286,11 +339,25 @@ export default {
 
 @media screen and (max-width: 1300px) {
   .position-page {
-    max-width: 90%;
+    max-width: 94%;
   }
 
   .positions-list {
     justify-content: center;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .positions-list-head {
+    justify-content: space-between;
+  }
+
+  .sort-buttons {
+    display: none;
+  }
+
+  .filters {
+    display: flex;
   }
 }
 </style>

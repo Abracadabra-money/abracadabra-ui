@@ -2,16 +2,20 @@
   <div class="bento-wrapper" v-if="isVisible">
     <BentoBoxItem
       @withdraw="openPopup(false)"
+      @chooseActiveChain="chooseActiveDegenChain"
       :balance="currentChainBentoConfig.mimInDegenBalance"
       :mimPrice="currentChainBentoConfig.mimPrice"
       :activeChains="activeChains.degen"
+      :activeChain="activeDegenChain"
     />
 
     <BentoBoxItem
       @withdraw="openPopup(true)"
+      @chooseActiveChain="chooseActiveBentoChain"
       :balance="currentChainBentoConfig.mimInBentoBalance"
       :mimPrice="currentChainBentoConfig.mimPrice"
       :activeChains="activeChains.bento"
+      :activeChain="activeBentoChain"
       :isBento="true"
     />
 
@@ -19,7 +23,6 @@
       v-if="popupData.opened"
       :infoObject="currentChainBentoConfig"
       :isBento="popupData.isBento"
-      :isDeposit="popupData.isDeposit"
       @close="popupData.opened = false"
     />
   </div>
@@ -52,6 +55,8 @@ export default {
       popupData: { ...initialPopupData },
       bentoUpdateInterval: null,
       bentoBoxConfigs: null,
+      activeBentoChain: this.activeChains?.bento[0],
+      activeDegenChain: this.activeChains?.degen[0],
     };
   },
 
@@ -65,8 +70,8 @@ export default {
       let bento = [];
       let degen = [];
       this.bentoBoxConfigs.forEach((config) => {
-        if (config.mimInBentoBalance) bento.push(config.chainId);
-        if (config.mimInDegenBalance) degen.push(config.chainId);
+        if (true) bento.push(config.chainId);
+        if (true) degen.push(config.chainId);
       });
       return { bento, degen };
     },
@@ -78,6 +83,7 @@ export default {
     },
 
     isVisible() {
+      return this.bentoBoxConfigs;
       return (
         (this.currentChainBentoConfig?.mimInBentoBalance ||
           this.currentChainBentoConfig?.mimInDegenBalance) &&
@@ -93,6 +99,14 @@ export default {
   },
 
   methods: {
+    chooseActiveBentoChain(e) {
+      this.activeBentoChain = e;
+    },
+
+    chooseActiveDegenChain(e) {
+      this.activeDegenChain = e;
+    },
+
     openPopup(isBento) {
       this.popupData = { opened: true, isBento };
     },
@@ -142,5 +156,11 @@ export default {
   display: flex;
   gap: 24px;
   margin-bottom: 32px;
+}
+
+@media screen and (max-width: 1300px) {
+  .bento-wrapper {
+    flex-direction: column;
+  }
 }
 </style>
