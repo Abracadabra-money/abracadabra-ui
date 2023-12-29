@@ -9,7 +9,7 @@
         <div class="actions-wrap">
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
-          <div class="deposit-wrap" v-if="isBorrowTab">
+          <div class="form-wrap" v-if="isBorrowTab">
             <BorrowForm
               :cauldron="cauldron"
               @updateAmounts="updateAmounts"
@@ -246,8 +246,9 @@ export default {
   width: 100%;
   padding: 0 15px;
   margin: 0 auto;
-  display: flex;
+  display: grid;
   gap: 24px;
+  grid-template-columns: 1fr 2fr;
   z-index: 1;
 }
 
@@ -257,6 +258,10 @@ export default {
   gap: 20px;
   max-width: 411px;
   width: 100%;
+}
+
+.form-wrap {
+  height: 100%;
 }
 
 .market-stats {

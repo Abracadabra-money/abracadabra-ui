@@ -61,12 +61,14 @@
         @updateBorrowAmount="onUpdateBorrowAmount"
       />
 
-      <BaseButton
-        primary
-        :disabled="actionInfo.buttonText === 'Nothing to do'"
-        @click="actionHandler"
-        >{{ actionInfo.buttonText }}
-      </BaseButton>
+      <div>
+        <BaseButton
+          primary
+          :disabled="actionInfo.buttonText === 'Nothing to do'"
+          @click="actionHandler"
+          >{{ actionInfo.buttonText }}
+        </BaseButton>
+      </div>
     </div>
   </div>
 </template>
@@ -515,6 +517,7 @@ export default {
   gap: 16px;
   max-width: 410px;
   width: 100%;
+  height: 100%;
 }
 
 .deposit-wrap {
@@ -525,8 +528,9 @@ export default {
   @include block-wrap;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 16px;
-  min-height: 370px;
+  height: 100%;
 }
 
 .row {
