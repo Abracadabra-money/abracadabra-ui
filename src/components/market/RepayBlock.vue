@@ -16,6 +16,17 @@
     isBigNumber
     @updateInputValue="onUpdateRepayValue"
   />
+
+  <div class="dynamic-wrap">
+    <DynamicallyEstimatedPrice
+      v-if="chainId !== 2222"
+      :isClose="true"
+      :amount="inputValue"
+      :mimAddress="cauldron.config.mimInfo.address"
+    />
+
+    <GmPriceImpact />
+  </div>
 </template>
 
 <script lang="ts">
@@ -98,6 +109,12 @@ export default {
     TokenInput: defineAsyncComponent(
       () => import("@/components/market/TokenInput.vue")
     ),
+    DynamicallyEstimatedPrice: defineAsyncComponent(
+      () => import("@/components/market/DynamicallyEstimatedPrice.vue")
+    ),
+    GmPriceImpact: defineAsyncComponent(
+      () => import("@/components/market/GmPriceImpact.vue")
+    ),
   },
 };
 </script>
@@ -174,5 +191,19 @@ export default {
   font-weight: 500;
   line-height: 150%;
   text-transform: uppercase;
+}
+
+.dynamic-wrap {
+  display: flex;
+  padding: 5px 12px;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
 }
 </style>

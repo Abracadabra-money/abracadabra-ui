@@ -1,6 +1,6 @@
 <template>
-  <div class="dynamic-fee">
-    <div class="dynamic-fee-title">
+  <div class="dynamic-price">
+    <div class="title">
       {{ estimationDescription }}
       <TooltipIcon
         :width="20"
@@ -9,22 +9,19 @@
         :tooltip="tooltipText"
       />
     </div>
-    <div class="dynamic-fee-value">
+    <div class="value">
       {{ estimationResult }}
     </div>
   </div>
 </template>
 
-<script>
-// @ts-ignore
-import filters from "@/filters/index.js";
+<script lang="ts">
+import { utils } from "ethers";
+import { mapGetters } from "vuex";
+import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { swap0xRequest } from "@/helpers/0x";
 import { chainsUsdcConfigs } from "@/utils/tokens/usdcConfig";
-// @ts-ignore
-import { mapGetters } from "vuex";
-import { ethers } from "ethers";
-import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
@@ -33,7 +30,7 @@ export default {
       required: true,
     },
     amount: {
-      type: Number,
+      type: Object as any,
     },
     slippage: {
       type: [String, Number],
@@ -47,8 +44,7 @@ export default {
 
   data() {
     return {
-      price: null,
-      updateInterval: null,
+      price: null as null | number,
       isFetching: false,
       isProfit: false,
     };
@@ -57,31 +53,21 @@ export default {
   computed: {
     ...mapGetters({ chainId: "getChainId" }),
 
+    formatAmount() {
+      return Number(utils.formatUnits(this.amount || "0"));
+    },
+
     estimationResult() {
       if (this.isFetching) return "...Fetching";
-
-      if (!this.price || !this.amount) return "≈";
-
+      if (!this.price || this.amount?.isZero()) return "≈";
       return `$${this.estimateAmount} / ${this.estimatePercent}%`;
     },
 
-    estimationResultTextColor() {
-      if (this.isProfit) return "blue";
-
-      if (+this.estimatePercent) {
-        if (+this.estimatePercent <= 0.1) return "blue";
-        if (+this.estimatePercent <= 2.5) return "yellow";
-        return "red";
-      }
-
-      return "";
-    },
-
     estimateAmount() {
-      if (!this.price || !this.amount) return false;
+      if (!this.price || this.amount?.isZero()) return false;
 
       return parseFloat(
-        Math.abs(this.amount - this.price * this.amount).toString()
+        Math.abs(this.formatAmount - this.price * this.formatAmount).toString()
       ).toFixed(2);
     },
 
@@ -90,7 +76,7 @@ export default {
 
       return parseFloat(
         Math.abs(
-          100 - ((this.price * this.amount) / this.amount) * 100
+          100 - ((this.price * this.formatAmount) / this.formatAmount) * 100
         ).toString()
       ).toFixed(2);
     },
@@ -101,8 +87,7 @@ export default {
     },
 
     profitStatus() {
-      if (this.isProfit) return "Bonus";
-      return "Fee";
+      return this.isProfit ? "Bonus" : "Fee";
     },
 
     tooltipText() {
@@ -112,24 +97,22 @@ export default {
     },
 
     buyToken() {
-      if (!this.isClose) return chainsUsdcConfigs[this.chainId].address;
+      if (!this.isClose)
+        return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
+          .address;
       return this.mimAddress;
     },
 
     sellToken() {
       if (!this.isClose) return this.mimAddress;
-      return chainsUsdcConfigs[this.chainId].address;
-    },
-
-    parsedAmount() {
-      if (!this.amount) return false;
-      return ethers.utils.parseUnits(filters.formatToFixed(+this.amount, 18));
+      return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
+        .address;
     },
   },
 
   watch: {
-    amount(val) {
-      if (+val) this.getPrice();
+    amount(value) {
+      if (!value.isZero()) this.getPrice();
     },
   },
 
@@ -138,74 +121,52 @@ export default {
       if (this.isFetching) return false;
 
       this.isFetching = true;
-      let priceIntermediate;
-      if (this.isClose) {
-        const { price } = await swap0xRequest(
-          this.chainId,
-          this.buyToken,
-          this.sellToken,
-          this.slippage,
-          0,
-          undefined,
-          this.parsedAmount.toString()
-        );
-        priceIntermediate = price;
-      } else {
-        const { price } = await swap0xRequest(
-          this.chainId,
-          this.buyToken,
-          this.sellToken,
-          this.slippage,
-          this.parsedAmount.toString()
-        );
-        priceIntermediate = price;
-      }
 
-      this.isProfit = this.isClose
-        ? priceIntermediate <= 1
-        : priceIntermediate >= 1;
-      this.price = priceIntermediate;
+      const paylod = [
+        this.chainId,
+        this.buyToken,
+        this.sellToken,
+        this.slippage,
+      ];
+
+      if (this.isClose) paylod.push(0, undefined, this.amount);
+      else paylod.push(this.amount);
+
+      const { price }: any = await swap0xRequest(...paylod);
+
+      this.isProfit = this.isClose ? price <= 1 : price >= 1;
+
+      this.price = price;
       this.isFetching = false;
     },
   },
 
   components: {
-    TooltipIcon: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    TooltipIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.dynamic-fee {
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid #2d4a96;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
-  );
+.dynamic-price {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.dynamic-fee-title {
-  color: #878b93;
   font-size: 14px;
   font-weight: 500;
   line-height: 150%;
-  display: flex;
+}
+
+.title {
   gap: 4px;
+  display: flex;
   align-items: center;
+  color: #878b93;
 }
 
-.dynamic-fee-value {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 150%;
+.value {
   text-transform: uppercase;
 }
 </style>

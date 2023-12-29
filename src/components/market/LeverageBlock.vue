@@ -10,11 +10,15 @@
     />
   </div>
 
-  <!-- <DynamicallyEstimatedPrice
-    v-if="chainId !== 2222"
-    :amount="formatUnits(expectedBorrowAmount)"
-    :mimAddress="cauldron.config.mimInfo.address"
-  /> -->
+  <div class="dynamic-wrap">
+    <DynamicallyEstimatedPrice
+      v-if="chainId !== 2222"
+      :amount="expectedBorrowAmount"
+      :mimAddress="cauldron.config.mimInfo.address"
+    />
+
+    <GmPriceImpact />
+  </div>
 </template>
 
 <script lang="ts">
@@ -23,7 +27,7 @@ import {
   getLiquidationPrice,
   getPositionHealth,
   applyBorrowFee,
-  PERCENT_PRESITION
+  PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
@@ -127,8 +131,14 @@ export default {
 
     updateLeverageAmounts() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
-      const multiplier = utils.parseUnits(String(this.multiplier), PERCENT_PRESITION);
-      const slippage = utils.parseUnits(String(this.slippage), PERCENT_PRESITION);
+      const multiplier = utils.parseUnits(
+        String(this.multiplier),
+        PERCENT_PRESITION
+      );
+      const slippage = utils.parseUnits(
+        String(this.slippage),
+        PERCENT_PRESITION
+      );
 
       const leverageAmounts = getLeverageAmounts(
         //@ts-ignore
@@ -153,7 +163,7 @@ export default {
         //@ts-ignore
         depositCollateralAmount > 0 ? depositCollateralAmount : undefined
       );
-      
+
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
       this.maxLeverageMultiplier = maxMultiplier;
     },
@@ -180,6 +190,9 @@ export default {
     DynamicallyEstimatedPrice: defineAsyncComponent(
       // @ts-ignore
       () => import("@/components/market/DynamicallyEstimatedPrice.vue")
+    ),
+    GmPriceImpact: defineAsyncComponent(
+      () => import("@/components/market/GmPriceImpact.vue")
     ),
   },
 };
@@ -236,5 +249,19 @@ export default {
 
 .range-wrap {
   margin-bottom: 16px;
+}
+
+.dynamic-wrap {
+  display: flex;
+  padding: 5px 12px;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
 }
 </style>
