@@ -6,8 +6,11 @@
           <TokenInfo :cauldron="cauldron" />
         </div>
 
-        <!-- todo add token to metamask -->
-        <IconButton wallet />
+        <IconButton
+          v-if="isAddCollateralButton"
+          wallet
+          @click="addCollateral"
+        />
 
         <IconButton link tag-name="a" :href="cauldronScanUrl" target="_blank" />
 
@@ -41,6 +44,7 @@ import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
 import { chainsList } from "@/helpers/chains";
+import { mapGetters } from "vuex";
 
 export default {
   props: {
@@ -50,6 +54,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      chainId: "getChainId",
+    }),
+
     strategyLink() {
       return this.cauldron.config.cauldronSettings.strategyLink;
     },
@@ -78,6 +86,35 @@ export default {
         chainsList[this.cauldron.config.chainId as keyof typeof chainsList]
           .blockExplorers.etherscan.url
       }/address/${this.cauldron.config.contract.address}`;
+    },
+
+    isAddCollateralButton() {
+      return this.chainId === this.cauldron.config.chainId;
+    },
+  },
+
+  methods: {
+    async addCollateral() {
+      const { ethereum }: any = window;
+      const { collateralInfo, icon } = this.cauldron.config;
+
+      try {
+        // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+        await ethereum.request({
+          method: "wallet_watchAsset",
+          params: {
+            type: "ERC20", // Initially only supports ERC20, but eventually more!
+            options: {
+              address: collateralInfo.address, // The address that the token is at.
+              symbol: collateralInfo.name, // A ticker symbol or shorthand, up to 5 chars.
+              decimals: collateralInfo.decimals, // The number of decimals in the token
+              image: icon, // A string url of the token logo
+            },
+          },
+        });
+      } catch (error) {
+        console.log("Add collateral token error:", error);
+      }
     },
   },
 

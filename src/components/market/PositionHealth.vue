@@ -142,9 +142,10 @@ export default {
 }
 
 .track-wrap {
-  display: flex;
+  display: grid;
+  gap: 5px;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
-  gap: 3px;
   color: #878b93;
   font-size: 12px;
   font-weight: 500;
@@ -152,10 +153,8 @@ export default {
 }
 
 .price-track {
-  max-width: 470px;
   width: 100%;
   height: 12px;
-  flex-shrink: 0;
   border-radius: 12px;
   background: linear-gradient(
     90deg,
@@ -178,7 +177,7 @@ export default {
     rgba(103, 160, 105, 0.3) 96.59%
   );
 
-  .indicator {
+  .price-indicator {
     background: linear-gradient(90deg, #356d37 0%, #67a069 96.59%);
   }
 }
@@ -190,7 +189,7 @@ export default {
     rgba(201, 187, 69, 0.3) 96.59%
   );
 
-  .indicator {
+  .price-indicator {
     background: linear-gradient(90deg, #a78300 0%, #fed84f 100%);
   }
 }
@@ -202,7 +201,7 @@ export default {
     rgba(140, 64, 64, 0.3) 100%
   );
 
-  .indicator {
+  .price-indicator {
     background: linear-gradient(90deg, #4f1717 0%, #8c4040 100%);
   }
 }
