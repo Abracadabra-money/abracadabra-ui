@@ -27,8 +27,7 @@
         </div>
 
         <div class="market-stats">
-          <div class="row">
-            <div></div>
+          <div class="position-health-wrap">
             <PositionHealth :cauldron="cauldron" />
           </div>
 
@@ -270,6 +269,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.position-health-wrap {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .row {

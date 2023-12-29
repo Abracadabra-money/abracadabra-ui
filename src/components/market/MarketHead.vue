@@ -27,6 +27,12 @@
           target="_blank"
           :text="tokenLinkData.label"
         />
+
+        <!-- todo style -->
+        <DepositButton :cauldron="cauldron" />
+
+        <!-- todo style -->
+        <ClaimButton :cauldron="cauldron" />
       </div>
 
       <div class="column">
@@ -130,6 +136,12 @@ export default {
     ),
     InfoButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/InfoButton.vue")
+    ),
+    DepositButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/DepositButton.vue")
+    ),
+    ClaimButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/ClaimButton.vue")
     ),
   },
 };
