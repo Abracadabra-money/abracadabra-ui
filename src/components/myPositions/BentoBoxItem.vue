@@ -21,8 +21,12 @@
     </div>
 
     <div class="button-description">
-      <BaseButton class="withdraw-button" @click="$emit('withdraw')">
-        Withdraw
+      <BaseButton
+        class="withdraw-button"
+        :disabled="isDisabled"
+        @click="actionHandler"
+      >
+        {{ buttonText }}
       </BaseButton>
 
       <div class="description">
@@ -55,6 +59,7 @@ export default {
     mimPrice: { type: Number, default: 0 },
     activeChains: { type: Array },
     activeChain: { type: [Number, String] },
+    currentChain: { type: [Number, String] },
   },
 
   data() {
@@ -67,7 +72,7 @@ export default {
 
   computed: {
     isDisabled() {
-      return !this.balance;
+      return !this.balance || !this.isProperChain;
     },
 
     boxIcon() {
@@ -76,6 +81,10 @@ export default {
 
     title() {
       return !this.isBento ? "DegenBox" : "BentoBox";
+    },
+
+    buttonText() {
+      return !this.isProperChain ? "Switch chain" : "Withdraw";
     },
 
     link() {
@@ -90,10 +99,19 @@ export default {
     balanceInUsd() {
       return this.parsedBalance * this.mimPrice;
     },
+
+    isProperChain() {
+      return this.currentChain == this.activeChain;
+    },
   },
 
   methods: {
     getChainIcon,
+
+    actionHandler() {
+      if (this.isDisabled) return false;
+      this.$emit("withdraw");
+    },
 
     formatUSD(value) {
       return filters.formatUSD(value);
@@ -186,7 +204,7 @@ export default {
   flex-wrap: wrap;
   gap: 4px;
   top: 12px;
-  left: 27%;
+  left: 176px;
   max-width: 200px;
 }
 

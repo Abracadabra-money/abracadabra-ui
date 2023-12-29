@@ -3,19 +3,22 @@
     <BentoBoxItem
       @withdraw="openPopup(false)"
       @chooseActiveChain="chooseActiveDegenChain"
-      :balance="currentChainBentoConfig.mimInDegenBalance"
-      :mimPrice="currentChainBentoConfig.mimPrice"
+      :balance="activeChainDegenConfig.mimInDegenBalance"
+      :mimPrice="activeChainDegenConfig.mimPrice"
       :activeChains="activeChains.degen"
       :activeChain="activeDegenChain"
+      :currentChain="chainId"
+      v-if="activeChains.degen.length"
     />
 
     <BentoBoxItem
       @withdraw="openPopup(true)"
       @chooseActiveChain="chooseActiveBentoChain"
-      :balance="currentChainBentoConfig.mimInBentoBalance"
-      :mimPrice="currentChainBentoConfig.mimPrice"
+      :balance="activeChainBentoConfig.mimInBentoBalance"
+      :mimPrice="activeChainBentoConfig.mimPrice"
       :activeChains="activeChains.bento"
       :activeChain="activeBentoChain"
+      :currentChain="chainId"
       :isBento="true"
     />
 
@@ -55,8 +58,8 @@ export default {
       popupData: { ...initialPopupData },
       bentoUpdateInterval: null,
       bentoBoxConfigs: null,
-      activeBentoChain: this.activeChains?.bento[0],
-      activeDegenChain: this.activeChains?.degen[0],
+      activeBentoChain: null,
+      activeDegenChain: null,
     };
   },
 
@@ -69,9 +72,9 @@ export default {
     activeChains() {
       let bento = [];
       let degen = [];
-      this.bentoBoxConfigs.forEach((config) => {
-        if (true) bento.push(config.chainId);
-        if (true) degen.push(config.chainId);
+      this.bentoBoxConfigs?.forEach((config) => {
+        if (config.mimInBentoBalance) bento.push(config.chainId);
+        if (config.mimInDegenBalance) degen.push(config.chainId);
       });
       return { bento, degen };
     },
@@ -82,7 +85,20 @@ export default {
       );
     },
 
+    activeChainBentoConfig() {
+      return this.bentoBoxConfigs?.find(
+        (config) => this.activeBentoChain == config.chainId
+      );
+    },
+
+    activeChainDegenConfig() {
+      return this.bentoBoxConfigs?.find(
+        (config) => this.activeDegenChain == config.chainId
+      );
+    },
+
     isVisible() {
+      //
       return this.bentoBoxConfigs;
       return (
         (this.currentChainBentoConfig?.mimInBentoBalance ||
@@ -95,6 +111,11 @@ export default {
   watch: {
     async account() {
       await this.createMimBentoData();
+    },
+
+    activeChains(newValue) {
+      this.activeBentoChain = newValue.bento[0];
+      this.activeDegenChain = newValue.degen[0];
     },
   },
 
@@ -120,7 +141,7 @@ export default {
       this.bentoBoxConfigs = await Promise.all(
         this.activeNetworks.map(async (chainId) => {
           const config = await createBentoBoxConfig(chainId, this.account);
-          return { chainId, ...config };
+          return config;
         })
       );
 
@@ -128,7 +149,7 @@ export default {
         this.bentoBoxConfigs = await Promise.all(
           this.activeNetworks.map(async (chainId) => {
             const config = await createBentoBoxConfig(chainId, this.account);
-            return { chainId, ...config };
+            return config;
           })
         );
       }, 5000);
@@ -140,7 +161,7 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.bentoUpdateInterval);
+    clearInterval(this.bentoBoxConfigs);
   },
 
   components: {

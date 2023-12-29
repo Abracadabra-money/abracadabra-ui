@@ -33,18 +33,9 @@
         :error="error"
       />
 
-      <BaseButton
-        v-if="!isApproved && isDeposit"
-        :disabled="isDisabled"
-        primary
-        @click="approveToken"
-        >Approve</BaseButton
-      >
-      <template v-else>
-        <BaseButton @click="actionHandler" :disabled="isDisabled">{{
-          buttonText
-        }}</BaseButton>
-      </template>
+      <BaseButton @click="actionHandler" :disabled="isDisabled">{{
+        buttonText
+      }}</BaseButton>
     </div>
   </div>
 </template>

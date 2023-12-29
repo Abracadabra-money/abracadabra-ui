@@ -74,7 +74,7 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     collateralSymbol() {
-      return this.chainId === 42161 && this.cauldron.config.id === 2
+      return this.cauldron.chainId === 42161 && this.cauldron.config.id === 2
         ? this.cauldron.config?.wrapInfo?.unwrappedToken?.name
         : this.cauldron.config?.collateralInfo.name;
     },

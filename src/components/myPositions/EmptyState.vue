@@ -1,30 +1,48 @@
 <template>
-  <div class="wrap">
-    <img
-      class="image"
-      src="@/assets/images/empty-pos-list.png"
-      alt="Empty list"
-    />
-    <p class="title">No open positions</p>
+  <div class="empty-block">
+    <img class="icon" :src="icon" alt="Icon" />
+    <p class="text">{{ text }}</p>
   </div>
 </template>
 
+<script>
+import { useImage } from "@/helpers/useImage";
+export default {
+  props: {
+    isLoading: { type: Boolean },
+  },
+
+  computed: {
+    icon() {
+      return this.isLoading
+        ? useImage("assets/gifs/MIM_loader.gif")
+        : useImage("assets/images/empty.png");
+    },
+
+    text() {
+      return this.isLoading ? "Loading positions." : "There are no positions.";
+    },
+  },
+};
+</script>
+
 <style lang="scss" scoped>
-.wrap {
+.empty-block {
+  padding: 100px 0;
   display: flex;
-  flex-direction: column;
+  gap: 12px;
   align-items: center;
-  text-align: center;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.image {
-  max-width: 246px;
-  margin-bottom: 30px;
+.icon {
+  width: 120px;
+  height: 120px;
 }
-.title {
-  font-size: 18px;
-  line-height: 27px;
-  letter-spacing: 0.025em;
-  color: rgba(255, 255, 255, 0.6);
+
+.text {
+  font-weight: 600;
+  line-height: 150%;
 }
 </style>

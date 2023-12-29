@@ -29,6 +29,8 @@ export const createBentoBoxConfig = async (
     (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
 
+  if (!bentoContractInfo || !degenContractInfo) return false;
+
   const mimPrice = await getTokenPriceByChain(
     tokensChainLink.mim.chainId,
     tokensChainLink.mim.address
@@ -94,6 +96,7 @@ export const createBentoBoxConfig = async (
     });
 
   return {
+    chainId,
     mimBalance: mimBalance.result,
     mimPrice,
     mimInBentoBalance,

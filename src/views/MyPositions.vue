@@ -3,9 +3,12 @@
     <div class="position-page">
       <MyPositionsInfo v-if="totalAssets" :totalAssetsData="totalAssetsData" />
 
-      <BentoBoxBlock :activeNetworks="activeNetworks" />
+      <BentoBoxBlock
+        v-if="activeChains.length"
+        :activeNetworks="activeChains"
+      />
 
-      <div class="positions-list-head">
+      <div class="positions-list-head" v-if="sortedCauldrons.length">
         <button class="filters" @click="isFiltersPopupOpened = true">
           <img src="@/assets/images/filters.png" />
           Filters
@@ -20,16 +23,22 @@
           >
         </div>
 
-        <ChainsDropdown />
+        <ChainsDropdown
+          :activeChains="activeChains"
+          :selectedChains="selectedChains"
+          @updateSelectedChain="updateSelectedChain"
+        />
       </div>
 
-      <div class="positions-list">
+      <div class="positions-list" v-if="sortedCauldrons.length">
         <CauldronPositionItem
           v-for="cauldron in sortedCauldrons"
           :key="cauldron.id"
           :cauldron="cauldron"
         />
       </div>
+
+      <EmptyBlock v-else :isLoading="positionsIsLoading" />
     </div>
 
     <FiltersPopup
@@ -54,6 +63,7 @@ import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
 import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
 
+import EmptyBlock from "@/components/myPositions/EmptyState.vue";
 import { providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
@@ -63,8 +73,7 @@ const APR_KEY = "abracadabraCauldronsApr";
 export default {
   data() {
     return {
-      activeNetworks: [1, 56, 250, 42161, 43114],
-      activeNetwork: 5,
+      selectedChains: [0],
       updateInterval: null,
       cauldrons: [],
       positionsIsLoading: true,
@@ -84,7 +93,10 @@ export default {
     }),
 
     sortedCauldrons() {
-      return this.sortByKey([...this.cauldrons], this.sortKey);
+      return this.filterByChain(
+        this.sortByKey([...this.cauldrons], this.sortKey),
+        this.selectedChains
+      );
     },
 
     isEmpyState() {
@@ -117,6 +129,13 @@ export default {
         { key: "mimBorrowed", text: "MIM borrowed" },
         { key: "apr", text: "APR" },
       ];
+    },
+
+    activeChains() {
+      return this.cauldrons.reduce((acc, { config }) => {
+        if (!acc.includes(config.chainId)) acc.push(config.chainId);
+        return acc;
+      }, []);
     },
   },
 
@@ -160,27 +179,39 @@ export default {
       return key === this.sortKey ? this.sortOrder : null;
     },
 
+    updateSelectedChain(chainId) {
+      if (!chainId) {
+        const value = this.selectedChains.includes(0) ? [] : [0];
+        return (this.selectedChains = value);
+      }
+
+      if (this.selectedChains.includes(0)) this.selectedChains = [];
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
+    },
+
+    filterByChain(cauldrons, selectedChains) {
+      if (selectedChains.includes(0)) return cauldrons;
+      return cauldrons.filter((cauldron) => {
+        return selectedChains.includes(cauldron.config?.chainId);
+      });
+    },
+
     async createOpenPositions() {
       if (!this.account) {
         this.positionsIsLoading = false;
         return false;
       }
 
-      this.cauldrons = await getUserOpenPositions(
-        this.chainId,
-        this.account,
-        this.provider
-      );
+      this.cauldrons = await getUserOpenPositions(this.account);
       await this.getCollateralsApr();
       this.totalAssets = getUsersTotalAssets(this.cauldrons);
       this.positionsIsLoading = false;
 
       this.updateInterval = setInterval(async () => {
-        this.cauldrons = await getUserOpenPositions(
-          this.chainId,
-          this.account,
-          this.provider
-        );
+        this.cauldrons = await getUserOpenPositions(this.account);
         await this.getCollateralsApr();
         this.totalAssets = getUsersTotalAssets(this.cauldrons);
       }, 60000);
@@ -251,6 +282,7 @@ export default {
     ChainsDropdown,
     SortButton,
     FiltersPopup,
+    EmptyBlock,
   },
 };
 </script>
