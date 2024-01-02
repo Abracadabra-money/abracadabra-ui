@@ -1,5 +1,5 @@
 <template>
-  <div class="bento-wrapper" v-if="isVisible">
+  <div class="bento-wrapper">
     <BentoBoxItem
       @withdraw="openPopup(false)"
       @chooseActiveChain="chooseActiveDegenChain"
@@ -19,6 +19,7 @@
       :activeChains="activeChains.bento"
       :activeChain="activeBentoChain"
       :currentChain="chainId"
+      v-if="activeChains.bento.length"
       :isBento="true"
     />
 
@@ -36,7 +37,6 @@ import { mapGetters } from "vuex";
 import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
-import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 
 import { createBentoBoxConfig } from "@/helpers/bentoBox/createBentoBoxConfig.ts";
 
@@ -98,8 +98,6 @@ export default {
     },
 
     isVisible() {
-      //
-      return this.bentoBoxConfigs;
       return (
         (this.currentChainBentoConfig?.mimInBentoBalance ||
           this.currentChainBentoConfig?.mimInDegenBalance) &&
@@ -166,7 +164,6 @@ export default {
 
   components: {
     BentoBoxItem,
-    LocalPopupWrap,
     DegenBentoPopup,
   },
 };

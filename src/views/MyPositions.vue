@@ -19,6 +19,7 @@
             v-for="data in sortersData"
             :sortOrder="getSortOrder(data.key)"
             @click="updateSortKey(data.key)"
+            :key="data.key"
             >{{ data.text }}</SortButton
           >
         </div>
