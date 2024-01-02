@@ -28,7 +28,7 @@
 
         <div class="market-stats">
           <div class="position-health-wrap">
-            <PositionHealth :cauldron="cauldron" />
+            <PositionHealth v-if="isOpenPosition" :cauldron="cauldron" />
           </div>
 
           <div class="row">
@@ -118,6 +118,13 @@ export default {
 
   computed: {
     ...mapGetters({ account: "getAccount", signer: "getSigner" }),
+
+    isOpenPosition() {
+      return (
+        this.cauldron.userPosition.collateralInfo.userCollateralShare.gt(0) ||
+        this.cauldron.userPosition.borrowInfo.userBorrowPart.gt(0)
+      );
+    },
 
     isBorrowTab() {
       return this.activeTab === "borrow";
@@ -273,6 +280,7 @@ export default {
 }
 
 .position-health-wrap {
+  height: 50px;
   display: flex;
   justify-content: flex-end;
 }

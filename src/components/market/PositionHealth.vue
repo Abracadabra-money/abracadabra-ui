@@ -6,7 +6,7 @@
     </div>
 
     <div class="track-wrap">
-      <span> {{ formatUSD(startPrice, collateralDecimals) }}</span>
+      <span> {{ startPrice }}</span>
 
       <div :class="['price-track', positionHealth.status]">
         <div class="price-indicator"></div>
@@ -83,9 +83,19 @@ export default {
     },
 
     startPrice() {
-      const percent = Math.round(100 - Number(this.positionHealth.percent));
-      if (percent === 100) return 0;
-      return this.collateralInUsd.div(100).mul(percent < 10 ? 90 : percent);
+      const tokenPrice = Number(
+        utils.formatUnits(this.collateralInUsd, this.collateralDecimals)
+      );
+
+      const health = Number(this.positionHealth.percent);
+
+      const healthleft = 100 - health;
+
+      const startPercent = health - healthleft <= 0 ? 0 : health - healthleft;
+
+      const leftPrice = (tokenPrice / 100) * startPercent;
+
+      return filters.formatUSD(filters.formatToFixed(leftPrice.toString(), 2));
     },
   },
 
