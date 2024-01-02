@@ -21,13 +21,13 @@
     </div>
 
     <div class="button-description">
-      <BaseButton
+      <button
         class="withdraw-button"
         :disabled="isDisabled"
         @click="actionHandler"
       >
         {{ buttonText }}
-      </BaseButton>
+      </button>
 
       <div class="description">
         <span class="description"> MIM Balance on {{ title }}</span>
@@ -42,14 +42,13 @@
 
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
 import degenIcon from "@/assets/images/degenbox.svg";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import filters from "@/filters/index.js";
 import { ethers, BigNumber } from "ethers";
 import { formatUnits } from "viem";
-
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
@@ -72,7 +71,7 @@ export default {
 
   computed: {
     isDisabled() {
-      return !this.balance || !this.isProperChain;
+      return !this.balance && this.isProperChain;
     },
 
     boxIcon() {
@@ -84,7 +83,7 @@ export default {
     },
 
     buttonText() {
-      return !this.isProperChain ? "Switch chain" : "Withdraw";
+      return !this.isProperChain ? "Switch network" : "Withdraw";
     },
 
     link() {
@@ -109,6 +108,10 @@ export default {
     getChainIcon,
 
     actionHandler() {
+      if (!this.isProperChain) {
+        switchNetwork(this.activeChain);
+        return;
+      }
       if (this.isDisabled) return false;
       this.$emit("withdraw");
     },
@@ -124,7 +127,6 @@ export default {
 
   components: {
     BaseTokenIcon,
-    BaseButton,
   },
 };
 </script>
@@ -243,6 +245,15 @@ export default {
   border-radius: 10px;
   border: 2px solid #fff;
   background: rgba(255, 255, 255, 0.01);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.withdraw-button:hover,
+.withdraw-button:disabled {
+  opacity: 0.5;
 }
 
 .description {
