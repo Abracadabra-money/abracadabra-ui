@@ -1,10 +1,15 @@
 <template>
   <div class="settings-popup">
     <div>
-      <p class="title">Advanced settings</p>
-      <div class="subtitle-wrap">
-        <p class="subtitle">Gas on destination chain</p>
+      <div class="title-wrap">
+        <p class="title">Gas on destination chain</p>
         <Tooltip :tooltip="tooltip" />
+        <img
+          class="popup-close"
+          @click="$emit('closeSettings')"
+          src="@/assets/images/cross.svg"
+          alt="Close popup"
+        />
       </div>
 
       <div class="btns-wrap">
@@ -15,7 +20,6 @@
       </div>
 
       <div class="input-wrap">
-        <img class="input-icon" :src="config.icon" alt="Icon" />
         <input
           class="input"
           v-model="inputValue"
@@ -23,7 +27,15 @@
           placeholder="0.0"
         />
 
-        <button class="input-btn" @click="updateInputValue(max)">max</button>
+        <div class="input-token-info">
+          <img
+            class="input-icon"
+            :src="config.icon"
+            alt="Icon"
+            @click="updateInputValue(max)"
+          />
+          {{ config.nativeSymbol }}
+        </div>
       </div>
       <p class="value-error">
         <span v-if="error">{{ error }}</span>
@@ -164,30 +176,38 @@ export default {
 .settings-popup {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 480px;
-  max-width: 400px;
+  gap: 40px;
+  height: 100%;
   width: 100%;
-  padding: 10px 10px 14px;
+  padding: 28px 28px 38px 28px;
+  border-radius: 20px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
-.title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 150%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-}
-
-.subtitle-wrap {
+.title-wrap {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
+  gap: 8px;
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+.popup-close {
+  margin-left: auto;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.popup-close:hover {
+  opacity: 0.7;
 }
 
 .btns-wrap {
@@ -199,41 +219,38 @@ export default {
 }
 
 .setting-btn {
-  text-decoration: none;
-  width: 84px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  align-items: center;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  border: transparent;
-  width: 50%;
-  height: 50px;
+  width: 100%;
+  padding: 12px 40px;
+  border-radius: 16px;
+  border: 2px solid #7088cc;
+  background: rgba(255, 255, 255, 0.01);
+  color: #7088cc;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease-in;
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
+  transition: all 0.3s ease;
+}
+
+.setting-btn:hover {
+  color: #7088cc;
+  border: 2px solid #86a2f1;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .input-wrap {
   display: flex;
   align-items: center;
-  background: rgba(129, 126, 166, 0.2);
   height: 70px;
-  width: 100%;
-  font-size: 20px;
-  border-radius: 20px;
+  align-self: stretch;
+  padding: 0px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(73, 70, 97, 0.4);
+  background: rgba(8, 14, 31, 0.6);
 }
 
 .input-icon {
   max-width: 30px;
   margin-left: 15px;
-  border-radius: 100%;
 }
 
 .input {
@@ -249,41 +266,31 @@ export default {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.input-btn {
-  height: 60px;
-  max-width: 80px;
-  width: 100%;
-  text-align: center;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border: none;
-  color: #fff;
+.input-token-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-}
-
-.input-btn:disabled {
-  cursor: default;
 }
 
 .popup-footer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
 }
 
 .footer-text {
-  font-size: 18px;
-  line-height: 150%;
   text-align: center;
-  letter-spacing: 0.025em;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  max-width: 45%;
 }
 
 .bottom-link {
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+  text-decoration: underline;
+  color: white;
   margin-right: 5px;
 }
 

@@ -1,25 +1,30 @@
 <template>
-  <div class="popup-wrap" v-if="isOpen" @click="closePopup">
-    <div class="popup">
+  <div class="popup" v-if="isOpen" @click="closePopup">
+    <h3 class="title">
+      Select network
       <img
         class="popup-close"
         @click="closePopup"
         src="@/assets/images/cross.svg"
         alt="Close popup"
       />
-      <h3 class="title">Select network</h3>
-      <div class="content-wrap">
-        <div
-          class="select-item"
-          :class="network.chainId === activeChain && selectChain && 'active'"
-          v-for="(network, inx) in networksArr"
-          :key="inx"
-          @click="enterChain(network.chainId)"
-        >
-          <div class="description">
-            <img class="chain-icon" :src="network.icon" alt="Icon" />
-            <p>{{ network.title }}</p>
-          </div>
+    </h3>
+    <div class="content-wrap">
+      <div
+        class="select-item"
+        :class="network.chainId === activeChain && selectChain && 'active'"
+        v-for="(network, inx) in networksArr"
+        :key="inx"
+        @click="enterChain(network.chainId)"
+      >
+        <div class="description">
+          <img
+            class="current-chain-marker"
+            src="@/assets/images/beam/current-chain-marker.png"
+            v-if="network.chainId == currentChainId"
+          />
+          <img class="chain-icon" :src="network.icon" alt="Icon" />
+          <p>{{ network.title }}</p>
         </div>
       </div>
     </div>
@@ -46,6 +51,7 @@ export default {
     selectChain: {
       type: Boolean,
     },
+    currentChainId: { type: Number },
   },
 
   methods: {
@@ -62,67 +68,61 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.popup-wrap {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-  padding: $headerHeight 10px 60px;
-  background: rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(20px);
-}
-
 .popup {
-  max-width: 585px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
   width: 100%;
-  padding: 20px 20px 30px;
-  background: #302e38;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  border-radius: 30px;
-  position: relative;
+  padding: 28px 28px 38px 28px;
+  border-radius: 20px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .popup-close {
-  width: 14px;
-  height: 14px;
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  width: 17.5px;
+  height: 17.5px;
   cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.popup-close:hover {
+  opacity: 0.7;
 }
 
 .title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 23px;
-  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 24px;
+  font-weight: 500;
 }
 
 .content-wrap {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-gap: 20px;
+  grid-gap: 4px;
+  width: 100%;
 }
 
 .select-item {
-  max-width: 168px;
   border: 2px solid transparent;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.04);
+  min-width: 100%;
   border-radius: 20px;
   padding: 16px;
   cursor: pointer;
 }
 
 .description {
+  position: relative;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -132,6 +132,12 @@ export default {
 .chain-icon {
   width: 60px;
   height: 60px;
+}
+
+.current-chain-marker {
+  position: absolute;
+  top: -10%;
+  right: 15%;
 }
 
 @media screen and (max-width: 500px) {

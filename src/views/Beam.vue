@@ -2,91 +2,93 @@
   <div class="beam-view" v-if="beamConfig">
     <div class="beam">
       <div class="beam-header">
-        <h3 class="title">Beam</h3>
+        <div class="title-desc">
+          <h3 class="title">Beam</h3>
+          <p class="description">Move your MIM across networks</p>
+        </div>
 
         <div class="settings-btns">
-          <WalletButton
+          <BeamSettingsButton
             :active="isShowDstAddress"
             @click="toggleDstAddress"
             :disabled="isActionsDisabled"
           />
-          <SettingsButton
+          <BeamSettingsButton
             :active="isSettingsOpened"
-            @click="isSettingsOpened = true"
+            @click="toggleSettings"
             :disabled="isActionsDisabled"
+            buttonType="settings"
           />
         </div>
       </div>
 
-      <ChainsWrap
-        :fromChain="originChain"
-        :toChain="dstChain"
+      <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
+        <ChainsWrap
+          :fromChain="originChain"
+          :toChain="dstChain"
+          :selectChain="isSelectedChain"
+          @switch-chain="switchChain"
+          @change-network="openNetworkPopup"
+        />
+
+        <div class="inputs-wrap">
+          <div>
+            <InputLabel title="MIM to beam" :showBalance="false" />
+            <BaseTokenInput
+              class="beam-input"
+              :max="beamConfig.balance"
+              :value="amount"
+              :name="'MIM'"
+              :icon="$image('assets/images/tokens/MIM.png')"
+              :error="amountError"
+              @update-value="updateMainValue"
+              :disabled="isActionsDisabled"
+            />
+          </div>
+
+          <InputAddress
+            v-if="isShowDstAddress"
+            @update-input="updateDestinationAddress"
+            @error-input="errorDestinationAddress"
+          />
+        </div>
+
+        <ExpectedBlock
+          :data="expectedConfig"
+          @open-settings="isSettingsOpened = true"
+        />
+
+        <div :class="{ 'wrap-btn': account }">
+          <BaseButton
+            :primary="true"
+            :disabled="disableBtn"
+            @click="actionHandler"
+            >{{ actionBtnText }}</BaseButton
+          >
+        </div>
+
+        <p class="caption">
+          <span class="caption-text">Powered By</span
+          ><img
+            class="caption-icon"
+            src="@/assets/images/beam/layer-zero.svg"
+            alt=""
+          />
+        </p>
+      </div>
+
+      <ChainsPopup
+        :isOpen="isOpenNetworkPopup"
+        :networksArr="popupNetworksArr"
+        :activeChain="activePopupChain"
+        :popupType="popupType"
         :selectChain="isSelectedChain"
-        @switch-chain="switchChain"
-        @change-network="openNetworkPopup"
+        :currentChainId="chainId"
+        @close-popup="closeNetworkPopup"
+        @enter-chain="changeChain"
+        v-if="isOpenNetworkPopup"
       />
 
-      <div class="inputs-wrap">
-        <div>
-          <InputLabel title="Token to beam" :amount="mimBalance" />
-          <BaseTokenInput
-            :max="beamConfig.balance"
-            :value="amount"
-            :name="'MIM'"
-            :icon="$image('assets/images/tokens/MIM.png')"
-            :error="amountError"
-            @update-value="updateMainValue"
-            :disabled="isActionsDisabled"
-          />
-        </div>
-
-        <InputAddress
-          v-if="isShowDstAddress"
-          @update-input="updateDestinationAddress"
-          @error-input="errorDestinationAddress"
-        />
-      </div>
-
-      <ExpectedBlock
-        :data="expectedConfig"
-        @open-settings="isSettingsOpened = true"
-      />
-
-      <div :class="{ 'wrap-btn': account }">
-        <BaseButton
-          :primary="true"
-          :disabled="disableBtn"
-          @click="actionHandler"
-          >{{ actionBtnText }}</BaseButton
-        >
-      </div>
-
-      <template v-if="account">
-        <BeamHistory :historyArr="beamHistoryArr" />
-
-        <button
-          class="btn-more"
-          v-if="isVisibilityMoreButton"
-          @click="seeMoreHistory"
-        >
-          Show more
-        </button>
-      </template>
-
-      <p class="caption">
-        <span class="caption-text">Powered By</span
-        ><img
-          class="caption-icon"
-          src="@/assets/images/beam/layer-zero.svg"
-          alt=""
-        />
-      </p>
-    </div>
-
-    <LocalPopupWrap
-      :isOpened="isSettingsOpened"
-      @close-popup="isSettingsOpened = false"
-    >
       <SettingsPopup
         :value="dstTokenAmount"
         :mimAmount="amountError ? '0' : amount"
@@ -96,25 +98,17 @@
         @change-settings="changeSettings"
         @close-settings="isSettingsOpened = false"
         @error-settings="errorSettings"
-    /></LocalPopupWrap>
-
-    <LocalPopupWrap
-      :isOpened="isOpenSuccessPopup"
-      @close-popup="isOpenSuccessPopup = false"
-    >
-      <SuccessPopup :config="successData" />
-    </LocalPopupWrap>
-
-    <ChainsPopup
-      :isOpen="isOpenNetworkPopup"
-      :networksArr="popupNetworksArr"
-      :activeChain="activePopupChain"
-      :popupType="popupType"
-      :selectChain="isSelectedChain"
-      @close-popup="closeNetworkPopup"
-      @enter-chain="changeChain"
-    />
+        v-if="isSettingsOpened"
+      />
+    </div>
   </div>
+
+  <LocalPopupWrap
+    :isOpened="isOpenSuccessPopup"
+    @close-popup="isOpenSuccessPopup = false"
+  >
+    <SuccessPopup :config="successData" />
+  </LocalPopupWrap>
 </template>
 
 <script>
@@ -279,10 +273,10 @@ export default {
     actionBtnText() {
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
-      if (this.isApproving) return "Approving MIM";
-      if (!this.isTokenApproved) return "Approve MIM";
-      if (this.isBeaming) return "Beaming MIM";
-      return "Beam MIM";
+      if (this.isApproving) return "Approving";
+      if (!this.isTokenApproved) return "Approve";
+      if (this.isBeaming) return "Beaming";
+      return "Beam";
     },
 
     mimBalance() {
@@ -335,8 +329,10 @@ export default {
         mimAmount: this.amount,
         dstTokenAmount: this.dstTokenAmount,
         dstTokenSymbol: this.dstTokenInfo?.symbol,
+        dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
         gasCost: this.formatFee,
         srcTokenSymbol: this.srcTokenInfo?.symbol,
+        srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
       };
     },
 
@@ -413,6 +409,10 @@ export default {
 
     toggleDstAddress() {
       this.isShowDstAddress = !this.isShowDstAddress;
+    },
+
+    toggleSettings() {
+      this.isSettingsOpened = !this.isSettingsOpened;
     },
 
     async switchChain() {
@@ -709,7 +709,7 @@ export default {
 
   components: {
     BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+      import("@/components/ui/inputs/TokenInput.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
@@ -729,14 +729,11 @@ export default {
     SuccessPopup: defineAsyncComponent(() =>
       import("@/components/beam/successPopup/SuccessPopup.vue")
     ),
-    WalletButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/WalletButton.vue")
-    ),
-    SettingsButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/SettingsButton.vue")
+    BeamSettingsButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/BeamSettingsButton.vue")
     ),
     InputAddress: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputAddress.vue")
+      import("@/components/beam/InputAddress.vue")
     ),
     InputLabel: defineAsyncComponent(() =>
       import("@/components/ui/inputs/InputLabel.vue")
@@ -744,43 +741,77 @@ export default {
     ExpectedBlock: defineAsyncComponent(() =>
       import("@/components/beam/ExpectedBlock.vue")
     ),
-    BeamHistory: defineAsyncComponent(() =>
-      import("@/components/beam/history/BeamHistory.vue")
-    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .beam-view {
+  display: flex;
+  justify-content: center;
   padding: 100px 15px;
+  min-height: 100vh;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    291deg,
+    #102649 -26.37%,
+    #0c0f1c 40.92%,
+    #131728 62.83%,
+    #212555 123.87%
+  );
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .beam {
-  max-width: 740px;
+  max-width: 533px;
   width: 100%;
-  margin: 0 auto;
-  padding: 30px 95px;
-  background: #2a2835;
-  backdrop-filter: blur(100px);
-  border-radius: 30px;
+  margin-top: 50px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 32px;
   position: relative;
 }
 
 .beam-header {
   position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-desc {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
 }
 
 .title {
   font-weight: 600;
-  font-size: 24px;
-  line-height: 150%;
-  text-align: center;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
+  font-size: 32px;
+}
+
+.description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.beam-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+  padding: 28px 28px 38px 28px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .progress-text:first-letter {
@@ -813,11 +844,18 @@ export default {
 .inputs-wrap {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  width: 100%;
+  margin: 40px 0 16px 0;
+  gap: 16px;
+}
+
+.beam-input {
+  width: 100%;
 }
 
 .wrap-btn {
-  padding-bottom: 30px;
+  width: 100%;
+  margin: 40px 0 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 

@@ -1,0 +1,203 @@
+<template>
+    <div class="wrap">
+      <div class="val-input">
+        <div class="token-input-wrap">
+          <input
+            name="tokenInput"
+            class="text-field"
+            v-model="inputValue"
+            type="text"
+            placeholder="0.0"
+          />
+          <p class="usd-equivalent">{{ usdEquivalent }}</p>
+        </div>
+  
+        <div class="token-input-info">
+          <div class="token-info">
+            <BaseTokenIcon :icon="icon" :name="name" size="28px" />
+            <span class="token-name">
+              {{ name }}
+            </span>
+          </div>
+  
+          <p class="wallet-balance">
+            <WalletIcon
+              :width="13"
+              :height="13"
+              fill="#575C62"
+              @click="inputValue = formattedMax"
+            />
+            {{ formatTokenBalance(formattedMax) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <script lang="ts">
+  import { BigNumber, utils } from "ethers";
+  // @ts-ignore
+  import filters from "@/filters/index";
+  import { defineAsyncComponent } from "vue";
+  import { formatUnits } from "viem";
+  
+  export default {
+    props: {
+      decimals: { type: Number, default: 18 },
+      isBigNumber: { type: Boolean, default: false },
+      max: {},
+      value: {}, // TODO: use bignumber (bigint) & parse in data.inputValue
+      icon: {
+        type: String,
+      },
+      name: {
+        type: String,
+        default: "Select Farm",
+      },
+      tokenPrice: {},
+    },
+  
+    data(): any {
+      return {
+        inputValue: this.value,
+      };
+    },
+  
+    computed: {
+      formattedMax() {
+        if (this.isBigNumber)
+          return utils.formatUnits(this.max || 0, this.decimals);
+        return formatUnits(this.max || 0, 18);
+      },
+  
+      usdEquivalent(): any {
+        return filters.formatUSD(this.inputValue * this.tokenPrice);
+      },
+    },
+  
+    watch: {
+      inputValue(value, oldValue) {
+        if (!value) {
+          this.$emit("updateInputValue", null);
+          return;
+        }
+  
+        if (isNaN(value)) {
+          this.inputValue = oldValue;
+          return false;
+        }
+  
+        if (this.isBigNumber) {
+          const emitValue = !value
+            ? BigNumber.from(0)
+            : utils.parseUnits(
+                filters.formatToFixed(value, this.decimals),
+                this.decimals
+              );
+  
+          this.$emit("updateInputValue", emitValue);
+        } else this.$emit("updateInputValue", BigInt(Number(value) * 1e18));
+      },
+  
+      value(value) {
+        this.inputValue = value;
+      },
+    },
+  
+    methods: {
+      formatTokenBalance(tokenAmount: number) {
+        return filters.formatTokenBalance(tokenAmount);
+      },
+    },
+  
+    components: {
+      BaseTokenIcon: defineAsyncComponent(
+        () => import("@/components/base/BaseTokenIcon.vue")
+      ),
+      WalletIcon: defineAsyncComponent(
+        () => import("@/components/ui/icons/WalletIcon.vue")
+      ),
+    },
+  };
+  </script>
+  
+  <style lang="scss" scoped>
+  .wrap {
+    width: 100%;
+  }
+  
+  .val-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 22px;
+    border-radius: 16px;
+    border: 1px solid rgba(73, 70, 97, 0.4);
+    background: rgba(8, 14, 31, 0.6);
+    width: 100%;
+  }
+  
+  .token-input-wrap,
+  .token-input-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 4px;
+    height: 100%;
+    max-width: 50%;
+  }
+  
+  .text-field {
+    height: 32px;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 500;
+    background-color: transparent;
+    border: none;
+  }
+  
+  .text-field:focus {
+    outline: none;
+    border: none;
+  }
+  
+  .usd-equivalent {
+    color: #575c62;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  
+  .token-input-info {
+    align-items: end;
+  }
+  
+  .token-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(111, 111, 111, 0.06);
+    padding: 4px;
+    height: 36px;
+  }
+  
+  .token-name {
+    text-wrap: nowrap;
+  }
+  
+  .wallet-balance {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 4px;
+    color: #575c62;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  
+  .wallet-icon {
+    cursor: pointer;
+  }
+  </style>
