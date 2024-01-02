@@ -34,6 +34,7 @@ export const getLiquidationPrice = (
   return liquidationPrice;
 };
 
+// TODO: add userMaxBorrow check
 export const getMaxToBorrow = (
   collateralAmount: BigNumber,
   userBorrowAmount: BigNumber,

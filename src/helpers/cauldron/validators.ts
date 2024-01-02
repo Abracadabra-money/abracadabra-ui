@@ -1,0 +1,402 @@
+import type { ActionConfig, CauldronInfo } from "@/helpers/cauldron/types";
+import { getCookTypeByAction, ACTION_TYPES } from "./getCookActionType";
+import { getExpectedPostition } from "./getExpectedPosition";
+import { expandDecimals } from "../gm/fee/expandDecials";
+import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+
+const WARNING_TYPES = {
+  DEPOSIT_ALLOWANCE: 0,
+  DEPOSIT_BALANCE: 1,
+  REPAY_ALLOWANCE: 2,
+  REPAY_BALANCE: 3,
+  CAULDRON_MIM_LEFT: 4,
+  WITHDRAWABLE_AMOUNT: 5,
+  USER_MAX_TO_BORROW: 6,
+  POSITION_LIQUIDATION: 7,
+  POSITION_MAX_TO_BORROW: 8,
+  POSITION_MAX_TO_REPAY: 9,
+  POSITION_MAX_TO_REMOVE: 10,
+};
+
+const WARNINGS_BTN_TEXT = {
+  [WARNING_TYPES.DEPOSIT_ALLOWANCE]: "Approve",
+  [WARNING_TYPES.DEPOSIT_BALANCE]: "Insufficient balance",
+  [WARNING_TYPES.REPAY_ALLOWANCE]: "Approve",
+  [WARNING_TYPES.REPAY_BALANCE]: "Insufficient balance",
+  [WARNING_TYPES.CAULDRON_MIM_LEFT]: "Cauldron`s MIM balance exceed",
+  [WARNING_TYPES.WITHDRAWABLE_AMOUNT]: "Withdrawable amount exceed",
+  [WARNING_TYPES.USER_MAX_TO_BORROW]: "MIM borrow limit exceed",
+  [WARNING_TYPES.POSITION_LIQUIDATION]: "Instant liquidation",
+  [WARNING_TYPES.POSITION_MAX_TO_BORROW]: "Max borrow amount exceed",
+  [WARNING_TYPES.POSITION_MAX_TO_REPAY]: "Max repay amount exceed",
+  [WARNING_TYPES.POSITION_MAX_TO_REMOVE]: "Max remove amount exceed",
+};
+
+const ACTIONS_BTN_TEXT = {
+  [ACTION_TYPES.ACTION_UNKNOWN]: "Nothing to do",
+  [ACTION_TYPES.ACTION_DEPOSIT]: "Add collateral",
+  [ACTION_TYPES.ACTION_BORROW]: "Borrow",
+  [ACTION_TYPES.ACTION_DEPOSIT_AND_BORROW]: "Add collateral and borrow",
+  [ACTION_TYPES.ACTION_REPAY]: "Repay",
+  [ACTION_TYPES.ACTION_REMOVE_COLLATERAL]: "Remove collateral",
+  [ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL]: "Remove and Repay",
+  [ACTION_TYPES.ACTION_LEVERAGE]: "Leverage Up",
+  [ACTION_TYPES.ACTION_DELEVERAGE]: "Flash Repay",
+};
+
+export const validateCookByAction = (
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  action: "borrow" | "repay"
+) => {
+  const cookType = getCookTypeByAction(actionConfig, action);
+
+  const expectedPosition = getExpectedPostition(cauldron, actionConfig, action);
+
+  let validationErrors: any = [];
+
+  validationErrors = validatePosition(
+    validationErrors,
+    cauldron,
+    expectedPosition
+  );
+
+  switch (cookType) {
+    case ACTION_TYPES.ACTION_DEPOSIT:
+      validationErrors = validateDeposit(
+        validationErrors,
+        cauldron,
+        actionConfig
+      );
+      break;
+    case ACTION_TYPES.ACTION_BORROW:
+      validationErrors = validateBorrow(
+        validationErrors,
+        cauldron,
+        actionConfig,
+        expectedPosition
+      );
+      break;
+    case ACTION_TYPES.ACTION_DEPOSIT_AND_BORROW:
+      validationErrors = validateDepositAndBorrow(
+        validationErrors,
+        cauldron,
+        actionConfig,
+        expectedPosition
+      );
+      break;
+    case ACTION_TYPES.ACTION_REPAY:
+      validationErrors = validateRepay(
+        validationErrors,
+        cauldron,
+        actionConfig
+      );
+      break;
+    case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
+      validationErrors = validateRemoveCollateral(
+        validationErrors,
+        cauldron,
+        actionConfig,
+        expectedPosition
+      );
+      break;
+    case ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL:
+      validationErrors = validateRepayAndRemoveCollateral(
+        validationErrors,
+        cauldron,
+        actionConfig,
+        expectedPosition
+      );
+      break;
+    case ACTION_TYPES.ACTION_LEVERAGE:
+      validationErrors = validateLeverage(
+        validationErrors,
+        cauldron,
+        actionConfig,
+        expectedPosition
+      );
+      break;
+    case ACTION_TYPES.ACTION_DELEVERAGE:
+      validationErrors = validateDeleverage(
+        validationErrors,
+        cauldron,
+        actionConfig,
+        expectedPosition
+      );
+      break;
+  }
+
+  const validationResult = getValidationResult(validationErrors, cookType);
+
+  return validationResult;
+};
+
+const validatePosition = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  expectPosition: any
+) => {
+  const { oracleExchangeRate } = cauldron.mainParams;
+  //@ts-ignore
+  const { decimals } = cauldron.config.collateralInfo;
+
+  const { liquidationPrice } = expectPosition;
+
+  // TODO: get from CauldronInfo
+  const collateralPrice = expandDecimals(1, 18 + decimals).div(
+    oracleExchangeRate
+  );
+
+  const liquidationCheck = liquidationPrice.lt(collateralPrice);
+
+  if (!liquidationCheck)
+    validationErrors.push(WARNING_TYPES.POSITION_LIQUIDATION);
+
+  return validationErrors;
+};
+
+const validateDeposit = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig
+) => {
+  const { useNativeToken, useUnwrapToken } = actionConfig;
+
+  const {
+    collateralBalance,
+    collateralAllowance,
+    unwrappedTokenAllowance,
+    unwrappedTokenBalance,
+    nativeTokenBalance,
+  } = cauldron.userTokensInfo!;
+
+  const { collateralTokenAmount, unwrappedTokenAmount } =
+    actionConfig.amounts.depositAmounts;
+
+  if (useNativeToken) {
+    const depositBalanceCheck = collateralTokenAmount.lte(nativeTokenBalance);
+
+    if (!depositBalanceCheck)
+      validationErrors.push(WARNING_TYPES.DEPOSIT_BALANCE);
+
+    return validationErrors;
+  }
+
+  if (useUnwrapToken) {
+    const depositBalanceCheck = unwrappedTokenAmount.lte(
+      unwrappedTokenBalance!
+    );
+    const depositAllowanceCheck = unwrappedTokenAmount.lte(
+      unwrappedTokenAllowance!
+    );
+
+    if (!depositBalanceCheck)
+      validationErrors.push(WARNING_TYPES.DEPOSIT_BALANCE);
+
+    if (!depositAllowanceCheck)
+      validationErrors.push(WARNING_TYPES.DEPOSIT_ALLOWANCE);
+
+    return validationErrors;
+  }
+
+  const depositBalanceCheck = collateralTokenAmount.lte(collateralBalance);
+  const depositAllowanceCheck = collateralTokenAmount.lte(collateralAllowance);
+
+  if (!depositBalanceCheck)
+    validationErrors.push(WARNING_TYPES.DEPOSIT_BALANCE);
+
+  if (!depositAllowanceCheck)
+    validationErrors.push(WARNING_TYPES.DEPOSIT_ALLOWANCE);
+
+  return validationErrors;
+};
+
+const validateBorrow = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  expectedPosition: any
+) => {
+  const { useLeverage, amounts } = actionConfig;
+  const { borrowAmount, leverageAmounts } = amounts;
+  const { mimLeftToBorrow, userMaxBorrow, oracleExchangeRate } =
+    cauldron.mainParams;
+  const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
+
+  //@ts-ignore
+  const mcr = expandDecimals(cauldron.config.mcr, PERCENT_PRESITION);
+
+  const maxToBorrow = getMaxToBorrow(
+    expectedPosition.collateralAmount,
+    userBorrowAmount,
+    mcr,
+    oracleExchangeRate
+  );
+
+  const mimToBorrow = useLeverage ? leverageAmounts.amountFrom : borrowAmount;
+
+  const cauldronMimLeftCheck = mimToBorrow.lte(mimLeftToBorrow);
+  const userMaxBorrowCheck = mimToBorrow.lte(userMaxBorrow);
+  const positionMaxToBorrowCheck = mimToBorrow.lte(maxToBorrow);
+
+  if (!positionMaxToBorrowCheck)
+    validationErrors.push(WARNING_TYPES.POSITION_MAX_TO_BORROW);
+  if (!cauldronMimLeftCheck)
+    validationErrors.push(WARNING_TYPES.CAULDRON_MIM_LEFT);
+  if (!userMaxBorrowCheck)
+    validationErrors.push(WARNING_TYPES.USER_MAX_TO_BORROW);
+
+  return validationErrors;
+};
+
+const validateDepositAndBorrow = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  expectedPosition: any
+) => {
+  validationErrors = validateDeposit(validationErrors, cauldron, actionConfig);
+
+  validationErrors = validateBorrow(
+    validationErrors,
+    cauldron,
+    actionConfig,
+    expectedPosition
+  );
+
+  return validationErrors;
+};
+
+const validateLeverage = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  expectedPosition: any
+) => {
+  validationErrors = validateDeposit(validationErrors, cauldron, actionConfig);
+
+  validationErrors = validateBorrow(
+    validationErrors,
+    cauldron,
+    actionConfig,
+    expectedPosition
+  );
+
+  return validationErrors;
+};
+
+const validateRemoveCollateral = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  expectPosition: any
+) => {
+  //@ts-ignore
+  const { hasWithdrawableLimit } = cauldron.config!.cauldronSettings;
+  const { maxWithdrawAmount } = cauldron.additionalInfo;
+  const { oracleExchangeRate } = cauldron.mainParams;
+  const { useDeleverage, amounts } = actionConfig;
+  const { withdrawAmount, deleverageAmounts } = amounts;
+
+  //@ts-ignore
+  const mcr = expandDecimals(cauldron.config!.mcr, PERCENT_PRESITION);
+
+  let withdrawableAmountCheck = true;
+
+  if (hasWithdrawableLimit) {
+    withdrawableAmountCheck = useDeleverage
+      ? withdrawAmount.lte(maxWithdrawAmount) &&
+        deleverageAmounts.amountFrom.lte(maxWithdrawAmount)
+      : withdrawAmount.lte(maxWithdrawAmount);
+  }
+
+  const maxToRemove = getMaxCollateralToRemove(
+    expectPosition.collateralAmount,
+    expectPosition.mimAmount,
+    mcr,
+    oracleExchangeRate
+  );
+
+  const positionMaxToRemoveCheck = withdrawAmount.lte(maxToRemove);
+
+  if (!withdrawableAmountCheck)
+    validationErrors.push(WARNING_TYPES.WITHDRAWABLE_AMOUNT);
+  if (!positionMaxToRemoveCheck)
+    validationErrors.push(WARNING_TYPES.POSITION_MAX_TO_REMOVE);
+
+  return validationErrors;
+};
+
+const validateRepay = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig
+) => {
+  const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
+  //@ts-ignore
+  const { mimBalance, mimAllowance } = cauldron.userTokensInfo;
+  const { repayAmount } = actionConfig.amounts;
+
+  const repayBalanceCheck = repayAmount.lte(mimBalance);
+  const repayAllowanceCheck = repayAmount.lte(mimAllowance);
+  const positionMaxRepayCheck = repayAmount.lte(userBorrowAmount);
+
+  if (!repayBalanceCheck) validationErrors.push(WARNING_TYPES.REPAY_BALANCE);
+  if (!repayAllowanceCheck)
+    validationErrors.push(WARNING_TYPES.REPAY_ALLOWANCE);
+  if (!positionMaxRepayCheck)
+    validationErrors.push(WARNING_TYPES.POSITION_MAX_TO_REPAY);
+
+  return validationErrors;
+};
+
+const validateRepayAndRemoveCollateral = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  expectedPosition: any
+) => {
+  validationErrors = validateRepay(validationErrors, cauldron, actionConfig);
+
+  validationErrors = validateRemoveCollateral(
+    validationErrors,
+    cauldron,
+    actionConfig,
+    expectedPosition
+  );
+
+  return validationErrors;
+};
+
+const validateDeleverage = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  expectedPosition: any
+) => {
+  validationErrors = validateRemoveCollateral(
+    validationErrors,
+    cauldron,
+    actionConfig,
+    expectedPosition
+  );
+
+  return validationErrors;
+};
+
+// TODO: check & update config
+const validateWhitelist = (cauldron: CauldronInfo) => {};
+
+const getValidationResult = (validationErrors: any, cookType: any) => {
+  if (validationErrors.length === 0 || cookType === ACTION_TYPES.ACTION_UNKNOWN)
+    return {
+      btnText: ACTIONS_BTN_TEXT[cookType],
+      isAllowed: true,
+    };
+
+  return {
+    isAllowed: false,
+    btnText: WARNINGS_BTN_TEXT[validationErrors[0]],
+  };
+};
