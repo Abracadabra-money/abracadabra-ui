@@ -18,13 +18,17 @@
         />
       </h4>
       <p class="item-value">
+        <img
+          class="token-icon"
+          :src="cauldron.config.icon"
+          alt="Collateral icon"
+        />
         {{
           formatUnits(
             expectedPositionAmounts.collateralAmount,
             collateralDecimals
           )
         }}
-        {{ collateralName }}
       </p>
       <p class="item-price">
         $
@@ -54,7 +58,7 @@
       </h4>
       <p class="item-value">
         <img
-          class="mim-icon"
+          class="token-icon"
           src="@/assets/images/tokens/MIM.png"
           alt="Mim icon"
         />
@@ -115,10 +119,6 @@ export default {
   computed: {
     collateralDecimals() {
       return this.cauldron.config.collateralInfo.decimals;
-    },
-
-    collateralName() {
-      return this.cauldron.config.collateralInfo.name;
     },
 
     expectedPositionAmounts() {
@@ -347,7 +347,7 @@ export default {
   justify-content: center;
 }
 
-.mim-icon {
+.token-icon {
   width: 32px;
   height: 32px;
 }
