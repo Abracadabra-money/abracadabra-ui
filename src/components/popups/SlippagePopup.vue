@@ -34,7 +34,7 @@
   </div>
 </template>
 <script lang="ts">
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -60,6 +60,7 @@ export default {
 
   watch: {
     inputValue(value, oldValue) {
+      if (!value) return this.$emit("updateValue", BigNumber.from(0));
       if (isNaN(value)) this.inputValue = oldValue;
       else {
         this.inputValue = value;

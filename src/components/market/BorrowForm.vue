@@ -56,6 +56,10 @@
 
       <BaseButton primary disabled>Nothing to do </BaseButton>
     </div>
+    <OrdersManager
+      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+      :cauldronObject="cauldron"
+    />
   </div>
 </template>
 
@@ -199,6 +203,9 @@ export default {
     BorrowBlock: defineAsyncComponent(
       () => import("@/components/market/BorrowBlock.vue")
     ),
+    OrdersManager: defineAsyncComponent(
+      () => import("@/components/market/OrdersManager.vue")
+    ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
@@ -223,6 +230,7 @@ export default {
 
 .borrow-wrap {
   @include block-wrap;
+  min-height: 390px;
   height: 100%;
   display: flex;
   flex-direction: column;

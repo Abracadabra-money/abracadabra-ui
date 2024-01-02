@@ -1,3 +1,4 @@
+import { RPC_KAVA } from "@/constants/rpc";
 import { useImage } from "@/helpers/useImage";
 
 export const kavaConfig = {
@@ -11,8 +12,8 @@ export const kavaConfig = {
     symbol: "Kava",
   },
   rpcUrls: {
-    public: { http: ["https://evm.kava.io"] },
-    default: { http: ["https://evm.kava.io"] },
+    public: { http: [RPC_KAVA] },
+    default: { http: [RPC_KAVA] },
   },
   blockExplorers: {
     etherscan: { name: "Kava", url: "https://explorer.kava.io" },

@@ -262,6 +262,7 @@ export default {
   display: flex;
   gap: 16px;
   flex-direction: column;
+  justify-content: space-between;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(
