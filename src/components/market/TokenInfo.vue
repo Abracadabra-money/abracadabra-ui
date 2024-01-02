@@ -19,7 +19,7 @@
     <div>
       <div class="token-name">{{ cauldron.config.name }}</div>
       <div class="tokens-rate">
-        1 {{ cauldron.config.name }} = {{ collateralToMim }} MIM
+        1 {{ cauldron.config.name }} = $ {{ collateralToUsd }}
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@ export default {
   },
 
   computed: {
-    collateralToMim() {
+    collateralToUsd() {
       const tokenToMim = utils
         .parseEther("1")
         .mul(expandDecimals(1, this.cauldron.config.collateralInfo.decimals))
