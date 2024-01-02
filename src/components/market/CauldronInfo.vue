@@ -4,7 +4,8 @@
       <h3 class="title">Cauldron Stats</h3>
       <div class="apr">
         <TooltipIcon :width="20" :height="20" fill="#878B93" tooltip="APR" />
-        APR:211.94% - 421.88%
+        <span>APR:</span>
+        <span> 211.94% - 421.88%</span>
       </div>
     </div>
 
@@ -138,7 +139,9 @@ export default {
 }
 
 .apr {
+  gap: 4px;
   display: flex;
+  align-items: center;
   text-shadow: 0px 0px 16px #ab5de8;
   font-size: 14px;
   font-weight: 600;
