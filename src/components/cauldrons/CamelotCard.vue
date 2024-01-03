@@ -91,22 +91,20 @@ export default {
 
 .camelot-card {
   @include font;
-  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 20px 20px 11px 20px;
+  padding: 20px 20px 10px 20px;
   height: 160px;
   max-width: 416px;
-  background-image: url("@/assets/images/background_camelot.png");
+  background-image: url("@/assets/images/caULDRONS/background_camelot.png");
   border-radius: 16px;
   border: 1px solid #2d4a96;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
-  background-position: 50% 50%;
+  background-position: 100% 50%;
   background-size: 100%;
+  background-size: cover;
   background-repeat: no-repeat;
-  color: white;
   text-transform: uppercase;
   font-weight: 600;
   transition: 0.3s;
@@ -140,8 +138,7 @@ export default {
 
 .secondary {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   list-style: none;
 }
 
