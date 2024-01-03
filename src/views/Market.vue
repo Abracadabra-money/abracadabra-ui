@@ -35,8 +35,6 @@
           </div>
 
           <div class="row">
-            {{ actionConfig }}
-
             <PositionInfo
               :cauldron="cauldron"
               :actionType="activeTab"
