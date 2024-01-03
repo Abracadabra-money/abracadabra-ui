@@ -1,32 +1,32 @@
 <template>
-  <div class="camelot-card-background">
-    <a
-      class="camelot-card"
-      href="https://app.camelot.exchange/liquidity/?type=v3&token1=0xaf88d065e77c8cc2239327c5edb3a432268e5831&token2=0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a"
-      target="_blank"
-      rel="noreferrer noopener"
-    >
-      <p class="primary paragraph">
-        <span class="card-title">Stable V3 Pool</span>
-        <span class="on-camelot">ON CAMELOT</span>
-        <span class="token-pair">USDC / MIM</span>
-      </p>
-      <ul class="secondary paragraph" v-if="tvl && aprRange">
-        <li>
-          <span class="title">TVL:</span>
-          <span class="value">${{ formattedTvl }}</span>
-        </li>
-        <li>
-          <span class="title">APR:</span>
-          <span class="value">{{ aprRange }}</span>
-        </li>
-      </ul>
-    </a>
-  </div>
+  <a
+    class="camelot-card"
+    href="https://app.camelot.exchange/liquidity/?type=v3&token1=0xaf88d065e77c8cc2239327c5edb3a432268e5831&token2=0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a"
+    target="_blank"
+    rel="noreferrer noopener"
+  >
+    <p class="primary paragraph">
+      <span class="card-title">Stable V3 Pool</span>
+      <span class="on-camelot">ON CAMELOT</span>
+      <span class="token-pair">USDC / MIM</span>
+    </p>
+
+    <ul class="secondary paragraph" v-if="tvl && aprRange">
+      <li>
+        <span class="title">TVL:</span>
+        <span class="value">${{ formattedTvl }}</span>
+      </li>
+      <li>
+        <span class="title">APR:</span>
+        <span class="value">{{ aprRange }}</span>
+      </li>
+    </ul>
+  </a>
 </template>
 
-<script>
+<script lang="ts">
 import axios from "axios";
+// @ts-ignore
 import filters from "@/filters/index";
 
 export default {
@@ -74,19 +74,13 @@ export default {
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
-.camelot-card-background {
-  background: linear-gradient(146deg, #1a0604 0%, #000 101.49%);
-  border-radius: 16px;
-}
-
 .camelot-card {
   @include font;
-  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px 20px 11px 20px;
+  padding: 20px 20px 10px 20px;
   height: 160px;
   max-width: 416px;
   width: 100%;
@@ -94,10 +88,9 @@ export default {
   border-radius: 16px;
   border: 1px solid #2d4a96;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
-  background-position: 50% 50%;
+  background-position: 100% 50%;
   background-repeat: no-repeat;
   background-size: cover;
-  color: white;
   text-transform: uppercase;
   font-weight: 600;
   transition: 0.3s;
@@ -131,8 +124,7 @@ export default {
 
 .secondary {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   list-style: none;
 }
 
