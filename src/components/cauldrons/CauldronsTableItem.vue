@@ -202,4 +202,10 @@ export default {
   font-weight: 600;
   line-height: 150%;
 }
+
+@media screen and (max-width: 1024px) {
+  .cauldrons-table-link {
+    width: 930px;
+  }
+}
 </style>

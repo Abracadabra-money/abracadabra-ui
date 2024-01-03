@@ -138,4 +138,10 @@ export default {
   color: #ffbc01;
   font-size: 16px;
 }
+
+@media screen and (max-width: 1024px) {
+  .camelot-card {
+    max-width: 100%;
+  }
+}
 </style>

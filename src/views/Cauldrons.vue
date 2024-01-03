@@ -215,4 +215,11 @@ export default {
   align-items: center;
   grid-template-columns: 1fr 1fr 1fr;
 }
+
+@media screen and (max-width: 1024px) {
+  .cards-wrap {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+}
 </style>

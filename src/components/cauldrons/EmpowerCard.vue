@@ -70,4 +70,10 @@
   display: flex;
   align-items: center;
 }
+
+@media screen and (max-width: 1024px) {
+  .empower-card {
+    max-width: 100%;
+  }
+}
 </style>

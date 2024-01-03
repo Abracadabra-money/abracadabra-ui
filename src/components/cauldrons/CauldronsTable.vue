@@ -14,11 +14,13 @@
         />
       </div>
       <div class="filters-wrap">
-        <ChainsDropdown
-          :activeChains="activeChains"
-          :selectedChains="selectedChains"
-          @updateSelectedChain="updateSelectedChain"
-        />
+        <div>
+          <ChainsDropdown
+            :activeChains="activeChains"
+            :selectedChains="selectedChains"
+            @updateSelectedChain="updateSelectedChain"
+          />
+        </div>
         <InputSearch @changeSearch="updateSearch" />
       </div>
     </div>
@@ -273,5 +275,18 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+  .cauldrons-items-wrap {
+    overflow-x: scroll;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .additional-logic {
+    flex-direction: column-reverse;
+  }
 }
 </style>

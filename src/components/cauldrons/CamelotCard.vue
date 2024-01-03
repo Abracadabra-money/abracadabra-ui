@@ -1,28 +1,26 @@
 <template>
-  <div class="camelot-card-background">
-    <a
-      class="camelot-card"
-      href="https://app.camelot.exchange/liquidity/?token1=0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A&token2=0x912CE59144191C1204E64559FE8253a0e49E6548&mode=auto&provider=gamma"
-      target="_blank"
-      rel="noreferrer noopener"
-    >
-      <p class="primary paragraph">
-        <span class="card-title">NEW V3 POOL</span>
-        <span class="on-camelot">ON CAMELOT</span>
-        <span class="token-pair">ARB / MIM</span>
-      </p>
-      <ul class="secondary paragraph" v-if="tvl && aprRange">
-        <li>
-          <span class="title">TVL:</span>
-          <span class="value">{{ formattedTvl }}</span>
-        </li>
-        <li>
-          <span class="title">APR:</span>
-          <span class="value">{{ aprRange }}</span>
-        </li>
-      </ul>
-    </a>
-  </div>
+  <a
+    class="camelot-card"
+    href="https://app.camelot.exchange/liquidity/?token1=0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A&token2=0x912CE59144191C1204E64559FE8253a0e49E6548&mode=auto&provider=gamma"
+    target="_blank"
+    rel="noreferrer noopener"
+  >
+    <p class="primary paragraph">
+      <span class="card-title">NEW V3 POOL</span>
+      <span class="on-camelot">ON CAMELOT</span>
+      <span class="token-pair">ARB / MIM</span>
+    </p>
+    <ul class="secondary paragraph" v-if="tvl && aprRange">
+      <li>
+        <span class="title">TVL:</span>
+        <span class="value">{{ formattedTvl }}</span>
+      </li>
+      <li>
+        <span class="title">APR:</span>
+        <span class="value">{{ aprRange }}</span>
+      </li>
+    </ul>
+  </a>
 </template>
 <script>
 import axios from "axios";
@@ -83,11 +81,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
-.camelot-card-background {
-  background: linear-gradient(146deg, #1a0604 0%, #000 101.49%);
-  border-radius: 16px;
-}
 
 .camelot-card {
   @include font;
@@ -151,5 +144,11 @@ export default {
   margin-left: 5px;
   color: #ffbc01;
   font-size: 16px;
+}
+
+@media screen and (max-width: 1024px) {
+  .camelot-card {
+    max-width: 100%;
+  }
 }
 </style>

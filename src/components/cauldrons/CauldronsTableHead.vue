@@ -117,4 +117,10 @@ export default {
   height: 18px;
   cursor: pointer;
 }
+
+@media screen and (max-width: 1024px) {
+  .cauldron-table-head {
+    width: 930px;
+  }
+}
 </style>
