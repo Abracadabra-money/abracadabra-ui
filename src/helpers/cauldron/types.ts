@@ -84,6 +84,7 @@ export type ActionAmounts = {
   withdrawAmount: BigNumber,
   leverageAmounts: SwapAmounts,
   deleverageAmounts: SwapAmounts
+  slippage: BigNumber
 }
 
 export type ActionConfig = {

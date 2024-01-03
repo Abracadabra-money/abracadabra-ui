@@ -39,6 +39,7 @@
 
         <LeverageBlock
           v-if="actionConfig.useLeverage"
+          :slippage="actionConfig.amounts.slippage"
           :depositCollateralAmount="
             actionConfig.amounts.depositAmounts.collateralTokenAmount
           "

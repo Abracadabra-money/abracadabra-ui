@@ -3,6 +3,8 @@
 
 import type { ActionConfig, CauldronInfo } from "@/helpers/cauldron/types";
 import { getCookTypeByAction, ACTION_TYPES } from "./getCookActionType";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { utils } from "ethers";
 
 export const getCookPayload = async (
   account: any,
@@ -31,7 +33,7 @@ export const getCookPayload = async (
       return await getDeleveragePayload(cauldron, actionConfig, account);
   }
 
-  return []
+  return [];
 };
 
 const getAddCollateralPayload = (
@@ -39,8 +41,7 @@ const getAddCollateralPayload = (
   actionConfig: ActionConfig
 ) => {
   const { amounts, useNativeToken, useUnwrapToken } = actionConfig;
-  const { unwrapTokenAmount, collateralTokenAmount } =
-    amounts.depositAmounts;
+  const { unwrapTokenAmount, collateralTokenAmount } = amounts.depositAmounts;
   const { isMasterContractApproved } = cauldron.additionalInfo;
 
   // TODO: update cauldron types
@@ -91,8 +92,7 @@ const getAddCollateralAndBorrowPayload = (
   actionConfig: ActionConfig
 ) => {
   const { amounts, useNativeToken, useUnwrapToken } = actionConfig;
-  const { unwrapTokenAmount, collateralTokenAmount } =
-    amounts.depositAmounts;
+  const { unwrapTokenAmount, collateralTokenAmount } = amounts.depositAmounts;
   const { isMasterContractApproved } = cauldron.additionalInfo;
 
   // TODO: update cauldron types
@@ -210,7 +210,6 @@ const getRemoveCollateralAndRepayPayload = async (
   return [payload, isMasterContractApproved, cauldron];
 };
 
-// TODO: add slippage
 // TODO: GM payload
 const getLeveragePayload = async (
   cauldron: CauldronInfo,
@@ -240,19 +239,23 @@ const getLeveragePayload = async (
     ? depositAmounts.unwrapTokenAmount
     : depositAmounts.collateralTokenAmount;
 
+  const slippage = utils.formatUnits(
+    actionConfig.amounts.slippage,
+    PERCENT_PRESITION
+  );
+  
   const payload = {
     collateralAmount,
     amount: leverageAmounts.amountFrom,
     minExpected: shareToMin,
     updatePrice,
     itsDefaultBalance: useNativeToken,
-    // slippage !!
+    slipage: slippage // TODO: naming
   };
 
   return [payload, isMasterContractApproved, cauldron, useUnwrapToken];
 };
 
-// TODO: add slippage
 // TODO: GM payload
 const getDeleveragePayload = async (
   cauldron: CauldronInfo,
@@ -288,13 +291,18 @@ const getDeleveragePayload = async (
 
   const withdrawShare = await bentoBox.toShare(address, withdrawAmount, false);
 
+  const slippage = utils.formatUnits(
+    actionConfig.amounts.slippage,
+    PERCENT_PRESITION
+  );
+
   const payload = {
     borrowAmount: repayAmount, // TODO: update after fix this in cook
     collateralAmount: shareFrom, // TODO: update after fix this in cook
     removeCollateralAmount: withdrawShare, // TODO: update after fix this in cook
     updatePrice,
     itsMax: isMaxRepay,
-    // slippage !!
+    slipage: slippage
   };
 
   return [payload, isMasterContractApproved, cauldron, account];

@@ -31,6 +31,7 @@
       <DeleverageBlock
         v-else
         :cauldron="cauldron"
+        :slippage="actionConfig.amounts.slippage"
         :deleverageAmounts="actionConfig.amounts.deleverageAmounts"
         :withdrawAmount="actionConfig.amounts.withdrawAmount"
         @updateDeleverageAmounts="onUpdateDeleverageAmounts"

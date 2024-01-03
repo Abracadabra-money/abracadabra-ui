@@ -35,6 +35,9 @@ export default {
     cauldron: {
       type: Object as any,
     },
+    slippage: {
+      type: BigNumber,
+    },
     deleverageAmounts: {
       default: {
         amountFrom: BigNumber.from(0),
@@ -46,11 +49,13 @@ export default {
     },
   },
 
-  emits: ["updateDeleverageAmounts"],
-
   data() {
-    return { slippage: 1 };
+    return {
+      value: BigNumber.from(0),
+    };
   },
+
+  emits: ["updateDeleverageAmounts"],
 
   computed: {
     ...mapGetters({
@@ -117,17 +122,23 @@ export default {
     },
   },
 
+  watch: {
+    slippage() {
+      this.updateDeleverageAmounts(this.value);
+    },
+  },
+
   methods: {
     onUpdateInputAmount(value: BigNumber) {
+      this.value = value;
+      this.updateDeleverageAmounts(value);
+    },
+    updateDeleverageAmounts(value: BigNumber) {
       const { oracleExchangeRate } = this.cauldron.mainParams;
-      const slippage = utils.parseUnits(
-        String(this.slippage),
-        PERCENT_PRESITION
-      );
 
       const deleverageAmounts = getDeleverageAmounts(
         value,
-        slippage,
+        this.slippage!,
         oracleExchangeRate
       );
 

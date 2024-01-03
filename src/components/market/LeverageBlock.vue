@@ -31,6 +31,9 @@ import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMulti
 
 export default {
   props: {
+    slippage: {
+      type: BigNumber,
+    },
     depositCollateralAmount: {
       type: BigNumber,
     },
@@ -44,7 +47,6 @@ export default {
 
   data() {
     return {
-      slippage: 1,
       multiplier: 1,
       useNativeToken: false,
       useUnwrapToken: false,
@@ -115,6 +117,10 @@ export default {
       this.getMaxLeverageMultiplier();
       this.updateLeverageAmounts();
     },
+    slippage() {
+      this.getMaxLeverageMultiplier();
+      this.updateLeverageAmounts();
+    },
   },
 
   methods: {
@@ -129,16 +135,12 @@ export default {
         String(this.multiplier),
         PERCENT_PRESITION
       );
-      const slippage = utils.parseUnits(
-        String(this.slippage),
-        PERCENT_PRESITION
-      );
 
       const leverageAmounts = getLeverageAmounts(
         //@ts-ignore
         this.depositCollateralAmount,
         multiplier,
-        slippage,
+        this.slippage,
         oracleExchangeRate
       );
 
@@ -152,11 +154,16 @@ export default {
         //@ts-ignore
         utils.formatUnits(this.depositCollateralAmount, decimals)
       );
+
+      const slippage = utils.formatUnits(this.slippage!, PERCENT_PRESITION);
+
       const maxMultiplier = getMaxLeverageMultiplier(
         this.cauldron,
         //@ts-ignore
-        depositCollateralAmount > 0 ? depositCollateralAmount : undefined
-      );
+        depositCollateralAmount > 0 ? depositCollateralAmount : undefined,
+        false,
+        Number(slippage)
+        );
 
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
       this.maxLeverageMultiplier = maxMultiplier;
