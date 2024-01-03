@@ -44,6 +44,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
 
 export default {
   props: {
@@ -95,10 +96,14 @@ export default {
     },
 
     activeChains() {
-      return this.cauldrons.reduce((acc, { config }) => {
-        if (!acc.includes(config.chainId)) acc.push(config.chainId);
-        return acc;
-      }, []);
+      return this.cauldrons
+        .reduce((acc, { config }) => {
+          if (!acc.includes(config.chainId)) acc.push(config.chainId);
+          return acc;
+        }, [])
+        .sort((a, b) => {
+          return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
+        });
     },
   },
 

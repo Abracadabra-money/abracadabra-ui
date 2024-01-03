@@ -3,45 +3,44 @@
     :class="['cauldrons-table-link', cauldronLabel, { open: isOpenPosition }]"
     :to="goToPage(cauldron)"
   >
-    <div class="cauldrons-table-item">
-      <div class="label">{{ cauldronLabel }}</div>
-      <div class="column">
-        <div class="cauldron-info">
-          <div class="icons-wrap">
-            <img class="cauldron-icon" :src="cauldron.config.icon" alt="" />
-            <img
-              class="chain-icon"
-              :src="getChainIcon(cauldron.config.chainId)"
-              alt=""
-            />
-          </div>
-          {{ cauldron.config.name }}
+    <div class="label">{{ cauldronLabel }}</div>
+    <div class="column">
+      <div class="cauldron-info">
+        <div class="icons-wrap">
+          <img class="cauldron-icon" :src="cauldron.config.icon" alt="" />
+          <img
+            class="chain-icon"
+            :src="getChainIcon(cauldron.config.chainId)"
+            alt=""
+          />
         </div>
+        {{ cauldron.config.name }}
       </div>
+    </div>
 
-      <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
+    <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
 
-      <div class="column">
-        {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
-      </div>
+    <div class="column">
+      {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
+    </div>
 
-      <div class="column">
-        {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
-      </div>
+    <div class="column">
+      {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
+    </div>
 
-      <div class="column">{{ cauldron.mainParams.interest }}%</div>
+    <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
-      <div class="column apr">
-        {{ loopApr }}
-      </div>
+    <div class="column apr">
+      {{ loopApr }}
     </div>
   </router-link>
 </template>
 
-<script>
+<script lang="ts">
 import { utils } from "ethers";
+// @ts-ignore
 import filters from "@/filters/index.js";
-import { getChainIcon } from "@/helpers/chains/getChainIcon.ts";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
   props: {
@@ -84,7 +83,7 @@ export default {
   },
 
   methods: {
-    goToPage(cauldron) {
+    goToPage(cauldron: any) {
       const { chainId, id } = cauldron.config;
       return {
         name: "Market",
@@ -93,11 +92,11 @@ export default {
     },
 
     getChainIcon,
-    formatUnits(value) {
+    formatUnits(value: string) {
       return utils.formatUnits(value);
     },
 
-    formatLargeSum(value) {
+    formatLargeSum(value: string) {
       return filters.formatLargeSum(utils.formatUnits(value));
     },
   },
@@ -106,47 +105,10 @@ export default {
 
 <style lang="scss" scoped>
 .cauldrons-table-link {
-  padding: 1px;
   border-radius: 16px;
-  color: inherit;
-}
-
-.new {
-  background: linear-gradient(
-    90deg,
-    rgba(100, 156, 102, 1) 0%,
-    rgba(72, 111, 73, 0) 60%
-  );
-
-  .label {
-    display: block;
-    background: linear-gradient(180deg, #67a069 0%, #446a46 100%);
-  }
-}
-
-.deprecated {
-  background: linear-gradient(
-    90deg,
-    rgba(123, 25, 24, 1) 0%,
-    rgba(56, 12, 13, 0) 60%
-  );
-
-  .label {
-    display: block;
-    background: linear-gradient(180deg, #320a0a 0%, #871d1f 100%),
-      linear-gradient(180deg, #67a069 0%, #446a46 100%);
-  }
-}
-
-.open {
-  .cauldrons-table-item {
-    background: url("@/assets/images/cauldrons/table-item-background.png");
-  }
-}
-
-.cauldrons-table-item {
-  border-radius: 16px;
-  background: rgba(8, 14, 31, 1);
+  border: 1px solid rgba(180, 180, 180, 0.08);
+  background: rgba(8, 14, 31, 0.6);
+  color: #fff;
   padding: 20px 32px;
   display: grid;
   display: flex;
@@ -154,6 +116,36 @@ export default {
   justify-content: space-between;
   position: relative;
   overflow: hidden;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.01);
+    border-radius: 16px;
+    box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.16);
+    border-radius: 16px;
+  }
+}
+
+.new {
+  border: 1px solid #304d99;
+
+  .label {
+    display: block;
+    background: linear-gradient(0deg, #2d4a96 0%, #5b7cd1 100%);
+  }
+}
+
+.deprecated {
+  border: 1px solid #4a2130;
+
+  .label {
+    display: block;
+    background: linear-gradient(180deg, #8c4040 0%, #6b2424 100%);
+  }
+}
+
+.open {
+  background: url("@/assets/images/cauldrons/table-item-background.png");
 }
 
 .label {
@@ -163,7 +155,7 @@ export default {
   top: 50%;
   left: -43px;
   width: 100px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   line-height: 16px;
   transform: translateY(-50%) rotate(-90deg);
