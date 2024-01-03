@@ -5,37 +5,34 @@
     target="_blank"
     rel="noreferrer noopener"
   >
-    <p class="primary paragraph">
-      <strong class="prim">EMPOWER</strong> <br />
-      THE ECOSYSTEM
-    </p>
-    <p class="secondary paragraph">
-      Delegate <br />
-      Your <strong class="sec">ARB</strong> to <br />
-      <strong class="sec">Abracadabra</strong> DAO
-    </p>
+    <h3 class="title text">
+      <span class="primary">Empower</span> the ecosystem
+    </h3>
+
+    <div class="description">
+      <p class="text">Delegate Your <span class="primary small">ARB</span></p>
+      <p class="text">to <span class="primary small">Abracadabra</span> DAO</p>
+    </div>
   </a>
 </template>
-<script>
-export default {};
-</script>
+
 <style lang="scss" scoped>
 .empower-card {
-  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 15px 20px 11px 20px;
+  padding: 15px 20px 10px 20px;
   height: 160px;
   max-width: 416px;
   width: 100%;
-  background-image: url("@/assets/images/background-empower.png");
+  background-image: url("@/assets/images/cauldrons/background-empower.png");
   border-radius: 16px;
   border: 1px solid #2d4a96;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
+  background-position: 100% 50%;
   backdrop-filter: blur(12.5px);
-  color: white;
+  background-repeat: no-repeat;
+  background-size: cover;
   transition: 0.3s;
 }
 
@@ -44,23 +41,33 @@ export default {};
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.21);
 }
 
-.paragraph {
-  width: 183px;
+.title {
+  gap: 9px;
+  font-weight: 600;
+  line-height: 150%;
+  text-transform: uppercase;
 }
 
-strong {
+.primary {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 24px;
+  text-transform: uppercase;
   background: -webkit-linear-gradient(#7098ff, #a077f5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.prim {
-  font-size: 26px;
-  font-weight: 600;
+.small {
+  font-size: 18px;
 }
 
-.sec {
-  font-size: 18px;
+.text {
+  color: var(--additional-ffffff, #fff);
   font-weight: 500;
+  line-height: 150%;
+  gap: 4px;
+  display: flex;
+  align-items: center;
 }
 </style>
