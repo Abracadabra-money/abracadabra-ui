@@ -1,5 +1,5 @@
 <template>
-  <button class="wallet-btn" :class="{ active }">
+  <button class="btn" :class="{ active }">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="18"
@@ -70,7 +70,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wallet-btn {
+.btn {
   cursor: pointer;
   width: 52px;
   height: 52px;
@@ -87,5 +87,12 @@ export default {
 .active {
   border: 2px solid #2d4a96;
   border-radius: 10px;
+}
+
+@media screen and (max-width: 600px) {
+  .btn {
+    width: 44px;
+    height: 44px;
+  }
 }
 </style>

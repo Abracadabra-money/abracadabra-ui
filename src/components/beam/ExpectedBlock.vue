@@ -85,10 +85,8 @@ export default {
 
 @media (max-width: 600px) {
   .row {
-    display: flex;
-    flex-direction: column;
-    align-items: initial;
-    justify-content: initial;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   .value {

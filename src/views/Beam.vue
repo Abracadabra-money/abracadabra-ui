@@ -36,12 +36,14 @@
             <InputLabel title="MIM to beam" :showBalance="false" />
             <BaseTokenInput
               class="beam-input"
-              :max="beamConfig.balance"
+              :decimals="18"
+              :max="parsedMimBalance"
               :value="amount"
               :name="'MIM'"
               :icon="$image('assets/images/tokens/MIM.png')"
               :error="amountError"
-              @update-value="updateMainValue"
+              isBigNumber
+              @updateInputValue="updateMainValue"
               :disabled="isActionsDisabled"
             />
           </div>
@@ -103,12 +105,11 @@
     </div>
   </div>
 
-  <LocalPopupWrap
-    :isOpened="isOpenSuccessPopup"
+  <SuccessPopup
+    :config="successData"
+    v-if="isOpenSuccessPopup"
     @close-popup="isOpenSuccessPopup = false"
-  >
-    <SuccessPopup :config="successData" />
-  </LocalPopupWrap>
+  />
 </template>
 
 <script>
@@ -151,6 +152,7 @@ export default {
       estimateSendFee: 0,
       dstMaxAmount: 0,
       dstTokenPrice: null,
+      srcTokenPrice: null,
       isSettingsError: false,
       startFee: 0,
       isSelectedChain: false,
@@ -279,8 +281,8 @@ export default {
       return "Beam";
     },
 
-    mimBalance() {
-      return this.beamConfig?.balance || 0;
+    parsedMimBalance() {
+      return this.$ethers.utils.parseUnits(this.beamConfig?.balance);
     },
 
     isActionsDisabled() {
@@ -363,8 +365,10 @@ export default {
         originChain: this.originChain,
         mimAmount: this.amount,
         nativeSymbol: this.srcTokenInfo?.symbol,
+        srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
         gasOnDst: filters.formatToFixed(+this.getFee - +this.startFee, 3),
         dstTokenSymbol: this.dstTokenInfo.symbol,
+        dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
         dstChain: this.dstChain,
         dstTokenAmount: this.dstTokenAmount,
         dstTokenPrice: this.dstTokenPrice,
@@ -374,13 +378,6 @@ export default {
         dstChainId: this.dstChainId,
         totalGas: this.formatFee,
       };
-    },
-
-    beamHistoryArr() {
-      const quantity = this.quantityHistory * this.historyPage;
-      if (this.beamHistory.length <= quantity)
-        return [...this.beamHistory].reverse();
-      return [...this.beamHistory].reverse().slice(0, quantity);
     },
 
     isVisibilityMoreButton() {
@@ -427,7 +424,7 @@ export default {
     },
 
     async updateMainValue(value) {
-      this.amount = value;
+      this.amount = this.$ethers.utils.formatUnits(value);
     },
 
     updateDestinationAddress(address, error) {
@@ -720,9 +717,6 @@ export default {
     ChainsPopup: defineAsyncComponent(() =>
       import("@/components/beam/ChainsPopup.vue")
     ),
-    LocalPopupWrap: defineAsyncComponent(() =>
-      import("@/components/popups/LocalPopupWrap.vue")
-    ),
     SettingsPopup: defineAsyncComponent(() =>
       import("@/components/beam/SettingsPopup.vue")
     ),
@@ -789,12 +783,12 @@ export default {
 
 .title {
   font-weight: 600;
-  font-size: 32px;
+  font-size: 24px;
 }
 
 .description {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
 }
 
@@ -871,27 +865,6 @@ export default {
   text-transform: uppercase;
 }
 
-.btn-more {
-  height: 32px;
-  justify-content: center;
-  align-items: center;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-  max-width: 200px;
-  width: 100%;
-  margin: 0 auto;
-  border: none;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.12);
-  }
-}
-
 .caption-text {
   margin-top: 2px;
 }
@@ -900,21 +873,9 @@ export default {
   max-width: 85px;
 }
 
-@media (max-width: 768px) {
-  .beam {
-    padding: 30px 50px;
-  }
-}
-
 @media (max-width: 600px) {
-  .beam {
-    padding: 30px 15px;
-    gap: 15px;
-  }
-
   .settings-btns {
-    right: 5%;
-    gap: 10px;
+    gap: 12px;
   }
 }
 </style>

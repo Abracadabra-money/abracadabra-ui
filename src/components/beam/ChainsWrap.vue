@@ -109,8 +109,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 106px;
-  height: 106px;
+  padding: 14px;
   border-radius: 58px;
   border: 1px solid #2d4a96;
   background: linear-gradient(
@@ -163,13 +162,22 @@ export default {
 }
 
 @media (max-width: 600px) {
-  .chains-wrap {
-    flex-direction: column;
-    gap: 15px;
+  .chains-swap {
+    gap: 5px;
   }
 
   .select-item {
     width: 100%;
+  }
+
+  .chain-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .select-button-text {
+    font-size: 14px;
+    font-weight: 500;
   }
 }
 </style>
