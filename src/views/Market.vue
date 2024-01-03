@@ -12,15 +12,19 @@
           <div class="form-wrap" v-if="isBorrowTab">
             <BorrowForm
               :cauldron="cauldron"
-              @updateBorrowConfig="onUpdateConfig"
+              :actionConfig="actionConfig"
               @updateMarket="createCauldronInfo"
+              @updateToggle="onUpdateToggle"
+              @updateAmounts="onUpdateAmounts"
             />
           </div>
 
           <div class="form-wrap" v-if="isRepayTab">
-            <RepayBlock
+            <RepayForm
               :cauldron="cauldron"
-              @updateRepayConfig="onUpdateConfig"
+              :actionConfig="actionConfig"
+              @updateToggle="onUpdateToggle"
+              @updateAmounts="onUpdateAmounts"
             />
           </div>
         </div>
@@ -31,6 +35,8 @@
           </div>
 
           <div class="row">
+            {{ actionConfig }}
+
             <PositionInfo
               :cauldron="cauldron"
               :actionType="activeTab"
@@ -53,7 +59,6 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { defaultRpc } from "@/helpers/chains";
@@ -69,8 +74,6 @@ export default {
       cauldronId: null as any,
       cauldron: null as any,
       updateInterval: null as any,
-
-      // IMPORTANT: remove config dublicates from Forms & provide this config
       actionConfig: {
         useLeverage: false,
         useDeleverage: false,
@@ -98,8 +101,6 @@ export default {
       },
       activeTab: "borrow",
       tabItems: ["borrow", "repay"],
-      useLeverage: false,
-      loadingBorrow: false,
     };
   },
 
@@ -123,12 +124,50 @@ export default {
   },
 
   methods: {
-    onUpdateConfig(config: any) {
-      this.actionConfig = config;
+    resetAmounts() {
+      this.actionConfig.amounts = {
+        depositAmounts: {
+          inputAmount: BigNumber.from(0),
+          collateralTokenAmount: BigNumber.from(0),
+          unwrapTokenAmount: BigNumber.from(0),
+        },
+        borrowAmount: BigNumber.from(0),
+        leverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+        deleverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+        repayAmount: BigNumber.from(0),
+        withdrawAmount: BigNumber.from(0),
+        slippage: utils.parseUnits("1", PERCENT_PRESITION),
+      };
+    },
+
+    resetToggles() {
+      this.actionConfig.useLeverage = false;
+      this.actionConfig.useDeleverage = false;
+      this.actionConfig.useNativeToken = false;
+      this.actionConfig.useUnwrapToken = false;
+    },
+
+    onUpdateToggle(toggle: string, isReset = false) {
+      // @ts-ignore
+      this.actionConfig[toggle] = !this.actionConfig[toggle];
+      if (isReset) this.resetAmounts();
+    },
+
+    onUpdateAmounts(type: string, value: any) {
+      // @ts-ignore
+      this.actionConfig.amounts[type] = value;
     },
 
     changeTab(action: string) {
       this.activeTab = action;
+      this.resetAmounts();
+      this.resetToggles();
     },
 
     async createCauldronInfo() {
@@ -181,7 +220,7 @@ export default {
     BorrowForm: defineAsyncComponent(
       () => import("@/components/market/BorrowForm.vue")
     ),
-    RepayBlock: defineAsyncComponent(
+    RepayForm: defineAsyncComponent(
       () => import("@/components/market/RepayForm.vue")
     ),
     PositionHealth: defineAsyncComponent(

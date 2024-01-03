@@ -3,9 +3,9 @@
     <div class="deposit-wrap">
       <DepositBlock
         :cauldron="cauldron"
-        :inputAmpunt="borrowConfig.amounts.depositAmounts.inputAmount"
-        :useNativeToken="borrowConfig.useNativeToken"
-        :useUnwrapToken="borrowConfig.useUnwrapToken"
+        :inputAmpunt="actionConfig.amounts.depositAmounts.inputAmount"
+        :useNativeToken="actionConfig.useNativeToken"
+        :useUnwrapToken="actionConfig.useUnwrapToken"
         :toggleNativeToken="onToggleNativeToken"
         :toggleUnwrapToken="onToggleUnwrapToken"
         @updateDepositAmounts="onUpdateDepositAmounts"
@@ -19,14 +19,14 @@
             <h3 class="title-wrap">
               <span> Borrow MIM</span>
               <SlippagePopup
-                v-if="borrowConfig.useLeverage"
-                :amount="borrowConfig.amounts.slippage"
+                v-if="actionConfig.useLeverage"
+                :amount="actionConfig.amounts.slippage"
                 @updateSlippage="onUpdateSlippage"
               />
             </h3>
 
             <Toggle
-              :selected="borrowConfig.useLeverage"
+              :selected="actionConfig.useLeverage"
               text="Leverage"
               @updateToggle="onToggleLeverage"
             />
@@ -38,11 +38,11 @@
         </div>
 
         <LeverageBlock
-          v-if="borrowConfig.useLeverage"
+          v-if="actionConfig.useLeverage"
           :depositCollateralAmount="
-            borrowConfig.amounts.depositAmounts.collateralTokenAmount
+            actionConfig.amounts.depositAmounts.collateralTokenAmount
           "
-          :leverageAmounts="borrowConfig.amounts.leverageAmounts"
+          :leverageAmounts="actionConfig.amounts.leverageAmounts"
           :cauldron="cauldron"
           @updateLeverageAmounts="onUpdateLeverageAmounts"
         />
@@ -50,9 +50,9 @@
         <BorrowBlock
           v-else
           :cauldron="cauldron"
-          :inputAmount="borrowConfig.amounts.borrowAmount"
+          :inputAmount="actionConfig.amounts.borrowAmount"
           :collateralTokenAmount="
-            borrowConfig.amounts.depositAmounts.collateralTokenAmount
+            actionConfig.amounts.depositAmounts.collateralTokenAmount
           "
           @updateBorrowAmount="onUpdateBorrowAmount"
         />
@@ -68,109 +68,47 @@
 </template>
 
 <script lang="ts">
-import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { BigNumber, utils } from "ethers";
+import type { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
+import type { DepositAmounts, SwapAmounts } from "@/helpers/cauldron/types";
 
 export default {
   props: {
     cauldron: {
       type: Object as any,
     },
-  },
-
-  data() {
-    return {
-      borrowConfig: {
-        useLeverage: false,
-        useDeleverage: true,
-        useNativeToken: false,
-        useUnwrapToken: false,
-        amounts: {
-          depositAmounts: {
-            inputAmount: BigNumber.from(0),
-            collateralTokenAmount: BigNumber.from(0),
-            unwrapTokenAmount: BigNumber.from(0),
-          },
-          borrowAmount: BigNumber.from(0),
-          leverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          deleverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          repayAmount: BigNumber.from(0),
-          withdrawAmount: BigNumber.from(0),
-          slippage: utils.parseUnits("1", PERCENT_PRESITION),
-        },
-      },
-    };
-  },
-
-  watch: {
-    borrowConfig: {
-      handler(borrowConfig) {
-        this.$emit("updateBorrowConfig", borrowConfig);
-      },
-      deep: true,
+    actionConfig: {
+      type: Object as any,
     },
   },
 
   methods: {
-    resetAmounts() {
-      this.borrowConfig.amounts = {
-        depositAmounts: {
-          inputAmount: BigNumber.from(0),
-          collateralTokenAmount: BigNumber.from(0),
-          unwrapTokenAmount: BigNumber.from(0),
-        },
-        borrowAmount: BigNumber.from(0),
-        leverageAmounts: {
-          amountFrom: BigNumber.from(0),
-          amountToMin: BigNumber.from(0),
-        },
-        deleverageAmounts: {
-          amountFrom: BigNumber.from(0),
-          amountToMin: BigNumber.from(0),
-        },
-        repayAmount: BigNumber.from(0),
-        withdrawAmount: BigNumber.from(0),
-        slippage: utils.parseUnits("1", PERCENT_PRESITION),
-      };
-    },
-
-    onToggleLeverage() {
-      const { useLeverage, amounts } = this.borrowConfig;
-      this.borrowConfig.useLeverage = !useLeverage;
-      this.borrowConfig.amounts.depositAmounts = amounts.depositAmounts;
-    },
-
     onToggleNativeToken() {
-      this.borrowConfig.useNativeToken = !this.borrowConfig.useNativeToken;
-      this.resetAmounts();
+      this.$emit("updateToggle", "useNativeToken", true);
     },
 
     onToggleUnwrapToken() {
-      this.borrowConfig.useUnwrapToken = !this.borrowConfig.useUnwrapToken;
-      this.resetAmounts();
+      this.$emit("updateToggle", "useUnwrapToken", true);
     },
 
-    onUpdateDepositAmounts(amounts: any) {
-      this.borrowConfig.amounts.depositAmounts = amounts;
+    onToggleLeverage() {
+      this.$emit("updateToggle", "useLeverage");
+    },
+
+    onUpdateDepositAmounts(amounts: DepositAmounts) {
+      this.$emit("updateAmounts", "depositAmounts", amounts);
     },
 
     onUpdateBorrowAmount(amount: BigNumber) {
-      this.borrowConfig.amounts.borrowAmount = amount;
+      this.$emit("updateAmounts", "borrowAmount", amount);
     },
 
-    onUpdateLeverageAmounts(amounts: any) {
-      this.borrowConfig.amounts.leverageAmounts = amounts;
+    onUpdateLeverageAmounts(amounts: SwapAmounts) {
+      this.$emit("updateAmounts", "leverageAmounts", amounts);
     },
 
     onUpdateSlippage(slippage: BigNumber) {
-      this.borrowConfig.amounts.slippage = slippage;
+      this.$emit("updateAmounts", "slippage", slippage);
     },
   },
 

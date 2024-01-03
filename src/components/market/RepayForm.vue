@@ -5,14 +5,14 @@
         <div class="title-wrap">
           <h3>{{ titleText }}</h3>
           <SlippagePopup
-            v-if="repayConfig.useDeleverage"
-            :amount="repayConfig.amounts.slippage"
+            v-if="actionConfig.useDeleverage"
+            :amount="actionConfig.amounts.slippage"
             @updateSlippage="onUpdateSlippage"
           />
         </div>
 
         <Toggle
-          :selected="repayConfig.useDeleverage"
+          :selected="actionConfig.useDeleverage"
           text="Deleverge"
           @updateToggle="onToggleDeleverage"
         />
@@ -21,18 +21,18 @@
       <h4 class="subtitle">{{ subtitleText }}</h4>
 
       <RemoveCollateralBlock
-        v-if="!repayConfig.useDeleverage"
+        v-if="!actionConfig.useDeleverage"
         :cauldron="cauldron"
-        :inputAmount="repayConfig.amounts.withdrawAmount"
-        :repayAmount="repayConfig.amounts.repayAmount"
+        :inputAmount="actionConfig.amounts.withdrawAmount"
+        :repayAmount="actionConfig.amounts.repayAmount"
         @updateWithdrawAmount="onUpdateWithdrawAmount"
       />
 
       <DeleverageBlock
         v-else
         :cauldron="cauldron"
-        :deleverageAmounts="repayConfig.amounts.deleverageAmounts"
-        :withdrawAmount="repayConfig.amounts.withdrawAmount"
+        :deleverageAmounts="actionConfig.amounts.deleverageAmounts"
+        :withdrawAmount="actionConfig.amounts.withdrawAmount"
         @updateDeleverageAmounts="onUpdateDeleverageAmounts"
       />
     </div>
@@ -40,25 +40,25 @@
     <div class="block-wrap repay-block">
       <div class="repay-logic">
         <RepayBlock
-          v-if="!repayConfig.useDeleverage"
+          v-if="!actionConfig.useDeleverage"
           :cauldron="cauldron"
-          :inputAmount="repayConfig.amounts.repayAmount"
-          :withdrawAmount="repayConfig.amounts.withdrawAmount"
+          :inputAmount="actionConfig.amounts.repayAmount"
+          :withdrawAmount="actionConfig.amounts.withdrawAmount"
           @updateRepayAmount="onUpdateRepayAmount"
         />
 
         <RemoveCollateralRangeBlock
           v-else
           :cauldron="cauldron"
-          :deleverageAmounts="repayConfig.amounts.deleverageAmounts"
-          :withdrawAmount="repayConfig.amounts.withdrawAmount"
+          :deleverageAmounts="actionConfig.amounts.deleverageAmounts"
+          :withdrawAmount="actionConfig.amounts.withdrawAmount"
           @updateWithdrawAmount="onUpdateWithdrawAmount"
         />
       </div>
 
       <div class="btns-wrap">
         <BaseButton primary disabled>Nothing to do </BaseButton>
-        <BaseButton primary disabled v-if="repayConfig.useDeleverage"
+        <BaseButton primary disabled v-if="actionConfig.useDeleverage"
           >Close position
         </BaseButton>
       </div>
@@ -68,46 +68,18 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { BigNumber, utils } from "ethers";
+import type { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import type { SwapAmounts } from "@/helpers/cauldron/types";
 
 export default {
   props: {
     cauldron: {
       type: Object as any,
     },
-  },
-
-  data() {
-    return {
-      showSlippagePopup: false,
-      repayConfig: {
-        useLeverage: false,
-        useDeleverage: false,
-        useNativeToken: false,
-        useUnwrapToken: false,
-        amounts: {
-          depositAmounts: {
-            inputAmount: BigNumber.from(0),
-            collateralTokenAmount: BigNumber.from(0),
-            unwrapTokenAmount: BigNumber.from(0),
-          },
-          borrowAmount: BigNumber.from(0),
-          leverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          deleverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          repayAmount: BigNumber.from(0),
-          withdrawAmount: BigNumber.from(0),
-          slippage: utils.parseUnits("1", PERCENT_PRESITION),
-        },
-      },
-    };
+    actionConfig: {
+      type: Object as any,
+    },
   },
 
   computed: {
@@ -117,12 +89,12 @@ export default {
     }),
 
     titleText() {
-      const { useDeleverage } = this.repayConfig;
+      const { useDeleverage } = this.actionConfig;
       return useDeleverage ? "Deleverage" : "Remove collateral";
     },
 
     subtitleText() {
-      const { useDeleverage } = this.repayConfig;
+      const { useDeleverage } = this.actionConfig;
       const { name } = this.cauldron.config.collateralInfo;
       return useDeleverage
         ? "Choose the amount of MIM you want to repay"
@@ -130,57 +102,25 @@ export default {
     },
   },
 
-  watch: {
-    repayConfig: {
-      handler(value) {
-        this.$emit("updateRepayConfig", value);
-      },
-      deep: true,
-    },
-  },
-
   methods: {
-    resetAmounts() {
-      this.repayConfig.amounts = {
-        depositAmounts: {
-          inputAmount: BigNumber.from(0),
-          collateralTokenAmount: BigNumber.from(0),
-          unwrapTokenAmount: BigNumber.from(0),
-        },
-        borrowAmount: BigNumber.from(0),
-        leverageAmounts: {
-          amountFrom: BigNumber.from(0),
-          amountToMin: BigNumber.from(0),
-        },
-        deleverageAmounts: {
-          amountFrom: BigNumber.from(0),
-          amountToMin: BigNumber.from(0),
-        },
-        repayAmount: BigNumber.from(0),
-        withdrawAmount: BigNumber.from(0),
-        slippage: utils.parseUnits("1", PERCENT_PRESITION),
-      };
+    onToggleDeleverage() {
+      this.$emit("updateToggle", "useDeleverage", true);
     },
 
     onUpdateWithdrawAmount(amount: BigNumber) {
-      this.repayConfig.amounts.withdrawAmount = amount;
+      this.$emit("updateAmounts", "withdrawAmount", amount);
     },
 
     onUpdateRepayAmount(amount: BigNumber) {
-      this.repayConfig.amounts.repayAmount = amount;
+      this.$emit("updateAmounts", "repayAmount", amount);
     },
 
-    onUpdateDeleverageAmounts(amounts: any) {
-      this.repayConfig.amounts.deleverageAmounts = amounts;
-    },
-
-    onToggleDeleverage() {
-      this.repayConfig.useDeleverage = !this.repayConfig.useDeleverage;
-      this.resetAmounts();
+    onUpdateDeleverageAmounts(amounts: SwapAmounts) {
+      this.$emit("updateAmounts", "deleverageAmounts", amounts);
     },
 
     onUpdateSlippage(slippage: BigNumber) {
-      this.repayConfig.amounts.slippage = slippage;
+      this.$emit("updateAmounts", "slippage", slippage);
     },
   },
 
