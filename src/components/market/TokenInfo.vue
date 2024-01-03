@@ -48,7 +48,7 @@ export default {
         .div(this.cauldron.mainParams.oracleExchangeRate);
 
       const rate = +utils.formatUnits(tokenToMim);
-      const decimals = rate < 0.0001 ? 6 : 4;
+      const decimals = rate > 0.01 ? 2 : rate < 0.0001 ? 6 : 4;
       return filters.formatTokenBalance(filters.formatToFixed(rate, decimals));
     },
   },

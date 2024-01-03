@@ -12,11 +12,6 @@
           :selected="showActiveCauldrons"
           @updateToggle="updateToggleActiveCauldrons"
         />
-        <Toggle
-          text="Leverage"
-          :selected="isSwappersActive"
-          @updateToggle="updateToggleASwappersActive"
-        />
       </div>
       <div class="filters-wrap">
         <ChainsDropdown
@@ -64,7 +59,6 @@ export default {
       searchValue: "",
       showMyPositions: false,
       showActiveCauldrons: true,
-      isSwappersActive: true,
       sortKey: "",
       sortOrder: false,
       selectedChains: [0],
@@ -85,10 +79,7 @@ export default {
         this.filterByActiveCauldrons(filteredByChain);
       const filteredByPositions = this.filterPositions(filteredByDepreciate);
 
-      const filteredBySwappersActive =
-        this.filterSwappersActive(filteredByPositions);
-
-      const sortedByNew = this.sortByNew(filteredBySwappersActive);
+      const sortedByNew = this.sortByNew(filteredByPositions);
       const filteredByValue = this.filterBySearchValue(
         sortedByNew,
         this.searchValue
@@ -118,10 +109,6 @@ export default {
 
     updateToggleActiveCauldrons() {
       this.showActiveCauldrons = !this.showActiveCauldrons;
-    },
-
-    updateToggleASwappersActive() {
-      this.isSwappersActive = !this.isSwappersActive;
     },
 
     updateSortKeys(key, order) {
@@ -178,16 +165,6 @@ export default {
             userPosition.collateralInfo.userCollateralShare.gt(0) ||
             userPosition.borrowInfo.userBorrowPart.gt(0)
           );
-        });
-      }
-
-      return cauldrons;
-    },
-
-    filterSwappersActive(cauldrons) {
-      if (this.isSwappersActive) {
-        return cauldrons.filter(({ config }) => {
-          return config.cauldronSettings.isSwappersActive;
         });
       }
 
