@@ -4,7 +4,11 @@
       <div class="row">
         <div class="title-wrap">
           <h3>{{ titleText }}</h3>
-          <SlippagePopup v-if="repayConfig.useDeleverage" />
+          <SlippagePopup
+            v-if="repayConfig.useDeleverage"
+            :amount="repayConfig.amounts.slippage"
+            @updateSlippage="onUpdateSlippage"
+          />
         </div>
 
         <Toggle
@@ -63,9 +67,10 @@
 </template>
 
 <script lang="ts">
-import { BigNumber } from "ethers";
-import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
+import { BigNumber, utils } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
@@ -79,7 +84,7 @@ export default {
       showSlippagePopup: false,
       repayConfig: {
         useLeverage: false,
-        useDeleverage: true,
+        useDeleverage: false,
         useNativeToken: false,
         useUnwrapToken: false,
         amounts: {
@@ -99,6 +104,7 @@ export default {
           },
           repayAmount: BigNumber.from(0),
           withdrawAmount: BigNumber.from(0),
+          slippage: utils.parseUnits("1", PERCENT_PRESITION),
         },
       },
     };
@@ -134,23 +140,6 @@ export default {
   },
 
   methods: {
-    onUpdateWithdrawAmount(amount: BigNumber) {
-      this.repayConfig.amounts.withdrawAmount = amount;
-    },
-
-    onUpdateRepayAmount(amount: BigNumber) {
-      this.repayConfig.amounts.repayAmount = amount;
-    },
-
-    onUpdateDeleverageAmounts(amounts: any) {
-      this.repayConfig.amounts.deleverageAmounts = amounts;
-    },
-
-    onToggleDeleverage() {
-      this.repayConfig.useDeleverage = !this.repayConfig.useDeleverage;
-      this.resetAmounts();
-    },
-
     resetAmounts() {
       this.repayConfig.amounts = {
         depositAmounts: {
@@ -169,7 +158,29 @@ export default {
         },
         repayAmount: BigNumber.from(0),
         withdrawAmount: BigNumber.from(0),
+        slippage: utils.parseUnits("1", PERCENT_PRESITION),
       };
+    },
+
+    onUpdateWithdrawAmount(amount: BigNumber) {
+      this.repayConfig.amounts.withdrawAmount = amount;
+    },
+
+    onUpdateRepayAmount(amount: BigNumber) {
+      this.repayConfig.amounts.repayAmount = amount;
+    },
+
+    onUpdateDeleverageAmounts(amounts: any) {
+      this.repayConfig.amounts.deleverageAmounts = amounts;
+    },
+
+    onToggleDeleverage() {
+      this.repayConfig.useDeleverage = !this.repayConfig.useDeleverage;
+      this.resetAmounts();
+    },
+
+    onUpdateSlippage(slippage: BigNumber) {
+      this.repayConfig.amounts.slippage = slippage;
     },
   },
 

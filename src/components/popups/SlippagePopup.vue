@@ -5,10 +5,10 @@
       :width="26"
       :height="26"
       padding="4px"
-      @click="() => (showSlippagePopup = !showSlippagePopup)"
+      @click="() => (showPopup = !showPopup)"
     />
 
-    <div class="slippage-popup" v-if="showSlippagePopup">
+    <div class="slippage-popup" v-if="showPopup">
       <div class="title-wrap">
         <h3>Transaction overview</h3>
 
@@ -19,8 +19,11 @@
         <input
           class="input"
           v-model="inputValue"
+          min="0"
+          max="100"
+          step="1"
           type="text"
-          placeholder="0.0"
+          placeholder="1 - 100"
         />
 
         <button
@@ -34,44 +37,59 @@
   </div>
 </template>
 <script lang="ts">
+// @ts-ignore
+import filters from "@/filters/index.js";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
-    defaultValue: {
-      type: String,
-      default: "0.1",
+    amount: {
+      type: BigNumber,
+      default: utils.parseUnits("1", PERCENT_PRESITION),
+    },
+    defaultAmount: {
+      type: BigNumber,
+      default: utils.parseUnits("1", PERCENT_PRESITION),
     },
   },
 
   data() {
     return {
-      inputValue: this.defaultValue,
-      showSlippagePopup: false,
+      showPopup: false,
+      inputValue: this.getFormattedAmount(this.amount),
     };
   },
 
   computed: {
     isActiveAutoButton(): boolean {
-      return this.inputValue !== this.defaultValue;
+      return this.inputValue !== this.defaultAmount;
     },
   },
 
   watch: {
     inputValue(value, oldValue) {
-      if (!value) return this.$emit("updateValue", BigNumber.from(0));
-      if (isNaN(value)) this.inputValue = oldValue;
-      else {
-        this.inputValue = value;
-        this.$emit("updateValue", utils.parseUnits(String(value), 2));
-      }
+      if (!value) return this.$emit("updateSlippage", BigNumber.from(0));
+      if (isNaN(value)) this.inputValue = Number(oldValue);
+      if (Number(value) > 100) this.inputValue = 100;
+      else this.inputValue = Number(value);
+
+      this.$emit(
+        "updateSlippage",
+        utils.parseUnits(String(this.inputValue), PERCENT_PRESITION)
+      );
     },
   },
 
   methods: {
     getDefaultSlippage() {
-      this.inputValue = this.defaultValue;
+      this.inputValue = this.getFormattedAmount(this.defaultAmount);
+    },
+
+    getFormattedAmount(amount: BigNumber) {
+      const parsedAmount = utils.formatUnits(amount, PERCENT_PRESITION);
+      return Number(filters.formatToFixed(parsedAmount, PERCENT_PRESITION));
     },
   },
 

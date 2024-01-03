@@ -57,7 +57,8 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { defaultRpc } from "@/helpers/chains";
-import { BigNumber, providers } from "ethers";
+import { BigNumber, providers, utils } from "ethers";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { getChainsConfigs } from "@/helpers/getChainsConfigs";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
@@ -92,6 +93,7 @@ export default {
           },
           repayAmount: BigNumber.from(0),
           withdrawAmount: BigNumber.from(0),
+          slippage: utils.parseUnits("1", PERCENT_PRESITION),
         },
       },
       activeTab: "borrow",

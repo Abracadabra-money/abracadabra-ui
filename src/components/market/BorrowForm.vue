@@ -18,7 +18,11 @@
           <div class="borrow-head-row">
             <h3 class="title-wrap">
               <span> Borrow MIM</span>
-              <SlippagePopup v-if="borrowConfig.useLeverage" />
+              <SlippagePopup
+                v-if="borrowConfig.useLeverage"
+                :amount="borrowConfig.amounts.slippage"
+                @updateSlippage="onUpdateSlippage"
+              />
             </h3>
 
             <Toggle
@@ -64,7 +68,8 @@
 </template>
 
 <script lang="ts">
-import { BigNumber } from "ethers";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -98,6 +103,7 @@ export default {
           },
           repayAmount: BigNumber.from(0),
           withdrawAmount: BigNumber.from(0),
+          slippage: utils.parseUnits("1", PERCENT_PRESITION),
         },
       },
     };
@@ -131,6 +137,7 @@ export default {
         },
         repayAmount: BigNumber.from(0),
         withdrawAmount: BigNumber.from(0),
+        slippage: utils.parseUnits("1", PERCENT_PRESITION),
       };
     },
 
@@ -160,6 +167,10 @@ export default {
 
     onUpdateLeverageAmounts(amounts: any) {
       this.borrowConfig.amounts.leverageAmounts = amounts;
+    },
+
+    onUpdateSlippage(slippage: BigNumber) {
+      this.borrowConfig.amounts.slippage = slippage;
     },
   },
 
