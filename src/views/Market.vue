@@ -103,7 +103,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ account: "getAccount", signer: "getSigner" }),
+    ...mapGetters({
+      account: "getAccount",
+      signer: "getSigner",
+      activeChainId: "getChainId",
+    }),
 
     isOpenPosition() {
       return (
@@ -183,7 +187,10 @@ export default {
 
       const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
 
-      const userSigner = this.account ? this.signer : chainProvider;
+      const userSigner =
+        this.account && this.activeChainId === this.chainId
+          ? this.signer
+          : chainProvider;
 
       this.cauldron = await getCauldronInfo(
         this.cauldronId,
