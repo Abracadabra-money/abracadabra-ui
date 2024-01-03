@@ -12,7 +12,6 @@
           <div class="form-wrap" v-if="isBorrowTab">
             <BorrowForm
               :cauldron="cauldron"
-              @updateAmounts="updateAmounts"
               @updateBorrowConfig="onUpdateConfig"
               @updateMarket="createCauldronInfo"
             />
@@ -70,28 +69,14 @@ export default {
       cauldron: null as any,
       updateInterval: null as any,
 
-      // TODO: remove after RepayBlock update
-      amounts: {
-        deposit: {
-          inputAmount: BigNumber.from(0),
-          collateralTokenAmount: BigNumber.from(0),
-          unwrapTokenAmount: BigNumber.from(0),
-        },
-        borrowAmount: BigNumber.from(0),
-        leverageAmounts: {
-          amountFrom: BigNumber.from(0),
-          amountToMin: BigNumber.from(0),
-        },
-      },
-
-      // TODO: add repay logic & types
       // IMPORTANT: remove config dublicates from Forms & provide this config
       actionConfig: {
         useLeverage: false,
         useDeleverage: false,
+        useNativeToken: false,
+        useUnwrapToken: false,
         amounts: {
-          // TODO: rename to depositAmounts
-          deposit: {
+          depositAmounts: {
             inputAmount: BigNumber.from(0),
             collateralTokenAmount: BigNumber.from(0),
             unwrapTokenAmount: BigNumber.from(0),
@@ -136,20 +121,12 @@ export default {
   },
 
   methods: {
-    updateAmounts(amounts: any) {
-      this.amounts = amounts;
-    },
-
     onUpdateConfig(config: any) {
       this.actionConfig = config;
     },
 
     changeTab(action: string) {
       this.activeTab = action;
-    },
-
-    toogleUseLeverage() {
-      this.useLeverage = !this.useLeverage;
     },
 
     async createCauldronInfo() {

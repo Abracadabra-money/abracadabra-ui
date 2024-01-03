@@ -80,10 +80,10 @@ export default {
       repayConfig: {
         useLeverage: false,
         useDeleverage: true,
-
+        useNativeToken: false,
+        useUnwrapToken: false,
         amounts: {
-          // TODO: rename to depositAmounts
-          deposit: {
+          depositAmounts: {
             inputAmount: BigNumber.from(0),
             collateralTokenAmount: BigNumber.from(0),
             unwrapTokenAmount: BigNumber.from(0),
@@ -137,37 +137,38 @@ export default {
     onUpdateWithdrawAmount(amount: BigNumber) {
       this.repayConfig.amounts.withdrawAmount = amount;
     },
+
     onUpdateRepayAmount(amount: BigNumber) {
       this.repayConfig.amounts.repayAmount = amount;
     },
+
     onUpdateDeleverageAmounts(amounts: any) {
       this.repayConfig.amounts.deleverageAmounts = amounts;
     },
-    onToggleDeleverage() {
-      // IMPORTANT: fix this
-      this.repayConfig = {
-        useLeverage: false,
-        useDeleverage: !this.repayConfig.useDeleverage,
 
-        amounts: {
-          // TODO: rename to depositAmounts
-          deposit: {
-            inputAmount: BigNumber.from(0),
-            collateralTokenAmount: BigNumber.from(0),
-            unwrapTokenAmount: BigNumber.from(0),
-          },
-          borrowAmount: BigNumber.from(0),
-          leverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          deleverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          repayAmount: BigNumber.from(0),
-          withdrawAmount: BigNumber.from(0),
+    onToggleDeleverage() {
+      this.repayConfig.useDeleverage = !this.repayConfig.useDeleverage;
+      this.resetAmounts();
+    },
+
+    resetAmounts() {
+      this.repayConfig.amounts = {
+        depositAmounts: {
+          inputAmount: BigNumber.from(0),
+          collateralTokenAmount: BigNumber.from(0),
+          unwrapTokenAmount: BigNumber.from(0),
         },
+        borrowAmount: BigNumber.from(0),
+        leverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+        deleverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+        repayAmount: BigNumber.from(0),
+        withdrawAmount: BigNumber.from(0),
       };
     },
   },

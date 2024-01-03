@@ -3,11 +3,11 @@
     <div class="deposit-wrap">
       <DepositBlock
         :cauldron="cauldron"
-        :inputAmpunt="borrowConfig.amounts.deposit.inputAmount"
-        :useNativeToken="useNativeToken"
-        :useUnwrapToken="useUnwrapToken"
-        :toggleNativeToken="() => (useNativeToken = !useNativeToken)"
-        :toggleUnwrapToken="() => (useUnwrapToken = !useUnwrapToken)"
+        :inputAmpunt="borrowConfig.amounts.depositAmounts.inputAmount"
+        :useNativeToken="borrowConfig.useNativeToken"
+        :useUnwrapToken="borrowConfig.useUnwrapToken"
+        :toggleNativeToken="onToggleNativeToken"
+        :toggleUnwrapToken="onToggleUnwrapToken"
         @updateDepositAmounts="onUpdateDepositAmounts"
       />
     </div>
@@ -36,7 +36,7 @@
         <LeverageBlock
           v-if="borrowConfig.useLeverage"
           :depositCollateralAmount="
-            borrowConfig.amounts.deposit.collateralTokenAmount
+            borrowConfig.amounts.depositAmounts.collateralTokenAmount
           "
           :leverageAmounts="borrowConfig.amounts.leverageAmounts"
           :cauldron="cauldron"
@@ -48,7 +48,7 @@
           :cauldron="cauldron"
           :inputAmount="borrowConfig.amounts.borrowAmount"
           :collateralTokenAmount="
-            borrowConfig.amounts.deposit.collateralTokenAmount
+            borrowConfig.amounts.depositAmounts.collateralTokenAmount
           "
           @updateBorrowAmount="onUpdateBorrowAmount"
         />
@@ -76,15 +76,13 @@ export default {
 
   data() {
     return {
-      useNativeToken: false,
-      useUnwrapToken: false,
-      // TODO: add types
       borrowConfig: {
         useLeverage: false,
         useDeleverage: true,
+        useNativeToken: false,
+        useUnwrapToken: false,
         amounts: {
-          // TODO: rename to depositAmounts
-          deposit: {
+          depositAmounts: {
             inputAmount: BigNumber.from(0),
             collateralTokenAmount: BigNumber.from(0),
             unwrapTokenAmount: BigNumber.from(0),
@@ -106,86 +104,62 @@ export default {
   },
 
   watch: {
-    useUnwrapToken() {
-      this.setEmptyState(); // NOTICE: do we need this?
-    },
-
-    useNativeToken() {
-      this.setEmptyState(); // NOTICE: do we need this?
-    },
-
     borrowConfig: {
-      handler(value) {
-        this.$emit("updateBorrowConfig", value);
+      handler(borrowConfig) {
+        this.$emit("updateBorrowConfig", borrowConfig);
       },
       deep: true,
     },
   },
 
   methods: {
-    setEmptyState() {
-      this.borrowConfig = {
-        useLeverage: false,
-        useDeleverage: true,
-        amounts: {
-          // TODO: rename to depositAmounts
-          deposit: {
-            inputAmount: BigNumber.from(0),
-            collateralTokenAmount: BigNumber.from(0),
-            unwrapTokenAmount: BigNumber.from(0),
-          },
-          borrowAmount: BigNumber.from(0),
-          leverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          deleverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          repayAmount: BigNumber.from(0),
-          withdrawAmount: BigNumber.from(0),
+    resetAmounts() {
+      this.borrowConfig.amounts = {
+        depositAmounts: {
+          inputAmount: BigNumber.from(0),
+          collateralTokenAmount: BigNumber.from(0),
+          unwrapTokenAmount: BigNumber.from(0),
         },
+        borrowAmount: BigNumber.from(0),
+        leverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+        deleverageAmounts: {
+          amountFrom: BigNumber.from(0),
+          amountToMin: BigNumber.from(0),
+        },
+        repayAmount: BigNumber.from(0),
+        withdrawAmount: BigNumber.from(0),
       };
     },
 
     onToggleLeverage() {
-      // IMPORTANT: fix this
-      this.borrowConfig = {
-        useLeverage: !this.borrowConfig.useLeverage,
-        useDeleverage: false,
+      const { useLeverage, amounts } = this.borrowConfig;
+      this.borrowConfig.useLeverage = !useLeverage;
+      this.borrowConfig.amounts.depositAmounts = amounts.depositAmounts;
+    },
 
-        amounts: {
-          // TODO: rename to depositAmounts
-          deposit: this.borrowConfig.amounts.deposit,
-          borrowAmount: BigNumber.from(0),
-          leverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          deleverageAmounts: {
-            amountFrom: BigNumber.from(0),
-            amountToMin: BigNumber.from(0),
-          },
-          repayAmount: BigNumber.from(0),
-          withdrawAmount: BigNumber.from(0),
-        },
-      };
+    onToggleNativeToken() {
+      this.borrowConfig.useNativeToken = !this.borrowConfig.useNativeToken;
+      this.resetAmounts();
+    },
+
+    onToggleUnwrapToken() {
+      this.borrowConfig.useUnwrapToken = !this.borrowConfig.useUnwrapToken;
+      this.resetAmounts();
     },
 
     onUpdateDepositAmounts(amounts: any) {
-      this.borrowConfig.amounts.deposit = amounts;
-      this.$emit("updateAmounts", this.borrowConfig.amounts);
+      this.borrowConfig.amounts.depositAmounts = amounts;
     },
 
     onUpdateBorrowAmount(amount: BigNumber) {
       this.borrowConfig.amounts.borrowAmount = amount;
-      this.$emit("updateAmounts", this.borrowConfig.amounts);
     },
 
     onUpdateLeverageAmounts(amounts: any) {
       this.borrowConfig.amounts.leverageAmounts = amounts;
-      this.$emit("updateAmounts", this.borrowConfig.amounts);
     },
   },
 

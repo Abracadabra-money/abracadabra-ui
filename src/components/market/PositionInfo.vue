@@ -184,14 +184,14 @@ export default {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
 
-      const { deposit, leverageAmounts } = this.actionConfig.amounts;
+      const { depositAmounts, leverageAmounts } = this.actionConfig.amounts;
 
       if (this.actionConfig.useLeverage)
         return userCollateralAmount
-          .add(deposit.collateralTokenAmount)
+          .add(depositAmounts.collateralTokenAmount)
           .add(leverageAmounts.amountToMin);
 
-      return userCollateralAmount.add(deposit.collateralTokenAmount);
+      return userCollateralAmount.add(depositAmounts.collateralTokenAmount);
     },
 
     expectedBorrowCollateralInUsd() {
