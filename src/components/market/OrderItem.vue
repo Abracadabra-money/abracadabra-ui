@@ -112,7 +112,7 @@ export default {
       slippage: DEFAULT_SLIPPAGE,
       status: ORDER_PENDING,
       type: ORDER_TYPE_UNKNOWN,
-      balances: null,
+      balances: null as any,
       statuses: {
         0: {
           name: "Pending...",

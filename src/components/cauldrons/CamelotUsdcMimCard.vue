@@ -32,8 +32,8 @@ import filters from "@/filters/index";
 export default {
   data() {
     return {
-      tvl: null,
-      aprRange: null,
+      tvl: null as any,
+      aprRange: null as any,
     };
   },
 

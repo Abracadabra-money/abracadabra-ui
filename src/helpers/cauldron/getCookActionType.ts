@@ -1,4 +1,4 @@
-import type { ActionConfig } from "@/helpers/cauldron/types.ts";
+import type { ActionConfig } from "@/helpers/cauldron/types";
 
 const ACTION_UNKNOWN = 0;
 const ACTION_DEPOSIT = 1;

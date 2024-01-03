@@ -53,7 +53,7 @@ export default {
   },
 
   computed: {
-    isActiveAutoButton() {
+    isActiveAutoButton(): boolean {
       return this.inputValue !== this.defaultValue;
     },
   },
