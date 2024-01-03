@@ -58,7 +58,7 @@
         />
       </div>
 
-      <BaseButton primary disabled>Nothing to do </BaseButton>
+      <BaseButton primary :disabled="!cookValidationData.isAllowed">{{cookValidationData.btnText}}</BaseButton>
     </div>
     <OrdersManager
       v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
@@ -71,8 +71,9 @@
 import type { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 import type { DepositAmounts, SwapAmounts } from "@/helpers/cauldron/types";
-
+import tempMixin from "@/mixins/temp";
 export default {
+  mixins: [tempMixin],
   props: {
     cauldron: {
       type: Object as any,
@@ -80,6 +81,12 @@ export default {
     actionConfig: {
       type: Object as any,
     },
+  },
+
+  data() {
+    return {
+      action: "borrow"
+    }
   },
 
   methods: {
@@ -92,7 +99,7 @@ export default {
     },
 
     onToggleLeverage() {
-      this.$emit("updateToggle", "useLeverage");
+      this.$emit("updateToggle", "useLeverage", true);
     },
 
     onUpdateDepositAmounts(amounts: DepositAmounts) {

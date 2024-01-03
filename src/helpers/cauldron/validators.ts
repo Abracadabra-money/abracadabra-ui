@@ -5,7 +5,7 @@ import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 
-const WARNING_TYPES = {
+export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
   DEPOSIT_BALANCE: 1,
   REPAY_ALLOWANCE: 2,
@@ -171,7 +171,7 @@ const validateDeposit = (
     nativeTokenBalance,
   } = cauldron.userTokensInfo!;
 
-  const { collateralTokenAmount, unwrappedTokenAmount } =
+  const { collateralTokenAmount, unwrapTokenAmount } =
     actionConfig.amounts.depositAmounts;
 
   if (useNativeToken) {
@@ -184,10 +184,8 @@ const validateDeposit = (
   }
 
   if (useUnwrapToken) {
-    const depositBalanceCheck = unwrappedTokenAmount.lte(
-      unwrappedTokenBalance!
-    );
-    const depositAllowanceCheck = unwrappedTokenAmount.lte(
+    const depositBalanceCheck = unwrapTokenAmount.lte(unwrappedTokenBalance!);
+    const depositAllowanceCheck = unwrapTokenAmount.lte(
       unwrappedTokenAllowance!
     );
 
@@ -298,6 +296,7 @@ const validateRemoveCollateral = (
   const { oracleExchangeRate } = cauldron.mainParams;
   const { useDeleverage, amounts } = actionConfig;
   const { withdrawAmount, deleverageAmounts } = amounts;
+  const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
 
   //@ts-ignore
   const mcr = expandDecimals(cauldron.config!.mcr, PERCENT_PRESITION);
@@ -312,7 +311,7 @@ const validateRemoveCollateral = (
   }
 
   const maxToRemove = getMaxCollateralToRemove(
-    expectPosition.collateralAmount,
+    userCollateralAmount,
     expectPosition.mimAmount,
     mcr,
     oracleExchangeRate
@@ -365,7 +364,6 @@ const validateRepayAndRemoveCollateral = (
     actionConfig,
     expectedPosition
   );
-
   return validationErrors;
 };
 
@@ -389,14 +387,22 @@ const validateDeleverage = (
 const validateWhitelist = (cauldron: CauldronInfo) => {};
 
 const getValidationResult = (validationErrors: any, cookType: any) => {
-  if (validationErrors.length === 0 || cookType === ACTION_TYPES.ACTION_UNKNOWN)
+  console.log("cookType", cookType);
+  console.log("validationErrors", validationErrors);
+  if (validationErrors.length === 0)
     return {
       btnText: ACTIONS_BTN_TEXT[cookType],
-      isAllowed: true,
+      isAllowed: cookType !== ACTION_TYPES.ACTION_UNKNOWN,
     };
 
+  const approvalWarnings = [
+    WARNING_TYPES.DEPOSIT_ALLOWANCE,
+    WARNING_TYPES.REPAY_ALLOWANCE,
+  ];
+
   return {
-    isAllowed: false,
+    isAllowed: approvalWarnings.indexOf(validationErrors[0]) !== -1, // allowed for approvals
     btnText: WARNINGS_BTN_TEXT[validationErrors[0]],
+    errorType: validationErrors[0],
   };
 };

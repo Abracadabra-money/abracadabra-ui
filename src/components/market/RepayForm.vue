@@ -57,7 +57,7 @@
       </div>
 
       <div class="btns-wrap">
-        <BaseButton primary disabled>Nothing to do </BaseButton>
+        <BaseButton primary :disabled="!cookValidationData.isAllowed">{{cookValidationData.btnText}}</BaseButton>
         <BaseButton primary disabled v-if="actionConfig.useDeleverage"
           >Close position
         </BaseButton>
@@ -71,8 +71,10 @@ import { mapGetters } from "vuex";
 import type { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 import type { SwapAmounts } from "@/helpers/cauldron/types";
+import tempMixin from "@/mixins/temp";
 
 export default {
+  mixins: [tempMixin],
   props: {
     cauldron: {
       type: Object as any,
@@ -80,6 +82,12 @@ export default {
     actionConfig: {
       type: Object as any,
     },
+  },
+
+  data() {
+    return {
+      action: "repay"
+    }
   },
 
   computed: {

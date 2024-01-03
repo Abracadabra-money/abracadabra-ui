@@ -19,7 +19,7 @@
 
   <DynamicallyEstimatedPrice
     :isClose="true"
-    :amount="inputValue"
+    :amount="inputAmount"
     :cauldron="cauldron"
   />
 </template>

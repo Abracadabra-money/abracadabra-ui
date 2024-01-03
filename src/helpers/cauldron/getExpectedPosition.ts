@@ -22,7 +22,7 @@ export const getExpectedPostition = (
   let collateralAmount = userPosition.collateralInfo.userCollateralAmount;
   let mimAmount = userPosition.borrowInfo.userBorrowAmount;
 
-  if ((action = "borrow")) {
+  if (action === "borrow") {
     collateralAmount = expectedBorrowCollateralAmount(
       userPosition,
       actionConfig
@@ -30,7 +30,7 @@ export const getExpectedPostition = (
     mimAmount = expectedBorrowMimAmount(userPosition, actionConfig, borrowFee);
   }
 
-  if ((action = "repay")) {
+  if (action === "repay") {
     collateralAmount = expectedRepayCollateralAmount(
       userPosition,
       actionConfig

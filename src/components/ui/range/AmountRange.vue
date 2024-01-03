@@ -46,7 +46,7 @@ export default {
       },
 
       // NOTICE: tumbler icon
-      imageUrl: "url('/src/assets/images/market/mim.svg')",
+      // imageUrl: "url('/src/assets/images/market/mim.svg')",
     };
   },
 
@@ -130,13 +130,13 @@ export default {
 <style lang="scss" scoped>
 @include range;
 
-input[type="range"]::-webkit-slider-thumb {
-  background: v-bind(imageUrl);
-  background-position: center center;
-  background-size: contain;
-  height: 22px;
-  width: 22px;
-}
+// input[type="range"]::-webkit-slider-thumb {
+//   background: v-bind(imageUrl);
+//   background-position: center center;
+//   background-size: contain;
+//   height: 22px;
+//   width: 22px;
+// }
 
 .leverage-range-wrap {
   height: 56px;

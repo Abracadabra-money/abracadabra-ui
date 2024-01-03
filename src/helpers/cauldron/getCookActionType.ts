@@ -34,12 +34,14 @@ export const getCookTypeByAction = (
 };
 
 const geBorrowCookType = (actionConfig: ActionConfig) => {
-  if (actionConfig.useLeverage) return ACTION_LEVERAGE;
-
-  const { depositAmounts, borrowAmount } = actionConfig.amounts;
+  const { depositAmounts, borrowAmount, leverageAmounts } =
+    actionConfig.amounts;
 
   const hasDepositAmount = depositAmounts.collateralTokenAmount.gt(0);
   const hasBorrowAmount = borrowAmount.gt(0);
+  const hasLeverageAmount = leverageAmounts.amountFrom.gt(0);
+
+  if (actionConfig.useLeverage && hasLeverageAmount) return ACTION_LEVERAGE;
 
   if (hasDepositAmount && hasBorrowAmount) return ACTION_DEPOSIT_AND_BORROW;
   if (hasDepositAmount) return ACTION_DEPOSIT;
@@ -49,12 +51,15 @@ const geBorrowCookType = (actionConfig: ActionConfig) => {
 };
 
 const geRepayCookType = (actionConfig: ActionConfig) => {
-  if (actionConfig.useDeleverage) return ACTION_DELEVERAGE;
-
-  const { repayAmount, withdrawAmount } = actionConfig.amounts;
+  const { repayAmount, withdrawAmount, deleverageAmounts } =
+    actionConfig.amounts;
 
   const hasRepayAmount = repayAmount.gt(0);
   const hasWithdrawAmount = withdrawAmount.gt(0);
+  const hasDeleverageAmount = deleverageAmounts.amountFrom.gt(0);
+
+  if (actionConfig.useDeleverage && hasDeleverageAmount)
+    return ACTION_DELEVERAGE;
 
   if (hasRepayAmount && hasWithdrawAmount)
     return ACTION_REPAY_AND_REMOVE_COLLATERAL;

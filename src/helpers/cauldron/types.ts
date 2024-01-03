@@ -74,7 +74,7 @@ export type SwapAmounts = {
 export type DepositAmounts = {
   inputAmount: BigNumber,
   collateralTokenAmount: BigNumber,
-  unwrappedTokenAmount: BigNumber,
+  unwrapTokenAmount: BigNumber,
 }
 
 export type ActionAmounts = {

@@ -14,7 +14,7 @@
           :width="20"
           :height="20"
           fill="#878B93"
-          tooltip=" Collateral Deposit"
+          tooltip="Collateral Deposit"
         />
       </h4>
       <p class="item-value">
@@ -300,6 +300,7 @@ export default {
   backdrop-filter: blur(12.5px);
   position: relative;
   overflow: hidden;
+  transition: all .3s ease;
 }
 
 .icon-left-top {
@@ -364,7 +365,8 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  padding: 3px 28px;
+  padding: 3px 5px;
+  min-width: 86px;
   text-align: center;
   border-radius: 16px 0px;
   background: #67a069;
@@ -372,6 +374,7 @@ export default {
   line-height: 150%;
   color: #fff;
   text-transform: capitalize;
+  transition: all .3s ease;
 }
 
 .safe {
