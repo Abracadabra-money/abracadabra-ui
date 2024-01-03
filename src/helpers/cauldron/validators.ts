@@ -387,8 +387,6 @@ const validateDeleverage = (
 const validateWhitelist = (cauldron: CauldronInfo) => {};
 
 const getValidationResult = (validationErrors: any, cookType: any) => {
-  console.log("cookType", cookType);
-  console.log("validationErrors", validationErrors);
   if (validationErrors.length === 0)
     return {
       btnText: ACTIONS_BTN_TEXT[cookType],

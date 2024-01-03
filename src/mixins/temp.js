@@ -6,6 +6,8 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification.js";
 import { approveToken } from "@/helpers/approval";
 import { WARNING_TYPES } from "@/helpers/cauldron/validators";
+import { getCookPayload } from "@/helpers/cauldron/getCookPayload";
+import { ACTION_TYPES } from "@/helpers/cauldron/getCookActionType";
 
 const approvalWarnings = [
   WARNING_TYPES.DEPOSIT_ALLOWANCE,
@@ -23,7 +25,6 @@ export default {
       getChainById: "getChainById",
     }),
     cookValidationData() {
-        console.log(this.actionConfig)
       return validateCookByAction(
         this.cauldron,
         this.actionConfig,
@@ -35,7 +36,7 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
     async actionHandler() {
-      const isApprove = approvalWarnings.indexOf(validationErrors[0]) !== -1;
+      const isApprove = approvalWarnings.indexOf(this.cookValidationData.errorType) !== -1;
 
       return isApprove
         ? await this.approveTokenHandler()
@@ -68,16 +69,56 @@ export default {
       );
 
       try {
-        const cookActionType = getCookTypeByAction(this.actionConfig, this.action);
+        const cookActionType = getCookTypeByAction(
+          this.actionConfig,
+          this.action
+        );
 
+        const cookPayload = await getCookPayload(
+          this.account,
+          this.cauldron,
+          this.actionConfig,
+          this.action
+        );
 
+        console.log("cookActionType", cookActionType)
+        console.log("cookPayload", cookPayload)
 
+        switch (cookActionType) {
+          case ACTION_TYPES.ACTION_DEPOSIT:
+            await this.cookAddCollateral(...cookPayload);
+            break;
+          case ACTION_TYPES.ACTION_BORROW:
+            await this.cookBorrow(...cookPayload);
+            break;
+          case ACTION_TYPES.ACTION_DEPOSIT_AND_BORROW:
+            await this.cookAddCollateralAndBorrow(...cookPayload);
+            break;
+          case ACTION_TYPES.ACTION_REPAY:
+            await this.cookRepay(...cookPayload);
+            break;
+          case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
+            await this.cookRemoveCollateral(...cookPayload);
+            break;
+          case ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL:
+            await this.cookRemoveCollateralAndRepay(...cookPayload);
+            break;
+          case ACTION_TYPES.ACTION_LEVERAGE:
+            await this.cookLeverage(...cookPayload);
+            break;
+          case ACTION_TYPES.ACTION_DELEVERAGE:
+            await this.cookDeleverage(...cookPayload);
+            break;
+        }
+
+        // TODO: cauldron object update
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
       } catch (error) {
+        console.log("cook error", error)
         const errorNotification = {
           msg: notificationErrorMsg(error),
-          type: errorType,
+          type: "error",
         };
         this.deleteNotification(notificationId);
         this.createNotification(errorNotification);

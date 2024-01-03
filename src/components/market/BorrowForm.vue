@@ -58,7 +58,7 @@
         />
       </div>
 
-      <BaseButton primary :disabled="!cookValidationData.isAllowed">{{cookValidationData.btnText}}</BaseButton>
+      <BaseButton primary :disabled="!cookValidationData.isAllowed" @click="actionHandler">{{cookValidationData.btnText}}</BaseButton>
     </div>
     <OrdersManager
       v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"

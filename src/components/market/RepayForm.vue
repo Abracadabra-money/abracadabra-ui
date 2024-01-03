@@ -57,7 +57,7 @@
       </div>
 
       <div class="btns-wrap">
-        <BaseButton primary :disabled="!cookValidationData.isAllowed">{{cookValidationData.btnText}}</BaseButton>
+        <BaseButton primary :disabled="!cookValidationData.isAllowed" @click="actionHandler">{{cookValidationData.btnText}}</BaseButton>
         <BaseButton primary disabled v-if="actionConfig.useDeleverage"
           >Close position
         </BaseButton>
