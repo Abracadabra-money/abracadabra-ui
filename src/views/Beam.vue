@@ -330,9 +330,11 @@ export default {
       return {
         mimAmount: this.amount,
         dstTokenAmount: this.dstTokenAmount,
+        dstTokenPrice: this.dstTokenPrice || 0,
         dstTokenSymbol: this.dstTokenInfo?.symbol,
         dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
         gasCost: this.formatFee,
+        srcTokenPrice: this.srcTokenPrice || 0,
         srcTokenSymbol: this.srcTokenInfo?.symbol,
         srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
       };
@@ -366,12 +368,13 @@ export default {
         mimAmount: this.amount,
         nativeSymbol: this.srcTokenInfo?.symbol,
         srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
+        srcTokenPrice: this.srcTokenPrice,
         gasOnDst: filters.formatToFixed(+this.getFee - +this.startFee, 3),
         dstTokenSymbol: this.dstTokenInfo.symbol,
         dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
-        dstChain: this.dstChain,
         dstTokenAmount: this.dstTokenAmount,
         dstTokenPrice: this.dstTokenPrice,
+        dstChain: this.dstChain,
         tx: this.tx,
         txInfo: this.txInfo,
         mimToUsd: this.mimToUsd,
@@ -473,11 +476,23 @@ export default {
       await this.seendBeam(notificationId);
     },
 
+    async getChainsTokensPrices() {
+      const dstNativeToken = nativeTokenschainLink[this.toChainId];
+      this.dstTokenPrice = await getTokenPriceByChain(
+        dstNativeToken.chainId,
+        dstNativeToken.address
+      );
+      const srcNativeToken = nativeTokenschainLink[this.chainId];
+      this.srcTokenPrice = await getTokenPriceByChain(
+        srcNativeToken.chainId,
+        srcNativeToken.address
+      );
+    },
+
     async seendBeam(notificationId) {
       this.isBeaming = true;
 
-      const { chainId, address } = nativeTokenschainLink[this.toChainId];
-      this.dstTokenPrice = await getTokenPriceByChain(chainId, address);
+      await this.getChainsTokensPrices();
 
       const mimPrice = await getTokenPriceByChain(
         tokensChainLink.mim.chainId,
@@ -636,6 +651,7 @@ export default {
         }
 
         this.estimateSendFee = await this.getEstimatedFees();
+        await this.getChainsTokensPrices();
       } else {
         if (this.dstChain.chainId !== chainId && !this.isUnsupportedNetwork) {
           localStorage.setItem("previous_chain_id", this.dstChain.chainId);

@@ -3,8 +3,11 @@
     <div class="row">
       <p class="title">Estimated gas cost:</p>
       <p class="value">
-        <img :src="data.srcTokenIcon" class="token-icon" /> {{ data.gasCost }}
-        {{ data.srcTokenSymbol }}
+        <span class="token">
+          <img :src="data.srcTokenIcon" class="token-icon" /> {{ data.gasCost }}
+          {{ data.srcTokenSymbol }}
+        </span>
+        <span class="usd">{{ estimatedGasCostUsd }}</span>
       </p>
     </div>
 
@@ -13,9 +16,12 @@
         Gas on destination:
       </p>
       <p class="value pointer" @click="$emit('open-settings')">
-        <img :src="data.dstTokenIcon" class="token-icon" />
-        {{ data.dstTokenAmount || "0.0" }}
-        {{ data.dstTokenSymbol }}
+        <span class="token">
+          <img :src="data.dstTokenIcon" class="token-icon" />
+          {{ data.dstTokenAmount || "0.0" }}
+          {{ data.dstTokenSymbol }}
+        </span>
+        <span class="usd">{{ gasOnDestinationUsd }}</span>
       </p>
     </div>
 
@@ -27,11 +33,26 @@
 </template>
 
 <script>
+import filters from "@/filters/index";
+
 export default {
   props: {
     data: {
       type: Object,
       required: true,
+    },
+  },
+
+  computed: {
+    estimatedGasCostUsd() {
+      const estimatedGasCostUsd = this.data.gasCost * this.data.srcTokenPrice;
+      return filters.formatUSD(estimatedGasCostUsd);
+    },
+
+    gasOnDestinationUsd() {
+      const gasOnDestinationUsd =
+        this.data.dstTokenAmount * this.data.dstTokenPrice;
+      return filters.formatUSD(gasOnDestinationUsd);
     },
   },
 };
@@ -73,8 +94,20 @@ export default {
 
 .value {
   display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.token {
+  display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.usd {
+  color: #878b93;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .token-icon {

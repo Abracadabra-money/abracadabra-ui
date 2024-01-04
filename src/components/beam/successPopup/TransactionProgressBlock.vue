@@ -32,7 +32,7 @@ export default {
     },
 
     transactionText() {
-      return this.isTxComplete ? "complete" : "processing";
+      return this.isTxComplete ? "completed" : "processing";
     },
 
     layerZeroLink() {

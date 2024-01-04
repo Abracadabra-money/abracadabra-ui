@@ -17,14 +17,10 @@
       </div>
     </div>
 
-    <div class="info-tag">
+    <div class="info-tag" v-if="!isNone">
       <span class="tag-title"
         >Convert to gas token
         <div class="convert-to-gas">
-          <template v-if="isNone"
-            ><span class="gas-token-value"> None </span>
-          </template>
-          <template v-else>
             <span class="gas-token">
               <img class="gas-token-icon" :src="config.srcTokenIcon" />
               <span class="gas-token-value">
@@ -42,7 +38,6 @@
                 {{ convertTokenAmount }}
               </span>
             </span>
-          </template>
         </div>
       </span>
     </div>
@@ -62,7 +57,7 @@ export default {
 
   computed: {
     totalGasUsd() {
-      const totalGasUsd = this.config.totalGas * this.config.dstTokenPrice;
+      const totalGasUsd = this.config.totalGas * this.config.srcTokenPrice;
       return filters.formatUSD(totalGasUsd);
     },
 
