@@ -33,11 +33,7 @@
 
     <div class="row">
       <span class="title">
-        <img
-          class="icon"
-          src="@/assets/images/tokens/MGLP.png"
-          alt="Token icon"
-        />
+        <img class="icon" :src="stakeToken.icon" alt="Token icon" />
         {{ stakeToken.name }}
       </span>
       <span class="value">
