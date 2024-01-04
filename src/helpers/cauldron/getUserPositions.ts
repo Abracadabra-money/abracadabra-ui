@@ -118,6 +118,8 @@ export const getUserPositions = async (
       )
     );
 
+    const collateralDepositedUsd = collateralDeposited * collateralPrice;
+
     const mimBorrowed = Number(utils.formatUnits(userBorrowAmount));
 
     return {
@@ -139,6 +141,7 @@ export const getUserPositions = async (
       liquidationPrice,
       positionHealth,
       collateralDeposited,
+      collateralDepositedUsd,
       mimBorrowed,
     };
   });

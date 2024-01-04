@@ -1,6 +1,6 @@
 <template>
   <div class="backdrop">
-    <div class="box-popup">
+    <div :class="['box-popup', isBento ? 'bento-bg' : 'degen-bg']">
       <div class="box-header">
         <p class="title">
           <img class="bento-img" :src="boxIcon" alt="Box" />
@@ -23,17 +23,19 @@
         </span>
       </p>
 
-      <BaseTokenInput
+      <TokenInput
         class="withdraw-input"
-        :icon="mimIcon"
         name="MIM"
-        :value="amount"
-        @updateValue="amount = $event"
+        :icon="mimIcon"
+        :decimals="18"
+        :value="inputValue"
+        @updateInputValue="onUpdateValue"
         :max="balance"
         :error="error"
+        isBigNumber
       />
 
-      <BaseButton @click="actionHandler" :disabled="isDisabled">{{
+      <BaseButton @click="actionHandler" primary :disabled="isDisabled">{{
         buttonText
       }}</BaseButton>
     </div>
@@ -42,7 +44,7 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
+import TokenInput from "@/components/ui/inputs/TokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import degenIcon from "@/assets/images/degenbox.svg";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
@@ -54,8 +56,9 @@ import actions from "@/helpers/bentoBox/actions";
 import { approveTokenViem } from "@/helpers/approval";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainById } from "@/helpers/chains/index";
-
+import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits, parseUnits } from "viem";
+import { BigNumber, utils } from "ethers";
 
 export default {
   props: {
@@ -69,7 +72,8 @@ export default {
 
   data() {
     return {
-      amount: "",
+      inputValue: "",
+      inputAmount: BigNumber.from(0),
       mimIcon,
       updateInfoInterval: null,
     };
@@ -81,7 +85,7 @@ export default {
     }),
 
     parsedAmount() {
-      return parseUnits(this.amount, 18);
+      return parseUnits(this.inputValue, 18);
     },
 
     boxIcon() {
@@ -107,7 +111,7 @@ export default {
         ? this.infoObject.mimInBentoBalance
         : this.infoObject.mimInDegenBalance;
 
-      return formatUnits(balance.toString(), 18);
+      return balance;
     },
 
     isDisabled() {
@@ -119,8 +123,8 @@ export default {
     },
 
     error() {
-      if (+this.amount > +this.balance)
-        return `The value cannot be greater than ${this.balance}`;
+      if (+this.inputValue > formatUnits(this.balance))
+        return `The value cannot be greater than ${formatUnits(this.balance)}`;
       return null;
     },
 
@@ -134,6 +138,17 @@ export default {
 
     chainInfo() {
       return getChainById(this.infoObject.chainId);
+    },
+  },
+
+  watch: {
+    inputAmount(value) {
+      if (value.eq(0)) {
+        this.inputValue = "";
+        return false;
+      }
+
+      this.inputValue = trimZeroDecimals(utils.formatUnits(value, 18));
     },
   },
 
@@ -207,6 +222,16 @@ export default {
       return false;
     },
 
+    setEmptyState() {
+      this.inputAmount = BigNumber.from(0);
+      this.inputValue = "";
+    },
+
+    onUpdateValue(value) {
+      if (value === null) return this.setEmptyState();
+      this.inputAmount = value;
+    },
+
     closePopup() {
       this.$emit("close");
     },
@@ -216,13 +241,13 @@ export default {
     clearInterval(this.updateInfoInterval);
   },
 
-  components: { BaseTokenInput, BaseButton },
+  components: { TokenInput, BaseButton },
 };
 </script>
 
 <style lang="scss" scoped>
 .backdrop {
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
@@ -236,6 +261,16 @@ export default {
   backdrop-filter: blur(10px);
 }
 
+.bento-bg {
+  background: url("../../assets/images/myPositions/bento-popup-img-big.png"),
+    #101622;
+}
+
+.degen-bg {
+  background: url("../../assets/images/myPositions/degen-popup-img-big.png"),
+    #101622;
+}
+
 .box-popup {
   display: flex;
   flex-direction: column;
@@ -247,7 +282,8 @@ export default {
   height: 351px;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #101622;
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
   margin-top: 270px;
@@ -279,7 +315,7 @@ export default {
   display: flex;
   align-items: center;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 24px;
 }
 
 .description {
@@ -299,5 +335,41 @@ export default {
 
 .withdraw-input {
   width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+  .bento-bg {
+    background: url("../../assets/images/myPositions/bento-popup-img-small.png"),
+      #101622;
+  }
+
+  .degen-bg {
+    background: url("../../assets/images/myPositions/degen-popup-img-small.png"),
+      #101622;
+  }
+
+  .box-popup {
+    position: fixed;
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-repeat: no-repeat;
+    background-position: -80px 100%;
+    box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+    backdrop-filter: blur(12.5px);
+    margin-top: 0;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .desc-line {
+    font-size: 14px;
+    font-weight: 400;
+  }
 }
 </style>

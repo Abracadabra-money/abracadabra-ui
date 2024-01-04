@@ -126,7 +126,7 @@ export default {
     sortersData() {
       return [
         { key: "positionHealth", text: "Health factor" },
-        { key: "collateralDeposited", text: "Collateral deposited" },
+        { key: "collateralDepositedUsd", text: "Collateral deposited" },
         { key: "mimBorrowed", text: "MIM borrowed" },
         { key: "apr", text: "APR" },
       ];
@@ -210,7 +210,6 @@ export default {
       await this.getCollateralsApr();
       this.totalAssets = getUsersTotalAssets(this.cauldrons);
       this.positionsIsLoading = false;
-
       this.updateInterval = setInterval(async () => {
         this.cauldrons = await getUserOpenPositions(this.account);
         await this.getCollateralsApr();
