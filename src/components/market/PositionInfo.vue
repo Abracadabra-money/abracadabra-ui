@@ -98,15 +98,10 @@
 </template>
 
 <script lang="ts">
-import { utils, BigNumber } from "ethers";
+import { utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
-import {
-  applyBorrowFee,
-  getLiquidationPrice,
-  getPositionHealth,
-} from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 import { getExpectedPostition } from "@/helpers/cauldron/getExpectedPosition";

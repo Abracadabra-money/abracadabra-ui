@@ -58,13 +58,38 @@
       </div>
 
       <div class="btns-wrap">
-        <BaseButton primary :disabled="!cookValidationData.isAllowed" @click="actionHandler">{{cookValidationData.btnText}}</BaseButton>
+        <BaseButton
+          primary
+          :disabled="!cookValidationData.isAllowed"
+          @click="actionHandler"
+          >{{ cookValidationData.btnText }}</BaseButton
+        >
         <BaseButton primary disabled v-if="actionConfig.useDeleverage"
           >Close position
         </BaseButton>
       </div>
     </div>
+
+    <!-- TODO: MOVE TO MARKET -->
+    <OrdersManager
+      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+      :cauldronObject="cauldron"
+      :deleverageSuccessPayload="gmDelevSuccessPayload"
+      :recoverLeverage="gmRecoverLeverageOrder"
+      :deleverageFromOrder="gmDeleverageFromOrder"
+    />
   </div>
+
+  <!-- TODO: MOVE TO MARKET -->
+  <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
+    <GMStatus
+      :order="activeOrder"
+      :orderType="2"
+      :cauldronObject="cauldron"
+      :successLeverageCallback="successGmLeverageCallback"
+      :deleverageSuccessPayload="gmDelevSuccessPayload"
+      :deleverageFromOrder="gmDeleverageFromOrder"
+  /></LocalPopupWrap>
 </template>
 
 <script lang="ts">
@@ -75,6 +100,7 @@ import type { SwapAmounts } from "@/helpers/cauldron/types";
 import tempMixin from "@/mixins/temp";
 
 export default {
+  emits: ["updateToggle", "updateAmounts"],
   mixins: [tempMixin],
   props: {
     cauldron: {
@@ -87,8 +113,8 @@ export default {
 
   data() {
     return {
-      action: "repay"
-    }
+      action: "repay",
+    };
   },
 
   computed: {
@@ -152,6 +178,15 @@ export default {
     ),
     DeleverageBlock: defineAsyncComponent(
       () => import("@/components/market/DeleverageBlock.vue")
+    ),
+    OrdersManager: defineAsyncComponent(
+      () => import("@/components/borrow/OrdersManager.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(
+      () => import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    GMStatus: defineAsyncComponent(
+      () => import("@/components/popups/GMStatus.vue")
     ),
   },
 };

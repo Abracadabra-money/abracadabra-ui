@@ -7,7 +7,7 @@
       :mimAddress="cauldron.config.mimInfo.address"
     />
 
-    <GmPriceImpact />
+    <!-- <GmPriceImpact /> -->
   </div>
 </template>
 

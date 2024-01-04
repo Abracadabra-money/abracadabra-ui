@@ -59,13 +59,31 @@
         />
       </div>
 
-      <BaseButton primary :disabled="!cookValidationData.isAllowed" @click="actionHandler">{{cookValidationData.btnText}}</BaseButton>
+      <BaseButton
+        primary
+        :disabled="!cookValidationData.isAllowed"
+        @click="actionHandler"
+        >{{ cookValidationData.btnText }}</BaseButton
+      >
     </div>
+
+    <!-- TODO: MOVE TO MARKET -->
     <OrdersManager
       v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
       :cauldronObject="cauldron"
+      :recoverLeverage="gmRecoverLeverageOrder"
+      :deleverageFromOrder="gmDeleverageFromOrder"
     />
   </div>
+
+  <!-- TODO: MOVE TO MARKET -->
+  <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
+    <GMStatus
+      :order="activeOrder"
+      :orderType="1"
+      :cauldronObject="cauldron"
+      :successLeverageCallback="successGmLeverageCallback"
+  /></LocalPopupWrap>
 </template>
 
 <script lang="ts">
@@ -73,7 +91,9 @@ import type { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 import type { DepositAmounts, SwapAmounts } from "@/helpers/cauldron/types";
 import tempMixin from "@/mixins/temp";
+
 export default {
+  emits: ["updateToggle", "updateAmounts"],
   mixins: [tempMixin],
   props: {
     cauldron: {
@@ -86,8 +106,8 @@ export default {
 
   data() {
     return {
-      action: "borrow"
-    }
+      action: "borrow",
+    };
   },
 
   methods: {
@@ -134,11 +154,17 @@ export default {
     BorrowBlock: defineAsyncComponent(
       () => import("@/components/market/BorrowBlock.vue")
     ),
-    OrdersManager: defineAsyncComponent(
-      () => import("@/components/market/OrdersManager.vue")
-    ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
+    ),
+    OrdersManager: defineAsyncComponent(
+      () => import("@/components/borrow/OrdersManager.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(
+      () => import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    GMStatus: defineAsyncComponent(
+      () => import("@/components/popups/GMStatus.vue")
     ),
   },
 };

@@ -16,6 +16,7 @@
               @updateMarket="createCauldronInfo"
               @updateToggle="onUpdateToggle"
               @updateAmounts="onUpdateAmounts"
+              @clearData="resetAmounts"
             />
           </div>
 

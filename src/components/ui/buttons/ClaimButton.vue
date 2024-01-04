@@ -11,6 +11,8 @@
 import { mapGetters } from "vuex";
 import { handleClaimCrvReward } from "@/helpers/cauldron/handleClaimCrvReward";
 import { getCvxClaimableReward } from "@/helpers/cauldron/getCvxClaimableReward";
+import { defineAsyncComponent } from "vue";
+
 export default {
   props: {
     cauldron: { type: Object as any, require: true },
@@ -53,6 +55,12 @@ export default {
 
   async created() {
     await this.getReward();
+  },
+
+  components: {
+    ArrowTopRight: defineAsyncComponent(
+      () => import("@/components/ui/icons/ArrowTopRightIcon.vue")
+    ),
   },
 };
 </script>
