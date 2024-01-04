@@ -12,7 +12,6 @@
     <div class="content-wrap">
       <div
         class="select-item"
-        :class="network.chainId === activeChain && selectChain && 'active'"
         v-for="(network, inx) in networksArr"
         :key="inx"
         @click="enterChain(network.chainId)"
@@ -24,7 +23,7 @@
             v-if="network.chainId == currentChainId"
           />
           <img class="chain-icon" :src="network.icon" alt="Icon" />
-          <p>{{ network.title }}</p>
+          <p class="chain-title">{{ network.title }}</p>
         </div>
       </div>
     </div>
@@ -108,7 +107,7 @@ export default {
 
 .content-wrap {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   grid-gap: 4px;
   width: 100%;
 }
@@ -134,21 +133,46 @@ export default {
   height: 60px;
 }
 
+.chain-title {
+  font-size: 16px;
+  font-weight: 400;
+}
+
 .current-chain-marker {
   position: absolute;
   top: -10%;
   right: 15%;
 }
 
-@media screen and (max-width: 500px) {
-  .content-wrap {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .active,
 .select-item:hover {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid #6678aa;
+}
+
+@media screen and (max-width: 500px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .popup-close {
+    width: 24px;
+    height: 24px;
+  }
+
+  .chain-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .chain-title {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .current-chain-marker {
+    width: 20px;
+    height: 20px;
+  }
 }
 </style>
