@@ -34,7 +34,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 220px;
+  min-width: 220px;
   height: 48px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);

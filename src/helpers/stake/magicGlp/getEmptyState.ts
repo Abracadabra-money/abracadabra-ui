@@ -95,6 +95,7 @@ export const getEmptyState = async (config: any, chainId: number) => {
   emptyState.mainToken.rate = tokenRate;
 
   return {
+    chainId,
     ...emptyState,
     feePercent: feePercentBips.result / BIPS,
     rewardToken: {

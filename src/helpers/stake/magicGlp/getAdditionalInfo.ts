@@ -3,19 +3,19 @@ import type {
   RewardTokenInfo,
 } from "@/types/magicGlp/additionalInfo";
 import { formatUnits } from "viem";
-import { multicall } from "@wagmi/core";
 import { BIPS } from "@/constants/global";
 import type { ChainConfig } from "@/types/magicGlp/configsInfo";
 import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
 
 export const getAdditionalInfo = async (
   config: ChainConfig,
-  chainId: number
+  chainId: number,
+  publicClient: any
 ): Promise<AdditionalInfo> => {
   const { harvestor, chainLink } = config;
   const { rewardToken, leverageInfo } = config.additionalInfo;
 
-  const [feePercentBips, rewardTokenPrice]: any = await multicall({
+  const [feePercentBips, rewardTokenPrice]: any = await publicClient.multicall({
     contracts: [
       {
         ...harvestor,

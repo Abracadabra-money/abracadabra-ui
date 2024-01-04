@@ -1,46 +1,48 @@
 <template>
   <a
     class="get-token-link"
-    :style="styles"
-    :href="data.href"
+    :href="href"
     target="_blank"
     rel="noreferrer noopener"
   >
-    <img class="icon" src="@/assets/images/deposit.svg" alt="Deposit" />
-    {{ data.label }}
+    <BasketIcon />
+    {{ text }}
+    <ArrowTopRight :width="14" :height="14" fill="#7088CC" />
   </a>
 </template>
 
-<script>
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
+
 export default {
   props: {
-    data: {},
-    background: { type: String, default: "rgba(157, 244, 255, 0.2)" },
-    color: { type: String, default: "#63caf8" },
+    href: { type: String, required: true },
+    text: { type: String, required: true },
   },
 
-  computed: {
-    styles() {
-      return `
-        background: ${this.background};
-        border: ${this.color}`;
-    },
+  components: {
+    BasketIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/BasketIcon.vue")
+    ),
+    ArrowTopRight: defineAsyncComponent(
+      () => import("@/components/ui/icons/ArrowTopRightIcon.vue")
+    ),
   },
 };
 </script>
+
 <style>
 .get-token-link {
-  background: rgba(157, 244, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
-  padding: 3px 8px;
-  color: #63caf8;
+  border-radius: 12px;
+  border: 1px solid #7088cc;
+  box-shadow: 0px 4px 9px 0px rgba(134, 92, 230, 0.08);
+  padding: 4px 12px;
+  color: #fff;
+  gap: 4px;
   display: flex;
   align-items: center;
   cursor: pointer;
-}
-
-.icon {
-  margin-right: 5px;
+  font-weight: 500;
+  line-height: 150%;
 }
 </style>

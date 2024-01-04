@@ -6,7 +6,8 @@ import type { TokensInfo } from "@/types/magicGlp/tokensInfo";
 
 export const getTokensInfo = async (
   address: Address,
-  config: ChainConfig
+  config: ChainConfig,
+  publicClient: any
 ): Promise<TokensInfo> => {
   const { mainToken, stakeToken, oracle } = config;
 
@@ -17,7 +18,7 @@ export const getTokensInfo = async (
     allowanceAmount,
     oracleExchangeRate,
     magicGlpAmount,
-  ]: any = await multicall({
+  ]: any = await publicClient.multicall({
     contracts: [
       {
         ...mainToken.contract,
