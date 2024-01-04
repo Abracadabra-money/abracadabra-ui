@@ -2,12 +2,12 @@ import { BigNumber, utils } from "ethers";
 import { expandDecimals } from "../gm/fee/expandDecials";
 import { applySlippageToMinOut } from "../gm/applySlippageToMinOut";
 
-const FENCING_AGAINST_LIQUIDATION = 1; // 1% of mcr
 const MIM_DECIMALS = 18;
-
 const COLATERIZATION_PRESITION = 5;
 const BORROW_OPENING_FEE_PRECISION = 5;
 export const PERCENT_PRESITION = 2;
+
+const FENCING_AGAINST_LIQUIDATION = expandDecimals(1, PERCENT_PRESITION); // 1% of mcr
 
 type SwapAmounts = {
   amountFrom: BigNumber;
@@ -47,7 +47,7 @@ export const getMaxToBorrow = (
 
   const maxToBorrow = collateralInMim
     .div(100)
-    .mul(mcr)
+    .mul(mcr.sub(FENCING_AGAINST_LIQUIDATION))
     .div(expandDecimals(1, PERCENT_PRESITION));
 
   return maxToBorrow.sub(userBorrowAmount);
@@ -122,7 +122,9 @@ export const getMaxCollateralToRemove = (
     oracleExchangeRate
   );
 
-  const minCollateralAmount = currentLtv.mul(collateralAmount).div(mcr);
+  const minCollateralAmount = currentLtv
+    .mul(collateralAmount)
+    .div(mcr.sub(FENCING_AGAINST_LIQUIDATION));
 
   const maxToRemove = collateralAmount.sub(minCollateralAmount);
 
@@ -155,6 +157,7 @@ const getHealthStatus = (riskPercent: BigNumber) => {
   if (percent > 70 && percent <= 90) return "medium";
   return "high";
 };
+
 export const getLeverageAmounts = (
   collateralAmount: BigNumber,
   leverageMultiplyer: BigNumber, // 1e2

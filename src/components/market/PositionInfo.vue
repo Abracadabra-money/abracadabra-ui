@@ -32,12 +32,7 @@
       </p>
       <p class="item-price">
         $
-        {{
-          formatUnits(
-            expectedPositionAmounts.collateralInUds,
-            collateralDecimals
-          )
-        }}
+        {{ formatUnits(expectedCollateralInUsd, collateralDecimals) }}
       </p>
     </div>
 
@@ -66,7 +61,13 @@
       </p>
     </div>
 
-    <div :class="['position-info-item', 'liquidation-price', positionHealth]">
+    <div
+      :class="[
+        'position-info-item',
+        'liquidation-price',
+        expectedPositionAmounts.positionHealth.status,
+      ]"
+    >
       <img
         class="icon-left-bottom"
         src="@/assets/images/market/m-icon.svg"
@@ -77,7 +78,9 @@
         src="@/assets/images/market/m-icon.svg"
         alt=""
       />
-      <div class="position-health">{{ positionHealth }}</div>
+      <div class="position-health">
+        {{ expectedPositionAmounts.positionHealth.status }}
+      </div>
       <h4 class="item-title">
         Liquidation price
         <TooltipIcon
@@ -87,7 +90,9 @@
           tooltip="MIM to repay"
         />
       </h4>
-      <p class="item-value">{{ formatUnits(expectedLiquidationPrice) }}</p>
+      <p class="item-value">
+        {{ formatUnits(expectedPositionAmounts.liquidationPrice) }}
+      </p>
     </div>
   </div>
 </template>
@@ -103,6 +108,8 @@ import {
   getPositionHealth,
 } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+
+import { getExpectedPostition } from "@/helpers/cauldron/getExpectedPosition";
 
 export default {
   props: {
@@ -122,120 +129,19 @@ export default {
     },
 
     expectedPositionAmounts() {
-      if (this.actionType === "repay") {
-        return {
-          collateralAmount: this.expectedRepayCollateralAmount,
-          collateralInUds: this.expectedRepayCollateralInUsd,
-          mimAmount: this.expectedRepayMimAmount,
-        };
-      }
-
-      if (this.actionType === "borrow") {
-        return {
-          collateralAmount: this.expectedBorrowCollateralAmount,
-          collateralInUds: this.expectedBorrowCollateralInUsd,
-          mimAmount: this.expectedBorrowMimAmount,
-        };
-      }
-
-      return {
-        collateralAmount: BigNumber.from(0),
-        collateralInUds: BigNumber.from(0),
-        mimAmount: BigNumber.from(0),
-      };
+      return getExpectedPostition(
+        this.cauldron,
+        this.actionConfig,
+        //@ts-ignore
+        this.actionType
+      );
     },
 
-    expectedRepayCollateralAmount() {
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-
-      const { withdrawAmount } = this.actionConfig.amounts;
-      const { amountFrom } = this.actionConfig.amounts.deleverageAmounts;
-
-      const expectedCollateralAmount = this.actionConfig.useDeleverage
-        ? userCollateralAmount.sub(withdrawAmount).sub(amountFrom)
-        : userCollateralAmount.sub(withdrawAmount);
-
-      return expectedCollateralAmount.lt(0)
-        ? BigNumber.from(0)
-        : expectedCollateralAmount;
-    },
-
-    expectedRepayCollateralInUsd() {
+    expectedCollateralInUsd() {
       const price = this.cauldron.mainParams.collateralPrice;
-      return this.expectedRepayCollateralAmount
+      return this.expectedPositionAmounts.collateralAmount
         .mul(price)
         .div(expandDecimals(1, this.collateralDecimals));
-    },
-
-    expectedRepayMimAmount() {
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      const { repayAmount } = this.actionConfig.amounts;
-      const { amountToMin } = this.actionConfig.amounts.deleverageAmounts;
-
-      const expectedMimAmount = this.actionConfig.useDeleverage
-        ? userBorrowAmount.sub(amountToMin)
-        : userBorrowAmount.sub(repayAmount);
-
-      return expectedMimAmount.lt(0) ? BigNumber.from(0) : expectedMimAmount;
-    },
-
-    expectedBorrowCollateralAmount() {
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-
-      const { depositAmounts, leverageAmounts } = this.actionConfig.amounts;
-
-      if (this.actionConfig.useLeverage)
-        return userCollateralAmount
-          .add(depositAmounts.collateralTokenAmount)
-          .add(leverageAmounts.amountToMin);
-
-      return userCollateralAmount.add(depositAmounts.collateralTokenAmount);
-    },
-
-    expectedBorrowCollateralInUsd() {
-      const price = this.cauldron.mainParams.collateralPrice;
-      return this.expectedBorrowCollateralAmount
-        .mul(price)
-        .div(expandDecimals(1, this.collateralDecimals));
-    },
-
-    expectedBorrowMimAmount() {
-      const { borrowFee } = this.cauldron.mainParams;
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      const { leverageAmounts, borrowAmount } = this.actionConfig.amounts;
-
-      if (this.actionConfig.useLeverage)
-        return applyBorrowFee(leverageAmounts.amountFrom, borrowFee * 1000).add(
-          userBorrowAmount
-        );
-
-      return applyBorrowFee(borrowAmount, borrowFee * 1000).add(
-        userBorrowAmount
-      );
-    },
-
-    expectedLiquidationPrice() {
-      return getLiquidationPrice(
-        this.expectedPositionAmounts.mimAmount,
-        this.expectedPositionAmounts.collateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
-    },
-
-    positionHealth() {
-      const { oracleExchangeRate } = this.cauldron.mainParams;
-      const { decimals } = this.cauldron.config.collateralInfo;
-
-      const { status } = getPositionHealth(
-        this.expectedLiquidationPrice,
-        oracleExchangeRate,
-        decimals
-      );
-
-      return status;
     },
   },
 
@@ -300,7 +206,7 @@ export default {
   backdrop-filter: blur(12.5px);
   position: relative;
   overflow: hidden;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 .icon-left-top {
@@ -374,7 +280,7 @@ export default {
   line-height: 150%;
   color: #fff;
   text-transform: capitalize;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 .safe {
