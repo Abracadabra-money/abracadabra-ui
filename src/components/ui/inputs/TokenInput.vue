@@ -9,9 +9,7 @@
           type="text"
           placeholder="0.0"
         />
-        <p class="usd-equivalent" v-if="tokenPrice">
-          {{ usdEquivalent }}
-        </p>
+        <p class="usd-equivalent" v-if="tokenPrice">{{ usdEquivalent }}</p>
       </div>
 
       <div class="token-input-info">
@@ -80,7 +78,7 @@ export default {
   watch: {
     inputValue(value, oldValue) {
       if (!value) {
-        this.$emit("updateInputValue", BigNumber.from(0));
+        this.$emit("updateInputValue", null);
         return;
       }
 
@@ -101,9 +99,9 @@ export default {
       } else this.$emit("updateInputValue", BigInt(Number(value) * 1e18));
     },
 
-    // value(value) {
-    //   this.inputValue = value;
-    // },
+    value(value) {
+      this.inputValue = value;
+    },
   },
 
   methods: {

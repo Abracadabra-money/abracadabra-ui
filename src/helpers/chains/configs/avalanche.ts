@@ -7,6 +7,7 @@ export const avalancheConfig = {
   symbol: "AVAX",
   icon: useImage("assets/images/networks/avalanche.svg"),
   baseTokenIcon: useImage("assets/images/tokens/AVAX.png"),
+  baseTokenSymbol: "AVAX",
   networkIcon: useImage(`assets/images/networks/avalanche.svg`),
   lzChainId: 106,
 };

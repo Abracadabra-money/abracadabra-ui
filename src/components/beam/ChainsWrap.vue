@@ -64,7 +64,9 @@ export default {
     },
 
     isNetworkToChangeDisabled() {
-      return this.fromChain.isUnsupportedNetwork || !this.account;
+      return (
+        this.fromChain.isUnsupportedNetwork || !this.account || !this.toChain
+      );
     },
   },
 };
@@ -148,6 +150,10 @@ export default {
 
 .switch-chain-button:hover {
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.335);
+}
+
+.disabled {
+  opacity: 0.5;
 }
 
 .switch-chain-image {

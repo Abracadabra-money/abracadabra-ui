@@ -38,7 +38,7 @@
               class="beam-input"
               :decimals="18"
               :max="parsedMimBalance"
-              :value="amount"
+              :value="inputValue"
               :name="'MIM'"
               :icon="$image('assets/images/tokens/MIM.png')"
               :error="amountError"
@@ -93,7 +93,7 @@
 
       <SettingsPopup
         :value="dstTokenAmount"
-        :mimAmount="amountError ? '0' : amount"
+        :mimAmount="amountError ? '0' : inputValue"
         :max="dstMaxAmount"
         :defaultValue="dstDefaultValue"
         :config="settingConfig"
@@ -131,6 +131,8 @@ import notification from "@/helpers/notification/notification.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { BigNumber, utils } from "ethers";
 
 export default {
   data() {
@@ -144,7 +146,8 @@ export default {
       dstAddressError: false,
       dstTokenAmount: "",
       popupType: null,
-      amount: "",
+      inputAmount: BigNumber.from(0),
+      inputValue: "",
       isOpenNetworkPopup: false,
       updateInterval: null,
       isSettingsOpened: false,
@@ -194,7 +197,7 @@ export default {
 
     parseInputValue() {
       return this.$ethers.utils.parseUnits(
-        filters.formatToFixed(this.amount || 0, 18),
+        filters.formatToFixed(this.inputValue || 0, 18),
         18
       );
     },
@@ -204,11 +207,11 @@ export default {
       if (this.chainId === 8453) return true;
       if (this.chainId === 59144) return true;
 
-      return this.beamConfig.approvedAmount.gte(this.parseInputValue);
+      return this.beamConfig.approvedAmount.gte(this.inputAmount);
     },
 
     amountError() {
-      if (+this.amount > +this.beamConfig.balance) {
+      if (+this.inputValue > +this.beamConfig.balance) {
         return `The value cannot be greater than ${this.beamConfig.balance}`;
       }
       return "";
@@ -290,7 +293,7 @@ export default {
     },
 
     disableBtn() {
-      if (+this.amount === 0) return true;
+      if (+this.inputValue === 0) return true;
       if (this.isApproving || this.isBeaming) return true;
       if (!this.account || !this.isSelectedChain) return true;
       if (this.isEnterDstAddress) return true;
@@ -328,14 +331,14 @@ export default {
 
     expectedConfig() {
       return {
-        mimAmount: this.amount,
+        mimAmount: this.inputValue,
         dstTokenAmount: this.dstTokenAmount,
         dstTokenPrice: this.dstTokenPrice || 0,
-        dstTokenSymbol: this.dstTokenInfo?.symbol,
+        dstTokenSymbol: this.dstTokenInfo?.baseTokenSymbol,
         dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
         gasCost: this.formatFee,
         srcTokenPrice: this.srcTokenPrice || 0,
-        srcTokenSymbol: this.srcTokenInfo?.symbol,
+        srcTokenSymbol: this.srcTokenInfo?.baseTokenSymbol,
         srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
       };
     },
@@ -343,6 +346,7 @@ export default {
     settingConfig() {
       return {
         icon: this.dstTokenInfo.baseTokenIcon,
+        symbol: this.dstTokenInfo.baseTokenSymbol,
         nativeTokenBalance: this.beamConfig.nativeTokenBalance,
         nativeSymbol: this.srcTokenInfo?.symbol,
         contract: this.beamConfig.contractInstance,
@@ -365,12 +369,12 @@ export default {
         sendFrom: this.account,
         sendTo: this.toAddress,
         originChain: this.originChain,
-        mimAmount: this.amount,
-        nativeSymbol: this.srcTokenInfo?.symbol,
+        mimAmount: this.inputValue,
+        nativeSymbol: this.srcTokenInfo?.baseTokenSymbol,
         srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
         srcTokenPrice: this.srcTokenPrice,
         gasOnDst: filters.formatToFixed(+this.getFee - +this.startFee, 3),
-        dstTokenSymbol: this.dstTokenInfo.symbol,
+        dstTokenSymbol: this.dstTokenInfo.baseTokenSymbol,
         dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
         dstTokenAmount: this.dstTokenAmount,
         dstTokenPrice: this.dstTokenPrice,
@@ -397,6 +401,15 @@ export default {
         await this.createBeamData();
         await this.updateHistoryStatus();
       }
+    },
+
+    inputAmount(value) {
+      if (value.eq(0)) {
+        this.inputValue = "";
+        return false;
+      }
+
+      this.inputValue = trimZeroDecimals(utils.formatUnits(value, 18));
     },
   },
 
@@ -427,7 +440,8 @@ export default {
     },
 
     async updateMainValue(value) {
-      this.amount = this.$ethers.utils.formatUnits(value);
+      if (value === null) return (this.inputAmount = BigNumber.from(0));
+      this.inputAmount = value;
     },
 
     updateDestinationAddress(address, error) {
@@ -498,16 +512,11 @@ export default {
         tokensChainLink.mim.chainId,
         tokensChainLink.mim.address
       );
-      this.mimToUsd = filters.formatUSD(+this.amount * +mimPrice);
+      this.mimToUsd = filters.formatUSD(+this.inputValue * +mimPrice);
 
       try {
         const { fees, params } = await this.getEstimatedFees(true);
-        this.tx = await sendFrom(
-          fees,
-          params,
-          this.parseInputValue,
-          this.txConfig
-        );
+        this.tx = await sendFrom(fees, params, this.inputAmount, this.txConfig);
         await this.deleteNotification(notificationId);
         this.isBeaming = false;
         this.isOpenSuccessPopup = true;
@@ -588,7 +597,7 @@ export default {
         this.toAddress,
         this.lzChainId,
         this.dstTokenAmount || "0",
-        this.amount || "1"
+        this.inputValue || "1"
       );
 
       const additionalFee = fees[0].div(100);
@@ -710,10 +719,14 @@ export default {
     await this.updateHistoryStatus();
 
     const previousChainId = localStorage.getItem("previous_chain_id");
-    if (previousChainId && !this.isUnsupportedNetwork) {
+    if (
+      previousChainId &&
+      !this.isUnsupportedNetwork &&
+      previousChainId != this.chainId
+    ) {
       await this.changeChain(+previousChainId, "to");
-      localStorage.removeItem("previous_chain_id");
     }
+    localStorage.removeItem("previous_chain_id");
   },
 
   beforeUnmount() {

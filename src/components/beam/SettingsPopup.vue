@@ -34,7 +34,7 @@
             alt="Icon"
             @click="updateInputValue(max)"
           />
-          {{ config.nativeSymbol }}
+          {{ config.symbol }}
         </div>
       </div>
       <p class="value-error">
