@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.everage-info {
+.leverage-info {
   text-align: center;
   font-size: 14px;
   font-weight: 400;

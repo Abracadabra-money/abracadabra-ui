@@ -275,7 +275,11 @@ export default {
 
     async actionHandler() {
       if (this.isActionDisabled) return false;
-      if (!this.isTokenApproved) this.approveTokenHandler();
+      if (!this.isTokenApproved) {
+        await this.approveTokenHandler();
+        return false;
+      }
+
       const notificationId = await this.createNotification(
         notification.pending
       );
