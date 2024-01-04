@@ -1,4 +1,3 @@
-import { multicall } from "@wagmi/core";
 import type { Address } from "@wagmi/core";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
 import type { ChainConfig } from "@/types/magicGlp/configsInfo";
