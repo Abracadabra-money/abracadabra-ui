@@ -26,6 +26,8 @@
               :actionConfig="actionConfig"
               @updateToggle="onUpdateToggle"
               @updateAmounts="onUpdateAmounts"
+              @updateMarket="createCauldronInfo"
+              @clearData="resetAmounts"
             />
           </div>
         </div>

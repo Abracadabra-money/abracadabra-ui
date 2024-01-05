@@ -89,7 +89,7 @@ export default {
   },
 
   watch: {
-    inputAmpunt(value) {
+    inputAmount(value) {
       const { decimals } = this.collateralToken;
 
       if (value.eq(0)) {

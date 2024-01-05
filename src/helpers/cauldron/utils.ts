@@ -50,7 +50,9 @@ export const getMaxToBorrow = (
     .mul(mcr.sub(FENCING_AGAINST_LIQUIDATION))
     .div(expandDecimals(1, PERCENT_PRESITION));
 
-  return maxToBorrow.sub(userBorrowAmount);
+  const maxToBorrowLeft = maxToBorrow.sub(userBorrowAmount);
+
+  return maxToBorrowLeft.lt(0) ? BigNumber.from(0) : maxToBorrowLeft;
 };
 
 export const getUserLtv = (
@@ -114,6 +116,8 @@ export const getMaxCollateralToRemove = (
   mcr: BigNumber,
   oracleExchangeRate: BigNumber
 ) => {
+  console.log("collateralAmount", collateralAmount.toString())
+
   if (userBorrowAmount.eq(0)) return collateralAmount;
 
   const currentLtv = getUserLtv(
@@ -126,7 +130,11 @@ export const getMaxCollateralToRemove = (
     .mul(collateralAmount)
     .div(mcr.sub(FENCING_AGAINST_LIQUIDATION));
 
-  const maxToRemove = collateralAmount.sub(minCollateralAmount);
+  const maxToRemoveLeft = collateralAmount.sub(minCollateralAmount);
+
+  const maxToRemove = maxToRemoveLeft.lt(0)
+    ? BigNumber.from(0)
+    : maxToRemoveLeft;
 
   return maxToRemove.gt(collateralAmount) ? collateralAmount : maxToRemove;
 };

@@ -20,13 +20,8 @@
           </span>
         </div>
 
-        <p class="wallet-balance">
-          <WalletIcon
-            :width="13"
-            :height="13"
-            fill="#575C62"
-            @click="inputValue = formattedMax"
-          />
+        <p class="wallet-balance" @click="inputValue = formattedMax">
+          <WalletIcon :width="13" :height="13" fill="#575C62" />
           {{ formatTokenBalance(formattedMax) }}
         </p>
       </div>
@@ -90,10 +85,7 @@ export default {
       if (this.isBigNumber) {
         const emitValue = !value
           ? BigNumber.from(0)
-          : utils.parseUnits(
-              filters.formatToFixed(value, this.decimals),
-              this.decimals
-            );
+          : utils.parseUnits(value, this.decimals);
 
         this.$emit("updateInputValue", emitValue);
       } else this.$emit("updateInputValue", BigInt(Number(value) * 1e18));
@@ -188,6 +180,7 @@ export default {
 }
 
 .wallet-balance {
+  cursor: pointer;
   display: flex;
   justify-content: end;
   align-items: center;
