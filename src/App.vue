@@ -61,20 +61,29 @@ export default {
   },
 
   async beforeCreate() {
-    const location = await axios.get(
-      `https://ipwhois.pro/?key=${
-        import.meta.env.VITE_APP_IPWHOIS_API_KEY
-      }&security=1`
-    );
-    
-    const isVPN = location.data.security.vpn;
+    try {
+      const location = await axios.get(
+        `https://ipwhois.pro/?key=${
+          import.meta.env.VITE_APP_IPWHOIS_API_KEY
+        }&security=1`
+      );
 
-    if (
-      this.country.includes(location.data.country) ||
-      this.region.includes(location.data.region) ||
-      isVPN
-    )
-      document.location.href = "https://abracadabra.money/location";
+      if (!location.data.success)
+        throw new Error(
+          `Location fetching unsuccessful: ${location.data.message}`
+        );
+
+      const isVPN = location.data.security?.vpn;
+
+      if (
+        this.country.includes(location.data.country) ||
+        this.region.includes(location.data.region) ||
+        isVPN
+      )
+        document.location.href = "https://abracadabra.money/location";
+    } catch (error) {
+      console.log("VPN", error);
+    }
   },
 
   components: {
