@@ -7,6 +7,7 @@ export const binanceConfig = {
   symbol: "BSC",
   icon: useImage("assets/images/networks/binance-icon.svg"),
   baseTokenIcon: useImage("assets/images/tokens/BNB.png"),
+  baseTokenSymbol: "BNB",
   networkIcon: useImage(`assets/images/networks/binance.svg`),
   lzChainId: 102,
 };

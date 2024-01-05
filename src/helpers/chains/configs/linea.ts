@@ -29,6 +29,7 @@ export const lineaConfig = {
   symbol: "Linea",
   icon: useImage("assets/images/networks/linea.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
+  baseTokenSymbol: "ETH",
   networkIcon: useImage(`assets/images/networks/linea.png`),
   lzChainId: 183,
 };

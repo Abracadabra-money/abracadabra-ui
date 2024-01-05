@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <h4>{{ title }}</h4>
-    <div class="amount">Balance: {{ formatTokenBalance(amount) }}</div>
+    <div class="amount" v-if="showBalance">Balance: {{ formatTokenBalance(amount) }}</div>
   </div>
 </template>
 <script>
@@ -17,6 +17,7 @@ export default {
       type: [Number, String],
       default: "0.0",
     },
+    showBalance: { type: Boolean, default: true },
   },
 
   methods: {
