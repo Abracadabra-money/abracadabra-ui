@@ -126,36 +126,6 @@ export default {
       );
     },
 
-    positionActions() {
-      const defaultActions = [
-        {
-          title: "Add Collateral/ Borrow MIM",
-          icon: useImage("assets/images/myposition/AddCollateral.png"),
-          name: "BorrowId",
-          id: this.cauldron.config.id,
-        },
-        {
-          title: "Repay MIMs/ Remove Collateral",
-          icon: useImage("assets/images/myposition/Repay.png"),
-          name: "RepayId",
-          id: this.cauldron.config.id,
-        },
-      ];
-
-      if (this.cauldron.config.cauldronSettings.isSwappersActive) {
-        const deleverageLink = {
-          title: "Deleverage",
-          icon: useImage("assets/images/myposition/Deleverage.png"),
-          name: "DeleverageId",
-          id: this.cauldron.config.id,
-        };
-
-        defaultActions.push(deleverageLink);
-      }
-
-      return defaultActions;
-    },
-
     assetsInfo() {
       return [
         {

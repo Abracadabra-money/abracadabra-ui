@@ -8,7 +8,7 @@
         :activeNetworks="activeChains"
       />
 
-      <div class="positions-list-head" v-if="sortedCauldrons.length">
+      <div class="positions-list-head" v-if="cauldrons.length">
         <button class="filters" @click="isFiltersPopupOpened = true">
           <img src="@/assets/images/filters.png" />
           Filters
@@ -54,7 +54,6 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
 import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
@@ -63,7 +62,6 @@ import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
 import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
-
 import EmptyBlock from "@/components/myPositions/EmptyState.vue";
 import { providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
