@@ -3,7 +3,8 @@ import { utils } from "ethers";
 export const getMaxLeverageMultiplier = (
   { mainParams, config, userPosition, additionalInfo }: any,
   collateralAmount = 10,
-  useOtherToken = false
+  useOtherToken = false,
+  slippage = 1
 ) => {
   const { mcr } = config;
   const { tokensRate } = additionalInfo;
@@ -23,7 +24,7 @@ export const getMaxLeverageMultiplier = (
     ? collateralAmount / rate
     : collateralAmount;
 
-  const testSlippage = 1;
+  const testSlippage = slippage;
   let multiplier = 2;
   let isLiquidation = false;
 

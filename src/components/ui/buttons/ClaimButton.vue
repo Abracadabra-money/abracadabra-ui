@@ -1,26 +1,26 @@
 <template>
-  <button class="claim-btn" v-if="reward" @click.stop="actionHandler">
-    <img
-      class="claim-btn-icon"
-      src="@/assets/images/deposit.svg"
-      alt="Deposit"
-    />
-    Claim
+  <button class="claim-button" v-if="reward" @click.stop="actionHandler">
+    <span class="inner-wrap">
+      Claim
+      <ArrowTopRight />
+    </span>
   </button>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
-import { getCvxClaimableReward } from "@/helpers/cauldron/getCvxClaimableReward.ts";
-import { handleClaimCrvReward } from "@/helpers/cauldron/handleClaimCrvReward.ts";
+import { handleClaimCrvReward } from "@/helpers/cauldron/handleClaimCrvReward";
+import { getCvxClaimableReward } from "@/helpers/cauldron/getCvxClaimableReward";
+import { defineAsyncComponent } from "vue";
+
 export default {
   props: {
-    cauldron: { type: Object, require: true },
+    cauldron: { type: Object as any, require: true },
   },
 
   data() {
     return {
-      reward: null,
+      reward: null as null | number,
     };
   },
 
@@ -56,22 +56,37 @@ export default {
   async created() {
     await this.getReward();
   },
+
+  components: {
+    ArrowTopRight: defineAsyncComponent(
+      () => import("@/components/ui/icons/ArrowTopRightIcon.vue")
+    ),
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.claim-btn {
-  background: rgba(157, 244, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
-  padding: 3px 8px;
-  color: #63caf8;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
+.claim-button {
+  padding: 1px;
+  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+  border-radius: 8px;
+  border: transparent;
 }
 
-.claim-btn-icon {
-  margin-right: 5px;
+.inner-wrap {
+  height: 30px;
+  padding: 5px 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #303557;
+  color: #7088cc;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: 0.36px;
+  cursor: pointer;
 }
 </style>

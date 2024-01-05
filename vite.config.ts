@@ -16,7 +16,7 @@ export default defineConfig({
     vue(),
   ],
   esbuild: {
-    drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
+    // drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
   },
   build: {
     rollupOptions: {
@@ -41,6 +41,7 @@ export default defineConfig({
         additionalData: `
           @use "sass:math";
           @import "./src/assets/styles/_variables.scss";
+          @import "./src/assets/styles/_mixins.scss";
         `,
       },
     },

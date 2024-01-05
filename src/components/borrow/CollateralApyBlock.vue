@@ -61,6 +61,7 @@ export default {
   computed: {
     ...mapGetters({
       chainId: "getChainId",
+      provider: "getProvider",
     }),
 
     isApe() {
@@ -107,7 +108,11 @@ export default {
       this.isApyExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
       if (!this.isApyExist) return false;
       this.isLoadingApy = true;
-      this.collateralApy = await fetchTokenApy(this.cauldron);
+      this.collateralApy = await fetchTokenApy(
+        this.cauldron,
+        this.chainId,
+        this.provider
+      );
       this.isApyExist = isApyCalcExist(this.chainId, this.cauldron.config.id);
       this.isLoadingApy = false;
     },
