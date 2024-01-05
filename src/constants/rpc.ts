@@ -7,5 +7,5 @@ export const RPC_MOONRIVER = "https://rpc.api.moonriver.moonbeam.network";
 export const RPC_BASE = "https://mainnet.base.org";
 export const RPC_ARB = "https://arb1.arbitrum.io/rpc";
 export const RPC_AVAX = "https://api.avax.network/ext/bc/C/rpc";
-export const RPC_KAVA = "https://evm.kava.io"
-export const PRC_LINEA = "https://rpc.linea.build"
+export const RPC_KAVA = "https://kava-evm.publicnode.com";
+export const PRC_LINEA = "https://rpc.linea.build";
