@@ -77,7 +77,7 @@ export default {
   },
 
   watch: {
-    inputAmpunt(value) {
+    inputAmount(value) {
       if (value.eq(0)) {
         this.inputValue = "";
         return false;

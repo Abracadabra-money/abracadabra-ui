@@ -116,8 +116,6 @@ export const getMaxCollateralToRemove = (
   mcr: BigNumber,
   oracleExchangeRate: BigNumber
 ) => {
-  console.log("collateralAmount", collateralAmount.toString())
-
   if (userBorrowAmount.eq(0)) return collateralAmount;
 
   const currentLtv = getUserLtv(
