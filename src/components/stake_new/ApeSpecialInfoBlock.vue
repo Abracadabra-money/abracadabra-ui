@@ -84,7 +84,6 @@ export default {
       rgba(116, 92, 210, 0.32) 100%
     ),
     url("@/assets/images/stake/ape-bg.png");
-
   background-repeat: no-repeat;
   background-position: center right;
 }

@@ -11,6 +11,7 @@
           v-if="chartConfig.typeButtons"
           :name="chartActive"
           :items="chartConfig.typeButtons"
+          width="262px"
           @select="updateChart"
         />
       </div>

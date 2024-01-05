@@ -1,5 +1,5 @@
 <template>
-  <div class="switch">
+  <div :style="`width: ${width};`" class="switch">
     <button
       v-for="(item, i) in items"
       class="switch-btn"
@@ -23,6 +23,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    width: {
+      type: String,
+      default: "220px",
+    },
   },
 
   emits: ["select"],
@@ -34,7 +38,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 220px;
+  width: 220px;
   height: 48px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);
