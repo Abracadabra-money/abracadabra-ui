@@ -17,7 +17,11 @@
       </p>
       <p class="value pointer" @click="$emit('open-settings')">
         <span class="token">
-          <img :src="data.dstTokenIcon" class="token-icon" />
+          <img
+            :src="data.dstTokenIcon"
+            class="token-icon"
+            v-if="data.dstTokenIcon"
+          />
           {{ data.dstTokenAmount || "0.0" }}
           {{ data.dstTokenSymbol }}
         </span>

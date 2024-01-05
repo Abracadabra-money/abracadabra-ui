@@ -20,13 +20,8 @@
           </span>
         </div>
 
-        <p class="wallet-balance">
-          <WalletIcon
-            :width="13"
-            :height="13"
-            fill="#575C62"
-            @click="inputValue = formattedMax"
-          />
+        <p class="wallet-balance" @click="inputValue = formattedMax">
+          <WalletIcon :width="13" :height="13" fill="#575C62" />
           {{ formatTokenBalance(formattedMax) }}
         </p>
       </div>

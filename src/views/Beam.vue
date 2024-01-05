@@ -9,15 +9,16 @@
 
         <div class="settings-btns">
           <BeamSettingsButton
-            :active="isShowDstAddress"
-            @click="toggleDstAddress"
-            :disabled="isActionsDisabled"
-          />
-          <BeamSettingsButton
             :active="isSettingsOpened"
             @click="toggleSettings"
             :disabled="isActionsDisabled"
             buttonType="settings"
+            v-if="isSelectedChain"
+          />
+          <BeamSettingsButton
+            :active="isShowDstAddress"
+            @click="toggleDstAddress"
+            :disabled="isActionsDisabled"
           />
         </div>
       </div>
@@ -334,8 +335,12 @@ export default {
         mimAmount: this.inputValue,
         dstTokenAmount: this.dstTokenAmount,
         dstTokenPrice: this.dstTokenPrice || 0,
-        dstTokenSymbol: this.dstTokenInfo?.baseTokenSymbol,
-        dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
+        dstTokenSymbol: this.isSelectedChain
+          ? this.dstTokenInfo?.baseTokenSymbol
+          : "",
+        dstTokenIcon: this.isSelectedChain
+          ? this.dstTokenInfo?.baseTokenIcon
+          : "",
         gasCost: this.formatFee,
         srcTokenPrice: this.srcTokenPrice || 0,
         srcTokenSymbol: this.srcTokenInfo?.baseTokenSymbol,

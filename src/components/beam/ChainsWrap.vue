@@ -9,20 +9,19 @@
         <p class="select-button-text">From: {{ fromChain.title }}</p>
       </button>
 
-      <button class="switch-chain-button" :disabled="isNetworkToChangeDisabled">
+      <button
+        class="switch-chain-button"
+        :disabled="isNetworkToChangeDisabled"
+        @click="$emit('switch-chain')"
+      >
         <img
           class="switch-chain-image"
-          @click="$emit('switch-chain')"
           src="@/assets/images/beam/switch-button.svg"
           alt="Switch network"
         />
       </button>
 
-      <button
-        class="select-item"
-        @click="$emit('changeNetwork', 'to')"
-        :disabled="isNetworkToChangeDisabled"
-      >
+      <button class="select-item" @click="$emit('changeNetwork', 'to')">
         <div class="icon-wrap">
           <img class="chain-icon" :src="destinationChain.icon" alt="Icon" />
         </div>
@@ -65,7 +64,10 @@ export default {
 
     isNetworkToChangeDisabled() {
       return (
-        this.fromChain.isUnsupportedNetwork || !this.account || !this.toChain
+        this.fromChain.isUnsupportedNetwork ||
+        !this.account ||
+        !this.toChain ||
+        !this.selectChain
       );
     },
   },
@@ -150,6 +152,13 @@ export default {
 
 .switch-chain-button:hover {
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.335);
+}
+
+.switch-chain-button:disabled,
+.switch-chain-button:disabled:hover {
+  opacity: 0.5;
+  box-shadow: none;
+  border: 1px solid #2d4b9625;
 }
 
 .disabled {

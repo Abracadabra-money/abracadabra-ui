@@ -13,8 +13,16 @@
       </div>
 
       <div class="btns-wrap">
-        <button class="setting-btn" @click="updateInputValue(0)">None</button>
-        <button class="setting-btn" @click="updateInputValue(defaultValue)">
+        <button
+          :class="['setting-btn', { active: isNone }]"
+          @click="updateInputValue(0)"
+        >
+          None
+        </button>
+        <button
+          :class="['setting-btn', { active: isDefaultValue }]"
+          @click="updateInputValue(defaultValue)"
+        >
           Default
         </button>
       </div>
@@ -100,6 +108,14 @@ export default {
   },
 
   computed: {
+    isDefaultValue() {
+      return this.inputValue == this.defaultValue;
+    },
+
+    isNone() {
+      return this.inputValue === 0;
+    },
+
     isDisabledBtn() {
       if (!this.inputValue.toString().length) return true;
       return !!this.error;
@@ -150,12 +166,13 @@ export default {
     },
 
     async updateFee(value) {
+      if (!this.mimAmount || value > this.max) return 0;
       const { fees } = await getEstimateSendFee(
         this.config.contract,
         this.config.address,
         this.config.dstChainId,
         value,
-        this.mimAmount
+        this.mimAmount || "0"
       );
 
       const additionalFee = fees[0].div(100);
@@ -231,7 +248,8 @@ export default {
   transition: all 0.3s ease;
 }
 
-.setting-btn:hover {
+.setting-btn:hover,
+.setting-btn.active {
   color: #7088cc;
   border: 2px solid #86a2f1;
   background: rgba(255, 255, 255, 0.05);
