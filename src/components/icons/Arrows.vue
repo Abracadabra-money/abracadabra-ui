@@ -47,7 +47,6 @@ export default {
   gap: 3px;
   cursor: pointer;
 }
-
 .active {
   path {
     fill: #fff;

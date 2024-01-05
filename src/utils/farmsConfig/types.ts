@@ -1,13 +1,13 @@
 import type { Address } from "viem";
 
 type RewardToken = {
-  name: String,
-  icon: String,
-  address: Address,
-  decimals: number,
-  abi: any,
-  oracle: Address,
-}
+  name: String;
+  icon: String;
+  address: Address;
+  decimals: number;
+  abi: any;
+  oracle: Address;
+};
 
 export type FarmConfig = {
   name: string;
@@ -43,14 +43,15 @@ export type FarmConfig = {
       icon: string;
     };
   };
-  rewardTokens?: Array<RewardToken>
+  rewardTokens?: Array<RewardToken>;
 };
 
 export type FarmItem = {
   name: string;
   icon: string;
   id: number;
-  poolId: number;
+  chainId: number;
+  poolId?: number;
   earnedTokenPrice: number;
   stakingToken: {
     link: string;
@@ -65,7 +66,7 @@ export type FarmItem = {
   contractInfo: ContractInfo;
   farmRoi: number;
   lpPrice: number;
-  isDepreciated: boolean;
+  isDeprecated: boolean;
   farmYield: number;
   accountInfo?: FarmAccountInfo;
   farmTvl?: number;
@@ -89,6 +90,7 @@ export type FarmAccountInfo = {
   } | null;
   balance: string;
   depositedBalance: string;
+  depositedBalanceBigInt: BigInt;
 };
 
 export type PoolInfo = {

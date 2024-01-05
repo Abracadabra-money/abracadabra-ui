@@ -8,7 +8,7 @@ const testFarm = {
   id: 1,
   name: "testName",
   icon: "testIcon",
-  isDepreciated: false,
+  isDeprecated: false,
   farmRoi: 100,
   farmTvl: 2000,
 };
@@ -52,8 +52,8 @@ describe("FarmItem.vue", () => {
     expect(itemsValue[1].text()).toBe("$ 2,000");
   });
 
-  it("Should render correct if farm isDepreciated", async () => {
-    await wrapper.setProps({ farm: { isDepreciated: true } });
+  it("Should render correct if farm isDeprecated", async () => {
+    await wrapper.setProps({ farm: { isDeprecated: true } });
     expect(wrapper.find(".farm-deprecated").exists()).toBe(true);
     expect(wrapper.find(".link-wrap").exists()).not.toBe(true);
   });

@@ -27,17 +27,16 @@
 export default {
   methods: {
     changeSearch(event: any) {
-      this.$emit("changeSearch", event.target.value);
+      this.$emit("changeSearch", event.target.value || "");
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
 .search {
   @include font;
+
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: rgba(8, 14, 31, 0.6);
   border-radius: 12px;

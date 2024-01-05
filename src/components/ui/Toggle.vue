@@ -64,4 +64,10 @@ export default {
 .text {
   line-height: 150%;
 }
+
+@media screen and (max-width: 600px) {
+  .text {
+    font-size: 14px;
+  }
+}
 </style>

@@ -1,124 +1,80 @@
 <template>
-  <div class="wrapper">
-    <img
-      class="button-up"
-      src="@/assets/images/button-up.svg"
-      @click="scrollToTop"
-      v-if="showButtonUp"
-      alt=""
-    />
-    <h2 class="title">Farming Opportunities</h2>
-    <EmptyState v-if="!currentPools.length && !isFarmsLoading" />
-    <div v-else-if="!currentPools.length && isFarmsLoading" class="loader-wrap">
-      <BaseLoader />
-    </div>
-    <div v-else class="stats-wrap">
-      <div class="tools-wrap">
-        <div class="search-wrap">
-          <img
-            class="search-icon"
-            src="@/assets/images/search.svg"
-            alt="search"
-          />
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Search"
-            class="search-input"
-          />
-        </div>
+  <div class="farms-view">
+    <div class="farms-wrap">
+      <div class="farms">
+        <FarmsInfo :farms="this.farms" />
+        <div class="farms-list-head">
+          <div class="togglers">
+            <Toggle
+              text="Active farms"
+              :selected="isActiveMarkets"
+              @updateToggle="toggleActiveMarkets"
+            />
 
-        <DropdownWrap class="dropdown">
-          <template v-slot:btn>
-            <button class="sort-btn open-btn">
-              <span class="sort-title-wrap">
-                <button
-                  @click.stop="sortReverse = !sortReverse"
-                  @mousedown.prevent.stop=""
-                  class="sort-icon-wrap"
-                >
-                  <img
-                    class="sort-icon"
-                    :class="{ 'sort-icon-reverse': sortReverse }"
-                    src="@/assets/images/filter.svg"
-                    alt="filter"
-                  />
-                </button>
-                <span>{{ `Sorted by ${selectedSortData.title}` }}</span>
-              </span>
-              <img
-                class="arrow-icon"
-                src="@/assets/images/arrow-down.svg"
-                alt="filter"
-              />
-            </button>
-          </template>
-          <template v-slot:list>
-            <button
-              class="sort-btn sort-item"
-              v-for="(titleData, i) in sortList.filter(
-                ({ name }) => name !== selectedSort
-              )"
-              :key="i"
-              @click="select(titleData.name)"
+            <Toggle
+              text="My farms"
+              :selected="isMyPositions"
+              @updateToggle="toggleMyPositions"
+              v-if="signer"
+            />
+          </div>
+
+          <div class="sort-buttons">
+            <SortButton :sortOrder="aprOrder" @click="changeAprOrder"
+              >APR</SortButton
             >
-              {{ titleData.title }}
-            </button>
-          </template>
-        </DropdownWrap>
-        <div class="active-markets">
-          active markets only
-          <CheckBox @update="toggleActiveMarkets" :value="isActiveMarkets" />
-        </div>
-      </div>
-      <div class="stats-list-wrap">
-        <div class="stats-list-header">
-          <div v-for="(title, i) in headers" :key="i">{{ title }}</div>
+            <ChainsDropdown
+              :activeChains="activeChains"
+              :selectedChains="selectedChains"
+              @updateSelectedChain="updateSelectedChain"
+            />
+          </div>
+
+          <InputSearch class="input-search" @changeSearch="updateSearch" />
         </div>
 
-        <template v-if="filteredPools.length">
-          <MarketsFarmItem
-            v-for="farm in filteredPools"
-            :key="farm.id"
-            :farm="farm"
+        <div class="farms-list">
+          <template v-if="filteredFarms.length">
+            <FarmItem
+              v-for="farm in filteredFarms"
+              :key="`${farm.id}-${farm.chainId}`"
+              :farm="farm"
+            />
+          </template>
+          <EmptyState
+            class="empty-state"
+            :isFarmsLoading="isFarmsLoading"
+            v-else
           />
-        </template>
-        <EmptyState v-else />
+        </div>
       </div>
+      <ScrollToTop v-if="farms?.length" />
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import EmptyState from "@/components/markets/EmptyState.vue";
-import DropdownWrap from "@/components/ui/DropdownWrap.vue";
-import MarketsFarmItem from "@/components/markets/FarmItem.vue";
-import CheckBox from "@/components/ui/CheckBox.vue";
+import EmptyState from "@/components/farm/EmptyState.vue";
+import FarmItem from "@/components/markets/FarmItem.vue";
+import Toggle from "@/components/ui/Toggle.vue";
+import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
+import InputSearch from "@/components/ui/inputs/InputSearch.vue";
+import SortButton from "@/components/ui/buttons/SortButton.vue";
+import FarmsInfo from "@/components/farm/FarmsInfo.vue";
+import ScrollToTop from "@/components/ui/ScrollToTop.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
-
-const sortKeys = {
-  name: "name",
-  yield: "yield",
-  roi: "roi",
-  tvl: "tvl",
-  totalMim: "totalMim",
-  mimsLeft: "mimsLeft",
-  interest: "interest",
-  liquidation: "liquidation",
-};
 
 export default {
   data() {
     return {
-      selectedSort: sortKeys.name,
-      sortReverse: false,
       search: "",
       farmsInterval: null,
       isActiveMarkets: true,
-      scrollPosition: 0,
+      isMyPositions: false,
+      aprOrder: null,
       farms: null,
+      selectedChains: [0],
       isFarmsLoading: false,
     };
   },
@@ -133,40 +89,31 @@ export default {
       return this.currentPools.length && this.scrollPosition !== 0;
     },
 
-    selectedSortData() {
-      return (
-        this.sortList.find(({ name }) => this.selectedSort === name) || null
-      );
-    },
-
-    sortList() {
-      return [
-        { title: "Title", name: sortKeys.name },
-        { title: "APR", name: sortKeys.roi },
-        { title: "TVL", name: sortKeys.tvl },
-      ];
-    },
-
     currentPools() {
       return this.farms || [];
     },
 
-    filteredPools() {
-      return this.sortByDepreciate(
-        this.sortByTitle(this.filterBySearch(this.currentPools, this.search))
+    filteredFarms() {
+      return this.sortByApr(
+        this.filterByChain(
+          this.sortByDepreciate(
+            this.filterByOpenedPositions(
+              this.filterBySearch(this.currentPools, this.search)
+            )
+          )
+        )
       );
     },
 
-    headers() {
-      return ["CHAIN", "Pool", "APR", "TVL"];
+    activeChains() {
+      return this.farms?.reduce((acc, farm) => {
+        if (!acc.includes(farm.chainId)) acc.push(farm.chainId);
+        return acc;
+      }, []);
     },
   },
 
   methods: {
-    select(name) {
-      this.selectedSort = name;
-    },
-
     filterBySearch(farms, search) {
       return search
         ? farms.filter(
@@ -176,85 +123,78 @@ export default {
         : farms;
     },
 
-    sortByTitle(farms) {
-      const sortedPools = [...farms];
-      if (this.selectedSortData !== null) {
-        const prepValue = (farm, sortData) => {
-          switch (sortData.name) {
-            case sortKeys.name:
-              return farm.name;
-
-            case sortKeys.yield:
-              return +farm.farmYield;
-
-            case sortKeys.roi:
-              return +farm.farmRoi;
-
-            case sortKeys.tvl:
-              return +farm.farmTvl;
-
-            case sortKeys.totalMim:
-              return +farm.totalBorrow;
-
-            case sortKeys.mimsLeft:
-              return +farm.dynamicBorrowAmount;
-
-            case sortKeys.interest:
-              return +farm.interest;
-
-            case sortKeys.liquidation:
-              return +farm.stabilityFee;
-          }
-
-          return null;
-        };
-        sortedPools.sort((aPool, bPool) => {
-          const a = prepValue(aPool, this.selectedSortData);
-          const b = prepValue(bPool, this.selectedSortData);
-
-          const factor = this.sortReverse ? -1 : 1;
-
-          if (this.selectedSort === sortKeys.name)
-            return a < b ? -factor : factor;
-
-          return a < b ? factor : -factor;
-        });
-      }
-
-      return sortedPools;
+    updateSearch(value) {
+      this.search = value.toLowerCase();
     },
 
     sortByDepreciate(farms = []) {
       if (this.isActiveMarkets) {
         return farms.filter((farm) => {
-          if (farm?.cauldronSettings)
-            return !farm.cauldronSettings.isDepreciated;
-          return !farm.isDepreciated;
+          return !farm?.isDeprecated;
         });
       } else {
-        return farms.sort((a, b) => {
+        return [...farms].sort((a, b) => {
           if (a?.cauldronSettings || b?.cauldronSettings) {
             return (
-              +a.cauldronSettings.isDepreciated -
-              +b.cauldronSettings.isDepreciated
+              +a.cauldronSettings.isDeprecated -
+              +b.cauldronSettings.isDeprecated
             );
           }
 
-          return +a.isDepreciated - +b.isDepreciated;
+          return +a.isDeprecated - +b.isDeprecated;
         });
       }
+    },
+
+    sortByApr(farms = []) {
+      if (this.aprOrder === null) return farms;
+      const sortedByApr = farms.sort((a, b) => b.farmRoi - a.farmRoi);
+
+      if (this.aprOrder == "up") return sortedByApr;
+      return sortedByApr.reverse();
     },
 
     toggleActiveMarkets() {
       this.isActiveMarkets = !this.isActiveMarkets;
     },
 
-    scrollToTop() {
-      window.scrollTo(0, 0);
+    filterByOpenedPositions(farms = []) {
+      if (this.isMyPositions) {
+        return farms.filter((farm) =>
+          Number(farm.accountInfo.depositedBalance)
+        );
+      }
+
+      return farms;
     },
 
-    onScroll() {
-      this.scrollPosition = window.scrollY;
+    toggleMyPositions() {
+      this.isMyPositions = !this.isMyPositions;
+    },
+
+    changeAprOrder() {
+      this.aprOrder =
+        this.aprOrder === null ? "up" : this.aprOrder == "up" ? "down" : null;
+    },
+
+    filterByChain(farms) {
+      if (this.selectedChains.includes(0)) return farms;
+      return farms.filter((farm) => {
+        return this.selectedChains.includes(farm.chainId);
+      });
+    },
+
+    updateSelectedChain(chainId) {
+      if (!chainId) {
+        const value = this.selectedChains.includes(0) ? [] : [0];
+        return (this.selectedChains = value);
+      }
+
+      if (this.selectedChains.includes(0)) this.selectedChains = [];
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
     },
   },
 
@@ -262,28 +202,39 @@ export default {
     this.isFarmsLoading = true;
     this.farms = await getFarmsList(this.chainId);
     this.isFarmsLoading = false;
-
     this.farmsInterval = setInterval(async () => {
       this.farms = await getFarmsList(this.chainId, this);
     }, 60000);
-    window.addEventListener("scroll", this.onScroll);
   },
 
   beforeUnmount() {
     clearInterval(this.farmsInterval);
-    window.removeEventListener("scroll", this.onScroll);
   },
+
   components: {
     EmptyState,
-    BaseLoader,
-    DropdownWrap,
-    MarketsFarmItem,
-    CheckBox,
+    FarmItem,
+    Toggle,
+    ChainsDropdown,
+    InputSearch,
+    SortButton,
+    FarmsInfo,
+    ScrollToTop,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.farms-view {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background: url("../../assets/images/farm/farm-page-background.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 .button-up {
   position: fixed;
   right: 10%;
@@ -291,160 +242,87 @@ export default {
   z-index: 9;
   cursor: pointer;
 }
-.wrapper {
-  padding-top: 160px;
-  padding-bottom: 100px;
-  margin: 0 auto;
-  width: 940px;
-  max-width: calc(100% - 20px);
+
+.farms-wrap {
+  margin: 150px 0 60px 0;
+  width: 1280px;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
-.title {
-  text-align: center;
-  text-transform: uppercase;
-  margin-bottom: 40px;
+.farms-info {
+  margin-bottom: 32px;
 }
-.tools-wrap {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 10px;
+
+.title {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 600;
   margin-bottom: 10px;
 }
 
-.dropdown {
-  grid-column: auto / span 1;
-  &:focus-within {
-    .open-btn {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      background-color: #55535d;
-      color: white !important;
-    }
-    .sort-btn {
-      background-color: #55535d;
-      &:hover {
-        color: #76c3f5;
-      }
-    }
-  }
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  font-weight: 400;
 }
 
-.open-btn {
+.desc-line {
   display: flex;
   align-items: center;
+}
+
+.mim-symbol {
+  margin-right: 4px;
+}
+
+.farms {
+  position: relative;
+}
+
+.farms-list-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
   justify-content: space-between;
-  border-radius: 20px;
-  padding: 0 17px 0 12px;
+  align-items: center;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.06);
-
-  &:hover {
-    background-color: #55535d;
-  }
-
-  .sort-icon {
-    width: 20px;
-    &-reverse {
-      transform: rotate(180deg);
-    }
-    &-wrap {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-
-      margin-right: 10px;
-    }
-  }
-
-  .arrow-icon {
-    margin-left: 25px;
-  }
+  padding: 12px 24px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
-.sort-btn {
-  height: 50px;
-  color: white;
-  cursor: pointer;
-  border: none;
-}
-
-.sort-title-wrap {
+.farms-list {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 24px;
 }
 
-.sort-item {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-  &:last-child {
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-  }
-}
-
-.search-wrap {
-  display: grid;
-  grid-template-columns: 30px auto;
-  align-items: center;
-  padding-left: 10px;
-  background-color: rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  height: 50px;
-  grid-column: auto / span 1;
-
-  .search-icon {
-    width: 20px;
-    pointer-events: none;
-  }
-
-  .search-input {
-    background-color: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    width: 100%;
-
-    &::placeholder {
-      color: white;
-    }
-  }
-}
-
-.stats-list-wrap {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 10px;
-  grid-column: 1;
-  margin-top: 10px;
-}
-
-.stats-list-header {
-  display: none;
-  grid-template-columns: 0.5fr 1.1fr 1.1fr 1.1fr 1.2fr;
-  align-items: center;
-  padding: 0 20px;
-  height: 60px;
-  font-size: 14px;
-  border-radius: 30px;
-  background-color: #2a2835;
-  color: rgba(255, 255, 255, 0.8);
-  text-transform: uppercase;
-
-  &-farm {
-    grid-template-columns: 1fr 1fr 1fr 1fr 60px;
-  }
-}
 .loader-wrap {
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-// new
+.loader-gif {
+  width: 40%;
+  height: 50%;
+}
+
 .active-markets {
   background: rgba(255, 255, 255, 0.06);
   border-radius: 20px;
@@ -458,43 +336,65 @@ export default {
   line-height: 24px;
 }
 
-@media (min-width: 768px) {
-  .dropdown {
-    grid-column: auto / span 5;
-  }
-  .search-wrap {
-    grid-column: auto / span 3;
-  }
-  .active-markets {
-    grid-column: auto / span 4;
-  }
-  .tools-wrap {
-    grid-template-columns: repeat(12, 1fr);
-  }
+.togglers,
+.sort-buttons {
+  display: flex;
+  gap: 20px;
 }
 
-@media (min-width: 1024px) {
-  .dropdown {
-    grid-column: auto / span 5;
-  }
-  .search-wrap {
-    grid-column: auto / span 4;
-  }
-  .active-markets {
-    grid-column: auto / span 3;
-  }
-  .stats-list-wrap {
-    grid-column: 1 / 5;
-    margin-top: 0;
-  }
-  .stats-list-header {
-    display: grid;
-  }
+.sort-buttons {
+  margin-left: auto;
+  margin-right: 20px;
 }
 
-@media screen and (max-width: 767px) {
-  .active-markets {
+.empty-state {
+  margin: auto;
+}
+
+@media screen and (max-width: 1300px) {
+  .farms-wrap {
+    max-width: 90%;
+  }
+
+  .farms-list {
     justify-content: center;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .farms-list-head {
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 12px;
+  }
+
+  .input-search {
+    order: -1;
+    width: 100%;
+  }
+
+  .sort-buttons {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .farms-list-head {
+    align-items: start;
+  }
+
+  .input-search {
+    order: 1;
+    width: 100%;
+  }
+
+  .togglers {
+    order: 2;
+  }
+
+  .sort-buttons {
+    order: 3;
   }
 }
 </style>
