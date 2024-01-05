@@ -221,13 +221,13 @@ export default {
     },
 
     activePopupChain() {
-      if (this.popupType === "from" && this.originChain) {
+      if (this.popupType === "from" && this.originChain)
         return this.originChain.chainId;
-      } else if (this.dstChain && this.isSelectedChain) {
+      else if (this.dstChain && this.isSelectedChain) {
         return this.dstChain.chainId;
       }
 
-      return 1;
+      return 0;
     },
 
     originChain() {
