@@ -34,11 +34,11 @@
         :selectedFarm="selectedFarm"
         :inputTitleText="inputTitleText"
         :max="max"
-        :inputAmount="inputAmount"
+        :value="inputValue"
         :error="error"
         :buttonText="buttonText"
         :isButtonDisabled="isButtonDisabled"
-        @updateValue="inputAmount = $event"
+        @updateValue="updateValue"
         @actionHandler="actionHandler"
       />
 
@@ -79,10 +79,11 @@ import FarmPositionMobilePopup from "@/components/farm/FarmPositionMobilePopup.v
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
-import { parseUnits } from "viem";
+import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/farm/actions";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 export default {
   props: {
@@ -96,6 +97,7 @@ export default {
       isFarmsPopupOpened: false,
       isMyPositionPopupOpened: false,
       inputAmount: null,
+      inputValue: "",
       selectedTab: "stake",
       items: ["stake", "unstake"],
       farmsTimer: null,
@@ -167,8 +169,8 @@ export default {
     },
 
     error() {
-      return Number(this.inputAmount) > Number(this.max)
-        ? `The value cannot be greater than ${Number(this.max) / 1e18}`
+      return this.inputAmount > this.max
+        ? `The value cannot be greater than ${formatUnits(this.max)}`
         : null;
     },
 
@@ -221,9 +223,23 @@ export default {
     isDeprecated(status) {
       this.selectedTab = status ? "unstake" : "stake";
     },
+
+    inputAmount(value) {
+      if (value == 0) {
+        this.inputValue = "";
+        return false;
+      }
+
+      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
+    },
   },
 
   methods: {
+    updateValue(value) {
+      if (value === null) return (this.inputAmount = BigInt(0));
+      this.inputAmount = value;
+    },
+
     changeActiveMarket({ id, chainId }) {
       if (+id != +this.id || +chainId != +this.chainId)
         this.$router.push({ path: `/farm/${id}/${chainId}` });

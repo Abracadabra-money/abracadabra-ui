@@ -1,15 +1,15 @@
 <template>
   <div class="wrap">
-    <div class="val-input" :class="{ 'val-input-error': error }">
+    <div class="val-input">
       <div class="token-input-wrap">
         <input
-          v-model="currentValue"
-          :disabled="disabled"
+          name="tokenInput"
           class="text-field"
+          v-model="inputValue"
           type="text"
           placeholder="0.0"
         />
-        <p class="usd-equivalent">{{ usdEquivalent }}</p>
+        <p class="usd-equivalent" v-if="tokenPrice">{{ usdEquivalent }}</p>
       </div>
 
       <div class="token-input-info">
@@ -21,43 +21,32 @@
         </div>
 
         <p class="wallet-balance">
-          <img
-            class="wallet-icon"
-            src="@/assets/images/farm/wallet-icon.png"
-            @click="currentValue = formattedMax"
-            :disabled="disabled"
+          <WalletIcon
+            :width="13"
+            :height="13"
+            fill="#575C62"
+            @click="inputValue = formattedMax"
           />
           {{ formatTokenBalance(formattedMax) }}
         </p>
       </div>
     </div>
-    <p class="value-error">
-      <span v-if="error">{{ error }}</span>
-      <span v-else>&nbsp;</span>
-    </p>
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { BigNumber, utils } from "ethers";
+// @ts-ignore
 import filters from "@/filters/index";
-import { utils } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
 
 export default {
   props: {
-    max: {
-      type: BigInt,
-    },
-    value: {
-      type: BigInt,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    error: {
-      type: String,
-    },
+    decimals: { type: Number, default: 18 },
+    isBigNumber: { type: Boolean, default: false },
+    max: {},
+    value: {}, // TODO: use bignumber (bigint) & parse in data.inputValue
     icon: {
       type: String,
     },
@@ -65,48 +54,68 @@ export default {
       type: String,
       default: "Select Farm",
     },
-    lpPrice: { type: Number },
+    tokenPrice: {},
   },
 
-  data() {
+  data(): any {
     return {
-      currentValue: null,
+      inputValue: this.value,
     };
   },
 
   computed: {
     formattedMax() {
-      return utils.formatUnits(this.max || 0, 18);
+      if (this.isBigNumber)
+        return utils.formatUnits(this.max || 0, this.decimals);
+      return formatUnits(this.max || 0, 18);
     },
 
-    usdEquivalent() {
-      return filters.formatUSD(this.currentValue * (this.lpPrice / 1e18));
+    usdEquivalent(): any {
+      return filters.formatUSD(this.inputValue * this.tokenPrice);
     },
   },
 
   watch: {
-    currentValue(value, oldValue) {
+    inputValue(value, oldValue) {
+      if (!value) {
+        this.$emit("updateInputValue", null);
+        return;
+      }
+
       if (isNaN(value)) {
-        this.currentValue = oldValue;
+        this.inputValue = oldValue;
         return false;
       }
-      this.$emit("updateValue", BigInt(Number(value) * 1e18));
+
+      if (this.isBigNumber) {
+        const emitValue = !value
+          ? BigNumber.from(0)
+          : utils.parseUnits(
+              filters.formatToFixed(value, this.decimals),
+              this.decimals
+            );
+
+        this.$emit("updateInputValue", emitValue);
+      } else this.$emit("updateInputValue", BigInt(Number(value) * 1e18));
     },
 
-    max() {
-      this.currentValue = null;
+    value(value) {
+      this.inputValue = value;
     },
   },
 
   methods: {
-    formatTokenBalance(tokenAmount) {
+    formatTokenBalance(tokenAmount: number) {
       return filters.formatTokenBalance(tokenAmount);
     },
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    WalletIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/WalletIcon.vue")
     ),
   },
 };
@@ -127,11 +136,6 @@ export default {
   border: 1px solid rgba(73, 70, 97, 0.4);
   background: rgba(8, 14, 31, 0.6);
   width: 100%;
-}
-
-.val-input-error,
-.val-input-error:focus-within {
-  border-color: $clrErrorBorder;
 }
 
 .token-input-wrap,
@@ -195,12 +199,5 @@ export default {
 
 .wallet-icon {
   cursor: pointer;
-}
-
-.value-error {
-  color: $clrError;
-  font-size: 10px;
-  margin-top: 5px;
-  margin-left: 10px;
 }
 </style>

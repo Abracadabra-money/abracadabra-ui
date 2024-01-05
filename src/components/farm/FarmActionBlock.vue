@@ -5,14 +5,14 @@
     </h4>
 
     <FarmInput
-      :value="inputAmount"
-      @updateValue="updateValue"
+      :value="value"
+      @updateInputValue="updateValue"
       :name="selectedFarm?.stakingToken?.name"
       :icon="selectedFarm?.icon"
       :max="max"
       :error="error"
       :disabled="!selectedFarm"
-      :lpPrice="selectedFarm?.lpPrice"
+      :tokenPrice="Number(selectedFarm?.lpPrice / 1e18)"
     />
 
     <BaseButton
@@ -34,7 +34,7 @@ export default {
     inputTitleText: { type: String },
     max: { type: BigInt },
     error: { type: String },
-    inputAmount: { type: BigInt },
+    value: { type: String },
     isButtonDisabled: { type: Boolean },
     buttonText: { type: String },
   },
