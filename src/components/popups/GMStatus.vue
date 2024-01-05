@@ -141,7 +141,6 @@ export default {
   name: "GMStatusPopup",
   props: {
     order: {
-      type: String,
       required: true,
     },
     cauldronObject: {
@@ -153,16 +152,12 @@ export default {
       required: true,
     },
     deleverageSuccessPayload: {
-      type: Object,
     },
     refundWeth: {
-      type: Function,
     },
     deleverageFromOrder: {
-      type: Function,
     },
     successLeverageCallback: {
-      type: Function,
     },
   },
   data() {
@@ -194,7 +189,7 @@ export default {
       return "GM transaction status";
     },
     isFailedDeleverage() {
-      return this.processState === 6 && this.deleverageinProgress === false
+      return this.processState === 6 && this.deleverageinProgress === false;
     },
     isCreatedDeleverage() {
       return this.orderType === 2 && this.processState !== 0;

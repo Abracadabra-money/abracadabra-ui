@@ -28,10 +28,10 @@ export default {
       type: Object as any,
     },
     recoverLeverage: {
-      type: Function,
+      type: Function || null,
     },
     deleverageFromOrder: {
-      type: Function,
+      type: Function || null,
     },
   },
   data() {

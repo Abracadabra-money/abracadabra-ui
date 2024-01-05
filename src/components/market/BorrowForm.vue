@@ -90,6 +90,7 @@
 import type { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 import type { DepositAmounts, SwapAmounts } from "@/helpers/cauldron/types";
+//@ts-ignore
 import tempMixin from "@/mixins/temp";
 
 export default {
@@ -161,9 +162,11 @@ export default {
       () => import("@/components/market/OrdersManager.vue")
     ),
     LocalPopupWrap: defineAsyncComponent(
+      //@ts-ignore
       () => import("@/components/popups/LocalPopupWrap.vue")
     ),
     GMStatus: defineAsyncComponent(
+      //@ts-ignore
       () => import("@/components/popups/GMStatus.vue")
     ),
   },
