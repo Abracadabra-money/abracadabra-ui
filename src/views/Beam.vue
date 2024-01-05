@@ -35,7 +35,7 @@
         <div class="inputs-wrap">
           <div>
             <InputLabel title="MIM to beam" :showBalance="false" />
-            <BaseTokenInput
+            <TokenInput
               class="beam-input"
               :decimals="18"
               :max="parsedMimBalance"
@@ -164,9 +164,6 @@ export default {
       tx: null,
       successData: null,
       mimToUsd: 0,
-      beamHistory: [],
-      historyPage: 1,
-      quantityHistory: 5,
       isApproving: false,
       isBeaming: false,
     };
@@ -226,7 +223,7 @@ export default {
     activePopupChain() {
       if (this.popupType === "from" && this.originChain) {
         return this.originChain.chainId;
-      } else if (this.dstChain) {
+      } else if (this.dstChain && this.isSelectedChain) {
         return this.dstChain.chainId;
       }
 
@@ -391,12 +388,6 @@ export default {
         totalGas: this.formatFee,
       };
     },
-
-    isVisibilityMoreButton() {
-      const quantity = this.quantityHistory * this.historyPage;
-      if (quantity >= this.beamHistory.length) return false;
-      return true;
-    },
   },
 
   watch: {
@@ -404,7 +395,6 @@ export default {
       if (this.isUnsupportedNetwork) await this.beamNotAvailable();
       else {
         await this.createBeamData();
-        await this.updateHistoryStatus();
       }
     },
 
@@ -524,9 +514,9 @@ export default {
         this.tx = await sendFrom(fees, params, this.inputAmount, this.txConfig);
         await this.deleteNotification(notificationId);
         this.isBeaming = false;
+        this.inputValue = "";
         this.isOpenSuccessPopup = true;
         this.successData = this.successConfig;
-        this.updateHistoryBeam(this.successData);
 
         await this.tx.wait();
 
@@ -537,63 +527,11 @@ export default {
 
         this.successData = this.successConfig;
         this.successData.txInfo = txInfo;
-
-        this.updateHistoryBeam(this.successData);
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.isBeaming = false;
         this.errorTransaction(error, notificationId);
       }
-    },
-
-    updateHistoryBeam(newTx) {
-      const beamHistory = JSON.parse(localStorage.getItem("beam-history"));
-
-      if (!beamHistory) {
-        localStorage.setItem("beam-history", JSON.stringify([newTx]));
-        this.beamHistory = [newTx];
-      } else {
-        let duplicateTx = false;
-        let txIndex = null;
-        beamHistory.forEach(({ tx }, idx) => {
-          if (tx?.hash === newTx?.tx?.hash) {
-            duplicateTx = true;
-            txIndex = idx;
-          }
-        });
-
-        if (!duplicateTx) {
-          beamHistory.push(newTx);
-          localStorage.setItem("beam-history", JSON.stringify(beamHistory));
-          this.beamHistory = beamHistory;
-        } else {
-          beamHistory[txIndex] = newTx;
-          localStorage.setItem("beam-history", JSON.stringify(beamHistory));
-          this.beamHistory = beamHistory;
-        }
-      }
-    },
-
-    async updateHistoryStatus(complite = false) {
-      let beamHistory = JSON.parse(localStorage.getItem("beam-history"));
-      if (!beamHistory) return [];
-      this.beamHistory = beamHistory;
-
-      this.beamHistory = await Promise.all(
-        beamHistory.map(async (history) => {
-          if (history?.txInfo?.status !== "DELIVERED") {
-            history.txInfo = await waitForMessageReceived(
-              history.dstChainId,
-              history.tx.hash
-            );
-            return history;
-          }
-          return history;
-        })
-      );
-
-      localStorage.setItem("beam-history", JSON.stringify(this.beamHistory));
-      if (!complite) this.updateHistoryStatus(true);
     },
 
     async getEstimatedFees(getParams = false) {
@@ -709,10 +647,6 @@ export default {
 
       return messages[0];
     },
-
-    seeMoreHistory() {
-      this.historyPage += 1;
-    },
   },
 
   async created() {
@@ -721,7 +655,6 @@ export default {
     if (this.isUnsupportedNetwork) await this.beamNotAvailable();
 
     await this.createBeamData();
-    await this.updateHistoryStatus();
 
     const previousChainId = localStorage.getItem("previous_chain_id");
     if (
@@ -739,7 +672,7 @@ export default {
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
+    TokenInput: defineAsyncComponent(() =>
       import("@/components/ui/inputs/TokenInput.vue")
     ),
     BaseButton: defineAsyncComponent(() =>

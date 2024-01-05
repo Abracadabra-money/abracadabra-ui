@@ -1,7 +1,7 @@
 <template>
   <div class="popup" v-if="isOpen" @click="closePopup">
     <h3 class="title">
-      Select network
+      Select {{ popupTitle }} chain
       <img
         class="popup-close"
         @click="closePopup"
@@ -17,12 +17,14 @@
         @click="enterChain(network.chainId)"
       >
         <div class="description">
-          <img
-            class="current-chain-marker"
-            src="@/assets/images/beam/current-chain-marker.png"
-            v-if="network.chainId == currentChainId"
-          />
-          <img class="chain-icon" :src="network.icon" alt="Icon" />
+          <div class="chain-icon-wrap">
+            <img
+              class="current-chain-marker"
+              src="@/assets/images/beam/current-chain-marker.png"
+              v-if="network.chainId == activeChain"
+            />
+            <img class="chain-icon" :src="network.icon" alt="Icon" />
+          </div>
           <p class="chain-title">{{ network.title }}</p>
         </div>
       </div>
@@ -51,6 +53,12 @@ export default {
       type: Boolean,
     },
     currentChainId: { type: Number },
+  },
+
+  computed: {
+    popupTitle() {
+      return this.popupType == "to" ? "destination" : "origin";
+    },
   },
 
   methods: {
@@ -121,11 +129,14 @@ export default {
 }
 
 .description {
-  position: relative;
   display: flex;
   align-items: center;
   flex-direction: column;
   gap: 8px;
+}
+
+.chain-icon-wrap {
+  position: relative;
 }
 
 .chain-icon {
@@ -136,12 +147,13 @@ export default {
 .chain-title {
   font-size: 16px;
   font-weight: 400;
+  text-align: center;
 }
 
 .current-chain-marker {
   position: absolute;
-  top: -10%;
-  right: 15%;
+  top: -8px;
+  right: -10px;
 }
 
 .active,
@@ -173,6 +185,8 @@ export default {
   .current-chain-marker {
     width: 20px;
     height: 20px;
+    top: -4px;
+    right: -6px;
   }
 }
 </style>
