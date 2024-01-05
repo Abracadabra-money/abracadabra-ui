@@ -51,6 +51,7 @@ import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
+import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 
 export default {
   props: {
@@ -105,10 +106,19 @@ export default {
       this.apr = filters.formatToFixed(response.magicGlpApy, 2);
     },
 
+    async fetchApeApy() {
+      if (!this.selectedNetwork) return false;
+      this.apr = 0;
+      this.apr = await getMagicApeApy(this.selectedNetwork);
+    },
+
     async fetchApr() {
       switch (this.type) {
         case "glp":
           await this.fetchGlpApy();
+          break;
+        case "ape":
+          await this.fetchApeApy();
           break;
         default:
           break;

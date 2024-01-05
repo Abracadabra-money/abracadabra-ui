@@ -92,6 +92,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
 import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   data() {
@@ -125,7 +126,7 @@ export default {
       if (!this.account) return true;
       if (!this.isStakeAction) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.toToken.approvedAmount >= this.inputAmount;
+      return this.fromToken.approvedAmount >= this.inputAmount;
     },
 
     isInsufficientBalance() {
@@ -133,6 +134,7 @@ export default {
     },
 
     isActionDisabled() {
+      if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
       return this.isInsufficientBalance;
     },
@@ -275,6 +277,10 @@ export default {
 
     async actionHandler() {
       if (this.isActionDisabled) return false;
+      if (!this.isUnsupportedChain) {
+        switchNetwork(this.selectedNetwork);
+        return false;
+      }
       if (!this.isTokenApproved) {
         await this.approveTokenHandler();
         return false;

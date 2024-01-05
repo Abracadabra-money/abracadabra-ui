@@ -1,13 +1,12 @@
 import type { Address } from "@wagmi/core";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
 import type { ChainConfig } from "@/types/magicGlp/configsInfo";
-import type { TokensInfo } from "@/types/magicGlp/tokensInfo";
 
 export const getTokensInfo = async (
   address: Address,
   config: ChainConfig,
   publicClient: any
-): Promise<TokensInfo> => {
+) => {
   const { mainToken, stakeToken, oracle } = config;
 
   const [
@@ -77,17 +76,17 @@ export const getTokensInfo = async (
       totalSupplyUsd,
       balance: userMagicGlpBalance.result,
       balanceUsd: mainTokenBalanceUsd,
-      approvedAmount: allowanceAmount.result,
       contract: mainToken.contract,
     },
     stakeToken: {
       name: stakeToken.name,
       icon: stakeToken.icon,
-      decimals: mainToken.decimals,
+      contract: stakeToken.contract,
       price: stakeTokenPrice,
+      decimals: mainToken.decimals,
       balance: userGlpBalance.result,
       balanceUsd: stakeTokenBalanceUsd,
-      contract: stakeToken.contract,
+      approvedAmount: allowanceAmount.result,
     },
   };
 };
