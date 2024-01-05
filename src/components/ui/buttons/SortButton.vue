@@ -24,7 +24,7 @@ export default {
 .sort-btn {
   display: flex;
   align-items: center;
-  width: 100px;
+  min-width: 100px;
   height: 36px;
   gap: 4px;
   padding: 6px 10px;

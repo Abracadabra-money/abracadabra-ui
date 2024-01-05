@@ -14,7 +14,6 @@
           v-for="id in chains"
           :key="id"
           :src="getChainIcon(id)"
-          alt=""
         />
         <div class="count">{{ selectedChains.length - 3 }}+</div>
       </div>

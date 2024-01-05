@@ -28,6 +28,11 @@ export const isApyCalcExist = (chainId, poolId) => {
 };
 
 export const fetchTokenApy = async (pool, chainId, provider) => {
+  if (!chainId || !provider) {
+    chainId = store.getters.getChainId;
+    provider = store.getters.getProvider;
+  }
+
   if (chainId === 1) {
     if (pool.config.id === 34) return await getLUSDApy(provider);
     if (pool.config.id === 15 || pool.config.id === 24 || pool.config.id === 25)

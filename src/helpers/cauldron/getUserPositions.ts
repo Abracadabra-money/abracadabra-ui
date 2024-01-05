@@ -77,32 +77,72 @@ export const getUserPositions = async (
   return positions.map((position: any, idx: number) => {
     if (!position) return emptyPosition;
 
+    const collateralPrice =
+      1 /
+      //@ts-ignore
+      utils.formatUnits(
+        oracleExchangeRate[idx],
+        //@ts-ignore
+        configs[idx].collateralInfo.decimals
+      );
+
+    const liquidationPrice = getLiquidationPrice(
+      position.borrowValue,
+      position.collateral.amount.add(collaterallInOrders[idx].amount),
+      //@ts-ignore
+      configs[idx].mcr,
+      //@ts-ignore
+      configs[idx].collateralInfo.decimals
+    );
+
+    const leftToDrop = collateralPrice - liquidationPrice;
+
+    const positionHealth = calculatePositionHealth(
+      liquidationPrice,
+      collateralPrice,
+      configs[idx]?.cauldronSettings.healthMultiplier,
+      position.borrowValue,
+      leftToDrop
+    );
+
+    const userCollateralAmount = position.collateral.amount.add(
+      collaterallInOrders[idx].amount
+    );
+
+    const userBorrowAmount = position.borrowValue;
+
+    const collateralDeposited = Number(
+      utils.formatUnits(
+        userCollateralAmount,
+        configs[idx]?.collateralInfo.decimals
+      )
+    );
+
+    const collateralDepositedUsd = collateralDeposited * collateralPrice;
+
+    const mimBorrowed = Number(utils.formatUnits(userBorrowAmount));
+
     return {
       collateralInfo: {
         userCollateralShare: userCollateralShares[idx].add(
           collaterallInOrders[idx].share
         ),
-        userCollateralAmount: position.collateral.amount.add(
-          collaterallInOrders[idx].amount
-        ),
+        userCollateralAmount,
       },
       borrowInfo: {
-        userBorrowAmount: position.borrowValue,
+        userBorrowAmount,
         userBorrowPart: userBorrowPart[idx],
       },
       // liquidationPrice: utils.formatUnits(
       //   position.liquidationPrice,
       //   configs[idx]?.collateralInfo.decimals
       // ),
-      liquidationPrice: getLiquidationPrice(
-        position.borrowValue,
-        position.collateral.amount.add(collaterallInOrders[idx].amount),
-        //@ts-ignore
-        configs[idx].mcr,
-        //@ts-ignore
-        configs[idx].collateralInfo.decimals
-      ),
       oracleRate: oracleExchangeRate[idx],
+      liquidationPrice,
+      positionHealth,
+      collateralDeposited,
+      collateralDepositedUsd,
+      mimBorrowed,
     };
   });
 };
@@ -114,7 +154,10 @@ const getLiquidationPrice = (
   collateralDecimals: number
 ): number => {
   const borrowPartParsed = utils.formatUnits(borrowPart);
-  const collateralAmountParsed = utils.formatUnits(collateralAmount, collateralDecimals);
+  const collateralAmountParsed = utils.formatUnits(
+    collateralAmount,
+    collateralDecimals
+  );
   return (
     Number(borrowPartParsed) / Number(collateralAmountParsed) / (mcr / 100)
   );
@@ -174,4 +217,21 @@ const getOrdersCollateralBalance = async (
       share: collaterallInShare[index],
     };
   });
+};
+
+const calculatePositionHealth = (
+  liquidationPrice: number,
+  collateralPrice: number,
+  healthMultiplier: any,
+  userBorrowAmount: number,
+  leftToDrop: number
+) => {
+  if (userBorrowAmount.toString() === "0" || isNaN(+liquidationPrice))
+    return 100;
+
+  const priceToDrop = leftToDrop * healthMultiplier;
+  const percent = (priceToDrop / collateralPrice) * 100;
+  if (percent > 100) return 100;
+  if (percent < 0) return 0;
+  return percent;
 };

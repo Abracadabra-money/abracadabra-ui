@@ -1,91 +1,85 @@
 <template>
-  <div class="position-page">
-    <h2 class="title">My positions</h2>
+  <div class="my-positions-view">
+    <div class="position-page">
+      <MyPositionsInfo v-if="totalAssets" :totalAssetsData="totalAssetsData" />
 
-    <div class="network-wrap">
-      <h4 class="network-title">Choose Chain</h4>
-      <NetworksList :items="activeNetwork" :activeList="activeNetworks" />
-    </div>
+      <BentoBoxBlock
+        v-if="activeChains.length"
+        :activeNetworks="activeChains"
+      />
 
-    <TotalAssets v-if="showTotalAssets" :assets="totalAssetsData" />
+      <div class="positions-list-head" v-if="cauldrons.length">
+        <button class="filters" @click="isFiltersPopupOpened = true">
+          <img src="@/assets/images/filters.png" />
+          Filters
+        </button>
 
-    <BentoBoxBlock />
+        <div class="sort-buttons">
+          <SortButton
+            v-for="data in sortersData"
+            :sortOrder="getSortOrder(data.key)"
+            @click="updateSortKey(data.key)"
+            :key="data.key"
+            >{{ data.text }}</SortButton
+          >
+        </div>
 
-    <h2 class="title">Individual positions</h2>
-
-    <div v-if="isEmpyState" class="empty-wrap">
-      <EmptyState />
-    </div>
-
-    <div v-else class="positions-list">
-      <div v-if="isPositionsLoaded" class="loader-wrap">
-        <BaseLoader />
+        <ChainsDropdown
+          :activeChains="activeChains"
+          :selectedChains="selectedChains"
+          @updateSelectedChain="updateSelectedChain"
+        />
       </div>
 
-      <template v-else>
-        <div class="positions-wrap" v-if="positionList.length">
-          <div class="positions-header">
-            <p>Borrow</p>
-            <button class="btn-more" @click="toggleShowMore">
-              <p class="btn-more-text">Show {{ showMoreText }}</p>
-              <img class="btn-more-icon" :src="showMoreIcon" alt="Show more" />
-            </button>
-          </div>
+      <div class="positions-list" v-if="sortedCauldrons.length">
+        <CauldronPositionItem
+          v-for="cauldron in sortedCauldrons"
+          :key="cauldron.id"
+          :cauldron="cauldron"
+        />
+      </div>
 
-          <div class="position-list">
-            <CauldronPositionItem
-              v-for="cauldron in positionList"
-              :key="cauldron.id"
-              :opened="isShowMore"
-              :cauldron="cauldron"
-            />
-          </div>
-        </div>
-
-        <div class="positions-wrap" v-if="openUserFarms.length">
-          <div class="positions-header">Farm</div>
-          <div class="position-list">
-            <FarmPositionItem
-              v-for="farm in openUserFarms"
-              :key="farm.id"
-              :opened="isShowMore"
-              :farmConfig="farm"
-            />
-          </div>
-        </div>
-      </template>
+      <EmptyBlock v-else :isLoading="positionsIsLoading" />
     </div>
+
+    <FiltersPopup
+      v-if="isFiltersPopupOpened"
+      :sortersData="sortersData"
+      @updateSortKey="updateSortKey"
+      @close="isFiltersPopupOpened = false"
+    />
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import iconPlus from "@/assets/images/myposition/Icon-Plus.png";
-import iconMinus from "@/assets/images/myposition/Icon-Minus.png";
-import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import TotalAssets from "@/components/myPositions/TotalAssets.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
-import EmptyState from "@/components/myPositions/EmptyState.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
-import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
+import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
+import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
+import SortButton from "@/components/ui/buttons/SortButton.vue";
+import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
+import EmptyBlock from "@/components/myPositions/EmptyState.vue";
+import { providers } from "ethers";
+import { defaultRpc } from "@/helpers/chains";
+import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
+const APR_KEY = "abracadabraCauldronsApr";
 
 export default {
   data() {
     return {
-      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
-      activeNetwork: 5,
+      selectedChains: [0],
       updateInterval: null,
-      isShowMore: false,
-      positionList: [],
+      cauldrons: [],
       positionsIsLoading: true,
-      farmIsLoading: true,
       totalAssets: null,
-      farms: [],
+      sortKey: "",
+      sortOrder: null,
+      isFiltersPopupOpened: false,
     };
   },
 
@@ -97,71 +91,50 @@ export default {
       signer: "getSigner",
     }),
 
-    showTotalAssets() {
-      return this.account && !this.positionsIsLoading;
+    sortedCauldrons() {
+      return this.filterByChain(
+        this.sortByKey([...this.cauldrons], this.sortKey),
+        this.selectedChains
+      );
     },
 
     isEmpyState() {
       return (
-        !this.account ||
-        (!this.positionList.length &&
-          !this.openUserFarms.length &&
-          !this.positionsIsLoading &&
-          !this.farmIsLoading)
+        !this.account || (!this.cauldrons.length && !this.positionsIsLoading)
       );
     },
 
     isPositionsLoaded() {
-      return (
-        (this.farmIsLoading && !this.openUserFarms.length) ||
-        (this.positionsIsLoading && !this.positionList.length)
-      );
+      return this.positionsIsLoading && !this.cauldrons.length;
     },
 
     totalAssetsData() {
-      const spellFarmer = filters.formatTokenBalance(
-        this.openUserFarms.reduce((calc, pool) => {
-          return calc + +pool.accountInfo.userReward;
-        }, 0)
-      );
-
       return [
         {
           title: "Collateral Deposit",
-          value: filters.formatUSD(this.totalAssets.collateralDepositedInUsd),
+          value: filters.formatUSD(this.totalAssets?.collateralDepositedInUsd),
         },
         {
           title: "MIM Borrowed",
-          value: filters.formatTokenBalance(this.totalAssets.mimBorrowed),
-        },
-        {
-          title: "SPELL Farmed",
-          value: spellFarmer,
-          routeName: "Farm",
-          hidden: spellFarmer === "0.0",
+          value: filters.formatTokenBalance(this.totalAssets?.mimBorrowed),
         },
       ].filter((item) => !item.hidden);
     },
 
-    openUserFarms() {
-      return this.farms.filter((farm) => {
-        const isOpenMultiReward = farm.isMultiReward ?
-        +farm.accountInfo.depositedBalance > 0 ||
-        farm.accountInfo.rewardTokensInfo.filter(item => +item.earned > 0).length > 0 : false
-
-        const isOpenLegacyFarm = farm.accountInfo?.userReward != 0 ||
-          farm.accountInfo?.userInfo.amount != 0
-
-        return farm.isMultiReward ? isOpenMultiReward : isOpenLegacyFarm;
-      });
+    sortersData() {
+      return [
+        { key: "positionHealth", text: "Health factor" },
+        { key: "collateralDepositedUsd", text: "Collateral deposited" },
+        { key: "mimBorrowed", text: "MIM borrowed" },
+        { key: "apr", text: "APR" },
+      ];
     },
 
-    showMoreIcon() {
-      return this.isShowMore ? iconMinus : iconPlus;
-    },
-
-    showMoreText() {
-      return this.isShowMore ? "less" : "more";
+    activeChains() {
+      return this.cauldrons.reduce((acc, { config }) => {
+        if (!acc.includes(config.chainId)) acc.push(config.chainId);
+        return acc;
+      }, []);
     },
   },
 
@@ -172,8 +145,57 @@ export default {
   },
 
   methods: {
-    toggleShowMore() {
-      this.isShowMore = !this.isShowMore;
+    sortByKey(cauldrons = [], key) {
+      if (this.sortOrder === null) return this.cauldrons;
+      const sortedByKey = cauldrons.sort((a, b) => b[key] - a[key]);
+
+      if (this.sortOrder) return sortedByKey;
+      return sortedByKey.reverse();
+    },
+
+    updateSortKey(newKey, newOrder = null) {
+      if (newOrder !== null) {
+        this.sortKey = newKey;
+        this.sortOrder = newOrder;
+        return;
+      }
+
+      if (this.sortKey == newKey) {
+        this.updateSortOrder();
+        return;
+      }
+
+      this.sortKey = newKey;
+      this.sortOrder = true;
+    },
+
+    updateSortOrder() {
+      this.sortOrder =
+        this.sortOrder === null ? true : this.sortOrder ? false : null;
+    },
+
+    getSortOrder(key) {
+      return key === this.sortKey ? this.sortOrder : null;
+    },
+
+    updateSelectedChain(chainId) {
+      if (!chainId) {
+        const value = this.selectedChains.includes(0) ? [] : [0];
+        return (this.selectedChains = value);
+      }
+
+      if (this.selectedChains.includes(0)) this.selectedChains = [];
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
+    },
+
+    filterByChain(cauldrons, selectedChains) {
+      if (selectedChains.includes(0)) return cauldrons;
+      return cauldrons.filter((cauldron) => {
+        return selectedChains.includes(cauldron.config?.chainId);
+      });
     },
 
     async createOpenPositions() {
@@ -182,29 +204,64 @@ export default {
         return false;
       }
 
-      this.positionList = await getUserOpenPositions(
-        this.chainId,
-        this.account,
-        this.provider
-      );
-
-      this.totalAssets = getUsersTotalAssets(this.positionList);
+      this.cauldrons = await getUserOpenPositions(this.account);
+      await this.getCollateralsApr();
+      this.totalAssets = getUsersTotalAssets(this.cauldrons);
       this.positionsIsLoading = false;
-
-      this.farms = await getFarmsList(this.chainId, this.signer);
-      this.farmIsLoading = false;
-
       this.updateInterval = setInterval(async () => {
-        this.positionList = await getUserOpenPositions(
-          this.chainId,
-          this.account,
-          this.provider
-        );
-
-        this.totalAssets = getUsersTotalAssets(this.positionList);
-
-        this.farms = await getFarmsList(this.chainId, this.signer);
+        this.cauldrons = await getUserOpenPositions(this.account);
+        await this.getCollateralsApr();
+        this.totalAssets = getUsersTotalAssets(this.cauldrons);
       }, 60000);
+    },
+
+    async fetchCollateralApy(cauldron, chainId, address) {
+      const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+      const apr = await fetchTokenApy(cauldron, chainId, provider);
+      const localData = localStorage.getItem("abracadabraCauldronsApr");
+      const parsedData = localData ? JSON.parse(localData) : {};
+      parsedData[address] = {
+        chainId,
+        apr: Number(filters.formatToFixed(apr, 2)),
+        createdAt: new Date().getTime(),
+      };
+      localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
+      return filters.formatToFixed(apr, 2);
+    },
+
+    timeHasPassed(localData, address) {
+      if (!localData) return true;
+      if (!localData[address]) return true;
+      const allowedTime = 5;
+      const { createdAt } = localData[address];
+      const currentTime = new Date().getTime();
+      const timeDiff = currentTime - createdAt;
+      const minutes = Math.floor(timeDiff / 1000 / 60);
+      return minutes > allowedTime;
+    },
+
+    async getCollateralApr(cauldron) {
+      const { chainId, id, contract } = cauldron.config;
+      const isApyExist = isApyCalcExist(chainId, id);
+      if (isApyExist) {
+        const localApr = localStorage.getItem("abracadabraCauldronsApr");
+        const parseLocalApr = localApr ? JSON.parse(localApr) : null;
+        const isOutdated = this.timeHasPassed(parseLocalApr, contract.address);
+        const collateralApy = !isOutdated
+          ? parseLocalApr[contract.address].apr
+          : await this.fetchCollateralApy(cauldron, chainId, contract.address);
+        return collateralApy;
+      } else return 0;
+    },
+
+    async getCollateralsApr() {
+      this.cauldrons = await Promise.all(
+        this.cauldrons.map(async (cauldron) => {
+          const apr = await this.getCollateralApr(cauldron);
+          cauldron.apr = apr;
+          return cauldron;
+        })
+      );
     },
   },
 
@@ -217,120 +274,120 @@ export default {
   },
 
   components: {
-    NetworksList,
-    TotalAssets,
     BentoBoxBlock,
-    EmptyState,
-    BaseLoader,
     CauldronPositionItem,
-    FarmPositionItem,
+    MyPositionsInfo,
+    ChainsDropdown,
+    SortButton,
+    FiltersPopup,
+    EmptyBlock,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.position-page {
-  max-width: 780px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 130px 5px 160px;
+.my-positions-view {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: center;
+  min-height: 100vh;
+  background: url("../assets/images/myPositions/my-positions-page-background.png");
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.title {
-  text-align: center;
-  text-transform: uppercase;
-  margin: 16px 0;
+.position-page {
+  margin: 150px 0 60px 0;
+  width: 1280px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-.network-wrap {
-  overflow: hidden;
-  width: 100%;
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
+.positions-list-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 100%;
+  padding: 12px 24px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
-.network-title {
-  padding-bottom: 14px;
+.sort-buttons {
+  display: flex;
+  gap: 20px;
 }
 
-.empty-wrap {
-  background-color: #2a2835;
-  border-radius: 30px;
-  padding: 50px 0;
+.filters {
+  display: none;
+  height: 39px;
+  padding: 7px 14px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: rgba(25, 31, 47, 0.38);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  color: #5d7acd;
+  font-family: Prompt;
+  font-size: 16px;
+  font-weight: 400;
+  transition: opacity 0.3s ease;
+}
+
+.filters:hover {
+  cursor: pointer;
+  opacity: 0.7;
 }
 
 .positions-list {
-  display: grid;
-  grid-template-rows: repeat(auto-fill, auto);
-  row-gap: 24px;
-}
-
-.loader-wrap {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.positions-wrap {
-  background: #2a2835;
-  border-radius: 30px;
-  padding: 20px;
-}
-
-.positions-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-
-.btn-more {
-  display: flex;
-  align-items: center;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-more-text {
-  font-size: 14px;
-  line-height: 21px;
-  background: linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-.btn-more-icon {
-  width: 20px;
-  height: auto;
-  object-fit: contain;
-  margin-left: 8px;
+  flex-wrap: wrap;
+  gap: 24px;
 }
 
 .position-list {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
-@media (max-width: 1024px) {
-  .network-wrap {
-    padding: 20px 16px;
+@media screen and (max-width: 1300px) {
+  .position-page {
+    max-width: 94%;
+  }
+
+  .positions-list {
+    justify-content: center;
   }
 }
 
-@media screen and (max-width: 600px) {
-  .positions-wrap {
-    padding: 20px 10px;
+@media screen and (max-width: 1000px) {
+  .positions-list-head {
+    justify-content: space-between;
+  }
+
+  .sort-buttons {
+    display: none;
+  }
+
+  .filters {
+    display: flex;
   }
 }
 </style>
