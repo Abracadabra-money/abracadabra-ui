@@ -26,12 +26,20 @@ export const spellConfig: SpellConfigs = {
         address: "0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9",
         abi: tokensAbi.sSPELL,
       },
+      leverageInfo: {
+        label: "Amplify your yield with the Abracadabra Leverage Engine",
+        id: 22,
+      },
     },
+
     mSpell: {
       ...mSpellDefauluConfig,
       contract: {
         address: "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
         abi: tokensAbi.mSPELL,
+      },
+      leverageInfo: {
+        label: "Abracadabra Leverage Engine is being developed, stay tuned!",
       },
     },
   },
@@ -43,6 +51,9 @@ export const spellConfig: SpellConfigs = {
         address: "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
         abi: tokensAbi.mSPELL,
       },
+      leverageInfo: {
+        label: "Abracadabra Leverage Engine is being developed, stay tuned!",
+      },
     },
   },
   42161: {
@@ -53,6 +64,9 @@ export const spellConfig: SpellConfigs = {
         address: "0x1DF188958A8674B5177f77667b8D173c3CdD9e51",
         abi: tokensAbi.mSPELL,
       },
+      leverageInfo: {
+        label: "Abracadabra Leverage Engine is being developed, stay tuned!",
+      },
     },
   },
   43114: {
@@ -62,6 +76,9 @@ export const spellConfig: SpellConfigs = {
       contract: {
         address: "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
         abi: tokensAbi.mSPELL,
+      },
+      leverageInfo: {
+        label: "Abracadabra Leverage Engine is being developed, stay tuned!",
       },
     },
   },

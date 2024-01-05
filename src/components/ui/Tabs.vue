@@ -1,5 +1,5 @@
 <template>
-  <div class="switch">
+  <div :style="`width: ${width};`" class="switch">
     <button
       v-for="(item, i) in items"
       class="switch-btn"
@@ -22,6 +22,10 @@ export default {
     items: {
       type: Array,
       default: () => [],
+    },
+    width: {
+      type: String,
+      default: "220px",
     },
   },
 

@@ -8,6 +8,7 @@
           v-model="inputValue"
           type="text"
           placeholder="0.0"
+          :disabled="disabled"
         />
         <p class="usd-equivalent">{{ usdEquivalent }}</p>
       </div>
@@ -30,11 +31,11 @@
 </template>
 
 <script lang="ts">
-import { BigNumber, utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters/index";
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 
 export default {
   props: {
@@ -50,6 +51,7 @@ export default {
       default: "Select Farm",
     },
     tokenPrice: {},
+    disabled: { type: Boolean, default: false },
   },
 
   data(): any {
@@ -88,7 +90,16 @@ export default {
           : utils.parseUnits(value, this.decimals);
 
         this.$emit("updateInputValue", emitValue);
-      } else this.$emit("updateInputValue", BigInt(Number(value) * 1e18));
+      } else {
+        const emitValue = !value
+          ? BigInt(0)
+          : parseUnits(
+              filters.formatToFixed(value, this.decimals),
+              this.decimals
+            );
+
+        this.$emit("updateInputValue", emitValue);
+      }
     },
 
     value(value) {

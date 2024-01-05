@@ -11,17 +11,18 @@ export const getSSpellInfo = async (
   { sSpell }: ChainSpellConfig,
   spell: SpellInfo,
   spellPrice: bigint,
-  account: Address
+  account: Address,
+  publicClient: any
 ): Promise<SSpellInfo | EmptyTokenState> => {
   if (!sSpell) return await getSSpellEmptyState();
 
   const [
-    allowanceAmount,
+    approvedAmount,
     spellSSpellBalance,
     aSpellUserBalance,
     sSpellUserInfo,
     totalSupply,
-  ]: any = await multicall({
+  ]: any = await publicClient.multicall({
     contracts: [
       {
         ...spell.contract,
@@ -75,6 +76,7 @@ export const getSSpellInfo = async (
     rate: spellToSSpellRate,
     lockTimestamp,
     balance: aSpellUserBalance.result,
-    allowanceAmount: allowanceAmount.result,
+    approvedAmount: approvedAmount.result,
+    leverageInfo: sSpell.leverageInfo,
   };
 };

@@ -3,6 +3,7 @@ import { ONE_ETHER_VIEM } from "@/constants/global";
 import { spellConfig } from "@/utils/stake/spellConfig";
 import type { EmptySpellState, EmptyTokenState } from "@/types/spell/empyState";
 import { getSpellToSSpellRate } from "@/helpers/stake/spell/getSpellToSSpellRate";
+import { getSpellStakingApr } from "./getSpellStakingApr";
 
 const config = spellConfig[1 as keyof typeof spellConfig];
 const { spell, sSpell, mSpell }: any = config;
@@ -38,12 +39,17 @@ export const getSSpellEmptyState = async (): Promise<EmptyTokenState> => {
   };
 };
 
-export const getSpellEmptyState = async (): Promise<EmptySpellState> => {
+export const getSpellEmptyState = async (
+  chainId: number
+): Promise<EmptySpellState> => {
   const sSpell = await getSSpellEmptyState();
 
+  const { sSpellApr, mSpellApr } = await getSpellStakingApr();
+
   return {
-    sSpell,
+    chainId,
+    sSpell: { ...sSpell, apr: sSpellApr },
     spell: spellEmptyState,
-    mSpell: mSpellEmptyState,
+    mSpell: { ...mSpellEmptyState, apr: mSpellApr },
   };
 };

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getGraphUrl } from "@/helpers/stake/magicApe/subgraph/getGraphUrl";
 
-export const getTotalRewards = async (chainId = 1): Promise<String> => {
+export const getTotalRewards = async (chainId = 1): Promise<string> => {
   const url = getGraphUrl(chainId);
   const query = `{
         magicApe(id: "0xf35b31b941d94b249eaded041db1b05b7097feb6") {

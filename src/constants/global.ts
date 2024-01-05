@@ -1,6 +1,7 @@
 import { parseUnits } from "viem";
 import { Wallet, utils } from "ethers";
 
+export const ZERO_VALUE: bigint = BigInt(0);
 export const ONE_ETHER: string = utils.parseEther("1").toString();
 export const ONE_ETHER_VIEM: bigint = parseUnits("1", 18);
 export const MIM_PRICE: bigint = parseUnits("1", 18);

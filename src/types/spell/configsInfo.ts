@@ -25,6 +25,7 @@ export type SSpellConfig = {
   decimals: number;
   icon: string;
   contract: ContractInfo;
+  leverageInfo: any;
 };
 
 export type MSpellConfig = {
@@ -32,4 +33,5 @@ export type MSpellConfig = {
   decimals: number;
   icon: string;
   contract: ContractInfo;
+  leverageInfo: any;
 };

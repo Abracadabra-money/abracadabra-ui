@@ -2,20 +2,22 @@
   <canvas id="tick-chart"></canvas>
 </template>
 
-<script>
+<script lang="ts">
 import { markRaw } from "vue";
 import Chart from "chart.js/auto";
 
 export default {
   props: {
-    chartData: {},
-    createChartOptions: {},
+    chartData: { type: Object as any },
+    createChartOptions: {
+      type: Function as any,
+    },
   },
 
   data() {
     return {
-      chartInstance: null,
-      config: { type: "line" },
+      chartInstance: null as any,
+      config: { type: "line" } as any,
     };
   },
 
@@ -29,7 +31,7 @@ export default {
   mounted() {
     this.config.data = this.chartData;
     this.config.options = this.createChartOptions();
-    const ctx = document.getElementById("tick-chart");
+    const ctx: any = document.getElementById("tick-chart");
     this.chartInstance = markRaw(new Chart(ctx, this.config));
   },
 };

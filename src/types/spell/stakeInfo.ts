@@ -19,9 +19,10 @@ export type MSpellInfo = {
   rate: bigint;
   lockTimestamp: string;
   balance: bigint;
-  allowanceAmount: bigint;
+  approvedAmount: bigint;
   claimableAmount: bigint;
   apr?: string;
+  leverageInfo: any;
 };
 
 export type SSpellInfo = {
@@ -33,9 +34,9 @@ export type SSpellInfo = {
   rate: bigint;
   lockTimestamp: string;
   balance: bigint;
-  allowanceAmount: bigint;
-  claimableAmount: bigint;
+  approvedAmount: bigint;
   apr?: string;
+  leverageInfo: any;
 };
 
 export type SpellStakeInfo = {

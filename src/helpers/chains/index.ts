@@ -68,3 +68,6 @@ export const defaultRpc = {
 
 export const getChainById = (chainId: number): Object =>
   chainsList[chainId as keyof typeof chainsList];
+
+export const getChainRpc = (chainId: number): string =>
+  chainsList[chainId as keyof typeof chainsList].rpcUrls.default.http[0];

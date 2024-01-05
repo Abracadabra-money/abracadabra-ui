@@ -1,11 +1,12 @@
 import filters from "@/filters";
 import { Contract, providers } from "ethers";
+import { getChainRpc } from "@/helpers/chains";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { config } from "@/helpers/collateralsApy/getMagicApeApy/config";
 
-export const getMagicApeApy = async (
-  provider: providers.JsonRpcProvider
-): Promise<Number> => {
+export const getMagicApeApy = async (chainId: number): Promise<number> => {
+  const provider = new providers.StaticJsonRpcProvider(getChainRpc(chainId));
+
   const { magicApe, lens } = config;
   const multicallProvider = MulticallWrapper.wrap(provider);
 
