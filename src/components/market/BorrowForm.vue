@@ -158,7 +158,7 @@ export default {
       () => import("@/components/base/BaseButton.vue")
     ),
     OrdersManager: defineAsyncComponent(
-      () => import("@/components/borrow/OrdersManager.vue")
+      () => import("@/components/market/OrdersManager.vue")
     ),
     LocalPopupWrap: defineAsyncComponent(
       () => import("@/components/popups/LocalPopupWrap.vue")

@@ -3,7 +3,11 @@
     <div class="row">
       <div class="title-wrap">
         <h3 class="title">Acrive Order</h3>
-        <SlippagePopup v-if="showSettingBtn" @updateValue="changeSlippage" />
+        <SlippagePopup
+          v-if="showSettingBtn"
+          :amount="slippage"
+          @updateSlippage="changeSlippage"
+        />
       </div>
 
       <div :class="['order-status', activeStatusInfo.classes]">
@@ -37,7 +41,7 @@
     </div>
 
     <div class="btns-wrap" v-if="!isPositionPage">
-      <BaseButton primary :disabled="disableAction" @click="actionHandler"
+      <BaseButton primary v-if="!disableAction" :disabled="disableAction" @click="actionHandler"
         >{{ buttonText }}
       </BaseButton>
 
@@ -82,7 +86,8 @@ import {
 
 import FAIL_ICON from "@/assets/images/order-fail.svg";
 import SUCCESS_ICON from "@/assets/images/order-success.svg";
-const DEFAULT_SLIPPAGE = utils.parseUnits("0.1", 2);
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+const DEFAULT_SLIPPAGE = utils.parseUnits("1", PERCENT_PRESITION);
 
 export default {
   name: "OrderItem",
@@ -265,7 +270,7 @@ export default {
     async deleverageHandler() {
       const payload = {
         itsMax: false,
-        slipage: this.slippage,
+        slipage: utils.formatUnits(this.slippage, PERCENT_PRESITION),
         removeCollateralAmount: BigNumber.from(0),
         borrowAmount: BigNumber.from(0), // TODO share to min
       };
