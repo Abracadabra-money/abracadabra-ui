@@ -149,7 +149,7 @@ export default {
       if (this.sortOrder === null) return this.cauldrons;
       const sortedByKey = cauldrons.sort((a, b) => b[key] - a[key]);
 
-      if (this.sortOrder) return sortedByKey;
+      if (this.sortOrder == "up") return sortedByKey;
       return sortedByKey.reverse();
     },
 
@@ -166,12 +166,12 @@ export default {
       }
 
       this.sortKey = newKey;
-      this.sortOrder = true;
+      this.sortOrder = "up";
     },
 
     updateSortOrder() {
       this.sortOrder =
-        this.sortOrder === null ? true : this.sortOrder ? false : null;
+        this.sortOrder === null ? "up" : this.sortOrder == "up" ? "down" : null;
     },
 
     getSortOrder(key) {
