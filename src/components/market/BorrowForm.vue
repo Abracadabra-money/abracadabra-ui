@@ -77,13 +77,16 @@
   </div>
 
   <!-- TODO: MOVE TO MARKET -->
-  <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
+  <template v-if="activeOrder && isOpenGMPopup">
     <GMStatus
+      :isOpened="isOpenGMPopup"
+      @closePopup="closeGMPopup"
       :order="activeOrder"
       :orderType="1"
       :cauldronObject="cauldron"
       :successLeverageCallback="successGmLeverageCallback"
-  /></LocalPopupWrap>
+    />
+  </template>
 </template>
 
 <script lang="ts">
@@ -160,10 +163,6 @@ export default {
     ),
     OrdersManager: defineAsyncComponent(
       () => import("@/components/market/OrdersManager.vue")
-    ),
-    LocalPopupWrap: defineAsyncComponent(
-      //@ts-ignore
-      () => import("@/components/popups/LocalPopupWrap.vue")
     ),
     GMStatus: defineAsyncComponent(
       //@ts-ignore
