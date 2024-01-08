@@ -18,6 +18,7 @@ export const WARNING_TYPES = {
   POSITION_MAX_TO_REPAY: 9,
   POSITION_MAX_TO_REMOVE: 10,
   SWITCH_CHAIN: 11,
+  SSPELL_LOCKED: 12,
 };
 
 const WARNINGS_BTN_TEXT = {
@@ -33,6 +34,7 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.POSITION_MAX_TO_REPAY]: "Max repay amount exceed",
   [WARNING_TYPES.POSITION_MAX_TO_REMOVE]: "Max remove amount exceed",
   [WARNING_TYPES.SWITCH_CHAIN]: "Switch Chain",
+  [WARNING_TYPES.SSPELL_LOCKED]: "sSpell is locked",
 };
 
 const ACTIONS_BTN_TEXT = {
@@ -65,6 +67,12 @@ export const validateCookByAction = (
     validationErrors,
     cauldron,
     expectedPosition
+  );
+
+  validationErrors = validateSSpellLocked(
+    validationErrors,
+    cauldron,
+    actionConfig
   );
 
   switch (cookType) {
@@ -388,8 +396,20 @@ const validateDeleverage = (
   return validationErrors;
 };
 
-// TODO: check & update config
-const validateWhitelist = (cauldron: CauldronInfo) => {};
+const validateSSpellLocked = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig
+) => {
+  const { isCollateralLocked } = cauldron.additionalInfo;
+
+  const { collateralTokenAmount } = actionConfig.amounts.depositAmounts;
+
+  if (isCollateralLocked && collateralTokenAmount.gt(0))
+    validationErrors.push(WARNING_TYPES.SSPELL_LOCKED);
+
+  return validationErrors;
+};
 
 const validateChain = (
   validationErrors: any,
