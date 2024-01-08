@@ -8,6 +8,9 @@
         <div class="actions-head">
           <h3>{{ activeTab }}</h3>
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+          <button class="mobile-btn" @click="updateChartToggle">
+            <ChartIcon />
+          </button>
         </div>
 
         <AvailableNetworksBlock
@@ -16,7 +19,7 @@
           @changeNetwork="changeNetwork"
         />
 
-        <div class="action-form">
+        <div class="action-form" v-if="isAction">
           <div class="input-wrap">
             <h4 class="title">Select amount</h4>
 
@@ -64,15 +67,17 @@
       </div>
 
       <div class="stake-info">
-        <GlpSpecialInfoBlock />
+        <GlpSpecialInfoBlock v-if="isAction" />
 
-        <ChartBlock
-          :chainId="selectedNetwork"
-          :chartConfig="chartConfig"
-          :getChartOptions="getChartOptions"
-        />
+        <template v-if="isChartView">
+          <ChartBlock
+            :chainId="selectedNetwork"
+            :chartConfig="chartConfig"
+            :getChartOptions="getChartOptions"
+          />
 
-        <AdditionalInfoBlock :configs="additionalConfig" />
+          <AdditionalInfoBlock :configs="additionalConfig" />
+        </template>
       </div>
     </div>
 
@@ -105,6 +110,8 @@ export default {
       inputAmount: BigInt(0) as bigint,
       inputValue: "" as string | bigint,
       updateInterval: null as any,
+      isMobile: false,
+      chartToggle: false,
     };
   },
 
@@ -113,6 +120,14 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    isChartView() {
+      return this.isMobile ? this.chartToggle : true;
+    },
+
+    isAction() {
+      return this.isMobile ? !this.chartToggle : true;
+    },
 
     isStakeAction() {
       return this.activeTab === "stake";
@@ -248,6 +263,10 @@ export default {
       }
     },
 
+    updateChartToggle() {
+      this.chartToggle = !this.chartToggle;
+    },
+
     changeTab(action: string) {
       this.activeTab = action;
       this.inputValue = "";
@@ -312,6 +331,11 @@ export default {
     async createStakeInfo() {
       this.stakeInfoArr = await getStakeInfo();
     },
+
+    getWindowSize() {
+      if (window.innerWidth <= 600) this.isMobile = true;
+      else this.isMobile = false;
+    },
   },
 
   async created() {
@@ -319,6 +343,8 @@ export default {
       this.selectedNetwork = this.chainId;
     else this.selectedNetwork = this.availableNetworks[0];
 
+    if (window.innerWidth <= 600) this.isMobile = true;
+    window.addEventListener("resize", this.getWindowSize, false);
     await this.createStakeInfo();
 
     this.updateInterval = setInterval(async () => {
@@ -328,10 +354,14 @@ export default {
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
+    window.removeEventListener("resize", this.getWindowSize);
   },
 
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    ChartIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/ChartIcon.vue")
+    ),
     AvailableNetworksBlock: defineAsyncComponent(
       () => import("@/components/stake_new/AvailableNetworksBlock.vue")
     ),
@@ -409,10 +439,28 @@ export default {
   font-size: 32px;
   font-weight: 600;
   line-height: 150%;
+  position: relative;
 
   h3::first-letter {
     text-transform: uppercase;
   }
+}
+
+.mobile-btn {
+  position: absolute;
+  right: 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--Primary-Gradient, #2d4a96);
+  background: rgba(25, 31, 47, 0.38);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  width: 44px;
+  height: 44px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }
 
 .action-form {
@@ -445,5 +493,30 @@ export default {
   gap: 20px;
   display: flex;
   flex-direction: column;
+}
+
+@media screen and (max-width: 1200px) {
+  .stake-wrap {
+    grid-template-columns: 400px 1fr;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .stake-wrap {
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .actions-head {
+    gap: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mobile-btn {
+    display: flex;
+  }
 }
 </style>
