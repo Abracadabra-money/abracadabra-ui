@@ -17,6 +17,7 @@ export const WARNING_TYPES = {
   POSITION_MAX_TO_BORROW: 8,
   POSITION_MAX_TO_REPAY: 9,
   POSITION_MAX_TO_REMOVE: 10,
+  SWITCH_CHAIN: 11,
 };
 
 const WARNINGS_BTN_TEXT = {
@@ -31,6 +32,7 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.POSITION_MAX_TO_BORROW]: "Max borrow amount exceed",
   [WARNING_TYPES.POSITION_MAX_TO_REPAY]: "Max repay amount exceed",
   [WARNING_TYPES.POSITION_MAX_TO_REMOVE]: "Max remove amount exceed",
+  [WARNING_TYPES.SWITCH_CHAIN]: "Switch Chain",
 };
 
 const ACTIONS_BTN_TEXT = {
@@ -48,13 +50,16 @@ const ACTIONS_BTN_TEXT = {
 export const validateCookByAction = (
   cauldron: CauldronInfo,
   actionConfig: ActionConfig,
-  action: "borrow" | "repay"
+  action: "borrow" | "repay",
+  chainId: number
 ) => {
   const cookType = getCookTypeByAction(actionConfig, action);
 
   const expectedPosition = getExpectedPostition(cauldron, actionConfig, action);
 
   let validationErrors: any = [];
+
+  validationErrors = validateChain(validationErrors, cauldron, chainId);
 
   validationErrors = validatePosition(
     validationErrors,
@@ -386,6 +391,18 @@ const validateDeleverage = (
 // TODO: check & update config
 const validateWhitelist = (cauldron: CauldronInfo) => {};
 
+const validateChain = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  chainId: number
+) => {
+  //@ts-ignore
+  const isValidChain = cauldron.config.chainId === chainId;
+  if (!isValidChain) validationErrors.push(WARNING_TYPES.SWITCH_CHAIN);
+
+  return validationErrors;
+};
+
 const getValidationResult = (validationErrors: any, cookType: any) => {
   if (validationErrors.length === 0)
     return {
@@ -398,8 +415,11 @@ const getValidationResult = (validationErrors: any, cookType: any) => {
     WARNING_TYPES.REPAY_ALLOWANCE,
   ];
 
+  const isApproval = approvalWarnings.indexOf(validationErrors[0]) !== -1;
+  const isSwitchChain = validationErrors[0] === WARNING_TYPES.SWITCH_CHAIN;
+
   return {
-    isAllowed: approvalWarnings.indexOf(validationErrors[0]) !== -1, // allowed for approvals
+    isAllowed: isApproval || isSwitchChain, // allowed for approvals & chain swich
     btnText: WARNINGS_BTN_TEXT[validationErrors[0]],
     errorType: validationErrors[0],
   };
