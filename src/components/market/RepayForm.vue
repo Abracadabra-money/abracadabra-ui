@@ -3,7 +3,7 @@
     <div class="block-wrap remove-block">
       <div class="row">
         <div class="title-wrap">
-          <h3>{{ titleText }}</h3>
+          <h3 class="title">{{ titleText }}</h3>
           <SlippagePopup
             v-if="actionConfig.useDeleverage"
             :amount="actionConfig.amounts.slippage"
@@ -12,6 +12,7 @@
         </div>
 
         <Toggle
+          v-if="isDeleverageAllowed"
           :selected="actionConfig.useDeleverage"
           text="Deleverge"
           @updateToggle="onToggleDeleverage"
@@ -64,9 +65,9 @@
           @click="actionHandler"
           >{{ cookValidationData.btnText }}</BaseButton
         >
-        <BaseButton primary disabled v-if="actionConfig.useDeleverage"
+        <!-- <BaseButton primary disabled v-if="actionConfig.useDeleverage"
           >Close position
-        </BaseButton>
+        </BaseButton> -->
       </div>
     </div>
 
@@ -125,6 +126,13 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    isDeleverageAllowed() {
+      const { liquidationSwapper } = this.cauldron.contracts;
+      const { isSwappersActive } = this.cauldron.config.cauldronSettings;
+
+      return liquidationSwapper && isSwappersActive;
+    },
 
     titleText() {
       const { useDeleverage } = this.actionConfig;
@@ -224,6 +232,12 @@ export default {
   gap: 16px;
   display: flex;
   align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.title {
   font-size: 18px;
   font-weight: 500;
   line-height: 150%;

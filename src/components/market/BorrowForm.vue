@@ -26,6 +26,7 @@
             </h3>
 
             <Toggle
+              v-if="isLeverageAllowed"
               :selected="actionConfig.useLeverage"
               text="Leverage"
               @updateToggle="onToggleLeverage"
@@ -112,6 +113,14 @@ export default {
     return {
       action: "borrow",
     };
+  },
+  computed: {
+    isLeverageAllowed() {
+      const { leverageSwapper } = this.cauldron.contracts;
+      const { isSwappersActive } = this.cauldron.config.cauldronSettings;
+
+      return leverageSwapper && isSwappersActive;
+    },
   },
 
   methods: {
