@@ -11,7 +11,7 @@
         />
         <div>
           <h4 class="token-name">MIM</h4>
-          <p class="token-amount">{{ claimAmount }}</p>
+          <p class="token-amount">{{ formatAmount }}</p>
         </div>
       </div>
       <button
@@ -19,22 +19,40 @@
         :disabled="isDisableClaimButton"
         @click="$emit('claimMim')"
       >
-        Claim
+        {{ buttonText }}
       </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+// @ts-ignore
+import filters from "@/filters/index.js";
+
 export default {
   props: {
     claimAmount: {
       type: String,
       required: true,
     },
+    isUnsupportedChain: {
+      type: Boolean,
+      default: true,
+    },
     isDisableClaimButton: {
       type: Boolean,
       default: true,
+    },
+  },
+
+  computed: {
+    buttonText() {
+      if (!this.isUnsupportedChain) return "Switch Network";
+      return "Claim";
+    },
+
+    formatAmount() {
+      return filters.formatTokenBalance(this.claimAmount);
     },
   },
 };
@@ -88,6 +106,7 @@ export default {
 }
 
 .claim-button {
+  cursor: pointer;
   padding: 12px 24px;
   display: flex;
   justify-content: center;

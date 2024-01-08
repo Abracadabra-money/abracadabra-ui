@@ -2,17 +2,30 @@
   <div class="special-info-block">
     <h3 class="title">Make SPELL work for you</h3>
 
-    <p class="text">
-      Stake your SPELL into mSPELL! No impermanent loss, no loss of governance
-      rights. Take part in the fee sharing mechanism of Abracadabra and earn
-      MIM! Find out more here. sSPELL automatically earns fees from MIM
-      repayments from all wizards proportional to your share of the stake pool.
-    </p>
+    <div>
+      <p class="text" v-for="(info, idx) in specialInfo" :key="idx">
+        {{ info.text }}
+        <a
+          class="info-link"
+          v-if="info.link"
+          :href="info.link"
+          target="_blank"
+          rel="noopener noreferrer"
+          >here!</a
+        >
+      </p>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-export default {};
+export default {
+  props: {
+    specialInfo: {
+      type: Array as any,
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -43,5 +56,10 @@ export default {};
 .text {
   color: rgba(255, 255, 255, 0.6);
   line-height: 150%;
+}
+
+.info-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration-line: underline;
 }
 </style>

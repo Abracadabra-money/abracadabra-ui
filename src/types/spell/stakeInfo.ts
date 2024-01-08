@@ -13,6 +13,7 @@ export type SpellInfo = {
 export type MSpellInfo = {
   name: string;
   icon: string;
+  rateIcon: string;
   decimals: number;
   contract: ContractInfo;
   price: bigint;
@@ -22,12 +23,12 @@ export type MSpellInfo = {
   approvedAmount: bigint;
   claimableAmount: bigint;
   apr?: string;
-  leverageInfo: any;
 };
 
 export type SSpellInfo = {
   name: string;
   icon: string;
+  rateIcon: string;
   decimals: number;
   contract: ContractInfo;
   price: bigint;

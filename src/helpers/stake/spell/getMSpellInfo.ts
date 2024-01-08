@@ -1,4 +1,5 @@
 import moment from "moment";
+import { useImage } from "@/helpers/useImage";
 import { formatUnits, type Address } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { ChainSpellConfig } from "@/types/spell/configsInfo";
@@ -44,6 +45,7 @@ export const getMSpellInfo = async (
   return {
     name: mSpell.name,
     icon: mSpell.icon,
+    rateIcon: useImage("assets/images/mspell-icon.svg"),
     decimals: mSpell.decimals,
     contract: mSpell.contract,
     price: price,
@@ -52,6 +54,5 @@ export const getMSpellInfo = async (
     balance: userMSpellBalance,
     approvedAmount: approvedAmount.result,
     claimableAmount: rewardAmount.result,
-    leverageInfo: mSpell.leverageInfo,
   };
 };

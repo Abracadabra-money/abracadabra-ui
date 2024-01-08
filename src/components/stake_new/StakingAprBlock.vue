@@ -35,7 +35,6 @@ export default {
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
   padding: 24px;
-  max-width: 284px;
   width: 100%;
   height: 150px;
   position: relative;

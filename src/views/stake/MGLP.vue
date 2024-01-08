@@ -9,7 +9,7 @@
           <h3>{{ activeTab }}</h3>
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
           <button class="mobile-btn" @click="updateChartToggle">
-            <ChartIcon />
+            <ChartIcon :fill="chartToggle ? '#ffffff' : '#7088CC'" />
           </button>
         </div>
 
