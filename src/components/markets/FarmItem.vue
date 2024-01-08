@@ -78,22 +78,22 @@ export default {
     farmStatusStyles() {
       if (this.farm.isDeprecated)
         return {
-          text: "Depreciated",
+          text: "Deprecated",
           flagColor:
-            "background: linear-gradient(270deg, #320A0A 0%, #871D1F 100%), linear-gradient(90deg, #67A069 0%, #446A46 100%);",
-          border: "border: 1px solid  #320A0A;",
+            "background: linear-gradient(180deg, #8c4040 0%, #6b2424 100%);",
+          border: "border: 1px solid #4a2130;",
         };
-      if (this.farm.isNew)
+      if (this.farm.config?.isNew)
         return {
           text: "New",
           flagColor:
-            "background: linear-gradient(0deg, #2D4A96 0%, #5B7CD1 100%);",
-          border: "border: 1px solid  #304D99;",
+            "background: linear-gradient(0deg, #2d4a96 0%, #5b7cd1 100%);",
+          border: "border: 1px solid #304d99;",
         };
       return {
         text: "",
         flagColor: "",
-        border: "border: 1px solid #2D4A96;",
+        border: "border: 1px solid rgba(180, 180, 180, 0.08);",
       };
     },
 
@@ -120,6 +120,7 @@ export default {
   justify-content: space-between;
   width: 300px;
   height: 158px;
+  border: 1px solid rgba(180, 180, 180, 0.08);
   border-radius: 16px;
   padding: 21px 12px 16px 12px;
   background: linear-gradient(
@@ -127,13 +128,13 @@ export default {
     rgba(0, 10, 35, 0.07) 0%,
     rgba(0, 80, 156, 0.07) 101.49%
   );
-
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);
-  transition: box-shadow 0.5s;
+  transition: all 0.5s ease-in-out;
 }
 
 .farm-item:hover {
+  transform: scale(1.01);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.16);
 }
 

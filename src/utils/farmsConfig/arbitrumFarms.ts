@@ -34,6 +34,7 @@ const arbitrumFarms: FarmConfig[] = [
     contractChain: 42161,
     id: 4,
     isMultiReward: true,
+    isNew: true,
     stakingToken: {
       name: "MIM-2Crv",
       type: "LP",

@@ -16,6 +16,7 @@ export type FarmConfig = {
   id: number;
   poolId?: number;
   isMultiReward?: boolean;
+  isNew?: boolean;
   stakingToken: {
     name: string;
     address?: Address;

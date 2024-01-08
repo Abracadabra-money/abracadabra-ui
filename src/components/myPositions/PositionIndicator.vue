@@ -2,7 +2,7 @@
   <li :class="['indicator', positionRisk]">
     <span class="title">
       <slot></slot>
-      <Tooltip :fill="tooltipColor" />
+      <Tooltip :tooltip="tooltip" :fill="tooltipColor" />
     </span>
     <span class="value">{{ formattedValue }}</span>
   </li>
@@ -16,6 +16,7 @@ export default {
   props: {
     value: { type: [Number, String] },
     positionRisk: { type: String, default: "" },
+    tooltip: { type: String },
   },
 
   computed: {
