@@ -25,7 +25,7 @@ export default {
     },
     fill: {
       type: String,
-      default: "#787A9B",
+      default: "#7088CC",
     },
   },
 };
