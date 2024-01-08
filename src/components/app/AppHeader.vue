@@ -1,104 +1,112 @@
 <template>
   <header class="header">
     <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
-      <img src="@/assets/images/cr.logo.gif" alt="" class="main-logo" />
+      <img src="@/assets/images/header/abra-logo.png" class="main-logo" />
     </router-link>
 
     <nav class="nav">
-      <router-link class="header-link" :to="{ name: 'Cauldrons' }"
-        >Cauldrons</router-link
-      >
-      <router-link class="header-link" :to="{ name: 'Borrow' }"
+      <div class="general-activities">
+        <router-link class="header-link" :to="{ name: 'Cauldrons' }">
+          Cauldrons
+        </router-link>
+
+        <div
+          class="dropdown-tools header-link"
+          :class="{ active: isDropdownStake }"
+          @click="toggleDropdown('stake')"
+          v-click-outside="closeDropdownStake"
+        >
+          <div class="dropdown-title">
+            Stake
+            <img
+              class="arrow"
+              src="@/assets/images/arrow-down.svg"
+              alt="Arrow down"
+            />
+          </div>
+          <div class="list" v-if="isDropdownStake">
+            <router-link class="list-link" :to="{ name: 'StakeSpell' }"
+              >Spell</router-link
+            >
+            <router-link class="list-link" :to="{ name: 'magicGLP' }"
+              >magicGLP</router-link
+            >
+            <router-link class="list-link" :to="{ name: 'magicAPE' }"
+              >magicAPE</router-link
+            >
+            <router-link class="list-link" :to="{ name: 'magicLVL' }"
+              >magicLVL</router-link
+            >
+            <router-link class="list-link" :to="{ name: 'magicKLP' }"
+              >magicKLP</router-link
+            >
+          </div>
+        </div>
+
+        <div
+          class="dropdown-tools header-link"
+          :class="{ active: isDropdownTools }"
+          @click="toggleDropdown('tools')"
+          v-click-outside="closeDropdownTools"
+        >
+          <div class="dropdown-title">
+            Tools
+            <img
+              class="arrow"
+              src="@/assets/images/arrow-down.svg"
+              alt="Arrow down"
+            />
+          </div>
+
+          <div class="list" v-if="isDropdownTools">
+            <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
+              >Farms</router-link
+            >
+            <router-link class="list-link" :to="{ name: 'Beam' }"
+              >Beam</router-link
+            >
+            <a
+              href="https://curve.fi/#/ethereum/pools/mim/swap"
+              class="list-link"
+              target="_blank"
+              >Swap</a
+            >
+            <a
+              href="https://analytics.abracadabra.money/fee-statistics"
+              class="list-link"
+              target="_blank"
+              >Analytics</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- <router-link class="header-link" :to="{ name: 'Borrow' }"
         >Borrow</router-link
       >
       <router-link class="header-link" :to="{ name: 'Leverage' }"
         >Leverage</router-link
-      >
+      > -->
 
-      <router-link class="header-link" :to="{ name: 'MyPositions' }"
-        >Positions</router-link
-      >
+      <div class="account-activities">
+        <router-link class="header-link" :to="{ name: 'MyPositions' }"
+          >Positions</router-link
+        >
 
-      <div
-        class="dropdown-tools header-link"
-        :class="{ active: isDropdownStake }"
-        @click="toggleDropdown('stake')"
-        v-click-outside="closeDropdownStake"
-      >
-        <div class="title">
-          Stake
-          <img
-            class="arrow"
-            src="@/assets/images/arrow-down.svg"
-            alt="Arrow down"
-          />
+        <div
+          class="header-link networks-btn"
+          @click.stop="openNetworkPopup"
+          v-tooltip="unsupportedTooltip"
+        >
+          <img v-if="!!networcIcon" :src="networcIcon" alt="" />
         </div>
-        <div class="list" v-if="isDropdownStake">
-          <router-link class="list-link" :to="{ name: 'StakeSpell' }"
-            >Spell</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicGLP' }"
-            >magicGLP</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicAPE' }"
-            >magicAPE</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicLVL' }"
-            >magicLVL</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicKLP' }"
-            >magicKLP</router-link
-          >
+
+        <div class="header-link header-connect">
+          <ConnectButton />
         </div>
       </div>
 
-      <div
-        class="dropdown-tools header-link"
-        :class="{ active: isDropdownTools }"
-        @click="toggleDropdown('tools')"
-        v-click-outside="closeDropdownTools"
-      >
-        <div class="title">
-          Tools
-          <img
-            class="arrow"
-            src="@/assets/images/arrow-down.svg"
-            alt="Arrow down"
-          />
-        </div>
-        <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
-            >Farms</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'Beam' }"
-            >Beam</router-link
-          >
-          <a
-            href="https://curve.fi/#/ethereum/pools/mim/swap"
-            class="list-link"
-            target="_blank"
-            >Swap</a
-          >
-          <a
-            href="https://analytics.abracadabra.money/fee-statistics"
-            class="list-link"
-            target="_blank"
-            >Analytics</a
-          >
-        </div>
-      </div>
-
-      <div
-        class="header-link networks-btn"
-        @click.stop="openNetworkPopup"
-        v-tooltip="unsupportedTooltip"
-      >
-        <img v-if="!!networcIcon" :src="networcIcon" alt="" />
-      </div>
-      <div class="header-link header-connect">
-        <ConnectButton />
-      </div>
-      <div
+      <!-- <div
         class="dropdown-other header-link"
         :class="{ active: isDropdownOther }"
         @click.stop="toggleDropdown('other')"
@@ -174,30 +182,31 @@
             </a>
           </div>
         </div>
-      </div>
-      <MimTokenBlock />
-
-      <div
-        class="burger"
-        :class="{ 'burger-active': mobileMenu }"
-        @click="toggleMobileMenu"
-      >
-        <div class="burger-line"></div>
-      </div>
-
-      <NetworkPopup
-        :isOpen="isOpenNetworkPopup"
-        @closePopup="closeNetworkPopup"
-        :networksArr="networksArr"
-        :activeChain="chainId"
-      />
-
-      <MobileMenu
-        v-if="mobileMenu"
-        @closePopup="closeMobilePopup"
-        @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
-      />
+      </div> -->
     </nav>
+
+    <MimTokenBlock />
+
+    <div
+      class="burger"
+      :class="{ 'burger-active': mobileMenu }"
+      @click="toggleMobileMenu"
+    >
+      <div class="burger-line"></div>
+    </div>
+
+    <MobileMenu
+      v-if="mobileMenu"
+      @closePopup="closeMobilePopup"
+      @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
+    />
+
+    <NetworkPopup
+      :isOpen="isOpenNetworkPopup"
+      @closePopup="closeNetworkPopup"
+      :networksArr="networksArr"
+      :activeChain="chainId"
+    />
   </header>
 </template>
 
@@ -352,21 +361,18 @@ export default {
 
 <style lang="scss" scoped>
 .main-logo {
-  width: 50px;
-  height: auto;
-  object-fit: contain;
-  margin-right: 10px;
-  cursor: pointer;
+  width: 42px;
+  height: 42px;
+  margin-right: 40px;
 }
+
 .header {
   position: absolute;
-  height: 80px;
-  top: 15px;
+  top: 28px;
   left: 0;
   right: 0;
-  max-width: 1140px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 15px;
   z-index: 10;
   display: flex;
   align-items: center;
@@ -378,24 +384,38 @@ export default {
   justify-content: space-between;
 }
 
+.general-activities,
+.account-activities {
+  display: flex;
+  align-items: center;
+}
+
+.general-activities {
+  gap: 40px;
+}
+
+.account-activities {
+  gap: 16px;
+  margin-right: 16px;
+}
+
 .header-link {
-  text-align: center;
-  background: #ffffff0f;
-  backdrop-filter: blur(40px);
-  border-radius: 20px;
-  padding: 13px 15px;
-  font-size: 16px;
-  line-height: 24px;
-  color: #fff;
+  display: flex;
+  padding: 12px 20px;
+  align-items: flex-start;
+  border-radius: 8px;
+  color: white;
   cursor: pointer;
-  min-width: 80px;
-  &.router-link-active {
-    background: #55535d;
-  }
+}
+
+.header-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
 }
 
 .networks-btn {
   padding: 0;
+  height: 100%;
   min-width: 55px;
   display: flex;
   align-items: center;
@@ -414,14 +434,10 @@ export default {
   padding: 0;
 }
 
-.header-link:hover {
-  background: #55535d;
-}
-
 .dropdown-tools {
   position: relative;
 
-  .title {
+  .dropdown-title {
     display: flex;
     align-items: center;
   }
@@ -433,7 +449,7 @@ export default {
   width: 90px;
   position: relative;
 
-  .title {
+  .dropdown-title {
     max-width: 20px;
   }
 }
@@ -445,13 +461,19 @@ export default {
 
 .list {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: calc(100% + 12.5px);
+
   display: flex;
   flex-direction: column;
-  background: #55535d;
-  width: 100%;
-  border-radius: 0 0 20px 20px;
+  align-items: flex-start;
+  width: 233px;
+  padding: 16px;
+  gap: 16px;
+  border-radius: 12px;
+  border: 1px solid #2d4a96;
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .list-link {
@@ -461,15 +483,10 @@ export default {
   color: #fff;
   font-size: 16px;
   line-height: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .list-link:hover {
   color: #76c3f5;
-}
-
-.list-link:last-child {
-  border-bottom: none;
 }
 
 .list-row {
@@ -485,17 +502,14 @@ export default {
   }
 }
 
-.list-row:not(:last-child) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.active {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
 }
 
-.active {
-  border-radius: 20px 20px 0 0;
-  background: #55535d;
-
-  .arrow {
-    transform: rotate(180deg);
-  }
+.active .arrow {
+  transform: rotate(180deg);
 }
 
 .line {
@@ -540,6 +554,12 @@ export default {
       transform: rotate(-45deg);
       bottom: 45%;
     }
+  }
+}
+
+@media (max-width: 1500px) {
+  .header {
+    padding: 0 15px;
   }
 }
 
