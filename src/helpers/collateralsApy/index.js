@@ -50,7 +50,7 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
     if (pool.config.id === 31 || pool.config.id === 32)
       return await getStargateApy(pool, provider);
 
-    if (pool.config.id === 39) return await getMagicApeApy(provider);
+    if (pool.config.id === 39) return await getMagicApeApy(chainId);
   }
 
   if (chainId === 10) {
