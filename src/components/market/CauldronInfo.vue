@@ -5,7 +5,7 @@
       <div class="apr">
         <TooltipIcon :width="20" :height="20" fill="#878B93" tooltip="APR" />
         <span>APR:</span>
-        <span> 211.94% - 421.88%</span>
+        <span>{{ loopApr }}</span>
       </div>
     </div>
 
@@ -76,6 +76,10 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { getCollateralApr } from "@/helpers/collateralsApy";
+
+// @ts-ignore
+import filters from "@/filters/index.js";
 
 export default {
   props: {
@@ -84,13 +88,32 @@ export default {
     },
   },
 
+  data() {
+    return {
+      aprInfo: { value: 0, multiplier: 0 },
+    };
+  },
+
   computed: {
+    loopApr() {
+      if (this.aprInfo.value) {
+        return `${this.aprInfo.value}% - ${filters.formatToFixed(
+          this.aprInfo.value * this.aprInfo.multiplier,
+          2
+        )}%`;
+      }
+      return "-";
+    },
     chartData() {
       return {
         max: 200,
         data: [{ value: 135.54 }],
       };
     },
+  },
+
+  async created() {
+    this.aprInfo = await getCollateralApr(this.cauldron);
   },
 
   components: {
