@@ -1,6 +1,7 @@
 <template>
   <div class="popup-wrap" v-if="popupActiveType">
-    <div v-click-outside="closePopup">
+    <!-- <div v-click-outside="closePopup"> -->
+    <div>
       <CrvStakePopup v-if="popupActiveType === '3crv'" />
 
       <SucessPopup v-if="popupActiveType === 'success'" />
