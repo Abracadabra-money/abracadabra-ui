@@ -112,6 +112,18 @@ export default {
       activeChainId: "getChainId",
     }),
 
+    routeChainId() {
+      const chainId = Number(this.$route.params.chainId);
+
+      return chainId;
+    },
+
+    routeCauldronId() {
+      const chainId = Number(this.$route.params.cauldronId);
+
+      return chainId;
+    },
+
     isOpenPosition() {
       return (
         this.cauldron.userPosition.collateralInfo.userCollateralShare.gt(0) ||
@@ -176,48 +188,36 @@ export default {
     },
 
     async createCauldronInfo() {
-      if (!this.chainId || !this.cauldronId) return false;
+      if (!this.routeChainId || !this.routeCauldronId) return false;
 
-      const unsupportedChain =
-        !defaultRpc[this.chainId as keyof typeof defaultRpc];
-      const { rpcUrls } = getChainsConfigs();
-
-      const currentRpc = unsupportedChain
-        ? defaultRpc[1]
-        : rpcUrls
-        ? rpcUrls[0]
-        : defaultRpc[this.chainId as keyof typeof defaultRpc];
+      const currentRpc =
+        defaultRpc[this.routeChainId as keyof typeof defaultRpc];
 
       const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
 
       const userSigner =
-        this.account && this.activeChainId === this.chainId
+        this.account && this.activeChainId === this.routeChainId
           ? this.signer
           : chainProvider;
 
       this.cauldron = await getCauldronInfo(
-        this.cauldronId,
-        this.chainId,
+        this.routeCauldronId,
+        this.routeChainId,
         chainProvider,
         userSigner
       );
-
-      this.updateInterval = await setInterval(async () => {
-        this.cauldron = await getCauldronInfo(
-          this.cauldronId,
-          this.chainId,
-          chainProvider,
-          userSigner
-        );
-      }, 60000);
     },
   },
 
-  async created() {
-    this.chainId = +this.$route.params.chainId;
-    this.cauldronId = +this.$route.params.cauldronId;
+  beforeUnmount() {
+    clearInterval(this.updateInterval);
+  },
 
+  async created() {
     await this.createCauldronInfo();
+    this.updateInterval = setInterval(async () => {
+      await this.createCauldronInfo();
+    }, 5000);
   },
 
   components: {
