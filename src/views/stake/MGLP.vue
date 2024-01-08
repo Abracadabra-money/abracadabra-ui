@@ -510,6 +510,7 @@ export default {
 
 @media screen and (max-width: 600px) {
   .actions-head {
+    font-size: 24px;
     gap: 16px;
     flex-direction: column;
     align-items: flex-start;

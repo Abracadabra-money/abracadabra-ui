@@ -184,8 +184,14 @@ export default {
 
 @media (max-width: 600px) {
   .chart-block {
-    padding: 10px 5px;
-    min-height: auto;
+    padding: 20px 10px;
+    min-height: 290px;
+  }
+
+  .row {
+    gap: 16px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

@@ -137,4 +137,20 @@ export default {
   width: 22px;
   height: 22px;
 }
+
+@media screen and (max-width: 768px) {
+  .btns-wrap {
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .special-info-block {
+    padding: 14px;
+  }
+
+  .button {
+    font-size: 14px;
+  }
+}
 </style>
