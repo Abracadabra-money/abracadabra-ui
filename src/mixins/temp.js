@@ -19,6 +19,7 @@ const approvalWarnings = [
 import { saveOrder } from "@/helpers/gm/orders";
 import { ZERO_ADDRESS } from "@/constants/gm";
 
+// NOTICE: Temporary mixin, need to change to helpers after cooks refactoring
 export default {
   emits: ["updateMarket", "clearData"],
   mixins: [cookMixin],

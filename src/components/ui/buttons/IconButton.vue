@@ -1,12 +1,19 @@
 <template>
-  <component class="button-wrap" :is="tagName" :href="href" :target="href">
+  <component
+    @mouseover="hover = true"
+    @mouseleave="hover = false"
+    class="button-wrap"
+    :is="tagName"
+    :href="href"
+    :target="href"
+  >
     <span
       class="inner-wrap"
       :style="`width: ${width}px; height: ${height}px; padding: ${padding};`"
     >
-      <WalletIcon v-if="wallet" />
-      <LinkIcon v-else-if="link" />
-      <SetingIcon v-else-if="seting" />
+      <WalletIcon v-if="wallet" :fill="svgFill"/>
+      <LinkIcon v-else-if="link" :fill="svgFill"/>
+      <SetingIcon v-else-if="seting" :fill="svgFill"/>
     </span>
   </component>
 </template>
@@ -54,6 +61,22 @@ export default {
     },
   },
 
+  data() {
+    return {
+      hover: false,
+      svgFillColor: "#7088CC",
+      svgHoverFillColor: "#86A2F1",
+    };
+  },
+
+  computed: {
+    svgFill() {
+      if (this.hover) return this.svgHoverFillColor;
+
+      return this.svgFillColor;
+    },
+  },
+
   components: {
     WalletIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/WalletIcon.vue")
@@ -64,6 +87,10 @@ export default {
     SetingIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/SetingIcon.vue")
     ),
+  },
+
+  methods: {
+    onHover() {},
   },
 };
 </script>
@@ -82,10 +109,16 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 8px;
+  padding: 2px;
   border-radius: 8px;
-  background: #303557;
-  height: 30px;
+  background: #1a1f3d;
+  height: 28px;
   width: 32px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #191f2f;
+    box-shadow: 0px 0px 4px 0px rgba(255, 255, 255, 0.13);
+  }
 }
 </style>
