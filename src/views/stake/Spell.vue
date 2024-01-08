@@ -7,7 +7,13 @@
       <div class="actions-block">
         <div class="actions-head">
           <h3>{{ activeTab }}</h3>
-          <Tabs :name="activeToken" :items="tabTokens" @select="changeToken" />
+          <Tabs
+            :name="activeToken"
+            :items="tabTokens"
+            @select="changeToken"
+            :icons="tabTokenIcons"
+            width="280px"
+          />
         </div>
 
         <AvailableNetworksBlock
@@ -57,22 +63,12 @@
               />
               <span v-else> {{ actionButtonText }}</span>
             </BaseButton>
-
-            <p class="text">
-              After each new deposit, all staked SPELL are subject to a 24H
-              lock-up period!
-            </p>
-
-            <LeverageInfo
-              :selectedNetwork="selectedNetwork"
-              :leverageInfo="mainToken.leverageInfo"
-            />
           </div>
         </div>
       </div>
 
       <div class="stake-info">
-        <SpellSpecialInfoBlock />
+        <SpellSpecialInfoBlock :specialInfo="specialInfo" />
 
         <BalancesBlock :configs="balanceInfo" />
 
@@ -84,6 +80,7 @@
         <ClaimMimBlock
           class="claim-wrap"
           v-if="isClaimMimBlock"
+          :isUnsupportedChain="isUnsupportedChain"
           :isDisableClaimButton="isDisableClaimButton"
           :claimAmount="formatAmount(mainToken.claimableAmount)"
           @claimMim="claimMimHandler"
@@ -99,6 +96,8 @@
 // @ts-ignore
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
 import { ZERO_VALUE } from "@/constants/global";
 import actions from "@/helpers/stake/spell/actions/";
@@ -114,6 +113,10 @@ export default {
     return {
       activeToken: "mSpell",
       tabTokens: ["mSpell", "sSpell"],
+      tabTokenIcons: [
+        useImage("assets/images/tokens/sSPELL.png"),
+        useImage("assets/images/tokens/sSPELL.png"),
+      ],
       activeTab: "stake",
       tabItems: ["stake", "unstake"],
       selectedNetwork: null as any,
@@ -271,6 +274,32 @@ export default {
 
       return info;
     },
+
+    specialInfo() {
+      const mSpellInfo = [
+        {
+          text: `Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent
+        loss, no loss of governance rights. Take part in the fee sharing
+        mechanism of Abracadabra and earn MIM! Find out more`,
+          link: "https://docs.abracadabra.money/learn/intro/stake/mspell",
+        },
+        {
+          text: `mSPELL automatically earns fees from MIM repayments from all wizards
+        proportional to your share of the stake pool.`,
+        },
+      ];
+
+      const sSpellInfo = [
+        {
+          text: `Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding. After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
+        },
+        {
+          text: `After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
+        },
+      ];
+
+      return this.isMSpellActive ? mSpellInfo : sSpellInfo;
+    },
   },
 
   watch: {
@@ -331,6 +360,10 @@ export default {
     },
 
     async claimMimHandler() {
+      if (!this.isUnsupportedChain) {
+        switchNetwork(this.selectedNetwork);
+        return false;
+      }
       if (this.isDisableClaimButton) return false;
       const notificationId = await this.createNotification(
         notification.pending
@@ -434,9 +467,6 @@ export default {
     ),
     LockedTimer: defineAsyncComponent(
       () => import("@/components/stake_new/LockedTimer.vue")
-    ),
-    LeverageInfo: defineAsyncComponent(
-      () => import("@/components/stake_new/LeverageInfo.vue")
     ),
     SpellSpecialInfoBlock: defineAsyncComponent(
       () => import("@/components/stake_new/SpellSpecialInfoBlock.vue")
@@ -545,14 +575,43 @@ export default {
 }
 
 .row {
+  display: grid;
+  grid-template-columns: 284px 1fr;
   gap: 16px;
-  display: flex;
-  align-items: center;
 }
 
 .text {
   text-align: center;
   font-size: 12px;
   line-height: 150%;
+}
+
+@media screen and (max-width: 1200px) {
+  .stake-wrap {
+    grid-template-columns: 400px 1fr;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .stake-wrap {
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .row {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .actions-head {
+    font-size: 24px;
+    gap: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>

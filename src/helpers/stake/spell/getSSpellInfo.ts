@@ -1,5 +1,5 @@
 import moment from "moment";
-import { multicall } from "@wagmi/core";
+import { useImage } from "@/helpers/useImage";
 import { formatUnits, type Address } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { EmptyTokenState } from "@/types/spell/empyState";
@@ -70,6 +70,7 @@ export const getSSpellInfo = async (
   return {
     name: sSpell.name,
     icon: sSpell.icon,
+    rateIcon: useImage("assets/images/sspell-icon.svg"),
     decimals: sSpell.decimals,
     contract: sSpell.contract,
     price: sSpellPrice,
@@ -77,6 +78,5 @@ export const getSSpellInfo = async (
     lockTimestamp,
     balance: aSpellUserBalance.result,
     approvedAmount: approvedAmount.result,
-    leverageInfo: sSpell.leverageInfo,
   };
 };

@@ -7,6 +7,7 @@
       :key="i"
       @click="$emit('select', item)"
     >
+      <img class="icon" v-if="icons[i]" :src="icons[i]" alt="Tab icon" />
       {{ item }}
     </button>
   </div>
@@ -21,6 +22,10 @@ export default {
     },
     items: {
       type: Array,
+      default: () => [],
+    },
+    icons: {
+      type: Array as any,
       default: () => [],
     },
     width: {
@@ -58,10 +63,18 @@ export default {
   cursor: pointer;
   transition: all 0.3s;
   text-transform: capitalize;
+  gap: 10px;
+  display: flex;
+  align-items: center;
 }
 
 .switch-btn-active {
   color: #7088cc;
   background-color: rgba(111, 111, 111, 0.06);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
 }
 </style>
