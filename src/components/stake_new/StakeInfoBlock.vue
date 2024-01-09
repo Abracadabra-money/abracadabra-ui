@@ -45,13 +45,14 @@
 </template>
 
 <script lang="ts">
+import axios from "axios";
 import { formatUnits } from "viem";
 //@ts-ignore
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
-import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+import { ANALYTICS_URK, MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 
 export default {
   props: {
@@ -112,6 +113,11 @@ export default {
       this.apr = await getMagicApeApy(this.selectedNetwork);
     },
 
+    async fetchKlpApy() {
+      const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
+      this.apr = filters.formatToFixed(data.apr, 2);
+    },
+
     async fetchApr() {
       switch (this.type) {
         case "glp":
@@ -119,6 +125,9 @@ export default {
           break;
         case "ape":
           await this.fetchApeApy();
+          break;
+        case "klp":
+          await this.fetchKlpApy();
           break;
         default:
           break;

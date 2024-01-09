@@ -2,7 +2,7 @@ import axios from "axios";
 import moment from "moment";
 import { ANALYTICS_URK } from "@/constants/global";
 
-export const getMagicKlpApy = async () => {
+export const getMagicKlpApy = async (period = 1) => {
   const { data }: any = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
 
   const chartData: any = { labels: [], tickUpper: [] };
@@ -34,11 +34,11 @@ export const getMagicKlpApy = async () => {
   });
 
   return {
-    labels: chartData.labels.reverse(),
+    labels: [...chartData.labels.reverse().slice(-30 * period)],
     datasets: [
       {
         label: "APY",
-        data: chartData.tickUpper.reverse(),
+        data: [...chartData.tickUpper.reverse().slice(-30 * period)],
         borderColor: "#73b6f6 ",
         pointBackgroundColor: "#73b6f6",
         pointBorderColor: "#73b6f6",

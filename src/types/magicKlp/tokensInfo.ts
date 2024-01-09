@@ -16,7 +16,6 @@ export type MainTokenInfo = {
   totalSupplyUsd: bigint;
   balance: bigint;
   balanceUsd: bigint;
-  approvedAmount: bigint;
   contract: ContractInfo;
 };
 
@@ -28,5 +27,6 @@ export type StakeTokenInfo = {
   balance: bigint;
   balanceUsd: bigint;
   contract: ContractInfo;
+  approvedAmount: bigint;
   lastAdded: string;
 };
