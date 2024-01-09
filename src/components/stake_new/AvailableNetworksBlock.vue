@@ -46,7 +46,6 @@ export default {
   gap: 20px;
   display: flex;
   align-items: center;
-  margin-bottom: 14px;
 }
 
 .title {

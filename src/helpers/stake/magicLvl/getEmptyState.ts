@@ -6,6 +6,7 @@ import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
 import { bsc } from "viem/chains";
 import { createPublicClient, http } from "viem";
 import { BSC_CHAIN_ID, MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
+import { useImage } from "@/helpers/useImage";
 
 const {
   mainToken: seniorMainToken,
@@ -44,7 +45,7 @@ const emptyState: MagicLvlTranchesInfo = {
       contract: juniorMainToken.contract,
       balance: 0n,
       totalSupplyUsd: ONE_ETHER_VIEM,
-      approvedAmount: 0n,
+      price: 0n,
     },
     stakeToken: {
       name: juniorStakeToken.name,
@@ -54,6 +55,9 @@ const emptyState: MagicLvlTranchesInfo = {
       walletBalance: 0n,
       balance: 0n,
       pid: juniorPid,
+      approvedAmount: 0n,
+      price: 0n,
+      rateIcon: useImage("assets/images/stake/junior-icon.svg"),
     },
   },
   mezzanine: {
@@ -71,7 +75,7 @@ const emptyState: MagicLvlTranchesInfo = {
       contract: mezzanineMainToken.contract,
       balance: 0n,
       totalSupplyUsd: ONE_ETHER_VIEM,
-      approvedAmount: 0n,
+      price: 0n,
     },
     stakeToken: {
       name: mezzanineStakeToken.name,
@@ -81,6 +85,9 @@ const emptyState: MagicLvlTranchesInfo = {
       walletBalance: 0n,
       balance: 0n,
       pid: mezzaninePid,
+      price: 0n,
+      approvedAmount: 0n,
+      rateIcon: useImage("assets/images/stake/mezzanine-icon.svg"),
     },
   },
   senior: {
@@ -98,7 +105,7 @@ const emptyState: MagicLvlTranchesInfo = {
       contract: seniorMainToken.contract,
       balance: 0n,
       totalSupplyUsd: ONE_ETHER_VIEM,
-      approvedAmount: 0n,
+      price: 0n,
     },
     stakeToken: {
       name: seniorStakeToken.name,
@@ -108,6 +115,9 @@ const emptyState: MagicLvlTranchesInfo = {
       walletBalance: 0n,
       balance: 0n,
       pid: jseniorPid,
+      price: 0n,
+      approvedAmount: 0n,
+      rateIcon: useImage("assets/images/stake/senior-icon.svg"),
     },
   },
 };
@@ -151,7 +161,8 @@ const getTokenInfo = async (config: any) => {
 };
 
 export const getEmptyState = async (
-  config: any
+  config: any,
+  chainId: number
 ): Promise<MagicLvlStakeInfo> => {
   if (!config) return emptyState;
 

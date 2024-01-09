@@ -431,11 +431,16 @@ export default {
   margin: 0 auto;
 }
 
+.actions-block {
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
 .actions-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 22px;
   font-size: 32px;
   font-weight: 600;
   line-height: 150%;
