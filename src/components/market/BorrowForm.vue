@@ -234,4 +234,11 @@ export default {
   font-size: 12px;
   line-height: 20px;
 }
+
+@media screen and (max-width: 1024px) {
+  .borrow-form {
+    max-width: 640px;
+    width: 100%;
+  }
+}
 </style>

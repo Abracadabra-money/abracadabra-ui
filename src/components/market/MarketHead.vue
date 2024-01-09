@@ -1,15 +1,16 @@
 <template>
   <div class="market-head-wrap">
     <div class="market-head">
-      <div class="column">
-        <div class="token-info-wrap">
-          <TokenInfo :cauldron="cauldron" />
-        </div>
+      <div class="group-wrap">
+        <TokenInfo :cauldron="cauldron" />
+      </div>
 
+      <div class="icons-wrap group-wrap">
         <IconButton v-if="isActiveChain" wallet @click="addCollateral" />
-
         <IconButton link tag-name="a" :href="cauldronScanUrl" target="_blank" />
+      </div>
 
+      <div class="group-wrap additional-wrap">
         <BaseLink
           v-if="strategyLink"
           :href="strategyLink"
@@ -24,14 +25,12 @@
           :text="tokenLinkData.label"
         />
 
-        <!-- todo style -->
         <DepositButton :cauldron="cauldron" v-if="isActiveChain" />
 
-        <!-- todo style -->
         <ClaimButton :cauldron="cauldron" v-if="isActiveChain" />
       </div>
 
-      <div class="column">
+      <div class="info-wrap group-wrap">
         <InfoButton title="TMB" :value="totalMimBorrowed" />
         <InfoButton title="TVL" :value="totalValueLocked" />
       </div>
@@ -156,20 +155,59 @@ export default {
 .market-head {
   max-width: 1310px;
   width: 100%;
-  padding: 4px 15px;
+  padding: 8px 15px;
   margin: 0 auto;
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: space-between;
 }
 
-.column {
-  gap: 8px;
+.token-info-wrap {
+  margin-right: 16px;
+}
+
+.info-wrap {
+  margin-left: auto;
+}
+
+.group-wrap {
   display: flex;
+  gap: 8px;
   align-items: center;
 }
 
-.token-info-wrap {
-  margin-right: 16px;
+@media screen and (max-width: 1024px) {
+  .market-head {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .info-wrap {
+    margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 860px) {
+  .market-head {
+    gap: 12px;
+  }
+  .icons-wrap {
+    order: 1;
+  }
+
+  .info-wrap {
+    order: 2;
+  }
+
+  .additional-wrap {
+    order: 3;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .icons-wrap {
+    margin-left: auto;
+  }
 }
 </style>

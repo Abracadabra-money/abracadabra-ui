@@ -91,7 +91,7 @@
         />
       </h4>
       <p class="item-value">
-        {{ formatUnits(expectedPositionAmounts.liquidationPrice) }}
+        $ {{ formatUnits(expectedPositionAmounts.liquidationPrice) }}
       </p>
     </div>
   </div>
@@ -307,6 +307,13 @@ export default {
 
   .position-health {
     background: #4f1717;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .position-info {
+    max-width: 640px;
+    width: 100%;
   }
 }
 </style>

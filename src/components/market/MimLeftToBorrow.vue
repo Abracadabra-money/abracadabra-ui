@@ -85,7 +85,9 @@ export default {
 <style lang="scss" scoped>
 .mim-left-to-borrow {
   width: 100%;
+  max-width: 360px;
   height: 100%;
+  margin: 0 auto;
   position: relative;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="cauldron-info">
-    <div class="row">
+    <div class="row head-row">
       <h3 class="title">Cauldron Stats</h3>
       <div class="apr">
         <TooltipIcon :width="20" :height="20" fill="#878B93" tooltip="APR" />
@@ -10,7 +10,7 @@
     </div>
 
     <div class="cauldron-fees">
-      <h3 class="fees-title">Cauldron Fees</h3>
+      <!-- <h3 class="fees-title">Cauldron Fees</h3> -->
 
       <div class="fees-row">
         <div class="fees-title">
@@ -216,5 +216,24 @@ export default {
 .chart-wrap {
   height: 240px;
   width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+  .cauldron-info{
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .head-row {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .fees-title, .fees-percent {
+    font-size: 14px;
+  }
 }
 </style>

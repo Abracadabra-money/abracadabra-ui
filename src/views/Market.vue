@@ -5,10 +5,19 @@
 
     <template v-if="cauldron">
       <MarketHead :cauldron="cauldron" v-if="cauldron" />
-      <div class="market-info">
-        <div class="actions-wrap">
-          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
+      <div class="top-row">
+        <template v-if="!hideActions">
+          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+        </template>
+
+        <template v-if="!hidePositions">
+          <PositionHealth v-if="isOpenPosition" :cauldron="cauldron" />
+        </template>
+      </div>
+
+      <div class="market-info">
+        <template v-if="!hideActions">
           <div class="form-wrap" v-if="isBorrowTab">
             <BorrowForm
               :cauldron="cauldron"
@@ -30,22 +39,19 @@
               @clearData="resetAmounts"
             />
           </div>
-        </div>
+        </template>
 
-        <div class="market-stats">
-          <div class="position-health-wrap">
-            <PositionHealth v-if="isOpenPosition" :cauldron="cauldron" />
-          </div>
+        <template v-if="!hidePositions">
+          <PositionInfo
+            :cauldron="cauldron"
+            :actionType="activeTab"
+            :actionConfig="actionConfig"
+          />
+        </template>
 
-          <div class="row">
-            <PositionInfo
-              :cauldron="cauldron"
-              :actionType="activeTab"
-              :actionConfig="actionConfig"
-            />
-            <CauldronInfo :cauldron="cauldron" />
-          </div>
-        </div>
+        <template v-if="!hideCauldronInfo">
+          <CauldronInfo :cauldron="cauldron" />
+        </template>
       </div>
     </template>
 
@@ -55,6 +61,19 @@
         src="@/assets/images/cauldrons/loader.gif"
         alt="Loader icon"
       />
+    </div>
+  </div>
+
+  <div class="mobile-navigation">
+    <div
+      class="nav-item"
+      v-for="tab in mobileTabs"
+      :key="`mobileTab=${tab.id}`"
+      :class="{ active: tab.id === currentMobileTab }"
+      @click="currentMobileTab = tab.id"
+    >
+      <img src="@/assets/images/market-nav.png" alt="" />
+      <p>{{ tab.text }}</p>
     </div>
   </div>
 </template>
@@ -102,6 +121,21 @@ export default {
       },
       activeTab: "borrow",
       tabItems: ["borrow", "repay"],
+      currentMobileTab: 0,
+      mobileTabs: [
+        {
+          id: 0,
+          text: "Borrow",
+        },
+        {
+          id: 1,
+          text: "My Position",
+        },
+        {
+          id: 2,
+          text: "Stats",
+        },
+      ],
     };
   },
 
@@ -111,6 +145,22 @@ export default {
       signer: "getSigner",
       activeChainId: "getChainId",
     }),
+
+    mobileMode() {
+      return window.innerWidth <= 1024;
+    },
+
+    hideActions() {
+      return this.mobileMode && this.currentMobileTab !== 0;
+    },
+
+    hidePositions() {
+      return this.mobileMode && this.currentMobileTab !== 1;
+    },
+
+    hideCauldronInfo() {
+      return this.mobileMode && this.currentMobileTab !== 2;
+    },
 
     routeChainId() {
       const chainId = Number(this.$route.params.chainId);
@@ -245,11 +295,57 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.mobile-navigation {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(16, 22, 34, 0.6);
+  gap: 52px;
+  box-shadow: 0px 4px 36.4px 0px rgba(98, 88, 195, 0);
+  backdrop-filter: blur(12.5px);
+  z-index: 100;
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+
+    &.active,
+    &:hover {
+      p {
+        color: #7088cc;
+      }
+    }
+
+    img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    p {
+      color: #fff;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+  }
+}
+
 .market-view {
   padding: 100px 0;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
   background: linear-gradient(
     291deg,
     #102649 -26.37%,
@@ -273,6 +369,18 @@ export default {
   right: 70px;
 }
 
+.top-row {
+  position: relative;
+  max-width: 1310px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .market-info {
   max-width: 1310px;
   width: 100%;
@@ -280,16 +388,11 @@ export default {
   margin: 0 auto;
   display: grid;
   gap: 24px;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr) minmax(
+      300px,
+      1fr
+    );
   z-index: 1;
-}
-
-.actions-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 411px;
-  width: 100%;
 }
 
 .form-wrap {
@@ -303,12 +406,6 @@ export default {
   flex-direction: column;
   gap: 16px;
   z-index: -1;
-}
-
-.position-health-wrap {
-  height: 50px;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .row {
@@ -326,5 +423,44 @@ export default {
 
 .loading-icon {
   max-width: 20%;
+}
+
+@media screen and (max-width: 1024px) {
+  .form-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .market-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-row {
+    justify-content: center;
+  }
+
+  .mobile-navigation {
+    display: flex;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .mobile-navigation {
+    padding: 8px;
+    gap: 52px;
+
+    .nav-item {
+      img {
+        width: 36px;
+        height: 36px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+    }
+  }
 }
 </style>

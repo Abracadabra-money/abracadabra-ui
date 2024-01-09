@@ -87,13 +87,14 @@ export default {
 }
 
 .token-icon {
-  width: 50px;
-  height: 50px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .chain-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   position: absolute;
   top: -5px;
@@ -112,5 +113,22 @@ export default {
   font-size: 12px;
   font-weight: 400;
   line-height: 150%;
+}
+
+@media screen and (max-width: 860px) {
+  .icons-wrap {
+    width: 40px;
+    height: 40px;
+  }
+
+  .token-name {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .tokens-rate {
+    font-size: 12px;
+    line-height: 1.6;
+  }
 }
 </style>

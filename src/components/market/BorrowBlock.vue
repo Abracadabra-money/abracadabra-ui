@@ -202,7 +202,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 410px;
+  // max-width: 410px;
   width: 100%;
 }
 

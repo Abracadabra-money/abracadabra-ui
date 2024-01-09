@@ -269,4 +269,11 @@ export default {
   flex-direction: column;
   gap: 12px;
 }
+
+@media screen and (max-width: 1024px) {
+  .repay-form {
+    max-width: 640px;
+    width: 100%;
+  }
+}
 </style>
