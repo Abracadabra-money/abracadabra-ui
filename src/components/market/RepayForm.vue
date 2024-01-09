@@ -3,7 +3,7 @@
     <div class="block-wrap remove-block">
       <div class="row">
         <div class="title-wrap">
-          <h3>{{ titleText }}</h3>
+          <h3 class="title">{{ titleText }}</h3>
           <SlippagePopup
             v-if="actionConfig.useDeleverage"
             :amount="actionConfig.amounts.slippage"
@@ -12,6 +12,7 @@
         </div>
 
         <Toggle
+          v-if="isDeleverageAllowed"
           :selected="actionConfig.useDeleverage"
           text="Deleverge"
           @updateToggle="onToggleDeleverage"
@@ -64,9 +65,9 @@
           @click="actionHandler"
           >{{ cookValidationData.btnText }}</BaseButton
         >
-        <BaseButton primary disabled v-if="actionConfig.useDeleverage"
+        <!-- <BaseButton primary disabled v-if="actionConfig.useDeleverage"
           >Close position
-        </BaseButton>
+        </BaseButton> -->
       </div>
     </div>
 
@@ -81,15 +82,18 @@
   </div>
 
   <!-- TODO: MOVE TO MARKET -->
-  <LocalPopupWrap :isOpened="isOpenGMPopup" @closePopup="closeGMPopup">
+  <template v-if="activeOrder && isOpenGMPopup">
     <GMStatus
+      :isOpened="isOpenGMPopup"
+      @closePopup="closeGMPopup"
       :order="activeOrder"
       :orderType="2"
       :cauldronObject="cauldron"
       :successLeverageCallback="successGmLeverageCallback"
       :deleverageSuccessPayload="gmDelevSuccessPayload"
       :deleverageFromOrder="gmDeleverageFromOrder"
-  /></LocalPopupWrap>
+    />
+  </template>
 </template>
 
 <script lang="ts">
@@ -122,6 +126,13 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    isDeleverageAllowed() {
+      const { liquidationSwapper } = this.cauldron.contracts;
+      const { isSwappersActive } = this.cauldron.config.cauldronSettings;
+
+      return liquidationSwapper && isSwappersActive;
+    },
 
     titleText() {
       const { useDeleverage } = this.actionConfig;
@@ -182,9 +193,6 @@ export default {
     OrdersManager: defineAsyncComponent(
       () => import("@/components/market/OrdersManager.vue")
     ),
-    LocalPopupWrap: defineAsyncComponent(
-      () => import("@/components/popups/LocalPopupWrap.vue")
-    ),
     GMStatus: defineAsyncComponent(
       () => import("@/components/popups/GMStatus.vue")
     ),
@@ -224,6 +232,12 @@ export default {
   gap: 16px;
   display: flex;
   align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.title {
   font-size: 18px;
   font-weight: 500;
   line-height: 150%;

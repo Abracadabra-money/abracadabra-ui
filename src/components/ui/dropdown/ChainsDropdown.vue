@@ -250,7 +250,7 @@ path {
   flex-direction: column;
   gap: 16px;
   width: 200px;
-  height: 220px;
+  max-height: 220px;
   overflow: hidden;
   overflow-y: scroll;
   z-index: 1;

@@ -124,4 +124,10 @@ export default {
   font-weight: 500;
   line-height: 150%;
 }
+
+@media screen and (max-width: 600px) {
+  .additional-info-block {
+    flex-direction: column;
+  }
+}
 </style>

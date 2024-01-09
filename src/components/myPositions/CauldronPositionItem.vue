@@ -10,29 +10,36 @@
         />
         <div class="token-info">
           <span class="token-name">{{ collateralSymbol }}</span>
-          <span class="apr">
+          <span class="apr" v-if="cauldron.apr">
             <Tooltip />
             APR {{ formatPercent(cauldron.apr) }}
           </span>
         </div>
       </div>
 
-      <button class="manage">Manage</button>
+      <router-link class="manage" :to="goToPage(cauldron)">Manage</router-link>
     </div>
 
     <div class="position-info">
       <ul class="position-indicators">
-        <PositionIndicator :value="collateralPrice"
-          >Collateral price</PositionIndicator
-        >
         <PositionIndicator
+          tooltip="Annual Return on Staked tokens at current price"
+          :value="collateralPrice"
+        >
+          Collateral price
+        </PositionIndicator>
+
+        <PositionIndicator
+          tooltip="Liquidation price"
           :positionRisk="positionRisk"
           :value="cauldron.liquidationPrice"
-          >Liquidation price</PositionIndicator
         >
-        <PositionIndicator :value="leftToDrop"
-          >Required Drop in price</PositionIndicator
-        >
+          Liquidation price
+        </PositionIndicator>
+
+        <PositionIndicator tooltip="Required Drop in price" :value="leftToDrop">
+          Required Drop in price
+        </PositionIndicator>
       </ul>
       <HealthProgress
         :positionHealth="formatPercent(cauldron.positionHealth)"
@@ -146,6 +153,14 @@ export default {
   },
 
   methods: {
+    goToPage(cauldron) {
+      const { chainId, id } = cauldron.config;
+      return {
+        name: "Market",
+        params: { chainId, cauldronId: id },
+      };
+    },
+
     formatTokenBalance(value) {
       return filters.formatTokenBalance(value);
     },
@@ -232,12 +247,13 @@ export default {
   border-radius: 12px;
   border: 2px solid #7088cc;
   background: rgba(255, 255, 255, 0.01);
-  transition: opacity 0.7s ease;
+  cursor: pointer;
+  transition: all 0.7s ease;
 }
 
 .manage:hover {
-  opacity: 0.7;
-  cursor: pointer;
+  border-color: #86a2f1;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .position-info {
@@ -261,7 +277,7 @@ export default {
 }
 
 .high {
-  border-color: #401d1d;
+  border-color: #4a2130;
 }
 
 @media screen and (max-width: 700px) {

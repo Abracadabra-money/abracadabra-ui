@@ -70,13 +70,13 @@ export default {
     farmStatusStyles() {
       if (this.marketItem.isDeprecated)
         return {
-          text: "Depreciated",
+          text: "Deprecated",
           flagColor:
-            "background: linear-gradient(270deg, #320A0A 0%, #871D1F 100%), linear-gradient(90deg, #67A069 0%, #446A46 100%);",
-          border: "border: 1px solid  #320A0A;",
+            "background: linear-gradient(180deg, #8c4040 0%, #6b2424 100%);",
+          border: "border: 1px solid  #4a2130;",
           tokenInfoMargin: "margin-left: 8px",
         };
-      if (this.marketItem.isNew)
+      if (this.marketItem.config?.isNew)
         return {
           text: "New",
           flagColor:
@@ -87,7 +87,7 @@ export default {
       return {
         text: "",
         flagColor: "",
-        border: "border: 1px solid #252f4d;",
+        border: "border: 1px solid rgba(180, 180, 180, 0.08);",
         tokenInfoMargin: "",
       };
     },
@@ -134,19 +134,20 @@ export default {
   border-radius: 11px;
   position: relative;
   cursor: pointer;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease-in-out;
 }
 
 .market-item:hover {
+  transform: scale(1.01);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.16);
 }
 
 .status-flag {
   position: absolute;
-  top: 38px;
+  top: 36px;
   left: -39px;
-  width: 91px;
-  height: 15px;
+  width: 90px;
+  max-height: 15px;
   border-radius: 10px 10px 0 0;
   transform: rotate(0.75turn);
 

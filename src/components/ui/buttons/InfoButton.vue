@@ -42,11 +42,17 @@ export default {
   justify-content: center;
   align-items: center;
   border-radius: 8px;
-  background: #303557;
+  background: #1a1f3d;
   color: #fff;
   min-width: 120px;
   width: 100%;
   height: 30px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #191f2f;
+    box-shadow: 0px 0px 4px 0px rgba(255, 255, 255, 0.13);
+  }
 }
 
 .button-title {

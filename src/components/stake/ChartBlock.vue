@@ -185,6 +185,7 @@ export default {
 @media (max-width: 600px) {
   .chart-block {
     padding: 10px 5px;
+    min-height: auto;
   }
 }
 </style>

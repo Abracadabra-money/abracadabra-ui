@@ -13,11 +13,14 @@
       </div>
     </div>
 
-    <p class="text">
-      Enjoy the benefits of compounding without having to worry about the
-      tedious work! Simply deposit your GLP into MagicGLP and let it do its
-      magic!
-    </p>
+    <div>
+      <p class="text">
+        Enjoy the benefits of compounding without having to worry about the
+        tedious work! Simply deposit your GLP into MagicGLP and let it do its
+        magic!
+      </p>
+      <p class="text">Note: A 1% protocol fee is taken on the yields.</p>
+    </div>
   </div>
 </template>
 
@@ -51,6 +54,7 @@ export default {
 }
 
 .row {
+  gap: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -72,5 +76,12 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
   line-height: 150%;
+}
+
+@media screen and (max-width: 600px) {
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>

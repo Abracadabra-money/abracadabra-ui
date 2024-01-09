@@ -8,7 +8,7 @@
 
     <div class="ratio-icon-wrap">
       <img class="ratio-icon" src="@/assets/images/spell-icon.svg" alt="" />
-      <img class="ratio-icon" :src="mainToken.icon" alt="" />
+      <img class="ratio-icon" :src="mainToken.rateIcon" alt="" />
     </div>
 
     <div>
@@ -99,5 +99,11 @@ export default {
   font-size: 24px;
   font-weight: 700;
   line-height: 150%;
+}
+
+@media screen and (max-width: 600px) {
+  .ratio-value {
+    font-size: 18px;
+  }
 }
 </style>

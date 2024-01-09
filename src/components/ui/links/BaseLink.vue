@@ -54,13 +54,20 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: #303557;
+  background: #1a1f3d;
   color: #7088cc;
   font-size: 12px;
   font-weight: 500;
   line-height: 150%;
   letter-spacing: 0.36px;
   cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #191f2f;
+    box-shadow: 0px 0px 4px 0px rgba(255, 255, 255, 0.13);
+    color: #86a2f1;
+  }
 }
 
 .degenbox-icon {

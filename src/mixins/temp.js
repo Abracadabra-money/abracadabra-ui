@@ -8,6 +8,7 @@ import { approveToken } from "@/helpers/approval";
 import { WARNING_TYPES } from "@/helpers/cauldron/validators";
 import { getCookPayload } from "@/helpers/cauldron/getCookPayload";
 import { ACTION_TYPES } from "@/helpers/cauldron/getCookActionType";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 const approvalWarnings = [
   WARNING_TYPES.DEPOSIT_ALLOWANCE,
@@ -18,6 +19,7 @@ const approvalWarnings = [
 import { saveOrder } from "@/helpers/gm/orders";
 import { ZERO_ADDRESS } from "@/constants/gm";
 
+// NOTICE: Temporary mixin, need to change to helpers after cooks refactoring
 export default {
   emits: ["updateMarket", "clearData"],
   mixins: [cookMixin],
@@ -41,7 +43,8 @@ export default {
       return validateCookByAction(
         this.cauldron,
         this.actionConfig,
-        this.action
+        this.action,
+        this.chainId
       );
     },
   },
@@ -55,9 +58,14 @@ export default {
       const isApprove =
         approvalWarnings.indexOf(this.cookValidationData.errorType) !== -1;
 
-      return isApprove
-        ? await this.approveTokenHandler()
-        : await this.cookHandler();
+      if (isApprove) return await this.approveTokenHandler();
+
+      const isSwitchChain =
+        this.cookValidationData.errorType === WARNING_TYPES.SWITCH_CHAIN;
+
+      if (isSwitchChain) return switchNetwork(this.cauldron.config.chainId);
+
+      return await this.cookHandler();
     },
     async approveTokenHandler() {
       const notificationId = await this.createNotification(
@@ -98,7 +106,6 @@ export default {
           this.action
         );
 
-
         // GM CATCH
         const isGM = this.cauldron.config.cauldronSettings.isGMXMarket;
         if (cookActionType === ACTION_TYPES.ACTION_LEVERAGE && isGM) {
@@ -138,7 +145,7 @@ export default {
 
         // Notice: no await
         this.$emit("updateMarket");
-        this.$emit("clearData")
+        this.$emit("clearData");
         this.deleteNotification(notificationId);
         this.createNotification(notification.success);
       } catch (error) {
@@ -178,7 +185,7 @@ export default {
 
       this.activeOrder = order;
       this.isOpenGMPopup = true;
-      this.$emit("clearData")
+      this.$emit("clearData");
     },
     async gmDeleverageHandler(
       cookPayload,
@@ -204,7 +211,7 @@ export default {
         account
       );
 
-      this.$emit("clearData")
+      this.$emit("clearData");
 
       const order = await cauldron.orders(account);
 
@@ -279,7 +286,7 @@ export default {
 
         // Notice: no await
         this.$emit("updateMarket");
-        this.$emit("clearData")
+        this.$emit("clearData");
 
         this.isOpenGMPopup = false;
         this.activeOrder = null;

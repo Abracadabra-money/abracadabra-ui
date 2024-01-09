@@ -133,7 +133,7 @@ export default {
   flex-direction: column;
   gap: 12px;
   overflow-y: auto;
-  padding-right: 32px;
+  padding: 0 32px 0 2px;
   width: calc(100% + 32px);
 }
 </style>
