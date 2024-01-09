@@ -817,7 +817,6 @@ export default {
 .wrap-btn {
   width: 100%;
   margin: 40px 0 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .caption {

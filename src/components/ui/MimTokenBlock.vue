@@ -111,6 +111,8 @@ export default {
 
 .mim-price {
   margin-left: 10px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .token-btn {
