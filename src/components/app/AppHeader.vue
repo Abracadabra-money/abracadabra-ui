@@ -10,179 +10,28 @@
           Cauldrons
         </router-link>
 
-        <div
-          class="dropdown-tools header-link"
-          :class="{ active: isDropdownStake }"
-          @click="toggleDropdown('stake')"
-          v-click-outside="closeDropdownStake"
-        >
-          <div class="dropdown-title">
-            Stake
-            <img
-              class="arrow"
-              src="@/assets/images/arrow-down.svg"
-              alt="Arrow down"
-            />
-          </div>
-          <div class="list" v-if="isDropdownStake">
-            <router-link class="list-link" :to="{ name: 'StakeSpell' }"
-              >Spell</router-link
-            >
-            <router-link class="list-link" :to="{ name: 'magicGLP' }"
-              >magicGLP</router-link
-            >
-            <router-link class="list-link" :to="{ name: 'magicAPE' }"
-              >magicAPE</router-link
-            >
-            <router-link class="list-link" :to="{ name: 'magicLVL' }"
-              >magicLVL</router-link
-            >
-            <router-link class="list-link" :to="{ name: 'magicKLP' }"
-              >magicKLP</router-link
-            >
-          </div>
-        </div>
+        <HeaderStakeDropdown />
 
-        <div
-          class="dropdown-tools header-link"
-          :class="{ active: isDropdownTools }"
-          @click="toggleDropdown('tools')"
-          v-click-outside="closeDropdownTools"
-        >
-          <div class="dropdown-title">
-            Tools
-            <img
-              class="arrow"
-              src="@/assets/images/arrow-down.svg"
-              alt="Arrow down"
-            />
-          </div>
-
-          <div class="list" v-if="isDropdownTools">
-            <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
-              >Farms</router-link
-            >
-            <router-link class="list-link" :to="{ name: 'Beam' }"
-              >Beam</router-link
-            >
-            <a
-              href="https://curve.fi/#/ethereum/pools/mim/swap"
-              class="list-link"
-              target="_blank"
-              >Swap</a
-            >
-            <a
-              href="https://analytics.abracadabra.money/fee-statistics"
-              class="list-link"
-              target="_blank"
-              >Analytics</a
-            >
-          </div>
-        </div>
+        <HeaderMoreDropdown />
       </div>
 
-      <!-- <router-link class="header-link" :to="{ name: 'Borrow' }"
-        >Borrow</router-link
-      >
-      <router-link class="header-link" :to="{ name: 'Leverage' }"
-        >Leverage</router-link
-      > -->
-
       <div class="account-activities">
-        <router-link class="header-link" :to="{ name: 'MyPositions' }"
-          >Positions</router-link
-        >
+        <router-link class="header-link" :to="{ name: 'MyPositions' }">
+          <img src="@/assets/images/header/positions-header-icon.png" />
+          My Positions
+        </router-link>
 
         <div
           class="header-link networks-btn"
+          :class="{ active: !!networkIcon }"
           @click.stop="openNetworkPopup"
           v-tooltip="unsupportedTooltip"
         >
-          <img v-if="!!networcIcon" :src="networcIcon" alt="" />
+          <img v-if="!!networkIcon" :src="networkIcon" />
         </div>
 
-        <div class="header-link header-connect">
-          <ConnectButton />
-        </div>
+        <ConnectButton class="connect-button" />
       </div>
-
-      <!-- <div
-        class="dropdown-other header-link"
-        :class="{ active: isDropdownOther }"
-        @click.stop="toggleDropdown('other')"
-        v-click-outside="closeDropdownOther"
-      >
-        <img
-          class="title"
-          src="@/assets/images/social/points.svg"
-          alt="Points"
-        />
-        <div class="list" v-if="isDropdownOther">
-          <a
-            href="https://legacy.abracadabra.money"
-            target="_blank"
-            rel="noreferrer noopener"
-            class="list-link"
-            >V 1</a
-          >
-          <a
-            href="https://forum.abracadabra.money/"
-            target="_blank"
-            rel="noreferrer noopener"
-            class="list-link"
-            >Forum</a
-          >
-          <div class="list-row">
-            <a
-              href="https://abracadabramoney.gitbook.io/abracadabra-money-wiki/"
-              target="_blank"
-              rel="noreferrer noopener"
-              class="list-link"
-            >
-              <Docs />
-            </a>
-
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://github.com/Abracadabra-money"
-              class="list-link"
-            >
-              <GitHub />
-            </a>
-          </div>
-          <div class="list-row">
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://twitter.com/MIM_Spell"
-              class="list-link"
-            >
-              <Twitter />
-            </a>
-
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9"
-              class="list-link"
-            >
-              <Mirror />
-            </a>
-          </div>
-          <div class="list-row">
-            <Lens />
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://discord.com/invite/mim"
-              class="list-link"
-            >
-              <Discord />
-            </a>
-          </div>
-        </div>
-      </div> -->
     </nav>
 
     <MimTokenBlock />
@@ -232,14 +81,14 @@ export default {
       networksArr: "getAvailableNetworks",
     }),
 
-    networcIcon() {
+    networkIcon() {
       if (!this.chainId) return "";
       if (this.networksArr.length && this.chainId) {
         const chain = this.networksArr.find((chain) => {
           if (chain.chainId === this.chainId) return chain;
         });
 
-        if (chain) return chain.icon;
+        if (chain) return chain.networkIcon;
       }
 
       return useImage("assets/images/networks/unsupportedChain.svg");
@@ -355,6 +204,12 @@ export default {
     Lens: defineAsyncComponent(() => import("@/components/icons/Lens.vue")),
     Mirror: defineAsyncComponent(() => import("@/components/icons/Mirror.vue")),
     GitHub: defineAsyncComponent(() => import("@/components/icons/GitHub.vue")),
+    HeaderMoreDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/HeaderMoreDropdown.vue")
+    ),
+    HeaderStakeDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/HeaderStakeDropdown.vue")
+    ),
   },
 };
 </script>
@@ -402,9 +257,14 @@ export default {
 .header-link {
   display: flex;
   padding: 12px 20px;
-  align-items: flex-start;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
   border-radius: 8px;
-  color: white;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
   cursor: pointer;
 }
 
@@ -423,10 +283,8 @@ export default {
 }
 
 .networks-btn img {
-  max-width: 25px;
-  max-height: 25px;
-  width: 100%;
-  height: 100%;
+  width: 32px;
+  height: 32px;
 }
 
 .header-connect {
@@ -573,9 +431,14 @@ export default {
     align-items: center;
   }
 
+  .connect-button {
+    display: none !important;
+  }
+
   .burger {
     display: flex;
     z-index: 11;
+    margin-left: 20px;
   }
 }
 </style>
