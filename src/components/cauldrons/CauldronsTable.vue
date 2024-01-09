@@ -13,19 +13,24 @@
           @updateToggle="updateToggleActiveCauldrons"
         />
       </div>
+
       <div class="filters-wrap">
-        <div>
+        <div class="chains-wrap">
+          <h3 class="mobile-title">Cauldrons</h3>
           <ChainsDropdown
             :activeChains="activeChains"
             :selectedChains="selectedChains"
             @updateSelectedChain="updateSelectedChain"
           />
         </div>
-        <InputSearch @changeSearch="updateSearch" />
+
+        <div class="search-wrapper">
+          <InputSearch @changeSearch="updateSearch" />
+        </div>
       </div>
     </div>
 
-    <div>
+    <div class="table-wrapper">
       <CauldronsTableHead @updateSort="updateSortKeys" />
 
       <div class="cauldrons-items-wrap">
@@ -262,6 +267,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 
 .toggles-wrap,
@@ -278,15 +284,52 @@ export default {
   width: 100%;
 }
 
+.chains-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-title {
+  display: none;
+}
+
 @media screen and (max-width: 1024px) {
-  .cauldrons-items-wrap {
+  .additional-logic {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .filters-wrap {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .table-wrapper {
     overflow-x: scroll;
   }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 600px) {
   .additional-logic {
-    flex-direction: column-reverse;
+    justify-content: flex-end;
+    height: 90px;
+  }
+
+  .mobile-title {
+    display: block;
+  }
+
+  .search-wrapper {
+    width: 100%;
+    position: absolute;
+    top: 80px;
+  }
+
+  .cauldrons-table-wrap {
+    padding: 16px;
   }
 }
 </style>

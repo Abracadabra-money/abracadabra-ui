@@ -63,4 +63,10 @@ export default {
     color: #878b93;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .search {
+    width: 100%;
+  }
+}
 </style>

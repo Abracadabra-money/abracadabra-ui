@@ -13,7 +13,11 @@
           Use your favourite assets as collateral to borrow
         </h4>
         <h4 class="subtitle">
-          <img class="mim-icon" src="@/assets/images/PixelMIM.svg" alt="" />
+          <img
+            class="mim-icon"
+            src="@/assets/images/PixelMIM.svg"
+            alt="Mim icon"
+          />
           Magic Internet Money, a leading decentralised and collateral-backed
           stablecoin.
         </h4>
@@ -34,10 +38,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { providers } from "ethers";
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
-import { defaultRpc } from "@/helpers/chains";
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
 import { getCollateralApr } from "@/helpers/collateralsApy";
 
@@ -167,6 +168,25 @@ export default {
   .cards-wrap {
     grid-template-columns: 1fr;
     width: 100%;
+  }
+}
+@media screen and (max-width: 600px) {
+  .cauldrons-container {
+    padding: 100px 12px 60px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    align-items: flex-start;
+    font-size: 14px;
+  }
+
+  .mim-icon {
+    width: 16px;
+    height: 16px;
   }
 }
 </style>
