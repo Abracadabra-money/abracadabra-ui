@@ -96,7 +96,7 @@ export default {
   max-width: 544px;
   border-radius: 20px;
   border: 1px solid #00296b;
-  background: rgb(14, 19, 34) 0%;
+  background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
 }
