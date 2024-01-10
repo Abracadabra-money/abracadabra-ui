@@ -193,8 +193,6 @@ export default {
     },
 
     stakeToken() {
-      console.log("this.stakeInfo?.spell", this.mainToken);
-
       return this.stakeInfo?.spell;
     },
 
@@ -457,7 +455,7 @@ export default {
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     AvailableNetworksBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/AvailableNetworksBlock.vue")
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
     TokenInput: defineAsyncComponent(
       () => import("@/components/market/TokenInput.vue")
@@ -466,22 +464,22 @@ export default {
       () => import("@/components/base/BaseButton.vue")
     ),
     LockedTimer: defineAsyncComponent(
-      () => import("@/components/stake_new/LockedTimer.vue")
+      () => import("@/components/stake/LockedTimer.vue")
     ),
     SpellSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/SpellSpecialInfoBlock.vue")
+      () => import("@/components/stake/SpellSpecialInfoBlock.vue")
     ),
     BalancesBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/BalancesBlock.vue")
+      () => import("@/components/stake/BalancesBlock.vue")
     ),
     StakingAprBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/StakingAprBlock.vue")
+      () => import("@/components/stake/StakingAprBlock.vue")
     ),
     TokenRatioBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/TokenRatioBlock.vue")
+      () => import("@/components/stake/TokenRatioBlock.vue")
     ),
     ClaimMimBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/ClaimMimBlock.vue")
+      () => import("@/components/stake/ClaimMimBlock.vue")
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")
@@ -492,7 +490,6 @@ export default {
 
 <style lang="scss" scoped>
 .stake-view {
-  @include font;
   min-height: 100vh;
   background: linear-gradient(
     291deg,

@@ -24,7 +24,6 @@ export default {
 
 <style lang="scss" scoped>
 .staking-apr {
-  @include font;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(

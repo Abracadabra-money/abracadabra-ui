@@ -198,11 +198,9 @@ export default {
 
 <style lang="scss" scoped>
 .market-actions-wrap {
-  @include font;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  // max-width: 410px;
   width: 100%;
 }
 

@@ -243,10 +243,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
 .cauldrons-table-wrap {
-  @include font;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(

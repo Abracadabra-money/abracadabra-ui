@@ -1,11 +1,3 @@
-@mixin font {
-  font-family: "Poppins", Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  color: #fff;
-  font-style: normal;
-}
-
 @mixin button {
   height: 36px;
   border-radius: 10px;

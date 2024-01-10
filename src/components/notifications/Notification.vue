@@ -86,7 +86,6 @@ export default {
 
 <style lang="scss" scoped>
 .notification {
-  @include font;
   padding: 16px 16px 16px 80px;
   border-radius: 16px;
   background: rgba(16, 22, 34, 0.4);

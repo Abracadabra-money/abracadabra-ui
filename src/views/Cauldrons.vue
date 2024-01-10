@@ -110,10 +110,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
 .cauldrons-page {
-  @include font;
   min-height: 100vh;
   width: 100%;
   height: 100%;

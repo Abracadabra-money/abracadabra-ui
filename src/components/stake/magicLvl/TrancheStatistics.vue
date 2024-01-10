@@ -35,6 +35,7 @@
                 tooltip="tooltip"
               />
             </h4>
+
             <div class="reward-wrap">
               <img
                 class="reward-icon"
@@ -80,7 +81,7 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     stakeInfo: {
-      type: Array as any,
+      type: Object as any,
     },
   },
   methods: {
@@ -95,7 +96,7 @@ export default {
 
   components: {
     TrancheStatisticsItem: defineAsyncComponent(
-      () => import("@/components/stake_new/magicLvl/TrancheStatisticsItem.vue")
+      () => import("@/components/stake/magicLvl/TrancheStatisticsItem.vue")
     ),
     TooltipIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
@@ -144,6 +145,7 @@ export default {
   gap: 8px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .info-item {
@@ -165,6 +167,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 16px;
   color: #99a0b2;
   font-weight: 500;
   line-height: 150%;
@@ -181,5 +184,17 @@ export default {
 .reward-icon {
   width: 32px;
   height: 32px;
+}
+
+@media screen and (max-width: 1200px) {
+  .info-title {
+    font-size: 15px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .row {
+    flex-direction: column;
+  }
 }
 </style>

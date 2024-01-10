@@ -60,10 +60,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
 .camelot-card {
-  @include font;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -82,6 +79,7 @@ export default {
   text-transform: uppercase;
   font-weight: 600;
   transition: 0.3s;
+  color: #fff;
 }
 
 .camelot-card:hover {

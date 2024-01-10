@@ -1,22 +1,23 @@
 <template>
-  <div class="locked-timer">Unlock in {{ timerCount }}</div>
+  <div>Unlock in {{ timerCount }}</div>
 </template>
 
-<script>
+<script lang="ts">
 import moment from "moment";
 
 export default {
   props: {
     finalTime: {
-      type: [String, Boolean],
+      type: [String, Boolean] as any,
       required: true,
     },
   },
 
   data() {
     return {
-      timeInterval: null,
-      timerCount: "",
+      timeInterval: null as any,
+      timerCount: "" as any,
+      acceptByTime: null as any,
     };
   },
 
@@ -33,6 +34,7 @@ export default {
 
   mounted() {
     this.acceptByTime = moment(this.finalTime).isBefore(new Date());
+
     if (!this.acceptByTime) {
       this.checkDuration();
 

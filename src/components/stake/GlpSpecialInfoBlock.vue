@@ -1,17 +1,14 @@
 <template>
   <div class="special-info-block">
     <div class="row">
-      <h4 class="title">Simply deposit your KLP</h4>
+      <h4 class="title">Simply deposit your GLP</h4>
 
       <div class="links-wrap">
-        <GetTokenLink
-          href="https://perps.kinetix.finance/#/liquidity"
-          text="Buy KLP"
-        />
+        <GetTokenLink href="https://app.gmx.io/#/buy_glp" text="Buy GLP" />
 
         <GetTokenLink
-          href="https://perps.kinetix.finance/#/liquidity#redeem"
-          text="Sell KLP"
+          href="https://app.gmx.io/#/buy_glp#redeem"
+          text="Sell GLP"
         />
       </div>
     </div>
@@ -19,7 +16,7 @@
     <div>
       <p class="text">
         Enjoy the benefits of compounding without having to worry about the
-        tedious work! Simply deposit your KLP into MagicKLP and let it do its
+        tedious work! Simply deposit your GLP into MagicGLP and let it do its
         magic!
       </p>
       <p class="text">Note: A 1% protocol fee is taken on the yields.</p>
@@ -41,7 +38,6 @@ export default {
 
 <style lang="scss" scoped>
 .special-info-block {
-  @include font;
   padding: 14px 20px;
   gap: 10px;
   display: flex;
@@ -53,9 +49,7 @@ export default {
       rgba(45, 74, 150, 0.32) 0%,
       rgba(116, 92, 210, 0.32) 100%
     ),
-    url("@/assets/images/stake/klp-bg.png");
-  background-repeat: no-repeat;
-  background-position: center right;
+    url("@/assets/images/stake/glp-bg.png");
 }
 
 .row {

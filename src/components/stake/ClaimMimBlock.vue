@@ -1,41 +1,43 @@
 <template>
-  <div class="claim-mim-block" :style="backgroundImage">
+  <div class="claim-mim-block">
     <h3 class="title">Claimable</h3>
 
-    <div class="claim-info-wrap">
-      <div class="claim-info">
-        <div class="token-icon-wrap">
-          <img
-            class="token-icon"
-            src="@/assets/images/tokens/MIM.png"
-            alt="MIM icon"
-          />
-        </div>
-
-        <div class="claim-amount">
-          <h4>MIM</h4>
-          <div class="claim-value">{{ claimAmount }}</div>
+    <div class="row">
+      <div class="token-info">
+        <img
+          class="token-icon"
+          src="@/assets/images/tokens/MIM.png"
+          alt="MIM icon"
+        />
+        <div>
+          <h4 class="token-name">MIM</h4>
+          <p class="token-amount">{{ formatAmount }}</p>
         </div>
       </div>
-
-      <div class="btn-wrap">
-        <BaseButton :disabled="isDisableClaimButton" @click="$emit('claimMim')">
-          Claim
-        </BaseButton>
-      </div>
+      <button
+        class="claim-button"
+        :disabled="isDisableClaimButton"
+        @click="$emit('claimMim')"
+      >
+        {{ buttonText }}
+      </button>
     </div>
   </div>
 </template>
 
-<script>
-import { useImage } from "@/helpers/useImage";
-import BaseButton from "@/components/base/BaseButton.vue";
+<script lang="ts">
+// @ts-ignore
+import filters from "@/filters/index.js";
 
 export default {
   props: {
     claimAmount: {
       type: String,
       required: true,
+    },
+    isUnsupportedChain: {
+      type: Boolean,
+      default: true,
     },
     isDisableClaimButton: {
       type: Boolean,
@@ -44,89 +46,75 @@ export default {
   },
 
   computed: {
-    backgroundImage() {
-      return `background-image: url(${useImage("assets/images/bg-claim.png")})`;
+    buttonText() {
+      if (!this.isUnsupportedChain) return "Switch Network";
+      return "Claim";
     },
-  },
 
-  components: {
-    BaseButton,
+    formatAmount() {
+      return filters.formatTokenBalance(this.claimAmount);
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .claim-mim-block {
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  border: 1px solid rgba(129, 128, 255, 0.2);
-  border-radius: 30px;
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(100px);
-  padding: 20px;
+  border: 1px solid #4550a9;
+  border-radius: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(
+    91deg,
+    rgba(27, 24, 68, 0.6) 14.68%,
+    rgba(13, 19, 38, 0.6) 76.58%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
-  font-weight: 700;
   font-size: 18px;
-  line-height: 27px;
-  text-align: left;
-  margin-bottom: 10px;
+  font-weight: 500;
+  line-height: 150%;
 }
 
-.claim-info-wrap {
+.row {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.claim-info {
+.token-info {
+  gap: 8px;
   display: flex;
   align-items: center;
-  gap: 14px;
-}
-
-.token-icon-wrap {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 63px;
-  width: 63px;
 }
 
 .token-icon {
-  height: 32px;
-  width: 32px;
+  width: 44px;
+  height: 44px;
 }
 
-.claim-amount {
-  text-align: left;
-  font-size: 18px;
+.token-name,
+.token-amount {
+  font-weight: 500;
+  line-height: 150%;
 }
 
-.btn-wrap {
-  width: 100px;
-}
-
-@media screen and (max-width: 600px) {
-  .claim-mim-block {
-    padding: 20px 10px;
-  }
-  .claim-info-wrap {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .claim-value {
-    font-size: 16px;
-  }
-
-  .btn-wrap {
-    width: 100%;
-  }
+.claim-button {
+  cursor: pointer;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  border: 2px solid #7088cc;
+  background: rgba(255, 255, 255, 0.01);
+  color: #7088cc;
+  font-weight: 600;
+  line-height: 150%;
 }
 </style>
