@@ -1,5 +1,4 @@
 import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
-import type { MagicLvlTranchesInfo } from "@/types/magicLvl/stakeInfo";
 import { MASTER_ADDRESS } from "@/constants/lvlFinance";
 import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
 import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
@@ -29,7 +28,8 @@ const {
 }: any = magicLvlConfig[BSC_CHAIN_ID as keyof typeof magicLvlConfig]
   .tokensConfig[2];
 
-const emptyState: MagicLvlTranchesInfo = {
+const emptyState: any = {
+  chainId: 56,
   junior: {
     name: "Junior",
     tokensRate: ONE_ETHER_VIEM,
@@ -157,6 +157,8 @@ const getTokenInfo = async (config: any) => {
     name: config.name,
     totalSupplyUsd: totalSupplyUsd,
     tokensRate: tokenRate.result,
+    stakeTokenPrice,
+    mainTokenPrice,
   };
 };
 
@@ -177,9 +179,13 @@ export const getEmptyState = async (
       info.totalSupplyUsd;
     emptyState[info.name as keyof typeof emptyState]!.tokensRate =
       info.tokensRate;
+    emptyState[info.name as keyof typeof emptyState]!.mainToken.price =
+      info.mainTokenPrice;
+    emptyState[info.name as keyof typeof emptyState]!.stakeToken.price =
+      info.stakeTokenPrice;
   });
 
   const additionalInfo = await getAdditionalInfo(emptyState);
 
-  return { ...emptyState, ...additionalInfo };
+  return { chainId, ...emptyState, ...additionalInfo };
 };

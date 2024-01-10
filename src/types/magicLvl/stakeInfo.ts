@@ -33,6 +33,7 @@ export type MagicLvlStakeTokenInfo = {
 };
 
 export type MagicLvlTranchesInfo = {
+  chainId: number;
   junior?: MagicLvlTrancheInfo;
   mezzanine?: MagicLvlTrancheInfo;
   senior?: MagicLvlTrancheInfo;
@@ -48,6 +49,7 @@ export type MagicLvlTrancheInfo = {
 };
 
 export type MagicLvlStakeInfo = {
+  chainId: number;
   junior?: MagicLvlTrancheInfo;
   mezzanine?: MagicLvlTrancheInfo;
   senior?: MagicLvlTrancheInfo;
