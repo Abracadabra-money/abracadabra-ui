@@ -492,7 +492,6 @@ export default {
 
 <style lang="scss" scoped>
 .stake-view {
-  @include font;
   min-height: 100vh;
   background: linear-gradient(
     291deg,

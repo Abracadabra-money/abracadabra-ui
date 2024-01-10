@@ -41,7 +41,6 @@ export default {
 
 <style lang="scss" scoped>
 .special-info-block {
-  @include font;
   padding: 14px 20px;
   gap: 10px;
   display: flex;

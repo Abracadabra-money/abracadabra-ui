@@ -61,7 +61,6 @@ export default {
 
 <style lang="scss" scoped>
 .balances-block {
-  @include font;
   gap: 16px;
   display: flex;
   flex-direction: column;

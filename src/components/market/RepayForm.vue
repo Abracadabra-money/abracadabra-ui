@@ -202,7 +202,6 @@ export default {
 
 <style lang="scss" scoped>
 .repay-form {
-  @include font;
   display: flex;
   flex-direction: column;
   gap: 16px;

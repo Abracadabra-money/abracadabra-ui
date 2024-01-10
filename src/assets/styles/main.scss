@@ -1,6 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Prompt:wght@200;400;600;700&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;600;700&display=swap");
 @import "https://necolas.github.io/normalize.css/latest/normalize.css";
 @import "./connectModal.scss";
 @import "./animations.scss";
@@ -18,10 +17,14 @@ w3m-core-button {
 }
 
 #app {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #23212d;
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 150%;
   color: #fff;
   min-height: 100vh;
   position: relative;

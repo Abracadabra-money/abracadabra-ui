@@ -183,7 +183,6 @@ export default {
 
 <style lang="scss" scoped>
 .borrow-form {
-  @include font;
   display: flex;
   flex-direction: column;
   gap: 16px;

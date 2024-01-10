@@ -137,7 +137,6 @@ export default {
 
 <style lang="scss" scoped>
 .chart-block {
-  @include font;
   width: 100%;
   padding: 16px;
   display: flex;

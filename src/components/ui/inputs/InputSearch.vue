@@ -35,7 +35,6 @@ export default {
 
 <style lang="scss" scoped>
 .search {
-  @include font;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: rgba(8, 14, 31, 0.6);
   border-radius: 12px;

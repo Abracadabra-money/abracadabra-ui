@@ -60,7 +60,6 @@ export default {
 
 <style lang="scss" scoped>
 .claim-mim-block {
-  @include font;
   border: 1px solid #4550a9;
   border-radius: 16px;
   padding: 14px 20px;

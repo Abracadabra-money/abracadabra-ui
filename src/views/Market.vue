@@ -400,7 +400,6 @@ export default {
 }
 
 .market-stats {
-  @include font;
   width: 100%;
   display: flex;
   flex-direction: column;

@@ -156,7 +156,6 @@ export default {
 
 <style lang="scss" scoped>
 .position-info {
-  @include font;
   max-width: 410px;
   padding: 24px;
   width: 100%;
