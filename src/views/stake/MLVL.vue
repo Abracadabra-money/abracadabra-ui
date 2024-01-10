@@ -8,18 +8,22 @@
         <div class="actions-head">
           <h3>{{ activeTab }}</h3>
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
-          <!-- <button class="mobile-btn" @click="updateChartToggle">
+          <button class="mobile-btn" @click="updateChartToggle">
             <ChartIcon :fill="chartToggle ? '#ffffff' : '#7088CC'" />
-          </button> -->
+          </button>
         </div>
 
-        <Tabs
-          :name="activeToken"
-          :items="tabTokens"
-          :icons="tabTokenIcons"
-          width="100%"
-          @select="changeToken"
-        />
+        <div class="tranche-btns" v-if="isAction">
+          <button
+            :class="['tranche-btn', { active: token.name === activeToken }]"
+            v-for="token in tokensInfo"
+            @click="changeToken(token.name)"
+            :key="token.name"
+          >
+            <img class="tranche-btn-icon" :src="token.icon" alt="" />
+            <span class="tranche-btn-name"> {{ token.name }}</span>
+          </button>
+        </div>
 
         <div class="row">
           <AvailableNetworksBlock
@@ -31,54 +35,57 @@
           <div class="tranche-apr">APR {{ trancheApr }}</div>
         </div>
 
-        <!-- v-if="isAction" -->
-        <div class="action-form">
-          <div class="input-wrap">
-            <h4 class="title">Select amount</h4>
-            <TokenInput
-              :value="inputValue"
-              :icon="fromToken.icon"
-              :name="fromToken.name"
-              :max="fromToken.balance"
-              :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
-              @updateInputValue="updateMainValue"
-            />
+        <template v-if="isAction">
+          <div class="action-form">
+            <div class="input-wrap">
+              <h4 class="title">Select amount</h4>
+              <TokenInput
+                :value="inputValue"
+                :icon="fromToken.icon"
+                :name="fromToken.name"
+                :max="fromToken.balance"
+                :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
+                @updateInputValue="updateMainValue"
+              />
+            </div>
+
+            <div class="input-wrap">
+              <h4 class="title">Receive</h4>
+              <TokenInput
+                :disabled="true"
+                :icon="toToken.icon"
+                :name="toToken.name"
+                :value="expectedAmount"
+                :tokenPrice="formatUnits(toToken.price, toToken.decimals)"
+              />
+            </div>
+
+            <div class="btn-wrap">
+              <BaseButton
+                primary
+                :disabled="isActionDisabled"
+                @click="actionHandler"
+                >{{ actionButtonText }}</BaseButton
+              >
+            </div>
           </div>
 
-          <div class="input-wrap">
-            <h4 class="title">Receive</h4>
-            <TokenInput
-              :disabled="true"
-              :icon="toToken.icon"
-              :name="toToken.name"
-              :value="expectedAmount"
-              :tokenPrice="formatUnits(toToken.price, toToken.decimals)"
-            />
-          </div>
-
-          <div class="btn-wrap">
-            <BaseButton
-              primary
-              :disabled="isActionDisabled"
-              @click="actionHandler"
-              >{{ actionButtonText }}</BaseButton
-            >
-          </div>
-        </div>
-
-        <TrancheBalances :trancheInfo="trancheInfo" />
+          <TrancheBalances :trancheInfo="trancheInfo" />
+        </template>
       </div>
 
       <div class="stake-info">
-        <LvlSpecialInfoBlock :activeToken="activeToken" />
+        <LvlSpecialInfoBlock :activeToken="activeToken" v-if="isAction" />
 
-        <ChartBlock
-          :chainId="selectedNetwork"
-          :chartConfig="chartConfig"
-          :getChartOptions="getChartOptions"
-        />
+        <template v-if="isChartView">
+          <ChartBlock
+            :chainId="selectedNetwork"
+            :chartConfig="chartConfig"
+            :getChartOptions="getChartOptions"
+          />
 
-        <TrancheStatistics :stakeInfo="stakeInfo" />
+          <TrancheStatistics :stakeInfo="stakeInfo" />
+        </template>
       </div>
     </div>
 
@@ -108,11 +115,19 @@ export default {
       activeTab: "stake",
       tabItems: ["stake", "unstake"],
       activeToken: "senior",
-      tabTokens: ["senior", "mezzanine", "junior"],
-      tabTokenIcons: [
-        useImage("assets/images/stake/senior-icon.svg"),
-        useImage("assets/images/stake/mezzanine-icon.svg"),
-        useImage("assets/images/stake/junior-icon.svg"),
+      tokensInfo: [
+        {
+          name: "senior",
+          icon: useImage("assets/images/stake/senior-icon.svg"),
+        },
+        {
+          name: "mezzanine",
+          icon: useImage("assets/images/stake/mezzanine-icon.svg"),
+        },
+        {
+          name: "junior",
+          icon: useImage("assets/images/stake/junior-icon.svg"),
+        },
       ],
       selectedNetwork: null as any,
       availableNetworks: [56],
@@ -120,6 +135,8 @@ export default {
       inputAmount: BigInt(0) as bigint,
       inputValue: "" as string | bigint,
       updateInterval: null as any,
+      isMobile: false,
+      chartToggle: false,
     };
   },
 
@@ -128,6 +145,14 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    isChartView() {
+      return this.isMobile ? this.chartToggle : true;
+    },
+
+    isAction() {
+      return this.isMobile ? !this.chartToggle : true;
+    },
 
     isStakeAction() {
       return this.activeTab === "stake";
@@ -256,6 +281,10 @@ export default {
       }
     },
 
+    updateChartToggle() {
+      this.chartToggle = !this.chartToggle;
+    },
+
     changeTab(action: string) {
       this.activeTab = this.activeToken === "senior" ? action : "unstake";
       this.inputValue = "";
@@ -360,10 +389,13 @@ export default {
       }
     },
 
+    getWindowSize() {
+      if (window.innerWidth <= 600) this.isMobile = true;
+      else this.isMobile = false;
+    },
+
     async createStakeInfo() {
       this.stakeInfoArr = await getStakeInfo();
-
-      console.log("this.stakeInfo", this.stakeInfo);
     },
   },
 
@@ -371,6 +403,9 @@ export default {
     if (this.availableNetworks.includes(this.chainId))
       this.selectedNetwork = this.chainId;
     else this.selectedNetwork = this.availableNetworks[0];
+
+    if (window.innerWidth <= 600) this.isMobile = true;
+    window.addEventListener("resize", this.getWindowSize, false);
 
     await this.createStakeInfo();
 
@@ -381,10 +416,14 @@ export default {
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
+    window.removeEventListener("resize", this.getWindowSize);
   },
 
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    ChartIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/ChartIcon.vue")
+    ),
     AvailableNetworksBlock: defineAsyncComponent(
       () => import("@/components/stake_new/AvailableNetworksBlock.vue")
     ),
@@ -471,6 +510,50 @@ export default {
   }
 }
 
+.tranche-btns {
+  width: 100%;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tranche-btn {
+  height: 36px;
+  max-width: 167px;
+  width: 100%;
+  padding: 6px;
+  border-radius: 8px;
+  background: transparent;
+  outline: transparent;
+  border-color: transparent;
+  color: #878b93;
+  font-weight: 500;
+  line-height: 150%;
+  cursor: pointer;
+  gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active {
+  color: #fff;
+  background: rgba(111, 111, 111, 0.06);
+  backdrop-filter: blur(4.5px);
+}
+
+.tranche-btn-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.tranche-btn-name::first-letter {
+  text-transform: uppercase;
+}
 .mobile-btn {
   position: absolute;
   right: 0;
@@ -551,6 +634,14 @@ export default {
     gap: 16px;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .tranche-btns {
+    flex-direction: column;
+  }
+
+  .tranche-btn {
+    max-width: 100%;
   }
 
   .mobile-btn {
