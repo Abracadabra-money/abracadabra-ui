@@ -22,11 +22,13 @@
           stablecoin.
         </h4>
       </div>
+
       <div class="cards-wrap">
         <CamelotCard />
         <EmpowerCard />
         <CamelotUsdcMimCard />
       </div>
+      <CauldronsCarousel />
 
       <CauldronsTable
         :cauldrons="cauldrons"
@@ -100,6 +102,9 @@ export default {
     CauldronsTable: defineAsyncComponent(() =>
       import("@/components/cauldrons/CauldronsTable.vue")
     ),
+    CauldronsCarousel: defineAsyncComponent(() =>
+      import("@/components/ui/carousel/CauldronsCarousel.vue")
+    ),
   },
 };
 </script>
@@ -166,10 +171,16 @@ export default {
 
 @media screen and (max-width: 1024px) {
   .cards-wrap {
-    grid-template-columns: 1fr;
-    width: 100%;
+    display: none;
   }
 }
+
+@media (min-width: 1024px) {
+  .carousel {
+    display: none;
+  }
+}
+
 @media screen and (max-width: 600px) {
   .cauldrons-container {
     padding: 100px 12px 60px;

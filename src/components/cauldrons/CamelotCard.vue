@@ -70,6 +70,7 @@ export default {
   padding: 20px 20px 10px 20px;
   height: 160px;
   max-width: 416px;
+  width: 100%;
   background-image: url("@/assets/images/cauldrons/background_camelot.png");
   border-radius: 16px;
   border: 1px solid #2d4a96;
