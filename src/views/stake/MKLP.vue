@@ -397,25 +397,25 @@ export default {
       () => import("@/components/ui/icons/ChartIcon.vue")
     ),
     AvailableNetworksBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/AvailableNetworksBlock.vue")
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
     TokenInput: defineAsyncComponent(
       () => import("@/components/market/TokenInput.vue")
     ),
     StakeInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/StakeInfoBlock.vue")
+      () => import("@/components/stake/StakeInfoBlock.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
     KlpSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/KlpSpecialInfoBlock.vue")
+      () => import("@/components/stake/KlpSpecialInfoBlock.vue")
     ),
     ChartBlock: defineAsyncComponent(
       () => import("@/components/stake/ChartBlock.vue")
     ),
     AdditionalInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/AdditionalInfoBlock.vue")
+      () => import("@/components/stake/AdditionalInfoBlock.vue")
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")

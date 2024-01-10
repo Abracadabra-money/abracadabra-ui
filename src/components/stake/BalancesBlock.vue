@@ -1,189 +1,139 @@
 <template>
-  <div class="balance-block">
-    <div class="balance-block-header">
-      <h3>Your balance</h3>
-
-      <div class="token-rate">
-        <img
-          class="token-rate-icon"
-          :src="mainToken.rateIcon"
-          alt="Token icon"
-        />
-        <span class="token-rate-value">{{ tokensRate }}</span>
-      </div>
-    </div>
-
-    <div class="tokens-list">
-      <div class="token-info">
-        <div class="token-icon">
-          <BaseTokenIcon :icon="stakeToken.icon" size="60px" />
-          <span class="token-icon-name">{{ stakeToken.name }}</span>
+  <div class="balances-block">
+    <h3 class="title">Your wallet balance</h3>
+    <div class="balance-wrap">
+      <div class="balance-item" v-for="config in configs" :key="config.label">
+        <h4 class="label">
+          {{ config.label }}
+          <TooltipIcon
+            v-if="config.tooltip"
+            :width="20"
+            :height="20"
+            fill="#878B93"
+            tooltip="config.tooltip"
+          />
+        </h4>
+        <div class="value">
+          <img class="token-icon" :src="config.icon" alt="Token icon" />
+          {{ formatTokenBalance(config.balance) }}
         </div>
-
-        <div>
-          <p class="token-symbol">{{ stakeToken.name }}</p>
-          <p class="token-amount">
-            {{ formatTokenBalance(stakeToken.balance) }}
-          </p>
-          <p class="token-price">
-            {{ formatUSD(stakeToken.balanceUsd) }}
-          </p>
-        </div>
-      </div>
-
-      <div class="token-info">
-        <div class="token-icon">
-          <BaseTokenIcon :icon="mainToken.icon" size="60px" />
-          <span class="token-icon-name">{{ mainToken.name }}</span>
-        </div>
-
-        <div>
-          <p class="token-symbol">{{ mainToken.name }}</p>
-          <p class="token-amount">
-            {{ formatTokenBalance(mainToken.balance) }}
-          </p>
-          <p class="token-price">
-            {{ formatUSD(mainToken.balanceUsd) }}
-          </p>
-        </div>
+        <div class="price">{{ formatUSD(config) }}</div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { formatUnits } from "viem";
+<script lang="ts">
+// @ts-ignore
 import filters from "@/filters/index.js";
-import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
+
 export default {
   props: {
-    mainToken: { type: Object, required: true },
-    stakeToken: { type: Object, required: true },
-  },
-
-  computed: {
-    tokensRate() {
-      const rate = formatUnits(
-        (MIM_PRICE * this.mainToken.rate) / ONE_ETHER_VIEM,
-        this.mainToken.decimals
-      );
-
-      return `1 ${this.mainToken.name} = ${filters.formatToFixed(rate, 4)} ${
-        this.stakeToken.name
-      }`;
+    configs: {
+      type: Array as any,
+      required: true,
     },
   },
 
   methods: {
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(
-        formatUnits(value, this.mainToken.decimals)
-      );
+    formatTokenBalance(value: bigint, decimals = 18) {
+      return filters.formatTokenBalance(formatUnits(value, decimals));
     },
 
-    formatUSD(value) {
-      return filters.formatUSD(formatUnits(value, this.mainToken.decimals));
+    formatUSD(config: any, decimals = 18) {
+      const { balance, price }: any = config;
+      const balanceUsd: any = balance * price;
+      return filters.formatUSD(
+        formatUnits(balanceUsd / 1000000000000000000n, decimals)
+      );
     },
   },
 
-  components: { BaseTokenIcon },
+  components: {
+    TooltipIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.balance-block {
+.balances-block {
+  gap: 16px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  width: 100%;
-  padding: 16px;
-  background: #2b2b3c;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(50px);
-  border-radius: 30px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
-.balance-block-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.token-rate {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  padding: 6px 10px;
-  font-size: 14px;
-}
-
-.token-rate-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.tokens-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  text-align: left;
-}
-
-.token-info {
-  display: flex;
-  align-items: center;
-  line-height: 22px;
+.title {
   font-size: 18px;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: 0.45px;
+}
+
+.balance-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.balance-item {
+  width: 100%;
+  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+}
+
+.label {
+  color: #99a0b2;
+  font-weight: 500;
+  line-height: 150%;
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.value {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 32px;
 }
 
 .token-icon {
-  display: flex;
-  align-items: center;
+  width: 32px;
+  height: 32px;
 }
 
-.token-icon-name {
-  display: none;
-}
-
-.token-amount {
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 30px;
-}
-
-.token-price {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-@media screen and (max-width: 1200px) {
-  .tokens-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .token-symbol {
-    display: none;
-  }
-
-  .token-icon-name {
-    display: block;
-  }
-
-  .token-info {
-    justify-content: space-between;
-  }
+.price {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
 }
 
 @media screen and (max-width: 600px) {
-  .balance-block-header {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 10px;
+  .balance-wrap {
+    gap: 16px;
+    flex-direction: column;
   }
 }
 </style>

@@ -425,7 +425,7 @@ export default {
       () => import("@/components/ui/icons/ChartIcon.vue")
     ),
     AvailableNetworksBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/AvailableNetworksBlock.vue")
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
     TokenInput: defineAsyncComponent(
       () => import("@/components/market/TokenInput.vue")
@@ -434,16 +434,16 @@ export default {
       () => import("@/components/base/BaseButton.vue")
     ),
     TrancheBalances: defineAsyncComponent(
-      () => import("@/components/stake_new/magicLvl/TrancheBalances.vue")
+      () => import("@/components/stake/magicLvl/TrancheBalances.vue")
     ),
     LvlSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake_new/LvlSpecialInfoBlock.vue")
+      () => import("@/components/stake/LvlSpecialInfoBlock.vue")
     ),
     ChartBlock: defineAsyncComponent(
       () => import("@/components/stake/ChartBlock.vue")
     ),
     TrancheStatistics: defineAsyncComponent(
-      () => import("@/components/stake_new/magicLvl/TrancheStatistics.vue")
+      () => import("@/components/stake/magicLvl/TrancheStatistics.vue")
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")

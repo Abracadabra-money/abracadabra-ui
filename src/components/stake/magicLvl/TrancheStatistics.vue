@@ -96,7 +96,7 @@ export default {
 
   components: {
     TrancheStatisticsItem: defineAsyncComponent(
-      () => import("@/components/stake_new/magicLvl/TrancheStatisticsItem.vue")
+      () => import("@/components/stake/magicLvl/TrancheStatisticsItem.vue")
     ),
     TooltipIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
