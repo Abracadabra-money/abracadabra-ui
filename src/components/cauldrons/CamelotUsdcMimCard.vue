@@ -91,6 +91,7 @@ export default {
   text-transform: uppercase;
   font-weight: 600;
   transition: 0.3s;
+  color: #fff;
 }
 
 .camelot-card:hover {
