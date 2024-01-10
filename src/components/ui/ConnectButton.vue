@@ -34,7 +34,7 @@ export default {
     },
 
     walletBtnIcon() {
-      return true;
+      return this.account;
     },
 
     isWalletConnected() {

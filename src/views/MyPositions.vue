@@ -369,7 +369,7 @@ export default {
 
 @media screen and (max-width: 1300px) {
   .position-page {
-    max-width: 94%;
+    padding: 0 15px;
   }
 
   .positions-list {
