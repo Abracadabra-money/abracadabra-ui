@@ -26,7 +26,7 @@
       <TickChart :chartData="chartData" :createChartOptions="getChartOptions" />
     </template>
 
-    <BaseLoader height="100%" v-else />
+    <BaseLoader v-else medium text="Loading chart." />
   </div>
 </template>
 
@@ -141,6 +141,7 @@ export default {
   padding: 16px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 12px;
   border-radius: 20px;
   border: 1px solid #00296b;

@@ -76,7 +76,9 @@
       </div>
     </div>
 
-    <BaseLoader v-else />
+    <div class="loader-wrap" v-else>
+      <BaseLoader large text="Loading stake." />
+    </div>
   </div>
 </template>
 
@@ -427,27 +429,6 @@ export default {
 <style lang="scss" scoped>
 .stake-view {
   min-height: 100vh;
-  background: linear-gradient(
-    291deg,
-    #102649 -26.37%,
-    #0c0f1c 40.92%,
-    #131728 62.83%,
-    #212555 123.87%
-  );
-}
-
-.bg-top {
-  position: absolute;
-  top: 145px;
-  left: 0;
-  z-index: 0;
-}
-
-.bg-bottom {
-  position: absolute;
-  top: 80vh;
-  right: 70px;
-  z-index: 0;
 }
 
 .stake-wrap {
@@ -528,6 +509,13 @@ export default {
   gap: 20px;
   display: flex;
   flex-direction: column;
+}
+
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
 
 @media screen and (max-width: 1200px) {

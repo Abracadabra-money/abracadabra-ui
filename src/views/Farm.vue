@@ -408,9 +408,6 @@ export default {
   height: 100vh;
   padding: 100px 0;
   margin: 0 auto;
-  background: url("../assets/images/farm/farm-page-background.png");
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .farm {

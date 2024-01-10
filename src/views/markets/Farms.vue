@@ -41,11 +41,11 @@
               :farm="farm"
             />
           </template>
-          <EmptyState
-            class="empty-state"
-            :isFarmsLoading="isFarmsLoading"
-            v-else
-          />
+
+          <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
+            <BaseLoader v-if="isFarmsLoading" medium text="Loading farms." />
+            <BaseSearchEmpty v-if="showEmptyBlock" text="There are no farms." />
+          </div>
         </div>
       </div>
       <ScrollToTop v-if="farms?.length" />
@@ -55,7 +55,6 @@
 
 <script>
 import { mapGetters } from "vuex";
-import EmptyState from "@/components/farm/EmptyState.vue";
 import FarmItem from "@/components/markets/FarmItem.vue";
 import Toggle from "@/components/ui/Toggle.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
@@ -63,6 +62,8 @@ import InputSearch from "@/components/ui/inputs/InputSearch.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
 import FarmsInfo from "@/components/farm/FarmsInfo.vue";
 import ScrollToTop from "@/components/ui/ScrollToTop.vue";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
 export default {
@@ -87,6 +88,12 @@ export default {
 
     showButtonUp() {
       return this.currentPools.length && this.scrollPosition !== 0;
+    },
+
+    showEmptyBlock() {
+      return (
+        !this.isFarmsLoading && this.search.length && !this.filteredFarms.length
+      );
     },
 
     currentPools() {
@@ -212,7 +219,6 @@ export default {
   },
 
   components: {
-    EmptyState,
     FarmItem,
     Toggle,
     ChainsDropdown,
@@ -220,6 +226,8 @@ export default {
     SortButton,
     FarmsInfo,
     ScrollToTop,
+    BaseLoader,
+    BaseSearchEmpty,
   },
 };
 </script>
@@ -230,9 +238,6 @@ export default {
   justify-content: center;
   width: 100%;
   min-height: 100vh;
-  background: url("../../assets/images/farm/farm-page-background.png");
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .button-up {
@@ -347,7 +352,7 @@ export default {
   margin-right: 20px;
 }
 
-.empty-state {
+.loader-wrap {
   margin: auto;
 }
 

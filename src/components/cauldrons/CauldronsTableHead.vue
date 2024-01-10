@@ -13,12 +13,12 @@
 
       <span class="item-text">{{ tableKey }}</span>
 
-      <img
-        class="item-tooltip"
-        src="@/assets/images/cauldrons/tooltip.svg"
+      <TooltipIcon
         v-if="tooltip"
-        v-tooltip="tooltip"
-        alt="Tooltip icon"
+        :width="18"
+        :height="18"
+        fill="#878B93"
+        :tooltip="tooltip"
       />
     </li>
   </ul>
@@ -80,6 +80,9 @@ export default {
   },
   components: {
     Arrows: defineAsyncComponent(() => import("@/components/icons/Arrows.vue")),
+    TooltipIcon: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
+    ),
   },
 };
 </script>
@@ -110,12 +113,6 @@ export default {
   color: #878b93;
   font-weight: 500;
   line-height: 150%;
-}
-
-.item-tooltip {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
 }
 
 @media screen and (max-width: 1024px) {

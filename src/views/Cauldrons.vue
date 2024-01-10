@@ -1,11 +1,5 @@
 <template>
   <div class="cauldrons-page">
-    <img class="bg-top" src="@/assets/images/cauldrons/bg-top.png" alt="" />
-    <img
-      class="bg-bottom"
-      src="@/assets/images/cauldrons/bg-bottom.png"
-      alt=""
-    />
     <div class="cauldrons-container">
       <div class="text-wrap">
         <h3 class="title">Available Cauldrons</h3>
@@ -114,21 +108,6 @@ export default {
   min-height: 100vh;
   width: 100%;
   height: 100%;
-  background: url("@/assets/images/cauldrons/background.svg");
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.bg-top {
-  position: absolute;
-  top: 118px;
-  left: 0;
-}
-
-.bg-bottom {
-  position: absolute;
-  top: 85vh;
-  right: 70px;
 }
 
 .cauldrons-container {

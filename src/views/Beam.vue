@@ -714,15 +714,6 @@ export default {
   min-height: 100vh;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    291deg,
-    #102649 -26.37%,
-    #0c0f1c 40.92%,
-    #131728 62.83%,
-    #212555 123.87%
-  );
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .beam {

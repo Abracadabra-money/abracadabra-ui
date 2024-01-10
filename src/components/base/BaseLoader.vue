@@ -3,12 +3,9 @@
     <p class="loader" ref="loader"></p>
   </div>
 
-  <div :style="`height: ${height};`" class="spinner" v-else>
-    <img
-      :style="`width: ${width};`"
-      src="@/assets/images/cauldrons/loader.gif"
-      alt="Loader icon"
-    />
+  <div :class="['spinner', { small }, { medium }, { large }]" v-else>
+    <img src="@/assets/images/cauldrons/loader.gif" alt="Loader icon" />
+    <span class="spinner-text" v-if="text"> {{ text }}</span>
   </div>
 </template>
 
@@ -21,13 +18,20 @@ export default {
     color: {
       default: "linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%)",
     },
-    width: {
+    text: {
       type: String,
-      default: "20%",
     },
-    height: {
-      type: String,
-      default: "100vh",
+    small: {
+      type: Boolean,
+      default: false,
+    },
+    medium: {
+      type: Boolean,
+      default: false,
+    },
+    large: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -73,9 +77,33 @@ export default {
 }
 
 .spinner {
+  padding: 100px;
+  gap: 12px;
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: center;
+  text-align: center;
+}
+
+.medium {
+  img {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+.large {
+  img {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+.spinner-text {
+  color: #fff;
+  font-weight: 600;
+  line-height: 150%;
 }
 
 @keyframes rectangle {

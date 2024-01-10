@@ -11,6 +11,7 @@
         />
 
         <TrancheStatisticsItem
+          deprecated
           :data="stakeInfo.mezzanine"
           :apy="stakeInfo.tranchesStatistics.mezzanineApy"
           :rewards="stakeInfo.tranchesStatistics.mezzanineTotalRewardsUsd"
@@ -19,6 +20,7 @@
 
       <div class="row">
         <TrancheStatisticsItem
+          deprecated
           :data="stakeInfo.junior"
           :apy="stakeInfo.tranchesStatistics.juniorApy"
           :rewards="stakeInfo.tranchesStatistics.juniorTotalRewardsUsd"

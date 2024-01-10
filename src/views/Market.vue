@@ -1,8 +1,5 @@
 <template>
   <div class="market-view">
-    <img class="bg-top" src="@/assets/images/market/bg-top.png" alt="" />
-    <img class="bg-bottom" src="@/assets/images/market/bg-bottom.png" alt="" />
-
     <template v-if="cauldron">
       <MarketHead :cauldron="cauldron" v-if="cauldron" />
 
@@ -55,12 +52,8 @@
       </div>
     </template>
 
-    <div class="loading" v-else>
-      <img
-        class="loading-icon"
-        src="@/assets/images/cauldrons/loader.gif"
-        alt="Loader icon"
-      />
+    <div class="loader-wrap" v-else>
+      <BaseLoader large text="Loading market." />
     </div>
   </div>
 
@@ -290,6 +283,9 @@ export default {
     CauldronInfo: defineAsyncComponent(
       () => import("@/components/market/CauldronInfo.vue")
     ),
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
+    ),
   },
 };
 </script>
@@ -346,27 +342,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: linear-gradient(
-    291deg,
-    #102649 -26.37%,
-    #0c0f1c 40.92%,
-    #131728 62.83%,
-    #212555 123.87%
-  );
   min-height: 100vh;
   width: 100%;
-}
-
-.bg-top {
-  position: absolute;
-  top: 145px;
-  left: 0;
-}
-
-.bg-bottom {
-  position: absolute;
-  top: 80vh;
-  right: 70px;
 }
 
 .top-row {
@@ -413,15 +390,11 @@ export default {
   gap: 24px;
 }
 
-.loading {
+.loader-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
   height: calc(100vh - 200px);
-}
-
-.loading-icon {
-  max-width: 20%;
 }
 
 @media screen and (max-width: 1024px) {

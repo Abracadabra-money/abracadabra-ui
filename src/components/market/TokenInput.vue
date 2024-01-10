@@ -21,8 +21,13 @@
           </span>
         </div>
 
-        <p class="wallet-balance" @click="inputValue = formattedMax">
-          <WalletIcon :width="13" :height="13" fill="#575C62" />
+        <p
+          :class="['wallet-balance', { 'primary-max': primaryMax }]"
+          v-if="!disabled"
+          @click="inputValue = formattedMax"
+        >
+          <span v-if="primaryMax">MAX:</span>
+          <WalletIcon v-else :width="13" :height="13" fill="#575C62" />
           {{ formatTokenBalance(formattedMax) }}
         </p>
       </div>
@@ -52,6 +57,10 @@ export default {
     },
     tokenPrice: {},
     disabled: { type: Boolean, default: false },
+    primaryMax: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data(): any {
@@ -199,6 +208,16 @@ export default {
   color: #575c62;
   font-size: 14px;
   font-weight: 400;
+}
+
+.primary-max {
+  background: var(
+    --Primary-Gradient,
+    linear-gradient(90deg, #2d4a96 0%, #745cd2 100%)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .wallet-icon {

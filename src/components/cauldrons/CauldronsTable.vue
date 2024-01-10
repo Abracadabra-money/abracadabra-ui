@@ -40,10 +40,8 @@
           :cauldron="cauldron"
         />
 
-        <EmptyBlock
-          v-if="showEmptyBlock"
-          :cauldronsLoading="cauldronsLoading"
-        />
+        <BaseLoader v-if="cauldronsLoading" medium text="Loading cauldrons." />
+        <BaseSearchEmpty v-if="showEmptyBlock" text="There are no cauldrons" />
       </div>
     </div>
   </div>
@@ -75,7 +73,11 @@ export default {
 
   computed: {
     showEmptyBlock() {
-      return this.cauldronsLoading || !this.cauldronsToRender.length;
+      return (
+        !this.cauldronsLoading &&
+        this.searchValue.length &&
+        !this.cauldronsToRender.length
+      );
     },
 
     cauldronsToRender() {
@@ -235,8 +237,11 @@ export default {
     CauldronsTableItem: defineAsyncComponent(() =>
       import("@/components/cauldrons/CauldronsTableItem.vue")
     ),
-    EmptyBlock: defineAsyncComponent(() =>
-      import("@/components/cauldrons/EmptyBlock.vue")
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
+    ),
+    BaseSearchEmpty: defineAsyncComponent(() =>
+      import("@/components/base/BaseSearchEmpty.vue")
     ),
   },
 };
@@ -277,8 +282,10 @@ export default {
 .cauldrons-items-wrap {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 8px;
   width: 100%;
+  min-height: 300px;
 }
 
 .chains-wrap {

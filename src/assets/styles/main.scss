@@ -20,7 +20,13 @@ w3m-core-button {
   font-family: "Poppins", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #23212d;
+  background: linear-gradient(
+    291deg,
+    #102649 -26.37%,
+    #0c0f1c 40.92%,
+    #131728 62.83%,
+    #212555 123.87%
+  );
   font-size: 16px;
   font-weight: 400;
   font-style: normal;
@@ -28,6 +34,20 @@ w3m-core-button {
   color: #fff;
   min-height: 100vh;
   position: relative;
+}
+
+.mim-top-bg {
+  position: absolute;
+  top: 120px;
+  left: 0;
+  z-index: 0;
+}
+
+.mim-bottom-bg {
+  position: absolute;
+  top: 85vh;
+  right: 70px;
+  z-index: 0;
 }
 
 h1,

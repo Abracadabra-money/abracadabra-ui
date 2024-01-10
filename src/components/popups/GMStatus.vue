@@ -79,7 +79,7 @@
         </div>
 
         <div class="pending-wrap" v-else>
-          <BaseLoader />
+          <BaseLoader medium />
         </div>
       </div>
 

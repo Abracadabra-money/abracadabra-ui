@@ -1,6 +1,7 @@
 <template>
   <div class="market-actions-wrap">
     <TokenInput
+      primary-max
       :value="inputValue"
       :name="borrowToken.name"
       :icon="borrowToken.icon"

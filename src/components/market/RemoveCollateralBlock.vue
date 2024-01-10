@@ -1,5 +1,6 @@
 <template>
   <TokenInput
+    primary-max
     :value="inputValue"
     :name="collateralToken.name"
     :icon="collateralToken.icon"

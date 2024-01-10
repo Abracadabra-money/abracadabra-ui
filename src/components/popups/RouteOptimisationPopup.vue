@@ -10,8 +10,8 @@
       />
     </div>
 
-    <div v-if="!routeDatas.length" class="loader-wrap">
-      <BaseLoader />
+    <div class="loader-wrap" v-if="!routeDatas.length">
+      <BaseLoader medium />
     </div>
 
     <div v-else class="tokens-list">

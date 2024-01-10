@@ -12,7 +12,11 @@
         @changeActiveMarket="changeActiveFarm"
       />
     </div>
-    <EmptyState class="empty-state" :isFarmsLoading="isFarmsLoading" v-else />
+
+    <div v-if="isFarmsLoading || showEmptyBlock">
+      <BaseLoader v-if="isFarmsLoading" medium text="Loading farms." />
+      <BaseSearchEmpty v-if="showEmptyBlock" text="There are no farms." />
+    </div>
   </div>
 </template>
 
@@ -21,8 +25,8 @@ import { mapGetters } from "vuex";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
-import EmptyState from "@/components/farm/EmptyState.vue";
 import InputSearch from "@/components/ui/inputs/InputSearch.vue";
+import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
 
 export default {
   data() {
@@ -41,6 +45,14 @@ export default {
       provider: "getProvider",
     }),
 
+    showEmptyBlock() {
+      return (
+        !this.isFarmsLoading &&
+        this.search.length &&
+        !this.filteredMarketList.length
+      );
+    },
+
     isFarmsMarket() {
       return this.popupType === "farms";
     },
@@ -50,7 +62,9 @@ export default {
     },
 
     marketsList() {
-      return this.farmsList.sort((a, b) => +a.isDeprecated - +b.isDeprecated);
+      return [...this.farmsList].sort(
+        (a, b) => +a.isDeprecated - +b.isDeprecated
+      );
     },
 
     isLoader() {
@@ -101,8 +115,8 @@ export default {
   components: {
     BaseLoader,
     MarketsListPopupFarmItem,
-    EmptyState,
     InputSearch,
+    BaseSearchEmpty,
   },
 };
 </script>

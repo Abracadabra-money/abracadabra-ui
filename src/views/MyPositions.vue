@@ -39,7 +39,10 @@
         />
       </div>
 
-      <EmptyBlock v-else :isLoading="positionsIsLoading" />
+      <div class="loader-wrap" v-if="positionsIsLoading || showEmptyBlock">
+        <BaseLoader v-if="positionsIsLoading" large text="Loading positions." />
+        <BaseSearchEmpty v-if="showEmptyBlock" text="There are no positions." />
+      </div>
     </div>
 
     <FiltersPopup
@@ -62,10 +65,11 @@ import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
 import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
-import EmptyBlock from "@/components/myPositions/EmptyState.vue";
 import { providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 const APR_KEY = "abracadabraCauldronsApr";
 
@@ -90,6 +94,10 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+
+    showEmptyBlock() {
+      return !this.positionsIsLoading && !this.sortedCauldrons.length;
+    },
 
     sortedCauldrons() {
       return this.filterByChain(
@@ -280,7 +288,8 @@ export default {
     ChainsDropdown,
     SortButton,
     FiltersPopup,
-    EmptyBlock,
+    BaseLoader,
+    BaseSearchEmpty,
   },
 };
 </script>
@@ -291,9 +300,6 @@ export default {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  background: url("../assets/images/myPositions/my-positions-page-background.png");
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .position-page {
