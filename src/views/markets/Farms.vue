@@ -352,8 +352,8 @@ export default {
 }
 
 @media screen and (max-width: 1300px) {
-  .farms-wrap {
-    max-width: 90%;
+  .farms {
+    padding: 0 15px;
   }
 
   .farms-list {

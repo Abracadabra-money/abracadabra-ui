@@ -23,7 +23,6 @@
 
         <div
           class="header-link networks-btn"
-          :class="{ active: !!networkIcon }"
           @click.stop="openNetworkPopup"
           v-tooltip="unsupportedTooltip"
         >
@@ -226,7 +225,8 @@ export default {
   top: 28px;
   left: 0;
   right: 0;
-  max-width: 1440px;
+  max-width: 1310px;
+  padding: 0 15px;
   margin: 0 auto;
   z-index: 10;
   display: flex;
