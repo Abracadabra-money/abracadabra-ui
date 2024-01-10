@@ -56,13 +56,6 @@
             />
           </div>
 
-          <!-- <StakeInfoBlock
-            type="ape"
-            :mainToken="mainToken"
-            :stakeToken="stakeToken"
-            :selectedNetwork="selectedNetwork"
-          /> -->
-
           <div class="btn-wrap">
             <BaseButton
               primary

@@ -52,8 +52,11 @@ export default {
 
 <style lang="scss" scoped>
 .statistic-item {
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 16px 28px 16px;
   border-radius: 12px;
   border: 1px solid #304d99;
   background: linear-gradient(146deg, #0f1323 0%, #0d1629 101.49%);
@@ -64,7 +67,7 @@ export default {
   gap: 8px;
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .title {
