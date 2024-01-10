@@ -13,7 +13,7 @@
     <ul class="secondary paragraph" v-if="tvl && aprRange">
       <li>
         <span class="title">TVL:</span>
-        <span class="value">{{ formatLargeSum(tvl) }}</span>
+        <span class="value">${{ formatLargeSum(tvl) }}</span>
       </li>
       <li>
         <span class="title">APR:</span>

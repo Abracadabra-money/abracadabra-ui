@@ -14,7 +14,7 @@
     <ul class="secondary paragraph" v-if="tvl && aprRange">
       <li>
         <span class="title">TVL:</span>
-        <span class="value">${{ formattedTvl }}</span>
+        <span class="value">${{ formatLargeSum(tvl) }}</span>
       </li>
       <li>
         <span class="title">APR:</span>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
+import { fetchCamelotUsdcInfo } from "@/helpers/fetchCamelotCardsInfo";
 // @ts-ignore
 import filters from "@/filters/index";
 
@@ -37,36 +37,24 @@ export default {
     };
   },
 
-  computed: {
-    formattedTvl() {
-      return filters.formatLargeSum(this.tvl);
-    },
-  },
-
   methods: {
+    formatLargeSum(value: any) {
+      return filters.formatLargeSum(value);
+    },
+
+    formatPercent(value: any) {
+      return filters.formatPercent(value);
+    },
+
     async fetchData() {
-      const camelotPool = "0x0e7AC13617Cc1A289B222E4602BdAaA53ea4dc61";
-      const arbChainId = 42161;
-
-      const poolsInfo = await axios.get(
-        "https://api.angle.money/v2/merkl?chainIds[]=42161"
-      );
-      const liquidityV3Data = await axios.get(
-        "https://api.camelot.exchange/v2/liquidity-v3-data"
-      );
-
-      const { tvl, meanAPR } = poolsInfo.data[arbChainId].pools[camelotPool];
-
-      const { activeTvlAverageAPR } =
-        liquidityV3Data.data.data.pools[camelotPool];
-
+      const { tvl, apr } = await fetchCamelotUsdcInfo();
       this.tvl = tvl;
-      this.aprRange = filters.formatPercent(meanAPR + activeTvlAverageAPR);
+      this.aprRange = this.formatPercent(apr);
     },
   },
 
-  created() {
-    this.fetchData();
+  async created() {
+    await this.fetchData();
   },
 };
 </script>

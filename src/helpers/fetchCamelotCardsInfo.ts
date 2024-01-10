@@ -1,7 +1,9 @@
 import axios from "axios";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 const storageKeys = {
   CAMELOT_ARB_CARD: "CAMELOT_ARB_CARD",
+  CAMELOT_USDC_CARD: "CAMELOT_USDC_CARD",
 };
 
 export const fetchCamelotArbInfo = async () => {
@@ -34,6 +36,33 @@ export const fetchCamelotArbInfo = async () => {
   saveToLocalStorage(storageKeys.CAMELOT_ARB_CARD, camelotArbData);
 
   return camelotArbData;
+};
+
+export const fetchCamelotUsdcInfo = async () => {
+  const cachedData = checkAndGetCachedData(storageKeys.CAMELOT_USDC_CARD);
+
+  if (cachedData) return cachedData;
+
+  const camelotPool = "0x0e7AC13617Cc1A289B222E4602BdAaA53ea4dc61";
+
+  const poolsInfo = await axios.get(
+    "https://api.angle.money/v2/merkl?chainIds[]=42161"
+  );
+  const liquidityV3Data = await axios.get(
+    "https://api.camelot.exchange/v2/liquidity-v3-data"
+  );
+
+  const { tvl, meanAPR } = poolsInfo.data[ARBITRUM_CHAIN_ID].pools[camelotPool];
+
+  const { activeTvlAverageAPR } = liquidityV3Data.data.data.pools[camelotPool];
+
+  const apr = meanAPR + activeTvlAverageAPR;
+
+  const camelotUsdcData = { tvl: tvl, apr };
+
+  saveToLocalStorage(storageKeys.CAMELOT_USDC_CARD, camelotUsdcData);
+
+  return camelotUsdcData;
 };
 
 const checkAndGetCachedData = (storageKey: string, allowedTime = 5) => {
