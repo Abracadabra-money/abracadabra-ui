@@ -13,7 +13,7 @@
     <ul class="secondary paragraph" v-if="tvl && aprRange">
       <li>
         <span class="title">TVL:</span>
-        <span class="value">{{ formattedTvl }}</span>
+        <span class="value">${{ formatLargeSum(tvl) }}</span>
       </li>
       <li>
         <span class="title">APR:</span>
@@ -22,8 +22,9 @@
     </ul>
   </a>
 </template>
+
 <script>
-import axios from "axios";
+import { fetchCamelotArbInfo } from "@/helpers/fetchCamelotCardsInfo";
 import filters from "@/filters/index";
 
 export default {
@@ -34,51 +35,30 @@ export default {
     };
   },
 
-  computed: {
-    formattedTvl() {
-      return filters.formatLargeSum(this.tvl);
-    },
-  },
-
   methods: {
+    formatLargeSum(value) {
+      return filters.formatLargeSum(value);
+    },
+
+    formatPercent(value) {
+      return filters.formatPercent(value);
+    },
+
     async fetchData() {
-      const nitroRes = await axios.get(`https://api.camelot.exchange/nitros/`);
-      const rangeRes = await axios.get(
-        `https://api.camelot.exchange/nft-pools/`
-      );
-      const strategyRes = await axios.get(
-        `https://wire2.gamma.xyz/camelot/arbitrum/hypervisors/allData`
-      );
-
-      const nitroApr =
-        nitroRes.data.data.nitros["0x4B081b3600B3B1bcE242cDc291f85e475532B0B4"]
-          .incentivesApr;
-
-      const strategyApr =
-        strategyRes.data["0x1164191754f726edb85466f84ae5f14f43c111a9"].returns
-          .daily.feeApr * 100;
-
-      const { minIncentivesApr, maxIncentivesApr, tvlUSD } =
-        rangeRes.data.data.nftPools[
-          "0xDe6f99A9e63a8528fF43C3c1f13A07F541f761e5"
-        ];
-
-      const minApr = minIncentivesApr + nitroApr + strategyApr;
-      const maxApr = maxIncentivesApr + nitroApr + strategyApr;
-
-      this.aprRange = `${filters.formatPercent(
-        minApr
-      )} - ${filters.formatPercent(maxApr)}`;
-
-      this.tvl = tvlUSD;
+      const { tvl, apr } = await fetchCamelotArbInfo();
+      this.tvl = tvl;
+      this.aprRange = `${this.formatPercent(apr.min)} - ${this.formatPercent(
+        apr.max
+      )}`;
     },
   },
 
-  created() {
-    this.fetchData();
+  async created() {
+    await this.fetchData();
   },
 };
 </script>
+
 <style lang="scss" scoped>
 .camelot-card {
   display: flex;
@@ -87,6 +67,7 @@ export default {
   padding: 20px 20px 10px 20px;
   height: 160px;
   max-width: 416px;
+  width: 100%;
   background-image: url("@/assets/images/cauldrons/background_camelot.png");
   border-radius: 16px;
   border: 1px solid #2d4a96;
