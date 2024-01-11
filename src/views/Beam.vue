@@ -61,7 +61,7 @@
           @open-settings="isSettingsOpened = true"
         />
 
-        <div :class="{ 'wrap-btn': account }">
+        <div class="wrap-btn">
           <BaseButton
             :primary="true"
             :disabled="disableBtn"
@@ -514,9 +514,9 @@ export default {
         this.tx = await sendFrom(fees, params, this.inputAmount, this.txConfig);
         await this.deleteNotification(notificationId);
         this.isBeaming = false;
-        this.inputValue = "";
         this.isOpenSuccessPopup = true;
         this.successData = this.successConfig;
+        this.inputValue = "";
 
         await this.tx.wait();
 

@@ -22,7 +22,9 @@
       <div class="indicator-icon-wrap">
         <img class="indicator-icon" :src="config.dstChain.icon" />
       </div>
-      <p :class="['address', sendToCheck]">{{ formatAddress(config.sendTo) }}</p>
+      <p :class="['address', sendToCheck]">
+        {{ formatAddress(config.sendTo) }}
+      </p>
     </div>
   </div>
 </template>
