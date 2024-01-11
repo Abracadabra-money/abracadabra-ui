@@ -225,6 +225,7 @@ export default {
   justify-content: space-between;
   height: 30px;
   margin-bottom: 4px;
+  position: relative;
 }
 
 .title-wrap {

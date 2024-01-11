@@ -104,12 +104,8 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.settings-wrap {
-  position: relative;
-}
-
 .slippage-popup {
-  max-width: 360px;
+  max-width: 373px;
   width: 100%;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -120,10 +116,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: 373px;
   position: absolute;
   top: 42px;
   left: 0;
+  right: 0;
+  margin: 0 auto;
   z-index: 10;
 }
 
@@ -174,5 +171,12 @@ export default {
 .active {
   color: #fff;
   background: #7088cc;
+}
+
+@media screen and (max-width: 360px) {
+  .slippage-popup {
+    left: -10%;
+    width: 120%;
+  }
 }
 </style>

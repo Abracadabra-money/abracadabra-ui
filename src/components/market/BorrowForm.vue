@@ -217,6 +217,7 @@ export default {
   margin-bottom: 4px;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 
 .title-wrap {

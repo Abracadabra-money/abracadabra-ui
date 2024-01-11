@@ -41,7 +41,11 @@
     </div>
 
     <div class="btns-wrap" v-if="!isPositionPage">
-      <BaseButton primary v-if="!disableAction" :disabled="disableAction" @click="actionHandler"
+      <BaseButton
+        primary
+        v-if="!disableAction"
+        :disabled="disableAction"
+        @click="actionHandler"
         >{{ buttonText }}
       </BaseButton>
 
@@ -325,6 +329,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 }
 
 .title-wrap {
