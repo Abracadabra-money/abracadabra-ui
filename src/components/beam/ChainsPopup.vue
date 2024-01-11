@@ -121,11 +121,14 @@ export default {
 }
 
 .select-item {
-  border: 2px solid transparent;
+  padding: 16px 0;
   min-width: 100%;
   border-radius: 20px;
-  padding: 16px;
   cursor: pointer;
+}
+
+.select-item:hover .description .chain-icon-wrap .chain-icon {
+  box-shadow: 0px 0px 9px 0px rgba(255, 255, 255, 0.2);
 }
 
 .description {
@@ -142,6 +145,7 @@ export default {
 .chain-icon {
   width: 60px;
   height: 60px;
+  border-radius: 50px;
 }
 
 .chain-title {
@@ -154,12 +158,6 @@ export default {
   position: absolute;
   top: -8px;
   right: -10px;
-}
-
-.active,
-.select-item:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid #6678aa;
 }
 
 @media screen and (max-width: 500px) {

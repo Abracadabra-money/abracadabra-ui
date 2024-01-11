@@ -4,6 +4,7 @@ import { avalanche } from "@wagmi/core/chains";
 export const avalancheConfig = {
   ...avalanche,
   chainId: avalanche.id,
+  chainName: "Avalanche",
   symbol: "AVAX",
   icon: useImage("assets/images/networks/avalanche.svg"),
   baseTokenIcon: useImage("assets/images/tokens/AVAX.png"),

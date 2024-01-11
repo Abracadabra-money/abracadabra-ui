@@ -62,7 +62,7 @@ export const createBeamConfig = async (
     return {
       chainId: chainItem.chainId,
       lzChainId: chainItem.lzChainId,
-      title: chainItem.symbol,
+      title: chainItem.chainName,
       icon: chainItem.networkIcon,
     };
   });

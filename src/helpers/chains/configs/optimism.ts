@@ -4,6 +4,7 @@ import { useImage } from "@/helpers/useImage";
 export const optimismConfig = {
   ...optimism,
   chainId: optimism.id,
+  chainName: "Optimism",
   symbol: "OP",
   icon: useImage("assets/images/networks/optimism-icon.svg"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),

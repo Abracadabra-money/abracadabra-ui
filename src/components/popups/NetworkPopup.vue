@@ -26,7 +26,7 @@
               />
               <img class="chain-icon" :src="network.networkIcon" alt="Icon" />
             </div>
-            <p class="chain-title">{{ network.symbol }}</p>
+            <p class="chain-title">{{ network.chainName }}</p>
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default {
   align-items: flex-start;
   gap: 24px;
   padding: 28px 28px 38px 28px;
-  max-width: 544px;
+  width: 533px;
   border-radius: 20px;
   border: 1px solid #00296b;
   background: #101622;
@@ -129,11 +129,14 @@ export default {
 }
 
 .select-item {
-  border: 2px solid transparent;
   min-width: 100%;
   border-radius: 20px;
-  padding: 16px;
+  padding: 16px 0;
   cursor: pointer;
+}
+
+.select-item:hover .description .chain-icon-wrap .chain-icon {
+  box-shadow: 0px 0px 9px 0px rgba(255, 255, 255, 0.2);
 }
 
 .description {
@@ -150,6 +153,7 @@ export default {
 .chain-icon {
   width: 60px;
   height: 60px;
+  border-radius: 50px;
 }
 
 .chain-title {
@@ -164,15 +168,14 @@ export default {
   right: -10px;
 }
 
-.active,
-.select-item:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid #6678aa;
-}
-
 @media screen and (max-width: 600px) {
   .popup-wrap {
     padding: 0 15px;
+  }
+
+  .popup {
+    padding: 16px;
+    width: 100%;
   }
 
   .title {
@@ -187,6 +190,7 @@ export default {
   .chain-icon {
     width: 38px;
     height: 38px;
+    border-radius: 50px;
   }
 
   .chain-title {

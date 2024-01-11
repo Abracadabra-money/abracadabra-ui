@@ -26,6 +26,7 @@ export const lineaConfig = {
       blockCreated: 498623,
     },
   },
+  chainName: "Linea",
   symbol: "Linea",
   icon: useImage("assets/images/networks/linea.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),

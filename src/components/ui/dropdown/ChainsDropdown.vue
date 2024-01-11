@@ -58,7 +58,7 @@
       >
         <div class="chain-info">
           <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
-          <span class="chain-name">{{ getChainSymbol(+chainId) }}</span>
+          <span class="chain-name">{{ getChainName(+chainId) }}</span>
         </div>
 
         <div
@@ -119,9 +119,16 @@ export default {
     },
 
     orderedActiveChains() {
-      return this.chainsOrder.filter((orderId) =>
+      const orderedActiveChains = this.chainsOrder.filter((orderId) =>
         this.activeChains.find((chain) => chain == orderId)
       );
+
+      this.activeChains.forEach((chain) => {
+        if (!this.chainsOrder.find((chainId) => chainId == chain))
+          orderedActiveChains.push(chain);
+      });
+
+      return orderedActiveChains;
     },
 
     chainsStyle() {
@@ -132,9 +139,9 @@ export default {
 
   methods: {
     getChainIcon,
-    getChainSymbol(chainId) {
+    getChainName(chainId) {
       const chain = getChainById(chainId);
-      return chain.symbol;
+      return chain.chainName;
     },
 
     toogleDropdown() {
