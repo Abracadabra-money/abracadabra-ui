@@ -65,12 +65,7 @@ export default {
 
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      const { mimBalance } = this.cauldron.userTokensInfo;
-      const maxToRepay = userBorrowAmount.gt(mimBalance)
-        ? mimBalance
-        : userBorrowAmount;
-
-      return maxToRepay;
+      return userBorrowAmount;
     },
 
     expectedBorrowAmount() {

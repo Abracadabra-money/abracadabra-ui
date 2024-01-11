@@ -65,7 +65,10 @@
           @click="actionHandler"
           >{{ cookValidationData.btnText }}</BaseButton
         >
-        <!-- <BaseButton primary disabled v-if="actionConfig.useDeleverage"
+        <!-- <BaseButton
+          @click="closePositionHandler"
+          primary
+          v-if="actionConfig.useDeleverage && isAbleToClosePosition"
           >Close position
         </BaseButton> -->
       </div>
@@ -98,10 +101,16 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import type { BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 import type { SwapAmounts } from "@/helpers/cauldron/types";
 import tempMixin from "@/mixins/temp";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import {
+  getDeleverageAmounts,
+  PERCENT_PRESITION,
+  getMaxCollateralToRemove,
+} from "@/helpers/cauldron/utils";
 
 export default {
   emits: ["updateToggle", "updateAmounts"],
@@ -126,6 +135,56 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    // TODO: use estimateUserPosition
+    expectedBorrowAmount() {
+      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
+
+      //@ts-ignore
+      const { amountToMin } = this.actionConfig.amounts.deleverageAmounts;
+
+      const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
+
+      return expectedBorrowAmount.lt(0)
+        ? BigNumber.from(0)
+        : expectedBorrowAmount;
+    },
+
+    // TODO: use estimateUserPosition
+    maxToRemove() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      //@ts-ignore
+      const { amountFrom } = this.actionConfig.amounts.deleverageAmounts;
+
+      const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
+
+      // after swap
+      const expectedCollateralAmount = userCollateralAmount.sub(amountFrom);
+      const maxToRemove = getMaxCollateralToRemove(
+        expectedCollateralAmount,
+        this.expectedBorrowAmount,
+        mcr,
+        oracleExchangeRate
+      );
+
+      if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
+
+      return maxToRemove;
+    },
+
+    hasOpenPosition() {
+      const { collateralInfo, borrowInfo } = this.cauldron.userPosition;
+      return (
+        collateralInfo.userCollateralShare.gt(0) ||
+        borrowInfo.userBorrowPart.gt(0)
+      );
+    },
+
+    isAbleToClosePosition() {
+      return this.hasOpenPosition;
+    },
 
     isDeleverageAllowed() {
       const { liquidationSwapper } = this.cauldron.contracts;
@@ -167,6 +226,27 @@ export default {
 
     onUpdateSlippage(slippage: BigNumber) {
       this.$emit("updateAmounts", "slippage", slippage);
+    },
+
+    closePositionHandler() {
+      const { collateralInfo, borrowInfo } = this.cauldron.userPosition;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+
+      const { slippage } = this.actionConfig.amounts;
+
+      const deleverageAmounts = getDeleverageAmounts(
+        borrowInfo.userBorrowAmount,
+        slippage!,
+        oracleExchangeRate
+      );
+
+      this.onUpdateDeleverageAmounts(deleverageAmounts);
+
+      const withdrawAmount = this.maxToRemove;
+
+      this.onUpdateWithdrawAmount(withdrawAmount);
+
+      console.log("<>close position event<>")
     },
   },
 
