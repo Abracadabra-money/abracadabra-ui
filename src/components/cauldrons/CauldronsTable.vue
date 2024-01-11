@@ -98,8 +98,10 @@ export default {
         this.cauldrons,
         this.selectedChains
       );
-      const filteredByDepreciate =
-        this.filterByActiveCauldrons(filteredByChain);
+      const filteredByDepreciate = this.showMyPositions
+        ? filteredByChain
+        : this.filterByActiveCauldrons(filteredByChain);
+
       const filteredByPositions = this.filterPositions(filteredByDepreciate);
 
       const sortedByNew = this.sortByNew(filteredByPositions);
