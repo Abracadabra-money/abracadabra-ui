@@ -11,6 +11,7 @@
   </div>
 
   <DynamicallyEstimatedPrice
+    :multiplier="multiplier"
     :cauldron="cauldron"
     :amount="expectedBorrowAmount"
   />
@@ -163,7 +164,7 @@ export default {
         depositCollateralAmount > 0 ? depositCollateralAmount : undefined,
         false,
         Number(slippage)
-        );
+      );
 
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
       this.maxLeverageMultiplier = maxMultiplier;

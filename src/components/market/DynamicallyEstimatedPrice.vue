@@ -7,6 +7,8 @@
       :mimAddress="cauldron.config.mimInfo.address"
     />
 
+    <DynamicApr :cauldron="cauldron" :multiplier="multiplier" />
+
     <!-- <GmPriceImpact /> -->
   </div>
 </template>
@@ -19,6 +21,9 @@ export default {
     cauldron: {
       type: Object as any,
     },
+    multiplier: {
+      type: Number,
+    },
     amount: {},
     isClose: {
       type: Boolean,
@@ -30,9 +35,12 @@ export default {
     DynamicFee: defineAsyncComponent(
       () => import("@/components/market/DynamicFee.vue")
     ),
-    GmPriceImpact: defineAsyncComponent(
-      () => import("@/components/market/GmPriceImpact.vue")
+    DynamicApr: defineAsyncComponent(
+      () => import("@/components/market/DynamicApr.vue")
     ),
+    // GmPriceImpact: defineAsyncComponent(
+    //   () => import("@/components/market/GmPriceImpact.vue")
+    // ),
   },
 };
 </script>
