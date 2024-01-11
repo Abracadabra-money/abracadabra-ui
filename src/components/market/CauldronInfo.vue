@@ -2,7 +2,7 @@
   <div class="cauldron-info">
     <div class="row head-row">
       <h3 class="title">Cauldron Stats</h3>
-      <div class="apr">
+      <div class="apr" v-if="loopApr">
         <TooltipIcon :width="20" :height="20" fill="#878B93" tooltip="APR" />
         <span>APR:</span>
         <span>{{ loopApr }}</span>
@@ -102,7 +102,7 @@ export default {
           2
         )}%`;
       }
-      return "-";
+      return false;
     },
     chartData() {
       return {
@@ -219,7 +219,7 @@ export default {
 }
 
 @media screen and (max-width: 1024px) {
-  .cauldron-info{
+  .cauldron-info {
     max-width: 640px;
     width: 100%;
     margin: 0 auto;
@@ -232,7 +232,8 @@ export default {
 }
 
 @media screen and (max-width: 640px) {
-  .fees-title, .fees-percent {
+  .fees-title,
+  .fees-percent {
     font-size: 14px;
   }
 }
