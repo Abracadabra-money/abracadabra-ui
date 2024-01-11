@@ -75,7 +75,7 @@ export default {
       isMyPositions: false,
       aprOrder: null,
       farms: null,
-      selectedChains: [0],
+      selectedChains: [],
       isFarmsLoading: false,
     };
   },
@@ -85,6 +85,10 @@ export default {
       signer: "getSigner",
       chainId: "getChainId",
     }),
+
+    isSelectAllChains() {
+      return this.selectedChains.length === this.activeChains.length;
+    },
 
     showButtonUp() {
       return this.currentPools.length && this.scrollPosition !== 0;
@@ -113,10 +117,13 @@ export default {
     },
 
     activeChains() {
-      return this.farms?.reduce((acc, farm) => {
-        if (!acc.includes(farm.chainId)) acc.push(farm.chainId);
-        return acc;
-      }, []);
+      return this.getActiveChain();
+    },
+  },
+
+  watch: {
+    farms() {
+      this.selectedChains = this.getActiveChain();
     },
   },
 
@@ -193,15 +200,20 @@ export default {
 
     updateSelectedChain(chainId) {
       if (!chainId) {
-        const value = this.selectedChains.includes(0) ? [] : [0];
-        return (this.selectedChains = value);
+        if (this.isSelectAllChains) this.selectedChains = [];
+        else this.selectedChains = [...this.activeChains];
+      } else {
+        const index = this.selectedChains.indexOf(chainId);
+        if (index === -1) this.selectedChains.push(chainId);
+        else this.selectedChains.splice(index, 1);
       }
+    },
 
-      if (this.selectedChains.includes(0)) this.selectedChains = [];
-
-      const index = this.selectedChains.indexOf(chainId);
-      if (index === -1) this.selectedChains.push(chainId);
-      else this.selectedChains.splice(index, 1);
+    getActiveChain() {
+      return this.farms?.reduce((acc, farm) => {
+        if (!acc.includes(farm.chainId)) acc.push(farm.chainId);
+        return acc;
+      }, []);
     },
   },
 
@@ -209,6 +221,7 @@ export default {
     this.isFarmsLoading = true;
     this.farms = await getFarmsList(this.chainId);
     this.isFarmsLoading = false;
+    this.selectedChains = this.getActiveChain();
     this.farmsInterval = setInterval(async () => {
       this.farms = await getFarmsList(this.chainId, this);
     }, 60000);

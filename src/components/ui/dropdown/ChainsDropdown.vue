@@ -46,7 +46,7 @@
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
-          :selected="selectedChains.includes(0)"
+          :selected="selectedChains.length === activeChains.length"
           @updateToggle="updateSelectedChain"
         />
       </div>
@@ -97,7 +97,7 @@ export default {
     },
     selectedChains: {
       type: Array,
-      default: () => [0],
+      default: () => [],
     },
   },
 
@@ -109,7 +109,7 @@ export default {
 
   computed: {
     chains() {
-      if (this.selectedChains.includes(0)) return [];
+      if (!this.selectedChains.length) return [];
       else return [...this.selectedChains].splice(0, 3) || [];
     },
 
@@ -305,5 +305,12 @@ path {
 
 .checked {
   max-width: 18px;
+}
+
+@media screen and (max-width: 600px) {
+  .dropdown-list {
+    left: inherit;
+    right: 0;
+  }
 }
 </style>

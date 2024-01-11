@@ -67,11 +67,15 @@ export default {
       showActiveCauldrons: true,
       sortKey: "",
       sortOrder: false,
-      selectedChains: [0],
+      selectedChains: [],
     };
   },
 
   computed: {
+    isSelectAllChains() {
+      return this.selectedChains.length === this.activeChains.length;
+    },
+
     showEmptyBlock() {
       return (
         !this.cauldronsLoading &&
@@ -105,14 +109,13 @@ export default {
     },
 
     activeChains() {
-      return this.cauldrons
-        .reduce((acc, { config }) => {
-          if (!acc.includes(config.chainId)) acc.push(config.chainId);
-          return acc;
-        }, [])
-        .sort((a, b) => {
-          return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
-        });
+      return this.getActiveChain();
+    },
+  },
+
+  watch: {
+    cauldrons() {
+      this.selectedChains = this.getActiveChain();
     },
   },
 
@@ -136,19 +139,17 @@ export default {
 
     updateSelectedChain(chainId) {
       if (!chainId) {
-        const value = this.selectedChains.includes(0) ? [] : [0];
-        return (this.selectedChains = value);
+        if (this.isSelectAllChains) this.selectedChains = [];
+        else this.selectedChains = [...this.activeChains];
+      } else {
+        const index = this.selectedChains.indexOf(chainId);
+        if (index === -1) this.selectedChains.push(chainId);
+        else this.selectedChains.splice(index, 1);
       }
-
-      if (this.selectedChains.includes(0)) this.selectedChains = [];
-
-      const index = this.selectedChains.indexOf(chainId);
-      if (index === -1) this.selectedChains.push(chainId);
-      else this.selectedChains.splice(index, 1);
     },
 
     filterByChain(cauldrons, selectedChains) {
-      if (selectedChains.includes(0)) return cauldrons;
+      if (this.isSelectAllChains) return cauldrons;
       return cauldrons.filter((cauldron) => {
         return selectedChains.includes(cauldron.config?.chainId);
       });
@@ -221,6 +222,17 @@ export default {
       if (key === "Interest") return cauldron.mainParams.interest;
       if (key === "APR") return +cauldron.apr.value;
     },
+
+    getActiveChain() {
+      return this.cauldrons
+        .reduce((acc, { config }) => {
+          if (!acc.includes(config.chainId)) acc.push(config.chainId);
+          return acc;
+        }, [])
+        .sort((a, b) => {
+          return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
+        });
+    },
   },
 
   components: {
@@ -243,6 +255,10 @@ export default {
     BaseSearchEmpty: defineAsyncComponent(() =>
       import("@/components/base/BaseSearchEmpty.vue")
     ),
+  },
+
+  created() {
+    this.selectedChains = this.getActiveChain();
   },
 };
 </script>

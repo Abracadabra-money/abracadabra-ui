@@ -76,7 +76,7 @@ const APR_KEY = "abracadabraCauldronsApr";
 export default {
   data() {
     return {
-      selectedChains: [0],
+      selectedChains: [],
       updateInterval: null,
       cauldrons: [],
       positionsIsLoading: true,
@@ -94,6 +94,10 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
     }),
+
+    isSelectAllChains() {
+      return this.selectedChains.length === this.activeChains.length;
+    },
 
     showEmptyBlock() {
       return !this.positionsIsLoading && !this.sortedCauldrons.length;
@@ -139,16 +143,17 @@ export default {
     },
 
     activeChains() {
-      return this.cauldrons.reduce((acc, { config }) => {
-        if (!acc.includes(config.chainId)) acc.push(config.chainId);
-        return acc;
-      }, []);
+      return this.getActiveChain();
     },
   },
 
   watch: {
     async account() {
       await this.createOpenPositions();
+    },
+
+    cauldrons() {
+      this.selectedChains = this.getActiveChain();
     },
   },
 
@@ -188,19 +193,17 @@ export default {
 
     updateSelectedChain(chainId) {
       if (!chainId) {
-        const value = this.selectedChains.includes(0) ? [] : [0];
-        return (this.selectedChains = value);
+        if (this.isSelectAllChains) this.selectedChains = [];
+        else this.selectedChains = [...this.activeChains];
+      } else {
+        const index = this.selectedChains.indexOf(chainId);
+        if (index === -1) this.selectedChains.push(chainId);
+        else this.selectedChains.splice(index, 1);
       }
-
-      if (this.selectedChains.includes(0)) this.selectedChains = [];
-
-      const index = this.selectedChains.indexOf(chainId);
-      if (index === -1) this.selectedChains.push(chainId);
-      else this.selectedChains.splice(index, 1);
     },
 
     filterByChain(cauldrons, selectedChains) {
-      if (selectedChains.includes(0)) return cauldrons;
+      if (this.isSelectAllChains) return cauldrons;
       return cauldrons.filter((cauldron) => {
         return selectedChains.includes(cauldron.config?.chainId);
       });
@@ -271,10 +274,18 @@ export default {
         })
       );
     },
+
+    getActiveChain() {
+      return this.cauldrons.reduce((acc, { config }) => {
+        if (!acc.includes(config.chainId)) acc.push(config.chainId);
+        return acc;
+      }, []);
+    },
   },
 
   async created() {
     await this.createOpenPositions();
+    this.selectedChains = this.getActiveChain();
   },
 
   beforeUnmount() {
