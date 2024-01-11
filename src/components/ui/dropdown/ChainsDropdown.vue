@@ -46,12 +46,16 @@
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
-          :selected="selectedChains.length === activeChains.length"
+          :selected="selectedChains.length === orderedActiveChains.length"
           @updateToggle="updateSelectedChain"
         />
       </div>
 
-      <div class="list-item" v-for="chainId in activeChains" :key="chainId">
+      <div
+        class="list-item"
+        v-for="chainId in orderedActiveChains"
+        :key="chainId"
+      >
         <div class="chain-info">
           <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
           <span class="chain-name">{{ getChainSymbol(+chainId) }}</span>
@@ -103,6 +107,7 @@ export default {
 
   data() {
     return {
+      chainsOrder: [1, 42161, 2222, 43114, 10, 250, 56],
       showDropdownList: false,
     };
   },
@@ -111,6 +116,12 @@ export default {
     chains() {
       if (!this.selectedChains.length) return [];
       else return [...this.selectedChains].splice(0, 3) || [];
+    },
+
+    orderedActiveChains() {
+      return this.chainsOrder.filter((orderId) =>
+        this.activeChains.find((chain) => chain == orderId)
+      );
     },
 
     chainsStyle() {
