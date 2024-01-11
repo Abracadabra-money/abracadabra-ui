@@ -146,6 +146,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   height: 81px;
+  max-width: 50%;
   flex-grow: 1;
   border-radius: 15px;
   background-size: 120%;
@@ -276,6 +277,12 @@ export default {
 
 .link-text {
   line-height: 20px;
+}
+
+@media screen and (max-width: 1300px) {
+  .bento-block {
+    max-width: 100%;
+  }
 }
 
 @media screen and (max-width: 700px) {

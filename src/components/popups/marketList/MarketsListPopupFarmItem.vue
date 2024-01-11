@@ -9,7 +9,9 @@
       :style="farmStatusStyles.flagColor"
       v-if="farmStatusStyles.text"
     >
-      {{ farmStatusStyles.text }}
+      <span class="status-text">
+        {{ farmStatusStyles.text }}
+      </span>
     </div>
 
     <div class="market-info">
@@ -144,16 +146,16 @@ export default {
 
 .status-flag {
   position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   top: 36px;
   left: -39px;
   width: 90px;
   max-height: 15px;
   border-radius: 10px 10px 0 0;
   transform: rotate(0.75turn);
-
-  padding: 2px;
   color: #fff;
-  text-align: center;
   font-size: 10px;
   font-weight: 500;
 }

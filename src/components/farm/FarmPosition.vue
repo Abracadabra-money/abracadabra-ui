@@ -36,14 +36,18 @@
       <h4 class="subtitle">Reward</h4>
 
       <ul class="reward-tokens token-list">
-        <li class="reward-token list-item" v-for="token in rewardTokensInfo">
+        <li
+          class="reward-token list-item"
+          v-for="token in rewardTokensInfo"
+          :key="token"
+        >
           <span class="token-name">
-            <BaseTokenIcon :name="'SPELL'" :icon="token.icon" size="28px" />
-            SPELL</span
+            <BaseTokenIcon :name="token.name" :icon="token.icon" size="28px" />
+            {{ token.name }}</span
           >
           <div class="token-amount">
-            <span class="value">{{ token.value }}</span>
-            <span class="usd">{{ token.usd }}</span>
+            <span class="value">{{ formatTokenBalance(token.earned) }}</span>
+            <span class="usd">{{ calculateUsdEquivalent(token) }}</span>
           </div>
         </li>
       </ul>
@@ -82,11 +86,14 @@ export default {
     depositedTokenInfo() {
       return this.prepBalanceData(
         this.selectedFarm.accountInfo.userInfo.amount,
-        this.selectedFarm.lpPrice / 1e18
+        this.selectedFarm.earnedTokenPrice
       );
     },
 
     rewardTokensInfo() {
+      if (this.selectedFarm.isMultiReward) {
+        return this.selectedFarm.accountInfo?.rewardTokensInfo;
+      }
       return [
         {
           ...this.prepBalanceData(
@@ -94,6 +101,7 @@ export default {
             this.selectedFarm.earnedTokenPrice
           ),
           icon: spellIcon,
+          name: "Spell",
         },
       ];
     },
@@ -130,7 +138,7 @@ export default {
         ? this.selectedFarm.accountInfo?.rewardTokensInfo?.filter(
             (tokenInfo) => +tokenInfo.earned > 0
           ).length === 0
-        : !+this.rewardTokensInfo[0].value;
+        : !+this.rewardTokensInfo[0].earned;
       return isInsufficientReward || !this.isProperNetwork;
     },
   },
@@ -138,9 +146,9 @@ export default {
   methods: {
     prepBalanceData(tokenValue, priceValue) {
       const usd = filters.formatUSD(tokenValue * priceValue);
-      const value = filters.formatTokenBalance(tokenValue);
+      const earned = filters.formatTokenBalance(tokenValue);
       return {
-        value,
+        earned,
         usd,
       };
     },
@@ -164,6 +172,19 @@ export default {
       } catch (error) {
         console.log("harvest err:", error);
       }
+    },
+
+    calculateUsdEquivalent(token) {
+      if (token.usd) return token.usd;
+      return this.formatUSD(+token.earned * +token.price);
+    },
+
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+
+    formatUSD(value) {
+      return filters.formatUSD(value);
     },
   },
 

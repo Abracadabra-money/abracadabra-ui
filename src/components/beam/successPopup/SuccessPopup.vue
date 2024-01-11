@@ -1,5 +1,5 @@
 <template>
-  <div class="backdrop">
+  <div class="backdrop" @click.self="$emit('close-popup')">
     <div class="wrapper">
       <h1 class="title">
         Transaction overview

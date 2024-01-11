@@ -1,5 +1,5 @@
 <template>
-  <div class="backdrop">
+  <div class="backdrop" @click.self="closePopup">
     <div :class="['box-popup', isBento ? 'bento-bg' : 'degen-bg']">
       <div class="box-header">
         <p class="title">

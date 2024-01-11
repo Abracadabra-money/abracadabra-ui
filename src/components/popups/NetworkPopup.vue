@@ -1,6 +1,6 @@
 <template>
-  <div class="popup-wrap" v-if="isOpen">
-    <div class="popup" @click="closePopup" v-if="isOpen">
+  <div class="popup-wrap" @click.self="closePopup" v-if="isOpen">
+    <div class="popup">
       <h3 class="title">
         Select chain
         <img

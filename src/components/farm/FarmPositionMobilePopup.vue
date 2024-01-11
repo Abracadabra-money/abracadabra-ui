@@ -1,5 +1,5 @@
 <template>
-  <div class="backdrop">
+  <div class="backdrop" @click.self="closePopup">
     <div class="farm-position-wrap">
       <div class="farm-position">
         <div class="deposited">
@@ -60,12 +60,18 @@
               :key="token"
             >
               <span class="token-name">
-                <BaseTokenIcon :name="'SPELL'" :icon="token.icon" size="28px" />
-                SPELL</span
+                <BaseTokenIcon
+                  :name="token.name"
+                  :icon="token.icon"
+                  size="28px"
+                />
+                {{ token.name }}</span
               >
               <div class="token-amount">
-                <span class="value">{{ token.value }}</span>
-                <span class="usd">{{ token.usd }}</span>
+                <span class="value">{{
+                  formatTokenBalance(token.earned)
+                }}</span>
+                <span class="usd">{{ calculateUsdEquivalent(token) }}</span>
               </div>
             </li>
           </ul>
@@ -99,6 +105,7 @@ import { getChainById } from "@/helpers/chains/index";
 export default {
   props: {
     selectedFarm: { type: Object },
+    isProperNetwork: { type: Boolean },
   },
 
   computed: {
@@ -109,11 +116,14 @@ export default {
     depositedTokenInfo() {
       return this.prepBalanceData(
         this.selectedFarm.accountInfo.userInfo.amount,
-        this.selectedFarm.lpPrice / 1e18
+        this.selectedFarm.earnedTokenPrice
       );
     },
 
     rewardTokensInfo() {
+      if (this.selectedFarm.isMultiReward) {
+        return this.selectedFarm.accountInfo?.rewardTokensInfo;
+      }
       return [
         {
           ...this.prepBalanceData(
@@ -121,6 +131,7 @@ export default {
             this.selectedFarm.earnedTokenPrice
           ),
           icon: spellIcon,
+          name: "Spell",
         },
       ];
     },
@@ -153,20 +164,21 @@ export default {
     },
 
     disableEarnedButton() {
-      return this.selectedFarm.isMultiReward
+      const isInsufficientReward = this.selectedFarm.isMultiReward
         ? this.selectedFarm.accountInfo?.rewardTokensInfo?.filter(
             (tokenInfo) => +tokenInfo.earned > 0
           ).length === 0
-        : !+this.rewardTokensInfo[0].value;
+        : !+this.rewardTokensInfo[0].earned;
+      return isInsufficientReward || !this.isProperNetwork;
     },
   },
 
   methods: {
     prepBalanceData(tokenValue, priceValue) {
       const usd = filters.formatUSD(tokenValue * priceValue);
-      const value = filters.formatTokenBalance(tokenValue);
+      const earned = filters.formatTokenBalance(tokenValue);
       return {
-        value,
+        earned,
         usd,
       };
     },
@@ -190,6 +202,19 @@ export default {
       } catch (error) {
         console.log("harvest err:", error);
       }
+    },
+
+    calculateUsdEquivalent(token) {
+      if (token.usd) return token.usd;
+      return this.formatUSD(+token.earned * +token.price);
+    },
+
+    formatTokenBalance(value) {
+      return filters.formatTokenBalance(value);
+    },
+
+    formatUSD(value) {
+      return filters.formatUSD(value);
     },
 
     closePopup() {

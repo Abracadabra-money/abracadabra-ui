@@ -37,6 +37,7 @@ import { mapGetters } from "vuex";
 import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
+import { formatUnits } from "viem";
 
 import { createBentoBoxConfig } from "@/helpers/bentoBox/createBentoBoxConfig.ts";
 
@@ -73,10 +74,19 @@ export default {
       let bento = [];
       let degen = [];
       this.bentoBoxConfigs?.forEach((config) => {
-        if (config.mimInBentoBalance) bento.push(config.chainId);
-        if (config.mimInDegenBalance) degen.push(config.chainId);
+        if (formatUnits(config.mimInBentoBalance || 0, 18) > 0.1)
+          bento.push(config);
+        if (formatUnits(config.mimInDegenBalance || 0, 18) > 0.1)
+          degen.push(config);
       });
-      return { bento, degen };
+
+      bento = bento.sort((a, b) => b.mimInBentoBalance - a.mimInBentoBalance);
+      degen = degen.sort((a, b) => b.mimInDegenBalance - a.mimInDegenBalance);
+
+      return {
+        bento: bento.map((config) => config.chainId),
+        degen: degen.map((config) => config.chainId),
+      };
     },
 
     currentChainBentoConfig() {
