@@ -77,7 +77,7 @@ export default {
 }
 
 .spinner {
-  padding: 100px;
+  padding: 100px 15px;
   gap: 12px;
   display: flex;
   align-items: center;
@@ -114,6 +114,22 @@ export default {
   }
   40% {
     height: 8px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .medium {
+    img {
+      width: 100px;
+      height: 100px;
+    }
+  }
+
+  .large {
+    img {
+      width: 140px;
+      height: 140px;
+    }
   }
 }
 </style>

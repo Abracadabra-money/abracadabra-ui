@@ -70,4 +70,10 @@ export default {
     font-size: 14px;
   }
 }
+
+@media screen and (max-width: 360px) {
+  .text {
+    font-size: 11px;
+  }
+}
 </style>

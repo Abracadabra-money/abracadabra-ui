@@ -40,8 +40,17 @@
           :cauldron="cauldron"
         />
 
-        <BaseLoader v-if="cauldronsLoading" medium text="Loading cauldrons." />
-        <BaseSearchEmpty v-if="showEmptyBlock" text="There are no cauldrons" />
+        <div class="loader-wrap">
+          <BaseLoader
+            v-if="cauldronsLoading"
+            medium
+            text="Loading cauldrons."
+          />
+          <BaseSearchEmpty
+            v-if="showEmptyBlock"
+            text="There are no cauldrons"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -298,7 +307,6 @@ export default {
 .cauldrons-items-wrap {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 8px;
   width: 100%;
   min-height: 300px;
@@ -313,6 +321,14 @@ export default {
 
 .mobile-title {
   display: none;
+}
+
+.loader-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @media screen and (max-width: 1024px) {
