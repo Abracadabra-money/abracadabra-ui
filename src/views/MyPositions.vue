@@ -81,8 +81,8 @@ export default {
       cauldrons: [],
       positionsIsLoading: true,
       totalAssets: null,
-      sortKey: "",
-      sortOrder: null,
+      sortKey: "mimBorrowed",
+      sortOrder: "up",
       isFiltersPopupOpened: false,
     };
   },
