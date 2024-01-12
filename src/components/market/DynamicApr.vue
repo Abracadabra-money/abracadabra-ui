@@ -1,12 +1,12 @@
 <template>
   <div class="dynamic-apr" v-if="isShowDynamicApr">
     <div class="title">
-      Dynamic Opening APR
+      Leverage APR
       <TooltipIcon
         :width="20"
         :height="20"
         fill="#878B93"
-        tooltip="Dynamic Opening APR"
+        tooltip="Leverage APR"
       />
     </div>
     <div class="value">{{ openingApr }}%</div>

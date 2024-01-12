@@ -7,11 +7,6 @@
           :selected="showMyPositions"
           @updateToggle="updateToggleMyPositions"
         />
-        <Toggle
-          text="Active Cauldrons"
-          :selected="showActiveCauldrons"
-          @updateToggle="updateToggleActiveCauldrons"
-        />
       </div>
 
       <div class="filters-wrap">
@@ -51,6 +46,11 @@
             text="There are no cauldrons"
           />
         </div>
+      </div>
+      <div class="btn-wrap" v-if="showDeprecatedButton">
+        <button class="deprecated-btn" @click="updateToggleActiveCauldrons">
+          {{ deprecatedButtonText }}
+        </button>
       </div>
     </div>
   </div>
@@ -121,6 +121,15 @@ export default {
 
     activeChains() {
       return this.getActiveChain();
+    },
+
+    showDeprecatedButton() {
+      return this.cauldronsToRender.length && !this.showMyPositions;
+    },
+
+    deprecatedButtonText() {
+      if (this.showActiveCauldrons) return " Show Deprecated Cauldrons";
+      return "Hide Deprecated Cauldrons";
     },
   },
 
@@ -331,6 +340,27 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.btn-wrap {
+  padding: 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deprecated-btn {
+  color: #7088cc;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 150%;
+  max-width: 260px;
+  width: 100%;
+  padding: 9px;
+  border-radius: 10px;
+  border: 2px solid var(--Primary-Solid, #7088cc);
+  background: rgba(255, 255, 255, 0.01);
+  cursor: pointer;
 }
 
 @media screen and (max-width: 1024px) {
