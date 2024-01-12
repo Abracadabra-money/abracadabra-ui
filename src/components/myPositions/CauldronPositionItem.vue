@@ -1,5 +1,6 @@
 <template>
-  <div :class="['position', positionRisk]">
+  <div :class="['position', isDeprecated ? 'deprecated' : positionRisk]">
+    <div class="status-flag" v-if="isDeprecated">Deprecated</div>
     <div class="position-header">
       <div class="position-token">
         <TokenChainIcon
@@ -150,6 +151,12 @@ export default {
         },
       ];
     },
+
+    isDeprecated() {
+      if (this.cauldron.config.cauldronSettings)
+        return this.cauldron.config.cauldronSettings.isDepreciated;
+      return false;
+    },
   },
 
   methods: {
@@ -189,9 +196,11 @@ export default {
 <style lang="scss" scoped>
 .position {
   display: flex;
-  width: 628px;
-  padding: 24px;
   flex-direction: column;
+  justify-content: space-between;
+  width: 628px;
+  min-height: 373px;
+  padding: 24px;
   gap: 15px;
   border-radius: 16px;
   border: 1px solid #223667;
@@ -264,6 +273,7 @@ export default {
 .position-indicators {
   display: flex;
   flex-direction: column;
+  justify-content: end;
   gap: 14px;
   width: 100%;
 }
@@ -278,6 +288,21 @@ export default {
 
 .high {
   border-color: #4a2130;
+}
+
+.deprecated {
+  border-color: #8c4040;
+}
+
+.status-flag {
+  height: 25px;
+  width: 290px;
+  max-width: 60%;
+  padding: 2px 12px;
+  margin: -25px 0 0 -25px;
+  border-radius: 16px 0px;
+  background: linear-gradient(180deg, #8c4040 0%, #6b2424 100%), #8c4040;
+  text-align: center;
 }
 
 @media screen and (max-width: 700px) {

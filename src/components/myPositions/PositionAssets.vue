@@ -53,6 +53,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   width: 50%;
+  height: 112px;
   padding: 16px;
   gap: 12px;
   border-radius: 12px;
@@ -95,19 +96,21 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: end;
-  gap: 4px;
 }
 
 .token-value {
   color: #fff;
   font-size: 16px;
   font-weight: 500;
+  line-height: normal;
+  margin-bottom: -4px;
 }
 
 .usd-equivalent {
   color: rgba(255, 255, 255, 0.8);
   font-size: 12px;
   font-weight: 400;
+  line-height: normal;
 }
 
 @media screen and (max-width: 700px) {

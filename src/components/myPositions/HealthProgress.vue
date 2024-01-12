@@ -36,6 +36,7 @@ export default {
 
 .health-info {
   position: absolute;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   text-align: center;
