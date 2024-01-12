@@ -16,12 +16,6 @@
     isBigNumber
     @updateInputValue="onUpdateRepayValue"
   />
-
-  <DynamicallyEstimatedPrice
-    :isClose="true"
-    :amount="inputAmount"
-    :cauldron="cauldron"
-  />
 </template>
 
 <script lang="ts">
@@ -102,9 +96,6 @@ export default {
   components: {
     TokenInput: defineAsyncComponent(
       () => import("@/components/market/TokenInput.vue")
-    ),
-    DynamicallyEstimatedPrice: defineAsyncComponent(
-      () => import("@/components/market/DynamicallyEstimatedPrice.vue")
     ),
   },
 };
