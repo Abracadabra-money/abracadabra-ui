@@ -65,12 +65,12 @@
           @click="actionHandler"
           >{{ cookValidationData.btnText }}</BaseButton
         >
-        <!-- <BaseButton
+        <BaseButton
           @click="closePositionHandler"
           primary
-          v-if="actionConfig.useDeleverage && isAbleToClosePosition"
+          v-if="isAbleToClosePosition"
           >Close position
-        </BaseButton> -->
+        </BaseButton>
       </div>
     </div>
 
@@ -183,7 +183,13 @@ export default {
     },
 
     isAbleToClosePosition() {
-      return this.hasOpenPosition;
+      if (this.actionConfig.useDeleverage) return this.hasOpenPosition;
+      const { mimBalance } = this.cauldron.userTokensInfo;
+      const { borrowInfo } = this.cauldron.userPosition;
+
+      return (
+        this.hasOpenPosition && mimBalance.gte(borrowInfo.userBorrowAmount)
+      );
     },
 
     isDeleverageAllowed() {
@@ -192,7 +198,7 @@ export default {
 
       return liquidationSwapper && isSwappersActive;
     },
-
+    
     titleText() {
       const { useDeleverage } = this.actionConfig;
       return useDeleverage ? "Deleverage" : "Remove collateral";
@@ -229,7 +235,13 @@ export default {
     },
 
     closePositionHandler() {
-      const { collateralInfo, borrowInfo } = this.cauldron.userPosition;
+      if (this.actionConfig.useDeleverage) return this.maxDeleverage();
+
+      return this.maxRemoveAndRepay();
+    },
+
+    maxDeleverage() {
+      const { borrowInfo } = this.cauldron.userPosition;
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
       const { slippage } = this.actionConfig.amounts;
@@ -246,7 +258,15 @@ export default {
 
       this.onUpdateWithdrawAmount(withdrawAmount);
 
-      console.log("<>close position event<>")
+      this.actionHandler();
+    },
+
+    maxRemoveAndRepay() {
+      const { collateralInfo, borrowInfo } = this.cauldron.userPosition;
+
+      this.onUpdateRepayAmount(borrowInfo.userBorrowAmount);
+      this.onUpdateWithdrawAmount(collateralInfo.userCollateralAmount);
+      this.actionHandler();
     },
   },
 
