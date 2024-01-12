@@ -33,7 +33,9 @@ export default {
   },
 
   mounted() {
-    this.acceptByTime = moment(this.finalTime).isBefore(new Date());
+    this.acceptByTime = moment(this.finalTime, "YYYY-MM-DDTHH:mm:ssZ").isBefore(
+      new Date()
+    );
 
     if (!this.acceptByTime) {
       this.checkDuration();

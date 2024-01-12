@@ -25,7 +25,6 @@ describe("GlpSpecialInfoBlock", () => {
       },
     });
     const links = wrapper.findAll(".links-wrap a");
-    console.log(11111, links);
 
     expect(links.length).toBe(2);
     expect(links[0].text()).toBe("Buy GLP");

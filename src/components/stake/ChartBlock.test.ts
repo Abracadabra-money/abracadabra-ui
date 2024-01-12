@@ -84,8 +84,6 @@ describe("ChartBlock", () => {
       created() {},
     });
 
-    console.log("1111", wrapper.vm);
-
     expect((wrapper.vm as any).chartConfig.type).toBe("magicGlpTvl");
   });
 });
