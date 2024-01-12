@@ -28,23 +28,21 @@
         >
           <img v-if="!!networkIcon" :src="networkIcon" />
         </div>
-
-        <ConnectButton class="connect-button" />
       </div>
     </nav>
 
+    <ConnectButton class="connect-button" />
+
     <MimTokenBlock />
 
-    <div
-      class="burger"
-      :class="{ 'burger-active': mobileMenu }"
-      @click="toggleMobileMenu"
-    >
+    <div class="burger" @click="toggleMobileMenu">
       <div class="burger-line"></div>
     </div>
 
     <MobileMenu
       v-if="mobileMenu"
+      :networkIcon="networkIcon"
+      :unsupportedTooltip="unsupportedTooltip"
       @closePopup="closeMobilePopup"
       @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
     />
@@ -193,16 +191,6 @@ export default {
     MobileMenu: defineAsyncComponent(() =>
       import("@/components/popups/MobileMenu.vue")
     ),
-    Docs: defineAsyncComponent(() => import("@/components/icons/Docs.vue")),
-    Twitter: defineAsyncComponent(() =>
-      import("@/components/icons/Twitter.vue")
-    ),
-    Discord: defineAsyncComponent(() =>
-      import("@/components/icons/Discord.vue")
-    ),
-    Lens: defineAsyncComponent(() => import("@/components/icons/Lens.vue")),
-    Mirror: defineAsyncComponent(() => import("@/components/icons/Mirror.vue")),
-    GitHub: defineAsyncComponent(() => import("@/components/icons/GitHub.vue")),
     HeaderMoreDropdown: defineAsyncComponent(() =>
       import("@/components/ui/dropdown/HeaderMoreDropdown.vue")
     ),
@@ -254,6 +242,10 @@ export default {
   margin-right: 16px;
 }
 
+.connect-button {
+  margin-right: 16px;
+}
+
 .header-link {
   display: flex;
   padding: 12px 20px;
@@ -285,11 +277,6 @@ export default {
 .networks-btn img {
   width: 32px;
   height: 32px;
-}
-
-.header-connect {
-  width: 146px;
-  padding: 0;
 }
 
 .dropdown-tools {
@@ -384,6 +371,7 @@ export default {
   align-items: center;
   height: 16px;
   position: relative;
+  cursor: pointer;
 }
 
 .burger-line {
@@ -431,13 +419,12 @@ export default {
     align-items: center;
   }
 
-  .connect-button {
-    display: none !important;
+  .connect-button::v-deep(.btn-text) {
+    display: none;
   }
 
   .burger {
     display: flex;
-    z-index: 11;
     margin-left: 20px;
   }
 }

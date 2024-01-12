@@ -1,175 +1,106 @@
 <template>
-  <div class="popup-wrap" :class="{ inner: isOpenInnerPopup }">
-    <div class="popup">
-      <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" :to="{ name: 'Cauldrons' }"
-          >Cauldrons</router-link
-        >
-      </div>
-      <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" :to="{ name: 'Borrow' }"
-          >Borrow</router-link
-        >
-      </div>
-      <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" :to="{ name: 'Leverage' }"
-          >Leverage</router-link
-        >
-      </div>
-
-      <div class="popup-link-wrap" @click="closePopup">
-        <router-link class="popup-link" :to="{ name: 'MyPositions' }"
-          >Positions</router-link
-        >
-      </div>
-
-      <button class="popup-link" @click.stop="openInnerPopup('stake')">
-        Stake
-      </button>
-      <button class="popup-link" @click.stop="openInnerPopup('tools')">
-        Tools
-      </button>
-      <button class="popup-link" @click.stop="openInnerPopup('networks')">
-        <img src="@/assets/images/networks/ethereum-icon.svg" alt="" />
-      </button>
-      <div class="popup-link popup-connect">
+  <div class="popup-wrap" @click.self="closePopup">
+    <div class="popup" v-if="!showStake">
+      <div class="popup-header">
         <ConnectButton />
-      </div>
-      <button v-if="account" class="popup-link" @click="$openWeb3modal">
-        Disconnect
-      </button>
-      <button class="popup-link" @click.stop="openInnerPopup('other')">
+
         <img
-          class="title"
-          src="@/assets/images/social/points.svg"
-          alt="Points"
+          class="network-icon"
+          v-if="!!networkIcon"
+          :src="networkIcon"
+          @click.stop="$emit('openNetworksPopup')"
+          v-tooltip="unsupportedTooltip"
         />
-      </button>
-    </div>
-
-    <div class="stake-popup" v-if="showStake" @click="closeInnerPopup('stake')">
-      <div class="tools">
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'StakeSpell' }"
-            >Spell</router-link
-          >
-        </div>
-
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'magicGLP' }"
-            >magicGLP</router-link
-          >
-        </div>
-
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'magicAPE' }"
-            >magicAPE</router-link
-          >
-        </div>
-
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'magicKLP' }"
-            >magicKLP</router-link
-          >
-        </div>
       </div>
-    </div>
-    <div class="tools-popup" v-if="showTools" @click="closeInnerPopup('tools')">
-      <div class="tools">
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'MarketsFarm' }"
-            >Farms</router-link
-          >
-        </div>
 
-        <div class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'Beam' }"
-            >Beam</router-link
+      <ul class="popup-links">
+        <li class="popup-link-wrap" @click="closePopup">
+          <router-link
+            class="popup-link my-positions"
+            :to="{ name: 'MyPositions' }"
           >
-        </div>
-        <div class="popup-link-wrap" @click="closePopup">
+            <img src="@/assets/images/header/positions-header-icon.png" />
+            <span class="link-text"> My Positions </span>
+          </router-link>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'Cauldrons' }">
+            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <span class="link-text"> Cauldrons </span>
+          </router-link>
+        </li>
+
+        <li class="popup-link-wrap" @click.stop="openInnerPopup()">
+          <button class="popup-link">
+            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <span class="link-text"> Stake </span>
+            <img class="arrow" src="@/assets/images/arrow.svg" />
+          </button>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'MarketsFarm' }">
+            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <span class="link-text"> Farms </span>
+          </router-link>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'Beam' }">
+            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <span class="link-text"> Beam </span>
+          </router-link>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
           <a
             class="popup-link"
             href="https://curve.fi/#/ethereum/pools/mim/swap"
             target="_blank"
-            >Swap</a
           >
-        </div>
-        <div class="popup-link-wrap" @click="closePopup">
+            <img src="@/assets/images/header/dropdown/more/swap-icon.svg" />
+            <span class="link-text"> Swap </span>
+          </a>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
           <a
             class="popup-link"
             href="https://analytics.abracadabra.money/fee-statistics"
             target="_blank"
-            >Analytics</a
           >
-        </div>
+            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <span class="link-text"> Analytics </span>
+          </a>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
+          <a
+            class="popup-link"
+            href="https://analytics.abracadabra.money/fee-statistics"
+            target="_blank"
+          >
+            <img src="@/assets/images/header/dropdown/more/docs-icon.svg" />
+            <span class="link-text"> Documentation </span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="social-media">
+        <GitHub />
+        <Docs />
+        <Discord />
+        <Twitter />
+        <Mirror />
       </div>
     </div>
 
-    <div class="other-popup" v-if="showOther" @click="closeInnerPopup('other')">
-      <div class="other">
-        <div class="other-line">
-          <a
-            href="https://legacy.abracadabra.money"
-            target="_blank"
-            rel="noreferrer noopener"
-            class="other-link"
-            >V 1</a
-          >
-          <a
-            href="https://forum.abracadabra.money/"
-            target="_blank"
-            rel="noreferrer noopener"
-            class="other-link"
-            >Forum</a
-          >
-          <div class="social">
-            <a
-              href="https://abracadabramoney.gitbook.io/abracadabra-money-wiki/"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <Docs
-            /></a>
-
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://github.com/Abracadabra-money"
-            >
-              <GitHub />
-            </a>
-
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9"
-            >
-              <Mirror
-            /></a>
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://twitter.com/MIM_Spell"
-            >
-              <Twitter />
-            </a>
-
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://discord.com/invite/mim"
-            >
-              <Discord />
-            </a>
-
-            <!-- <Discord /> -->
-
-            <Lens :isMobile="true" />
-          </div>
-        </div>
-      </div>
-    </div>
+    <HeaderStakeMobilePopup
+      v-if="showStake"
+      @closePopup="closeInnerPopup"
+      @closeMobileMenu="closePopup"
+    />
   </div>
 </template>
 
@@ -184,20 +115,22 @@ import Discord from "@/components/icons/Discord.vue";
 import Lens from "@/components/icons/Lens.vue";
 import Mirror from "@/components/icons/Mirror.vue";
 import GitHub from "@/components/icons/GitHub.vue";
+import HeaderStakeMobilePopup from "@/components/popups/HeaderStakeMobilePopup.vue";
+
 export default {
+  props: {
+    networkIcon: { type: String },
+    unsupportedTooltip: { type: String },
+  },
+
   data() {
     return {
       showStake: false,
-      showTools: false,
-      showOther: false,
     };
   },
 
   computed: {
     ...mapGetters({ account: "getAccount" }),
-    isOpenInnerPopup() {
-      return this.showTools || this.showOther;
-    },
   },
 
   methods: {
@@ -205,36 +138,17 @@ export default {
       this.$emit("closePopup");
     },
 
-    openInnerPopup(name) {
-      if (name === "stake") this.showStake = true;
-
-      if (name === "tools") this.showTools = true;
-
-      if (name === "other") this.showOther = true;
-
-      if (name === "networks") this.$emit("openNetworksPopup");
-
-      return false;
+    openInnerPopup() {
+      this.showStake = true;
     },
 
-    closeInnerPopup(name) {
-      if (name === "stake" && event.target.classList.contains("stake-popup")) {
-        this.showStake = false;
-      }
-
-      if (name === "tools" && event.target.classList.contains("tools-popup")) {
-        this.showTools = false;
-      }
-
-      if (name === "other" && event.target.classList.contains("other-popup")) {
-        this.showOther = false;
-      }
-
-      return false;
+    closeInnerPopup() {
+      this.showStake = false;
     },
   },
 
   components: {
+    HeaderStakeMobilePopup,
     ConnectButton,
     Docs,
     Mirror,
@@ -255,10 +169,9 @@ export default {
   height: 100vh;
   z-index: 10;
   display: flex;
-  justify-content: center;
+  justify-content: start;
   overflow-y: auto;
-  padding: $headerHeight 10px 60px;
-  background: #23212d;
+  backdrop-filter: blur(20px);
 }
 
 .inner {
@@ -268,90 +181,85 @@ export default {
 .popup {
   display: flex;
   flex-direction: column;
-  width: 95%;
+  width: 266px;
+  height: 100%;
+  padding: 32px 24px;
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(20px);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #7089cc44;
+}
+
+.network-icon {
+  height: 32px;
+  width: 32px;
+  cursor: pointer;
+}
+
+.popup-links {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 28px;
+  list-style: none;
+}
+
+.popup-link-wrap {
+  width: 100%;
 }
 
 .popup-link {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(40px);
-  border-radius: 20px;
-  color: #fff;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 15px;
-  height: 50px;
+  width: 100%;
+  gap: 6px;
+  background: transparent;
+  border-radius: 8px;
+  color: #fff;
   border: none;
   outline: transparent;
-  margin-bottom: 10px;
   cursor: pointer;
+  transition: all 0.5s;
+}
+
+.popup-link:hover {
+  opacity: 0.7;
+}
+
+.my-positions {
+  margin: 40px 0 12px 0;
 }
 
 .popup-connect {
   padding: 0;
 }
 
-.stake-popup,
-.tools-popup,
-.other-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
+.social-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   width: 100%;
-  height: 100vh;
-  z-index: 12;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.tools,
-.other {
-  background: #312f38;
-  border-radius: 20px;
-  padding: 40px 10px;
-  width: 90%;
-
-  .popup-link {
-    background: #3f3e47;
-  }
-
-  .router-link-active {
-    background: rgba(255, 255, 255, 0.2);
-  }
-}
-
-.other {
-  padding: 10px 5px;
-  background: #313038;
-}
-
-.other-line {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.other-link {
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.social {
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 210px;
-  margin: 0 auto;
+  padding-top: 8px;
+  margin: auto auto 0 auto;
+  border-top: 1px solid #7089cc44;
 }
 
 .router-link-active {
-  background: rgba(255, 255, 255, 0.2);
+  opacity: 0.5;
+}
+
+.arrow {
+  height: 8px;
+  width: 8px;
+  transform: rotate(-90deg);
+  margin-left: auto;
 }
 </style>

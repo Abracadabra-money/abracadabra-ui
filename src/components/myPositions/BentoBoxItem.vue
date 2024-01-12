@@ -30,7 +30,7 @@
       </button>
 
       <div class="description">
-        <span class="description"> MIM Balance on {{ title }}</span>
+        <span class="description-text"> MIM Balance on {{ title }}</span>
         <a class="link" target="_blank" rel="noreferrer noopener" :href="link">
           <span class="link-text"> Read More</span>
           <img class="link-arrow" src="@/assets/images/farm-lp-arrow.svg" />
@@ -154,7 +154,7 @@ export default {
   background-repeat: no-repeat;
   border: 1px solid rgba(129, 128, 255, 0.2);
   box-shadow: 0 1px 10px rgba(1, 1, 1, 0.05);
-  padding: 12px 9px;
+  padding: 12px;
 }
 
 .disabled {
@@ -263,7 +263,6 @@ export default {
   gap: 4px;
   font-size: 14px;
   font-weight: 400;
-  height: 20px;
 }
 
 .link {
@@ -309,13 +308,14 @@ export default {
     flex-direction: row-reverse;
     justify-content: space-between;
     align-items: center;
+    gap: 0;
   }
 
   .description {
     flex-direction: column;
     align-items: start;
     text-align: start;
-    height: auto;
+    gap: 0;
   }
 
   .link {

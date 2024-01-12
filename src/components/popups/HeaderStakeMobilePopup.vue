@@ -1,21 +1,18 @@
 <template>
-  <div
-    class="dropdown-tools header-link"
-    :class="{ active: showDropdownList }"
-    @click="toggleDropdown()"
-    v-click-outside="closeDropdown"
-  >
-    <div class="dropdown-title">
-      Stake
-      <img
-        class="arrow"
-        src="@/assets/images/arrow-down.svg"
-        alt="Arrow down"
-      />
+  <div class="popup">
+    <div class="popup-header" @click="$emit('closePopup')">
+      <img class="arrow" src="@/assets/images/arrow.svg" />
+      <span class="header-text">Menu</span>
     </div>
 
-    <div class="list" v-if="showDropdownList">
-      <router-link class="list-link" :to="{ name: 'StakeSpell' }">
+    <div class="list">
+      <h5 class="list-title">Stake</h5>
+
+      <router-link
+        class="list-link"
+        :to="{ name: 'StakeSpell' }"
+        @click="$emit('closeMobileMenu')"
+      >
         <div class="link-title">
           <span class="stake-token">
             <img
@@ -34,7 +31,11 @@
         <p class="link-description">Stake Spell</p>
       </router-link>
 
-      <router-link class="list-link" :to="{ name: 'magicGLP' }">
+      <router-link
+        class="list-link"
+        :to="{ name: 'magicGLP' }"
+        @click="$emit('closeMobileMenu')"
+      >
         <div class="link-title">
           <span class="stake-token">
             <img class="link-icon" src="@/assets/images/stake/tokens/GLP.png" />
@@ -50,7 +51,11 @@
         <p class="link-description">Stake GLP</p>
       </router-link>
 
-      <router-link class="list-link" :to="{ name: 'magicAPE' }">
+      <router-link
+        class="list-link"
+        :to="{ name: 'magicAPE' }"
+        @click="$emit('closeMobileMenu')"
+      >
         <div class="link-title">
           <span class="stake-token">
             <img class="link-icon" src="@/assets/images/stake/tokens/APE.png" />
@@ -66,7 +71,11 @@
         <p class="link-description">Stake APE</p>
       </router-link>
 
-      <router-link class="list-link" :to="{ name: 'magicLVL' }">
+      <router-link
+        class="list-link"
+        :to="{ name: 'magicLVL' }"
+        @click="$emit('closeMobileMenu')"
+      >
         <div class="link-title">
           <span class="stake-token">
             <img class="link-icon" src="@/assets/images/stake/tokens/LVL.png" />
@@ -82,7 +91,11 @@
         <p class="link-description">Stake LVL</p>
       </router-link>
 
-      <router-link class="list-link" :to="{ name: 'magicKLP' }">
+      <router-link
+        class="list-link"
+        :to="{ name: 'magicKLP' }"
+        @click="$emit('closeMobileMenu')"
+      >
         <div class="link-title">
           <span class="stake-token">
             <img class="link-icon" src="@/assets/images/stake/tokens/KLP.png" />
@@ -125,7 +138,6 @@ export default {
       apeApr: null,
       lvlApr: null,
       klpApr: null,
-      showDropdownList: false,
     };
   },
 
@@ -162,10 +174,6 @@ export default {
       return filters.formatPercent(value);
     },
 
-    toggleDropdown() {
-      this.showDropdownList = !this.showDropdownList;
-    },
-
     closeDropdown() {
       this.showDropdownList = false;
     },
@@ -187,34 +195,42 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.dropdown-tools {
-  position: relative;
+.popup-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #7089cc44;
+  cursor: pointer;
+}
 
-  .dropdown-title {
-    display: flex;
-    align-items: center;
-  }
+.popup-header:hover .header-text,
+.popup-header:hover .arrow {
+  opacity: 0.5;
+}
+
+.header-text {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
 }
 
 .arrow {
-  margin-left: 5px;
-  transition: all 300ms ease-in-out;
+  transform: rotate(90deg);
 }
 
 .list {
-  position: absolute;
-  top: calc(100% + 12.5px);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 233px;
-  padding: 16px;
-  gap: 16px;
-  border-radius: 12px;
-  border: 1px solid #2d4a96;
-  background: #101622;
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
+  width: 100%;
+  gap: 24px;
+}
+
+.list-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 24px;
 }
 
 .list-link {
@@ -271,10 +287,6 @@ export default {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(20px);
-}
-
-.active .arrow {
-  transform: rotate(180deg);
 }
 
 .logo-link-wrap {
