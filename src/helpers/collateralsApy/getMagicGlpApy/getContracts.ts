@@ -18,7 +18,8 @@ export const getContracts = async (chainId: number) => {
     rpc[chainId as keyof typeof rpc]
   );
 
-  const multicallProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicallProvider = provider; //MulticallWrapper.wrap(provider);
 
   const glpManagerContract = new Contract(
     glpManager.address,

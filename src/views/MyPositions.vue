@@ -77,7 +77,7 @@ import FarmPositionItem from "@/components/myPositions/FarmPositionItem.vue";
 export default {
   data() {
     return {
-      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10],
+      activeNetworks: [1, 56, 250, 43114, 42161, 137, 10, 80085],
       activeNetwork: 5,
       updateInterval: null,
       isShowMore: false,

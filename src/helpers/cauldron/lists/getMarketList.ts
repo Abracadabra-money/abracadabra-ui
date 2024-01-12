@@ -22,7 +22,8 @@ export const getMarketList = async (
   chainId: number,
   provider: providers.BaseProvider
 ): Promise<CauldronListItem[]> => {
-  const multicallProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicallProvider = provider; //ulticallWrapper.wrap(provider);
 
   const configs: any[] = cauldronsConfig.filter((config) => {
     let result = config.chainId === +chainId;

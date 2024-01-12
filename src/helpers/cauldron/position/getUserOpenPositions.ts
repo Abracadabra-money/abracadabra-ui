@@ -9,7 +9,8 @@ export const getUserOpenPositions = async (
   account: string,
   provider: providers.BaseProvider
 ): Promise<CauldronPositionItem[]> => {
-  const multicallProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicallProvider = provider; //ulticallWrapper.wrap(provider);
 
   const configs: any[] = cauldronsConfig.filter(
     (config) => config.chainId === chainId

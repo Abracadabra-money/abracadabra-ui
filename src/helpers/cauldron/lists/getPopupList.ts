@@ -25,7 +25,8 @@ export const getPopupList = async (
 ): Promise<PopupListItem[]> => {
   const lensAddress = getLensAddress(chainId);
 
-  const multicalProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicalProvider = provider; //MulticallWrapper.wrap(provider);
 
   const configs: any[] = cauldronsConfig.filter((config) => {
     let result = config.chainId === +chainId;

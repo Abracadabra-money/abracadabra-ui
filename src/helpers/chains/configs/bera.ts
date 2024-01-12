@@ -21,8 +21,8 @@ export const berachainConfig = {
 //     },
 //   },
   symbol: "BERA",
-  icon: useImage("assets/images/networks/base.png"),
+  icon: useImage("assets/images/networks/bera.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
-  networkIcon: useImage(`assets/images/networks/base.png`),
+  networkIcon: useImage(`assets/images/networks/bera.png`),
 //   lzChainId: 184,
 };
