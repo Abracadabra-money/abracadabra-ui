@@ -1,11 +1,18 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import type { RouteRecordRaw } from "vue-router";
+import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 
-function removeQueryParams(to) {
+function removeQueryParams(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
   if (Object.keys(to.query).length)
-    return { path: to.path, query: {}, hash: to.hash };
+    next({ path: to.path, query: {}, hash: to.hash });
+  else next();
 }
 
-const routes = [
+const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "Home",
@@ -24,7 +31,7 @@ const routes = [
   {
     path: "/farms",
     name: "MarketsFarm",
-    component: () => import("@/views/markets/Farms.vue"),
+    component: () => import("@/views/Farms.vue"),
   },
   {
     path: "/farm/:id?/:farmChainId?",
