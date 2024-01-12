@@ -10,7 +10,9 @@
         src="@/assets/images/header/account-image.png"
       />
     </div>
-    {{ walletBtnText }}
+    <span class="btn-text">
+      {{ walletBtnText }}
+    </span>
   </button>
 </template>
 
@@ -129,5 +131,16 @@ export default {
   width: 24px;
   height: 24px;
   border-radius: 32px;
+}
+
+@media (max-width: 1100px) {
+  .connect-btn {
+    padding: 4px 4px;
+    border-radius: 50px;
+  }
+
+  .connected {
+    background: rgba(111, 111, 111, 0);
+  }
 }
 </style>
