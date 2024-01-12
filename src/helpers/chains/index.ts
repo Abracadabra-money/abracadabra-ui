@@ -9,6 +9,7 @@ import { baseConfig } from "@/helpers/chains/configs/base";
 import { arbitrumConfig } from "@/helpers/chains/configs/arbitrum";
 import { avalancheConfig } from "@/helpers/chains/configs/avalanche";
 import { lineaConfig } from "@/helpers/chains/configs/linea";
+import { berachainConfig } from "@/helpers/chains/configs/bera";
 
 import {
   RPC_ETH,
@@ -22,6 +23,7 @@ import {
   RPC_AVAX,
   RPC_KAVA,
   PRC_LINEA,
+  RPC_BERRA_ARTIO
 } from "@/constants/rpc";
 
 export const chains = [
@@ -36,6 +38,7 @@ export const chains = [
   moonriverConfig,
   baseConfig,
   lineaConfig,
+  berachainConfig
 ];
 
 export const chainsList = {
@@ -50,6 +53,7 @@ export const chainsList = {
   42161: arbitrumConfig,
   43114: avalancheConfig,
   59144: lineaConfig,
+  80085: berachainConfig
 };
 
 export const defaultRpc = {
@@ -64,6 +68,7 @@ export const defaultRpc = {
   43114: RPC_AVAX,
   2222: RPC_KAVA,
   59144: PRC_LINEA,
+  80085: RPC_BERRA_ARTIO
 };
 
 export const getChainById = (chainId: number): Object =>
