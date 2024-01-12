@@ -58,7 +58,7 @@ import filters from "@/filters/index.js";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
-import OrdersManager from "@/components/borrow/OrdersManager.vue";
+import OrdersManager from "@/components/market/OrdersManager.vue";
 import { ethers } from "ethers";
 import { useImage } from "@/helpers/useImage";
 
