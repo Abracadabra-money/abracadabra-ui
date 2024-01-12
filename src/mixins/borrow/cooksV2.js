@@ -30,6 +30,11 @@ import { getOrderBalances } from "@/helpers/gm/orders";
 import { BigNumber, Contract, utils } from "ethers";
 import OrderAgentAbi from "@/utils/abi/gm/OrderAgentAbi";
 
+import {
+  getMimHoneyDeleverageSwapData,
+  getMimHoneyLeverageSwapData,
+} from "@/helpers/cauldron/cook/bera/utils";
+
 export default {
   mixins: [degenBoxCookHelperMixin],
   data() {
@@ -466,6 +471,7 @@ export default {
       is0x = false,
       isOpenocean = false
     ) {
+      const { isMimHoneyLP } = pool.config.cauldronSettings;
       const { leverageSwapper, bentoBox } = this.cauldron.contracts;
       const mimAddress = this.cauldron.config.mimInfo.address;
       const swapperAddres = leverageSwapper.address;
@@ -483,7 +489,7 @@ export default {
 
       const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
 
-      if (!is0x && !isOpenocean) {
+      if (!is0x && !isOpenocean && !isMimHoneyLP) {
         const swapStaticTx = await leverageSwapper.populateTransaction.swap(
           userAddr,
           minExpected,
@@ -507,7 +513,10 @@ export default {
       // to be sure that sell amount in 0x and amountOut inside call will be same
       const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
 
-      const swapData = isOpenocean
+      // NOTICE: for test
+      const swapData = isMimHoneyLP
+        ? getMimHoneyLeverageSwapData()
+        : isOpenocean
         ? await getOpenoceanLeverageSwapData(pool, amountToSwap, slipage)
         : await this.get0xLeverageSwapData(pool, amountToSwap, slipage);
 
@@ -542,6 +551,7 @@ export default {
       is0x,
       isOpenocean
     ) {
+      const { isMimHoneyLP } = pool.config.cauldronSettings;
       const {
         collateral,
         mim: mimContract,
@@ -554,7 +564,7 @@ export default {
       const swapper = liquidationSwapper.address;
       const userAddr = this.account;
 
-      if (!is0x && !isOpenocean) {
+      if (!is0x && !isOpenocean && !isMimHoneyLP) {
         const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
           collateralTokenAddr,
           mim,
@@ -584,7 +594,9 @@ export default {
         shareFrom
       );
 
-      const swapData = isOpenocean
+      const swapData = isMimHoneyLP
+        ? getMimHoneyDeleverageSwapData()
+        : isOpenocean
         ? await getOpenoceanDeleverageSwapData(pool, amountToSwap, slipage)
         : await this.get0xDeleverageSwapData(pool, shareFrom, slipage);
 
@@ -1252,7 +1264,7 @@ export default {
           balanceUSDC
         );
 
-        console.log(updatedCookData)
+      console.log(updatedCookData);
 
       await cook(cauldron, updatedCookData, executionFee);
     },

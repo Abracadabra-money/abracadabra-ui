@@ -47,7 +47,7 @@
           />
           <div class="multiplier-value">( {{ multiplier }}x)</div>
           <DynamicallyEstimatedPrice
-            v-if="chainId !== 2222"
+            v-if="chainId !== 2222 && chainId !== 80085"
             :amount="parsedBorrowPart"
             :mimAddress="cauldron.config.mimInfo.address"
           />

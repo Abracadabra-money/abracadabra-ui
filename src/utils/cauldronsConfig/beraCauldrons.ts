@@ -2,6 +2,9 @@ import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
 import tokensAbi from "@/utils/abi/tokensAbi/index";
 import { useImage } from "@/helpers/useImage";
 
+import BexLpLevSwapper from "@/utils/abi/BexLpLevSwapper";
+import BexLpSwapper from "@/utils/abi/BexLpSwapper";
+
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
 const mimInfo = {
@@ -14,7 +17,7 @@ const mimInfo = {
 
 const config: Array<CauldronConfig> = [
   {
-    icon: useImage(`assets/images/tokens/MIM.png`),
+    icon: useImage(`assets/images/tokens/MIM-HONEY.png`),
     name: "MIM/HONEY",
     chainId: 80085,
     id: 1,
@@ -24,7 +27,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       is0xSwap: false,
-      isSwappersActive: false,
+      isSwappersActive: true,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -34,6 +37,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isMimHoneyLP: true,
     },
     contract: {
       name: "CauldronV4",
@@ -47,6 +51,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.opUSDC, // NOTICE
     },
     mimInfo,
+    leverageInfo: {
+      address: "0xD6b8bd85A9593cb47c8C15C95bbF3e593c5Dc591",
+      abi: BexLpLevSwapper,
+    },
+    deleverageInfo: {
+      address: "0x6C0fB20908Bb1AE089Af7b2dE774968Add8fD5b7",
+      abi: BexLpSwapper,
+    },
   },
 ];
 
