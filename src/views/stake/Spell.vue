@@ -463,22 +463,22 @@ export default {
       () => import("@/components/base/BaseButton.vue")
     ),
     LockedTimer: defineAsyncComponent(
-      () => import("@/components/stake/LockedTimer.vue")
+      () => import("@/components/ui/time/LockedTimer.vue")
     ),
     SpellSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake/SpellSpecialInfoBlock.vue")
+      () => import("@/components/stake/spell/SpellSpecialInfoBlock.vue")
     ),
     BalancesBlock: defineAsyncComponent(
-      () => import("@/components/stake/BalancesBlock.vue")
+      () => import("@/components/stake/spell/BalancesBlock.vue")
     ),
     StakingAprBlock: defineAsyncComponent(
-      () => import("@/components/stake/StakingAprBlock.vue")
+      () => import("@/components/stake/spell/StakingAprBlock.vue")
     ),
     TokenRatioBlock: defineAsyncComponent(
-      () => import("@/components/stake/TokenRatioBlock.vue")
+      () => import("@/components/stake/spell/TokenRatioBlock.vue")
     ),
     ClaimMimBlock: defineAsyncComponent(
-      () => import("@/components/stake/ClaimMimBlock.vue")
+      () => import("@/components/stake/spell/ClaimMimBlock.vue")
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")

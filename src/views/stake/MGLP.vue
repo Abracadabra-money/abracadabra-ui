@@ -377,7 +377,7 @@ export default {
       () => import("@/components/stake/LeverageInfo.vue")
     ),
     GlpSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake/GlpSpecialInfoBlock.vue")
+      () => import("@/components/stake/magicGlp/GlpSpecialInfoBlock.vue")
     ),
     ChartBlock: defineAsyncComponent(
       () => import("@/components/stake/ChartBlock.vue")

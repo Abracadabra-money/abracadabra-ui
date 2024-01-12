@@ -377,7 +377,7 @@ export default {
       () => import("@/components/stake/LeverageInfo.vue")
     ),
     ApeSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake/ApeSpecialInfoBlock.vue")
+      () => import("@/components/stake/magicApe/ApeSpecialInfoBlock.vue")
     ),
     ChartBlock: defineAsyncComponent(
       () => import("@/components/stake/ChartBlock.vue")

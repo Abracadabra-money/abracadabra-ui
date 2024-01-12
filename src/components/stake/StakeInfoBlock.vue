@@ -26,7 +26,7 @@
         {{ mainToken.name }}
       </span>
       <span class="value">
-        {{ formatUSD(mainToken.balance) }}
+        {{ formatTokenBalance(mainToken.balance) }}
         <span class="price">({{ formatUSD(mainToken.balanceUsd) }})</span>
       </span>
     </div>
@@ -37,7 +37,7 @@
         {{ stakeToken.name }}
       </span>
       <span class="value">
-        {{ formatUSD(stakeToken.balance) }}
+        {{ formatTokenBalance(stakeToken.balance) }}
         <span class="price">({{ formatUSD(stakeToken.balanceUsd) }})</span>
       </span>
     </div>
@@ -98,6 +98,12 @@ export default {
   methods: {
     formatUSD(value: bigint) {
       return filters.formatUSD(formatUnits(value, this.mainToken.decimals));
+    },
+
+    formatTokenBalance(value: bigint) {
+      return filters.formatTokenBalance(
+        formatUnits(value, this.mainToken.decimals)
+      );
     },
 
     async fetchGlpApy() {

@@ -436,7 +436,7 @@ export default {
       () => import("@/components/stake/magicLvl/TrancheBalances.vue")
     ),
     LvlSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake/LvlSpecialInfoBlock.vue")
+      () => import("@/components/stake/magicLvl/LvlSpecialInfoBlock.vue")
     ),
     ChartBlock: defineAsyncComponent(
       () => import("@/components/stake/ChartBlock.vue")

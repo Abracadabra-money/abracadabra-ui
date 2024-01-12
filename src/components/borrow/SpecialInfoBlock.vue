@@ -55,7 +55,7 @@ export default {
 
   components: {
     LockedTimer: defineAsyncComponent(() =>
-      import("@/components/stake/LockedTimer.vue")
+      import("@/components/ui/time/LockedTimer.vue")
     ),
     MiniStatusTag: defineAsyncComponent(() =>
       import("@/components/ui/MiniStatusTag.vue")

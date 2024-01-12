@@ -411,7 +411,7 @@ export default {
       () => import("@/components/base/BaseButton.vue")
     ),
     KlpSpecialInfoBlock: defineAsyncComponent(
-      () => import("@/components/stake/KlpSpecialInfoBlock.vue")
+      () => import("@/components/stake/magicKlp/KlpSpecialInfoBlock.vue")
     ),
     ChartBlock: defineAsyncComponent(
       () => import("@/components/stake/ChartBlock.vue")

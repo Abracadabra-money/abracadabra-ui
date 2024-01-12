@@ -23,14 +23,25 @@
 import filters from "@/filters/index.js";
 import { formatUnits } from "viem";
 
+interface MainToken {
+  name: string;
+  rateIcon: string;
+  rate: bigint;
+  decimals: number;
+}
+
+interface StakeToken {
+  name: string;
+}
+
 export default {
   props: {
     mainToken: {
-      type: Object as any,
+      type: Object as () => MainToken,
       required: true,
     },
     stakeToken: {
-      type: Object as any,
+      type: Object as () => StakeToken,
       required: true,
     },
   },
