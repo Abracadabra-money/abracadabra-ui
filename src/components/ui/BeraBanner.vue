@@ -14,7 +14,7 @@
       />
   
       <div class="banner-text">
-        Get Bera Chain Faucet 
+        Get Testenet BERA
         <a
           href="https://artio.faucet.berachain.com/"
           target="_blank"
