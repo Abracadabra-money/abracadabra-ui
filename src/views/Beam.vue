@@ -274,6 +274,7 @@ export default {
     },
 
     actionBtnText() {
+      if (!this.account) return "Connect wallet";
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
       if (this.isApproving) return "Approving";
@@ -291,6 +292,7 @@ export default {
     },
 
     disableBtn() {
+      if (!this.account) return false;
       if (+this.inputValue === 0) return true;
       if (this.isApproving || this.isBeaming) return true;
       if (!this.account || !this.isSelectedChain) return true;
@@ -392,10 +394,11 @@ export default {
 
   watch: {
     async chainId() {
-      if (this.isUnsupportedNetwork) await this.beamNotAvailable();
-      else {
-        await this.createBeamData();
-      }
+      await this.updateBeamData();
+    },
+
+    async account() {
+      await this.updateBeamData();
     },
 
     inputAmount(value) {
@@ -450,6 +453,11 @@ export default {
 
     async actionHandler() {
       if (this.disableBtn) return false;
+
+      if (!this.account) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -633,6 +641,13 @@ export default {
           this.provider
         );
       }, 15000);
+    },
+
+    async updateBeamData() {
+      if (this.isUnsupportedNetwork) await this.beamNotAvailable();
+      else {
+        await this.createBeamData();
+      }
     },
 
     closeSuccessPopup() {
