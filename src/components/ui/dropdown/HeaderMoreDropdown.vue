@@ -78,18 +78,26 @@
         </div>
         <p class="link-description">Explore docs</p></a
       >
-      <!-- todo -->
-      <div class="logo-link-wrap">
-        <a class="list-link logo" href="" target="_blank">
-          Link
-          <img class="link-arrow" src="@/assets/images/link-arrow.svg" />
-        </a>
+
+      <div class="social-media">
+        <GitHub class="media-link" />
+        <Docs class="media-link" />
+        <Discord class="media-link" />
+        <Twitter class="media-link" />
+        <Mirror class="media-link" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Docs from "@/components/icons/Docs.vue";
+import Twitter from "@/components/icons/Twitter.vue";
+import Discord from "@/components/icons/Discord.vue";
+import Lens from "@/components/icons/Lens.vue";
+import Mirror from "@/components/icons/Mirror.vue";
+import GitHub from "@/components/icons/GitHub.vue";
+
 export default {
   data() {
     return {
@@ -105,6 +113,15 @@ export default {
     closeDropdown() {
       this.showDropdownList = false;
     },
+  },
+
+  components: {
+    Docs,
+    Mirror,
+    Twitter,
+    Discord,
+    Lens,
+    GitHub,
   },
 };
 </script>
@@ -181,14 +198,21 @@ export default {
   transform: rotate(180deg);
 }
 
-.logo-link-wrap {
+.social-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   width: 100%;
-  border-top: 1px solid #7089cc55;
   padding-top: 8px;
+  margin: auto auto 0 auto;
+  border-top: 1px solid #7089cc44;
 }
 
-.logo {
-  flex-direction: row;
-  justify-content: start;
+.media-link {
+  justify-content: center;
+  align-items: baseline;
+  width: 20px;
+  height: 20px;
 }
 </style>

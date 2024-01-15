@@ -26,7 +26,7 @@
 
 <style lang="scss" scoped>
 svg {
-  width: 24px;
+  width: inherit;
   height: 18px;
   object-fit: contain;
   cursor: pointer;

@@ -35,7 +35,7 @@ export default {};
 
 <style lang="scss" scoped>
 svg {
-  width: 20px;
+  width: inherit;
   height: auto;
   cursor: pointer;
 }

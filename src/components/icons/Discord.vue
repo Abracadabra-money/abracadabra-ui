@@ -29,6 +29,7 @@ export default {};
 <style lang="scss" scoped>
 svg {
   cursor: pointer;
+  width: inherit;
 }
 
 svg:hover path {
