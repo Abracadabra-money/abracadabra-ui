@@ -3,7 +3,7 @@
     <button
       v-for="(item, i) in items"
       class="switch-btn"
-      :class="{ 'switch-btn-active': name === item }"
+      :class="{ 'switch-btn-active': name === item, small }"
       :key="i"
       @click="$emit('select', item)"
     >
@@ -31,6 +31,10 @@ export default {
     width: {
       type: String,
       default: "220px",
+    },
+    small: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -76,5 +80,9 @@ export default {
 .icon {
   width: 24px;
   height: 24px;
+}
+
+.small {
+  text-transform: initial;
 }
 </style>

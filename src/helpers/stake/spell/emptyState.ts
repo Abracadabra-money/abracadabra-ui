@@ -21,6 +21,7 @@ const mSpellEmptyState: EmptyTokenState = {
   icon: mSpell.icon,
   name: mSpell.name,
   balance: 0n,
+  claimableAmount: 0n,
   price: ONE_ETHER_VIEM,
   rate: ONE_ETHER_VIEM,
   decimals: 18,
@@ -31,6 +32,7 @@ export const getSSpellEmptyState = async (): Promise<EmptyTokenState> => {
 
   return {
     icon: sSpell?.icon || useImage("assets/images/sspell-icon.svg"),
+    rateIcon: useImage("assets/images/sspell-icon.svg"),
     name: sSpell?.name || "sSpell",
     balance: 0n,
     rate: spellToSSpellRate,

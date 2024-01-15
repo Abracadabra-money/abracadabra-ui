@@ -7,9 +7,10 @@
           <Tabs
             :name="activeToken"
             :items="tabTokens"
-            @select="changeToken"
             :icons="tabTokenIcons"
             width="280px"
+            small
+            @select="changeToken"
           />
         </div>
 
@@ -71,17 +72,21 @@
 
         <div class="row">
           <StakingAprBlock :apr="mainToken.apr" />
-          <TokenRatioBlock :mainToken="mainToken" :stakeToken="stakeToken" />
-        </div>
+          <ClaimMimBlock
+            class="claim-wrap"
+            v-if="isMSpellActive"
+            :isUnsupportedChain="isUnsupportedChain"
+            :isDisableClaimButton="isDisableClaimButton"
+            :claimAmount="formatAmount(mainToken.claimableAmount)"
+            @claimMim="claimMimHandler"
+          />
 
-        <ClaimMimBlock
-          class="claim-wrap"
-          v-if="isClaimMimBlock"
-          :isUnsupportedChain="isUnsupportedChain"
-          :isDisableClaimButton="isDisableClaimButton"
-          :claimAmount="formatAmount(mainToken.claimableAmount)"
-          @claimMim="claimMimHandler"
-        />
+          <TokenRatioBlock
+            v-else
+            :mainToken="mainToken"
+            :stakeToken="stakeToken"
+          />
+        </div>
       </div>
     </div>
 
@@ -147,12 +152,9 @@ export default {
       return this.activeToken === "mSpell";
     },
 
-    isClaimMimBlock() {
-      return this.isMSpellActive && !!this.mainToken?.claimableAmount;
-    },
-
     isDisableClaimButton() {
       if (+this.mainToken?.lockTimestamp) return true;
+      if (!this.isUnsupportedChain) return true;
       return this.mainToken?.claimableAmount <= 0n;
     },
 
@@ -172,6 +174,7 @@ export default {
     },
 
     isActionDisabled() {
+      if (!this.account) return false;
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
       return this.isInsufficientBalance;
@@ -232,7 +235,6 @@ export default {
         },
         {
           label: `Staked ${this.activeToken}`,
-          tooltip: "tooltip",
           icon: this.mainToken.icon,
           balance: this.mainToken.balance,
           price: this.mainToken.price,
@@ -241,6 +243,7 @@ export default {
     },
 
     actionButtonText() {
+      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
       if (this.isInsufficientBalance) return "Insufficient balance";
       if (!this.isTokenApproved) return "Approve";
@@ -401,6 +404,11 @@ export default {
 
     async actionHandler() {
       if (this.isActionDisabled) return false;
+
+      if (!this.account && this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
       if (!this.isUnsupportedChain) {
         switchNetwork(this.selectedNetwork);
         return false;

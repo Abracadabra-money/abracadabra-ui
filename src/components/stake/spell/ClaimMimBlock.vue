@@ -15,7 +15,7 @@
         </div>
       </div>
       <button
-        class="claim-button"
+        :class="['claim-button', { disabled: isDisableClaimButton }]"
         :disabled="isDisableClaimButton"
         @click="$emit('claimMim')"
       >
@@ -28,6 +28,7 @@
 <script lang="ts">
 // @ts-ignore
 import filters from "@/filters/index.js";
+import { mapGetters } from "vuex";
 
 export default {
   props: {
@@ -46,7 +47,12 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+
     buttonText() {
+      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
       return "Claim";
     },
@@ -116,5 +122,12 @@ export default {
   color: #7088cc;
   font-weight: 600;
   line-height: 150%;
+}
+
+.disabled {
+  cursor: not-allowed;
+  border: 2px solid #575c62;
+  background: rgba(255, 255, 255, 0.01);
+  color: #575c62;
 }
 </style>

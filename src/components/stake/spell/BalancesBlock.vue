@@ -5,13 +5,6 @@
       <div class="balance-item" v-for="config in configs" :key="config.label">
         <h4 class="label">
           {{ config.label }}
-          <TooltipIcon
-            v-if="config.tooltip"
-            :width="20"
-            :height="20"
-            fill="#878B93"
-            tooltip="config.tooltip"
-          />
         </h4>
         <div class="value">
           <img class="token-icon" :src="config.icon" alt="Token icon" />
@@ -49,12 +42,6 @@ export default {
         formatUnits(balanceUsd / 1000000000000000000n, decimals)
       );
     },
-  },
-
-  components: {
-    TooltipIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
-    ),
   },
 };
 </script>
