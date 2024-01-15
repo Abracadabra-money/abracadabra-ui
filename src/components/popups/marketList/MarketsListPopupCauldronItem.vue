@@ -13,6 +13,7 @@
           </div>
           <MiniStatusTag v-if="isMigrated" />
           <MiniStatusTag v-if="isLeverageLabel" text="Leverage" />
+          <MiniStatusTag v-if="isTestnet" text="Testnet"/>
         </div>
       </div>
 
@@ -66,6 +67,10 @@ export default {
 
     userInfo() {
       return this.marketItem.userInfo;
+    },
+
+    isTestnet() {
+      return this.chainId === 80085;
     },
 
     isMigrated() {

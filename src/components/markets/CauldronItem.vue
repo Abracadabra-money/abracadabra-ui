@@ -14,6 +14,7 @@
         <div class="collateral-labels">
           <span>{{ cauldronConfig.name }}</span>
           <span class="new-label" v-if="isNewLabel">New</span>
+          <MiniStatusTag v-if="isTestnet" text="Testnet" />
           <span class="deprecated-label" v-if="isDeprecatedCauldron"
             >Deprecated</span
           >
@@ -45,6 +46,7 @@ import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import MiniStatusTag from "@/components/ui/MiniStatusTag.vue"
 
 export default {
   props: {
@@ -98,6 +100,10 @@ export default {
       return false;
     },
 
+    isTestnet() {
+      return this.chainId === 80085;
+    },
+
     hasLeverage() {
       return (
         this.cauldronSettings?.isSwappersActive &&
@@ -126,6 +132,7 @@ export default {
 
   components: {
     BaseTokenIcon,
+    MiniStatusTag,
   },
 };
 </script>

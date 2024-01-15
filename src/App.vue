@@ -6,6 +6,7 @@
   <NotificationContainer />
   <PopupsWrapper />
   <Banner />
+  <BeraBanner />
   <SkullBanner />
   <OldAllowanceBanner />
   <TenderlyMod />
@@ -97,6 +98,7 @@ export default {
       import("@/components/popups/PopupsWrapper.vue")
     ),
     Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
+    BeraBanner: defineAsyncComponent(() => import("@/components/ui/BeraBanner.vue")),
     SkullBanner: defineAsyncComponent(() =>
       import("@/components/ui/SkullBanner.vue")
     ),

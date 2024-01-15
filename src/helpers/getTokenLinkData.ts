@@ -72,6 +72,12 @@ const configs: Array<Config> = [
     href: "https://app.gmx.io/#/pools",
     label: "Get GM Token",
   },
+  {
+    id: 1,
+    chain: 80085,
+    href: "https://artio.bex.berachain.com/pool/0xC793C76fE0D5c79550034983D966c21a50Fb5e38/add-liquidity",
+    label: "Get LP",
+  },
 ];
 
 export const getTokenLinkData = (

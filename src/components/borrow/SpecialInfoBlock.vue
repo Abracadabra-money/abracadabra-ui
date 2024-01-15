@@ -3,6 +3,7 @@
     <div class="wrap">
       <LockedTimer v-if="isLockedTimer" :finalTime="isLockedTimer" />
       <MiniStatusTag v-if="isLeverageTag" text="Leverage" :rounded="true" />
+      <MiniStatusTag v-if="isTestnet" text="Testnet" />
       <MiniStatusTag v-if="isMigrated" :rounded="true" />
       <StrategyLink :cauldron="cauldron" />
     </div>
@@ -28,6 +29,10 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
     }),
+
+    isTestnet() {
+      return this.chainId === 80085;
+    },
 
     isLockedTimer() {
       const isCollateralLocked =
