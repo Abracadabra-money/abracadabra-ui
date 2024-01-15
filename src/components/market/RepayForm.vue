@@ -183,7 +183,12 @@ export default {
     },
 
     isAbleToClosePosition() {
+      const { hasActiveGmOrder } = this.cauldron.additionalInfo;
+
       if (this.chainId !== this.cauldron.config.chainId) return false;
+
+      if (hasActiveGmOrder) return false;
+
       if (this.actionConfig.useDeleverage) return this.hasOpenPosition;
       const { mimBalance } = this.cauldron.userTokensInfo;
       const { borrowInfo } = this.cauldron.userPosition;

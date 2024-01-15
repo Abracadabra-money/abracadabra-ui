@@ -64,6 +64,7 @@ export type AdditionalInfo = {
   whitelistedInfo: Object | null;
   isCollateralLocked: any;
   feePercent: number | null;
+  hasActiveGmOrder: boolean
 };
 
 export type SwapAmounts = {

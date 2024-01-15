@@ -21,6 +21,7 @@ export const WARNING_TYPES = {
   SWITCH_CHAIN: 11,
   SSPELL_LOCKED: 12,
   CONNECTION: 13,
+  ACTIVE_ORDER: 14,
 };
 
 const WARNINGS_BTN_TEXT = {
@@ -38,6 +39,7 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.SWITCH_CHAIN]: "Switch Chain",
   [WARNING_TYPES.SSPELL_LOCKED]: "sSpell is locked",
   [WARNING_TYPES.CONNECTION]: "Connect wallet",
+  [WARNING_TYPES.ACTIVE_ORDER]: "Close the active order",
 };
 
 const ACTIONS_BTN_TEXT = {
@@ -77,6 +79,11 @@ export const validateCookByAction = (
     validationErrors,
     cauldron,
     actionConfig
+  );
+
+  validationErrors = validateGmOrderCreation(
+    validationErrors,
+    cauldron,
   );
 
   switch (cookType) {
@@ -367,6 +374,25 @@ const validateRepay = (
   return validationErrors;
 };
 
+const validateGmOrderCreation = (
+  validationErrors: any,
+  cauldron: CauldronInfo
+) => {
+  const { hasActiveGmOrder } = cauldron.additionalInfo;
+  if (hasActiveGmOrder) validationErrors.push(WARNING_TYPES.ACTIVE_ORDER);
+
+  return validationErrors;
+};
+
+// TODO
+const validateGmMaxCap = (
+  validationErrors: any,
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig
+) => {
+  return validationErrors;
+};
+
 const validateRepayAndRemoveCollateral = (
   validationErrors: any,
   cauldron: CauldronInfo,
@@ -446,7 +472,7 @@ const getValidationResult = (validationErrors: any, cookType: any) => {
     WARNING_TYPES.DEPOSIT_ALLOWANCE,
     WARNING_TYPES.REPAY_ALLOWANCE,
     WARNING_TYPES.SWITCH_CHAIN,
-    WARNING_TYPES.CONNECTION
+    WARNING_TYPES.CONNECTION,
   ];
 
   const isException = exceptions.indexOf(validationErrors[0]) !== -1;
