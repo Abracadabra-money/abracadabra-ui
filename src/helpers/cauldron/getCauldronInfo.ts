@@ -19,7 +19,9 @@ export const getCauldronInfo = async (
   const userSigner = address ? signer : provider;
 
   // NOTICE: BERA TEST
-  const multicallProvider = provider; //ulticallWrapper.wrap(provider);
+  const multicallProvider =
+    chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
+    
   const config = cauldronsConfig.find(
     (config) => +config.id === +cauldronId && +config.chainId === +chainId
   );

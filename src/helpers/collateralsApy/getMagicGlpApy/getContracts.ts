@@ -19,7 +19,8 @@ export const getContracts = async (chainId: number) => {
   );
 
   // NOTICE: BERA TEST
-  const multicallProvider = provider; //MulticallWrapper.wrap(provider);
+  const multicallProvider =
+    chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
   const glpManagerContract = new Contract(
     glpManager.address,
