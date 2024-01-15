@@ -14,10 +14,10 @@
       </div>
 
       <div class="token-input-info">
-        <div class="token-info">
+        <div class="token-info" v-tooltip="tooltip">
           <BaseTokenIcon :icon="icon" :name="name" size="28px" />
-          <span class="token-name">
-            {{ name }}
+          <span class="token-name" ref="tokenName">
+            {{ tokenName }}
           </span>
         </div>
 
@@ -66,6 +66,8 @@ export default {
   data(): any {
     return {
       inputValue: this.value,
+      tokenName: this.name,
+      tooltip: "",
     };
   },
 
@@ -96,7 +98,10 @@ export default {
       if (this.isBigNumber) {
         const emitValue = !value
           ? BigNumber.from(0)
-          : utils.parseUnits(value, this.decimals);
+          : utils.parseUnits(
+              filters.formatToFixed(value, this.decimals),
+              this.decimals
+            );
 
         this.$emit("updateInputValue", emitValue);
       } else {
@@ -120,6 +125,13 @@ export default {
     formatTokenBalance(tokenAmount: number) {
       return filters.formatTokenBalance(tokenAmount);
     },
+  },
+
+  mounted() {
+    if (this.$refs.tokenName.offsetWidth > 100) {
+      this.tokenName = this.tokenName.slice(0, 10) + "...";
+      this.tooltip = this.name;
+    }
   },
 
   components: {
@@ -167,6 +179,8 @@ export default {
   font-weight: 500;
   background-color: transparent;
   border: none;
+  max-width: 95%;
+  width: 100%;
 }
 
 .text-field:focus {
