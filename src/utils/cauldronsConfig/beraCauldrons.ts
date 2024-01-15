@@ -27,7 +27,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       is0xSwap: false,
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -51,14 +51,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.opUSDC, // NOTICE
     },
     mimInfo,
-    leverageInfo: {
-      address: "0xD6b8bd85A9593cb47c8C15C95bbF3e593c5Dc591",
-      abi: BexLpLevSwapper,
-    },
-    deleverageInfo: {
-      address: "0x6C0fB20908Bb1AE089Af7b2dE774968Add8fD5b7",
-      abi: BexLpSwapper,
-    },
+    // leverageInfo: {
+    //   address: "0xD6b8bd85A9593cb47c8C15C95bbF3e593c5Dc591",
+    //   abi: BexLpLevSwapper,
+    // },
+    // deleverageInfo: {
+    //   address: "0x6C0fB20908Bb1AE089Af7b2dE774968Add8fD5b7",
+    //   abi: BexLpSwapper,
+    // },
   },
 ];
 
