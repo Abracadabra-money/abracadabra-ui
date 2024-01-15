@@ -65,6 +65,11 @@ export default {
 
       if (isSwitchChain) return switchNetwork(this.cauldron.config.chainId);
 
+      const isConnect = this.cookValidationData.errorType === WARNING_TYPES.CONNECTION;
+
+      // @ts-ignore
+      if(isConnect) return this.$openWeb3modal();
+
       return await this.cookHandler();
     },
     async approveTokenHandler() {

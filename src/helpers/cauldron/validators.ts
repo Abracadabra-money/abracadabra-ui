@@ -4,6 +4,7 @@ import { getExpectedPostition } from "./getExpectedPosition";
 import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { getAccount } from "@wagmi/core";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -19,6 +20,7 @@ export const WARNING_TYPES = {
   POSITION_MAX_TO_REMOVE: 10,
   SWITCH_CHAIN: 11,
   SSPELL_LOCKED: 12,
+  CONNECTION: 13,
 };
 
 const WARNINGS_BTN_TEXT = {
@@ -35,6 +37,7 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.POSITION_MAX_TO_REMOVE]: "Max remove amount exceed",
   [WARNING_TYPES.SWITCH_CHAIN]: "Switch Chain",
   [WARNING_TYPES.SSPELL_LOCKED]: "sSpell is locked",
+  [WARNING_TYPES.CONNECTION]: "Connect wallet",
 };
 
 const ACTIONS_BTN_TEXT = {
@@ -61,6 +64,7 @@ export const validateCookByAction = (
 
   let validationErrors: any = [];
 
+  validationErrors = validateConnection(validationErrors);
   validationErrors = validateChain(validationErrors, cauldron, chainId);
 
   validationErrors = validatePosition(
@@ -423,6 +427,14 @@ const validateChain = (
   return validationErrors;
 };
 
+const validateConnection = (validationErrors: any) => {
+  const { isConnected } = getAccount();
+
+  if (!isConnected) validationErrors.push(WARNING_TYPES.CONNECTION);
+
+  return validationErrors;
+};
+
 const getValidationResult = (validationErrors: any, cookType: any) => {
   if (validationErrors.length === 0)
     return {
@@ -430,16 +442,17 @@ const getValidationResult = (validationErrors: any, cookType: any) => {
       isAllowed: cookType !== ACTION_TYPES.ACTION_UNKNOWN,
     };
 
-  const approvalWarnings = [
+  const exceptions = [
     WARNING_TYPES.DEPOSIT_ALLOWANCE,
     WARNING_TYPES.REPAY_ALLOWANCE,
+    WARNING_TYPES.SWITCH_CHAIN,
+    WARNING_TYPES.CONNECTION
   ];
 
-  const isApproval = approvalWarnings.indexOf(validationErrors[0]) !== -1;
-  const isSwitchChain = validationErrors[0] === WARNING_TYPES.SWITCH_CHAIN;
+  const isException = exceptions.indexOf(validationErrors[0]) !== -1;
 
   return {
-    isAllowed: isApproval || isSwitchChain, // allowed for approvals & chain swich
+    isAllowed: isException, // allowed for approvals, chain swich and connect
     btnText: WARNINGS_BTN_TEXT[validationErrors[0]],
     errorType: validationErrors[0],
   };
