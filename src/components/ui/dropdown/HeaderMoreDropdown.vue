@@ -66,7 +66,7 @@
       >
 
       <a
-        href="https://analytics.abracadabra.money/fee-statistics"
+        href="https://docs.abracadabra.money/learn/"
         class="list-link"
         target="_blank"
         ><div class="link-title">
@@ -81,7 +81,6 @@
 
       <div class="social-media">
         <GitHub class="media-link" />
-        <Docs class="media-link" />
         <Discord class="media-link" />
         <Twitter class="media-link" />
         <Mirror class="media-link" />

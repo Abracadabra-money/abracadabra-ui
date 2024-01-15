@@ -78,7 +78,7 @@
         <li class="popup-link-wrap" @click="closePopup">
           <a
             class="popup-link"
-            href="https://analytics.abracadabra.money/fee-statistics"
+            href="https://docs.abracadabra.money/learn/"
             target="_blank"
           >
             <img src="@/assets/images/header/dropdown/more/docs-icon.svg" />
@@ -89,7 +89,6 @@
 
       <div class="social-media">
         <GitHub />
-        <Docs />
         <Discord />
         <Twitter />
         <Mirror />
