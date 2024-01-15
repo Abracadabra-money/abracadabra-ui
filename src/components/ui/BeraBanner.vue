@@ -14,7 +14,7 @@
       />
   
       <div class="banner-text">
-        Get Testenet BERA
+        Get Testnet BERA
         <a
           href="https://artio.faucet.berachain.com/"
           target="_blank"
