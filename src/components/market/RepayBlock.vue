@@ -14,6 +14,7 @@
     :decimals="borrowToken.decimals"
     :tokenPrice="borrowToken.price"
     isBigNumber
+    primary-max
     @updateInputValue="onUpdateRepayValue"
   />
 </template>

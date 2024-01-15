@@ -108,10 +108,14 @@ export default {
   },
 
   mounted() {
-    document.documentElement.style.setProperty(
-      "--position-health",
-      this.positionHealth.percent + "%"
-    );
+    if (+this.positionHealth.percent < 50) {
+      document.documentElement.style.setProperty("--position-health", "50%");
+    } else {
+      document.documentElement.style.setProperty(
+        "--position-health",
+        this.positionHealth.percent + "%"
+      );
+    }
   },
 
   components: {
