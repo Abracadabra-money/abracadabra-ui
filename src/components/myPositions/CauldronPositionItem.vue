@@ -4,6 +4,7 @@
     <div class="position-header">
       <div class="position-token">
         <TokenChainIcon
+          class="token-chain-icon"
           size="54px"
           :name="collateralSymbol"
           :icon="cauldron.config.icon"
@@ -18,7 +19,16 @@
         </div>
       </div>
 
-      <router-link class="manage" :to="goToPage(cauldron)">Manage</router-link>
+      <div class="links-wrap">
+        <OrderButton
+          v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+          :cauldronObject="cauldron"
+        />
+
+        <router-link class="manage" :to="goToPage(cauldron)">
+          Manage
+        </router-link>
+      </div>
     </div>
 
     <div class="position-info">
@@ -61,10 +71,10 @@ import HealthProgress from "@/components/myPositions/HealthProgress.vue";
 import OrdersManager from "@/components/market/OrdersManager.vue";
 import { ethers } from "ethers";
 import { useImage } from "@/helpers/useImage";
-
 import PositionIndicator from "@/components/myPositions/PositionIndicator.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
+import OrderButton from "@/components/myPositions/OrderButton.vue";
 
 export default {
   props: {
@@ -189,6 +199,7 @@ export default {
     PositionIndicator,
     Tooltip,
     TokenChainIcon,
+    OrderButton,
   },
 };
 </script>
@@ -247,10 +258,20 @@ export default {
   font-weight: 600;
 }
 
+.links-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: auto;
+}
+
 .manage {
+  height: 39px;
   color: #7088cc;
   font-size: 14px;
   font-weight: 600;
+  line-height: normal;
   padding: 8px 24px;
   gap: 10px;
   border-radius: 12px;
@@ -316,6 +337,16 @@ export default {
 
   .apr {
     font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .token-chain-icon {
+    width: 50px;
+  }
+
+  .links-wrap {
+    width: 117px;
   }
 }
 </style>
