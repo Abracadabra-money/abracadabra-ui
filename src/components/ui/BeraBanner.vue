@@ -70,7 +70,6 @@
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(20px);
     border-radius: 20px;
-    margin: 0 auto;
     padding: 12px 54px 12px 20px;
     position: relative;
     display: flex;
