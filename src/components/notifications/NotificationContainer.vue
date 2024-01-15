@@ -32,6 +32,9 @@ export default {
   top: 110px;
   right: 30px;
   width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   & .notification-item {
     margin-bottom: 20px;
   }
