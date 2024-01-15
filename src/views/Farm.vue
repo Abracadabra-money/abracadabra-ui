@@ -114,7 +114,7 @@ export default {
     }),
 
     isUserPositionOpen() {
-      if (!this.selectedFarm || !this.account) return false;
+      if (!this.selectedFarm?.accountInfo || !this.account) return false;
       const isOpenMultiReward = this.selectedFarm.isMultiReward
         ? +this.selectedFarm.accountInfo.depositedBalance > 0 ||
           this.selectedFarm.accountInfo.rewardTokensInfo.filter(
@@ -154,9 +154,10 @@ export default {
     max() {
       if (this.selectedFarm?.isMultiReward) {
         return !this.isUnstake
-          ? BigInt(Number(this.selectedFarm?.accountInfo?.balance) * 1e18)
+          ? BigInt(Number(this.selectedFarm?.accountInfo?.balance || 0) * 1e18)
           : BigInt(
-              Number(this.selectedFarm?.accountInfo?.depositedBalance) * 1e18
+              Number(this.selectedFarm?.accountInfo?.depositedBalance || 0) *
+                1e18
             );
       }
       return !this.isUnstake
@@ -176,6 +177,7 @@ export default {
 
     buttonText() {
       if (!this.isProperNetwork) return "Switch network";
+      if (!this.account) return "Connect wallet";
       if (this.isActionProcessing) return "Processing...";
       const text = this.isUnstake ? "Unstake" : "Stake";
       return !this.isAllowed && !this.isUnstake ? "Approve" : text;
@@ -190,7 +192,8 @@ export default {
     isButtonDisabled() {
       return (
         (!this.isValid || !!this.error || this.isActionProcessing) &&
-        this.isProperNetwork
+        this.isProperNetwork &&
+        !!this.account
       );
     },
 
@@ -254,6 +257,10 @@ export default {
     async actionHandler() {
       if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(this.farmChainId);
+      if (!this.account) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
 
       this.isActionProcessing = true;
 
