@@ -21,23 +21,23 @@
       <span class="tag-title"
         >Convert to gas token
         <div class="convert-to-gas">
-            <span class="gas-token">
-              <img class="gas-token-icon" :src="config.srcTokenIcon" />
-              <span class="gas-token-value">
-                {{ originalTokenAmount }}
-              </span>
+          <span class="gas-token">
+            <img class="gas-token-icon" :src="config.srcTokenIcon" />
+            <span class="gas-token-value">
+              {{ originalTokenAmount }}
             </span>
+          </span>
 
-            <span>
-              <img src="@/assets/images/arrow_right.svg" />
-            </span>
+          <span>
+            <img src="@/assets/images/arrow_right.svg" />
+          </span>
 
-            <span class="gas-token">
-              <img class="gas-token-icon" :src="config.dstTokenIcon" />
-              <span class="gas-token-value">
-                {{ convertTokenAmount }}
-              </span>
+          <span class="gas-token">
+            <img class="gas-token-icon" :src="config.dstTokenIcon" />
+            <span class="gas-token-value">
+              {{ convertTokenAmount }}
             </span>
+          </span>
         </div>
       </span>
     </div>
@@ -135,7 +135,7 @@ export default {
 
 .gas-token {
   display: flex;
-  align-items: end;
+  align-items: center;
   gap: 6px;
 }
 
