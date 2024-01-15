@@ -142,6 +142,7 @@ export default {
     },
 
     isActionDisabled() {
+      if (!this.account) return false;
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
       if (this.isLocked) return true;
@@ -187,6 +188,7 @@ export default {
     },
 
     actionButtonText() {
+      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (this.timerLocked !== "00:00:00" && this.isStakeAction)
         return this.timerLocked;
       if (!this.isUnsupportedChain) return "Switch Network";
@@ -309,6 +311,11 @@ export default {
 
     async actionHandler() {
       if (this.isActionDisabled) return false;
+
+      if (!this.account && this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
       if (!this.isUnsupportedChain) {
         switchNetwork(this.selectedNetwork);
         return false;
