@@ -66,9 +66,9 @@
           >{{ cookValidationData.btnText }}</BaseButton
         >
         <BaseButton
-          @click="closePositionHandler"
-          primary
           v-if="isAbleToClosePosition"
+          primary
+          @click="closePositionHandler"
           >Close position
         </BaseButton>
       </div>
@@ -183,6 +183,7 @@ export default {
     },
 
     isAbleToClosePosition() {
+      if (this.chainId !== this.cauldron.config.chainId) return false;
       if (this.actionConfig.useDeleverage) return this.hasOpenPosition;
       const { mimBalance } = this.cauldron.userTokensInfo;
       const { borrowInfo } = this.cauldron.userPosition;
@@ -198,7 +199,7 @@ export default {
 
       return liquidationSwapper && isSwappersActive;
     },
-    
+
     titleText() {
       const { useDeleverage } = this.actionConfig;
       return useDeleverage ? "Deleverage" : "Remove collateral";
