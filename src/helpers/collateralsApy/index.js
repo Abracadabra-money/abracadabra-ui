@@ -110,7 +110,10 @@ const isAprOutdate = (localData, address) => {
   return minutes > allowedTime;
 };
 
-export const getCollateralApr = async (cauldron) => {
+export const getCollateralApr = async (
+  cauldron,
+  ignoreUserPosition = false
+) => {
   const { chainId, id, contract } = cauldron.config;
   const isApyExist = isApyCalcExist(chainId, id);
 
@@ -124,7 +127,9 @@ export const getCollateralApr = async (cauldron) => {
     ? parseLocalApr[contract.address].apr
     : await fetchCollateralApy(cauldron, chainId, contract.address);
 
-  const multiplier = getMaxLeverageMultiplier(cauldron);
+  const multiplier = !ignoreUserPosition
+    ? getMaxLeverageMultiplier(cauldron)
+    : getMaxLeverageMultiplier(cauldron, 10, false, 1, true);
 
   return { value: collateralApy, multiplier };
 };

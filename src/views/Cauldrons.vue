@@ -66,7 +66,7 @@ export default {
     async getCollateralsApr() {
       this.cauldrons = await Promise.all(
         this.cauldrons.map(async (cauldron) => {
-          const apr = await getCollateralApr(cauldron);
+          const apr = await getCollateralApr(cauldron, true);
           cauldron.apr = apr;
           return cauldron;
         })
