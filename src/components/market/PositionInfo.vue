@@ -1,6 +1,6 @@
 <template>
   <div class="position-info">
-    <h3 class="title">Open position</h3>
+    <h3 class="title">Open Position</h3>
 
     <div class="position-info-item">
       <img

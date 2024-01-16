@@ -23,10 +23,11 @@ export default {
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  padding: 60px 0;
 }
 
 .icon {
-  max-width: 600px;
+  max-width: 300px;
   width: 100%;
 }
 

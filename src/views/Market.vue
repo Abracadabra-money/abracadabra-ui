@@ -361,6 +361,7 @@ export default {
 .market-info {
   max-width: 1310px;
   width: 100%;
+  min-height: 577px;
   padding: 0 15px;
   margin: 0 auto;
   display: grid;

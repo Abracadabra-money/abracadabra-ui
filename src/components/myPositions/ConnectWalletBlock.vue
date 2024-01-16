@@ -33,14 +33,15 @@ export default {
 <style lang="scss" scoped>
 .connect-wallet {
   display: flex;
-  gap: 12px;
+  gap: 22px;
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  padding: 60px 0;
 }
 
 .icon {
-  max-width: 600px;
+  max-width: 400px;
   width: 100%;
 }
 

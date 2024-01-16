@@ -21,7 +21,7 @@
 
       <div class="links-wrap">
         <OrderButton
-          v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+          v-if="cauldron && cauldron.hasActiveGmOrder"
           :cauldronObject="cauldron"
         />
 
