@@ -176,6 +176,7 @@ export default {
 
 .beam-gif {
   max-width: 100%;
+  max-height: 76px;
 }
 
 @media screen and (max-width: 600px) {
@@ -183,7 +184,9 @@ export default {
     width: 64px;
     height: 64px;
   }
+}
 
+@media screen and (max-width: 600px) {
   .beam-gif {
     margin-bottom: 10px;
   }
