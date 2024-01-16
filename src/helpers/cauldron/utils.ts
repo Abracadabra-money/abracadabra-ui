@@ -143,6 +143,9 @@ export const getPositionHealth = (
   collateralDecimals: number
   // healthMultiplier: number // ?
 ) => {
+  if (oracleExchangeRate.eq(0))
+    return { percent: BigNumber.from(0), status: "safe" };
+
   const collateralPrice = expandDecimals(1, 18 + collateralDecimals).div(
     oracleExchangeRate
   );

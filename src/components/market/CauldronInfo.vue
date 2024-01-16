@@ -113,7 +113,7 @@ export default {
   },
 
   async created() {
-    this.aprInfo = await getCollateralApr(this.cauldron);
+    this.aprInfo = await getCollateralApr(this.cauldron, true);
   },
 
   components: {

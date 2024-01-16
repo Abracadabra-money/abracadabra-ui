@@ -67,7 +67,6 @@
         >
         <BaseButton
           v-if="isAbleToClosePosition"
-          primary
           @click="closePositionHandler"
           >Close position
         </BaseButton>

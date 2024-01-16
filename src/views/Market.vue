@@ -57,7 +57,7 @@
     </div>
   </div>
 
-  <div class="mobile-navigation">
+  <div class="mobile-navigation" v-if="cauldron">
     <div
       class="nav-item"
       v-for="tab in mobileTabs"
@@ -129,6 +129,7 @@ export default {
           text: "Stats",
         },
       ],
+      mobileMode: false,
     };
   },
 
@@ -138,10 +139,6 @@ export default {
       signer: "getSigner",
       activeChainId: "getChainId",
     }),
-
-    mobileMode() {
-      return window.innerWidth <= 1024;
-    },
 
     hideActions() {
       return this.mobileMode && this.currentMobileTab !== 0;
@@ -230,6 +227,11 @@ export default {
       this.resetToggles();
     },
 
+    getWindowSize() {
+      if (window.innerWidth <= 1024) this.mobileMode = true;
+      else this.mobileMode = false;
+    },
+
     async createCauldronInfo() {
       if (!this.routeChainId || !this.routeCauldronId) return false;
 
@@ -254,10 +256,14 @@ export default {
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
+    window.removeEventListener("resize", this.getWindowSize);
   },
 
   async created() {
     await this.createCauldronInfo();
+    this.getWindowSize();
+    window.addEventListener("resize", this.getWindowSize, false);
+
     this.updateInterval = setInterval(async () => {
       await this.createCauldronInfo();
     }, 5000);
