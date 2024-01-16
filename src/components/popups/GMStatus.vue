@@ -104,6 +104,7 @@ import filters from "@/filters/index.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification.js";
 import { utils } from "ethers";
+import { getProviderByChainId } from "@/helpers/getProviderByChainId";
 
 import {
   ORDER_PENDING,
@@ -191,9 +192,13 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      provider: "getProvider",
       signer: "getSigner",
     }),
+
+    provider() {
+      return getProviderByChainId(this.cauldronObject.config.chainId);
+    },
+
     popupTitle() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) return "GM Leverage";
       if (this.orderType === ORDER_TYPE_DELEVERAGE) return "GM Deleverage";

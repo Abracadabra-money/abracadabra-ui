@@ -87,6 +87,7 @@ import {
   getOrderType,
   // @ts-ignore
 } from "@/helpers/gm/orders";
+import { getProviderByChainId } from "@/helpers/getProviderByChainId";
 
 import FAIL_ICON from "@/assets/images/order-fail.svg";
 import SUCCESS_ICON from "@/assets/images/order-success.svg";
@@ -151,8 +152,11 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      provider: "getProvider",
     }),
+
+    provider() {
+      return getProviderByChainId(this.cauldronObject.config.chainId);
+    },
 
     orderType() {
       if (this.type === ORDER_TYPE_UNKNOWN) return null;
