@@ -54,6 +54,10 @@ export default {
       deleteNotification: "notifications/delete",
       deleteAllNotification: "notifications/deleteAll",
     }),
+    successNotification(notificationId) {
+      this.deleteNotification(notificationId);
+      this.createNotification(notification.success);
+    },
     async actionHandler() {
       const isApprove =
         approvalWarnings.indexOf(this.cookValidationData.errorType) !== -1;
@@ -65,10 +69,11 @@ export default {
 
       if (isSwitchChain) return switchNetwork(this.cauldron.config.chainId);
 
-      const isConnect = this.cookValidationData.errorType === WARNING_TYPES.CONNECTION;
+      const isConnect =
+        this.cookValidationData.errorType === WARNING_TYPES.CONNECTION;
 
       // @ts-ignore
-      if(isConnect) return this.$openWeb3modal();
+      if (isConnect) return this.$openWeb3modal();
 
       return await this.cookHandler();
     },
@@ -114,11 +119,15 @@ export default {
         // GM CATCH
         const isGM = this.cauldron.config.cauldronSettings.isGMXMarket;
         if (cookActionType === ACTION_TYPES.ACTION_LEVERAGE && isGM) {
-          return await this.gmLeverageHandler(...cookPayload);
+          await this.gmLeverageHandler(...cookPayload);
+          this.successNotification(notificationId);
+          return;
         }
 
         if (cookActionType === ACTION_TYPES.ACTION_DELEVERAGE && isGM) {
-          return await this.gmDeleverageHandler(...cookPayload, notificationId);
+          await this.gmDeleverageHandler(...cookPayload, notificationId);
+          this.successNotification(notificationId);
+          return;
         }
 
         switch (cookActionType) {
@@ -151,8 +160,7 @@ export default {
         // Notice: no await
         this.$emit("updateMarket");
         this.$emit("clearData");
-        this.deleteNotification(notificationId);
-        this.createNotification(notification.success);
+        this.successNotification(notificationId);
       } catch (error) {
         console.log("cook error", error);
         const errorNotification = {
@@ -256,8 +264,7 @@ export default {
           return false;
         }
 
-        this.deleteNotification(notificationId);
-        this.createNotification(notification.success);
+        this.successNotification(notificationId);
         this.activeOrder = newOrder;
       } catch (error) {
         const errorType = String(error).indexOf("GM Capcity")
@@ -296,8 +303,7 @@ export default {
         this.isOpenGMPopup = false;
         this.activeOrder = null;
 
-        this.deleteNotification(notificationId);
-        this.createNotification(notification.success);
+        this.successNotification(notificationId);
       } catch (error) {
         console.log("gmDeleverageFromOrder err:", error);
 
