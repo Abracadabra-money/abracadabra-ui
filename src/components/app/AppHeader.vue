@@ -180,7 +180,7 @@ export default {
 
   components: {
     ConnectButton: defineAsyncComponent(() =>
-      import("@/components/ui/ConnectButton.vue")
+      import("@/components/ui/buttons/ConnectButton.vue")
     ),
     MimTokenBlock: defineAsyncComponent(() =>
       import("@/components/ui/MimTokenBlock.vue")

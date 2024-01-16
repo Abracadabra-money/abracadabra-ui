@@ -40,7 +40,7 @@
 
 <script>
 import SelectFarm from "@/components/farm/SelectFarm.vue";
-import GetLpLink from "@/components/ui/GetLpLink.vue";
+import GetLpLink from "@/components/ui/links/GetLpLink.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import filters from "@/filters/index";
 

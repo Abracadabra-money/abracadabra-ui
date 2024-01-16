@@ -26,7 +26,7 @@
 
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import GetLpLink from "@/components/ui/GetLpLink.vue";
+import GetLpLink from "@/components/ui/links/GetLpLink.vue";
 export default {
   props: {
     assetsInfo: {

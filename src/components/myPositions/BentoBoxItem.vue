@@ -16,6 +16,7 @@
         :class="['chain-icon', { 'active-chain': chain == activeChain }]"
         v-for="chain in activeChains"
         :src="getChainIcon(chain)"
+        :key="chain"
         @click="$emit('chooseActiveChain', chain)"
       />
     </div>

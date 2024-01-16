@@ -190,7 +190,7 @@ export default {
 
   components: {
     CheckBox: defineAsyncComponent(() =>
-      import("@/components/ui/CheckBox.vue")
+      import("@/components/ui/checkboxes/CheckBox.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")

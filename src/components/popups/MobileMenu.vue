@@ -106,7 +106,7 @@
 <script>
 import { mapGetters } from "vuex";
 
-import ConnectButton from "@/components/ui/ConnectButton.vue";
+import ConnectButton from "@/components/ui/buttons/ConnectButton.vue";
 import Docs from "@/components/icons/Docs.vue";
 // const Medium from "@/components/icons/Medium");
 import Twitter from "@/components/icons/Twitter.vue";
