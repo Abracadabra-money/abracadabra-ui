@@ -1,7 +1,7 @@
 <template>
   <div class="my-positions-view">
     <div class="position-page">
-      <MyPositionsInfo v-if="totalAssets" :totalAssetsData="totalAssetsData" />
+      <MyPositionsInfo :totalAssetsData="totalAssetsData" />
 
       <BentoBoxBlock
         v-if="activeChains.length"
@@ -41,7 +41,11 @@
 
       <div class="loader-wrap" v-if="positionsIsLoading || showEmptyBlock">
         <BaseLoader v-if="positionsIsLoading" large text="Loading positions." />
-        <BaseSearchEmpty v-if="showEmptyBlock" text="There are no positions." />
+        <BaseSearchEmpty
+          v-if="showEmptyBlock && account"
+          text="There are no positions."
+        />
+        <ConnectWalletBlock v-if="!account" />
       </div>
     </div>
 
@@ -70,6 +74,7 @@ import { defaultRpc } from "@/helpers/chains";
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
+import ConnectWalletBlock from "@/components/myPositions/ConnectWalletBlock.vue";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 const APR_KEY = "abracadabraCauldronsApr";
 
@@ -301,6 +306,7 @@ export default {
     FiltersPopup,
     BaseLoader,
     BaseSearchEmpty,
+    ConnectWalletBlock,
   },
 };
 </script>

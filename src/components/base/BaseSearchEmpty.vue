@@ -1,10 +1,6 @@
 <template>
   <div class="search-empty">
-    <img
-      class="icon"
-      src="@/assets/images/cauldrons/empty.png"
-      alt="Empty icon"
-    />
+    <img class="icon" src="@/assets/images/not-found.png" :alt="text" />
     <p class="text">{{ text }}</p>
   </div>
 </template>
@@ -22,7 +18,6 @@ export default {
 
 <style lang="scss" scoped>
 .search-empty {
-  padding: 100px 0;
   display: flex;
   gap: 12px;
   align-items: center;
@@ -31,8 +26,8 @@ export default {
 }
 
 .icon {
-  width: 120px;
-  height: 120px;
+  max-width: 600px;
+  width: 100%;
 }
 
 .text {

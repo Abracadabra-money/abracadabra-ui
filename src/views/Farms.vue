@@ -95,9 +95,7 @@ export default {
     },
 
     showEmptyBlock() {
-      return (
-        !this.isFarmsLoading && this.search.length && !this.filteredFarms.length
-      );
+      return !this.isFarmsLoading && !this.filteredFarms.length;
     },
 
     currentPools() {

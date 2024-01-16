@@ -13,7 +13,7 @@
       />
     </div>
 
-    <div v-if="isFarmsLoading || showEmptyBlock">
+    <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
       <BaseLoader v-if="isFarmsLoading" medium text="Loading farms." />
       <BaseSearchEmpty v-if="showEmptyBlock" text="There are no farms." />
     </div>
@@ -149,5 +149,12 @@ export default {
   overflow-y: auto;
   padding: 0 32px 0 4px;
   width: calc(100% + 32px);
+}
+
+.loader-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 </style>
