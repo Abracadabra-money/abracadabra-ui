@@ -9,7 +9,7 @@
 
     <DynamicApr :cauldron="cauldron" :multiplier="multiplier" />
 
-    <GmPriceImpact :cauldronObject="cauldron" :amount="amount" :actionType="1"/>
+    <GmPriceImpact v-if="cauldron.config.cauldronSettings.isGMXMarket" :cauldronObject="cauldron" :amount="amount" :actionType="1"/>
   </div>
 </template>
 

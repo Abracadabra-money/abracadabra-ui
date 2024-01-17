@@ -15,6 +15,7 @@
         :mimAddress="cauldron.config.mimInfo.address"
       />
       <GmPriceImpact
+        v-if="cauldron.config.cauldronSettings.isGMXMarket"
         :cauldronObject="cauldron"
         :amount="deleverageAmounts.amountFrom"
         :actionType="2"
