@@ -13,7 +13,7 @@
   <DynamicallyEstimatedPrice
     :multiplier="multiplier"
     :cauldron="cauldron"
-    :amount="expectedBorrowAmount"
+    :amount="leverageAmounts.amountFrom"
   />
 </template>
 
@@ -38,7 +38,12 @@ export default {
     depositCollateralAmount: {
       type: BigNumber,
     },
-    leverageAmounts: {},
+    leverageAmounts: {
+      default: {
+        amountFrom: BigNumber.from(0),
+        amountToMin: BigNumber.from(0),
+      },
+    },
     cauldron: {
       type: Object as any,
     },

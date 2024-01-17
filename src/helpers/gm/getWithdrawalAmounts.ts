@@ -15,6 +15,9 @@ import { getDataStoreInfo } from "./getDataStoreInfo";
 import { getLongToShortSwapAmounts } from "./trade/getLongToShortSwapAmounts";
 import { fetchTokenPrices } from "./fetchTokenPrices";
 import type { TokenPriceResponse } from "./types";
+import type { MarketInfo, DataStoreInfo } from "./types";
+import { getTradeFees } from "./fee/getFees";
+import { getMarketVirtualInventory } from "./getMarketInfo";
 
 const WBTC_ADDRESS = "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f";
 const WSOL_ADDRESS = "0x2bcC6D6CdBbDC0a4071e48bb3B969b06B3330c07";
@@ -154,7 +157,13 @@ export const getWithdrawalAmountsByMarket = async (
     parsedPrices.longTokenPrice.max
   );
 
-  const { minOutputAmount } = await getLongToShortSwapAmounts(
+  const virtualInventory = await getMarketVirtualInventory(
+    provider,
+    parsedPrices,
+    market
+  );
+
+  const { minOutputAmount } = getLongToShortSwapAmounts(
     market,
     marketInfo,
     {
@@ -165,7 +174,7 @@ export const getWithdrawalAmountsByMarket = async (
     parsedPrices,
     dataStoreInfo,
     fromTokenAmount,
-    provider
+    virtualInventory
   );
 
   const swapMinOutputAmount = applySlippageToMinOut(
@@ -188,6 +197,141 @@ export const getWithdrawalAmountsByMarket = async (
   );
 
   return {
+    shortAmountOut,
+    longAmountOut,
+  };
+};
+
+export const getWithdrawalAmountsAndFees = (
+  marketInfo: MarketInfo,
+  marketFullInfo: any,
+  dataStoreInfo: DataStoreInfo,
+  marketTokenAmount: BigNumber,
+) => {
+  const { longTokenDecimals, shortTokenDecimals, indexTokenDecimals } =
+    marketFullInfo;
+
+  const poolValue = marketFullInfo.marketTokenPriceTradeMax[1].poolValue;
+
+  const parsedPrices = marketFullInfo.parsedPrices;
+
+  const longPoolUsd = convertToUsd(
+    dataStoreInfo.longPoolAmount,
+    longTokenDecimals,
+    parsedPrices.longTokenPrice.max
+  );
+
+  const shortPoolUsd = convertToUsd(
+    dataStoreInfo.shortPoolAmount,
+    shortTokenDecimals,
+    parsedPrices.shortTokenPrice.max
+  );
+
+  const totalPoolUsd = longPoolUsd.add(shortPoolUsd);
+
+  const values = {
+    marketTokenAmount: BigNumber.from(0),
+    marketTokenUsd: BigNumber.from(0),
+    longTokenAmount: BigNumber.from(0),
+    longTokenUsd: BigNumber.from(0),
+    shortTokenAmount: BigNumber.from(0),
+    shortTokenUsd: BigNumber.from(0),
+    swapFeeUsd: BigNumber.from(0),
+    swapPriceImpactDeltaUsd: BigNumber.from(0),
+  };
+
+  if (totalPoolUsd.eq(0)) {
+    return values;
+  }
+
+  values.marketTokenAmount = marketTokenAmount;
+
+  values.marketTokenUsd = marketTokenAmountToUsd(
+    marketFullInfo.totalSupply,
+    poolValue,
+    marketTokenAmount
+  );
+
+  values.longTokenUsd = values.marketTokenUsd
+    .mul(longPoolUsd)
+    .div(totalPoolUsd);
+  values.shortTokenUsd = values.marketTokenUsd
+    .mul(shortPoolUsd)
+    .div(totalPoolUsd);
+
+  const longSwapFeeUsd = applyFactor(
+    values.longTokenUsd,
+    dataStoreInfo.swapFeeFactorForNegativeImpact
+  );
+  const shortSwapFeeUsd = applyFactor(
+    values.shortTokenUsd,
+    dataStoreInfo.swapFeeFactorForNegativeImpact
+  );
+
+  values.swapFeeUsd = longSwapFeeUsd.add(shortSwapFeeUsd);
+
+  values.longTokenUsd = values.longTokenUsd.sub(longSwapFeeUsd);
+  values.shortTokenUsd = values.shortTokenUsd.sub(shortSwapFeeUsd);
+
+  values.shortTokenAmount = convertToTokenAmount(
+    values.shortTokenUsd,
+    shortTokenDecimals,
+    parsedPrices.shortTokenPrice.max
+  );
+
+  // converted to short
+  values.longTokenAmount = convertToTokenAmount(
+    values.longTokenUsd,
+    shortTokenDecimals,
+    parsedPrices.shortTokenPrice.max
+  );
+
+  const fromTokenAmount = convertToTokenAmount(
+    values.longTokenUsd,
+    longTokenDecimals,
+    parsedPrices.longTokenPrice.max
+  );
+
+  const { virtualInventory } = marketFullInfo.marketInfo;
+
+  const amounts = getLongToShortSwapAmounts(
+    marketFullInfo.market,
+    marketInfo,
+    {
+      longTokenDecimals,
+      shortTokenDecimals,
+      indexTokenDecimals,
+    },
+    parsedPrices,
+    dataStoreInfo,
+    fromTokenAmount,
+    virtualInventory
+  );
+
+  const swapMinOutputAmount = applySlippageToMinOut(
+    DEFAULT_SLIPPAGE_AMOUNT * 2, // withdraw + swap
+    amounts.minOutputAmount
+  );
+
+  const marketMinOutputAmount = applySlippageToMinOut(
+    DEFAULT_SLIPPAGE_AMOUNT * 2, // withdraw + swap
+    values.longTokenAmount
+  );
+
+  const longAmountOut = swapMinOutputAmount.gt(marketMinOutputAmount)
+    ? marketMinOutputAmount
+    : swapMinOutputAmount;
+
+  const shortAmountOut = applySlippageToMinOut(
+    DEFAULT_SLIPPAGE_AMOUNT,
+    values.shortTokenAmount
+  );
+
+  const fees = getTradeFees(amounts)
+
+  return {
+    fees,
+    isHighPriceImpact: fees.isHighPriceImpact,
     shortAmountOut,
     longAmountOut,
   };

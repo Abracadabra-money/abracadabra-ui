@@ -72,3 +72,16 @@ export type SwapMarketInfo = DataStoreInfo & {
   longInterestInTokens: BigNumber,
   shortInterestUsd: BigNumber,
 }
+
+export type DepositMarketInfo = SwapMarketInfo & {
+  poolValueMax: BigNumber,
+}
+
+export type MarketToken = {
+  address: Address;
+  totalSupply: BigNumber;
+  prices: {
+    min: BigNumber;
+    max: BigNumber;
+  };
+};
