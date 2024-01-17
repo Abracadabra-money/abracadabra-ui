@@ -26,7 +26,7 @@
           <div class="input-wrap">
             <h4 class="title">Select amount</h4>
 
-            <TokenInput
+            <BaseTokenInput
               :value="inputValue"
               :icon="fromToken.icon"
               :name="fromToken.name"
@@ -40,7 +40,7 @@
           <div class="input-wrap">
             <h4 class="title">Receive</h4>
 
-            <TokenInput
+            <BaseTokenInput
               :disabled="true"
               :icon="toToken.icon"
               :name="toToken.name"
@@ -464,8 +464,8 @@ export default {
     AvailableNetworksBlock: defineAsyncComponent(
       () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")

@@ -6,7 +6,7 @@
 
     <h4 class="subtitle">Select the amount of MIM to repay</h4>
   </div>
-  <TokenInput
+  <BaseTokenInput
     :value="inputValue"
     :name="borrowToken.name"
     :icon="borrowToken.icon"
@@ -95,8 +95,8 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
   },
 };

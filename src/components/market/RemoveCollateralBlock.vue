@@ -1,5 +1,5 @@
 <template>
-  <TokenInput
+  <BaseTokenInput
     primary-max
     :value="inputValue"
     :name="collateralToken.name"
@@ -115,8 +115,8 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
   },
 };

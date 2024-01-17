@@ -22,7 +22,7 @@
       Select the amount of {{ activeToken.name }} to deposit in the Cauldron
     </h4>
 
-    <TokenInput
+    <BaseTokenInput
       :value="inputValue"
       :name="activeToken.name"
       :icon="activeToken.icon"
@@ -233,8 +233,8 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
   },

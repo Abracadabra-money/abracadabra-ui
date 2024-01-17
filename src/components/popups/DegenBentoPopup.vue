@@ -23,7 +23,7 @@
         </span>
       </p>
 
-      <TokenInput
+      <BaseTokenInput
         class="withdraw-input"
         name="MIM"
         :icon="mimIcon"
@@ -44,7 +44,7 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import TokenInput from "@/components/ui/inputs/TokenInput.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import degenIcon from "@/assets/images/degenbox.svg";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
@@ -241,7 +241,7 @@ export default {
     clearInterval(this.updateInfoInterval);
   },
 
-  components: { TokenInput, BaseButton },
+  components: { BaseTokenInput, BaseButton },
 };
 </script>
 

@@ -35,7 +35,7 @@
         <div class="inputs-wrap">
           <div>
             <InputLabel title="MIM to beam" :showBalance="false" />
-            <TokenInput
+            <BaseTokenInput
               class="beam-input"
               :decimals="18"
               :max="parsedMimBalance"
@@ -277,6 +277,7 @@ export default {
       if (!this.account) return "Connect wallet";
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
+      if (!this.isSelectedChain) return "Choose destination chain";
       if (this.isApproving) return "Approving";
       if (!this.isTokenApproved) return "Approve";
       if (this.isBeaming) return "Beaming";
@@ -687,8 +688,8 @@ export default {
   },
 
   components: {
-    TokenInput: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/TokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")

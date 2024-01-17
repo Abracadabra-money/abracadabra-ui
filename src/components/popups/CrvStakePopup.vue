@@ -18,7 +18,7 @@
     />
 
     <div class="inputs-wrap">
-      <TokenInput
+      <BaseTokenInput
         :value="inputValue"
         :icon="fromToken.icon"
         :name="fromTokenName"
@@ -28,7 +28,7 @@
       <div class="arrow-wrap">
         <ArrowDownIcon />
       </div>
-      <TokenInput
+      <BaseTokenInput
         :value="expectedAmount"
         :icon="toToken.icon"
         :name="toTokenName"
@@ -234,8 +234,8 @@ export default {
 
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
-    TokenInput: defineAsyncComponent(
-      () => import("@/components/market/TokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
     ArrowDownIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/ArrowDownIcon.vue")

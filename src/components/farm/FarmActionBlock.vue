@@ -4,7 +4,7 @@
       {{ inputTitleText }}
     </h4>
 
-    <FarmInput
+    <BaseTokenInput
       :value="value"
       @updateInputValue="updateValue"
       :name="selectedFarm?.stakingToken?.name"
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import FarmInput from "@/components/farm/FarmInput.vue";
+import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 
 export default {
@@ -45,7 +45,7 @@ export default {
     },
   },
 
-  components: { FarmInput, BaseButton },
+  components: { BaseTokenInput, BaseButton },
 };
 </script>
 
