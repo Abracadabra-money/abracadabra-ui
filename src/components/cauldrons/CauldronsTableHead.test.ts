@@ -22,11 +22,11 @@ describe("CauldronsTableHead", () => {
     const key = "TVL";
     wrapper.vm.updateSort(key);
     expect(wrapper.emitted("updateSort")).toBeTruthy();
-    expect(wrapper.emitted("updateSort")[0]).toEqual([key, "up"]);
+    expect(wrapper.emitted("updateSort")![0]).toEqual([key, "up"]);
   });
 
   it("returns the correct sort order when getSortOrder method is called", () => {
-    const wrapper = shallowMount(CauldronsTableHead);
+    const wrapper: any = shallowMount(CauldronsTableHead);
     const key = "TVL";
     wrapper.vm.sortKey = key;
     wrapper.vm.sortOrder = "up";
