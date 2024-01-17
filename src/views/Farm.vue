@@ -178,6 +178,8 @@ export default {
     buttonText() {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
+      if (this.error) return "Insufficient balance";
+      if (this.inputValue == "") return "Enter amount";
       if (this.isActionProcessing) return "Processing...";
       const text = this.isUnstake ? "Unstake" : "Stake";
       return !this.isAllowed && !this.isUnstake ? "Approve" : text;
