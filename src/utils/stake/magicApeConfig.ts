@@ -29,12 +29,19 @@ export const magicApeConfig = {
       abi: oracleAbi,
     },
     chainLink: {
-      address: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
+      address: "0xd10abbc76679a20055e167bb80a24ac851b37056",
       abi: chainLinkAbi,
     },
-    rewardToken: {
-      symbol: "APE",
-      icon: useImage("assets/images/ape/ape-circle.png"),
+    additionalInfo: {
+      rewardToken: {
+        symbol: "APE",
+        decimals: 18,
+        icon: useImage("assets/images/ape/ape-circle.png"),
+      },
+      leverageInfo: {
+        label: "Amplify your yield with the Abracadabra Leverage Engine",
+        id: 39,
+      },
     },
   },
 };

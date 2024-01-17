@@ -20,9 +20,11 @@ export const baseConfig = {
       blockCreated: 5022,
     },
   },
+  chainName: "BASE",
   symbol: "Base",
   icon: useImage("assets/images/networks/base.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
+  baseTokenSymbol: "ETH",
   networkIcon: useImage(`assets/images/networks/base.png`),
   lzChainId: 184,
 };

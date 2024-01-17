@@ -5,14 +5,14 @@ import type { DefaultConfig, SpellConfigs } from "@/types/spell/configsInfo";
 const spellDefauluConfig: DefaultConfig = {
   name: "SPELL",
   decimals: 18,
-  icon: useImage("assets/images/spell-icon.svg"),
+  icon: useImage("assets/images/tokens/SPELL.png"),
   abi: tokensAbi.SPELL,
 };
 
 const mSpellDefauluConfig: DefaultConfig = {
   name: "mSPELL",
   decimals: 18,
-  icon: useImage("assets/images/mspell-icon.svg"),
+  icon: useImage("assets/images/tokens/mSPELL.png"),
 };
 
 export const spellConfig: SpellConfigs = {
@@ -21,12 +21,13 @@ export const spellConfig: SpellConfigs = {
     sSpell: {
       name: "sSPELL",
       decimals: 18,
-      icon: useImage("assets/images/sspell-icon.svg"),
+      icon: useImage("assets/images/tokens/sSPELL.png"),
       contract: {
         address: "0x26FA3fFFB6EfE8c1E69103aCb4044C26B9A106a9",
         abi: tokensAbi.sSPELL,
       },
     },
+
     mSpell: {
       ...mSpellDefauluConfig,
       contract: {

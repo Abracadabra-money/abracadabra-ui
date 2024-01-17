@@ -1,16 +1,18 @@
 import mimTokenInfo from "@/utils/contracts/mimToken";
 import bentoContractsInfo from "@/utils/contracts/master";
 import degenBoxInfo from "@/utils/contracts/degenBox";
-import { multicall, readContract } from "@wagmi/core";
 import type { Address } from "@wagmi/core";
 import type { ExtendedContractInfo } from "@/utils/contracts/types";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { tokensChainLink } from "@/utils/chainLink/config";
+import { getPublicClient } from "@/helpers/getPublicClient";
 
 export const createBentoBoxConfig = async (
   chainId: number,
   account: Address
 ) => {
+  const publicClient = getPublicClient(chainId);
+
   const mimInfo = mimTokenInfo.find(
     (token: any) => token.name === "MIM" && token.chainId === chainId
   );
@@ -27,6 +29,8 @@ export const createBentoBoxConfig = async (
     (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
 
+  if (!bentoContractInfo || !degenContractInfo) return false;
+
   const mimPrice = await getTokenPriceByChain(
     tokensChainLink.mim.chainId,
     tokensChainLink.mim.address
@@ -38,7 +42,7 @@ export const createBentoBoxConfig = async (
     bentoAllowance,
     degenAllowance,
     mimBalance,
-  ]: any = await multicall({
+  ]: any = await publicClient.multicall({
     contracts: [
       {
         address: bentoContractInfo?.address as Address,
@@ -76,7 +80,7 @@ export const createBentoBoxConfig = async (
   let mimInBentoBalance, mimInDegenBalance;
 
   if (bentoContractInfo)
-    mimInBentoBalance = await readContract({
+    mimInBentoBalance = await publicClient.readContract({
       address: bentoContractInfo.address as Address,
       abi: bentoContractInfo.abi as any,
       functionName: "toAmount",
@@ -84,7 +88,7 @@ export const createBentoBoxConfig = async (
     });
 
   if (degenContractInfo)
-    mimInDegenBalance = await readContract({
+    mimInDegenBalance = await publicClient.readContract({
       address: degenContractInfo.address as Address,
       abi: degenContractInfo.abi as any,
       functionName: "toAmount",
@@ -92,6 +96,7 @@ export const createBentoBoxConfig = async (
     });
 
   return {
+    chainId,
     mimBalance: mimBalance.result,
     mimPrice,
     mimInBentoBalance,

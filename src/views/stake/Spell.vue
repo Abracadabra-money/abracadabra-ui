@@ -1,153 +1,135 @@
 <template>
   <div class="stake-view">
-    <div class="deposit-block">
-      <h4>Choose Chain</h4>
+    <div class="stake-wrap" v-if="stakeInfo">
+      <div class="actions-block">
+        <div class="actions-head">
+          <h3>{{ activeTab }}</h3>
+          <Tabs
+            :name="activeToken"
+            :items="tabTokens"
+            :icons="tabTokenIcons"
+            width="280px"
+            small
+            @select="changeToken"
+          />
+        </div>
 
-      <div class="underline">
-        <NetworksList :active-list="[1, 250, 42161, 43114]" />
-      </div>
+        <AvailableNetworksBlock
+          :selectedNetwork="selectedNetwork"
+          :availableNetworks="availableNetworks"
+          @changeNetwork="changeNetwork"
+        />
 
-      <div class="loader-wrap" v-if="!isConfigLoading">
-        <BaseLoader />
-      </div>
+        <div class="action-form">
+          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
-      <div v-else>
-        <div class="choose-asset underline">
-          <h4>Choose Asset</h4>
+          <div class="input-wrap">
+            <h4 class="title">Select amount</h4>
 
-          <div class="choose-btns">
-            <button
-              class="choose-button"
-              :class="{ 'active-button': selectedToken === 'mSpell' }"
-              @click="changeToken('mSpell')"
+            <BaseTokenInput
+              :value="inputValue"
+              :icon="fromToken.icon"
+              :name="fromToken.name"
+              :max="fromToken.balance"
+              :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
+              :disabled="isUserLocked"
+              @updateInputValue="updateMainValue"
+            />
+          </div>
+
+          <div class="input-wrap">
+            <h4 class="title">Receive</h4>
+
+            <BaseTokenInput
+              :disabled="true"
+              :icon="toToken.icon"
+              :name="toToken.name"
+              :value="expectedAmount"
+              :tokenPrice="formatUnits(toToken.price, toToken.decimals)"
+            />
+          </div>
+
+          <div class="btn-wrap">
+            <BaseButton
+              primary
+              :disabled="isActionDisabled"
+              @click="actionHandler"
             >
-              <img
-                class="choose-button-icon"
-                src="@/assets/images/mspell-icon.svg"
-                alt="mSpell icon"
+              <LockedTimer
+                v-if="isUserLocked"
+                :finalTime="mainToken.lockTimestamp"
               />
-              mSpell
-            </button>
-
-            <button
-              class="choose-button"
-              :class="{ 'active-button': selectedToken === 'sSpell' }"
-              @click="changeToken('sSpell')"
-            >
-              <img
-                class="choose-button-icon"
-                src="@/assets/images/sspell-icon.svg"
-                alt=""
-              />
-              sSpell
-            </button>
+              <span v-else> {{ actionButtonText }}</span>
+            </BaseButton>
           </div>
         </div>
+      </div>
 
-        <div class="input-assets">
-          <InputLabel :amount="fromTokenBalance" :title="mainIntulLabel" />
-          <BaseTokenInput
-            :value="inputValue"
-            :icon="fromToken.icon"
-            :name="fromToken.name"
-            :max="fromTokenBalance"
-            :disabled="isInputDisabled"
-            :error="errorMainValue"
-            @updateValue="updateMainValue"
+      <div class="stake-info">
+        <SpellSpecialInfoBlock :specialInfo="specialInfo" />
+
+        <BalancesBlock :configs="balanceInfo" />
+
+        <div class="row">
+          <StakingAprBlock :apr="mainToken.apr" />
+          <ClaimMimBlock
+            class="claim-wrap"
+            v-if="isMSpellActive"
+            :isUnsupportedChain="isUnsupportedChain"
+            :isDisableClaimButton="isDisableClaimButton"
+            :claimAmount="formatAmount(mainToken.claimableAmount)"
+            @claimMim="claimMimHandler"
           />
-        </div>
 
-        <button class="swap-button">
-          <img
-            src="@/assets/images/swap.svg"
-            @click="toggleAction"
-            alt="Swap action"
-          />
-        </button>
-
-        <div class="input-assets">
-          <h4 class="input-labal">{{ unstakeIntulLabel }}</h4>
-          <BaseTokenInput
-            :icon="toToken.icon"
-            :name="toToken.name"
-            :value="expectedAmount"
-            :disabled="true"
+          <TokenRatioBlock
+            v-else
+            :mainToken="mainToken"
+            :stakeToken="stakeToken"
           />
         </div>
       </div>
     </div>
 
-    <div class="stake-stand">
-      <h1 class="title">{{ selectedToken }} TOKEN STAKING</h1>
-
-      <div class="loader-wrap" v-if="!isConfigLoading">
-        <BaseLoader />
-      </div>
-
-      <template v-else>
-        <SpellInfoBlock
-          v-if="isUnsupportedChain"
-          :stakeToken="stakeToken"
-          :mainToken="mainToken"
-        />
-
-        <EmptyBlock :warningType="selectedToken" v-else />
-
-        <div class="btns-wrap">
-          <BaseButton
-            primary
-            :disabled="isTokenApproved"
-            @click="approveTokenHandler"
-            >Approve
-          </BaseButton>
-
-          <BaseButton :disabled="isActionDisabled" @click="actionHandler">
-            {{ actionInfo.buttonText }}
-          </BaseButton>
-        </div>
-
-        <ClaimMimBlock
-          class="claim-wrap"
-          v-if="isClaimMimBlock"
-          :claimAmount="formatAmount(mainToken.claimableAmount)"
-          :isDisableClaimButton="isDisableClaimButton"
-          @claimMim="claimMimHandler"
-        />
-      </template>
-
-      <div class="stake-description">
-        <p v-for="description in stakeDescriptions" :key="description.text">
-          {{ description.text }}
-          <span v-if="description.link">
-            <a class="description-link" :href="description.link" target="_blank"
-              >here</a
-            >!
-          </span>
-        </p>
-      </div>
+    <div class="loader-wrap" v-else>
+      <BaseLoader large text="Loading stake." />
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-ignore
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
+import { ZERO_VALUE } from "@/constants/global";
 import actions from "@/helpers/stake/spell/actions/";
-import { approveTokenViem } from "@/helpers/approval"; //todo
-import { spellConfig } from "@/utils/stake/spellConfig";
+import { approveTokenViem } from "@/helpers/approval";
 import { mapGetters, mapActions, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+// @ts-ignore
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
 
 export default {
   data() {
     return {
-      action: "Stake",
-      stakeConfig: null,
-      inputValue: "",
-      selectedToken: "mSpell",
-      updateInterval: null,
+      activeToken: "mSpell",
+      tabTokens: ["mSpell", "sSpell"],
+      tabTokenIcons: [
+        useImage("assets/images/tokens/sSPELL.png"),
+        useImage("assets/images/tokens/sSPELL.png"),
+      ],
+      activeTab: "stake",
+      tabItems: ["stake", "unstake"],
+      selectedNetwork: null as any,
+      mSpellNetworks: [1, 250, 42161, 43114],
+      sSpelleNetworks: [1],
+      stakeInfoArr: null as any,
+      inputAmount: BigInt(0) as bigint,
+      inputValue: "" as string | bigint,
+      updateInterval: null as any,
     };
   },
 
@@ -157,182 +139,176 @@ export default {
       account: "getAccount",
     }),
 
-    isConfigLoading() {
-      return !!this.stakeConfig;
-    },
-
-    isUnsupportedChain() {
-      if (!spellConfig[this.chainId]) return false;
-      return !!spellConfig[this.chainId][this.selectedToken];
-    },
-
     isStakeAction() {
-      return this.action === "Stake";
+      return this.activeTab === "stake";
     },
 
-    isTokenApproved() {
-      if (!this.isUnsupportedChain) return true;
-      if (!this.isStakeAction) return true;
-      if (this.errorMainValue) return true;
-      if (!this.account) return true;
-
-      return this.toToken.allowanceAmount >= this.parsedInputValue;
+    isUserLocked() {
+      const { lockTimestamp } = this.stakeInfo[this.activeToken];
+      return !!Number(lockTimestamp) && !this.isStakeAction;
     },
 
-    isActionDisabled() {
-      if (!this.isUnsupportedChain) return true;
-      if (this.isUserLocked) return true;
-      if (!this.isTokenApproved) return true;
-      return !!(!this.inputValue || this.errorMainValue);
-    },
-
-    isClaimMimBlock() {
-      return (
-        this.selectedToken === "mSpell" && !!this.mainToken?.claimableAmount
-      );
+    isMSpellActive() {
+      return this.activeToken === "mSpell";
     },
 
     isDisableClaimButton() {
       if (+this.mainToken?.lockTimestamp) return true;
+      if (!this.isUnsupportedChain) return true;
       return this.mainToken?.claimableAmount <= 0n;
     },
 
-    isInputDisabled() {
-      return !!this.isUserLocked || !this.isUnsupportedChain;
+    isUnsupportedChain() {
+      return this.chainId === this.selectedNetwork;
     },
 
-    parsedInputValue() {
-      return parseUnits(this.inputValue, 18);
+    isTokenApproved() {
+      if (!this.account) return true;
+      if (!this.isStakeAction) return true;
+      if (!this.isUnsupportedChain) return true;
+      return this.toToken.approvedAmount >= this.inputAmount;
+    },
+
+    isInsufficientBalance() {
+      return this.inputAmount > this.fromToken.balance;
+    },
+
+    isActionDisabled() {
+      if (!this.account) return false;
+      if (!this.isUnsupportedChain) return false;
+      if (!this.inputAmount) return true;
+      return this.isInsufficientBalance;
+    },
+
+    availableNetworks() {
+      this.stakeInfo;
+      if (this.activeToken === "mSpell") return this.mSpellNetworks;
+      return this.sSpelleNetworks;
+    },
+
+    stakeInfo() {
+      if (!this.stakeInfoArr) return null;
+
+      return this.stakeInfoArr.find(
+        (info: any) => +info.chainId === +this.selectedNetwork
+      );
     },
 
     stakeToken() {
-      return this.stakeConfig.spell;
+      return this.stakeInfo?.spell;
     },
 
     mainToken() {
-      return this.stakeConfig[this.selectedToken];
+      return this.stakeInfo[this.activeToken];
     },
 
     fromToken() {
-      if (this.isStakeAction) return this.stakeToken;
-      return this.mainToken;
-    },
-
-    fromTokenBalance() {
-      return !this.isUnsupportedChain
-        ? "0"
-        : this.formatAmount(this.fromToken.balance);
+      return this.isStakeAction ? this.stakeToken : this.mainToken;
     },
 
     toToken() {
-      if (this.isStakeAction) return this.mainToken;
-      return this.stakeToken;
-    },
-
-    isUserLocked() {
-      const { lockTimestamp } = this.stakeConfig[this.selectedToken];
-      return !!+lockTimestamp && !this.isStakeAction;
-    },
-
-    precision() {
-      return parseUnits("1", this.mainToken.decimals);
+      return this.isStakeAction ? this.mainToken : this.stakeToken;
     },
 
     expectedAmount() {
-      if (!this.inputValue) return "";
-
       const amount = this.isStakeAction
-        ? (this.parsedInputValue * this.precision) / this.mainToken.rate
-        : (this.parsedInputValue * this.mainToken.rate) / this.precision;
+        ? (this.inputAmount * this.precision) / this.mainToken.rate
+        : (this.inputAmount * this.mainToken.rate) / this.precision;
 
-      return filters.formatToFixed(this.formatAmount(amount), 6);
+      return filters.formatToFixed(
+        formatUnits(amount, this.mainToken.decimals),
+        6
+      );
     },
 
-    errorMainValue() {
-      if (this.parsedInputValue > this.fromToken.balance) {
-        return `The value cannot be greater than ${this.formatAmount(
-          this.fromToken.balance
-        )}`;
-      }
+    precision(): bigint {
+      return parseUnits("1", this.mainToken.decimals);
+    },
 
-      return "";
+    balanceInfo() {
+      return [
+        {
+          label: "Spell balance",
+          icon: this.stakeToken.icon,
+          balance: this.stakeToken.balance,
+          price: this.stakeToken.price,
+        },
+        {
+          label: `Staked ${this.activeToken}`,
+          icon: this.mainToken.icon,
+          balance: this.mainToken.balance,
+          price: this.mainToken.price,
+        },
+      ];
+    },
+
+    actionButtonText() {
+      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
+      if (!this.isUnsupportedChain) return "Switch Network";
+      if (this.isInsufficientBalance) return "Insufficient balance";
+      if (!this.isTokenApproved) return "Approve";
+      if (!this.isStakeAction) return "Unstake";
+      return "Stake";
     },
 
     actionInfo() {
-      const isMspell = this.selectedToken === "mSpell";
-      const info = { methodName: null };
-
-      if (isMspell && this.isStakeAction) info.buttonText = "Deposit";
-      if (isMspell && !this.isStakeAction) info.buttonText = "Withdraw";
-
-      if (!isMspell && this.isStakeAction) info.buttonText = "Stake";
-      if (!isMspell && !this.isStakeAction) info.buttonText = "Unstake";
-
-      if (this.isUserLocked || this.errorMainValue) return info;
+      const info: any = { methodName: null, options: [] };
 
       if (this.isStakeAction) {
-        if (this.selectedToken === "sSpell") {
+        if (this.activeToken === "sSpell") {
           info.methodName = "mint";
-          info.options = [this.parsedInputValue];
+          info.options = [this.inputAmount];
         } else {
           info.methodName = "deposit";
-          info.options = [this.parsedInputValue];
+          info.options = [this.inputAmount];
         }
       } else if (!this.isStakeAction) {
-        if (this.selectedToken === "sSpell") {
+        if (this.activeToken === "sSpell") {
           info.methodName = "burn";
-          info.options = [this.account, this.parsedInputValue];
+          info.options = [this.account, this.inputAmount];
         } else {
           info.methodName = "withdraw";
-          info.options = [this.parsedInputValue];
+          info.options = [this.inputAmount];
         }
       }
 
       return info;
     },
 
-    stakeDescriptions() {
-      const sSpell = [
+    specialInfo() {
+      const mSpellInfo = [
         {
-          text: "Make SPELL work for you! Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding. After each new deposit, all staked SPELL are subject to a 24H lock-up period!",
+          text: `Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent
+        loss, no loss of governance rights. Take part in the fee sharing
+        mechanism of Abracadabra and earn MIM! Find out more`,
+          link: "https://docs.abracadabra.money/learn/intro/stake/mspell",
         },
         {
-          text: "After each new deposit, all staked SPELL are subject to a 24H lock-up period!",
-        },
-      ];
-
-      const mSpell = [
-        {
-          text: "Make SPELL work for you! Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Take part in the fee sharing mechanism of Abracadabra and earn MIM! Find out more ",
-          link: "https://abracadabramoney.gitbook.io/intro/stake/mspell",
-        },
-        {
-          text: "sSPELL automatically earns fees from MIM repayments from all wizards proportional to your share of the stake pool.",
+          text: `mSPELL automatically earns fees from MIM repayments from all wizards
+        proportional to your share of the stake pool.`,
         },
       ];
 
-      return this.selectedToken === "mSpell" ? mSpell : sSpell;
-    },
+      const sSpellInfo = [
+        {
+          text: `Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding. After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
+        },
+        {
+          text: `After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
+        },
+      ];
 
-    mainIntulLabel() {
-      if (this.selectedToken === "mSpell" && this.isStakeAction)
-        return "Deposit";
-      if (this.selectedToken === "mSpell" && !this.isStakeAction)
-        return "Withdraw";
-      if (this.selectedToken === "sSpell" && !this.isStakeAction)
-        return "Unstake";
-
-      return "Stake";
-    },
-
-    unstakeIntulLabel() {
-      return this.selectedToken === "mSpell" ? "Stake" : "Receive";
+      return this.isMSpellActive ? mSpellInfo : sSpellInfo;
     },
   },
 
   watch: {
-    async account(value) {
-      if (value) await this.createStakeInfo();
+    async account() {
+      await this.createStakeInfo();
+    },
+
+    async activeToken() {
+      await this.updateActiveNetwork();
     },
   },
 
@@ -340,28 +316,76 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    formatAmount(value) {
+    formatUnits,
+
+    formatAmount(value: bigint) {
       return formatUnits(value, this.mainToken.decimals);
     },
 
-    changeToken(token) {
+    changeToken(token: string) {
       localStorage.setItem("SPELL_SELECTED_TOKEN", token);
-      this.selectedToken = token;
-      this.action = "Stake";
+      this.activeToken = token;
+      this.activeTab = "stake";
       this.inputValue = "";
     },
 
-    async updateMainValue(value) {
-      this.inputValue = value;
+    changeNetwork(network: number) {
+      this.selectedNetwork = network;
     },
 
-    toggleAction() {
+    changeTab(action: string) {
+      this.activeTab = action;
       this.inputValue = "";
-      this.action = this.isStakeAction ? "Unstake" : "Stake";
+    },
+
+    updateActiveNetwork() {
+      if (this.availableNetworks.includes(this.chainId))
+        this.selectedNetwork = this.chainId;
+      else this.selectedNetwork = this.availableNetworks[0];
+    },
+
+    updateMainValue(amount: bigint) {
+      if (!amount) {
+        this.inputValue = "";
+        this.inputAmount = BigInt(0);
+      } else {
+        this.inputAmount = amount;
+        this.inputValue = formatUnits(amount, this.mainToken.decimals);
+      }
+    },
+
+    getActiveToken() {
+      const activeToken = localStorage.getItem("SPELL_SELECTED_TOKEN");
+      if (activeToken) this.activeToken = activeToken;
+    },
+
+    async claimMimHandler() {
+      if (!this.isUnsupportedChain) {
+        switchNetwork(this.selectedNetwork);
+        return false;
+      }
+      if (this.isDisableClaimButton) return false;
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { error }: any = await actions.withdraw(
+        this.mainToken.contract,
+        ZERO_VALUE
+      );
+
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.createStakeInfo();
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
     },
 
     async approveTokenHandler() {
-      if (this.isTokenApproved) return false;
+      if (!this.isUnsupportedChain) return false;
 
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -374,21 +398,32 @@ export default {
 
       if (approve) await this.createStakeInfo();
       await this.deleteNotification(notificationId);
-
       if (!approve) await this.createNotification(notification.approveError);
-
       return false;
     },
 
     async actionHandler() {
       if (this.isActionDisabled) return false;
-      if (!this.actionInfo.methodName) return false;
+
+      if (!this.account && this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+      if (!this.isUnsupportedChain) {
+        switchNetwork(this.selectedNetwork);
+        return false;
+      }
+      if (!this.isTokenApproved) {
+        await this.approveTokenHandler();
+        return false;
+      }
 
       const notificationId = await this.createNotification(
         notification.pending
       );
 
-      const { error } = await actions[this.actionInfo.methodName](
+      // @ts-ignore
+      const { error }: any = await actions[this.actionInfo.methodName](
         this.mainToken.contract,
         ...this.actionInfo.options
       );
@@ -404,33 +439,14 @@ export default {
       }
     },
 
-    async claimMimHandler() {
-      if (this.isDisableClaimButton) return false;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const { error } = await actions.withdraw(this.mainToken.contract, 0n);
-
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
-        await this.createStakeInfo();
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      }
-    },
-
     async createStakeInfo() {
-      this.stakeConfig = await getStakeInfo(this.chainId);
+      this.stakeInfoArr = await getStakeInfo();
     },
   },
 
-  async mounted() {
-    const selectedToken = localStorage.getItem("SPELL_SELECTED_TOKEN");
-    if (selectedToken) this.selectedToken = selectedToken;
+  async created() {
+    this.getActiveToken();
+    this.updateActiveNetwork();
 
     await this.createStakeInfo();
 
@@ -444,29 +460,36 @@ export default {
   },
 
   components: {
-    NetworksList: defineAsyncComponent(() =>
-      import("@/components/ui/NetworksList.vue")
+    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    AvailableNetworksBlock: defineAsyncComponent(
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
-    BaseLoader: defineAsyncComponent(() =>
-      import("@/components/base/BaseLoader.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    InputLabel: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputLabel.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    LockedTimer: defineAsyncComponent(
+      () => import("@/components/ui/time/LockedTimer.vue")
     ),
-    SpellInfoBlock: defineAsyncComponent(() =>
-      import("@/components/stake/SpellInfoBlock.vue")
+    SpellSpecialInfoBlock: defineAsyncComponent(
+      () => import("@/components/stake/spell/SpellSpecialInfoBlock.vue")
     ),
-    EmptyBlock: defineAsyncComponent(() =>
-      import("@/components/stake/EmptyBlock.vue")
+    BalancesBlock: defineAsyncComponent(
+      () => import("@/components/stake/spell/BalancesBlock.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    StakingAprBlock: defineAsyncComponent(
+      () => import("@/components/stake/spell/StakingAprBlock.vue")
     ),
-    ClaimMimBlock: defineAsyncComponent(() =>
-      import("@/components/stake/ClaimMimBlock.vue")
+    TokenRatioBlock: defineAsyncComponent(
+      () => import("@/components/stake/spell/TokenRatioBlock.vue")
+    ),
+    ClaimMimBlock: defineAsyncComponent(
+      () => import("@/components/stake/spell/ClaimMimBlock.vue")
+    ),
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
     ),
   },
 };
@@ -474,150 +497,116 @@ export default {
 
 <style lang="scss" scoped>
 .stake-view {
+  min-height: 100vh;
+}
+
+.stake-wrap {
+  position: relative;
+  max-width: 1310px;
+  width: 100%;
+  padding: 124px 15px 90px;
   display: grid;
-  grid-template-columns: 550px 1fr;
-  width: 1320px;
-  max-width: calc(100% - 20px);
-  grid-gap: 15px;
+  grid-template-columns: 520px 1fr;
+  grid-gap: 24px;
   margin: 0 auto;
-  padding: 100px 0;
 }
 
-.deposit-block {
-  max-width: 100%;
-  overflow: hidden;
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
+.actions-block {
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-.underline {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.actions-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 150%;
+
+  h3::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.action-form {
+  @include block-wrap;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-wrap {
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: 0.45px;
+}
+
+.btn-wrap {
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stake-info {
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 284px 1fr;
+  gap: 16px;
+}
+
+.text {
+  text-align: center;
+  font-size: 12px;
+  line-height: 150%;
 }
 
 .loader-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 30px 10px;
+  height: 100vh;
 }
 
-.choose-asset {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 30px 0;
-}
-
-.choose-btns {
-  display: flex;
-  gap: 20px;
-}
-
-.choose-button {
-  border-radius: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.06);
-  display: inline-flex;
-  justify-content: center;
-  gap: 4px;
-  color: #fff;
-  width: 100px;
-  padding: 15px 10px;
-  cursor: pointer;
-}
-
-.choose-button-icon {
-  width: 20px;
-}
-
-.active-button {
-  border: 2px solid rgba(110, 166, 247, 0.8);
-}
-
-.input-assets {
-  padding: 20px 0 15px;
-}
-
-.swap-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  border: none;
-  background: transparent;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.input-labal {
-  margin-bottom: 6px;
-}
-
-.btns-wrap {
-  padding: 30px 0 0;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.stake-stand {
-  padding: 30px;
-  border-radius: 30px;
-  background-color: $clrBg2;
-  text-align: center;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 30px;
-  text-transform: uppercase;
-}
-
-.title::first-letter {
-  text-transform: lowercase;
-}
-
-.claim-wrap {
-  margin: 20px 0 0;
-}
-
-.stake-description {
-  padding: 20px 0;
-  line-height: 24px;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.6);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.description-link {
-  color: #759ffa;
-}
-
-@media (max-width: 1320px) {
-  .stake-view {
-    grid-template-columns: 0.9fr 1.1fr;
+@media screen and (max-width: 1200px) {
+  .stake-wrap {
+    grid-template-columns: 400px 1fr;
   }
 }
 
-@media (max-width: 1024px) {
-  .stake-view {
+@media screen and (max-width: 1024px) {
+  .stake-wrap {
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .row {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
   }
 }
 
-@media (max-width: 600px) {
-  .deposit-block,
-  .stake-stand {
-    padding: 30px 10px;
-  }
-
-  .title {
-    font-size: 20px;
+@media screen and (max-width: 600px) {
+  .actions-head {
+    font-size: 24px;
+    gap: 16px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

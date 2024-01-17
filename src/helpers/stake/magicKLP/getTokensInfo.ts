@@ -1,12 +1,12 @@
-import { multicall } from "@wagmi/core";
+import { formatUnits } from "viem";
 import type { Address } from "@wagmi/core";
 import type { TokensInfo } from "@/types/magicKlp/tokensInfo";
 import { ONE_ETHER_VIEM, RANDOM_ACCOUNT } from "@/constants/global";
-import { formatUnits } from "viem";
 
 export const getTokensInfo = async (
   address: Address,
-  config: any
+  config: any,
+  publicClient: any
 ): Promise<TokensInfo> => {
   const { mainToken, stakeToken, manager, reader } = config;
 
@@ -19,7 +19,7 @@ export const getTokensInfo = async (
     aums,
     lastAdded,
     tokenBalancesWithSupplies,
-  ]: any = await multicall({
+  ]: any = await publicClient.multicall({
     contracts: [
       {
         ...mainToken.contract,
@@ -89,7 +89,6 @@ export const getTokensInfo = async (
       totalSupplyUsd,
       balance: userMainTokenBalance.result,
       balanceUsd: mainTokenBalanceUsd,
-      approvedAmount: allowanceAmount.result,
       contract: mainToken.contract,
     },
     stakeToken: {
@@ -97,6 +96,7 @@ export const getTokensInfo = async (
       icon: stakeToken.icon,
       decimals: mainToken.decimals,
       price: stakeTokenPrice,
+      approvedAmount: allowanceAmount.result,
       balance: userStakeTokenBalance.result,
       balanceUsd: stakeTokenBalanceUsd,
       contract: stakeToken.contract,

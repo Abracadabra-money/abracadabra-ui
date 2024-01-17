@@ -14,6 +14,7 @@ export const emptyState: EmptyState = {
     name: mainToken.name,
     icon: mainToken.icon,
     balance: 0n,
+    price: 0n,
     balanceUsd: 0n,
     rate: ONE_ETHER_VIEM,
     decimals: 18,
@@ -24,12 +25,13 @@ export const emptyState: EmptyState = {
   stakeToken: {
     name: stakeToken.name,
     icon: stakeToken.icon,
+    price: 0n,
     balance: 0n,
     balanceUsd: 0n,
   },
 };
 
-export const getEmptyState = async (config: any) => {
+export const getEmptyState = async (config: any, chainId: number) => {
   if (!config) return emptyState;
   const { mainToken, manager, reader } = config;
 
@@ -73,5 +75,10 @@ export const getEmptyState = async (config: any) => {
   const totalSupplyUsd = (totalSupply.result * mainTokenPrice) / ONE_ETHER_VIEM;
   emptyState.mainToken.totalSupply = totalSupply.result;
   emptyState.mainToken.totalSupplyUsd = totalSupplyUsd;
-  return emptyState;
+  emptyState.mainToken.price = mainTokenPrice;
+  emptyState.stakeToken.price = stakeTokenPrice;
+  return {
+    chainId,
+    ...emptyState,
+  };
 };

@@ -1,11 +1,11 @@
 import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
-import type { MagicLvlTranchesInfo } from "@/types/magicLvl/stakeInfo";
 import { MASTER_ADDRESS } from "@/constants/lvlFinance";
 import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
 import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
 import { bsc } from "viem/chains";
 import { createPublicClient, http } from "viem";
 import { BSC_CHAIN_ID, MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
+import { useImage } from "@/helpers/useImage";
 
 const {
   mainToken: seniorMainToken,
@@ -28,7 +28,8 @@ const {
 }: any = magicLvlConfig[BSC_CHAIN_ID as keyof typeof magicLvlConfig]
   .tokensConfig[2];
 
-const emptyState: MagicLvlTranchesInfo = {
+const emptyState: any = {
+  chainId: 56,
   junior: {
     name: "Junior",
     tokensRate: ONE_ETHER_VIEM,
@@ -44,7 +45,7 @@ const emptyState: MagicLvlTranchesInfo = {
       contract: juniorMainToken.contract,
       balance: 0n,
       totalSupplyUsd: ONE_ETHER_VIEM,
-      approvedAmount: 0n,
+      price: 0n,
     },
     stakeToken: {
       name: juniorStakeToken.name,
@@ -54,6 +55,9 @@ const emptyState: MagicLvlTranchesInfo = {
       walletBalance: 0n,
       balance: 0n,
       pid: juniorPid,
+      approvedAmount: 0n,
+      price: 0n,
+      rateIcon: useImage("assets/images/stake/junior-icon.svg"),
     },
   },
   mezzanine: {
@@ -71,7 +75,7 @@ const emptyState: MagicLvlTranchesInfo = {
       contract: mezzanineMainToken.contract,
       balance: 0n,
       totalSupplyUsd: ONE_ETHER_VIEM,
-      approvedAmount: 0n,
+      price: 0n,
     },
     stakeToken: {
       name: mezzanineStakeToken.name,
@@ -81,6 +85,9 @@ const emptyState: MagicLvlTranchesInfo = {
       walletBalance: 0n,
       balance: 0n,
       pid: mezzaninePid,
+      price: 0n,
+      approvedAmount: 0n,
+      rateIcon: useImage("assets/images/stake/mezzanine-icon.svg"),
     },
   },
   senior: {
@@ -98,7 +105,7 @@ const emptyState: MagicLvlTranchesInfo = {
       contract: seniorMainToken.contract,
       balance: 0n,
       totalSupplyUsd: ONE_ETHER_VIEM,
-      approvedAmount: 0n,
+      price: 0n,
     },
     stakeToken: {
       name: seniorStakeToken.name,
@@ -108,6 +115,9 @@ const emptyState: MagicLvlTranchesInfo = {
       walletBalance: 0n,
       balance: 0n,
       pid: jseniorPid,
+      price: 0n,
+      approvedAmount: 0n,
+      rateIcon: useImage("assets/images/stake/senior-icon.svg"),
     },
   },
 };
@@ -147,11 +157,14 @@ const getTokenInfo = async (config: any) => {
     name: config.name,
     totalSupplyUsd: totalSupplyUsd,
     tokensRate: tokenRate.result,
+    stakeTokenPrice,
+    mainTokenPrice,
   };
 };
 
 export const getEmptyState = async (
-  config: any
+  config: any,
+  chainId: number
 ): Promise<MagicLvlStakeInfo> => {
   if (!config) return emptyState;
 
@@ -166,9 +179,13 @@ export const getEmptyState = async (
       info.totalSupplyUsd;
     emptyState[info.name as keyof typeof emptyState]!.tokensRate =
       info.tokensRate;
+    emptyState[info.name as keyof typeof emptyState]!.mainToken.price =
+      info.mainTokenPrice;
+    emptyState[info.name as keyof typeof emptyState]!.stakeToken.price =
+      info.stakeTokenPrice;
   });
 
   const additionalInfo = await getAdditionalInfo(emptyState);
 
-  return { ...emptyState, ...additionalInfo };
+  return { chainId, ...emptyState, ...additionalInfo };
 };

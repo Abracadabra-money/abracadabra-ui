@@ -1,203 +1,58 @@
 <template>
   <header class="header">
     <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
-      <img src="@/assets/images/cr.logo.gif" alt="" class="main-logo" />
+      <img src="@/assets/images/cr.logo.gif" class="main-logo" />
     </router-link>
 
     <nav class="nav">
-      <router-link class="header-link" :to="{ name: 'Cauldrons' }"
-        >Cauldrons</router-link
-      >
-      <router-link class="header-link" :to="{ name: 'Borrow' }"
-        >Borrow</router-link
-      >
-      <router-link class="header-link" :to="{ name: 'Leverage' }"
-        >Leverage</router-link
-      >
+      <div class="general-activities">
+        <router-link class="header-link" :to="{ name: 'Cauldrons' }">
+          Cauldrons
+        </router-link>
 
-      <router-link class="header-link" :to="{ name: 'MyPositions' }"
-        >Positions</router-link
-      >
+        <HeaderStakeDropdown />
 
-      <div
-        class="dropdown-tools header-link"
-        :class="{ active: isDropdownStake }"
-        @click="toggleDropdown('stake')"
-        v-click-outside="closeDropdownStake"
-      >
-        <div class="title">
-          Stake
-          <img
-            class="arrow"
-            src="@/assets/images/arrow-down.svg"
-            alt="Arrow down"
-          />
-        </div>
-        <div class="list" v-if="isDropdownStake">
-          <router-link class="list-link" :to="{ name: 'StakeSpell' }"
-            >Spell</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicGLP' }"
-            >magicGLP</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicAPE' }"
-            >magicAPE</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicLVL' }"
-            >magicLVL</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'magicKLP' }"
-            >magicKLP</router-link
-          >
+        <HeaderMoreDropdown />
+      </div>
+
+      <div class="account-activities">
+        <router-link class="header-link" :to="{ name: 'MyPositions' }">
+          <img src="@/assets/images/header/positions-header-icon.png" />
+          My Positions
+        </router-link>
+
+        <div
+          class="header-link networks-btn"
+          @click.stop="openNetworkPopup"
+          v-tooltip="unsupportedTooltip"
+        >
+          <img v-if="!!networkIcon" :src="networkIcon" />
         </div>
       </div>
-
-      <div
-        class="dropdown-tools header-link"
-        :class="{ active: isDropdownTools }"
-        @click="toggleDropdown('tools')"
-        v-click-outside="closeDropdownTools"
-      >
-        <div class="title">
-          Tools
-          <img
-            class="arrow"
-            src="@/assets/images/arrow-down.svg"
-            alt="Arrow down"
-          />
-        </div>
-        <div class="list" v-if="isDropdownTools">
-          <router-link class="list-link" :to="{ name: 'MarketsFarm' }"
-            >Farms</router-link
-          >
-          <router-link class="list-link" :to="{ name: 'Beam' }"
-            >Beam</router-link
-          >
-          <a
-            href="https://curve.fi/#/ethereum/pools/mim/swap"
-            class="list-link"
-            target="_blank"
-            >Swap</a
-          >
-          <a
-            href="https://analytics.abracadabra.money/fee-statistics"
-            class="list-link"
-            target="_blank"
-            >Analytics</a
-          >
-        </div>
-      </div>
-
-      <div
-        class="header-link networks-btn"
-        @click.stop="openNetworkPopup"
-        v-tooltip="unsupportedTooltip"
-      >
-        <img v-if="!!networcIcon" :src="networcIcon" alt="" />
-      </div>
-      <div class="header-link header-connect">
-        <ConnectButton />
-      </div>
-      <div
-        class="dropdown-other header-link"
-        :class="{ active: isDropdownOther }"
-        @click.stop="toggleDropdown('other')"
-        v-click-outside="closeDropdownOther"
-      >
-        <img
-          class="title"
-          src="@/assets/images/social/points.svg"
-          alt="Points"
-        />
-        <div class="list" v-if="isDropdownOther">
-          <a
-            href="https://legacy.abracadabra.money"
-            target="_blank"
-            rel="noreferrer noopener"
-            class="list-link"
-            >V 1</a
-          >
-          <a
-            href="https://forum.abracadabra.money/"
-            target="_blank"
-            rel="noreferrer noopener"
-            class="list-link"
-            >Forum</a
-          >
-          <div class="list-row">
-            <a
-              href="https://abracadabramoney.gitbook.io/abracadabra-money-wiki/"
-              target="_blank"
-              rel="noreferrer noopener"
-              class="list-link"
-            >
-              <Docs />
-            </a>
-
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://github.com/Abracadabra-money"
-              class="list-link"
-            >
-              <GitHub />
-            </a>
-          </div>
-          <div class="list-row">
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://twitter.com/MIM_Spell"
-              class="list-link"
-            >
-              <Twitter />
-            </a>
-
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9"
-              class="list-link"
-            >
-              <Mirror />
-            </a>
-          </div>
-          <div class="list-row">
-            <Lens />
-            <a
-              target="_blank"
-              rel="noreferrer noopener"
-              href="https://discord.com/invite/mim"
-              class="list-link"
-            >
-              <Discord />
-            </a>
-          </div>
-        </div>
-      </div>
-      <MimTokenBlock />
-
-      <div
-        class="burger"
-        :class="{ 'burger-active': mobileMenu }"
-        @click="toggleMobileMenu"
-      >
-        <div class="burger-line"></div>
-      </div>
-
-      <NetworkPopup
-        :isOpen="isOpenNetworkPopup"
-        @closePopup="closeNetworkPopup"
-        :networksArr="networksArr"
-        :activeChain="chainId"
-      />
-
-      <MobileMenu
-        v-if="mobileMenu"
-        @closePopup="closeMobilePopup"
-        @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
-      />
     </nav>
+
+    <ConnectButton class="connect-button" />
+
+    <MimTokenBlock />
+
+    <div class="burger" @click="toggleMobileMenu">
+      <div class="burger-line"></div>
+    </div>
+
+    <MobileMenu
+      v-if="mobileMenu"
+      :networkIcon="networkIcon"
+      :unsupportedTooltip="unsupportedTooltip"
+      @closePopup="closeMobilePopup"
+      @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
+    />
+
+    <NetworkPopup
+      :isOpen="isOpenNetworkPopup"
+      @closePopup="closeNetworkPopup"
+      :networksArr="networksArr"
+      :activeChain="chainId"
+    />
   </header>
 </template>
 
@@ -223,14 +78,14 @@ export default {
       networksArr: "getAvailableNetworks",
     }),
 
-    networcIcon() {
+    networkIcon() {
       if (!this.chainId) return "";
       if (this.networksArr.length && this.chainId) {
         const chain = this.networksArr.find((chain) => {
           if (chain.chainId === this.chainId) return chain;
         });
 
-        if (chain) return chain.icon;
+        if (chain) return chain.networkIcon;
       }
 
       return useImage("assets/images/networks/unsupportedChain.svg");
@@ -325,7 +180,7 @@ export default {
 
   components: {
     ConnectButton: defineAsyncComponent(() =>
-      import("@/components/ui/ConnectButton.vue")
+      import("@/components/ui/buttons/ConnectButton.vue")
     ),
     MimTokenBlock: defineAsyncComponent(() =>
       import("@/components/ui/MimTokenBlock.vue")
@@ -336,37 +191,31 @@ export default {
     MobileMenu: defineAsyncComponent(() =>
       import("@/components/popups/MobileMenu.vue")
     ),
-    Docs: defineAsyncComponent(() => import("@/components/icons/Docs.vue")),
-    Twitter: defineAsyncComponent(() =>
-      import("@/components/icons/Twitter.vue")
+    HeaderMoreDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/HeaderMoreDropdown.vue")
     ),
-    Discord: defineAsyncComponent(() =>
-      import("@/components/icons/Discord.vue")
+    HeaderStakeDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/HeaderStakeDropdown.vue")
     ),
-    Lens: defineAsyncComponent(() => import("@/components/icons/Lens.vue")),
-    Mirror: defineAsyncComponent(() => import("@/components/icons/Mirror.vue")),
-    GitHub: defineAsyncComponent(() => import("@/components/icons/GitHub.vue")),
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .main-logo {
-  width: 50px;
-  height: auto;
-  object-fit: contain;
-  margin-right: 10px;
-  cursor: pointer;
+  width: 42px;
+  height: 42px;
+  margin-right: 40px;
 }
+
 .header {
   position: absolute;
-  height: 80px;
-  top: 15px;
+  top: 28px;
   left: 0;
   right: 0;
-  max-width: 1140px;
-  margin: 0 auto;
+  max-width: 1310px;
   padding: 0 15px;
+  margin: 0 auto;
   z-index: 10;
   display: flex;
   align-items: center;
@@ -378,24 +227,47 @@ export default {
   justify-content: space-between;
 }
 
+.general-activities,
+.account-activities {
+  display: flex;
+  align-items: center;
+}
+
+.general-activities {
+  gap: 40px;
+}
+
+.account-activities {
+  gap: 16px;
+  margin-right: 16px;
+}
+
+.connect-button {
+  margin-right: 16px;
+}
+
 .header-link {
-  text-align: center;
-  background: #ffffff0f;
-  backdrop-filter: blur(40px);
-  border-radius: 20px;
-  padding: 13px 15px;
-  font-size: 16px;
-  line-height: 24px;
-  color: #fff;
+  display: flex;
+  padding: 12px 20px;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
   cursor: pointer;
-  min-width: 80px;
-  &.router-link-active {
-    background: #55535d;
-  }
+}
+
+.header-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
 }
 
 .networks-btn {
   padding: 0;
+  height: 100%;
   min-width: 55px;
   display: flex;
   align-items: center;
@@ -403,25 +275,14 @@ export default {
 }
 
 .networks-btn img {
-  max-width: 25px;
-  max-height: 25px;
-  width: 100%;
-  height: 100%;
-}
-
-.header-connect {
-  width: 146px;
-  padding: 0;
-}
-
-.header-link:hover {
-  background: #55535d;
+  width: 32px;
+  height: 32px;
 }
 
 .dropdown-tools {
   position: relative;
 
-  .title {
+  .dropdown-title {
     display: flex;
     align-items: center;
   }
@@ -433,7 +294,7 @@ export default {
   width: 90px;
   position: relative;
 
-  .title {
+  .dropdown-title {
     max-width: 20px;
   }
 }
@@ -445,13 +306,19 @@ export default {
 
 .list {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: calc(100% + 12.5px);
+
   display: flex;
   flex-direction: column;
-  background: #55535d;
-  width: 100%;
-  border-radius: 0 0 20px 20px;
+  align-items: flex-start;
+  width: 233px;
+  padding: 16px;
+  gap: 16px;
+  border-radius: 12px;
+  border: 1px solid #2d4a96;
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .list-link {
@@ -461,15 +328,10 @@ export default {
   color: #fff;
   font-size: 16px;
   line-height: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .list-link:hover {
   color: #76c3f5;
-}
-
-.list-link:last-child {
-  border-bottom: none;
 }
 
 .list-row {
@@ -485,17 +347,14 @@ export default {
   }
 }
 
-.list-row:not(:last-child) {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.active {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
 }
 
-.active {
-  border-radius: 20px 20px 0 0;
-  background: #55535d;
-
-  .arrow {
-    transform: rotate(180deg);
-  }
+.active .arrow {
+  transform: rotate(180deg);
 }
 
 .line {
@@ -512,6 +371,7 @@ export default {
   align-items: center;
   height: 16px;
   position: relative;
+  cursor: pointer;
 }
 
 .burger-line {
@@ -543,6 +403,12 @@ export default {
   }
 }
 
+@media (max-width: 1500px) {
+  .header {
+    padding: 0 15px;
+  }
+}
+
 @media (max-width: 1110px) {
   .header-link {
     display: none;
@@ -553,9 +419,13 @@ export default {
     align-items: center;
   }
 
+  .connect-button::v-deep(.btn-text) {
+    display: none;
+  }
+
   .burger {
     display: flex;
-    z-index: 11;
+    margin-left: 20px;
   }
 }
 </style>

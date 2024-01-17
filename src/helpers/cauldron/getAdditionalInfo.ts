@@ -4,6 +4,7 @@ import { getWhiteListedInfo } from "@/helpers/cauldron/getWhiteListedInfo";
 import { checkIsUserCollateralLocked } from "@/helpers/cauldron/check/checkIsUserCollateralLocked";
 import { getFeePercent } from "@/helpers/cauldron/getFeePercent";
 import { getGmInfo } from "./getGMInfo";
+import { ZERO_ADDRESS } from "@/constants/gm";
 
 const EMPTY_STATE = {
   isMasterContractApproved: false,
@@ -12,6 +13,7 @@ const EMPTY_STATE = {
   whitelistedInfo: { isUserWhitelisted: false },
   isCollateralLocked: false,
   feePercent: null,
+  hasActiveGmOrder: false,
   gmInfo: null,
 };
 
@@ -64,6 +66,12 @@ export const getAdditionalInfo = async (
 
   const feePercent = await getFeePercent(config, contractProvider, chainId);
 
+  const activeOrder = config.cauldronSettings.isGMXMarket
+    ? await contracts.cauldron.orders(account)
+    : ZERO_ADDRESS;
+
+  const hasActiveGmOrder = activeOrder !== ZERO_ADDRESS;
+
   const gmInfo = config.cauldronSettings.isGMXMarket
     ? await getGmInfo(config.collateralInfo.address, contractProvider)
     : null;
@@ -76,5 +84,6 @@ export const getAdditionalInfo = async (
     isCollateralLocked,
     feePercent,
     gmInfo,
+    hasActiveGmOrder,
   };
 };

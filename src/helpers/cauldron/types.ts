@@ -65,4 +65,34 @@ export type AdditionalInfo = {
   isCollateralLocked: any;
   feePercent: number | null;
   gmInfo: any
+  hasActiveGmOrder: boolean
 };
+
+export type SwapAmounts = {
+  amountFrom: BigNumber,
+  amountToMin: BigNumber
+}
+
+export type DepositAmounts = {
+  inputAmount: BigNumber,
+  collateralTokenAmount: BigNumber,
+  unwrapTokenAmount: BigNumber,
+}
+
+export type ActionAmounts = {
+  depositAmounts: DepositAmounts,
+  borrowAmount: BigNumber,
+  repayAmount: BigNumber,
+  withdrawAmount: BigNumber,
+  leverageAmounts: SwapAmounts,
+  deleverageAmounts: SwapAmounts
+  slippage: BigNumber
+}
+
+export type ActionConfig = {
+  useLeverage: boolean,
+  useDeleverage: boolean,
+  useNativeToken: boolean,
+  useUnwrapToken: boolean,
+  amounts: ActionAmounts
+}

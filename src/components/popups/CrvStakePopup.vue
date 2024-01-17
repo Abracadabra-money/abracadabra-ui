@@ -1,7 +1,7 @@
 <template>
   <div class="popup" v-if="stakeInfo">
     <div class="popup-header">
-      <h3 class="popup-title">{{ action }}</h3>
+      <h3 class="popup-title">{{ activeTab }}</h3>
       <img
         class="popup-btn-close"
         src="@/assets/images/close.svg"
@@ -10,54 +10,61 @@
       />
     </div>
 
-    <div>
-      <InputLabel :amount="formatAmount(fromToken.balance)" />
+    <Tabs
+      :name="activeTab"
+      :items="tabItems"
+      @select="changeTab"
+      width="240px"
+    />
+
+    <div class="inputs-wrap">
       <BaseTokenInput
+        :value="inputValue"
         :icon="fromToken.icon"
         :name="fromTokenName"
-        :max="formatAmount(fromToken.balance)"
-        :value="inputValue"
-        :error="errorMainValue"
-        @updateValue="updateMainValue"
+        :max="fromToken.balance"
+        @updateInputValue="updateMainValue"
       />
-    </div>
-
-    <SwapButton @click="toggleAction" />
-
-    <div>
-      <InputLabel :amount="formatAmount(toToken.balance)" />
+      <div class="arrow-wrap">
+        <ArrowDownIcon />
+      </div>
       <BaseTokenInput
         :value="expectedAmount"
         :icon="toToken.icon"
         :name="toTokenName"
+        :max="toToken.balance"
         :disabled="true"
       />
     </div>
 
     <BaseButton primary :disabled="isActionDisabled" @click="actionHandler">{{
-      actionBtnText
+      actionButtonText
     }}</BaseButton>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-ignore
 import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
 import actions from "@/helpers/stake/crv/actions/";
-import { approveTokenViem } from "@/helpers/approval"; //todo
+import { approveTokenViem } from "@/helpers/approval";
 import { mapGetters, mapMutations, mapActions } from "vuex";
+// @ts-ignore
 import notification from "@/helpers/notification/notification.js";
-import { getCrvStakeInfo } from "@/helpers/stake/crv/getCrvStakeInfo.ts";
-import { getCrv3cryptoStakeInfo } from "@/helpers/stake/crv3crypto/getCrv3cryptoStakeInfo.ts";
+import { getCrvStakeInfo } from "@/helpers/stake/crv/getCrvStakeInfo";
+import { getCrv3cryptoStakeInfo } from "@/helpers/stake/crv3crypto/getCrv3cryptoStakeInfo";
 
 export default {
   data() {
     return {
-      inputValue: "",
-      stakeInfo: null,
-      action: "Deposit",
-      updateInterval: null,
+      activeTab: "Deposit" as any,
+      tabItems: ["Deposit", "Withdraw"],
+      inputAmount: BigInt(0) as bigint,
+      inputValue: "" as string | bigint,
+      stakeInfo: null as any,
+      updateInterval: null as any,
     };
   },
 
@@ -68,26 +75,37 @@ export default {
       popupData: "getPopupData",
     }),
 
+    precision(): bigint {
+      return parseUnits("1", this.mainToken.decimals);
+    },
+
     isWithdraw() {
-      return this.action === "Withdraw";
+      return this.activeTab === "Withdraw";
     },
 
-    mainToken() {
-      return this.stakeInfo.mainToken;
+    isInsufficientBalance() {
+      return this.inputAmount > this.fromToken.balance;
     },
 
-    stakeToken() {
-      return this.stakeInfo.stakeToken;
+    isActionDisabled() {
+      if (!this.inputAmount) return true;
+      return this.isInsufficientBalance;
     },
 
-    fromToken() {
-      if (this.isWithdraw) return this.mainToken;
-      return this.stakeToken;
+    isTokenApproved() {
+      if (this.isWithdraw) return true;
+      return this.stakeToken.approvedAmount >= this.inputAmount;
     },
 
-    toToken() {
-      if (this.isWithdraw) return this.stakeToken;
-      return this.mainToken;
+    expectedAmount() {
+      const amount = this.isWithdraw
+        ? (this.inputAmount * this.precision) / this.stakeInfo.tokensRate
+        : (this.inputAmount * this.stakeInfo.tokensRate) / this.precision;
+
+      return filters.formatToFixed(
+        formatUnits(amount, this.mainToken.decimals),
+        6
+      );
     },
 
     fromTokenName() {
@@ -102,57 +120,27 @@ export default {
       return this.toToken.name;
     },
 
-    parsedInputValue() {
-      return parseUnits(this.inputValue, this.fromToken.decimals);
+    mainToken() {
+      return this.stakeInfo.mainToken;
     },
 
-    precision() {
-      return parseUnits("1", this.fromToken.decimals);
+    stakeToken() {
+      return this.stakeInfo.stakeToken;
     },
 
-    expectedAmount() {
-      const { tokensRate } = this.stakeInfo;
-
-      const amount = this.isWithdraw
-        ? (this.parsedInputValue * tokensRate) / this.precision
-        : (this.parsedInputValue * this.precision) / tokensRate;
-
-      return filters.formatToFixed(this.formatAmount(amount), 6);
+    fromToken() {
+      return this.isWithdraw ? this.mainToken : this.stakeToken;
     },
 
-    errorMainValue() {
-      if (this.parsedInputValue > this.fromToken.balance) {
-        return `The value cannot be greater than ${this.formatAmount(
-          this.fromToken.balance
-        )}`;
-      }
-
-      return "";
+    toToken() {
+      return this.isWithdraw ? this.stakeToken : this.mainToken;
     },
 
-    isActionDisabled() {
-      return !!(!this.inputValue || this.errorMainValue);
-    },
-
-    actionBtnText() {
-      if (this.isActionDisabled) return "Nothing to do";
+    actionButtonText() {
       if (!this.isTokenApproved) return "Approve";
-      return this.action;
-    },
-
-    isTokenApproved() {
-      if (this.isWithdraw) return true;
-      if (this.errorMainValue) return true;
-      return this.stakeToken.approvedAmount >= this.parsedInputValue;
-    },
-
-    actionInfo() {
-      return this.isWithdraw
-        ? { methodName: "withdraw", options: [this.parsedInputValue] }
-        : {
-            methodName: "deposit",
-            options: [this.parsedInputValue, this.account],
-          };
+      if (this.isInsufficientBalance) return "Insufficient balance";
+      if (this.isActionDisabled) return "Nothing to do";
+      return this.activeTab;
     },
   },
 
@@ -160,21 +148,32 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({
       deleteNotification: "notifications/delete",
-      updateNotification: "notifications/updateTitle",
       closePopup: "closePopups",
     }),
 
-    formatAmount(value) {
-      return formatUnits(value, this.fromToken.decimals);
+    updateMainValue(amount: bigint) {
+      if (!amount) {
+        this.inputValue = "";
+        this.inputAmount = BigInt(0);
+      } else {
+        this.inputAmount = amount;
+        this.inputValue = formatUnits(amount, this.mainToken.decimals);
+      }
     },
 
-    toggleAction() {
+    changeTab(action: string) {
       this.inputValue = "";
-      this.action = this.isWithdraw ? "Deposit" : "Withdraw";
+      this.activeTab = action;
     },
 
-    updateMainValue(value) {
-      this.inputValue = value;
+    async createStakeInfo() {
+      this.stakeInfo = this.popupData?.isThreeCrypto
+        ? await getCrv3cryptoStakeInfo(this.chainId, this.account)
+        : await getCrvStakeInfo(
+            this.chainId,
+            this.account,
+            this.popupData?.address
+          );
     },
 
     async approveTokenHandler() {
@@ -201,9 +200,12 @@ export default {
         notification.pending
       );
 
-      const { error } = await actions[this.actionInfo.methodName](
+      const methodName = this.isWithdraw ? "withdraw" : "deposit";
+
+      const { error }: any = await actions[methodName](
         this.mainToken.contract,
-        ...this.actionInfo.options
+        this.inputAmount,
+        this.account
       );
 
       if (error) {
@@ -215,16 +217,6 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
       }
-    },
-
-    async createStakeInfo() {
-      this.stakeInfo = this.popupData?.isThreeCrypto
-        ? await getCrv3cryptoStakeInfo(this.chainId, this.account)
-        : await getCrvStakeInfo(
-            this.chainId,
-            this.account,
-            this.popupData?.address
-          );
     },
   },
 
@@ -241,17 +233,15 @@ export default {
   },
 
   components: {
-    InputLabel: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputLabel.vue")
+    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    ArrowDownIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/ArrowDownIcon.vue")
     ),
-    SwapButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/SwapButton.vue")
-    ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
   },
 };
@@ -259,32 +249,61 @@ export default {
 
 <style lang="scss" scoped>
 .popup {
-  background: #302e38;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  border-radius: 30px;
-  padding: 15px 25px;
-  width: 540px;
+  width: 533px;
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  gap: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .popup-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 40px;
 }
 
 .popup-title {
-  font-weight: 600;
-  font-size: 20px;
-  line-height: 30px;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 150%;
 }
 
 .popup-btn-close {
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
+}
+
+.inputs-wrap {
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.arrow-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: 1px solid #2d4a96;
+  background: rgba(25, 31, 47, 0.38);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(67.9000015258789px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-text::first-letter {
+  text-transform: uppercase;
 }
 
 @media (max-width: 600px) {

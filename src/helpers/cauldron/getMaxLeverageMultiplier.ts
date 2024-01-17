@@ -3,7 +3,9 @@ import { utils } from "ethers";
 export const getMaxLeverageMultiplier = (
   { mainParams, config, userPosition, additionalInfo }: any,
   collateralAmount = 10,
-  useOtherToken = false
+  useOtherToken = false,
+  slippage = 1,
+  ignoreUserPosition = false
 ) => {
   const { mcr } = config;
   const { tokensRate } = additionalInfo;
@@ -13,8 +15,12 @@ export const getMaxLeverageMultiplier = (
   const { userCollateralAmount } = userPosition.collateralInfo;
 
   const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
-  const borrowAmount = +utils.formatUnits(userBorrowAmount);
-  const depositAmount = +utils.formatUnits(userCollateralAmount, decimals);
+  const borrowAmount = !ignoreUserPosition
+    ? +utils.formatUnits(userBorrowAmount)
+    : 0;
+  const depositAmount = !ignoreUserPosition
+    ? +utils.formatUnits(userCollateralAmount, decimals)
+    : 0;
   const rate = +utils.formatUnits(tokensRate, decimals);
 
   const instantLiquidationPrice = 1 / exchangeRate;
@@ -23,7 +29,7 @@ export const getMaxLeverageMultiplier = (
     ? collateralAmount / rate
     : collateralAmount;
 
-  const testSlippage = 1;
+  const testSlippage = slippage;
   let multiplier = 2;
   let isLiquidation = false;
 

@@ -19,6 +19,7 @@ const emptyState: EmptyState = {
     balance: 0n,
     balanceUsd: 0n,
     rate: ONE_ETHER_VIEM,
+    price: 0n,
     decimals: 18,
     totalSupply: 0n,
     totalSupplyUsd: 0n,
@@ -28,6 +29,7 @@ const emptyState: EmptyState = {
     icon: stakeToken.icon,
     balance: 0n,
     balanceUsd: 0n,
+    price: 0n,
     rateIcon: useImage("assets/images/glp/mGlpNew.png"),
   },
 };
@@ -90,11 +92,16 @@ export const getEmptyState = async (config: any, chainId: number) => {
   const tokenRate =
     (magicGlpAmount.result * ONE_ETHER_VIEM) / totalSupply.result;
 
+  const stakeTokenPrice = (mainTokenPrice * ONE_ETHER_VIEM) / tokenRate;
+
   emptyState.mainToken.totalSupply = totalSupply.result;
   emptyState.mainToken.totalSupplyUsd = totalSupplyUsd;
   emptyState.mainToken.rate = tokenRate;
+  emptyState.mainToken.price = mainTokenPrice;
+  emptyState.stakeToken.price = stakeTokenPrice;
 
   return {
+    chainId,
     ...emptyState,
     feePercent: feePercentBips.result / BIPS,
     rewardToken: {

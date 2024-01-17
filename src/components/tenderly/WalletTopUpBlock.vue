@@ -219,7 +219,7 @@ export default {
       import("@/components/ui/inputs/InputAddress.vue")
     ),
     CheckBox: defineAsyncComponent(() =>
-      import("@/components/ui/CheckBox.vue")
+      import("@/components/ui/checkboxes/CheckBox.vue")
     ),
     InputNumber: defineAsyncComponent(() =>
       import("@/components/ui/inputs/InputNumber.vue")

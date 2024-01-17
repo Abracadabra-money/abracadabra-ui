@@ -1,27 +1,21 @@
 <template>
   <div class="popup">
-    <img
-      class="popup-header"
-      src="@/assets/images/routeOptimisation.png"
-      alt=""
-    />
-
     <div class="popup-top">
       <h3 class="popup-title">Route Optimisation</h3>
       <img
         class="popup-close"
         @click="closePopup"
-        src="@/assets/images/close.svg"
+        src="@/assets/images/close-popup.svg"
         alt="close"
       />
     </div>
 
-    <div v-if="!routeDatas.length" class="loader-wrap">
-      <BaseLoader />
+    <div class="loader-wrap" v-if="!routeDatas.length">
+      <BaseLoader medium />
     </div>
 
     <div v-else class="tokens-list">
-      <div class="header-item list-item">
+      <div class="header-item">
         <p class="header-title">Token</p>
         <p class="header-title">Fees</p>
         <p class="header-title">{{ amountTitle }}</p>
@@ -121,35 +115,27 @@ export default {
   display: grid;
   grid-template-rows: auto 1fr;
   max-width: 95%;
-  width: 400px;
+  width: 480px;
   height: 566px;
   max-height: 80vh;
   position: relative;
-  padding: 68px 0 30px;
-  border-radius: 0 0 30px 30px;
-  background: #2a2835;
-  border: 4px solid #3e4282;
-  filter: drop-shadow(0px 4px 40px rgba(150, 149, 248, 0.4))
-    drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.25));
+  padding: 32px;
   margin: 0 auto;
-}
 
-.popup-header {
-  position: absolute;
-  top: -10%;
-  left: 50%;
-  right: 0;
-  margin: 0 auto;
-  transform: translateX(-50%);
-  max-width: 100vw;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  background: #101622;
+
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .popup-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding: 0 14px;
+  margin-bottom: 24px;
   z-index: 1;
 }
 
@@ -161,27 +147,42 @@ export default {
 
 .popup-close {
   cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.header-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  padding: 12px 6px;
+  border-radius: 12px 12px 0px 0px;
+  background: linear-gradient(90deg, #13182c 0%, #111523 55.82%, #14213a 100%);
 }
 
 .header-title {
-  width: 100%;
   max-width: 125px;
-  font-weight: 500;
+  color: #99a0b2;
   font-size: 14px;
-  line-height: 18px;
+  font-style: normal;
+  font-weight: 500;
 }
 
 .list-item {
   padding: 8px;
-  background: rgba(35, 33, 45, 0.4);
-  backdrop-filter: blur(4px);
-  border-radius: 16px;
+  border-radius: 12px;
+  border: 1px solid #304d99;
+  background: rgba(8, 14, 31, 0.6);
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
+  background-size: cover;
 
   &.accent {
-    box-shadow: 0px 0px 10px rgba(84, 234, 255, 0.2);
+    background-image: url("@/assets/images/cauldrons/table-item-background.png");
   }
 }
 
@@ -194,8 +195,7 @@ export default {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  gap: 12px;
-  padding: 6px 14px;
+  gap: 16px;
   width: 100%;
 }
 
@@ -204,6 +204,8 @@ export default {
   justify-content: center;
   align-items: center;
   margin-top: 52px;
+  height: 300px;
+  overflow: hidden;
 }
 
 ::-webkit-scrollbar {

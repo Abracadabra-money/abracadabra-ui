@@ -1,31 +1,44 @@
 <template>
-  <router-link :to="goToPage" class="markets-link">
-    <div class="stats-wrap">
-      <div>
-        <p class="chain-title">CHAIN</p>
-        <img class="chain-icon" :src="chainIcon" alt="Chain icon" />
+  <router-link
+    :to="goToPage"
+    :class="['farm-item', { positionOpened: isOpenedPosition }]"
+    :style="farmStatusStyles.border"
+  >
+    <div
+      class="status-flag"
+      :style="farmStatusStyles.flagColor"
+      v-if="farmStatusStyles.text"
+    >
+      <span class="status-flag-text">{{ farmStatusStyles.text }}</span>
+    </div>
+
+    <div class="item-header">
+      <div class="token-info">
+        <TokenChainIcon
+          :icon="farm.icon"
+          :name="farm.name"
+          :chainId="farm.chainId"
+          size="44px"
+        />
+        <span class="token-name">{{ farm.name }}</span>
+      </div>
+    </div>
+
+    <div class="item-info">
+      <div class="apr">
+        <div class="tag-title">
+          APR
+          <Tooltip
+            class="tooltip"
+            :tooltip="'Annual Return on Staked tokens at current price'"
+          />
+        </div>
+        <p class="tag-value">{{ apr }}</p>
       </div>
 
-      <div class="farm-info">
-        <BaseTokenIcon :name="farm.name" :icon="farm.icon" />
-        <div>
-          <span class="farm-name">
-            {{ farm.name }}
-          </span>
-          <span class="farm-deprecated" v-if="farm.isDepreciated"
-            >Deprecated</span
-          >
-        </div>
-      </div>
-
-      <div v-for="(item, i) in farmInfo" :key="i">
-        <span class="item-title">{{ item.title }}</span>
-        <span class="item-value">{{ item.value }}</span>
-      </div>
-      <div class="links-wrap">
-        <div class="link-wrap" v-if="!farm.isDepreciated">
-          <router-link :to="goToPage">Join farm</router-link>
-        </div>
+      <div class="tvl">
+        <div class="tag-title">TVL</div>
+        <p class="tag-value">{{ tvl }}</p>
       </div>
     </div>
   </router-link>
@@ -34,7 +47,8 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
 
 export default {
   props: {
@@ -47,151 +61,186 @@ export default {
     ...mapGetters({ chainId: "getChainId", getChainById: "getChainById" }),
 
     goToPage() {
-      return { name: "Farm", params: { id: this.farm.id } };
+      return {
+        name: "Farm",
+        params: { id: this.farm.id, farmChainId: this.farm.chainId },
+      };
     },
 
-    farmInfo() {
-      return [
-        {
-          title: "APR",
-          value: filters.formatPercent(this.farm.farmRoi),
-        },
-        { title: "TVL", value: filters.formatUSD(this.farm.farmTvl) },
-      ];
+    apr() {
+      return filters.formatPercent(this.farm.farmRoi);
     },
 
-    chainIcon() {
-      return this.getChainById(this.chainId).icon;
+    tvl() {
+      return filters.formatUSD(this.farm.farmTvl);
+    },
+
+    farmStatusStyles() {
+      if (this.farm.isDeprecated)
+        return {
+          text: "Deprecated",
+          flagColor:
+            "background: linear-gradient(180deg, #8c4040 0%, #6b2424 100%);",
+          border: "border: 1px solid #4a2130;",
+        };
+      if (this.farm.config?.isNew)
+        return {
+          text: "New",
+          flagColor:
+            "background: linear-gradient(0deg, #2d4a96 0%, #5b7cd1 100%);",
+          border: "border: 1px solid #304d99;",
+        };
+      return {
+        text: "",
+        flagColor: "",
+        border: "border: 1px solid rgba(180, 180, 180, 0.08);",
+      };
+    },
+
+    isOpenedPosition() {
+      return (
+        Number(this.farm.accountInfo?.depositedBalance) ||
+        Number(this.farm.accountInfo?.balance)
+      );
     },
   },
 
   components: {
-    BaseTokenIcon,
+    TokenChainIcon,
+    Tooltip,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.farm-deprecated {
-  width: max-content;
-  background: #d94844;
-  border-radius: 8px;
-  font-size: 12px;
-  line-height: 18px;
-  padding: 0 10px;
-}
-
-.markets-link {
+.farm-item {
   position: relative;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 300px;
+  height: 158px;
+  border: 1px solid rgba(180, 180, 180, 0.08);
+  border-radius: 16px;
+  padding: 21px 12px 16px 12px;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
+  backdrop-filter: blur(12.5px);
+  transition: all 0.5s ease-in-out;
+}
+
+.farm-item:hover {
+  transform: scale(1.01);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.16);
+}
+
+.item-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.token-info {
+  display: flex;
   align-items: center;
-  background-color: #2a2835;
-  line-height: 21px;
-  border-radius: 26px;
-  padding: 10px;
-  height: auto;
+}
+
+.token-name {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.tag-title {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #878b93;
   font-size: 14px;
-  border: none;
-  cursor: pointer;
+  font-weight: 500;
+}
+
+.apr,
+.tvl {
+  display: flex;
+  flex-direction: column;
+}
+
+.apr {
+  align-items: start;
+}
+
+.apr .tag-value {
   color: white;
-  text-align: left;
-  box-shadow: 0 0 0 1px transparent;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #343141;
-  }
+  text-shadow: 0px 0px 16px rgba(171, 93, 232, 0.55);
+  font-size: 30px;
+  font-weight: 600;
 }
 
-.stats-wrap {
-  display: grid;
-  grid-gap: 4px;
-  width: 100%;
+.tvl {
+  align-items: end;
 }
 
-.chain-title {
-  display: block;
-}
-
-.chain-icon {
-  max-width: 26px;
-  width: 100%;
-  max-height: 26px;
-}
-
-.farm-info {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
+.tvl .tag-value {
+  color: #fff;
   font-size: 16px;
-  margin-bottom: 6px;
-}
-.farm-name {
-  display: flex;
-  align-items: center;
-  height: 32px;
+  font-weight: 500;
 }
 
-.item-title {
-  display: block;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
+.tooltip {
+  width: 16px;
+  height: 16px;
 }
 
-.links-wrap {
+.status-flag {
+  position: absolute;
+  top: -1px;
+  left: -1px;
   display: flex;
-  justify-content: flex-end;
-}
-
-.link-wrap {
-  text-decoration: none;
-  max-width: 120px;
-  width: 100%;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  align-items: center;
-  padding: 10px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-
-  a {
-    color: #fff;
-  }
+  align-items: center;
+  width: 117px;
+  height: 15px;
+  border-radius: 16px 0 8px 0px;
+  background: linear-gradient(218deg, #67a069 23.2%, #446a46 79.7%);
 }
 
-@media (min-width: 1024px) {
-  .markets-link {
-    padding: 0 20px;
-    font-size: 16px;
-    border-radius: 30px;
-    min-height: 70px;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  }
+.status-flag-text {
+  text-align: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 500;
+}
 
-  .stats-wrap {
-    grid-template-columns: 0.5fr 1.1fr 1.1fr 1.1fr 1.2fr;
-    align-items: center;
-    grid-gap: 0;
-  }
+.positionOpened {
+  background: url("../../assets/images/farm/farm-opened-position-background.png"),
+    linear-gradient(
+      91deg,
+      rgba(27, 24, 68, 0.6) 14.68%,
+      rgba(13, 19, 38, 0.6) 76.58%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
+    );
 
-  .chain-title {
-    display: none;
-  }
+  background-repeat: no-repeat;
+}
 
-  .farm-info {
-    margin-bottom: 0;
-  }
-  .item-title {
-    display: none;
-  }
-
-  .farm-name {
-    height: 28px;
-  }
-  .link-wrap {
-    max-width: 100%;
+@media screen and (max-width: 700px) {
+  .farm-item {
+    width: 100%;
   }
 }
 </style>

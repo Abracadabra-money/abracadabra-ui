@@ -13,13 +13,14 @@ export type SpellInfo = {
 export type MSpellInfo = {
   name: string;
   icon: string;
+  rateIcon: string;
   decimals: number;
   contract: ContractInfo;
   price: bigint;
   rate: bigint;
   lockTimestamp: string;
   balance: bigint;
-  allowanceAmount: bigint;
+  approvedAmount: bigint;
   claimableAmount: bigint;
   apr?: string;
 };
@@ -27,15 +28,16 @@ export type MSpellInfo = {
 export type SSpellInfo = {
   name: string;
   icon: string;
+  rateIcon: string;
   decimals: number;
   contract: ContractInfo;
   price: bigint;
   rate: bigint;
   lockTimestamp: string;
   balance: bigint;
-  allowanceAmount: bigint;
-  claimableAmount: bigint;
+  approvedAmount: bigint;
   apr?: string;
+  leverageInfo: any;
 };
 
 export type SpellStakeInfo = {

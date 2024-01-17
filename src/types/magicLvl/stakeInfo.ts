@@ -16,7 +16,7 @@ export type MagicLvlMainTokenInfo = {
   contract: ContractInfo;
   balance: bigint;
   totalSupplyUsd: bigint;
-  approvedAmount: bigint;
+  price: bigint;
 };
 
 export type MagicLvlStakeTokenInfo = {
@@ -27,9 +27,13 @@ export type MagicLvlStakeTokenInfo = {
   walletBalance: bigint;
   balance: bigint;
   pid: number;
+  price: bigint;
+  approvedAmount: bigint;
+  rateIcon: string;
 };
 
 export type MagicLvlTranchesInfo = {
+  chainId?: any;
   junior?: MagicLvlTrancheInfo;
   mezzanine?: MagicLvlTrancheInfo;
   senior?: MagicLvlTrancheInfo;
@@ -45,6 +49,7 @@ export type MagicLvlTrancheInfo = {
 };
 
 export type MagicLvlStakeInfo = {
+  chainId: number;
   junior?: MagicLvlTrancheInfo;
   mezzanine?: MagicLvlTrancheInfo;
   senior?: MagicLvlTrancheInfo;

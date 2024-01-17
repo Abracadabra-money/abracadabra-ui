@@ -9,7 +9,7 @@
   </a>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: "BaseButton",
   props: {
@@ -42,7 +42,7 @@ export default {
   cursor: pointer;
   position: relative;
   border-radius: 20px;
-  background: #403e4a;
+  // background: #403e4a;
   height: 50px;
   padding: 0 20px;
   display: flex;
@@ -55,10 +55,14 @@ export default {
   font-size: 16px;
   line-height: 24px;
   overflow: hidden;
-  border: 2px solid #648fcc;
+  border: 2px solid #7088CC;
   width: 100%;
+  height: 48px;
+  color: #7088CC;
+  transition: all .3s ease;
 
   &.disabled {
+    pointer-events: none;
     cursor: not-allowed;
   }
 
@@ -71,6 +75,7 @@ export default {
   }
 
   &.primary {
+    color: #fff;
     line-height: 50px;
     background: linear-gradient(107.5deg, #5552fd -3.19%, #76c3f5 101.2%);
     border: none;
@@ -84,12 +89,13 @@ export default {
   }
   &:not(.primary, .borderless) {
     &:hover:not(.disabled) {
-      border: 2px solid #62a5d3;
-      background: #616068;
+      border: 2px solid #86A2F1;
+      color: #86A2F1;
+      background: rgba(255, 255, 255, 0.05);
     }
     &.disabled {
-      background: #403e4a;
-      color: rgba(255, 255, 255, 0.6);
+      border: 2px solid #575C62;
+      color: #575C62;
     }
   }
 }

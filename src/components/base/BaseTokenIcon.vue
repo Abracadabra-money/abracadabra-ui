@@ -7,8 +7,9 @@
   />
 </template>
 
-<script>
-import { useImage } from "@/helpers/useImage";
+<script lang="ts">
+// @ts-ignore
+import { useImage } from "@/helpers/useImage.js";
 
 export default {
   props: {

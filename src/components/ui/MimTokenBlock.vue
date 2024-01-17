@@ -111,6 +111,8 @@ export default {
 
 .mim-price {
   margin-left: 10px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .token-btn {
@@ -128,11 +130,5 @@ export default {
 
 .disabled {
   cursor: initial;
-}
-
-@media (max-width: 980px) {
-  .mim-wrap {
-    z-index: 11;
-  }
 }
 </style>

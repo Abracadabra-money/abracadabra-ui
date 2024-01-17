@@ -1,9 +1,15 @@
 <template>
-  <div class="popup-wrap">
+  <div :class="['popup-wrap', { farmPopupWrap: isFarm }]">
     <div class="popup-header">
       <h4 class="popup-title">Select {{ popupTitle }}</h4>
       <PopupSearch v-if="!isLoadingMarkets" @input="changeSearch" />
     </div>
+
+    <InputSearch
+      class="input-search"
+      v-if="marketsList.length && isFarmsMarket"
+      @input="changeSearch"
+    />
 
     <div class="loader-wrap" v-if="isLoader">
       <BaseLoader />
@@ -14,8 +20,8 @@
         <MarketsListPopupFarmItem
           v-for="marketItem in filteredMarketList"
           :marketItem="marketItem"
-          :key="marketItem.id"
-          @changeActiveMarket="changeActiveMarket"
+          :key="`${marketItem.id}-${marketItem.chainId}`"
+          @changeActiveMarket="changeActiveFarm"
         />
       </template>
 
@@ -42,12 +48,18 @@ import BaseLoader from "@/components/base/BaseLoader.vue";
 import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
 import MarketsListPopupCauldronItem from "@/components/popups/marketList/MarketsListPopupCauldronItem.vue";
 import PopupEmptyState from "@/components/popups/ui/PopupEmptyState.vue";
+import InputSearch from "@/components/ui/inputs/InputSearch.vue";
 
 export default {
   props: {
     popupType: {
       type: String,
       required: true,
+    },
+
+    isFarm: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -148,10 +160,12 @@ export default {
 
     filteredMarketList() {
       if (this.isFarmsMarket) {
-        return this.sortedMarketsList.filter(
-          ({ name }) =>
-            name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
-        );
+        return this.search
+          ? this.sortedMarketsList.filter(
+              ({ name }) =>
+                name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+            )
+          : this.sortedMarketsList;
       }
 
       return this.sortedMarketsList.filter(
@@ -168,6 +182,11 @@ export default {
 
     changeActiveMarket(marketId) {
       this.$emit("changeActiveMarket", marketId);
+    },
+
+    //todo
+    changeActiveFarm({ id, chainId }) {
+      this.$emit("changeActiveMarket", { id, chainId });
     },
 
     async getMarketsList() {
@@ -194,33 +213,14 @@ export default {
     MarketsListPopupFarmItem,
     MarketsListPopupCauldronItem,
     PopupEmptyState,
+    InputSearch,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
+@include scrollbar;
 
-::-webkit-scrollbar-thumb {
-  border-width: 1px 1px 1px 2px;
-  border-radius: 2px;
-  background-color: #252423;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  border-width: 1px 1px 1px 2px;
-  background-color: #565656;
-}
-
-::-webkit-scrollbar-track {
-  border-width: 1px;
-
-  background-color: #414141;
-  border-color: transparent;
-}
 .popup-wrap {
   display: grid;
   grid-template-rows: auto 1fr;

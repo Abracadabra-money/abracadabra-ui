@@ -1,3 +1,4 @@
+import { RPC_KAVA } from "@/constants/rpc";
 import { useImage } from "@/helpers/useImage";
 
 export const kavaConfig = {
@@ -11,8 +12,8 @@ export const kavaConfig = {
     symbol: "Kava",
   },
   rpcUrls: {
-    public: { http: ["https://evm.kava.io"] },
-    default: { http: ["https://evm.kava.io"] },
+    public: { http: [RPC_KAVA] },
+    default: { http: [RPC_KAVA] },
   },
   blockExplorers: {
     etherscan: { name: "Kava", url: "https://explorer.kava.io" },
@@ -24,9 +25,11 @@ export const kavaConfig = {
       blockCreated: 3661165,
     },
   },
+  chainName: "KAVA",
   symbol: "Kava EVM",
   icon: useImage("assets/images/networks/kava.png"),
   baseTokenIcon: useImage("assets/images/tokens/KAVA.png"),
+  baseTokenSymbol: "Kava",
   networkIcon: useImage(`assets/images/networks/kava.png`),
   lzChainId: 177,
 };

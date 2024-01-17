@@ -7,7 +7,7 @@ export const getAdditionalInfo = async (
 ): Promise<MagicLvlAdditionalInfo> => {
   const decimals = 18;
 
-  const { juniorApy, mezzanineApy, seniorApy, junior, mezzanine, senior } =
+  const { seniorApy, junior, mezzanine, senior } =
     await getMagicLvlStatistics();
 
   const { totalRewards: juniorTotalRewards, lpPriceUsd: juniorLpPriceUsd } =
@@ -44,8 +44,8 @@ export const getAdditionalInfo = async (
   return {
     tranchesStatistics: {
       seniorApy,
-      mezzanineApy,
-      juniorApy,
+      mezzanineApy: 0,
+      juniorApy: 0,
       seniorTotalRewardsUsd,
       mezzanineTotalRewardsUsd,
       juniorTotalRewardsUsd,
