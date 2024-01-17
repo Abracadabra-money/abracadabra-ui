@@ -9,12 +9,13 @@
 
     <DynamicApr :cauldron="cauldron" :multiplier="multiplier" />
 
-    <!-- <GmPriceImpact /> -->
+    <GmPriceImpact :cauldronObject="cauldron" :amount="amount" :actionType="1"/>
   </div>
 </template>
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { BigNumber } from "ethers";
 
 export default {
   props: {
@@ -24,7 +25,9 @@ export default {
     multiplier: {
       type: Number,
     },
-    amount: {},
+    amount: {
+      default: BigNumber.from(0)
+    },
     isClose: {
       type: Boolean,
       default: false,
@@ -38,9 +41,9 @@ export default {
     DynamicApr: defineAsyncComponent(
       () => import("@/components/market/DynamicApr.vue")
     ),
-    // GmPriceImpact: defineAsyncComponent(
-    //   () => import("@/components/market/GmPriceImpact.vue")
-    // ),
+    GmPriceImpact: defineAsyncComponent(
+      () => import("@/components/market/GmPriceImpact.vue")
+    ),
   },
 };
 </script>

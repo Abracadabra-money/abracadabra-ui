@@ -14,6 +14,11 @@
         :amount="deleverageAmounts.amountToMin"
         :mimAddress="cauldron.config.mimInfo.address"
       />
+      <GmPriceImpact
+        :cauldronObject="cauldron"
+        :amount="deleverageAmounts.amountFrom"
+        :actionType="2"
+      />
     </div>
   </div>
 </template>
@@ -147,6 +152,9 @@ export default {
     ),
     DynamicFee: defineAsyncComponent(
       () => import("@/components/market/DynamicFee.vue")
+    ),
+    GmPriceImpact: defineAsyncComponent(
+      () => import("@/components/market/GmPriceImpact.vue")
     ),
   },
 };
