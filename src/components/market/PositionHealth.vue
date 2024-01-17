@@ -99,25 +99,35 @@ export default {
     },
   },
 
+  watch: {
+    positionHealth() {
+      this.updatePositionHealth();
+    },
+  },
+
   methods: {
     formatUSD(value: BigNumber, decimals: number) {
       return filters.formatUSD(
         filters.formatToFixed(utils.formatUnits(value, decimals), 2)
       );
     },
+
+    updatePositionHealth() {
+      if (!+this.positionHealth.percent) {
+        document.documentElement.style.setProperty("--position-health", "0%");
+      } else if (+this.positionHealth.percent < 50) {
+        document.documentElement.style.setProperty("--position-health", "50%");
+      } else {
+        document.documentElement.style.setProperty(
+          "--position-health",
+          this.positionHealth.percent + "%"
+        );
+      }
+    },
   },
 
   mounted() {
-    if (!+this.positionHealth.percent) {
-      document.documentElement.style.setProperty("--position-health", "0%");
-    } else if (+this.positionHealth.percent < 50) {
-      document.documentElement.style.setProperty("--position-health", "50%");
-    } else {
-      document.documentElement.style.setProperty(
-        "--position-health",
-        this.positionHealth.percent + "%"
-      );
-    }
+    this.updatePositionHealth();
   },
 
   components: {
