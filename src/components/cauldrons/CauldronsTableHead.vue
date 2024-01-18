@@ -38,23 +38,23 @@ export default {
         },
         {
           tableKey: "TVL",
-          tooltip: "tooltip",
+          tooltip: "Total Value Locked.",
         },
         {
           tableKey: "TMB",
-          tooltip: "tooltip",
+          tooltip: "Total MIM Borrowed.",
         },
         {
           tableKey: "MIMS LB",
-          tooltip: "tooltip",
+          tooltip: "MIMs left to be Borrowed.",
         },
         {
           tableKey: "Interest",
-          tooltip: "tooltip",
+          tooltip: "Annualised percent that your debt will increase each year.",
         },
         {
           tableKey: "APR",
-          tooltip: "tooltip",
+          tooltip: "Annualised Percentage Return Range.",
         },
       ],
     };

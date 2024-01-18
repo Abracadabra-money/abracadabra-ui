@@ -3,7 +3,12 @@
     <div class="row head-row">
       <h3 class="title">Cauldron Stats</h3>
       <div class="apr" v-if="loopApr">
-        <TooltipIcon :width="20" :height="20" fill="#878B93" tooltip="APR" />
+        <TooltipIcon
+          :width="20"
+          :height="20"
+          fill="#878B93"
+          tooltip="Annualised Percentage Return Range given by the collateral."
+        />
         <span>APR:</span>
         <span>{{ loopApr }}</span>
       </div>
@@ -20,7 +25,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="Borrow fee"
+            tooltip="Fee charged on the amount of MIM borrowed from the cauldron."
           />
         </div>
         <div class="fees-percent">{{ cauldron.mainParams.borrowFee }}%</div>
@@ -33,7 +38,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="Interest fee"
+            tooltip="Annualised percent that your debt will increase each year."
           />
         </div>
         <div class="fees-percent">{{ cauldron.mainParams.interest }}%</div>
@@ -46,7 +51,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="Liquidation fee"
+            tooltip="The discount that a liquidator will receive when repaying open borrow positions that are flagged for liquidation."
           />
         </div>
         <div class="fees-percent">
@@ -61,7 +66,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="Liquidation fee"
+            tooltip="Maximum collateral ratio (MCR) represents the maximum amount of debt a user can borrow against the current value of the collateral token."
           />
         </div>
         <div class="fees-percent">{{ cauldron.config.mcr }}%</div>

@@ -31,8 +31,16 @@
       </div>
 
       <div class="info-wrap group-wrap">
-        <InfoButton title="TMB" :value="totalMimBorrowed" />
-        <InfoButton title="TVL" :value="totalValueLocked" />
+        <InfoButton
+          title="TMB"
+          tooltip="Total MIM Borrowed."
+          :value="totalMimBorrowed"
+        />
+        <InfoButton
+          title="TVL"
+          tooltip="Total Value Locked."
+          :value="totalValueLocked"
+        />
       </div>
     </div>
   </div>

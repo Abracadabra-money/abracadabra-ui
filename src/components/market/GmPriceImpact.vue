@@ -2,7 +2,12 @@
   <div class="price-impact">
     <div class="title">
       GM Price impact
-      <TooltipIcon :width="20" :height="20" fill="#878B93" tooltip="tooltip" />
+      <TooltipIcon
+        :width="20"
+        :height="20"
+        fill="#878B93"
+        :tooltip="tooltipText"
+      />
     </div>
     <div class="value" :class="{ warning: priceImpact?.isHighPriceImpact }">
       {{ priceImpact?.swapFee ? priceImpact.swapFee : 0 }}
@@ -31,7 +36,7 @@ export default {
       type: Object,
     },
     amount: {
-      default: BigNumber.from(0)
+      default: BigNumber.from(0),
     },
     actionType: {
       default: ACTION_LEVERAGE,

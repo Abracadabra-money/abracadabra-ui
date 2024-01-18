@@ -14,7 +14,7 @@
           :width="20"
           :height="20"
           fill="#878B93"
-          tooltip="Collateral Deposit"
+          tooltip="Total amount of Collateral Deposited in the Cauldron."
         />
       </h4>
       <p class="item-value">
@@ -48,7 +48,7 @@
           :width="20"
           :height="20"
           fill="#878B93"
-          tooltip="MIM to repay"
+          tooltip="Amount of MIM borrowed from the cauldron."
         />
       </h4>
       <p class="item-value">
@@ -87,7 +87,7 @@
           :width="20"
           :height="20"
           fill="#878B93"
-          tooltip="MIM to repay"
+          tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
         />
       </h4>
       <p class="item-value">
