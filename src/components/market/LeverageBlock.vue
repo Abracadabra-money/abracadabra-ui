@@ -153,6 +153,7 @@ export default {
         //@ts-ignore
         positionExpectedCollateral,
         multiplier,
+        //@ts-ignore
         this.slippage,
         oracleExchangeRate
       );
