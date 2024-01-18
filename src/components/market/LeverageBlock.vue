@@ -136,15 +136,22 @@ export default {
     },
 
     updateLeverageAmounts() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const multiplier = utils.parseUnits(
         String(this.multiplier),
         PERCENT_PRESITION
       );
 
+      const positionExpectedCollateral = userCollateralAmount.add(
+        this.depositCollateralAmount
+      );
+
       const leverageAmounts = getLeverageAmounts(
         //@ts-ignore
-        this.depositCollateralAmount,
+        positionExpectedCollateral,
         multiplier,
         this.slippage,
         oracleExchangeRate
