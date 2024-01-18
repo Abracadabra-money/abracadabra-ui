@@ -4,9 +4,9 @@
       <div class="base-track">
         <div class="progress-track" :style="{ background: gradientRangeTrack }">
           <span class="progress-value" :style="progressValuePosition">
-            {{ positionLtv > max ? max : positionLtv  }}%
+            {{ positionLtv > max ? max : positionLtv }}%
           </span>
-          <span class="progress-percent-max" v-show="showMrcPercent"
+          <span class="progress-percent-max" v-show="showMcrPercent"
             >{{ max }}%</span
           >
           <input
@@ -24,9 +24,13 @@
             >LTV <TooltipIcon :width="13" :height="13" tooltip="LTV"
           /></span>
 
-          <span class="tooltipMcr" v-show="showMrcPercent"
-            >MRC
-            <TooltipIcon :width="13" :height="13" fill="#878B93" tooltip="MRC"
+          <span class="tooltipMcr" v-show="showMcrPercent"
+            >MCR
+            <TooltipIcon
+              :width="13"
+              :height="13"
+              fill="#878B93"
+              tooltip="Maximum collateral ratio (MCR) represents the maximum amount of debt a user can borrow against the current value of the collateral token."
           /></span>
         </div>
       </div>
@@ -103,7 +107,7 @@ export default {
       );
     },
 
-    showMrcPercent() {
+    showMcrPercent() {
       return +this.gradientPercent <= 85 ? true : false;
     },
   },
