@@ -19,7 +19,11 @@
       </div>
 
       <ul class="deposited-token-parts token-list">
-        <li class="deposited-token-part list-item" v-for="token in tokensList">
+        <li
+          class="deposited-token-part list-item"
+          v-for="token in tokensList"
+          :key="token.name"
+        >
           <span class="token-name">
             <BaseTokenIcon :icon="token.icon" :name="token.name" size="28px" />
             {{ token.name }}</span

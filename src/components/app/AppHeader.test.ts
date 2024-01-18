@@ -1,9 +1,9 @@
 import Vuex from "vuex";
+import { ethers } from "ethers";
 import { chains } from "@/helpers/chains";
 import { describe, it, expect, vi } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import AppHeader from "@/components/app/AppHeader.vue";
-import { ethers } from "ethers";
 
 const store = new Vuex.Store({
   modules: {
