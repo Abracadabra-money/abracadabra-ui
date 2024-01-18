@@ -292,12 +292,33 @@ export default {
     left: auto;
   }
 
+  .degen-bg {
+    background: linear-gradient(90deg, #302754 0%, rgba(45, 74, 150, 0.46) 100%),
+      linear-gradient(
+        1deg,
+        rgba(0, 0, 0, 0.6) 0.52%,
+        rgba(23, 6, 57, 0.44) 99.48%
+      ),
+      url("../../assets/images/myPositions/degenbox-item-background-mobile.png");
+  }
+
+  .bento-bg {
+    background: linear-gradient(90deg, #302754 0%, rgba(45, 74, 150, 0.46) 100%),
+      linear-gradient(
+        1deg,
+        rgba(0, 0, 0, 0.6) 0.52%,
+        rgba(23, 6, 57, 0.44) 99.48%
+      ),
+      url("../../assets/images/myPositions/bentobox-item-background-mobile.png");
+  }
+
   .bento-block {
     flex-direction: column;
     height: 125px;
     align-items: stretch;
-    background-size: 180% 200%;
-    background-position: 40% 50%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 
   .bento-title,
@@ -327,6 +348,11 @@ export default {
     width: 122px;
     height: 37px;
     font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .bento-block {
   }
 }
 </style>

@@ -146,6 +146,9 @@ export default {
       rgba(116, 92, 210, 0.32) 100%
     ),
     url("../../assets/images/myPositions/reward-mim-background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 20% 20%;
 }
 
 @media screen and (max-width: 1050px) {
@@ -163,6 +166,7 @@ export default {
 @media screen and (max-width: 620px) {
   .reward-card {
     width: 100%;
+    height: 73px;
   }
 
   .title {
@@ -172,9 +176,16 @@ export default {
   .desc-line {
     font-size: 14px;
   }
+}
 
+@media screen and (max-width: 400px) {
   .mim {
-    background-size: 140%, 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(45, 74, 150, 0.32) 0%,
+        rgba(116, 92, 210, 0.32) 100%
+      ),
+      url("../../assets/images/myPositions/reward-mim-background-mobile.png");
   }
 }
 </style>
