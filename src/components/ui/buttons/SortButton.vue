@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Arrows from "@/components/icons/Arrows.vue";
+import Arrows from "@/components/ui/icons/Arrows.vue";
 export default {
   props: {
     sortOrder: {

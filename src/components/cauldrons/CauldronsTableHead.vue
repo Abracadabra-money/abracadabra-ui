@@ -79,7 +79,9 @@ export default {
     },
   },
   components: {
-    Arrows: defineAsyncComponent(() => import("@/components/icons/Arrows.vue")),
+    Arrows: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Arrows.vue")
+    ),
     TooltipIcon: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")
     ),

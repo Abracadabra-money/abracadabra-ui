@@ -80,6 +80,7 @@
       >
 
       <div class="social-media">
+        <Lens class="media-link" />
         <GitHub class="media-link" />
         <Discord class="media-link" />
         <Twitter class="media-link" />
@@ -90,12 +91,11 @@
 </template>
 
 <script>
-import Docs from "@/components/icons/Docs.vue";
-import Twitter from "@/components/icons/Twitter.vue";
-import Discord from "@/components/icons/Discord.vue";
-import Lens from "@/components/icons/Lens.vue";
-import Mirror from "@/components/icons/Mirror.vue";
-import GitHub from "@/components/icons/GitHub.vue";
+import Lens from "@/components/ui/icons/Lens.vue";
+import Mirror from "@/components/ui/icons/Mirror.vue";
+import GitHub from "@/components/ui/icons/GitHub.vue";
+import Twitter from "@/components/ui/icons/Twitter.vue";
+import Discord from "@/components/ui/icons/Discord.vue";
 
 export default {
   data() {
@@ -115,11 +115,10 @@ export default {
   },
 
   components: {
-    Docs,
+    Lens,
     Mirror,
     Twitter,
     Discord,
-    Lens,
     GitHub,
   },
 };

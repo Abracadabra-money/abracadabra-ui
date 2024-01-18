@@ -31,32 +31,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.list-link {
-  padding: 13px 0;
-  display: flex;
-  justify-content: center;
-  color: #fff;
-  font-size: 16px;
-  line-height: 24px;
-  display: flex;
-  align-items: center;
-}
-
 svg {
-  width: 24px;
-  height: 18px;
-  object-fit: contain;
-  margin-right: 4px;
+  width: inherit;
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
 }
-
-.list-link:hover {
-  color: #76c3f5;
-  // background: -webkit-linear-gradient(#5282fd, #76c3f5);
-  // -webkit-background-clip: text;
-  // -webkit-text-fill-color: transparent;
-
-  svg path {
-    fill: #76c3f5;
-  }
+svg:hover path {
+  fill: #76c3f5;
 }
 </style>

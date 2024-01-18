@@ -88,6 +88,7 @@
       </ul>
 
       <div class="social-media">
+        <Lens />
         <GitHub />
         <Discord />
         <Twitter />
@@ -105,15 +106,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-
+import Lens from "@/components/ui/icons/Lens.vue";
+import Mirror from "@/components/ui/icons/Mirror.vue";
+import GitHub from "@/components/ui/icons/GitHub.vue";
+import Twitter from "@/components/ui/icons/Twitter.vue";
+import Discord from "@/components/ui/icons/Discord.vue";
 import ConnectButton from "@/components/ui/buttons/ConnectButton.vue";
-import Docs from "@/components/icons/Docs.vue";
-// const Medium from "@/components/icons/Medium");
-import Twitter from "@/components/icons/Twitter.vue";
-import Discord from "@/components/icons/Discord.vue";
-import Lens from "@/components/icons/Lens.vue";
-import Mirror from "@/components/icons/Mirror.vue";
-import GitHub from "@/components/icons/GitHub.vue";
 import HeaderStakeMobilePopup from "@/components/popups/HeaderStakeMobilePopup.vue";
 
 export default {
@@ -149,11 +147,10 @@ export default {
   components: {
     HeaderStakeMobilePopup,
     ConnectButton,
-    Docs,
+    Lens,
     Mirror,
     Twitter,
     Discord,
-    Lens,
     GitHub,
   },
 };
