@@ -69,7 +69,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
+import MarketsSwitch from "@/components/farm/MarketsSwitch.vue";
 import FarmingOpportunities from "@/components/farm/FarmingOpportunities.vue";
 import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
 import FarmPosition from "@/components/farm/FarmPosition.vue";
