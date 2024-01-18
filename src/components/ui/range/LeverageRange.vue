@@ -105,7 +105,6 @@ export default {
 @include range;
 
 .leverage-range-wrap {
-  height: 62px;
   display: flex;
   flex-direction: column;
   justify-content: center;

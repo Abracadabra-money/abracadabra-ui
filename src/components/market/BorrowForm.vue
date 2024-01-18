@@ -1,5 +1,13 @@
 <template>
   <div class="borrow-form">
+    <!-- TODO: MOVE TO MARKET -->
+    <OrdersManager
+      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+      :cauldronObject="cauldron"
+      :recoverLeverage="gmRecoverLeverageOrder"
+      :deleverageFromOrder="gmDeleverageFromOrder"
+    />
+
     <div class="deposit-wrap">
       <DepositBlock
         :cauldron="cauldron"
@@ -67,14 +75,6 @@
         >{{ cookValidationData.btnText }}</BaseButton
       >
     </div>
-
-    <!-- TODO: MOVE TO MARKET -->
-    <OrdersManager
-      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
-      :cauldronObject="cauldron"
-      :recoverLeverage="gmRecoverLeverageOrder"
-      :deleverageFromOrder="gmDeleverageFromOrder"
-    />
   </div>
 
   <!-- TODO: MOVE TO MARKET -->
@@ -197,18 +197,18 @@ export default {
 
 .borrow-wrap {
   @include block-wrap;
-  min-height: 390px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 16px;
 }
 
 .borrow-logic {
-  gap: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .borrow-head-row {

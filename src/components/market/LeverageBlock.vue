@@ -193,6 +193,6 @@ export default {
 
 <style lang="scss" scoped>
 .range-wrap {
-  margin-bottom: 16px;
+  margin: 16px 0;
 }
 </style>

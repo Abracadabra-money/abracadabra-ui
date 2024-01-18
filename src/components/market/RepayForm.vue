@@ -1,5 +1,14 @@
 <template>
   <div class="repay-form">
+    <!-- TODO: MOVE TO MARKET -->
+    <OrdersManager
+      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+      :cauldronObject="cauldron"
+      :deleverageSuccessPayload="gmDelevSuccessPayload"
+      :recoverLeverage="gmRecoverLeverageOrder"
+      :deleverageFromOrder="gmDeleverageFromOrder"
+    />
+
     <div class="block-wrap remove-block">
       <div class="row">
         <div class="title-wrap">
@@ -65,22 +74,11 @@
           @click="actionHandler"
           >{{ cookValidationData.btnText }}</BaseButton
         >
-        <BaseButton
-          v-if="isAbleToClosePosition"
-          @click="closePositionHandler"
+        <BaseButton v-if="isAbleToClosePosition" @click="closePositionHandler"
           >Close position
         </BaseButton>
       </div>
     </div>
-
-    <!-- TODO: MOVE TO MARKET -->
-    <OrdersManager
-      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
-      :cauldronObject="cauldron"
-      :deleverageSuccessPayload="gmDelevSuccessPayload"
-      :recoverLeverage="gmRecoverLeverageOrder"
-      :deleverageFromOrder="gmDeleverageFromOrder"
-    />
   </div>
 
   <!-- TODO: MOVE TO MARKET -->
@@ -317,11 +315,6 @@ export default {
 
 .block-wrap {
   @include block-wrap;
-}
-
-.remove-block {
-  max-height: 206px;
-  height: 100%;
 }
 
 .row {
