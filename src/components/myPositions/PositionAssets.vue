@@ -1,6 +1,6 @@
 <template>
   <div class="assets-wrap">
-    <div class="asset" v-for="asset in assetsInfo">
+    <div class="asset" v-for="asset in assetsInfo" :key="asset.name">
       <p class="asset-title">{{ asset.title }}</p>
       <div class="asset-info">
         <div class="asset-token">
@@ -26,7 +26,6 @@
 
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import GetLpLink from "@/components/ui/links/GetLpLink.vue";
 export default {
   props: {
     assetsInfo: {
@@ -36,7 +35,6 @@ export default {
 
   components: {
     BaseTokenIcon,
-    GetLpLink,
   },
 };
 </script>

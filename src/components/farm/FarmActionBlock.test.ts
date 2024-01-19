@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
-import FarmActionBlock from "./FarmActionBlock.vue";
+import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
 
 describe("FarmActionBlock", () => {
   it("renders the component correctly", () => {

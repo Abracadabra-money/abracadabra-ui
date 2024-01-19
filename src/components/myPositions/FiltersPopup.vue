@@ -12,7 +12,7 @@
     </div>
 
     <div class="filters">
-      <div class="filter" v-for="sorter in sortersData">
+      <div class="filter" v-for="sorter in sortersData" :key="sorter.key">
         <p class="filter-title">Sort by {{ sorter.text }}</p>
         <label class="label" :for="`${sorter.key}-up`">
           <span class="checkmark"

@@ -21,6 +21,7 @@
       <div
         :class="['reward-card', { mim: index }]"
         v-for="(data, index) in totalAssetsData"
+        :key="data.title"
       >
         <h4 class="reward-title">Total {{ data.title }}</h4>
         <div class="reward-values">

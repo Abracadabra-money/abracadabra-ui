@@ -68,9 +68,7 @@ import filters from "@/filters/index.js";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
-import OrdersManager from "@/components/market/OrdersManager.vue";
 import { ethers } from "ethers";
-import { useImage } from "@/helpers/useImage";
 import PositionIndicator from "@/components/myPositions/PositionIndicator.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
@@ -194,7 +192,6 @@ export default {
   components: {
     PositionAssets,
     HealthProgress,
-    OrdersManager,
 
     PositionIndicator,
     Tooltip,
