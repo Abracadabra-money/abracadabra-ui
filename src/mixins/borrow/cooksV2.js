@@ -908,15 +908,18 @@ export default {
         );
       }
 
-      cookData = await this.recipeAddCollatral(
-        cookData,
-        pool,
-        tokenAddr,
-        isWrap,
-        this.account,
-        collateralAmount,
-        collateralValue
-      );
+      // NOTICE: added in v3 revamp
+      if (collateralAmount.gt(0)) {
+        cookData = await this.recipeAddCollatral(
+          cookData,
+          pool,
+          tokenAddr,
+          isWrap,
+          this.account,
+          collateralAmount,
+          collateralValue
+        );
+      }
 
       cookData = await actions.borrow(
         cookData,
@@ -1252,7 +1255,7 @@ export default {
           balanceUSDC
         );
 
-        console.log(updatedCookData)
+      console.log(updatedCookData);
 
       await cook(cauldron, updatedCookData, executionFee);
     },
@@ -1281,15 +1284,18 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeAddCollatral(
-        cookData,
-        cauldronObject,
-        collateral.address,
-        isWrap,
-        this.account,
-        collateralAmount,
-        0
-      );
+      // NOTICE: added in v3 revamp
+      if (collateralAmount.gt(0)) {
+        cookData = await this.recipeAddCollatral(
+          cookData,
+          cauldronObject,
+          collateral.address,
+          isWrap,
+          this.account,
+          collateralAmount,
+          0
+        );
+      }
 
       cookData = await actions.borrow(
         cookData,
