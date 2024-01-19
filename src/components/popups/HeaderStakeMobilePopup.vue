@@ -115,7 +115,6 @@
 </template>
 
 <script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import filters from "@/filters/index";
 import { mapGetters } from "vuex";
@@ -188,7 +187,6 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
     BaseLoader,
   },
 };

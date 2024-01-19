@@ -27,12 +27,6 @@ describe("PositionIndicator", () => {
 
     wrapper.setProps({ positionRisk: "medium" });
     expect(wrapper.vm.tooltipColor).toBe("#DDC237");
-
-    //   wrapper.setProps({ positionRisk: "high" });
-    //   expect(wrapper.vm.tooltipColor).toBe("#fff");
-
-    //   wrapper.setProps({ positionRisk: "unknown" });
-    //   expect(wrapper.vm.tooltipColor).toBe("#fff");
   });
 
   it("sets the correct tooltip color for high position risk", () => {
