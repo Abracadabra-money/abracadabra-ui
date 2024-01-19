@@ -266,7 +266,7 @@ export default {
 
     this.updateInterval = setInterval(async () => {
       await this.createCauldronInfo();
-    }, 5000);
+    }, 60000);
   },
 
   components: {
