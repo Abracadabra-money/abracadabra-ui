@@ -233,11 +233,24 @@ export default {
 @media screen and (max-width: 620px) {
   .reward-card {
     width: 100%;
+    height: 90px;
   }
 
   .arbitrum {
-    background-size: 140%, 100%;
-    background-position: -80px 0;
+    background-size: 120%;
+    background-position: -70px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .arbitrum {
+    background: linear-gradient(
+        90deg,
+        rgba(45, 74, 150, 0.32) 0%,
+        rgba(116, 92, 210, 0.32) 100%
+      ),
+      url("../../assets/images/farm/reward-arbitrum-background-mobile.png");
+    background-position: -7px 0;
   }
 }
 </style>

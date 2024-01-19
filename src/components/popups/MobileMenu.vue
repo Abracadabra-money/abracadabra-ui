@@ -26,7 +26,9 @@
 
         <li class="popup-link-wrap" @click="closePopup">
           <router-link class="popup-link" :to="{ name: 'Cauldrons' }">
-            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <img
+              src="@/assets/images/header/dropdown/more/cauldrons-icon.svg"
+            />
             <span class="link-text"> Cauldrons </span>
           </router-link>
         </li>
@@ -41,14 +43,14 @@
 
         <li class="popup-link-wrap" @click="closePopup">
           <router-link class="popup-link" :to="{ name: 'MarketsFarm' }">
-            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <img src="@/assets/images/header/dropdown/more/farms-icon.svg" />
             <span class="link-text"> Farms </span>
           </router-link>
         </li>
 
         <li class="popup-link-wrap" @click="closePopup">
           <router-link class="popup-link" :to="{ name: 'Beam' }">
-            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <img src="@/assets/images/header/dropdown/more/beam-icon.svg" />
             <span class="link-text"> Beam </span>
           </router-link>
         </li>

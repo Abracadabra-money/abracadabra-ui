@@ -19,7 +19,7 @@
         <div class="link-title">
           <img
             class="link-icon"
-            src="@/assets/images/header/dropdown/more/bars-icon.svg"
+            src="@/assets/images/header/dropdown/more/farms-icon.svg"
           />
           Farms
         </div>
@@ -30,7 +30,7 @@
         <div class="link-title">
           <img
             class="link-icon"
-            src="@/assets/images/header/dropdown/more/bars-icon.svg"
+            src="@/assets/images/header/dropdown/more/beam-icon.svg"
           />
           Beam
         </div>
