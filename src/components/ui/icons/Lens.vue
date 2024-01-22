@@ -1,6 +1,6 @@
 <template>
   <a
-    href="https://www.lensfrens.xyz/magic.lens"
+    href="https://www.lensfrens.xyz/magic"
     target="_blank"
     rel="noreferrer noopener"
     :class="{ 'list-link': !isMobile }"
