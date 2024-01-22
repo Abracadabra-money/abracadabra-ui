@@ -6,7 +6,7 @@
   </a>
 </template>
 <script>
-import { useImage } from "@/helpers/useimage";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: { link: { type: String, required: true } },
