@@ -142,7 +142,7 @@ export default {
 
   methods: {
     formatUnits(value: any, decimals = 18) {
-      return filters.formatToFixed(utils.formatUnits(value, decimals), 2);
+      return filters.formatTokenBalance(utils.formatUnits(value, decimals));
     },
   },
 
