@@ -1,11 +1,5 @@
 <template>
   <div class="token-info">
-    <router-link class="cauldrons-link" :to="{ name: 'Cauldrons' }">
-      <CauldronIcon />
-    </router-link>
-
-    <ArrowRightIcon />
-
     <div class="icons-wrap">
       <img class="token-icon" :src="cauldron.config.icon" alt="Token icon" />
 
@@ -29,7 +23,6 @@
 import { utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters";
-import { defineAsyncComponent } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
@@ -54,15 +47,6 @@ export default {
   },
 
   methods: { getChainIcon },
-
-  components: {
-    CauldronIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/CauldronIcon.vue")
-    ),
-    ArrowRightIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/ArrowRightIcon.vue")
-    ),
-  },
 };
 </script>
 
