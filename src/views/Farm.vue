@@ -414,8 +414,8 @@ export default {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100vh;
-  padding: 100px 0;
+  min-height: 100vh;
+  padding: 100px 0 40px 0;
   margin: 0 auto;
 }
 
@@ -438,7 +438,7 @@ export default {
 
 .farm-position {
   position: absolute;
-  top: 82px;
+  top: 72px;
   right: -300px;
 }
 
@@ -510,6 +510,11 @@ export default {
   .farm {
     padding: 0 15px;
     width: 100% !important;
+  }
+
+  .my-position-button {
+    height: 39px;
+    font-size: 14px;
   }
 }
 </style>

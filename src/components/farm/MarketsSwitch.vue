@@ -61,7 +61,8 @@ export default {
 }
 
 .switch-btn {
-  padding: 6px 24px;
+  width: 50%;
+  padding: 6px 0;
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
   font-size: 16px;
@@ -120,6 +121,10 @@ export default {
   .switch {
     width: 200px;
     height: 43px;
+  }
+
+  .switch-btn {
+    font-size: 14px;
   }
 }
 </style>

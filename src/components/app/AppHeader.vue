@@ -216,7 +216,7 @@ export default {
   max-width: 1310px;
   padding: 0 15px;
   margin: 0 auto;
-  z-index: 10;
+  z-index: 101;
   display: flex;
   align-items: center;
 }

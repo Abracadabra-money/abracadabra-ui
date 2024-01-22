@@ -172,10 +172,6 @@ export default {
   backdrop-filter: blur(20px);
 }
 
-.inner {
-  z-index: 11;
-}
-
 .popup {
   display: flex;
   flex-direction: column;

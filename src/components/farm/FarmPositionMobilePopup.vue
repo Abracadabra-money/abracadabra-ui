@@ -247,15 +247,11 @@ export default {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 20px 16px 60px 16px;
+  padding: 20px 16px 40px 16px;
   gap: 16px;
   border-radius: 20px 20px 0 0;
-  border: 1px solid rgba(45, 74, 150, 1);
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.22) 0%,
-    rgba(116, 92, 210, 0.22) 100%
-  );
+  border: 1px solid #342866;
+  background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(20px);
 }
