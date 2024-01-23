@@ -1,4 +1,11 @@
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
+import { expandDecimals } from "../gm/fee/expandDecials";
+
+import {
+  getLeverageAmounts,
+  getLiquidationPrice,
+  PERCENT_PRESITION,
+} from "@/helpers/cauldron/utils";
 
 export const getMaxLeverageMultiplier = (
   { mainParams, config, userPosition, additionalInfo }: any,
@@ -57,6 +64,72 @@ export const getMaxLeverageMultiplier = (
   }
 
   const result = Math.min(multiplier, 100);
+
+  return +parseFloat(result.toString()).toFixed(2);
+};
+
+export const getMaxLeverageMultiplierAlternative = (
+  { mainParams, config, userPosition }: any,
+  depositAmount: BigNumber = BigNumber.from(0),
+  slippage: BigNumber = expandDecimals(1, 2)
+) => {
+  const { mcr } = config;
+  const { oracleExchangeRate } = mainParams;
+  const { decimals } = config.collateralInfo;
+  const { userBorrowAmount } = userPosition.borrowInfo;
+  const { userCollateralAmount } = userPosition.collateralInfo;
+  const positionExpectedCollateral = userCollateralAmount.add(depositAmount);
+
+  // if user position is empty
+  const testCollateral = positionExpectedCollateral.gt(0)
+    ? positionExpectedCollateral
+    : utils.parseUnits("10", decimals);
+
+  const collateralPrice = expandDecimals(1, 18 + decimals).div(
+    oracleExchangeRate
+  );
+
+  let multiplier = 2;
+  let isLiquidation = false;
+
+  while (!isLiquidation) {
+    const multiplierParsed = utils.parseUnits(
+      parseFloat(String(multiplier)).toFixed(2),
+      PERCENT_PRESITION
+    );
+
+    const leverageAmounts = getLeverageAmounts(
+      //@ts-ignore
+      testCollateral,
+      multiplierParsed,
+      //@ts-ignore
+      slippage,
+      oracleExchangeRate
+    );
+
+    const finalCollateralAmount = testCollateral.add(
+      leverageAmounts.amountToMin
+    );
+
+    const finalBorrowPart = userBorrowAmount.add(leverageAmounts.amountFrom);
+
+    const liquidationPrice = getLiquidationPrice(
+      finalBorrowPart,
+      finalCollateralAmount,
+      mcr - 1, // liquidation protection
+      decimals
+    );
+
+    if (liquidationPrice.gt(collateralPrice)) {
+      isLiquidation = true;
+      multiplier -= 0.1;
+      break;
+    }
+
+    multiplier += 0.1;
+  }
+
+  const result = Math.min(multiplier, 50);
 
   return +parseFloat(result.toString()).toFixed(2);
 };

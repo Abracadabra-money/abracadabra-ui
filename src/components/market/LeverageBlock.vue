@@ -28,7 +28,7 @@ import {
 import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
 export default {
   props: {
@@ -136,16 +136,24 @@ export default {
     },
 
     updateLeverageAmounts() {
+      const { userCollateralAmount } =
+        this.cauldron.userPosition.collateralInfo;
+
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const multiplier = utils.parseUnits(
         String(this.multiplier),
         PERCENT_PRESITION
       );
 
+      const positionExpectedCollateral = userCollateralAmount.add(
+        this.depositCollateralAmount
+      );
+
       const leverageAmounts = getLeverageAmounts(
         //@ts-ignore
-        this.depositCollateralAmount,
+        positionExpectedCollateral,
         multiplier,
+        //@ts-ignore
         this.slippage,
         oracleExchangeRate
       );
@@ -154,21 +162,12 @@ export default {
     },
 
     getMaxLeverageMultiplier() {
-      const { decimals } = this.cauldron.config.collateralInfo;
-
-      const depositCollateralAmount = Number(
-        //@ts-ignore
-        utils.formatUnits(this.depositCollateralAmount, decimals)
-      );
-
-      const slippage = utils.formatUnits(this.slippage!, PERCENT_PRESITION);
-
-      const maxMultiplier = getMaxLeverageMultiplier(
+      const maxMultiplier = getMaxLeverageMultiplierAlternative(
         this.cauldron,
         //@ts-ignore
-        depositCollateralAmount > 0 ? depositCollateralAmount : undefined,
-        false,
-        Number(slippage)
+        this.depositCollateralAmount,
+        //@ts-ignore
+        this.slippage!
       );
 
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
