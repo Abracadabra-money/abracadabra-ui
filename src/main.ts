@@ -7,6 +7,7 @@ import connectWallet from "./plugins/connectWallet/connectWallet";
 import clickOutside from "./directives/clickOutside";
 import VueTippy from "vue-tippy";
 import { useImage } from "./helpers/useImage";
+import "@notifi-network/notifi-react-card/dist/index.css";
 
 const app = createApp(App);
 
