@@ -14,29 +14,27 @@
       </div>
 
       <div class="market-info">
-        <template v-if="!hideActions">
-          <div class="form-wrap" v-if="isBorrowTab">
-            <BorrowForm
-              :cauldron="cauldron"
-              :actionConfig="actionConfig"
-              @updateMarket="createCauldronInfo"
-              @updateToggle="onUpdateToggle"
-              @updateAmounts="onUpdateAmounts"
-              @clearData="resetAmounts"
-            />
-          </div>
+        <div class="form-wrap" v-show="!hideActions">
+          <BorrowForm
+            v-if="isBorrowTab"
+            :cauldron="cauldron"
+            :actionConfig="actionConfig"
+            @updateMarket="createCauldronInfo"
+            @updateToggle="onUpdateToggle"
+            @updateAmounts="onUpdateAmounts"
+            @clearData="resetAmounts"
+          />
 
-          <div class="form-wrap" v-if="isRepayTab">
-            <RepayForm
-              :cauldron="cauldron"
-              :actionConfig="actionConfig"
-              @updateToggle="onUpdateToggle"
-              @updateAmounts="onUpdateAmounts"
-              @updateMarket="createCauldronInfo"
-              @clearData="resetAmounts"
-            />
-          </div>
-        </template>
+          <RepayForm
+            v-if="isRepayTab"
+            :cauldron="cauldron"
+            :actionConfig="actionConfig"
+            @updateToggle="onUpdateToggle"
+            @updateAmounts="onUpdateAmounts"
+            @updateMarket="createCauldronInfo"
+            @clearData="resetAmounts"
+          />
+        </div>
 
         <template v-if="!hidePositions">
           <PositionInfo
@@ -266,7 +264,7 @@ export default {
 
     this.updateInterval = setInterval(async () => {
       await this.createCauldronInfo();
-    }, 5000);
+    }, 60000);
   },
 
   components: {
