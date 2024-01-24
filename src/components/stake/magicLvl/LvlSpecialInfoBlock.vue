@@ -7,11 +7,13 @@
         <GetTokenLink
           :href="`${trancheLinks[activeToken]}/buy`"
           text="Buy LVL"
+          :icon="useImage(`assets/images/get-lp-icons/lvl.svg`)"
         />
 
         <GetTokenLink
           :href="`${trancheLinks[activeToken]}/sell`"
           text="Sell LVL"
+          :icon="useImage(`assets/images/get-lp-icons/lvl.svg`)"
         />
       </div>
     </div>
@@ -29,6 +31,8 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
@@ -46,6 +50,10 @@ export default {
         senior: "https://app.level.finance/liquidity/senior-tranche",
       } as any,
     };
+  },
+
+  methods: {
+    useImage,
   },
 
   components: {

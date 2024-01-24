@@ -23,6 +23,7 @@
           :href="tokenLinkData.href"
           target="_blank"
           :text="tokenLinkData.label"
+          :icon="tokenLinkData.icon"
         />
 
         <DepositButton :cauldron="cauldron" v-if="isActiveChain" />

@@ -1,11 +1,7 @@
 <template>
   <a class="base-link" :href="href" :target="target" rel="noopener noreferrer">
     <span class="inner-wrap">
-      <img
-        class="degenbox-icon"
-        src="@/assets/images/degenbox.png"
-        alt="Degenbox icon"
-      />
+      <img class="degenbox-icon" :src="icon" alt="Degenbox icon" />
       {{ text }}
       <ArrowTopRight />
     </span>
@@ -14,6 +10,8 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
@@ -28,6 +26,10 @@ export default {
     text: {
       type: String,
       default: "Base link",
+    },
+    icon: {
+      type: String,
+      default: useImage("assets/images/degenbox.png"),
     },
   },
 

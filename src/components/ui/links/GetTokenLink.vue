@@ -5,7 +5,8 @@
     target="_blank"
     rel="noreferrer noopener"
   >
-    <BasketIcon />
+    <img class="icon" v-if="icon" :src="icon" alt="Degenbox icon" />
+    <BasketIcon v-else />
     {{ text }}
     <ArrowTopRight :width="14" :height="14" fill="#7088CC" />
   </a>
@@ -18,6 +19,7 @@ export default {
   props: {
     href: { type: String, required: true },
     text: { type: String, required: true },
+    icon: { type: String },
   },
 
   components: {
@@ -44,5 +46,9 @@ export default {
   cursor: pointer;
   font-weight: 500;
   line-height: 150%;
+}
+
+.icon {
+  width: 20px;
 }
 </style>

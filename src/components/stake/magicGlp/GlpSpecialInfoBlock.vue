@@ -4,11 +4,16 @@
       <h4 class="title">Simply deposit your GLP</h4>
 
       <div class="links-wrap">
-        <GetTokenLink href="https://app.gmx.io/#/buy_glp" text="Buy GLP" />
+        <GetTokenLink
+          href="https://app.gmx.io/#/buy_glp"
+          text="Buy GLP"
+          :icon="useImage(`assets/images/get-lp-icons/gmx.svg`)"
+        />
 
         <GetTokenLink
           href="https://app.gmx.io/#/buy_glp#redeem"
           text="Sell GLP"
+          :icon="useImage(`assets/images/get-lp-icons/gmx.svg`)"
         />
       </div>
     </div>
@@ -26,8 +31,14 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { useImage } from "@/helpers/useImage";
 
 export default {
+  methods: {
+    useImage,
+  },
+
   components: {
     GetTokenLink: defineAsyncComponent(
       () => import("@/components/ui/links/GetTokenLink.vue")

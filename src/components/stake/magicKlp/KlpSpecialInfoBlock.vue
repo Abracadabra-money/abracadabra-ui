@@ -7,11 +7,13 @@
         <GetTokenLink
           href="https://perps.kinetix.finance/#/liquidity"
           text="Buy KLP"
+          :icon="useImage(`assets/images/get-lp-icons/klp.svg`)"
         />
 
         <GetTokenLink
           href="https://perps.kinetix.finance/#/liquidity#redeem"
           text="Sell KLP"
+          :icon="useImage(`assets/images/get-lp-icons/klp.svg`)"
         />
       </div>
     </div>
@@ -29,8 +31,12 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { useImage } from "@/helpers/useImage";
 
 export default {
+  methods: { useImage },
+
   components: {
     GetTokenLink: defineAsyncComponent(
       () => import("@/components/ui/links/GetTokenLink.vue")
