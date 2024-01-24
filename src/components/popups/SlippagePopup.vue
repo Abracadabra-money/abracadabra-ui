@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-wrap">
+  <div class="settings-wrap" v-click-outside="closePopup">
     <IconButton
       seting
       :width="26"
@@ -10,9 +10,13 @@
 
     <div class="slippage-popup" v-if="showPopup">
       <div class="title-wrap">
-        <h3>Transaction overview</h3>
+        <h3>Slippage settings</h3>
 
-        <TooltipIcon :width="24" :height="24" tooltip=" Collateral Deposit" />
+        <TooltipIcon
+          :width="24"
+          :height="24"
+          tooltip="Transaction will revert if the leveraged amount changes by this percent."
+        />
       </div>
 
       <div class="row">
@@ -90,6 +94,10 @@ export default {
     getFormattedAmount(amount: BigNumber) {
       const parsedAmount = utils.formatUnits(amount, PERCENT_PRESITION);
       return Number(filters.formatToFixed(parsedAmount, PERCENT_PRESITION));
+    },
+
+    closePopup() {
+      this.showPopup = false;
     },
   },
 
