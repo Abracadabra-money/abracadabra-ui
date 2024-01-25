@@ -212,6 +212,70 @@ export default {
       // @ts-ignore
       this.actionConfig[toggle] = !this.actionConfig[toggle];
       if (isReset) this.resetAmounts();
+
+      this.checkAndUpdateRouteQuery();
+    },
+
+    checkAndSetQuerySettings() {
+      const currentQuery = this.$route.query;
+
+      //@ts-ignore
+      if (currentQuery.action) this.activeTab = currentQuery.action;
+      if (currentQuery.leverage === "active")
+        this.actionConfig.useLeverage = true;
+      if (currentQuery.deleverage === "active")
+        this.actionConfig.useDeleverage = true;
+    },
+
+    checkAndUpdateRouteQuery() {
+      const currentParams = this.$route.params;
+      const action = this.activeTab;
+
+      if (this.actionConfig.useLeverage) {
+        this.$router.replace({
+          name: "Market",
+          params: currentParams,
+          query: {
+            action: "borrow",
+            leverage: "active",
+          },
+        });
+        return;
+      }
+
+      if (this.actionConfig.useDeleverage) {
+        this.$router.replace({
+          name: "Market",
+          params: currentParams,
+          query: {
+            action: "repay",
+            deleverage: "active",
+          },
+        });
+        return;
+      }
+
+      if (action === "borrow") {
+        this.$router.replace({
+          name: "Market",
+          params: currentParams,
+          query: {
+            action: "borrow",
+          },
+        });
+        return;
+      }
+
+      if (action === "repay") {
+        this.$router.replace({
+          name: "Market",
+          params: currentParams,
+          query: {
+            action: "repay",
+          },
+        });
+        return;
+      }
     },
 
     onUpdateAmounts(type: string, value: any) {
@@ -233,6 +297,8 @@ export default {
     async createCauldronInfo() {
       if (!this.routeChainId || !this.routeCauldronId) return false;
 
+      this.checkAndSetQuerySettings();
+
       const currentRpc =
         defaultRpc[this.routeChainId as keyof typeof defaultRpc];
 
@@ -250,6 +316,10 @@ export default {
         userSigner
       );
     },
+  },
+
+  updated() {
+    this.checkAndUpdateRouteQuery();
   },
 
   beforeUnmount() {
