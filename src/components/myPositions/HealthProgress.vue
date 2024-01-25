@@ -1,6 +1,6 @@
 <template>
   <div class="health-progress">
-    <div class="progress"></div>
+    <div ref="anim"></div>
     <div class="health-info">
       <p class="percent">{{ positionHealth }}</p>
       <p class="title">Position health</p>
@@ -10,13 +10,38 @@
 </template>
 
 <script>
+import LottiePlayer from "lottie-web";
+const TOTAL_FRAMES = 150;
 export default {
   props: {
     positionHealth: { type: [Number, String], default: 0 },
     positionRisk: { type: String, default: "safe" },
   },
 
-  computed: {},
+  methods: {
+    initAnimation() {
+      const { anim } = this.$refs;
+
+      const player = LottiePlayer.loadAnimation({
+        renderer: "svg",
+        loop: false,
+        autoplay: false,
+        path: `/${this.positionRisk}.json`,
+        container: anim,
+      });
+
+      console.log("player", player);
+
+      player.goToAndStop(
+        (TOTAL_FRAMES / 100) * Number(+this.positionHealth.slice(0, -1)),
+        true
+      );
+    },
+  },
+
+  async mounted() {
+    this.initAnimation();
+  },
 };
 </script>
 
@@ -29,14 +54,10 @@ export default {
   min-width: 200px;
   height: 112px;
 }
-.progress {
-  height: 100%;
-  width: 100%;
-}
 
 .health-info {
   position: absolute;
-  bottom: 0;
+  bottom: -10px;
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -61,7 +82,7 @@ export default {
   justify-content: center;
   color: white;
   width: 97px;
-  padding: 6px 12px;
+  padding: 2px 12px;
   border-radius: 12px;
   text-transform: capitalize;
   font-size: 16px;

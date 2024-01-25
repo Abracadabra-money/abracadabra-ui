@@ -291,6 +291,7 @@ export default {
 .position-info {
   display: flex;
   gap: 24px;
+  margin-bottom: 15px;
 }
 
 .position-indicators {
