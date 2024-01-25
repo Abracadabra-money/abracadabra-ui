@@ -217,7 +217,7 @@ export default {
       return [
         {
           title: "Total Supply",
-          tooltip: "Total Supply",
+          tooltip: "Total Amount of Staked Assets.",
           icon: this.mainToken.icon,
           decimals: this.mainToken.decimals,
           amount: this.mainToken.totalSupply,

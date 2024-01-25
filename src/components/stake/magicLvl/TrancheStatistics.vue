@@ -34,7 +34,7 @@
                 :width="20"
                 :height="20"
                 fill="#878B93"
-                tooltip="tooltip"
+                tooltip="Total Amount of Rewards Autocompounded back into the vault."
               />
             </h4>
 
@@ -61,7 +61,7 @@
                 :width="20"
                 :height="20"
                 fill="#878B93"
-                tooltip="tooltip"
+                tooltip="Total Amount of Staked Assets."
               />
             </h4>
             <div class="reward-wrap">

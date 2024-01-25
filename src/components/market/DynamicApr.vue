@@ -6,7 +6,7 @@
         :width="20"
         :height="20"
         fill="#878B93"
-        tooltip="Leverage APR"
+        tooltip="Annualised Percentage Return Range given by the leveraged collateral."
       />
     </div>
     <div class="value">{{ openingApr }}%</div>

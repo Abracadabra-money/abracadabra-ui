@@ -2,7 +2,11 @@
   <div class="position-health">
     <div class="liquidation-price">
       {{ formatUSD(liquidationPrice, collateralDecimals) }}
-      <TooltipIcon :width="16" :height="16" tooltip="Price" />
+      <TooltipIcon
+        :width="16"
+        :height="16"
+        tooltip="Current dollar value of the Collateral Deposited."
+      />
     </div>
 
     <div class="track-wrap">
@@ -15,7 +19,12 @@
       <span>
         {{ formatUSD(collateralInUsd, collateralDecimals) }}
       </span>
-      <TooltipIcon :width="16" :height="16" fill="#878B93" tooltip="Price" />
+      <TooltipIcon
+        :width="16"
+        :height="16"
+        fill="#878B93"
+        tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
+      />
     </div>
   </div>
 </template>

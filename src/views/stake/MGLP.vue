@@ -214,7 +214,7 @@ export default {
       return [
         {
           title: "Total Supply",
-          tooltip: "Total Supply",
+          tooltip: "Total Amount of Staked Assets.",
           icon: this.mainToken.icon,
           decimals: this.mainToken.decimals,
           amount: this.mainToken.totalSupply,
@@ -222,7 +222,8 @@ export default {
         },
         {
           title: "Total Rewards Earned",
-          tooltip: "Total Rewards Earned",
+          tooltip:
+            "Total Amount of Rewards Autocompounded back into the vault.",
           icon: icon,
           decimals: 18,
           amount: parseUnits(amount, 18),

@@ -21,7 +21,8 @@
             @input="updateRange"
           />
           <span class="tooltipLtv" :style="progressValuePosition"
-            >LTV <TooltipIcon :width="13" :height="13" tooltip="LTV"
+            >LTV
+            <TooltipIcon :width="13" :height="13" tooltip="Loan to To Value"
           /></span>
 
           <span class="tooltipMcr" v-show="showMcrPercent"

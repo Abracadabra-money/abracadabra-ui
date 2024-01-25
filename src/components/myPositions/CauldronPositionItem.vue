@@ -13,7 +13,9 @@
         <div class="token-info">
           <span class="token-name">{{ collateralSymbol }}</span>
           <span class="apr" v-if="cauldron.apr">
-            <Tooltip />
+            <Tooltip
+              tooltip="Annualised Percentage Return Range given by the collateral."
+            />
             APR {{ formatPercent(cauldron.apr) }}
           </span>
         </div>
@@ -34,21 +36,24 @@
     <div class="position-info">
       <ul class="position-indicators">
         <PositionIndicator
-          tooltip="Annual Return on Staked tokens at current price"
+          tooltip="Current dollar value of the Collateral Deposited."
           :value="collateralPrice"
         >
           Collateral price
         </PositionIndicator>
 
         <PositionIndicator
-          tooltip="Liquidation price"
+          tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
           :positionRisk="positionRisk"
           :value="cauldron.liquidationPrice"
         >
           Liquidation price
         </PositionIndicator>
 
-        <PositionIndicator tooltip="Required Drop in price" :value="leftToDrop">
+        <PositionIndicator
+          tooltip="Price drop of the collateral to be eligible for liquidation."
+          :value="leftToDrop"
+        >
           Required Drop in price
         </PositionIndicator>
       </ul>
