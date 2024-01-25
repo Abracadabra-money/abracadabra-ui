@@ -63,7 +63,7 @@
       :class="{ active: tab.id === currentMobileTab }"
       @click="currentMobileTab = tab.id"
     >
-      <img src="@/assets/images/market-nav.png" alt="" />
+      <img :class="{mini: tab.id !== 0}" :src="tab.icon" alt="" />
       <p>{{ tab.text }}</p>
     </div>
   </div>
@@ -77,6 +77,7 @@ import { BigNumber, providers, utils } from "ethers";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { getChainsConfigs } from "@/helpers/getChainsConfigs";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   data() {
@@ -117,14 +118,17 @@ export default {
         {
           id: 0,
           text: "Borrow",
+          icon: useImage("assets/images/nav-1.png")
         },
         {
           id: 1,
           text: "My Position",
+          icon: useImage("assets/images/nav-2.png")
         },
         {
           id: 2,
           text: "Stats",
+          icon: useImage("assets/images/nav-3.png")
         },
       ],
       mobileMode: false,
@@ -501,6 +505,10 @@ export default {
       img {
         width: 36px;
         height: 36px;
+
+        &.mini {
+          width: 28px;
+        }
       }
 
       p {
