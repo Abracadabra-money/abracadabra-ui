@@ -1,5 +1,7 @@
 <template>
-  <div :class="['position', isDeprecated ? 'deprecated' : positionRisk]">
+  <div
+    :class="['position', isDeprecated ? 'deprecated' : positionHealth.status]"
+  >
     <div class="status-flag" v-if="isDeprecated">Deprecated</div>
     <div class="position-header">
       <div class="position-token">
@@ -44,7 +46,7 @@
 
         <PositionIndicator
           tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
-          :positionRisk="positionRisk"
+          :positionRisk="positionHealth.status"
           :value="cauldron.liquidationPrice"
         >
           Liquidation price
@@ -58,8 +60,8 @@
         </PositionIndicator>
       </ul>
       <HealthProgress
-        :positionHealth="formatPercent(cauldron.positionHealth)"
-        :positionRisk="positionRisk"
+        :positionHealth="formatPercent(100 - positionHealth.percent)"
+        :positionRisk="positionHealth.status"
       />
     </div>
 
@@ -73,11 +75,18 @@ import filters from "@/filters/index.js";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import PositionIndicator from "@/components/myPositions/PositionIndicator.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 import OrderButton from "@/components/myPositions/OrderButton.vue";
+
+import {
+  PERCENT_PRESITION,
+  getLiquidationPrice,
+  getPositionHealth,
+} from "@/helpers/cauldron/utils";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 export default {
   props: {
@@ -113,6 +122,32 @@ export default {
 
     leftToDrop() {
       return +this.collateralPrice - +this.cauldron.liquidationPrice;
+    },
+
+    // TODO: move to position helper
+    positionHealth() {
+      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const { decimals } = this.cauldron.config.collateralInfo;
+
+      const { borrowInfo, collateralInfo } = this.cauldron;
+
+      const expectedLiquidationPrice = getLiquidationPrice(
+        borrowInfo.userBorrowAmount,
+        collateralInfo.userCollateralAmount,
+        this.cauldron.config.mcr,
+        this.cauldron.config.collateralInfo.decimals
+      );
+
+      const { percent, status } = getPositionHealth(
+        expectedLiquidationPrice,
+        oracleExchangeRate,
+        decimals
+      );
+
+      if (percent.gt(expandDecimals(100, PERCENT_PRESITION)))
+        return { percent: 100, status };
+
+      return { percent: utils.formatUnits(percent, PERCENT_PRESITION), status };
     },
 
     positionRisk() {

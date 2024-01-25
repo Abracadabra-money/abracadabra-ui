@@ -2,6 +2,7 @@ import cauldronsConfig from "@/utils/cauldronsConfig";
 import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
+import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import { defaultRpc } from "@/helpers/chains";
 
 import type { CauldronPositionItem } from "@/helpers/cauldron/types";
@@ -45,9 +46,15 @@ export const getUserOpenPositions = async (
         chainId
       );
 
+      const mainParams = await getMainParams(
+        configs,
+        multicallProvider,
+        chainId,
+      );
+
       positions.push(
         ...userPositions.map((position: any, idx: any) => {
-          return { config: configs[idx], ...position };
+          return { config: configs[idx], ...position, mainParams: mainParams[idx] };
         })
       );
     })
