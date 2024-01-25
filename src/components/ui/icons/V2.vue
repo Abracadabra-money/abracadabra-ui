@@ -1,5 +1,5 @@
 <template>
-  <a class="link-v2" href="#" target="_blank" rel="noopener noreferrer"
+  <a class="link-v2" href="https://legacy.abracadabra.money/" target="_blank" rel="noopener noreferrer"
     ><svg
       :style="{ width: `${width}px`, height: `${width}px` }"
       xmlns="http://www.w3.org/2000/svg"
