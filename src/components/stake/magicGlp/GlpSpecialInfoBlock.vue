@@ -7,13 +7,13 @@
         <GetTokenLink
           href="https://app.gmx.io/#/buy_glp"
           text="Buy GLP"
-          :icon="useImage(`assets/images/get-lp-icons/gmx.svg`)"
+          :icon="useImage(`assets/images/get-lp-icons/gmx.png`)"
         />
 
         <GetTokenLink
           href="https://app.gmx.io/#/buy_glp#redeem"
           text="Sell GLP"
-          :icon="useImage(`assets/images/get-lp-icons/gmx.svg`)"
+          :icon="useImage(`assets/images/get-lp-icons/gmx.png`)"
         />
       </div>
     </div>

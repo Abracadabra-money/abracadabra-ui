@@ -21,14 +21,14 @@ const configs: Array<Config> = [
     chain: 1,
     href: "https://stargate.finance/pool/USDC-ETH/add",
     label: "Get Stargate USDC",
-    icon: useImage(`assets/images/get-lp-icons/stargate.svg`),
+    icon: useImage(`assets/images/get-lp-icons/stargate.png`),
   },
   {
     id: 32,
     chain: 1,
     href: "https://stargate.finance/pool/USDT-ETH/add",
     label: "Get Stargate USDT",
-    icon: useImage(`assets/images/get-lp-icons/stargate.svg`),
+    icon: useImage(`assets/images/get-lp-icons/stargate.png`),
   },
   {
     id: 33,
@@ -56,21 +56,21 @@ const configs: Array<Config> = [
     chain: 2222,
     href: "https://stargate.finance/pool/USDT-KAVA/add",
     label: "Get Stargate Token",
-    icon: useImage(`assets/images/get-lp-icons/stargate.svg`),
+    icon: useImage(`assets/images/get-lp-icons/stargate.png`),
   },
   {
     id: 4,
     chain: 42161,
     href: "https://app.gmx.io/#/pools",
     label: "Get GM Token",
-    icon: useImage(`assets/images/get-lp-icons/gmx.svg`),
+    icon: useImage(`assets/images/get-lp-icons/gmx.png`),
   },
   {
     id: 5,
     chain: 42161,
     href: "https://app.gmx.io/#/pools",
     label: "Get GM Token",
-    icon: useImage(`assets/images/get-lp-icons/gmx.svg`),
+    icon: useImage(`assets/images/get-lp-icons/gmx.png`),
   },
   {
     id: 6,
@@ -84,7 +84,7 @@ const configs: Array<Config> = [
     chain: 42161,
     href: "https://app.gmx.io/#/pools",
     label: "Get GM Token",
-    icon: useImage(`assets/images/get-lp-icons/gmx.svg`),
+    icon: useImage(`assets/images/get-lp-icons/gmx.png`),
   },
 ];
 
