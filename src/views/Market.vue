@@ -118,7 +118,7 @@ export default {
       mobileTabs: [
         {
           id: 0,
-          text: "Borrow",
+          text: "Manage",
           icon: useImage("assets/images/nav-1.png"),
         },
         {
