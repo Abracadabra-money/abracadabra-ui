@@ -12,7 +12,7 @@ describe("MyPositionsInfo", () => {
       propsData: { totalAssetsData },
     });
     const title = wrapper.find(".title");
-    expect(title.text()).toBe("Magic Positions");
+    expect(title.text()).toBe("Positions");
   });
 
   it("renders the correct description", () => {

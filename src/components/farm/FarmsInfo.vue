@@ -1,7 +1,7 @@
 <template>
   <div class="farms-info">
     <div class="title-desc">
-      <h2 class="title">Farming Opportunities</h2>
+      <h2 class="title">Farm Opportunities</h2>
       <p class="description">
         <span class="desc-line">
           Use your favourite assets as collateral to borrow

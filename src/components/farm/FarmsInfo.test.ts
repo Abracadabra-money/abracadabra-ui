@@ -29,7 +29,7 @@ describe("FarmsInfo", () => {
     const title = wrapper.find(".title");
     const description = wrapper.find(".description");
 
-    expect(title.text()).toBe("Farming Opportunities");
+    expect(title.text()).toBe("Farm Opportunities");
     expect(description.text()).toContain(
       "Use your favourite assets as collateral to borrow"
     );
