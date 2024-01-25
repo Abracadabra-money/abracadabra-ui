@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
-      <img src="@/assets/images/cr.logo.gif" class="main-logo" />
+      <img src="@/assets/images/logo.svg" class="main-logo" />
     </router-link>
 
     <nav class="nav">
@@ -205,7 +205,7 @@ export default {
 .main-logo {
   width: 42px;
   height: 42px;
-  margin-right: 40px;
+  margin-right: 48px;
 }
 
 .header {
@@ -426,6 +426,15 @@ export default {
   .burger {
     display: flex;
     margin-left: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav {
+    width: 0;
+  }
+  .main-logo {
+    margin-right: 0;
   }
 }
 </style>
