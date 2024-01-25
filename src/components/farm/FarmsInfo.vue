@@ -1,15 +1,10 @@
 <template>
   <div class="farms-info">
     <div class="title-desc">
-      <h2 class="title">Farm Opportunities</h2>
+      <h2 class="title">Farming opportunities</h2>
       <p class="description">
         <span class="desc-line">
-          Use your favourite assets as collateral to borrow
-        </span>
-        <span class="desc-line">
-          <img src="@/assets/images/farm/symbol-MIM.png" class="mim-symbol" />
-          Magic Internet Money, a leading decentralised and collateral-backed
-          stablecoin.
+          Enjoy the best yields for LPing MIM or Spell
         </span>
       </p>
     </div>

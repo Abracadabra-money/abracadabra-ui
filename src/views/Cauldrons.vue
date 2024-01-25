@@ -12,8 +12,7 @@
             src="@/assets/images/PixelMIM.svg"
             alt="Mim icon"
           />
-          Magic Internet Money, a leading decentralised and collateral-backed
-          stablecoin.
+          MIM a leading decentralised and collateral-backed stablecoin.
         </h4>
       </div>
 
