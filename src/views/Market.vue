@@ -8,9 +8,9 @@
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
         </template>
 
-        <template v-if="!hidePositions">
+        <!-- <template v-if="!hidePositions">
           <PositionHealth v-if="isOpenPosition" :cauldron="cauldron" />
-        </template>
+        </template> -->
       </div>
 
       <div class="market-info">
@@ -63,7 +63,7 @@
       :class="{ active: tab.id === currentMobileTab }"
       @click="currentMobileTab = tab.id"
     >
-      <img :class="{mini: tab.id !== 0}" :src="tab.icon" alt="" />
+      <img :class="{ mini: tab.id !== 0 }" :src="tab.icon" alt="" />
       <p>{{ tab.text }}</p>
     </div>
   </div>
@@ -75,8 +75,9 @@ import { defineAsyncComponent } from "vue";
 import { defaultRpc } from "@/helpers/chains";
 import { BigNumber, providers, utils } from "ethers";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { getChainsConfigs } from "@/helpers/getChainsConfigs";
+// import { getChainsConfigs } from "@/helpers/getChainsConfigs";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+// @ts-ignore
 import { useImage } from "@/helpers/useImage";
 
 export default {
@@ -118,17 +119,17 @@ export default {
         {
           id: 0,
           text: "Borrow",
-          icon: useImage("assets/images/nav-1.png")
+          icon: useImage("assets/images/nav-1.png"),
         },
         {
           id: 1,
           text: "My Position",
-          icon: useImage("assets/images/nav-2.png")
+          icon: useImage("assets/images/nav-2.png"),
         },
         {
           id: 2,
           text: "Stats",
-          icon: useImage("assets/images/nav-3.png")
+          icon: useImage("assets/images/nav-3.png"),
         },
       ],
       mobileMode: false,
@@ -352,9 +353,9 @@ export default {
     RepayForm: defineAsyncComponent(
       () => import("@/components/market/RepayForm.vue")
     ),
-    PositionHealth: defineAsyncComponent(
-      () => import("@/components/market/PositionHealth.vue")
-    ),
+    // PositionHealth: defineAsyncComponent(
+    //   () => import("@/components/market/PositionHealth.vue")
+    // ),
     PositionInfo: defineAsyncComponent(
       () => import("@/components/market/PositionInfo.vue")
     ),
