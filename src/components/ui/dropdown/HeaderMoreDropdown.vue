@@ -85,6 +85,7 @@
         <Discord class="media-link" />
         <Twitter class="media-link" />
         <Mirror class="media-link" />
+        <V2 class="media-link" />
       </div>
     </div>
   </div>
@@ -96,6 +97,7 @@ import Mirror from "@/components/ui/icons/Mirror.vue";
 import GitHub from "@/components/ui/icons/GitHub.vue";
 import Twitter from "@/components/ui/icons/Twitter.vue";
 import Discord from "@/components/ui/icons/Discord.vue";
+import V2 from "@/components/ui/icons/V2.vue";
 
 export default {
   data() {
@@ -120,6 +122,7 @@ export default {
     Twitter,
     Discord,
     GitHub,
+    V2,
   },
 };
 </script>

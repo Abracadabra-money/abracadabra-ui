@@ -27,7 +27,7 @@
         <li class="popup-link-wrap" @click="closePopup">
           <router-link class="popup-link" :to="{ name: 'Cauldrons' }">
             <img
-              src="@/assets/images/header/dropdown/more/cauldrons-icon.svg"
+              src="@/assets/images/header/dropdown/more/cauldrons-icon.png"
             />
             <span class="link-text"> Cauldrons </span>
           </router-link>
@@ -35,7 +35,7 @@
 
         <li class="popup-link-wrap" @click.stop="openInnerPopup()">
           <button class="popup-link">
-            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
+            <img src="@/assets/images/header/dropdown/more/stake-icon.svg" />
             <span class="link-text"> Stake </span>
             <img class="arrow" src="@/assets/images/arrow.svg" />
           </button>
@@ -90,11 +90,12 @@
       </ul>
 
       <div class="social-media">
-        <Lens />
+        <Lens width="20" height="20" />
         <GitHub />
         <Discord />
         <Twitter />
         <Mirror />
+        <V2 />
       </div>
     </div>
 
@@ -113,6 +114,7 @@ import Mirror from "@/components/ui/icons/Mirror.vue";
 import GitHub from "@/components/ui/icons/GitHub.vue";
 import Twitter from "@/components/ui/icons/Twitter.vue";
 import Discord from "@/components/ui/icons/Discord.vue";
+import V2 from "@/components/ui/icons/V2.vue";
 import ConnectButton from "@/components/ui/buttons/ConnectButton.vue";
 import HeaderStakeMobilePopup from "@/components/popups/HeaderStakeMobilePopup.vue";
 
@@ -154,6 +156,7 @@ export default {
     Twitter,
     Discord,
     GitHub,
+    V2,
   },
 };
 </script>
@@ -221,6 +224,10 @@ export default {
   outline: transparent;
   cursor: pointer;
   transition: all 0.5s;
+
+  img {
+    width: 24px;
+  }
 }
 
 .popup-link:hover {
@@ -255,5 +262,8 @@ export default {
   width: 8px;
   transform: rotate(-90deg);
   margin-left: auto;
+}
+
+.link-v2 {
 }
 </style>

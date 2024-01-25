@@ -6,8 +6,7 @@
     class="list-link"
   >
     <svg
-      width="24"
-      height="24"
+      :style="{ width: `${width}px`, height: `${width}px` }"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -30,7 +29,16 @@
 </template>
 
 <script>
-export default {};
+export default {
+  props: {
+    width: {
+      default: 20,
+    },
+    height: {
+      default: 20,
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
