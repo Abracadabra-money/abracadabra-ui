@@ -1,5 +1,5 @@
 <template>
-  <div class="popup" v-if="stakeInfo">
+  <div class="popup" v-if="stakeInfo" v-click-outside="closePopup">
     <div class="popup-header">
       <h3 class="popup-title">{{ activeTab }}</h3>
       <img
