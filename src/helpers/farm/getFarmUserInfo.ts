@@ -106,9 +106,9 @@ const getSLPBalances = async (
   const userRewardInUsd = userRewardParsed * farmItemConfig.lpPrice;
 
   const token0UserAmount =
-    ((userRewardInUsd / 100) * token0Percent) / token0Price / 1e18;
+    ((userRewardInUsd / 100) * token0Percent) / token0Price;
   const token1UserAmount =
-    ((userRewardInUsd / 100) * token1Percent) / token1Price / 1e18;
+    ((userRewardInUsd / 100) * token1Percent) / token1Price;
 
   return {
     token0: {

@@ -31,7 +31,7 @@ export const getFarmYieldAndLpPrice = async (
       const tokenPrice =
         farmInfo.depositedBalance.token0.name === "MIM" ? mimPrice : spellPrice;
 
-      const lpYieldAndPrice = await getLPYieldAndPrice(
+      const lpYieldAndPrice: any = await getLPYieldAndPrice(
         stakingTokenContractInfo,
         tokenAddress,
         tokenPrice,
@@ -49,7 +49,7 @@ export const getFarmYieldAndLpPrice = async (
       );
 
       return {
-        lpPrice: Number(lpYieldAndPrice?.lpPrice),
+        lpPrice: formatUnits(lpYieldAndPrice?.lpPrice, 18),
         farmYield,
       };
     }
@@ -73,7 +73,7 @@ export const getFarmYieldAndLpPrice = async (
     );
 
     return {
-      lpPrice: Number(price),
+      lpPrice: formatUnits(price, 18),
       farmYield,
     };
   } catch (e) {

@@ -90,7 +90,7 @@ export default {
     depositedTokenInfo() {
       return this.prepBalanceData(
         this.selectedFarm.accountInfo.userInfo.amount,
-        this.selectedFarm.earnedTokenPrice
+        this.selectedFarm.lpPrice
       );
     },
 

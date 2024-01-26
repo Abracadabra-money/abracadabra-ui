@@ -65,7 +65,7 @@ export const createFarmItemConfig = async (
     abi: farmInfo.stakingToken.abi,
   };
 
-  const { farmYield, lpPrice } = await getFarmYieldAndLpPrice(
+  const { farmYield, lpPrice }: any = await getFarmYieldAndLpPrice(
     stakingTokenContractInfo,
     contractInfo,
     poolInfo,
