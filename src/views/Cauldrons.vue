@@ -20,6 +20,7 @@
         <CamelotCard />
         <EmpowerCard />
         <CamelotUsdcMimCard />
+        <CrvMimCard />
       </div>
       <CauldronsCarousel />
 
@@ -91,6 +92,9 @@ export default {
     ),
     CamelotUsdcMimCard: defineAsyncComponent(() =>
       import("@/components/cauldrons/CamelotUsdcMimCard.vue")
+    ),
+    CrvMimCard: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CrvMimCard.vue")
     ),
     CauldronsTable: defineAsyncComponent(() =>
       import("@/components/cauldrons/CauldronsTable.vue")
