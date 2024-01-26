@@ -13,7 +13,7 @@
           {{ selectedFarm.stakingToken.name }}</span
         >
         <div class="token-amount">
-          <span class="value">{{ depositedTokenInfo.value }}</span>
+          <span class="value">{{ depositedTokenInfo.earned }}</span>
           <span class="usd">{{ depositedTokenInfo.usd }}</span>
         </div>
       </div>

@@ -12,7 +12,7 @@
       :max="max"
       :error="error"
       :disabled="!selectedFarm"
-      :tokenPrice="Number(selectedFarm?.lpPrice / 1e18)"
+      :tokenPrice="Number(selectedFarm?.lpPrice)"
     />
 
     <BaseButton
