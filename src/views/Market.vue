@@ -8,9 +8,9 @@
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
         </template>
 
-        <!-- <template v-if="!hidePositions">
+        <template v-if="!hidePositions">
           <PositionHealth v-if="isOpenPosition" :cauldron="cauldron" />
-        </template> -->
+        </template>
       </div>
 
       <div class="market-info">
@@ -353,9 +353,9 @@ export default {
     RepayForm: defineAsyncComponent(
       () => import("@/components/market/RepayForm.vue")
     ),
-    // PositionHealth: defineAsyncComponent(
-    //   () => import("@/components/market/PositionHealth.vue")
-    // ),
+    PositionHealth: defineAsyncComponent(
+      () => import("@/components/market/PositionHealth.vue")
+    ),
     PositionInfo: defineAsyncComponent(
       () => import("@/components/market/PositionInfo.vue")
     ),

@@ -1,37 +1,24 @@
 <template>
   <div class="position-health">
-    <div class="liquidation-price">
-      {{ formatUSD(liquidationPrice, collateralDecimals) }}
-      <TooltipIcon
-        :width="16"
-        :height="16"
-        tooltip="Current dollar value of the Collateral Deposited."
-      />
+    <div class="position-percent">
+      {{ formatPercent(positionHealth.percent) }}
     </div>
 
     <div class="track-wrap">
-      <span> {{ startPrice }}</span>
+      <img class="magician-icon" src="@/assets/images/magician.png" alt="" />
 
       <div :class="['price-track', positionHealth.status]">
+        <img class="track-icon" src="@/assets/images/potion.png" alt="" />
         <div class="price-indicator"></div>
       </div>
 
-      <span>
-        {{ formatUSD(collateralInUsd, collateralDecimals) }}
-      </span>
-      <TooltipIcon
-        :width="16"
-        :height="16"
-        fill="#878B93"
-        tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
-      />
+      <span> 100% </span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
+import { utils } from "ethers";
 // @ts-ignore
 import filters from "@/filters/index.js";
 import {
@@ -47,25 +34,6 @@ export default {
   },
 
   computed: {
-    collateralDecimals() {
-      return this.cauldron.config.collateralInfo.decimals;
-    },
-
-    collateralInUsd() {
-      return this.cauldron.mainParams.collateralPrice;
-    },
-
-    liquidationPrice() {
-      const { borrowInfo, collateralInfo } = this.cauldron.userPosition;
-
-      return getLiquidationPrice(
-        borrowInfo.userBorrowAmount,
-        collateralInfo.userCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
-    },
-
     positionHealth() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.collateralInfo;
@@ -90,22 +58,6 @@ export default {
 
       return { percent: utils.formatUnits(percent, PERCENT_PRESITION), status };
     },
-
-    startPrice() {
-      const tokenPrice = Number(
-        utils.formatUnits(this.collateralInUsd, this.collateralDecimals)
-      );
-
-      const health = Number(this.positionHealth.percent);
-
-      const healthleft = 100 - health;
-
-      const startPercent = health - healthleft <= 0 ? 0 : health - healthleft;
-
-      const leftPrice = (tokenPrice / 100) * startPercent;
-
-      return filters.formatUSD(filters.formatToFixed(leftPrice.toString(), 2));
-    },
   },
 
   watch: {
@@ -115,21 +67,21 @@ export default {
   },
 
   methods: {
-    formatUSD(value: BigNumber, decimals: number) {
-      return filters.formatUSD(
-        filters.formatToFixed(utils.formatUnits(value, decimals), 2)
-      );
+    formatPercent(value: any) {
+      return filters.formatPercent(filters.formatToFixed(100 - value, 2));
     },
 
     updatePositionHealth() {
+      console.log("this.positionHealth.percent", this.positionHealth.percent);
+
       if (!+this.positionHealth.percent) {
+        document.documentElement.style.setProperty("--position-health", "100%");
+      } else if (+this.positionHealth.percent >= 100) {
         document.documentElement.style.setProperty("--position-health", "0%");
-      } else if (+this.positionHealth.percent < 50) {
-        document.documentElement.style.setProperty("--position-health", "50%");
       } else {
         document.documentElement.style.setProperty(
           "--position-health",
-          this.positionHealth.percent + "%"
+          100 - +this.positionHealth.percent + "%"
         );
       }
     },
@@ -137,12 +89,6 @@ export default {
 
   mounted() {
     this.updatePositionHealth();
-  },
-
-  components: {
-    TooltipIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
-    ),
   },
 };
 </script>
@@ -166,7 +112,7 @@ export default {
   backdrop-filter: blur(12.5px);
 }
 
-.liquidation-price {
+.position-percent {
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
@@ -177,6 +123,7 @@ export default {
 }
 
 .track-wrap {
+  position: relative;
   display: grid;
   gap: 5px;
   grid-template-columns: auto 1fr auto auto;
@@ -187,7 +134,22 @@ export default {
   line-height: 150%;
 }
 
+.magician-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.track-icon {
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  top: 0;
+  left: var(--position-health);
+  transform: translate(-50%, -25%);
+}
+
 .price-track {
+  position: relative;
   width: 100%;
   height: 12px;
   border-radius: 12px;
