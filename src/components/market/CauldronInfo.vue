@@ -141,7 +141,7 @@ export default {
   padding: 24px;
   flex-direction: column;
   gap: 24px;
-  max-height: 557px;
+  max-height: 577px;
   border-radius: 16px;
   align-self: stretch;
   border: 1px solid #00296b;

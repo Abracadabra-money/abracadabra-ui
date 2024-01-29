@@ -94,6 +94,28 @@
         $ {{ formatUnits(expectedPositionAmounts.liquidationPrice) }}
       </p>
     </div>
+
+    <div class="position-info-item">
+      <img
+        class="icon-right-center"
+        src="@/assets/images/market/m-icon.svg"
+        alt=""
+      />
+      <h4 class="item-title">
+        Current price
+        <TooltipIcon
+          :width="20"
+          :height="20"
+          fill="#878B93"
+          tooltip="Collateral price."
+        />
+      </h4>
+      <p class="item-value">
+        <img class="token-icon" :src="cauldron.config.icon" alt="Mim icon" /> 1
+        =
+        {{ formatUnits(collateralPrice) }}
+      </p>
+    </div>
   </div>
 </template>
 
@@ -132,10 +154,13 @@ export default {
       );
     },
 
+    collateralPrice() {
+      return this.cauldron.mainParams.collateralPrice;
+    },
+
     expectedCollateralInUsd() {
-      const price = this.cauldron.mainParams.collateralPrice;
       return this.expectedPositionAmounts.collateralAmount
-        .mul(price)
+        .mul(this.collateralPrice)
         .div(expandDecimals(1, this.collateralDecimals));
     },
   },
@@ -159,7 +184,7 @@ export default {
   max-width: 410px;
   padding: 24px;
   width: 100%;
-  max-height: 557px;
+  max-height: 577px;
   display: flex;
   gap: 16px;
   flex-direction: column;
@@ -184,8 +209,7 @@ export default {
 
 .position-info-item {
   width: 100%;
-  padding: 24px;
-  height: 144px;
+  padding: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,6 +226,10 @@ export default {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
+}
+
+.liquidation-price {
+  padding-top: 24px;
 }
 
 .icon-left-top {
@@ -314,6 +342,34 @@ export default {
   .position-info {
     max-width: 640px;
     width: 100%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .position-info-item {
+    padding: 20px;
+    height: auto;
+  }
+
+  .liquidation-price {
+    padding-top: 40px;
+  }
+
+  .item-title {
+    font-size: 14px;
+  }
+
+  .item-value {
+    font-size: 28px;
+  }
+
+  .token-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .item-price {
+    font-size: 16px;
   }
 }
 </style>
