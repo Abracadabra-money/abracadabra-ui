@@ -12,6 +12,7 @@
           <CamelotCard />
           <EmpowerCard />
           <CamelotUsdcMimCard />
+          <CrvUsdMimCard />
         </template>
         <EmptyState v-else />
       </div>
@@ -26,6 +27,7 @@ import EmptyState from "@/components/markets/EmptyState.vue";
 import FarmCard from "@/components/markets/arbitrum/FarmCard.vue";
 import EmpowerCard from "@/components/markets/arbitrum/EmpowerCard.vue";
 import CamelotCard from "@/components/markets/arbitrum/CamelotCard.vue";
+import CrvUsdMimCard from "@/components/markets/arbitrum/CrvUsdMimCard.vue";
 import CamelotUsdcMimCard from "@/components/markets/arbitrum/CamelotUsdcMimCard.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 
@@ -216,6 +218,7 @@ export default {
     EmpowerCard,
     CamelotCard,
     CamelotUsdcMimCard,
+    CrvUsdMimCard,
   },
 };
 </script>
