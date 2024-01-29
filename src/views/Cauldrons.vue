@@ -16,12 +16,6 @@
         </h4>
       </div>
 
-      <div class="cards-wrap">
-        <CamelotCard />
-        <EmpowerCard />
-        <CamelotUsdcMimCard />
-        <CrvMimCard />
-      </div>
       <CauldronsCarousel />
 
       <CauldronsTable
@@ -84,18 +78,6 @@ export default {
   },
 
   components: {
-    CamelotCard: defineAsyncComponent(() =>
-      import("@/components/cauldrons/CamelotCard.vue")
-    ),
-    EmpowerCard: defineAsyncComponent(() =>
-      import("@/components/cauldrons/EmpowerCard.vue")
-    ),
-    CamelotUsdcMimCard: defineAsyncComponent(() =>
-      import("@/components/cauldrons/CamelotUsdcMimCard.vue")
-    ),
-    CrvMimCard: defineAsyncComponent(() =>
-      import("@/components/cauldrons/CrvMimCard.vue")
-    ),
     CauldronsTable: defineAsyncComponent(() =>
       import("@/components/cauldrons/CauldronsTable.vue")
     ),
@@ -150,12 +132,6 @@ export default {
 
 @media screen and (max-width: 1024px) {
   .cards-wrap {
-    display: none;
-  }
-}
-
-@media (min-width: 1024px) {
-  .carousel {
     display: none;
   }
 }

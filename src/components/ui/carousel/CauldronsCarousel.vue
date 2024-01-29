@@ -1,13 +1,22 @@
 <template>
-  <Carousel :transition="1000" :wrap-around="true" :breakpoints="breakpoints">
+  <Carousel
+    :items-to-show="3"
+    :wrap-around="true"
+    :transition="500"
+    :autoplay="3000"
+    :breakpoints="breakpoints"
+  >
     <slide :index="1">
       <CamelotCard />
     </slide>
     <slide :index="2">
       <EmpowerCard />
     </slide>
-    <slide :index="2">
+    <slide :index="3">
       <CamelotUsdcMimCard />
+    </slide>
+    <slide :index="4">
+      <CrvMimCard />
     </slide>
 
     <template #addons>
@@ -18,7 +27,8 @@
 
 <script>
 import "vue3-carousel/dist/carousel.css";
-import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
+import { Carousel, Slide, Pagination } from "vue3-carousel";
+import CrvMimCard from "@/components/cauldrons/CrvMimCard.vue";
 import CamelotCard from "@/components/cauldrons/CamelotCard.vue";
 import EmpowerCard from "@/components/cauldrons/EmpowerCard.vue";
 import CamelotUsdcMimCard from "@/components/cauldrons/CamelotUsdcMimCard.vue";
@@ -50,7 +60,7 @@ export default {
     Carousel,
     Slide,
     Pagination,
-    Navigation,
+    CrvMimCard,
   },
 };
 </script>
