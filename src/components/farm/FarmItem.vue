@@ -28,7 +28,12 @@
       <div class="apr">
         <div class="tag-title">
           APR
+          <AprTooltip v-if="showAprTooltip" :farm="farm" />
           <Tooltip
+            v-else
+            :width="16"
+            :height="16"
+            fill="#878B93"
             class="tooltip"
             :tooltip="'Annual Return on Staked tokens at current price'"
           />
@@ -47,8 +52,9 @@
 <script>
 import { mapGetters } from "vuex";
 import filters from "@/filters/index.js";
-import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
 export default {
   props: {
@@ -103,11 +109,16 @@ export default {
         Number(this.farm.accountInfo?.balance)
       );
     },
+
+    showAprTooltip() {
+      return this.farm.isMultiReward;
+    },
   },
 
   components: {
     TokenChainIcon,
     Tooltip,
+    AprTooltip,
   },
 };
 </script>
