@@ -29,11 +29,20 @@
       <CauldronsTableHead @updateSort="updateSortKeys" />
 
       <div class="cauldrons-items-wrap">
-        <CauldronsTableItem
-          v-for="(cauldron, index) in cauldronsToRender"
-          :key="index"
-          :cauldron="cauldron"
-        />
+        <div class="row-wrapper">
+          <CauldronsTableItem
+            v-for="(cauldron, index) in cauldronsToRender"
+            :key="index"
+            :cauldron="cauldron"
+          />
+        </div>
+        <div class="card-wrapper">
+          <CauldronCardItem
+            v-for="(cauldron, index) in cauldronsToRender"
+            :key="index"
+            :cauldron="cauldron"
+          />
+        </div>
 
         <div class="loader-wrap">
           <BaseLoader
@@ -268,6 +277,9 @@ export default {
     CauldronsTableItem: defineAsyncComponent(() =>
       import("@/components/cauldrons/CauldronsTableItem.vue")
     ),
+    CauldronCardItem: defineAsyncComponent(() =>
+      import("@/components/cauldrons/CauldronCardItem.vue")
+    ),
     BaseLoader: defineAsyncComponent(() =>
       import("@/components/base/BaseLoader.vue")
     ),
@@ -298,6 +310,17 @@ export default {
   display: flex;
   gap: 32px;
   flex-direction: column;
+}
+
+.row-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.card-wrapper {
+  display: none;
 }
 
 .additional-logic {
@@ -380,6 +403,18 @@ export default {
 }
 
 @media screen and (max-width: 600px) {
+  .card-wrapper {
+    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .row-wrapper {
+    display: none;
+  }
+
   .additional-logic {
     justify-content: flex-end;
     height: 90px;
@@ -397,6 +432,10 @@ export default {
 
   .cauldrons-table-wrap {
     padding: 16px;
+  }
+
+  .table-wrapper {
+    overflow-x: initial;
   }
 }
 </style>

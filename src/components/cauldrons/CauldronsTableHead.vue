@@ -122,4 +122,10 @@ export default {
     width: 930px;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .cauldron-table-head {
+    display: none;
+  }
+}
 </style>
