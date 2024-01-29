@@ -125,8 +125,8 @@ export default {
 .track-wrap {
   position: relative;
   display: grid;
-  gap: 5px;
-  grid-template-columns: auto 1fr auto auto;
+  gap: 12px;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   color: #878b93;
   font-size: 12px;
