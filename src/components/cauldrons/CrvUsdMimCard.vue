@@ -1,14 +1,14 @@
 <template>
   <a
-    class="camelot-card"
+    class="card"
     href="https://curve.fi/#/arbitrum/pools/factory-stable-ng-11/deposit"
     target="_blank"
     rel="noreferrer noopener"
   >
     <p class="primary paragraph">
-      <span class="card-title">NEW V3 POOL</span>
-      <span class="on-camelot">ON CURVE</span>
-      <span class="token-pair">CRV / MIM</span>
+      <span class="card-title">NEW Pool</span>
+      <span class="subtitle">On Curve finance</span>
+      <span class="token-pair">crvUSD / MIM</span>
     </p>
     <ul class="secondary paragraph" v-if="tvl && apr">
       <li>
@@ -58,7 +58,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.camelot-card {
+.card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -66,7 +66,7 @@ export default {
   height: 160px;
   max-width: 416px;
   width: 100%;
-  background-image: url("@/assets/images/cauldrons/background_camelot.png");
+  background-image: url("@/assets/images/cauldrons/background-crv-usd-mim.png");
   border-radius: 16px;
   border: 1px solid #2d4a96;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
@@ -74,13 +74,12 @@ export default {
   background-size: 100%;
   background-size: cover;
   background-repeat: no-repeat;
-  text-transform: uppercase;
   font-weight: 600;
   transition: 0.3s;
   color: #fff;
 }
 
-.camelot-card:hover {
+.card:hover {
   border: 1px solid #526fbc;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06),
     0px 4px 32px 0px rgba(103, 103, 103, 0.21);
@@ -96,9 +95,10 @@ export default {
   font-size: 26px;
 }
 
-.on-camelot {
+.subtitle {
   color: #ffbc01;
   font-size: 20px;
+  text-transform: uppercase;
 }
 
 .token-pair {
@@ -124,7 +124,7 @@ export default {
 }
 
 @media screen and (max-width: 1024px) {
-  .camelot-card {
+  .card {
     max-width: 100%;
   }
 }

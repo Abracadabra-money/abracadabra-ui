@@ -7,16 +7,19 @@
     :breakpoints="breakpoints"
   >
     <slide :index="1">
+      <CrvUsdMimCard />
+    </slide>
+
+    <slide :index="1">
       <CamelotCard />
     </slide>
-    <slide :index="2">
+
+    <slide :index="1">
       <EmpowerCard />
     </slide>
-    <slide :index="3">
+
+    <slide :index="1">
       <CamelotUsdcMimCard />
-    </slide>
-    <slide :index="4">
-      <CrvMimCard />
     </slide>
 
     <template #addons>
@@ -28,7 +31,7 @@
 <script>
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination } from "vue3-carousel";
-import CrvMimCard from "@/components/cauldrons/CrvMimCard.vue";
+import CrvUsdMimCard from "@/components/cauldrons/CrvUsdMimCard.vue";
 import CamelotCard from "@/components/cauldrons/CamelotCard.vue";
 import EmpowerCard from "@/components/cauldrons/EmpowerCard.vue";
 import CamelotUsdcMimCard from "@/components/cauldrons/CamelotUsdcMimCard.vue";
@@ -60,7 +63,7 @@ export default {
     Carousel,
     Slide,
     Pagination,
-    CrvMimCard,
+    CrvUsdMimCard,
   },
 };
 </script>
