@@ -517,4 +517,10 @@ export default {
     font-size: 14px;
   }
 }
+
+@media (max-width: 374px) {
+  .my-position-button {
+    font-size: 12px;
+  }
+}
 </style>

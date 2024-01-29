@@ -23,7 +23,7 @@
               {{ selectedFarm.stakingToken.name }}</span
             >
             <div class="token-amount">
-              <span class="value">{{ depositedTokenInfo.value }}</span>
+              <span class="value">{{ depositedTokenInfo.earned }}</span>
               <span class="usd">{{ depositedTokenInfo.usd }}</span>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default {
     depositedTokenInfo() {
       return this.prepBalanceData(
         this.selectedFarm.accountInfo.userInfo.amount,
-        this.selectedFarm.earnedTokenPrice
+        this.selectedFarm.lpPrice
       );
     },
 
@@ -331,5 +331,11 @@ export default {
 
 .harvest-button {
   margin-top: 80px;
+}
+
+@media screen and (max-width: 600px) {
+  .farm-position {
+    min-width: 100%;
+  }
 }
 </style>
