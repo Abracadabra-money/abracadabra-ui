@@ -17,7 +17,7 @@
           </h4>
         </div>
 
-        <div class="banner-wrap">
+        <div class="banner-wrap" v-if="isArbitrumChain">
           <img class="banner-coins" src="@/assets/gifs/coins.gif" alt="" />
           <img
             class="banner-book"
@@ -26,7 +26,7 @@
           />
         </div>
 
-        <div class="farm-cards-wrap">
+        <div class="farm-cards-wrap" v-if="isArbitrumChain">
           <h4 class="farm-title">
             Explore the Abracadabra ecosystem on Arbitrum!
           </h4>
@@ -67,7 +67,12 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
+      chainId: "getChainId",
     }),
+
+    isArbitrumChain() {
+      return this.chainId === ARBITRUM_CHAIN_ID;
+    },
   },
 
   methods: {
