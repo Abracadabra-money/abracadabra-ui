@@ -1,6 +1,5 @@
 <template>
   <Carousel
-    :items-to-show="3"
     :wrap-around="true"
     :transition="500"
     :autoplay="3000"
@@ -43,7 +42,7 @@ export default {
         375: {
           itemsToShow: 1,
         },
-        600: {
+        768: {
           itemsToShow: 2,
         },
         950: {

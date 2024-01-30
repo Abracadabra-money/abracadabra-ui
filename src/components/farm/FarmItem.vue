@@ -28,7 +28,7 @@
       <div class="apr">
         <div class="tag-title">
           APR
-          <AprTooltip v-if="showAprTooltip" :farm="farm" />
+          <AprTooltip v-if="showAprTooltip" :farm="farm" :top="top" />
           <Tooltip
             v-else
             :width="16"
@@ -60,6 +60,10 @@ export default {
   props: {
     farm: {
       type: Object,
+    },
+    top: {
+      type: Boolean,
+      default: false,
     },
   },
 

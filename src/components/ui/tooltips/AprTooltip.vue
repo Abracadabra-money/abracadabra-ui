@@ -1,5 +1,5 @@
 <template>
-  <div class="tooltip-wrap">
+  <div :class="['tooltip-wrap', { top: top }]">
     <Tooltip :width="16" :height="16" fill="#878B93" :tooltip="''" />
     <div class="apr-info">
       <div class="apr-item" v-for="item in tokensInfo" :key="item.address">
@@ -25,6 +25,10 @@ export default {
     farm: {
       type: Object,
       required: true,
+    },
+    top: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {
@@ -122,6 +126,13 @@ export default {
         text-align: right;
       }
     }
+  }
+}
+
+.top {
+  .apr-info {
+    left: -92px;
+    top: -135px;
   }
 }
 </style>
