@@ -137,9 +137,8 @@ export default {
       rgba(116, 92, 210, 0.32) 100%
     ),
     url("../../assets/images/myPositions/reward-mim-background.png");
-  background-size: cover;
   background-repeat: no-repeat;
-  background-position: 20% 20%;
+  background-position: 20% 30%;
 }
 
 @media screen and (max-width: 1050px) {
@@ -167,9 +166,7 @@ export default {
   .desc-line {
     font-size: 14px;
   }
-}
 
-@media screen and (max-width: 400px) {
   .mim {
     background: linear-gradient(
         90deg,
@@ -177,6 +174,9 @@ export default {
         rgba(116, 92, 210, 0.32) 100%
       ),
       url("../../assets/images/myPositions/reward-mim-background-mobile.png");
+
+    background-position: right bottom;
+    background-repeat: no-repeat;
   }
 }
 </style>
