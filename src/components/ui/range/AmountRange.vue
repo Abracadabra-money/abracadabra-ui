@@ -21,6 +21,7 @@
 </template>
 
 <script lang="ts" scoped>
+// @ts-ignore
 import filters from "@/filters/index.js";
 import { BigNumber, utils } from "ethers";
 
