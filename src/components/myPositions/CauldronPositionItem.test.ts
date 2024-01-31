@@ -1,7 +1,7 @@
-import { BigNumber } from "ethers";
+// import { BigNumber } from "ethers";
 import { describe, it, expect } from "vitest";
-import { shallowMount } from "@vue/test-utils";
-import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
+// import { shallowMount } from "@vue/test-utils";
+// import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
 
 describe("CauldronPositionItem", () => {
   it("renders correctly", () => {
