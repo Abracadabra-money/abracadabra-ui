@@ -30,8 +30,6 @@ describe("PopupEmptyState", () => {
       },
     });
 
-    console.log("notFoundText", wrapper.findAll(".not-found__text"));
-
     const notFoundText = wrapper.findAll(".not-found__text");
     expect(notFoundText[0].text()).toBe(`No ${popupType} found with this name`);
   });

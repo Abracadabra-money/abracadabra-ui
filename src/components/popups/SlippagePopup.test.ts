@@ -4,6 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 import SlippagePopup from "@/components/popups/SlippagePopup.vue";
 
 const tooltip = vi.fn();
+const clickOutside = vi.fn();
 
 describe("SlippagePopup", () => {
   it("renders correctly when showPopup is false", () => {
@@ -12,7 +13,7 @@ describe("SlippagePopup", () => {
         amount: BigNumber.from(100),
         defaultAmount: BigNumber.from(50),
       },
-      global: { directives: { tooltip } },
+      global: { directives: { tooltip, clickOutside } },
     });
 
     expect(wrapper.find(".slippage-popup").exists()).toBe(false);
@@ -24,7 +25,7 @@ describe("SlippagePopup", () => {
         amount: BigNumber.from(100),
         defaultAmount: BigNumber.from(50),
       },
-      global: { directives: { tooltip } },
+      global: { directives: { tooltip, clickOutside } },
     });
 
     wrapper.setData({ showPopup: true });
@@ -39,7 +40,7 @@ describe("SlippagePopup", () => {
         amount: utils.parseUnits("100"),
         defaultAmount: utils.parseUnits("10"),
       },
-      global: { directives: { tooltip } },
+      global: { directives: { tooltip, clickOutside } },
     });
 
     wrapper.setData({ showPopup: true });
@@ -58,7 +59,7 @@ describe("SlippagePopup", () => {
         amount: utils.parseUnits("50"),
         defaultAmount: utils.parseUnits("100"),
       },
-      global: { directives: { tooltip } },
+      global: { directives: { tooltip, clickOutside } },
     });
 
     wrapper.setData({ showPopup: true });

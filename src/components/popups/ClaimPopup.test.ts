@@ -1,10 +1,12 @@
-import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
+import { describe, it, expect, vi } from "vitest";
 import ClaimPopup from "@/components/popups/ClaimPopup.vue";
+
+const clickOutside = vi.fn();
 
 describe("ClaimPopup", () => {
   it("renders the popup header correctly", () => {
-    const wrapper = shallowMount(ClaimPopup);
+    const wrapper = shallowMount(ClaimPopup, { directives: { clickOutside } });
     const header = wrapper.find(".popup-header");
     expect(header.exists()).toBe(true);
 
@@ -16,7 +18,7 @@ describe("ClaimPopup", () => {
   });
 
   it("renders the popup content correctly", () => {
-    const wrapper = shallowMount(ClaimPopup);
+    const wrapper = shallowMount(ClaimPopup, { directives: { clickOutside } });
     const content = wrapper.find(".popup-content");
     expect(content.exists()).toBe(true);
 

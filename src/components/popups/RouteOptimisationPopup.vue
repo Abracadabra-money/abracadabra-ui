@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import { ethers } from "ethers";
+import { useImage } from "@/helpers/useImage";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
@@ -88,12 +90,10 @@ export default {
         const { name, icon } = getInfoFromAddress(item.address.toLowerCase());
         return {
           name,
-          icon: this.$image(icon),
+          icon: useImage(icon),
           address: item.address,
           fees: item.feeBasisPoints / 100,
-          amount: parseFloat(
-            this.$ethers.utils.formatUnits(item.amount)
-          ).toFixed(2),
+          amount: parseFloat(ethers.utils.formatUnits(item.amount)).toFixed(2),
         };
       });
     },
