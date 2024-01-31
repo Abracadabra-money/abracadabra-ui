@@ -11,7 +11,7 @@ describe("FarmPosition", () => {
       },
     };
     const depositedTokenInfo = {
-      value: 100,
+      earned: 100,
       usd: 200,
     };
 

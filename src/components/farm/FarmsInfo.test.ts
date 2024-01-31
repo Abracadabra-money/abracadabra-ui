@@ -31,10 +31,7 @@ describe("FarmsInfo", () => {
 
     expect(title.text()).toBe("Farming opportunities");
     expect(description.text()).toContain(
-      "Use your favourite assets as collateral to borrow"
-    );
-    expect(description.text()).toContain(
-      "Magic Internet Money, a leading decentralised and collateral-backed stablecoin"
+      "Enjoy the best yields for LPing MIM or Spell"
     );
   });
 
