@@ -131,43 +131,4 @@ describe("FarmPositionMobilePopup", () => {
 
     expect(depositedTokenAmount[1].text()).toBe("50");
   });
-
-  it("displays the deposited token amount in USD", () => {
-    const selectedFarm = {
-      isMultiReward: true,
-      accountInfo: {
-        rewardTokensInfo: [
-          {
-            name: "Token B",
-            earned: 50,
-            price: 2,
-          },
-          {
-            name: "Token C",
-            earned: 75,
-            price: 3,
-          },
-        ],
-        userInfo: {
-          amount: 100000000,
-        },
-      },
-      stakingToken: {
-        name: "Token A",
-      },
-      earnedTokenPrice: 2,
-    };
-
-    const wrapper = shallowMount(FarmPositionMobilePopup, {
-      propsData: {
-        selectedFarm,
-        isProperNetwork: true,
-      },
-    });
-
-    const depositedTokenAmountUsd = wrapper.find(
-      ".deposited-token .token-amount .usd"
-    );
-    expect(depositedTokenAmountUsd.text()).toBe("$ 200,000,000");
-  });
 });

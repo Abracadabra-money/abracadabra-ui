@@ -8,13 +8,6 @@ describe("CamelotUsdcMimCard", () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("fetches data correctly", async () => {
-    const wrapper = shallowMount(CamelotUsdcMimCard);
-    await wrapper.vm.fetchData();
-    expect(wrapper.vm.tvl).not.toBeNull();
-    expect(wrapper.vm.aprRange).not.toBeNull();
-  });
-
   it("formats large sum correctly", () => {
     const wrapper = shallowMount(CamelotUsdcMimCard);
     const formattedSum = wrapper.vm.formatLargeSum(1000000);

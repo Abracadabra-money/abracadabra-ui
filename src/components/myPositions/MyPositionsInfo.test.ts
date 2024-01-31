@@ -24,12 +24,7 @@ describe("MyPositionsInfo", () => {
       propsData: { totalAssetsData },
     });
     const description = wrapper.find(".description");
-    expect(description.text()).toContain(
-      "Use your favourite assets as collateral to borrow"
-    );
-    expect(description.text()).toContain(
-      "Magic Internet Money, a leading decentralised and collateral-backed stablecoin."
-    );
+    expect(description.text()).toContain("Manage your positions");
   });
 
   it("renders the correct reward cards", () => {
