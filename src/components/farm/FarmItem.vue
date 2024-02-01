@@ -27,7 +27,7 @@
     <div class="item-info">
       <div class="apr">
         <div class="tag-title">
-          APR
+          {{ aprText }}
           <AprTooltip v-if="showAprTooltip" :farm="farm" :top="top" />
           <Tooltip
             v-else
@@ -116,6 +116,10 @@ export default {
 
     showAprTooltip() {
       return this.farm.isMultiReward;
+    },
+
+    aprText() {
+      return this.showAprTooltip ? "Boosted Yield" : "APR";
     },
   },
 

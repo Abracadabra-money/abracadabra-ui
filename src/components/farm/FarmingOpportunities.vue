@@ -18,7 +18,9 @@
       <div class="info-tag">
         <span class="title">
           APR
+          <AprTooltip v-if="showAprTooltip" :farm="selectedFarm" />
           <Tooltip
+            v-else
             :tooltip="'Annual Return on Staked tokens at current price'"
           />
         </span>
@@ -39,10 +41,11 @@
 </template>
 
 <script>
+import filters from "@/filters/index";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import SelectFarm from "@/components/farm/SelectFarm.vue";
 import GetLpLink from "@/components/ui/links/GetLpLink.vue";
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
-import filters from "@/filters/index";
+import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
 
 export default {
   props: {
@@ -57,12 +60,21 @@ export default {
     tvl() {
       return filters.formatUSD(this.selectedFarm?.farmTvl || 0);
     },
+
+    showAprTooltip() {
+      return this.selectedFarm?.isMultiReward;
+    },
+
+    aprText() {
+      return this.showAprTooltip ? "Boosted Yield" : "APR";
+    },
   },
 
   components: {
     SelectFarm,
     GetLpLink,
     Tooltip,
+    AprTooltip,
   },
 };
 </script>
