@@ -92,6 +92,7 @@ export default {
 }
 
 .card-title {
+  text-transform: uppercase;
   font-size: 26px;
 }
 
