@@ -4,7 +4,7 @@
       <MyPositionsInfo :totalAssetsData="totalAssetsData" />
 
       <BentoBoxBlock
-        v-if="activeChains.length"
+        v-if="activeChains.length && account"
         :activeNetworks="activeChains"
       />
 
@@ -157,6 +157,10 @@ export default {
       await this.createOpenPositions();
     },
 
+    async chainId() {
+      await this.createOpenPositions();
+    },
+
     cauldrons() {
       this.selectedChains = this.getActiveChain();
     },
@@ -215,6 +219,7 @@ export default {
     },
 
     async createOpenPositions() {
+      this.positionsIsLoading = true;
       if (!this.account) {
         this.positionsIsLoading = false;
         return false;
@@ -224,11 +229,6 @@ export default {
       await this.getCollateralsApr();
       this.totalAssets = getUsersTotalAssets(this.cauldrons);
       this.positionsIsLoading = false;
-      this.updateInterval = setInterval(async () => {
-        this.cauldrons = await getUserOpenPositions(this.account);
-        await this.getCollateralsApr();
-        this.totalAssets = getUsersTotalAssets(this.cauldrons);
-      }, 60000);
     },
 
     async fetchCollateralApy(cauldron, chainId, address) {
@@ -290,6 +290,12 @@ export default {
 
   async created() {
     await this.createOpenPositions();
+    this.updateInterval = setInterval(async () => {
+      this.cauldrons = await getUserOpenPositions(this.account);
+      await this.getCollateralsApr();
+      this.totalAssets = getUsersTotalAssets(this.cauldrons);
+    }, 60000);
+
     this.selectedChains = this.getActiveChain();
   },
 
