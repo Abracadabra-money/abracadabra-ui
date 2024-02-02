@@ -72,8 +72,6 @@ export default {
     },
 
     updatePositionHealth() {
-      console.log("this.positionHealth.percent", this.positionHealth.percent);
-
       if (!+this.positionHealth.percent) {
         document.documentElement.style.setProperty("--position-health", "100%");
       } else if (+this.positionHealth.percent >= 100) {

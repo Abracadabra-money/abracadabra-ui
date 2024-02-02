@@ -32,7 +32,11 @@ export default mergeConfig(
           fileURLToPath(new URL("./src/", import.meta.url)),
           "test/setup.ts"
         ),
+        "./vitest.setup.ts",
       ],
+      deps: {
+        inline: ["vitest-canvas-mock"],
+      },
     },
   })
 );
