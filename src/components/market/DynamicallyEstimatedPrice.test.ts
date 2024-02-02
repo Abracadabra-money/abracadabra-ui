@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import DynamicallyEstimatedPrice from "@/components/market/DynamicallyEstimatedPrice.vue";
+import { utils } from "ethers";
 
 describe("DynamicallyEstimatedPrice", () => {
   it("renders DynamicFee component when chainId is not 2222", () => {
@@ -18,7 +19,7 @@ describe("DynamicallyEstimatedPrice", () => {
           },
         },
         multiplier: 2,
-        amount: 100,
+        amount: utils.parseUnits("100"),
         isClose: false,
       },
     });
@@ -41,7 +42,7 @@ describe("DynamicallyEstimatedPrice", () => {
           },
         },
         multiplier: 2,
-        amount: 100,
+        amount: utils.parseUnits("100"),
         isClose: false,
       },
     });
@@ -64,7 +65,7 @@ describe("DynamicallyEstimatedPrice", () => {
           },
         },
         multiplier: 2,
-        amount: 100,
+        amount: utils.parseUnits("100"),
         isClose: false,
       },
     });
@@ -89,7 +90,7 @@ describe("DynamicallyEstimatedPrice", () => {
           },
         },
         multiplier: 2,
-        amount: 100,
+        amount: utils.parseUnits("100"),
         isClose: false,
       },
     });
