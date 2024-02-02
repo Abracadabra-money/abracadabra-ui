@@ -123,8 +123,11 @@ export default {
     },
 
     error() {
-      if (+this.inputValue > formatUnits(this.balance))
-        return `The value cannot be greater than ${formatUnits(this.balance)}`;
+      if (+this.inputValue > formatUnits(this.balance, 18))
+        return `The value cannot be greater than ${formatUnits(
+          this.balance,
+          18
+        )}`;
       return null;
     },
 
