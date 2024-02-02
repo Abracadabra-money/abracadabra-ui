@@ -14,8 +14,6 @@ describe("LeverageRange", () => {
 
     input.setValue(5);
 
-    console.log("wrapper.vm.inputValue", wrapper.vm.inputValue);
-
     expect(wrapper.vm.inputValue).toBe("5");
 
     input.setValue(10);

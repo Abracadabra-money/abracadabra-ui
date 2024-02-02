@@ -15,6 +15,23 @@ export const testStore = new Vuex.Store({
         getSigner: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
         getEnsName: () => null,
       },
+      mutations: {
+        setMobileMenu(state, show) {
+          state.mobileMenu = show;
+        },
+
+        setPopupState(state, { type, isShow, data }) {
+          state.popupData = data;
+          state.popupType = type;
+          state.showPopup = isShow;
+        },
+
+        closePopups(state) {
+          state.popupType = null;
+          state.showPopup = false;
+          state.popupData = null;
+        },
+      },
     },
   },
 });
