@@ -307,6 +307,10 @@ export default {
       await this.createStakeInfo();
     },
 
+    async chainId() {
+      await this.createStakeInfo();
+    },
+
     async activeToken() {
       await this.updateActiveNetwork();
     },

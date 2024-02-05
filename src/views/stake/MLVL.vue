@@ -260,6 +260,10 @@ export default {
     async account(value) {
       if (value) await this.createStakeInfo();
     },
+
+    async chainId() {
+      await this.createStakeInfo();
+    },
   },
 
   methods: {

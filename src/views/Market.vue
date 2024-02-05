@@ -183,6 +183,16 @@ export default {
     },
   },
 
+  watch: {
+    async account() {
+      await this.createCauldronInfo();
+    },
+
+    async activeChainId() {
+      await this.createCauldronInfo();
+    },
+  },
+
   methods: {
     resetAmounts() {
       this.actionConfig.amounts = {

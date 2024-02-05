@@ -1,5 +1,7 @@
 import { getWalletClient } from "@wagmi/core";
 import { chainsList } from "@/helpers/chains/index";
+import { onConnectNew } from "@/plugins/connectWallet/initConnect";
+import { createEthereumClients } from "@/plugins/connectWallet/createEthereumClients";
 
 export const switchNetwork = async (chainId: number) => {
   const walletClient = await getWalletClient();
@@ -17,6 +19,7 @@ export const switchNetwork = async (chainId: number) => {
     }
   } else {
     localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
-    window.location.reload();
+    const { ethereumClient } = createEthereumClients();
+    onConnectNew(ethereumClient!);
   }
 };

@@ -84,7 +84,7 @@ export const createBentoBoxConfig = async (
       address: bentoContractInfo.address as Address,
       abi: bentoContractInfo.abi as any,
       functionName: "toAmount",
-      args: [mimInfo.address, bentoBalance.result, false],
+      args: [mimInfo.address, bentoBalance.result || 0n, false],
     });
 
   if (degenContractInfo)
@@ -92,7 +92,7 @@ export const createBentoBoxConfig = async (
       address: degenContractInfo.address as Address,
       abi: degenContractInfo.abi as any,
       functionName: "toAmount",
-      args: [mimInfo.address, degenBalance.result, false],
+      args: [mimInfo.address, degenBalance.result || 0n, false],
     });
 
   return {

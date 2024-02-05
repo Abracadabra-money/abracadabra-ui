@@ -246,6 +246,10 @@ export default {
     async account() {
       await this.createStakeInfo();
     },
+
+    async chainId() {
+      await this.createStakeInfo();
+    },
   },
 
   methods: {

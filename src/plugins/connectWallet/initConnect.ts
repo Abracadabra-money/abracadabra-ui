@@ -7,10 +7,17 @@ import { getEthersSigner } from "@/plugins/connectWallet/getEthersSigner";
 import { checkSanctionAddress } from "@/plugins/connectWallet/checkSanctionAddress";
 import type { EthereumClient } from "@web3modal/ethereum";
 import { getChainsConfigs } from "@/helpers/getChainsConfigs";
+import { initWithoutConnect } from "@/plugins/connectWallet/initWithoutConnect";
 
 export const onConnectNew = async (ethereumClient: EthereumClient) => {
   try {
     const account = await ethereumClient.getAccount().address;
+
+    if (!account) {
+      initWithoutConnect();
+      return;
+    }
+
     const activeChain = await ethereumClient.getNetwork().chain;
     const chainId = activeChain!.id;
     const unsupportedChain = !defaultRpc[chainId as keyof typeof defaultRpc];
@@ -29,11 +36,11 @@ export const onConnectNew = async (ethereumClient: EthereumClient) => {
     if (await checkSanctionAddress(account!)) return false;
 
     watchAccount(({ address }) => {
-      if (account !== address) window.location.reload();
+      if (account !== address) onConnectNew(ethereumClient);
     });
 
     watchNetwork((network) => {
-      if (chainId !== network.chain?.id) window.location.reload();
+      if (chainId !== network.chain?.id) onConnectNew(ethereumClient);
     });
 
     const provider = markRaw(new providers.StaticJsonRpcProvider(currentRpc));

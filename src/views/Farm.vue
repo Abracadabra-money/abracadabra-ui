@@ -208,7 +208,7 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        if (this.account) await this.getSelectedFarm();
+        await this.getSelectedFarm();
       },
     },
 
@@ -219,6 +219,10 @@ export default {
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action);
       },
+    },
+
+    async chainId() {
+      await this.getSelectedFarm();
     },
 
     max() {
