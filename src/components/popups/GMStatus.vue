@@ -98,12 +98,12 @@
 </template>
 
 <script>
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import { useImage } from "@/helpers/useImage";
-import filters from "@/filters/index.js";
-import { mapGetters, mapActions, mapMutations } from "vuex";
-import notification from "@/helpers/notification/notification.js";
 import { utils } from "ethers";
+import { mapGetters, mapActions } from "vuex";
+import { useImage } from "@/helpers/useImage";
+import { formatTokenBalance } from "@/helpers/filters";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import notification from "@/helpers/notification/notification.js";
 import { getProviderByChainId } from "@/helpers/getProviderByChainId";
 
 import {
@@ -260,6 +260,9 @@ export default {
   },
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
+
+    formatTokenBalance,
+
     closePopup() {
       this.$emit("closePopup");
     },
@@ -352,9 +355,7 @@ export default {
       await this.deleverageFromOrder(this.order, this.deleverageSuccessPayload);
       this.deleverageinProgress = false;
     },
-    formatTokenBalance(amount) {
-      return filters.formatTokenBalance(amount);
-    },
+
     clearInfo() {
       this.processState = STATE_PENDING;
       this.balances = null;

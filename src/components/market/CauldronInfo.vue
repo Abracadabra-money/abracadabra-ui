@@ -81,10 +81,9 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { getCollateralApr } from "@/helpers/collateralsApy";
-
+import { formatToFixed } from "@/helpers/filters";
 // @ts-ignore
-import filters from "@/filters/index.js";
+import { getCollateralApr } from "@/helpers/collateralsApy";
 
 export default {
   props: {
@@ -102,7 +101,7 @@ export default {
   computed: {
     loopApr() {
       if (this.aprInfo.value) {
-        return `${this.aprInfo.value}% - ${filters.formatToFixed(
+        return `${this.aprInfo.value}% - ${formatToFixed(
           this.aprInfo.value * this.aprInfo.multiplier,
           2
         )}%`;

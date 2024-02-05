@@ -31,9 +31,8 @@
 
 <script>
 import { mapGetters } from "vuex";
-import filters from "@/filters/index.js";
-import { useImage } from "@/helpers/useImage";
-import ExplorerLink from "@/components/beam/successPopup/ExplorerLink.vue";
+import { formatToFixed } from "@/helpers/filters";
+
 export default {
   props: {
     config: {
@@ -79,7 +78,7 @@ export default {
     },
 
     destinationTokenAmount() {
-      return filters.formatToFixed(this.config.dstTokenAmount || "0.0", 3);
+      return formatToFixed(this.config.dstTokenAmount || "0.0", 3);
     },
 
     convertTokenAmount() {

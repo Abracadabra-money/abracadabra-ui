@@ -70,16 +70,20 @@
 </template>
 
 <script>
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatPercent,
+} from "@/helpers/filters";
 import { mapGetters } from "vuex";
-import filters from "@/filters/index.js";
+import { ethers, utils } from "ethers";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import OrderButton from "@/components/myPositions/OrderButton.vue";
+import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 import HealthProgress from "@/components/myPositions/HealthProgress.vue";
-import { ethers, utils } from "ethers";
 import PositionIndicator from "@/components/myPositions/PositionIndicator.vue";
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
-import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
-import OrderButton from "@/components/myPositions/OrderButton.vue";
 
 import {
   PERCENT_PRESITION,
@@ -208,24 +212,16 @@ export default {
   },
 
   methods: {
+    formatUSD,
+    formatPercent,
+    formatTokenBalance,
+
     goToPage(cauldron) {
       const { chainId, id } = cauldron.config;
       return {
         name: "Market",
         params: { chainId, cauldronId: id },
       };
-    },
-
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
-
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
-
-    formatPercent(value) {
-      return filters.formatPercent(value);
     },
   },
 

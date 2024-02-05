@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import filters from "@/filters/index";
+import { formatUSD } from "@/helpers/filters";
 
 export default {
   props: {
@@ -50,13 +50,13 @@ export default {
   computed: {
     estimatedGasCostUsd() {
       const estimatedGasCostUsd = this.data.gasCost * this.data.srcTokenPrice;
-      return filters.formatUSD(estimatedGasCostUsd);
+      return formatUSD(estimatedGasCostUsd);
     },
 
     gasOnDestinationUsd() {
       const gasOnDestinationUsd =
         this.data.dstTokenAmount * this.data.dstTokenPrice;
-      return filters.formatUSD(gasOnDestinationUsd);
+      return formatUSD(gasOnDestinationUsd);
     },
   },
 };

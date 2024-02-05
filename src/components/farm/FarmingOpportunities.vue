@@ -41,10 +41,10 @@
 </template>
 
 <script>
-import filters from "@/filters/index";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import SelectFarm from "@/components/farm/SelectFarm.vue";
 import GetLpLink from "@/components/ui/links/GetLpLink.vue";
+import { formatUSD, formatPercent } from "@/helpers/filters";
 import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
 
 export default {
@@ -54,11 +54,11 @@ export default {
 
   computed: {
     apr() {
-      return filters.formatPercent(this.selectedFarm?.farmRoi || 0);
+      return formatPercent(this.selectedFarm?.farmRoi || 0);
     },
 
     tvl() {
-      return filters.formatUSD(this.selectedFarm?.farmTvl || 0);
+      return formatUSD(this.selectedFarm?.farmTvl || 0);
     },
 
     showAprTooltip() {

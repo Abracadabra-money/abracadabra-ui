@@ -44,8 +44,7 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
+import { formatToFixed } from "@/helpers/filters";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
 import actions from "@/helpers/stake/crv/actions/";
@@ -102,10 +101,7 @@ export default {
         ? (this.inputAmount * this.precision) / this.stakeInfo.tokensRate
         : (this.inputAmount * this.stakeInfo.tokensRate) / this.precision;
 
-      return filters.formatToFixed(
-        formatUnits(amount, this.mainToken.decimals),
-        6
-      );
+      return formatToFixed(formatUnits(amount, this.mainToken.decimals), 6);
     },
 
     fromTokenName() {

@@ -44,8 +44,8 @@
 </template>
 
 <script>
-import filters from "@/filters/index";
 import { mapGetters } from "vuex";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -68,15 +68,15 @@ export default {
 
     formattedSpell() {
       return {
-        amount: filters.formatTokenBalance(this.spell.toString()),
-        usd: filters.formatUSD(this.spell * this.spellPrice),
+        amount: formatTokenBalance(this.spell.toString()),
+        usd: formatUSD(this.spell * this.spellPrice),
       };
     },
 
     formattedArbitrum() {
       return {
-        amount: filters.formatTokenBalance(this.arbitrum.toString()),
-        usd: filters.formatUSD(this.arbitrum * this.arbitrumPrice),
+        amount: formatTokenBalance(this.arbitrum.toString()),
+        usd: formatUSD(this.arbitrum * this.arbitrumPrice),
       };
     },
   },

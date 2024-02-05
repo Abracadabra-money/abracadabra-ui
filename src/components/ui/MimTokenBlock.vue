@@ -15,7 +15,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import filters from "@/filters/index.js";
+import { formatToFixed } from "@/helpers/filters";
 import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
@@ -47,9 +47,8 @@ export default {
   },
 
   methods: {
-    formatToFixed(value, fixed) {
-      return filters.formatToFixed(value, fixed);
-    },
+    formatToFixed,
+
     async addToken() {
       if (!this.account) {
         return false;

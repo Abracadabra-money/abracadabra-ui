@@ -31,9 +31,8 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-//@ts-ignore
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -44,11 +43,11 @@ export default {
 
   methods: {
     formatTokenBalance(value: bigint, decimals: number) {
-      return filters.formatTokenBalance(formatUnits(value, decimals));
+      return formatTokenBalance(formatUnits(value, decimals));
     },
 
     formatUSD(value: bigint, decimals: number) {
-      return filters.formatUSD(formatUnits(value, decimals));
+      return formatUSD(formatUnits(value, decimals));
     },
   },
 

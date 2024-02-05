@@ -93,8 +93,6 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { useImage } from "@/helpers/useImage";
@@ -102,11 +100,12 @@ import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicLvl/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { formatPercent, formatToFixed } from "@/helpers/filters";
 // @ts-ignore
 import notification from "@/helpers/notification/notification.js";
 import { getStakeInfo } from "@/helpers/stake/magicLvl/getStakeInfo";
 import { getChartOptions } from "@/helpers/stake/magicLvl/getChartOptions";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   data() {
@@ -190,10 +189,7 @@ export default {
         ? (this.inputAmount * this.precision) / tokensRate
         : (this.inputAmount * tokensRate) / this.precision;
 
-      return filters.formatToFixed(
-        formatUnits(amount, this.mainToken.decimals),
-        6
-      );
+      return formatToFixed(formatUnits(amount, this.mainToken.decimals), 6);
     },
 
     stakeInfo() {
@@ -223,11 +219,9 @@ export default {
     trancheApr() {
       switch (this.activeToken) {
         case "senior":
-          return filters.formatPercent(
-            this.stakeInfo.tranchesStatistics.seniorApy
-          );
+          return formatPercent(this.stakeInfo.tranchesStatistics.seniorApy);
         default:
-          return filters.formatPercent(0);
+          return formatPercent(0);
       }
     },
 

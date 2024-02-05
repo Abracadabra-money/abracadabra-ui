@@ -21,10 +21,9 @@
 
 <script lang="ts">
 import { utils } from "ethers";
-// @ts-ignore
-import filters from "@/filters";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { formatTokenBalance, formatToFixed } from "@/helpers/filters";
 
 export default {
   props: {
@@ -42,7 +41,7 @@ export default {
 
       const rate = +utils.formatUnits(tokenToMim);
       const decimals = rate > 0.01 ? 2 : rate < 0.0001 ? 6 : 4;
-      return filters.formatTokenBalance(filters.formatToFixed(rate, decimals));
+      return formatTokenBalance(formatToFixed(rate, decimals));
     },
   },
 

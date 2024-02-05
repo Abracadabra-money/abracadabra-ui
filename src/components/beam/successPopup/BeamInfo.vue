@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import filters from "@/filters/index";
+import { formatUSD, formatToFixed } from "@/helpers/filters";
 
 export default {
   props: {
@@ -58,7 +58,7 @@ export default {
   computed: {
     totalGasUsd() {
       const totalGasUsd = this.config.totalGas * this.config.srcTokenPrice;
-      return filters.formatUSD(totalGasUsd);
+      return formatUSD(totalGasUsd);
     },
 
     isNone() {
@@ -71,7 +71,7 @@ export default {
     },
 
     destinationTokenAmount() {
-      return filters.formatToFixed(this.config.dstTokenAmount || "0.0", 3);
+      return formatToFixed(this.config.dstTokenAmount || "0.0", 3);
     },
 
     convertTokenAmount() {

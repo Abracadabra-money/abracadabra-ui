@@ -42,15 +42,14 @@
 </template>
 
 <script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import degenIcon from "@/assets/images/degenbox.svg";
-import bentoIcon from "@/assets/images/bento-box.jpeg";
-import mimIcon from "@/assets/images/tokens/MIM.png";
-import filters from "@/filters/index.js";
-import { ethers, BigNumber } from "ethers";
 import { formatUnits } from "viem";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import degenIcon from "@/assets/images/degenbox.svg";
+import mimIcon from "@/assets/images/tokens/MIM.png";
+import bentoIcon from "@/assets/images/bento-box.jpeg";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -106,7 +105,9 @@ export default {
   },
 
   methods: {
+    formatUSD,
     getChainIcon,
+    formatTokenBalance,
 
     actionHandler() {
       if (!this.isProperChain) {
@@ -115,14 +116,6 @@ export default {
       }
       if (this.isDisabled) return false;
       this.$emit("withdraw");
-    },
-
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
-
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
     },
   },
 

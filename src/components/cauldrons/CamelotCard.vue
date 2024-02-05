@@ -24,8 +24,8 @@
 </template>
 
 <script>
+import { formatPercent, formatLargeSum } from "@/helpers/filters";
 import { fetchCamelotArbInfo } from "@/helpers/fetchCamelotCardsInfo";
-import filters from "@/filters/index";
 
 export default {
   data() {
@@ -36,20 +36,12 @@ export default {
   },
 
   methods: {
-    formatLargeSum(value) {
-      return filters.formatLargeSum(value);
-    },
-
-    formatPercent(value) {
-      return filters.formatPercent(value);
-    },
+    formatLargeSum,
 
     async fetchData() {
       const { tvl, apr } = await fetchCamelotArbInfo();
       this.tvl = tvl;
-      this.aprRange = `${this.formatPercent(apr.min)} - ${this.formatPercent(
-        apr.max
-      )}`;
+      this.aprRange = `${formatPercent(apr.min)} - ${formatPercent(apr.max)}`;
     },
   },
 

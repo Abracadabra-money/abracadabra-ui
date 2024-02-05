@@ -51,8 +51,8 @@
 
 <script>
 import { mapGetters } from "vuex";
-import filters from "@/filters/index.js";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import { formatUSD, formatPercent } from "@/helpers/filters";
 import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
@@ -78,11 +78,11 @@ export default {
     },
 
     apr() {
-      return filters.formatPercent(this.farm.farmRoi);
+      return formatPercent(this.farm.farmRoi);
     },
 
     tvl() {
-      return filters.formatUSD(this.farm.farmTvl);
+      return formatUSD(this.farm.farmTvl);
     },
 
     farmStatusStyles() {

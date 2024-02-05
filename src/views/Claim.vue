@@ -150,14 +150,14 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import degenBoxAbi from "@/utils/abi/degenBox.js";
+import BaseButton from "@/components/base/BaseButton.vue";
+import { tokensChainLink } from "@/utils/chainLink/config";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import degenBoxAbi from "@/utils/abi/degenBox.js";
-import { mapGetters } from "vuex";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
-import filters from "@/filters/index.js";
-import { tokensChainLink } from "@/utils/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 const ethPrivilegedMasterContract =
@@ -324,12 +324,9 @@ export default {
   },
 
   methods: {
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
+    formatUSD,
+    formatTokenBalance,
+
     async actionHandler() {
       if (!this.account) await this.$openWeb3modal();
       else {

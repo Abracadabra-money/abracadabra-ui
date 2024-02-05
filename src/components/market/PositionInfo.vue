@@ -121,11 +121,9 @@
 
 <script lang="ts">
 import { utils } from "ethers";
-// @ts-ignore
-import filters from "@/filters";
 import { defineAsyncComponent } from "vue";
+import { formatTokenBalance } from "@/helpers/filters";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-
 import { getExpectedPostition } from "@/helpers/cauldron/getExpectedPosition";
 
 export default {
@@ -167,7 +165,7 @@ export default {
 
   methods: {
     formatUnits(value: any, decimals = 18) {
-      return filters.formatTokenBalance(utils.formatUnits(value, decimals));
+      return formatTokenBalance(utils.formatUnits(value, decimals));
     },
   },
 

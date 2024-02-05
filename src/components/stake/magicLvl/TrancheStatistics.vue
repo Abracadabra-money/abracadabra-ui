@@ -76,9 +76,8 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -87,12 +86,10 @@ export default {
     },
   },
   methods: {
-    formatTokenBalance(value: bigint) {
-      return filters.formatTokenBalance(value);
-    },
+    formatTokenBalance,
 
     formatUSD(value: any, decimals = 18) {
-      return filters.formatUSD(formatUnits(value, decimals));
+      return formatUSD(formatUnits(value, decimals));
     },
   },
 

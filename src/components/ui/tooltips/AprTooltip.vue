@@ -17,7 +17,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import filters from "@/filters/index";
+import { formatPercent } from "@/helpers/filters";
 
 export default {
   name: "AprTooltip",
@@ -45,13 +45,14 @@ export default {
 
         return {
           ...tokenItem,
-          apr: filters.formatPercent(apr),
+          apr: formatPercent(apr),
           title,
         };
       });
     },
+
     totalApr() {
-      return filters.formatPercent(this.farm.farmRoi);
+      return formatPercent(this.farm.farmRoi);
     },
   },
 

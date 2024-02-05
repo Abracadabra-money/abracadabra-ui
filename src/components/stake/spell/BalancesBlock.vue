@@ -17,10 +17,8 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { formatUnits } from "viem";
-import { defineAsyncComponent } from "vue";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -32,13 +30,13 @@ export default {
 
   methods: {
     formatTokenBalance(value: bigint, decimals = 18) {
-      return filters.formatTokenBalance(formatUnits(value, decimals));
+      return formatTokenBalance(formatUnits(value, decimals));
     },
 
     formatUSD(config: any, decimals = 18) {
       const { balance, price }: any = config;
       const balanceUsd: any = balance * price;
-      return filters.formatUSD(
+      return formatUSD(
         formatUnits(balanceUsd / 1000000000000000000n, decimals)
       );
     },

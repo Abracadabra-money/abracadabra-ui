@@ -14,20 +14,21 @@
 
     <div class="row">
       <span class="label">Total rewards</span>
-      <span class="value">{{ formatAmountUSD(rewards) }}</span>
+      <span class="value">{{ formatUSD(rewards) }}</span>
     </div>
 
     <div class="row">
       <span class="label">Total supply</span>
-      <span class="value">{{ formatUSD(data.mainToken.totalSupplyUsd) }}</span>
+      <span class="value">{{
+        formatAmountUSD(data.mainToken.totalSupplyUsd)
+      }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { formatUnits } from "viem";
-// @ts-ignore
-import filters from "@/filters/index.js";
+import { formatUSD, formatPercent } from "@/helpers/filters";
 
 export default {
   props: {
@@ -38,16 +39,11 @@ export default {
   },
 
   methods: {
-    formatAmountUSD(amount: number) {
-      return filters.formatUSD(amount);
-    },
+    formatUSD,
+    formatPercent,
 
-    formatUSD(amount: bigint, decimals = 18) {
-      return filters.formatUSD(formatUnits(amount, decimals));
-    },
-
-    formatPercent(amount: number) {
-      return filters.formatPercent(amount);
+    formatAmountUSD(amount: bigint, decimals = 18) {
+      return formatUSD(formatUnits(amount, decimals));
     },
   },
 };

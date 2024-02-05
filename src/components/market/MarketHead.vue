@@ -49,12 +49,11 @@
 
 <script lang="ts">
 import { utils } from "ethers";
-// @ts-ignore
-import filters from "@/filters";
-import { defineAsyncComponent } from "vue";
-import { getTokenLinkData } from "@/helpers/getTokenLinkData";
-import { chainsList } from "@/helpers/chains";
 import { mapGetters } from "vuex";
+import { defineAsyncComponent } from "vue";
+import { chainsList } from "@/helpers/chains";
+import { formatLargeSum } from "@/helpers/filters";
+import { getTokenLinkData } from "@/helpers/getTokenLinkData";
 
 export default {
   props: {
@@ -80,15 +79,13 @@ export default {
     },
 
     totalMimBorrowed() {
-      return filters.formatLargeSum(
+      return formatLargeSum(
         utils.formatUnits(this.cauldron.mainParams.totalBorrowed)
       );
     },
 
     totalValueLocked() {
-      return filters.formatLargeSum(
-        utils.formatUnits(this.cauldron.mainParams.tvl)
-      );
+      return formatLargeSum(utils.formatUnits(this.cauldron.mainParams.tvl));
     },
 
     cauldronScanUrl() {

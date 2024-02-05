@@ -18,15 +18,14 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-// @ts-ignore
-import filters from "@/filters/index.js";
 import {
   PERCENT_PRESITION,
   getLiquidationPrice,
   getPositionHealth,
 } from "@/helpers/cauldron/utils";
+import { utils } from "ethers";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { formatToFixed, formatPercent } from "@/helpers/filters";
 
 export default {
   props: {
@@ -68,7 +67,7 @@ export default {
 
   methods: {
     formatPercent(value: any) {
-      return filters.formatPercent(filters.formatToFixed(100 - value, 2));
+      return formatPercent(formatToFixed(100 - value, 2));
     },
 
     updatePositionHealth() {

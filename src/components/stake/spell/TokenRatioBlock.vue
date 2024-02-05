@@ -19,9 +19,8 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { formatUnits } from "viem";
+import { formatToFixed } from "@/helpers/filters";
 
 interface MainToken {
   name: string;
@@ -48,7 +47,7 @@ export default {
 
   computed: {
     tokensRatio() {
-      return `1 ${this.mainToken.name} = ${filters.formatToFixed(
+      return `1 ${this.mainToken.name} = ${formatToFixed(
         formatUnits(this.mainToken.rate, this.mainToken.decimals),
         4
       )} ${this.stakeToken.name}`;

@@ -34,7 +34,7 @@
 
         <div class="inputs-wrap">
           <div>
-            <InputLabel title="MIM to beam" :showBalance="false" />
+            <h4 class="input-label">MIM to beam</h4>
             <BaseTokenInput
               class="beam-input"
               :decimals="18"
@@ -118,13 +118,15 @@ import {
   waitForMessageReceived,
   createClient,
 } from "@layerzerolabs/scan-client";
-import filters from "@/filters/index.js";
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveToken } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { mapGetters, mapActions, mapMutations } from "vuex";
+import { formatUSD, formatToFixed } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { nativeTokenschainLink } from "@/utils/chainLink/config";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
@@ -132,8 +134,6 @@ import notification from "@/helpers/notification/notification.js";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
-import { trimZeroDecimals } from "@/helpers/numbers";
-import { BigNumber, utils } from "ethers";
 
 export default {
   data() {
@@ -190,13 +190,6 @@ export default {
       return this.$ethers.utils.defaultAbiCoder.encode(
         ["address"],
         [this.toAddress]
-      );
-    },
-
-    parseInputValue() {
-      return this.$ethers.utils.parseUnits(
-        filters.formatToFixed(this.inputValue || 0, 18),
-        18
       );
     },
 
@@ -327,7 +320,7 @@ export default {
 
     formatFee() {
       if (!this.getFee) return "0.0";
-      return filters.formatToFixed(this.getFee, 8);
+      return formatToFixed(this.getFee, 8);
     },
 
     expectedConfig() {
@@ -378,7 +371,7 @@ export default {
         nativeSymbol: this.srcTokenInfo?.baseTokenSymbol,
         srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
         srcTokenPrice: this.srcTokenPrice,
-        gasOnDst: filters.formatToFixed(+this.getFee - +this.startFee, 3),
+        gasOnDst: formatToFixed(+this.getFee - +this.startFee, 3),
         dstTokenSymbol: this.dstTokenInfo.baseTokenSymbol,
         dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
         dstTokenAmount: this.dstTokenAmount,
@@ -516,7 +509,7 @@ export default {
         tokensChainLink.mim.chainId,
         tokensChainLink.mim.address
       );
-      this.mimToUsd = filters.formatUSD(+this.inputValue * +mimPrice);
+      this.mimToUsd = formatUSD(+this.inputValue * +mimPrice);
 
       try {
         const { fees, params } = await this.getEstimatedFees(true);
@@ -712,9 +705,6 @@ export default {
     InputAddress: defineAsyncComponent(() =>
       import("@/components/beam/InputAddress.vue")
     ),
-    InputLabel: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputLabel.vue")
-    ),
     ExpectedBlock: defineAsyncComponent(() =>
       import("@/components/beam/ExpectedBlock.vue")
     ),
@@ -815,6 +805,10 @@ export default {
   width: 100%;
   margin: 40px 0 16px 0;
   gap: 16px;
+}
+
+.input-label {
+  margin-bottom: 6px;
 }
 
 .beam-input {

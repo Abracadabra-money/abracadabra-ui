@@ -1,5 +1,5 @@
-import filters from "@/filters";
 import { formatUnits, type Address } from "viem";
+import { formatToFixed } from "@/helpers/filters";
 import { getTokenHolders } from "@/helpers/tenderly/getTokenHolders";
 import { getTokenDecimals } from "@/helpers/tenderly/getTokenDecimals";
 
@@ -18,7 +18,7 @@ export const getTotalAmountByHolders = async (
 
   if (holders.length === 0) return 0;
   if (holders.length === 1) {
-    return filters.formatToFixed(formatUnits(holders[0].amount, decimals));
+    return formatToFixed(formatUnits(holders[0].amount, decimals), decimals);
   }
 
   const totalAmount = holders.reduce((acc: any, { amount }: any) => {
@@ -26,5 +26,5 @@ export const getTotalAmountByHolders = async (
     return acc + amount;
   });
 
-  return filters.formatToFixed(formatUnits(totalAmount, decimals));
+  return formatToFixed(formatUnits(totalAmount, decimals), decimals);
 };

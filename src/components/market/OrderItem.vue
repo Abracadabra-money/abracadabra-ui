@@ -68,13 +68,12 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
-// @ts-ignore
-import filters from "@/filters/index.js";
-// @ts-ignore
-import { useImage } from "@/helpers/useImage";
 import { mapGetters } from "vuex";
 import { utils, BigNumber } from "ethers";
+import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { useImage } from "@/helpers/useImage";
+import { formatTokenBalance } from "@/helpers/filters";
 import {
   ORDER_PENDING,
   ORDER_SUCCESS,
@@ -238,9 +237,7 @@ export default {
     },
   },
   methods: {
-    formatTokenBalance(amount: any) {
-      return filters.formatTokenBalance(amount);
-    },
+    formatTokenBalance,
 
     changeSlippage(slippage: BigNumber) {
       this.slippage = slippage.isZero() ? DEFAULT_SLIPPAGE : slippage;

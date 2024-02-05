@@ -27,7 +27,7 @@
         </div>
 
         <div>
-          {{ formatTokenBalance(stakeToken.balance, stakeToken.decimals) }}
+          {{ formatBalance(stakeToken.balance, stakeToken.decimals) }}
         </div>
       </div>
 
@@ -38,7 +38,7 @@
         </div>
 
         <div>
-          {{ formatTokenBalance(mainToken.balance, mainToken.decimals) }}
+          {{ formatBalance(mainToken.balance, mainToken.decimals) }}
         </div>
       </div>
 
@@ -48,9 +48,8 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { formatUnits, parseUnits } from "viem";
+import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -60,13 +59,13 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(amount: bigint, decimals = 18) {
-      return filters.formatTokenBalance(formatUnits(amount, decimals));
+    formatBalance(amount: bigint, decimals = 18) {
+      return formatTokenBalance(formatUnits(amount, decimals));
     },
 
     getTokensRate(tokensRate: bigint, decimals: number) {
       const precision = parseUnits("1", decimals);
-      return filters.formatTokenBalance(
+      return formatTokenBalance(
         formatUnits((precision * tokensRate) / precision, decimals)
       );
     },

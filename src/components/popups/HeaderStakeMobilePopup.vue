@@ -115,19 +115,19 @@
 </template>
 
 <script>
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import filters from "@/filters/index";
-import { mapGetters } from "vuex";
 import {
   ANALYTICS_URK,
   ARBITRUM_CHAIN_ID,
   MAINNET_CHAIN_ID,
 } from "@/constants/global";
-import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
+import axios from "axios";
+import { mapGetters } from "vuex";
+import { formatPercent } from "@/helpers/filters";
+import BaseLoader from "@/components/base/BaseLoader.vue";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 import { getMagicLvlStatistics } from "@/helpers/stake/magicLvl/subgraph/getMagicLvlStatistics";
-import axios from "axios";
 
 export default {
   data() {
@@ -145,6 +145,8 @@ export default {
   },
 
   methods: {
+    formatPercent,
+
     async getSpellApr() {
       const spellAprs = await getSpellStakingApr();
       this.spellApr = spellAprs?.sSpellApr;
@@ -167,10 +169,6 @@ export default {
     async getKlpApr() {
       const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
       this.klpApr = data.apr;
-    },
-
-    formatPercent(value) {
-      return filters.formatPercent(value);
     },
 
     closeDropdown() {

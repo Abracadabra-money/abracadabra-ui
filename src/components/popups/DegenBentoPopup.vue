@@ -51,7 +51,7 @@ import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification.js";
-import filters from "@/filters/index.js";
+import { formatTokenBalance } from "@/helpers/filters";
 import actions from "@/helpers/bentoBox/actions";
 import { approveTokenViem } from "@/helpers/approval";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
@@ -160,10 +160,7 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     getChainIcon,
-
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
+    formatTokenBalance,
 
     async actionHandler() {
       if (this.isDisabled) return false;

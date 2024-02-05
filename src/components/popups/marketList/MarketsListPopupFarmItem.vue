@@ -39,7 +39,11 @@
 </template>
 
 <script>
-import filters from "@/filters/index.js";
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatPercent,
+} from "@/helpers/filters";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
 export default {
@@ -66,7 +70,7 @@ export default {
     },
 
     apr() {
-      return filters.formatPercent(this.marketItem.farmRoi);
+      return formatPercent(this.marketItem.farmRoi);
     },
 
     farmStatusStyles() {
@@ -103,13 +107,8 @@ export default {
   },
 
   methods: {
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
-
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
+    formatUSD,
+    formatTokenBalance,
 
     choseItem({ id, chainId }) {
       this.$emit("changeActiveMarket", { id, chainId });

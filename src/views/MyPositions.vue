@@ -59,24 +59,27 @@
 </template>
 
 <script>
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatToFixed,
+} from "@/helpers/filters";
 import { mapGetters } from "vuex";
-import filters from "@/filters/index.js";
-import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
-import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
-import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
-import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
-import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
-import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
-import SortButton from "@/components/ui/buttons/SortButton.vue";
-import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
 import { providers } from "ethers";
+import { APR_KEY } from "@/constants/global";
 import { defaultRpc } from "@/helpers/chains";
-import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 import BaseLoader from "@/components/base/BaseLoader.vue";
+import SortButton from "@/components/ui/buttons/SortButton.vue";
 import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
+import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
+import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
+import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
+import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
 import ConnectWalletBlock from "@/components/myPositions/ConnectWalletBlock.vue";
-import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
-const APR_KEY = "abracadabraCauldronsApr";
+import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
+import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
+import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
 
 export default {
   data() {
@@ -129,11 +132,11 @@ export default {
       return [
         {
           title: "Collateral Deposit",
-          value: filters.formatUSD(this.totalAssets?.collateralDepositedInUsd),
+          value: formatUSD(this.totalAssets?.collateralDepositedInUsd),
         },
         {
           title: "MIM Borrowed",
-          value: filters.formatTokenBalance(this.totalAssets?.mimBorrowed),
+          value: formatTokenBalance(this.totalAssets?.mimBorrowed),
         },
       ].filter((item) => !item.hidden);
     },
@@ -234,15 +237,15 @@ export default {
     async fetchCollateralApy(cauldron, chainId, address) {
       const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
       const apr = await fetchTokenApy(cauldron, chainId, provider);
-      const localData = localStorage.getItem("abracadabraCauldronsApr");
+      const localData = localStorage.getItem(APR_KEY);
       const parsedData = localData ? JSON.parse(localData) : {};
       parsedData[address] = {
         chainId,
-        apr: Number(filters.formatToFixed(apr, 2)),
+        apr: Number(formatToFixed(apr, 2)),
         createdAt: new Date().getTime(),
       };
       localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
-      return filters.formatToFixed(apr, 2);
+      return formatToFixed(apr, 2);
     },
 
     timeHasPassed(localData, address) {
@@ -260,7 +263,7 @@ export default {
       const { chainId, id, contract } = cauldron.config;
       const isApyExist = isApyCalcExist(chainId, id);
       if (isApyExist) {
-        const localApr = localStorage.getItem("abracadabraCauldronsApr");
+        const localApr = localStorage.getItem(APR_KEY);
         const parseLocalApr = localApr ? JSON.parse(localApr) : null;
         const isOutdated = this.timeHasPassed(parseLocalApr, contract.address);
         const collateralApy = !isOutdated

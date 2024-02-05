@@ -38,9 +38,8 @@
 
 <script lang="ts">
 import { utils } from "ethers";
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { formatToFixed, formatLargeSum } from "@/helpers/filters";
 
 export default {
   props: {
@@ -73,7 +72,7 @@ export default {
 
     loopApr() {
       if (this.cauldron.apr.value) {
-        return `${this.cauldron.apr.value}% - ${filters.formatToFixed(
+        return `${this.cauldron.apr.value}% - ${formatToFixed(
           this.cauldron.apr.value * this.cauldron.apr.multiplier,
           2
         )}%`;
@@ -97,7 +96,7 @@ export default {
     },
 
     formatLargeSum(value: string) {
-      return filters.formatLargeSum(utils.formatUnits(value));
+      return formatLargeSum(utils.formatUnits(value));
     },
   },
 };

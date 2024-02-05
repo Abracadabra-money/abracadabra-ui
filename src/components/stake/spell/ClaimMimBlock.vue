@@ -26,9 +26,8 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { mapGetters } from "vuex";
+import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -58,7 +57,7 @@ export default {
     },
 
     formatAmount() {
-      return filters.formatTokenBalance(this.claimAmount);
+      return formatTokenBalance(this.claimAmount);
     },
   },
 };

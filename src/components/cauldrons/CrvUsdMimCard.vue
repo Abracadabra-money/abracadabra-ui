@@ -24,8 +24,8 @@
 </template>
 
 <script>
+import { formatPercent, formatLargeSum } from "@/helpers/filters";
 import { fetchCrvMimCardsInfo } from "@/helpers/fetchCrvMimCardsInfo";
-import filters from "@/filters/index";
 
 export default {
   data() {
@@ -36,13 +36,8 @@ export default {
   },
 
   methods: {
-    formatLargeSum(value) {
-      return filters.formatLargeSum(value);
-    },
-
-    formatPercent(value) {
-      return filters.formatPercent(value);
-    },
+    formatPercent,
+    formatLargeSum,
 
     async fetchData() {
       const { tvl, apr } = await fetchCrvMimCardsInfo();

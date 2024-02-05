@@ -84,10 +84,9 @@
 
 <script lang="ts">
 import moment from "moment";
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
+import { formatToFixed } from "@/helpers/filters";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicKLP/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
@@ -161,10 +160,7 @@ export default {
         ? (this.inputAmount * this.precision) / this.mainToken.rate
         : (this.inputAmount * this.mainToken.rate) / this.precision;
 
-      return filters.formatToFixed(
-        formatUnits(amount, this.mainToken.decimals),
-        6
-      );
+      return formatToFixed(formatUnits(amount, this.mainToken.decimals), 6);
     },
 
     precision(): bigint {

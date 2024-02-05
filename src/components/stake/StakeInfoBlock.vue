@@ -45,10 +45,13 @@
 </template>
 
 <script lang="ts">
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatToFixed,
+} from "@/helpers/filters";
 import axios from "axios";
 import { formatUnits } from "viem";
-//@ts-ignore
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -83,7 +86,7 @@ export default {
         (MIM_PRICE * this.mainToken.rate) / ONE_ETHER_VIEM,
         this.mainToken.decimals
       );
-      return `1 ${this.mainToken.name} = ${filters.formatToFixed(rate, 4)} ${
+      return `1 ${this.mainToken.name} = ${formatToFixed(rate, 4)} ${
         this.stakeToken.name
       }`;
     },
@@ -97,20 +100,18 @@ export default {
 
   methods: {
     formatUSD(value: bigint) {
-      return filters.formatUSD(formatUnits(value, this.mainToken.decimals));
+      return formatUSD(formatUnits(value, this.mainToken.decimals));
     },
 
     formatTokenBalance(value: bigint) {
-      return filters.formatTokenBalance(
-        formatUnits(value, this.mainToken.decimals)
-      );
+      return formatTokenBalance(formatUnits(value, this.mainToken.decimals));
     },
 
     async fetchGlpApy() {
       if (!this.selectedNetwork) return false;
       this.apr = 0;
       const response = await getMagicGlpApy(this.selectedNetwork);
-      this.apr = filters.formatToFixed(response.magicGlpApy, 2);
+      this.apr = +formatToFixed(response.magicGlpApy, 2);
     },
 
     async fetchApeApy() {
@@ -121,7 +122,7 @@ export default {
 
     async fetchKlpApy() {
       const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
-      this.apr = filters.formatToFixed(data.apr, 2);
+      this.apr = +formatToFixed(data.apr, 2);
     },
 
     async fetchApr() {

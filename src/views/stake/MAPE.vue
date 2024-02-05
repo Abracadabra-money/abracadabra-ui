@@ -85,18 +85,17 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
+import { formatToFixed } from "@/helpers/filters";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicApe/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 // @ts-ignore
 import notification from "@/helpers/notification/notification.js";
-import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
+import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 
 export default {
   data() {
@@ -187,10 +186,7 @@ export default {
         ? (this.inputAmount * this.precision) / this.mainToken.rate
         : (this.inputAmount * this.mainToken.rate) / this.precision;
 
-      return filters.formatToFixed(
-        formatUnits(amount, this.mainToken.decimals),
-        6
-      );
+      return formatToFixed(formatUnits(amount, this.mainToken.decimals), 6);
     },
 
     chartConfig() {

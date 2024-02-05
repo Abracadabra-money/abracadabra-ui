@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import filters from "@/filters/index";
+import { formatUSD } from "@/helpers/filters";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 
 export default {
@@ -21,7 +21,7 @@ export default {
 
   computed: {
     formattedValue() {
-      return filters.formatUSD(this.value);
+      return formatUSD(this.value);
     },
 
     tooltipColor() {

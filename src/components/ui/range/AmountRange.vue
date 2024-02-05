@@ -21,9 +21,8 @@
 </template>
 
 <script lang="ts" scoped>
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { BigNumber, utils } from "ethers";
+import { formatToFixed } from "@/helpers/filters";
 
 export default {
   emits: ["updateAmount"],
@@ -110,7 +109,7 @@ export default {
       return Number(this.formatToFixed(parsedAmount, this.rangePrecision));
     },
     formatToFixed(amount: any, decimals = 4) {
-      return filters.formatToFixed(amount, decimals); //cut string
+      return formatToFixed(amount, decimals); //cut string
     },
     updateRange(event: any) {
       const value = event.target.value;

@@ -41,10 +41,9 @@
   </div>
 </template>
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
+import { formatToFixed } from "@/helpers/filters";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 
 export default {
@@ -93,7 +92,7 @@ export default {
 
     getFormattedAmount(amount: BigNumber) {
       const parsedAmount = utils.formatUnits(amount, PERCENT_PRESITION);
-      return Number(filters.formatToFixed(parsedAmount, PERCENT_PRESITION));
+      return Number(formatToFixed(parsedAmount, PERCENT_PRESITION));
     },
 
     closePopup() {

@@ -36,8 +36,11 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index";
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatToFixed,
+} from "@/helpers/filters";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatUnits, parseUnits } from "viem";
@@ -66,18 +69,13 @@ export default {
   data(): any {
     return {
       inputValue: this.value,
-      // tokenName: this.name,
       tooltip: "",
     };
   },
 
   computed: {
     tokenName() {
-      let tokenName = this.name;
-      if (tokenName.length > 11) {
-        tokenName = tokenName.slice(0, 10) + "...";
-      }
-      return tokenName;
+      return this.name.length > 11 ? this.name.slice(0, 10) + "..." : this.name;
     },
 
     formattedMax() {
@@ -87,7 +85,7 @@ export default {
     },
 
     usdEquivalent(): any {
-      return filters.formatUSD(this.inputValue * this.tokenPrice);
+      return formatUSD(this.inputValue * this.tokenPrice);
     },
   },
 
@@ -107,7 +105,7 @@ export default {
         const emitValue = !value
           ? BigNumber.from(0)
           : utils.parseUnits(
-              filters.formatToFixed(value, this.decimals),
+              formatToFixed(value, this.decimals),
               this.decimals
             );
 
@@ -115,10 +113,7 @@ export default {
       } else {
         const emitValue = !value
           ? BigInt(0)
-          : parseUnits(
-              filters.formatToFixed(value, this.decimals),
-              this.decimals
-            );
+          : parseUnits(formatToFixed(value, this.decimals), this.decimals);
 
         this.$emit("updateInputValue", emitValue);
       }
@@ -130,9 +125,7 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(tokenAmount: number) {
-      return filters.formatTokenBalance(tokenAmount);
-    },
+    formatTokenBalance,
   },
 
   mounted() {

@@ -14,9 +14,8 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
-import filters from "@/filters/index.js";
 import { defineAsyncComponent } from "vue";
+import { formatToFixed } from "@/helpers/filters";
 // @ts-ignore
 import { getCollateralApr } from "@/helpers/collateralsApy";
 
@@ -44,7 +43,7 @@ export default {
     },
 
     openingApr() {
-      return filters.formatToFixed(this.aprInfo.value * this.multiplier, 2);
+      return formatToFixed(this.aprInfo.value * this.multiplier, 2);
     },
   },
 

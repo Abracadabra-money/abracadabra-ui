@@ -15,8 +15,7 @@
 <script lang="ts">
 import { utils } from "ethers";
 import LottiePlayer from "lottie-web";
-// @ts-ignore
-import filters from "@/filters/index.js";
+import { formatLargeSum } from "@/helpers/filters";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 const TOTAL_FRAMES = 150;
@@ -31,7 +30,7 @@ export default {
 
   computed: {
     mimLeftToBorrow() {
-      return filters.formatLargeSum(
+      return formatLargeSum(
         utils.formatUnits(this.cauldron.mainParams.mimLeftToBorrow)
       );
     },
@@ -39,7 +38,7 @@ export default {
     totalMimToBorrow() {
       const { mimLeftToBorrow, totalBorrowed } = this.cauldron.mainParams;
 
-      return filters.formatLargeSum(
+      return formatLargeSum(
         utils.formatUnits(mimLeftToBorrow.add(totalBorrowed))
       );
     },

@@ -64,17 +64,16 @@
 </template>
 
 <script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import filters from "@/filters/index";
-import { useImage } from "@/helpers/useImage";
-import spellIcon from "@/assets/images/tokens/SPELL.png";
 import {
   prepareWriteContract,
   waitForTransaction,
   writeContract,
 } from "@wagmi/core";
 import { getChainById } from "@/helpers/chains/index";
+import spellIcon from "@/assets/images/tokens/SPELL.png";
+import BaseButton from "@/components/base/BaseButton.vue";
+import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
@@ -115,20 +114,20 @@ export default {
         {
           name: this.selectedFarm.depositedBalance?.token0.name,
           icon: this.selectedFarm.depositedBalance?.token0.icon,
-          amount: filters.formatTokenBalance(
+          amount: formatTokenBalance(
             this.selectedFarm.accountInfo?.tokensBalanceInfo?.token0.amount
           ),
-          amountUsd: filters.formatUSD(
+          amountUsd: formatUSD(
             this.selectedFarm.accountInfo?.tokensBalanceInfo?.token0.amountInUsd
           ),
         },
         {
           name: this.selectedFarm.depositedBalance?.token1.name,
           icon: this.selectedFarm.depositedBalance?.token1.icon,
-          amount: filters.formatTokenBalance(
+          amount: formatTokenBalance(
             this.selectedFarm.accountInfo?.tokensBalanceInfo?.token1.amount
           ),
-          amountUsd: filters.formatUSD(
+          amountUsd: formatUSD(
             this.selectedFarm.accountInfo?.tokensBalanceInfo?.token1.amountInUsd
           ),
         },
@@ -148,9 +147,12 @@ export default {
   },
 
   methods: {
+    formatUSD,
+    formatTokenBalance,
+
     prepBalanceData(tokenValue, priceValue) {
-      const usd = filters.formatUSD(tokenValue * priceValue);
-      const earned = filters.formatTokenBalance(tokenValue);
+      const usd = formatUSD(tokenValue * priceValue);
+      const earned = formatTokenBalance(tokenValue);
       return {
         earned,
         usd,
@@ -181,14 +183,6 @@ export default {
     calculateUsdEquivalent(token) {
       if (token.usd) return token.usd;
       return this.formatUSD(+token.earned * +token.price);
-    },
-
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
-
-    formatUSD(value) {
-      return filters.formatUSD(value);
     },
   },
 
