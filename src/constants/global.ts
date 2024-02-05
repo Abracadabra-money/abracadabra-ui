@@ -9,12 +9,16 @@ export const BIPS: number = 10_000;
 export const SECONDS_PER_DAY: number = 86400;
 export const ONE_MILLISECOND: number = 1000;
 
+export const RANDOM_ACCOUNT: string = Wallet.createRandom().address;
+
+export const MAINNET_CHAIN_ID: number = 1;
+export const BSC_CHAIN_ID: number = 56;
+export const KAVA_CHAIN_ID: number = 2222;
+export const ARBITRUM_CHAIN_ID: number = 42161;
+
 export const MAX_APPROVAL_AMOUNT: any =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-export const ARBITRUM_CHAIN_ID: number = 42161;
-export const MAINNET_CHAIN_ID: number = 1;
 export const ANALYTICS_URK: string = "https://analytics.abracadabra.money/api";
-export const RANDOM_ACCOUNT: string = Wallet.createRandom().address;
-export const KAVA_CHAIN_ID: number = 2222;
 export const OPENOCEAN_BASE_URL: string = "https://ethapi.openocean.finance/v2";
-export const BSC_CHAIN_ID: number = 56;
+
+export const GNOSIS_SAFE_ADDRESS = "0xDF2C270f610Dc35d8fFDA5B453E74db5471E126B";
