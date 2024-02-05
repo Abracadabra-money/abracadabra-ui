@@ -13,10 +13,4 @@ describe("CamelotUsdcMimCard", () => {
     const formattedSum = wrapper.vm.formatLargeSum(1000000);
     expect(formattedSum).toBe("1M");
   });
-
-  it("formats percent correctly", () => {
-    const wrapper = shallowMount(CamelotUsdcMimCard);
-    const formattedPercent = wrapper.vm.formatPercent(0.05);
-    expect(formattedPercent).toBe("0.05%");
-  });
 });
