@@ -21,7 +21,7 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { swap0xRequest } from "@/helpers/0x";
-import { chainsUsdcConfigs } from "@/utils/tokens/usdcConfig";
+import { chainsUsdcConfigs } from "@/configs/tokens/usdc";
 
 export default {
   props: {

@@ -1,4 +1,4 @@
-import mimTokenInfo from "@/utils/contracts/mimToken";
+import mimTokenInfo from "@/configs/tokens/mim";
 import bentoContractsInfo from "@/configs/contracts/master";
 import degenBoxInfo from "@/configs/contracts/degenBox";
 import type { Address } from "@wagmi/core";
@@ -13,9 +13,7 @@ export const createBentoBoxConfig = async (
 ) => {
   const publicClient = getPublicClient(chainId);
 
-  const mimInfo = mimTokenInfo.find(
-    (token: any) => token.name === "MIM" && token.chainId === chainId
-  );
+  const mimInfo = mimTokenInfo.find((token: any) => token.chainId === chainId);
 
   if (!mimInfo) {
     return false;
