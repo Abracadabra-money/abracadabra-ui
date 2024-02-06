@@ -1,7 +1,7 @@
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
 import { getAccount } from "@wagmi/core";
 
-import farmsConfig from "@/utils/farmsConfig/farms";
+import farmsConfig from "@/configs/farms/farms";
 import type { Address } from "viem";
 
 export const getFarmsList = async (chainId: number, isExtended = true) => {

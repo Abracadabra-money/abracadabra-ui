@@ -48,7 +48,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import farmsConfig from "@/utils/farmsConfig/farms";
+import farmsConfig from "@/configs/farms/farms";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { getCollateralApr } from "@/helpers/collateralsApy";
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";

@@ -1,7 +1,7 @@
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getAccount } from "@wagmi/core";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
-import type { FarmAccountInfo, FarmItem } from "@/utils/farmsConfig/types";
+import type { FarmAccountInfo, FarmItem } from "@/configs/farms/types";
 import { formatUnits } from "viem";
 
 type UserInfo = {

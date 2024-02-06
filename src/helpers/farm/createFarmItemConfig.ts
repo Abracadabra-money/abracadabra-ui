@@ -3,13 +3,13 @@ import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
 import { getFarmUserInfo } from "@/helpers/farm/getFarmUserInfo";
-import farmsConfig from "@/utils/farmsConfig/farms";
+import farmsConfig from "@/configs/farms/farms";
 import type {
   FarmConfig,
   FarmItem,
   PoolInfo,
   ContractInfo,
-} from "@/utils/farmsConfig/types";
+} from "@/configs/farms/types";
 import type { Address } from "viem";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";

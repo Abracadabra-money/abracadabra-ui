@@ -2,7 +2,7 @@ import SorbettiereAbi from "@/abis/farm/SorbettiereAbi";
 import erc20Abi from "@/abis/farm/erc20Abi";
 import crvStakeTokenAbi from "@/abis/farm/crvStakeTokenAbi";
 import { useImage } from "@/helpers/useImage";
-import type { FarmConfig } from "@/utils/farmsConfig/types";
+import type { FarmConfig } from "@/configs/farms/types";
 import MultiRewardsStakingAbi from "@/abis/farm/MultiRewardsStakingAbi.js";
 
 const arbitrumFarms: FarmConfig[] = [

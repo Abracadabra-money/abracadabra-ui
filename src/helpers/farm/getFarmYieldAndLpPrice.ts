@@ -2,11 +2,7 @@ import { erc20ABI } from "@wagmi/core";
 import { formatUnits, parseUnits } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { Address } from "@wagmi/core";
-import type {
-  FarmConfig,
-  PoolInfo,
-  ContractInfo,
-} from "@/utils/farmsConfig/types";
+import type { FarmConfig, PoolInfo, ContractInfo } from "@/configs/farms/types";
 
 const MIMAddress = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3";
 const SPELLAddress = "0x090185f2135308bad17527004364ebcc2d37e5f6";
