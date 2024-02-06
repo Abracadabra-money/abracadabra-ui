@@ -1,5 +1,5 @@
 import oracleAbi from "@/abis/oracle";
-import { useImage } from "@/helpers/useImage.js";
+import { useImage } from "@/helpers/useImage";
 import chainLinkAbi from "@/abis/chainLink";
 import tokensAbi from "@/abis/tokensAbi/index";
 import magicGlpHarvestorAbi from "@/abis/MagicGlpHarvestor";

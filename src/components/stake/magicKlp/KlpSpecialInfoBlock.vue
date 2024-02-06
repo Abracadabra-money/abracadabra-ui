@@ -31,7 +31,6 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
 import { useImage } from "@/helpers/useImage";
 
 export default {

@@ -71,7 +71,6 @@
 import { mapGetters } from "vuex";
 import { utils, BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
 import { useImage } from "@/helpers/useImage";
 import { formatTokenBalance } from "@/helpers/filters";
 import {

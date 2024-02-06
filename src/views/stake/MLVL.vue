@@ -94,7 +94,6 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
 import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
