@@ -1,6 +1,6 @@
 import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
 import { MASTER_ADDRESS } from "@/constants/lvlFinance";
-import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
+import { magicLvlConfig } from "@/configs/stake/magicLvlConfig";
 import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
 import { bsc } from "viem/chains";
 import { createPublicClient, http } from "viem";

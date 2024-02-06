@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseUnits } from "viem";
 import { getAccount } from "@wagmi/core";
-import { spellConfig } from "@/utils/stake/spellConfig";
+import { spellConfig } from "@/configs/stake/spellConfig";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
 import { getMSpellInfo } from "@/helpers/stake/spell/getMSpellInfo";

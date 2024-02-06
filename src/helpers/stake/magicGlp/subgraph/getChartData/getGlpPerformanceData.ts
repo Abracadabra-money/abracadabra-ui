@@ -1,4 +1,4 @@
-import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
+import { magicGlpConfig } from "@/configs/stake/magicGlpConfig";
 import { getTokenPricesByPeriod } from "@/helpers/prices/getTokenPricesByPeriod";
 
 export const getGlpPerformanceData = async (

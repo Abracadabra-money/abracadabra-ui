@@ -1,5 +1,5 @@
 import { getAccount } from "@wagmi/core";
-import { magicLvlConfig } from "@/utils/stake/magicLvlConfig";
+import { magicLvlConfig } from "@/configs/stake/magicLvlConfig";
 // import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
 import type { MagicLvlTokensInfo } from "@/types/magicLvl/stakeInfo";
 import type { MagicLvlTranchesInfo } from "@/types/magicLvl/stakeInfo";

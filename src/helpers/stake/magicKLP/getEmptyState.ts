@@ -3,7 +3,7 @@ import { createPublicClient, http } from "viem";
 import { KAVA_CHAIN_ID } from "@/constants/global";
 import { kavaConfig } from "@/helpers/chains/configs/kava";
 import type { EmptyState } from "@/types/magicKlp/stakeInfo";
-import { magicKlpConfig } from "@/utils/stake/magicKlpConfig";
+import { magicKlpConfig } from "@/configs/stake/magicKlpConfig";
 import { ONE_ETHER_VIEM, RANDOM_ACCOUNT } from "@/constants/global";
 
 const { mainToken, stakeToken } =

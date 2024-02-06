@@ -1,7 +1,7 @@
 import { getAccount } from "@wagmi/core";
 import { chainsList } from "@/helpers/chains";
 import { createPublicClient, http } from "viem";
-import { magicApeConfig } from "@/utils/stake/magicApeConfig";
+import { magicApeConfig } from "@/configs/stake/magicApeConfig";
 import { getTokensInfo } from "@/helpers/stake/magicApe/getTokensInfo";
 import { getAdditionalInfo } from "@/helpers/stake/magicApe/getAdditionalInfo";
 

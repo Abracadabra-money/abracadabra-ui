@@ -1,6 +1,6 @@
 import { multicall, type Address } from "@wagmi/core";
 import type { CrvStakeInfo } from "@/types/crv/stakeInfo";
-import { crv3cryptoConfig } from "@/utils/stake/crv3cryptoConfig";
+import { crv3cryptoConfig } from "@/configs/stake/crv3cryptoConfig";
 
 export const getCrv3cryptoStakeInfo = async (
   chainId: number,

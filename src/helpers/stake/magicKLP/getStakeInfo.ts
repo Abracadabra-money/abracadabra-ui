@@ -1,7 +1,7 @@
 import { getAccount } from "@wagmi/core";
 import { chainsList } from "@/helpers/chains";
 import { createPublicClient, http } from "viem";
-import { magicKlpConfig } from "@/utils/stake/magicKlpConfig";
+import { magicKlpConfig } from "@/configs/stake/magicKlpConfig";
 import { getEmptyState } from "@/helpers/stake/magicKLP/getEmptyState";
 import { getTokensInfo } from "@/helpers/stake/magicKLP/getTokensInfo";
 import type { StakeInfo, EmptyState } from "@/types/magicKlp/stakeInfo";

@@ -1,6 +1,6 @@
 import { useImage } from "@/helpers/useImage";
 import { ONE_ETHER_VIEM } from "@/constants/global";
-import { spellConfig } from "@/utils/stake/spellConfig";
+import { spellConfig } from "@/configs/stake/spellConfig";
 import type { EmptySpellState, EmptyTokenState } from "@/types/spell/empyState";
 import { getSpellToSSpellRate } from "@/helpers/stake/spell/getSpellToSSpellRate";
 import { getSpellStakingApr } from "./getSpellStakingApr";

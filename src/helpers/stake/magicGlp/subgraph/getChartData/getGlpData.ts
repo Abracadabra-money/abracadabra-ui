@@ -1,6 +1,6 @@
 import axios from "axios";
 import { sortBy } from "lodash";
-import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
+import { magicGlpConfig } from "@/configs/stake/magicGlpConfig";
 
 const urls = {
   42161: "gmx-stats",

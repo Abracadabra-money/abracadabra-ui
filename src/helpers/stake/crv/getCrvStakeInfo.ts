@@ -1,5 +1,5 @@
 import { multicall, type Address } from "@wagmi/core";
-import { crvStakeConfig } from "@/utils/stake/crvConfig";
+import { crvStakeConfig } from "@/configs/stake/crvConfig";
 import type { CrvStakeInfo } from "@/types/crv/stakeInfo";
 
 export const getCrvStakeInfo = async (
