@@ -1,6 +1,6 @@
 import { multicall } from "@wagmi/core";
 import { formatUnits, createPublicClient, http } from "viem";
-import chainLinkAbi from "@/utils/abi/chainLink";
+import chainLinkAbi from "@/abis/chainLink";
 import { chainsList } from "@/helpers/chains";
 import { getRewardTokenApy, calculateAPR } from "./getRewardTokenApy";
 import { markRaw } from "vue";

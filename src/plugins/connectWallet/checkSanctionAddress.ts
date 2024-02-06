@@ -2,7 +2,7 @@ import store from "@/store";
 import type { Address } from "@wagmi/core";
 import { chainsList } from "@/helpers/chains";
 import { createPublicClient, http } from "viem";
-import { sanctionAbi } from "@/utils/abi/sanctionAbi";
+import { sanctionAbi } from "@/abis/sanctionAbi";
 import notification from "@/helpers/notification/notification.js";
 import { SANCTIONS_LIST_ADDRESS } from "@/constants/tokensAddress";
 

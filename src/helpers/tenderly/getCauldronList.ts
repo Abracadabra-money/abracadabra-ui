@@ -1,6 +1,6 @@
 import { formatUnits } from "viem";
 import { multicall } from "@wagmi/core";
-import lensAbi from "@/utils/abi/marketLens.js";
+import lensAbi from "@/abis/marketLens.js";
 import cauldronsConfig from "@/utils/cauldronsConfig";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 

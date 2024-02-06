@@ -2,7 +2,7 @@ import { Contract, BigNumber } from "ethers";
 import type { providers } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
-import lensAbi from "@/utils/abi/marketLens.js";
+import lensAbi from "@/abis/marketLens.js";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 export const getMainParams = async (
@@ -32,7 +32,9 @@ export const getMainParams = async (
       : false;
 
     const localInterest = configs[index].interest;
-    const interest = localInterest ? localInterest : Number(info.interestPerYear) / 100;
+    const interest = localInterest
+      ? localInterest
+      : Number(info.interestPerYear) / 100;
 
     return {
       borrowFee: Number(info.borrowFee) / 100,

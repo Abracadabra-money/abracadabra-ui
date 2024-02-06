@@ -30,8 +30,8 @@
 
 <script>
 import { mapGetters } from "vuex";
-import degenBoxAbi from "@/utils/abi/degenBox.js";
-import claimAbi from "@/utils/abi/tokensClaim";
+import degenBoxAbi from "@/abis/degenBox.js";
+import claimAbi from "@/abis/tokensClaim";
 const claimETHAddress = "0xfbCB80d7ec773F3711788643b8AF828Feb59cf9a";
 const claimARBAddress = "0x83a4e315baaa0f26de83df29b6e2d0376817ecaf";
 const crvAddress = "0xD533a949740bb3306d119CC777fa900bA034cd52";

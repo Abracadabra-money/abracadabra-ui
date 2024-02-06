@@ -2,7 +2,7 @@ import { Contract, type providers, type BigNumber } from "ethers";
 
 import { MAX_PNL_FACTOR_FOR_TRADERS_KEY } from "./fee/dataStore";
 import { DATA_STORE, GMX_READER } from "@/constants/gm";
-import GMXReaderAbi from "@/utils/abi/gm/GMXReaderAbi";
+import GMXReaderAbi from "@/abis/gm/GMXReaderAbi";
 
 import type { MarketPrices, MarketInfo } from "./types";
 

@@ -1,8 +1,8 @@
 /* eslint-disable */
-import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
-import swapAbi from "@/utils/abi/swap";
-import reverseSwapAbi from "@/utils/abi/reverseSwap";
+import poolsAbi from "@/abis/borrowPoolsAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
+import swapAbi from "@/abis/swap";
+import reverseSwapAbi from "@/abis/reverseSwap";
 import { useImage } from "@/helpers/useImage";
 
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";

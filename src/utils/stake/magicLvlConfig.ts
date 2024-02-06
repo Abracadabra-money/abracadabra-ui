@@ -11,16 +11,16 @@ import {
   MASTER_ADDRESS,
   HARVESTOR_ADDRESS,
 } from "@/constants/lvlFinance";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
 import lvlIcon from "@/assets/images/tokens/LVL.png";
-import harvestorAbi from "@/utils/abi/lvl/harvestor";
-import levelMasterV2Abi from "@/utils/abi/levelMasterV2";
-import magicLVLSeniorAbi from "@/utils/abi/oracle/magicLVLSenior";
-import magicLVLJuniorAbi from "@/utils/abi/oracle/magicLVLJunior";
+import harvestorAbi from "@/abis/lvl/harvestor";
+import levelMasterV2Abi from "@/abis/levelMasterV2";
+import magicLVLSeniorAbi from "@/abis/oracle/magicLVLSenior";
+import magicLVLJuniorAbi from "@/abis/oracle/magicLVLJunior";
 import type { MagicLvlConfig } from "@/types/magicLvl/configsInfo";
 import mLvlJuniorIcon from "@/assets/images/tokens/mLvlJunior.png";
 import mLvlSeniorIcon from "@/assets/images/tokens/mLvlSenior.png";
-import magicLVLMezzanineAbi from "@/utils/abi/oracle/magicLVLMezzanine";
+import magicLVLMezzanineAbi from "@/abis/oracle/magicLVLMezzanine";
 import mLvlMezzanineIcon from "@/assets/images/tokens/mLvlMezzanine.png";
 
 export const magicLvlConfig: MagicLvlConfig = {

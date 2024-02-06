@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 import { BigNumber, type providers } from "ethers";
 
-import GMXReaderAbi from "@/utils/abi/gm/GMXReaderAbi";
+import GMXReaderAbi from "@/abis/gm/GMXReaderAbi";
 import { Contract } from "ethers";
 
 import { getContractMarketPrices } from "./getContractMarketPrices";

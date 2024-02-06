@@ -1,13 +1,13 @@
-import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
-import degenBoxERC20VaultWrapper from "@/utils/abi/lp/degenBoxERC20VaultWrapper";
-import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
-import magicGlpLevSwapperAbi from "@/utils/abi/lp/MagicGlpLevSwapper";
-import magicGlpSwapperAbi from "@/utils/abi/lp/MagicGlpSwapper";
+import poolsAbi from "@/abis/borrowPoolsAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
+import degenBoxERC20VaultWrapper from "@/abis/lp/degenBoxERC20VaultWrapper";
+import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
+import magicGlpLevSwapperAbi from "@/abis/lp/MagicGlpLevSwapper";
+import magicGlpSwapperAbi from "@/abis/lp/MagicGlpSwapper";
 import { useImage } from "@/helpers/useImage";
 
-import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
-import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
+import zeroXLevSwapperAbi from "@/abis/zeroXLevSwapper";
+import zeroXLiqSwapperAbi from "@/abis/zeroXLiqSwapper";
 
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 
@@ -191,7 +191,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isGMXMarket: true
+      isGMXMarket: true,
     },
     contract: {
       name: "CauldronV4",
@@ -235,7 +235,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isGMXMarket: true
+      isGMXMarket: true,
     },
     contract: {
       name: "CauldronV4",
@@ -279,7 +279,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isGMXMarket: true
+      isGMXMarket: true,
     },
     contract: {
       name: "CauldronV4",
@@ -323,7 +323,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isGMXMarket: true
+      isGMXMarket: true,
     },
     contract: {
       name: "CauldronV4",
@@ -367,7 +367,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isGMXMarket: true
+      isGMXMarket: true,
     },
     contract: {
       name: "CauldronV4",

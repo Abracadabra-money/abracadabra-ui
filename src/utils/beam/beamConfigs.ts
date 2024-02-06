@@ -1,4 +1,4 @@
-import abi from "@/utils/abi/beam/";
+import abi from "@/abis/beam/";
 
 export type BeamConfig = {
   chainId: number;

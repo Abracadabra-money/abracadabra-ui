@@ -28,7 +28,7 @@ import { getWithdrawalAmountsByMarket } from "@/helpers/gm/getWithdrawalAmounts"
 
 import { getOrderBalances } from "@/helpers/gm/orders";
 import { BigNumber, Contract, utils } from "ethers";
-import OrderAgentAbi from "@/utils/abi/gm/OrderAgentAbi";
+import OrderAgentAbi from "@/abis/gm/OrderAgentAbi";
 
 export default {
   mixins: [degenBoxCookHelperMixin],

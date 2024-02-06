@@ -1,9 +1,9 @@
-import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
-import zeroXLevSwapper from "@/utils/abi/zeroXLevSwapper.js";
-import zeroXLiqSwapper from "@/utils/abi/zeroXLiqSwapper";
-import lptokenWrapperAbi from "@/utils/abi/lp/tokenWrapeerAbi";
-import lpAbi from "@/utils/abi/lp/lpAbi";
+import poolsAbi from "@/abis/borrowPoolsAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
+import zeroXLevSwapper from "@/abis/zeroXLevSwapper.js";
+import zeroXLiqSwapper from "@/abis/zeroXLiqSwapper";
+import lptokenWrapperAbi from "@/abis/lp/tokenWrapeerAbi";
+import lpAbi from "@/abis/lp/lpAbi";
 import { useImage } from "@/helpers/useImage";
 
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";

@@ -3,7 +3,7 @@ import { MulticallWrapper } from "ethers-multicall-provider";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 import cauldronsConfig from "@/utils/cauldronsConfig";
-import lensAbi from "@/utils/abi/marketLens.js";
+import lensAbi from "@/abis/marketLens.js";
 
 type PopupListItem = {
   config: object;

@@ -1,11 +1,11 @@
-import tokensAbi from "@/utils/abi/tokensAbi/index";
-import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
+import poolsAbi from "@/abis/borrowPoolsAbi/index";
 import { erc20ABI } from "@wagmi/core";
-import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
-import MagicCurveLpLevSwapper from "@/utils/abi/lp/MagicCurveLpLevSwapper";
-import MagicCurveLpSwapper from "@/utils/abi/lp/MagicCurveLpSwapper";
-import StargateLPLevSwapper from "@/utils/abi/lp/StargateLPLevSwapper";
-import StargateLPSwapper from "@/utils/abi/lp/StargateLPSwapper";
+import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
+import MagicCurveLpLevSwapper from "@/abis/lp/MagicCurveLpLevSwapper";
+import MagicCurveLpSwapper from "@/abis/lp/MagicCurveLpSwapper";
+import StargateLPLevSwapper from "@/abis/lp/StargateLPLevSwapper";
+import StargateLPSwapper from "@/abis/lp/StargateLPSwapper";
 
 import { useImage } from "@/helpers/useImage";
 

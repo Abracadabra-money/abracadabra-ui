@@ -2,8 +2,8 @@ import { BigNumber, providers, Contract } from "ethers";
 import { RPC_ETH } from "@/constants/rpc";
 import { Percent, CurrencyAmount, Token } from "@uniswap/sdk";
 
-import lpStakingAbi from "@/utils/abi/StargateLPStaking";
-import poolAbi from "@/utils/abi/StargatePool";
+import lpStakingAbi from "@/abis/StargateLPStaking";
+import poolAbi from "@/abis/StargatePool";
 
 const provider = new providers.StaticJsonRpcProvider(RPC_ETH);
 const YEAR = 31536000;

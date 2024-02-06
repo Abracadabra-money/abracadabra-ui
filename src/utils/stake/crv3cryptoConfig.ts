@@ -1,6 +1,6 @@
 import { useImage } from "@/helpers/useImage";
 import type { CrvStakeConfig } from "@/types/crv/configsInfo";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
 
 export const crv3cryptoConfig: CrvStakeConfig = {
   1: {

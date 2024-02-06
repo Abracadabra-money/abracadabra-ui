@@ -1,4 +1,4 @@
-import degenBoxAbi from "@/utils/abi/degenBox";
+import degenBoxAbi from "@/abis/degenBox";
 import type { ExtendedContractInfo } from "@/utils/contracts/types";
 export default <ExtendedContractInfo[]>[
   {

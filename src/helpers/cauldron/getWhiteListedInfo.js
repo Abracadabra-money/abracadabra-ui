@@ -1,5 +1,5 @@
 import { Contract, utils } from "ethers";
-import whitelisterAbi from "@/utils/abi/Whitelister";
+import whitelisterAbi from "@/abis/Whitelister";
 import yvcrvSTETHWhitelist from "@/utils/yvcrvSTETHWhitelist";
 
 const userNotWhitelisted = { isUserWhitelisted: false };

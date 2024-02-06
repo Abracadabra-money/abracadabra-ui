@@ -1,13 +1,13 @@
 import { Contract, BigNumber, utils } from "ethers";
-import lensAbi from "@/utils/abi/marketLens.js";
+import lensAbi from "@/abis/marketLens.js";
 import type { providers } from "ethers";
 import type { UserPositions } from "@/helpers/cauldron/types";
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
-import orderAbi from "@/utils/abi/gm/order";
+import orderAbi from "@/abis/gm/order";
 import { ZERO_ADDRESS } from "@/constants/gm";
-import bentoBoxAbi from "@/utils/abi/bentoBox";
+import bentoBoxAbi from "@/abis/bentoBox";
 
 const emptyPosition = {
   oracleRate: BigNumber.from("0"),

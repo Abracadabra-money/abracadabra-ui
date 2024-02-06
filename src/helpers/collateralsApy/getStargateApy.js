@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
-import DegenBoxAbi from "@/utils/abi/degenBox";
-import stargatePoolAbi from "@/utils/abi/StargatePool";
+import DegenBoxAbi from "@/abis/degenBox";
+import stargatePoolAbi from "@/abis/StargatePool";
 import { tokensChainLink } from "@/utils/chainLink/config";
 import { getStargateBasicApy } from "@/helpers/stargateFarmApy";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
-import mainnetStargateLPStrategyAbi from "@/utils/abi/MainnetStargateLPStrategy";
+import mainnetStargateLPStrategyAbi from "@/abis/MainnetStargateLPStrategy";
 
 const DegenBoxAddress = "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce";
 

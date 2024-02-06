@@ -1,8 +1,8 @@
-import oracleAbi from "@/utils/abi/oracle";
+import oracleAbi from "@/abis/oracle";
 import { useImage } from "@/helpers/useImage.js";
-import chainLinkAbi from "@/utils/abi/chainLink";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
-import magicGlpHarvestorAbi from "@/utils/abi/MagicGlpHarvestor";
+import chainLinkAbi from "@/abis/chainLink";
+import tokensAbi from "@/abis/tokensAbi/index";
+import magicGlpHarvestorAbi from "@/abis/MagicGlpHarvestor";
 import type { MagicGlpConfigs } from "@/types/magicGlp/configsInfo";
 
 export const magicGlpConfig: MagicGlpConfigs = {

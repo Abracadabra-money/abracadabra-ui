@@ -5,7 +5,7 @@ import type { MarketInfo, MarketPrices } from "./types";
 
 import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
 import { DATA_STORE, GMX_READER } from "@/constants/gm";
-import GMXReaderAbi from "@/utils/abi/gm/GMXReaderAbi";
+import GMXReaderAbi from "@/abis/gm/GMXReaderAbi";
 import {
   MAX_PNL_FACTOR_FOR_TRADERS_KEY,
   MAX_PNL_FACTOR_FOR_DEPOSITS_KEY,

@@ -1,4 +1,4 @@
-import bentoBoxAbi from "@/utils/abi/bentoBox";
+import bentoBoxAbi from "@/abis/bentoBox";
 import type { ExtendedContractInfo } from "@/utils/contracts/types";
 export default <ExtendedContractInfo[]>[
   {

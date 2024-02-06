@@ -1,5 +1,5 @@
 import { useImage } from "@/helpers/useImage";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
 import type { DefaultConfig, SpellConfigs } from "@/types/spell/configsInfo";
 
 const spellDefauluConfig: DefaultConfig = {

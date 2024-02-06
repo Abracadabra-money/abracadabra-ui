@@ -1,7 +1,7 @@
-import oracleAbi from "@/utils/abi/oracle";
+import oracleAbi from "@/abis/oracle";
 import { useImage } from "@/helpers/useImage";
-import chainLinkAbi from "@/utils/abi/chainLink";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
+import chainLinkAbi from "@/abis/chainLink";
+import tokensAbi from "@/abis/tokensAbi/index";
 
 export const magicApeConfig = {
   1: {

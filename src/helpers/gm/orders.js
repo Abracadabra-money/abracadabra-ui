@@ -1,4 +1,4 @@
-import orderAbi from "@/utils/abi/gm/order";
+import orderAbi from "@/abis/gm/order";
 import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
 import { Contract } from "ethers";
 

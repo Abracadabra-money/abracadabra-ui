@@ -1,14 +1,14 @@
 /* eslint-disable */
 
-import poolsAbi from "@/utils/abi/borrowPoolsAbi/index";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
-import swapAbi from "@/utils/abi/swap";
-import zeroXLevSwapperAbi from "@/utils/abi/zeroXLevSwapper";
-import reverseSwapAbi from "@/utils/abi/reverseSwap";
-import zeroXLiqSwapperAbi from "@/utils/abi/zeroXLiqSwapper";
-import degenBoxERC4626Wrapper from "@/utils/abi/lp/DegenBoxERC4626Wrapper";
-import ERC4626LevSwapper from "@/utils/abi/ERC4626LevSwapper";
-import ERC4626LiqSwapper from "@/utils/abi/ERC4626LiqSwapper";
+import poolsAbi from "@/abis/borrowPoolsAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
+import swapAbi from "@/abis/swap";
+import zeroXLevSwapperAbi from "@/abis/zeroXLevSwapper";
+import reverseSwapAbi from "@/abis/reverseSwap";
+import zeroXLiqSwapperAbi from "@/abis/zeroXLiqSwapper";
+import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
+import ERC4626LevSwapper from "@/abis/ERC4626LevSwapper";
+import ERC4626LiqSwapper from "@/abis/ERC4626LiqSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
 

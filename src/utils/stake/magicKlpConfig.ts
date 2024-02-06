@@ -1,7 +1,7 @@
 import { useImage } from "@/helpers/useImage";
-import tokensAbi from "@/utils/abi/tokensAbi/index";
-import managerAbi from "@/utils/abi/klp/manager";
-import readerAbi from "@/utils/abi/klp/reader";
+import tokensAbi from "@/abis/tokensAbi/index";
+import managerAbi from "@/abis/klp/manager";
+import readerAbi from "@/abis/klp/reader";
 import type { MagicKlpConfigs } from "@/types/magicKlp/configsInfo";
 
 export const magicKlpConfig: MagicKlpConfigs = {

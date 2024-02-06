@@ -1,4 +1,4 @@
-import tokensAbi from "@/utils/abi/tokensAbi/index";
+import tokensAbi from "@/abis/tokensAbi/index";
 
 export default [
   {
