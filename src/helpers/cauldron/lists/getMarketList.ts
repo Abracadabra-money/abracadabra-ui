@@ -1,10 +1,10 @@
 import { providers, Contract, utils } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import cauldronsConfig from "@/configs/cauldrons";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
-import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 type CauldronListItem = {
   apr: object;

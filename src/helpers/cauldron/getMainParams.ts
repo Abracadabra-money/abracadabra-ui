@@ -1,7 +1,7 @@
 import { Contract, BigNumber } from "ethers";
 import type { providers } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
-import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import lensAbi from "@/abis/marketLens.js";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 

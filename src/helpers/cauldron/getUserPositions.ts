@@ -2,7 +2,7 @@ import { Contract, BigNumber, utils } from "ethers";
 import lensAbi from "@/abis/marketLens.js";
 import type { providers } from "ethers";
 import type { UserPositions } from "@/helpers/cauldron/types";
-import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 import orderAbi from "@/abis/gm/order";

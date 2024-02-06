@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import ethConfig from "@/utils/cauldronsConfig/ethereumCauldrons";
+import ethConfig from "@/configs/cauldrons/ethereumCauldrons";
 export default {
   data() {
     return {

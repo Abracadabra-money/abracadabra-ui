@@ -1,5 +1,5 @@
 import { getAccount } from "@wagmi/core";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import cauldronsConfig from "@/configs/cauldrons";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getContracts } from "@/helpers/cauldron/getContracts";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";

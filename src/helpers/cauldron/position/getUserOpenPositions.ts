@@ -1,4 +1,4 @@
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import cauldronsConfig from "@/configs/cauldrons";
 import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
@@ -49,12 +49,16 @@ export const getUserOpenPositions = async (
       const mainParams = await getMainParams(
         configs,
         multicallProvider,
-        chainId,
+        chainId
       );
 
       positions.push(
         ...userPositions.map((position: any, idx: any) => {
-          return { config: configs[idx], ...position, mainParams: mainParams[idx] };
+          return {
+            config: configs[idx],
+            ...position,
+            mainParams: mainParams[idx],
+          };
         })
       );
     })
