@@ -7,6 +7,17 @@
       @updateAmount="onUpdateInputAmount"
     />
 
+    <BaseTokenInput
+      :value="inputAmount"
+      :name="cauldron.config.mimInfo.name"
+      :icon="cauldron.config.mimInfo.icon"
+      :decimals="cauldron.config.mimInfo.decimals"
+      :max="maxToRepay"
+      isBigNumber
+      primaryMax
+      @updateInputValue="onUpdateInputAmount"
+    />
+
     <div class="dynamic-wrap">
       <DynamicFee
         v-if="cauldron.config.chainId !== 2222"
@@ -35,6 +46,7 @@ import {
   getDeleverageAmounts,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 export default {
   props: {
@@ -68,6 +80,20 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    inputAmount() {
+      const repayAmount = this.deleverageAmounts.amountToMin
+        ? this.deleverageAmounts.amountToMin
+        : BigNumber.from(0);
+
+      if (repayAmount.eq(BigNumber.from(0))) {
+        return "";
+      }
+
+      return trimZeroDecimals(
+        utils.formatUnits(repayAmount, this.cauldron.config.mimInfo.decimals)
+      );
+    },
 
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
@@ -138,7 +164,7 @@ export default {
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
       const deleverageAmounts = getDeleverageAmounts(
-        value,
+        value || BigNumber.from(0),
         this.slippage!,
         oracleExchangeRate
       );
@@ -157,6 +183,9 @@ export default {
     GmPriceImpact: defineAsyncComponent(
       () => import("@/components/market/GmPriceImpact.vue")
     ),
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
+    ),
   },
 };
 </script>
@@ -170,6 +199,7 @@ export default {
     rgba(45, 74, 150, 0.12) 0%,
     rgba(116, 92, 210, 0.12) 100%
   );
+  margin-top: 12px;
   padding: 5px 12px;
 }
 </style>

@@ -9,6 +9,17 @@
       :risk="positionHealth"
       @updateAmount="onUpdateWithdrawValue"
     />
+
+    <BaseTokenInput
+      :value="inputAmount"
+      :name="cauldron.config.name"
+      :icon="cauldron.config.icon"
+      :decimals="cauldron.config.collateralInfo.decimals"
+      :max="maxToRemove"
+      isBigNumber
+      primaryMax
+      @updateInputValue="onUpdateWithdrawValue"
+    />
   </div>
 </template>
 
@@ -18,6 +29,7 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 import {
   getLiquidationPrice,
@@ -53,6 +65,23 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    inputAmount() {
+      const withdrawAmount = this.withdrawAmount
+        ? this.withdrawAmount
+        : BigNumber.from(0);
+
+      if (withdrawAmount!.eq(BigNumber.from(0))) {
+        return "";
+      }
+
+      return trimZeroDecimals(
+        utils.formatUnits(
+          withdrawAmount,
+          this.cauldron.config.collateralInfo.decimals
+        )
+      );
+    },
 
     maxToRemove() {
       const { userCollateralAmount } =
@@ -153,6 +182,10 @@ export default {
   components: {
     AmountRange: defineAsyncComponent(
       () => import("@/components/ui/range/AmountRange.vue")
+    ),
+
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
   },
 };
