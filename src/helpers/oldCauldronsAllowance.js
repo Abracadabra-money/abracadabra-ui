@@ -1,6 +1,6 @@
 import { Contract } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
+import abiERC20 from "@/abis/zeroXSwap/abiERC20";
 
 const accountsList = {
   "0xb7638f0040f116668201fb822446c1857035a9a2": [

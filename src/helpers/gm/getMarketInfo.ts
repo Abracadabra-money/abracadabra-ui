@@ -3,7 +3,7 @@ import type { Address } from "viem";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import type { MarketInfo, MarketPrices } from "./types";
 
-import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
+import ERC20 from "@/abis/zeroXSwap/ERC20";
 import { DATA_STORE, GMX_READER } from "@/constants/gm";
 import GMXReaderAbi from "@/abis/gm/GMXReaderAbi";
 import {

@@ -1,6 +1,6 @@
 import { Contract, BigNumber, type providers } from "ethers";
 import type { Address } from "viem";
-import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
+import ERC20 from "@/abis/zeroXSwap/ERC20";
 
 import { convertToUsd, convertToTokenAmount } from "./utils";
 import { applyFactor } from "./fee/applyFactor";
@@ -206,7 +206,7 @@ export const getWithdrawalAmountsAndFees = (
   marketInfo: MarketInfo,
   marketFullInfo: any,
   dataStoreInfo: DataStoreInfo,
-  marketTokenAmount: BigNumber,
+  marketTokenAmount: BigNumber
 ) => {
   const { longTokenDecimals, shortTokenDecimals, indexTokenDecimals } =
     marketFullInfo;
@@ -327,7 +327,7 @@ export const getWithdrawalAmountsAndFees = (
     values.shortTokenAmount
   );
 
-  const fees = getTradeFees(amounts)
+  const fees = getTradeFees(amounts);
 
   return {
     fees,

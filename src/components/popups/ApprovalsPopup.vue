@@ -36,7 +36,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification.js";
 import { mapGetters } from "vuex";
 import { getAllowanceDatas } from "@/helpers/oldCauldronsAllowance.js";
-import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
+import abiERC20 from "@/abis/zeroXSwap/abiERC20";
 import { Contract } from "ethers";
 
 export default {
