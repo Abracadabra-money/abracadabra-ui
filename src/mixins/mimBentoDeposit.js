@@ -3,7 +3,7 @@ import mimTokenInfo from "@/utils/contracts/mimToken";
 import bentoContractsInfo from "@/utils/contracts/master";
 import degenBoxInfo from "@/utils/contracts/degenBox";
 import tokensInfo from "@/utils/tokens/addedTokens.js";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {

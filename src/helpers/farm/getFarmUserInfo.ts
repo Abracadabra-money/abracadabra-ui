@@ -1,4 +1,4 @@
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getAccount } from "@wagmi/core";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import type { FarmAccountInfo, FarmItem } from "@/configs/farms/types";

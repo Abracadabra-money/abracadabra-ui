@@ -153,7 +153,7 @@
 import { mapGetters } from "vuex";
 import degenBoxAbi from "@/abis/degenBox.js";
 import BaseButton from "@/components/base/BaseButton.vue";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";

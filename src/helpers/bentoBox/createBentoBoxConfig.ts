@@ -4,7 +4,7 @@ import degenBoxInfo from "@/utils/contracts/degenBox";
 import type { Address } from "@wagmi/core";
 import type { ExtendedContractInfo } from "@/utils/contracts/types";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/getPublicClient";
 
 export const createBentoBoxConfig = async (

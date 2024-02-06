@@ -11,7 +11,7 @@ import type {
   ContractInfo,
 } from "@/configs/farms/types";
 import type { Address } from "viem";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { createMultiRewardFarm } from "./createMultiRewardFarm";
 import { getPublicClient } from "@/helpers/getPublicClient";

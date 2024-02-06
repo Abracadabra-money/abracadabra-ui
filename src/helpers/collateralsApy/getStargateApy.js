@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import DegenBoxAbi from "@/abis/degenBox";
 import stargatePoolAbi from "@/abis/StargatePool";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getStargateBasicApy } from "@/helpers/stargateFarmApy";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import mainnetStargateLPStrategyAbi from "@/abis/MainnetStargateLPStrategy";

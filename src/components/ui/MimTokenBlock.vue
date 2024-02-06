@@ -17,7 +17,7 @@
 import { mapGetters } from "vuex";
 import { formatToFixed } from "@/helpers/filters";
 import tokensInfo from "@/utils/tokens/addedTokens.js";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {
