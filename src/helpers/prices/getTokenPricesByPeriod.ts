@@ -1,5 +1,5 @@
 import axios from "axios";
-import { COINGECKO_URL } from "@/constants/urls";
+import { COINGECKO_URL } from "@/constants/global";
 import btcPrices from "@/configs/stake/magicGlp/btcPrices";
 import avaxPrices from "@/configs/stake/magicGlp/avaxPrices";
 import { ONE_MILLISECOND, SECONDS_PER_DAY } from "@/constants/global";
