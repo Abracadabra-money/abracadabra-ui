@@ -51,7 +51,7 @@ export const getWithdrawalAmountsByMarket = async (
 
   const tokenPricesResponse: Array<TokenPriceResponse> =
     await fetchTokenPrices();
-  const prices = getContractMarketPrices(tokenPricesResponse, marketInfo);
+  const prices: any = getContractMarketPrices(tokenPricesResponse, marketInfo);
 
   const dataStoreInfo = await getDataStoreInfo(market, marketInfo, provider);
 

@@ -34,7 +34,6 @@ export const createFarmItemConfig = async (
 
   const publicClient = getPublicClient(chainId);
 
-  // @ts-ignore
   if (farmInfo.isMultiReward)
     return await createMultiRewardFarm(farmInfo, account);
 
@@ -85,7 +84,6 @@ export const createFarmItemConfig = async (
     icon: farmInfo.icon,
     id: farmInfo.id,
     chainId: farmInfo.contractChain,
-    // @ts-ignore
     poolId: farmInfo.poolId,
     earnedTokenPrice: SPELLPrice,
     stakingToken: {

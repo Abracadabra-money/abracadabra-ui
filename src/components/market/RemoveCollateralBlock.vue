@@ -15,7 +15,6 @@
 <script lang="ts">
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
 import { mapGetters } from "vuex";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";

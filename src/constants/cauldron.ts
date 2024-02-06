@@ -1,8 +1,5 @@
 import { useImage } from "@/helpers/useImage";
 
-export const MAX_ALLOWANCE_VALUE: String =
-  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-
 export const COLLATERAL_EMPTY_DATA: Object = {
   name: "",
   icon: "",
