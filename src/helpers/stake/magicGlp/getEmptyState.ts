@@ -3,7 +3,7 @@ import { useImage } from "@/helpers/useImage";
 import { arbitrum, avalanche } from "viem/chains";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { createPublicClient, formatUnits, http } from "viem";
-import { magicGlpConfig } from "@/configs/stake/magicGlpConfig";
+import { magicGlpConfig } from "@/configs/stake/magicGlp/magicGlpConfig";
 import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import type { EmptyState } from "@/types/magicGlp/additionalInfo";
 import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";

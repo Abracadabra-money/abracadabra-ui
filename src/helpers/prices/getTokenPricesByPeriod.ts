@@ -1,7 +1,7 @@
 import axios from "axios";
 import { COINGECKO_URL } from "@/constants/urls";
-import btcPrices from "@/utils/magicGlp/btcPrices";
-import avaxPrices from "@/utils/magicGlp/avaxPrices";
+import btcPrices from "@/configs/stake/magicGlp/btcPrices";
+import avaxPrices from "@/configs/stake/magicGlp/avaxPrices";
 import { ONE_MILLISECOND, SECONDS_PER_DAY } from "@/constants/global";
 
 const tokensSymbol = {
