@@ -98,8 +98,13 @@ export default {
     maxAmount(value: BigNumber) {
       if (value.lt(this.amount)) this.$emit("updateAmount", value);
     },
+
     amount(value: BigNumber) {
-      this.inputValue = this.getFormattedAmount(value);
+      if (value.gt(this.maxAmount)) {
+        this.inputValue = this.max;
+      } else {
+        this.inputValue = this.getFormattedAmount(value);
+      }
     },
   },
 
@@ -108,9 +113,11 @@ export default {
       const parsedAmount = utils.formatUnits(amount, this.decimals);
       return Number(this.formatToFixed(parsedAmount, this.rangePrecision));
     },
+
     formatToFixed(amount: any, decimals = 4) {
       return formatToFixed(amount, decimals); //cut string
     },
+
     updateRange(event: any) {
       const value = event.target.value;
 

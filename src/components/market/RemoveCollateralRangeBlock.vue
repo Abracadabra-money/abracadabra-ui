@@ -3,13 +3,6 @@
     <h3 class="title">Remove collateral</h3>
     <h4 class="subtitle">Choose the amount of collateral you want to remove</h4>
 
-    <AmountRange
-      :amount="withdrawAmount"
-      :maxAmount="maxToRemove"
-      :risk="positionHealth"
-      @updateAmount="onUpdateWithdrawValue"
-    />
-
     <BaseTokenInput
       :value="inputAmount"
       :name="cauldron.config.name"
@@ -19,6 +12,14 @@
       isBigNumber
       primaryMax
       @updateInputValue="onUpdateWithdrawValue"
+    />
+
+    <AmountRange
+      class="range"
+      :amount="withdrawAmount"
+      :maxAmount="maxToRemove"
+      :risk="positionHealth"
+      @updateAmount="onUpdateWithdrawValue"
     />
   </div>
 </template>
@@ -93,7 +94,12 @@ export default {
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
 
       // after swap
-      const expectedCollateralAmount = userCollateralAmount.sub(amountFrom);
+      let expectedCollateralAmount = userCollateralAmount
+        .sub(amountFrom)
+        .lt(BigNumber.from(0))
+        ? BigNumber.from(0)
+        : userCollateralAmount.sub(amountFrom);
+
       const maxToRemove = getMaxCollateralToRemove(
         expectedCollateralAmount,
         this.expectedBorrowAmount,
@@ -175,6 +181,8 @@ export default {
 
     onUpdateWithdrawValue(value: BigNumber | null) {
       if (value === null) return this.setEmptyState();
+      if (value.gt(this.maxToRemove))
+        return this.$emit("updateWithdrawAmount", this.maxToRemove);
       this.$emit("updateWithdrawAmount", value);
     },
   },
@@ -205,5 +213,9 @@ export default {
   font-weight: 400;
   line-height: 20px;
   margin-bottom: 16px;
+}
+
+.range {
+  margin-top: 20px;
 }
 </style>

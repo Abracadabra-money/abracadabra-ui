@@ -1,12 +1,5 @@
 <template>
   <div>
-    <AmountRange
-      :amount="deleverageAmounts.amountToMin"
-      :maxAmount="maxToRepay"
-      :risk="positionHealth"
-      @updateAmount="onUpdateInputAmount"
-    />
-
     <BaseTokenInput
       :value="inputAmount"
       :name="cauldron.config.mimInfo.name"
@@ -16,6 +9,14 @@
       isBigNumber
       primaryMax
       @updateInputValue="onUpdateInputAmount"
+    />
+
+    <AmountRange
+      class="range"
+      :amount="deleverageAmounts.amountToMin"
+      :maxAmount="maxToRepay"
+      :risk="positionHealth"
+      @updateAmount="onUpdateInputAmount"
     />
 
     <div class="dynamic-wrap">
@@ -160,11 +161,18 @@ export default {
       this.value = value;
       this.updateDeleverageAmounts(value);
     },
+
     updateDeleverageAmounts(value: BigNumber) {
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
+      const mimToRepay = value
+        ? value.gt(this.maxToRepay)
+          ? this.maxToRepay
+          : value
+        : BigNumber.from(0);
+
       const deleverageAmounts = getDeleverageAmounts(
-        value || BigNumber.from(0),
+        mimToRepay || BigNumber.from(0),
         this.slippage!,
         oracleExchangeRate
       );
@@ -199,7 +207,10 @@ export default {
     rgba(45, 74, 150, 0.12) 0%,
     rgba(116, 92, 210, 0.12) 100%
   );
-  margin-top: 12px;
   padding: 5px 12px;
+}
+
+.range {
+  margin-top: 20px;
 }
 </style>

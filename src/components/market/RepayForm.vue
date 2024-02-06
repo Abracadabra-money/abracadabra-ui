@@ -351,8 +351,6 @@ export default {
 .repay-block {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 16px;
   height: 100%;
 }
 
