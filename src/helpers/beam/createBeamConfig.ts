@@ -1,5 +1,5 @@
 import { markRaw } from "vue";
-import beamConfigs from "@/utils/beam/beamConfigs";
+import beamConfigs from "@/configs/beam/beamConfigs";
 import mimConfigs from "@/utils/contracts/mimToken";
 import { chains, chainsList } from "@/helpers/chains";
 import { BigNumber, Contract, providers, utils } from "ethers";
