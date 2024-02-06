@@ -1,5 +1,5 @@
 import degenBoxAbi from "@/abis/degenBox";
-import type { ExtendedContractInfo } from "@/utils/contracts/types";
+import type { ExtendedContractInfo } from "@/configs/contracts/types";
 export default <ExtendedContractInfo[]>[
   {
     chainId: 1,

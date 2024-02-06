@@ -1,8 +1,8 @@
 import mimTokenInfo from "@/utils/contracts/mimToken";
-import bentoContractsInfo from "@/utils/contracts/master";
-import degenBoxInfo from "@/utils/contracts/degenBox";
+import bentoContractsInfo from "@/configs/contracts/master";
+import degenBoxInfo from "@/configs/contracts/degenBox";
 import type { Address } from "@wagmi/core";
-import type { ExtendedContractInfo } from "@/utils/contracts/types";
+import type { ExtendedContractInfo } from "@/configs/contracts/types";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/getPublicClient";
