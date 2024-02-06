@@ -72,7 +72,7 @@ import { useImage } from "@/helpers/useImage";
 import cauldronsConfig from "@/configs/cauldrons";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokenTransfer } from "@/helpers/tenderly/tokenTransfer";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { getTotalAmountByHolders } from "@/helpers/tenderly/getTotalAmountByHolders";
 
 export default {

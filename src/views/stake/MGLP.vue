@@ -92,8 +92,7 @@ import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicGlp/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-//@ts-ignore
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
 import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
 

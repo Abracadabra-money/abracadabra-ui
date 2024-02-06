@@ -101,8 +101,7 @@ import actions from "@/helpers/stake/magicLvl/actions/";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { formatPercent, formatToFixed } from "@/helpers/filters";
-// @ts-ignore
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicLvl/getStakeInfo";
 import { getChartOptions } from "@/helpers/stake/magicLvl/getChartOptions";
 

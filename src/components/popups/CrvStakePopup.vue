@@ -50,8 +50,7 @@ import { parseUnits, formatUnits } from "viem";
 import actions from "@/helpers/stake/crv/actions/";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapGetters, mapMutations, mapActions } from "vuex";
-// @ts-ignore
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { getCrvStakeInfo } from "@/helpers/stake/crv/getCrvStakeInfo";
 import { getCrv3cryptoStakeInfo } from "@/helpers/stake/crv3crypto/getCrv3cryptoStakeInfo";
 
