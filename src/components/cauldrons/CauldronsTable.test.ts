@@ -8,6 +8,7 @@ describe("CauldronsTable", () => {
       props: {
         cauldrons: [],
         cauldronsLoading: false,
+        tableKeys: [],
       },
     });
 
@@ -19,6 +20,7 @@ describe("CauldronsTable", () => {
       props: {
         cauldrons: [],
         cauldronsLoading: false,
+        tableKeys: [],
       },
     });
 
@@ -33,6 +35,7 @@ describe("CauldronsTable", () => {
       props: {
         cauldrons: [],
         cauldronsLoading: false,
+        tableKeys: [],
       },
     });
 
@@ -47,6 +50,7 @@ describe("CauldronsTable", () => {
       props: {
         cauldrons: [],
         cauldronsLoading: false,
+        tableKeys: [],
       },
     });
 
@@ -61,6 +65,7 @@ describe("CauldronsTable", () => {
       props: {
         cauldrons: [],
         cauldronsLoading: false,
+        tableKeys: [],
       },
     });
 
@@ -74,6 +79,7 @@ describe("CauldronsTable", () => {
       props: {
         cauldrons: [],
         cauldronsLoading: false,
+        tableKeys: [],
       },
     });
 
