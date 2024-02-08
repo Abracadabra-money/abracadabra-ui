@@ -62,6 +62,7 @@
       <HealthProgress
         :positionHealth="formatPercent(100 - positionHealth.percent)"
         :positionRisk="positionHealth.status"
+        :key="`${cauldron.id} - ${cauldron.chainId}`"
       />
     </div>
 
@@ -242,7 +243,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 628px;
+  width: 620px;
   min-height: 373px;
   padding: 24px;
   gap: 15px;

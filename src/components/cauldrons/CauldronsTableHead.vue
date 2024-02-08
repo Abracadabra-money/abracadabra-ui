@@ -28,35 +28,17 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  props: {
+    tableKeys: {
+      type: Array,
+      required: true,
+    },
+  },
+
   data() {
     return {
       sortKey: "",
       sortOrder: true,
-      tableKeys: [
-        {
-          tableKey: "Collateral",
-        },
-        {
-          tableKey: "TVL",
-          tooltip: "Total Value Locked.",
-        },
-        {
-          tableKey: "TMB",
-          tooltip: "Total MIM Borrowed.",
-        },
-        {
-          tableKey: "MIMS LB",
-          tooltip: "MIMs left to be Borrowed.",
-        },
-        {
-          tableKey: "Interest",
-          tooltip: "Annualised percent that your debt will increase each year.",
-        },
-        {
-          tableKey: "APR",
-          tooltip: "Annualised Percentage Return Range.",
-        },
-      ],
     };
   },
 
