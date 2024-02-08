@@ -1,14 +1,20 @@
 <template>
   <div class="position-health">
-    <div class="position-percent">
-      {{ formatPercent(positionHealth.percent) }}
-    </div>
-
     <div class="track-wrap">
-      <img class="magician-icon" src="@/assets/images/magician.png" alt="" />
+      <div class="icon-wrap">
+        <img class="magician-icon" src="@/assets/images/magician.png" alt="" />
+        <div class="question-mark-wrap" v-tooltip="'Tooltip'">
+          <QuestionMarkIcon />
+        </div>
+      </div>
 
       <div :class="['price-track', positionHealth.status]">
-        <img class="track-icon" src="@/assets/images/potion.png" alt="" />
+        <span
+          class="percent-value"
+          v-if="+formatPercent(positionHealth.percent) < 100"
+          >{{ formatPercent(positionHealth.percent) }}%
+        </span>
+        <img class="track-icon" src="@/assets/images/potion.svg" alt="" />
         <div class="price-indicator"></div>
       </div>
 
@@ -24,8 +30,9 @@ import {
   getPositionHealth,
 } from "@/helpers/cauldron/utils";
 import { utils } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { formatToFixed } from "@/helpers/filters";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { formatToFixed, formatPercent } from "@/helpers/filters";
 
 export default {
   props: {
@@ -67,7 +74,7 @@ export default {
 
   methods: {
     formatPercent(value: any) {
-      return formatPercent(formatToFixed(100 - value, 2));
+      return formatToFixed(100 - value, 2);
     },
 
     updatePositionHealth() {
@@ -87,6 +94,12 @@ export default {
   mounted() {
     this.updatePositionHealth();
   },
+
+  components: {
+    QuestionMarkIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/QuestionMarkIcon.vue")
+    ),
+  },
 };
 </script>
 
@@ -96,6 +109,7 @@ export default {
 }
 .position-health {
   max-width: 600px;
+  min-height: 48px;
   width: 100%;
   padding: 6px 16px;
   border-radius: 12px;
@@ -107,16 +121,9 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-}
-
-.position-percent {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 18px;
   display: flex;
-  gap: 3px;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .track-wrap {
@@ -129,6 +136,16 @@ export default {
   font-size: 12px;
   font-weight: 500;
   line-height: 150%;
+}
+
+.icon-wrap {
+  position: relative;
+}
+
+.question-mark-wrap {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
 }
 
 .magician-icon {
@@ -155,6 +172,16 @@ export default {
     rgba(53, 109, 55, 0.3) 0%,
     rgba(103, 160, 105, 0.3) 96.59%
   );
+}
+
+.percent-value {
+  position: absolute;
+  top: -130%;
+  left: var(--position-health);
+  transform: translate(-50%, -25%);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
 }
 
 .price-indicator {
