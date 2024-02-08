@@ -228,7 +228,6 @@ export default {
   components: {
     PositionAssets,
     HealthProgress,
-
     PositionIndicator,
     Tooltip,
     TokenChainIcon,
