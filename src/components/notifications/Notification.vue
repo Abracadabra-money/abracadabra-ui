@@ -17,7 +17,6 @@
 
 <script lang="ts">
 import moment from "moment";
-// @ts-ignore
 import { useImage } from "@/helpers/useImage";
 import { mapMutations } from "vuex";
 export default {

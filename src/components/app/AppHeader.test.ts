@@ -1,33 +1,14 @@
-import Vuex from "vuex";
-import { ethers } from "ethers";
-import { chains } from "@/helpers/chains";
 import { describe, it, expect, vi } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import AppHeader from "@/components/app/AppHeader.vue";
-
-const store = new Vuex.Store({
-  modules: {
-    connectProvider: {
-      state: {
-        chainId: 1,
-        account: ethers.Wallet.createRandom(),
-        networks: chains,
-      },
-      getters: {
-        getChainId: (state) => state.chainId,
-        getAccount: (state) => state.account,
-        getAvailableNetworks: (state) => state.networks,
-      },
-    },
-  },
-});
+import { testStore } from "@/test/store";
 
 const tooltip = vi.fn();
 
 describe("AppHeader", () => {
   it("renders correctly", () => {
     const wrapper = shallowMount(AppHeader, {
-      global: { plugins: [store] },
+      global: { plugins: [testStore] },
       directives: { tooltip },
     });
     expect(wrapper.exists()).toBe(true);
@@ -35,7 +16,7 @@ describe("AppHeader", () => {
 
   it("toggles mobile menu when burger icon is clicked", () => {
     const wrapper = shallowMount(AppHeader, {
-      global: { plugins: [store] },
+      global: { plugins: [testStore] },
       directives: { tooltip },
     });
     const burger = wrapper.find(".burger");
@@ -45,7 +26,7 @@ describe("AppHeader", () => {
 
   it("opens network popup when networks button is clicked", () => {
     const wrapper = shallowMount(AppHeader, {
-      global: { plugins: [store] },
+      global: { plugins: [testStore] },
       directives: { tooltip },
     });
     const networksBtn = wrapper.find(".networks-btn");
@@ -55,7 +36,7 @@ describe("AppHeader", () => {
 
   it("closes network popup when closePopup event is emitted", () => {
     const wrapper = shallowMount(AppHeader, {
-      global: { plugins: [store] },
+      global: { plugins: [testStore] },
       directives: { tooltip },
     });
     wrapper.setData({ isOpenNetworkPopup: true });
@@ -65,7 +46,7 @@ describe("AppHeader", () => {
 
   it("changes mobileMenu to false when closePopup event is emitted", () => {
     const wrapper = shallowMount(AppHeader, {
-      global: { plugins: [store] },
+      global: { plugins: [testStore] },
       directives: { tooltip },
     });
     wrapper.setData({ mobileMenu: true });
@@ -75,7 +56,7 @@ describe("AppHeader", () => {
 
   it("changes mobileMenu to false when closePopup event is emitted", () => {
     const wrapper = shallowMount(AppHeader, {
-      global: { plugins: [store] },
+      global: { plugins: [testStore] },
       directives: { tooltip },
     });
     wrapper.setData({ mobileMenu: true });

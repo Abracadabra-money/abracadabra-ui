@@ -103,7 +103,7 @@ import { mapGetters, mapActions } from "vuex";
 import { useImage } from "@/helpers/useImage";
 import { formatTokenBalance } from "@/helpers/filters";
 import BaseLoader from "@/components/base/BaseLoader.vue";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { getProviderByChainId } from "@/helpers/getProviderByChainId";
 
 import {

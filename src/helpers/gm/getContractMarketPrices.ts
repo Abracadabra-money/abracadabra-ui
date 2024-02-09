@@ -5,7 +5,7 @@ import type { TokenPriceResponse, MarketPrices, MarketInfo } from "./types";
 export const getContractMarketPrices = (
   tokenPrices: Array<TokenPriceResponse>,
   market: MarketInfo
-): MarketPrices => {
+): MarketPrices | undefined => {
   const indexToken = tokenPrices.find(
     (item) =>
       item.tokenAddress.toLowerCase() === market.indexToken.toLowerCase()
@@ -19,7 +19,6 @@ export const getContractMarketPrices = (
   );
 
   if (!indexToken || !longToken || !shortToken) {
-    // @ts-ignore
     return undefined;
   }
 

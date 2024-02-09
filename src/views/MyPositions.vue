@@ -10,16 +10,15 @@
 
       <div class="positions-list-head" v-if="cauldrons.length">
         <button class="filters" @click="isFiltersPopupOpened = true">
-          <img src="@/assets/images/filters.png" />
-          Filters
+          <img class="filters-icon" src="@/assets/images/filters.png" />
         </button>
 
         <div class="sort-buttons">
           <SortButton
             v-for="data in sortersData"
-            :sortOrder="getSortOrder(data.key)"
-            @click="updateSortKey(data.key)"
-            :key="data.key"
+            :sortOrder="getSortOrder(data.tableKey)"
+            @click="updateSortKey(data.tableKey)"
+            :key="data.tableKey"
             >{{ data.text }}</SortButton
           >
         </div>
@@ -34,7 +33,7 @@
       <div class="positions-list" v-if="sortedCauldrons.length">
         <CauldronPositionItem
           v-for="cauldron in sortedCauldrons"
-          :key="cauldron.id"
+          :key="`${cauldron.id} - ${cauldron.chainId}`"
           :cauldron="cauldron"
         />
       </div>
@@ -143,10 +142,10 @@ export default {
 
     sortersData() {
       return [
-        { key: "positionHealth", text: "Health factor" },
-        { key: "collateralDepositedUsd", text: "Collateral deposited" },
-        { key: "mimBorrowed", text: "MIM borrowed" },
-        { key: "apr", text: "APR" },
+        { tableKey: "positionHealth", text: "Health factor" },
+        { tableKey: "collateralDepositedUsd", text: "Collateral deposited" },
+        { tableKey: "mimBorrowed", text: "MIM borrowed" },
+        { tableKey: "apr", text: "APR" },
       ];
     },
 
@@ -321,6 +320,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@include scrollbar;
+
 .my-positions-view {
   position: relative;
   display: flex;
@@ -373,7 +374,6 @@ export default {
   background: rgba(25, 31, 47, 0.38);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-  color: #5d7acd;
   font-family: Prompt;
   font-size: 16px;
   font-weight: 400;
@@ -390,6 +390,8 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   gap: 24px;
+  height: 780px;
+  overflow: auto;
 }
 
 .position-list {

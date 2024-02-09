@@ -98,7 +98,6 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
 import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
 import { ZERO_VALUE } from "@/constants/global";
@@ -107,8 +106,7 @@ import actions from "@/helpers/stake/spell/actions/";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-// @ts-ignore
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
 
 export default {

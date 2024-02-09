@@ -16,8 +16,10 @@ export const BSC_CHAIN_ID: number = 56;
 export const KAVA_CHAIN_ID: number = 2222;
 export const ARBITRUM_CHAIN_ID: number = 42161;
 
-export const MAX_APPROVAL_AMOUNT: any =
+export const MAX_ALLOWANCE_VALUE: any =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+export const COINGECKO_URL: string = "https://api.coingecko.com/api/v3/";
 export const ANALYTICS_URK: string = "https://analytics.abracadabra.money/api";
 export const OPENOCEAN_BASE_URL: string = "https://ethapi.openocean.finance/v2";
 

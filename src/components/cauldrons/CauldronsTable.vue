@@ -9,24 +9,22 @@
         />
       </div>
 
-      <div class="filters-wrap">
-        <div class="chains-wrap">
-          <h3 class="mobile-title">Cauldrons</h3>
-          <ChainsDropdown
-            :activeChains="activeChains"
-            :selectedChains="selectedChains"
-            @updateSelectedChain="updateSelectedChain"
-          />
-        </div>
+      <ChainsDropdown
+        class="chains-dropdown"
+        :activeChains="activeChains"
+        :selectedChains="selectedChains"
+        @updateSelectedChain="updateSelectedChain"
+      />
 
-        <div class="search-wrapper">
-          <InputSearch @changeSearch="updateSearch" />
-        </div>
-      </div>
+      <button class="filters" @click="$emit('openMobileFiltersPopup')">
+        <img class="filters-icon" src="@/assets/images/filters.png" />
+      </button>
+
+      <InputSearch @changeSearch="updateSearch" />
     </div>
 
     <div class="table-wrapper">
-      <CauldronsTableHead @updateSort="updateSortKeys" />
+      <CauldronsTableHead :tableKeys="tableKeys" @updateSort="updateSortKeys" />
 
       <div class="cauldrons-items-wrap">
         <div class="row-wrapper">
@@ -56,11 +54,11 @@
           />
         </div>
       </div>
-      <div class="btn-wrap" v-if="showDeprecatedButton">
-        <button class="deprecated-btn" @click="updateToggleActiveCauldrons">
-          {{ deprecatedButtonText }}
-        </button>
-      </div>
+    </div>
+    <div class="btn-wrap" v-if="showDeprecatedButton">
+      <button class="deprecated-btn" @click="updateToggleActiveCauldrons">
+        {{ deprecatedButtonText }}
+      </button>
     </div>
   </div>
 </template>
@@ -76,6 +74,10 @@ export default {
       required: true,
     },
     cauldronsLoading: { type: Boolean },
+    tableKeys: {
+      type: Array,
+      required: true,
+    },
   },
 
   data() {
@@ -86,6 +88,7 @@ export default {
       sortKey: "",
       sortOrder: false,
       selectedChains: [],
+      isFiltersPopupOpened: false,
     };
   },
 
@@ -291,10 +294,14 @@ export default {
   created() {
     this.selectedChains = this.getActiveChain();
   },
+
+  expose: ["updateSortKeys"],
 };
 </script>
 
 <style lang="scss" scoped>
+@include scrollbar;
+
 .cauldrons-table-wrap {
   border-radius: 16px;
   border: 1px solid #00296b;
@@ -308,7 +315,7 @@ export default {
   padding: 24px;
   width: 100%;
   display: flex;
-  gap: 32px;
+  gap: 20px;
   flex-direction: column;
 }
 
@@ -325,9 +332,15 @@ export default {
 
 .additional-logic {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
   position: relative;
+}
+
+.chains-dropdown {
+  margin-left: auto;
 }
 
 .toggles-wrap,
@@ -343,6 +356,8 @@ export default {
   gap: 8px;
   width: 100%;
   min-height: 300px;
+  height: 340px;
+  padding: 8px;
 }
 
 .chains-wrap {
@@ -352,8 +367,32 @@ export default {
   justify-content: space-between;
 }
 
-.mobile-title {
+.filters {
   display: none;
+  height: 34px;
+  width: 48px;
+  padding: 7px 14px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: rgba(25, 31, 47, 0.38);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  font-family: Prompt;
+  font-size: 16px;
+  font-weight: 400;
+  transition: opacity 0.3s ease;
+}
+
+.filters:hover {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.table-wrapper {
+  overflow: auto;
 }
 
 .loader-wrap {
@@ -365,7 +404,6 @@ export default {
 }
 
 .btn-wrap {
-  padding: 12px 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -386,19 +424,9 @@ export default {
 }
 
 @media screen and (max-width: 1024px) {
-  .additional-logic {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
   .filters-wrap {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .table-wrapper {
-    overflow-x: scroll;
   }
 }
 
@@ -416,26 +444,24 @@ export default {
   }
 
   .additional-logic {
-    justify-content: flex-end;
-    height: 90px;
+    justify-content: space-between;
+    gap: 12px;
   }
 
-  .mobile-title {
-    display: block;
-  }
-
-  .search-wrapper {
+  .toggles-wrap {
     width: 100%;
-    position: absolute;
-    top: 80px;
+  }
+
+  .chains-dropdown {
+    margin-left: 0;
   }
 
   .cauldrons-table-wrap {
     padding: 16px;
   }
 
-  .table-wrapper {
-    overflow-x: initial;
+  .filters {
+    display: flex;
   }
 }
 </style>

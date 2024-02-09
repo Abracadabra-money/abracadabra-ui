@@ -75,9 +75,7 @@ import { defineAsyncComponent } from "vue";
 import { defaultRpc } from "@/helpers/chains";
 import { BigNumber, providers, utils } from "ethers";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-// import { getChainsConfigs } from "@/helpers/getChainsConfigs";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
-// @ts-ignore
 import { useImage } from "@/helpers/useImage";
 
 export default {

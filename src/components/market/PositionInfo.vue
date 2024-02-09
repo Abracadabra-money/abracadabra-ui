@@ -325,14 +325,14 @@ export default {
 }
 
 .high {
-  border: 1px solid rgba(79, 23, 23, 0.7);
+  border: 1px solid rgba(140, 64, 64, 0.5);
 
   .item-value {
-    color: #4f1717;
+    color: #8c4040;
   }
 
   .position-health {
-    background: #4f1717;
+    background: #8c4040;
   }
 }
 

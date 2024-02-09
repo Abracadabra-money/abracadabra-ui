@@ -33,7 +33,7 @@
 <script>
 import BaseButton from "@/components/base/BaseButton.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { mapGetters } from "vuex";
 import { getAllowanceDatas } from "@/helpers/oldCauldronsAllowance.js";
 import abiERC20 from "@/abis/zeroXSwap/abiERC20";

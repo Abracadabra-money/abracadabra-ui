@@ -75,7 +75,7 @@ export const getMarketFullInfo = async (
   //   multicallProvider
   // );
 
-  const prices = getContractMarketPrices(pricesResponce, marketProps);
+  const prices: any = getContractMarketPrices(pricesResponce, marketProps);
 
   const [
     totalSupply,
@@ -193,7 +193,7 @@ export const getMarketsPoolValueInfoMin = async (
     markets.map((market) => readerContract.getMarket(DATA_STORE, market))
   );
 
-  const marketPrices = markets.map((market, idx) => {
+  const marketPrices: any = markets.map((market, idx) => {
     return getContractMarketPrices(pricesResponce, marketsProps[idx]);
   });
 

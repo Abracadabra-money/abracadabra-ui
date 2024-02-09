@@ -1,7 +1,9 @@
-import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
-import PositionHealth from "@/components/market/PositionHealth.vue";
+import { describe, it, expect, vi } from "vitest";
 import { magicGlpConfig } from "@/test/magicGlpConfig";
+import PositionHealth from "@/components/market/PositionHealth.vue";
+
+const tooltip = vi.fn();
 
 describe("PositionHealth", () => {
   it("renders the correct percent value", () => {
@@ -9,8 +11,9 @@ describe("PositionHealth", () => {
       propsData: {
         cauldron: magicGlpConfig,
       },
+      directives: { tooltip },
     });
 
-    expect(wrapper.find(".position-percent").text()).toBe("0.0%");
+    expect(wrapper.find(".percent-value").text()).toBe("0%");
   });
 });

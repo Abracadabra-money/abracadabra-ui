@@ -12,9 +12,11 @@
     </div>
 
     <div class="filters">
-      <div class="filter" v-for="sorter in sortersData" :key="sorter.key">
-        <p class="filter-title">Sort by {{ sorter.text }}</p>
-        <label class="label" :for="`${sorter.key}-up`">
+      <div class="filter" v-for="sorter in sortersData" :key="sorter.tableKey">
+        <p class="filter-title">
+          Sort by {{ sorter.text ? sorter.text : sorter.tableKey }}
+        </p>
+        <label class="label" :for="`${sorter.tableKey}-up`">
           <span class="checkmark"
             ><svg
               xmlns="http://www.w3.org/2000/svg"
@@ -44,14 +46,14 @@
           <input
             class="radio-button"
             type="radio"
-            :id="`${sorter.key}-up`"
+            :id="`${sorter.tableKey}-up`"
             :value="{ sorter, order: false }"
             v-model="picked"
           />
-          {{ sorter.text }}: Low to high
+          {{ sorter.text ? sorter.text : sorter.tableKey }}: Low to high
         </label>
 
-        <label class="label" :for="`${sorter.key}-down`">
+        <label class="label" :for="`${sorter.tableKey}-down`">
           <span class="checkmark"
             ><svg
               xmlns="http://www.w3.org/2000/svg"
@@ -81,11 +83,11 @@
           <input
             class="radio-button"
             type="radio"
-            :id="`${sorter.key}-down`"
+            :id="`${sorter.tableKey}-down`"
             :value="{ sorter, order: true }"
             v-model="picked"
           />
-          {{ sorter.text }}: High to low
+          {{ sorter.text ? sorter.text : sorter.tableKey }}: High to low
         </label>
       </div>
     </div>
@@ -95,8 +97,9 @@
       :disabled="isDisabled"
       primary
       @click="applyFilter"
-      >Apply filters</BaseButton
     >
+      Apply filters
+    </BaseButton>
   </div>
 </template>
 
@@ -123,13 +126,18 @@ export default {
   methods: {
     comparePikedAndSorter(sorter, order) {
       return (
-        sorter.key == this.picked?.sorter.key && order == this.picked?.order
+        sorter.tableKey == this.picked?.sorter.tableKey &&
+        order == this.picked?.order
       );
     },
 
     applyFilter() {
       if (!this.picked) return false;
-      this.$emit("updateSortKey", this.picked?.sorter.key, this.picked?.order);
+      this.$emit(
+        "updateSortKey",
+        this.picked?.sorter.tableKey,
+        this.picked?.order
+      );
       this.closePopup();
     },
 
@@ -152,7 +160,7 @@ export default {
   left: 0;
   right: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   max-height: 100vh;
   z-index: 300;
   display: flex;
@@ -227,6 +235,6 @@ export default {
 }
 
 .apply-button {
-  margin-top: calc(100vh - 587px);
+  margin-top: auto;
 }
 </style>

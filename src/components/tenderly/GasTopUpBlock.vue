@@ -39,7 +39,7 @@ import { providers } from "ethers";
 import { getAccount } from "@wagmi/core";
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { tenderlyAddBalance } from "@/helpers/tenderly/tenderlyAddBalance";
 
 const account = getAccount();

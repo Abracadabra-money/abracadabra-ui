@@ -50,7 +50,7 @@ import degenIcon from "@/assets/images/degenbox.svg";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { formatTokenBalance } from "@/helpers/filters";
 import actions from "@/helpers/bentoBox/actions";
 import { approveTokenViem } from "@/helpers/approval";

@@ -52,8 +52,7 @@ export const calculateAPR = async (
     });
 
     const totalStakedInUSD =
-      // @ts-ignore
-      utils.formatUnits(totalSupply, 18) * stakingTokenPrice;
+      Number(utils.formatUnits(totalSupply, 18)) * stakingTokenPrice;
 
     let totalAnnualRewardsInUSD = 0;
     const tokensApr = [];

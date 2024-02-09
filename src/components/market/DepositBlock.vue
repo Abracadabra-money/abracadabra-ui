@@ -41,7 +41,7 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { getChainById } from "@/helpers/chains";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { MAX_ALLOWANCE_VALUE } from "@/constants/cauldron";
+import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 

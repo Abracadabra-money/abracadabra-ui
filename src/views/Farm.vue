@@ -77,7 +77,7 @@ import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
 import FarmListPopup from "@/components/farm/FarmListPopup.vue";
 import FarmPositionMobilePopup from "@/components/farm/FarmPositionMobilePopup.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
 import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";

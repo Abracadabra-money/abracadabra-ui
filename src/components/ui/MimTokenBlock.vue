@@ -16,7 +16,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { formatToFixed } from "@/helpers/filters";
-import tokensInfo from "@/utils/tokens/addedTokens.js";
+import tokensInfo from "@/configs/tokens/mim";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
@@ -40,9 +40,7 @@ export default {
 
       if (this.chainId) id = this.chainId;
 
-      return tokensInfo.find(
-        (token) => token.name === "MIM" && token.chain === id
-      );
+      return tokensInfo.find((token) => token.chainId === id);
     },
   },
 

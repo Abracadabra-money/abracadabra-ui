@@ -1,5 +1,6 @@
 import Vuex from "vuex";
 import { providers } from "ethers";
+import { chains } from "@/helpers/chains";
 import { defaultRpc } from "@/helpers/chains";
 
 export const testStore = new Vuex.Store({
@@ -8,12 +9,20 @@ export const testStore = new Vuex.Store({
       state: {
         chainId: 1,
         account: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+        networks: chains,
       },
       getters: {
         getChainId: (state) => state.chainId,
         getAccount: (state) => state.account,
         getSigner: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
         getEnsName: () => null,
+        getAvailableNetworks: (state) => state.networks,
+        getNotifiCardId: () => {
+          return "eb0d573373194bbcbda52bda19221c71";
+        },
+        getNotifiWalletBlockchain: () => {
+          return "ETHEREUM";
+        },
       },
       mutations: {
         setMobileMenu(state, show) {

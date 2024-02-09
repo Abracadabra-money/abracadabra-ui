@@ -35,7 +35,6 @@ import {
 } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { trimZeroDecimals } from "@/helpers/numbers";

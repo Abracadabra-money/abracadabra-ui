@@ -3,7 +3,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getCookTypeByAction } from "@/helpers/cauldron/getCookActionType";
 import { validateCookByAction } from "@/helpers/cauldron/validators";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { approveToken } from "@/helpers/approval";
 import { WARNING_TYPES } from "@/helpers/cauldron/validators";
 import { getCookPayload } from "@/helpers/cauldron/getCookPayload";

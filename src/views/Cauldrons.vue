@@ -39,9 +39,19 @@
         <CauldronsTable
           :cauldrons="cauldrons"
           :cauldronsLoading="cauldronsLoading"
+          :tableKeys="tableKeys"
+          @openMobileFiltersPopup="openMobileFiltersPopup"
+          ref="cauldronsTable"
         />
       </div>
     </div>
+
+    <FiltersPopup
+      v-if="isFiltersPopupOpened"
+      :sortersData="tableKeys.slice(1)"
+      @updateSortKey="$refs.cauldronsTable.updateSortKeys"
+      @close="isFiltersPopupOpened = false"
+    />
   </div>
 </template>
 
@@ -61,6 +71,32 @@ export default {
       cauldronsLoading: true,
       farmCardInfo: null,
       updateInterval: null,
+      isFiltersPopupOpened: false,
+      tableKeys: [
+        {
+          tableKey: "Collateral",
+        },
+        {
+          tableKey: "TVL",
+          tooltip: "Total Value Locked.",
+        },
+        {
+          tableKey: "TMB",
+          tooltip: "Total MIM Borrowed.",
+        },
+        {
+          tableKey: "MIMS LB",
+          tooltip: "MIMs left to be Borrowed.",
+        },
+        {
+          tableKey: "Interest",
+          tooltip: "Annualised percent that your debt will increase each year.",
+        },
+        {
+          tableKey: "APR",
+          tooltip: "Annualised Percentage Return Range.",
+        },
+      ],
     };
   },
 
@@ -100,6 +136,14 @@ export default {
         (farm) => farm.id === farmId && farm.contractChain === chainId
       );
     },
+
+    openMobileFiltersPopup() {
+      this.isFiltersPopupOpened = true;
+    },
+
+    updateSortKeys(key, order) {
+      this.$refs.cauldronsTable.updateSortKeys(key, order);
+    },
   },
 
   async created() {
@@ -129,6 +173,9 @@ export default {
     ),
     CauldronsCarousel: defineAsyncComponent(() =>
       import("@/components/ui/carousel/CauldronsCarousel.vue")
+    ),
+    FiltersPopup: defineAsyncComponent(() =>
+      import("@/components/myPositions/FiltersPopup.vue")
     ),
   },
 };

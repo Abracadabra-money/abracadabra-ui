@@ -22,6 +22,7 @@ export default mergeConfig(
       }),
     ],
   },
+  // @ts-ignore
   defineConfig({
     test: {
       environment: "jsdom",

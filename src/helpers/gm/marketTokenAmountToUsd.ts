@@ -15,7 +15,6 @@ export const marketTokenAmountToUsd = (
     ? expandDecimals(1, USD_DECIMALS)
     : poolValueMax.mul(expandDecimals(1, 18)).div(totalSupply);
 
-  // @ts-ignore
   return convertToUsd(amount, 18, price);
 };
 

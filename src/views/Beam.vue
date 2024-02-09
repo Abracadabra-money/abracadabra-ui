@@ -130,7 +130,7 @@ import { formatUSD, formatToFixed } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { nativeTokenschainLink } from "@/configs/chainLink/config";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
