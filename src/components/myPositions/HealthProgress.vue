@@ -10,6 +10,7 @@
 </template>
 
 <script>
+//todo !~!!!!!!!! Lottie rerender
 import LottiePlayer from "lottie-web";
 const TOTAL_FRAMES = 150;
 export default {
@@ -18,11 +19,17 @@ export default {
     positionRisk: { type: String, default: "safe" },
   },
 
+  data() {
+    return {
+      animation: null,
+    };
+  },
+
   methods: {
     initAnimation() {
       const { anim } = this.$refs;
 
-      const player = LottiePlayer.loadAnimation({
+      this.animation = LottiePlayer.loadAnimation({
         renderer: "svg",
         loop: false,
         autoplay: false,
@@ -30,9 +37,7 @@ export default {
         container: anim,
       });
 
-      console.log("player", player);
-
-      player.goToAndStop(
+      this.animation.goToAndStop(
         (TOTAL_FRAMES / 100) * Number(+this.positionHealth.slice(0, -1)),
         true
       );
@@ -40,6 +45,11 @@ export default {
   },
 
   async mounted() {
+    this.initAnimation();
+  },
+
+  beforeUpdate() {
+    this.animation.destroy();
     this.initAnimation();
   },
 };
