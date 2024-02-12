@@ -121,6 +121,7 @@
             :stakeToken="stakeToken"
           />
         </div>
+        <SnapshotsCarousel />
       </div>
     </div>
 
@@ -537,6 +538,9 @@ export default {
     ),
     ClaimMimBlock: defineAsyncComponent(
       () => import("@/components/stake/spell/ClaimMimBlock.vue")
+    ),
+    SnapshotsCarousel: defineAsyncComponent(
+      () => import("@/components/stake/spell/SnapshotsCarousel.vue")
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")
