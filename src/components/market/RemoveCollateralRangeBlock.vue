@@ -180,6 +180,13 @@ export default {
 
       this.inputValue = Number(utils.formatUnits(value));
     },
+
+    actionConfig: {
+      deep: true,
+      async handler() {
+        this.inputValue = 0;
+      },
+    },
   },
 
   methods: {
