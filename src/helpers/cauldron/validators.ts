@@ -5,6 +5,7 @@ import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { getAccount } from "@wagmi/core";
+import { utils } from "ethers";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -81,10 +82,7 @@ export const validateCookByAction = (
     actionConfig
   );
 
-  validationErrors = validateGmOrderCreation(
-    validationErrors,
-    cauldron,
-  );
+  validationErrors = validateGmOrderCreation(validationErrors, cauldron);
 
   switch (cookType) {
     case ACTION_TYPES.ACTION_DEPOSIT:
@@ -416,6 +414,14 @@ const validateDeleverage = (
   actionConfig: ActionConfig,
   expectedPosition: any
 ) => {
+  const mimToRepay = utils.formatUnits(
+    actionConfig.amounts.deleverageAmounts.amountToMin
+  );
+
+  // @ts-ignore
+  if (Number(mimToRepay) > cauldron.userPosition.mimBorrowed)
+    validationErrors.push(WARNING_TYPES.REPAY_BALANCE);
+
   validationErrors = validateRemoveCollateral(
     validationErrors,
     cauldron,
