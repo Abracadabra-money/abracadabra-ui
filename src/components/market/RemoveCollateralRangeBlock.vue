@@ -59,7 +59,7 @@ export default {
   emits: ["updateWithdrawAmount"],
 
   data() {
-    return { slippage: 1, inputValue: 0 };
+    return { slippage: 1, inputValue: null };
   },
 
   computed: {
@@ -160,25 +160,12 @@ export default {
     },
   },
 
-  watch: {
-    inputAmpunt(value) {
-      if (value.eq(0)) {
-        this.inputValue = 0;
-        return false;
-      }
-
-      this.inputValue = Number(utils.formatUnits(value));
-    },
-  },
-
   methods: {
     setEmptyState() {
       this.$emit("updateWithdrawAmount", BigNumber.from(0));
     },
 
     onUpdateWithdrawValue(value: BigNumber) {
-      if (this.withdrawAmount.gt(value) && value.eq(this.maxToRemove))
-        return false;
       if (value === null) return this.setEmptyState();
       this.$emit("updateWithdrawAmount", value);
     },

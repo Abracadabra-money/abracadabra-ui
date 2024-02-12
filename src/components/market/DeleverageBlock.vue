@@ -158,7 +158,6 @@ export default {
 
   methods: {
     onUpdateInputAmount(value: BigNumber) {
-      if (this.value.gt(value) && value.eq(this.maxToRepay)) return false;
       this.value = value;
 
       this.updateDeleverageAmounts(value);

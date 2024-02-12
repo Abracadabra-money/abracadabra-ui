@@ -106,10 +106,6 @@ export default {
   },
 
   watch: {
-    maxAmount(value: BigNumber) {
-      if (value.lt(this.amount)) this.$emit("updateAmount", value);
-    },
-
     amount(value: BigNumber) {
       this.inputValue = this.getFormattedAmount(value);
     },
@@ -126,16 +122,12 @@ export default {
     },
 
     updateRange(event: any) {
-      const value = event.target.value;
-
       const parsedValue = utils.parseUnits(
         String(event.target.value),
         this.decimals
       );
 
-      const amount = value >= this.max ? this.maxAmount : parsedValue;
-
-      this.$emit("updateAmount", amount);
+      this.$emit("updateAmount", parsedValue);
     },
   },
 };
