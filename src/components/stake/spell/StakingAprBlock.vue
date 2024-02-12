@@ -6,18 +6,34 @@
       alt="Mim icon"
     />
 
-    <h3 class="title">Staking APR</h3>
+    <h3 class="title">
+      Staking APR
+      <Tooltip
+        :tooltip="'Annualised Percentage Return Range.'"
+        fill="#878B93"
+        :width="20"
+        :height="20"
+      />
+    </h3>
     <div class="value">{{ apr }}%</div>
   </div>
 </template>
 
 <script lang="ts">
+import { defineAsyncComponent } from "vue";
+
 export default {
   props: {
     apr: {
       type: Number,
       required: true,
     },
+  },
+
+  components: {
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
   },
 };
 </script>
@@ -55,6 +71,9 @@ export default {
   color: #99a0b2;
   font-weight: 500;
   line-height: 150%;
+  gap: 4px;
+  display: flex;
+  align-items: center;
 }
 
 .value {
