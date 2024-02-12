@@ -92,7 +92,7 @@ export default {
   watch: {
     inputValue(value, oldValue) {
       if (!value) {
-        this.$emit("updateInputValue", null);
+        this.$emit("updateInputValue", BigNumber.from(0));
         return;
       }
 

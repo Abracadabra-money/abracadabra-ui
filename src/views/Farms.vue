@@ -326,8 +326,6 @@ export default {
   flex-wrap: wrap;
   align-items: center;
   gap: 24px;
-  height: 600px;
-  padding: 8px;
   overflow: auto;
 }
 

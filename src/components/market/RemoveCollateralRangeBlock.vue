@@ -52,6 +52,7 @@ export default {
     },
     withdrawAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
   },
 
@@ -68,17 +69,13 @@ export default {
     }),
 
     inputAmount() {
-      const withdrawAmount = this.withdrawAmount
-        ? this.withdrawAmount
-        : BigNumber.from(0);
-
-      if (withdrawAmount!.eq(BigNumber.from(0))) {
+      if (this.withdrawAmount.eq(BigNumber.from(0))) {
         return "";
       }
 
       return trimZeroDecimals(
         utils.formatUnits(
-          withdrawAmount,
+          this.withdrawAmount,
           this.cauldron.config.collateralInfo.decimals
         )
       );
@@ -179,10 +176,10 @@ export default {
       this.$emit("updateWithdrawAmount", BigNumber.from(0));
     },
 
-    onUpdateWithdrawValue(value: BigNumber | null) {
+    onUpdateWithdrawValue(value: BigNumber) {
+      if (this.withdrawAmount.gt(value) && value.eq(this.maxToRemove))
+        return false;
       if (value === null) return this.setEmptyState();
-      if (value.gt(this.maxToRemove))
-        return this.$emit("updateWithdrawAmount", this.maxToRemove);
       this.$emit("updateWithdrawAmount", value);
     },
   },

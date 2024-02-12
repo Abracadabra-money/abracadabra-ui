@@ -158,25 +158,20 @@ export default {
 
   methods: {
     onUpdateInputAmount(value: BigNumber) {
+      if (this.value.gt(value) && value.eq(this.maxToRepay)) return false;
       this.value = value;
+
       this.updateDeleverageAmounts(value);
     },
 
     updateDeleverageAmounts(value: BigNumber) {
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
-      const mimToRepay = value
-        ? value.gt(this.maxToRepay)
-          ? this.maxToRepay
-          : value
-        : BigNumber.from(0);
-
       const deleverageAmounts = getDeleverageAmounts(
-        mimToRepay || BigNumber.from(0),
+        value,
         this.slippage!,
         oracleExchangeRate
       );
-
       this.$emit("updateDeleverageAmounts", deleverageAmounts);
     },
   },
