@@ -1,4 +1,4 @@
-import { Contract, BigNumber } from "ethers";
+import { Contract, BigNumber, utils } from "ethers";
 import type { providers } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
 import type { CauldronConfig } from "@/utils/cauldronsConfig/configTypes";
@@ -17,8 +17,12 @@ export const getMainParams = async (
   const marketInfoResp = await Promise.all(
     configs.map((config: any) =>
       config.version === 2
-        ? lensContract.getMarketInfoCauldronV2(config.contract.address)
-        : lensContract.getMarketInfoCauldronV3(config.contract.address)
+        ? lensContract
+            .getMarketInfoCauldronV2(config.contract.address)
+            .catch(() => null)
+        : lensContract
+            .getMarketInfoCauldronV3(config.contract.address)
+            .catch(() => null)
     )
   );
 
@@ -27,12 +31,33 @@ export const getMainParams = async (
     : null;
 
   return marketInfoResp.map((info: any, index) => {
+    const localInterest: any = configs[index].interest;
+
+    if (!info)
+      return {
+        borrowFee: 0,
+        interest: localInterest ? localInterest : 0,
+        liquidationFee: 0,
+        collateralPrice: BigNumber.from(0),
+        mimLeftToBorrow: BigNumber.from(0),
+        maximumCollateralRatio: BigNumber.from(0),
+        oracleExchangeRate: utils.parseUnits(
+          "1",
+          configs[index].collateralInfo.decimals
+        ),
+        totalBorrowed: BigNumber.from(0),
+        tvl: BigNumber.from(0),
+        userMaxBorrow: BigNumber.from(0),
+        updatePrice: false,
+      };
+
     const updatePrice = contractExchangeRate
       ? !contractExchangeRate[0].eq(info.oracleExchangeRate)
       : false;
 
-    const localInterest = configs[index].interest;
-    const interest = localInterest ? localInterest : Number(info.interestPerYear) / 100;
+    const interest = localInterest
+      ? localInterest
+      : Number(info.interestPerYear) / 100;
 
     return {
       borrowFee: Number(info.borrowFee) / 100,
