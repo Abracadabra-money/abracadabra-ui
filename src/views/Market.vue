@@ -90,6 +90,7 @@ export default {
         useDeleverage: false,
         useNativeToken: false,
         useUnwrapToken: false,
+        withdrawUnwrapToken: false,
         amounts: {
           depositAmounts: {
             inputAmount: BigNumber.from(0),
@@ -179,6 +180,11 @@ export default {
     isRepayTab() {
       return this.activeTab === "repay";
     },
+
+    isWrapAllowed() {
+      if (!this.cauldron?.config?.wrapInfo) return false;
+      return !this.cauldron.config.wrapInfo?.isHiddenWrap;
+    },
   },
 
   watch: {
@@ -219,6 +225,7 @@ export default {
       this.actionConfig.useDeleverage = false;
       this.actionConfig.useNativeToken = false;
       this.actionConfig.useUnwrapToken = false;
+      this.actionConfig.withdrawUnwrapToken = this.isWrapAllowed;
     },
 
     onUpdateToggle(toggle: string, isReset = false) {
@@ -344,6 +351,8 @@ export default {
     await this.createCauldronInfo();
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
+
+    this.actionConfig.withdrawUnwrapToken = this.isWrapAllowed;
 
     this.updateInterval = setInterval(async () => {
       await this.createCauldronInfo();

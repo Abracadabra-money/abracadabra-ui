@@ -9,10 +9,10 @@
       :deleverageFromOrder="gmDeleverageFromOrder"
     />
 
-    <div class="block-wrap remove-block">
+    <div class="block-settings" v-if="actionConfig.useDeleverage">
       <div class="row">
         <div class="title-wrap">
-          <h3 class="title">{{ titleText }}</h3>
+          <h3 class="title">Deleverage</h3>
           <SlippagePopup
             v-if="actionConfig.useDeleverage"
             :amount="actionConfig.amounts.slippage"
@@ -27,6 +27,20 @@
           @updateToggle="onToggleDeleverage"
         />
       </div>
+      <h4 class="subtitle">Select leverage ‘’x’’</h4>
+    </div>
+
+    <div class="block-wrap remove-block">
+      <div class="row">
+        <h3 class="title">{{ titleText }}</h3>
+
+        <Toggle
+          v-if="isWrapAllowed"
+          :selected="actionConfig.withdrawUnwrapToken"
+          :text="unwrappedTokenName"
+          @updateToggle="onChangeWithdrawToken"
+        />
+      </div>
 
       <h4 class="subtitle">{{ subtitleText }}</h4>
 
@@ -35,6 +49,7 @@
         :cauldron="cauldron"
         :inputAmount="actionConfig.amounts.withdrawAmount"
         :repayAmount="actionConfig.amounts.repayAmount"
+        :withdrawUnwrapToken="isWithdrawUnwrapToken"
         @updateWithdrawAmount="onUpdateWithdrawAmount"
       />
 
@@ -55,7 +70,9 @@
           :cauldron="cauldron"
           :inputAmount="actionConfig.amounts.repayAmount"
           :withdrawAmount="actionConfig.amounts.withdrawAmount"
+          :useDeleverage="actionConfig.useDeleverage"
           @updateRepayAmount="onUpdateRepayAmount"
+          @updateToggle="onToggleDeleverage"
         />
 
         <RemoveCollateralRangeBlock
@@ -101,6 +118,7 @@ import { mapGetters } from "vuex";
 import { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 import type { SwapAmounts } from "@/helpers/cauldron/types";
+// @ts-ignore
 import tempMixin from "@/mixins/temp";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import {
@@ -124,6 +142,7 @@ export default {
   data() {
     return {
       action: "repay",
+      withdrawUnwrapToken: false,
     };
   },
 
@@ -202,9 +221,16 @@ export default {
       return liquidationSwapper && isSwappersActive;
     },
 
+    isWrapAllowed() {
+      return (
+        this.cauldron?.config?.wrapInfo &&
+        !this.cauldron?.config?.wrapInfo?.isHiddenWrap
+      );
+    },
+
     titleText() {
       const { useDeleverage } = this.actionConfig;
-      return useDeleverage ? "Deleverage" : "Remove collateral";
+      return useDeleverage ? "To repay" : "Remove collateral";
     },
 
     subtitleText() {
@@ -214,11 +240,29 @@ export default {
         ? "Choose the amount of MIM you want to repay"
         : `Select the amount of ${name} to withdraw from the Cauldron`;
     },
+
+    unwrappedTokenName() {
+      return `As ${this.cauldron?.config?.wrapInfo?.unwrappedToken?.name}`;
+    },
+
+    isWithdrawUnwrapToken() {
+      if (!this.cauldron?.config?.wrapInfo) return false;
+      return this.actionConfig.withdrawUnwrapToken;
+    },
   },
 
   methods: {
     onToggleDeleverage() {
       this.$emit("updateToggle", "useDeleverage", true);
+    },
+
+    onChangeWithdrawToken() {
+      this.withdrawUnwrapToken = !this.withdrawUnwrapToken;
+      this.$emit(
+        "updateToggle",
+        "withdrawUnwrapToken",
+        this.withdrawUnwrapToken
+      );
     },
 
     onUpdateWithdrawAmount(amount: BigNumber) {
@@ -297,6 +341,7 @@ export default {
       () => import("@/components/market/OrdersManager.vue")
     ),
     GMStatus: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/popups/GMStatus.vue")
     ),
   },
@@ -315,6 +360,16 @@ export default {
 
 .block-wrap {
   @include block-wrap;
+}
+
+.block-settings {
+  @include block-wrap;
+  padding: 16px 24px;
+  z-index: 10;
+
+  .subtitle {
+    margin-bottom: 0;
+  }
 }
 
 .row {

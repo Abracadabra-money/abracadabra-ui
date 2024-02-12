@@ -10,6 +10,14 @@
     isBigNumber
     @updateInputValue="onUpdateWithdrawValue"
   />
+
+  <div class="expected-amount" v-if="withdrawUnwrapToken">
+    <span> Expected</span>
+    <span
+      >{{ expectedTokenAmount }}
+      {{ cauldron.config.wrapInfo.unwrappedToken.name }}</span
+    >
+  </div>
 </template>
 
 <script lang="ts">
@@ -20,6 +28,7 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { formatToFixed } from "@/helpers/filters";
 
 export default {
   props: {
@@ -31,6 +40,10 @@ export default {
     },
     repayAmount: {
       type: BigNumber,
+    },
+    withdrawUnwrapToken: {
+      type: Boolean,
+      default: true,
     },
   },
 
@@ -47,6 +60,14 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    expectedTokenAmount() {
+      return formatToFixed(
+        +this.inputValue *
+          +utils.formatUnits(this.cauldron.additionalInfo.tokensRate),
+        2
+      );
+    },
 
     collateralToken() {
       const { config, userTokensInfo, mainParams } = this.cauldron;
@@ -121,4 +142,26 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.expected-amount {
+  margin-top: 16px;
+  padding: 6px 12px;
+  color: #878b93;
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.42px;
+  border-radius: 8px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+</style>

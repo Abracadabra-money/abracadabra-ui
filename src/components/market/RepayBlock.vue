@@ -2,6 +2,12 @@
   <div>
     <div class="row">
       <h3 class="title">Repay MIM</h3>
+
+      <Toggle
+        :selected="useDeleverage"
+        text="Deleverge"
+        @updateToggle="onToggleDeleverage"
+      />
     </div>
 
     <h4 class="subtitle">Select the amount of MIM to repay</h4>
@@ -37,9 +43,13 @@ export default {
     withdrawAmount: {
       type: BigNumber,
     },
+    useDeleverage: {
+      type: Boolean,
+      default: false,
+    },
   },
 
-  emits: ["updateRepayAmount"],
+  emits: ["updateRepayAmount", "updateToggle"],
 
   data() {
     return {
@@ -92,9 +102,14 @@ export default {
       if (value === null) return this.setEmptyState();
       this.$emit("updateRepayAmount", value);
     },
+
+    onToggleDeleverage() {
+      this.$emit("updateToggle", "useDeleverage", true);
+    },
   },
 
   components: {
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
     ),

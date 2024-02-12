@@ -158,6 +158,7 @@ const getRemoveCollateralPayload = async (
   //@ts-ignore
   const { address } = cauldron.config.collateralInfo;
 
+  const { withdrawUnwrapToken } = actionConfig;
   const { withdrawAmount } = actionConfig.amounts;
   const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
 
@@ -170,6 +171,7 @@ const getRemoveCollateralPayload = async (
   const payload = {
     amount: share,
     updatePrice,
+    withdrawUnwrapToken,
   };
 
   return [payload, isMasterContractApproved, cauldron];
@@ -189,6 +191,7 @@ const getRemoveCollateralAndRepayPayload = async (
   //@ts-ignore
   const { address } = cauldron.config.collateralInfo;
 
+  const { withdrawUnwrapToken } = actionConfig;
   const { withdrawAmount, repayAmount } = actionConfig.amounts;
   const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
@@ -205,6 +208,7 @@ const getRemoveCollateralAndRepayPayload = async (
     collateralAmount: repayAmount, // TODO: update after fix this in cook
     updatePrice,
     itsMax: itsMaxRepay,
+    withdrawUnwrapToken,
   };
 
   return [payload, isMasterContractApproved, cauldron];
@@ -243,14 +247,14 @@ const getLeveragePayload = async (
     actionConfig.amounts.slippage,
     PERCENT_PRESITION
   );
-  
+
   const payload = {
     collateralAmount,
     amount: leverageAmounts.amountFrom,
     minExpected: shareToMin,
     updatePrice,
     itsDefaultBalance: useNativeToken,
-    slipage: slippage // TODO: naming
+    slipage: slippage, // TODO: naming
   };
 
   return [payload, isMasterContractApproved, cauldron, useUnwrapToken];
@@ -271,6 +275,8 @@ const getDeleveragePayload = async (
   const { bentoBox } = cauldron.contracts;
   //@ts-ignore
   const { address } = cauldron.config.collateralInfo;
+
+  const { withdrawUnwrapToken } = actionConfig;
 
   const { deleverageAmounts, withdrawAmount } = actionConfig.amounts;
 
@@ -302,7 +308,8 @@ const getDeleveragePayload = async (
     removeCollateralAmount: withdrawShare, // TODO: update after fix this in cook
     updatePrice,
     itsMax: isMaxRepay,
-    slipage: slippage
+    slipage: slippage,
+    withdrawUnwrapToken,
   };
 
   return [payload, isMasterContractApproved, cauldron, account];

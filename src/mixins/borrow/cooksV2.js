@@ -330,10 +330,18 @@ export default {
 
       return cookData;
     },
-    async recipeRemoveCollateral(cookData, pool, share, userAddr, tokenAddr) {
+    async recipeRemoveCollateral(
+      cookData,
+      pool,
+      share,
+      userAddr,
+      tokenAddr,
+      withdrawUnwrapToken = false
+    ) {
       const wrapInfo = pool.config?.wrapInfo;
       const { wrapper, unwrappedToken, collateral } = pool.contracts;
-      if (wrapInfo) {
+
+      if (wrapInfo && withdrawUnwrapToken) {
         cookData = await actions.removeCollateral(cookData, share, userAddr);
 
         cookData = await this.bentoWithdrawEncodeHandler(
@@ -755,7 +763,11 @@ export default {
       await cook(cauldron, cookData, collateralValue);
     },
 
-    async cookRemoveCollateral({ amount, updatePrice }, isApprowed, pool) {
+    async cookRemoveCollateral(
+      { amount, updatePrice, withdrawUnwrapToken },
+      isApprowed,
+      pool
+    ) {
       const { cauldron } = pool.contracts;
       const tokenAddr = pool.config.collateralInfo.address;
       const userAddr = this.account;
@@ -776,7 +788,8 @@ export default {
         pool,
         amount,
         userAddr,
-        tokenAddr
+        tokenAddr,
+        withdrawUnwrapToken
       );
 
       if (isApprowed && this.cookHelper)
@@ -818,7 +831,7 @@ export default {
     },
 
     async cookRemoveCollateralAndRepay(
-      { amount, collateralAmount, updatePrice, itsMax },
+      { amount, collateralAmount, updatePrice, itsMax, withdrawUnwrapToken },
       isApprowed,
       pool
     ) {
@@ -849,7 +862,8 @@ export default {
         pool,
         amount, // collateral share
         userAddr,
-        tokenAddr
+        tokenAddr,
+        withdrawUnwrapToken
       );
 
       if (isApprowed && this.cookHelper)
@@ -963,6 +977,7 @@ export default {
         updatePrice,
         itsMax,
         slipage,
+        withdrawUnwrapToken,
       },
       isApprowed,
       pool,
@@ -1023,13 +1038,16 @@ export default {
         );
       }
 
+      console.log("1111", withdrawUnwrapToken);
+
       if (+removeCollateralAmount > 0) {
         cookData = await this.recipeRemoveCollateral(
           cookData,
           pool,
           removeCollateralAmount,
           userAddr,
-          collateralTokenAddr
+          collateralTokenAddr,
+          withdrawUnwrapToken
         );
       }
 

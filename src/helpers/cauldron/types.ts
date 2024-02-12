@@ -64,35 +64,36 @@ export type AdditionalInfo = {
   whitelistedInfo: Object | null;
   isCollateralLocked: any;
   feePercent: number | null;
-  gmInfo: any
-  hasActiveGmOrder: boolean
+  gmInfo: any;
+  hasActiveGmOrder: boolean;
 };
 
 export type SwapAmounts = {
-  amountFrom: BigNumber,
-  amountToMin: BigNumber
-}
+  amountFrom: BigNumber;
+  amountToMin: BigNumber;
+};
 
 export type DepositAmounts = {
-  inputAmount: BigNumber,
-  collateralTokenAmount: BigNumber,
-  unwrapTokenAmount: BigNumber,
-}
+  inputAmount: BigNumber;
+  collateralTokenAmount: BigNumber;
+  unwrapTokenAmount: BigNumber;
+};
 
 export type ActionAmounts = {
-  depositAmounts: DepositAmounts,
-  borrowAmount: BigNumber,
-  repayAmount: BigNumber,
-  withdrawAmount: BigNumber,
-  leverageAmounts: SwapAmounts,
-  deleverageAmounts: SwapAmounts
-  slippage: BigNumber
-}
+  depositAmounts: DepositAmounts;
+  borrowAmount: BigNumber;
+  repayAmount: BigNumber;
+  withdrawAmount: BigNumber;
+  leverageAmounts: SwapAmounts;
+  deleverageAmounts: SwapAmounts;
+  slippage: BigNumber;
+};
 
 export type ActionConfig = {
-  useLeverage: boolean,
-  useDeleverage: boolean,
-  useNativeToken: boolean,
-  useUnwrapToken: boolean,
-  amounts: ActionAmounts
-}
+  useLeverage: boolean;
+  useDeleverage: boolean;
+  useNativeToken: boolean;
+  useUnwrapToken: boolean;
+  withdrawUnwrapToken: boolean;
+  amounts: ActionAmounts;
+};
