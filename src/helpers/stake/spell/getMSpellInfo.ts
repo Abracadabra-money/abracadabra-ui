@@ -12,13 +12,18 @@ export const getMSpellInfo = async (
   account: Address,
   publicClient: any
 ): Promise<MSpellInfo> => {
-  const [approvedAmount, mSpellUserInfo, rewardAmount]: any =
+  const [approvedAmount, totalSupply, mSpellUserInfo, rewardAmount]: any =
     await publicClient.multicall({
       contracts: [
         {
           ...spell.contract,
           functionName: "allowance",
           args: [account, mSpell.contract.address],
+        },
+        {
+          ...spell.contract,
+          functionName: "totalSupply",
+          args: [],
         },
         {
           ...mSpell.contract,
@@ -54,5 +59,6 @@ export const getMSpellInfo = async (
     balance: userMSpellBalance,
     approvedAmount: approvedAmount.result,
     claimableAmount: rewardAmount.result,
+    totalSupply: totalSupply.result,
   };
 };

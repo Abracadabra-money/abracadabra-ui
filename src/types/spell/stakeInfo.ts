@@ -23,6 +23,7 @@ export type MSpellInfo = {
   approvedAmount: bigint;
   claimableAmount: bigint;
   apr?: string;
+  totalSupply: bigint;
 };
 
 export type SSpellInfo = {
@@ -38,6 +39,7 @@ export type SSpellInfo = {
   approvedAmount: bigint;
   apr?: string;
   leverageInfo: any;
+  totalSupply: bigint;
 };
 
 export type SpellStakeInfo = {

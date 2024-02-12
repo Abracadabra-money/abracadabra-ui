@@ -78,5 +78,6 @@ export const getSSpellInfo = async (
     lockTimestamp,
     balance: aSpellUserBalance.result,
     approvedAmount: approvedAmount.result,
+    totalSupply: totalSupply.result,
   };
 };

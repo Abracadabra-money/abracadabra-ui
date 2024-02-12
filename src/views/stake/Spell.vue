@@ -49,6 +49,36 @@
             />
           </div>
 
+          <div class="info-wrap">
+            <div class="info-row">
+              <span class="info-title">Total Supply</span>
+              <span class="info-value">
+                <img class="info-icon" :src="mainToken.icon" alt="" />
+                <span>{{ totalSupply }}</span>
+              </span>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="balance-wrap">
+              <div
+                class="info-row"
+                v-for="info in balanceInfo"
+                :key="info.label"
+              >
+                <span class="info-title">
+                  <img class="info-icon" :src="info.icon" alt="" />
+                  <span> {{ info.label }}</span>
+                </span>
+
+                <span class="info-value">
+                  <span> {{ info.balance }}</span>
+                  <span>({{ info.balanceUsd }})</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div class="btn-wrap">
             <BaseButton
               primary
@@ -62,13 +92,17 @@
               <span v-else> {{ actionButtonText }}</span>
             </BaseButton>
           </div>
+          <div>
+            <h3 class="subtitle">Amplify your yield with the Abracadabra</h3>
+            <h4 class="subtitle">
+              Leverage Engine <a class="leverage-link" href="#">here</a>.
+            </h4>
+          </div>
         </div>
       </div>
 
       <div class="stake-info">
         <SpellSpecialInfoBlock :specialInfo="specialInfo" />
-
-        <BalancesBlock :configs="balanceInfo" />
 
         <div class="row">
           <StakingAprBlock :apr="mainToken.apr" />
@@ -97,11 +131,16 @@
 </template>
 
 <script lang="ts">
+import {
+  formatToFixed,
+  formatTokenBalance,
+  formatUSD,
+} from "@/helpers/filters";
+import { utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
 import { ZERO_VALUE } from "@/constants/global";
-import { formatToFixed } from "@/helpers/filters";
 import actions from "@/helpers/stake/spell/actions/";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapGetters, mapActions, mapMutations } from "vuex";
@@ -222,16 +261,26 @@ export default {
     balanceInfo() {
       return [
         {
-          label: "Spell balance",
+          label: "Spell",
           icon: this.stakeToken.icon,
-          balance: this.stakeToken.balance,
-          price: this.stakeToken.price,
+          balance: formatTokenBalance(
+            formatUnits(this.stakeToken.balance, this.stakeToken.decimals)
+          ),
+          balanceUsd: formatUSD(
+            +formatUnits(this.stakeToken.balance, this.stakeToken.decimals) *
+              +formatUnits(this.stakeToken.price, this.stakeToken.decimals)
+          ),
         },
         {
-          label: `Staked ${this.activeToken}`,
+          label: this.activeToken,
           icon: this.mainToken.icon,
-          balance: this.mainToken.balance,
-          price: this.mainToken.price,
+          balance: formatTokenBalance(
+            formatUnits(this.mainToken.balance, this.mainToken.decimals)
+          ),
+          balanceUsd: formatUSD(
+            +formatUnits(this.mainToken.balance, this.mainToken.decimals) *
+              +formatUnits(this.mainToken.price, this.mainToken.decimals)
+          ),
         },
       ];
     },
@@ -294,6 +343,10 @@ export default {
 
       return this.isMSpellActive ? mSpellInfo : sSpellInfo;
     },
+
+    totalSupply() {
+      return formatTokenBalance(utils.formatUnits(this.mainToken.totalSupply));
+    },
   },
 
   watch: {
@@ -314,7 +367,9 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    formatUSD,
     formatUnits,
+    formatTokenBalance,
 
     formatAmount(value: bigint) {
       return formatUnits(value, this.mainToken.decimals);
@@ -474,9 +529,6 @@ export default {
     SpellSpecialInfoBlock: defineAsyncComponent(
       () => import("@/components/stake/spell/SpellSpecialInfoBlock.vue")
     ),
-    BalancesBlock: defineAsyncComponent(
-      () => import("@/components/stake/spell/BalancesBlock.vue")
-    ),
     StakingAprBlock: defineAsyncComponent(
       () => import("@/components/stake/spell/StakingAprBlock.vue")
     ),
@@ -541,11 +593,84 @@ export default {
   flex-direction: column;
 }
 
+.info-wrap {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(180, 180, 180, 0.08);
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info-title {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.info-value {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.line {
+  margin: 16px 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 51.04%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.balance-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-title {
+  gap: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.info-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .title {
   font-size: 18px;
   font-weight: 500;
   line-height: 150%;
   letter-spacing: 0.45px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.leverage-link {
+  color: #fff;
+  text-decoration-line: underline;
 }
 
 .btn-wrap {
