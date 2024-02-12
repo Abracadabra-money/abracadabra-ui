@@ -390,7 +390,6 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   gap: 24px;
-  height: 780px;
   overflow: auto;
 }
 
