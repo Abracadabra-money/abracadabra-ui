@@ -31,16 +31,7 @@
     </div>
 
     <div class="block-wrap remove-block">
-      <div class="row">
-        <h3 class="title">{{ titleText }}</h3>
-
-        <Toggle
-          v-if="isWrapAllowed"
-          :selected="actionConfig.withdrawUnwrapToken"
-          :text="unwrappedTokenName"
-          @updateToggle="onChangeWithdrawToken"
-        />
-      </div>
+      <h3 class="title">{{ titleText }}</h3>
 
       <h4 class="subtitle">{{ subtitleText }}</h4>
 
@@ -78,9 +69,11 @@
         <RemoveCollateralRangeBlock
           v-else
           :cauldron="cauldron"
+          :actionConfig="actionConfig"
           :deleverageAmounts="actionConfig.amounts.deleverageAmounts"
           :withdrawAmount="actionConfig.amounts.withdrawAmount"
           @updateWithdrawAmount="onUpdateWithdrawAmount"
+          @updateToggle="onChangeWithdrawToken"
         />
       </div>
 
@@ -142,7 +135,6 @@ export default {
   data() {
     return {
       action: "repay",
-      withdrawUnwrapToken: false,
     };
   },
 
@@ -221,13 +213,6 @@ export default {
       return liquidationSwapper && isSwappersActive;
     },
 
-    isWrapAllowed() {
-      return (
-        this.cauldron?.config?.wrapInfo &&
-        !this.cauldron?.config?.wrapInfo?.isHiddenWrap
-      );
-    },
-
     titleText() {
       const { useDeleverage } = this.actionConfig;
       return useDeleverage ? "To repay" : "Remove collateral";
@@ -241,10 +226,6 @@ export default {
         : `Select the amount of ${name} to withdraw from the Cauldron`;
     },
 
-    unwrappedTokenName() {
-      return `As ${this.cauldron?.config?.wrapInfo?.unwrappedToken?.name}`;
-    },
-
     isWithdrawUnwrapToken() {
       if (!this.cauldron?.config?.wrapInfo) return false;
       return this.actionConfig.withdrawUnwrapToken;
@@ -256,13 +237,8 @@ export default {
       this.$emit("updateToggle", "useDeleverage", true);
     },
 
-    onChangeWithdrawToken() {
-      this.withdrawUnwrapToken = !this.withdrawUnwrapToken;
-      this.$emit(
-        "updateToggle",
-        "withdrawUnwrapToken",
-        this.withdrawUnwrapToken
-      );
+    onChangeWithdrawToken(value: boolean) {
+      this.$emit("updateToggle", "withdrawUnwrapToken", value);
     },
 
     onUpdateWithdrawAmount(amount: BigNumber) {

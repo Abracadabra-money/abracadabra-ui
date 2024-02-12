@@ -15,11 +15,8 @@
     </div>
 
     <div class="cauldron-fees">
-      <!-- <h3 class="fees-title">Cauldron Fees</h3> -->
-
       <div class="fees-row">
         <div class="fees-title">
-          <PercentIcon />
           Borrow fee
           <TooltipIcon
             :width="20"
@@ -32,7 +29,6 @@
       </div>
       <div class="fees-row">
         <div class="fees-title">
-          <PercentIcon />
           Interest fee
           <TooltipIcon
             :width="20"
@@ -45,7 +41,6 @@
       </div>
       <div class="fees-row">
         <div class="fees-title">
-          <PercentIcon />
           Liquidation fee
           <TooltipIcon
             :width="20"
@@ -60,7 +55,6 @@
       </div>
       <div class="fees-row">
         <div class="fees-title">
-          <PercentIcon />
           MCR
           <TooltipIcon
             :width="20"
@@ -123,9 +117,6 @@ export default {
   components: {
     TooltipIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
-    ),
-    PercentIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/PercentIcon.vue")
     ),
     MimLeftToBorrow: defineAsyncComponent(
       () => import("@/components/market/MimLeftToBorrow.vue")

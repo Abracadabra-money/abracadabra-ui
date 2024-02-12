@@ -1,6 +1,16 @@
 <template>
   <div>
-    <h3 class="title">Remove collateral</h3>
+    <div class="row">
+      <h3 class="title">Remove collateral</h3>
+
+      <Toggle
+        v-if="isWrapAllowed"
+        :text="unwrappedTokenName"
+        :selected="actionConfig.withdrawUnwrapToken"
+        @updateToggle="onChangeWithdrawToken"
+      />
+    </div>
+
     <h4 class="subtitle">Choose the amount of collateral you want to remove</h4>
 
     <AmountRange
@@ -9,26 +19,36 @@
       :risk="positionHealth"
       @updateAmount="onUpdateWithdrawValue"
     />
+
+    <div class="expected-amount" v-if="withdrawUnwrapToken">
+      <span> Expected</span>
+      <span>
+        {{ expectedTokenAmount }}
+        {{ cauldron.config.wrapInfo.unwrappedToken.name }}</span
+      >
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
-
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-
 import {
   getLiquidationPrice,
   getPositionHealth,
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
 } from "@/helpers/cauldron/utils";
+import { mapGetters } from "vuex";
+import { BigNumber, utils } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { formatToFixed } from "@/helpers/filters";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 export default {
   props: {
     cauldron: {
+      type: Object as any,
+    },
+    actionConfig: {
       type: Object as any,
     },
     deleverageAmounts: {
@@ -42,10 +62,14 @@ export default {
     },
   },
 
-  emits: ["updateWithdrawAmount"],
+  emits: ["updateWithdrawAmount", "updateToggle"],
 
   data() {
-    return { slippage: 1, inputValue: 0 };
+    return {
+      slippage: 1,
+      inputValue: 0,
+      withdrawUnwrapToken: true,
+    };
   },
 
   computed: {
@@ -126,6 +150,25 @@ export default {
 
       return status;
     },
+
+    isWrapAllowed() {
+      return (
+        this.cauldron?.config?.wrapInfo &&
+        !this.cauldron?.config?.wrapInfo?.isHiddenWrap
+      );
+    },
+
+    unwrappedTokenName() {
+      return `As ${this.cauldron?.config?.wrapInfo?.unwrappedToken?.name}`;
+    },
+
+    expectedTokenAmount() {
+      return formatToFixed(
+        this.inputValue *
+          +utils.formatUnits(this.cauldron.additionalInfo.tokensRate),
+        2
+      );
+    },
   },
 
   watch: {
@@ -146,11 +189,22 @@ export default {
 
     onUpdateWithdrawValue(value: BigNumber | null) {
       if (value === null) return this.setEmptyState();
+      this.inputValue = +utils.formatUnits(value);
       this.$emit("updateWithdrawAmount", value);
+    },
+
+    onChangeWithdrawToken() {
+      this.withdrawUnwrapToken = !this.withdrawUnwrapToken;
+      this.$emit(
+        "updateToggle",
+        "withdrawUnwrapToken",
+        this.withdrawUnwrapToken
+      );
     },
   },
 
   components: {
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     AmountRange: defineAsyncComponent(
       () => import("@/components/ui/range/AmountRange.vue")
     ),
@@ -159,11 +213,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
 .title {
   font-size: 18px;
   font-weight: 500;
   line-height: 150%;
-  margin-bottom: 4px;
 }
 
 .subtitle {
@@ -172,5 +232,26 @@ export default {
   font-weight: 400;
   line-height: 20px;
   margin-bottom: 16px;
+}
+
+.expected-amount {
+  padding: 6px 12px;
+  color: #878b93;
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.42px;
+  border-radius: 8px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
