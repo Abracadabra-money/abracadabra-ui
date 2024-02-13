@@ -49,7 +49,7 @@
             text="Loading cauldrons."
           />
           <BaseSearchEmpty
-            v-if="showEmptyBlock"
+            v-if="showEmptyBlock && !cauldronsLoading"
             text="There are no cauldrons"
           />
         </div>
@@ -356,8 +356,6 @@ export default {
   gap: 8px;
   width: 100%;
   min-height: 300px;
-  height: 340px;
-  padding: 8px;
 }
 
 .chains-wrap {
