@@ -22,35 +22,18 @@
       /></a>
     </div>
     <div class="slide-body">
-      <div class="description">
-        {{ data.body }}
-      </div>
+      <div class="description" v-html="parseMarkdownToHTML(data.body)"></div>
       <div class="survey-wrap">
-        <div class="survey">
+        <div class="survey" v-for="survey in surveyData" :key="survey.title">
           <div class="survey-head">
-            <h3 class="survey-title">Yes, Ut enim ad minima veniam...</h3>
-            <span class="survey-percent">75%</span>
+            <h3 class="survey-title">{{ survey.title }}</h3>
+            <span class="survey-total" v-if="survey.total">{{
+              survey.total
+            }}</span>
+            <span class="survey-percent" v-else>{{ survey.percent }}%</span>
           </div>
           <div class="track">
-            <div class="indicator"></div>
-          </div>
-        </div>
-        <div class="survey">
-          <div class="survey-head">
-            <h3 class="survey-title">Yes, Ut enim ad minima veniam...</h3>
-            <span class="survey-percent">25%</span>
-          </div>
-          <div class="track">
-            <div style="width: 25%" class="indicator"></div>
-          </div>
-        </div>
-        <div class="survey">
-          <div class="survey-head">
-            <h3 class="survey-title">Quorum</h3>
-            <span class="survey-percent">4.3B / 3B</span>
-          </div>
-          <div class="track">
-            <div style="width: 100%" class="indicator"></div>
+            <div :style="`width: ${survey.percent}%`" class="indicator"></div>
           </div>
         </div>
       </div>
@@ -62,6 +45,9 @@
 import moment from "moment";
 import "vue3-carousel/dist/carousel.css";
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { parseMarkdownToHTML } from "@/helpers/snapshot/utils";
+import { formatLargeSum } from "@/helpers/filters";
 
 export default {
   props: {
@@ -75,9 +61,35 @@ export default {
     snapshotLink() {
       return `https://snapshot.org/#/${this.data.space.id}/proposal/${this.data.id}`;
     },
+
+    surveyData() {
+      const surveyData: any = [];
+      const scores = this.data.scores.reduce((a: any, b: any) => a + b, 0);
+
+      this.data.choices.forEach((choice: any, index: any) => {
+        surveyData.push({
+          title: choice,
+          percent: Math.round((this.data.scores[index] / scores) * 100),
+        });
+      });
+
+      const quorumPercent = Math.round((scores / this.data.quorum) * 100);
+
+      surveyData.push({
+        title: "Quorum",
+        percent: quorumPercent > 100 ? 100 : quorumPercent,
+        total: `${formatLargeSum(scores)} / ${formatLargeSum(
+          this.data.quorum
+        )}`,
+      });
+
+      return surveyData;
+    },
   },
 
   methods: {
+    parseMarkdownToHTML,
+
     formatTimestamp(timestamp: number) {
       return moment.unix(timestamp).format("lll");
     },
@@ -95,6 +107,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@include scrollbar;
 .slide {
   padding: 16px;
   width: 100%;
@@ -112,11 +125,10 @@ export default {
     );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-  min-height: 340px;
+  min-height: 400px;
 }
 
 .slide-head {
-  border: 1px solid #00296b;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -179,6 +191,14 @@ export default {
   font-size: 14px;
   font-weight: 400;
   width: 110%;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.description ::v-deep a {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration-line: underline;
+  cursor: pointer;
 }
 
 .survey-wrap {
@@ -209,13 +229,9 @@ export default {
 }
 
 .indicator {
-  width: 75%;
   height: 10px;
   border-radius: 12px;
-  background: var(
-    --Primary-Gradient,
-    linear-gradient(90deg, #2d4a96 0%, #745cd2 100%)
-  );
+  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
 }
 
 @media screen and (max-width: 768px) {
