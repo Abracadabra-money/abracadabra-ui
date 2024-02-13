@@ -323,10 +323,9 @@ export default {
 
 .farms-list {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  flex-wrap: wrap;
   gap: 24px;
-  overflow: auto;
 }
 
 .loader-wrap {
@@ -401,6 +400,12 @@ export default {
 @media screen and (max-width: 600px) {
   .farms-list-head {
     align-items: start;
+  }
+
+  .farms-list {
+    height: 360px;
+    padding: 8px;
+    overflow: auto;
   }
 
   .input-search {

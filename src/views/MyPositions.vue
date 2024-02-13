@@ -388,16 +388,10 @@ export default {
 .positions-list {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 24px;
   overflow: auto;
-}
-
-.position-list {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 16px;
 }
 
 @media screen and (max-width: 1300px) {
@@ -413,6 +407,11 @@ export default {
 @media screen and (max-width: 1000px) {
   .positions-list-head {
     justify-content: space-between;
+  }
+
+  .positions-list {
+    height: 580px;
+    overflow: auto;
   }
 
   .sort-buttons {
