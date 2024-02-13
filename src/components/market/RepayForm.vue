@@ -31,7 +31,16 @@
     </div>
 
     <div class="block-wrap remove-block">
-      <h3 class="title">{{ titleText }}</h3>
+      <div class="row">
+        <h3 class="title">{{ titleText }}</h3>
+
+        <Toggle
+          v-if="isWrapAllowed"
+          :selected="actionConfig.withdrawUnwrapToken"
+          :text="unwrappedTokenName"
+          @updateToggle="onChangeWithdrawToken"
+        />
+      </div>
 
       <h4 class="subtitle">{{ subtitleText }}</h4>
 
@@ -69,7 +78,8 @@
         <RemoveCollateralRangeBlock
           v-else
           :cauldron="cauldron"
-          :actionConfig="actionConfig"
+          :isWithdrawUnwrapToken="actionConfig.withdrawUnwrapToken"
+          :useDeleverage="actionConfig.useDeleverage"
           :deleverageAmounts="actionConfig.amounts.deleverageAmounts"
           :withdrawAmount="actionConfig.amounts.withdrawAmount"
           @updateWithdrawAmount="onUpdateWithdrawAmount"
@@ -229,6 +239,18 @@ export default {
     isWithdrawUnwrapToken() {
       if (!this.cauldron?.config?.wrapInfo) return false;
       return this.actionConfig.withdrawUnwrapToken;
+    },
+
+    isWrapAllowed() {
+      return (
+        this.cauldron?.config?.wrapInfo &&
+        !this.cauldron?.config?.wrapInfo?.isHiddenWrap &&
+        !this.actionConfig.useDeleverage
+      );
+    },
+
+    unwrappedTokenName() {
+      return `As ${this.cauldron?.config?.wrapInfo?.unwrappedToken?.name}`;
     },
   },
 

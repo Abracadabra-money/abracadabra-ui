@@ -1038,8 +1038,6 @@ export default {
         );
       }
 
-      console.log("1111", withdrawUnwrapToken);
-
       if (+removeCollateralAmount > 0) {
         cookData = await this.recipeRemoveCollateral(
           cookData,

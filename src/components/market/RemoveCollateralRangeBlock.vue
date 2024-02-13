@@ -6,7 +6,7 @@
       <Toggle
         v-if="isWrapAllowed"
         :text="unwrappedTokenName"
-        :selected="actionConfig.withdrawUnwrapToken"
+        :selected="isWithdrawUnwrapToken"
         @updateToggle="onChangeWithdrawToken"
       />
     </div>
@@ -48,8 +48,13 @@ export default {
     cauldron: {
       type: Object as any,
     },
-    actionConfig: {
-      type: Object as any,
+    isWithdrawUnwrapToken: {
+      type: Boolean,
+      default: true,
+    },
+    useDeleverage: {
+      type: Boolean,
+      default: false,
     },
     deleverageAmounts: {
       default: {
@@ -181,11 +186,12 @@ export default {
       this.inputValue = Number(utils.formatUnits(value));
     },
 
-    actionConfig: {
-      deep: true,
-      async handler() {
-        this.inputValue = 0;
-      },
+    useDeleverage() {
+      this.inputValue = 0;
+    },
+
+    isWithdrawUnwrapToken() {
+      this.inputValue = 0;
     },
   },
 
