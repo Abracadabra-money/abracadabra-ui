@@ -13,6 +13,7 @@
           rel="noopener noreferrer"
           >here!</a
         >
+        {{ info.subText }}
       </p>
     </div>
   </div>

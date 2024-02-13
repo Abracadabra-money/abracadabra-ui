@@ -326,9 +326,7 @@ export default {
         loss, no loss of governance rights. Take part in the fee sharing
         mechanism of Abracadabra and earn MIM! Find out more`,
           link: "https://docs.abracadabra.money/learn/intro/stake/mspell",
-        },
-        {
-          text: `mSPELL automatically earns fees from MIM repayments from all wizards
+          subText: `mSPELL automatically earns fees from MIM repayments from all wizards
         proportional to your share of the stake pool.`,
         },
       ];
