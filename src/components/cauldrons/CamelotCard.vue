@@ -122,4 +122,24 @@ export default {
     max-width: 100%;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .camelot-card {
+    padding: 12px;
+    height: 140px;
+  }
+
+  .card-title {
+    font-size: 20px;
+  }
+
+  .on-camelot {
+    font-size: 18px;
+  }
+
+  .title,
+  .value {
+    font-size: 14px;
+  }
+}
 </style>

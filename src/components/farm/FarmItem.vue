@@ -260,6 +260,15 @@ export default {
 @media screen and (max-width: 700px) {
   .farm-item {
     width: 100%;
+    height: 140px;
+  }
+
+  .apr .tag-value {
+    font-size: 24px;
+  }
+
+  .tvl .tag-value {
+    font-size: 14px;
   }
 }
 </style>

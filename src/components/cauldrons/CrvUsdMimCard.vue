@@ -122,6 +122,26 @@ export default {
 @media screen and (max-width: 1024px) {
   .card {
     max-width: 100%;
+    height: 140px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .card {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+
+  .title,
+  .value {
+    font-size: 14px;
   }
 }
 </style>

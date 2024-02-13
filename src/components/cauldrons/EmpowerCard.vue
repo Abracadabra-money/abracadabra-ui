@@ -76,4 +76,11 @@
     max-width: 100%;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .empower-card {
+    padding: 12px;
+    height: 140px;
+  }
+}
 </style>
