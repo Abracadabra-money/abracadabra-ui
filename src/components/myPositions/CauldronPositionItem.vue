@@ -7,7 +7,7 @@
       <div class="position-token">
         <TokenChainIcon
           class="token-chain-icon"
-          size="54px"
+          :size="tokenChainIconSize"
           :name="collateralSymbol"
           :icon="cauldron.config.icon"
           :chainId="cauldron.config.chainId"
@@ -102,6 +102,7 @@ export default {
     return {
       tooltipText:
         "If your Collateral Price drops by this amount, you will be flagged for liquidation",
+      windowWidth: window.innerWidth,
     };
   },
 
@@ -210,6 +211,11 @@ export default {
         return this.cauldron.config.cauldronSettings.isDepreciated;
       return false;
     },
+
+    tokenChainIconSize() {
+      if (this.windowWidth < 600) return "50px";
+      return "54px";
+    },
   },
 
   methods: {
@@ -224,6 +230,20 @@ export default {
         params: { chainId, cauldronId: id },
       };
     },
+
+    onResize() {
+      this.windowWidth = window.innerWidth;
+    },
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      window.addEventListener("resize", this.onResize);
+    });
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("resize", this.onResize);
   },
 
   components: {
@@ -375,8 +395,8 @@ export default {
 }
 
 @media screen and (max-width: 550px) {
-  .token-chain-icon {
-    width: 50px;
+  .position {
+    padding: 16px;
   }
 
   .links-wrap {

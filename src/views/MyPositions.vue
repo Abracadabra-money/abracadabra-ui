@@ -388,10 +388,15 @@ export default {
 .positions-list {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
   gap: 24px;
-  overflow: auto;
+}
+
+.position-list {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 @media screen and (max-width: 1300px) {
@@ -410,8 +415,8 @@ export default {
   }
 
   .positions-list {
-    height: 580px;
-    overflow: auto;
+    height: 780px;
+    overflow-y: auto;
   }
 
   .sort-buttons {
@@ -420,6 +425,12 @@ export default {
 
   .filters {
     display: flex;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .position-page {
+    padding: 0 10px;
   }
 }
 </style>
