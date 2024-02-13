@@ -3,19 +3,19 @@
     <div class="slide-head">
       <div class="title-wrap">
         <div>
-          <h3 class="slide-title">Add a WBTC and WETH Market</h3>
+          <h3 class="slide-title">{{ data.title }}</h3>
           <h4 class="slide-subtitle">
             <ClockIcon />
-            Jun 25 9:00 PM - Jun 26 9:00 PM
+            {{ formatTimestamp(data.start) }} - {{ formatTimestamp(data.end) }}
           </h4>
         </div>
 
-        <div class="status">Active</div>
+        <div :class="['status', data.state]">{{ data.state }}</div>
       </div>
 
       <a
         class="snapshot-link"
-        href="http://"
+        :href="snapshotLink"
         target="_blank"
         rel="noopener noreferrer"
         >Snapshot <ArrowTopRight :width="12" :height="12" fill="#7088CC"
@@ -23,10 +23,7 @@
     </div>
     <div class="slide-body">
       <div class="description">
-        Add a new BTC and WETH market on Arbitrum, to allow market makers to
-        borrow MIM and pair it with USDT and USDC to improve liquidity for MIM
-        on chain.Add a new BTC and WETHMIM and pair it with USDT and USDC to
-        improve liquidity for MIM on chain.Add a new BTC and...
+        {{ data.body }}
       </div>
       <div class="survey-wrap">
         <div class="survey">
@@ -62,10 +59,30 @@
 </template>
 
 <script lang="ts">
+import moment from "moment";
 import "vue3-carousel/dist/carousel.css";
 import { defineAsyncComponent } from "vue";
 
 export default {
+  props: {
+    data: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  computed: {
+    snapshotLink() {
+      return `https://snapshot.org/#/${this.data.space.id}/proposal/${this.data.id}`;
+    },
+  },
+
+  methods: {
+    formatTimestamp(timestamp: number) {
+      return moment.unix(timestamp).format("lll");
+    },
+  },
+
   components: {
     ClockIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/ClockIcon.vue")
@@ -95,6 +112,7 @@ export default {
     );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+  min-height: 340px;
 }
 
 .slide-head {
@@ -108,12 +126,14 @@ export default {
 .title-wrap {
   gap: 12px;
   display: flex;
+  align-items: flex-start;
 }
 
 .slide-title {
   text-align: start;
   font-size: 16px;
   font-weight: 500;
+  max-width: 260px;
 }
 
 .slide-subtitle {
@@ -122,6 +142,20 @@ export default {
   align-items: center;
   font-size: 12px;
   font-weight: 500;
+}
+
+.status {
+  padding: 2px 12px;
+  border-radius: 12px;
+  background: #67a069;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.closed {
+  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
 }
 
 .snapshot-link {
@@ -182,5 +216,33 @@ export default {
     --Primary-Gradient,
     linear-gradient(90deg, #2d4a96 0%, #745cd2 100%)
   );
+}
+
+@media screen and (max-width: 768px) {
+  .slide-body {
+    flex-direction: column;
+  }
+
+  .description {
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .slide {
+    min-height: 635px;
+  }
+  .slide-head {
+    flex-direction: column;
+  }
+
+  .title-wrap {
+    flex-direction: column-reverse;
+    margin-bottom: 12px;
+  }
+
+  .slide-subtitle {
+    font-size: 10px;
+  }
 }
 </style>
