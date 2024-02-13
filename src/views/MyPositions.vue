@@ -390,8 +390,6 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   gap: 24px;
-  height: 780px;
-  overflow: auto;
 }
 
 .position-list {
@@ -416,12 +414,23 @@ export default {
     justify-content: space-between;
   }
 
+  .positions-list {
+    height: 780px;
+    overflow-y: auto;
+  }
+
   .sort-buttons {
     display: none;
   }
 
   .filters {
     display: flex;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .position-page {
+    padding: 0 10px;
   }
 }
 </style>
