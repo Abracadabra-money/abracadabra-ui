@@ -1,16 +1,13 @@
 <template>
   <div class="slide">
+    <div :class="['status', data.state]">{{ data.state }}</div>
     <div class="slide-head">
-      <div class="title-wrap">
-        <div>
-          <h3 class="slide-title">{{ data.title }}</h3>
-          <h4 class="slide-subtitle">
-            <ClockIcon />
-            {{ formatTimestamp(data.start) }} - {{ formatTimestamp(data.end) }}
-          </h4>
-        </div>
-
-        <div :class="['status', data.state]">{{ data.state }}</div>
+      <div>
+        <h3 class="title">{{ title }}</h3>
+        <h4 class="subtitle">
+          <ClockIcon />
+          {{ formatTimestamp(data.start) }} - {{ formatTimestamp(data.end) }}
+        </h4>
       </div>
 
       <a
@@ -18,11 +15,14 @@
         :href="snapshotLink"
         target="_blank"
         rel="noopener noreferrer"
-        >Snapshot <ArrowTopRight :width="12" :height="12" fill="#7088CC"
-      /></a>
+      >
+        Snapshot
+        <ArrowTopRight :width="12" :height="12" fill="#7088CC" />
+      </a>
     </div>
+
     <div class="slide-body">
-      <div class="description" v-html="parseMarkdownToHTML(data.body)"></div>
+      <div class="description" v-html="mainText"></div>
       <div class="survey-wrap">
         <div class="survey" v-for="survey in surveyData" :key="survey.title">
           <div class="survey-head">
@@ -58,6 +58,16 @@ export default {
   },
 
   computed: {
+    title() {
+      return this.data.title.length > 60
+        ? `${this.data.title.slice(0, 60)}...`
+        : this.data.title;
+    },
+
+    mainText() {
+      return parseMarkdownToHTML(this.data.body);
+    },
+
     snapshotLink() {
       return `https://snapshot.org/#/${this.data.space.id}/proposal/${this.data.id}`;
     },
@@ -109,10 +119,14 @@ export default {
 <style lang="scss" scoped>
 @include scrollbar;
 .slide {
-  padding: 16px;
   width: 100%;
+  position: relative;
+  padding: 18px 16px 16px;
   border-radius: 16px;
   border: 1px solid #00296b;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(
       90deg,
       rgba(45, 74, 150, 0.24) 0%,
@@ -123,43 +137,21 @@ export default {
       rgba(0, 10, 35, 0.07) 0%,
       rgba(0, 80, 156, 0.07) 101.49%
     );
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-  min-height: 400px;
-}
-
-.slide-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.title-wrap {
-  gap: 12px;
-  display: flex;
-  align-items: flex-start;
-}
-
-.slide-title {
-  text-align: start;
-  font-size: 16px;
-  font-weight: 500;
-  max-width: 260px;
-}
-
-.slide-subtitle {
-  gap: 4px;
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .status {
-  padding: 2px 12px;
-  border-radius: 12px;
-  background: #67a069;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 15px;
+  width: 117px;
+  border-radius: 8px 0px 8px 0px;
+  background: var(--Green, #67a069);
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 15px;
 
   &::first-letter {
     text-transform: uppercase;
@@ -168,6 +160,26 @@ export default {
 
 .closed {
   background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+}
+
+.slide-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.title {
+  text-align: start;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.subtitle {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .snapshot-link {
@@ -184,6 +196,8 @@ export default {
   display: flex;
   justify-content: space-between;
   text-align: start;
+  height: 195px;
+  overflow: hidden;
 }
 
 .description {
@@ -191,21 +205,20 @@ export default {
   font-size: 14px;
   font-weight: 400;
   width: 110%;
-  max-height: 300px;
-  overflow-y: scroll;
 }
 
-.description ::v-deep a {
+.description :deep(a) {
   color: rgba(255, 255, 255, 0.6);
   text-decoration-line: underline;
-  cursor: pointer;
 }
 
 .survey-wrap {
   width: 100%;
-  gap: 16px;
+  gap: 12px;
   display: flex;
   flex-direction: column;
+  padding-right: 10px;
+  overflow-y: scroll;
 }
 
 .survey-head {
@@ -257,7 +270,7 @@ export default {
     margin-bottom: 12px;
   }
 
-  .slide-subtitle {
+  .subtitle {
     font-size: 10px;
   }
 }

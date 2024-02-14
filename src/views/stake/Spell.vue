@@ -92,12 +92,6 @@
               <span v-else> {{ actionButtonText }}</span>
             </BaseButton>
           </div>
-          <div>
-            <h3 class="subtitle">Amplify your yield with the Abracadabra</h3>
-            <h4 class="subtitle">
-              Leverage Engine <a class="leverage-link" href="#">here</a>.
-            </h4>
-          </div>
         </div>
       </div>
 
@@ -679,6 +673,7 @@ export default {
   gap: 12px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 55px;
 }
 
 .stake-info {
