@@ -20,7 +20,7 @@
         <img class="filters-icon" src="@/assets/images/filters.png" />
       </button>
 
-      <InputSearch @changeSearch="updateSearch" />
+      <InputSearch class="search" @changeSearch="updateSearch" />
     </div>
 
     <div class="table-wrapper">
@@ -53,12 +53,12 @@
             text="There are no cauldrons"
           />
         </div>
+        <div class="btn-wrap" v-if="showDeprecatedButton">
+          <button class="deprecated-btn" @click="updateToggleActiveCauldrons">
+            {{ deprecatedButtonText }}
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="btn-wrap" v-if="showDeprecatedButton">
-      <button class="deprecated-btn" @click="updateToggleActiveCauldrons">
-        {{ deprecatedButtonText }}
-      </button>
     </div>
   </div>
 </template>
@@ -356,6 +356,7 @@ export default {
   gap: 8px;
   width: 100%;
   min-height: 300px;
+  padding: 6px;
 }
 
 .chains-wrap {
@@ -429,6 +430,11 @@ export default {
 }
 
 @media screen and (max-width: 600px) {
+  .cauldrons-items-wrap {
+    height: 500px;
+    overflow: auto;
+  }
+
   .card-wrapper {
     display: block;
     display: flex;
@@ -447,10 +453,12 @@ export default {
   }
 
   .toggles-wrap {
+    order: 3;
     width: 100%;
   }
 
   .chains-dropdown {
+    order: 2;
     margin-left: 0;
   }
 
@@ -459,7 +467,12 @@ export default {
   }
 
   .filters {
+    order: 1;
     display: flex;
+  }
+
+  .search {
+    order: 4;
   }
 }
 </style>

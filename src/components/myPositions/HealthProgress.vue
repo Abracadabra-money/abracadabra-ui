@@ -10,7 +10,6 @@
 </template>
 
 <script>
-//todo !~!!!!!!!! Lottie rerender
 import LottiePlayer from "lottie-web";
 const TOTAL_FRAMES = 150;
 export default {

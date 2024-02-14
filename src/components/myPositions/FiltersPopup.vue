@@ -16,43 +16,6 @@
         <p class="filter-title">
           Sort by {{ sorter.text ? sorter.text : sorter.tableKey }}
         </p>
-        <label class="label" :for="`${sorter.tableKey}-up`">
-          <span class="checkmark"
-            ><svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
-            >
-              <rect
-                x="0.5"
-                y="1"
-                width="19"
-                height="19"
-                rx="9.5"
-                stroke="#7088CC"
-              />
-              <rect
-                x="3"
-                y="3.5"
-                width="14"
-                height="14"
-                rx="7"
-                fill="#7088CC"
-                v-if="comparePikedAndSorter(sorter, false)"
-              /></svg
-          ></span>
-          <input
-            class="radio-button"
-            type="radio"
-            :id="`${sorter.tableKey}-up`"
-            :value="{ sorter, order: false }"
-            v-model="picked"
-          />
-          {{ sorter.text ? sorter.text : sorter.tableKey }}: Low to high
-        </label>
-
         <label class="label" :for="`${sorter.tableKey}-down`">
           <span class="checkmark"
             ><svg
@@ -77,14 +40,51 @@
                 height="14"
                 rx="7"
                 fill="#7088CC"
-                v-if="comparePikedAndSorter(sorter, true)"
+                v-if="comparePikedAndSorter(sorter, 'down')"
               /></svg
           ></span>
           <input
             class="radio-button"
             type="radio"
             :id="`${sorter.tableKey}-down`"
-            :value="{ sorter, order: true }"
+            :value="{ sorter, order: 'down' }"
+            v-model="picked"
+          />
+          {{ sorter.text ? sorter.text : sorter.tableKey }}: Low to high
+        </label>
+
+        <label class="label" :for="`${sorter.tableKey}-up`">
+          <span class="checkmark"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="21"
+              viewBox="0 0 20 21"
+              fill="none"
+            >
+              <rect
+                x="0.5"
+                y="1"
+                width="19"
+                height="19"
+                rx="9.5"
+                stroke="#7088CC"
+              />
+              <rect
+                x="3"
+                y="3.5"
+                width="14"
+                height="14"
+                rx="7"
+                fill="#7088CC"
+                v-if="comparePikedAndSorter(sorter, 'up')"
+              /></svg
+          ></span>
+          <input
+            class="radio-button"
+            type="radio"
+            :id="`${sorter.tableKey}-up`"
+            :value="{ sorter, order: 'up' }"
             v-model="picked"
           />
           {{ sorter.text ? sorter.text : sorter.tableKey }}: High to low
