@@ -7,13 +7,15 @@
       @updateAmount="onUpdateInputAmount"
     />
 
-    <div class="dynamic-wrap">
+    <div class="dynamic-wrap" v-if="showDynamicBlock">
       <DynamicFee
-        v-if="hideDynamicFee"
+        v-if="!hideDynamicFee"
         :isClose="true"
         :amount="deleverageAmounts.amountToMin"
         :mimAddress="cauldron.config.mimInfo.address"
+        :chainId="cauldron.config.chainId"
       />
+
       <GmPriceImpact
         v-if="cauldron.config.cauldronSettings.isGMXMarket"
         :cauldronObject="cauldron"
@@ -69,10 +71,17 @@ export default {
       chainId: "getChainId",
     }),
 
+    showDynamicBlock() {
+      return (
+        !this.hideDynamicFee ||
+        this.cauldron.config.cauldronSettings.isGMXMarket
+      );
+    },
+
     hideDynamicFee() {
       const disabledChains = [2222, 80085];
 
-      return disabledChains.indexOf(this.cauldron.config.chainId) !== -1
+      return disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
     },
 
     maxToRepay() {

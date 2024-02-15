@@ -40,6 +40,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    chainId: {
+      type: Number,
+      default: 1,
+    },
   },
 
   data() {
@@ -51,8 +55,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
-
     formatAmount() {
       return Number(utils.formatUnits(this.amount || "0"));
     },

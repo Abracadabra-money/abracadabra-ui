@@ -1,6 +1,9 @@
 <template>
   <div class="leverage-range-wrap">
-    <div class="progress-track" :style="{ background: gradientRangeTrack }">
+    <div
+      :class="['progress-track', { potion: isPotion }]"
+      :style="{ background: gradientRangeTrack }"
+    >
       <span class="progress-value" :style="progressValuePosition">
         {{ inputValue }}
       </span>
@@ -34,6 +37,7 @@ export default {
     min: { type: Number, default: 0 },
     risk: { type: [String, Boolean], default: "default" },
     disabled: { type: Boolean, default: false },
+    isPotion: { type: Boolean, default: false },
   },
   data(): any {
     return {
@@ -169,5 +173,11 @@ export default {
   width: 22px;
   transform: translateX(-50%);
   z-index: 2;
+}
+
+.potion input[type="range"]::-webkit-slider-thumb {
+  margin-top: -8px;
+  height: 24px;
+  background: url("@/assets/images/potion.svg");
 }
 </style>

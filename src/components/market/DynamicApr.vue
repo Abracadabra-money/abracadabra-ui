@@ -1,5 +1,5 @@
 <template>
-  <div class="dynamic-apr" v-if="isShowDynamicApr">
+  <div class="dynamic-apr">
     <div class="title">
       Leverage APR
       <TooltipIcon
@@ -16,12 +16,10 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
-// @ts-ignore
-import { getCollateralApr } from "@/helpers/collateralsApy";
 
 export default {
   props: {
-    cauldron: {
+    aprInfo: {
       type: Object,
       required: true,
     },
@@ -31,24 +29,10 @@ export default {
     },
   },
 
-  data() {
-    return {
-      aprInfo: { value: 0, multiplier: 0 },
-    };
-  },
-
   computed: {
-    isShowDynamicApr() {
-      return this.aprInfo.value && this.multiplier;
-    },
-
     openingApr() {
       return formatToFixed(this.aprInfo.value * this.multiplier, 2);
     },
-  },
-
-  async created() {
-    this.aprInfo = await getCollateralApr(this.cauldron);
   },
 
   components: {

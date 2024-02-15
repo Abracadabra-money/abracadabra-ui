@@ -11,7 +11,7 @@
       />
 
       <Toggle
-        v-if="acceptUnwrapToken && unwrappedToken"
+        v-if="acceptUnwrapToken"
         :selected="useUnwrapToken"
         :text="unwrappedToken.name"
         @updateToggle="() => toggleUnwrapToken()"
@@ -99,7 +99,10 @@ export default {
     },
 
     acceptUnwrapToken() {
-      return !!this.cauldron.config?.wrapInfo;
+      return (
+        this.cauldron.config?.wrapInfo &&
+        !this.cauldron.config?.wrapInfo?.isHiddenWrap
+      );
     },
 
     activeToken(): ActiveToken {
@@ -113,7 +116,9 @@ export default {
         this.cauldron;
       const { nativeTokenBalance } = userTokensInfo;
       const { decimals } = config.collateralInfo;
-      const { symbol, baseTokenIcon }: any = getChainById(config.chainId);
+      const { baseTokenSymbol, baseTokenIcon }: any = getChainById(
+        config.chainId
+      );
 
       const { collateralPrice } = mainParams;
       const { tokensRate } = additionalInfo;
@@ -123,7 +128,7 @@ export default {
         .div(tokensRate);
 
       return {
-        name: symbol,
+        name: baseTokenSymbol,
         icon: baseTokenIcon,
         balance: nativeTokenBalance,
         decimals: 18,

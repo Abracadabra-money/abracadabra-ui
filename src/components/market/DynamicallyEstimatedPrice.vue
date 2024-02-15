@@ -1,13 +1,18 @@
 <template>
-  <div class="dynamic-wrap">
+  <div class="dynamic-wrap" v-if="showDynamicBlock">
     <DynamicFee
-      v-if="hideDynamicFee"
+      v-if="!hideDynamicFee"
       :amount="amount"
       :isClose="isClose"
       :mimAddress="cauldron.config.mimInfo.address"
+      :chainId="cauldron.config.chainId"
     />
 
-    <DynamicApr :cauldron="cauldron" :multiplier="multiplier" />
+    <DynamicApr
+      v-if="showDynamicApr"
+      :aprInfo="aprInfo"
+      :multiplier="multiplier"
+    />
 
     <GmPriceImpact
       v-if="cauldron.config.cauldronSettings.isGMXMarket"
@@ -19,8 +24,10 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { BigNumber } from "ethers";
+import { defineAsyncComponent } from "vue";
+// @ts-ignore
+import { getCollateralApr } from "@/helpers/collateralsApy";
 
 export default {
   props: {
@@ -39,12 +46,34 @@ export default {
     },
   },
 
+  data() {
+    return {
+      aprInfo: { value: 0, multiplier: 0 },
+    };
+  },
+
   computed: {
     hideDynamicFee() {
       const disabledChains = [2222, 80085];
 
       return disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
     },
+
+    showDynamicApr() {
+      return this.aprInfo.value && this.multiplier;
+    },
+
+    showDynamicBlock() {
+      return (
+        !this.hideDynamicFee ||
+        this.showDynamicApr ||
+        this.cauldron.config.cauldronSettings.isGMXMarket
+      );
+    },
+  },
+
+  async created() {
+    this.aprInfo = await getCollateralApr(this.cauldron);
   },
 
   components: {

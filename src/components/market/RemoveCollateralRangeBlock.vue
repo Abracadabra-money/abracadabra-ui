@@ -17,10 +17,11 @@
       :amount="withdrawAmount"
       :maxAmount="maxToRemove"
       :risk="positionHealth"
+      isPotion
       @updateAmount="onUpdateWithdrawValue"
     />
 
-    <div class="expected-amount" v-if="withdrawUnwrapToken">
+    <div class="expected-amount" v-if="isWrapAllowed && withdrawUnwrapToken">
       <span> Expected</span>
       <span>
         {{ expectedTokenAmount }}

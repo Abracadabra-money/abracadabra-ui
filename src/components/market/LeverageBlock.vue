@@ -6,6 +6,7 @@
       :risk="positionHealth"
       :collateralValue="depositInputValue"
       tooltipText="Allows users to leverage their position. Read more about this in the documents!"
+      isPotion
       @updateValue="onUpdateMultiplier"
     />
   </div>

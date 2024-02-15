@@ -99,7 +99,8 @@ export default {
 
     showEmptyBlock() {
       return (
-        (!this.cauldronsLoading && !this.cauldronsToRender.length) ||
+        !this.cauldronsLoading &&
+        !this.cauldronsToRender.length &&
         this.searchValue.length
       );
     },
