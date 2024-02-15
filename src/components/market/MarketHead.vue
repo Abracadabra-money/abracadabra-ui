@@ -26,6 +26,10 @@
           :icon="tokenLinkData.icon"
         />
 
+        <div class="testing-chip" v-if="showTestnetChip">
+          <p>Artion Testnet</p>
+        </div>
+
         <DepositButton :cauldron="cauldron" v-if="isActiveChain" />
 
         <ClaimButton :cauldron="cauldron" v-if="isActiveChain" />
@@ -66,6 +70,10 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
     }),
+
+    showTestnetChip() {
+      return this.cauldron.config.chainId === 80085;
+    },
 
     strategyLink() {
       return this.cauldron.config.cauldronSettings.strategyLink;
@@ -156,6 +164,19 @@ export default {
     rgba(116, 92, 210, 0.07) 100%
   );
   backdrop-filter: blur(10.75px);
+}
+
+.testing-chip {
+  background: linear-gradient(90deg, #af6900 0%, #e9984d 100%);
+  align-items: center;
+  justify-content: center;
+  color: white;
+  width: auto;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .market-head {
