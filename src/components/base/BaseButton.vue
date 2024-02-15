@@ -55,11 +55,11 @@ export default {
   font-size: 16px;
   line-height: 24px;
   overflow: hidden;
-  border: 2px solid #7088CC;
+  border: 2px solid #7088cc;
   width: 100%;
   height: 48px;
-  color: #7088CC;
-  transition: all .3s ease;
+  color: #7088cc;
+  transition: all 0.3s ease;
 
   &.disabled {
     pointer-events: none;
@@ -77,25 +77,29 @@ export default {
   &.primary {
     color: #fff;
     line-height: 50px;
-    background: linear-gradient(107.5deg, #5552fd -3.19%, #76c3f5 101.2%);
+    background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
     border: none;
     &:hover {
-      background: linear-gradient(90deg, #7c82fd 0%, #8ec2f9 100%);
+      background: linear-gradient(90deg, #4566bb 0%, #806ec6 100%);
     }
     &.disabled {
       background: #40557e;
-      background: linear-gradient(107.5deg, #393b80 -3.19%, #435e7e 101.2%);
+      background: linear-gradient(
+        90deg,
+        rgba(35, 65, 151, 0.4) 0.01%,
+        rgba(87, 68, 143, 0.4) 100%
+      );
     }
   }
   &:not(.primary, .borderless) {
     &:hover:not(.disabled) {
-      border: 2px solid #86A2F1;
-      color: #86A2F1;
+      border: 2px solid #86a2f1;
+      color: #86a2f1;
       background: rgba(255, 255, 255, 0.05);
     }
     &.disabled {
-      border: 2px solid #575C62;
-      color: #575C62;
+      border: 2px solid #575c62;
+      color: #575c62;
     }
   }
 }
