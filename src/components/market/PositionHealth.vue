@@ -5,7 +5,9 @@
         <img class="magician-icon" src="@/assets/images/magician.png" alt="" />
         <div
           class="question-mark-wrap"
-          v-tooltip="'This mana bar displays how healthy your position is.'"
+          v-tooltip="
+            'This mana bar displays how healthy your position is. If it is empty, you will be flagged for liquidation'
+          "
         >
           <QuestionMarkIcon />
         </div>
