@@ -358,6 +358,7 @@ export default {
   gap: 16px;
   display: flex;
   flex-direction: column;
+  margin: 0 0 16px 0;
 }
 
 .btns-wrap {
