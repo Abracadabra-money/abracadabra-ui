@@ -28,7 +28,11 @@ export const getUserOpenPositions = async (
           defaultRpc[chainId as keyof typeof defaultRpc]
         )
       );
-      const multicallProvider = MulticallWrapper.wrap(provider);
+
+      // const multicallProvider = MulticallWrapper.wrap(provider);
+      // NOTICE: BERA TEST
+      const multicallProvider =
+        +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
       const cauldronContracts = configs.map((config: any) => {
         return new Contract(

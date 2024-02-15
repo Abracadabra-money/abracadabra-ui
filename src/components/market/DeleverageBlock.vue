@@ -9,7 +9,7 @@
 
     <div class="dynamic-wrap">
       <DynamicFee
-        v-if="cauldron.config.chainId !== 2222"
+        v-if="hideDynamicFee"
         :isClose="true"
         :amount="deleverageAmounts.amountToMin"
         :mimAddress="cauldron.config.mimInfo.address"
@@ -68,6 +68,12 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    hideDynamicFee() {
+      const disabledChains = [2222, 80085];
+
+      return disabledChains.indexOf(this.cauldron.config.chainId) !== -1
+    },
 
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
