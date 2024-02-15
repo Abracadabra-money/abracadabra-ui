@@ -74,5 +74,6 @@ export default {
 .degenbox-icon {
   width: 16px;
   height: 16px;
+  object-fit: contain;
 }
 </style>
