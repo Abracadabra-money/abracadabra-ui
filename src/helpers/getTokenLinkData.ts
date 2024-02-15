@@ -77,7 +77,7 @@ const configs: Array<Config> = [
     chain: 42161,
     href: "https://app.gmx.io/#/pools",
     label: "Get GM Token",
-    icon: useImage(`assets/images/get-lp-icons/gmx.svg`),
+    icon: useImage(`assets/images/get-lp-icons/gmx.png`),
   },
   {
     id: 7,
