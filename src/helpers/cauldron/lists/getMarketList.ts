@@ -46,13 +46,17 @@ export const getMarketList = async (
         account
       );
 
-      if (!filteredConfigs) return [];
+      if (filteredConfigs.length === 0) return [];
 
       const provider = new providers.StaticJsonRpcProvider(
         defaultRpc[chainId as keyof typeof defaultRpc]
       );
 
-      const multicallProvider = MulticallWrapper.wrap(provider);
+      // const multicallProvider = MulticallWrapper.wrap(provider);
+
+      // NOTICE: BERA TEST
+      const multicallProvider =
+        +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
       const mainParams = await getMainParams(
         filteredConfigs,

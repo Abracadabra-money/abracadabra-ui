@@ -17,7 +17,11 @@ export const getCauldronInfo = async (
 ): Promise<CauldronInfo | null> => {
   const { address } = getAccount();
   const userSigner = address ? signer : provider;
-  const multicallProvider = MulticallWrapper.wrap(provider);
+
+  // const multicallProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicallProvider =
+    +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
   const config = cauldronsConfig.find(
     (config) => +config.id === +cauldronId && +config.chainId === +chainId
@@ -34,6 +38,8 @@ export const getCauldronInfo = async (
     multicallContracts?.cauldron
   );
 
+  console.log("here 1")
+
   const userPositions = await getUserPositions(
     [config],
     multicallProvider,
@@ -41,6 +47,8 @@ export const getCauldronInfo = async (
     [multicallContracts?.cauldron],
     chainId
   );
+
+  console.log("here 1")
 
   const userTokensInfo = await getUserTokensInfo(
     multicallContracts,

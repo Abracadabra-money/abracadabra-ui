@@ -19,7 +19,7 @@ export const getContracts = async (chainId: number) => {
   );
 
   const multicallProvider = MulticallWrapper.wrap(provider);
-
+  
   const glpManagerContract = new Contract(
     glpManager.address,
     JSON.stringify(glpManager.abi),

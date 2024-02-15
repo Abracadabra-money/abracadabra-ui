@@ -43,6 +43,8 @@ export default {
     },
 
     async getReward() {
+      if (!this.cauldron.config.cauldronSettings.hasCrvClaimLogic) return;
+
       const { collateral } = this.cauldron.contracts;
       const { decimals } = this.cauldron.config.collateralInfo;
       this.reward = await getCvxClaimableReward(

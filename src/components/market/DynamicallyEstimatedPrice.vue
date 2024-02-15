@@ -1,7 +1,7 @@
 <template>
   <div class="dynamic-wrap">
     <DynamicFee
-      v-if="cauldron.config.chainId !== 2222"
+      v-if="hideDynamicFee"
       :amount="amount"
       :isClose="isClose"
       :mimAddress="cauldron.config.mimInfo.address"
@@ -9,7 +9,12 @@
 
     <DynamicApr :cauldron="cauldron" :multiplier="multiplier" />
 
-    <GmPriceImpact v-if="cauldron.config.cauldronSettings.isGMXMarket" :cauldronObject="cauldron" :amount="amount" :actionType="1"/>
+    <GmPriceImpact
+      v-if="cauldron.config.cauldronSettings.isGMXMarket"
+      :cauldronObject="cauldron"
+      :amount="amount"
+      :actionType="1"
+    />
   </div>
 </template>
 
@@ -26,11 +31,19 @@ export default {
       type: Number,
     },
     amount: {
-      default: BigNumber.from(0)
+      default: BigNumber.from(0),
     },
     isClose: {
       type: Boolean,
       default: false,
+    },
+  },
+
+  computed: {
+    hideDynamicFee() {
+      const disabledChains = [2222, 80085];
+
+      return disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
     },
   },
 

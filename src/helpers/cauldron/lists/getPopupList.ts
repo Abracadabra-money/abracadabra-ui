@@ -25,7 +25,10 @@ export const getPopupList = async (
 ): Promise<PopupListItem[]> => {
   const lensAddress = getLensAddress(chainId);
 
-  const multicalProvider = MulticallWrapper.wrap(provider);
+  // const multicallProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicallProvider =
+    +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
   const configs: any[] = cauldronsConfig.filter((config) => {
     let result = config.chainId === +chainId;
@@ -51,7 +54,7 @@ export const getPopupList = async (
   const userInfo: Array<Object> = await getUserBalances(
     account,
     configs,
-    multicalProvider,
+    multicallProvider,
     lensContract
   );
 
