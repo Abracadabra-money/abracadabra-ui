@@ -3,52 +3,59 @@
     <div class="farms-wrap">
       <div class="farms">
         <FarmsInfo :farms="this.farms" />
-        <div class="farms-list-head">
-          <div class="togglers">
-            <Toggle
-              text="Active farms"
-              :selected="isActiveMarkets"
-              @updateToggle="toggleActiveMarkets"
-            />
 
-            <Toggle
-              text="My farms"
-              :selected="isMyPositions"
-              @updateToggle="toggleMyPositions"
-              v-if="signer"
-            />
+        <div class="farms-list-wrap">
+          <div class="farms-list-head">
+            <div class="togglers">
+              <Toggle
+                text="Active farms"
+                :selected="isActiveMarkets"
+                @updateToggle="toggleActiveMarkets"
+              />
+
+              <Toggle
+                text="My farms"
+                :selected="isMyPositions"
+                @updateToggle="toggleMyPositions"
+                v-if="signer"
+              />
+            </div>
+
+            <div class="sort-buttons">
+              <SortButton :sortOrder="aprOrder" @click="changeAprOrder">
+                APR
+              </SortButton>
+
+              <ChainsDropdown
+                :activeChains="activeChains"
+                :selectedChains="selectedChains"
+                @updateSelectedChain="updateSelectedChain"
+              />
+            </div>
+
+            <InputSearch class="input-search" @changeSearch="updateSearch" />
           </div>
 
-          <div class="sort-buttons">
-            <SortButton :sortOrder="aprOrder" @click="changeAprOrder"
-              >APR</SortButton
-            >
-            <ChainsDropdown
-              :activeChains="activeChains"
-              :selectedChains="selectedChains"
-              @updateSelectedChain="updateSelectedChain"
-            />
-          </div>
+          <div class="farms-list">
+            <template v-if="filteredFarms.length">
+              <FarmItem
+                v-for="farm in filteredFarms"
+                :key="`${farm.id}-${farm.chainId}`"
+                :farm="farm"
+              />
+            </template>
 
-          <InputSearch class="input-search" @changeSearch="updateSearch" />
-        </div>
-
-        <div class="farms-list">
-          <template v-if="filteredFarms.length">
-            <FarmItem
-              v-for="farm in filteredFarms"
-              :key="`${farm.id}-${farm.chainId}`"
-              :farm="farm"
-            />
-          </template>
-
-          <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
-            <BaseLoader v-if="isFarmsLoading" medium text="Loading farms." />
-            <BaseSearchEmpty v-if="showEmptyBlock" text="There are no farms." />
+            <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
+              <BaseLoader v-if="isFarmsLoading" medium text="Loading farms." />
+              <BaseSearchEmpty
+                v-if="showEmptyBlock"
+                text="There are no farms."
+              />
+            </div>
           </div>
         </div>
       </div>
-      <ScrollToTop v-if="farms?.length" />
+      <ScrollToTop class="scroll-top" v-if="farms?.length" />
     </div>
   </div>
 </template>
@@ -325,7 +332,7 @@ export default {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
 }
 
 .loader-wrap {
@@ -398,13 +405,33 @@ export default {
 }
 
 @media screen and (max-width: 600px) {
+  .farms-list-wrap {
+    padding: 20px 24px;
+    border-radius: 16px;
+    border: 1px solid #00296b;
+    background: linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
+    );
+    box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+    backdrop-filter: blur(12.5px);
+  }
+
   .farms-list-head {
     align-items: start;
+    padding: 0;
+    margin-bottom: 12px;
+    border: none;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 
   .farms-list {
-    height: 360px;
-    padding: 8px;
+    max-height: 300px;
+    padding: 0 8px;
+    gap: 12px;
     overflow: auto;
   }
 
@@ -419,6 +446,10 @@ export default {
 
   .sort-buttons {
     order: 3;
+  }
+
+  .scroll-top {
+    display: none;
   }
 }
 </style>
