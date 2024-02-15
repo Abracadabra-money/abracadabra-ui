@@ -3,7 +3,10 @@
     <div class="track-wrap">
       <div class="icon-wrap">
         <img class="magician-icon" src="@/assets/images/magician.png" alt="" />
-        <div class="question-mark-wrap" v-tooltip="'Tooltip'">
+        <div
+          class="question-mark-wrap"
+          v-tooltip="'This mana bar displays how healthy your position is.'"
+        >
           <QuestionMarkIcon />
         </div>
       </div>
@@ -146,11 +149,14 @@ export default {
   position: absolute;
   right: -3px;
   bottom: -3px;
+  cursor: pointer;
 }
 
 .magician-icon {
   width: 20px;
   height: 20px;
+  border-radius: 4px;
+  background-color: #7088cc;
 }
 
 .track-icon {
