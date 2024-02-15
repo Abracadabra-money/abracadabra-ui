@@ -3,12 +3,12 @@
     <div class="row">
       <h3 class="title">Remove collateral</h3>
 
-      <Toggle
+      <!-- <Toggle
         v-if="isWrapAllowed"
         :text="unwrappedTokenName"
         :selected="isWithdrawUnwrapToken"
         @updateToggle="onChangeWithdrawToken"
-      />
+      /> -->
     </div>
 
     <h4 class="subtitle">Choose the amount of collateral you want to remove</h4>
@@ -20,13 +20,13 @@
       @updateAmount="onUpdateWithdrawValue"
     />
 
-    <div class="expected-amount" v-if="withdrawUnwrapToken">
+    <!-- <div class="expected-amount" v-if="withdrawUnwrapToken">
       <span> Expected</span>
       <span>
         {{ expectedTokenAmount }}
         {{ cauldron.config.wrapInfo.unwrappedToken.name }}</span
       >
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -48,10 +48,10 @@ export default {
     cauldron: {
       type: Object as any,
     },
-    isWithdrawUnwrapToken: {
-      type: Boolean,
-      default: true,
-    },
+    // isWithdrawUnwrapToken: {
+    //   type: Boolean,
+    //   default: true,
+    // },
     useDeleverage: {
       type: Boolean,
       default: false,
@@ -73,7 +73,7 @@ export default {
     return {
       slippage: 1,
       inputValue: 0,
-      withdrawUnwrapToken: true,
+      // withdrawUnwrapToken: true,
     };
   },
 
@@ -156,16 +156,16 @@ export default {
       return status;
     },
 
-    isWrapAllowed() {
-      return (
-        this.cauldron?.config?.wrapInfo &&
-        !this.cauldron?.config?.wrapInfo?.isHiddenWrap
-      );
-    },
+    // isWrapAllowed() {
+    //   // return (
+    //   //   this.cauldron?.config?.wrapInfo &&
+    //   //   !this.cauldron?.config?.wrapInfo?.isHiddenWrap
+    //   // );
+    // },
 
-    unwrappedTokenName() {
-      return `As ${this.cauldron?.config?.wrapInfo?.unwrappedToken?.name}`;
-    },
+    // unwrappedTokenName() {
+    //   return `As ${this.cauldron?.config?.wrapInfo?.unwrappedToken?.name}`;
+    // },
 
     expectedTokenAmount() {
       return formatToFixed(
@@ -206,14 +206,14 @@ export default {
       this.$emit("updateWithdrawAmount", value);
     },
 
-    onChangeWithdrawToken() {
-      this.withdrawUnwrapToken = !this.withdrawUnwrapToken;
-      this.$emit(
-        "updateToggle",
-        "withdrawUnwrapToken",
-        this.withdrawUnwrapToken
-      );
-    },
+    // onChangeWithdrawToken() {
+    //   this.withdrawUnwrapToken = !this.withdrawUnwrapToken;
+    //   this.$emit(
+    //     "updateToggle",
+    //     "withdrawUnwrapToken",
+    //     this.withdrawUnwrapToken
+    //   );
+    // },
   },
 
   components: {

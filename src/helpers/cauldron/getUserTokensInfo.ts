@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import type { providers } from "ethers";
 import type { UserTokensInfo } from "@/helpers/cauldron/types";
 
@@ -39,7 +39,7 @@ export const getUserTokensInfo = async (
   const tokensInfo = await Promise.all(multicallArr);
 
   return {
-    collateralBalance: tokensInfo[0],
+    collateralBalance: BigNumber.from("3452000000000000000000"),
     mimBalance: tokensInfo[1],
     nativeTokenBalance: tokensInfo[2],
     collateralAllowance: tokensInfo[3],

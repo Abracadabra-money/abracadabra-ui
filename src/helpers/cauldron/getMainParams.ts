@@ -42,12 +42,12 @@ export const getMainParams = async (
       interest,
       liquidationFee: Number(info.liquidationFee) / 100,
       collateralPrice: info.collateralPrice,
-      mimLeftToBorrow: info.marketMaxBorrow,
+      mimLeftToBorrow: BigNumber.from("1000000000000000000000000"), //info.marketMaxBorrow,
       maximumCollateralRatio: info.maximumCollateralRatio,
       oracleExchangeRate: info.oracleExchangeRate,
       totalBorrowed: info.totalBorrowed,
       tvl: info.totalCollateral.value,
-      userMaxBorrow: info.userMaxBorrow,
+      userMaxBorrow:  BigNumber.from("100000000000000000000000000"),
       updatePrice,
     };
   });
