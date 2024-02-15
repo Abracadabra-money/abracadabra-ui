@@ -4,6 +4,7 @@
       <h3 class="title">Repay MIM</h3>
 
       <Toggle
+        v-if="isDeleverageAllowed"
         :selected="useDeleverage"
         text="Deleverge"
         @updateToggle="onToggleDeleverage"
@@ -62,6 +63,12 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    isDeleverageAllowed() {
+      const { isSwappersActive } = this.cauldron.config.cauldronSettings;
+
+      return isSwappersActive && this.cauldron.contracts.liquidationSwapper;
+    },
 
     borrowToken() {
       const { config, userTokensInfo } = this.cauldron;

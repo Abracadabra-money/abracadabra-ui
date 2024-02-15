@@ -38,8 +38,6 @@ export const getCauldronInfo = async (
     multicallContracts?.cauldron
   );
 
-  console.log("here 1")
-
   const userPositions = await getUserPositions(
     [config],
     multicallProvider,
@@ -47,8 +45,6 @@ export const getCauldronInfo = async (
     [multicallContracts?.cauldron],
     chainId
   );
-
-  console.log("here 1")
 
   const userTokensInfo = await getUserTokensInfo(
     multicallContracts,
