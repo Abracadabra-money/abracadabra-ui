@@ -250,19 +250,21 @@ export default {
 @media screen and (max-width: 768px) {
   .slide-body {
     flex-direction: column;
+    height: 280px;
+    overflow: hidden;
   }
 
   .description {
     max-width: 100%;
+    height: 120px;
+    overflow: hidden;
   }
 }
 
 @media screen and (max-width: 600px) {
-  .slide {
-    min-height: 635px;
-  }
   .slide-head {
     flex-direction: column;
+    gap: 12px;
   }
 
   .title-wrap {
