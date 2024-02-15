@@ -30,7 +30,11 @@
             <span class="survey-total" v-if="survey.total">{{
               survey.total
             }}</span>
-            <span class="survey-percent" v-else>{{ survey.percent }}%</span>
+            <span
+              :class="['survey-percent', { 'survey-active': survey.active }]"
+              v-else
+              >{{ survey.percent }}%</span
+            >
           </div>
           <div class="track">
             <div :style="`width: ${survey.percent}%`" class="indicator"></div>
@@ -82,6 +86,16 @@ export default {
           percent: Math.round((this.data.scores[index] / scores) * 100),
         });
       });
+
+      if (this.data.state === "closed") {
+        const index = surveyData.reduce(
+          (acc: any, curr: any, i: any) =>
+            surveyData[acc].percent > curr.percent ? acc : i,
+          0
+        );
+
+        surveyData[index].active = true;
+      }
 
       const quorumPercent = Math.round((scores / this.data.quorum) * 100);
 
@@ -188,7 +202,12 @@ export default {
   gap: 4px;
   border-radius: 8px;
   border: 1px solid #2d4a96;
-  background: #1a1f3d;
+  background: rgba(25, 31, 47, 0.38);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #191f2f;
+  }
 }
 
 .slide-body {
@@ -232,6 +251,10 @@ export default {
 .survey-percent {
   font-size: 14px;
   font-weight: 500;
+}
+
+.survey-active {
+  color: #67a069;
 }
 
 .track {

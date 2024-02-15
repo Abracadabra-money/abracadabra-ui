@@ -3,7 +3,16 @@
     <div class="stake-wrap" v-if="stakeInfo">
       <div class="actions-block">
         <div class="actions-head">
-          <h3>{{ activeTab }}</h3>
+          <h3 class="head-title-wrap">
+            <span class="head-title">{{ activeTab }}</span>
+            <button
+              class="mobile-btn"
+              v-if="isMobile"
+              @click="isAdditionalInfo = !isAdditionalInfo"
+            >
+              <StatisticIcon />
+            </button>
+          </h3>
           <Tabs
             :name="activeToken"
             :items="tabTokens"
@@ -20,7 +29,7 @@
           @changeNetwork="changeNetwork"
         />
 
-        <div class="action-form">
+        <div class="action-form" v-if="isMobileView">
           <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
 
           <div class="input-wrap">
@@ -49,12 +58,28 @@
             />
           </div>
 
+          <ClaimMimBlock
+            class="claim-wrap"
+            v-if="isMSpellActive && isMobile"
+            :isUnsupportedChain="isUnsupportedChain"
+            :isDisableClaimButton="isDisableClaimButton"
+            :claimAmount="formatAmount(mainToken.claimableAmount)"
+            @claimMim="claimMimHandler"
+          />
+
           <div class="info-wrap">
-            <div class="info-row">
+            <div class="info-row" v-if="!isMobile">
               <span class="info-title">Total Supply</span>
               <span class="info-value">
                 <img class="info-icon" :src="mainToken.icon" alt="" />
                 <span>{{ totalSupply }}</span>
+              </span>
+            </div>
+
+            <div class="info-row" v-else>
+              <span class="info-title">APR</span>
+              <span class="info-value">
+                <span>{{ mainToken.apr }}%</span>
               </span>
             </div>
 
@@ -96,13 +121,28 @@
       </div>
 
       <div class="stake-info">
-        <SpellSpecialInfoBlock :specialInfo="specialInfo" />
+        <TotalSupplyBlock
+          v-if="isMSpellActive && isMobile && isAdditionalInfo"
+          :totalSupply="totalSupply"
+        />
+
+        <TokenRatioBlock
+          v-if="!isMSpellActive && isMobile && isAdditionalInfo"
+          :mainToken="mainToken"
+          :stakeToken="stakeToken"
+        />
+
+        <SpellSpecialInfoBlock
+          v-if="isAdditionalInfo"
+          :specialInfo="specialInfo"
+        />
 
         <div class="row">
-          <StakingAprBlock :apr="mainToken.apr" />
+          <StakingAprBlock :apr="mainToken.apr" v-if="!isMobile" />
+
           <ClaimMimBlock
             class="claim-wrap"
-            v-if="isMSpellActive"
+            v-if="isMSpellActive && !isMobile"
             :isUnsupportedChain="isUnsupportedChain"
             :isDisableClaimButton="isDisableClaimButton"
             :claimAmount="formatAmount(mainToken.claimableAmount)"
@@ -110,12 +150,13 @@
           />
 
           <TokenRatioBlock
-            v-else
+            v-else-if="!isMSpellActive && !isMobile"
             :mainToken="mainToken"
             :stakeToken="stakeToken"
           />
         </div>
-        <SnapshotsCarousel />
+
+        <SnapshotsCarousel v-if="isMobileView" />
       </div>
     </div>
 
@@ -161,6 +202,8 @@ export default {
       inputAmount: BigInt(0) as bigint,
       inputValue: "" as string | bigint,
       updateInterval: null as any,
+      isMobile: false,
+      isAdditionalInfo: false,
     };
   },
 
@@ -209,6 +252,11 @@ export default {
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
       return this.isInsufficientBalance;
+    },
+
+    isMobileView() {
+      if (this.isMobile) return !this.isAdditionalInfo;
+      return true;
     },
 
     availableNetworks() {
@@ -488,9 +536,22 @@ export default {
     async createStakeInfo() {
       this.stakeInfoArr = await getStakeInfo();
     },
+
+    getWindowSize() {
+      if (window.innerWidth <= 600) {
+        this.isMobile = true;
+        this.isAdditionalInfo = false;
+      } else {
+        this.isAdditionalInfo = true;
+        this.isMobile = false;
+      }
+    },
   },
 
   async created() {
+    if (window.innerWidth <= 600) this.isMobile = true;
+    else this.isAdditionalInfo = true;
+    window.addEventListener("resize", this.getWindowSize, false);
     this.getActiveToken();
     this.updateActiveNetwork();
 
@@ -503,9 +564,13 @@ export default {
 
   beforeUnmount() {
     clearInterval(this.updateInterval);
+    window.removeEventListener("resize", this.getWindowSize);
   },
 
   components: {
+    StatisticIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/StatisticIcon.vue")
+    ),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     AvailableNetworksBlock: defineAsyncComponent(
       () => import("@/components/stake/AvailableNetworksBlock.vue")
@@ -524,6 +589,9 @@ export default {
     ),
     StakingAprBlock: defineAsyncComponent(
       () => import("@/components/stake/spell/StakingAprBlock.vue")
+    ),
+    TotalSupplyBlock: defineAsyncComponent(
+      () => import("@/components/stake/spell/TotalSupplyBlock.vue")
     ),
     TokenRatioBlock: defineAsyncComponent(
       () => import("@/components/stake/spell/TokenRatioBlock.vue")
@@ -570,10 +638,26 @@ export default {
   font-size: 32px;
   font-weight: 600;
   line-height: 150%;
+}
 
-  h3::first-letter {
-    text-transform: uppercase;
-  }
+.head-title-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.head-title::first-letter {
+  text-transform: uppercase;
+}
+
+.mobile-btn {
+  display: flex;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: rgba(44, 52, 74, 0.38);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
 }
 
 .action-form {
@@ -722,6 +806,10 @@ export default {
 }
 
 @media screen and (max-width: 600px) {
+  .action-form {
+    padding: 16px;
+  }
+
   .actions-head {
     font-size: 24px;
     gap: 16px;
