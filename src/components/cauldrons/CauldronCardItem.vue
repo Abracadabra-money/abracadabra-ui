@@ -79,6 +79,7 @@ export default {
     },
 
     cauldronLabel() {
+      if (this.cauldron.config.chainId === 80085) return "testnet";
       if (this.cauldron.config.cauldronSettings?.isNew) return "new";
       if (this.cauldron.config.cauldronSettings?.isDepreciated)
         return "deprecated";
@@ -163,6 +164,15 @@ export default {
   .label {
     display: block;
     background: linear-gradient(0deg, #2d4a96 0%, #5b7cd1 100%);
+  }
+}
+
+.testnet {
+  border: 1px solid #af6900;
+
+  .label {
+    display: block;
+    background: linear-gradient(0deg, #AF6900 100%, #e9984d 100%);
   }
 }
 
