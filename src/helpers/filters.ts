@@ -27,6 +27,7 @@ export const formatLargeSum = (value: string | number) => {
     { value: 1, symbol: "" },
     { value: 1e3, symbol: "k" },
     { value: 1e6, symbol: "M" },
+    { value: 1e9, symbol: "B" },
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
   const item = lookup

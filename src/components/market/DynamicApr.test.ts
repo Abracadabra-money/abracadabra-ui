@@ -1,13 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
-import { magicGlpConfig } from "@/test/magicGlpConfig";
 import DynamicApr from "@/components/market/DynamicApr.vue";
 
 describe("DynamicApr", () => {
   it("renders the component when isShowDynamicApr is true", () => {
     const wrapper = shallowMount(DynamicApr, {
       props: {
-        cauldron: magicGlpConfig,
+        aprInfo: { value: 10, multiplier: 1 },
         multiplier: 1,
       },
       data() {
@@ -26,7 +25,7 @@ describe("DynamicApr", () => {
   it("does not render the component when isShowDynamicApr is false", () => {
     const wrapper = shallowMount(DynamicApr, {
       props: {
-        cauldron: {},
+        aprInfo: { value: 0, multiplier: 0 },
         multiplier: 0,
       },
       created() {},
@@ -38,7 +37,7 @@ describe("DynamicApr", () => {
   it("displays the correct opening APR value", () => {
     const wrapper = shallowMount(DynamicApr, {
       props: {
-        cauldron: magicGlpConfig,
+        aprInfo: { value: 10, multiplier: 1 },
         multiplier: 1,
       },
       data() {

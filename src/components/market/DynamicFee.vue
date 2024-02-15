@@ -124,7 +124,7 @@ export default {
 
       this.isFetching = true;
 
-      const paylod = [
+      const paylod: any = [
         this.chainId,
         this.buyToken,
         this.sellToken,
