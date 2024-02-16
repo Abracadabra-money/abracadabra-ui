@@ -26,7 +26,7 @@
       <TickChart :chartData="chartData" :createChartOptions="getChartOptions" />
     </template>
 
-    <BaseLoader v-else medium text="Loading chart." />
+    <BaseLoader v-else medium text="Loading chart" />
   </div>
 </template>
 

@@ -29,7 +29,7 @@
         <div class="info-wrap">
           <div class="info-item">
             <h4 class="info-title">
-              Total rewards earned
+              Total Rewards Earned
               <TooltipIcon
                 :width="20"
                 :height="20"

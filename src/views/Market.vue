@@ -51,7 +51,7 @@
     </template>
 
     <div class="loader-wrap" v-else>
-      <BaseLoader large text="Loading market." />
+      <BaseLoader large text="Loading market" />
     </div>
   </div>
 

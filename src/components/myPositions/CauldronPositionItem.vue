@@ -41,7 +41,7 @@
           tooltip="Current dollar value of the Collateral Deposited."
           :value="collateralPrice"
         >
-          Collateral price
+          Collateral Price
         </PositionIndicator>
 
         <PositionIndicator
@@ -49,14 +49,14 @@
           :positionRisk="positionHealth.status"
           :value="cauldron.liquidationPrice"
         >
-          Liquidation price
+          Liquidation Price
         </PositionIndicator>
 
         <PositionIndicator
           tooltip="Price drop of the collateral to be eligible for liquidation."
           :value="leftToDrop"
         >
-          Required Drop in price
+          Required Drop in Price
         </PositionIndicator>
       </ul>
       <HealthProgress
@@ -198,7 +198,7 @@ export default {
           amountUsd: this.formatUSD(this.userCollateralAmountUsd),
         },
         {
-          title: "Borrowed",
+          title: "Minted",
           symbol: this.cauldron.config.mimInfo.name,
           icon: mimIcon,
           amount: this.formatTokenBalance(this.userBorrowAmount),

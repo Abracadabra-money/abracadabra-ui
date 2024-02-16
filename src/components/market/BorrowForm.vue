@@ -25,7 +25,7 @@
         <div class="borrow-head">
           <div class="borrow-head-row">
             <h3 class="title-wrap">
-              <span> Borrow MIM</span>
+              <span> Mint MIM</span>
               <SlippagePopup
                 v-if="actionConfig.useLeverage"
                 :amount="actionConfig.amounts.slippage"

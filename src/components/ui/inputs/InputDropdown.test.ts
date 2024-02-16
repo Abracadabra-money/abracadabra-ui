@@ -11,7 +11,7 @@ describe("InputDropdown", () => {
       propsData: {
         destinationAddress: "",
         isDisabled: false,
-        placeholder: "Add destination address",
+        placeholder: "Add Destination Address",
         dropdownList: [],
       },
     });
@@ -25,7 +25,7 @@ describe("InputDropdown", () => {
       propsData: {
         destinationAddress: "",
         isDisabled: false,
-        placeholder: "Add destination address",
+        placeholder: "Add Destination Address",
         dropdownList: [],
       },
     });

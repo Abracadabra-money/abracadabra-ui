@@ -87,7 +87,7 @@
     </div>
 
     <div class="loader-wrap" v-else>
-      <BaseLoader large text="Loading stake." />
+      <BaseLoader large text="Loading stake" />
     </div>
   </div>
 </template>

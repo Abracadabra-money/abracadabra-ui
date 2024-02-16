@@ -19,7 +19,7 @@
         <span class="desc-line"> Withdraw your MIM from {{ title }} on </span>
         <span class="desc-line">
           <img :src="getChainIcon(infoObject.chainId)" class="mim-symbol" />
-          {{ chainInfo.name }} network
+          {{ chainInfo.name }} Network
         </span>
       </p>
 

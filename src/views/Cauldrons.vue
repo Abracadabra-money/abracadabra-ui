@@ -5,7 +5,7 @@
         <div class="text-wrap">
           <h3 class="title">Available Cauldrons</h3>
           <h4 class="subtitle">
-            Use your favourite assets as collateral to borrow
+            Use your favourite assets as collateral to mint
           </h4>
           <h4 class="subtitle">
             <img

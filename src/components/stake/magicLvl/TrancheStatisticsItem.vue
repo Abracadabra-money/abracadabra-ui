@@ -13,12 +13,12 @@
     </div>
 
     <div class="row">
-      <span class="label">Total rewards</span>
+      <span class="label">Total Rewards</span>
       <span class="value">{{ formatUSD(rewards) }}</span>
     </div>
 
     <div class="row">
-      <span class="label">Total supply</span>
+      <span class="label">Total Supply</span>
       <span class="value">{{
         formatAmountUSD(data.mainToken.totalSupplyUsd)
       }}</span>

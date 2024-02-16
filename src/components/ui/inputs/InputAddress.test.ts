@@ -8,7 +8,7 @@ describe("InputAddress", () => {
       propsData: {
         destinationAddress: "0x1234567890",
         isDisabled: true,
-        placeholder: "Add destination address",
+        placeholder: "Add Destination Address",
         validation: true,
       },
     });
@@ -17,7 +17,7 @@ describe("InputAddress", () => {
     expect(input.exists()).toBe(true);
     expect(input.classes()).toContain("input-address");
     expect(input.classes()).toContain("disabled");
-    expect(input.attributes("placeholder")).toBe("Add destination address");
+    expect(input.attributes("placeholder")).toBe("Add Destination Address");
   });
 
   it("emits update-input event when input is valid", () => {

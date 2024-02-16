@@ -19,7 +19,7 @@ describe("ChainsPopup", () => {
     });
 
     expect(wrapper.find(".popup").exists()).toBe(true);
-    expect(wrapper.find(".title").text()).toBe("Select destination chain");
+    expect(wrapper.find(".title").text()).toBe("Select Destination Chain");
     expect(wrapper.findAll(".select-item")).toHaveLength(2);
   });
 

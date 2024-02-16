@@ -39,10 +39,10 @@
       </div>
 
       <div class="loader-wrap" v-if="positionsIsLoading || showEmptyBlock">
-        <BaseLoader v-if="positionsIsLoading" large text="Loading positions." />
+        <BaseLoader v-if="positionsIsLoading" large text="Loading Positions" />
         <BaseSearchEmpty
           v-if="showEmptyBlock && account"
-          text="There are no positions."
+          text="There are no Positions"
         />
         <ConnectWalletBlock v-if="!account" />
       </div>
@@ -134,7 +134,7 @@ export default {
           value: formatUSD(this.totalAssets?.collateralDepositedInUsd),
         },
         {
-          title: "MIM Borrowed",
+          title: "MIM Minted",
           value: formatTokenBalance(this.totalAssets?.mimBorrowed),
         },
       ].filter((item) => !item.hidden);
@@ -144,7 +144,7 @@ export default {
       return [
         { tableKey: "positionHealth", text: "Health factor" },
         { tableKey: "collateralDepositedUsd", text: "Collateral deposited" },
-        { tableKey: "mimBorrowed", text: "MIM borrowed" },
+        { tableKey: "mimBorrowed", text: "MIM minted" },
         { tableKey: "apr", text: "APR" },
       ];
     },

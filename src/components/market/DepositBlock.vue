@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <h3 class="title">Deposit collateral</h3>
+      <h3 class="title">Deposit Collateral</h3>
 
       <Toggle
         v-if="acceptNativeToken && nativeToken"

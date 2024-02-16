@@ -3,7 +3,7 @@
     <div ref="anim"></div>
     <div class="info">
       <div class="value">{{ mimLeftToBorrow }}</div>
-      <div class="title">MIM left to borrow</div>
+      <div class="title">MIM Left to Mint</div>
     </div>
     <div class="values-wrap">
       <span class="value-start">0</span>

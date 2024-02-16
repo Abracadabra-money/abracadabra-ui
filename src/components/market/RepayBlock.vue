@@ -11,7 +11,7 @@
       />
     </div>
 
-    <h4 class="subtitle">Select the amount of MIM to repay</h4>
+    <h4 class="subtitle">Select the amount of MIM to Repay</h4>
   </div>
   <BaseTokenInput
     :value="inputValue"

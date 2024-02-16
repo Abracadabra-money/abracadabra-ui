@@ -1,6 +1,6 @@
 <template>
   <div class="chains-wrap">
-    <h4 class="select-title">Select networks</h4>
+    <h4 class="select-title">Select Networks</h4>
     <div class="chains-swap">
       <button class="select-item" @click="$emit('changeNetwork', 'from')">
         <div class="icon-wrap">
@@ -56,7 +56,7 @@ export default {
     destinationChain() {
       if (!this.selectChain || !this.toChain)
         return {
-          title: "Select chain",
+          title: "Select Chain",
           icon: useImage(`assets/images/networks/no-chain.svg`),
         };
       return this.toChain;

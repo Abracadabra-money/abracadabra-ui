@@ -3,7 +3,7 @@
     <div class="additional-logic">
       <div class="toggles-wrap">
         <Toggle
-          text="My positions"
+          text="My Positions"
           :selected="showMyPositions"
           @updateToggle="updateToggleMyPositions"
         />
@@ -43,14 +43,10 @@
         </div>
 
         <div class="loader-wrap">
-          <BaseLoader
-            v-if="cauldronsLoading"
-            medium
-            text="Loading cauldrons."
-          />
+          <BaseLoader v-if="cauldronsLoading" medium text="Loading Cauldrons" />
           <BaseSearchEmpty
             v-if="showEmptyBlock && !cauldronsLoading"
-            text="There are no cauldrons"
+            text="There are no Cauldrons"
           />
         </div>
         <div class="btn-wrap" v-if="showDeprecatedButton">

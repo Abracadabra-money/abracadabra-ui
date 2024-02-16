@@ -8,13 +8,13 @@
           <div class="farms-list-head">
             <div class="togglers">
               <Toggle
-                text="Active farms"
+                text="Active Farms"
                 :selected="isActiveMarkets"
                 @updateToggle="toggleActiveMarkets"
               />
 
               <Toggle
-                text="My farms"
+                text="My Farms"
                 :selected="isMyPositions"
                 @updateToggle="toggleMyPositions"
                 v-if="signer"
@@ -46,10 +46,10 @@
             </template>
 
             <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
-              <BaseLoader v-if="isFarmsLoading" medium text="Loading farms." />
+              <BaseLoader v-if="isFarmsLoading" medium text="Loading Farms" />
               <BaseSearchEmpty
                 v-if="showEmptyBlock"
-                text="There are no farms."
+                text="There are no Farms"
               />
             </div>
           </div>

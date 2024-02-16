@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <h3 class="title">Remove collateral</h3>
+      <h3 class="title">Remove Collateral</h3>
 
       <Toggle
         v-if="isWrapAllowed"

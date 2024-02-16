@@ -6,7 +6,7 @@ describe("InputAddress", () => {
   it("renders input field with correct props", () => {
     const destinationAddress = "0x1234567890abcdef";
     const isDisabled = true;
-    const placeholder = "Add destination address";
+    const placeholder = "Add Destination Address";
     const wrapper = shallowMount(InputAddress, {
       propsData: {
         destinationAddress,

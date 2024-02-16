@@ -21,7 +21,7 @@
         class="banner-link"
         >AIP #12</a
       >, all interest fees for this cauldron will be applied to your collateral
-      rather than your borrowed amount.
+      rather than your minted amount.
     </div>
   </div>
 </template>

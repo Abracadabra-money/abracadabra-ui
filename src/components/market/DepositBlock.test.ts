@@ -15,7 +15,7 @@ describe("DepositBlock", () => {
     });
 
     expect(wrapper.exists()).toBe(true);
-    expect(wrapper.find(".title").text()).toBe("Deposit collateral");
+    expect(wrapper.find(".title").text()).toBe("Deposit Collateral");
     expect(wrapper.find(".row").exists()).toBe(true);
     expect(wrapper.find(".subtitle").text()).toBe(
       "Select the amount of AETH to deposit in the Cauldron"

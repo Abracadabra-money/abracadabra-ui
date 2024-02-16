@@ -2,7 +2,7 @@
   <div class="popup-wrap" @click.self="closePopup" v-if="isOpen">
     <div class="popup">
       <h3 class="title">
-        Select chain
+        Select Chain
         <img
           class="popup-close"
           @click="closePopup"

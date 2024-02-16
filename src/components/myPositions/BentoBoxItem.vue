@@ -83,7 +83,7 @@ export default {
     },
 
     buttonText() {
-      return !this.isProperChain ? "Switch network" : "Withdraw";
+      return !this.isProperChain ? "Switch Network" : "Withdraw";
     },
 
     link() {

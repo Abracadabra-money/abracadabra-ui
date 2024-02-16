@@ -16,7 +16,7 @@ describe("RepayBlock", () => {
 
     expect(wrapper.find(".title").text()).toBe("Repay MIM");
     expect(wrapper.find(".subtitle").text()).toBe(
-      "Select the amount of MIM to repay"
+      "Select the amount of MIM to Repay"
     );
   });
 

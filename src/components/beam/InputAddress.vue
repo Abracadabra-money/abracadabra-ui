@@ -34,7 +34,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: "Add destination address",
+      default: "Add Destination Address",
     },
     validation: {
       type: Boolean,

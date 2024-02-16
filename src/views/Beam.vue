@@ -1,10 +1,11 @@
+\
 <template>
   <div class="beam-view" v-if="beamConfig">
     <div class="beam">
       <div class="beam-header">
         <div class="title-desc">
           <h3 class="title">Beam</h3>
-          <p class="description">Move your MIM across networks</p>
+          <p class="description">Move Your MIM Across Networks</p>
         </div>
 
         <div class="settings-btns">
@@ -34,7 +35,7 @@
 
         <div class="inputs-wrap">
           <div>
-            <h4 class="input-label">MIM to beam</h4>
+            <h4 class="input-label">MIM to Beam</h4>
             <BaseTokenInput
               class="beam-input"
               :decimals="18"
@@ -270,7 +271,7 @@ export default {
       if (!this.account) return "Connect wallet";
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
-      if (!this.isSelectedChain) return "Choose destination chain";
+      if (!this.isSelectedChain) return "Choose Destination Chain";
       if (this.isApproving) return "Approving";
       if (!this.isTokenApproved) return "Approve";
       if (this.isBeaming) return "Beaming";

@@ -2,7 +2,7 @@
   <div class="settings-popup">
     <div>
       <div class="title-wrap">
-        <p class="title">Gas on destination chain</p>
+        <p class="title">Gas on Destination Chain</p>
         <Tooltip :tooltip="tooltip" />
         <img
           class="popup-close"

@@ -3,7 +3,7 @@
     <div ref="anim"></div>
     <div class="health-info">
       <p class="percent">{{ positionHealth }}</p>
-      <p class="title">Position health</p>
+      <p class="title">Position Health</p>
       <p :class="['position-risk', positionRisk]">{{ positionRisk }}</p>
     </div>
   </div>

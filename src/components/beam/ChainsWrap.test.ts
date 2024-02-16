@@ -37,7 +37,7 @@ describe("ChainsWrap", () => {
     });
 
     expect(wrapper.exists()).toBe(true);
-    expect(wrapper.find(".select-title").text()).toBe("Select networks");
+    expect(wrapper.find(".select-title").text()).toBe("Select Networks");
     expect(wrapper.find(".select-button-text").text()).toBe("From: From Chain");
   });
 

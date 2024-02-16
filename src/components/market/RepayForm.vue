@@ -224,7 +224,7 @@ export default {
 
     titleText() {
       const { useDeleverage } = this.actionConfig;
-      return useDeleverage ? "To repay" : "Remove collateral";
+      return useDeleverage ? "To Repay" : "Remove Collateral";
     },
 
     subtitleText() {

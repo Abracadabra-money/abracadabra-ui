@@ -17,19 +17,19 @@
     <div class="cauldron-fees">
       <div class="fees-row">
         <div class="fees-title">
-          Borrow fee
+          Mint Fee
           <TooltipIcon
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="Fee charged on the amount of MIM borrowed from the cauldron."
+            tooltip="Fee charged on the amount of MIM minted from the cauldron."
           />
         </div>
         <div class="fees-percent">{{ cauldron.mainParams.borrowFee }}%</div>
       </div>
       <div class="fees-row">
         <div class="fees-title">
-          Interest fee
+          Interest Fee
           <TooltipIcon
             :width="20"
             :height="20"
@@ -41,7 +41,7 @@
       </div>
       <div class="fees-row">
         <div class="fees-title">
-          Liquidation fee
+          Liquidation Fee
           <TooltipIcon
             :width="20"
             :height="20"

@@ -1,7 +1,7 @@
 <template>
   <div class="expected-block">
     <div class="row">
-      <p class="title">Estimated gas cost:</p>
+      <p class="title">Estimated Gas Cost:</p>
       <p class="value">
         <span class="token">
           <img :src="data.srcTokenIcon" class="token-icon" /> {{ data.gasCost }}
@@ -13,7 +13,7 @@
 
     <div class="row">
       <p class="title pointer" @click="$emit('open-settings')">
-        Gas on destination:
+        Gas on Destination:
       </p>
       <p class="value pointer" @click="$emit('open-settings')">
         <span class="token">

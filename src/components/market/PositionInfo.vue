@@ -43,12 +43,12 @@
         alt=""
       />
       <h4 class="item-title">
-        MIM to repay
+        MIM to Repay
         <TooltipIcon
           :width="20"
           :height="20"
           fill="#878B93"
-          tooltip="Amount of MIM borrowed from the cauldron."
+          tooltip="Amount of MIM minted from the cauldron."
         />
       </h4>
       <p class="item-value">
@@ -82,7 +82,7 @@
         {{ expectedPositionAmounts.positionHealth.status }}
       </div>
       <h4 class="item-title">
-        Liquidation price
+        Liquidation Price
         <TooltipIcon
           :width="20"
           :height="20"
@@ -102,7 +102,7 @@
         alt=""
       />
       <h4 class="item-title">
-        Current price
+        Current Price
         <TooltipIcon
           :width="20"
           :height="20"

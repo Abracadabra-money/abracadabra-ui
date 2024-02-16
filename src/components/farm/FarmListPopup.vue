@@ -14,8 +14,8 @@
     </div>
 
     <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
-      <BaseLoader v-if="isFarmsLoading" medium text="Loading farms." />
-      <BaseSearchEmpty v-if="showEmptyBlock" text="There are no farms." />
+      <BaseLoader v-if="isFarmsLoading" medium text="Loading farms" />
+      <BaseSearchEmpty v-if="showEmptyBlock" text="There are no Farms" />
     </div>
   </div>
 </template>
