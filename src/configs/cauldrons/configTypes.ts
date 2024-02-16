@@ -22,6 +22,7 @@ type CauldronSettings = {
   isSSpell?: boolean;
   isGMXMarket?: boolean;
   isMimUsdtCurveLp?: boolean;
+  isTesting?: boolean;
 };
 
 type MimInfo = {
