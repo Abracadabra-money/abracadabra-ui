@@ -69,10 +69,10 @@
 import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import cauldronsConfig from "@/configs/cauldrons";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokenTransfer } from "@/helpers/tenderly/tokenTransfer";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { getTotalAmountByHolders } from "@/helpers/tenderly/getTotalAmountByHolders";
 
 export default {
@@ -219,7 +219,7 @@ export default {
       import("@/components/ui/inputs/InputAddress.vue")
     ),
     CheckBox: defineAsyncComponent(() =>
-      import("@/components/ui/CheckBox.vue")
+      import("@/components/ui/checkboxes/CheckBox.vue")
     ),
     InputNumber: defineAsyncComponent(() =>
       import("@/components/ui/inputs/InputNumber.vue")

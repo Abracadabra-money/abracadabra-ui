@@ -1,9 +1,9 @@
 import type { Address } from "viem";
-import filters from "@/filters/index.js";
 import { Wallet, providers } from "ethers";
 import { parseUnits, hexToBigInt } from "viem";
+import { formatAddress } from "@/helpers/filters";
 import type { TopUpCauldron } from "@/types/tenderly";
-import { MAX_APPROVAL_AMOUNT } from "@/constants/global";
+import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 import { getMimContract } from "@/helpers/tenderly/getMimContract";
 import { sendTransaction } from "@/helpers/tenderly/sendTransaction";
 import { getMinterAddress } from "@/helpers/tenderly/getMinterAddress";
@@ -38,7 +38,7 @@ export const topUpCauldron = async (
       mimContract,
       fromAddress,
       "approve",
-      [bentoBoxContract.address, hexToBigInt(MAX_APPROVAL_AMOUNT)],
+      [bentoBoxContract.address, hexToBigInt(MAX_ALLOWANCE_VALUE)],
       provider
     );
 
@@ -59,7 +59,7 @@ export const topUpCauldron = async (
     return {
       status: "success",
       txHash: txHash,
-      msg: `Success!Sent ${amount} gas tokens to ${filters.formatAddress(
+      msg: `Success!Sent ${amount} gas tokens to ${formatAddress(
         cauldronAddress
       )}`,
     };

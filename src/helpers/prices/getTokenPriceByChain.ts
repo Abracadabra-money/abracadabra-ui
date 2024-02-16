@@ -1,5 +1,5 @@
 import { chainsList } from "@/helpers/chains";
-import chainLinkAbi from "@/utils/abi/chainLink";
+import chainLinkAbi from "@/abis/chainLink";
 import { createPublicClient, formatUnits, http, type Address } from "viem";
 
 export const getTokenPriceByChain = async (

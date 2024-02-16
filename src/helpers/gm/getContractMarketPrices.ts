@@ -1,13 +1,11 @@
-import { fetchTokenPrices } from "./fetchTokenPrices";
 import { BigNumber } from "ethers";
-import type { MarketInfo } from "./types";
-
-import type { TokenPriceResponse, MarketPrices } from "./types";
+import { expandDecimals } from "./fee/expandDecials";
+import type { TokenPriceResponse, MarketPrices, MarketInfo } from "./types";
 
 export const getContractMarketPrices = (
   tokenPrices: Array<TokenPriceResponse>,
   market: MarketInfo
-): MarketPrices => {
+): MarketPrices | undefined => {
   const indexToken = tokenPrices.find(
     (item) =>
       item.tokenAddress.toLowerCase() === market.indexToken.toLowerCase()
@@ -21,7 +19,6 @@ export const getContractMarketPrices = (
   );
 
   if (!indexToken || !longToken || !shortToken) {
-    // @ts-ignore
     return undefined;
   }
 
@@ -37,6 +34,36 @@ export const getContractMarketPrices = (
     shortTokenPrice: {
       min: BigNumber.from(shortToken.minPrice),
       max: BigNumber.from(shortToken.maxPrice),
+    },
+  };
+};
+
+export const parsePrices = (
+  prices: MarketPrices,
+  indexTokenDecimals: number,
+  longTokenDecimals: number,
+  shortTokenDecimals: number
+) => {
+  return {
+    indexTokenPrice: {
+      min: prices.indexTokenPrice.min.mul(
+        expandDecimals(1, indexTokenDecimals)
+      ),
+      max: prices.indexTokenPrice.max.mul(
+        expandDecimals(1, indexTokenDecimals)
+      ),
+    },
+    longTokenPrice: {
+      min: prices.longTokenPrice.min.mul(expandDecimals(1, longTokenDecimals)),
+      max: prices.longTokenPrice.max.mul(expandDecimals(1, longTokenDecimals)),
+    },
+    shortTokenPrice: {
+      min: prices.shortTokenPrice.min.mul(
+        expandDecimals(1, shortTokenDecimals)
+      ),
+      max: prices.shortTokenPrice.max.mul(
+        expandDecimals(1, shortTokenDecimals)
+      ),
     },
   };
 };

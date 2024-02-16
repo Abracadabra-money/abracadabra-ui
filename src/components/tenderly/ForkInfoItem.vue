@@ -49,7 +49,7 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
 import { TENDERLY_FORK_DATA } from "@/constants/tenderly";
 import { deleteFork } from "@/helpers/tenderly/deleteFork";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { tenderlyDispatchEvent } from "@/helpers/tenderly/tenderlyDispatchEvent";
 import { addAndSwitchForkOnWallet } from "@/helpers/tenderly/addAndSwitchForkOnWallet";
 
@@ -190,7 +190,7 @@ export default {
 
   components: {
     CheckBox: defineAsyncComponent(() =>
-      import("@/components/ui/CheckBox.vue")
+      import("@/components/ui/checkboxes/CheckBox.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")

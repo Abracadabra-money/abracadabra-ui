@@ -10,14 +10,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import NotificationItem from "@/components/notifications/Notification.vue";
+import { mapGetters } from "vuex";
 
 export default {
   computed: {
-    notifications() {
-      return this.$store.getters["notifications/getAll"];
-    },
+    ...mapGetters({ notifications: "notifications/getAll" }),
   },
   components: {
     NotificationItem,
@@ -32,7 +31,10 @@ export default {
   z-index: 1000;
   top: 110px;
   right: 30px;
-  width: 400px;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   & .notification-item {
     margin-bottom: 20px;
   }

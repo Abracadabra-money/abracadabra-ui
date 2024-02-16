@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 import { readContract } from "@wagmi/core";
-import mimERC20Abi from "@/utils/abi/tokensAbi/mimERC20Abi";
-import anySwapERC20Abi from "@/utils/abi/tokensAbi/anySwapERC20Abi";
+import mimERC20Abi from "@/abis/tokensAbi/mimERC20Abi";
+import anySwapERC20Abi from "@/abis/tokensAbi/anySwapERC20Abi";
 
 export const getMinterAddress = async (
   tokenAddress: Address,

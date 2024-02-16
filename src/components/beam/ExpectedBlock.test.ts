@@ -1,24 +1,31 @@
-import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, it, expect } from "vitest";
+import { shallowMount } from "@vue/test-utils";
 import ExpectedBlock from "@/components/beam/ExpectedBlock.vue";
 
-const data = {
-  mimAmount: "10",
-  dstTokenAmount: "18.47",
-  dstTokenSymbol: "AVAX",
-  gasCost: "0.17179882",
-  srcTokenSymbol: "ETH",
-};
-
-describe("ExpectedBlock.vue", () => {
-  it("Should render data", () => {
-    const wrapper = mount(ExpectedBlock, {
-      props: { data },
+describe("ExpectedBlock", () => {
+  it("renders the estimated gas cost", () => {
+    const data = {
+      gasCost: 10,
+      srcTokenPrice: 1.5,
+    };
+    const wrapper = shallowMount(ExpectedBlock, {
+      propsData: { data },
     });
-    const values = wrapper.findAll(".value");
-    expect(values[0].text()).toBe("10 MIM");
-    expect(values[1].text()).toBe("18.47 AVAX");
-    expect(values[2].text()).toBe("$ 1.00");
-    expect(values[3].text()).toBe("0.17179882 ETH");
+
+    const estimatedGasCost = wrapper.find(".usd").text();
+    expect(estimatedGasCost).toContain("$ 15");
+  });
+
+  it("renders the gas on destination", () => {
+    const data = {
+      dstTokenAmount: 5,
+      dstTokenPrice: 2.5,
+    };
+    const wrapper = shallowMount(ExpectedBlock, {
+      propsData: { data },
+    });
+
+    const gasOnDestination = wrapper.findAll(".usd")[1].text();
+    expect(gasOnDestination).toContain("$ 12.5");
   });
 });

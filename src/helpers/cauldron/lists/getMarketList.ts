@@ -1,46 +1,101 @@
-import type { providers, BigNumber } from "ethers";
+import { providers, Contract, utils } from "ethers";
+import { defaultRpc } from "@/helpers/chains";
+import cauldronsConfig from "@/configs/cauldrons";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 type CauldronListItem = {
+  apr: object;
   config: object;
-  borrowFee: number;
-  interest: number;
-  liquidationFee: number;
-  collateralPrice: BigNumber;
-  mimLeftToBorrow: BigNumber;
-  maximumCollateralRatio: BigNumber;
-  oracleExchangeRate: BigNumber;
-  totalBorrowed: BigNumber;
-  tvl: BigNumber;
-  userMaxBorrow: BigNumber;
+  mainParams: object;
+  userPosition: object;
+  additionalInfo: object;
+};
+
+const filteredByChainId = (chainId: number) => {
+  return cauldronsConfig.filter((config) => config.chainId === +chainId);
+};
+
+const filteredByPrivate = (configs: any, account: string) => {
+  return configs.filter((config: any) => {
+    if (config.cauldronSettings.isPrivate)
+      return config.cauldronSettings.privatelyFor!.some(
+        (walletAddress: string) => walletAddress === account
+      );
+
+    return config;
+  });
 };
 
 export const getMarketList = async (
   account: string,
-  chainId: number,
-  provider: providers.BaseProvider
+  chains = null
 ): Promise<CauldronListItem[]> => {
-  const multicallProvider = MulticallWrapper.wrap(provider);
+  const curentChains = chains ? chains : Object.keys(defaultRpc);
 
-  const configs: any[] = cauldronsConfig.filter((config) => {
-    let result = config.chainId === +chainId;
+  const cauldronsInfo: CauldronListItem[] = [];
 
-    if (config.cauldronSettings.isPrivate)
-      result = config.cauldronSettings.privatelyFor!.some(
-        (walletAddress) => walletAddress === account
+  await Promise.all(
+    curentChains.map(async (chainId: any) => {
+      const configsByChain = filteredByChainId(chainId);
+
+      const filteredConfigs: CauldronConfig[] = filteredByPrivate(
+        configsByChain,
+        account
       );
 
-    return result;
-  });
+      if (filteredConfigs.length === 0) return [];
 
-  const mainParams = await getMainParams(configs, multicallProvider, chainId);
+      const provider = new providers.StaticJsonRpcProvider(
+        defaultRpc[chainId as keyof typeof defaultRpc]
+      );
 
-  return configs.map((config, idx) => {
-    return {
-      config,
-      ...mainParams[idx],
-    };
-  });
+      // const multicallProvider = MulticallWrapper.wrap(provider);
+
+      // NOTICE: BERA TEST
+      const multicallProvider =
+        +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
+
+      const mainParams = await getMainParams(
+        filteredConfigs,
+        multicallProvider,
+        chainId
+      );
+
+      const cauldronContracts = filteredConfigs.map((config: any) => {
+        return new Contract(
+          config.contract.address,
+          config.contract.abi,
+          multicallProvider
+        );
+      });
+
+      const userPositions = await getUserPositions(
+        filteredConfigs,
+        multicallProvider,
+        account,
+        cauldronContracts,
+        chainId
+      );
+
+      filteredConfigs.forEach((config, idx) => {
+        cauldronsInfo.push({
+          apr: {
+            value: 0,
+            multiplier: 0,
+          },
+          config,
+          mainParams: mainParams[idx],
+          userPosition: userPositions[idx],
+          additionalInfo: {
+            tokensRate: utils.parseUnits("1", config.collateralInfo.decimals),
+          },
+        });
+      });
+    })
+  );
+
+  return cauldronsInfo;
 };

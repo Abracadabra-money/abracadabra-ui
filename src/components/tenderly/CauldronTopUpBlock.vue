@@ -36,7 +36,7 @@ import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { topUpCauldron } from "@/helpers/tenderly/topUpCauldron";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 
 export default {
   props: {

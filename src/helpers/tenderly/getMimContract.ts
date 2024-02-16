@@ -1,7 +1,7 @@
 import { providers, Contract } from "ethers";
 import type { MimConfig } from "@/types/tenderly";
-import mimConfigs from "@/utils/contracts/mimToken";
-import anySwapERC20Abi from "@/utils/abi/tokensAbi/anySwapERC20Abi";
+import mimConfigs from "@/configs/tokens/mim";
+import anySwapERC20Abi from "@/abis/tokensAbi/anySwapERC20Abi";
 
 export const getMimContract = async (
   chainId: number,

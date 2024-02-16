@@ -1,6 +1,6 @@
 import { markRaw } from "vue";
 import { Contract } from "ethers";
-import bentoBoxAbi from "@/utils/abi/bentoBox";
+import bentoBoxAbi from "@/abis/bentoBox";
 
 export const getContracts = async (config: any, contractProvider: any) => {
   try {

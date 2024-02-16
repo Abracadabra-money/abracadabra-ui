@@ -17,14 +17,14 @@ const emptyTokensInfo = {
 export const getUserTokensInfo = async (
   contracts: any,
   account: string | undefined,
-  signer: providers.JsonRpcSigner
+  provider: providers.BaseProvider
 ): Promise<UserTokensInfo> => {
   if (!account) return emptyTokensInfo;
 
   const multicallArr = [
     contracts.collateral.balanceOf(account),
     contracts.mim.balanceOf(account),
-    signer.getBalance(),
+    provider.getBalance(account),
     contracts.collateral.allowance(account, contracts.bentoBox.address),
     contracts.mim.allowance(account, contracts.bentoBox.address),
   ];

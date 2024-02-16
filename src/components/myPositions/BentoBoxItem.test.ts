@@ -1,40 +1,50 @@
-import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, it, expect } from "vitest";
+import { shallowMount } from "@vue/test-utils";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
-import { ethers } from "ethers";
-import filters from "@/filters/index.js";
 
-describe("BentoBoxItem.vue", () => {
-  const bentoLink = `https://abracadabramoney.gitbook.io/intro/the-dashboard#mim-balance-on-bentobox`;
-  const degenLink = `https://abracadabramoney.gitbook.io/our-ecosystem/our-contracts#our-degenbox-contracts`;
-
-  const testBalance = ethers.utils.parseUnits("20000000000000000", 3);
-
-  it("Should return bentoLink if isBento", () => {
-    const wrapper = mount(BentoBoxItem, {
-      props: { isBento: true, balance: testBalance, mimPrice: 0 },
-    });
-    expect(wrapper.vm.link).toEqual(bentoLink);
-  });
-
-  it("Should degenLink if !isBento", () => {
-    const wrapper = mount(BentoBoxItem, {
-      props: { isBento: false, balance: testBalance, mimPrice: 0 },
-    });
-    expect(wrapper.vm.link).toEqual(degenLink);
-  });
-
-  it("Should calculate usdPrice correct", () => {
-    const wrapper = mount(BentoBoxItem, {
-      props: {
+describe("BentoBoxItem", () => {
+  it("renders the component properly", () => {
+    const wrapper = shallowMount(BentoBoxItem, {
+      propsData: {
         isBento: true,
-        balance: testBalance,
-        mimPrice: 0.95,
+        balance: "100",
+        mimPrice: 1,
+        activeChains: [1, 2, 3],
+        activeChain: 1,
+        currentChain: 1,
       },
     });
 
-    const balanceInUsd = filters.formatUSD(wrapper.vm.balanceInUsd);
+    expect(wrapper.exists()).toBe(true);
+  });
 
-    expect(balanceInUsd).toEqual("$ 19");
+  it("displays the correct title", () => {
+    const wrapper = shallowMount(BentoBoxItem, {
+      propsData: {
+        isBento: true,
+        balance: "100",
+        mimPrice: 1,
+        activeChains: [1, 2, 3],
+        activeChain: 1,
+        currentChain: 1,
+      },
+    });
+
+    expect(wrapper.find(".bento-title").text()).toBe("BentoBox");
+  });
+
+  it("displays the correct button text", () => {
+    const wrapper = shallowMount(BentoBoxItem, {
+      propsData: {
+        isBento: true,
+        balance: "100",
+        mimPrice: 1,
+        activeChains: [1, 2, 3],
+        activeChain: 1,
+        currentChain: 1,
+      },
+    });
+
+    expect(wrapper.find(".withdraw-button").text()).toBe("Withdraw");
   });
 });

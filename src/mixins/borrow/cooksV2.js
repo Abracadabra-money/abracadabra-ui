@@ -28,7 +28,7 @@ import { getWithdrawalAmountsByMarket } from "@/helpers/gm/getWithdrawalAmounts"
 
 import { getOrderBalances } from "@/helpers/gm/orders";
 import { BigNumber, Contract, utils } from "ethers";
-import OrderAgentAbi from "@/utils/abi/gm/OrderAgentAbi";
+import OrderAgentAbi from "@/abis/gm/OrderAgentAbi";
 
 export default {
   mixins: [degenBoxCookHelperMixin],
@@ -330,10 +330,18 @@ export default {
 
       return cookData;
     },
-    async recipeRemoveCollateral(cookData, pool, share, userAddr, tokenAddr) {
+    async recipeRemoveCollateral(
+      cookData,
+      pool,
+      share,
+      userAddr,
+      tokenAddr,
+      withdrawUnwrapToken = false
+    ) {
       const wrapInfo = pool.config?.wrapInfo;
       const { wrapper, unwrappedToken, collateral } = pool.contracts;
-      if (wrapInfo) {
+
+      if (wrapInfo && withdrawUnwrapToken) {
         cookData = await actions.removeCollateral(cookData, share, userAddr);
 
         cookData = await this.bentoWithdrawEncodeHandler(
@@ -755,7 +763,11 @@ export default {
       await cook(cauldron, cookData, collateralValue);
     },
 
-    async cookRemoveCollateral({ amount, updatePrice }, isApprowed, pool) {
+    async cookRemoveCollateral(
+      { amount, updatePrice, withdrawUnwrapToken },
+      isApprowed,
+      pool
+    ) {
       const { cauldron } = pool.contracts;
       const tokenAddr = pool.config.collateralInfo.address;
       const userAddr = this.account;
@@ -776,7 +788,8 @@ export default {
         pool,
         amount,
         userAddr,
-        tokenAddr
+        tokenAddr,
+        withdrawUnwrapToken
       );
 
       if (isApprowed && this.cookHelper)
@@ -818,7 +831,7 @@ export default {
     },
 
     async cookRemoveCollateralAndRepay(
-      { amount, collateralAmount, updatePrice, itsMax },
+      { amount, collateralAmount, updatePrice, itsMax, withdrawUnwrapToken },
       isApprowed,
       pool
     ) {
@@ -849,7 +862,8 @@ export default {
         pool,
         amount, // collateral share
         userAddr,
-        tokenAddr
+        tokenAddr,
+        withdrawUnwrapToken
       );
 
       if (isApprowed && this.cookHelper)
@@ -908,15 +922,18 @@ export default {
         );
       }
 
-      cookData = await this.recipeAddCollatral(
-        cookData,
-        pool,
-        tokenAddr,
-        isWrap,
-        this.account,
-        collateralAmount,
-        collateralValue
-      );
+      // NOTICE: added in v3 revamp
+      if (collateralAmount.gt(0)) {
+        cookData = await this.recipeAddCollatral(
+          cookData,
+          pool,
+          tokenAddr,
+          isWrap,
+          this.account,
+          collateralAmount,
+          collateralValue
+        );
+      }
 
       cookData = await actions.borrow(
         cookData,
@@ -960,6 +977,7 @@ export default {
         updatePrice,
         itsMax,
         slipage,
+        withdrawUnwrapToken,
       },
       isApprowed,
       pool,
@@ -1026,7 +1044,8 @@ export default {
           pool,
           removeCollateralAmount,
           userAddr,
-          collateralTokenAddr
+          collateralTokenAddr,
+          withdrawUnwrapToken
         );
       }
 
@@ -1252,7 +1271,7 @@ export default {
           balanceUSDC
         );
 
-        console.log(updatedCookData)
+      console.log(updatedCookData);
 
       await cook(cauldron, updatedCookData, executionFee);
     },
@@ -1281,15 +1300,18 @@ export default {
       if (updatePrice)
         cookData = await actions.updateExchangeRate(cookData, true);
 
-      cookData = await this.recipeAddCollatral(
-        cookData,
-        cauldronObject,
-        collateral.address,
-        isWrap,
-        this.account,
-        collateralAmount,
-        0
-      );
+      // NOTICE: added in v3 revamp
+      if (collateralAmount.gt(0)) {
+        cookData = await this.recipeAddCollatral(
+          cookData,
+          cauldronObject,
+          collateral.address,
+          isWrap,
+          this.account,
+          collateralAmount,
+          0
+        );
+      }
 
       cookData = await actions.borrow(
         cookData,

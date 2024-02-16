@@ -1,5 +1,5 @@
 <template>
-  <div class="popup">
+  <div class="popup" v-click-outside="closePopup">
     <div class="popup-header">
       <p class="title">Attention</p>
       <img
@@ -33,12 +33,10 @@
 <script>
 import BaseButton from "@/components/base/BaseButton.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { mapGetters } from "vuex";
-import {
-  getAllowanceDatas
-} from "@/helpers/oldCauldronsAllowance.js";
-import abiERC20 from "@/utils/zeroXSwap/abi/abiERC20";
+import { getAllowanceDatas } from "@/helpers/oldCauldronsAllowance.js";
+import abiERC20 from "@/abis/zeroXSwap/abiERC20";
 import { Contract } from "ethers";
 
 export default {
@@ -80,7 +78,7 @@ export default {
       try {
         await Promise.all(
           userData.map(async (info) => {
-            if(!info.isStillApproved) return false;
+            if (!info.isStillApproved) return false;
 
             const tokenContract = new Contract(
               info.token,
@@ -90,7 +88,7 @@ export default {
 
             const tx = await tokenContract.approve(info.spender, 0);
 
-            return await tx.wait()
+            return await tx.wait();
           })
         );
 

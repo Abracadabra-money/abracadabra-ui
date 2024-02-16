@@ -1,7 +1,7 @@
 export type AdditionalInfo = {
   feePercent: number;
-  rewardTokenPrice: bigint;
   rewardToken: RewardToken;
+  leverageInfo: any;
 };
 
 export type RewardToken = {

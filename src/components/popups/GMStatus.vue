@@ -1,100 +1,110 @@
 <template>
-  <div class="popup-wrap">
-    <div class="popup-header">
-      <img :src="cauldronObject.config.icon" alt="" class="cauldron-icon" />
-      <h4 class="popup-title">{{ popupTitle }}</h4>
-    </div>
-    <div class="popup-content">
-      <div class="failed-wrap" v-if="isFailedLeverage">
-        <img src="@/assets/images/order-fail.svg" alt="" class="status-img" />
-        <p class="status-text">Failed due to the slippage error</p>
-
-        <div class="balance-info" v-if="balancesInfo.length">
-          <p class="balance-title">Order balance:</p>
-          <div
-            class="token-info"
-            v-for="(info, idx) in balancesInfo"
-            :key="idx"
-          >
-            <img class="token-icon" :src="info.icon" />
-            {{ info.balance }}
-          </div>
-        </div>
+  <div class="popup-wrap" v-if="isOpened" @click="closePopup">
+    <div class="popup" @click.stop>
+      <button class="close-btn" @click="closePopup">
+        <img
+          class="close-img"
+          src="@/assets/images/close-popup.svg"
+          alt="Close popup"
+        />
+      </button>
+      <div class="popup-header">
+        <img :src="cauldronObject.config.icon" alt="" class="cauldron-icon" />
+        <h4 class="popup-title">{{ popupTitle }}</h4>
       </div>
+      <div class="popup-content">
+        <div class="failed-wrap" v-if="isFailedLeverage">
+          <img src="@/assets/images/order-fail.svg" alt="" class="status-img" />
+          <p class="status-text">Failed due to the slippage error</p>
 
-      <div class="proccess-wrap" v-else-if="isCreatedDeleverage">
-        <div class="step-wrap">
-          <div class="indecator-wrap">
-            <img :src="successIcon" alt="" class="status-icon" />
-            <div class="line success"></div>
-          </div>
-          <div class="info-wrap">
-            <p class="info-title">Order created</p>
-            <div class="balance-info" v-if="balancesInfo.length">
-              <p class="balance-title">Order balance:</p>
-              <div
-                class="token-info"
-                v-for="(info, idx) in balancesInfo"
-                :key="idx"
-              >
-                <img class="token-icon" :src="info.icon" />
-                {{ info.balance }}
-              </div>
+          <div class="balance-info" v-if="balancesInfo.length">
+            <p class="balance-title">Order balance:</p>
+            <div
+              class="token-info"
+              v-for="(info, idx) in balancesInfo"
+              :key="idx"
+            >
+              <img class="token-icon" :src="info.icon" />
+              {{ info.balance }}
             </div>
           </div>
         </div>
 
-        <div class="step-wrap">
-          <div class="indecator-wrap">
-            <div
-              class="line"
-              :class="{
-                failed: isFailedDeleverage,
-              }"
-            ></div>
-            <img
-              :src="isFailedDeleverage ? failedIcon : pendingIcon"
-              alt=""
-              class="status-icon"
-            />
+        <div class="proccess-wrap" v-else-if="isCreatedDeleverage">
+          <div class="step-wrap">
+            <div class="indecator-wrap">
+              <img :src="successIcon" alt="" class="status-icon" />
+              <div class="line success"></div>
+            </div>
+            <div class="info-wrap">
+              <p class="info-title">Order created</p>
+              <div class="balance-info" v-if="balancesInfo.length">
+                <p class="balance-title">Order balance:</p>
+                <div
+                  class="token-info"
+                  v-for="(info, idx) in balancesInfo"
+                  :key="idx"
+                >
+                  <img class="token-icon" :src="info.icon" />
+                  {{ info.balance }}
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="info-wrap second-step">
-            <p class="info-title">Deleverage</p>
-            <p v-if="isFailedDeleverage" class="info-subtitle">
-              Transaction rejected
-            </p>
-            <p v-else class="info-subtitle">
-              Confirm transaction in your wallet
-            </p>
+
+          <div class="step-wrap">
+            <div class="indecator-wrap">
+              <div
+                class="line"
+                :class="{
+                  failed: isFailedDeleverage,
+                }"
+              ></div>
+              <img
+                :src="isFailedDeleverage ? failedIcon : pendingIcon"
+                alt=""
+                class="status-icon"
+              />
+            </div>
+            <div class="info-wrap second-step">
+              <p class="info-title">Deleverage</p>
+              <p v-if="isFailedDeleverage" class="info-subtitle">
+                Transaction rejected
+              </p>
+              <p v-else class="info-subtitle">
+                Confirm transaction in your wallet
+              </p>
+            </div>
           </div>
+        </div>
+
+        <div class="pending-wrap" v-else>
+          <BaseLoader medium />
         </div>
       </div>
 
-      <div class="pending-wrap" v-else>
-        <BaseLoader />
+      <div class="btns-wrap" v-if="!buttonDisable">
+        <button
+          class="retry-btn"
+          @click="actionHandler"
+          :disabled="buttonDisable"
+        >
+          <img src="@/assets/images/retry-btn.svg" alt="" />
+          {{ buttonText }}
+        </button>
       </div>
-    </div>
-
-    <div class="btns-wrap" v-if="!buttonDisable">
-      <button
-        class="retry-btn"
-        @click="actionHandler"
-        :disabled="buttonDisable"
-      >
-        <img src="@/assets/images/retry-btn.svg" alt="" />
-        {{ buttonText }}
-      </button>
     </div>
   </div>
 </template>
 
 <script>
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import { useImage } from "@/helpers/useImage";
-import filters from "@/filters/index.js";
-import { mapGetters, mapActions, mapMutations } from "vuex";
-import notification from "@/helpers/notification/notification.js";
 import { utils } from "ethers";
+import { mapGetters, mapActions } from "vuex";
+import { useImage } from "@/helpers/useImage";
+import { formatTokenBalance } from "@/helpers/filters";
+import BaseLoader from "@/components/base/BaseLoader.vue";
+import notification from "@/helpers/notification/notification";
+import { getProviderByChainId } from "@/helpers/getProviderByChainId";
 
 import {
   ORDER_PENDING,
@@ -140,8 +150,11 @@ import PENDING_ICON from "@/assets/images/order-pending.svg";
 export default {
   name: "GMStatusPopup",
   props: {
+    isOpened: {
+      type: Boolean,
+      default: false,
+    },
     order: {
-      type: String,
       required: true,
     },
     cauldronObject: {
@@ -152,18 +165,10 @@ export default {
       type: Number,
       required: true,
     },
-    deleverageSuccessPayload: {
-      type: Object,
-    },
-    refundWeth: {
-      type: Function,
-    },
-    deleverageFromOrder: {
-      type: Function,
-    },
-    successLeverageCallback: {
-      type: Function,
-    },
+    deleverageSuccessPayload: {},
+    refundWeth: {},
+    deleverageFromOrder: {},
+    successLeverageCallback: {},
   },
   data() {
     return {
@@ -179,14 +184,21 @@ export default {
     async order(order) {
       await this.monitoringHandler(order);
     },
+    isOpened(value) {
+      document.documentElement.style.overflow = value ? "hidden" : "auto";
+    },
   },
   computed: {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      provider: "getProvider",
       signer: "getSigner",
     }),
+
+    provider() {
+      return getProviderByChainId(this.cauldronObject.config.chainId);
+    },
+
     popupTitle() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) return "GM Leverage";
       if (this.orderType === ORDER_TYPE_DELEVERAGE) return "GM Deleverage";
@@ -194,7 +206,7 @@ export default {
       return "GM transaction status";
     },
     isFailedDeleverage() {
-      return this.processState === 6 && this.deleverageinProgress === false
+      return this.processState === 6 && this.deleverageinProgress === false;
     },
     isCreatedDeleverage() {
       return this.orderType === 2 && this.processState !== 0;
@@ -248,6 +260,12 @@ export default {
   },
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
+
+    formatTokenBalance,
+
+    closePopup() {
+      this.$emit("closePopup");
+    },
     async actionHandler() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) {
         if (this.processState === STATE_FAIL) {
@@ -337,9 +355,7 @@ export default {
       await this.deleverageFromOrder(this.order, this.deleverageSuccessPayload);
       this.deleverageinProgress = false;
     },
-    formatTokenBalance(amount) {
-      return filters.formatTokenBalance(amount);
-    },
+
     clearInfo() {
       this.processState = STATE_PENDING;
       this.balances = null;
@@ -356,11 +372,57 @@ export default {
 
 <style lang="scss" scoped>
 .popup-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 300;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(20px);
+  overflow-y: auto;
+  padding-top: 50px;
+}
+
+.popup {
+  position: relative;
+
+  width: 95vw;
+  max-width: 480px;
+  padding: 32px;
+
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  gap: 24px;
   display: grid;
   grid-template-rows: auto 1fr;
-  width: 320px;
-  max-width: 100%;
-  padding: 8px 10px 2px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 41px;
+  right: 32px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+}
+
+.close-img {
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 
 .popup-header {
@@ -369,7 +431,6 @@ export default {
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  margin-bottom: 32px;
 
   .cauldron-icon {
     width: 32px;
@@ -379,14 +440,12 @@ export default {
   }
 }
 
-.popup-content {
-}
-
 .pending-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
   padding-bottom: 20px;
+  max-height: 180px;
 }
 
 .failed-wrap {
@@ -514,27 +573,37 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
-  padding: 13px 20px;
 
   .retry-btn {
+    width: 100%;
+    padding: 2px 24px;
+    min-width: 84px;
+    height: 48px;
+
+    border-radius: 16px;
+    margin: 3px 0;
     background: none;
-    border: none;
-    outline: none;
-    cursor: pointer;
     display: flex;
     align-items: center;
-
-    background: linear-gradient(108deg, #5282fd -3.19%, #76c3f5 101.2%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    justify-content: center;
+    color: #7088cc;
+    border: 2px solid #7088cc;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.01);
+    cursor: pointer;
 
     &:hover {
       img {
         transform: rotate(360deg);
         margin-right: 10px;
       }
+      border: 2px solid #86a2f1;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &:disabled {
+      color: #575c62;
+      border: 2px solid #575c62;
     }
 
     img {
@@ -569,17 +638,19 @@ export default {
 }
 
 .btn {
+  width: 100%;
+  padding: 2px 24px;
   min-width: 84px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  height: 48px;
+
+  border-radius: 16px;
   margin: 3px 0;
-  padding: 10px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  border: none;
+  color: #7088cc;
+  border: 2px solid #7088cc;
   cursor: pointer;
   transition: all 0.3s ease;
 

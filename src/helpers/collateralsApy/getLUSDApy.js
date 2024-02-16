@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
-import stabilityPoolAbi from "@/utils/abi/StabilityPoolLUSD";
+import stabilityPoolAbi from "@/abis/StabilityPoolLUSD";
 import { MAINNET_LQTY_ADDRESS } from "@/constants/tokensAddress";
-import communityIssuanceAbi from "@/utils/abi/communityIssuacneLUSD";
+import communityIssuanceAbi from "@/abis/communityIssuacneLUSD";
 import { getTokenPriceByAddress } from "@/helpers/prices/getTokenPriceByAddress";
 
 const stabilityPoolAddress = "0x66017D22b0f8556afDd19FC67041899Eb65a21bb";

@@ -1,0 +1,266 @@
+// Override styles from @notifi-network/notifi-react-card/dist/index.css (main.ts)
+:root {
+  --notifi-color-brand: #5959f4;
+  --notifi-color-brand-secondary: #a9e2fc;
+  --notifi-color-card: #2b2b3b;
+  --notifi-color-gray-secondary: #3b394a;
+  --notifi-color-heather: #b6b8d5;
+  --notifi-color-gray-tooltip: #4c4c61;
+  --notifi-color-light-green: #b4e2ac;
+  --notifi-lineart-gradient-dark: linear-gradient(
+    90.09deg,
+    #5959f4 -0.96%,
+    #85bbf2 99.92%
+  );
+  --notifi-lineart-gradient-light: linear-gradient(
+    90deg,
+    #5959f4 0%,
+    #85bbf2 100%
+  );
+}
+.NotifiSubscriptionCard__container {
+  font-family: Prompt, Helvetica, Arial, sans-serif !important;
+  width: 370px;
+  height: 620px;
+  border-radius: 22px !important;
+  background-color: var(--notifi-color-card) !important;
+  border: solid 1px rgba(255, 255, 255, 0.1) !important;
+  overflow: hidden !important;
+}
+
+.NotifiInputSeparator__content {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.NotifiInputSeparator__container:before,
+.NotifiInputSeparator__container:after,
+.NotifiPreviewCardSeparator:before,
+.NotifiPreviewCardSeparator::after {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.configAlertModal__container,
+.configDestinationModal__container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.configAlertModal__overlay,
+.configDestinationModal__overlay {
+  display: none;
+}
+
+.verifyBanner__container {
+  background-color: var(--notifi-color-gray-secondary) !important;
+}
+.verifyBanner__button,
+.SignupBanner__Button {
+  background-color: var(--notifi-color-brand) !important;
+  color: white;
+  font-weight: 700 !important;
+  padding: 7px 13px;
+}
+
+.NotifiPreviewCard__editButton {
+  color: var(--notifi-color-brand-secondary) !important;
+  font-size: 14px !important;
+}
+
+.NotifiToggle__slider {
+  background: #4f4f56 !important;
+}
+
+.NotifiToggle__input:checked + .NotifiToggle__slider {
+  background: var(--notifi-color-brand-secondary) !important;
+}
+
+.NotifiPreviewCard__editButton svg {
+  display: none;
+}
+
+.NotifiAlertHistory__notificationImage {
+  margin-right: 10px;
+  margin-left: 5px;
+}
+
+.NotifiEventTypeContainer {
+  overflow: visible !important;
+}
+
+.NotifiPreviewCard__title {
+  font-size: 14px !important;
+}
+
+.EventTypeBroadcastRow__label,
+.EventTypeHealthCheckRow__label,
+.EventTypeFusionToggleRow__label {
+  display: block !important;
+  position: relative;
+  font-size: 14px !important;
+}
+
+.NotifiTooltip__container {
+  display: inline;
+  position: absolute;
+  top: 5px;
+  left: 0;
+}
+
+.NotifiCardButton__button,
+.NotifiSubscribeButton__button {
+  border-radius: 6px !important;
+  background: var(--notifi-lineart-gradient-dark);
+}
+
+.NotifiCardButton__button:disabled,
+.NotifiSubscribeButton__button:disabled,
+.NotifiStartChatButton__button:disabled,
+.NotifiIntercomSendMessageSection__button:disabled {
+  cursor: not-allowed;
+  background: var(--notifi-lineart-gradient-light);
+  opacity: 0.5;
+}
+
+.configAlertModal__container,
+.configDestinationModal__container {
+  background-color: var(--notifi-color-card) !important;
+  border-radius: 22px !important;
+}
+.configAlertModal__headerContainer,
+.configAlertModal__footerContainer,
+.configDestinationModal__headerContainer,
+.configDestinationModal__footerContainer {
+  background-color: inherit !important;
+  height: 100px !important;
+}
+
+.configAlertModal__backIcon {
+  top: 25px !important;
+  left: 16px !important;
+}
+
+.configAlertModal__EventTypeHealthCheckRow__ButtonContainer,
+.configAlertModal__EventTypeFusionHealthCheckRow__ButtonContainer,
+.configAlertModal__EventTypeCustomHealthCheckRow__ButtonContainer {
+  padding-bottom: 20px !important;
+}
+
+.configAlertModal__EventTypeContainer {
+  padding: 0px 14px !important;
+  .NotifiTooltip__infoIcon {
+    fill: var(--notifi-color-heather) !important;
+  }
+  .NotifiEmailInput__errorMessage,
+  .NotifiSmsInput__errorMessage,
+  .NotifiTelegramInput__errorMessage {
+    display: block !important;
+    padding-left: 12px !important;
+    margin-top: -33px;
+    text-align: start !important;
+  }
+}
+
+.configDestinationModal__emailResendLink {
+  color: var(--notifi-color-brand-secondary) !important;
+}
+
+.configAlertModal__footerContainer button,
+.configDestinationModal__footerContainer button {
+  background: var(--notifi-lineart-gradient-dark);
+  color: white;
+}
+.NotifiUserInfoPanel__myWalletLabel,
+.NotifiUserInfoPanel__emailLabel,
+.NotifiUserInfoPanel__smsLabel,
+.NotifiUserInfoPanel__smsLabel,
+.NotifiUserInfoPanel__telegramLabel,
+.otifiUserInfoPanel__discordLabel {
+  font-size: 14px !important;
+}
+
+.DividerLine.signup {
+  display: none;
+}
+
+.NotifiAlertListContainer__listItemContent {
+  font-weight: 500 !important;
+}
+
+.NotifiAlertList__listItem svg {
+  transform: scale(2);
+}
+
+.NotifiAlertListContainer__checkmarkIcon path {
+  stroke: var(--notifi-color-brand-secondary) !important;
+  stroke-width: 1.5px !important;
+}
+
+.NotifiEmailInput__container,
+.NotifiSmsInput__container,
+.NotifiTelegramInput__container {
+  background-color: var(--notifi-color-gray-secondary) !important;
+  border: none !important;
+}
+.NotifiEmailInput__input::placeholder,
+.NotifiSmsInput__input::placeholder,
+.NotifiTelegramInput__input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.configDestinationModal__verifiedButton {
+  background: var(--notifi-color-light-green) !important;
+  color: var(--notifi-color-card) !important;
+}
+
+.NotifiUserInfoPanelContainer {
+  background-color: var(--notifi-color-gray-secondary) !important;
+}
+
+.NotifiTooltip__infoIcon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.NotifiTooltip__body::before {
+  display: none !important;
+}
+
+.EventTypeHealthCheckRow__buttonContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.EventTypeHealthCheckRow__button {
+  background-color: black !important;
+  color: var(--notifi-color-heather) !important;
+  border: none !important;
+  flex-grow: 1;
+  margin-right: 0 !important;
+  &::placeholder {
+    color: var(--notifi-color-heather) !important;
+  }
+
+  &.EventTypeHealthCheckRow__buttonSelected {
+    color: var(--notifi-color-brand-secondary) !important;
+    border: 2px solid var(--notifi-color-brand-secondary) !important;
+  }
+  &:focus {
+    outline: none !important;
+    border: none !important;
+  }
+}
+
+.NotifiEmailInput__errorMessage,
+.NotifiSmsInput__errorMessage,
+.NotifiTelegramInput__errorMessage {
+  color: var(--notifi-checkmark-color) !important;
+}
+
+@media screen and (max-width: 1024px) {
+  .NotifiSubscriptionCard__container {
+    width: 365px;
+    top: 40px;
+    max-height: 580px;
+    max-width: 350px;
+  }
+}

@@ -16,5 +16,6 @@ export const initWithoutConnect = async () => {
 
   store.commit("setChainId", currentChain);
   store.commit("setProvider", provider);
+  store.commit("setAccount", null);
   store.commit("setWalletConnection", true);
 };

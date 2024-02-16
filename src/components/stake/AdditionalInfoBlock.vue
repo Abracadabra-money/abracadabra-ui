@@ -1,144 +1,132 @@
 <template>
-  <div class="additional-block">
-    <div>
-      <h3 class="title">Total Supply</h3>
+  <div class="additional-info-block">
+    <div class="info-item" :key="config.title" v-for="config in configs">
+      <img
+        class="mim-icon"
+        src="@/assets/images/market/m-icon.svg"
+        alt="Mim icon"
+      />
 
-      <div class="description">
-        <div class="token-info">
-          <BaseTokenIcon :icon="mainToken.icon" size="40px" />
-          <span class="token-symbol">{{ mainToken.name }}</span>
-        </div>
+      <h4 class="title">
+        {{ config.title }}
+        <TooltipIcon
+          :width="20"
+          :height="20"
+          fill="#878B93"
+          :tooltip="config.tooltip"
+        />
+      </h4>
 
-        <div class="info-balance">
-          <span class="amount">{{
-            formatTokenBalance(
-              formatUnits(mainToken.totalSupply, mainToken.decimals)
-            )
-          }}</span>
-          <span class="price">{{
-            formatUSD(formatUnits(mainToken.totalSupplyUsd, mainToken.decimals))
-          }}</span>
-        </div>
-      </div>
+      <p class="value">
+        <img class="token-icon" :src="config.icon" alt="Collateral icon" />
+        {{ formatTokenBalance(config.amount, config.decimals) }}
+      </p>
+
+      <p class="price">
+        {{ formatUSD(config.amountUsd, config.decimals) }}
+      </p>
     </div>
-
-    <template v-if="rewardToken">
-      <div class="delimiter-line"></div>
-
-      <div>
-        <h3 class="title">Total Rewards Earned</h3>
-
-        <div class="description">
-          <div class="token-info">
-            <BaseTokenIcon :icon="rewardToken.icon" size="40px" />
-            <span class="token-symbol">{{ rewardToken.symbol }}</span>
-          </div>
-
-          <div class="info-balance">
-            <span class="amount">{{
-              formatTokenBalance(rewardToken.amount)
-            }}</span>
-            <span class="price">{{ formatUSD(rewardToken.amountUsd) }}</span>
-          </div>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
 
-<script>
-import filters from "@/filters/index.js";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+<script lang="ts">
 import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+
 export default {
   props: {
-    mainToken: { type: Object, required: true },
-    rewardToken: { type: Object },
+    configs: {
+      type: Object as any,
+    },
   },
 
   methods: {
-    formatUnits,
-    formatUSD(value) {
-      return filters.formatUSD(value);
+    formatTokenBalance(value: bigint, decimals: number) {
+      return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
+    formatUSD(value: bigint, decimals: number) {
+      return formatUSD(formatUnits(value, decimals));
     },
   },
 
-  components: { BaseTokenIcon },
+  components: {
+    TooltipIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.additional-block {
-  display: grid;
-  grid-template-columns: 1fr 33px 1fr;
+.additional-info-block {
+  gap: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.info-item {
   width: 100%;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(50px);
-  background: #2b2b3c;
-  border-radius: 30px;
-  text-align: left;
+  padding: 24px;
+  height: 144px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.mim-icon {
+  position: absolute;
+  top: 17px;
+  left: -11px;
 }
 
 .title {
-  line-height: 27px;
-  margin-bottom: 14px;
-}
-
-.description {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.token-info {
+  color: #99a0b2;
+  font-weight: 500;
+  line-height: 150%;
+  gap: 4px;
   display: flex;
   align-items: center;
 }
 
-.amount {
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 27px;
-  letter-spacing: 0.4px;
+.value {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 150%;
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.token-icon {
+  width: 32px;
+  height: 32px;
 }
 
 .price {
+  color: #878b93;
   font-size: 14px;
-  line-height: 21px;
-  display: flex;
-  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  line-height: 150%;
 }
 
-.delimiter-line {
-  position: relative;
-
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    width: 1px;
-    height: 45px;
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
-@media (max-width: 1200px) {
-  .additional-block {
-    display: flex;
+@media screen and (max-width: 600px) {
+  .additional-info-block {
     flex-direction: column;
-  }
-
-  .delimiter-line {
-    display: none;
   }
 }
 </style>

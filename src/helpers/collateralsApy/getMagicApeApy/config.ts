@@ -1,5 +1,5 @@
-import tokensAbi from "@/utils/abi/tokensAbi/";
-import magicApeLensAbi from "@/utils/abi/magicApeLens";
+import tokensAbi from "@/abis/tokensAbi/";
+import magicApeLensAbi from "@/abis/magicApeLens";
 
 export const config = {
   magicApe: {

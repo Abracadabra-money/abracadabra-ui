@@ -1,14 +1,16 @@
 import type { ContractInfo } from "@/types/global";
-import { multicall, type Address } from "@wagmi/core";
+import type { Address } from "@wagmi/core";
 import { BIPS, MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import type { MagicLvlTokensConfig } from "@/types/magicLvl/configsInfo";
 import type { MagicLvlTokensInfo } from "@/types/magicLvl/stakeInfo";
+import { useImage } from "@/helpers/useImage";
 
 export const getTokensInfo = async (
   master: ContractInfo,
   harvestor: ContractInfo,
   { oracle, mainToken, stakeToken, pid, name }: MagicLvlTokensConfig,
-  account: Address
+  account: Address,
+  publicClient: any
 ): Promise<MagicLvlTokensInfo> => {
   const [
     oracleRate,
@@ -19,7 +21,7 @@ export const getTokensInfo = async (
     levelMasterBalance,
     allowanceAmount,
     feeBips,
-  ]: any = await multicall({
+  ]: any = await publicClient.multicall({
     contracts: [
       {
         ...oracle,
@@ -82,16 +84,19 @@ export const getTokensInfo = async (
       contract: mainToken.contract,
       balance: mainTokenBalance.result,
       totalSupplyUsd: totalSupplyUsd,
-      approvedAmount: allowanceAmount.result,
+      price: mainTokenPrice,
     },
     stakeToken: {
       name: stakeToken.name,
       icon: stakeToken.icon,
+      rateIcon: useImage(`assets/images/stake/${name}-icon.svg`),
       decimals: stakeToken.decimals,
       contract: stakeToken.contract,
       walletBalance: userStakeTokenBalance.result,
       balance: stakeTokenBalance,
       pid: pid,
+      price: stakeTokenPrice,
+      approvedAmount: allowanceAmount.result,
     },
   };
 };

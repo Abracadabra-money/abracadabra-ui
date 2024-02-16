@@ -1,5 +1,5 @@
 import moment from "moment";
-import { multicall } from "@wagmi/core";
+import { useImage } from "@/helpers/useImage";
 import { formatUnits, type Address } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { EmptyTokenState } from "@/types/spell/empyState";
@@ -11,17 +11,18 @@ export const getSSpellInfo = async (
   { sSpell }: ChainSpellConfig,
   spell: SpellInfo,
   spellPrice: bigint,
-  account: Address
+  account: Address,
+  publicClient: any
 ): Promise<SSpellInfo | EmptyTokenState> => {
   if (!sSpell) return await getSSpellEmptyState();
 
   const [
-    allowanceAmount,
+    approvedAmount,
     spellSSpellBalance,
     aSpellUserBalance,
     sSpellUserInfo,
     totalSupply,
-  ]: any = await multicall({
+  ]: any = await publicClient.multicall({
     contracts: [
       {
         ...spell.contract,
@@ -69,12 +70,14 @@ export const getSSpellInfo = async (
   return {
     name: sSpell.name,
     icon: sSpell.icon,
+    rateIcon: useImage("assets/images/sspell-icon.svg"),
     decimals: sSpell.decimals,
     contract: sSpell.contract,
     price: sSpellPrice,
     rate: spellToSSpellRate,
     lockTimestamp,
     balance: aSpellUserBalance.result,
-    allowanceAmount: allowanceAmount.result,
+    approvedAmount: approvedAmount.result,
+    totalSupply: totalSupply.result,
   };
 };

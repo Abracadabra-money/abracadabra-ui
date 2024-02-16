@@ -1,5 +1,5 @@
 <template>
-  <div class="popup">
+  <div class="popup" v-click-outside="closePopup">
     <div class="popup-header">
       <p class="title">Success</p>
       <img

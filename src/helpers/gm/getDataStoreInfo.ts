@@ -1,7 +1,7 @@
 import { MulticallWrapper } from "ethers-multicall-provider";
-import {  Contract, type providers } from "ethers";
+import { Contract, type providers } from "ethers";
 import { DATA_STORE } from "@/constants/gm";
-import DataStoreAbi from "@/utils/abi/gm/DataStoreAbi";
+import DataStoreAbi from "@/abis/gm/DataStoreAbi";
 import type { Address } from "viem";
 import type { DataStoreInfo, MarketInfo } from "./types";
 
@@ -16,7 +16,7 @@ import {
   openInterestKey,
   reserveFactorKey,
   maxPoolAmountForDepositKey,
-  maxPoolAmountKey
+  maxPoolAmountKey,
 } from "./fee/dataStore";
 
 export const getDataStoreInfo = async (
@@ -53,7 +53,7 @@ export const getDataStoreInfo = async (
     maxLongPoolAmountForDeposit,
     maxShortPoolAmountForDeposit,
     maxLongPoolAmount,
-    maxShortPoolAmount
+    maxShortPoolAmount,
   ] = await Promise.all([
     dataStoreContract.getUint(swapFeeFactorKey(market, false)),
     dataStoreContract.getUint(swapFeeFactorKey(market, true)),
@@ -88,9 +88,13 @@ export const getDataStoreInfo = async (
     ),
     dataStoreContract.getUint(reserveFactorKey(market, true)),
     dataStoreContract.getUint(reserveFactorKey(market, true)),
-    dataStoreContract.getUint(maxPoolAmountForDepositKey(market, marketInfo.longToken)),
-    dataStoreContract.getUint(maxPoolAmountForDepositKey(market, marketInfo.shortToken)),
-    
+    dataStoreContract.getUint(
+      maxPoolAmountForDepositKey(market, marketInfo.longToken)
+    ),
+    dataStoreContract.getUint(
+      maxPoolAmountForDepositKey(market, marketInfo.shortToken)
+    ),
+
     dataStoreContract.getUint(maxPoolAmountKey(market, marketInfo.longToken)),
     dataStoreContract.getUint(maxPoolAmountKey(market, marketInfo.shortToken)),
   ]);
@@ -116,6 +120,6 @@ export const getDataStoreInfo = async (
     maxLongPoolAmountForDeposit,
     maxShortPoolAmountForDeposit,
     maxLongPoolAmount,
-    maxShortPoolAmount
+    maxShortPoolAmount,
   };
 };

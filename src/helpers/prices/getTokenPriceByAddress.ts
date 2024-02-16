@@ -1,5 +1,5 @@
 import axios from "axios";
-import { COINGECKO_URL } from "@/constants/urls";
+import { COINGECKO_URL } from "@/constants/global";
 
 const coinGeckoIds = {
   1: "ethereum",

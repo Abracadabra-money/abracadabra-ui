@@ -1,7 +1,7 @@
 import { formatUnits } from "viem";
 import { multicall } from "@wagmi/core";
-import lensAbi from "@/utils/abi/marketLens.js";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import lensAbi from "@/abis/marketLens.js";
+import cauldronsConfig from "@/configs/cauldrons";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 export const getCauldronList = async (chainId: number) => {

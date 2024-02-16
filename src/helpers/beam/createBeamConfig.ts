@@ -1,6 +1,6 @@
 import { markRaw } from "vue";
-import beamConfigs from "@/utils/beam/beamConfigs";
-import mimConfigs from "@/utils/contracts/mimToken";
+import beamConfigs from "@/configs/beam/beamConfigs";
+import mimConfigs from "@/configs/tokens/mim";
 import { chains, chainsList } from "@/helpers/chains";
 import { BigNumber, Contract, providers, utils } from "ethers";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
@@ -62,7 +62,7 @@ export const createBeamConfig = async (
     return {
       chainId: chainItem.chainId,
       lzChainId: chainItem.lzChainId,
-      title: chainItem.symbol,
+      title: chainItem.chainName,
       icon: chainItem.networkIcon,
     };
   });

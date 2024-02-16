@@ -1,13 +1,8 @@
 import { erc20ABI } from "@wagmi/core";
-import { multicall, readContract } from "@wagmi/core";
 import { formatUnits, parseUnits } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { Address } from "@wagmi/core";
-import type {
-  FarmConfig,
-  PoolInfo,
-  ContractInfo,
-} from "@/utils/farmsConfig/types";
+import type { FarmConfig, PoolInfo, ContractInfo } from "@/configs/farms/types";
 
 const MIMAddress = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3";
 const SPELLAddress = "0x090185f2135308bad17527004364ebcc2d37e5f6";
@@ -19,7 +14,8 @@ export const getFarmYieldAndLpPrice = async (
   farmInfo: FarmConfig,
   mimPrice: number,
   spellPrice: number,
-  chainId: number
+  chainId: number | string,
+  publicClient: any
 ) => {
   try {
     if (farmInfo.depositedBalance) {
@@ -31,10 +27,11 @@ export const getFarmYieldAndLpPrice = async (
       const tokenPrice =
         farmInfo.depositedBalance.token0.name === "MIM" ? mimPrice : spellPrice;
 
-      const lpYieldAndPrice = await getLPYieldAndPrice(
+      const lpYieldAndPrice: any = await getLPYieldAndPrice(
         stakingTokenContractInfo,
         tokenAddress,
-        tokenPrice
+        tokenPrice,
+        publicClient
       );
 
       const farmYield = await getFarmYield(
@@ -43,16 +40,17 @@ export const getFarmYieldAndLpPrice = async (
         poolInfo.stakingTokenTotalAmount,
         poolInfo.allocPoint,
         poolInfo.accIcePerShare,
-        chainId
+        chainId,
+        publicClient
       );
 
       return {
-        lpPrice: Number(lpYieldAndPrice?.lpPrice),
+        lpPrice: formatUnits(lpYieldAndPrice?.lpPrice, 18),
         farmYield,
       };
     }
 
-    const price: any = await readContract({
+    const price: any = await publicClient.readContract({
       address: stakingTokenContractInfo.address,
       abi: stakingTokenContractInfo.abi,
       functionName: "get_virtual_price",
@@ -66,11 +64,12 @@ export const getFarmYieldAndLpPrice = async (
       poolInfo.stakingTokenTotalAmount,
       poolInfo.allocPoint,
       poolInfo.accIcePerShare,
-      chainId
+      chainId,
+      publicClient
     );
 
     return {
-      lpPrice: Number(price),
+      lpPrice: formatUnits(price, 18),
       farmYield,
     };
   } catch (e) {
@@ -89,10 +88,11 @@ const getFarmYield = async (
   stakingTokenTotalAmount: bigint,
   allocPoint: number,
   accIcePerShare: bigint,
-  chainId: number
+  chainId: number | string,
+  publicClient: any
 ) => {
   try {
-    const [icePerSecond, totalAllocPoint]: any = await multicall({
+    const [icePerSecond, totalAllocPoint]: any = await publicClient.multicall({
       chainId,
       contracts: [
         {
@@ -143,25 +143,27 @@ const getFarmYield = async (
 const getLPYieldAndPrice = async (
   stakingTokenContractInfo: ContractInfo,
   iceTokenAddress: Address,
-  tokenPrice: number
+  tokenPrice: number,
+  publicClient: any
 ) => {
   try {
-    let [IceInSlpTotal, totalTokensSLPMinted]: any = await multicall({
-      contracts: [
-        {
-          address: iceTokenAddress,
-          abi: erc20ABI,
-          functionName: "balanceOf",
-          args: [stakingTokenContractInfo.address],
-        },
-        {
-          address: stakingTokenContractInfo.address,
-          abi: stakingTokenContractInfo.abi,
-          functionName: "totalSupply",
-          args: [],
-        },
-      ],
-    });
+    let [IceInSlpTotal, totalTokensSLPMinted]: any =
+      await publicClient.multicall({
+        contracts: [
+          {
+            address: iceTokenAddress,
+            abi: erc20ABI,
+            functionName: "balanceOf",
+            args: [stakingTokenContractInfo.address],
+          },
+          {
+            address: stakingTokenContractInfo.address,
+            abi: stakingTokenContractInfo.abi,
+            functionName: "totalSupply",
+            args: [],
+          },
+        ],
+      });
     const IceInSlpTotalResult: bigint = IceInSlpTotal.result;
     let icePerLp = 0n;
     if (IceInSlpTotal.result > 0n)

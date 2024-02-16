@@ -3,7 +3,7 @@ import { useImage } from "@/helpers/useImage";
 import { arbitrum, avalanche } from "viem/chains";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { createPublicClient, formatUnits, http } from "viem";
-import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
+import { magicGlpConfig } from "@/configs/stake/magicGlp/magicGlpConfig";
 import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import type { EmptyState } from "@/types/magicGlp/additionalInfo";
 import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
@@ -19,6 +19,7 @@ const emptyState: EmptyState = {
     balance: 0n,
     balanceUsd: 0n,
     rate: ONE_ETHER_VIEM,
+    price: 0n,
     decimals: 18,
     totalSupply: 0n,
     totalSupplyUsd: 0n,
@@ -28,6 +29,7 @@ const emptyState: EmptyState = {
     icon: stakeToken.icon,
     balance: 0n,
     balanceUsd: 0n,
+    price: 0n,
     rateIcon: useImage("assets/images/glp/mGlpNew.png"),
   },
 };
@@ -90,11 +92,16 @@ export const getEmptyState = async (config: any, chainId: number) => {
   const tokenRate =
     (magicGlpAmount.result * ONE_ETHER_VIEM) / totalSupply.result;
 
+  const stakeTokenPrice = (mainTokenPrice * ONE_ETHER_VIEM) / tokenRate;
+
   emptyState.mainToken.totalSupply = totalSupply.result;
   emptyState.mainToken.totalSupplyUsd = totalSupplyUsd;
   emptyState.mainToken.rate = tokenRate;
+  emptyState.mainToken.price = mainTokenPrice;
+  emptyState.stakeToken.price = stakeTokenPrice;
 
   return {
+    chainId,
     ...emptyState,
     feePercent: feePercentBips.result / BIPS,
     rewardToken: {
