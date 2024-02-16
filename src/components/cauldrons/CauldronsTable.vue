@@ -117,8 +117,12 @@ export default {
       const filteredByPositions = this.filterPositions(filteredByDepreciate);
 
       const sortedByNew = this.sortByNew(filteredByPositions);
+
+      // TODO
+      const sortedByTesting = this.sortByTesting(filteredByPositions);
+
       const filteredByValue = this.filterBySearchValue(
-        sortedByNew,
+        sortedByTesting,
         this.searchValue
       );
 
@@ -230,6 +234,22 @@ export default {
         const isNewB = +!!b?.config?.cauldronSettings?.isNew;
         if (isNewA || isNewB) return isNewB - isNewA;
         return a;
+      });
+    },
+
+    sortByTesting(cauldrons) {
+      return cauldrons.sort((a, b) => {
+        const isNewA = +!!a?.config?.cauldronSettings?.isNew;
+        const isTestingA = +!!a?.config?.cauldronSettings?.isTesting;
+
+        const isNewB = +!!b?.config?.cauldronSettings?.isNew;
+        const isTestingB = +!!b?.config?.cauldronSettings?.isTesting;
+
+        if (isTestingB && isNewA) {
+          return -1;
+        }
+
+        return 0;
       });
     },
 

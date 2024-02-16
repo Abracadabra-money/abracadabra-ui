@@ -15,5 +15,5 @@ export default [
   ...bscCauldrons,
   ...optimismCauldrons,
   ...kavaCauldrons,
-  ...beraCauldrons
+  ...beraCauldrons,
 ];

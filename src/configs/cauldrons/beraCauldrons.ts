@@ -35,6 +35,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isTesting: true,
     //   isMimHoneyLP: true,
     },
     contract: {
