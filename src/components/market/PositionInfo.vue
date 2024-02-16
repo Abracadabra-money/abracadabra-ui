@@ -113,7 +113,7 @@
       <p class="item-value">
         <img class="token-icon" :src="cauldron.config.icon" alt="Mim icon" /> 1
         =
-        {{ formatUnits(collateralPrice) }}
+        {{ formatUnits(collateralPrice, collateralDecimals) }}
       </p>
     </div>
   </div>
