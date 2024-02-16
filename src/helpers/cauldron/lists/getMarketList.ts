@@ -1,5 +1,5 @@
 import { providers, Contract, utils } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
+import { defaultRpc, getChainIds } from "@/helpers/chains";
 import cauldronsConfig from "@/configs/cauldrons";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
@@ -15,7 +15,7 @@ type CauldronListItem = {
 };
 
 const filteredByChainId = (chainId: number) => {
-  return cauldronsConfig.filter((config) => config.chainId === +chainId);
+  return cauldronsConfig.filter((config) => config.chainId === chainId);
 };
 
 const filteredByPrivate = (configs: any, account: string) => {
@@ -31,14 +31,12 @@ const filteredByPrivate = (configs: any, account: string) => {
 
 export const getMarketList = async (
   account: string,
-  chains = null
+  chains = getChainIds()
 ): Promise<CauldronListItem[]> => {
-  const curentChains = chains ? chains : Object.keys(defaultRpc);
-
   const cauldronsInfo: CauldronListItem[] = [];
 
   await Promise.all(
-    curentChains.map(async (chainId: any) => {
+    chains.map(async (chainId: any) => {
       const configsByChain = filteredByChainId(chainId);
 
       const filteredConfigs: CauldronConfig[] = filteredByPrivate(
@@ -56,7 +54,7 @@ export const getMarketList = async (
 
       // NOTICE: BERA TEST
       const multicallProvider =
-        +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
+        chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
       const mainParams = await getMainParams(
         filteredConfigs,

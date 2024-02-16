@@ -57,17 +57,17 @@
         :key="chainId"
       >
         <div class="chain-info">
-          <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
-          <span class="chain-name">{{ getChainName(+chainId) }}</span>
+          <img class="chain-icon" :src="getChainIcon(chainId)" alt="" />
+          <span class="chain-name">{{ getChainName(chainId) }}</span>
         </div>
 
         <div
-          :class="['checkbox', { active: selectedChains.includes(+chainId) }]"
-          @click="updateSelectedChain(+chainId)"
+          :class="['checkbox', { active: selectedChains.includes(chainId) }]"
+          @click="updateSelectedChain(chainId)"
         >
           <svg
             class="checked"
-            v-show="selectedChains.includes(+chainId)"
+            v-show="selectedChains.includes(chainId)"
             xmlns="http://www.w3.org/2000/svg"
             width="20"
             height="20"

@@ -250,7 +250,7 @@ export default {
     },
 
     changeActiveMarket({ id, chainId }) {
-      if (+id != +this.id || +chainId != +this.chainId)
+      if (id != +this.id || chainId != +this.chainId)
         this.$router.push({ path: `/farm/${id}/${chainId}` });
 
       this.isFarmsPopupOpened = false;

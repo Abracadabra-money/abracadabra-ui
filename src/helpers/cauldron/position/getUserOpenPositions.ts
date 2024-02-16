@@ -3,21 +3,19 @@ import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import { defaultRpc } from "@/helpers/chains";
+import { defaultRpc, getChainIds } from "@/helpers/chains";
 
 import type { CauldronPositionItem } from "@/helpers/cauldron/types";
 import { markRaw } from "vue";
 
 export const getUserOpenPositions = async (
   account: string,
-  chains = null
+  chains = getChainIds()
 ): Promise<CauldronPositionItem[]> => {
-  const currentChains = chains ? chains : Object.keys(defaultRpc);
-
   const positions: any = [];
 
   await Promise.all(
-    currentChains.map(async (chainId: any) => {
+    chains.map(async (chainId: any) => {
       const configs: any[] = cauldronsConfig.filter(
         (config) => config.chainId == chainId
       );
@@ -32,7 +30,7 @@ export const getUserOpenPositions = async (
       // const multicallProvider = MulticallWrapper.wrap(provider);
       // NOTICE: BERA TEST
       const multicallProvider =
-        +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
+        chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
       const cauldronContracts = configs.map((config: any) => {
         return new Contract(

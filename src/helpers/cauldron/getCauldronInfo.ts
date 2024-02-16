@@ -21,10 +21,10 @@ export const getCauldronInfo = async (
   // const multicallProvider = MulticallWrapper.wrap(provider);
   // NOTICE: BERA TEST
   const multicallProvider =
-    +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
+    chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
   const config = cauldronsConfig.find(
-    (config) => +config.id === +cauldronId && +config.chainId === +chainId
+    (config) => config.id === cauldronId && config.chainId === chainId
   );
 
   if (!config) return null;
