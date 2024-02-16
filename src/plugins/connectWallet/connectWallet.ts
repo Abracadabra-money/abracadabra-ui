@@ -1,4 +1,4 @@
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import store from "@/store";
 import { onConnectNew } from "@/plugins/connectWallet/initConnect";
 import { initWithoutConnect } from "@/plugins/connectWallet/initWithoutConnect";

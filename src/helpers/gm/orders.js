@@ -1,5 +1,5 @@
-import orderAbi from "@/utils/abi/gm/order";
-import ERC20 from "@/utils/zeroXSwap/abi/ERC20";
+import orderAbi from "@/abis/gm/order";
+import ERC20 from "@/abis/zeroXSwap/ERC20";
 import { Contract } from "ethers";
 
 import { USDC_ADDRESS, WETH_ADDRESS, ZERO_ADDRESS } from "@/constants/gm";

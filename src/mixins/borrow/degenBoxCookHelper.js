@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import cookHelperAbi from "@/utils/abi/cookHelperAbi";
+import cookHelperAbi from "@/abis/cookHelperAbi";
 
 export default {
   computed: {

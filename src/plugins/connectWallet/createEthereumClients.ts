@@ -1,5 +1,5 @@
 import { useImage } from "@/helpers/useImage";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import store from "@/store";
 import { InjectedConnector } from "@wagmi/core";
 import { EthereumClient } from "@web3modal/ethereum";

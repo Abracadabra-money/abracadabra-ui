@@ -2,24 +2,18 @@ import type { BigNumber, providers } from "ethers";
 import type { MarketInfo, MarketPrices, DataStoreInfo } from "../types";
 import type { Address } from "viem";
 
-import { getMarketVirtualInventory } from "../getMarketInfo";
+
 import { getSwapAmountsByFromValue } from "../trade/swap";
 
-export const getLongToShortSwapAmounts = async (
+export const getLongToShortSwapAmounts = (
   market: Address,
   marketInfo: MarketInfo,
   decimals: any,
   prices: MarketPrices,
   dataStoreInfo: DataStoreInfo,
   fromTokenAmount: BigNumber,
-  provider: providers.BaseProvider
+  virtualInventory: any
 ) => {
-  const virtualInventory = await getMarketVirtualInventory(
-    provider,
-    prices,
-    market
-  );
-
   const virtualPoolAmountForLongToken =
     virtualInventory.virtualPoolAmountForLongToken;
   const virtualPoolAmountForShortToken =

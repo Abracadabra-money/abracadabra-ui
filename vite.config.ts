@@ -41,6 +41,7 @@ export default defineConfig({
         additionalData: `
           @use "sass:math";
           @import "./src/assets/styles/_variables.scss";
+          @import "./src/assets/styles/_mixins.scss";
         `,
       },
     },

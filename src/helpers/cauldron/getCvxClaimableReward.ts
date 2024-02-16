@@ -5,7 +5,7 @@ export const getCvxClaimableReward = async (
   contract: Contract,
   account: String,
   decimals: BigNumberish
-): Promise<Number | null> => {
+): Promise<number | null> => {
   if (!contract.cvx_claimable_reward) return null;
 
   try {

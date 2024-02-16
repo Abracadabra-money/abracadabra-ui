@@ -39,7 +39,7 @@ import {
 } from "@/constants/tenderly";
 import { mapActions, mapGetters } from "vuex";
 import { chains } from "@/helpers/chains";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { addAndSwitchForkOnWallet } from "@/helpers/tenderly/addAndSwitchForkOnWallet";
 
 export default {

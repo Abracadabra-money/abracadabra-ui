@@ -30,7 +30,7 @@ export const getChartData = async (
       chartData = await getMagicLvlApy(feePercent);
       break;
     case "magicKlpApy":
-      chartData = await getMagicKlpApy();
+      chartData = await getMagicKlpApy(period);
       break;
     default:
       console.log("Error Get Chart Data");

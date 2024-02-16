@@ -1,6 +1,16 @@
 <template>
   <AppHeader />
-  <div class="router-wrap" :style="pageBackground" v-if="checkInProcess">
+  <div class="router-wrap" v-if="checkInProcess">
+    <img
+      class="mim-top-bg"
+      src="@/assets/images/main-mim-top-bg.png"
+      alt="Mim"
+    />
+    <img
+      class="mim-bottom-bg"
+      src="@/assets/images/main-mim-bottom-bg.png"
+      alt="Mim"
+    />
     <router-view />
   </div>
   <NotificationContainer />
@@ -50,14 +60,6 @@ export default {
       checkInProcess: "getWalletIsConnected",
       signer: "getSigner",
     }),
-
-    pageBackground() {
-      if (this.$route.name === "ArbCauldrons") {
-        return "background:linear-gradient(291deg, #102649 -26.37%, #0C0F1C 40.92%, #131728 62.83%, #212555 123.87%)";
-      }
-
-      return "";
-    },
   },
 
   async beforeCreate() {

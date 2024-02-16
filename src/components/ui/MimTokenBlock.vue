@@ -15,9 +15,9 @@
 
 <script>
 import { mapGetters } from "vuex";
-import filters from "@/filters/index.js";
-import tokensInfo from "@/utils/tokens/addedTokens.js";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import { formatToFixed } from "@/helpers/filters";
+import tokensInfo from "@/configs/tokens/mim";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {
@@ -40,16 +40,13 @@ export default {
 
       if (this.chainId) id = this.chainId;
 
-      return tokensInfo.find(
-        (token) => token.name === "MIM" && token.chain === id
-      );
+      return tokensInfo.find((token) => token.chainId === id);
     },
   },
 
   methods: {
-    formatToFixed(value, fixed) {
-      return filters.formatToFixed(value, fixed);
-    },
+    formatToFixed,
+
     async addToken() {
       if (!this.account) {
         return false;
@@ -111,6 +108,8 @@ export default {
 
 .mim-price {
   margin-left: 10px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .token-btn {
@@ -128,11 +127,5 @@ export default {
 
 .disabled {
   cursor: initial;
-}
-
-@media (max-width: 980px) {
-  .mim-wrap {
-    z-index: 11;
-  }
 }
 </style>

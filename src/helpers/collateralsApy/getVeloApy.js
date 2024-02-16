@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import axios from "axios";
 
-import SolidlyGaugeVolatileLPStrategy from "@/utils/abi/SolidlyGaugeVolatileLPStrategy";
+import SolidlyGaugeVolatileLPStrategy from "@/abis/SolidlyGaugeVolatileLPStrategy";
 
 const getVeloManagementFee = async (pool, provider) => {
   try {

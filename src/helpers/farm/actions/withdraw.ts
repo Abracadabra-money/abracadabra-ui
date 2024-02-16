@@ -3,12 +3,9 @@ import {
   waitForTransaction,
   writeContract,
 } from "@wagmi/core";
-import type { ContractInfo } from "@/utils/farmsConfig/types";
+import type { ContractInfo } from "@/configs/farms/types";
 
-export const withdraw = async (
-  contractInfo: ContractInfo,
-  args: any
-) => {
+export const withdraw = async (contractInfo: ContractInfo, args: any) => {
   try {
     const config = await prepareWriteContract({
       ...contractInfo,

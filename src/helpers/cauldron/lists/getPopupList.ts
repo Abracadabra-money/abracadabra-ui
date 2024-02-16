@@ -2,8 +2,8 @@ import { Contract, providers, utils, BigNumber } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
-import cauldronsConfig from "@/utils/cauldronsConfig";
-import lensAbi from "@/utils/abi/marketLens.js";
+import cauldronsConfig from "@/configs/cauldrons";
+import lensAbi from "@/abis/marketLens.js";
 
 type PopupListItem = {
   config: object;
@@ -25,7 +25,10 @@ export const getPopupList = async (
 ): Promise<PopupListItem[]> => {
   const lensAddress = getLensAddress(chainId);
 
-  const multicalProvider = MulticallWrapper.wrap(provider);
+  // const multicallProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicallProvider =
+    +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
   const configs: any[] = cauldronsConfig.filter((config) => {
     let result = config.chainId === +chainId;
@@ -51,7 +54,7 @@ export const getPopupList = async (
   const userInfo: Array<Object> = await getUserBalances(
     account,
     configs,
-    multicalProvider,
+    multicallProvider,
     lensContract
   );
 

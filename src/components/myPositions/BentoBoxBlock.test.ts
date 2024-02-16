@@ -1,79 +1,158 @@
-import { mount } from "@vue/test-utils";
 import Vuex from "vuex";
-import { describe, expect, it } from "vitest";
-import { ethers } from "ethers";
-
+import { Wallet } from "ethers";
+import { describe, it, expect, vi } from "vitest";
+import { mount, shallowMount } from "@vue/test-utils";
+import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
 
-const testBentoBalance = ethers.utils.parseUnits("10000000000000000", 3);
-const testDegenBalance = ethers.utils.parseUnits("20000000000000000", 3);
+const store = new Vuex.Store({
+  modules: {
+    connectProvider: {
+      state: {
+        chainId: 1,
+        account: Wallet.createRandom(),
+      },
+      getters: {
+        getChainId: (state) => state.chainId,
+        getAccount: (state) => state.account,
+      },
+    },
+  },
+});
 
-describe("BentoBoxBlock.vue", () => {
-  it("Should computing correct with all getters passed", () => {
-    const store = new Vuex.Store({
-      modules: {
-        connectProvider: {
-          state: {
-            account: "0x",
-          },
-          getters: {
-            getAccount: (state) => state.account,
-          },
+describe("BentoBoxBlock", () => {
+  it("renders BentoBoxItem components when activeChains.degen.length is greater than 0", () => {
+    const wrapper = mount(BentoBoxBlock, {
+      global: { plugins: [store] },
+      data(): any {
+        return {
+          activeDegenChain: 1,
+        };
+      },
+      computed: {
+        activeChains() {
+          return {
+            degen: [{ chainId: 1, mimInDegenBalance: 100n }],
+            bento: [],
+          };
         },
-        stake: {
-          state: {
-            mimInBentoDepositObject: {
-              mimInBentoBalance: testBentoBalance,
-              mimInDegenBalance: testDegenBalance,
-            },
-          },
-          getters: {
-            getMimInBentoDepositObject: (state) =>
-              state.mimInBentoDepositObject,
-          },
+        activeChainDegenConfig() {
+          return {};
         },
       },
+      created() {},
     });
 
-    const wrapper: any = mount(BentoBoxBlock, {
-      props: { opened: false, isBento: null, isDeposit: null },
-      global: { plugins: [store] },
-    });
+    const bentoBoxItems = wrapper.findAllComponents(BentoBoxItem);
 
-    expect(wrapper.vm.account).toEqual("0x");
-    expect(wrapper.vm.bentoBoxConfig).toBeDefined();
+    expect(bentoBoxItems.length).toBe(1);
   });
 
-  it("Should computing correct with not all getters passed", () => {
-    const store = new Vuex.Store({
-      modules: {
-        connectProvider: {
-          state: {
-            account: undefined,
-          },
-          getters: {
-            getAccount: (state) => state.account,
-          },
+  it("renders BentoBoxItem components when activeChains.bento.length is greater than 0", () => {
+    const wrapper = shallowMount(BentoBoxBlock, {
+      global: { plugins: [store] },
+      data(): any {
+        return {
+          activeDegenChain: 2,
+        };
+      },
+      computed: {
+        activeChains() {
+          return {
+            degen: [],
+            bento: [{ chainId: 2 }],
+          };
         },
-        stake: {
-          state: {
-            mimInBentoDepositObject: undefined,
-          },
-          getters: {
-            getMimInBentoDepositObject: (state) =>
-              state.mimInBentoDepositObject,
-          },
+        activeChainBentoConfig() {
+          return {};
         },
       },
+      created() {},
     });
 
-    const wrapper: any = mount(BentoBoxBlock, {
-      props: { opened: false, isBento: null, isDeposit: null },
+    const bentoBoxItems = wrapper.findAllComponents(BentoBoxItem);
+    expect(bentoBoxItems.length).toBe(1);
+  });
+
+  it("does not render BentoBoxItem components when activeChains.degen.length and activeChains.bento.length are 0", () => {
+    const wrapper = shallowMount(BentoBoxBlock, {
       global: { plugins: [store] },
+      data(): any {
+        return {
+          activeDegenChain: 1,
+        };
+      },
+      computed: {
+        activeChains() {
+          return {
+            degen: [],
+            bento: [],
+          };
+        },
+        activeChainDegenConfig() {
+          return {};
+        },
+      },
+      created() {},
     });
 
-    expect(wrapper.vm.account).toBeUndefined();
-    expect(wrapper.vm.bentoBoxConfig).toBeUndefined();
-    expect(wrapper.vm.isHide).toBeFalsy();
+    const bentoBoxItems = wrapper.findAllComponents(BentoBoxItem);
+    expect(bentoBoxItems.length).toBe(0);
+  });
+
+  it("opens the popup when @withdraw event is emitted with false", () => {
+    const wrapper: any = shallowMount(BentoBoxBlock, {
+      global: { plugins: [store] },
+      data(): any {
+        return {
+          activeDegenChain: 1,
+        };
+      },
+      computed: {
+        activeChains() {
+          return {
+            degen: [{ chainId: 1, mimInDegenBalance: 100n }],
+            bento: [],
+          };
+        },
+        activeChainDegenConfig() {
+          return {};
+        },
+      },
+      created() {},
+    });
+    wrapper.vm.openPopup = vi.fn();
+
+    wrapper.findComponent(BentoBoxItem).vm.$emit("withdraw", false);
+
+    expect(wrapper.vm.openPopup).toHaveBeenCalledWith(false);
+  });
+
+  it("opens the popup when @withdraw event is emitted with true", () => {
+    const wrapper: any = shallowMount(BentoBoxBlock, {
+      global: { plugins: [store] },
+      data(): any {
+        return {
+          activeDegenChain: 1,
+        };
+      },
+      computed: {
+        activeChains() {
+          return {
+            degen: [{ chainId: 1, mimInDegenBalance: 100n }],
+            bento: [],
+          };
+        },
+        activeChainDegenConfig() {
+          return {};
+        },
+      },
+      created() {},
+    });
+    wrapper.vm.openPopup = vi.fn();
+
+    wrapper.findComponent(BentoBoxItem).vm.$emit("withdraw", true);
+
+    expect(wrapper.vm.openPopup).toHaveBeenCalled();
   });
 });

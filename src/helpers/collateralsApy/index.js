@@ -1,13 +1,17 @@
 import store from "@/store";
-
-import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
-import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
-import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
+import { providers } from "ethers";
+import { APR_KEY } from "@/constants/global";
+import { defaultRpc } from "@/helpers/chains";
+import { formatToFixed } from "@/helpers/filters";
+import { getGMApr } from "@//helpers/collateralsApy/getGMApr";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
-import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
+import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
+import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
+import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
+import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
-import { getGMApr } from "./getGMApr";
+import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 
 export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
@@ -16,9 +20,7 @@ export const isApyCalcExist = (chainId, poolId) => {
     cauldronsIds = [6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39];
   }
 
-  if (chainId === 10) {
-    cauldronsIds = [1];
-  }
+  // if (chainId === 10) cauldronsIds = [1];
 
   if (chainId === 42161) {
     cauldronsIds = [2, 3, 4, 5, 6, 7, 8];
@@ -27,9 +29,11 @@ export const isApyCalcExist = (chainId, poolId) => {
   return cauldronsIds.indexOf(poolId) !== -1;
 };
 
-export const fetchTokenApy = async (pool) => {
-  let chainId = store.getters.getChainId;
-  let provider = store.getters.getProvider;
+export const fetchTokenApy = async (pool, chainId, provider) => {
+  if (!chainId || !provider) {
+    chainId = store.getters.getChainId;
+    provider = store.getters.getProvider;
+  }
 
   if (chainId === 1) {
     if (pool.config.id === 34) return await getLUSDApy(provider);
@@ -48,7 +52,7 @@ export const fetchTokenApy = async (pool) => {
     if (pool.config.id === 31 || pool.config.id === 32)
       return await getStargateApy(pool, provider);
 
-    if (pool.config.id === 39) return await getMagicApeApy(provider);
+    if (pool.config.id === 39) return await getMagicApeApy(chainId);
   }
 
   if (chainId === 10) {
@@ -62,11 +66,66 @@ export const fetchTokenApy = async (pool) => {
       if (pool.config.id === 3) return response.magicGlpApy;
     }
 
-    if(pool.config.cauldronSettings.isGMXMarket) {
+    if (pool.config.cauldronSettings.isGMXMarket) {
       const market = pool.config.collateralInfo.address.toLowerCase();
-      return await getGMApr(market, provider)
+      return await getGMApr(market, provider);
     }
   }
 
   return await getYearnVaultsApy(pool);
+};
+
+const fetchCollateralApy = async (cauldron, chainId, address) => {
+  const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+
+  const apr = await fetchTokenApy(cauldron, chainId, provider);
+
+  const localData = localStorage.getItem(APR_KEY);
+  const parsedData = localData ? JSON.parse(localData) : {};
+
+  parsedData[address] = {
+    chainId,
+    apr: Number(formatToFixed(apr, 2)),
+    createdAt: new Date().getTime(),
+  };
+
+  localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
+
+  return formatToFixed(apr, 2);
+};
+
+const isAprOutdate = (localData, address) => {
+  if (!localData) return true;
+  if (!localData[address]) return true;
+
+  const allowedTime = 5;
+  const { createdAt } = localData[address];
+  const currentTime = new Date().getTime();
+  const timeDiff = currentTime - createdAt;
+  const minutes = Math.floor(timeDiff / 1000 / 60);
+  return minutes > allowedTime;
+};
+
+export const getCollateralApr = async (
+  cauldron,
+  ignoreUserPosition = false
+) => {
+  const { chainId, id, contract } = cauldron.config;
+  const isApyExist = isApyCalcExist(chainId, id);
+
+  if (!isApyExist) return { value: 0, multiplier: 0 };
+
+  const localApr = localStorage.getItem(APR_KEY);
+  const parseLocalApr = localApr ? JSON.parse(localApr) : null;
+
+  const isOutdated = isAprOutdate(parseLocalApr, contract.address);
+  const collateralApy = !isOutdated
+    ? parseLocalApr[contract.address].apr
+    : await fetchCollateralApy(cauldron, chainId, contract.address);
+
+  const multiplier = !ignoreUserPosition
+    ? getMaxLeverageMultiplier(cauldron)
+    : getMaxLeverageMultiplier(cauldron, 10, false, 1, true);
+
+  return { value: collateralApy, multiplier };
 };

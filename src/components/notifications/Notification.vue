@@ -1,37 +1,24 @@
 <template>
-  <div
-    class="notification-item"
-    :class="['notification-item__' + notification.type]"
-  >
-    <div class="notification-item__header">
-      <img
-        class="notification-item__icon"
-        :src="getImgUrl(notification.type)"
-        alt="Notification icon"
-      />
-      <p>{{ notificationTitle }}</p>
-      <img
-        class="notification-item__close"
-        src="@/assets/images/notification-icons/close-icon.svg"
-        alt=""
-        @click="closeNotification"
-      />
-    </div>
-    <p class="notification-item__discription">{{ notification.discription }}</p>
-    <p class="notification-item__content">{{ notification.msg }}</p>
-    <div class="timer" v-if="notification.type === 'pending'">
-      <img
-        class="timer-icon"
-        src="@/assets/images/notification-icons/pending-icon.svg"
-        alt="Timer"
-      />
-      <p class="timer-number">{{ parsedTime }}</p>
-    </div>
+  <div class="notification" :class="['notification-' + notification.type]">
+    <button class="close-button" @click="closeNotification"></button>
+    <img
+      class="notification-icon"
+      :src="getImgUrl(notification.type)"
+      alt="Notification icon"
+    />
+
+    <h3 class="title">
+      {{ notificationTitle }} <span v-if="isPending">{{ parsedTime }}</span>
+    </h3>
+    <h4 class="subtitle">{{ notification.discription }}</h4>
+    <p class="text">{{ notification.msg }}</p>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import moment from "moment";
+import { useImage } from "@/helpers/useImage";
+import { mapMutations } from "vuex";
 export default {
   props: {
     notification: {
@@ -39,18 +26,23 @@ export default {
       required: true,
     },
   },
+
   data() {
     return {
-      timerInterval: null,
+      timerInterval: null as any,
       timeValue: 0,
     };
   },
 
   computed: {
-    notificationTitle() {
-      if (this.notification?.title) return this.notification.title;
+    isPending() {
+      return this.notification.type === "pending";
+    },
 
-      return this.notification.type;
+    notificationTitle() {
+      return this.notification?.title
+        ? this.notification.title
+        : this.notification.type;
     },
 
     parsedTime() {
@@ -59,25 +51,26 @@ export default {
   },
 
   methods: {
-    getImgUrl(type) {
-      if (!type) {
-        return this.$image(`assets/images/notification-icons/info-icon.png`);
-      }
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+    }),
 
-      return this.$image(`assets/images/notification-icons/${type}-icon.png`);
+    getImgUrl(type: string) {
+      const icon = type ? type : "info";
+      return useImage(`assets/images/notification-icons/${icon}-icon.png`);
     },
 
     closeNotification() {
-      this.$store.commit("notifications/delete", this.notification.id);
+      this.deleteNotification(this.notification.id);
     },
   },
 
   created() {
-    this.timerInterval = setInterval(() => {
-      this.timeValue++;
-    }, 1000);
-
-    if (this.notification.type !== "pending") {
+    if (this.isPending) {
+      this.timerInterval = setInterval(() => {
+        this.timeValue++;
+      }, 1000);
+    } else {
       setTimeout(() => {
         this.closeNotification();
       }, 15000);
@@ -91,82 +84,92 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.notification-item {
-  padding: 20px;
-  background: rgba(66, 63, 77, 0.4);
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(100px);
-  border-radius: 30px;
-  &__close {
-    margin-left: auto;
-    margin-top: -20px;
-    cursor: pointer;
-  }
-  &__icon {
-    margin-right: 5px;
-    width: 45px;
-    height: auto;
-  }
-  &__header {
-    font-family: Prompt;
-    font-style: normal;
-    font-weight: 600;
-    font-size: 18px;
-    line-height: 27px;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 13px;
-    margin-bottom: 13px;
-  }
-  &__discription {
-    font-size: 16px;
-    letter-spacing: 0.025em;
-    color: #ffffff;
-  }
-  &__content {
-    margin-top: 5px;
-    font-size: 16px;
-    letter-spacing: 0.025em;
-    color: rgba(255, 255, 255, 0.6);
-  }
-}
-.notification-item {
-  &__success {
-    border: 1px solid #63ff7b;
-  }
-  &__info {
-    border: 1px solid #517ef2;
-  }
-  &__error {
-    border: 1px solid #d94844;
-  }
-  &__warning {
-    border: 1px solid #e5d752;
-  }
-  &__pending {
-    border: 1px solid #9695f8;
-  }
-}
-
-.timer {
+.notification {
+  padding: 16px 16px 16px 80px;
+  border-radius: 16px;
+  background: rgba(16, 22, 34, 0.4);
+  border: 1px solid var(--Primary-Solid, #7088cc);
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(50px);
+  position: relative;
+  gap: 4px;
   display: flex;
-  align-items: center;
-  padding: 10px 0 0;
+  flex-direction: column;
+  width: 100%;
 }
 
-.timer-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
+.notification-success {
+  border: 1px solid $success;
+
+  .title {
+    color: $success;
+  }
 }
 
-.timer-number {
+.notification-pending {
+  border: 1px solid $pending;
+
+  .title {
+    color: $pending;
+  }
+}
+
+// todo warning color and icon
+.notification-warning {
+  border: 1px solid $warning;
+
+  .title {
+    color: $warning;
+  }
+}
+
+.notification-error {
+  border: 1px solid $error;
+
+  .title {
+    color: $error;
+  }
+}
+
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 14px;
+  height: 14px;
+  border: transparent;
+  outline: transparent;
+  cursor: pointer;
+  background: url("@/assets/images/notification-icons/close-icon.svg");
+}
+
+.notification-icon {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  top: 16px;
+  left: 16px;
+}
+
+.title {
   font-weight: 600;
-  font-size: 18px;
-  line-height: 20px;
-  text-align: center;
+  line-height: 150%;
+  letter-spacing: 0.4px;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  line-height: 120%;
 }
 </style>

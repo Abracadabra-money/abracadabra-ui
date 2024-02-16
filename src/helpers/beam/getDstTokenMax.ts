@@ -1,7 +1,7 @@
 import { Contract, ethers, providers } from "ethers";
-import endpointAbi from "@/utils/abi/beam/endpoint.js";
-import ultraLightNodeV2Abi from "@/utils/abi/beam/UltraLightNodeV2.js";
-import relayerAbi from "@/utils/abi/beam/relayer.js";
+import endpointAbi from "@/abis/beam/endpoint.js";
+import ultraLightNodeV2Abi from "@/abis/beam/UltraLightNodeV2.js";
+import relayerAbi from "@/abis/beam/relayer.js";
 
 export const getDstTokenMax = async (
   beamContract: Contract,

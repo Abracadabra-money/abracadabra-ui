@@ -31,10 +31,9 @@ export type ChainConfig = {
 export type StakeInfo = {
   mainToken: MainTokenInfo;
   stakeToken: StakeTokenInfo;
-  tokensRate: bigint;
   feePercent: number;
-  rewardTokenPrice: bigint;
   rewardToken: RewardToken;
+  leverageInfo: any;
 };
 
 export type EmptyState = {

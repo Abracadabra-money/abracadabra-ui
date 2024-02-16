@@ -1,5 +1,5 @@
 import { getAccount } from "@wagmi/core";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import cauldronsConfig from "@/configs/cauldrons";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getContracts } from "@/helpers/cauldron/getContracts";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
@@ -17,7 +17,11 @@ export const getCauldronInfo = async (
 ): Promise<CauldronInfo | null> => {
   const { address } = getAccount();
   const userSigner = address ? signer : provider;
-  const multicallProvider = MulticallWrapper.wrap(provider);
+
+  // const multicallProvider = MulticallWrapper.wrap(provider);
+  // NOTICE: BERA TEST
+  const multicallProvider =
+    +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
   const config = cauldronsConfig.find(
     (config) => +config.id === +cauldronId && +config.chainId === +chainId
@@ -45,7 +49,7 @@ export const getCauldronInfo = async (
   const userTokensInfo = await getUserTokensInfo(
     multicallContracts,
     address,
-    signer
+    provider
   );
 
   const additionalInfo = await getAdditionalInfo(

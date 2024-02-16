@@ -1,21 +1,25 @@
 import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import SettingsButton from "@/components/ui/buttons/SettingsButton.vue";
 
-describe("SettingsButton.vue", () => {
-  const wrapper: any = mount(SettingsButton);
+describe("SettingsButton", () => {
+  it("renders button with correct classes when active prop is false", () => {
+    const wrapper = shallowMount(SettingsButton, {
+      propsData: {
+        active: true,
+      },
+    });
 
-  it("Should render without props with no 'active' class", async () => {
-    const settingsBtn = wrapper.find(".settings-btn");
-    expect(settingsBtn.exists()).toBe(true);
-    expect(settingsBtn.classes("active")).toBe(false);
+    expect(wrapper.find(".settings-btn").classes()).toContain("active");
   });
 
-  it("Should render with props and set 'active' class depends on it", async () => {
-    await wrapper.setProps({ active: false });
-    expect(wrapper.classes("active")).toBe(false);
+  it("renders button with correct classes when active prop is true", () => {
+    const wrapper = shallowMount(SettingsButton, {
+      propsData: {
+        active: false,
+      },
+    });
 
-    await wrapper.setProps({ active: true });
-    expect(wrapper.classes()).toContain("active");
+    expect(wrapper.find(".settings-btn").classes()).not.toContain("active");
   });
 });

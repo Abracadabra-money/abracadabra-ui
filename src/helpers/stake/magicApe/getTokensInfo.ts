@@ -1,12 +1,11 @@
-import { multicall } from "@wagmi/core";
 import type { Address } from "@wagmi/core";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
-import type { TokensInfo } from "@/types/magicApe/tokensInfo";
 
 export const getTokensInfo = async (
   account: Address,
-  config: any
-): Promise<TokensInfo> => {
+  config: any,
+  publicClient: any
+) => {
   const { mainToken, stakeToken, oracle } = config;
 
   let allowanceAmountResult = 0n;
@@ -15,32 +14,34 @@ export const getTokensInfo = async (
   let userApeBalanceUsd = 0n;
   let userMagicApeBalanceUsd = 0n;
 
-  const [peekSpot, totalSupply, tokensRate]: any = await multicall({
-    contracts: [
-      {
-        ...oracle,
-        functionName: "peekSpot",
-        args: ["0x"],
-      },
-      {
-        ...mainToken.contract,
-        functionName: "totalSupply",
-        args: [],
-      },
-      {
-        ...mainToken.contract,
-        functionName: "convertToAssets",
-        args: [ONE_ETHER_VIEM],
-      },
-    ],
-  });
+  const [peekSpot, totalSupply, tokensRate]: any = await publicClient.multicall(
+    {
+      contracts: [
+        {
+          ...oracle,
+          functionName: "peekSpot",
+          args: ["0x"],
+        },
+        {
+          ...mainToken.contract,
+          functionName: "totalSupply",
+          args: [],
+        },
+        {
+          ...mainToken.contract,
+          functionName: "convertToAssets",
+          args: [ONE_ETHER_VIEM],
+        },
+      ],
+    }
+  );
 
   const apePrice = (MIM_PRICE * ONE_ETHER_VIEM) / peekSpot.result;
   const magicApePrice = (apePrice * tokensRate.result) / ONE_ETHER_VIEM;
 
-  if (account !== "0x") {
+  if (account) {
     const [userApeBalance, userMagicApeBalance, allowanceAmount]: any =
-      await multicall({
+      await publicClient.multicall({
         contracts: [
           {
             ...stakeToken.contract,
@@ -94,6 +95,5 @@ export const getTokensInfo = async (
       balanceUsd: userApeBalanceUsd,
       approvedAmount: allowanceAmountResult,
     },
-    tokensRate: tokensRate.result,
   };
 };

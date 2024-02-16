@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import { holdersConfig } from "@/utils/tenderly/holdersConfig";
+import { holdersConfig } from "@/configs/tenderly/holdersConfig";
 import { erc20ABI, type Address, multicall } from "@wagmi/core";
 
 export const getTokenHolders = async (

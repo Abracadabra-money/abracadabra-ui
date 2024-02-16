@@ -1,33 +1,34 @@
 <template>
-  <div class="bento-wrapper" v-if="isHide">
+  <div class="bento-wrapper">
     <BentoBoxItem
-      v-if="bentoBoxConfig.mimInDegenBalance"
-      @withdraw="openPopup(false, false)"
-      @deposit="openPopup(false, true)"
-      :balance="bentoBoxConfig.mimInDegenBalance"
-      :mimPrice="bentoBoxConfig.mimPrice"
+      @withdraw="openPopup(false)"
+      @chooseActiveChain="chooseActiveDegenChain"
+      :balance="activeChainDegenConfig.mimInDegenBalance"
+      :mimPrice="activeChainDegenConfig.mimPrice"
+      :activeChains="activeChains.degen"
+      :activeChain="activeDegenChain"
+      :currentChain="chainId"
+      v-if="activeChains.degen.length"
     />
 
     <BentoBoxItem
-      v-if="bentoBoxConfig.mimInBentoBalance"
-      @withdraw="openPopup(true, false)"
-      @deposit="openPopup(true, true)"
-      :balance="bentoBoxConfig.mimInBentoBalance"
-      :mimPrice="bentoBoxConfig.mimPrice"
+      @withdraw="openPopup(true)"
+      @chooseActiveChain="chooseActiveBentoChain"
+      :balance="activeChainBentoConfig.mimInBentoBalance"
+      :mimPrice="activeChainBentoConfig.mimPrice"
+      :activeChains="activeChains.bento"
+      :activeChain="activeBentoChain"
+      :currentChain="chainId"
+      v-if="activeChains.bento.length"
       :isBento="true"
     />
 
-    <LocalPopupWrap
-      :isOpened="popupData.opened"
-      @closePopup="popupData.opened = false"
-    >
-      <DegenBentoPopup
-        :infoObject="bentoBoxConfig"
-        :isBento="popupData.isBento"
-        :isDeposit="popupData.isDeposit"
-        @close="closePopup"
-      />
-    </LocalPopupWrap>
+    <DegenBentoPopup
+      v-if="popupData.opened"
+      :infoObject="currentChainBentoConfig"
+      :isBento="popupData.isBento"
+      @close="popupData.opened = false"
+    />
   </div>
 </template>
 
@@ -36,7 +37,7 @@ import { mapGetters } from "vuex";
 import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
-import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
+import { formatUnits } from "viem";
 
 import { createBentoBoxConfig } from "@/helpers/bentoBox/createBentoBoxConfig.ts";
 
@@ -49,11 +50,17 @@ const initialPopupData = {
 export default {
   mixins: [bentoBoxMixin],
 
+  props: {
+    activeNetworks: { type: Array },
+  },
+
   data() {
     return {
       popupData: { ...initialPopupData },
       bentoUpdateInterval: null,
-      bentoBoxConfig: null,
+      bentoBoxConfigs: null,
+      activeBentoChain: null,
+      activeDegenChain: null,
     };
   },
 
@@ -63,10 +70,47 @@ export default {
       account: "getAccount",
     }),
 
-    isHide() {
+    activeChains() {
+      let bento = [];
+      let degen = [];
+      this.bentoBoxConfigs?.forEach((config) => {
+        if (formatUnits(config.mimInBentoBalance || 0, 18) > 0.1)
+          bento.push(config);
+        if (formatUnits(config.mimInDegenBalance || 0, 18) > 0.1)
+          degen.push(config);
+      });
+
+      bento = bento.sort((a, b) => b.mimInBentoBalance - a.mimInBentoBalance);
+      degen = degen.sort((a, b) => b.mimInDegenBalance - a.mimInDegenBalance);
+
+      return {
+        bento: bento.map((config) => config.chainId),
+        degen: degen.map((config) => config.chainId),
+      };
+    },
+
+    currentChainBentoConfig() {
+      return this.bentoBoxConfigs?.find(
+        (config) => this.chainId == config.chainId
+      );
+    },
+
+    activeChainBentoConfig() {
+      return this.bentoBoxConfigs?.find(
+        (config) => this.activeBentoChain == config.chainId
+      );
+    },
+
+    activeChainDegenConfig() {
+      return this.bentoBoxConfigs?.find(
+        (config) => this.activeDegenChain == config.chainId
+      );
+    },
+
+    isVisible() {
       return (
-        (this.bentoBoxConfig?.mimInBentoBalance ||
-          this.bentoBoxConfig?.mimInDegenBalance) &&
+        (this.currentChainBentoConfig?.mimInBentoBalance ||
+          this.currentChainBentoConfig?.mimInDegenBalance) &&
         this.account
       );
     },
@@ -76,11 +120,24 @@ export default {
     async account() {
       await this.createMimBentoData();
     },
+
+    activeChains(newValue) {
+      this.activeBentoChain = newValue.bento[0];
+      this.activeDegenChain = newValue.degen[0];
+    },
   },
 
   methods: {
-    openPopup(isBento, isDeposit) {
-      this.popupData = { opened: true, isBento, isDeposit };
+    chooseActiveBentoChain(e) {
+      this.activeBentoChain = e;
+    },
+
+    chooseActiveDegenChain(e) {
+      this.activeDegenChain = e;
+    },
+
+    openPopup(isBento) {
+      this.popupData = { opened: true, isBento };
     },
 
     closePopup() {
@@ -89,15 +146,19 @@ export default {
 
     async createMimBentoData() {
       if (!this.account) return false;
-      this.bentoBoxConfig = await createBentoBoxConfig(
-        this.chainId,
-        this.account
+      this.bentoBoxConfigs = await Promise.all(
+        this.activeNetworks.map(async (chainId) => {
+          const config = await createBentoBoxConfig(chainId, this.account);
+          return config;
+        })
       );
 
       this.bentoUpdateInterval = setInterval(async () => {
-        this.bentoBoxConfig = await createBentoBoxConfig(
-          this.chainId,
-          this.account
+        this.bentoBoxConfigs = await Promise.all(
+          this.activeNetworks.map(async (chainId) => {
+            const config = await createBentoBoxConfig(chainId, this.account);
+            return config;
+          })
         );
       }, 5000);
     },
@@ -108,12 +169,11 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.bentoUpdateInterval);
+    clearInterval(this.bentoBoxConfigs);
   },
 
   components: {
     BentoBoxItem,
-    LocalPopupWrap,
     DegenBentoPopup,
   },
 };
@@ -121,14 +181,14 @@ export default {
 
 <style lang="scss" scoped>
 .bento-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 30px;
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
-@media (max-width: 1024px) {
+@media screen and (max-width: 1300px) {
   .bento-wrapper {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 }
 </style>

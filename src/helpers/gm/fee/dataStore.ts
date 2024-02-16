@@ -21,6 +21,8 @@ export const OPEN_INTEREST_KEY = hashString("OPEN_INTEREST");
 export const RESERVE_FACTOR_KEY = hashString("RESERVE_FACTOR");
 export const MAX_POOL_AMOUNT_FOR_DEPOSIT_KEY = hashString("MAX_POOL_AMOUNT_FOR_DEPOSIT");
 export const MAX_POOL_AMOUNT_KEY = hashString("MAX_POOL_AMOUNT");
+export const MAX_PNL_FACTOR_FOR_WITHDRAWALS_KEY = hashString("MAX_PNL_FACTOR_FOR_WITHDRAWALS");
+export const MAX_PNL_FACTOR_FOR_DEPOSITS_KEY = hashString("MAX_PNL_FACTOR_FOR_DEPOSITS");
 
 export function depositGasLimitKey(singleToken: boolean) {
   return hashData(["bytes32", "bool"], [DEPOSIT_GAS_LIMIT_KEY, singleToken]);

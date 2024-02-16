@@ -1,63 +1,51 @@
 import { describe, it, expect } from "vitest";
-import ClaimMimBlock from "@/components/stake/AdditionalInfoBlock.vue";
-import { mount } from "@vue/test-utils";
-import {
-  mainToken,
-  rewardToken,
-  emptyMainToken,
-  emptyRewardToken,
-} from "@/utils/testConfigs/stakeMagicGlp";
+import { shallowMount } from "@vue/test-utils";
+import AdditionalInfoBlock from "@/components/stake/AdditionalInfoBlock.vue";
 
-describe("AdditionalInfoBlock.vue", async () => {
-  it("Should render Total Supply block", async () => {
-    const props = { mainToken, rewardToken };
-    const wrapper = mount(ClaimMimBlock, { props });
+describe("AdditionalInfoBlock", () => {
+  const configs = [
+    {
+      title: "Title",
+      tooltip: "Tooltip",
+      icon: "icon.png",
+      amount: 100000000000000000000n,
+      decimals: 18,
+      amountUsd: 100000000000000000000n,
+    },
+    {
+      title: "Title 2",
+      tooltip: "Tooltip 2",
+      icon: "icon2.png",
+      amount: 200000000000000000000n,
+      decimals: 18,
+      amountUsd: 200000000000000000000n,
+    },
+  ];
 
-    const tokensSymbol = wrapper.findAll(".token-symbol");
-    const amounts = wrapper.findAll(".amount");
-    const prices = wrapper.findAll(".price");
+  it("renders the correct number of info items", () => {
+    const wrapper = shallowMount(AdditionalInfoBlock, {
+      props: { configs },
+    });
 
-    expect(tokensSymbol[0].text()).toBe("magicGLP");
-    expect(amounts[0].text()).toBe("0.0");
-    expect(prices[0].text()).toBe("$ 0.0");
+    const infoItems = wrapper.findAll(".info-item");
+    expect(infoItems.length).toBe(configs.length);
   });
 
-  it("Should render Total Supply with zeros", async () => {
-    const props = { mainToken: emptyMainToken, rewardToken: emptyRewardToken };
-    const wrapper = mount(ClaimMimBlock, { props });
+  it("formats the token balance correctly", () => {
+    const wrapper = shallowMount(AdditionalInfoBlock, {
+      props: { configs: [configs[0]] },
+    });
 
-    const tokensSymbol = wrapper.findAll(".token-symbol");
-    const amounts = wrapper.findAll(".amount");
-    const prices = wrapper.findAll(".price");
-
-    expect(tokensSymbol[0].text()).toBe("magicGLP");
-    expect(amounts[0].text()).toBe("0.0");
-    expect(prices[0].text()).toBe("$ 0.0");
+    const valueElement = wrapper.find(".value");
+    expect(valueElement.text()).toBe("100");
   });
 
-  it("Should render Total Rewards Earned block", async () => {
-    const props = { mainToken, rewardToken };
-    const wrapper = mount(ClaimMimBlock, { props });
+  it("formats the USD value correctly", () => {
+    const wrapper = shallowMount(AdditionalInfoBlock, {
+      props: { configs: [configs[0]] },
+    });
 
-    const tokensSymbol = wrapper.findAll(".token-symbol");
-    const amounts = wrapper.findAll(".amount");
-    const prices = wrapper.findAll(".price");
-
-    expect(tokensSymbol[1].text()).toBe("ETH");
-    expect(amounts[1].text()).toBe("1.434");
-    expect(prices[1].text()).toBe("$ 17.63");
-  });
-
-  it("Should render Total Rewards Earned with zeros", async () => {
-    const props = { mainToken: emptyMainToken, rewardToken: emptyRewardToken };
-    const wrapper = mount(ClaimMimBlock, { props });
-
-    const tokensSymbol = wrapper.findAll(".token-symbol");
-    const amounts = wrapper.findAll(".amount");
-    const prices = wrapper.findAll(".price");
-
-    expect(tokensSymbol[1].text()).toBe("ETH");
-    expect(amounts[1].text()).toBe("0.0");
-    expect(prices[1].text()).toBe("$ 0.0");
+    const priceElement = wrapper.find(".price");
+    expect(priceElement.text()).toBe("$ 100");
   });
 });

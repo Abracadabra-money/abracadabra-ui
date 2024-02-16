@@ -10,6 +10,7 @@ export type EmptyStateItem = {
   balance: bigint;
   balanceUsd?: bigint;
   rate?: bigint;
+  price: bigint;
   decimals?: number;
   totalSupply?: bigint;
   totalSupplyUsd?: bigint;

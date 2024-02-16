@@ -1,6 +1,6 @@
-import bentoBoxAbi from "@/utils/abi/bentoBox";
+import bentoBoxAbi from "@/abis/bentoBox";
 import { Contract, type providers } from "ethers";
-import cauldronAbi from "@/utils/abi/cauldronAbi";
+import cauldronAbi from "@/abis/cauldronAbi";
 import { readContract, type Address } from "@wagmi/core";
 
 export const getBentoBoxContract = async (

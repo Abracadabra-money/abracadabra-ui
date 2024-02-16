@@ -1,9 +1,8 @@
 import { markRaw } from "vue";
-import mimTokenInfo from "@/utils/contracts/mimToken";
-import bentoContractsInfo from "@/utils/contracts/master";
-import degenBoxInfo from "@/utils/contracts/degenBox";
-import tokensInfo from "@/utils/tokens/addedTokens.js";
-import { tokensChainLink } from "@/utils/chainLink/config";
+import mimTokenInfo from "@/configs/tokens/mim";
+import bentoContractsInfo from "@/configs/contracts/master";
+import degenBoxInfo from "@/configs/contracts/degenBox";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {
@@ -20,9 +19,7 @@ export default {
     mimInfo() {
       let id = this.chainId || 1;
 
-      return tokensInfo.find(
-        (token) => token.name === "MIM" && token.chain === id
-      );
+      return mimTokenInfo.find((token) => token.chainId === id);
     },
   },
   methods: {

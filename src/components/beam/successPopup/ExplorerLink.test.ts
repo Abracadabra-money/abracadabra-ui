@@ -1,32 +1,37 @@
 import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import ExplorerLink from "@/components/beam/successPopup/ExplorerLink.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
 
-describe("ExplorerLink.vue", () => {
-  it("Should render default 'Explorer' title", () => {
-    const wrapper = mount(ExplorerLink, {
-      props: {
-        link: "https://abracadabra.money/",
+describe("ExplorerLink", () => {
+  it("renders link when link prop is provided", () => {
+    const link = "https://example.com";
+    const title = "Explorer";
+    const wrapper = shallowMount(ExplorerLink, {
+      propsData: {
+        link,
+        title,
       },
     });
-    const stateText = wrapper.find("a.link");
-    expect(stateText.text()).toBe("Explorer");
+
+    expect(wrapper.find(".wrapper").exists()).toBe(true);
+    expect(wrapper.find(".link").exists()).toBe(true);
+    expect(wrapper.find(".link").attributes("href")).toBe(link);
+    expect(wrapper.find(".link").text()).toBe(title);
+    expect(wrapper.find(".arrow").exists()).toBe(true);
+    expect(wrapper.find(".loader-wrap").exists()).toBe(false);
   });
 
-  it("Should render passed title correct", () => {
-    const wrapper = mount(ExplorerLink, {
-      props: {
-        link: "https://abracadabra.money/",
-        title: "Abracadabra",
+  it("renders loader when link prop is not provided", () => {
+    const wrapper = shallowMount(ExplorerLink, {
+      propsData: {
+        link: false,
       },
     });
-    const stateText = wrapper.find("a.link");
-    expect(stateText.text()).toBe("Abracadabra");
-  });
 
-  it("Should render BaseLoader if 'link' have not passed", () => {
-    const wrapper = mount(ExplorerLink);
-    expect(wrapper.findComponent(BaseLoader).exists()).toBe(true);
+    expect(wrapper.find(".wrapper").exists()).toBe(false);
+    expect(wrapper.find(".link").exists()).toBe(false);
+    expect(wrapper.find(".arrow").exists()).toBe(false);
+    expect(wrapper.find(".loader-wrap").exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "BaseLoader" }).exists()).toBe(true);
   });
 });
