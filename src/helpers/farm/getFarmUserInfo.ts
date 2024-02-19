@@ -15,7 +15,6 @@ export const getFarmUserInfo = async (
   publicClient: any,
   account: Address
 ): Promise<FarmAccountInfo> => {
-  // const account = await getAccount().address;
 
   const [accountBalance, allowance, userInfo, userReward]: any =
     await publicClient.multicall({

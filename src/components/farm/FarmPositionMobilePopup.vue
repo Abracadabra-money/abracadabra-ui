@@ -166,7 +166,7 @@ export default {
         ? this.selectedFarm.accountInfo?.rewardTokensInfo?.filter(
             (tokenInfo) => +tokenInfo.earned > 0
           ).length === 0
-        : !+this.rewardTokensInfo[0].earned;
+        : !+this.selectedFarm.accountInfo.userReward;
       return isInsufficientReward || !this.isProperNetwork;
     },
   },
