@@ -1,4 +1,3 @@
-\
 <template>
   <div class="beam-view" v-if="beamConfig">
     <div class="beam">
@@ -122,6 +121,7 @@ import {
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import { BERA_CHAIN_ID } from "@/constants/global";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveToken } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
@@ -211,7 +211,9 @@ export default {
 
     popupNetworksArr() {
       if (this.popupType === "from") return this.beamConfig?.fromChains;
-      return this.beamConfig?.toChains;
+      return this.beamConfig?.toChains.filter(({ chainId }) => {
+        return chainId !== BERA_CHAIN_ID;
+      });
     },
 
     activePopupChain() {
@@ -269,6 +271,7 @@ export default {
 
     actionBtnText() {
       if (!this.account) return "Connect wallet";
+      if (this.isInsufficientBalance) return "Insufficient balance";
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
       if (!this.isSelectedChain) return "Choose Destination Chain";
@@ -286,9 +289,14 @@ export default {
       return this.isUnsupportedNetwork || !this.account;
     },
 
+    isInsufficientBalance() {
+      return +this.inputValue > +this.beamConfig?.balance;
+    },
+
     disableBtn() {
       if (!this.account) return false;
       if (+this.inputValue === 0) return true;
+      if (this.isInsufficientBalance) return true;
       if (this.isApproving || this.isBeaming) return true;
       if (!this.account || !this.isSelectedChain) return true;
       if (this.isEnterDstAddress) return true;
@@ -389,7 +397,9 @@ export default {
 
   watch: {
     async chainId() {
+      this.inputAmount = BigNumber.from(0);
       await this.updateBeamData();
+      this.estimateSendFee = await this.getEstimatedFees();
     },
 
     async account() {

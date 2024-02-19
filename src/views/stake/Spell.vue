@@ -190,7 +190,7 @@ export default {
       activeToken: "mSpell",
       tabTokens: ["mSpell", "sSpell"],
       tabTokenIcons: [
-        useImage("assets/images/tokens/sSPELL.png"),
+        useImage("assets/images/tokens/mSPELL.png"),
         useImage("assets/images/tokens/sSPELL.png"),
       ],
       activeTab: "stake",
