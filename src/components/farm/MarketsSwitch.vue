@@ -18,7 +18,7 @@
       src="@/assets/images/info-bar/depreciated.png"
     />
     <div class="depreciated-text">
-      <h4 class="title">Depreciated</h4>
+      <h4 class="title">Deprecated</h4>
       <p class="description">Only unstake available</p>
     </div>
   </div>
@@ -82,11 +82,11 @@ export default {
 
 .depreciated {
   display: flex;
+  height: 48px;
   padding: 6px 16px;
   align-items: center;
   gap: 4px;
   border-radius: 12px;
-  border: 1px solid rgba(56, 12, 13, 0);
   background: linear-gradient(
     103deg,
     rgba(50, 10, 10, 0.32) 2.48%,
@@ -109,12 +109,16 @@ export default {
   color: #fff;
   font-size: 16px;
   font-weight: 500;
+  line-height: normal;
+  margin-bottom: -2px;
 }
 
 .depreciated-text .description {
   color: #878b93;
   font-size: 12px;
   font-weight: 400;
+  line-height: normal;
+  margin-top: -2px;
 }
 
 @media screen and (max-width: 600px) {
