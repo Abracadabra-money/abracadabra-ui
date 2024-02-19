@@ -183,12 +183,15 @@ const getUserInfo = async (config, rewardPrices, account, publicClient) => {
         (item) => item.address === tokenInfo.address
       ).latestAnswer;
 
+      const earnedFromatted = formatUnits(earned.result, tokenInfo.decimals);
+      const price = formatUnits(latestAnswer, 8);
       return {
         balance: formatUnits(balanceOf.result, tokenInfo.decimals),
         allowance: formatUnits(allowance.result, tokenInfo.decimals),
         rewards: formatUnits(rewards.result, tokenInfo.decimals),
-        earned: formatUnits(earned.result, tokenInfo.decimals),
-        price: formatUnits(latestAnswer, 8),
+        earned: earnedFromatted,
+        price,
+        usd: (earnedFromatted * price).toString(),
         ...tokenInfo,
       };
     })
