@@ -160,7 +160,7 @@ export default {
   left: 0;
   right: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   max-height: 100vh;
   z-index: 300;
   display: flex;
@@ -172,6 +172,7 @@ export default {
   background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+  overflow: auto;
 }
 
 .popup-header {
@@ -195,6 +196,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
+  overflow: auto;
 }
 
 .filter {
@@ -235,6 +238,7 @@ export default {
 }
 
 .apply-button {
+  min-height: 39px;
   margin-top: auto;
 }
 </style>
