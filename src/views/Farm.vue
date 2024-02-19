@@ -390,7 +390,7 @@ export default {
 
   async created() {
     await this.getSelectedFarm();
-
+    
     this.farmsTimer = setInterval(async () => {
       await this.getSelectedFarm();
     }, 60000);
@@ -436,6 +436,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 66px;
   width: 100%;
   margin-bottom: 16px;
 }
@@ -447,6 +448,9 @@ export default {
 }
 
 .title-desc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   flex-grow: 1;
 }
 
@@ -454,6 +458,7 @@ export default {
   color: #fff;
   font-size: 32px;
   font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .title-desc .description {
