@@ -375,7 +375,7 @@ export default {
 
       const sSpellInfo = [
         {
-          text: `Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding. After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
+          text: `Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding.`,
         },
         {
           text: `After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
