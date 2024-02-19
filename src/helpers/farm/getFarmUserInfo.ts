@@ -2,7 +2,7 @@ import { tokensChainLink } from "@/configs/chainLink/config";
 import { getAccount } from "@wagmi/core";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import type { FarmAccountInfo, FarmItem } from "@/configs/farms/types";
-import { formatUnits } from "viem";
+import { formatUnits, type Address } from "viem";
 
 type UserInfo = {
   amount: string;
@@ -13,9 +13,10 @@ type UserInfo = {
 
 export const getFarmUserInfo = async (
   farmItemConfig: FarmItem,
-  publicClient: any
+  publicClient: any,
+  account: Address
 ): Promise<FarmAccountInfo> => {
-  const account = await getAccount().address;
+  // const account = await getAccount().address;
 
   const [accountBalance, allowance, userInfo, userReward]: any =
     await publicClient.multicall({
