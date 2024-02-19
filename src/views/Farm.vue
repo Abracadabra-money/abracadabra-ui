@@ -4,7 +4,7 @@
       <div class="farm-header">
         <div class="title-desc">
           <h3 class="title">Farm</h3>
-          <p class="description">Stake LP Tokens and Eearn Rewards</p>
+          <p class="description">Stake LP Tokens and Earn Rewards</p>
         </div>
 
         <div class="farm-management">
