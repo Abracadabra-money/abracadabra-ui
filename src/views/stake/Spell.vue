@@ -86,6 +86,8 @@
             <div class="line"></div>
 
             <div class="balance-wrap">
+              <h3 class="balance-title">Your wallet balance</h3>
+
               <div
                 class="info-row"
                 v-for="info in balanceInfo"
@@ -98,7 +100,7 @@
 
                 <span class="info-value">
                   <span> {{ info.balance }}</span>
-                  <span>({{ info.balanceUsd }})</span>
+                  <span class="balance-value">({{ info.balanceUsd }})</span>
                 </span>
               </div>
             </div>
@@ -704,6 +706,12 @@ export default {
   font-weight: 500;
 }
 
+.balance-value {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .line {
   margin: 16px 0;
   width: 100%;
@@ -720,6 +728,12 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.balance-title {
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .info-title {
