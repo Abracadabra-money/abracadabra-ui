@@ -80,8 +80,16 @@ export default {
           degen.push(config);
       });
 
-      bento = bento.sort((a, b) => b.mimInBentoBalance - a.mimInBentoBalance);
-      degen = degen.sort((a, b) => b.mimInDegenBalance - a.mimInDegenBalance);
+      bento = bento.sort(
+        (a, b) =>
+          formatUnits(b.mimInBentoBalance, 18) -
+          formatUnits(b.mimInBentoBalance, 18)
+      );
+      degen = degen.sort(
+        (a, b) =>
+          formatUnits(b.mimInDegenBalance, 18) -
+          formatUnits(b.mimInDegenBalance, 18)
+      );
 
       return {
         bento: bento.map((config) => config.chainId),
