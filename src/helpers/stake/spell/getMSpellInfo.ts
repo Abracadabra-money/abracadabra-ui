@@ -22,8 +22,8 @@ export const getMSpellInfo = async (
         },
         {
           ...spell.contract,
-          functionName: "totalSupply",
-          args: [],
+          functionName: "balanceOf",
+          args: [mSpell.contract.address]
         },
         {
           ...mSpell.contract,

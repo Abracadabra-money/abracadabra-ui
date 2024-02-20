@@ -8,6 +8,7 @@ export type EmptyTokenState = {
   price?: bigint;
   decimals?: number;
   apr?: string;
+  totalSupply?: bigint
 };
 
 export type EmptySpellState = {
