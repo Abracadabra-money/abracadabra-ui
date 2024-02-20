@@ -98,9 +98,9 @@
                   <span> {{ info.label }}</span>
                 </span>
 
-                <span class="info-value">
+                <span class="balances">
                   <span> {{ info.balance }}</span>
-                  <span class="balance-value">({{ info.balanceUsd }})</span>
+                  <span class="balance-value">{{ info.balanceUsd }}</span>
                 </span>
               </div>
             </div>
@@ -706,10 +706,19 @@ export default {
   font-weight: 500;
 }
 
+.balances {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .balance-value {
   color: #878b93;
   font-size: 14px;
   font-weight: 500;
+  line-height: normal;
 }
 
 .line {
