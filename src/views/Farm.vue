@@ -214,7 +214,16 @@ export default {
 
     id: {
       immediate: true,
-      async handler(value) {
+      async handler() {
+        await this.getSelectedFarm();
+        const action = this.$route.redirectedFrom?.query.action;
+        if (action) this.selectTab(action);
+      },
+    },
+
+    farmChainId: {
+      immediate: true,
+      async handler() {
         await this.getSelectedFarm();
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action);
@@ -250,7 +259,7 @@ export default {
     },
 
     changeActiveMarket({ id, chainId }) {
-      if (+id != +this.id || +chainId != +this.chainId)
+      if (+id != +this.id || +chainId != +this.farmChainId)
         this.$router.push({ path: `/farm/${id}/${chainId}` });
 
       this.isFarmsPopupOpened = false;
@@ -390,7 +399,7 @@ export default {
 
   async created() {
     await this.getSelectedFarm();
-    
+
     this.farmsTimer = setInterval(async () => {
       await this.getSelectedFarm();
     }, 60000);
@@ -443,7 +452,7 @@ export default {
 
 .farm-position {
   position: absolute;
-  top: 72px;
+  top: 92px;
   right: -300px;
 }
 

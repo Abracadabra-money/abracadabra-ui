@@ -95,7 +95,14 @@ export default {
 
     rewardTokensInfo() {
       if (this.selectedFarm.isMultiReward) {
-        return this.selectedFarm.accountInfo?.rewardTokensInfo;
+        return this.selectedFarm.accountInfo?.rewardTokensInfo.map(
+          (rewardToken) => {
+            return {
+              ...rewardToken,
+              ...this.prepBalanceData(rewardToken.earned, rewardToken.price),
+            };
+          }
+        );
       }
       return [
         {
