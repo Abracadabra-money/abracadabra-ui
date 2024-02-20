@@ -214,7 +214,16 @@ export default {
 
     id: {
       immediate: true,
-      async handler(value) {
+      async handler() {
+        await this.getSelectedFarm();
+        const action = this.$route.redirectedFrom?.query.action;
+        if (action) this.selectTab(action);
+      },
+    },
+
+    farmChainId: {
+      immediate: true,
+      async handler() {
         await this.getSelectedFarm();
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action);
@@ -250,7 +259,7 @@ export default {
     },
 
     changeActiveMarket({ id, chainId }) {
-      if (+id != +this.id || +chainId != +this.chainId)
+      if (+id != +this.id || +chainId != +this.farmChainId)
         this.$router.push({ path: `/farm/${id}/${chainId}` });
 
       this.isFarmsPopupOpened = false;
@@ -390,7 +399,7 @@ export default {
 
   async created() {
     await this.getSelectedFarm();
-
+    
     this.farmsTimer = setInterval(async () => {
       await this.getSelectedFarm();
     }, 60000);
@@ -436,17 +445,21 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 66px;
   width: 100%;
   margin-bottom: 16px;
 }
 
 .farm-position {
   position: absolute;
-  top: 72px;
+  top: 92px;
   right: -300px;
 }
 
 .title-desc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   flex-grow: 1;
 }
 
@@ -454,6 +467,7 @@ export default {
   color: #fff;
   font-size: 32px;
   font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .title-desc .description {

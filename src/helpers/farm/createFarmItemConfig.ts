@@ -112,7 +112,8 @@ export const createFarmItemConfig = async (
   if (account) {
     farmItemConfig.accountInfo = await getFarmUserInfo(
       farmItemConfig,
-      publicClient
+      publicClient,
+      account
     );
     return markRaw(farmItemConfig);
   }

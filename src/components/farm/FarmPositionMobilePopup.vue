@@ -68,10 +68,8 @@
                 {{ token.name }}</span
               >
               <div class="token-amount">
-                <span class="value">{{
-                  formatTokenBalance(token.earned)
-                }}</span>
-                <span class="usd">{{ calculateUsdEquivalent(token) }}</span>
+                <span class="value">{{ token.earned }}</span>
+                <span class="usd">{{ token.usd }}</span>
               </div>
             </li>
           </ul>
@@ -122,7 +120,14 @@ export default {
 
     rewardTokensInfo() {
       if (this.selectedFarm.isMultiReward) {
-        return this.selectedFarm.accountInfo?.rewardTokensInfo;
+        return this.selectedFarm.accountInfo?.rewardTokensInfo.map(
+          (rewardToken) => {
+            return {
+              ...rewardToken,
+              ...this.prepBalanceData(rewardToken.earned, rewardToken.price),
+            };
+          }
+        );
       }
       return [
         {
@@ -168,7 +173,7 @@ export default {
         ? this.selectedFarm.accountInfo?.rewardTokensInfo?.filter(
             (tokenInfo) => +tokenInfo.earned > 0
           ).length === 0
-        : !+this.rewardTokensInfo[0].earned;
+        : !+this.selectedFarm.accountInfo.userReward;
       return isInsufficientReward || !this.isProperNetwork;
     },
   },
@@ -205,11 +210,6 @@ export default {
       } catch (error) {
         console.log("harvest err:", error);
       }
-    },
-
-    calculateUsdEquivalent(token) {
-      if (token.usd) return token.usd;
-      return this.formatUSD(+token.earned * +token.price);
     },
 
     closePopup() {

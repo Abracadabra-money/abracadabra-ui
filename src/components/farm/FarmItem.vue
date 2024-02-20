@@ -155,6 +155,7 @@ export default {
 .farm-item:hover {
   transform: scale(1.01);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.16);
+  z-index: 1;
 }
 
 .item-header {
