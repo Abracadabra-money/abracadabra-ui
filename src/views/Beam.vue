@@ -399,7 +399,7 @@ export default {
 
   watch: {
     async chainId() {
-      this.isUpdateFeesData = true;
+      this.isUpdateFeesData = this.account ? true : false;
       this.inputAmount = BigNumber.from(0);
       await this.updateBeamData();
 
@@ -595,7 +595,7 @@ export default {
     async changeSettings(value) {
       if (!value || this.isSettingsError) this.dstTokenAmount = "";
       else this.dstTokenAmount = value;
-      this.isUpdateFeesData = true;
+      this.isUpdateFeesData = this.account ? true : false;
       this.estimateSendFee = await this.getEstimatedFees();
       this.isUpdateFeesData = false;
     },
@@ -615,7 +615,7 @@ export default {
         this.estimateSendFee = 0;
         this.toChainId = chainId;
         this.startFee = 0;
-        this.isUpdateFeesData = true;
+        this.isUpdateFeesData = this.account ? true : false;
         this.dstMaxAmount = await getDstTokenMax(
           this.beamConfig.contractInstance,
           this.signer,
