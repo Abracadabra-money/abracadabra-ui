@@ -345,7 +345,7 @@ export default {
         dstTokenIcon: this.isSelectedChain
           ? this.dstTokenInfo?.baseTokenIcon
           : "",
-        gasCost: this.formatFee,
+        gasCost: this.isSelectedChain ? this.formatFee : "0.0",
         srcTokenPrice: this.srcTokenPrice || 0,
         srcTokenSymbol: this.srcTokenInfo?.baseTokenSymbol,
         srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
@@ -402,7 +402,11 @@ export default {
       this.isUpdateFeesData = true;
       this.inputAmount = BigNumber.from(0);
       await this.updateBeamData();
-      this.estimateSendFee = await this.getEstimatedFees();
+
+      if (this.isSelectedChain) {
+        this.estimateSendFee = await this.getEstimatedFees();
+      }
+
       this.isUpdateFeesData = false;
     },
 
@@ -628,6 +632,10 @@ export default {
       } else {
         if (this.dstChain.chainId !== chainId && !this.isUnsupportedNetwork) {
           localStorage.setItem("previous_chain_id", this.dstChain.chainId);
+        }
+
+        if (this.dstChain.chainId === chainId) {
+          this.isSelectedChain = false;
         }
 
         await switchNetwork(chainId);
