@@ -51,6 +51,7 @@ export const getMSpellEmptyState = async (chainId: number): Promise<EmptyTokenSt
     chain: chainsList[chainId as keyof typeof chainsList],
     transport: http(),
   });
+
   const mSpellContract = spellConfig[chainId as keyof typeof spellConfig].mSpell.contract
 
   const spellAddress: any = await publicClient.readContract({
@@ -62,8 +63,8 @@ export const getMSpellEmptyState = async (chainId: number): Promise<EmptyTokenSt
   const totalSupply: any = await publicClient.readContract({
     address: spellAddress,
     abi: spell.abi,
-    functionName: "totalSupply",
-    args: [],
+    functionName: "balanceOf",
+    args: [mSpellContract.address],
   })
 
   return {
@@ -83,7 +84,7 @@ export const getSpellEmptyState = async (
 ): Promise<EmptySpellState> => {
   const sSpell = await getSSpellEmptyState();
   const mSpellEmptyState = await getMSpellEmptyState(chainId)
-  
+
   const { sSpellApr, mSpellApr } = await getSpellStakingApr();
 
   return {
