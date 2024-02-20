@@ -86,6 +86,8 @@
             <div class="line"></div>
 
             <div class="balance-wrap">
+              <h3 class="balance-title">Your wallet balance</h3>
+
               <div
                 class="info-row"
                 v-for="info in balanceInfo"
@@ -96,9 +98,9 @@
                   <span> {{ info.label }}</span>
                 </span>
 
-                <span class="info-value">
+                <span class="balances">
                   <span> {{ info.balance }}</span>
-                  <span>({{ info.balanceUsd }})</span>
+                  <span class="balance-value">{{ info.balanceUsd }}</span>
                 </span>
               </div>
             </div>
@@ -190,7 +192,7 @@ export default {
       activeToken: "mSpell",
       tabTokens: ["mSpell", "sSpell"],
       tabTokenIcons: [
-        useImage("assets/images/tokens/sSPELL.png"),
+        useImage("assets/images/tokens/mSPELL.png"),
         useImage("assets/images/tokens/sSPELL.png"),
       ],
       activeTab: "stake",
@@ -375,7 +377,7 @@ export default {
 
       const sSpellInfo = [
         {
-          text: `Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding. After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
+          text: `Stake your SPELL and gain sSPELL. No impermanent loss, no loss of governance rights. Continuously compounding.`,
         },
         {
           text: `After each new deposit, all staked SPELL are subject to a 24H lock-up period!`,
@@ -704,6 +706,21 @@ export default {
   font-weight: 500;
 }
 
+.balances {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.balance-value {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+}
+
 .line {
   margin: 16px 0;
   width: 100%;
@@ -720,6 +737,12 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.balance-title {
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .info-title {

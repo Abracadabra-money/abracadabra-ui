@@ -25,9 +25,9 @@
         <img class="icon" :src="mainToken.icon" alt="Token icon" />
         {{ mainToken.name }}
       </span>
-      <span class="value">
-        {{ formatTokenBalance(mainToken.balance) }}
-        <span class="price">({{ formatUSD(mainToken.balanceUsd) }})</span>
+      <span class="balance">
+        <span> {{ formatTokenBalance(mainToken.balance) }}</span>
+        <span class="price">{{ formatUSD(mainToken.balanceUsd) }}</span>
       </span>
     </div>
 
@@ -36,9 +36,9 @@
         <img class="icon" :src="stakeToken.icon" alt="Token icon" />
         {{ stakeToken.name }}
       </span>
-      <span class="value">
-        {{ formatTokenBalance(stakeToken.balance) }}
-        <span class="price">({{ formatUSD(stakeToken.balanceUsd) }})</span>
+      <span class="balance">
+        <span> {{ formatTokenBalance(stakeToken.balance) }}</span>
+        <span class="price">{{ formatUSD(stakeToken.balanceUsd) }}</span>
       </span>
     </div>
   </div>
@@ -201,11 +201,19 @@ export default {
   height: 24px;
 }
 
+.balance {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .price {
   color: #878b93;
   font-size: 14px;
   font-weight: 500;
-  line-height: 150%;
+  line-height: normal;
 }
 
 .underline {

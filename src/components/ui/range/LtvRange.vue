@@ -4,7 +4,7 @@
       <div class="base-track">
         <div class="progress-track" :style="{ background: gradientRangeTrack }">
           <span class="progress-value" :style="progressValuePosition">
-            {{ positionLtv > max ? max : positionLtv }}%
+            {{ positionLtv + 1 >= max ? max : positionLtv }}%
           </span>
           <span class="progress-percent-max" v-show="showMcrPercent"
             >{{ max }}%</span
@@ -77,7 +77,7 @@ export default {
       return `linear-gradient(
             90deg,
             ${this.colors[this.risk].start} 0%,
-            ${this.colors[this.risk].end} ${this.gradientPercent}%,
+            ${this.colors[this.risk].end} ${this.gradientPercent + 2}%,
             #0C0F1C ${this.gradientPercent}%,
             #212555 100%
           )
@@ -172,7 +172,6 @@ export default {
   text-align: center;
   position: absolute;
   top: -150%;
-  transform: translateX(-50%);
   font-size: 14px;
   line-height: 150%;
 }
@@ -190,7 +189,6 @@ export default {
   position: absolute;
   left: var(--track-position);
   width: 22px;
-  transform: translateX(-50%);
   z-index: 2;
 }
 
