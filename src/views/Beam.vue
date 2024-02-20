@@ -58,6 +58,7 @@
 
         <ExpectedBlock
           :data="expectedConfig"
+          :isLoading="isUpdateFeesData"
           @open-settings="isSettingsOpened = true"
         />
 
@@ -167,6 +168,7 @@ export default {
       mimToUsd: 0,
       isApproving: false,
       isBeaming: false,
+      isUpdateFeesData: false,
     };
   },
 
@@ -397,9 +399,11 @@ export default {
 
   watch: {
     async chainId() {
+      this.isUpdateFeesData = true;
       this.inputAmount = BigNumber.from(0);
       await this.updateBeamData();
       this.estimateSendFee = await this.getEstimatedFees();
+      this.isUpdateFeesData = false;
     },
 
     async account() {
@@ -587,7 +591,9 @@ export default {
     async changeSettings(value) {
       if (!value || this.isSettingsError) this.dstTokenAmount = "";
       else this.dstTokenAmount = value;
+      this.isUpdateFeesData = true;
       this.estimateSendFee = await this.getEstimatedFees();
+      this.isUpdateFeesData = false;
     },
 
     errorSettings(value) {
@@ -605,6 +611,7 @@ export default {
         this.estimateSendFee = 0;
         this.toChainId = chainId;
         this.startFee = 0;
+        this.isUpdateFeesData = true;
         this.dstMaxAmount = await getDstTokenMax(
           this.beamConfig.contractInstance,
           this.signer,
@@ -616,6 +623,7 @@ export default {
         }
 
         this.estimateSendFee = await this.getEstimatedFees();
+        this.isUpdateFeesData = false;
         await this.getChainsTokensPrices();
       } else {
         if (this.dstChain.chainId !== chainId && !this.isUnsupportedNetwork) {
