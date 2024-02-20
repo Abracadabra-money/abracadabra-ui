@@ -10,3 +10,4 @@ export const RPC_AVAX = "https://api.avax.network/ext/bc/C/rpc";
 export const RPC_KAVA = "https://kava-evm.publicnode.com";
 export const PRC_LINEA = "https://rpc.linea.build";
 export const RPC_BERRA_ARTIO = "https://rpc.ankr.com/berachain_testnet"
+export const RPC_BLAST_SEPOLIA = "https://sepolia.blast.io"
