@@ -90,6 +90,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/Claim.vue"),
   },
   {
+    path: '/msr',
+    name: 'MSR',
+    component: () => import("@/views/MimSavingRate.vue")
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },

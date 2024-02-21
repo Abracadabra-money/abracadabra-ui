@@ -13,6 +13,10 @@
         <HeaderStakeDropdown />
 
         <HeaderMoreDropdown />
+
+        <router-link class="header-link" :to="{ name: 'MSR' }">
+          MSR
+        </router-link>
       </div>
 
       <div class="account-activities">
