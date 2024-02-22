@@ -7,9 +7,12 @@
       />
       <span class="apr">APR: 101.82%</span>
     </div>
-    
+
     <div class="actions-wrapper">
-      <Stake v-if="activeAction == 'Stake'" />
+      <Stake
+        v-if="activeAction == 'Stake'"
+        @chooseLockAction="$emit('chooseLockAction')"
+      />
       <Lock v-if="activeAction == 'Lock'" />
       <Claim v-if="activeAction == 'Claim'" />
     </div>
@@ -45,8 +48,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .action-block {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -62,7 +66,6 @@ export default {
     rgba(0, 80, 156, 0.07) 101.49%
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
 }
 
 .common-info {
@@ -70,5 +73,20 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 40px;
+}
+
+.actions-wrapper::v-deep(.action) {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.actions-wrapper::v-deep(.action-title) {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.actions-wrapper::v-deep(.action-button) {
+  margin-top: 24px;
 }
 </style>

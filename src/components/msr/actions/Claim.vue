@@ -1,14 +1,25 @@
 <template>
   <div class="action">
-    <h2 class="action-title">Claim Rewards</h2>
+    <div class="apr-efficiency">
+      <div class="title-tooltip">
+        Your APR Efficiency
+        <QuestionMarkIcon v-tooltip="'Your APR Efficiency'" />
+      </div>
+
+      <div class="efficiency-indicator"></div>
+    </div>
+
     <BaseTokenInput />
-    <BaseButton primary>Claim</BaseButton>
+    <EpochTimeLine />
+    <BaseButton class="action-button" primary>Claim</BaseButton>
   </div>
 </template>
 
 <script>
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
+import EpochTimeLine from "@/components/msr/EpochTimeLine.vue";
+import QuestionMarkIcon from "@/components/ui/icons/Tooltip.vue";
 
 export default {
   data() {
@@ -19,14 +30,15 @@ export default {
 
   methods: {},
 
-  components: { BaseTokenInput, BaseButton },
+  components: { BaseTokenInput, BaseButton, EpochTimeLine, QuestionMarkIcon },
 };
 </script>
 
-<style scoped>
-.action {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+<style lang="scss" scoped>
+.efficiency-indicator {
+  width: 418px;
+  height: 12px;
+  border-radius: 12px;
+  background: rgba(109, 248, 114, 0.2);
 }
 </style>
