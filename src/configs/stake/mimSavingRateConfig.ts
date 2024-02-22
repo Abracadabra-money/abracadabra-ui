@@ -5,7 +5,7 @@ import lockingMultiRewardsAbi from "@/abis/stake/lockingMultiRewardsAbi";
 
 export type MimSavingRateConfig = {
   chainId: number;
-  lockingMultiRewards: {
+  lockingMultiRewardsContract: {
     address: Address;
     abi: any;
   };
@@ -32,7 +32,7 @@ export type MimSavingRateConfig = {
 export const mimSavingRateConfig: MimSavingRateConfig[] = [
   {
     chainId: 42161,
-    lockingMultiRewards: {
+    lockingMultiRewardsContract: {
       address: "0x99bE6bAEbeF8006967267A68FBA4bf3a1A669b5D",
       abi: lockingMultiRewardsAbi,
     },

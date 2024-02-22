@@ -1,38 +1,37 @@
 import type { Address } from "viem";
+import type { PublicClient } from "@/types/global";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
-import { getPublicClient } from "@/helpers/getPublicClient";
-import { getUserInfo } from "@/helpers/stake/mimSavingRate/getUserInfo";
+import { getUserInfo } from "@/helpers/mimSavingRate/getUserInfo";
 import { mimSavingRateConfig } from "@/configs/stake/mimSavingRateConfig";
 import type { MimSavingRateConfig } from "@/configs/stake/mimSavingRateConfig";
-import { getLockingMultiRewardsInfo } from "@/helpers/stake/mimSavingRate/getLockingMultiRewardsInfo";
+import { getLockingMultiRewardsInfo } from "@/helpers/mimSavingRate/getLockingMultiRewardsInfo";
 
 export const getMimSavingRateInfo = async (
   account: Address,
+  publicClient: PublicClient,
   chainId = ARBITRUM_CHAIN_ID
 ) => {
   const config: MimSavingRateConfig | undefined = mimSavingRateConfig.find(
     (config: MimSavingRateConfig) => config.chainId === chainId
   );
 
-  // todo accepted chains?
-  if (!config) return null; //todo: return empty state
-
-  const publicClient = getPublicClient(config.chainId);
+  if (!config) return null;
 
   const lockingMultiRewardsInfo = await getLockingMultiRewardsInfo(
     publicClient,
-    config.lockingMultiRewards,
+    config.lockingMultiRewardsContract,
     config.rewardToken.contract.address
   );
 
   const userInfo = await getUserInfo(
     publicClient,
     account,
-    config.lockingMultiRewards,
+    config.lockingMultiRewardsContract,
     config.rewardToken.contract.address
   );
 
   return {
+    ...config,
     ...lockingMultiRewardsInfo,
     userInfo,
   };

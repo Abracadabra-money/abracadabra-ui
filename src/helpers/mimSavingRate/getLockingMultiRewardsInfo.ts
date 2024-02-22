@@ -1,4 +1,4 @@
-import { formatUnits, type Address } from "viem";
+import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
 
 type LockingMultiRewardsInfo = {
@@ -129,20 +129,20 @@ export const getLockingMultiRewardsInfo = async (
 
   return {
     paused: paused.result,
-    startOfEpoch: Number(formatUnits(epoch.result, 0)),
-    nextEpoch: Number(formatUnits(nextEpoch.result, 0)),
-    remainingEpochTime: Number(formatUnits(remainingEpochTime.result, 0)),
+    startOfEpoch: Number(epoch.result),
+    nextEpoch: Number(nextEpoch.result),
+    remainingEpochTime: Number(remainingEpochTime.result),
     totalSupply: totalSupply.result,
     lockedSupply: lockedSupply.result,
     unlockedSupply: unlockedSupply.result,
     stakingTokenBalance: stakingTokenBalance.result,
     maxLocks: maxLocks.result,
     minLockAmount: minLockAmount.result,
-    lockDuration: Number(formatUnits(lockDuration.result, 0)),
-    nextUnlockTime: Number(formatUnits(nextUnlockTime.result, 0)),
+    lockDuration: Number(lockDuration.result),
+    nextUnlockTime: Number(nextUnlockTime.result),
     multiplerBoost: lockingBoostMultiplerInBips.result,
     totalReward: totalReward.result,
     rewardsForDuration: rewardsForDuration.result,
-    rewardsDuration: Number(formatUnits(rewardsDuration.result, 0)),
+    rewardsDuration: Number(rewardsDuration.result),
   };
 };
