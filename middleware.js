@@ -9,20 +9,20 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(5, "10 s"),
 });
 
+// Define which routes you want to rate limit
+export const config = {
+  matcher: "/",
+};
+
 export default async function middleware(request) {
-  try {
-    const ip = ipAddress(request);
-    console.log("ip is:", ip);
+  const ip = ipAddress(request) || "127.0.0.1";
+  const { success, pending, limit, reset, remaining } = await ratelimit.limit(
+    ip
+  );
 
-    const { success, pending, limit, reset, remaining } = await ratelimit.limit(
-      ip
-    );
+  console.log("limit", success, remaining);
 
-    console.log("limit", success);
-
-    next();
-  } catch (error) {
-    console.log("error", error);
-    next();
-  }
+  return success
+    ? next()
+    : Response.redirect(new URL("/blocked.html", request.url));
 }
