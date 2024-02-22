@@ -1,5 +1,6 @@
 import { next, ipAddress } from "@vercel/edge";
 import { Ratelimit } from "@upstash/ratelimit";
+
 import { kv } from "@vercel/kv";
 
 const ratelimit = new Ratelimit({
