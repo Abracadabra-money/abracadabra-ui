@@ -6,7 +6,7 @@ import { kv } from "@vercel/kv";
 const ratelimit = new Ratelimit({
   redis: kv,
   // 5 requests from the same IP in 10 seconds
-  limiter: Ratelimit.slidingWindow(5, "10 s"),
+  limiter: Ratelimit.slidingWindow(5, "15 s"),
 });
 
 // Define which routes you want to rate limit
@@ -24,5 +24,5 @@ export default async function middleware(request) {
 
   return success
     ? next()
-    : Response.redirect(new URL("/blocked.html", request.url));
+    : Response.redirect(new URL("https://www.youtube.com/", request.url));
 }
