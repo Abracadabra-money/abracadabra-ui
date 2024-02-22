@@ -54,6 +54,7 @@ import sKLP from "@/abis/tokensAbi/sKLP";
 import GM from "@/abis/tokensAbi/GM";
 import mimUsdtCurveLp from "@/abis/tokensAbi/mimUsdtCurveLp";
 import TetherUSDtLP from "@/abis/tokensAbi/TetherUSDtLP";
+import ARB from "@/abis/tokensAbi/ARB";
 
 export default {
   ALCX,
@@ -112,4 +113,5 @@ export default {
   GM,
   mimUsdtCurveLp,
   TetherUSDtLP,
+  ARB,
 };

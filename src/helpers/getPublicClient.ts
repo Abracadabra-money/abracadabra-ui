@@ -1,9 +1,10 @@
 import { createPublicClient, http } from "viem";
-import { chainsList } from "@/helpers/chains/index";
+import type { PublicClient } from "@/types/global";
+import { getChainById } from "@/helpers/chains/index";
 
-export const getPublicClient = (chainId: number | string) => {
+export const getPublicClient = (chainId: number): PublicClient => {
   return createPublicClient({
-    chain: chainsList[chainId as keyof typeof chainsList],
+    chain: getChainById(chainId),
     transport: http(),
   });
 };
