@@ -63,7 +63,7 @@ export default {
   flex-direction: column;
   gap: 16px;
   list-style: none;
-  width: calc(100% + 24px);
+  width: 100%;
   max-height: 206px;
   overflow-y: auto;
 }

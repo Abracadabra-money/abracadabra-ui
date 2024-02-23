@@ -29,12 +29,12 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .user-lock {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 485px;
+  width: calc(100% - 10px);
   min-height: 58px;
   padding: 12px 16px 12px 12px;
   border-radius: 10px;

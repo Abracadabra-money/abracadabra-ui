@@ -50,12 +50,15 @@ export default {
 
 <style lang="scss" scoped>
 .action-block {
-  position: relative;
+  position: absolute;
+  top: 110px;
+  right: 80px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 762px;
-  min-width: 533px;
+  height: 762px;
+  max-width: 533px;
+  width: 100%;
   padding: 24px;
 
   border-radius: 20px;
@@ -66,6 +69,7 @@ export default {
     rgba(0, 80, 156, 0.07) 101.49%
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(50px);
 }
 
 .common-info {

@@ -1,6 +1,6 @@
 <template>
   <div class="msr-view">
-    <div class="carousel-container">
+    <div :class="['carousel-container', { active: isCarouselMode }]">
       <div class="carousel">
         <div
           class="carousel-track"
@@ -17,7 +17,7 @@
               @click="selectAction(index)"
               :style="{ backgroundColor: item.color }"
             >
-              {{ item.name }}
+              <span class="item-name">{{ item.name }}</span>
             </div>
           </div>
         </div>
@@ -56,7 +56,24 @@ export default {
     translateOffset() {
       if (this.activeIndex === null) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
-      return (middleIndex - this.activeIndex) * this.itemWidth;
+      let marginalElementsOffset = 0;
+      switch (this.activeIndex) {
+        case 0:
+          marginalElementsOffset = -40;
+          break;
+
+        case 2:
+          marginalElementsOffset = 40;
+          break;
+
+        default:
+          break;
+      }
+      
+      return (
+        (middleIndex - this.activeIndex) * this.itemWidth -
+        marginalElementsOffset
+      );
     },
 
     activeAction() {
@@ -98,35 +115,34 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: 100%;
-  height: 100%;
-  min-height: 100dvh;
-  padding: 110px 80px 0 0;
+  min-height: 100vh;
 }
 
 .carousel-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
   width: 100%;
-  overflow-y: visible;
-  overflow-x: hidden;
+  margin-top: 127px;
+  overflow: hidden;
+}
+
+.carousel-container.active {
+  margin-left: -20%;
 }
 
 .carousel-track {
   display: flex;
   align-items: center;
-  height: 450px;
   transition: transform 0.5s;
 }
 
 .carousel-item {
   min-width: 200px;
   height: 200px;
-  overflow: hidden;
-  margin-right: 20px;
   transition: all 0.5s ease-in-out;
+  margin: 20px;
   cursor: pointer;
 }
 
@@ -134,20 +150,32 @@ export default {
   transform: scale(110%);
 }
 
-.carousel-item:hover {
-  transform: scale(110%);
-}
-
 .item-content {
+  position: relative;
   width: 100%;
   height: 100%;
 }
 
+.item-name {
+  display: none;
+  position: absolute;
+  left: calc(50% - 65px);
+  width: 130px;
+  font-size: 24px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.carousel-item:hover .item-content .item-name,
+.carousel-item.active .item-content .item-name {
+  transform: translateY(-50px);
+  display: block;
+}
+
 .carousel-item.active {
-  transform: scale(200%);
-  margin: 0 400px;
+  transform: scale(250%);
+  margin: 0 155px;
   opacity: 1 !important;
-  overflow: hidden;
 }
 
 .carousel-item.inactive {
@@ -156,8 +184,7 @@ export default {
 
 .arrows {
   position: absolute;
-
-  bottom: 50px;
+  bottom: 98.67px;
 }
 
 .arrow {
