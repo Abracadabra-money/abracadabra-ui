@@ -6,7 +6,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 export const stake = async (
   contract: ContractInfo,
   amount: BigInt,
-  isLock: false
+  isLock = false
 ) => {
   try {
     const prepareResponse = await prepareWriteContract({

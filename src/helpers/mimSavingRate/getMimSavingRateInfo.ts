@@ -27,7 +27,8 @@ export const getMimSavingRateInfo = async (
     publicClient,
     account,
     config.lockingMultiRewardsContract,
-    config.rewardToken.contract.address
+    config.rewardToken.contract.address,
+    config.stakingToken.contract
   );
 
   return {

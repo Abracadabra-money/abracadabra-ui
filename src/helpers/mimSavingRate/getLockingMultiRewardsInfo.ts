@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
 
-type LockingMultiRewardsInfo = {
+export type LockingMultiRewardsInfo = {
   paused: boolean;
   startOfEpoch: number;
   nextEpoch: number;

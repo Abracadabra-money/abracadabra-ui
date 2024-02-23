@@ -1,7 +1,11 @@
 import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
 
-type UserInfo = {
+export type UserInfo = {
+  stakeToken: {
+    balance: bigint;
+    approvedAmount: bigint;
+  };
   totalBalance: bigint;
   balances: {
     locked: bigint;
@@ -29,6 +33,10 @@ type UserInfo = {
 };
 
 const emptyState = {
+  stakeToken: {
+    balance: 0n,
+    approvedAmount: 0n,
+  },
   totalBalance: 0n,
   balances: {
     locked: 0n,
@@ -59,7 +67,8 @@ export const getUserInfo = async (
   publicClient: PublicClient,
   account: Address,
   contract: ContractInfo,
-  rewardTokenAddress: Address
+  rewardTokenAddress: Address,
+  stakingTokenContract: ContractInfo
 ): Promise<UserInfo> => {
   if (!account) return emptyState;
 
@@ -76,6 +85,8 @@ export const getUserInfo = async (
     userLocksLength,
     userRewardLock,
     userRewardPerTokenPaid,
+    stakeTokenBalance,
+    stakeTokenApprovedAmount,
   ]: any = await publicClient.multicall({
     contracts: [
       {
@@ -138,10 +149,24 @@ export const getUserInfo = async (
         functionName: "userRewardPerTokenPaid",
         args: [account, rewardTokenAddress],
       },
+      {
+        ...stakingTokenContract,
+        functionName: "balanceOf",
+        args: [account],
+      },
+      {
+        ...stakingTokenContract,
+        functionName: "allowance",
+        args: [account, contract.address],
+      },
     ],
   });
 
   return {
+    stakeToken: {
+      balance: stakeTokenBalance.result,
+      approvedAmount: stakeTokenApprovedAmount.result,
+    },
     totalBalance: totalBalance.result,
     balances: balances.result,
     earned: earned.result,

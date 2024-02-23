@@ -2,8 +2,8 @@
   <div class="action-block">
     <div class="common-info">
       <AvailableNetworksBlock
-        :selectedNetwork="1"
-        :availableNetworks="[1, 10, 56, 250]"
+        :selectedNetwork="42161"
+        :availableNetworks="[42161]"
       />
       <span class="apr">APR: 101.82%</span>
     </div>
@@ -11,9 +11,13 @@
     <div class="actions-wrapper">
       <Stake
         v-if="activeAction == 'Stake'"
+        :mimSavingRateInfo="mimSavingRateInfo"
         @chooseLockAction="$emit('chooseLockAction')"
       />
-      <Lock v-if="activeAction == 'Lock'" />
+      <Lock
+        v-if="activeAction == 'Lock'"
+        :mimSavingRateInfo="mimSavingRateInfo"
+      />
       <Claim v-if="activeAction == 'Claim'" />
     </div>
   </div>
@@ -29,6 +33,7 @@ import AvailableNetworksBlock from "@/components/stake/AvailableNetworksBlock.vu
 export default {
   props: {
     activeAction: { type: String },
+    mimSavingRateInfo: { type: Object, required: true },
   },
 
   data() {

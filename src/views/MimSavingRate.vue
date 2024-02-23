@@ -30,6 +30,7 @@
 
     <ActionBlock
       :activeAction="activeAction"
+      :mimSavingRateInfo="mimSavingRateInfo"
       @chooseLockAction="selectAction(1)"
       v-if="isCarouselMode"
     />
@@ -37,7 +38,11 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
 import ActionBlock from "@/components/msr/ActionBlock.vue";
+import { getPublicClient } from "@/helpers/getPublicClient";
+import { getMimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 export default {
   data() {
@@ -53,6 +58,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+
     translateOffset() {
       if (this.activeIndex === null) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
@@ -69,7 +78,7 @@ export default {
         default:
           break;
       }
-      
+
       return (
         (middleIndex - this.activeIndex) * this.itemWidth -
         marginalElementsOffset
@@ -82,6 +91,12 @@ export default {
 
     isCarouselMode() {
       return this.activeIndex !== null;
+    },
+  },
+
+  watch: {
+    async account() {
+      await this.createMimSavingRateInfo();
     },
   },
 
@@ -101,6 +116,21 @@ export default {
         return (this.activeIndex = 0);
       this.activeIndex = this.activeIndex + 1;
     },
+
+    async createMimSavingRateInfo() {
+      const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
+
+      this.mimSavingRateInfo = await getMimSavingRateInfo(
+        this.account,
+        publicClient
+      );
+
+      console.log(this.mimSavingRateInfo);
+    },
+  },
+
+  async created() {
+    await this.createMimSavingRateInfo();
   },
 
   components: {
