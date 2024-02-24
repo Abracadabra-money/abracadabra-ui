@@ -1,47 +1,288 @@
 <template>
   <div class="action">
-    <Tabs name="stake" :items="['stake', 'unstake']" />
+    <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+
     <h2 class="action-title">Stake MIM</h2>
-    <BaseTokenInput />
-    <BaseButton class="action-button" primary>Stake</BaseButton>
+
+    <BaseTokenInput
+      :value="inputValue"
+      :name="mimSavingRateInfo.stakingToken.name"
+      :decimals="mimSavingRateInfo.stakingToken.decimals"
+      :icon="mimSavingRateInfo.stakingToken.icon"
+      :max="maxInputValue"
+      :tokenPrice="1"
+      @updateInputValue="onUpdateStakeValue"
+    />
+
+    <BaseButton
+      class="action-button"
+      primary
+      @click="actionHandler"
+      :disabled="isActionDisabled"
+      >{{ actionValidationData.btnText }}</BaseButton
+    >
 
     <div class="lock-promo">
       <div class="staking-info">
         <div class="currently-staked">
           <div class="title">You Currently Staking</div>
           <div class="token-amount">
-            <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
-            1000
+            <BaseTokenIcon
+              :icon="mimSavingRateInfo.stakingToken.icon"
+              name="MIM"
+              size="32px"
+            />
+            {{ formatAmount(mimSavingRateInfo.userInfo.balances.unlocked) }}
           </div>
         </div>
 
         <p class="promo-text">Lock your MIM and Boost your APR to 150%</p>
       </div>
 
-      <BaseButton primary @click="$emit('chooseLockAction')">
-        Lock staked MIM &gt;
+      <BaseButton
+        primary
+        :disabled="isLockActionDisabled"
+        @click="lockStakingAmount"
+      >
+        {{ lockValidationData.btnText }}
       </BaseButton>
     </div>
   </div>
 </template>
 
-<script>
-import Tabs from "@/components/ui/Tabs.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import mimIcon from "@/assets/images/tokens/MIM.png";
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import notification from "@/helpers/notification/notification";
+import { approveTokenViem } from "@/helpers/approval";
+import actions from "@/helpers/mimSavingRate/actions";
+import { validateAction } from "@/helpers/mimSavingRate/validators";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { lock } from "@/helpers/mimSavingRate/actions/lock";
+
+type activeTab = "stake" | "unstake";
 
 export default {
   data() {
-    return { mimIcon };
+    return {
+      activeTab: "stake" as "stake" | "unstake",
+      tabItems: ["stake", "unstake"],
+      inputValue: "" as string | bigint,
+      inputAmount: BigInt(0) as bigint,
+
+      actionConfig: {
+        stakeAmount: 0n,
+        withdrawAmount: 0n,
+        lockAmount: 0n,
+      },
+    };
   },
 
-  computed: {},
+  props: {
+    mimSavingRateInfo: { type: Object, required: true },
+  },
 
-  methods: {},
+  computed: {
+    ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
-  components: { Tabs, BaseTokenInput, BaseButton, BaseTokenIcon },
+    isLockActionDisabled() {
+      return !this.mimSavingRateInfo.userInfo.unlocked;
+    },
+
+    isUnsupportedChain() {
+      return this.chainId === this.mimSavingRateInfo.chainId;
+    },
+
+    isStakeAction() {
+      return this.activeTab === "stake";
+    },
+
+    isActionDisabled() {
+      if (!this.account) return false;
+      if (!this.isUnsupportedChain) return false;
+      if (!this.inputAmount) return true; // todo actionConfig
+
+      const { balance } = this.mimSavingRateInfo.userInfo.stakeToken;
+      return this.inputAmount > balance; // todo actionConfig
+    },
+
+    actionMethodName() {
+      return this.isStakeAction ? "stake" : "withdraw";
+    },
+
+    maxInputValue() {
+      const { balance } = this.mimSavingRateInfo.userInfo.stakeToken;
+      const { unlocked } = this.mimSavingRateInfo.userInfo;
+
+      return this.isStakeAction ? balance : unlocked;
+    },
+
+    // ----
+
+    // todo
+    isTokenApproved() {
+      if (!this.account) return true;
+      if (!this.isStakeAction) return true;
+      if (!this.isUnsupportedChain) return true;
+
+      const { approvedAmount } = this.mimSavingRateInfo.userInfo.stakeToken;
+      return approvedAmount >= this.inputAmount;
+    },
+
+    actionValidationData() {
+      return validateAction(
+        this.mimSavingRateInfo,
+        this.inputAmount,
+        this.chainId,
+        this.activeTab
+      );
+    },
+
+    lockValidationData() {
+      return validateAction(
+        this.mimSavingRateInfo,
+        this.inputAmount,
+        this.chainId,
+        "lock"
+      );
+    },
+  },
+
+  methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    changeTab(action: activeTab) {
+      this.activeTab = action;
+      this.inputValue = "";
+    },
+
+    formatAmount(amount: bigint) {
+      return formatUnits(amount, this.mimSavingRateInfo.stakingToken.decimals);
+    },
+
+    // ------
+
+    onUpdateStakeValue(value: bigint) {
+      if (!value) {
+        this.inputValue = "";
+        this.inputAmount = BigInt(0);
+        this.actionConfig.stakeAmount = BigInt(0);
+      } else {
+        this.inputAmount = value;
+        this.actionConfig.stakeAmount = value;
+        this.inputValue = formatUnits(
+          value,
+          this.mimSavingRateInfo.stakingToken.decimals
+        );
+      }
+    },
+
+    async approveTokenHandler() {
+      if (!this.isUnsupportedChain) return false;
+
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      const approve = await approveTokenViem(
+        this.mimSavingRateInfo.stakingToken.contract,
+        this.mimSavingRateInfo.lockingMultiRewardsContract.address
+      );
+
+      // if (approve) await this.createStakeInfo(); todo emit event
+      await this.deleteNotification(notificationId);
+      if (!approve) await this.createNotification(notification.approveError);
+      return false;
+    },
+
+    async actionHandler() {
+      if (this.isActionDisabled) return false;
+
+      if (!this.account && this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      if (!this.isUnsupportedChain) {
+        switchNetwork(this.mimSavingRateInfo.chainId);
+        return false;
+      }
+
+      if (!this.isTokenApproved) {
+        await this.approveTokenHandler();
+        return false;
+      }
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { error }: any = await actions[this.actionMethodName](
+        this.mimSavingRateInfo.lockingMultiRewardsContract,
+        this.inputAmount,
+        false
+      );
+
+      await this.deleteNotification(notificationId);
+
+      if (error) {
+        await this.createNotification(error);
+      } else {
+        // await this.createStakeInfo(); //todo emit event
+        this.inputValue = "";
+        await this.createNotification(notification.success);
+      }
+    },
+
+    async lockStakingAmount() {
+      if (this.isLockActionDisabled) return false;
+
+      if (!this.account && this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      if (!this.isUnsupportedChain) {
+        return switchNetwork(this.mimSavingRateInfo.chainId);
+      }
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { unlocked } = this.mimSavingRateInfo.userInfo;
+
+      const { error }: any = await lock(
+        this.mimSavingRateInfo.lockingMultiRewardsContract,
+        unlocked
+      );
+
+      await this.deleteNotification(notificationId);
+
+      if (error) {
+        await this.createNotification(error);
+      } else {
+        // await this.createStakeInfo(); //todo emit event
+        this.inputValue = "";
+        await this.createNotification(notification.success);
+      }
+    },
+  },
+
+  components: {
+    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+  },
 };
 </script>
 
