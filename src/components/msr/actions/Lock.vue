@@ -2,7 +2,7 @@
   <div class="action">
     <h2 class="action-title">Lock MIM</h2>
     <BaseTokenInput />
-    <EpochTimeLine />
+    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
     <BaseButton class="action-button" primary>Lock</BaseButton>
 
     <div class="lock-info">
@@ -27,6 +27,10 @@ import EpochTimeLine from "@/components/msr/EpochTimeLine.vue";
 import UserLock from "@/components/msr/UserLock.vue";
 
 export default {
+  props: {
+    mimSavingRateInfo: { type: Object },
+  },
+
   data() {
     return {};
   },

@@ -18,7 +18,7 @@
         v-if="activeAction == 'Lock'"
         :mimSavingRateInfo="mimSavingRateInfo"
       />
-      <Claim v-if="activeAction == 'Claim'" />
+      <Claim v-if="activeAction == 'Claim'" :mimSavingRateInfo="mimSavingRateInfo"/>
     </div>
   </div>
 </template>
@@ -55,7 +55,7 @@ export default {
 
 <style lang="scss" scoped>
 .action-block {
-  position: absolute;
+  position: relative;
   top: 110px;
   right: 80px;
   display: flex;

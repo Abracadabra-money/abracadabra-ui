@@ -13,7 +13,7 @@
 
     <Rewards />
 
-    <EpochTimeLine />
+    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
     <BaseButton class="action-button" primary>Claim</BaseButton>
   </div>
 </template>
@@ -26,6 +26,10 @@ import Assets from "@/components/msr/Assets.vue";
 import Rewards from "@/components/msr/Rewards.vue";
 
 export default {
+  props: {
+    mimSavingRateInfo: { type: Object },
+  },
+
   data() {
     return {};
   },

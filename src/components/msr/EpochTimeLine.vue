@@ -10,35 +10,64 @@
     </ul>
 
     <div class="start-end-dates">
-      <span class="date start">22 Feb</span>
-      <span class="date end">28 Feb</span>
+      <span class="date start">{{
+        formatTimestampToUnix(epoch.start, "DD MMM")
+      }}</span>
+      <span class="date end">{{
+        formatTimestampToUnix(epoch.end, "DD MMM")
+      }}</span>
     </div>
   </div>
 </template>
 
 <script>
+import { createEpochTimeline, formatTimestampToUnix } from "@/helpers/time";
+
 export default {
+  props: {
+    mimSavingRateInfo: { type: Object },
+  },
+
   data() {
     return {
-      epochDays: [
-        { name: "Thursday", status: "past" },
-        { name: "Friday", status: "past" },
-        { name: "Saturday", status: "past" },
-        { name: "Sunday", status: "present" },
-        { name: "Monday", status: "future" },
-        { name: "Tuesday", status: "future" },
-        { name: "Wednesday", status: "future" },
+      daysNames: [
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
       ],
     };
   },
 
-  computed: {},
+  computed: {
+    epoch() {
+      return {
+        start: this.mimSavingRateInfo.startOfEpoch,
+        end: this.mimSavingRateInfo.nextEpoch - 1,
+      };
+    },
+
+    epochDays() {
+      const epochTimeline = createEpochTimeline(this.epoch.start);
+
+      return this.daysNames.map((name, index) => {
+        return { name, status: epochTimeline[index] };
+      });
+    },
+  },
 
   methods: {
+    formatTimestampToUnix,
+
     formatDayName(name) {
       return name.slice(0, 3);
     },
   },
+
+  created() {},
 
   components: {},
 };

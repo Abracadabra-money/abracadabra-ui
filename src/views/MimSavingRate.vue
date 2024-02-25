@@ -22,10 +22,13 @@
           </div>
         </div>
       </div>
-      <div class="arrows" v-if="isCarouselMode">
-        <button @click="prev" class="arrow left">&lt;</button>
-        <button @click="next" class="arrow right">&gt;</button>
-      </div>
+
+      <CarouselNavigation
+        :mimSavingRateInfo="mimSavingRateInfo"
+        @next="next"
+        @prev="prev"
+        v-if="isCarouselMode"
+      />
     </div>
 
     <ActionBlock
@@ -41,6 +44,7 @@
 import { mapGetters } from "vuex";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
 import ActionBlock from "@/components/msr/ActionBlock.vue";
+import CarouselNavigation from "@/components/msr/CarouselNavigation.vue";
 import { getPublicClient } from "@/helpers/getPublicClient";
 import { getMimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
@@ -135,6 +139,7 @@ export default {
 
   components: {
     ActionBlock,
+    CarouselNavigation,
   },
 };
 </script>
@@ -145,7 +150,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  min-height: 100vh;
+  min-height: 931px;
 }
 
 .carousel-container {
@@ -156,10 +161,6 @@ export default {
   width: 100%;
   margin-top: 127px;
   overflow: hidden;
-}
-
-.carousel-container.active {
-  margin-left: -20%;
 }
 
 .carousel-track {
@@ -204,25 +205,11 @@ export default {
 
 .carousel-item.active {
   transform: scale(250%);
-  margin: 0 155px;
+  margin: 0 400px;
   opacity: 1 !important;
 }
 
 .carousel-item.inactive {
   opacity: 0.5;
-}
-
-.arrows {
-  position: absolute;
-  bottom: 98.67px;
-}
-
-.arrow {
-  background-color: transparent;
-  border: none;
-  color: rgb(249, 245, 245);
-  font-size: 40px;
-  cursor: pointer;
-  z-index: 2;
 }
 </style>
