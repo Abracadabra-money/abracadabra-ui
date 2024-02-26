@@ -51,15 +51,16 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import notification from "@/helpers/notification/notification";
+import { defineAsyncComponent } from "vue";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/mimSavingRate/actions";
-import { validateAction } from "@/helpers/mimSavingRate/validators";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { formatTokenBalance } from "@/helpers/filters";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { lock } from "@/helpers/mimSavingRate/actions/lock";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { validateAction } from "@/helpers/mimSavingRate/validators";
 
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
@@ -164,7 +165,9 @@ export default {
     },
 
     formatAmount(amount: bigint) {
-      return formatUnits(amount, this.mimSavingRateInfo.stakingToken.decimals);
+      return formatTokenBalance(
+        formatUnits(amount, this.mimSavingRateInfo.stakingToken.decimals)
+      );
     },
 
     onUpdateStakeValue(value: bigint) {
