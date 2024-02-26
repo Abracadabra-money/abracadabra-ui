@@ -79,20 +79,22 @@ export const formatTokenBalance = (value: string | number) => {
 
   if (+value > 0.000001) return +formatToFixed(value, 6);
 
-  const stringValue = formatToFixed(value, 18);
+  return `<0.01`;
 
-  const start = stringValue.slice(0, 1);
-  const endToParse = `${stringValue.slice(1)}`;
+  // const stringValue = formatToFixed(value, 18);
 
-  const persedEnd = endToParse.replace(
-    new RegExp(
-      // eslint-disable-next-line no-useless-escape
-      `(?<=\.)[0]*`
-    ),
-    ""
-  );
+  // const start = stringValue.slice(0, 1);
+  // const endToParse = `${stringValue.slice(1)}`;
 
-  return `${start}..${persedEnd.slice(0, 5)}`;
+  // const persedEnd = endToParse.replace(
+  //   new RegExp(
+  //     // eslint-disable-next-line no-useless-escape
+  //     `(?<=\.)[0]*`
+  //   ),
+  //   ""
+  // );
+
+  // return `${start}..${persedEnd.slice(0, 5)}`;
 };
 
 export const formatExactPrice = (value: string | number) => {
