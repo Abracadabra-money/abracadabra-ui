@@ -5,14 +5,14 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 
 export const stake = async (
   contract: ContractInfo,
-  amount: BigInt,
+  { stakeAmount }: any,
   isLock = false
 ) => {
   try {
     const prepareResponse = await prepareWriteContract({
       ...contract,
       functionName: "stake",
-      args: [amount, isLock],
+      args: [stakeAmount, isLock],
     });
 
     const { hash } = await writeContract(prepareResponse);

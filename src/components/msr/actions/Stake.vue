@@ -18,9 +18,9 @@
       class="action-button"
       primary
       @click="actionHandler"
-      :disabled="isActionDisabled"
-      >{{ actionValidationData.btnText }}</BaseButton
-    >
+      :disabled="actionValidationData.isDisabled"
+      >{{ actionValidationData.btnText }}
+    </BaseButton>
 
     <div class="lock-promo">
       <div class="staking-info">
@@ -41,8 +41,8 @@
 
       <BaseButton
         primary
-        :disabled="isLockActionDisabled"
-        @click="lockStakingAmount"
+        :disabled="lockValidationData.isDisabled"
+        @click="lockActionHandler"
       >
         {{ lockValidationData.btnText }}
       </BaseButton>
@@ -61,7 +61,16 @@ import { validateAction } from "@/helpers/mimSavingRate/validators";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { lock } from "@/helpers/mimSavingRate/actions/lock";
 
-type activeTab = "stake" | "unstake";
+type ActiveTab = "stake" | "unstake";
+type TabItems = string[];
+type InputValue = string | bigint;
+type ActionConfig = {
+  stakeAmount: bigint;
+  withdrawAmount: bigint;
+  lockAmount: bigint;
+};
+
+const ACTION_LOCK = "lock";
 
 export default {
   emits: ["updateMimSavingRateInfo"],
@@ -72,25 +81,19 @@ export default {
 
   data() {
     return {
-      activeTab: "stake" as "stake" | "unstake",
-      tabItems: ["stake", "unstake"],
-      inputValue: "" as string | bigint,
-      inputAmount: BigInt(0) as bigint,
-
+      activeTab: "stake" as ActiveTab,
+      tabItems: ["stake", "unstake"] as TabItems,
+      inputValue: "" as InputValue,
       actionConfig: {
         stakeAmount: 0n,
         withdrawAmount: 0n,
-        lockAmount: 0n,
-      },
+        lockAmount: this.mimSavingRateInfo.userInfo.unlocked,
+      } as ActionConfig,
     };
   },
 
   computed: {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
-
-    isLockActionDisabled() {
-      return !this.mimSavingRateInfo.userInfo.unlocked;
-    },
 
     isUnsupportedChain() {
       return this.chainId === this.mimSavingRateInfo.chainId;
@@ -100,13 +103,9 @@ export default {
       return this.activeTab === "stake";
     },
 
-    isActionDisabled() {
-      if (!this.account) return false;
-      if (!this.isUnsupportedChain) return false;
-      if (!this.inputAmount) return true; // todo actionConfig
-
-      const { balance } = this.mimSavingRateInfo.userInfo.stakeToken;
-      return this.inputAmount > balance; // todo actionConfig
+    isTokenApproved() {
+      const { approvedAmount } = this.mimSavingRateInfo.userInfo.stakeToken;
+      return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
     actionMethodName() {
@@ -120,34 +119,28 @@ export default {
       return this.isStakeAction ? balance : unlocked;
     },
 
-    // ----
-
-    // todo
-    isTokenApproved() {
-      if (!this.account) return true;
-      if (!this.isStakeAction) return true;
-      if (!this.isUnsupportedChain) return true;
-
-      const { approvedAmount } = this.mimSavingRateInfo.userInfo.stakeToken;
-      return approvedAmount >= this.inputAmount;
-    },
-
     actionValidationData() {
       return validateAction(
         this.mimSavingRateInfo,
-        this.inputAmount,
+        this.activeTab,
         this.chainId,
-        this.activeTab
+        this.actionConfig
       );
     },
 
     lockValidationData() {
       return validateAction(
         this.mimSavingRateInfo,
-        this.inputAmount,
+        ACTION_LOCK,
         this.chainId,
-        "lock"
+        this.actionConfig
       );
+    },
+  },
+
+  watch: {
+    mimSavingRateInfo() {
+      this.actionConfig.lockAmount = this.mimSavingRateInfo.userInfo.unlocked;
     },
   },
 
@@ -155,29 +148,34 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    changeTab(action: activeTab) {
-      this.activeTab = action;
+    resetAmounts() {
       this.inputValue = "";
+
+      this.actionConfig = {
+        stakeAmount: 0n,
+        withdrawAmount: 0n,
+        lockAmount: this.mimSavingRateInfo.userInfo.unlocked,
+      };
+    },
+
+    changeTab(action: ActiveTab) {
+      this.resetAmounts();
+      this.activeTab = action;
     },
 
     formatAmount(amount: bigint) {
       return formatUnits(amount, this.mimSavingRateInfo.stakingToken.decimals);
     },
 
-    // ------
-
     onUpdateStakeValue(value: bigint) {
-      if (!value) {
-        this.inputValue = "";
-        this.inputAmount = BigInt(0);
-        this.actionConfig.stakeAmount = BigInt(0);
-      } else {
-        this.inputAmount = value;
+      this.inputValue = !value
+        ? ""
+        : formatUnits(value, this.mimSavingRateInfo.stakingToken.decimals);
+
+      if (this.isStakeAction) {
         this.actionConfig.stakeAmount = value;
-        this.inputValue = formatUnits(
-          value,
-          this.mimSavingRateInfo.stakingToken.decimals
-        );
+      } else {
+        this.actionConfig.withdrawAmount = value;
       }
     },
 
@@ -201,7 +199,7 @@ export default {
     },
 
     async actionHandler() {
-      if (this.isActionDisabled) return false;
+      if (this.actionValidationData.isDisabled) return false;
 
       if (!this.account && this.isUnsupportedChain) {
         // @ts-ignore
@@ -224,7 +222,7 @@ export default {
 
       const { error }: any = await actions[this.actionMethodName](
         this.mimSavingRateInfo.lockingMultiRewardsContract,
-        this.inputAmount,
+        this.actionConfig,
         false
       );
 
@@ -234,13 +232,13 @@ export default {
         await this.createNotification(error);
       } else {
         this.$emit("updateMimSavingRateInfo");
-        this.inputValue = "";
+        this.resetAmounts();
         await this.createNotification(notification.success);
       }
     },
 
-    async lockStakingAmount() {
-      if (this.isLockActionDisabled) return false;
+    async lockActionHandler() {
+      if (this.lockValidationData.isDisabled) return false;
 
       if (!this.account && this.isUnsupportedChain) {
         // @ts-ignore
@@ -255,11 +253,9 @@ export default {
         notification.pending
       );
 
-      const { unlocked } = this.mimSavingRateInfo.userInfo;
-
       const { error }: any = await lock(
         this.mimSavingRateInfo.lockingMultiRewardsContract,
-        unlocked
+        this.actionConfig.lockAmount
       );
 
       await this.deleteNotification(notificationId);
@@ -268,7 +264,7 @@ export default {
         await this.createNotification(error);
       } else {
         this.$emit("updateMimSavingRateInfo");
-        this.inputValue = "";
+        this.resetAmounts();
         await this.createNotification(notification.success);
       }
     },

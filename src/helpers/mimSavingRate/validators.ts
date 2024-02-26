@@ -1,12 +1,12 @@
 import { getAccount } from "@wagmi/core";
 
-const ACTION_UNKNOWN = 0;
-const ACTION_STAKE = 1;
-const ACTION_LOCK = 2;
-const ACTION_STAKE_AND_LOCK = 3;
-const ACTION_WITHDRAW = 4;
-const ACTION_WITHDRAW_WITH_REWARDS = 5;
-const ACTION_GET_REWARDS = 6;
+const ACTION_UNKNOWN = "unknown";
+const ACTION_STAKE = "stake";
+const ACTION_LOCK = "lock";
+const ACTION_STAKE_AND_LOCK = "stakeAndLock";
+const ACTION_WITHDRAW = "unstake";
+const ACTION_WITHDRAW_WITH_REWARDS = "withdrawWithRewards";
+const ACTION_GET_REWARDS = "getRewards";
 
 export const ACTION_TYPES = {
   ACTION_UNKNOWN,
@@ -28,6 +28,7 @@ export const WARNING_TYPES = {
   REWARDS_AMOUNT: 6,
   SWITCH_CHAIN: 7,
   CONNECTION: 8,
+  AMOUNT: 9,
 };
 
 const WARNINGS_BTN_TEXT = {
@@ -40,91 +41,80 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.REWARDS_AMOUNT]: "Reward amount exceed",
   [WARNING_TYPES.SWITCH_CHAIN]: "Switch Chain",
   [WARNING_TYPES.CONNECTION]: "Connect wallet",
+  [WARNING_TYPES.AMOUNT]: "Nothing to do",
 };
 
 const ACTIONS_BTN_TEXT = {
   [ACTION_TYPES.ACTION_UNKNOWN]: "Nothing to do",
   [ACTION_TYPES.ACTION_STAKE]: "Stake",
+  [ACTION_TYPES.ACTION_STAKE_AND_LOCK]: "Stake and Lock",
   [ACTION_TYPES.ACTION_LOCK]: "Lock",
   [ACTION_TYPES.ACTION_WITHDRAW]: "Withdraw",
   [ACTION_TYPES.ACTION_WITHDRAW_WITH_REWARDS]: "Withdraw with rewards",
   [ACTION_TYPES.ACTION_GET_REWARDS]: "Get rewards",
 };
 
+const CONNECTION_WARNING = {
+  isAllowed: false,
+  isDisabled: false,
+  btnText: WARNINGS_BTN_TEXT[WARNING_TYPES.CONNECTION],
+};
+
+const CHAIN_WARNING = {
+  isAllowed: false,
+  isDisabled: false,
+  btnText: WARNINGS_BTN_TEXT[WARNING_TYPES.SWITCH_CHAIN],
+};
+
 export const validateAction = (
   contractInfo: any,
-  inputAmount: bigint,
+  actionType: "stake" | "unstake" | "stakeAndLock" | "lock",
   chainId: number,
-  action: "stake" | "unstake" | "lock"
+  actionConfig: any
 ) => {
-  const actionType = getActionType(contractInfo, inputAmount, action);
+  if (contractInfo.chainId !== chainId) return CHAIN_WARNING;
+
+  if (!getAccount().isConnected) return CONNECTION_WARNING;
+
+  if (actionType === ACTION_LOCK) return validateLock(actionConfig.lockAmount);
 
   const validationErrors: any = checkForErrors(
     contractInfo,
-    chainId,
-    inputAmount,
-    actionType
+    actionType,
+    actionConfig
   );
 
   return getValidationResult(validationErrors, actionType);
 };
 
-const getActionType = (contractInfo: any, inputAmount: any, action: any) => {
-  switch (action) {
-    case "stake":
-      if (inputAmount) return ACTION_STAKE;
-      return ACTION_UNKNOWN;
-    case "unstake":
-      if (inputAmount) return ACTION_WITHDRAW;
-      return ACTION_UNKNOWN;
-    case "lock":
-      return ACTION_LOCK;
-    default:
-      return ACTION_UNKNOWN;
-  }
-};
-
 const checkForErrors = (
   contractInfo: any,
-  chainId: any,
-  inputAmount: any,
-  actionType: number
+  actionType: string,
+  actionConfig: any
 ) => {
   let validationErrors: number[] = [];
-  const actionConfig = {
-    stakeAmount: 100,
-    widhdrowAmount: 200,
-    lockAmount: 10,
-  };
-
-  validationErrors = validateConnection(validationErrors);
-
-  validationErrors = validateChain(validationErrors, contractInfo, chainId);
 
   switch (actionType) {
-    case ACTION_TYPES.ACTION_STAKE:
+    case "stake":
       validationErrors = validateStake(
         validationErrors,
         contractInfo,
-        inputAmount
+        actionConfig.stakeAmount
       );
       break;
-    case ACTION_TYPES.ACTION_LOCK:
-      validationErrors = validateLock(validationErrors, contractInfo);
-      break;
-    case ACTION_TYPES.ACTION_STAKE_AND_LOCK:
+    case "stakeAndLock":
       validationErrors = validateStake(
         validationErrors,
         contractInfo,
-        inputAmount,
+        actionConfig.stakeAmount,
         true
       );
       break;
-    case ACTION_TYPES.ACTION_WITHDRAW:
+    case "unstake":
       validationErrors = validateWithdraw(
         validationErrors,
         contractInfo,
-        inputAmount
+        actionConfig.withdrawAmount
       );
       break;
   }
@@ -132,24 +122,16 @@ const checkForErrors = (
   return validationErrors;
 };
 
-const validateConnection = (validationErrors: any) => {
-  const { isConnected } = getAccount();
+const validateLock = (lockAmount: bigint) => {
+  const isAllowed = !lockAmount;
 
-  if (!isConnected) validationErrors.push(WARNING_TYPES.CONNECTION);
-
-  return validationErrors;
-};
-
-const validateChain = (
-  validationErrors: any,
-  contractInfo: any,
-  chainId: number
-) => {
-  const isValidChain = contractInfo.chainId === chainId;
-
-  if (!isValidChain) validationErrors.push(WARNING_TYPES.SWITCH_CHAIN);
-
-  return validationErrors;
+  return {
+    isAllowed,
+    isDisabled: isAllowed ? true : false,
+    btnText: isAllowed
+      ? ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_UNKNOWN]
+      : ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_LOCK],
+  };
 };
 
 const validateStake = (
@@ -161,20 +143,12 @@ const validateStake = (
   const { approvedAmount, balance } = contractInfo.userInfo.stakeToken;
   const { minLockAmount } = contractInfo;
 
+  if (!inputAmount) validationErrors.push(WARNING_TYPES.AMOUNT);
   if (inputAmount > balance) validationErrors.push(WARNING_TYPES.STAKE_BALANCE);
   if (inputAmount > approvedAmount)
     validationErrors.push(WARNING_TYPES.STAKE_ALLOWANCE);
   if (inputAmount < minLockAmount && isLock)
     validationErrors.push(WARNING_TYPES.STAKE_MIN_AMOUNT);
-
-  return validationErrors;
-};
-
-const validateLock = (validationErrors: any, amount: any) => {
-  //   if (inputAmount && inputAmount > amount)
-  //     validationErrors.push(WARNING_TYPES.LOCK_AMOUNT);
-  //   const { unlocked } = contractInfo.userInfo.unlocked;
-  if (!amount) validationErrors.push(WARNING_TYPES.LOCK_AMOUNT);
 
   return validationErrors;
 };
@@ -186,6 +160,7 @@ const validateWithdraw = (
 ) => {
   const { unlocked } = contractInfo.userInfo;
 
+  if (!inputAmount) validationErrors.push(WARNING_TYPES.AMOUNT);
   if (inputAmount > unlocked)
     validationErrors.push(WARNING_TYPES.WITHDRAWABLE_AMOUNT);
 
@@ -195,22 +170,18 @@ const validateWithdraw = (
 const getValidationResult = (validationErrors: any, actionType: any) => {
   if (validationErrors.length === 0)
     return {
+      isAllowed: false,
+      isDisabled: false,
       btnText: ACTIONS_BTN_TEXT[actionType],
-      isAllowed: actionType !== ACTION_TYPES.ACTION_UNKNOWN,
     };
 
-  const exceptions = [
-    WARNING_TYPES.STAKE_ALLOWANCE,
-    WARNING_TYPES.SWITCH_CHAIN,
-    WARNING_TYPES.CONNECTION,
-  ];
-
-  console.log("validationErrors", validationErrors);
+  const exceptions = [WARNING_TYPES.STAKE_ALLOWANCE];
 
   const isException = exceptions.indexOf(validationErrors[0]) !== -1;
 
   return {
     isAllowed: isException,
+    isDisabled: isException ? false : true,
     btnText: WARNINGS_BTN_TEXT[validationErrors[0]],
     errorType: validationErrors[0],
   };
