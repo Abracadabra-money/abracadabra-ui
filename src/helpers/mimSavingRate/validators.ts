@@ -35,7 +35,7 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.STAKE_ALLOWANCE]: "Approve",
   [WARNING_TYPES.STAKE_MIN_AMOUNT]: "Minimum amount 100",
   [WARNING_TYPES.STAKE_BALANCE]: "Insufficient balance",
-  [WARNING_TYPES.LOCK_MIN_AMOUNT]: "Minimum amount 10",
+  [WARNING_TYPES.LOCK_MIN_AMOUNT]: "Minimum amount 100",
   [WARNING_TYPES.LOCK_AMOUNT]: "Lock amount exceed",
   [WARNING_TYPES.WITHDRAWABLE_AMOUNT]: "Withdrawable amount exceed",
   [WARNING_TYPES.REWARDS_AMOUNT]: "Reward amount exceed",
@@ -76,7 +76,8 @@ export const validateAction = (
 
   if (!getAccount().isConnected) return CONNECTION_WARNING;
 
-  if (actionType === ACTION_LOCK) return validateLock(actionConfig.lockAmount);
+  if (actionType === ACTION_LOCK)
+    return validateLock(contractInfo, actionConfig.lockAmount);
 
   const validationErrors: any = checkForErrors(
     contractInfo,
@@ -122,15 +123,22 @@ const checkForErrors = (
   return validationErrors;
 };
 
-const validateLock = (lockAmount: bigint) => {
+const validateLock = (contractInfo: any, lockAmount: bigint) => {
   const isAllowed = !lockAmount;
+  const { minLockAmount } = contractInfo;
+
+  let btnText = isAllowed
+    ? ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_UNKNOWN]
+    : ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_LOCK];
+
+  if (lockAmount && lockAmount < minLockAmount) {
+    btnText = WARNINGS_BTN_TEXT[WARNING_TYPES.LOCK_MIN_AMOUNT];
+  }
 
   return {
     isAllowed,
-    isDisabled: isAllowed ? true : false,
-    btnText: isAllowed
-      ? ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_UNKNOWN]
-      : ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_LOCK],
+    isDisabled: lockAmount < minLockAmount,
+    btnText,
   };
 };
 
