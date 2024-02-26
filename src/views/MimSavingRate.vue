@@ -35,6 +35,7 @@
       :activeAction="activeAction"
       :mimSavingRateInfo="mimSavingRateInfo"
       @chooseLockAction="selectAction(1)"
+      @updateMimSavingRateInfo="createMimSavingRateInfo"
       v-if="isCarouselMode"
     />
   </div>
@@ -58,6 +59,7 @@ export default {
       ],
       activeIndex: null,
       itemWidth: 200,
+      mimSavingRateInfo: null,
     };
   },
 

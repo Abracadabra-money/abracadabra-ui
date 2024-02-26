@@ -13,12 +13,16 @@
         v-if="activeAction == 'Stake'"
         :mimSavingRateInfo="mimSavingRateInfo"
         @chooseLockAction="$emit('chooseLockAction')"
+        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
       <Lock
         v-if="activeAction == 'Lock'"
         :mimSavingRateInfo="mimSavingRateInfo"
       />
-      <Claim v-if="activeAction == 'Claim'" :mimSavingRateInfo="mimSavingRateInfo"/>
+      <Claim
+        v-if="activeAction == 'Claim'"
+        :mimSavingRateInfo="mimSavingRateInfo"
+      />
     </div>
   </div>
 </template>
@@ -31,6 +35,8 @@ import Claim from "@/components/msr/actions/Claim.vue";
 import AvailableNetworksBlock from "@/components/stake/AvailableNetworksBlock.vue";
 
 export default {
+  emits: ["chooseLockAction", "updateMimSavingRateInfo"],
+
   props: {
     activeAction: { type: String },
     mimSavingRateInfo: { type: Object, required: true },

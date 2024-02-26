@@ -64,6 +64,12 @@ import { lock } from "@/helpers/mimSavingRate/actions/lock";
 type activeTab = "stake" | "unstake";
 
 export default {
+  emits: ["updateMimSavingRateInfo"],
+
+  props: {
+    mimSavingRateInfo: { type: Object, required: true },
+  },
+
   data() {
     return {
       activeTab: "stake" as "stake" | "unstake",
@@ -77,10 +83,6 @@ export default {
         lockAmount: 0n,
       },
     };
-  },
-
-  props: {
-    mimSavingRateInfo: { type: Object, required: true },
   },
 
   computed: {
@@ -191,7 +193,8 @@ export default {
         this.mimSavingRateInfo.lockingMultiRewardsContract.address
       );
 
-      // if (approve) await this.createStakeInfo(); todo emit event
+      if (approve) this.$emit("updateMimSavingRateInfo");
+
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
       return false;
@@ -230,7 +233,7 @@ export default {
       if (error) {
         await this.createNotification(error);
       } else {
-        // await this.createStakeInfo(); //todo emit event
+        this.$emit("updateMimSavingRateInfo");
         this.inputValue = "";
         await this.createNotification(notification.success);
       }
@@ -264,7 +267,7 @@ export default {
       if (error) {
         await this.createNotification(error);
       } else {
-        // await this.createStakeInfo(); //todo emit event
+        this.$emit("updateMimSavingRateInfo");
         this.inputValue = "";
         await this.createNotification(notification.success);
       }
