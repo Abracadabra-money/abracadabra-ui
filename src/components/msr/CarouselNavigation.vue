@@ -3,7 +3,7 @@
     <div class="total-info">
       <div class="tag" v-if="account">
         <span class="title">Total deposited:</span>
-        <span class="value">{{ totalDeposited }}</span>
+        <span class="value">{{ formatTokenBalance(totalDeposited) }}</span>
       </div>
 
       <div class="tag">
@@ -21,6 +21,8 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
+import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: { mimSavingRateInfo: { type: Object } },
@@ -31,8 +33,16 @@ export default {
     }),
 
     totalDeposited() {
-      return this.mimSavingRateInfo.userInfo.totalBalance;
+      return formatUnits(
+        this.mimSavingRateInfo.userInfo.locked +
+          this.mimSavingRateInfo.userInfo.unlocked,
+        this.mimSavingRateInfo.stakingToken.decimals
+      );
     },
+  },
+
+  methods: {
+    formatTokenBalance,
   },
 };
 </script>

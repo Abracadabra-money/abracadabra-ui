@@ -5,7 +5,7 @@ export const formatTimestampToUnix = (
   timestamp: number,
   formatter = "ddd, DD MMM YYYY HH:mm:ss"
 ) => {
-  return moment.unix(timestamp).format(formatter);
+  return moment.unix(timestamp).utc().format(formatter);
 };
 
 export const getDifferenceDates = (timestamp: number) => {

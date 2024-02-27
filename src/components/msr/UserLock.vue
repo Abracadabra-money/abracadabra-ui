@@ -4,26 +4,44 @@
       Locked
       <div class="token-amount">
         <BaseTokenIcon :icon="mimIcon" name="MIM" size="24px" />
-        1000
+        {{ locked }}
       </div>
     </span>
 
-    <span class="locked-time">23h 12m 12s</span>
+    <span class="locked-time">{{ unlockTime }}</span>
   </li>
 </template>
 
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import { formatTokenBalance } from "@/helpers/filters";
+import { formatTimestampToUnix } from "@/helpers/time/index";
+import { formatUnits } from "viem";
 
 export default {
+  props: {
+    userLock: { type: Object },
+  },
+
   data() {
     return { mimIcon };
   },
 
-  computed: {},
+  computed: {
+    locked() {
+      return formatTokenBalance(
+        formatUnits(this.userLock.amount, this.userLock.decimals)
+      );
+    },
 
-  methods: {},
+    unlockTime() {
+      return formatTimestampToUnix(
+        formatUnits(this.userLock.unlockTime, 0),
+        "DD MMM YYYY"
+      );
+    },
+  },
 
   components: { BaseTokenIcon },
 };
@@ -34,7 +52,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: calc(100% - 10px);
+  width: 100%;
   min-height: 58px;
   padding: 12px 16px 12px 12px;
   border-radius: 10px;

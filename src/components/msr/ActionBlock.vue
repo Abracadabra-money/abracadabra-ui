@@ -18,10 +18,12 @@
       <Lock
         v-if="activeAction == 'Lock'"
         :mimSavingRateInfo="mimSavingRateInfo"
+        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
       <Claim
         v-if="activeAction == 'Claim'"
         :mimSavingRateInfo="mimSavingRateInfo"
+        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
     </div>
   </div>
@@ -66,7 +68,6 @@ export default {
   right: 80px;
   display: flex;
   flex-direction: column;
-  height: 100%;
   height: 762px;
   max-width: 533px;
   width: 100%;
@@ -90,10 +91,17 @@ export default {
   margin-bottom: 40px;
 }
 
+.actions-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .actions-wrapper::v-deep(.action) {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex-grow: 1;
 }
 
 .actions-wrapper::v-deep(.action-title) {
