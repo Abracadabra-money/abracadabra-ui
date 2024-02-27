@@ -14,7 +14,7 @@
 
       <div class="token-amount">
         <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
-        1000
+        {{ unlockedAmount }}
       </div>
     </div>
 
@@ -32,27 +32,34 @@
 
       <div class="token-amount">
         <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
-        1000
+        {{ lockedAmount }}
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 
 export default {
+  props: {
+    lockedAmount: { type: [String, Number], default: 0 },
+    unlockedAmount: { type: [String, Number], default: 0 },
+  },
+
   data() {
     return { mimIcon };
   },
 
-  computed: {},
-
-  methods: {},
-
-  components: { BaseTokenIcon, Tooltip },
+  components: {
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+  },
 };
 </script>
 
