@@ -79,7 +79,6 @@ export default {
   flex-direction: column;
   margin-top: auto;
   gap: 16px;
-  height: 250px;
   padding: 12px 16px 12px 12px;
   border-radius: 10px;
   border: 1px solid rgba(180, 180, 180, 0.08);

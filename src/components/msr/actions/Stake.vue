@@ -22,30 +22,34 @@
       >{{ actionValidationData.btnText }}
     </BaseButton>
 
-    <div class="lock-promo">
-      <div class="staking-info">
-        <div class="currently-staked">
-          <div class="title">You Currently Staking</div>
-          <div class="token-amount">
-            <BaseTokenIcon
-              :icon="mimSavingRateInfo.stakingToken.icon"
-              name="MIM"
-              size="32px"
-            />
-            {{ formatAmount(mimSavingRateInfo.userInfo.balances.unlocked) }}
+    <div class="decorative-layer back">
+      <div class="decorative-layer middle">
+        <div class="lock-promo">
+          <div class="staking-info">
+            <div class="currently-staked">
+              <div class="title">You Currently Staking</div>
+              <div class="token-amount">
+                <BaseTokenIcon
+                  :icon="mimSavingRateInfo.stakingToken.icon"
+                  name="MIM"
+                  size="32px"
+                />
+                {{ formatAmount(mimSavingRateInfo.userInfo.balances.unlocked) }}
+              </div>
+            </div>
+
+            <p class="promo-text">Lock your MIM and Boost your APR to 150%</p>
           </div>
+
+          <BaseButton
+            primary
+            :disabled="lockValidationData.isDisabled"
+            @click="lockActionHandler"
+          >
+            {{ lockValidationData.btnText }}
+          </BaseButton>
         </div>
-
-        <p class="promo-text">Lock your MIM and Boost your APR to 150%</p>
       </div>
-
-      <BaseButton
-        primary
-        :disabled="lockValidationData.isDisabled"
-        @click="lockActionHandler"
-      >
-        {{ lockValidationData.btnText }}
-      </BaseButton>
     </div>
   </div>
 </template>
@@ -299,7 +303,7 @@ export default {
   justify-content: space-between;
   gap: 32px;
   padding: 24px;
-  border-radius: 0px 0px var(--Radius-Regular, 20px) var(--Radius-Regular, 20px);
+  border-radius: 0px 0px 20px 20px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(
     90deg,
@@ -338,5 +342,26 @@ export default {
   width: 200px;
   text-align: right;
   font-size: 16px;
+}
+
+.decorative-layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0px 0px 20px 20px;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.22) 0%,
+    rgba(116, 92, 210, 0.22) 100%
+  );
+}
+
+.middle {
+  height: 236px;
+}
+
+.back {
+  height: 264px;
 }
 </style>
