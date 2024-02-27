@@ -89,7 +89,7 @@ const getStakeTokenInfo = async (
   return {
     caps: caps.result,
     isSupported: isSupported.result,
-    totals: perseBalances(totals.result),
+    totals: parseBalances(totals.result),
     userInfo,
   };
 };
@@ -126,11 +126,11 @@ const getUserTokenInfo = async (
   return {
     allowance: allowance.result,
     balance: balance.result,
-    balances: perseBalances(balances.result),
+    balances: parseBalances(balances.result),
   };
 };
 
-const perseBalances = (
+const parseBalances = (
   balances: [bigint, bigint, bigint]
 ): DepositedBalances => {
   return {
