@@ -9,23 +9,31 @@
       <div class="efficiency-indicator"></div>
     </div>
 
-    <Assets />
+    <Assets
+      :locked-amount="userLockedAmount"
+      :unlocked-amount="userUnlockedAmount"
+    />
 
     <Rewards />
 
     <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
-    <BaseButton class="action-button" primary>Claim</BaseButton>
+    <BaseButton class="action-button" primary @click="actionHandler"
+      >Claim</BaseButton
+    >
   </div>
 </template>
 
-<script>
-import BaseButton from "@/components/base/BaseButton.vue";
-import EpochTimeLine from "@/components/msr/EpochTimeLine.vue";
-import QuestionMarkIcon from "@/components/ui/icons/Tooltip.vue";
-import Assets from "@/components/msr/Assets.vue";
-import Rewards from "@/components/msr/Rewards.vue";
+<script lang="ts">
+import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
+import { mapActions, mapMutations } from "vuex";
+import { formatTokenBalance } from "@/helpers/filters";
+import notification from "@/helpers/notification/notification";
+import { getRewards } from "@/helpers/mimSavingRate/actions/getRewards";
 
 export default {
+  emits: ["updateMimSavingRateInfo"],
+
   props: {
     mimSavingRateInfo: { type: Object },
   },
@@ -34,16 +42,57 @@ export default {
     return {};
   },
 
-  computed: {},
+  computed: {
+    userLockedAmount(): string | number {
+      return formatTokenBalance(
+        formatUnits(this.mimSavingRateInfo!.userInfo.balances.locked, 18)
+      );
+    },
 
-  methods: {},
+    userUnlockedAmount(): string | number {
+      return formatTokenBalance(
+        formatUnits(this.mimSavingRateInfo!.userInfo.balances.unlocked, 18)
+      );
+    },
+  },
+
+  methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    async actionHandler() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { error }: any = await getRewards(
+        this.mimSavingRateInfo!.lockingMultiRewardsContract
+      );
+
+      await this.deleteNotification(notificationId);
+
+      if (error) {
+        await this.createNotification(error);
+      } else {
+        this.$emit("updateMimSavingRateInfo");
+        await this.createNotification(notification.success);
+      }
+    },
+  },
 
   components: {
-    BaseButton,
-    EpochTimeLine,
-    QuestionMarkIcon,
-    Assets,
-    Rewards,
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
+    EpochTimeLine: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/msr/EpochTimeLine.vue")
+    ),
+    QuestionMarkIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    Assets: defineAsyncComponent(() => import("@/components/msr/Assets.vue")),
+    Rewards: defineAsyncComponent(() => import("@/components/msr/Rewards.vue")),
   },
 };
 </script>

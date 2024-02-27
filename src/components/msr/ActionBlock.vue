@@ -22,6 +22,7 @@
       <Claim
         v-if="activeAction == 'Claim'"
         :mimSavingRateInfo="mimSavingRateInfo"
+        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
     </div>
   </div>
