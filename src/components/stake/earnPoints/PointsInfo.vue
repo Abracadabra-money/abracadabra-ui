@@ -1,0 +1,80 @@
+<template>
+  <div class="points-info">
+    <h4 class="table-title">How to maximize your Points</h4>
+
+    <ul class="boost-ways-list">
+      <li class="boost-way">
+        <span class="title">Deposit USDb</span>
+        <span class="value">3X Points / Day</span>
+      </li>
+
+      <li class="boost-way">
+        <span class="title">Deposit MIM</span>
+        <span class="value">1X Points / Day</span>
+      </li>
+
+      <li class="boost-way">
+        <span class="title">Lock $ Boost your MIM and USDb</span>
+        <span class="value">20X Points / Day</span>
+      </li>
+
+      <li class="boost-way">
+        <span class="title">
+          Mint MIM from ETH Cauldron on Blast, lock and boost
+        </span>
+        <span class="value">15X Points / Day</span>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script lang="ts">
+export default {};
+</script>
+
+<style lang="scss" scoped>
+.points-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+}
+
+.table-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.boost-ways-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.boost-way {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  color: #878b93;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.value {
+  font-size: 16px;
+  font-weight: 500;
+}
+</style>
