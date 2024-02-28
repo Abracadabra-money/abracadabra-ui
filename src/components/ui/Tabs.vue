@@ -2,6 +2,7 @@
   <div :style="`width: ${width};`" class="switch">
     <button
       v-for="(item, i) in items"
+      :style="`color: ${name === item ? activeColor : ''};`"
       class="switch-btn"
       :class="{ 'switch-btn-active': name === item, small }"
       :key="i"
@@ -35,6 +36,10 @@ export default {
     small: {
       type: Boolean,
       default: false,
+    },
+    activeColor: {
+      type: String,
+      default: "#7088cc",
     },
   },
 

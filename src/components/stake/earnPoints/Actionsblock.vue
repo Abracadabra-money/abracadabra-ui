@@ -1,10 +1,12 @@
 <template>
   <div class="action-block">
     <div class="actions-head">
-      <h3 class="head-title-wrap">Earn Points</h3>
+      <img class="label" src="@/assets/images/blast/label.png" alt="" />
+
       <Tabs
         :name="actionActiveTab"
         :items="actionTabs"
+        activeColor="#FCFC03"
         @select="changeActionTab"
       />
     </div>
@@ -395,6 +397,13 @@ export default {
   font-weight: 600;
   line-height: normal;
   margin-bottom: 32px;
+}
+
+.label {
+  height: 73px;
+  max-width: 304px;
+  width: 100%;
+  border-radius: 12px 0 0 12px;
 }
 
 .action-wrap {
