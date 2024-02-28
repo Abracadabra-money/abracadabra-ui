@@ -65,10 +65,6 @@ export default {
     },
   },
 
-  created() {
-    console.log(this.stakeInfo);
-  },
-
   components: {
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")

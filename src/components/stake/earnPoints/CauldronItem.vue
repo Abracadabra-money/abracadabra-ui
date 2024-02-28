@@ -1,45 +1,48 @@
 <template>
   <router-link
-    :class="['cauldron-table-link', 'new']"
-    :to="{ name: 'Cauldrons' }"
+    :class="['cauldron-table-link', 'new', { open: isOpenPosition }]"
+    :to="goToPage(cauldronInfo)"
+    v-if="cauldronInfo"
   >
     <div class="label">new</div>
 
     <div class="cauldron-info">
       <div class="icons-wrap">
-        <img class="cauldron-icon" :src="ethIcon" alt="" />
+        <img class="cauldron-icon" :src="cauldronInfo.config.icon" />
         <img
           class="chain-icon"
-          :src="getChainIcon(168587773)"
+          :src="getChainIcon(cauldronInfo.config.chainId)"
           alt="Chain icon"
         />
       </div>
-      WETH
+      {{ cauldronInfo.config.name }}
     </div>
 
     <div class="row">
       <div>
         <h3 class="title">TVL</h3>
-        <div class="value">${{ formatLargeSum("612") }}</div>
+        <div class="value">
+          ${{ formatLargeSum(cauldronInfo.mainParams.tvl) }}
+        </div>
       </div>
 
       <div>
         <h3 class="title">TMB</h3>
         <div class="value">
-          {{ formatLargeSum("612") }}
+          {{ formatLargeSum(cauldronInfo.mainParams.totalBorrowed) }}
         </div>
       </div>
 
       <div>
         <h3 class="title">MIMS LB</h3>
         <div class="value">
-          {{ formatLargeSum("612") }}
+          {{ formatLargeSum(cauldronInfo.mainParams.mimLeftToBorrow) }}
         </div>
       </div>
 
       <div>
         <h3 class="title">Mint Fee</h3>
-        <div class="value">0.5%</div>
+        <div class="value">{{ cauldronInfo.mainParams.borrowFee }}%</div>
       </div>
 
       <div>
@@ -49,23 +52,38 @@
 
       <div>
         <h3 class="title">Interest</h3>
-        <div class="value">12%</div>
+        <div class="value">{{ cauldronInfo.mainParams.interest }}%</div>
       </div>
     </div>
   </router-link>
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
+import { utils, providers } from "ethers";
+import { defaultRpc } from "@/helpers/chains";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { formatToFixed, formatLargeSum } from "@/helpers/filters";
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { formatLargeSum } from "@/helpers/filters";
 import ethIcon from "@/assets/images/tokens/ETH.png";
 
 export default {
   data() {
     return {
       ethIcon,
+      cauldronChainId: 1,
+      cauldronId: 23,
+      cauldronInfo: null as any,
     };
+  },
+
+  computed: {
+    isOpenPosition() {
+      return (
+        this.cauldronInfo.userPosition.collateralInfo.userCollateralShare.gt(
+          0
+        ) || this.cauldronInfo.userPosition.borrowInfo.userBorrowPart.gt(0)
+      );
+    },
   },
 
   methods: {
@@ -77,6 +95,40 @@ export default {
     formatLargeSum(value: string) {
       return formatLargeSum(utils.formatUnits(value));
     },
+
+    goToPage(cauldron: any) {
+      const { chainId, id } = cauldron.config;
+      return {
+        name: "Market",
+        params: { chainId, cauldronId: id },
+      };
+    },
+
+    async createCauldronInfo() {
+      const currentRpc =
+        defaultRpc[this.cauldronChainId as keyof typeof defaultRpc];
+
+      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+
+      this.cauldronInfo = await getCauldronInfo(
+        this.cauldronId,
+        this.cauldronChainId,
+        chainProvider,
+        chainProvider
+      );
+    },
+  },
+
+  beforeUnmount() {
+    clearInterval(this.updateInterval);
+  },
+
+  async created() {
+    await this.createCauldronInfo();
+
+    this.updateInterval = setInterval(async () => {
+      await this.createCauldronInfo();
+    }, 60000);
   },
 };
 </script>
