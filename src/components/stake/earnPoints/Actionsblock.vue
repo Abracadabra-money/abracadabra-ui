@@ -31,6 +31,7 @@
           :icon="fromToken.icon"
           :name="fromToken.name"
           :max="fromToken.balance"
+          :primaryMax="!isStakeAction"
           :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
           @updateInputValue="updateMainValue"
         />
@@ -43,10 +44,6 @@
           <div class="info-row">
             <span>Multiplier</span>
             <span>20X</span>
-          </div>
-          <div class="info-row">
-            <span>Network Fee</span>
-            <span class="info-value"><FeeIcon /> $0.01</span>
           </div>
         </div>
 
@@ -93,14 +90,12 @@
               </div>
             </div>
 
-            <div class="lock-btn-wrap">
-              <BaseButton
-                primary
-                :disabled="isLockDisabled"
-                @click="lockHandler"
-                >{{ lockButtonText }}</BaseButton
-              >
-            </div>
+            <BaseButton
+              primary
+              :disabled="isLockDisabled"
+              @click="lockHandler"
+              >{{ lockButtonText }}</BaseButton
+            >
           </div>
         </div>
       </div>
@@ -109,16 +104,23 @@
 </template>
 
 <script lang="ts">
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import { approveTokenViem } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
+import { lock } from "@/helpers/blast/stake/actions/lock";
 import { mapGetters, mapActions, mapMutations } from "vuex";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { deposit } from "@/helpers/blast/stake/actions/deposit";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 const BLAST_CHAIN_ID = 168587773;
 
 export default {
+  emits: ["updateStakeInfo"],
+
   props: {
     stakeInfo: {
       type: Object,
@@ -135,6 +137,7 @@ export default {
       isLock: false as boolean,
       inputValue: "" as string | bigint,
       inputAmount: BigInt(0) as bigint,
+      mimPrice: 0 as number,
     };
   },
 
@@ -177,7 +180,8 @@ export default {
     },
 
     token0() {
-      const { name, icon, decimals } = this.stakeInfo.config.tokens[0];
+      const { name, icon, decimals, contract } =
+        this.stakeInfo.config.tokens[0];
       const { balances, allowance, balance } =
         this.stakeInfo.tokensInfo[0].userInfo;
 
@@ -186,14 +190,16 @@ export default {
         name,
         decimals,
         balance,
-        price: 1000000000000000000n,
+        contract,
+        price: parseUnits(this.mimPrice.toString(), decimals),
         approvedAmount: allowance,
         unlockAmount: balances.unlocked,
       };
     },
 
     token1() {
-      const { name, icon, decimals } = this.stakeInfo.config.tokens[1];
+      const { name, icon, decimals, contract } =
+        this.stakeInfo.config.tokens[1];
       const { balances, allowance, balance } =
         this.stakeInfo.tokensInfo[1].userInfo;
 
@@ -202,6 +208,7 @@ export default {
         name,
         decimals,
         balance,
+        contract,
         price: 1000000000000000000n,
         approvedAmount: allowance,
         unlockAmount: balances.unlocked,
@@ -261,6 +268,24 @@ export default {
       }
     },
 
+    async approveTokenHandler() {
+      if (!this.isUnsupportedChain) return false;
+
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      const approve = await approveTokenViem(
+        this.fromToken.contract,
+        this.stakeInfo.config.contract.address
+      );
+
+      if (approve) this.$emit("updateStakeInfo");
+      await this.deleteNotification(notificationId);
+      if (!approve) await this.createNotification(notification.approveError);
+      return false;
+    },
+
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
@@ -274,23 +299,78 @@ export default {
         return false;
       }
 
-      // if (!this.isTokenApproved) {
-      //   await this.approveTokenHandler();
-      //   return false;
-      // }
+      if (!this.isTokenApproved) {
+        await this.approveTokenHandler();
+        return false;
+      }
 
       const notificationId = await this.createNotification(
         notification.pending
       );
+
+      const { error }: any = await deposit(
+        this.stakeInfo.config.contract,
+        this.fromToken.contract.address,
+        this.inputAmount,
+        this.isLock
+      );
+
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.$emit("updateStakeInfo");
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
     },
 
     async lockHandler() {
       if (this.isLockDisabled) return false;
 
+      if (!this.account && this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      if (!this.isUnsupportedChain) {
+        switchNetwork(BLAST_CHAIN_ID);
+        return false;
+      }
+
+      if (!this.isTokenApproved) {
+        await this.approveTokenHandler();
+        return false;
+      }
+
       const notificationId = await this.createNotification(
         notification.pending
       );
+
+      const { error }: any = await lock(
+        this.stakeInfo.config.contract,
+        this.fromToken.contract.address,
+        this.fromToken.unlockAmount
+      );
+
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.$emit("updateStakeInfo");
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
     },
+  },
+
+  async created() {
+    this.mimPrice = await getTokenPriceByChain(
+      tokensChainLink.mim.chainId,
+      tokensChainLink.mim.address
+    );
   },
 
   components: {
@@ -298,9 +378,6 @@ export default {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
-    ),
-    FeeIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/FeeIcon.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
@@ -398,14 +475,13 @@ export default {
 
 .lock-info {
   margin-top: 20px;
-  padding: 24px;
+  padding: 12px 24px 24px;
   border-radius: 0px 0px 20px 20px;
   background: linear-gradient(
     90deg,
     rgba(45, 74, 150, 0.22) 0%,
     rgba(116, 92, 210, 0.22) 100%
   );
-  gap: 9px;
   display: flex;
   flex-direction: column;
 }
@@ -443,6 +519,7 @@ export default {
 }
 
 .line {
+  margin: 8px 0 8px;
   height: 1px;
   width: 100%;
   background: linear-gradient(
@@ -454,9 +531,9 @@ export default {
 }
 
 .deposit-info {
-  gap: 4px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 9px;
 }
 
 .lock-info-step {
@@ -467,9 +544,5 @@ export default {
   line-height: normal;
   display: flex;
   align-items: center;
-}
-
-.lock-btn-wrap {
-  margin-top: 3px;
 }
 </style>
