@@ -1,7 +1,7 @@
 <template>
   <div class="stake-view">
     <div class="stake-wrap" v-if="stakeInfo">
-      <ActionBlock :stakeInfo="stakeInfo" />
+      <ActionBlock :stakeInfo="stakeInfo" @updateStakeInfo="createStakeInfo" />
     </div>
 
     <div class="loader-wrap" v-else>
