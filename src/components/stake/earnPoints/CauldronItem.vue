@@ -47,7 +47,7 @@
 
       <div>
         <h3 class="title">MRC</h3>
-        <div class="value">85%</div>
+        <div class="value">{{ cauldronInfo.config.mcr }}%</div>
       </div>
 
       <div>
@@ -70,9 +70,9 @@ export default {
   data() {
     return {
       ethIcon,
-      cauldronChainId: 1,
-      cauldronId: 23,
-      cauldronInfo: null ,
+      cauldronChainId: 168587773,
+      cauldronId: 1,
+      cauldronInfo: null,
       updateInterval: null,
     };
   },
@@ -106,8 +106,7 @@ export default {
     },
 
     async createCauldronInfo() {
-      const currentRpc =
-        defaultRpc[this.cauldronChainId];
+      const currentRpc = defaultRpc[this.cauldronChainId];
 
       const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
 

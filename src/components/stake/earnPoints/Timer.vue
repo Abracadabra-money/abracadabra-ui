@@ -63,7 +63,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 80px;
   height: 56px;
   padding: 6px 11px;
   border-radius: 10px;
