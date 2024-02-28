@@ -58,7 +58,7 @@
   </router-link>
 </template>
 
-<script lang="ts">
+<script>
 import { utils, providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
@@ -72,7 +72,8 @@ export default {
       ethIcon,
       cauldronChainId: 1,
       cauldronId: 23,
-      cauldronInfo: null as any,
+      cauldronInfo: null ,
+      updateInterval: null,
     };
   },
 
@@ -88,15 +89,15 @@ export default {
 
   methods: {
     getChainIcon,
-    formatUnits(value: string) {
+    formatUnits(value) {
       return utils.formatUnits(value);
     },
 
-    formatLargeSum(value: string) {
+    formatLargeSum(value) {
       return formatLargeSum(utils.formatUnits(value));
     },
 
-    goToPage(cauldron: any) {
+    goToPage(cauldron) {
       const { chainId, id } = cauldron.config;
       return {
         name: "Market",
@@ -106,7 +107,7 @@ export default {
 
     async createCauldronInfo() {
       const currentRpc =
-        defaultRpc[this.cauldronChainId as keyof typeof defaultRpc];
+        defaultRpc[this.cauldronChainId];
 
       const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
 

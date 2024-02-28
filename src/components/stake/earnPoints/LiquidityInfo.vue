@@ -81,12 +81,12 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(value) {
+    formatTokenBalance(value: bigint) {
       return formatTokenBalance(formatUnits(value, 18));
     },
 
-    calculatePercentage(total, caps) {
-      if (caps == 0) return 100;
+    calculatePercentage(total: bigint, caps: bigint) {
+      if (!caps) return 100;
       const pers = (total * 100n) / caps;
       return formatUnits(pers, 0);
     },

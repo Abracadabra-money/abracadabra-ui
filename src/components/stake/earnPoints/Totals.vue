@@ -53,14 +53,14 @@ export default {
     totalDeposited() {
       let totalDeposited = 0n;
       this.stakeInfo.tokensInfo.forEach(
-        (token) => (totalDeposited += token.totals.total)
+        (token: any) => (totalDeposited += token.totals.total)
       );
       return this.formatTokenBalance(totalDeposited);
     },
   },
 
   methods: {
-    formatTokenBalance(value) {
+    formatTokenBalance(value: bigint) {
       return formatTokenBalance(formatUnits(value, 18));
     },
   },
