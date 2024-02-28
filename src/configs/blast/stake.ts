@@ -23,7 +23,7 @@ export const blastStakeConfig: BlastStakeConfig = {
     },
     {
       name: "USDb",
-      icon: useImage(`assets/images/tokens/USDT.png`), // TODO
+      icon: useImage(`assets/images/tokens/USDB.png`),
       decimals: 18,
       contract: {
         address: "0x4200000000000000000000000000000000000022",
