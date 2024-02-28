@@ -12,7 +12,7 @@
           :height="20"
         />
       </h3>
-      <div class="value">$ 1000000</div>
+      <div class="value">$ {{ totalDeposited }}</div>
     </div>
 
     <div class="total">
@@ -38,8 +38,37 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
+import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
+  props: {
+    stakeInfo: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  computed: {
+    totalDeposited() {
+      let totalDeposited = 0n;
+      this.stakeInfo.tokensInfo.forEach(
+        (token) => (totalDeposited += token.totals.total)
+      );
+      return this.formatTokenBalance(totalDeposited);
+    },
+  },
+
+  methods: {
+    formatTokenBalance(value) {
+      return formatTokenBalance(formatUnits(value, 18));
+    },
+  },
+
+  created() {
+    console.log(this.stakeInfo);
+  },
+
   components: {
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")

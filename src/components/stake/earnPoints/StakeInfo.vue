@@ -1,8 +1,8 @@
 <template>
   <div class="stake-info">
-    <LiquidityInfo />
+    <LiquidityInfo :stakeInfo="stakeInfo" />
 
-    <Totals />
+    <Totals :stakeInfo="stakeInfo" />
 
     <PointsInfo />
 
@@ -17,6 +17,13 @@ import PointsInfo from "@/components/stake/earnPoints/PointsInfo.vue";
 import CauldronItem from "@/components/stake/earnPoints/CauldronItem.vue";
 
 export default {
+  props: {
+    stakeInfo: {
+      type: Object,
+      required: true,
+    },
+  },
+
   data() {
     return {};
   },

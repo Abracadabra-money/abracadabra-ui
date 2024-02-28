@@ -6,12 +6,7 @@
         <p class="subtitle">Liquidity Launch Event</p>
       </div>
 
-      <div class="timer">
-        <div class="time-block day"><span>13d</span></div>
-        <div class="time-block hour"><span>12h</span></div>
-        <div class="time-block minute"><span>12m</span></div>
-        <div class="time-block second"><span>55s</span></div>
-      </div>
+      <Timer />
     </div>
 
     <div class="fill-indicators">
@@ -19,8 +14,17 @@
         <BaseTokenIcon :icon="usdbIcon" name="USDB" size="32px" />
 
         <div class="scale-wrap">
-          <div class="filling-scale" style="width: 50%"></div>
-          <div class="filled-amount">2,000 out of 4,000</div>
+          <div
+            class="filling-scale"
+            :style="`width: ${calculatePercentage(
+              indicatorsInfo[1].total,
+              indicatorsInfo[1].caps
+            )}%`"
+          ></div>
+          <div class="filled-amount">
+            {{ formatTokenBalance(indicatorsInfo[1].total) }} out of
+            {{ formatTokenBalance(indicatorsInfo[1].caps) }}
+          </div>
         </div>
       </div>
 
@@ -28,8 +32,17 @@
         <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
 
         <div class="scale-wrap">
-          <div class="filling-scale" style="width: 20%"></div>
-          <div class="filled-amount">1,000 out of 4,000</div>
+          <div
+            class="filling-scale"
+            :style="`width: ${calculatePercentage(
+              indicatorsInfo[0].total,
+              indicatorsInfo[0].caps
+            )}%`"
+          ></div>
+          <div class="filled-amount">
+            {{ formatTokenBalance(indicatorsInfo[0].total) }} out of
+            {{ formatTokenBalance(indicatorsInfo[0].caps) }}
+          </div>
         </div>
       </div>
     </div>
@@ -38,15 +51,48 @@
 
 <script lang="ts">
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import Timer from "@/components/stake/earnPoints/Timer.vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import usdbIcon from "@/assets/images/tokens/USDB.png";
+import { formatUnits } from "viem";
+import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
+  props: {
+    stakeInfo: {
+      type: Object,
+      required: true,
+    },
+  },
+
   data() {
     return { mimIcon, usdbIcon };
   },
 
-  components: { BaseTokenIcon },
+  computed: {
+    indicatorsInfo() {
+      return this.stakeInfo.tokensInfo.map(({ caps, totals }: any) => {
+        return {
+          caps: caps,
+          total: totals.total,
+        };
+      });
+    },
+  },
+
+  methods: {
+    formatTokenBalance(value) {
+      return formatTokenBalance(formatUnits(value, 18));
+    },
+
+    calculatePercentage(total, caps) {
+      if (caps == 0) return 100;
+      const pers = (total * 100n) / caps;
+      return formatUnits(pers, 0);
+    },
+  },
+
+  components: { BaseTokenIcon, Timer },
 };
 </script>
 
@@ -88,26 +134,6 @@ export default {
 .subtitle {
   font-size: 14px;
   font-weight: 400;
-}
-
-.timer {
-  display: flex;
-  gap: 12px;
-}
-
-.time-block {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 80px;
-  height: 56px;
-  padding: 6px 11px;
-  border-radius: 10px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: rgba(0, 10, 35, 0.3);
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-  font-size: 29px;
-  font-weight: 500;
 }
 
 .fill-indicators {

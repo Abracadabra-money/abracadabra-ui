@@ -3,7 +3,7 @@
     <div class="stake-wrap" v-if="stakeInfo">
       <ActionBlock :stakeInfo="stakeInfo" @updateStakeInfo="createStakeInfo" />
 
-      <StakeInfo />
+      <StakeInfo :stakeInfo="stakeInfo"/>
     </div>
 
     <div class="loader-wrap" v-else>
