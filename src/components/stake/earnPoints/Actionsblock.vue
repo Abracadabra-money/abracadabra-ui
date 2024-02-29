@@ -1,7 +1,14 @@
 <template>
   <div class="action-block">
     <div class="actions-head">
-      <img class="label" src="@/assets/images/blast/label.png" alt="" />
+      <div class="label">
+        <img class="label-img" src="@/assets/images/networks/blast.png" />
+
+        <div class="label-text">
+          <h3 class="title">BUILD ON BLAST</h3>
+          <p class="subtitle">to earn points</p>
+        </div>
+      </div>
 
       <Tabs
         class="tabs"
@@ -400,12 +407,13 @@ export default {
 .actions-head {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: end;
+  flex-direction: row-reverse;
   justify-content: space-between;
   font-size: 32px;
   font-weight: 600;
   line-height: normal;
-  padding-right: 12px;
+  padding: 12px;
   margin-bottom: 32px;
   border-radius: 16px;
   border: 1px solid #00296b;
@@ -419,13 +427,41 @@ export default {
 }
 
 .label {
-  position: relative;
+  position: absolute;
   top: 0;
   left: 0;
-  height: 73px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
   max-width: 304px;
   width: 100%;
+  height: 73px;
   border-radius: 12px 0 0 12px;
+  background-color: #fcfd02;
+  -webkit-clip-path: polygon(0 1%, 100% 0%, 80% 100%, 0 100%);
+  clip-path: polygon(0 1%, 100% 0%, 80% 100%, 0 100%);
+}
+
+.label-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+}
+
+.title {
+  color: #000;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+.subtitle {
+  color: #000;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
 }
 
 .tabs {
@@ -585,20 +621,33 @@ export default {
 
 @media (max-width: 600px) {
   .actions-head {
-    flex-direction: column;
-    align-items: start;
+    height: 130px;
     gap: 16px;
-    padding: 0 0 12px 0;
     margin-bottom: 16px;
+    justify-content: center;
   }
 
   .label {
-    width: 60%;
-    height: 60%;
+    height: 50px;
+    width: 250px;
+    border-radius: 12px 0 0 0;
   }
 
-  .tabs {
-    align-self: center;
+  .label-img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .title {
+    color: #000;
+    font-size: 18px;
+    line-height: 20px;
+  }
+
+  .subtitle {
+    color: #000;
+    font-size: 12px;
+    line-height: 15px;
   }
 
   .deposit-wrap {
