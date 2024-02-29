@@ -140,10 +140,11 @@ export default {
   background: rgba(8, 14, 31, 0.6);
   color: #fff;
   padding: 25px 12px 20px;
-  gap: 70px;
   display: flex;
   justify-content: space-between;
+  gap: 30px;
   position: relative;
+  flex-wrap: wrap;
   overflow: hidden;
   transition: all 0.2s ease-in-out;
 
@@ -205,10 +206,10 @@ export default {
 }
 
 .row {
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-grow: 1;
 }
 
 .cauldron-info {
@@ -253,5 +254,16 @@ export default {
 .value {
   font-size: 14px;
   font-weight: 400;
+}
+
+@media (max-width: 500px) {
+  .cauldron-table-link {
+    gap: 8px;
+  }
+
+  .title,
+  .value {
+    font-size: 12px;
+  }
 }
 </style>

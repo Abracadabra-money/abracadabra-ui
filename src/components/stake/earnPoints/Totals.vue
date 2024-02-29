@@ -122,4 +122,18 @@ export default {
   font-weight: 500;
   line-height: 32px;
 }
+
+@media (max-width: 700px) {
+  .totals-wrap {
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .value {
+    font-size: 28px;
+  }
+}
 </style>

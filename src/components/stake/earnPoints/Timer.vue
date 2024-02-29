@@ -12,8 +12,8 @@ import moment from "moment";
 export default {
   data() {
     return {
-      startDate: moment("2024-03-01 00:00:00"),
-      endDate: moment("2024-03-15 00:00:00"),
+      startDate: moment.utc("2024-03-01 00:00:00"),
+      endDate: moment.utc("2024-03-15 00:00:00"),
       intervalId: null,
       timerValues: ["0d", "00h", "00m", "00s"],
     };
@@ -21,12 +21,8 @@ export default {
 
   methods: {
     updateTimer() {
-      if (this.startDate.isBefore(moment())) this.startDate = moment();
-      const duration = moment.duration(this.endDate.diff(this.startDate));
-      const days = Math.floor(duration.asDays());
-      const hours = duration.hours();
-      const minutes = duration.minutes();
-      const seconds = duration.seconds();
+      const now = moment().utc();
+      const duration = moment.duration(this.endDate.diff(now));
 
       if (duration.asSeconds() <= 0) {
         clearInterval(this.intervalId);
@@ -34,8 +30,13 @@ export default {
         return;
       }
 
+      const days = Math.max(Math.floor(duration.asDays()), 0);
+      const hours = Math.max(duration.hours(), 0);
+      const minutes = Math.max(duration.minutes(), 0);
+      const seconds = Math.max(duration.seconds(), 0);
+
       this.timerValues = [
-        `${days}d`,
+        `${days.toString().padStart(2, "0")}d`,
         `${hours.toString().padStart(2, "0")}h`,
         `${minutes.toString().padStart(2, "0")}m`,
         `${seconds.toString().padStart(2, "0")}s`,
@@ -44,6 +45,7 @@ export default {
   },
 
   mounted() {
+    this.updateTimer();
     this.intervalId = setInterval(this.updateTimer, 1000);
   },
 
@@ -71,5 +73,19 @@ export default {
   box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
   font-size: 29px;
   font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  .time-block {
+    font-size: 16px;
+    height: auto;
+  }
+}
+
+@media (max-width: 500px) {
+  .timer {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>

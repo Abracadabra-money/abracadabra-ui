@@ -63,7 +63,6 @@ export default {};
 
 .boost-way {
   display: flex;
-  align-items: center;
   justify-content: space-between;
 }
 
@@ -76,5 +75,19 @@ export default {};
 .value {
   font-size: 16px;
   font-weight: 500;
+  min-width: 120px;
+  text-align: end;
+}
+
+@media (max-width: 700px) {
+  .points-info {
+    padding: 16px;
+  }
+
+  .title,
+  .value,
+  .table-title {
+    font-size: 14px;
+  }
 }
 </style>

@@ -176,4 +176,24 @@ export default {
   font-size: 14px;
   font-weight: 500;
 }
+
+@media (max-width: 600px) {
+  .liquidity-info {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+}
 </style>

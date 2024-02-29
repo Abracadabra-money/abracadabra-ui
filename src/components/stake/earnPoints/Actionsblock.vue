@@ -4,6 +4,7 @@
       <img class="label" src="@/assets/images/blast/label.png" alt="" />
 
       <Tabs
+        class="tabs"
         :name="actionActiveTab"
         :items="actionTabs"
         activeColor="#FCFC03"
@@ -428,6 +429,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .action-info {
@@ -553,5 +555,45 @@ export default {
   line-height: normal;
   display: flex;
   align-items: center;
+}
+
+@media (max-width: 600px) {
+  .actions-head {
+    flex-direction: column;
+    align-items: start;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .label {
+    width: 60%;
+    height: 60%;
+  }
+
+  .tabs {
+    align-self: center;
+  }
+
+  .deposit-wrap {
+    padding: 16px;
+  }
+
+  .lock-info {
+    padding: 12px 16px 16px;
+  }
+
+  .lock-info-value,
+  .lock-info-step {
+    font-size: 20px;
+  }
+
+  .lock-info-title {
+    font-size: 16px;
+  }
+
+  .lock-info-subtitle {
+    font-size: 14px;
+    text-align: end;
+  }
 }
 </style>

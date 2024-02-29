@@ -3,7 +3,7 @@
     <div class="stake-wrap" v-if="stakeInfo">
       <ActionBlock :stakeInfo="stakeInfo" @updateStakeInfo="createStakeInfo" />
 
-      <StakeInfo :stakeInfo="stakeInfo"/>
+      <StakeInfo :stakeInfo="stakeInfo" />
     </div>
 
     <div class="loader-wrap" v-else>
@@ -87,12 +87,6 @@ export default {
 }
 
 @media screen and (max-width: 1200px) {
-  .stake-wrap {
-    grid-template-columns: 400px 1fr;
-  }
-}
-
-@media screen and (max-width: 1024px) {
   .stake-wrap {
     grid-template-columns: 100%;
     grid-template-rows: auto;

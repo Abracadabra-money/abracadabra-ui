@@ -33,6 +33,7 @@ export default {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .toggle {
@@ -71,7 +72,7 @@ export default {
   }
 }
 
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 400px) {
   .text {
     font-size: 11px;
   }
