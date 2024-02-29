@@ -1,5 +1,5 @@
 <template>
-  <div class="timer">
+  <div :class="['timer', { small }]">
     <div class="time-block" v-for="(value, index) in timerValues" :key="index">
       {{ value }}
     </div>
@@ -10,6 +10,13 @@
 import moment from "moment";
 
 export default {
+  props: {
+    small: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   data() {
     return {
       startDate: moment.utc("2024-03-01 00:00:00"),
@@ -67,13 +74,21 @@ export default {
   align-items: center;
   height: 56px;
   min-width: 90px;
-  padding: 6px 11px;
+  padding: 6px 12px;
   border-radius: 10px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: rgba(0, 10, 35, 0.3);
   box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
   font-size: 29px;
   font-weight: 500;
+}
+
+.small .time-block {
+  color: #fff;
+  font-size: 12px;
+  background: transparent;
+  min-width: 48px;
+  height: auto;
 }
 
 @media (max-width: 700px) {
@@ -88,6 +103,15 @@ export default {
   .timer {
     width: 100%;
     justify-content: center;
+  }
+
+  .small {
+    gap: 2px;
+  }
+
+  .small .time-block {
+    padding: 4px 6px;
+    min-width: 40px;
   }
 }
 </style>
