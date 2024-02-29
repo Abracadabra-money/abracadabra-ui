@@ -13,20 +13,20 @@ export const blastStakeConfig: BlastStakeConfig = {
   },
   tokens: [
     {
-      name: "MIM",
-      icon: useImage(`assets/images/tokens/MIM.png`),
-      decimals: 18,
-      contract: {
-        address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
-        abi: erc20Abi,
-      },
-    },
-    {
       name: "USDb",
       icon: useImage(`assets/images/tokens/USDB.png`),
       decimals: 18,
       contract: {
         address: "0x4200000000000000000000000000000000000022",
+        abi: erc20Abi,
+      },
+    },
+    {
+      name: "MIM",
+      icon: useImage(`assets/images/tokens/MIM.png`),
+      decimals: 18,
+      contract: {
+        address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
         abi: erc20Abi,
       },
     },
