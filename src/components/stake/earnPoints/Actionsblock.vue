@@ -23,7 +23,7 @@
           />
 
           <Toggle
-            text="Lock to boost Points reward"
+            text="Lock and Boost"
             :selected="isLock"
             @updateToggle="changeLockToggle"
           />
@@ -79,7 +79,7 @@
               <div class="lock-info-row">
                 <span class="lock-info-title">You deposited</span>
                 <span class="lock-info-subtitle">
-                  Lock your USDb and earn more Points
+                  Lock your {{ activeToken }} and earn more Points
                 </span>
               </div>
 
@@ -398,20 +398,38 @@ export default {
 
 <style lang="scss" scoped>
 .actions-head {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 32px;
   font-weight: 600;
   line-height: normal;
+  padding-right: 12px;
   margin-bottom: 32px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .label {
+  position: relative;
+  top: 0;
+  left: 0;
   height: 73px;
   max-width: 304px;
   width: 100%;
   border-radius: 12px 0 0 12px;
+}
+
+.tabs {
+  margin-left: -16px;
 }
 
 .action-wrap {
@@ -436,6 +454,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -569,6 +588,7 @@ export default {
     flex-direction: column;
     align-items: start;
     gap: 16px;
+    padding: 0 0 12px 0;
     margin-bottom: 16px;
   }
 
@@ -583,6 +603,7 @@ export default {
 
   .deposit-wrap {
     padding: 16px;
+    gap: 16px;
   }
 
   .lock-info {

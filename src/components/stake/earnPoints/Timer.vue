@@ -66,6 +66,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 56px;
+  min-width: 90px;
   padding: 6px 11px;
   border-radius: 10px;
   border: 1px solid rgba(180, 180, 180, 0.08);
@@ -79,6 +80,7 @@ export default {
   .time-block {
     font-size: 16px;
     height: auto;
+    min-width: 60px;
   }
 }
 

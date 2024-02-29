@@ -14,13 +14,13 @@
       </li>
 
       <li class="boost-way">
-        <span class="title">Lock $ Boost your MIM and USDb</span>
+        <span class="title">Lock & Boost your MIM and USDb</span>
         <span class="value">20X Points / Day</span>
       </li>
 
       <li class="boost-way">
         <span class="title">
-          Mint MIM from ETH Cauldron on Blast, lock and boost
+          Mint MIM from ETH Cauldron on Blast and deposit it
         </span>
         <span class="value">15X Points / Day</span>
       </li>

@@ -346,6 +346,7 @@ export default {
 .networks-btn img {
   width: 32px;
   height: 32px;
+  border-radius: 50px;
 }
 
 .dropdown-tools {
