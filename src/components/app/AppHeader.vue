@@ -13,6 +13,10 @@
         <HeaderStakeDropdown />
 
         <HeaderMoreDropdown />
+
+        <router-link class="header-link blast-link" :to="{ name: 'Blast' }">
+          <img src="@/assets/images/blast-text.svg" alt="" />
+        </router-link>
       </div>
 
       <div class="account-activities">
@@ -317,7 +321,7 @@ export default {
 
 .header-link {
   display: flex;
-  padding: 12px 20px;
+  padding: 10px 6px;
   align-items: center;
   gap: 10px;
   height: 50px;
@@ -327,6 +331,20 @@ export default {
   font-weight: 600;
   line-height: 22px;
   cursor: pointer;
+
+  &.blast-link {
+    height: 40px;
+    background-color: #fcfc06;
+    img {
+      width: 77px;
+      height: auto;
+    }
+
+    &:hover {
+      background: #fcfc06;
+      opacity: 0.9;
+    }
+  }
 }
 
 .header-link:hover {
