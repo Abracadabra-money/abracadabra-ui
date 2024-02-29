@@ -192,6 +192,7 @@ export default {
       if (!this.account) return false;
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
+      if (this.isMaxCaps) return true;
       return this.isInsufficientBalance;
     },
 
@@ -261,7 +262,7 @@ export default {
     actionButtonText() {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
-      if (this.isMaxCaps) return "Max caps";
+      if (this.isMaxCaps) return "Max cap limit";
       if (this.isInsufficientBalance) return "Insufficient balance";
       if (!this.isTokenApproved) return "Approve";
       if (!this.isStakeAction) return "Withdraw";
