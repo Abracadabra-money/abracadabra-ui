@@ -66,6 +66,7 @@ export default {
   text-align: center;
   font-size: 16px;
   font-weight: 500;
+  text-align: center;
   border-radius: 8px;
   background-color: transparent;
   border: none;
@@ -74,7 +75,9 @@ export default {
   text-transform: capitalize;
   gap: 10px;
   display: flex;
+  justify-content: center;
   align-items: center;
+  width: 50%;
 }
 
 .switch-btn-active {
@@ -89,5 +92,12 @@ export default {
 
 .small {
   text-transform: initial;
+}
+
+@media screen and (max-width: 600px) {
+  .switch-btn {
+    font-size: 14px;
+    padding: 6px 20px;
+  }
 }
 </style>

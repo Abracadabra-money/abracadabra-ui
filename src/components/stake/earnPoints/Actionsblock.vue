@@ -23,7 +23,7 @@
       <div class="deposit-wrap">
         <div class="row">
           <Tabs
-            width="184px"
+            width="158px"
             :name="activeToken"
             :items="tokensList"
             @select="changeActiveToken"
@@ -31,7 +31,7 @@
 
           <Toggle
             v-if="isStakeAction"
-            text="Lock and Boost"
+            text="Lock & Boost"
             :selected="isLock"
             @updateToggle="changeLockToggle"
           />
@@ -473,18 +473,17 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 12px;
-  max-width: 304px;
+  max-width: 303.5px;
   width: 100%;
   height: 73px;
   border-radius: 12px 0 0 12px;
   background-color: #fcfd02;
-  -webkit-clip-path: polygon(0 1%, 100% 0%, 80% 100%, 0 100%);
-  clip-path: polygon(0 1%, 100% 0%, 80% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 1%, 100% 0%, 72.5% 100%, 0 100%);
+  clip-path: polygon(0 1%, 100% 0%, 72.5% 100%, 0 100%);
 }
 
 .label-img {
@@ -505,10 +504,6 @@ export default {
   font-size: 16px;
   font-weight: 500;
   line-height: 20px;
-}
-
-.tabs {
-  margin-left: -16px;
 }
 
 .action-wrap {
@@ -533,7 +528,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -664,15 +658,16 @@ export default {
 
 @media (max-width: 600px) {
   .actions-head {
-    height: 130px;
+    height: 126px;
     gap: 16px;
+    padding: 8px 12px;
     margin-bottom: 16px;
-    justify-content: center;
+    justify-content: start;
   }
 
   .label {
-    height: 50px;
-    width: 250px;
+    height: 60px;
+    width: 270px;
     border-radius: 12px 0 0 0;
   }
 
