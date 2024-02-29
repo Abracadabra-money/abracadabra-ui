@@ -50,14 +50,14 @@
         <div class="action-info">
           <div class="info-row">
             <span>Points per day</span>
-            <span>initializing</span>
+            <span>Initializing</span>
           </div>
           <div class="info-row">
             <span>Multiplier</span>
             <span>{{ multiplier }}X</span>
           </div>
           <div class="info-row" v-if="isLock && isStakeAction">
-            <span>Lock time</span>
+            <span>Locking for</span>
             <span> <Timer small /></span>
           </div>
         </div>
