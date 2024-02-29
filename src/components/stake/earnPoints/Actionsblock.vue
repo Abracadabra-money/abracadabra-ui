@@ -50,11 +50,15 @@
         <div class="action-info">
           <div class="info-row">
             <span>Points per day</span>
-            <span>Calculating</span>
+            <span>initializing</span>
           </div>
           <div class="info-row">
             <span>Multiplier</span>
             <span>{{ multiplier }}X</span>
+          </div>
+          <div class="info-row" v-if="isLock && isStakeAction">
+            <span>Lock time</span>
+            <span> <Timer small /></span>
           </div>
         </div>
 
@@ -130,7 +134,7 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { deposit } from "@/helpers/blast/stake/actions/deposit";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
-const BLAST_CHAIN_ID = 168587773;
+const BLAST_CHAIN_ID = 81457;
 
 export default {
   emits: ["updateStakeInfo"],
@@ -309,10 +313,13 @@ export default {
 
     changeActionTab(action: string) {
       this.actionActiveTab = action;
+      this.inputValue = "";
+      this.isLock = false;
     },
 
     changeActiveToken(token: string) {
       this.activeToken = token;
+      this.inputValue = "";
     },
 
     changeLockToggle() {
@@ -439,6 +446,10 @@ export default {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
+    ),
+    Timer: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/stake/earnPoints/Timer.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")

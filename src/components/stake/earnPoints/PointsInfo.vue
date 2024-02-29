@@ -5,12 +5,12 @@
     <ul class="boost-ways-list">
       <li class="boost-way">
         <span class="title">Deposit USDb</span>
-        <span class="value">3X Points / Day</span>
+        <span class="value">3X Points</span>
       </li>
 
       <li class="boost-way">
         <span class="title">Deposit MIM</span>
-        <span class="value">1X Points / Day</span>
+        <span class="value">1X Points</span>
       </li>
 
       <li class="boost-way">
@@ -19,15 +19,15 @@
       </li>
 
       <li class="boost-way">
-        <span class="title">Lock & Boost your MIM and USDb</span>
-        <span class="value">20X Points / Day</span>
+        <span class="title">Lock your MIM & USDb to get Boost</span>
+        <span class="value">20X Points </span>
       </li>
 
       <li class="boost-way">
         <span class="title">
-          Mint MIM from ETH Cauldron on Blast and deposit it
+          Mint MIM from WETH Cauldron on Blast and deposit it
         </span>
-        <span class="value">15X Points / Day</span>
+        <span class="value">15X Points</span>
       </li>
     </ul>
   </div>
