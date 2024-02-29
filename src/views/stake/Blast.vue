@@ -3,7 +3,7 @@
     <div class="stake-wrap" v-if="stakeInfo">
       <ActionBlock :stakeInfo="stakeInfo" @updateStakeInfo="createStakeInfo" />
 
-      <StakeInfo :stakeInfo="stakeInfo" />
+      <StakeInfo :stakeInfo="stakeInfo" :pointsStatistics="pointsStatistics" />
     </div>
 
     <div class="loader-wrap" v-else>
@@ -13,6 +13,10 @@
 </template>
 
 <script lang="ts">
+import {
+  fetchPointsStatistics,
+  fetchUserPointsStatistics,
+} from "@/helpers/blast/stake/points";
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
@@ -22,18 +26,22 @@ export default {
     return {
       stakeInfo: null as any,
       updateInterval: null as any,
+      userPointsEarned: 0 as any,
+      pointsStatistics: null as any,
     };
   },
 
   computed: {
-    ...mapGetters({ accaunt: "getAccount" }),
+    ...mapGetters({ account: "getAccount" }),
   },
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
     async createStakeInfo() {
-      this.stakeInfo = await getStakeInfo(this.accaunt);
+      this.stakeInfo = await getStakeInfo(this.account);
+      this.userPointsEarned = await fetchUserPointsStatistics(this.account);
+      this.pointsStatistics = await fetchPointsStatistics();
     },
   },
 

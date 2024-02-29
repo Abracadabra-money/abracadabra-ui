@@ -60,7 +60,9 @@
           <div class="lock-info">
             <div class="lock-info-row">
               <span class="lock-info-title">Points earned</span>
-              <span class="lock-info-value">0.0</span>
+              <span class="lock-info-value">{{
+                formatTokenBalance(userPointsEarned)
+              }}</span>
             </div>
 
             <div class="lock-info-row">
@@ -128,6 +130,10 @@ export default {
     stakeInfo: {
       type: Object,
       required: true,
+    },
+    userPointsEarned: {
+      type: Number,
+      default: 0,
     },
   },
 
@@ -242,6 +248,7 @@ export default {
 
   methods: {
     formatUnits,
+    formatTokenBalance,
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
