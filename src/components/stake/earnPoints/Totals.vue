@@ -31,7 +31,9 @@
           :height="20"
         />
       </h3>
-      <div class="value">10000000</div>
+      <div class="value">
+        {{ formatAmount(pointsStatistics?.total_points_earned) }}
+      </div>
     </div>
   </div>
 </template>
@@ -46,6 +48,10 @@ export default {
     stakeInfo: {
       type: Object,
       required: true,
+    },
+    pointsStatistics: {
+      type: Object,
+      requared: true,
     },
   },
 
@@ -62,6 +68,10 @@ export default {
   methods: {
     formatTokenBalance(value: bigint) {
       return formatTokenBalance(formatUnits(value, 18));
+    },
+
+    formatAmount(value: number) {
+      return formatTokenBalance(value);
     },
   },
 

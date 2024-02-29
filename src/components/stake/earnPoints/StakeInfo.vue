@@ -2,7 +2,7 @@
   <div class="stake-info">
     <LiquidityInfo :stakeInfo="stakeInfo" />
 
-    <Totals :stakeInfo="stakeInfo" />
+    <Totals :stakeInfo="stakeInfo" :pointsStatistics="pointsStatistics" />
 
     <PointsInfo />
 
@@ -21,6 +21,10 @@ export default {
     stakeInfo: {
       type: Object,
       required: true,
+    },
+    pointsStatistics: {
+      type: Object,
+      requared: true,
     },
   },
 
