@@ -130,7 +130,7 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { deposit } from "@/helpers/blast/stake/actions/deposit";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
-const BLAST_CHAIN_ID = 168587773;
+const BLAST_CHAIN_ID = 81457;
 
 export default {
   emits: ["updateStakeInfo"],
