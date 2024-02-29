@@ -11,6 +11,7 @@ import { avalancheConfig } from "@/helpers/chains/configs/avalanche";
 import { lineaConfig } from "@/helpers/chains/configs/linea";
 import { berachainConfig } from "@/helpers/chains/configs/bera";
 import { blastSepoliaConfig } from "@/helpers/chains/configs/blastSepolia";
+import { blastConfig } from "@/helpers/chains/configs/blast";
 
 import {
   RPC_ETH,
@@ -25,7 +26,8 @@ import {
   RPC_KAVA,
   PRC_LINEA,
   RPC_BERRA_ARTIO,
-  RPC_BLAST_SEPOLIA
+  RPC_BLAST_SEPOLIA,
+  RPC_BLAST
 } from "@/constants/rpc";
 
 export const chains = [
@@ -41,7 +43,8 @@ export const chains = [
   baseConfig,
   lineaConfig,
   berachainConfig,
-  blastSepoliaConfig
+  // blastSepoliaConfig,
+  blastConfig
 ];
 
 export const chainsList = {
@@ -57,7 +60,8 @@ export const chainsList = {
   43114: avalancheConfig,
   59144: lineaConfig,
   80085: berachainConfig,
-  168587773: blastSepoliaConfig
+  81457: blastConfig,
+  // 168587773: blastSepoliaConfig
 };
 
 export const defaultRpc = {
@@ -73,7 +77,8 @@ export const defaultRpc = {
   2222: RPC_KAVA,
   59144: PRC_LINEA,
   80085: RPC_BERRA_ARTIO,
-  168587773: RPC_BLAST_SEPOLIA
+  81457: RPC_BLAST,
+  // 168587773: RPC_BLAST_SEPOLIA
 };
 
 export const getChainById = (chainId: number): Object =>

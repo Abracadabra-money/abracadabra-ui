@@ -50,7 +50,7 @@
         <div class="action-info">
           <div class="info-row">
             <span>Points per day</span>
-            <span>25</span>
+            <span>Calculating</span>
           </div>
           <div class="info-row">
             <span>Multiplier</span>

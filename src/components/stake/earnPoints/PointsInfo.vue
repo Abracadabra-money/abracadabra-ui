@@ -14,6 +14,11 @@
       </li>
 
       <li class="boost-way">
+        <span class="title">Deposit WETH in the Cauldron</span>
+        <span class="value">2x Points</span>
+      </li>
+
+      <li class="boost-way">
         <span class="title">Lock & Boost your MIM and USDb</span>
         <span class="value">20X Points / Day</span>
       </li>

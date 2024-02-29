@@ -5,12 +5,12 @@
 
       <h3 class="title">
         Total deposited
-        <Tooltip
-          :tooltip="'Total deposited.'"
+        <!-- <Tooltip
+          :tooltip="'Sum of MIM and USDb deposited.'"
           fill="#878B93"
           :width="20"
           :height="20"
-        />
+        /> -->
       </h3>
       <div class="value">$ {{ totalDeposited }}</div>
     </div>
@@ -24,12 +24,12 @@
 
       <h3 class="title">
         Total Point Distributed
-        <Tooltip
+        <!-- <Tooltip
           :tooltip="'Total Point Distributed.'"
           fill="#878B93"
           :width="20"
           :height="20"
-        />
+        /> -->
       </h3>
       <div class="value">
         {{ formatAmount(pointsStatistics?.total_points_earned) }}

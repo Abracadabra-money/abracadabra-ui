@@ -26,7 +26,7 @@ const tokenInfoEmptyState = {
 
 export const getStakeInfo = async (
   account: Address,
-  chainId: number = 168587773
+  chainId: number = 81457
 ): Promise<BlastStakeInfo> => {
   const config = blastStakeConfig;
   const publicClient = getPublicClient(chainId);

@@ -6,7 +6,8 @@ import bscCauldrons from "@/configs/cauldrons/bscCauldrons";
 import optimismCauldrons from "@/configs/cauldrons/optimismCauldrons";
 import kavaCauldrons from "@/configs/cauldrons/kavaCauldrons";
 import beraCauldrons from "@/configs/cauldrons/beraCauldrons";
-import blastSepoliaCauldrons from "@/configs/cauldrons/blastSepoliaCauldrons";
+// import blastSepoliaCauldrons from "@/configs/cauldrons/blastSepoliaCauldrons";
+import blastCauldrons from "@/configs/cauldrons/blastCauldrons";
 
 export default [
   ...ethereumCauldrons,
@@ -17,5 +18,6 @@ export default [
   ...optimismCauldrons,
   ...kavaCauldrons,
   ...beraCauldrons,
-  ...blastSepoliaCauldrons
+  // ...blastSepoliaCauldrons,
+  ...blastCauldrons
 ];

@@ -70,7 +70,7 @@ export default {
   data() {
     return {
       ethIcon,
-      cauldronChainId: 168587773,
+      cauldronChainId: 81457,
       cauldronId: 1,
       cauldronInfo: null,
       updateInterval: null,

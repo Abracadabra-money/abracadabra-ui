@@ -1,7 +1,7 @@
 import { useImage } from "@/helpers/useImage";
 import type { BlastStakeConfig } from "./types";
 
-const BlastOnboardingAddress = "0xFa85b0BB658d519247494b6020Cae6E65f572950";
+const BlastOnboardingAddress = "0xa64B73699Cc7334810E382A4C09CAEc53636Ab96";
 import BlastOnboardingAbi from "@/abis/BlastOnboarding";
 
 import erc20Abi from "@/abis/farm/erc20Abi";
@@ -17,7 +17,7 @@ export const blastStakeConfig: BlastStakeConfig = {
       icon: useImage(`assets/images/tokens/USDB.png`),
       decimals: 18,
       contract: {
-        address: "0x4200000000000000000000000000000000000022",
+        address: "0x4300000000000000000000000000000000000003",
         abi: erc20Abi,
       },
     },
@@ -26,7 +26,7 @@ export const blastStakeConfig: BlastStakeConfig = {
       icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       contract: {
-        address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
+        address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
         abi: erc20Abi,
       },
     },
