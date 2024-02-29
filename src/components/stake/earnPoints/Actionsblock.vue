@@ -23,7 +23,8 @@
           />
 
           <Toggle
-            text="Lock to boost Points reward"
+            v-if="isStakeAction"
+            text="Lock and Boost"
             :selected="isLock"
             @updateToggle="changeLockToggle"
           />
@@ -46,7 +47,7 @@
           </div>
           <div class="info-row">
             <span>Multiplier</span>
-            <span>20X</span>
+            <span>{{ multiplier }}X</span>
           </div>
         </div>
 
@@ -79,7 +80,7 @@
               <div class="lock-info-row">
                 <span class="lock-info-title">You deposited</span>
                 <span class="lock-info-subtitle">
-                  Lock your USDb and earn more Points
+                  Lock your {{ activeToken }} and earn more Points
                 </span>
               </div>
 
@@ -90,7 +91,8 @@
                 >
 
                 <span class="lock-info-step">
-                  3x <img src="@/assets/images/arrow-right.svg" alt="" /> 20x
+                  {{ dafaultBoost }}x
+                  <img src="@/assets/images/arrow-right.svg" alt="" /> 20x
                 </span>
               </div>
             </div>
@@ -141,12 +143,16 @@ export default {
     return {
       actionActiveTab: "Stake" as string,
       actionTabs: ["Stake", "Unstake"] as string[],
-      activeToken: "MIM" as string,
-      tokensList: ["MIM", "USDb"] as string[],
+      activeToken: "USDb" as string,
+      tokensList: ["USDb", "MIM"] as string[],
       isLock: false as boolean,
       inputValue: "" as string | bigint,
       inputAmount: BigInt(0) as bigint,
       mimPrice: 0 as number,
+      mimBoost: 1,
+      USDbBoost: 3,
+      lockBoost: 20,
+      cauldronBoost: 15,
     };
   },
 
@@ -188,11 +194,21 @@ export default {
       return !this.fromToken.unlockAmount;
     },
 
+    isMaxCaps() {
+      const { caps, total } = this.fromToken;
+      return caps < total + this.inputAmount;
+    },
+
+    isActiveMimToken() {
+      return this.activeToken === "MIM";
+    },
+
     token0() {
       const { name, icon, decimals, contract } =
         this.stakeInfo.config.tokens[0];
-      const { balances, allowance, balance } =
+      const { balances, allowance, balance, userBorrowPart } =
         this.stakeInfo.tokensInfo[0].userInfo;
+      const { caps, totals } = this.stakeInfo.tokensInfo[0];
 
       return {
         icon,
@@ -200,6 +216,9 @@ export default {
         decimals,
         balance,
         contract,
+        caps,
+        total: totals.total,
+        userBorrowPart,
         price: parseUnits(this.mimPrice.toString(), decimals),
         approvedAmount: allowance,
         unlockAmount: balances.unlocked,
@@ -209,8 +228,9 @@ export default {
     token1() {
       const { name, icon, decimals, contract } =
         this.stakeInfo.config.tokens[1];
-      const { balances, allowance, balance } =
+      const { balances, allowance, balance, userBorrowPart } =
         this.stakeInfo.tokensInfo[1].userInfo;
+      const { caps, totals } = this.stakeInfo.tokensInfo[1];
 
       return {
         icon,
@@ -218,6 +238,9 @@ export default {
         decimals,
         balance,
         contract,
+        caps,
+        total: totals.total,
+        userBorrowPart,
         price: 1000000000000000000n,
         approvedAmount: allowance,
         unlockAmount: balances.unlocked,
@@ -225,12 +248,13 @@ export default {
     },
 
     fromToken() {
-      return this.activeToken === "MIM" ? this.token0 : this.token1;
+      return this.activeToken === "USDb" ? this.token0 : this.token1;
     },
 
     actionButtonText() {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
+      if (this.isMaxCaps) return "Max caps";
       if (this.isInsufficientBalance) return "Insufficient balance";
       if (!this.isTokenApproved) return "Approve";
       if (!this.isStakeAction) return "Withdraw";
@@ -243,6 +267,25 @@ export default {
       if (!this.isUnsupportedChain) return "Switch Network";
       if (!this.fromToken.unlockAmount) return "Nothing to do";
       return "Lock";
+    },
+
+    multiplier() {
+      if (this.isLock) return this.lockBoost;
+
+      if (this.fromToken.userBorrowPart && this.isActiveMimToken) {
+        return this.cauldronBoost;
+      }
+
+      if (this.isActiveMimToken) {
+        return this.mimBoost;
+      }
+
+      return this.USDbBoost;
+    },
+
+    dafaultBoost() {
+      if (this.isActiveMimToken) return this.mimBoost;
+      return this.USDbBoost;
     },
   },
 

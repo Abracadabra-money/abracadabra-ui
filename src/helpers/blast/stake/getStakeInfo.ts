@@ -10,6 +10,7 @@ import type {
 } from "@/configs/blast/types";
 
 import { blastStakeConfig } from "@/configs/blast/stake";
+import blastCauldronsConfigs from "@/configs/cauldrons/blastSepoliaCauldrons";
 import { getPublicClient } from "@/helpers/getPublicClient";
 
 const tokenInfoEmptyState = {
@@ -20,6 +21,7 @@ const tokenInfoEmptyState = {
     locked: 0n,
     total: 0n,
   },
+  userBorrowPart: 0n,
 };
 
 export const getStakeInfo = async (
@@ -100,33 +102,41 @@ const getUserTokenInfo = async (
   tokenConfig: DepositTokenConfig,
   publicClient: any
 ): Promise<BlastUserTokenInfo> => {
-  const [allowance, balance, balances]: any = await publicClient.multicall({
-    contracts: [
-      {
-        address: tokenConfig.contract.address,
-        abi: tokenConfig.contract.abi,
-        functionName: "allowance",
-        args: [stakeConfig.contract.address, account],
-      },
-      {
-        address: tokenConfig.contract.address,
-        abi: tokenConfig.contract.abi,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        address: stakeConfig.contract.address,
-        abi: stakeConfig.contract.abi,
-        functionName: "balances",
-        args: [account, tokenConfig.contract.address],
-      },
-    ],
-  });
+  const [allowance, balance, balances, userBorrowPart]: any =
+    await publicClient.multicall({
+      contracts: [
+        {
+          address: tokenConfig.contract.address,
+          abi: tokenConfig.contract.abi,
+          functionName: "allowance",
+          args: [stakeConfig.contract.address, account],
+        },
+        {
+          address: tokenConfig.contract.address,
+          abi: tokenConfig.contract.abi,
+          functionName: "balanceOf",
+          args: [account],
+        },
+        {
+          address: stakeConfig.contract.address,
+          abi: stakeConfig.contract.abi,
+          functionName: "balances",
+          args: [account, tokenConfig.contract.address],
+        },
+        {
+          address: blastCauldronsConfigs[0].contract.address,
+          abi: blastCauldronsConfigs[0].contract.abi,
+          functionName: "userBorrowPart",
+          args: [account],
+        },
+      ],
+    });
 
   return {
     allowance: allowance.result,
     balance: balance.result,
     balances: parseBalances(balances.result),
+    userBorrowPart: userBorrowPart.result,
   };
 };
 

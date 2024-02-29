@@ -27,6 +27,7 @@ export type BlastUserTokenInfo = {
   allowance: bigint;
   balance: bigint;
   balances: DepositedBalances;
+  userBorrowPart: bigint;
 };
 
 export type BlastStakeTokenInfo = {
