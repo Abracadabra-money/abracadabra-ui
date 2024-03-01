@@ -41,7 +41,7 @@
           :value="inputValue"
           :icon="fromToken.icon"
           :name="fromToken.name"
-          :max="fromToken.balance"
+          :max="maxInput"
           :primaryMax="!isStakeAction"
           :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
           @updateInputValue="updateMainValue"
@@ -132,6 +132,7 @@ import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { deposit } from "@/helpers/blast/stake/actions/deposit";
+import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 const BLAST_CHAIN_ID = 81457;
@@ -153,7 +154,7 @@ export default {
   data() {
     return {
       actionActiveTab: "Stake" as string,
-      actionTabs: ["Stake", "Unstake"] as string[],
+      actionTabs: ["Stake", "Withdraw"] as string[],
       activeToken: "USDb" as string,
       tokensList: ["USDb", "MIM"] as string[],
       isLock: false as boolean,
@@ -172,6 +173,12 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
     }),
+
+    maxInput() {
+      if (this.actionActiveTab === "Stake") return this.fromToken.balance;
+      if (this.actionActiveTab === "Withdraw")
+        return this.fromToken.unlockAmount;
+    },
 
     isStakeAction() {
       return this.actionActiveTab === "Stake";
@@ -376,12 +383,20 @@ export default {
         notification.pending
       );
 
-      const { error }: any = await deposit(
-        this.stakeInfo.config.contract,
-        this.fromToken.contract.address,
-        this.inputAmount,
-        this.isLock
-      );
+      // TODO
+      const { error }: any =
+        this.actionActiveTab === "Stake"
+          ? await deposit(
+              this.stakeInfo.config.contract,
+              this.fromToken.contract.address,
+              this.inputAmount,
+              this.isLock
+            )
+          : await withdraw(
+              this.stakeInfo.config.contract,
+              this.fromToken.contract.address,
+              this.inputAmount
+            );
 
       if (error) {
         await this.deleteNotification(notificationId);
