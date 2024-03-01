@@ -56,6 +56,10 @@ export const nativeTokenschainLink = {
     chainId: 59144,
     address: "0x3c6cd9cc7c7a4c2cf5a82734cd249d7d593354da",
   },
+  81457: {
+    chainId: 1,
+    address: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
+  },
 };
 
 export const tokensChainLink: any = {

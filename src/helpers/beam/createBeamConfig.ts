@@ -94,12 +94,25 @@ export const createBeamConfig = async (
     beamConfig!.contract.address
   );
 
+  const filteredChains = filterDestinationChains(chainId, toChains);
+
   return markRaw({
     contractInstance,
     tokenContractInstance,
     chainsInfo: chainsInfo,
     fromChains,
-    toChains,
+    toChains: filteredChains,
     ...userInfo,
   });
+};
+
+const filterDestinationChains = (chainId: number, chains: any) => {
+  switch (chainId) {
+    case 2222:
+      return chains.filter((chain: any) => chain.chainId !== 81457);
+    case 81457:
+      return chains.filter((chain: any) => chain.chainId !== 2222);
+    default:
+      return chains;
+  }
 };
