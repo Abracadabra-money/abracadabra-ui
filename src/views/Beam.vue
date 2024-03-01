@@ -141,7 +141,7 @@ export default {
   data() {
     return {
       acceptedNetworks: [
-        1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453, 59144,
+        1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453, 59144, 81457
       ],
       isShowDstAddress: false,
       toChainId: null,

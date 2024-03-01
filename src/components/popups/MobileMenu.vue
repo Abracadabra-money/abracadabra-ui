@@ -14,6 +14,12 @@
       </div>
 
       <ul class="popup-links">
+
+        <li class="popup-link-wrap blast-wrap" @click="closePopup">
+          <router-link class="popup-link blast-link" :to="{ name: 'Blast' }">
+          <img src="@/assets/images/blast-text.svg" alt="" />
+        </router-link>
+        </li>
         <li class="popup-link-wrap" @click="closePopup">
           <router-link
             class="popup-link my-positions"
@@ -212,6 +218,11 @@ export default {
   width: 100%;
 }
 
+.blast-wrap {
+  margin-top: 12px;
+  height: max-content;
+}
+
 .popup-link {
   display: flex;
   align-items: center;
@@ -225,6 +236,24 @@ export default {
   cursor: pointer;
   transition: all 0.5s;
 
+  &.blast-link {
+    opacity: 1;
+    height: 40px;
+    background-color: #fcfc06;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+      width: 77px;
+      height: auto;
+    }
+
+    &:hover {
+      background: #fcfc06;
+      opacity: 0.9;
+    }
+  }
+
   img {
     width: 24px;
   }
@@ -235,7 +264,7 @@ export default {
 }
 
 .my-positions {
-  margin: 40px 0 12px 0;
+  margin: 12px 0 12px 0;
 }
 
 .popup-connect {

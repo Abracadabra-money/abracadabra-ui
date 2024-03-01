@@ -90,6 +90,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/Claim.vue"),
   },
   {
+    path: "/blast",
+    name: "Blast",
+    component: () => import("@/views/stake/Blast.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
