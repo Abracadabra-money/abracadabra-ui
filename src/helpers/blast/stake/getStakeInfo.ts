@@ -10,7 +10,7 @@ import type {
 } from "@/configs/blast/types";
 
 import { blastStakeConfig } from "@/configs/blast/stake";
-import blastCauldronsConfigs from "@/configs/cauldrons/blastSepoliaCauldrons";
+import blastCauldronsConfigs from "@/configs/cauldrons/blastCauldrons";
 import { getPublicClient } from "@/helpers/getPublicClient";
 
 const tokenInfoEmptyState = {
@@ -109,7 +109,7 @@ const getUserTokenInfo = async (
           address: tokenConfig.contract.address,
           abi: tokenConfig.contract.abi,
           functionName: "allowance",
-          args: [stakeConfig.contract.address, account],
+          args: [account, stakeConfig.contract.address],
         },
         {
           address: tokenConfig.contract.address,

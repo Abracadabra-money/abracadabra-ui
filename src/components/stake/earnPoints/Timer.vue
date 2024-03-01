@@ -20,7 +20,7 @@ export default {
   data() {
     return {
       startDate: moment.utc("2024-03-01 00:00:00"),
-      endDate: moment.utc("2024-03-15 00:00:00"),
+      endDate: moment.utc("2024-03-15 02:00:00"),
       intervalId: null,
       timerValues: ["0d", "00h", "00m", "00s"],
     };
