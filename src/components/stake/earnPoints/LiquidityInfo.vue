@@ -11,7 +11,7 @@
 
     <div class="fill-indicators">
       <div class="fill-indicator usdb">
-        <BaseTokenIcon :icon="usdbIcon" name="USDB" size="32px" />
+        <BaseTokenIcon :icon="usdbIcon" name="USDB" :size="tokenIconSize" />
 
         <div class="scale-wrap">
           <div
@@ -29,7 +29,7 @@
       </div>
 
       <div class="fill-indicator mim">
-        <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
+        <BaseTokenIcon :icon="mimIcon" name="MIM" :size="tokenIconSize" />
 
         <div class="scale-wrap">
           <div
@@ -66,7 +66,7 @@ export default {
   },
 
   data() {
-    return { mimIcon, usdbIcon };
+    return { mimIcon, usdbIcon, windowWidth: window.innerWidth };
   },
 
   computed: {
@@ -77,6 +77,11 @@ export default {
           total: totals.total,
         };
       });
+    },
+
+    tokenIconSize() {
+      if (this.windowWidth < 600) return "28px";
+      return "32px";
     },
   },
 
@@ -90,6 +95,20 @@ export default {
       const pers = (total * 100n) / caps;
       return formatUnits(pers, 0);
     },
+
+    onResize() {
+      this.windowWidth = window.innerWidth;
+    },
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      window.addEventListener("resize", this.onResize);
+    });
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("resize", this.onResize);
   },
 
   components: { BaseTokenIcon, Timer },
@@ -189,11 +208,16 @@ export default {
   }
 
   .title {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .subtitle {
-    font-size: 12px;
+    font-size: 14px;
+  }
+
+  .token-icon {
+    width: 28px;
+    height: 28px;
   }
 }
 </style>

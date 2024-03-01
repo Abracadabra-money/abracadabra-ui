@@ -89,10 +89,18 @@ export default {};
     padding: 16px;
   }
 
+  .boost-way {
+    flex-direction: column;
+  }
+
   .title,
   .value,
   .table-title {
     font-size: 14px;
+  }
+
+  .value {
+    text-align: start;
   }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="stake-info">
-    <LiquidityInfo :stakeInfo="stakeInfo" />
+    <LiquidityInfo :stakeInfo="stakeInfo" v-if="!mobileMode" />
 
     <Totals :stakeInfo="stakeInfo" :pointsStatistics="pointsStatistics" />
 
@@ -25,6 +25,10 @@ export default {
     pointsStatistics: {
       type: Object,
       requared: true,
+    },
+    mobileMode: {
+      type: Boolean,
+      default: false,
     },
   },
 
