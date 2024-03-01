@@ -78,10 +78,10 @@
             </div>
 
             <div class="lock-info-row">
-              <span class="lock-info-title">You deposited</span>
+              <span class="lock-info-title">You Locked</span>
               <span class="lock-info-value">
                 <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.unlockAmount) }}</span
+                {{ formatAmount(fromToken.lockedAmount) }}</span
               >
             </div>
 
@@ -203,8 +203,27 @@ export default {
       if (!this.account) return false;
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
-      if (this.isMaxCaps) return true;
-      return this.isInsufficientBalance;
+
+      if (this.actionActiveTab === "Stake") {
+        if (this.isMaxCaps) return true;
+        return this.isInsufficientBalance;
+      }
+    },
+
+    actionButtonText() {
+      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
+      if (!this.isUnsupportedChain) return "Switch Network";
+
+      if (this.actionActiveTab === "Stake") {
+        if (this.isMaxCaps) return "Max cap limit";
+        if (this.isInsufficientBalance) return "Insufficient balance";
+        if (!this.isTokenApproved) return "Approve";
+        if (this.isLock) return "Deposit And Lock";
+
+        return "Deposit";
+      }
+
+      return "Withdraw";
     },
 
     isLockDisabled() {
@@ -241,6 +260,7 @@ export default {
         price: parseUnits(this.mimPrice.toString(), decimals),
         approvedAmount: allowance,
         unlockAmount: balances.unlocked,
+        lockedAmount: balances.locked,
       };
     },
 
@@ -263,22 +283,12 @@ export default {
         price: 1000000000000000000n,
         approvedAmount: allowance,
         unlockAmount: balances.unlocked,
+        lockedAmount: balances.locked,
       };
     },
 
     fromToken() {
       return this.activeToken === "USDb" ? this.token0 : this.token1;
-    },
-
-    actionButtonText() {
-      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
-      if (!this.isUnsupportedChain) return "Switch Network";
-      if (this.isMaxCaps) return "Max cap limit";
-      if (this.isInsufficientBalance) return "Insufficient balance";
-      if (!this.isTokenApproved) return "Approve";
-      if (!this.isStakeAction) return "Withdraw";
-      if (this.isLock) return "Deposit And Lock";
-      return "Deposit";
     },
 
     lockButtonText() {
