@@ -17,13 +17,13 @@
           <div
             class="filling-scale"
             :style="`width: ${calculatePercentage(
-              indicatorsInfo[1].total,
-              indicatorsInfo[1].caps
+              indicatorsInfo[0].total,
+              indicatorsInfo[0].caps
             )}%`"
           ></div>
           <div class="filled-amount">
-            {{ formatTokenBalance(indicatorsInfo[1].total) }} out of
-            {{ formatTokenBalance(indicatorsInfo[1].caps) }}
+            {{ formatTokenBalance(indicatorsInfo[0].total) }} out of
+            {{ formatTokenBalance(indicatorsInfo[0].caps) }}
           </div>
         </div>
       </div>
@@ -35,13 +35,13 @@
           <div
             class="filling-scale"
             :style="`width: ${calculatePercentage(
-              indicatorsInfo[0].total,
-              indicatorsInfo[0].caps
+              indicatorsInfo[1].total,
+              indicatorsInfo[1].caps
             )}%`"
           ></div>
           <div class="filled-amount">
-            {{ formatTokenBalance(indicatorsInfo[0].total) }} out of
-            {{ formatTokenBalance(indicatorsInfo[0].caps) }}
+            {{ formatTokenBalance(indicatorsInfo[1].total) }} out of
+            {{ formatTokenBalance(indicatorsInfo[1].caps) }}
           </div>
         </div>
       </div>
