@@ -11,9 +11,10 @@
       class="inner-wrap"
       :style="`width: ${width}px; height: ${height}px; padding: ${padding};`"
     >
-      <WalletIcon v-if="wallet" :fill="svgFill"/>
-      <LinkIcon v-else-if="link" :fill="svgFill"/>
-      <SetingIcon v-else-if="seting" :fill="svgFill"/>
+      <WalletIcon v-if="wallet" :fill="svgFill" />
+      <LinkIcon v-else-if="link" :fill="svgFill" />
+      <SetingIcon v-else-if="seting" :fill="svgFill" />
+      <ChartIcon v-else-if="chart" :fill="svgFill" />
     </span>
   </component>
 </template>
@@ -32,6 +33,10 @@ export default {
       default: false,
     },
     seting: {
+      type: Boolean,
+      default: false,
+    },
+    chart: {
       type: Boolean,
       default: false,
     },
@@ -59,6 +64,10 @@ export default {
       type: String,
       default: "6px 8px",
     },
+    active: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -71,7 +80,7 @@ export default {
 
   computed: {
     svgFill() {
-      if (this.hover) return this.svgHoverFillColor;
+      if (this.hover || this.active) return this.svgHoverFillColor;
 
       return this.svgFillColor;
     },
@@ -86,6 +95,9 @@ export default {
     ),
     SetingIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/SetingIcon.vue")
+    ),
+    ChartIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/ChartIcon.vue")
     ),
   },
 

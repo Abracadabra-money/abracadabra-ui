@@ -1,23 +1,10 @@
 <template>
   <div class="action-block">
-    <div class="actions-head">
-      <div class="label">
-        <img class="label-img" src="@/assets/images/networks/blast.png" />
-
-        <div class="label-text">
-          <h3 class="title">BUILD ON BLAST</h3>
-          <p class="subtitle">to earn points</p>
-        </div>
-      </div>
-
-      <Tabs
-        class="tabs"
-        :name="actionActiveTab"
-        :items="actionTabs"
-        activeColor="#FCFC03"
-        @select="changeActionTab"
-      />
-    </div>
+    <LiquidityInfo
+      class="liquidity-info"
+      :stakeInfo="stakeInfo"
+      v-if="mobileMode"
+    />
 
     <div class="action-wrap">
       <div class="deposit-wrap">
@@ -54,7 +41,7 @@
           </div>
           <div class="info-row">
             <span>Multiplier</span>
-            <span>{{ multiplier }}X</span>
+            <span class="multiplier-value">{{ multiplier }}X</span>
           </div>
           <div class="info-row" v-if="isLock && isStakeAction">
             <span>Locking for</span>
@@ -90,16 +77,17 @@
             <div class="deposit-info">
               <div class="lock-info-row">
                 <span class="lock-info-title">You deposited</span>
-                <span class="lock-info-subtitle">
-                  Lock your {{ activeToken }} and earn more Points
+
+                <span class="lock-info-value">
+                  <img class="lock-token-icon" :src="fromToken.icon" alt="" />
+                  {{ formatAmount(fromToken.unlockAmount) }}
                 </span>
               </div>
 
               <div class="lock-info-row">
-                <span class="lock-info-value">
-                  <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                  {{ formatAmount(fromToken.unlockAmount) }}</span
-                >
+                <span class="lock-info-subtitle">
+                  Lock your {{ activeToken }} and earn more Points
+                </span>
 
                 <span class="lock-info-step">
                   {{ dafaultBoost }}x
@@ -141,6 +129,10 @@ export default {
   emits: ["updateStakeInfo"],
 
   props: {
+    actionActiveTab: {
+      type: String,
+      required: true,
+    },
     stakeInfo: {
       type: Object,
       required: true,
@@ -149,11 +141,14 @@ export default {
       type: Number,
       default: 0,
     },
+    mobileMode: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
     return {
-      actionActiveTab: "Stake" as string,
       actionTabs: ["Stake", "Withdraw"] as string[],
       activeToken: "USDb" as string,
       tokensList: ["USDb", "MIM"] as string[],
@@ -318,6 +313,13 @@ export default {
     },
   },
 
+  watch: {
+    actionActiveTab() {
+      this.inputValue = "";
+      this.isLock = false;
+    },
+  },
+
   methods: {
     formatUnits,
     formatTokenBalance,
@@ -326,12 +328,6 @@ export default {
 
     formatAmount(value: bigint) {
       return formatTokenBalance(formatUnits(value, this.fromToken.decimals));
-    },
-
-    changeActionTab(action: string) {
-      this.actionActiveTab = action;
-      this.inputValue = "";
-      this.isLock = false;
     },
 
     changeActiveToken(token: string) {
@@ -479,70 +475,17 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+    LiquidityInfo: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/LiquidityInfo.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.actions-head {
-  position: relative;
-  display: flex;
-  align-items: end;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  font-size: 32px;
-  font-weight: 600;
-  line-height: normal;
-  padding: 12px;
-  margin-bottom: 32px;
-  border-radius: 16px;
-  border: 1px solid #00296b;
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
-}
-
-.label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  max-width: 303.5px;
-  width: 100%;
-  height: 73px;
-  border-radius: 12px 0 0 12px;
-  background-color: #fcfd02;
-  -webkit-clip-path: polygon(0 1%, 100% 0%, 72.5% 100%, 0 100%);
-  clip-path: polygon(0 1%, 100% 0%, 72.5% 100%, 0 100%);
-}
-
-.label-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 5px;
-}
-
-.title {
-  color: #000;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 30px;
-}
-
-.subtitle {
-  color: #000;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 20px;
-}
-
 .action-wrap {
   border-radius: 20px;
   border: 1px solid #00296b;
@@ -591,6 +534,11 @@ export default {
   font-size: 16px;
   font-weight: 400;
   line-height: normal;
+}
+
+.multiplier-value {
+  color: #fff;
+  text-shadow: 0px 0px 16px #ab5de8;
 }
 
 .info-value {
@@ -679,8 +627,18 @@ export default {
 
 .deposit-info {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.deposit-info .lock-info-row {
   flex-direction: column;
-  margin-bottom: 9px;
+  justify-content: center;
+}
+
+.deposit-info .lock-info-row .lock-info-value {
+  align-self: self-start;
 }
 
 .lock-info-step {
@@ -691,51 +649,46 @@ export default {
   line-height: normal;
   display: flex;
   align-items: center;
+  align-self: self-end;
+  height: 32px;
+}
+
+.liquidity-info {
+  margin-bottom: 16px;
 }
 
 @media (max-width: 600px) {
-  .actions-head {
-    height: 126px;
-    gap: 16px;
-    padding: 8px 12px;
-    margin-bottom: 16px;
-    justify-content: start;
-  }
-
-  .label {
-    height: 60px;
-    width: 270px;
-    border-radius: 12px 0 0 0;
-  }
-
-  .label-img {
-    width: 30px;
-    height: 30px;
-  }
-
-  .title {
-    color: #000;
-    font-size: 18px;
-    line-height: 20px;
-  }
-
-  .subtitle {
-    color: #000;
-    font-size: 12px;
-    line-height: 15px;
-  }
-
   .deposit-wrap {
     padding: 16px;
     gap: 16px;
   }
 
+  .deposit-info {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .deposit-info .lock-info-row {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .info-row {
+    font-size: 14px;
+  }
+
+  .lock-inner {
+    margin-top: 12px;
+  }
+
   .lock-info {
+    margin-top: 12px;
     padding: 12px 16px 16px;
   }
 
   .lock-info-value,
   .lock-info-step {
+    align-self: self-start;
     font-size: 20px;
   }
 
@@ -744,8 +697,13 @@ export default {
   }
 
   .lock-info-subtitle {
+    width: 164px;
     font-size: 14px;
-    text-align: end;
+  }
+
+  .lock-token-icon {
+    width: 24px;
+    height: 24px;
   }
 }
 </style>

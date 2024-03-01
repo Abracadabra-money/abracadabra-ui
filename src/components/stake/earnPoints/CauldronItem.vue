@@ -18,42 +18,40 @@
       {{ cauldronInfo.config.name }}
     </div>
 
-    <div class="row">
-      <div>
-        <h3 class="title">TVL</h3>
-        <div class="value">
-          ${{ formatLargeSum(cauldronInfo.mainParams.tvl) }}
-        </div>
+    <div class="info-item">
+      <h3 class="title">TVL</h3>
+      <div class="value">
+        ${{ formatLargeSum(cauldronInfo.mainParams.tvl) }}
       </div>
+    </div>
 
-      <div>
-        <h3 class="title">TMB</h3>
-        <div class="value">
-          {{ formatLargeSum(cauldronInfo.mainParams.totalBorrowed) }}
-        </div>
+    <div class="info-item">
+      <h3 class="title">TMB</h3>
+      <div class="value">
+        {{ formatLargeSum(cauldronInfo.mainParams.totalBorrowed) }}
       </div>
+    </div>
 
-      <div>
-        <h3 class="title">MIMS LB</h3>
-        <div class="value">
-          {{ formatLargeSum(cauldronInfo.mainParams.mimLeftToBorrow) }}
-        </div>
+    <div class="info-item">
+      <h3 class="title">MIMS LB</h3>
+      <div class="value">
+        {{ formatLargeSum(cauldronInfo.mainParams.mimLeftToBorrow) }}
       </div>
+    </div>
 
-      <div>
-        <h3 class="title">Mint Fee</h3>
-        <div class="value">{{ cauldronInfo.mainParams.borrowFee }}%</div>
-      </div>
+    <div class="info-item">
+      <h3 class="title">Mint Fee</h3>
+      <div class="value">{{ cauldronInfo.mainParams.borrowFee }}%</div>
+    </div>
 
-      <div>
-        <h3 class="title">MRC</h3>
-        <div class="value">{{ cauldronInfo.config.mcr }}%</div>
-      </div>
+    <div class="info-item">
+      <h3 class="title">MRC</h3>
+      <div class="value">{{ cauldronInfo.config.mcr }}%</div>
+    </div>
 
-      <div>
-        <h3 class="title">Interest</h3>
-        <div class="value">{{ cauldronInfo.mainParams.interest }}%</div>
-      </div>
+    <div class="info-item">
+      <h3 class="title">Interest</h3>
+      <div class="value">{{ cauldronInfo.mainParams.interest }}%</div>
     </div>
   </router-link>
 </template>
@@ -256,14 +254,26 @@ export default {
   font-weight: 400;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 700px) {
   .cauldron-table-link {
-    gap: 8px;
+    align-self: flex-end;
+    gap: 0;
+    column-gap: 37px;
+  }
+
+  .cauldron-info {
+    margin-right: 100%;
   }
 
   .title,
   .value {
-    font-size: 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 400px) {
+  .cauldron-info {
+    margin-right: auto;
   }
 }
 </style>
