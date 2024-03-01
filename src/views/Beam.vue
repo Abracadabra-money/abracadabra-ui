@@ -58,6 +58,7 @@
 
         <ExpectedBlock
           :data="expectedConfig"
+          :isLoading="isUpdateFeesData"
           @open-settings="isSettingsOpened = true"
         />
 
@@ -121,6 +122,7 @@ import {
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import { BERA_CHAIN_ID } from "@/constants/global";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveToken } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
@@ -166,6 +168,7 @@ export default {
       mimToUsd: 0,
       isApproving: false,
       isBeaming: false,
+      isUpdateFeesData: false,
     };
   },
 
@@ -210,7 +213,9 @@ export default {
 
     popupNetworksArr() {
       if (this.popupType === "from") return this.beamConfig?.fromChains;
-      return this.beamConfig?.toChains;
+      return this.beamConfig?.toChains.filter(({ chainId }) => {
+        return chainId !== BERA_CHAIN_ID;
+      });
     },
 
     activePopupChain() {
@@ -268,6 +273,7 @@ export default {
 
     actionBtnText() {
       if (!this.account) return "Connect wallet";
+      if (this.isInsufficientBalance) return "Insufficient balance";
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
       if (!this.isSelectedChain) return "Choose Destination Chain";
@@ -285,9 +291,14 @@ export default {
       return this.isUnsupportedNetwork || !this.account;
     },
 
+    isInsufficientBalance() {
+      return +this.inputValue > +this.beamConfig?.balance;
+    },
+
     disableBtn() {
       if (!this.account) return false;
       if (+this.inputValue === 0) return true;
+      if (this.isInsufficientBalance) return true;
       if (this.isApproving || this.isBeaming) return true;
       if (!this.account || !this.isSelectedChain) return true;
       if (this.isEnterDstAddress) return true;
@@ -334,7 +345,7 @@ export default {
         dstTokenIcon: this.isSelectedChain
           ? this.dstTokenInfo?.baseTokenIcon
           : "",
-        gasCost: this.formatFee,
+        gasCost: this.isSelectedChain ? this.formatFee : "0.0",
         srcTokenPrice: this.srcTokenPrice || 0,
         srcTokenSymbol: this.srcTokenInfo?.baseTokenSymbol,
         srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
@@ -388,7 +399,15 @@ export default {
 
   watch: {
     async chainId() {
+      this.isUpdateFeesData = this.account ? true : false;
+      this.inputAmount = BigNumber.from(0);
       await this.updateBeamData();
+
+      if (this.isSelectedChain) {
+        this.estimateSendFee = await this.getEstimatedFees();
+      }
+
+      this.isUpdateFeesData = false;
     },
 
     async account() {
@@ -576,7 +595,9 @@ export default {
     async changeSettings(value) {
       if (!value || this.isSettingsError) this.dstTokenAmount = "";
       else this.dstTokenAmount = value;
+      this.isUpdateFeesData = this.account ? true : false;
       this.estimateSendFee = await this.getEstimatedFees();
+      this.isUpdateFeesData = false;
     },
 
     errorSettings(value) {
@@ -594,6 +615,7 @@ export default {
         this.estimateSendFee = 0;
         this.toChainId = chainId;
         this.startFee = 0;
+        this.isUpdateFeesData = this.account ? true : false;
         this.dstMaxAmount = await getDstTokenMax(
           this.beamConfig.contractInstance,
           this.signer,
@@ -605,10 +627,15 @@ export default {
         }
 
         this.estimateSendFee = await this.getEstimatedFees();
+        this.isUpdateFeesData = false;
         await this.getChainsTokensPrices();
       } else {
         if (this.dstChain.chainId !== chainId && !this.isUnsupportedNetwork) {
           localStorage.setItem("previous_chain_id", this.dstChain.chainId);
+        }
+
+        if (this.dstChain.chainId === chainId) {
+          this.isSelectedChain = false;
         }
 
         await switchNetwork(chainId);

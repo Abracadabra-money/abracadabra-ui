@@ -2,7 +2,8 @@
   <div class="expected-block">
     <div class="row">
       <p class="title">Estimated Gas Cost:</p>
-      <p class="value">
+      <RowSkeleton v-if="isLoading" />
+      <p class="value" v-else>
         <span class="token">
           <img :src="data.srcTokenIcon" class="token-icon" /> {{ data.gasCost }}
           {{ data.srcTokenSymbol }}
@@ -37,6 +38,7 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { formatUSD } from "@/helpers/filters";
 
 export default {
@@ -44,6 +46,10 @@ export default {
     data: {
       type: Object,
       required: true,
+    },
+    isLoading: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -58,6 +64,12 @@ export default {
         this.data.dstTokenAmount * this.data.dstTokenPrice;
       return formatUSD(gasOnDestinationUsd);
     },
+  },
+
+  components: {
+    RowSkeleton: defineAsyncComponent(() =>
+      import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
   },
 };
 </script>
