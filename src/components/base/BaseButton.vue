@@ -41,7 +41,7 @@ export default {
 .default-button {
   cursor: pointer;
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   // background: #403e4a;
   height: 50px;
   padding: 0 20px;

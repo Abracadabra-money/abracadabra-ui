@@ -93,13 +93,13 @@ export default {
 
 @media (max-width: 700px) {
   .time-block {
-    font-size: 16px;
-    height: auto;
-    min-width: 60px;
+    font-size: 24px;
+    height: 48px;
+    min-width: 66px;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .timer {
     width: 100%;
     justify-content: center;
@@ -111,6 +111,7 @@ export default {
 
   .small .time-block {
     padding: 4px 6px;
+    height: auto;
     min-width: 40px;
   }
 }

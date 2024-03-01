@@ -134,12 +134,17 @@ export default {
 }
 
 @media (max-width: 700px) {
+  .total {
+    height: 101px;
+    padding: 12px;
+  }
+
   .totals-wrap {
     flex-direction: column;
   }
 
   .title {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .value {
