@@ -27,12 +27,13 @@ import {
   PRC_LINEA,
   RPC_BERRA_ARTIO,
   RPC_BLAST_SEPOLIA,
-  RPC_BLAST
+  RPC_BLAST,
 } from "@/constants/rpc";
 
 export const chains = [
   mainnetConfig,
   arbitrumConfig,
+  blastConfig,
   kavaConfig,
   avalancheConfig,
   optimismConfig,
@@ -44,7 +45,6 @@ export const chains = [
   lineaConfig,
   berachainConfig,
   // blastSepoliaConfig,
-  blastConfig
 ];
 
 export const chainsList = {
