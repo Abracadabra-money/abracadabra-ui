@@ -3,9 +3,8 @@
     <div class="swap-wrapper">
       <div class="swap-head">
         <h3 class="head-title">MIM SWAP</h3>
-        <button class="settings-button">
-          <SetingIcon />
-        </button>
+
+        <SwapSettingsPopup />
       </div>
 
       <div class="swap-body">
@@ -76,7 +75,7 @@
             />
             <img
               class="token-icon"
-              src="@/assets/images/tokens/Spell.png"
+              src="@/assets/images/tokens/SPELL.png"
               alt=""
             />
             <img
@@ -105,8 +104,8 @@ import { defineAsyncComponent } from "vue";
 
 export default {
   components: {
-    SetingIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/SetingIcon.vue")
+    SwapSettingsPopup: defineAsyncComponent(
+      () => import("@/components/popups/SwapSettingsPopup.vue")
     ),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
@@ -142,6 +141,7 @@ export default {
 }
 
 .swap-head {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -152,16 +152,6 @@ export default {
   font-size: 32px;
   font-weight: 600;
   line-height: normal;
-}
-
-.settings-button {
-  outline: transparent;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid #2d4a96;
-  background: rgba(25, 31, 47, 0.38);
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
 }
 
 .swap-body {
