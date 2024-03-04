@@ -95,6 +95,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/stake/Blast.vue"),
   },
   {
+    path: "/mim-swap",
+    name: "MimSwap",
+    component: () => import("@/views/MimSwap.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
