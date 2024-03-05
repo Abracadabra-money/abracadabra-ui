@@ -1,3 +1,5 @@
+import Math from "./Math";
+
 export const ONE = BigInt(10 ** 18);
 export const ONE2 = BigInt(10 ** 36);
 
@@ -9,12 +11,12 @@ export const divFloor = (target: bigint, d: bigint): bigint => {
   return (target * ONE) / d;
 };
 
-export const divCeil = (target: bigint, d: bigint): bigint => {
-  return divCeil(target * ONE, d); // NOTICE: check
+export const divCeil = (target: bigint, d: bigint): bigint => {  
+  return Math.divCeil(target * ONE, d); // NOTICE: check
 };
 
 export const reciprocalFloor = (target: bigint): bigint => {
-  return ONE2 / target;
+  return Math.divCeil(ONE2, target);
 };
 
 export default {

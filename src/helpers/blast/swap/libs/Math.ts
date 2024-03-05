@@ -13,6 +13,16 @@ const sqrt = (x: bigint) => {
   return y;
 };
 
+const divCeil = (a: bigint, b: bigint): bigint => {
+  const quotient = a / b;
+  const remainder = a - quotient * b;
+  if (remainder > 0n) {
+    return quotient + 1n;
+  } else {
+    return quotient;
+  }
+};
+
 const _GeneralIntegrate = (
   V0: bigint,
   V1: bigint,
@@ -153,6 +163,7 @@ const _SolveQuadraticFunctionForTrade = (
 
 export default {
   sqrt,
+  divCeil,
   _GeneralIntegrate,
   _SolveQuadraticFunctionForTarget,
   _SolveQuadraticFunctionForTrade,

@@ -12,7 +12,7 @@ export type PMMState = {
     Q: bigint,
     B0: bigint,
     Q0: bigint,
-    R: bigint
+    R: number
 }
 
 export type MagicLPInfo = {

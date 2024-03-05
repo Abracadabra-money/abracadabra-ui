@@ -24,7 +24,7 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
-
+import { blastTestingHelpers, liquidityTests } from "@/helpers/blast/swap/testing";   // TESTING
 export default {
   data() {
     return {
@@ -88,6 +88,12 @@ export default {
     }
   },
 
+  // TESTING
+  async mounted() {
+    // await blastTestingHelpers()
+    // await liquidityTests()
+  },
+ 
   components: {
     AppHeader: defineAsyncComponent(() =>
       import("@/components/app/AppHeader.vue")
