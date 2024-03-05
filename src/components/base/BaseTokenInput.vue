@@ -14,11 +14,22 @@
       </div>
 
       <div class="token-input-info">
-        <div class="token-info" v-tooltip="tooltip">
+        <div
+          :class="['token-info', { 'select-token': allowSelectToken }]"
+          v-tooltip="tooltip"
+          @click="onSelectClick"
+        >
           <BaseTokenIcon :icon="icon" :name="name" size="28px" />
           <span class="token-name" ref="tokenName">
             {{ tokenName }}
           </span>
+
+          <img
+            class="arrow-icon"
+            v-if="allowSelectToken"
+            src="@/assets/images/arrow-down.svg"
+            alt=""
+          />
         </div>
 
         <p
@@ -64,6 +75,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    allowSelectToken: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data(): any {
@@ -75,7 +90,7 @@ export default {
 
   computed: {
     tokenName() {
-      return this.name.length > 11 ? this.name.slice(0, 10) + "..." : this.name;
+      return this.name.length > 12 ? this.name.slice(0, 11) + "..." : this.name;
     },
 
     formattedMax() {
@@ -126,10 +141,15 @@ export default {
 
   methods: {
     formatTokenBalance,
+
+    onSelectClick() {
+      if (this.allowSelectToken) this.$emit("onSelectClick");
+      return;
+    },
   },
 
   mounted() {
-    if (this.name.length > 11) {
+    if (this.name.length > 12) {
       this.tooltip = this.name;
     }
   },
@@ -209,6 +229,10 @@ export default {
   height: 36px;
 }
 
+.select-token {
+  cursor: pointer;
+}
+
 .token-name {
   text-wrap: nowrap;
 }
@@ -236,5 +260,9 @@ export default {
 
 .wallet-icon {
   cursor: pointer;
+}
+
+.arrow-icon {
+  margin-left: 8px;
 }
 </style>
