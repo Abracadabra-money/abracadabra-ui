@@ -95,6 +95,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/stake/Blast.vue"),
   },
   {
+    path: "/pools",
+    name: "Pools",
+    component: () => import("@/views/Pools.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },

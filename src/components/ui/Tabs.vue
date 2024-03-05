@@ -1,5 +1,5 @@
 <template>
-  <div :style="`width: ${width};`" class="switch">
+  <div class="switch">
     <button
       v-for="(item, i) in items"
       :style="`color: ${name === item ? activeColor : ''};`"
@@ -52,7 +52,6 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 220px;
   height: 48px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -77,7 +76,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50%;
 }
 
 .switch-btn-active {
