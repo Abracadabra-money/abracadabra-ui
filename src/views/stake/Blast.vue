@@ -13,6 +13,7 @@
         class="action"
         :stakeInfo="stakeInfo"
         :actionActiveTab="actionActiveTab"
+        :userPointsEarned="userPointsEarned"
         :mobileMode="mobileMode"
         @updateStakeInfo="createStakeInfo"
         v-if="isActionTab"
