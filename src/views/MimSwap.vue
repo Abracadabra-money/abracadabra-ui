@@ -12,6 +12,8 @@
           :fromToken="fromToken"
           :toToken="toToken"
           @openTokensPopup="openTokensPopup"
+          @updateFromInputValue="updateFromValue"
+          @updateToInputValue="updateToValue"
         />
 
         <SwapInfoBlock />
@@ -94,13 +96,10 @@ export default {
     return {
       fromToken: emptyToken as any,
       toToken: emptyToken,
-      fromInputValue: "",
-      toInputValue: "",
       isTokensPopupOpened: false,
       tokensList,
       popularTokens,
       tokenType: "from",
-
       actionConfig: {
         fromInputValue: 0n,
         toInputValue: 0n,
@@ -115,9 +114,14 @@ export default {
   },
 
   methods: {
-    openTokensPopup(type: string) {
-      this.tokenType = type;
-      this.isTokensPopupOpened = true;
+    updateFromValue(value: bigint) {
+      if (value === null) this.actionConfig.fromInputValue = 0n;
+      else this.actionConfig.fromInputValue = value;
+    },
+
+    updateToValue(value: bigint) {
+      if (value === null) this.actionConfig.toInputValue = 0n;
+      else this.actionConfig.toInputValue = value;
     },
 
     updateSelectedToken(token: any) {
@@ -127,8 +131,9 @@ export default {
       this.isTokensPopupOpened = false;
     },
 
-    updateFromValue(value: any) {
-      console.log("updateFromValue", value);
+    openTokensPopup(type: string) {
+      this.tokenType = type;
+      this.isTokensPopupOpened = true;
     },
   },
 

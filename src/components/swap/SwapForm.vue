@@ -1,11 +1,5 @@
 <template>
   <div class="inputs-wrap">
-    <!-- 
-          :error="amountError"
-          @updateInputValue="updateMainValue"
-          :disabled="isActionsDisabled"
-        /> -->
-
     <BaseTokenInput
       :value="fromInputValue"
       :name="fromToken.name"
@@ -14,17 +8,13 @@
       :max="fromToken.balance"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'from')"
+      @updateInputValue="$emit('updateFromInputValue', $event)"
     />
-    <!-- @updateInputValue="updateFromValue" -->
 
     <button class="swap-button">
       <SwapIcon />
     </button>
 
-    <!--
-            :error="amountError"
-            @updateInputValue="updateMainValue"
-            :disabled="isActionsDisabled" -->
     <BaseTokenInput
       :value="toInputValue"
       :name="toToken.name"
@@ -33,6 +23,7 @@
       :max="toToken.balance"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'to')"
+      @updateInputValue="$emit('updateToInputValue', $event)"
     />
   </div>
 </template>
@@ -52,8 +43,6 @@ export default {
       toInputValue: "",
     };
   },
-
-  methods: {},
 
   components: {
     BaseTokenInput: defineAsyncComponent(
