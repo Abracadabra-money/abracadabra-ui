@@ -1,6 +1,9 @@
 <template>
   <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div :class="['popup', { farmPopup: isFarm }]" @click.stop>
+    <div
+      :class="['popup', { farmPopup: isFarm }, { 'swap-popup': isSwapPopup }]"
+      @click.stop
+    >
       <div class="popup-content">
         <button class="close-btn" @click="closePopup">
           <img
@@ -23,8 +26,11 @@ export default {
       type: Boolean,
       default: false,
     },
-
     isFarm: {
+      type: Boolean,
+      default: false,
+    },
+    isSwapPopup: {
       type: Boolean,
       default: false,
     },
@@ -96,5 +102,15 @@ export default {
   background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+}
+
+.swap-popup {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  width: 374px;
 }
 </style>
