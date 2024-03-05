@@ -99,17 +99,17 @@ export const getLpInfo = async (
       address: lp,
       abi: BlastMagicLPAbi as any,
     },
-    name,
-    decimals,
-    vaultReserve,
-    totalSupply,
-    midPrice,
-    MAX_I,
-    MAX_K,
-    PMMState,
-    baseToken,
-    quoteToken,
-    lpFeeRate,
+    name: name.result,
+    decimals: decimals.result,
+    vaultReserve: vaultReserve.result,
+    totalSupply: totalSupply.result,
+    midPrice: midPrice.result,
+    MAX_I: MAX_I.result,
+    MAX_K: MAX_K.result,
+    PMMState: PMMState.result,
+    baseToken: baseToken.result,
+    quoteToken: quoteToken.result,
+    lpFeeRate: lpFeeRate.result,
   };
 };
 
@@ -148,9 +148,12 @@ export const getUserLpInfo = async (
   });
 
   return {
-    allowance,
-    balance,
-    userFeeRate,
+    allowance: allowance.result,
+    balance: balance.result,
+    userFeeRate: {
+      lpFeeRate: userFeeRate.result[0],
+      mtFeeRate: userFeeRate.result[1],
+    },
   };
 };
 
@@ -166,7 +169,7 @@ export const querySellBase = (
     payBaseAmount
   );
 
-  const mtFeeRate = userLpInfo.userFeeRate;
+  const { mtFeeRate } = userLpInfo.userFeeRate;
 
   const mtFee = DecimalMath.mulFloor(receiveQuoteAmount, mtFeeRate);
   const receiveQuoteAmountAfterFee =
@@ -195,7 +198,7 @@ export const querySellQuote = (
     payQuoteAmount
   );
 
-  const mtFeeRate = userLpInfo.userFeeRate;
+  const { mtFeeRate } = userLpInfo.userFeeRate;
   const mtFee = DecimalMath.mulFloor(receiveBaseAmount, mtFeeRate);
   const receiveBaseAmountAfterFee =
     receiveBaseAmount -

@@ -1,5 +1,10 @@
 import type { Address } from "viem";
 
+type UserFeeRate = {
+    lpFeeRate: bigint,
+    mtFeeRate: bigint
+}
+
 export type PMMState = {
     i: bigint,
     K: bigint,
@@ -31,5 +36,5 @@ export type MagicLPInfo = {
 export type MagicLPInfoUserInfo = {
     allowance: bigint,
     balance: bigint,
-    userFeeRate: bigint,
+    userFeeRate: UserFeeRate,
 }

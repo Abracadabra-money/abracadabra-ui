@@ -44,7 +44,7 @@ export const chains = [
   baseConfig,
   lineaConfig,
   berachainConfig,
-  // blastSepoliaConfig,
+  blastSepoliaConfig,
 ];
 
 export const chainsList = {
@@ -61,7 +61,7 @@ export const chainsList = {
   59144: lineaConfig,
   80085: berachainConfig,
   81457: blastConfig,
-  // 168587773: blastSepoliaConfig
+  168587773: blastSepoliaConfig
 };
 
 export const defaultRpc = {
@@ -78,7 +78,7 @@ export const defaultRpc = {
   59144: PRC_LINEA,
   80085: RPC_BERRA_ARTIO,
   81457: RPC_BLAST,
-  // 168587773: RPC_BLAST_SEPOLIA
+  168587773: RPC_BLAST_SEPOLIA
 };
 
 export const getChainById = (chainId: number): Object =>
