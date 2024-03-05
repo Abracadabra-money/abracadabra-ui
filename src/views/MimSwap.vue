@@ -8,37 +8,11 @@
       </div>
 
       <div class="swap-body">
-        <div class="inputs-wrap">
-          <!-- class="beam-input"
-          :decimals="18"
-          :max="parsedMimBalance"
-          :value="inputValue"
-          :name="'MIM'"
-          :icon="$image('assets/images/tokens/MIM.png')"
-          :error="amountError"
-          isBigNumber
-          @updateInputValue="updateMainValue"
-          :disabled="isActionsDisabled"
-        /> -->
-
-          <BaseTokenInput />
-
-          <button class="swap-button">
-            <SwapIcon />
-          </button>
-
-          <!-- class="beam-input"
-            :decimals="18"
-            :max="parsedMimBalance"
-            :value="inputValue"
-            :name="'MIM'"
-            :icon="$image('assets/images/tokens/MIM.png')"
-            :error="amountError"
-            isBigNumber
-            @updateInputValue="updateMainValue"
-            :disabled="isActionsDisabled" -->
-          <BaseTokenInput />
-        </div>
+        <SwapForm
+          :fromToken="fromToken"
+          :toToken="toToken"
+          @openTokensPopup="openTokensPopup"
+        />
 
         <div class="swap-info">
           <div class="swap-info-item">
@@ -96,19 +70,126 @@
         <BaseButton :primary="true"> Swap</BaseButton>
       </div>
     </div>
+
+    <LocalPopupWrap
+      isSwapPopup
+      :isOpened="isTokensPopupOpened"
+      @closePopup="isTokensPopupOpened = false"
+    >
+      <SwapListPopup
+        :tokensList="tokensList"
+        :popularTokens="popularTokens"
+        :selectedToken="selectedToken"
+        @updateSelectedToken="updateSelectedToken"
+      />
+    </LocalPopupWrap>
   </div>
 </template>
 
 <script lang="ts">
+import { useImage } from "@/helpers/useImage";
 import { defineAsyncComponent } from "vue";
 
+const tokensList = [
+  {
+    name: "MIM",
+    icon: useImage("assets/images/tokens/MIM.png"),
+    balance: 10000000000000000000000n,
+    price: 10_000000000000000000n,
+    decimals: 18,
+  },
+  {
+    name: "SPELL",
+    icon: useImage("assets/images/tokens/SPELL.png"),
+    balance: 30000000000000000000000n,
+    price: 20_000000000000000000n,
+    decimals: 18,
+  },
+  {
+    name: "ETH",
+    icon: useImage("assets/images/tokens/ETH.png"),
+    balance: 70000000000000000000000n,
+    price: 30_000000000000000000n,
+    decimals: 18,
+  },
+];
+
+const emptyToken = {
+  name: "Select Token",
+  icon: "",
+  balance: 0n,
+  price: "0",
+  decimals: 18,
+};
+
+const popularTokens = [
+  {
+    name: "ETH",
+    icon: useImage("assets/images/tokens/ETH.png"),
+  },
+  {
+    name: "MIM",
+    icon: useImage("assets/images/tokens/MIM.png"),
+  },
+  {
+    name: "SPELL",
+    icon: useImage("assets/images/tokens/SPELL.png"),
+  },
+];
+
 export default {
+  data() {
+    return {
+      fromToken: emptyToken as any,
+      toToken: emptyToken,
+      fromInputValue: "",
+      toInputValue: "",
+      isTokensPopupOpened: false,
+      tokensList,
+      popularTokens,
+      tokenType: "from",
+
+      actionConfig: {
+        fromInputValue: 0n,
+        toInputValue: 0n,
+      },
+    };
+  },
+
+  computed: {
+    selectedToken() {
+      return this.tokenType === "from" ? this.fromToken : this.toToken;
+    },
+  },
+
+  methods: {
+    openTokensPopup(type: string) {
+      this.tokenType = type;
+      this.isTokensPopupOpened = true;
+    },
+
+    updateSelectedToken(token: any) {
+      if (this.tokenType === "from") this.fromToken = token;
+      else this.toToken = token;
+
+      this.isTokensPopupOpened = false;
+    },
+
+    updateFromValue(value: any) {
+      console.log("updateFromValue", value);
+    },
+  },
+
+  created() {
+    this.fromToken = tokensList[0];
+  },
+
   components: {
     SwapSettingsPopup: defineAsyncComponent(
       () => import("@/components/popups/SwapSettingsPopup.vue")
     ),
-    BaseTokenInput: defineAsyncComponent(
-      () => import("@/components/base/BaseTokenInput.vue")
+    SwapForm: defineAsyncComponent(
+      () => import("@/components/swap/SwapForm.vue")
     ),
     SwapIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/SwapIcon.vue")
@@ -118,6 +199,13 @@ export default {
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    SwapListPopup: defineAsyncComponent(
+      () => import("@/components/popups/SwapListPopup.vue")
     ),
   },
 };
@@ -161,29 +249,6 @@ export default {
   flex-direction: column;
 }
 
-.inputs-wrap {
-  gap: 12px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.swap-button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
-  margin: 0 auto;
-  border-radius: 16px;
-  border: 1px solid #2d4a96;
-  background: rgba(25, 31, 47, 0.38);
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(68px);
-  cursor: pointer;
-}
-
 .swap-info,
 .router-wrap {
   padding: 12px;
@@ -205,6 +270,7 @@ export default {
   justify-content: space-between;
   color: #878b93;
   line-height: normal;
+  flex-wrap: wrap;
 }
 
 .info-value {
@@ -260,5 +326,16 @@ export default {
   font-size: 12px;
   font-weight: 400;
   line-height: normal;
+}
+
+@media screen and (max-width: 600px) {
+  .head-title {
+    font-size: 24px;
+  }
+
+  .swap-body {
+    padding: 16px;
+    gap: 20px;
+  }
 }
 </style>
