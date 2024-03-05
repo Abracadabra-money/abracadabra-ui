@@ -11,11 +11,12 @@
       @updateInputValue="$emit('updateFromInputValue', $event)"
     />
 
-    <button class="swap-button">
+    <button class="swap-button" @click="$emit('onToogleTokens')">
       <SwapIcon />
     </button>
 
     <BaseTokenInput
+      :disabled="true"
       :value="toInputValue"
       :name="toToken.name"
       :icon="toToken.icon"
@@ -23,18 +24,20 @@
       :max="toToken.balance"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'to')"
-      @updateInputValue="$emit('updateToInputValue', $event)"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { defineAsyncComponent, type PropType } from "vue";
 
 export default {
   props: {
-    fromToken: {} as any,
-    toToken: {} as any,
+    fromToken: {} as any, //todo type
+    toToken: {} as any, //todo type
+    toTokenAmount: BigInt as unknown as PropType<bigint>,
   },
 
   data() {
@@ -42,6 +45,15 @@ export default {
       fromInputValue: "",
       toInputValue: "",
     };
+  },
+
+  watch: {
+    toTokenAmount(value) {
+      const { decimals } = this.toToken;
+
+      if (!value) this.toInputValue = "";
+      else this.toInputValue = trimZeroDecimals(formatUnits(value, decimals));
+    },
   },
 
   components: {

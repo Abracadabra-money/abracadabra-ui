@@ -180,6 +180,7 @@ export default {
   border: 1px solid rgba(73, 70, 97, 0.4);
   background: rgba(8, 14, 31, 0.6);
   width: 100%;
+  min-height: 82px;
 }
 
 .token-input-wrap,

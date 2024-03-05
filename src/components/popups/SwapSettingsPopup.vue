@@ -66,32 +66,32 @@
 </template>
 
 <script lang="ts">
-import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
+import { formatUnits, parseUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
+import { defineAsyncComponent, type PropType } from "vue";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
     slippage: {
-      type: BigNumber,
-      default: utils.parseUnits("1", PERCENT_PRESITION),
+      type: BigInt as unknown as PropType<bigint>,
+      default: parseUnits("1", PERCENT_PRESITION),
     },
     defaultSlippage: {
-      type: BigNumber,
-      default: utils.parseUnits("1", PERCENT_PRESITION),
+      type: BigInt as unknown as PropType<bigint>,
+      default: parseUnits("1", PERCENT_PRESITION),
     },
     deadline: {
-      type: BigNumber,
-      default: utils.parseUnits("20", PERCENT_PRESITION),
+      type: BigInt as unknown as PropType<bigint>,
+      default: parseUnits("20", PERCENT_PRESITION),
     },
   },
 
   data() {
     return {
       showPopup: false,
-      slippageValue: this.getFormattedAmount(this.slippage),
-      deadlineValue: this.getFormattedAmount(this.deadline),
+      slippageValue: this.getFormattedAmount(this.slippage) as number,
+      deadlineValue: this.getFormattedAmount(this.deadline) as number,
     };
   },
 
@@ -99,36 +99,47 @@ export default {
     isActiveAutoButton(): boolean {
       return (
         this.slippageValue !==
-        +utils.formatUnits(this.defaultSlippage, PERCENT_PRESITION)
+        +formatUnits(this.defaultSlippage, PERCENT_PRESITION)
       );
     },
   },
 
   watch: {
-    slippageValue(value, oldValue) {
-      if (!value) return this.$emit("updateSlippage", BigNumber.from(0));
+    slippageValue(value, oldValue): void {
+      if (!value) return this.$emit("updateSlippageValue", 0n);
       if (isNaN(value)) this.slippageValue = Number(oldValue);
       if (Number(value) > 100) this.slippageValue = 100;
       else this.slippageValue = Number(value);
 
       this.$emit(
-        "updateSlippage",
-        utils.parseUnits(String(this.slippageValue), PERCENT_PRESITION)
+        "updateSlippageValue",
+        parseUnits(String(this.slippageValue), PERCENT_PRESITION)
+      );
+    },
+
+    deadlineValue(value, oldValue): void {
+      if (!value) return this.$emit("updateDeadlineValue", 0n);
+      if (isNaN(value)) this.deadlineValue = Number(oldValue);
+      else this.deadlineValue = Number(value);
+
+      this.$emit(
+        "updateDeadlineValue",
+        parseUnits(String(this.deadlineValue), PERCENT_PRESITION)
       );
     },
   },
 
   methods: {
-    getDefaultSlippage() {
+    getDefaultSlippage(): void {
       this.slippageValue = this.getFormattedAmount(this.defaultSlippage);
     },
 
-    getFormattedAmount(amount: BigNumber) {
-      const parsedAmount = utils.formatUnits(amount, PERCENT_PRESITION);
+    getFormattedAmount(amount: bigint): number {
+      const parsedAmount = formatUnits(amount, PERCENT_PRESITION);
       return Number(formatToFixed(parsedAmount, PERCENT_PRESITION));
     },
 
-    closePopup() {
+    closePopup(): void {
       this.showPopup = false;
     },
   },
@@ -236,11 +247,4 @@ export default {
   color: #fff;
   background: #7088cc;
 }
-
-// @media screen and (max-width: 360px) {
-//   .settings-popup {
-//     left: -10%;
-//     width: 120%;
-//   }
-// }
 </style>

@@ -12,6 +12,7 @@
           class="popular-token-item"
           v-for="token in popularTokens"
           :key="token.name"
+          @click="$emit('updateSelectedToken', token)"
         >
           <img class="popular-token-icon" :src="token.icon" alt="" />
           <span class="popular-token-name">{{ token.name }}</span>
@@ -69,13 +70,6 @@ export default {
       requred: true,
       default: () => [],
     },
-
-    popularTokens: {
-      type: Array as () => any[],
-      requred: true,
-      default: () => [],
-    },
-
     selectedToken: {
       type: Object as () => any,
       requred: true,
@@ -97,6 +91,10 @@ export default {
               name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
           )
         : this.tokensList;
+    },
+
+    popularTokens() {
+      return this.tokensList.filter(({ isPopular }) => isPopular);
     },
   },
 
@@ -169,6 +167,7 @@ export default {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(111, 111, 111, 0.06);
+  cursor: pointer;
 }
 
 .popular-token-icon {
