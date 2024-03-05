@@ -98,6 +98,8 @@ const routes: Array<RouteRecordRaw> = [
     path: "/pools",
     name: "Pools",
     component: () => import("@/views/Pools.vue"),
+  },
+  {
     path: "/mim-swap",
     name: "MimSwap",
     component: () => import("@/views/MimSwap.vue"),
