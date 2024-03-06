@@ -1,25 +1,23 @@
 import axios from "axios";
 import type { Address } from "viem";
 
-const GRAPHQL = "https://daring-mongoose-83.hasura.app/v1/graphql";
+const GRAPHQL = "https://ymlcxloffmrsfereuhfa.supabase.co/graphql/v1?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltbGN4bG9mZm1yc2ZlcmV1aGZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk1NTM4MDMsImV4cCI6MjAyNTEyOTgwM30.hhfUPn4fw9WUdRpeXDIk6s5LskQ1HM4qMZy6G5AKjsk";
 
 export const fetchPointsStatistics = async () => {
   try {
     const query = `{
-        point_aggregation {
-          total_points_earned
-          average_points_earned
-        }
+        distributionAmountSum
+        distributionAmountAvgSumForAddresses
       }`;
 
     const { data } = await axios.post(GRAPHQL, { query });
 
-    return data.data.point_aggregation[0];
+    return data.data;
   } catch (error) {
     console.log("Error fetching points statistics", error);
     return {
-      average_points_earned: 0,
-      total_points_earned: 0,
+      distributionAmountSum: 0,
+      distributionAmountAvgSumForAddresses: 0,
     };
   }
 };
@@ -31,15 +29,13 @@ export const fetchUserPointsStatistics = async (
 
   try {
     const query = `{
-        points_by_pk(address: "${address.toLowerCase()}") {
-          points_earned
-        }
+        distributionAmountSumByAddress(address: "${address.toLowerCase()}")
       }`;
 
     const { data } = await axios.post(GRAPHQL, { query });
 
-    if (!data.data.points_by_pk) return 0;
-    return data.data.points_by_pk.points_earned;
+    if (!data.data.distributionAmountSumByAddress) return 0;
+    return Number(data.data.distributionAmountSumByAddress);
   } catch (error) {
     console.log("Error fetching user points statistics", error);
     return 0;
