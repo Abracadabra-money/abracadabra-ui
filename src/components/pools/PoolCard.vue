@@ -99,6 +99,16 @@ export default {
         border: "border: 1px solid rgba(180, 180, 180, 0.08);",
       };
     },
+
+    goToPage() {
+      return {
+        name: "Pool",
+        params: {
+          id: this.pool.config.id,
+          poolChainId: this.pool.config.chainId,
+        },
+      };
+    },
   },
 
   components: {

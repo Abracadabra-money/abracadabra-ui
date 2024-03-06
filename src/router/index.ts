@@ -100,6 +100,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/Pools.vue"),
   },
   {
+    path: "/pool/:id?/:poolChainId?",
+    name: "Pool",
+    component: () => import("@/views/Pool.vue"),
+  },
+  {
     path: "/mim-swap",
     name: "MimSwap",
     component: () => import("@/views/MimSwap.vue"),

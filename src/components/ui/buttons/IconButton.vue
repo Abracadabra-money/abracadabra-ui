@@ -3,18 +3,20 @@
     @mouseover="hover = true"
     @mouseleave="hover = false"
     class="button-wrap"
+    :style="`border-radius: ${borderRadius}`"
     :is="tagName"
     :href="href"
     :target="href"
   >
     <span
       class="inner-wrap"
-      :style="`width: ${width}px; height: ${height}px; padding: ${padding};`"
+      :style="`width: ${width}px; height: ${height}px; padding: ${padding}; border-radius: ${borderRadius}`"
     >
       <WalletIcon v-if="wallet" :fill="svgFill" />
       <LinkIcon v-else-if="link" :fill="svgFill" />
       <SetingIcon v-else-if="seting" :fill="svgFill" />
       <ChartIcon v-else-if="chart" :fill="svgFill" />
+      <PlusIcon v-else-if="plus" :fill="svgFill" />
     </span>
   </component>
 </template>
@@ -37,6 +39,10 @@ export default {
       default: false,
     },
     chart: {
+      type: Boolean,
+      default: false,
+    },
+    plus: {
       type: Boolean,
       default: false,
     },
@@ -63,6 +69,10 @@ export default {
     padding: {
       type: String,
       default: "6px 8px",
+    },
+    borderRadius: {
+      type: String,
+      default: "8px",
     },
     active: {
       type: Boolean,
@@ -99,6 +109,9 @@ export default {
     ChartIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/ChartIcon.vue")
     ),
+    PlusIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/PlusIcon.vue")
+    ),
   },
 
   methods: {
@@ -111,7 +124,6 @@ export default {
 .button-wrap {
   padding: 1px;
   background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
-  border-radius: 8px;
   border: transparent;
   outline: transparent;
   cursor: pointer;
@@ -122,7 +134,6 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 2px;
-  border-radius: 8px;
   background: #1a1f3d;
   height: 28px;
   width: 32px;

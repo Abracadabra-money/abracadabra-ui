@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <div>
+      <div v-if="!pool">
         <h4 class="subtitle">
           Swap deadline
 
@@ -84,6 +84,10 @@ export default {
     deadline: {
       type: BigNumber,
       default: utils.parseUnits("20", PERCENT_PRESITION),
+    },
+    pool: {
+      type: Boolean,
+      default: false,
     },
   },
 

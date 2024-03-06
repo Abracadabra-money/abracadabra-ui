@@ -67,7 +67,7 @@ export default {
     },
     name: {
       type: String,
-      default: "Select Farm",
+      default: "Select Token",
     },
     tokenPrice: {},
     disabled: { type: Boolean, default: false },

@@ -1,7 +1,7 @@
 <template>
   <router-link
     :class="['pools-table-link', poolLabel, { open: isOpenPosition }]"
-    :to="goToPage()"
+    :to="goToPage"
   >
     <div class="label">{{ poolLabel }}</div>
     <div class="column">
@@ -56,13 +56,19 @@ export default {
       if (this.pool.config.poolSettings?.isDeprecated) return "deprecated";
       return "";
     },
+
+    goToPage() {
+      return {
+        name: "Pool",
+        params: {
+          id: this.pool.config.id,
+          poolChainId: this.pool.config.chainId,
+        },
+      };
+    },
   },
 
   methods: {
-    goToPage() {
-      return { name: "Pools" };
-    },
-
     formatUnits(value: bigInt) {
       return formatUnits(value);
     },
