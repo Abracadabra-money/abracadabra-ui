@@ -4,24 +4,35 @@
       <div class="swap-head">
         <h3 class="title">MIM SWAP</h3>
 
-        <SwapSettingsPopup />
+        <SwapSettingsPopup
+          :slippage="100n"
+          :defaultSlippage="100n"
+          :deadline="3000n"
+          @updateSlippageValue="updateSlippageValue"
+          @updateDeadlineValue="updateDeadlineValue"
+        />
       </div>
 
       <div class="swap-body">
         <SwapForm
-          :fromToken="fromToken"
-          :toToken="toToken"
+          :fromToken="actionConfig.fromToken"
+          :toToken="actionConfig.toToken"
+          :toTokenAmount="actionConfig.toInputValue"
+          @onToogleTokens="toogleTokens"
           @openTokensPopup="openTokensPopup"
           @updateFromInputValue="updateFromValue"
-          @updateToInputValue="updateToValue"
         />
 
         <SwapInfoBlock />
 
         <SwapRouterInfoBlock />
 
-        <!-- :disabled="disableBtn" @click="actionHandler" -->
-        <BaseButton :primary="true">Swap</BaseButton>
+        <BaseButton
+          :primary="true"
+          :disabled="!actionValidationData.isAllowed"
+          @click="actionHandler"
+          >{{ actionValidationData.btnText }}</BaseButton
+        >
       </div>
     </div>
 
@@ -32,7 +43,7 @@
     >
       <SwapListPopup
         :tokensList="tokensList"
-        :popularTokens="popularTokens"
+        :popularTokens="tokensList"
         :selectedToken="selectedToken"
         @updateSelectedToken="updateSelectedToken"
       />
@@ -41,104 +52,132 @@
 </template>
 
 <script lang="ts">
-import { useImage } from "@/helpers/useImage";
 import { defineAsyncComponent } from "vue";
-
-const tokensList = [
-  {
-    name: "MIM",
-    icon: useImage("assets/images/tokens/MIM.png"),
-    balance: 10000000000000000000000n,
-    price: 10_000000000000000000n,
-    decimals: 18,
-  },
-  {
-    name: "SPELL",
-    icon: useImage("assets/images/tokens/SPELL.png"),
-    balance: 30000000000000000000000n,
-    price: 20_000000000000000000n,
-    decimals: 18,
-  },
-  {
-    name: "ETH",
-    icon: useImage("assets/images/tokens/ETH.png"),
-    balance: 70000000000000000000000n,
-    price: 30_000000000000000000n,
-    decimals: 18,
-  },
-];
-
-const emptyToken = {
-  name: "Select Token",
-  icon: "",
-  balance: 0n,
-  price: "0",
-  decimals: 18,
-};
-
-const popularTokens = [
-  {
-    name: "ETH",
-    icon: useImage("assets/images/tokens/ETH.png"),
-  },
-  {
-    name: "MIM",
-    icon: useImage("assets/images/tokens/MIM.png"),
-  },
-  {
-    name: "SPELL",
-    icon: useImage("assets/images/tokens/SPELL.png"),
-  },
-];
+import { approveTokenViem } from "@/helpers/approval";
+import { testTokensList } from "@/configs/swap/testConfig";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { emptyTokenInfo } from "@/configs/swap/emptyTokenInfo";
+import { validationActions } from "@/helpers/validators/swap/validationActions";
 
 export default {
   data() {
     return {
-      fromToken: emptyToken as any,
-      toToken: emptyToken,
-      isTokensPopupOpened: false,
-      tokensList,
-      popularTokens,
+      tokensList: null as any,
       tokenType: "from",
+      isTokensPopupOpened: false,
       actionConfig: {
+        fromToken: emptyTokenInfo as any,
+        toToken: emptyTokenInfo,
         fromInputValue: 0n,
         toInputValue: 0n,
+        slippage: 100n, //todo
+        deadline: 200n, //todo
       },
     };
   },
 
   computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
     selectedToken() {
-      return this.tokenType === "from" ? this.fromToken : this.toToken;
+      return this.tokenType === "from"
+        ? this.actionConfig.fromToken
+        : this.actionConfig.toToken;
+    },
+
+    actionValidationData() {
+      return validationActions(this.actionConfig, this.chainId);
     },
   },
 
   methods: {
-    updateFromValue(value: bigint) {
-      if (value === null) this.actionConfig.fromInputValue = 0n;
-      else this.actionConfig.fromInputValue = value;
-    },
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateToValue(value: bigint) {
-      if (value === null) this.actionConfig.toInputValue = 0n;
-      else this.actionConfig.toInputValue = value;
+    updateFromValue(value: bigint) {
+      const { rate } = this.actionConfig.toToken;
+
+      if (value === null) {
+        this.actionConfig.fromInputValue = 0n;
+        this.actionConfig.toInputValue = 0n;
+      } else {
+        this.actionConfig.fromInputValue = value;
+        this.actionConfig.toInputValue = (value * BigInt(10 ** 18)) / rate;
+      }
     },
 
     updateSelectedToken(token: any) {
-      if (this.tokenType === "from") this.fromToken = token;
-      else this.toToken = token;
+      if (this.tokenType === "from") this.actionConfig.fromToken = token;
+      else this.actionConfig.toToken = token;
+
+      this.updateFromValue(this.actionConfig.fromInputValue);
 
       this.isTokensPopupOpened = false;
+    },
+
+    updateSlippageValue(value: bigint) {
+      this.actionConfig.slippage = value;
+    },
+
+    updateDeadlineValue(value: bigint) {
+      this.actionConfig.deadline = value;
     },
 
     openTokensPopup(type: string) {
       this.tokenType = type;
       this.isTokensPopupOpened = true;
     },
+
+    toogleTokens() {
+      const fromToken = this.actionConfig.fromToken;
+      const toToken = this.actionConfig.toToken;
+
+      this.actionConfig.fromToken = toToken;
+      this.actionConfig.toToken = fromToken;
+
+      this.updateFromValue(this.actionConfig.fromInputValue);
+    },
+
+    async approveTokenHandler(contract: any) {
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      const approve = await approveTokenViem(
+        contract,
+        "0xdFE08DAfceDF428932336fBfE7BfBF0403Ad58e5" //todo
+      );
+
+      // if (approve) await this.createStakeInfo(); //todo updated config
+      await this.deleteNotification(notificationId);
+      if (!approve) await this.createNotification(notification.approveError);
+      return false;
+    },
+
+    actionHandler() {
+      if (!this.actionValidationData.isAllowed) return false;
+
+      switch (this.actionValidationData?.method) {
+        case "connectWallet":
+          // @ts-ignore
+          return this.$openWeb3modal();
+        case "switchNetwork":
+          return switchNetwork(this.actionConfig.fromToken.chainId);
+        case "approvefromToken":
+          return this.approveTokenHandler(this.actionConfig.fromToken.contract);
+        case "approveToToken":
+          return this.approveTokenHandler(this.actionConfig.toToken.contract);
+        default:
+          console.log("Swap");
+      }
+    },
   },
 
   created() {
-    this.fromToken = tokensList[0];
+    this.tokensList = testTokensList;
+    this.actionConfig.fromToken = testTokensList[0];
   },
 
   components: {
