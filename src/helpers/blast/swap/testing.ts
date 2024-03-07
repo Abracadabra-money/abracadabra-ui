@@ -7,6 +7,7 @@ import {
 
 import { previewAddLiquidity, previewRemoveLiquidity } from "./liquidity";
 import { getPublicClient } from "@/helpers/getPublicClient";
+//@ts-ignore
 import BlastMagicLPAbi from "@/abis/BlastMagicLP";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 
