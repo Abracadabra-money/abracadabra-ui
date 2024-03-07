@@ -170,7 +170,7 @@ export default {
         case "approveToToken":
           return this.approveTokenHandler(this.actionConfig.toToken.contract);
         default:
-          console.log("Swap");
+          console.log("Swap", this.actionConfig);
       }
     },
   },
