@@ -76,7 +76,7 @@ export const contracts = {
 };
 
 export const rpc = {
-  42161: "https://rpc.ankr.com/arbitrum",
+  42161: "https://arb1.arbitrum.io/rpc",
   43114: "https://api.avax.network/ext/bc/C/rpc",
 };
 
