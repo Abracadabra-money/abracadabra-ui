@@ -23,7 +23,6 @@ export const blastTestingHelpers = async () => {
     // 1. GET LP INFO
     // used to obtain information about the LP
     const getLpInfoResult = await getLpInfo(MimWethLp, chainId);
-    console.log("getLpInfoResult", getLpInfoResult);
     // -- //
 
     // 2. GET USER LP INFO
