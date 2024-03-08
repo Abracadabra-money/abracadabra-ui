@@ -1,8 +1,26 @@
 <template>
   <div class="pool-action-block">
     <div class="inputs-wrap">
-      <BaseTokenInput />
-      <BaseTokenInput />
+      <BaseTokenInput
+        class="base-input"
+        :name="baseToken?.symbol"
+        :icon="baseToken?.icon"
+        :decimals="baseToken?.decimals"
+        :max="baseToken?.balance"
+        :value="base.inputValue"
+        @updateInputValue="updateValue($event, 'base')"
+      />
+
+      <BaseTokenInput
+        class="quote-input"
+        :name="quoteToken?.symbol"
+        :icon="quoteToken?.icon"
+        :decimals="quoteToken?.decimals"
+        :max="quoteToken?.balance"
+        :value="quote.inputValue"
+        @updateInputValue="updateValue($event, 'quote')"
+      />
+
       <IconButton
         class="plus-icon"
         plus
@@ -16,10 +34,19 @@
     <div class="info-blocks">
       <div class="info-block lp">
         <div class="tag">
-          <span class="title">mLP</span>
+          <span class="title">{{ this.pool?.lpInfo.name }}</span>
           <span class="value">
-            <BaseTokenIcon size="24px" />
-            0.242371
+            <BaseTokenIcon
+              :name="this.pool?.lpInfo?.name"
+              :icon="this.pool?.lpInfo?.icon"
+              size="24px"
+            />
+            {{
+              formatTokenBalance(
+                previewAddLiquidityResult.shares,
+                this.pool?.lpInfo?.decimals
+              )
+            }}
           </span>
         </div>
 
@@ -38,7 +65,7 @@
               src="@/assets/images/beam/switch-button.svg"
               alt="Switch network"
             />
-            1 MIM = 1,636.39 USDT
+            1 {{ baseToken?.symbol }} = 1,636.39 {{ quoteToken?.symbol }}
             <span class="usd-equivalent"> ($1,687.87) </span>
           </span>
         </div>
@@ -54,21 +81,270 @@
       </div>
     </div>
 
-    <BaseButton primary> Deposit </BaseButton>
+    <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
+      {{ buttonText }}
+    </BaseButton>
   </div>
 </template>
 
 <script>
+import moment from "moment";
 import { defineAsyncComponent } from "vue";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { formatUnits, parseUnits } from "viem";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification";
+import { approveTokenViem } from "@/helpers/approval";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { previewAddLiquidity } from "@/helpers/blast/swap/liquidity";
+import { addLiquidity } from "@/helpers/blast/swap/actions/addLiquidity";
+import { formatTokenBalance } from "@/helpers/filters";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 
 export default {
   props: {
     pool: { type: Object },
+    slippage: { type: BigInt, default: 100n },
+    deadline: { type: BigInt, default: 30n },
   },
 
-  computed: {},
+  emits: ["updatePoolInfo"],
 
-  methods: {},
+  data() {
+    return {
+      base: {
+        inputAmount: 0n,
+        inputValue: "",
+      },
+
+      quote: {
+        inputAmount: 0n,
+        inputValue: "",
+      },
+
+      isActionProcessing: false,
+    };
+  },
+
+  computed: {
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+    }),
+
+    baseToken() {
+      return this.pool?.tokens.baseToken;
+    },
+    quoteToken() {
+      return this.pool?.tokens.quoteToken;
+    },
+
+    isBaseAllowed() {
+      return this.baseToken?.allowance >= this.base.inputAmount;
+    },
+    isQuoteAllowed() {
+      return this.quoteToken?.allowance >= this.quote.inputAmount;
+    },
+
+    previewAddLiquidityResult() {
+      const previewAddLiquidityResult = previewAddLiquidity(
+        this.base.inputAmount,
+        this.quote.inputAmount,
+        this.pool?.lpInfo
+      );
+
+      previewAddLiquidityResult.shares = applySlippageToMinOutBigInt(
+        this.slippage,
+        previewAddLiquidityResult.shares
+      );
+
+      return previewAddLiquidityResult;
+    },
+
+    isValid() {
+      return !!this.base.inputAmount && !!this.quote.inputAmount;
+    },
+
+    error() {
+      if (this.base.inputAmount > this.baseToken?.balance)
+        return "Insufficient base token balance";
+
+      if (this.quote.inputAmount > this.quoteToken?.balance)
+        return "Insufficient quote token balance";
+
+      return null;
+    },
+
+    buttonText() {
+      if (!this.isProperNetwork) return "Switch network";
+      if (!this.account) return "Connect wallet";
+      if (this.error) return this.error;
+      if (this.base.inputValue == "")
+        return `Enter ${this.baseToken?.symbol} token amount`;
+      if (this.quote.inputValue == "")
+        return `Enter ${this.quoteToken?.symbol} token amount`;
+
+      if (this.isActionProcessing) return "Processing...";
+      if (!this.isBaseAllowed) return "Approve base token";
+      if (!this.isQuoteAllowed) return "Approve quote token";
+
+      return "Deposit";
+    },
+
+    isButtonDisabled() {
+      return (
+        !this.isValid ||
+        !!this.error ||
+        this.isActionProcessing ||
+        !this.account ||
+        !this.isProperNetwork
+      );
+    },
+
+    isProperNetwork() {
+      return this.chainId == 168587773;
+    },
+  },
+
+  watch: {
+    async pool() {},
+
+    base: {
+      deep: true,
+      handler(value) {
+        if (value.inputAmount == 0) {
+          this.base.inputValue = "";
+          return false;
+        }
+
+        this.base.inputValue = trimZeroDecimals(
+          formatUnits(value.inputAmount, this.baseToken.decimals)
+        );
+      },
+    },
+
+    quote: {
+      deep: true,
+      handler(value) {
+        if (value.inputAmount == 0) {
+          this.quote.inputValue = "";
+          return false;
+        }
+
+        this.quote.inputValue = trimZeroDecimals(
+          formatUnits(value.inputAmount, this.quoteToken.decimals)
+        );
+      },
+    },
+  },
+
+  methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    updateValue(value, tokenType) {
+      if (value === null) return (this[tokenType].inputAmount = 0n);
+      this[tokenType].inputAmount = value;
+    },
+
+    resetInputs() {
+      this.base.inputValue = "";
+      this.base.inputAmount = 0n;
+      this.quote.inputValue = "";
+      this.quote.inputAmount = 0n;
+    },
+
+    createDepositPayload() {
+      const { baseAdjustedInAmount, quoteAdjustedInAmount, shares } =
+        this.previewAddLiquidityResult;
+      const deadline = moment().unix() + Number(this.deadline);
+
+      return {
+        lp: this.pool?.lpInfo?.contract?.address,
+        to: this.account,
+        baseInAmount: baseAdjustedInAmount,
+        quoteInAmount: quoteAdjustedInAmount,
+        minimumShares: shares,
+        deadline,
+      };
+    },
+
+    async approveHandler(token) {
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      try {
+        await approveTokenViem(token.contract, this.pool.swapRouter);
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+      } catch (error) {
+        console.log("approve err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+    },
+
+    async depositHandler() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const payload = this.createDepositPayload();
+
+        const { error, result } = await addLiquidity(
+          this.pool?.swapRouter,
+          payload
+        );
+
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+        this.resetInputs();
+      } catch (error) {
+        console.log("add liquidity err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+    },
+
+    async actionHandler() {
+      if (this.isButtonDisabled) return false;
+      if (!this.account) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      this.isActionProcessing = true;
+      if (!this.isBaseAllowed) await this.approveHandler(this.baseToken);
+      if (!this.isQuoteAllowed) await this.approveHandler(this.quoteToken);
+
+      await this.depositHandler();
+
+      await this.$emit("updatePoolInfo");
+
+      this.isActionProcessing = false;
+    },
+
+    formatTokenBalance(value, decimals) {
+      return formatTokenBalance(formatUnits(value, decimals));
+    },
+  },
 
   components: {
     Deposit: defineAsyncComponent(() =>

@@ -1,17 +1,20 @@
 <template>
   <div class="pool-view">
-    <div class="pool">
+    <div class="pool" v-if="pool">
       <PoolActionBlock
+        :pool="pool"
         :isUserPositionOpen="isUserPositionOpen"
-        @openPosition="isMyPositionPopupOpened = true"
+        @getPoolInfo="getPoolInfo"
+        @openPositionPopup="isMyPositionPopupOpened = true"
       />
 
-      <PoolComposition />
+      <PoolComposition :pool="this.pool" />
 
       <PoolPosition
+        :pool="pool"
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
-        v-if="isUserPositionOpen"
+        v-if="isUserPositionOpen && account"
       />
     </div>
   </div>
@@ -27,6 +30,8 @@ import { approveTokenViem } from "@/helpers/approval";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { trimZeroDecimals } from "@/helpers/numbers";
 
+import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+
 export default {
   props: {
     id: { type: String },
@@ -35,14 +40,9 @@ export default {
 
   data() {
     return {
+      pool: null,
       isMyPositionPopupOpened: false,
-      inputAmount: null,
-      inputValue: "",
-      activeTab: "deposit",
-      tabItems: ["deposit", "remove"],
       poolsTimer: null,
-      selectedPool: null,
-      isActionProcessing: false,
     };
   },
 
@@ -54,119 +54,38 @@ export default {
     }),
 
     isUserPositionOpen() {
-      return true;
-    },
-
-    isRemove() {
-      return this.activeTab === "remove";
-    },
-
-    isAllowed() {
-      if (!this.account || !this.selectedpool) return false;
-      return (
-        parseUnits(this.selectedpool?.accountInfo?.allowance) >=
-        this.inputAmount
-      );
-    },
-
-    isValid() {
-      return !!this.inputAmount;
-    },
-
-    isDeprecated() {
-      return this.selectedPool?.isDeprecated;
-    },
-
-    max() {
-      return 8888888888888888888n;
-    },
-
-    error() {
-      return this.inputAmount > this.max
-        ? `The value cannot be greater than ${formatUnits(this.max)}`
-        : null;
-    },
-
-    buttonText() {
-      if (!this.isProperNetwork) return "Switch network";
-      if (!this.account) return "Connect wallet";
-      if (this.error) return "Insufficient balance";
-      if (this.inputValue == "") return "Enter amount";
-      if (this.isActionProcessing) return "Processing...";
-      const text = this.isRemove ? "Remove" : "Deposit";
-      return !this.isAllowed && !this.isRemove ? "Approve" : text;
-    },
-
-    isButtonDisabled() {
-      return (
-        (!this.isValid || !!this.error || this.isActionProcessing) &&
-        this.isProperNetwork &&
-        !!this.account
-      );
-    },
-
-    isProperNetwork() {
-      return this.chainId == this.poolChainId;
+      return this.pool.lpInfo.balance > 0n;
     },
   },
 
   watch: {
     account: {
       immediate: true,
-      async handler() {},
-    },
-
-    id: {
-      immediate: true,
       async handler() {
-        const action = this.$route.redirectedFrom?.query.action;
-        if (action) this.selectTab(action);
+        await this.getPoolInfo();
       },
     },
 
-    poolChainId: {
+    chainId: {
       immediate: true,
       async handler() {
-        const action = this.$route.redirectedFrom?.query.action;
-        if (action) this.selectTab(action);
+        await this.getPoolInfo();
       },
-    },
-
-    max() {
-      this.inputAmount = BigInt(0);
-    },
-
-    isDeprecated(status) {
-      this.activeTab = status ? "remove" : "deposit";
-    },
-
-    inputAmount(value) {
-      if (value == 0) {
-        this.inputValue = "";
-        return false;
-      }
-
-      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
     },
   },
 
   methods: {
-    updateValue(value) {
-      if (value === null) return (this.inputAmount = BigInt(0));
-      this.inputAmount = value;
-    },
-
-    selectTab(action) {
-      this.activeTab = action;
-    },
-
-    openMyPositionPopup() {
-      this.isMyPositionPopupOpened = true;
+    async getPoolInfo() {
+      this.pool = await getPoolInfo(this.account, this.chainId);
     },
   },
 
   async created() {
-    this.poolsTimer = setInterval(async () => {}, 60000);
+    await this.getPoolInfo();
+
+    this.poolsTimer = setInterval(async () => {
+      await this.getPoolInfo();
+    }, 60000);
   },
 
   beforeUnmount() {

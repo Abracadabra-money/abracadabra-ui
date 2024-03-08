@@ -17,12 +17,20 @@
 
         <div class="deposited-token">
           <span class="token-name">
-            <BaseTokenIcon size="44px" />
-            MIM-USDT
+            <BaseTokenIcon
+              :name="pool.lpInfo.name"
+              :icon="pool.lpInfo.icon"
+              size="44px"
+            />
+            {{ pool.lpInfo.name }}
           </span>
           <div class="token-amount">
-            <span class="value">11.55</span>
-            <span class="usd">11.55</span>
+            <span class="value">
+              {{
+                formatTokenBalance(pool.lpInfo.balance, pool.lpInfo.decimals)
+              }}
+            </span>
+            <span class="usd"></span>
           </div>
         </div>
 
@@ -87,12 +95,14 @@ import {
   waitForTransaction,
   writeContract,
 } from "@wagmi/core";
+import { formatUnits } from "viem";
 import { getChainById } from "@/helpers/chains/index";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import { previewRemoveLiquidity } from "@/helpers/blast/swap/liquidity";
 
 export default {
   props: {
-    selectedpool: { type: Object },
+    pool: { type: Object },
     isProperNetwork: { type: Boolean },
     isMyPositionPopupOpened: { type: Boolean, default: false },
   },
@@ -128,18 +138,29 @@ export default {
     },
 
     tokensList() {
+      const previewRemoveLiquidityResult = previewRemoveLiquidity(
+        this.pool.lpInfo.balance,
+        this.pool?.lpInfo
+      );
+
       const tokensList = [
         {
-          name: "MIM",
-          icon: "",
-          amount: 11.55,
-          amountUsd: 11.55,
+          name: this.pool.tokens.baseToken.symbol,
+          icon: this.pool.tokens.baseToken.icon,
+          amount: this.formatTokenBalance(
+            previewRemoveLiquidityResult.baseAmountOut,
+            this.pool.tokens.baseToken.decimals
+          ),
+          amountUsd: "",
         },
         {
-          name: "USDT",
-          icon: "",
-          amount: 11.55,
-          amountUsd: 11.55,
+          name: this.pool.tokens.quoteToken.symbol,
+          icon: this.pool.tokens.quoteToken.icon,
+          amount: this.formatTokenBalance(
+            previewRemoveLiquidityResult.quoteAmountOut,
+            this.pool.tokens.quoteToken.decimals
+          ),
+          amountUsd: "",
         },
       ].filter((e) => e.name && e.amount);
 
@@ -153,7 +174,10 @@ export default {
 
   methods: {
     formatUSD,
-    formatTokenBalance,
+
+    formatTokenBalance(value, decimals) {
+      return formatTokenBalance(formatUnits(value, decimals));
+    },
 
     prepBalanceData(tokenValue, priceValue) {
       const usd = formatUSD(tokenValue * priceValue);

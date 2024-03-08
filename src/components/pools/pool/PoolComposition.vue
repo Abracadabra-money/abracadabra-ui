@@ -2,30 +2,33 @@
   <div class="pool-composition-wrap">
     <div class="pool-composition-header">
       <h3 class="title">Pool composition</h3>
-      <span class="tvl">TVL $ 5.46M</span>
+      <span class="tvl"
+        >TVL:
+        {{
+          formatTokenBalance(pool.lpInfo.totalSupply, pool.lpInfo.decimals)
+        }}</span
+      >
     </div>
 
     <div class="pool-composition">
       <div class="pair-tokens">
-        <div class="token-info base">
-          <BaseTokenIcon />
+        <div
+          :class="['token-info', tokenPart.type]"
+          v-for="tokenPart in tokenParts"
+        >
+          <BaseTokenIcon :name="tokenPart.name" :icon="tokenPart.icon" />
           <div class="token-part-values">
-            <span class="percent">60.44%</span>
-            <span class="amount">5.56M</span>
-          </div>
-        </div>
-
-        <div class="token-info quote">
-          <BaseTokenIcon />
-          <div class="token-part-values">
-            <span class="percent">39.66%</span>
-            <span class="amount">2.56M</span>
+            <span class="percent">{{ tokenPart.percent }}</span>
+            <span class="amount">{{ tokenPart.amount }}</span>
           </div>
         </div>
       </div>
 
       <div class="scale-wrap">
-        <div class="filling-scale" :style="`width: 60.44%`"></div>
+        <div
+          class="filling-scale"
+          :style="`width: ${tokenParts[0].percent}`"
+        ></div>
       </div>
     </div>
 
@@ -55,13 +58,69 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
+import { formatTokenBalance, formatPercent } from "@/helpers/filters";
 
 export default {
   props: {
     pool: { type: Object },
   },
 
-  computed: {},
+  computed: {
+    tokenParts() {
+      const tokensSum = this.pool.lpInfo.vaultReserve.reduce(
+        (acc, cur) => acc + cur
+      );
+      const tokenParts = [
+        {
+          name: this.pool.tokens.baseToken.symbol,
+          icon: this.pool.tokens.baseToken.icon,
+          type: "base",
+          amount: this.formatTokenBalance(
+            this.pool.lpInfo.vaultReserve[0],
+            this.pool.tokens.baseToken.decimals
+          ),
+          percent: formatPercent(
+            Number(
+              this.calculatePercentage(
+                this.pool.lpInfo.vaultReserve[0],
+                tokensSum
+              )
+            )
+          ),
+        },
+        {
+          name: this.pool.tokens.quoteToken.symbol,
+          icon: this.pool.tokens.quoteToken.icon,
+          type: "quote",
+          amount: this.formatTokenBalance(
+            this.pool.lpInfo.vaultReserve[0],
+            this.pool.tokens.baseToken.decimals
+          ),
+          percent: formatPercent(
+            Number(
+              this.calculatePercentage(
+                this.pool.lpInfo.vaultReserve[1],
+                tokensSum
+              )
+            )
+          ),
+        },
+      ].filter((e) => e.name && e.amount);
+
+      return tokenParts.length ? tokenParts : false;
+    },
+  },
+
+  methods: {
+    formatTokenBalance(value, decimals) {
+      return formatTokenBalance(formatUnits(value, decimals));
+    },
+
+    calculatePercentage(part, total) {
+      return (part * 100n) / total;
+    },
+  },
 
   components: {
     Tooltip: defineAsyncComponent(() =>
@@ -171,7 +230,7 @@ export default {
 
 .filling-scale {
   height: 100%;
-  border-radius: 10px;
+  border-radius: 10px 0 0 10px;
   background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
 }
 

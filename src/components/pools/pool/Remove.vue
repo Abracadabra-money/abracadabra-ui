@@ -1,16 +1,53 @@
 <template>
   <div class="pool-action-block">
     <div class="inputs-wrap">
-      <BaseTokenInput />
+      <BaseTokenInput
+        :name="lpInfo?.name"
+        :icon="lpInfo?.icon"
+        :decimals="lpInfo?.decimals"
+        :max="lpInfo?.balance"
+        :value="inputValue"
+        @updateInputValue="updateValue($event)"
+      />
     </div>
 
     <div class="info-blocks">
-      <div class="info-block lp">
+      <div class="info-block base">
         <div class="tag">
-          <span class="title">mLP</span>
+          <span class="title">
+            {{ this.pool.tokens.baseToken.symbol }}
+          </span>
           <span class="value">
-            <BaseTokenIcon size="24px" />
-            0.242371
+            <BaseTokenIcon
+              :name="this.pool.tokens.baseToken.name"
+              :icon="this.pool.tokens.baseToken.icon"
+              size="24px"
+            />
+            {{
+              formatTokenBalance(
+                previewRemoveLiquidityResult.baseAmountOut,
+                this.pool.tokens.baseToken.decimals
+              )
+            }}
+          </span>
+        </div>
+
+        <div class="tag">
+          <span class="title">
+            {{ this.pool.tokens.quoteToken.symbol }}
+          </span>
+          <span class="value">
+            <BaseTokenIcon
+              :name="this.pool.tokens.quoteToken.name"
+              :icon="this.pool.tokens.quoteToken.icon"
+              size="24px"
+            />
+            {{
+              formatTokenBalance(
+                previewRemoveLiquidityResult.quoteAmountOut,
+                this.pool.tokens.quoteToken.decimals
+              )
+            }}
           </span>
         </div>
 
@@ -45,29 +82,233 @@
       </div>
     </div>
 
-    <BaseButton primary> Remove </BaseButton>
+    <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
+      {{ buttonText }}
+    </BaseButton>
   </div>
 </template>
 
 <script>
+import moment from "moment";
 import { defineAsyncComponent } from "vue";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { formatUnits } from "viem";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import notification from "@/helpers/notification/notification";
+import { approveTokenViem } from "@/helpers/approval";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { previewRemoveLiquidity } from "@/helpers/blast/swap/liquidity";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { removeLiquidity } from "@/helpers/blast/swap/actions/removeLiquidity";
+import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
     pool: { type: Object },
+    slippage: { type: BigInt, default: 100n },
+    deadline: { type: BigInt, default: 30n },
   },
 
-  computed: {},
+  emits: ["updatePoolInfo"],
 
-  methods: {},
+  data() {
+    return {
+      inputAmount: 0n,
+      inputValue: "",
+      isActionProcessing: false,
+    };
+  },
+
+  computed: {
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+    }),
+
+    lpInfo() {
+      return this.pool?.lpInfo;
+    },
+
+    isAllowed() {
+      return this.lpInfo?.allowance >= this.inputAmount;
+    },
+
+    previewRemoveLiquidityResult() {
+      const previewRemoveLiquidityResult = previewRemoveLiquidity(
+        this.inputAmount,
+        this.pool?.lpInfo
+      );
+
+      previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
+        this.slippage,
+        previewRemoveLiquidityResult.baseAmountOut
+      );
+
+      previewRemoveLiquidityResult.quoteAmountOut = applySlippageToMinOutBigInt(
+        this.slippage,
+        previewRemoveLiquidityResult.quoteAmountOut
+      );
+
+      return previewRemoveLiquidityResult;
+    },
+
+    isValid() {
+      return !!this.inputAmount;
+    },
+
+    error() {
+      if (this.inputAmount > this.lpInfo?.balance)
+        return "Insufficient balance";
+
+      return null;
+    },
+
+    buttonText() {
+      if (!this.isProperNetwork) return "Switch network";
+      if (!this.account) return "Connect wallet";
+      if (this.error) return this.error;
+      if (this.inputValue == "") return "Enter amount";
+
+      if (this.isActionProcessing) return "Processing...";
+      if (!this.isAllowed) return "Approve";
+
+      return "Remove";
+    },
+
+    isButtonDisabled() {
+      return (
+        !this.isValid ||
+        !!this.error ||
+        this.isActionProcessing ||
+        !this.account ||
+        !this.isProperNetwork
+      );
+    },
+
+    isProperNetwork() {
+      return this.chainId == 168587773;
+    },
+  },
+
+  watch: {
+    inputAmount(value) {
+      if (value == 0) {
+        this.inputValue = "";
+        return false;
+      }
+
+      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
+    },
+  },
+
+  methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    updateValue(value) {
+      if (value === null) return (this.inputAmount = 0n);
+      this.inputAmount = value;
+    },
+
+    resetInput() {
+      this.inputValue = "";
+      this.inputAmount = 0n;
+    },
+
+    createRemovePayload() {
+      const { baseAmountOut, quoteAmountOut } =
+        this.previewRemoveLiquidityResult;
+
+      const deadline = moment().unix() + Number(this.deadline);
+
+      return {
+        lp: this.pool?.lpInfo?.contract?.address,
+        to: this.account,
+        sharesIn: this.inputAmount,
+        minimumBaseAmount: baseAmountOut,
+        minimumQuoteAmount: quoteAmountOut,
+        deadline: deadline,
+      };
+    },
+
+    async approveHandler() {
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      try {
+        await approveTokenViem(this.lpInfo.contract, this.pool.swapRouter);
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+      } catch (error) {
+        console.log("approve err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+    },
+
+    async removeHandler() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const payload = this.createRemovePayload();
+
+        const { error, result } = await removeLiquidity(
+          this.pool?.swapRouter,
+          payload
+        );
+
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+        this.resetInput();
+      } catch (error) {
+        console.log("remove liquidity err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+    },
+
+    async actionHandler() {
+      if (this.isButtonDisabled) return false;
+      if (!this.account) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      this.isActionProcessing = true;
+
+      if (!this.isAllowed) await this.approveHandler();
+
+      await this.removeHandler();
+
+      await this.$emit("updatePoolInfo");
+
+      this.isActionProcessing = false;
+    },
+
+    formatTokenBalance(value, decimals) {
+      return formatTokenBalance(formatUnits(value, decimals));
+    },
+  },
 
   components: {
-    Deposit: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Deposit.vue")
-    ),
-    Remove: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Deposit.vue")
-    ),
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),

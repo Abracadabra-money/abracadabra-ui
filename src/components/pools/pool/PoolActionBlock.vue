@@ -3,7 +3,13 @@
     <div class="pool-header">
       <div class="title-settings">
         <h3 class="title">MIM Pool</h3>
-        <SwapSettingsPopup pool />
+        <SwapSettingsPopup
+          :slippage="100n"
+          :defaultSlippage="100n"
+          :deadline="3000n"
+          @updateSlippageValue="updateSlippageValue"
+          @updateDeadlineValue="updateDeadlineValue"
+        />
       </div>
 
       <div class="pool-management">
@@ -11,7 +17,7 @@
 
         <button
           class="my-position-button"
-          @click="$emit('openPosition')"
+          @click="$emit('openPositionPopup')"
           v-if="isUserPositionOpen"
         >
           My position
@@ -19,8 +25,20 @@
       </div>
     </div>
 
-    <Remove v-show="isRemove" />
-    <Deposit v-show="!isRemove" />
+    <Remove
+      :pool="pool"
+      :slippage="slippage"
+      :deadline="deadline"
+      @updatePoolInfo="$emit('getPoolInfo')"
+      v-show="isRemove"
+    />
+    <Deposit
+      :pool="pool"
+      :slippage="slippage"
+      :deadline="deadline"
+      @updatePoolInfo="$emit('getPoolInfo')"
+      v-show="!isRemove"
+    />
   </div>
 </template>
 
@@ -33,16 +51,15 @@ export default {
     isUserPositionOpen: { type: Boolean, default: false },
   },
 
+  emits: ["getPoolInfo", "openPositionPopup"],
+
   data() {
     return {
       isMyPositionPopupOpened: false,
-      inputAmount: null,
-      inputValue: "",
       activeTab: "deposit",
       tabItems: ["deposit", "remove"],
-      poolsTimer: null,
-      selectedPool: null,
-      isActionProcessing: false,
+      slippage: 100n,
+      deadline: 3000n,
     };
   },
 
@@ -55,6 +72,14 @@ export default {
   methods: {
     selectTab(action) {
       this.activeTab = action;
+    },
+
+    updateSlippageValue(value) {
+      this.slippage = value;
+    },
+
+    updateDeadlineValue(value) {
+      this.deadline = value;
     },
   },
 
