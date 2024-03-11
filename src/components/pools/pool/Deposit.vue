@@ -96,8 +96,8 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { previewAddLiquidity } from "@/helpers/blast/swap/liquidity";
-import { addLiquidity } from "@/helpers/blast/swap/actions/addLiquidity";
+import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
+import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 

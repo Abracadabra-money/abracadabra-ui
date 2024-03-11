@@ -98,7 +98,7 @@ import {
 import { formatUnits } from "viem";
 import { getChainById } from "@/helpers/chains/index";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import { previewRemoveLiquidity } from "@/helpers/blast/swap/liquidity";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 
 export default {
   props: {

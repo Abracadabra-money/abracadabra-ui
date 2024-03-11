@@ -97,9 +97,9 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { previewRemoveLiquidity } from "@/helpers/blast/swap/liquidity";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { removeLiquidity } from "@/helpers/blast/swap/actions/removeLiquidity";
+import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
 import { formatTokenBalance } from "@/helpers/filters";
 
 export default {

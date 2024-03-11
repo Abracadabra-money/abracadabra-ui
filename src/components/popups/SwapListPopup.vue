@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts">
-import { mulFloor } from "@/helpers/blast/swap/libs/DecimalMath";
+import { mulFloor } from "@/helpers/pools/swap/libs/DecimalMath";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";

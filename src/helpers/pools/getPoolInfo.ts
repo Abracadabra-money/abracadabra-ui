@@ -1,4 +1,4 @@
-import { getLpInfo } from "@/helpers/blast/swap/magicLp";
+import { getLpInfo } from "@/helpers/pools/swap/magicLp";
 
 import { useImage } from "@/helpers/useImage";
 
