@@ -15,7 +15,7 @@ import { useImage } from "@/helpers/useImage";
 import type { Address } from "viem";
 
 import { getPublicClient } from "@/helpers/getPublicClient";
-import BlastMagicLPAbi from "@/abis/BlastMagicLP";
+import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import anySwapERC20Abi from "@/abis/tokensAbi/anySwapERC20Abi";
 
