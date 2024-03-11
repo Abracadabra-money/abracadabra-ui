@@ -1,5 +1,6 @@
 import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/getPublicClient";
+//@ts-ignore
 import BlastMagicLPAbi from "@/abis/BlastMagicLP";
 import type { MagicLPInfo, MagicLPInfoUserInfo } from "./types";
 import PMMPricing from "./libs/PMMPricing";

@@ -13,9 +13,9 @@ export function applySlippageToMinOut(
 }
 
 export function applySlippageToMinOutBigInt(
-  allowedSlippage: BigInt,
-  minOutputAmount: BigInt
-): BigInt {
+  allowedSlippage: bigint,
+  minOutputAmount: bigint
+): bigint {
   const slippageBasisPoints = BASIS_POINTS_DIVISOR_BIG_INT - allowedSlippage;
 
   return (minOutputAmount * slippageBasisPoints) / BASIS_POINTS_DIVISOR_BIG_INT;

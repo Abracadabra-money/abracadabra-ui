@@ -93,11 +93,11 @@ export default {
   },
 
   methods: {
-    formatUnits(value: bigInt) {
-      return formatUnits(value);
+    formatUnits(value: bigint) {
+      return formatUnits(value, 18); // Notice decimals
     },
 
-    formatLargeSum(value: bigInt) {
+    formatLargeSum(value: bigint) {
       return formatLargeSum(formatUnits(value, 0));
     },
   },

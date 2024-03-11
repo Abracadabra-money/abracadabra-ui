@@ -28,17 +28,12 @@ type Contract = {
 };
 
 export const getPoolInfo = async (
-  account = "0x8764F421AB0C682b4Ba1d7e269C09187c1EfbFAF",
+  account: Address = "0x8764F421AB0C682b4Ba1d7e269C09187c1EfbFAF",
   chainId: number
 ) => {
   const publicClient = getPublicClient(chainId);
 
-  const getLpInfoResult = await getLpInfo(
-    MimWethLp,
-    chainId,
-    account,
-    SwapRouter
-  );
+  const getLpInfoResult = await getLpInfo(MimWethLp, chainId);
 
   const baseToken = await getTokenInfo(
     { address: getLpInfoResult.baseToken, abi: anySwapERC20Abi },
@@ -54,18 +49,17 @@ export const getPoolInfo = async (
     SwapRouter
   );
 
-  const [balance, allowance] = await publicClient.multicall({
+  const [balance, allowance]: any = await publicClient.multicall({
     contracts: [
       {
         address: MimWethLp,
-        abi: anySwapERC20Abi,
+        abi: anySwapERC20Abi as any,
         functionName: "balanceOf",
         args: [account],
-        chainId,
       },
       {
         address: MimWethLp,
-        abi: anySwapERC20Abi,
+        abi: anySwapERC20Abi as any,
         functionName: "allowance",
         args: [account, SwapRouter],
       },
