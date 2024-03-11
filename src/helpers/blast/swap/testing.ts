@@ -7,10 +7,8 @@ import {
 
 import { previewAddLiquidity, previewRemoveLiquidity } from "./liquidity";
 import { getPublicClient } from "@/helpers/getPublicClient";
-//@ts-ignore
 import BlastMagicLPAbi from "@/abis/BlastMagicLP";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
-
 const SwapRouter = "0x15f57fbCB7A443aC6022e051a46cAE19491bC298";
 const MimWethLp = "0x06894D4b33565dF998E80dE5D1718Ac5425DA216";
 const account = "0x8764F421AB0C682b4Ba1d7e269C09187c1EfbFAF"; // Calibur's test
