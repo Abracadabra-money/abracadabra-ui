@@ -112,7 +112,7 @@ export default {
       import("@/components/pools/table/PoolsTable.vue")
     ),
     PoolsCarousel: defineAsyncComponent(() =>
-      import("@/components/ui/carousel/PoolsCarousel.vue")
+      import("@/components/pools/PoolsCarousel.vue")
     ),
     FiltersPopup: defineAsyncComponent(() =>
       import("@/components/myPositions/FiltersPopup.vue")
