@@ -11,16 +11,23 @@ export type PoolConfig = {
   contract: Contract;
   baseToken: TokenConfig;
   quoteToken: TokenConfig;
+  settings: PoolSettings
 };
 
-type TokenConfig = {
+// TODO: may be changed in future
+type PoolSettings = {
+  isNew: boolean;
+  isDeprecated: boolean;
+};
+
+export type TokenConfig = {
   name: string;
   icon: string;
   decimals: number;
   contract: Contract;
 };
 
-export const pools: Array<PoolConfig> = [
+export const poolsConfig: Array<PoolConfig> = [
   {
     id: 1,
     chainId: 168587773,
@@ -48,5 +55,9 @@ export const pools: Array<PoolConfig> = [
       },
       decimals: 18,
     },
+    settings: {
+      isNew: true,
+      isDeprecated: false,
+    }
   },
 ];

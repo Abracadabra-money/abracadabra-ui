@@ -5,10 +5,26 @@ import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
 import type { MagicLPInfo, MagicLPInfoUserInfo } from "./types";
 import PMMPricing from "./libs/PMMPricing";
 import DecimalMath from "./libs/DecimalMath";
+import { getSwapRouterByChain } from "@/configs/pools/routers";
+import { poolsConfig } from "@/configs/pools/pools";
+
+export const getAllPoolsByChain = async (
+  chainId: number,
+  account?: Address
+): Promise<MagicLPInfo[]> => {
+  const pools = await Promise.all(
+    poolsConfig.map(async (config) => {
+      return getLpInfo(config.contract.address, chainId, account);
+    })
+  );
+
+  return pools;
+};
 
 export const getLpInfo = async (
   lp: Address,
-  chainId: number
+  chainId: number,
+  account?: Address
 ): Promise<MagicLPInfo> => {
   const publicClient = getPublicClient(chainId);
 
@@ -95,6 +111,16 @@ export const getLpInfo = async (
     ],
   });
 
+  const userInfo = await getUserLpInfo(
+    lp,
+    getSwapRouterByChain(chainId),
+    account,
+    chainId
+  );
+
+  // NOTICE: will be updated when we have graph
+  const statisticsData = fetchStatisticsData();
+
   return {
     contract: {
       address: lp,
@@ -111,19 +137,42 @@ export const getLpInfo = async (
     baseToken: baseToken.result,
     quoteToken: quoteToken.result,
     lpFeeRate: lpFeeRate.result,
+    userInfo,
+    statisticsData,
+  };
+};
+
+// TODO: will be updated when we have graph
+export const fetchStatisticsData = () => {
+  return {
+    tvl: 1000000000000n,
+    apr: 10n,
+    liquidityValue: 200n,
+    dayFees: 470n,
+    dayVolume: 10n,
+    weekFees: 70n,
+    weekVolume: 70n,
   };
 };
 
 export const getUserLpInfo = async (
   lp: Address,
   blastMIMSwapRouter: Address, // NOTICE
-  account: Address,
+  account: Address | undefined,
   chainId: number
 ): Promise<any> => {
-  const publicClient = getPublicClient(chainId);
+  if (!account) {
+    return {
+      allowance: 0n,
+      balance: 0n,
+      userFeeRate: {
+        lpFeeRate: 0n,
+        mtFeeRate: 0n,
+      },
+    };
+  }
 
-  // TODO
-  //   const blastMIMSwapRouter = "0x15f57fbCB7A443aC6022e051a46cAE19491bC298";
+  const publicClient = getPublicClient(chainId);
 
   const [allowance, balance, userFeeRate]: any = await publicClient.multicall({
     contracts: [
