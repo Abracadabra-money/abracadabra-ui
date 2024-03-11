@@ -1,6 +1,6 @@
 import type { Address } from "viem";
 
-type Contract = {
+export type Contract = {
   address: Address;
   abi: any;
 };
