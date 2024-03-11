@@ -23,13 +23,6 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
-import { parseUnits, formatUnits } from "viem";
-import { approveTokenViem } from "@/helpers/approval";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { trimZeroDecimals } from "@/helpers/numbers";
-
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 
 export default {
@@ -93,10 +86,6 @@ export default {
   },
 
   components: {
-    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
-    IconButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/IconButton.vue")
-    ),
     PoolActionBlock: defineAsyncComponent(() =>
       import("@/components/pools/pool/PoolActionBlock.vue")
     ),

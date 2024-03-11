@@ -8,7 +8,7 @@
         :decimals="baseToken?.decimals"
         :max="baseToken?.balance"
         :value="base.inputValue"
-        @updateInputValue="updateValue($event, 'base')"
+        @updateInputValue="updateBaseValue($event)"
       />
 
       <BaseTokenInput
@@ -18,7 +18,7 @@
         :decimals="quoteToken?.decimals"
         :max="quoteToken?.balance"
         :value="quote.inputValue"
-        @updateInputValue="updateValue($event, 'quote')"
+        @updateInputValue="updateQuoteValue($event)"
       />
 
       <IconButton
@@ -220,6 +220,8 @@ export default {
         this.base.inputValue = trimZeroDecimals(
           formatUnits(value.inputAmount, this.baseToken.decimals)
         );
+
+        this.pool.tokens.tokensRate;
       },
     },
 
@@ -242,9 +244,18 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateValue(value, tokenType) {
-      if (value === null) return (this[tokenType].inputAmount = 0n);
-      this[tokenType].inputAmount = value;
+    updateBaseValue(value) {
+      if (value === null) return (this.base.inputAmount = 0n);
+      this.base.inputAmount = value;
+      this.quote.inputAmount =
+        (value * this.pool.tokens.rate) / this.pool.tokens.ratePrecision;
+    },
+
+    updateQuoteValue(value) {
+      if (value === null) return (this.quote.inputAmount = 0n);
+      this.quote.inputAmount = value;
+      this.base.inputAmount =
+        (value * this.pool.tokens.ratePrecision) / this.pool.tokens.rate;
     },
 
     resetInputs() {

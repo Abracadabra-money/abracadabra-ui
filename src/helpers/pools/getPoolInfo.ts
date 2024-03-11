@@ -1,22 +1,10 @@
-import {
-  getLpInfo,
-  getUserLpInfo,
-  querySellBase,
-  querySellQuote,
-} from "@/helpers/blast/swap/magicLp";
-
-import {
-  previewAddLiquidity,
-  previewRemoveLiquidity,
-} from "@/helpers/blast/swap/liquidity";
+import { getLpInfo } from "@/helpers/blast/swap/magicLp";
 
 import { useImage } from "@/helpers/useImage";
 
 import type { Address } from "viem";
 
 import { getPublicClient } from "@/helpers/getPublicClient";
-import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import anySwapERC20Abi from "@/abis/tokensAbi/anySwapERC20Abi";
 
 const SwapRouter = "0x15f57fbCB7A443aC6022e051a46cAE19491bC298";
@@ -27,9 +15,11 @@ type Contract = {
   abi: any;
 };
 
+const RATE_PRECISION: bigint = BigInt(1e18);
+
 export const getPoolInfo = async (
   account: Address = "0x8764F421AB0C682b4Ba1d7e269C09187c1EfbFAF",
-  chainId: number
+  chainId: number,
 ) => {
   const publicClient = getPublicClient(chainId);
 
@@ -48,6 +38,8 @@ export const getPoolInfo = async (
     publicClient,
     SwapRouter
   );
+
+  const rate = await getTokensRate();
 
   const [balance, allowance]: any = await publicClient.multicall({
     contracts: [
@@ -73,7 +65,7 @@ export const getPoolInfo = async (
       balance: balance.result,
       allowance: allowance.result,
     },
-    tokens: { baseToken, quoteToken },
+    tokens: { baseToken, quoteToken, rate, ratePrecision: RATE_PRECISION },
     swapRouter: SwapRouter,
   };
 };
@@ -133,3 +125,11 @@ const getTokenInfo = async (
     contract,
   };
 };
+
+
+const getTokensRate = async () => {
+  const WETH_price = 40578300000n
+  const MIM_price = 9921000n
+
+  return MIM_price * RATE_PRECISION / WETH_price
+}
