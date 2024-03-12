@@ -6,6 +6,7 @@ import type { Address } from "viem";
 
 import { getPublicClient } from "@/helpers/getPublicClient";
 import anySwapERC20Abi from "@/abis/tokensAbi/anySwapERC20Abi";
+import poolsConfig from "@/configs/pools/pools";
 
 const SwapRouter = "0x15f57fbCB7A443aC6022e051a46cAE19491bC298";
 const MimWethLp = "0x06894D4b33565dF998E80dE5D1718Ac5425DA216";
@@ -19,11 +20,11 @@ const RATE_PRECISION: bigint = BigInt(1e18);
 
 export const getPoolInfo = async (
   account: Address = "0x8764F421AB0C682b4Ba1d7e269C09187c1EfbFAF",
-  chainId: number,
+  chainId: number
 ) => {
   const publicClient = getPublicClient(chainId);
 
-  const getLpInfoResult = await getLpInfo(MimWethLp, chainId);
+  const getLpInfoResult = await getLpInfo(poolsConfig[0], chainId);
 
   const baseToken = await getTokenInfo(
     { address: getLpInfoResult.baseToken, abi: anySwapERC20Abi },
@@ -126,10 +127,9 @@ const getTokenInfo = async (
   };
 };
 
-
 const getTokensRate = async () => {
-  const WETH_price = 40578300000n
-  const MIM_price = 9921000n
+  const WETH_price = 40578300000n;
+  const MIM_price = 9921000n;
 
-  return MIM_price * RATE_PRECISION / WETH_price
-}
+  return (MIM_price * RATE_PRECISION) / WETH_price;
+};
