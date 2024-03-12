@@ -6,15 +6,18 @@ import type { MagicLPInfo, MagicLPInfoUserInfo } from "./types";
 import PMMPricing from "./libs/PMMPricing";
 import DecimalMath from "./libs/DecimalMath";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
-import { poolsConfig } from "@/configs/pools/pools";
+import poolsConfig from "@/configs/pools/pools";
+import type { PoolConfig } from "@/configs/pools/types";
 
 export const getAllPoolsByChain = async (
   chainId: number,
   account?: Address
 ): Promise<MagicLPInfo[]> => {
+  console.log(chainId);
+
   const pools = await Promise.all(
     poolsConfig.map(async (config) => {
-      return getLpInfo(config.contract.address, chainId, account);
+      return getLpInfo(config, chainId, account);
     })
   );
 
@@ -22,15 +25,13 @@ export const getAllPoolsByChain = async (
 };
 
 export const getLpInfo = async (
-  lp: Address,
+  lp: PoolConfig,
   chainId: number,
   account?: Address
 ): Promise<MagicLPInfo> => {
   const publicClient = getPublicClient(chainId);
 
   const [
-    name,
-    decimals,
     vaultReserve,
     totalSupply,
     midPrice,
@@ -43,67 +44,55 @@ export const getLpInfo = async (
   ]: any = await publicClient.multicall({
     contracts: [
       {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "name",
-        args: [],
-      },
-      {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "decimals",
-        args: [],
-      },
-      {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "getVaultReserve",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "totalSupply",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "getMidPrice",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "MAX_I",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "MAX_K",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "getPMMState",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "_BASE_TOKEN_",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "_QUOTE_TOKEN_",
         args: [],
       },
       {
-        address: lp,
+        address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "_LP_FEE_RATE_",
         args: [],
@@ -112,7 +101,7 @@ export const getLpInfo = async (
   });
 
   const userInfo = await getUserLpInfo(
-    lp,
+    lp.contract.address,
     getSwapRouterByChain(chainId),
     account,
     chainId
@@ -122,12 +111,11 @@ export const getLpInfo = async (
   const statisticsData = fetchStatisticsData();
 
   return {
+    ...lp,
     contract: {
-      address: lp,
+      address: lp.contract.address,
       abi: BlastMagicLPAbi as any,
     },
-    name: name.result,
-    decimals: decimals.result,
     vaultReserve: vaultReserve.result,
     totalSupply: totalSupply.result,
     midPrice: midPrice.result,
