@@ -20,6 +20,7 @@ export const blastTestingHelpers = async () => {
 
     // 1. GET LP INFO
     // used to obtain information about the LP
+    // @ts-ignore
     const getLpInfoResult = await getLpInfo(MimWethLp, chainId);
     // -- //
 
@@ -85,6 +86,7 @@ export const liquidityTests = async () => {
 
   // 1. GET LP INFO
   // used to obtain information about the LP
+  // @ts-ignore
   const getLpInfoResult = await getLpInfo(MimWethLp, chainId);
   console.log("getLpInfoResult", getLpInfoResult);
   // -- //
