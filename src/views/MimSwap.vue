@@ -87,6 +87,14 @@ export default {
   computed: {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
+    isSelectedTokens() {
+      if (!this.actionConfig.toToken || !this.actionConfig.fromToken)
+        return false;
+      const { name: toTokenName } = this.actionConfig.toToken.config;
+      const { name: fromTokenName } = this.actionConfig.fromToken.config;
+      return ![toTokenName, fromTokenName].includes("Select Token");
+    },
+
     selectedToken() {
       return this.tokenType === "from"
         ? this.actionConfig.fromToken
@@ -116,8 +124,23 @@ export default {
     },
 
     updateSelectedToken(token: any) {
-      if (this.tokenType === "from") this.actionConfig.fromToken = token;
-      else this.actionConfig.toToken = token;
+      if (this.tokenType === "to") {
+        if (this.actionConfig.fromToken.config.name === token.config.name) {
+          this.actionConfig.fromToken = this.actionConfig.toToken;
+          this.actionConfig.toToken = token;
+        } else {
+          this.actionConfig.toToken = token;
+        }
+      }
+
+      if (this.tokenType === "from") {
+        if (this.actionConfig.toToken.config.name === token.config.name) {
+          this.actionConfig.toToken = this.actionConfig.fromToken;
+          this.actionConfig.fromToken = token;
+        } else {
+          this.actionConfig.fromToken = token;
+        }
+      }
 
       this.updateFromValue(this.actionConfig.fromInputValue);
 

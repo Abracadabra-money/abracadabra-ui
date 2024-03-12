@@ -89,8 +89,6 @@ export default {
 
   computed: {
     filteredTokensList() {
-      console.log("this.tokensList", this.tokensList);
-
       if (!this.tokensList) return [];
 
       return this.search
