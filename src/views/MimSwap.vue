@@ -28,7 +28,7 @@
           :toToken="actionConfig.toToken"
         />
 
-        <SwapRouterInfoBlock />
+        <SwapRouterInfoBlock :isEmptyState="!isSelectedTokens" />
 
         <BaseButton
           :primary="true"
