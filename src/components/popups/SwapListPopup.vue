@@ -11,11 +11,11 @@
         <div
           class="popular-token-item"
           v-for="token in popularTokens"
-          :key="token.name"
+          :key="token.config.name"
           @click="$emit('updateSelectedToken', token)"
         >
-          <img class="popular-token-icon" :src="token.icon" alt="" />
-          <span class="popular-token-name">{{ token.name }}</span>
+          <img class="popular-token-icon" :src="token.config.icon" alt="" />
+          <span class="popular-token-name">{{ token.config.name }}</span>
         </div>
       </div>
 
@@ -23,18 +23,21 @@
 
       <div class="tokens-list">
         <div
-          :class="['token-item', { active: token.name === selectedToken.name }]"
+          :class="[
+            'token-item',
+            { active: token.config.name === selectedToken.config.name },
+          ]"
           v-for="token in filteredTokensList"
-          :key="token.name"
+          :key="token.config.name"
           @click="$emit('updateSelectedToken', token)"
         >
           <div class="token-info">
             <div class="wrap-icon">
               <SelectedIcon />
             </div>
-            <img class="token-icon" :src="token.icon" alt="" />
+            <img class="token-icon" :src="token.config.icon" alt="" />
             <div>
-              <div class="token-name">{{ token.name }}</div>
+              <div class="token-name">{{ token.config.name }}</div>
               <div class="token-chain">Ethereum</div>
             </div>
           </div>
@@ -42,7 +45,9 @@
           <div class="token-balances">
             <div class="token-balance">
               {{
-                formatTokenBalance(formatUnits(token.balance, token.decimals))
+                formatTokenBalance(
+                  formatUnits(token.userInfo.balance, token.config.decimals)
+                )
               }}
             </div>
             <div class="token-balance-usd">{{ getTokenBalance(token) }}</div>
@@ -58,7 +63,6 @@
 </template>
 
 <script lang="ts">
-import { mulFloor } from "@/helpers/pools/swap/libs/DecimalMath";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
@@ -85,10 +89,15 @@ export default {
 
   computed: {
     filteredTokensList() {
+      console.log("this.tokensList", this.tokensList);
+
+      if (!this.tokensList) return [];
+
       return this.search
         ? this.tokensList.filter(
-            ({ name }) =>
-              name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+            ({ config }) =>
+              config.name.toLowerCase().indexOf(this.search.toLowerCase()) !==
+              -1
           )
         : this.tokensList;
     },
@@ -108,7 +117,8 @@ export default {
 
     getTokenBalance(token: any) {
       return formatUSD(
-        formatUnits(mulFloor(token.balance, token.price), token.decimals)
+        +formatUnits(token.userInfo.balance, token.config.decimals) *
+          token.price
       );
     },
   },
@@ -247,6 +257,6 @@ export default {
 }
 
 .empty-wrap {
-  height: 418px;
+  height: 385px;
 }
 </style>

@@ -23,7 +23,10 @@
           @updateFromInputValue="updateFromValue"
         />
 
-        <SwapInfoBlock />
+        <SwapInfoBlock
+          :fromToken="actionConfig.fromToken"
+          :toToken="actionConfig.toToken"
+        />
 
         <SwapRouterInfoBlock />
 
@@ -53,12 +56,15 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import poolsConfig from "@/configs/pools/pools";
 import { approveTokenViem } from "@/helpers/approval";
-import { testTokensList } from "@/configs/swap/testConfig";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+// import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { emptyTokenInfo } from "@/configs/swap/emptyTokenInfo";
+// import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
+import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 
 export default {
@@ -79,7 +85,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     selectedToken() {
       return this.tokenType === "from"
@@ -97,14 +103,15 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     updateFromValue(value: bigint) {
-      const { rate } = this.actionConfig.toToken;
+      // const { rate } = this.actionConfig.toToken;
 
       if (value === null) {
         this.actionConfig.fromInputValue = 0n;
         this.actionConfig.toInputValue = 0n;
       } else {
         this.actionConfig.fromInputValue = value;
-        this.actionConfig.toInputValue = (value * BigInt(10 ** 18)) / rate;
+        // this.actionConfig.toInputValue = (value * BigInt(10 ** 18)) / rate;
+        this.actionConfig.toInputValue = value;
       }
     },
 
@@ -164,20 +171,45 @@ export default {
           // @ts-ignore
           return this.$openWeb3modal();
         case "switchNetwork":
-          return switchNetwork(this.actionConfig.fromToken.chainId);
+          return switchNetwork(168587773); //todo
         case "approvefromToken":
           return this.approveTokenHandler(this.actionConfig.fromToken.contract);
         case "approveToToken":
-          return this.approveTokenHandler(this.actionConfig.toToken.contract);
+          return this.approveTokenHandler(
+            this.actionConfig.toToken.config.contract
+          );
         default:
           console.log("Swap", this.actionConfig);
       }
     },
   },
 
-  created() {
-    this.tokensList = testTokensList;
-    this.actionConfig.fromToken = testTokensList[0];
+  async created() {
+    // const uniqueTokens = getAllUniqueTokens(poolsConfig);
+    // const coins = uniqueTokens.map(({ contract }) => contract.address);
+    // const prices = await getCoinsPrices(81457, coins);
+
+    const prices = [
+      {
+        address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
+        price: 0.990929,
+      },
+      {
+        address: "0x4200000000000000000000000000000000000023",
+        price: 4000.1,
+      },
+    ];
+
+    this.tokensList = await getTokenListByPools(
+      poolsConfig,
+      168587773,
+      prices,
+      this.account
+    );
+
+    this.actionConfig.fromToken = this.tokensList.find(
+      (token: any) => token.config.name === "MIM"
+    );
   },
 
   components: {

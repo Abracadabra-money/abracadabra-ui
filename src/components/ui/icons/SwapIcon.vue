@@ -2,6 +2,7 @@
   <svg
     xmlns="http://www.w3.org/2000/svg"
     :style="`width: ${width}px; height: ${height}px;`"
+    :class="{ pointer: pointer }"
     viewBox="0 0 24 24"
     fill="none"
   >
@@ -27,6 +28,10 @@ export default {
       type: String,
       default: "white",
     },
+    pointer: {
+      type: Boolean,
+      default: false,
+    },
   },
 };
 </script>
@@ -34,5 +39,9 @@ export default {
 <style scoped>
 path {
   transition: all 0.3s ease;
+}
+
+.pointer {
+  cursor: pointer;
 }
 </style>

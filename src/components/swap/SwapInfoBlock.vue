@@ -2,11 +2,7 @@
   <div class="swap-info">
     <div class="swap-info-item">
       <div class="info-title">Current price</div>
-      <div class="info-value">
-        <SwapIcon fill="#7088CC" />
-        <span>1 GLP = 1,636.39 ETH</span>
-        <span class="info-price">($1,687.87)</span>
-      </div>
+      <CurrentPrice :fromToken="fromToken" :toToken="toToken" />
     </div>
     <div class="swap-info-item">
       <div class="info-title">Price Impact</div>
@@ -24,12 +20,31 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type Prop } from "vue";
+
+type Token = {
+  config: {
+    contract: { address: string; abi: any };
+    decimals: number;
+    icon: string;
+    name: string;
+  };
+  price: number;
+  userInfo: {
+    balance: bigint;
+    allownce: bigint;
+  };
+};
 
 export default {
+  props: {
+    fromToken: Object as Prop<Token>,
+    toToken: Object as Prop<Token>,
+  },
+
   components: {
-    SwapIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/SwapIcon.vue")
+    CurrentPrice: defineAsyncComponent(
+      () => import("@/components/pools/CurrentPrice.vue")
     ),
     FeeIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/FeeIcon.vue")

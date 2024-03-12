@@ -1,13 +1,13 @@
 export const emptyTokenInfo = {
-  chainId: 81457,
-  name: "Select Token",
-  icon: "",
-  balance: 0n,
-  price: "0",
-  decimals: 18,
-  contract: {
-    address: "",
-    abi: [],
+  config: {
+    contract: { address: "", abi: "" },
+    decimals: 18,
+    icon: "",
+    name: "Select Token",
   },
-  rate: 1000000000000000000n,
+  price: 0,
+  userInfo: {
+    balance: 0n,
+    allownce: 0n,
+  },
 };

@@ -17,6 +17,11 @@ type PairTokensInfo = {
   baseTokenInfo: TokenInfo;
 };
 
+type PriceInfo = {
+  address: string;
+  price: number;
+};
+
 export const getTokenInfo = async (
   chainId: number,
   tokenConfig: TokenConfig,
@@ -81,6 +86,7 @@ export const getPoolTokenInfo = async (
 export const getTokenListByPools = async (
   pools: Array<PoolConfig>,
   chainId: number,
+  prices: PriceInfo[],
   account?: Address
 ): Promise<TokenInfo[]> => {
   const uniqueTokens = getAllUniqueTokens(pools);
@@ -88,14 +94,23 @@ export const getTokenListByPools = async (
   const publicClient = getPublicClient(chainId);
 
   if (!account) {
-    return uniqueTokens.map((tokenConfig) => ({
-      config: tokenConfig,
-      userInfo: {
-        allowance: BigInt(0),
-        balance: BigInt(0),
-      },
-      price: 0, // TODO: get price from defilama
-    }));
+    return uniqueTokens.map((tokenConfig) => {
+      const price =
+        prices.find(
+          (price) =>
+            price.address.toLocaleLowerCase() ===
+            tokenConfig.contract.address.toLocaleLowerCase()
+        )?.price || 0;
+
+      return {
+        config: tokenConfig,
+        userInfo: {
+          allowance: BigInt(0),
+          balance: BigInt(0),
+        },
+        price,
+      };
+    });
   }
 
   const contracts = uniqueTokens.flatMap((tokenConfig) => [
@@ -113,25 +128,32 @@ export const getTokenListByPools = async (
     },
   ]);
 
-  // TODO: check if correct structure
   const results: any = await publicClient.multicall({ contracts });
 
-  const tokenInfos: TokenInfo[] = results.map((result: any, index: number) => {
-    const tokenConfig = uniqueTokens[index];
-    return {
-      config: tokenConfig,
-      userInfo: {
-        allowance: result.allowance,
-        balance: result.balance,
-      },
-      price: 0, // TODO: get price from defilama
-    };
-  });
+  const tokenInfos: TokenInfo[] = uniqueTokens.map(
+    (tokenConfig: any, index: number) => {
+      const price =
+        prices.find(
+          (price) =>
+            price.address.toLocaleLowerCase() ===
+            tokenConfig.contract.address.toLocaleLowerCase()
+        )?.price || 0;
+
+      return {
+        config: tokenConfig,
+        userInfo: {
+          allowance: results[index * 2]?.result || 0n,
+          balance: results[index * 2 + 1]?.result || 0n,
+        },
+        price,
+      };
+    }
+  );
 
   return tokenInfos;
 };
 
-const getAllUniqueTokens = (pools: Array<PoolConfig>) => {
+export const getAllUniqueTokens = (pools: Array<PoolConfig>) => {
   return pools.reduce((acc: TokenConfig[], pool) => {
     if (
       !acc.some(

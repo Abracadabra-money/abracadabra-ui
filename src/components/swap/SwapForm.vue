@@ -1,11 +1,12 @@
 <template>
   <div class="inputs-wrap">
     <BaseTokenInput
+      v-if="fromToken"
       :value="fromInputValue"
-      :name="fromToken.name"
-      :icon="fromToken.icon"
-      :decimals="fromToken.decimals"
-      :max="fromToken.balance"
+      :name="fromToken.config.name"
+      :icon="fromToken.config.icon"
+      :decimals="fromToken.config.decimals"
+      :max="fromToken.userInfo.balance"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'from')"
       @updateInputValue="$emit('updateFromInputValue', $event)"
@@ -16,12 +17,13 @@
     </button>
 
     <BaseTokenInput
+      v-if="toToken"
       :disabled="true"
       :value="toInputValue"
-      :name="toToken.name"
-      :icon="toToken.icon"
-      :decimals="toToken.decimals"
-      :max="toToken.balance"
+      :name="toToken.config.name"
+      :icon="toToken.config.icon"
+      :decimals="toToken.config.decimals"
+      :max="toToken.userInfo.balance"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'to')"
     />
@@ -31,13 +33,27 @@
 <script lang="ts">
 import { formatUnits } from "viem";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { defineAsyncComponent, type PropType } from "vue";
+import { defineAsyncComponent, type Prop } from "vue";
+
+type Token = {
+  config: {
+    contract: { address: string; abi: any };
+    decimals: number;
+    icon: string;
+    name: string;
+  };
+  price: number;
+  userInfo: {
+    balance: bigint;
+    allownce: bigint;
+  };
+};
 
 export default {
   props: {
-    fromToken: {} as any, //todo type
-    toToken: {} as any, //todo type
-    toTokenAmount: BigInt as unknown as PropType<bigint>,
+    fromToken: Object as Prop<Token>,
+    toToken: Object as Prop<Token>,
+    toTokenAmount: BigInt as Prop<bigint>,
   },
 
   data() {
@@ -49,7 +65,7 @@ export default {
 
   watch: {
     toTokenAmount(value) {
-      const { decimals } = this.toToken;
+      const { decimals } = this.toToken!.config;
 
       if (!value) this.toInputValue = "";
       else this.toInputValue = trimZeroDecimals(formatUnits(value, decimals));
