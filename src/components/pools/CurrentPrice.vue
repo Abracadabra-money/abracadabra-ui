@@ -39,7 +39,7 @@ export default {
 
   computed: {
     isSelectedTokens() {
-      if (!this.toToken || this.fromToken) return false;
+      if (!this.toToken || !this.fromToken) return false;
       const { name: toTokenName } = this.toToken.config;
       const { name: fromTokenName } = this.fromToken.config;
       return ![toTokenName, fromTokenName].includes("Select Token");
