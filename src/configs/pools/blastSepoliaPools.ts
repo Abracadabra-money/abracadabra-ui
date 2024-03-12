@@ -19,7 +19,7 @@ const blastSepoliaPools: Array<PoolConfig> = [
       icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       contract: {
-        address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
+        address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
         abi: erc20Abi,
       },
     },
@@ -27,7 +27,7 @@ const blastSepoliaPools: Array<PoolConfig> = [
       name: "WETH",
       icon: useImage(`assets/images/tokens/WETH.png`),
       contract: {
-        address: "0x4200000000000000000000000000000000000023",
+        address: "0x4300000000000000000000000000000000000004",
         abi: erc20Abi,
       },
       decimals: 18,
