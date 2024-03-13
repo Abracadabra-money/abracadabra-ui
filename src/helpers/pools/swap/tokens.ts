@@ -81,10 +81,9 @@ export const getPoolTokenInfo = async (
       (priceInfo) => priceInfo.address == poolConfig.baseToken.contract.address
     )?.price || 0;
 
-  // WARN: hardcode
   const [quoteTokenInfo, baseTokenInfo] = await Promise.all([
-    getTokenInfo(chainId, poolConfig.quoteToken, 4000, account),
-    getTokenInfo(chainId, poolConfig.baseToken, 0.99, account),
+    getTokenInfo(chainId, poolConfig.quoteToken, quoteTokenPrice, account),
+    getTokenInfo(chainId, poolConfig.baseToken, baseTokenPrice, account),
   ]);
 
   return {

@@ -33,6 +33,7 @@ export const getLpInfo = async (
 
   const [
     vaultReserve,
+    reserves,
     totalSupply,
     midPrice,
     MAX_I,
@@ -43,10 +44,18 @@ export const getLpInfo = async (
     lpFeeRate,
   ]: any = await publicClient.multicall({
     contracts: [
+      //testnet method
       {
         address: lp.contract.address,
         abi: BlastMagicLPAbi as any,
         functionName: "getVaultReserve",
+        args: [],
+      },
+      //mainnet method
+      {
+        address: lp.contract.address,
+        abi: BlastMagicLPAbi as any,
+        functionName: "getReserves",
         args: [],
       },
       {
@@ -116,7 +125,7 @@ export const getLpInfo = async (
       address: lp.contract.address,
       abi: BlastMagicLPAbi as any,
     },
-    vaultReserve: vaultReserve.result,
+    vaultReserve: vaultReserve.result || reserves.result,
     totalSupply: totalSupply.result,
     midPrice: midPrice.result,
     MAX_I: MAX_I.result,

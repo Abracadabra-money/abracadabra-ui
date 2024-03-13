@@ -71,7 +71,6 @@ export default {
 
   computed: {
     tokenParts() {
-      console.log(this.pool);
       const tokensSum = this.pool.vaultReserve.reduce((acc, cur) => acc + cur);
       const tokenParts = [
         {

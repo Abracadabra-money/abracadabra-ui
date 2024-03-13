@@ -238,14 +238,14 @@ export default {
       if (value === null) return (this.base.inputAmount = 0n);
       this.base.inputAmount = value;
       this.quote.inputAmount =
-        (value * this.pool.tokens.rate) / this.pool.tokens.ratePrecision;
+        (value * this.pool.midPrice) / this.pool.tokens.ratePrecision;
     },
 
     updateQuoteValue(value) {
       if (value === null) return (this.quote.inputAmount = 0n);
       this.quote.inputAmount = value;
       this.base.inputAmount =
-        (value * this.pool.tokens.ratePrecision) / this.pool.tokens.rate;
+        (value * this.pool.tokens.ratePrecision) / this.pool.midPrice;
     },
 
     resetInputs() {

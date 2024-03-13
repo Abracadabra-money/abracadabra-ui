@@ -48,20 +48,5 @@ const getTokensInfo = async (
     account
   );
 
-  const rate = await getTokensRate(
-    tokens.baseToken.price,
-    tokens.quoteToken.price
-  );
-
-  return { ...tokens, rate, ratePrecision: RATE_PRECISION };
-};
-
-const getTokensRate = async (
-  baseTokenPrice: number,
-  quoteTokenPrice: number
-) => {
-  const parsedBaseTokenPrice = parseUnits(baseTokenPrice.toString(), 18);
-  const parsedQuoteTokenPrice = parseUnits(quoteTokenPrice.toString(), 18);
-
-  return (parsedBaseTokenPrice * RATE_PRECISION) / parsedQuoteTokenPrice;
+  return { ...tokens, ratePrecision: RATE_PRECISION };
 };

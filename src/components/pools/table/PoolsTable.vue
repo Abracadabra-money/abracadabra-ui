@@ -173,20 +173,20 @@ export default {
     filterByChain(pools, selectedChains) {
       if (this.isSelectAllChains) return pools;
       return pools.filter((pool) => {
-        return selectedChains.includes(pool.config?.chainId);
+        return selectedChains.includes(pool.chainId);
       });
     },
 
     filterByActivepools(pools) {
       if (this.showActivePools) {
         return pools.filter((pool) => {
-          return !pool.config?.settings?.isDeprecated;
+          return !pool.settings.isDeprecated;
         });
       }
 
       return pools.sort((a, b) => {
-        const settingsA = a?.config?.settings;
-        const settingsB = b?.config?.settings;
+        const settingsA = a?.settings;
+        const settingsB = b?.settings;
         if (settingsA || settingsB) {
           return +settingsA?.isDeprecated - +settingsB?.isDeprecated;
         }
@@ -228,11 +228,11 @@ export default {
 
     sortByTesting(pools) {
       return pools.sort((a, b) => {
-        const isNewA = +!!a?.config?.settings?.isNew;
-        const isTestingA = +!!a?.config?.settings?.isTesting;
+        const isNewA = +!!a?.settings?.isNew;
+        const isTestingA = +!!a?.settings?.isTesting;
 
-        const isNewB = +!!b?.config?.settings?.isNew;
-        const isTestingB = +!!b?.config?.settings?.isTesting;
+        const isNewB = +!!b?.settings?.isNew;
+        const isTestingB = +!!b?.settings?.isTesting;
 
         if (isTestingB && isNewA) {
           return -1;

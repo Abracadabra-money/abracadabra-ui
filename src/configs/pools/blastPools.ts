@@ -7,11 +7,11 @@ const blastPools: Array<PoolConfig> = [
   {
     id: 1,
     chainId: 81457,
-    name: "MIM / WETH",
+    name: "MIM / USDB",
     icon: useImage(`assets/images/tokens/MIM-WETH.png`),
     decimals: 18,
     contract: {
-      address: "0x06894D4b33565dF998E80dE5D1718Ac5425DA216",
+      address: "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8",
       abi: BlastMIMSwapRouterAbi,
     },
     baseToken: {
@@ -19,15 +19,15 @@ const blastPools: Array<PoolConfig> = [
       icon: useImage(`assets/images/tokens/MIM.png`),
       decimals: 18,
       contract: {
-        address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
+        address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
         abi: erc20Abi,
       },
     },
     quoteToken: {
-      name: "WETH",
-      icon: useImage(`assets/images/tokens/WETH.png`),
+      name: "USDB",
+      icon: useImage(`assets/images/tokens/USDB.png`),
       contract: {
-        address: "0x4200000000000000000000000000000000000023",
+        address: "0x4300000000000000000000000000000000000003",
         abi: erc20Abi,
       },
       decimals: 18,
