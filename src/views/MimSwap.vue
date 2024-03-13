@@ -29,7 +29,10 @@
           :minAmount="swapInfo.outputAmount"
         />
 
-        <SwapRouterInfoBlock :isEmptyState="!isSelectedTokens" />
+        <SwapRouterInfoBlock
+          :routes="swapInfo.routes"
+          :tokensList="tokensList"
+        />
 
         <BaseButton
           :primary="true"
@@ -108,14 +111,6 @@ export default {
 
   computed: {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
-
-    isSelectedTokens() {
-      if (!this.actionConfig.toToken || !this.actionConfig.fromToken)
-        return false;
-      const { name: toTokenName } = this.actionConfig.toToken.config;
-      const { name: fromTokenName } = this.actionConfig.fromToken.config;
-      return ![toTokenName, fromTokenName].includes("Select Token");
-    },
 
     selectedToken() {
       return this.tokenType === "from"

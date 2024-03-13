@@ -15,7 +15,7 @@ type ActionConfig = {
   deadline: bigint;
 };
 
-type RouteInfo = {
+export type RouteInfo = {
   inputToken: string;
   outputToken: Address;
   inputAmount: bigint;
@@ -31,6 +31,7 @@ export const getSwapInfo = (
   account: Address
 ) => {
   if (!pools || !pools.length) return getEmptyState(actionConfig);
+  if (!actionConfig.fromInputValue) return getEmptyState(actionConfig);
 
   const routes = findBestRoutes(pools, actionConfig);
   if (!routes || routes.length === 0) return getEmptyState(actionConfig);

@@ -2,15 +2,20 @@
   <div class="router-wrap">
     <h4 class="title">Auto Router</h4>
 
-    <h5 class="empty-state" v-if="isEmptyState">
+    <h5 class="empty-state" v-if="!routes?.length">
       The best route for chosen tokens will appear here
     </h5>
 
     <div class="router" v-else>
       <div class="dashed"></div>
-      <img class="token-icon" src="@/assets/images/tokens/MIM.png" alt="" />
-      <img class="token-icon" src="@/assets/images/tokens/SPELL.png" alt="" />
-      <img class="token-icon" src="@/assets/images/tokens/ETH.png" alt="" />
+
+      <img
+        class="token-icon"
+        :src="icon"
+        v-for="icon in tokenIcons"
+        :key="icon"
+        alt=""
+      />
     </div>
 
     <p class="text">
@@ -21,11 +26,28 @@
 </template>
 
 <script lang="ts">
+import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+
 export default {
   props: {
-    isEmptyState: {
-      type: Boolean,
-      default: false,
+    routes: Array<RouteInfo>,
+    tokensList: Array<TokenInfo>,
+  },
+
+  computed: {
+    tokenIcons() {
+      if (!this.routes?.length || !this.tokensList?.length) return [];
+
+      const addresses = this.routes.flatMap(
+        ({ inputToken, outputToken }: any) => [inputToken, outputToken]
+      );
+
+      return this.tokensList
+        .filter(({ config }: any) =>
+          addresses.includes(config.contract.address)
+        )
+        .map(({ config }: any) => config.icon);
     },
   },
 };
