@@ -3,7 +3,8 @@
     <div class="pool-composition-header">
       <h3 class="title">Pool composition</h3>
       <span class="tvl"
-        >TVL: {{ formatTokenBalance(pool.totalSupply, pool.decimals) }}</span
+        >TVL:
+        {{ formatTokenBalance(pool.statisticsData.tvl, pool.decimals) }}</span
       >
     </div>
 
@@ -38,7 +39,9 @@
             :tooltip="'Annual Return on Staked tokens at current price'"
           />
         </span>
-        <span class="value">312312</span>
+        <span class="value">
+          {{ formatTokenBalance(pool.statisticsData.dayVolume, pool.decimals) }}
+        </span>
       </div>
 
       <div class="divider"></div>
@@ -48,7 +51,9 @@
           Fees 24h
           <Tooltip :tooltip="'Total Value Locked in Farm'" />
         </span>
-        <span class="value">132000.09</span>
+        <span class="value">
+          {{ formatTokenBalance(pool.statisticsData.dayFees, pool.decimals) }}
+        </span>
       </div>
     </div>
   </div>
@@ -66,6 +71,7 @@ export default {
 
   computed: {
     tokenParts() {
+      console.log(this.pool);
       const tokensSum = this.pool.vaultReserve.reduce((acc, cur) => acc + cur);
       const tokenParts = [
         {
@@ -77,8 +83,9 @@ export default {
             this.pool.tokens.baseToken.config.decimals
           ),
           percent: formatPercent(
-            Number(
-              this.calculatePercentage(this.pool.vaultReserve[0], tokensSum)
+            formatUnits(
+              this.calculatePercentage(this.pool.vaultReserve[0], tokensSum),
+              18
             )
           ),
         },
@@ -91,8 +98,9 @@ export default {
             this.pool.tokens.baseToken.config.decimals
           ),
           percent: formatPercent(
-            Number(
-              this.calculatePercentage(this.pool.vaultReserve[1], tokensSum)
+            formatUnits(
+              this.calculatePercentage(this.pool.vaultReserve[1], tokensSum),
+              18
             )
           ),
         },
@@ -108,7 +116,7 @@ export default {
     },
 
     calculatePercentage(part, total) {
-      return (part * 100n) / total;
+      return (part * 100000000000000000000n) / total;
     },
   },
 

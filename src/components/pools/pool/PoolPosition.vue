@@ -145,7 +145,12 @@ export default {
             previewRemoveLiquidityResult.baseAmountOut,
             this.pool.tokens.baseToken.config.decimals
           ),
-          amountUsd: "",
+          amountUsd: this.formatUSD(
+            this.formatTokenBalance(
+              previewRemoveLiquidityResult.baseAmountOut,
+              this.pool.tokens.baseToken.config.decimals
+            ) * this.pool.tokens.baseToken.price
+          ),
         },
         {
           name: this.pool.tokens.quoteToken.config.name,
@@ -154,7 +159,12 @@ export default {
             previewRemoveLiquidityResult.quoteAmountOut,
             this.pool.tokens.quoteToken.config.decimals
           ),
-          amountUsd: "",
+          amountUsd: this.formatUSD(
+            this.formatTokenBalance(
+              previewRemoveLiquidityResult.quoteAmountOut,
+              this.pool.tokens.quoteToken.config.decimals
+            ) * this.pool.tokens.quoteToken.price
+          ),
         },
       ].filter((e) => e.name && e.amount);
 

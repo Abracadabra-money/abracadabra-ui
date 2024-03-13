@@ -59,16 +59,7 @@
       <div class="info-block swap">
         <div class="tag">
           <span class="title">Current Price</span>
-          <span class="value">
-            <img
-              class="switch-chain-image"
-              src="@/assets/images/beam/switch-button.svg"
-              alt="Switch network"
-            />
-            1 {{ baseToken.config.name }} = 1,636.39
-            {{ quoteToken.config.name }}
-            <span class="usd-equivalent"> ($1,687.87) </span>
-          </span>
+          <CurrentPrice :fromToken="baseToken" :toToken="quoteToken" />
         </div>
 
         <div class="tag">
@@ -369,6 +360,9 @@ export default {
     ),
     IconButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/IconButton.vue")
+    ),
+    CurrentPrice: defineAsyncComponent(() =>
+      import("@/components/pools/CurrentPrice.vue")
     ),
   },
 };

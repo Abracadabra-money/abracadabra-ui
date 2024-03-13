@@ -60,15 +60,10 @@
       <div class="info-block swap">
         <div class="tag">
           <span class="title">Current Price</span>
-          <span class="value">
-            <img
-              class="switch-chain-image"
-              src="@/assets/images/beam/switch-button.svg"
-              alt="Switch network"
-            />
-            1 MIM = 1,636.39 USDT
-            <span class="usd-equivalent"> ($1,687.87) </span>
-          </span>
+          <CurrentPrice
+            :fromToken="pool.tokens.baseToken"
+            :toToken="pool.tokens.quoteToken"
+          />
         </div>
 
         <div class="tag">
@@ -313,6 +308,9 @@ export default {
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
+    ),
+    CurrentPrice: defineAsyncComponent(() =>
+      import("@/components/pools/CurrentPrice.vue")
     ),
   },
 };
