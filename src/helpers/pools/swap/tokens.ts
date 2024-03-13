@@ -152,8 +152,8 @@ export const getTokenListByPools = async (
       return {
         config: tokenConfig,
         userInfo: {
-          allowance: results[index * 2]?.result || 0n,
-          balance: results[index * 2 + 1]?.result || 0n,
+          balance: results[index * 2]?.result || 0n,
+          allowance: results[index * 2 + 1]?.result || 0n,
         },
         price,
       };
