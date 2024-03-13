@@ -3,7 +3,7 @@ import { getPublicClient } from "@/helpers/getPublicClient";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import type { PoolConfig, TokenConfig } from "@/configs/pools/types";
 
-type TokenInfo = {
+export type TokenInfo = {
   config: TokenConfig;
   userInfo: {
     allowance: bigint;

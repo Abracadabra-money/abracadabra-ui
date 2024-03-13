@@ -26,6 +26,7 @@
         <SwapInfoBlock
           :fromToken="actionConfig.fromToken"
           :toToken="actionConfig.toToken"
+          :minAmount="swapInfo.outputAmount"
         />
 
         <SwapRouterInfoBlock :isEmptyState="!isSelectedTokens" />
@@ -55,26 +56,47 @@
 </template>
 
 <script lang="ts">
+import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import poolsConfig from "@/configs/pools/pools";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-// import { getCoinsPrices } from "@/helpers/prices/defiLlama";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import { getSwapInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
-import { emptyTokenInfo } from "@/configs/swap/emptyTokenInfo";
-// import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
+import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
+import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
+import { swapTokensForTokens } from "@/helpers/pools/swap/actions/swapTokensForTokens";
+import { sellBaseTokensForTokens } from "@/helpers/pools/swap/actions/sellBaseTokensForTokens";
+import { sellQuoteTokensForTokens } from "@/helpers/pools/swap/actions/sellQuoteTokensForTokens";
+
+const emptyTokenInfo: TokenInfo = {
+  config: {
+    name: "Select Token",
+    decimals: 18,
+    icon: "",
+    contract: { address: "0x", abi: "" },
+  },
+  price: 0,
+  userInfo: {
+    balance: 0n,
+    allowance: 0n,
+  },
+};
 
 export default {
   data() {
     return {
       tokensList: null as any,
+      poolsList: null as any,
       tokenType: "from",
       isTokensPopupOpened: false,
       actionConfig: {
-        fromToken: emptyTokenInfo as any,
+        fromToken: emptyTokenInfo,
         toToken: emptyTokenInfo,
         fromInputValue: 0n,
         toInputValue: 0n,
@@ -103,6 +125,21 @@ export default {
 
     actionValidationData() {
       return validationActions(this.actionConfig, this.chainId);
+    },
+
+    swapInfo() {
+      return getSwapInfo(
+        this.poolsList,
+        this.actionConfig,
+        this.chainId,
+        this.account
+      );
+    },
+  },
+
+  watch: {
+    chainId() {
+      this.createSwapInfo();
     },
   },
 
@@ -155,6 +192,17 @@ export default {
       this.actionConfig.deadline = value;
     },
 
+    resetActionCaonfig() {
+      this.actionConfig = {
+        fromToken: emptyTokenInfo as TokenInfo,
+        toToken: emptyTokenInfo as TokenInfo,
+        fromInputValue: 0n,
+        toInputValue: 0n,
+        slippage: 100n, //todo
+        deadline: 200n, //todo
+      };
+    },
+
     openTokensPopup(type: string) {
       this.tokenType = type;
       this.isTokensPopupOpened = true;
@@ -186,7 +234,7 @@ export default {
       return false;
     },
 
-    actionHandler() {
+    async actionHandler() {
       if (!this.actionValidationData.isAllowed) return false;
 
       switch (this.actionValidationData?.method) {
@@ -194,45 +242,96 @@ export default {
           // @ts-ignore
           return this.$openWeb3modal();
         case "switchNetwork":
-          return switchNetwork(168587773); //todo
+          return switchNetwork(81457); //todo
         case "approvefromToken":
-          return this.approveTokenHandler(this.actionConfig.fromToken.contract);
+          return this.approveTokenHandler(
+            this.actionConfig.fromToken.config.contract
+          );
         case "approveToToken":
           return this.approveTokenHandler(
             this.actionConfig.toToken.config.contract
           );
         default:
-          console.log("Swap", this.actionConfig);
+          this.swapHandler();
       }
+    },
+
+    async swapHandler() {
+      const { methodName } = this.swapInfo.transactionInfo;
+
+      // @ts-ignore
+      this.swapInfo.transactionInfo.payload.deadline =
+        moment().unix() + Number(this.actionConfig.deadline);
+
+      switch (methodName) {
+        case "sellBaseTokensForTokens":
+          await sellBaseTokensForTokens(
+            // @ts-ignore
+            this.swapInfo.transactionInfo.swapRouterAddress,
+            this.swapInfo.transactionInfo.payload
+          );
+          break;
+        case "sellQuoteTokensForTokens":
+          await sellQuoteTokensForTokens(
+            // @ts-ignore
+            this.swapInfo.transactionInfo.swapRouterAddress,
+            this.swapInfo.transactionInfo.payload
+          );
+          break;
+        case "swapTokensForTokens":
+          await swapTokensForTokens(
+            // @ts-ignore
+            this.swapInfo.transactionInfo.swapRouterAddress,
+            this.swapInfo.transactionInfo.payload
+          );
+          break;
+      }
+    },
+
+    async createSwapInfo() {
+      // const uniqueTokens = getAllUniqueTokens(poolsConfig);
+      // const coins = uniqueTokens.map(({ contract }) => contract.address);
+      // const prices = await getCoinsPrices(81457, coins);
+
+      const prices = [
+        {
+          address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
+          price: 0.990929,
+        },
+        {
+          address: "0x4200000000000000000000000000000000000023",
+          price: 4000.1,
+        },
+      ];
+
+      const filteredPoolsConfig = poolsConfig.filter(
+        ({ chainId }) => chainId === this.chainId
+      );
+
+      if (!filteredPoolsConfig.length) {
+        this.tokensList = [];
+        this.poolsList = [];
+        this.resetActionCaonfig();
+        return;
+      }
+
+      this.tokensList = await getTokenListByPools(
+        filteredPoolsConfig,
+        this.chainId,
+        prices,
+        this.account
+      );
+
+      this.poolsList = await getAllPoolsByChain(this.chainId, this.account);
+
+      this.actionConfig.fromToken = this.tokensList.find(
+        (token: any) => token.config.name === "MIM"
+      );
     },
   },
 
   async created() {
-    // const uniqueTokens = getAllUniqueTokens(poolsConfig);
-    // const coins = uniqueTokens.map(({ contract }) => contract.address);
-    // const prices = await getCoinsPrices(81457, coins);
-
-    const prices = [
-      {
-        address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
-        price: 0.990929,
-      },
-      {
-        address: "0x4200000000000000000000000000000000000023",
-        price: 4000.1,
-      },
-    ];
-
-    this.tokensList = await getTokenListByPools(
-      poolsConfig,
-      168587773,
-      prices,
-      this.account
-    );
-
-    this.actionConfig.fromToken = this.tokensList.find(
-      (token: any) => token.config.name === "MIM"
-    );
+    await this.createSwapInfo();
   },
 
   components: {

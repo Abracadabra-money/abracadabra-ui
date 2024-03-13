@@ -34,25 +34,12 @@
 import { formatUnits } from "viem";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { defineAsyncComponent, type Prop } from "vue";
-
-type Token = {
-  config: {
-    contract: { address: string; abi: any };
-    decimals: number;
-    icon: string;
-    name: string;
-  };
-  price: number;
-  userInfo: {
-    balance: bigint;
-    allownce: bigint;
-  };
-};
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 
 export default {
   props: {
-    fromToken: Object as Prop<Token>,
-    toToken: Object as Prop<Token>,
+    fromToken: Object as Prop<TokenInfo>,
+    toToken: Object as Prop<TokenInfo>,
     toTokenAmount: BigInt as Prop<bigint>,
   },
 

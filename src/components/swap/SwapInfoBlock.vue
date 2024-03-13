@@ -10,7 +10,10 @@
     </div>
     <div class="swap-info-item">
       <div class="info-title">Minimum received</div>
-      <div class="info-value">0.242371 DAI</div>
+      <div class="info-value" v-if="isSelectedTokens">
+        {{ minimumReceived }} {{ toToken?.config.name }}
+      </div>
+      <div class="info-value" v-else>-</div>
     </div>
     <div class="swap-info-item">
       <div class="info-title">Network Fee</div>
@@ -20,26 +23,31 @@
 </template>
 
 <script lang="ts">
+import { formatUnits } from "viem";
 import { defineAsyncComponent, type Prop } from "vue";
-
-type Token = {
-  config: {
-    contract: { address: string; abi: any };
-    decimals: number;
-    icon: string;
-    name: string;
-  };
-  price: number;
-  userInfo: {
-    balance: bigint;
-    allownce: bigint;
-  };
-};
+import { formatTokenBalance } from "@/helpers/filters";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 
 export default {
   props: {
-    fromToken: Object as Prop<Token>,
-    toToken: Object as Prop<Token>,
+    fromToken: Object as Prop<TokenInfo>,
+    toToken: Object as Prop<TokenInfo>,
+    minAmount: BigInt as Prop<bigint>,
+  },
+
+  computed: {
+    isSelectedTokens() {
+      if (!this.toToken || !this.fromToken) return false;
+      const { name: toTokenName } = this.toToken.config;
+      const { name: fromTokenName } = this.fromToken.config;
+      return ![toTokenName, fromTokenName].includes("Select Token");
+    },
+
+    minimumReceived() {
+      return formatTokenBalance(
+        formatUnits(this.minAmount || 0n, this.toToken?.config.decimals || 18)
+      );
+    },
   },
 
   components: {
