@@ -96,6 +96,7 @@ import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
 import { formatTokenBalance } from "@/helpers/filters";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   props: {
@@ -168,16 +169,16 @@ export default {
 
     isButtonDisabled() {
       return (
-        !this.isValid ||
-        !!this.error ||
-        this.isActionProcessing ||
-        !this.account ||
-        !this.isProperNetwork
+        (!this.isValid ||
+          !!this.error ||
+          this.isActionProcessing ||
+          !this.account) &&
+        this.isProperNetwork
       );
     },
 
     isProperNetwork() {
-      return this.chainId == 168587773;
+      return this.chainId == this.pool.chainId;
     },
   },
 
@@ -278,6 +279,7 @@ export default {
 
     async actionHandler() {
       if (this.isButtonDisabled) return false;
+      if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
       if (!this.account) {
         // @ts-ignore
         return this.$openWeb3modal();
