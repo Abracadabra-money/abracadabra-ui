@@ -1,5 +1,5 @@
 <template>
-  <div class="pools-page">
+  <div class="pools-page" v-if="pools">
     <div class="pools-container">
       <PoolsInfo />
 
@@ -74,16 +74,17 @@ export default {
     }),
 
     usersPools() {
-      return this.pools.filter((pool) => pool.userPosition);
+      return this.pools.filter((pool) => pool.userInfo.balance > 0n);
     },
   },
 
   methods: {
     async createPoolsList() {
-      this.pools = await getPoolsList();
+      this.pools = await getPoolsList(this.account);
+
       this.poolsLoading = false;
       this.updateInterval = setInterval(async () => {
-        this.pools = await getPoolsList();
+        this.pools = await getPoolsList(this.account);
       }, 60000);
     },
 

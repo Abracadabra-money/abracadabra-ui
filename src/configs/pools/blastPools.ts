@@ -3,10 +3,10 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import type { PoolConfig } from "@/configs/pools/types";
 
-const blastSepoliaPools: Array<PoolConfig> = [
+const blastPools: Array<PoolConfig> = [
   {
     id: 1,
-    chainId: 168587773,
+    chainId: 81457,
     name: "MIM / WETH",
     icon: useImage(`assets/images/tokens/MIM-WETH.png`),
     decimals: 18,
@@ -40,4 +40,4 @@ const blastSepoliaPools: Array<PoolConfig> = [
   },
 ];
 
-export default blastSepoliaPools;
+export default blastPools;

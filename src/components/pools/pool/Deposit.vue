@@ -3,20 +3,20 @@
     <div class="inputs-wrap">
       <BaseTokenInput
         class="base-input"
-        :name="baseToken?.symbol"
-        :icon="baseToken?.icon"
-        :decimals="baseToken?.decimals"
-        :max="baseToken?.balance"
+        :name="baseToken.config.name"
+        :icon="baseToken.config.icon"
+        :decimals="baseToken.config.decimals"
+        :max="baseToken.userInfo.balance"
         :value="base.inputValue"
         @updateInputValue="updateBaseValue($event)"
       />
 
       <BaseTokenInput
         class="quote-input"
-        :name="quoteToken?.symbol"
-        :icon="quoteToken?.icon"
-        :decimals="quoteToken?.decimals"
-        :max="quoteToken?.balance"
+        :name="quoteToken.config.name"
+        :icon="quoteToken.config.icon"
+        :decimals="quoteToken.config.decimals"
+        :max="quoteToken.userInfo.balance"
         :value="quote.inputValue"
         @updateInputValue="updateQuoteValue($event)"
       />
@@ -34,17 +34,17 @@
     <div class="info-blocks">
       <div class="info-block lp">
         <div class="tag">
-          <span class="title">{{ this.pool?.lpInfo.name }}</span>
+          <span class="title">{{ this.pool.name }}</span>
           <span class="value">
             <BaseTokenIcon
-              :name="this.pool?.lpInfo?.name"
-              :icon="this.pool?.lpInfo?.icon"
+              :name="this.pool.name"
+              :icon="this.pool.icon"
               size="24px"
             />
             {{
               formatTokenBalance(
                 previewAddLiquidityResult.shares,
-                this.pool?.lpInfo?.decimals
+                this.pool.decimals
               )
             }}
           </span>
@@ -65,7 +65,8 @@
               src="@/assets/images/beam/switch-button.svg"
               alt="Switch network"
             />
-            1 {{ baseToken?.symbol }} = 1,636.39 {{ quoteToken?.symbol }}
+            1 {{ baseToken.config.name }} = 1,636.39
+            {{ quoteToken.config.name }}
             <span class="usd-equivalent"> ($1,687.87) </span>
           </span>
         </div>
@@ -91,7 +92,7 @@
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
@@ -133,24 +134,24 @@ export default {
     }),
 
     baseToken() {
-      return this.pool?.tokens.baseToken;
+      return this.pool.tokens.baseToken;
     },
     quoteToken() {
-      return this.pool?.tokens.quoteToken;
+      return this.pool.tokens.quoteToken;
     },
 
     isBaseAllowed() {
-      return this.baseToken?.allowance >= this.base.inputAmount;
+      return this.baseToken.userInfo.allowance >= this.base.inputAmount;
     },
     isQuoteAllowed() {
-      return this.quoteToken?.allowance >= this.quote.inputAmount;
+      return this.quoteToken.userInfo.allowance >= this.quote.inputAmount;
     },
 
     previewAddLiquidityResult() {
       const previewAddLiquidityResult = previewAddLiquidity(
         this.base.inputAmount,
         this.quote.inputAmount,
-        this.pool?.lpInfo
+        this.pool
       );
 
       previewAddLiquidityResult.shares = applySlippageToMinOutBigInt(
@@ -166,10 +167,10 @@ export default {
     },
 
     error() {
-      if (this.base.inputAmount > this.baseToken?.balance)
+      if (this.base.inputAmount > this.baseToken.userInfo?.balance)
         return "Insufficient base token balance";
 
-      if (this.quote.inputAmount > this.quoteToken?.balance)
+      if (this.quote.inputAmount > this.quoteToken.userInfo?.balance)
         return "Insufficient quote token balance";
 
       return null;
@@ -180,9 +181,9 @@ export default {
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
       if (this.base.inputValue == "")
-        return `Enter ${this.baseToken?.symbol} token amount`;
+        return `Enter ${this.baseToken.config.name} token amount`;
       if (this.quote.inputValue == "")
-        return `Enter ${this.quoteToken?.symbol} token amount`;
+        return `Enter ${this.quoteToken.config.name} token amount`;
 
       if (this.isActionProcessing) return "Processing...";
       if (!this.isBaseAllowed) return "Approve base token";
@@ -218,10 +219,8 @@ export default {
         }
 
         this.base.inputValue = trimZeroDecimals(
-          formatUnits(value.inputAmount, this.baseToken.decimals)
+          formatUnits(value.inputAmount, this.baseToken.config.decimals)
         );
-
-        this.pool.tokens.tokensRate;
       },
     },
 
@@ -234,7 +233,7 @@ export default {
         }
 
         this.quote.inputValue = trimZeroDecimals(
-          formatUnits(value.inputAmount, this.quoteToken.decimals)
+          formatUnits(value.inputAmount, this.quoteToken.config.decimals)
         );
       },
     },
@@ -271,7 +270,7 @@ export default {
       const deadline = moment().unix() + Number(this.deadline);
 
       return {
-        lp: this.pool?.lpInfo?.contract?.address,
+        lp: this.pool?.contract?.address,
         to: this.account,
         baseInAmount: baseAdjustedInAmount,
         quoteInAmount: quoteAdjustedInAmount,
@@ -342,8 +341,9 @@ export default {
       }
 
       this.isActionProcessing = true;
-      if (!this.isBaseAllowed) await this.approveHandler(this.baseToken);
-      if (!this.isQuoteAllowed) await this.approveHandler(this.quoteToken);
+      if (!this.isBaseAllowed) await this.approveHandler(this.baseToken.config);
+      if (!this.isQuoteAllowed)
+        await this.approveHandler(this.quoteToken.config);
 
       await this.depositHandler();
 
@@ -358,12 +358,6 @@ export default {
   },
 
   components: {
-    Deposit: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Deposit.vue")
-    ),
-    Remove: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Deposit.vue")
-    ),
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),

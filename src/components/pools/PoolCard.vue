@@ -14,12 +14,8 @@
 
     <div class="item-header">
       <div class="token-info">
-        <BaseTokenIcon
-          :icon="pool.config.icon"
-          :name="pool.config.name"
-          size="44px"
-        />
-        <span class="token-name">{{ pool.config.name }}</span>
+        <BaseTokenIcon :icon="pool.icon" :name="pool.name" size="44px" />
+        <span class="token-name">{{ pool.name }}</span>
       </div>
     </div>
 
@@ -51,7 +47,6 @@ import { mapGetters } from "vuex";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import { formatUSD, formatPercent } from "@/helpers/filters";
 import { formatUnits } from "viem";
-import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 
 export default {
@@ -64,29 +59,23 @@ export default {
   computed: {
     ...mapGetters({ chainId: "getChainId", getChainById: "getChainById" }),
 
-    goToPage() {
-      return {
-        name: "Pools",
-      };
-    },
-
     apr() {
-      return formatPercent(formatUnits(this.pool.mainParams.apr));
+      return formatPercent(formatUnits(this.pool.statisticsData.apr));
     },
 
     liquidityValue() {
-      return formatUSD(formatUnits(this.pool.mainParams.liquidityValue));
+      return formatUSD(formatUnits(this.pool.statisticsData.liquidityValue));
     },
 
     poolStatusStyles() {
-      if (this.pool.config?.poolSettings?.isDeprecated)
+      if (this.pool.settings?.isDeprecated)
         return {
           text: "Deprecated",
           flagColor:
             "background: linear-gradient(180deg, #8c4040 0%, #6b2424 100%);",
           border: "border: 1px solid #4a2130;",
         };
-      if (this.pool.config?.poolSettings?.isNew)
+      if (this.pool.settings?.isNew)
         return {
           text: "New",
           flagColor:
@@ -104,8 +93,8 @@ export default {
       return {
         name: "Pool",
         params: {
-          id: this.pool.config.id,
-          poolChainId: this.pool.config.chainId,
+          id: this.pool.id,
+          poolChainId: this.pool.chainId,
         },
       };
     },

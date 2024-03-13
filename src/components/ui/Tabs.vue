@@ -57,6 +57,7 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(16, 18, 23, 0.38);
   padding: 6px;
+  z-index: 1;
 }
 
 .switch-btn {

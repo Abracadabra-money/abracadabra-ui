@@ -7,23 +7,29 @@
     <div class="column">
       <div class="pool-info">
         <div class="icons-wrap">
-          <img class="pool-icon" :src="pool.config.icon" />
+          <img class="pool-icon" :src="pool.icon" />
         </div>
-        {{ pool.config.name }}
+        {{ pool.name }}
       </div>
     </div>
 
-    <div class="column">${{ formatLargeSum(pool.mainParams.tvl) }}</div>
+    <div class="column">${{ formatLargeSum(pool.statisticsData.tvl) }}</div>
 
-    <div class="column">${{ formatLargeSum(pool.mainParams.dayFees) }}</div>
+    <div class="column">${{ formatLargeSum(pool.statisticsData.dayFees) }}</div>
 
-    <div class="column">${{ formatLargeSum(pool.mainParams.dayVolume) }}</div>
+    <div class="column">
+      ${{ formatLargeSum(pool.statisticsData.dayVolume) }}
+    </div>
 
-    <div class="column">${{ formatLargeSum(pool.mainParams.weekFees) }}</div>
+    <div class="column">
+      ${{ formatLargeSum(pool.statisticsData.weekFees) }}
+    </div>
 
-    <div class="column">${{ formatLargeSum(pool.mainParams.weekVolume) }}</div>
+    <div class="column">
+      ${{ formatLargeSum(pool.statisticsData.weekVolume) }}
+    </div>
 
-    <div class="column apr">{{ pool.mainParams.apr }} %</div>
+    <div class="column apr">{{ pool.statisticsData.apr }} %</div>
   </router-link>
 </template>
 
@@ -47,13 +53,13 @@ export default {
 
   computed: {
     isOpenPosition() {
-      return this.pool.userPosition;
+      return this.pool.userInfo.balance > 0n;
     },
 
     poolLabel() {
-      if (this.pool.config.chainId === 80085) return "testnet";
-      if (this.pool.config.poolSettings?.isNew) return "new";
-      if (this.pool.config.poolSettings?.isDeprecated) return "deprecated";
+      if (this.pool.chainId === 80085) return "testnet";
+      if (this.pool.settings?.isNew) return "new";
+      if (this.pool.settings?.isDeprecated) return "deprecated";
       return "";
     },
 
@@ -61,8 +67,8 @@ export default {
       return {
         name: "Pool",
         params: {
-          id: this.pool.config.id,
-          poolChainId: this.pool.config.chainId,
+          id: this.pool.id,
+          poolChainId: this.pool.chainId,
         },
       };
     },

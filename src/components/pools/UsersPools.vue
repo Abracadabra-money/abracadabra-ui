@@ -1,7 +1,12 @@
 <template>
   <div class="users-pools">
     <ul class="pools-list">
-      <li class="pool-card" :index="index" v-for="(pool, index) in usersPools">
+      <li
+        class="pool-card"
+        :index="index"
+        :key="index"
+        v-for="(pool, index) in usersPools"
+      >
         <PoolCard :pool="pool" />
       </li>
     </ul>
@@ -11,7 +16,6 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 
 export default {

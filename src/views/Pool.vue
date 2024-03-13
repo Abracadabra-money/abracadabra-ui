@@ -47,7 +47,7 @@ export default {
     }),
 
     isUserPositionOpen() {
-      return this.pool.lpInfo.balance > 0n;
+      return this.pool?.userInfo?.balance > 0n;
     },
   },
 
@@ -69,7 +69,11 @@ export default {
 
   methods: {
     async getPoolInfo() {
-      this.pool = await getPoolInfo(this.account, this.chainId);
+      this.pool = await getPoolInfo(
+        Number(this.poolChainId),
+        Number(this.id),
+        this.account
+      );
     },
   },
 

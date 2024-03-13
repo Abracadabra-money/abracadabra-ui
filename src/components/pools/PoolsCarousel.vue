@@ -5,7 +5,7 @@
     :autoplay="3000"
     :breakpoints="breakpoints"
   >
-    <slide :index="index" v-for="(pool, index) in pools">
+    <slide :index="index" :key="index" v-for="(pool, index) in pools">
       <PoolCard :pool="pool" />
     </slide>
 

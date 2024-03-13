@@ -1,4 +1,4 @@
-import type { PoolConfig, TokenConfig } from "@/configs/pools/pools";
+import type { PoolConfig, TokenConfig } from "@/configs/pools/types";
 import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/getPublicClient";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
@@ -13,8 +13,8 @@ type TokenInfo = {
 };
 
 type PairTokensInfo = {
-  quoteTokenInfo: TokenInfo;
-  baseTokenInfo: TokenInfo;
+  quoteToken: TokenInfo;
+  baseToken: TokenInfo;
 };
 
 type PriceInfo = {
@@ -25,6 +25,7 @@ type PriceInfo = {
 export const getTokenInfo = async (
   chainId: number,
   tokenConfig: TokenConfig,
+  price: number,
   account?: Address
 ): Promise<TokenInfo> => {
   const publicClient = getPublicClient(chainId);
@@ -57,8 +58,6 @@ export const getTokenInfo = async (
     userInfo.balance = balance.result;
   }
 
-  const price = 0; // TODO: get price from defilama
-
   return {
     config: tokenConfig,
     userInfo,
@@ -69,16 +68,28 @@ export const getTokenInfo = async (
 export const getPoolTokenInfo = async (
   chainId: number,
   poolConfig: PoolConfig,
+  prices: PriceInfo[],
   account?: Address
 ): Promise<PairTokensInfo> => {
+  const quoteTokenPrice =
+    prices.find(
+      (priceInfo) => priceInfo.address == poolConfig.quoteToken.contract.address
+    )?.price || 0;
+
+  const baseTokenPrice =
+    prices.find(
+      (priceInfo) => priceInfo.address == poolConfig.baseToken.contract.address
+    )?.price || 0;
+
+  // WARN: hardcode
   const [quoteTokenInfo, baseTokenInfo] = await Promise.all([
-    getTokenInfo(chainId, poolConfig.quoteToken, account),
-    getTokenInfo(chainId, poolConfig.baseToken, account),
+    getTokenInfo(chainId, poolConfig.quoteToken, 4000, account),
+    getTokenInfo(chainId, poolConfig.baseToken, 0.99, account),
   ]);
 
   return {
-    quoteTokenInfo: quoteTokenInfo,
-    baseTokenInfo: baseTokenInfo,
+    quoteToken: quoteTokenInfo,
+    baseToken: baseTokenInfo,
   };
 };
 

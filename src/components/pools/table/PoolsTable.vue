@@ -180,13 +180,13 @@ export default {
     filterByActivepools(pools) {
       if (this.showActivePools) {
         return pools.filter((pool) => {
-          return !pool.config?.poolSettings?.isDeprecated;
+          return !pool.config?.settings?.isDeprecated;
         });
       }
 
       return pools.sort((a, b) => {
-        const settingsA = a?.config?.poolSettings;
-        const settingsB = b?.config?.poolSettings;
+        const settingsA = a?.config?.settings;
+        const settingsB = b?.config?.settings;
         if (settingsA || settingsB) {
           return +settingsA?.isDeprecated - +settingsB?.isDeprecated;
         }
@@ -202,29 +202,25 @@ export default {
     },
 
     filterIsMim(pools) {
-      return pools.filter(({ config }) => config.poolSettings.isMim);
+      return pools.filter((config) => config.settings.isMim);
     },
 
     filterPositions(pools) {
-      return pools.filter(({ userPosition }) => {
-        return userPosition;
-        // return (
-        //   userPosition.collateralInfo.userCollateralShare.gt(0) ||
-        //   userPosition.borrowInfo.userBorrowPart.gt(0)
-        // );
+      return pools.filter(({ userInfo }) => {
+        return userInfo.balance > 0n;
       });
     },
 
     filterBySearchValue(pools, value) {
       return pools.filter(
-        ({ config }) => config.name.toLowerCase().indexOf(value) !== -1
+        (config) => config.name.toLowerCase().indexOf(value) !== -1
       );
     },
 
     sortByNew(pools) {
       return pools.sort((a, b) => {
-        const isNewA = +!!a?.config?.poolSettings?.isNew;
-        const isNewB = +!!b?.config?.poolSettings?.isNew;
+        const isNewA = +!!a?.config?.settings?.isNew;
+        const isNewB = +!!b?.config?.settings?.isNew;
         if (isNewA || isNewB) return isNewB - isNewA;
         return a;
       });
@@ -232,11 +228,11 @@ export default {
 
     sortByTesting(pools) {
       return pools.sort((a, b) => {
-        const isNewA = +!!a?.config?.poolSettings?.isNew;
-        const isTestingA = +!!a?.config?.poolSettings?.isTesting;
+        const isNewA = +!!a?.config?.settings?.isNew;
+        const isTestingA = +!!a?.config?.settings?.isTesting;
 
-        const isNewB = +!!b?.config?.poolSettings?.isNew;
-        const isTestingB = +!!b?.config?.poolSettings?.isTesting;
+        const isNewB = +!!b?.config?.settings?.isNew;
+        const isTestingB = +!!b?.config?.settings?.isTesting;
 
         if (isTestingB && isNewA) {
           return -1;
@@ -268,7 +264,7 @@ export default {
 
     getActiveChain() {
       return this.pools
-        .reduce((acc, { config }) => {
+        .reduce((acc, config) => {
           if (!acc.includes(config.chainId)) acc.push(config.chainId);
           return acc;
         }, [])
@@ -283,7 +279,6 @@ export default {
   },
 
   components: {
-    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     ChainsDropdown: defineAsyncComponent(() =>
       import("@/components/ui/dropdown/ChainsDropdown.vue")

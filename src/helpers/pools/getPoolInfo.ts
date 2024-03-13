@@ -1,135 +1,67 @@
 import { getLpInfo } from "@/helpers/pools/swap/magicLp";
-
-import { useImage } from "@/helpers/useImage";
-
-import type { Address } from "viem";
-
-import { getPublicClient } from "@/helpers/getPublicClient";
-import anySwapERC20Abi from "@/abis/tokensAbi/anySwapERC20Abi";
+import { parseUnits, type Address } from "viem";
 import poolsConfig from "@/configs/pools/pools";
+import type { PoolConfig } from "@/configs/pools/types";
+import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 
 const SwapRouter = "0x15f57fbCB7A443aC6022e051a46cAE19491bC298";
-const MimWethLp = "0x06894D4b33565dF998E80dE5D1718Ac5425DA216";
 
-type Contract = {
-  address: Address;
-  abi: any;
-};
-
-const RATE_PRECISION: bigint = BigInt(1e18);
+const RATE_PRECISION: bigint = parseUnits("1", 18);
 
 export const getPoolInfo = async (
-  account: Address = "0x8764F421AB0C682b4Ba1d7e269C09187c1EfbFAF",
-  chainId: number
+  poolChainId: number,
+  poolId: number,
+  account: Address
 ) => {
-  const publicClient = getPublicClient(chainId);
-
-  const getLpInfoResult = await getLpInfo(poolsConfig[0], chainId);
-
-  const baseToken = await getTokenInfo(
-    { address: getLpInfoResult.baseToken, abi: anySwapERC20Abi },
-    account,
-    publicClient,
-    SwapRouter
+  const poolConfig = poolsConfig.find(
+    ({ id, chainId }: PoolConfig) => id == poolId && chainId == poolChainId
   );
 
-  const quoteToken = await getTokenInfo(
-    { address: getLpInfoResult.quoteToken, abi: anySwapERC20Abi },
-    account,
-    publicClient,
-    SwapRouter
-  );
+  if (!poolConfig) return false;
 
-  const rate = await getTokensRate();
+  const getLpInfoResult = await getLpInfo(poolConfig, poolChainId, account);
 
-  const [balance, allowance]: any = await publicClient.multicall({
-    contracts: [
-      {
-        address: MimWethLp,
-        abi: anySwapERC20Abi as any,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        address: MimWethLp,
-        abi: anySwapERC20Abi as any,
-        functionName: "allowance",
-        args: [account, SwapRouter],
-      },
-    ],
-  });
+  const tokens = await getTokensInfo(poolChainId, poolConfig, account);
 
   return {
-    lpInfo: {
-      ...getLpInfoResult,
-      icon: useImage(`assets/images/tokens/MIM-WETH.png`),
-      balance: balance.result,
-      allowance: allowance.result,
-    },
-    tokens: { baseToken, quoteToken, rate, ratePrecision: RATE_PRECISION },
+    ...getLpInfoResult,
+    tokens,
     swapRouter: SwapRouter,
   };
 };
 
-const getTokenInfo = async (
-  contract: Contract,
-  account: Address,
-  publicClient: any,
-  swapRouter: Address
+const getTokensInfo = async (
+  chainId: number,
+  poolConfig: PoolConfig,
+  account: Address
 ) => {
-  const { address, abi } = contract;
-  const [name, symbol, decimals, balanceOf, allowance] =
-    await publicClient.multicall({
-      contracts: [
-        {
-          address: address,
-          abi: abi,
-          functionName: "name",
-          args: [],
-        },
-        {
-          address: address,
-          abi: abi,
-          functionName: "symbol",
-          args: [],
-        },
-        {
-          address: address,
-          abi: abi,
-          functionName: "decimals",
-          args: [],
-        },
-        {
-          address: address,
-          abi: abi,
-          functionName: "balanceOf",
-          args: [account],
-        },
-        {
-          address: address,
-          abi: abi,
-          functionName: "allowance",
-          args: [account, swapRouter],
-        },
-      ],
-    });
+  const tokensPrices = await getCoinsPrices(chainId, [
+    poolConfig.baseToken.contract.address,
+    poolConfig.quoteToken.contract.address,
+  ]);
 
-  return {
-    name: name.result,
-    symbol: symbol.result,
-    icon: useImage(`assets/images/tokens/${symbol.result}.png`),
-    decimals: decimals.result,
-    balance: balanceOf.result,
-    allowance: allowance.result,
-    // balance: 10000000000000000000n,
-    // allowance: 10000000000000000000n,
-    contract,
-  };
+  const tokens = await getPoolTokenInfo(
+    chainId,
+    poolConfig,
+    tokensPrices,
+    account
+  );
+
+  const rate = await getTokensRate(
+    tokens.baseToken.price,
+    tokens.quoteToken.price
+  );
+
+  return { ...tokens, rate, ratePrecision: RATE_PRECISION };
 };
 
-const getTokensRate = async () => {
-  const WETH_price = 40578300000n;
-  const MIM_price = 9921000n;
+const getTokensRate = async (
+  baseTokenPrice: number,
+  quoteTokenPrice: number
+) => {
+  const parsedBaseTokenPrice = parseUnits(baseTokenPrice.toString(), 18);
+  const parsedQuoteTokenPrice = parseUnits(quoteTokenPrice.toString(), 18);
 
-  return (MIM_price * RATE_PRECISION) / WETH_price;
+  return (parsedBaseTokenPrice * RATE_PRECISION) / parsedQuoteTokenPrice;
 };

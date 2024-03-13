@@ -2,10 +2,10 @@
   <div class="pool-action-block">
     <div class="inputs-wrap">
       <BaseTokenInput
-        :name="lpInfo?.name"
-        :icon="lpInfo?.icon"
-        :decimals="lpInfo?.decimals"
-        :max="lpInfo?.balance"
+        :name="pool.name"
+        :icon="pool.icon"
+        :decimals="pool.decimals"
+        :max="pool.userInfo.balance"
         :value="inputValue"
         @updateInputValue="updateValue($event)"
       />
@@ -15,18 +15,18 @@
       <div class="info-block base">
         <div class="tag">
           <span class="title">
-            {{ this.pool.tokens.baseToken.symbol }}
+            {{ this.pool.tokens.baseToken.config.name }}
           </span>
           <span class="value">
             <BaseTokenIcon
-              :name="this.pool.tokens.baseToken.name"
-              :icon="this.pool.tokens.baseToken.icon"
+              :name="this.pool.tokens.baseToken.config.name"
+              :icon="this.pool.tokens.baseToken.config.icon"
               size="24px"
             />
             {{
               formatTokenBalance(
                 previewRemoveLiquidityResult.baseAmountOut,
-                this.pool.tokens.baseToken.decimals
+                this.pool.tokens.baseToken.config.decimals
               )
             }}
           </span>
@@ -34,12 +34,12 @@
 
         <div class="tag">
           <span class="title">
-            {{ this.pool.tokens.quoteToken.symbol }}
+            {{ this.pool.tokens.quoteToken.config.name }}
           </span>
           <span class="value">
             <BaseTokenIcon
-              :name="this.pool.tokens.quoteToken.name"
-              :icon="this.pool.tokens.quoteToken.icon"
+              :name="this.pool.tokens.quoteToken.config.name"
+              :icon="this.pool.tokens.quoteToken.config.icon"
               size="24px"
             />
             {{
@@ -125,18 +125,14 @@ export default {
       account: "getAccount",
     }),
 
-    lpInfo() {
-      return this.pool?.lpInfo;
-    },
-
     isAllowed() {
-      return this.lpInfo?.allowance >= this.inputAmount;
+      return this.pool.userInfo.allowance >= this.inputAmount;
     },
 
     previewRemoveLiquidityResult() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
         this.inputAmount,
-        this.pool?.lpInfo
+        this.pool
       );
 
       previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
@@ -157,7 +153,7 @@ export default {
     },
 
     error() {
-      if (this.inputAmount > this.lpInfo?.balance)
+      if (this.inputAmount > this.pool.userInfo.balance)
         return "Insufficient balance";
 
       return null;
@@ -222,7 +218,7 @@ export default {
       const deadline = moment().unix() + Number(this.deadline);
 
       return {
-        lp: this.pool?.lpInfo?.contract?.address,
+        lp: this.pool.contract.address,
         to: this.account,
         sharesIn: this.inputAmount,
         minimumBaseAmount: baseAmountOut,
@@ -237,7 +233,7 @@ export default {
       );
 
       try {
-        await approveTokenViem(this.lpInfo.contract, this.pool.swapRouter);
+        await approveTokenViem(this.pool.contract, this.pool.swapRouter);
         await this.$emit("updatePoolInfo");
 
         await this.deleteNotification(notificationId);
@@ -263,7 +259,7 @@ export default {
         const payload = this.createRemovePayload();
 
         const { error, result } = await removeLiquidity(
-          this.pool?.swapRouter,
+          this.pool.swapRouter,
           payload
         );
 

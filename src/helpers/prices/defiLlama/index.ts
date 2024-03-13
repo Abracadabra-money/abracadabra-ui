@@ -39,6 +39,7 @@ const defiLlamaChainsKeys = {
   59144: "linea",
   80085: "berachain",
   81457: "blast",
+  168587773: "blast",
 };
 
 // this config is used to get coin prices if there no results by chainId

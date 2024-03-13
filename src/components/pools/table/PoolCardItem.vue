@@ -8,43 +8,49 @@
     <div class="row">
       <div class="pool-info">
         <div class="icons-wrap">
-          <img class="pool-icon" :src="pool.config.icon" alt="" />
+          <img class="pool-icon" :src="pool.icon" alt="" />
         </div>
-        {{ pool.config.name }}
+        {{ pool.name }}
       </div>
       <div>
         <h3 class="title">APR</h3>
-        <div class="value apr">${{ formatLargeSum(pool.mainParams.tvl) }}</div>
+        <div class="value apr">
+          ${{ formatLargeSum(pool.statisticsData.tvl) }}
+        </div>
       </div>
     </div>
 
     <div class="row">
       <div>
         <h3 class="title">TVL</h3>
-        <div class="value">${{ formatLargeSum(pool.mainParams.tvl) }}</div>
+        <div class="value">${{ formatLargeSum(pool.statisticsData.tvl) }}</div>
       </div>
 
       <div>
         <h3 class="title">Fees 1d</h3>
-        <div class="value">${{ formatLargeSum(pool.mainParams.dayFees) }}</div>
+        <div class="value">
+          ${{ formatLargeSum(pool.statisticsData.dayFees) }}
+        </div>
       </div>
 
       <div>
         <h3 class="title">Volume 1d</h3>
         <div class="value">
-          ${{ formatLargeSum(pool.mainParams.dayVolume) }}
+          ${{ formatLargeSum(pool.statisticsData.dayVolume) }}
         </div>
       </div>
 
       <div>
         <h3 class="title">Fees 7d</h3>
-        <div class="value">${{ formatLargeSum(pool.mainParams.weekFees) }}</div>
+        <div class="value">
+          ${{ formatLargeSum(pool.statisticsData.weekFees) }}
+        </div>
       </div>
 
       <div>
         <h3 class="title">Volume 7d</h3>
         <div class="value">
-          ${{ formatLargeSum(pool.mainParams.weekVolume) }}
+          ${{ formatLargeSum(pool.statisticsData.weekVolume) }}
         </div>
       </div>
     </div>
@@ -53,7 +59,7 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { formatToFixed, formatLargeSum } from "@/helpers/filters";
+import { formatLargeSum } from "@/helpers/filters";
 
 export default {
   props: {
@@ -71,13 +77,13 @@ export default {
 
   computed: {
     isOpenPosition() {
-      return this.pool.userPosition;
+      return this.pool.userInfo.balance > 0n;
     },
 
     poolLabel() {
-      if (this.pool.config.chainId === 80085) return "testnet";
-      if (this.pool.config.poolSettings?.isNew) return "new";
-      if (this.pool.config.poolSettings?.isDeprecated) return "deprecated";
+      if (this.pool.chainId === 80085) return "testnet";
+      if (this.pool.settings?.isNew) return "new";
+      if (this.pool.settings?.isDeprecated) return "deprecated";
       return "";
     },
 
@@ -85,8 +91,8 @@ export default {
       return {
         name: "Pool",
         params: {
-          id: this.pool.config.id,
-          poolChainId: this.pool.config.chainId,
+          id: this.pool.id,
+          poolChainId: this.pool.chainId,
         },
       };
     },

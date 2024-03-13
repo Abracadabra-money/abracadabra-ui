@@ -3,10 +3,7 @@
     <div class="pool-composition-header">
       <h3 class="title">Pool composition</h3>
       <span class="tvl"
-        >TVL:
-        {{
-          formatTokenBalance(pool.lpInfo.totalSupply, pool.lpInfo.decimals)
-        }}</span
+        >TVL: {{ formatTokenBalance(pool.totalSupply, pool.decimals) }}</span
       >
     </div>
 
@@ -14,7 +11,8 @@
       <div class="pair-tokens">
         <div
           :class="['token-info', tokenPart.type]"
-          v-for="tokenPart in tokenParts"
+          :key="index"
+          v-for="(tokenPart, index) in tokenParts"
         >
           <BaseTokenIcon :name="tokenPart.name" :icon="tokenPart.icon" />
           <div class="token-part-values">
@@ -68,41 +66,33 @@ export default {
 
   computed: {
     tokenParts() {
-      const tokensSum = this.pool.lpInfo.vaultReserve.reduce(
-        (acc, cur) => acc + cur
-      );
+      const tokensSum = this.pool.vaultReserve.reduce((acc, cur) => acc + cur);
       const tokenParts = [
         {
-          name: this.pool.tokens.baseToken.symbol,
-          icon: this.pool.tokens.baseToken.icon,
+          name: this.pool.tokens.baseToken.config.name,
+          icon: this.pool.tokens.baseToken.config.icon,
           type: "base",
           amount: this.formatTokenBalance(
-            this.pool.lpInfo.vaultReserve[0],
-            this.pool.tokens.baseToken.decimals
+            this.pool.vaultReserve[0],
+            this.pool.tokens.baseToken.config.decimals
           ),
           percent: formatPercent(
             Number(
-              this.calculatePercentage(
-                this.pool.lpInfo.vaultReserve[0],
-                tokensSum
-              )
+              this.calculatePercentage(this.pool.vaultReserve[0], tokensSum)
             )
           ),
         },
         {
-          name: this.pool.tokens.quoteToken.symbol,
-          icon: this.pool.tokens.quoteToken.icon,
+          name: this.pool.tokens.quoteToken.config.name,
+          icon: this.pool.tokens.quoteToken.config.icon,
           type: "quote",
           amount: this.formatTokenBalance(
-            this.pool.lpInfo.vaultReserve[0],
-            this.pool.tokens.baseToken.decimals
+            this.pool.vaultReserve[0],
+            this.pool.tokens.baseToken.config.decimals
           ),
           percent: formatPercent(
             Number(
-              this.calculatePercentage(
-                this.pool.lpInfo.vaultReserve[1],
-                tokensSum
-              )
+              this.calculatePercentage(this.pool.vaultReserve[1], tokensSum)
             )
           ),
         },

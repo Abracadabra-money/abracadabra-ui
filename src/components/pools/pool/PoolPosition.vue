@@ -17,18 +17,12 @@
 
         <div class="deposited-token">
           <span class="token-name">
-            <BaseTokenIcon
-              :name="pool.lpInfo.name"
-              :icon="pool.lpInfo.icon"
-              size="44px"
-            />
-            {{ pool.lpInfo.name }}
+            <BaseTokenIcon :name="pool.name" :icon="pool.icon" size="44px" />
+            {{ pool.name }}
           </span>
           <div class="token-amount">
             <span class="value">
-              {{
-                formatTokenBalance(pool.lpInfo.balance, pool.lpInfo.decimals)
-              }}
+              {{ formatTokenBalance(pool.userInfo.balance, pool.decimals) }}
             </span>
             <span class="usd"></span>
           </div>
@@ -139,26 +133,26 @@ export default {
 
     tokensList() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.pool.lpInfo.balance,
-        this.pool?.lpInfo
+        this.pool.userInfo.balance,
+        this.pool
       );
 
       const tokensList = [
         {
-          name: this.pool.tokens.baseToken.symbol,
-          icon: this.pool.tokens.baseToken.icon,
+          name: this.pool.tokens.baseToken.config.name,
+          icon: this.pool.tokens.baseToken.config.icon,
           amount: this.formatTokenBalance(
             previewRemoveLiquidityResult.baseAmountOut,
-            this.pool.tokens.baseToken.decimals
+            this.pool.tokens.baseToken.config.decimals
           ),
           amountUsd: "",
         },
         {
-          name: this.pool.tokens.quoteToken.symbol,
-          icon: this.pool.tokens.quoteToken.icon,
+          name: this.pool.tokens.quoteToken.config.name,
+          icon: this.pool.tokens.quoteToken.config.icon,
           amount: this.formatTokenBalance(
             previewRemoveLiquidityResult.quoteAmountOut,
-            this.pool.tokens.quoteToken.decimals
+            this.pool.tokens.quoteToken.config.decimals
           ),
           amountUsd: "",
         },
@@ -215,9 +209,6 @@ export default {
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
-    ),
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),

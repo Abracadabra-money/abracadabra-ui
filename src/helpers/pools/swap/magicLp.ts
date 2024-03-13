@@ -13,12 +13,12 @@ export const getAllPoolsByChain = async (
   chainId: number,
   account?: Address
 ): Promise<MagicLPInfo[]> => {
-  console.log(chainId);
-
   const pools = await Promise.all(
-    poolsConfig.map(async (config) => {
-      return getLpInfo(config, chainId, account);
-    })
+    poolsConfig
+      .filter((config) => config.chainId === chainId)
+      .map(async (config) => {
+        return getLpInfo(config, chainId, account);
+      })
   );
 
   return pools;
