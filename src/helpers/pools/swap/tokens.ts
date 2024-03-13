@@ -1,7 +1,7 @@
-import type { PoolConfig, TokenConfig } from "@/configs/pools/types";
 import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/getPublicClient";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
+import type { PoolConfig, TokenConfig } from "@/configs/pools/types";
 
 type TokenInfo = {
   config: TokenConfig;
@@ -31,7 +31,7 @@ export const getTokenInfo = async (
   const publicClient = getPublicClient(chainId);
   const swapRouter = getSwapRouterByChain(chainId);
 
-  let userInfo = {
+  const userInfo = {
     allowance: 0n,
     balance: 0n,
   };

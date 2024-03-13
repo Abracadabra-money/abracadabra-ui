@@ -80,7 +80,7 @@ const isPairsExist = async (
   token1: Address
 ): Promise<Array<MagicLPInfo> | undefined> => {
   // NOTICE: testing
-
+  // @ts-ignore
   const pairs: Array<MagicLPInfo> = [await getLpInfo(MimWethLp, chainId)];
 
   const matches = pairs.filter((pair: MagicLPInfo) => {

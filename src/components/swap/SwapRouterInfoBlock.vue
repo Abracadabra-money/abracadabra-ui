@@ -2,7 +2,11 @@
   <div class="router-wrap">
     <h4 class="title">Auto Router</h4>
 
-    <div class="router">
+    <h5 class="empty-state" v-if="isEmptyState">
+      The best route for chosen tokens will appear here
+    </h5>
+
+    <div class="router" v-else>
       <div class="dashed"></div>
       <img class="token-icon" src="@/assets/images/tokens/MIM.png" alt="" />
       <img class="token-icon" src="@/assets/images/tokens/SPELL.png" alt="" />
@@ -17,7 +21,14 @@
 </template>
 
 <script lang="ts">
-export default {};
+export default {
+  props: {
+    isEmptyState: {
+      type: Boolean,
+      default: false,
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -42,7 +53,19 @@ export default {};
   line-height: normal;
 }
 
+.empty-state {
+  height: 48px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .router {
+  height: 48px;
   position: relative;
   display: flex;
   align-items: center;
