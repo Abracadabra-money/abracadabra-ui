@@ -7,7 +7,7 @@
         :icon="baseToken.config.icon"
         :decimals="baseToken.config.decimals"
         :max="baseToken.userInfo.balance"
-        :value="base.inputValue"
+        :value="baseInputValue"
         @updateInputValue="updateBaseValue($event)"
       />
 
@@ -17,7 +17,7 @@
         :icon="quoteToken.config.icon"
         :decimals="quoteToken.config.decimals"
         :max="quoteToken.userInfo.balance"
-        :value="quote.inputValue"
+        :value="quoteInputValue"
         @updateInputValue="updateQuoteValue($event)"
       />
 
@@ -105,15 +105,11 @@ export default {
 
   data() {
     return {
-      base: {
-        inputAmount: 0n,
-        inputValue: "",
-      },
-
-      quote: {
-        inputAmount: 0n,
-        inputValue: "",
-      },
+      baseInputAmount: 0n,
+      baseInputValue: "",
+      quoteInputAmount: 0n,
+      quoteInputValue: "",
+      rateCalculatingIteration: 0,
 
       isActionProcessing: false,
     };
@@ -133,16 +129,16 @@ export default {
     },
 
     isBaseAllowed() {
-      return this.baseToken.userInfo.allowance >= this.base.inputAmount;
+      return this.baseToken.userInfo.allowance >= this.baseInputAmount;
     },
     isQuoteAllowed() {
-      return this.quoteToken.userInfo.allowance >= this.quote.inputAmount;
+      return this.quoteToken.userInfo.allowance >= this.quoteInputAmount;
     },
 
     previewAddLiquidityResult() {
       const previewAddLiquidityResult = previewAddLiquidity(
-        this.base.inputAmount,
-        this.quote.inputAmount,
+        this.baseInputAmount,
+        this.quoteInputAmount,
         this.pool
       );
 
@@ -155,14 +151,14 @@ export default {
     },
 
     isValid() {
-      return !!this.base.inputAmount && !!this.quote.inputAmount;
+      return !!this.baseInputAmount && !!this.quoteInputAmount;
     },
 
     error() {
-      if (this.base.inputAmount > this.baseToken.userInfo?.balance)
+      if (this.baseInputAmount > this.baseToken.userInfo?.balance)
         return "Insufficient base token balance";
 
-      if (this.quote.inputAmount > this.quoteToken.userInfo?.balance)
+      if (this.quoteInputAmount > this.quoteToken.userInfo?.balance)
         return "Insufficient quote token balance";
 
       return null;
@@ -172,9 +168,9 @@ export default {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
-      if (this.base.inputValue == "")
+      if (this.baseInputValue == "")
         return `Enter ${this.baseToken.config.name} token amount`;
-      if (this.quote.inputValue == "")
+      if (this.quoteInputValue == "")
         return `Enter ${this.quoteToken.config.name} token amount`;
 
       if (this.isActionProcessing) return "Processing...";
@@ -200,34 +196,48 @@ export default {
   },
 
   watch: {
-    async pool() {},
+    baseInputAmount(value) {
+      if (this.rateCalculatingIteration > 1) {
+        this.rateCalculatingIteration = 0;
+        return false;
+      }
 
-    base: {
-      deep: true,
-      handler(value) {
-        if (value.inputAmount == 0) {
-          this.base.inputValue = "";
-          return false;
-        }
+      if (value == 0) {
+        this.baseInputValue = "";
+        this.quoteInputValue = "";
+        return false;
+      }
 
-        this.base.inputValue = trimZeroDecimals(
-          formatUnits(value.inputAmount, this.baseToken.config.decimals)
-        );
-      },
+      this.baseInputValue = trimZeroDecimals(
+        formatUnits(value, this.baseToken.config.decimals)
+      );
+
+      this.quoteInputAmount =
+        (value * this.pool.midPrice) / this.pool.tokens.ratePrecision;
+
+      this.rateCalculatingIteration += 1;
     },
 
-    quote: {
-      deep: true,
-      handler(value) {
-        if (value.inputAmount == 0) {
-          this.quote.inputValue = "";
-          return false;
-        }
+    quoteInputAmount(value) {
+      if (this.rateCalculatingIteration > 1) {
+        this.rateCalculatingIteration = 0;
+        return false;
+      }
 
-        this.quote.inputValue = trimZeroDecimals(
-          formatUnits(value.inputAmount, this.quoteToken.config.decimals)
-        );
-      },
+      if (value == 0) {
+        this.baseInputValue = "";
+        this.quoteInputValue = "";
+        return false;
+      }
+
+      this.quoteInputValue = trimZeroDecimals(
+        formatUnits(value, this.quoteToken.config.decimals)
+      );
+
+      this.baseInputAmount =
+        (value * this.pool.tokens.ratePrecision) / this.pool.midPrice;
+
+      this.rateCalculatingIteration += 1;
     },
   },
 
@@ -236,24 +246,20 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     updateBaseValue(value) {
-      if (value === null) return (this.base.inputAmount = 0n);
-      this.base.inputAmount = value;
-      this.quote.inputAmount =
-        (value * this.pool.midPrice) / this.pool.tokens.ratePrecision;
+      if (value === null) return (this.baseInputAmount = 0n);
+      this.baseInputAmount = value;
     },
 
     updateQuoteValue(value) {
-      if (value === null) return (this.quote.inputAmount = 0n);
-      this.quote.inputAmount = value;
-      this.base.inputAmount =
-        (value * this.pool.tokens.ratePrecision) / this.pool.midPrice;
+      if (value === null) return (this.quoteInputAmount = 0n);
+      this.quoteInputAmount = value;
     },
 
     resetInputs() {
-      this.base.inputValue = "";
-      this.base.inputAmount = 0n;
-      this.quote.inputValue = "";
-      this.quote.inputAmount = 0n;
+      this.baseInputValue = "";
+      this.baseInputAmount = 0n;
+      this.quoteInputValue = "";
+      this.quoteInputAmount = 0n;
     },
 
     createDepositPayload() {
