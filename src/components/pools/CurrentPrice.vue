@@ -8,8 +8,8 @@
 </template>
 
 <script lang="ts">
-import { formatUSD } from "@/helpers/filters";
 import { defineAsyncComponent, type Prop } from "vue";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
 type Token = {
   config: {
@@ -47,8 +47,8 @@ export default {
 
     tokensRate() {
       return this.toggle
-        ? formatUSD(this.toToken.price / this.fromToken.price)
-        : formatUSD(this.fromToken.price / this.toToken.price);
+        ? formatTokenBalance(this.toToken.price / this.fromToken.price)
+        : formatTokenBalance(this.fromToken.price / this.toToken.price);
     },
 
     fromTokenName() {

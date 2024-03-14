@@ -4,7 +4,7 @@
       <div class="info-title">Current price</div>
       <CurrentPrice :fromToken="fromToken" :toToken="toToken" />
     </div>
-    <div class="swap-info-item">
+    <div class="swap-info-item" v-if="showPriceImpact">
       <div class="info-title">Price Impact</div>
       <div class="info-value">93.00%</div>
     </div>
@@ -33,6 +33,7 @@ export default {
     fromToken: Object as Prop<TokenInfo>,
     toToken: Object as Prop<TokenInfo>,
     minAmount: BigInt as Prop<bigint>,
+    showPriceImpact: { type: Boolean, default: true },
   },
 
   computed: {

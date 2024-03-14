@@ -86,7 +86,7 @@ export default {
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     SwapSettingsPopup: defineAsyncComponent(() =>
-      import("@/components/popups/SwapSettingsPopup.vue")
+      import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
     Deposit: defineAsyncComponent(() =>
       import("@/components/pools/pool/Deposit.vue")

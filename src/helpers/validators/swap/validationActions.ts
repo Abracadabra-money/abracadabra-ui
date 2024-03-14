@@ -28,7 +28,7 @@ export const validationActions = (actionConfig: any, chainId: number) => {
 
   if (fromInputValue > fromToken.userInfo.allowance)
     return {
-      btnText: `Approve ${fromToken.name}`,
+      btnText: `Approve ${fromToken.config.name}`,
       isAllowed: true,
       method: "approvefromToken",
     };

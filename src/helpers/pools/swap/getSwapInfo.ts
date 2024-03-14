@@ -36,6 +36,7 @@ export const getSwapInfo = (
   const routes = findBestRoutes(pools, actionConfig);
   if (!routes || routes.length === 0) return getEmptyState(actionConfig);
 
+  const inputAmount = routes[0].inputAmount;
   const outputAmount = routes[routes?.length - 1].outputAmount;
   const outputAmountWithSlippage = applySlippageToMinOutBigInt(
     actionConfig.slippage,
@@ -52,6 +53,7 @@ export const getSwapInfo = (
   return {
     routes,
     actionConfig,
+    inputAmount,
     outputAmount,
     outputAmountWithSlippage,
     transactionInfo,
@@ -130,10 +132,11 @@ const findBestRoutes = (
         return;
       }
 
-      const outputAmount =
-        pool.baseToken === token
-          ? querySellBase(amount, pool, pool.userInfo).receiveQuoteAmount
-          : querySellQuote(amount, pool, pool.userInfo).receiveBaseAmount;
+      const outputAmount = !fromInputValue
+        ? 0n
+        : pool.baseToken === token
+        ? querySellBase(amount, pool, pool.userInfo).receiveQuoteAmount
+        : querySellQuote(amount, pool, pool.userInfo).receiveBaseAmount;
 
       stack.push({
         token: nextToken,

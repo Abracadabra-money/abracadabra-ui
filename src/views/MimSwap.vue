@@ -26,11 +26,13 @@
         <SwapInfoBlock
           :fromToken="actionConfig.fromToken"
           :toToken="actionConfig.toToken"
-          :minAmount="swapInfo.outputAmount"
+          :minAmount="swapInfo.outputAmountWithSlippage"
         />
 
         <SwapRouterInfoBlock
           :routes="swapInfo.routes"
+          :fromTokenIcon="actionConfig.fromToken.config.icon"
+          :toTokenIcon="actionConfig.toToken.config.icon"
           :tokensList="tokensList"
         />
 
@@ -55,12 +57,21 @@
         @updateSelectedToken="updateSelectedToken"
       />
     </LocalPopupWrap>
+
+    <LocalPopupWrap
+      isFarm
+      :isOpened="isConfirmationPopupOpened"
+      @closePopup="isConfirmationPopupOpened = false"
+    >
+      <ConfirmationPopup :actionConfig="actionConfig" :swapInfo="swapInfo" />
+    </LocalPopupWrap>
   </div>
 </template>
 
 <script lang="ts">
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
+import { fetchFeeData } from "@wagmi/core";
 import poolsConfig from "@/configs/pools/pools";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -73,6 +84,8 @@ import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
 import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
+// @ts-ignore
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import { swapTokensForTokens } from "@/helpers/pools/swap/actions/swapTokensForTokens";
 import { sellBaseTokensForTokens } from "@/helpers/pools/swap/actions/sellBaseTokensForTokens";
 import { sellQuoteTokensForTokens } from "@/helpers/pools/swap/actions/sellQuoteTokensForTokens";
@@ -98,6 +111,7 @@ export default {
       poolsList: null as any,
       tokenType: "from",
       isTokensPopupOpened: false,
+      isConfirmationPopupOpened: false,
       actionConfig: {
         fromToken: emptyTokenInfo,
         toToken: emptyTokenInfo,
@@ -142,16 +156,18 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateFromValue(value: bigint) {
-      // const { rate } = this.actionConfig.toToken;
+    successNotification(notificationId: number) {
+      this.deleteNotification(notificationId);
+      this.createNotification(notification.success);
+    },
 
+    updateFromValue(value: bigint) {
       if (value === null) {
         this.actionConfig.fromInputValue = 0n;
         this.actionConfig.toInputValue = 0n;
       } else {
         this.actionConfig.fromInputValue = value;
-        // this.actionConfig.toInputValue = (value * BigInt(10 ** 18)) / rate;
-        this.actionConfig.toInputValue = value;
+        this.actionConfig.toInputValue = this.swapInfo.outputAmount;
       }
     },
 
@@ -220,7 +236,8 @@ export default {
 
       const approve = await approveTokenViem(
         contract,
-        "0xdFE08DAfceDF428932336fBfE7BfBF0403Ad58e5" //todo
+        // @ts-ignore
+        this.swapInfo.transactionInfo.swapRouterAddress
       );
 
       // if (approve) await this.createStakeInfo(); //todo updated config
@@ -235,51 +252,74 @@ export default {
       switch (this.actionValidationData?.method) {
         case "connectWallet":
           // @ts-ignore
-          return this.$openWeb3modal();
+          await this.$openWeb3modal();
+          break;
         case "switchNetwork":
-          return switchNetwork(81457); //todo
+          await switchNetwork(81457); //todo
+          break;
         case "approvefromToken":
-          return this.approveTokenHandler(
+          await this.approveTokenHandler(
             this.actionConfig.fromToken.config.contract
           );
+          break;
         case "approveToToken":
-          return this.approveTokenHandler(
+          await this.approveTokenHandler(
             this.actionConfig.toToken.config.contract
           );
+          break;
         default:
-          this.swapHandler();
+          this.isConfirmationPopupOpened = true;
+          break;
       }
+
+      await this.createSwapInfo();
     },
 
     async swapHandler() {
-      const { methodName } = this.swapInfo.transactionInfo;
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
 
-      // @ts-ignore
-      this.swapInfo.transactionInfo.payload.deadline =
-        moment().unix() + Number(this.actionConfig.deadline);
+      try {
+        const { methodName } = this.swapInfo.transactionInfo;
 
-      switch (methodName) {
-        case "sellBaseTokensForTokens":
-          await sellBaseTokensForTokens(
-            // @ts-ignore
-            this.swapInfo.transactionInfo.swapRouterAddress,
-            this.swapInfo.transactionInfo.payload
-          );
-          break;
-        case "sellQuoteTokensForTokens":
-          await sellQuoteTokensForTokens(
-            // @ts-ignore
-            this.swapInfo.transactionInfo.swapRouterAddress,
-            this.swapInfo.transactionInfo.payload
-          );
-          break;
-        case "swapTokensForTokens":
-          await swapTokensForTokens(
-            // @ts-ignore
-            this.swapInfo.transactionInfo.swapRouterAddress,
-            this.swapInfo.transactionInfo.payload
-          );
-          break;
+        // @ts-ignore
+        this.swapInfo.transactionInfo.payload.deadline =
+          moment().unix() + Number(this.actionConfig.deadline);
+
+        switch (methodName) {
+          case "sellBaseTokensForTokens":
+            await sellBaseTokensForTokens(
+              // @ts-ignore
+              this.swapInfo.transactionInfo.swapRouterAddress,
+              this.swapInfo.transactionInfo.payload
+            );
+            break;
+          case "sellQuoteTokensForTokens":
+            await sellQuoteTokensForTokens(
+              // @ts-ignore
+              this.swapInfo.transactionInfo.swapRouterAddress,
+              this.swapInfo.transactionInfo.payload
+            );
+            break;
+          case "swapTokensForTokens":
+            await swapTokensForTokens(
+              // @ts-ignore
+              this.swapInfo.transactionInfo.swapRouterAddress,
+              this.swapInfo.transactionInfo.payload
+            );
+            break;
+        }
+
+        this.successNotification(notificationId);
+      } catch (error) {
+        console.log("Swap Error", error);
+        const errorNotification = {
+          msg: notificationErrorMsg(error),
+          type: "error",
+        };
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
       }
     },
 
@@ -296,6 +336,14 @@ export default {
         {
           address: "0x4200000000000000000000000000000000000023",
           price: 4000.1,
+        },
+        {
+          address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
+          price: 0.984804,
+        },
+        {
+          address: "0x4300000000000000000000000000000000000003",
+          price: 1.019,
         },
       ];
 
@@ -318,20 +366,23 @@ export default {
       );
 
       this.poolsList = await getAllPoolsByChain(this.chainId, this.account);
-
-      this.actionConfig.fromToken = this.tokensList.find(
-        (token: any) => token.config.name === "MIM"
-      );
     },
   },
 
   async created() {
     await this.createSwapInfo();
+
+    this.actionConfig.fromToken = this.tokensList.find(
+      (token: any) => token.config.name === "MIM"
+    );
+
+    const feeData = await fetchFeeData();
+    console.log("feeData", feeData);
   },
 
   components: {
     SwapSettingsPopup: defineAsyncComponent(
-      () => import("@/components/popups/SwapSettingsPopup.vue")
+      () => import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
     SwapForm: defineAsyncComponent(
       () => import("@/components/swap/SwapForm.vue")
@@ -350,7 +401,10 @@ export default {
       () => import("@/components/popups/LocalPopupWrap.vue")
     ),
     SwapListPopup: defineAsyncComponent(
-      () => import("@/components/popups/SwapListPopup.vue")
+      () => import("@/components/popups/swap/SwapListPopup.vue")
+    ),
+    ConfirmationPopup: defineAsyncComponent(
+      () => import("@/components/popups/swap/ConfirmationPopup.vue")
     ),
   },
 };

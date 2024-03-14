@@ -2,7 +2,10 @@
   <div class="router-wrap">
     <h4 class="title">Auto Router</h4>
 
-    <h5 class="empty-state" v-if="!routes?.length">
+    <h5
+      class="empty-state"
+      v-if="!routes?.length || !fromTokenIcon || !toTokenIcon"
+    >
       The best route for chosen tokens will appear here
     </h5>
 
@@ -33,6 +36,8 @@ export default {
   props: {
     routes: Array<RouteInfo>,
     tokensList: Array<TokenInfo>,
+    fromTokenIcon: String,
+    toTokenIcon: String,
   },
 
   computed: {
@@ -43,11 +48,15 @@ export default {
         ({ inputToken, outputToken }: any) => [inputToken, outputToken]
       );
 
-      return this.tokensList
+      const icons = this.tokensList
         .filter(({ config }: any) =>
           addresses.includes(config.contract.address)
         )
         .map(({ config }: any) => config.icon);
+
+      icons[0] = this.fromTokenIcon;
+      icons[icons.length - 1] = this.toTokenIcon;
+      return icons;
     },
   },
 };
