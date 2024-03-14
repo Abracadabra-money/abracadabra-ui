@@ -12,13 +12,14 @@
     <div class="router" v-else>
       <div class="dashed"></div>
 
-      <img
-        class="token-icon"
-        :src="icon"
-        v-for="icon in tokenIcons"
-        :key="icon"
-        alt=""
-      />
+      <img class="token-icon" :src="fromTokenIcon" alt="" />
+
+      <div class="route-item" v-for="route in routesInfo" :key="route.address">
+        <img class="token-icon" :src="route.icon" alt="" />
+        <span class="route-value">{{ route.percent }}</span>
+      </div>
+
+      <img class="token-icon" :src="toTokenIcon" alt="" />
     </div>
 
     <p class="text">
@@ -31,6 +32,7 @@
 <script lang="ts">
 import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import { formatUnits } from "viem";
 
 export default {
   props: {
@@ -41,7 +43,7 @@ export default {
   },
 
   computed: {
-    tokenIcons() {
+    routesInfo() {
       if (!this.routes?.length || !this.tokensList?.length) return [];
 
       const addresses = this.routes.flatMap(
@@ -54,9 +56,16 @@ export default {
         )
         .map(({ config }: any) => config.icon);
 
-      icons[0] = this.fromTokenIcon;
-      icons[icons.length - 1] = this.toTokenIcon;
-      return icons;
+      return addresses.map((address: string, index: number) => {
+        // @ts-ignore
+        const text = !index ? "100" : formatUnits(this.routes[0].fees, 18);
+
+        return {
+          address,
+          icon: icons[index],
+          percent: `${text}%`,
+        };
+      });
     },
   },
 };
@@ -124,6 +133,16 @@ export default {
   z-index: 1;
   width: 20px;
   height: 20px;
+}
+
+.route-item {
+  z-index: 10;
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 8px;
+  background: #0c1121;
 }
 
 .text {
