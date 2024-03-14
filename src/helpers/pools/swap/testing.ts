@@ -9,10 +9,12 @@ import { previewAddLiquidity, previewRemoveLiquidity } from "./liquidity";
 import { getPublicClient } from "@/helpers/getPublicClient";
 import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
-const SwapRouter = "0x15f57fbCB7A443aC6022e051a46cAE19491bC298";
-const MimWethLp = "0x06894D4b33565dF998E80dE5D1718Ac5425DA216";
+const SwapRouter = "0x73A5487F13FAB384Db55bB9A054f2d35Ef21737e";
+const MimWethLp = "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8";
 const account = "0x8764F421AB0C682b4Ba1d7e269C09187c1EfbFAF"; // Calibur's test
-const chainId = 168587773; // Blast Sepolia testnet
+const chainId = 81457; // Blast
+
+import blastPools from "@/configs/pools/blastPools";
 
 export const blastTestingHelpers = async () => {
   try {
@@ -87,7 +89,7 @@ export const liquidityTests = async () => {
   // 1. GET LP INFO
   // used to obtain information about the LP
   // @ts-ignore
-  const getLpInfoResult = await getLpInfo(MimWethLp, chainId);
+  const getLpInfoResult = await getLpInfo(blastPools[0], chainId);
   console.log("getLpInfoResult", getLpInfoResult);
   // -- //
 

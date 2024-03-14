@@ -30,6 +30,10 @@ export type MagicLPInfo = {
     PMMState: PMMState,
     baseToken: Address,
     quoteToken: Address,
+    balances: {
+        baseBalance: bigint,
+        quoteBalance: bigint
+    },
     lpFeeRate: bigint,
     userInfo: MagicLPInfoUserInfo,
     statisticsData: any // NOTICE: will update when we have the data

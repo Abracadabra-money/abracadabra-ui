@@ -1,6 +1,6 @@
 import type { Address } from "viem";
 import type { MagicLPInfo } from "./types";
-import { divFloor, mulFloor } from "./libs/DecimalMath";
+import { divFloor, mulFloor, mulCeil } from "./libs/DecimalMath";
 
 export const previewAddLiquidity = (
   baseInAmount: bigint,
@@ -13,7 +13,19 @@ export const previewAddLiquidity = (
     shares: 0n,
   };
 
-  if (baseInAmount == 0n) {
+  const { vaultReserve, totalSupply, PMMState, balances } = lpInfo;
+  const { i } = PMMState; // TODO
+
+  const baseReserve = vaultReserve[0]; // TODO
+  const quoteReserve = vaultReserve[1]; // TODO
+
+  const baseBalance = balances.baseBalance + baseInAmount;
+  const quoteBalance = balances.quoteBalance + quoteInAmount;
+
+  const baseInAmountUpdated = baseBalance - baseReserve;
+  const quoteInAmountUpdated = quoteBalance - quoteReserve;
+
+  if (baseInAmountUpdated == 0n) {
     return {
       baseAdjustedInAmount: 0n,
       quoteAdjustedInAmount: 0n,
@@ -21,16 +33,7 @@ export const previewAddLiquidity = (
     };
   }
 
-  const { vaultReserve, totalSupply, PMMState } = lpInfo;
-  const { i } = PMMState; // TODO
-
-  const baseReserve = vaultReserve[0]; // TODO
-  const quoteReserve = vaultReserve[1]; // TODO
-
   if (totalSupply == 0n) {
-    const baseBalance = baseReserve + baseInAmount;
-    const quoteBalance = quoteReserve + quoteInAmount;
-
     if (quoteBalance == 0n) {
       return {
         baseAdjustedInAmount: 0n,
@@ -56,15 +59,15 @@ export const previewAddLiquidity = (
 
     result.shares -= BigInt(1001);
   } else if (baseReserve > 0n && quoteReserve > 0n) {
-    const baseInputRatio = divFloor(baseInAmount, baseReserve);
-    const quoteInputRatio = divFloor(quoteInAmount, quoteReserve);
+    const baseInputRatio = divFloor(baseInAmountUpdated, baseReserve);
+    const quoteInputRatio = divFloor(quoteInAmountUpdated, quoteReserve);
     if (baseInputRatio <= quoteInputRatio) {
-      result.baseAdjustedInAmount = baseInAmount;
-      result.quoteAdjustedInAmount = mulFloor(quoteReserve, baseInputRatio);
+      result.baseAdjustedInAmount = baseInAmountUpdated;
+      result.quoteAdjustedInAmount = mulCeil(quoteReserve, baseInputRatio);
       result.shares = mulFloor(totalSupply, baseInputRatio);
     } else {
-      result.quoteAdjustedInAmount = quoteInAmount;
-      result.baseAdjustedInAmount = mulFloor(baseReserve, quoteInputRatio);
+      result.quoteAdjustedInAmount = quoteInAmountUpdated;
+      result.baseAdjustedInAmount = mulCeil(baseReserve, quoteInputRatio);
       result.shares = mulFloor(totalSupply, quoteInputRatio);
     }
   }
@@ -76,10 +79,9 @@ export const previewRemoveLiquidity = (
   sharesIn: bigint,
   lpInfo: MagicLPInfo
 ) => {
-  const { vaultReserve, totalSupply } = lpInfo;
+  const { totalSupply, balances } = lpInfo;
 
-  const baseBalance = vaultReserve[0]; // TODO
-  const quoteBalance = vaultReserve[1]; // TODO
+  const { baseBalance, quoteBalance } = balances;
   const totalShares = totalSupply;
 
   return {

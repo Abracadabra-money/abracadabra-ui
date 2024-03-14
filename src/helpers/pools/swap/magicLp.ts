@@ -42,6 +42,8 @@ export const getLpInfo = async (
     baseToken,
     quoteToken,
     lpFeeRate,
+    baseBalance,
+    quoteBalance
   ]: any = await publicClient.multicall({
     contracts: [
       //testnet method
@@ -106,6 +108,18 @@ export const getLpInfo = async (
         functionName: "_LP_FEE_RATE_",
         args: [],
       },
+      {
+        address: lp.baseToken.contract.address,
+        abi: lp.baseToken.contract.abi as any,
+        functionName: "balanceOf",
+        args: [lp.contract.address],
+      },
+      {
+        address: lp.quoteToken.contract.address,
+        abi: lp.quoteToken.contract.abi as any,
+        functionName: "balanceOf",
+        args: [lp.contract.address],
+      },
     ],
   });
 
@@ -134,6 +148,10 @@ export const getLpInfo = async (
     baseToken: baseToken.result,
     quoteToken: quoteToken.result,
     lpFeeRate: lpFeeRate.result,
+    balances: {
+      baseBalance: baseBalance.result,
+      quoteBalance: quoteBalance.result,
+    },
     userInfo,
     statisticsData,
   };
