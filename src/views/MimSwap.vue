@@ -63,7 +63,11 @@
       :isOpened="isConfirmationPopupOpened"
       @closePopup="isConfirmationPopupOpened = false"
     >
-      <ConfirmationPopup :actionConfig="actionConfig" :swapInfo="swapInfo" />
+      <ConfirmationPopup
+        :actionConfig="actionConfig"
+        :swapInfo="swapInfo"
+        @confirm="swapHandler"
+      />
     </LocalPopupWrap>
   </div>
 </template>

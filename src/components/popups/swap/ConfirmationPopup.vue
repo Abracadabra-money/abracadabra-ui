@@ -66,14 +66,13 @@
 
     <PriceUpdatedBlock />
 
-    <BaseButton :primary="true" @click="console.log('click')"
-      >Confirm</BaseButton
-    >
+    <BaseButton :primary="true" @click="$emit('confirm')">Confirm</BaseButton>
   </div>
 </template>
 
 <script lang="ts">
 import { formatTokenBalance } from "@/helpers/filters";
+import { watchBlockNumber } from "@wagmi/core";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 
@@ -100,6 +99,16 @@ export default {
         )
       );
     },
+  },
+
+  created() {
+    watchBlockNumber(
+      {
+        chainId: 1,
+        listen: true,
+      },
+      (blockNumber) => console.log("blockNumber", blockNumber)
+    );
   },
 
   components: {
