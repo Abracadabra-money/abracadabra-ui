@@ -89,6 +89,7 @@ const getStakeTokenInfo = async (
     : tokenInfoEmptyState;
 
   return {
+    config: tokenConfig,
     caps: caps.result,
     isSupported: isSupported.result,
     totals: parseBalances(totals.result),

@@ -31,6 +31,7 @@ export type BlastUserTokenInfo = {
 };
 
 export type BlastStakeTokenInfo = {
+  config: any;
   caps: bigint;
   isSupported: boolean;
   totals: DepositedBalances;
