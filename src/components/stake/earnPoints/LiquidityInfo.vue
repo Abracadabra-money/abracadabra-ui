@@ -6,7 +6,14 @@
         <p class="subtitle">Liquidity Launch Event</p>
       </div>
 
-      <Timer />
+      <div class="timer-wrap">
+        <a
+          target="_blank"
+          href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/XAW4Yd1tfc9Bg_x3AiHS-sA55ZRbwteGhusV3LtP45k"
+          >Extended LLE Period: Earning Points!</a
+        >
+        <Timer />
+      </div>
     </div>
 
     <div class="fill-indicators">
@@ -116,6 +123,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.timer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+
+  a {
+    font-size: 14px;
+    font-weight: 400;
+    color: #fff;
+    text-decoration: none;
+    transition: all .3s ease;
+
+    &:hover {
+      color: #FED84F;
+      padding-left: 5px;
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .timer-wrap a {
+    text-decoration: underline;
+  }
+  
+}
+
 .liquidity-info {
   display: flex;
   flex-direction: column;
