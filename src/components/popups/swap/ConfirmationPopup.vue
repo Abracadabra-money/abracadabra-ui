@@ -58,57 +58,151 @@
     </div>
 
     <SwapInfoBlock
-      :fromToken="actionConfig.fromToken"
-      :toToken="actionConfig.toToken"
-      :minAmount="swapInfo.outputAmountWithSlippage"
+      :actionConfig="actionConfig"
+      :minAmount="BigInt(localData.outputAmountWithSlippage)"
       :showPriceImpact="false"
+      :networkFee="networkFee"
     />
 
-    <PriceUpdatedBlock />
+    <PriceUpdatedBlock v-if="isUpdatedPrice" @updatedPrice="updatedPrice" />
 
-    <BaseButton :primary="true" @click="$emit('confirm')">Confirm</BaseButton>
+    <BaseButton :primary="true" @click="swapHandler">Confirm</BaseButton>
   </div>
 </template>
 
 <script lang="ts">
-import { formatTokenBalance } from "@/helpers/filters";
-import { watchBlockNumber } from "@wagmi/core";
+import moment from "moment";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import { formatTokenBalance } from "@/helpers/filters";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import notification from "@/helpers/notification/notification";
+// @ts-ignore
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
+import { swapTokensForTokens } from "@/helpers/pools/swap/actions/swapTokensForTokens";
+import { sellBaseTokensForTokens } from "@/helpers/pools/swap/actions/sellBaseTokensForTokens";
+import { sellQuoteTokensForTokens } from "@/helpers/pools/swap/actions/sellQuoteTokensForTokens";
+import { SECONDS_PER_MINUTE } from "@/constants/global";
 
 export default {
   props: {
     actionConfig: {} as any,
-    swapInfo: {} as any,
+    swapInfo: {
+      type: Object,
+      required: true,
+    },
+    networkFee: {
+      type: Number,
+      default: 0,
+    },
+  },
+
+  data() {
+    return {
+      localData: null as any,
+    };
   },
 
   computed: {
+    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+
     fromTokenAmount() {
       return formatTokenBalance(
         formatUnits(
-          this.swapInfo.inputAmount,
+          BigInt(this.localData.inputAmount),
           this.actionConfig.fromToken.config.decimals
         )
       );
     },
+
     toTokenAmount() {
       return formatTokenBalance(
         formatUnits(
-          this.swapInfo.outputAmountWithSlippage,
+          BigInt(this.localData.outputAmountWithSlippage),
           this.actionConfig.toToken.config.decimals
         )
       );
     },
+
+    isUpdatedPrice() {
+      return this.swapInfo.outputAmount !== BigInt(this.localData.outputAmount);
+    },
+  },
+
+  methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    updatedPrice() {
+      const freezSwapInfo = JSON.stringify(this.swapInfo);
+      this.localData = JSON.parse(freezSwapInfo);
+    },
+
+    successNotification(notificationId: number) {
+      this.deleteNotification(notificationId);
+      this.createNotification(notification.success);
+    },
+
+    async swapHandler() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const { methodName } = this.localData.transactionInfo;
+
+        const deadline =
+          moment().unix() +
+          SECONDS_PER_MINUTE * (Number(this.actionConfig.deadline) / 100);
+
+        // @ts-ignore
+        this.localData.transactionInfo.payload.deadline = deadline;
+
+        switch (methodName) {
+          case "sellBaseTokensForTokens":
+            await sellBaseTokensForTokens(
+              // @ts-ignore
+              this.localData.transactionInfo.swapRouterAddress,
+              this.localData.transactionInfo.payload
+            );
+            break;
+          case "sellQuoteTokensForTokens":
+            await sellQuoteTokensForTokens(
+              // @ts-ignore
+              this.localData.transactionInfo.swapRouterAddress,
+              this.localData.transactionInfo.payload
+            );
+            break;
+          case "swapTokensForTokens":
+            await swapTokensForTokens(
+              // @ts-ignore
+              this.localData.transactionInfo.swapRouterAddress,
+              this.localData.transactionInfo.payload
+            );
+            break;
+        }
+
+        this.successNotification(notificationId);
+        this.$emit("confirm");
+      } catch (error) {
+        console.log("Swap Error", error);
+        const errorNotification = {
+          msg: notificationErrorMsg(error),
+          type: "error",
+        };
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
+    },
   },
 
   created() {
-    watchBlockNumber(
-      {
-        chainId: 1,
-        listen: true,
-      },
-      (blockNumber) => console.log("blockNumber", blockNumber)
-    );
+    (BigInt.prototype as any).toJSON = function () {
+      return this.toString();
+    };
+
+    const freezSwapInfo = JSON.stringify(this.swapInfo);
+    this.localData = JSON.parse(freezSwapInfo);
   },
 
   components: {

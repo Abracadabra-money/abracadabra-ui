@@ -58,7 +58,7 @@
           max="100"
           step="1"
           type="text"
-          placeholder="0.10 min"
+          placeholder="3 min"
         />
       </div>
     </div>

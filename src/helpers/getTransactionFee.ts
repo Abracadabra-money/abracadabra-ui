@@ -37,7 +37,7 @@ export const getTransactionFee = async (
 
     const feeData = await fetchFeeData();
 
-    console.log("feeData", feeData);
+    // console.log("feeData", feeData);
 
     return parseUnits(utils.formatUnits(estimateGas.mul(gasPrice)), 18);
   } catch (error) {

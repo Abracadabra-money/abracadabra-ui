@@ -4,7 +4,7 @@
       <img src="@/assets/images/networks/unsupportedChain.svg" alt="" />
       Price Updated
     </div>
-    <button :class="['button', 'active']" @click="console.log('click')">
+    <button :class="['button', 'active']" @click="$emit('updatedPrice')">
       Accept
     </button>
   </div>

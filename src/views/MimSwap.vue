@@ -5,9 +5,9 @@
         <h3 class="title">MIM SWAP</h3>
 
         <SwapSettingsPopup
-          :slippage="100n"
+          :slippage="actionConfig.slippage"
           :defaultSlippage="100n"
-          :deadline="3000n"
+          :deadline="actionConfig.deadline"
           @updateSlippageValue="updateSlippageValue"
           @updateDeadlineValue="updateDeadlineValue"
         />
@@ -41,7 +41,7 @@
 
         <BaseButton
           :primary="true"
-          :disabled="!actionValidationData.isAllowed"
+          :disabled="!actionValidationData.isAllowed || isFetchSwapInfo"
           @click="actionHandler"
           >{{ actionValidationData.btnText }}</BaseButton
         >
@@ -69,14 +69,14 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        @confirm="swapHandler"
+        :networkFee="networkFeeUsd"
+        @confirm="isConfirmationPopupOpened = false"
       />
     </LocalPopupWrap>
   </div>
 </template>
 
 <script lang="ts">
-import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import poolsConfig from "@/configs/pools/pools";
 import { formatUnits, type Address } from "viem";
@@ -94,11 +94,6 @@ import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
 import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
-// @ts-ignore
-import { notificationErrorMsg } from "@/helpers/notification/notificationError";
-import { swapTokensForTokens } from "@/helpers/pools/swap/actions/swapTokensForTokens";
-import { sellBaseTokensForTokens } from "@/helpers/pools/swap/actions/sellBaseTokensForTokens";
-import { sellQuoteTokensForTokens } from "@/helpers/pools/swap/actions/sellQuoteTokensForTokens";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -131,8 +126,10 @@ export default {
         fromInputValue: 0n,
         toInputValue: 0n,
         slippage: 100n, //todo
-        deadline: 200n, //todo
+        deadline: 300n, //todo
       },
+      updateInterval: null as any,
+      isFetchSwapInfo: false,
     };
   },
 
@@ -264,13 +261,17 @@ export default {
         fromInputValue: 0n,
         toInputValue: 0n,
         slippage: 100n, //todo
-        deadline: 200n, //todo
+        deadline: 300n, //todo
       };
     },
 
     openTokensPopup(type: string) {
       this.tokenType = type;
       this.isTokensPopupOpened = true;
+    },
+
+    openConfirmationPopup() {
+      this.isConfirmationPopupOpened = true;
     },
 
     toogleTokens() {
@@ -307,7 +308,8 @@ export default {
     },
 
     async actionHandler() {
-      if (!this.actionValidationData.isAllowed) return false;
+      if (!this.actionValidationData.isAllowed || this.isFetchSwapInfo)
+        return false;
 
       switch (this.actionValidationData?.method) {
         case "connectWallet":
@@ -328,63 +330,15 @@ export default {
           );
           break;
         default:
-          this.isConfirmationPopupOpened = true;
+          this.openConfirmationPopup();
           break;
       }
 
       await this.createSwapInfo();
     },
 
-    async swapHandler() {
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      try {
-        const { methodName } = this.swapInfo.transactionInfo;
-
-        // @ts-ignore
-        this.swapInfo.transactionInfo.payload.deadline =
-          moment().unix() + Number(this.actionConfig.deadline);
-
-        switch (methodName) {
-          case "sellBaseTokensForTokens":
-            await sellBaseTokensForTokens(
-              // @ts-ignore
-              this.swapInfo.transactionInfo.swapRouterAddress,
-              this.swapInfo.transactionInfo.payload
-            );
-            break;
-          case "sellQuoteTokensForTokens":
-            await sellQuoteTokensForTokens(
-              // @ts-ignore
-              this.swapInfo.transactionInfo.swapRouterAddress,
-              this.swapInfo.transactionInfo.payload
-            );
-            break;
-          case "swapTokensForTokens":
-            await swapTokensForTokens(
-              // @ts-ignore
-              this.swapInfo.transactionInfo.swapRouterAddress,
-              this.swapInfo.transactionInfo.payload
-            );
-            break;
-        }
-
-        this.successNotification(notificationId);
-        this.isConfirmationPopupOpened = false;
-      } catch (error) {
-        console.log("Swap Error", error);
-        const errorNotification = {
-          msg: notificationErrorMsg(error),
-          type: "error",
-        };
-        this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
-      }
-    },
-
     async createSwapInfo() {
+      this.isFetchSwapInfo = true;
       const filteredPoolsConfig = poolsConfig.filter(
         ({ chainId }) => chainId === this.chainId
       );
@@ -406,6 +360,7 @@ export default {
       );
 
       this.poolsList = await getAllPoolsByChain(this.chainId, this.account);
+      this.isFetchSwapInfo = false;
     },
   },
 
@@ -417,6 +372,10 @@ export default {
         (token: TokenInfo) => token.config.name === "MIM"
       );
     }
+
+    this.updateInterval = setInterval(async () => {
+      await this.createSwapInfo();
+    }, 10000);
   },
 
   components: {
