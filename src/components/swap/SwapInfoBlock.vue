@@ -92,13 +92,15 @@ export default {
         toTokenPrice *
         +formatUnits(toInputValue || 0n, toToken?.config.decimals || 18);
 
-      const priceImpact = fromTokenAmountUsd / toTokenAmountUsd;
+      const priceImpact = toTokenAmountUsd / fromTokenAmountUsd;
 
       if (!priceImpact) return formatPercent(priceImpact);
 
-      const sign = fromTokenAmountUsd > toTokenAmountUsd ? "-" : "+";
+      const sign = priceImpact > 1 ? "+" : "-";
 
-      return `${sign}${formatPercent(priceImpact)}`;
+      const percent = Math.abs(1 - priceImpact) * 100;
+
+      return `${sign}${formatPercent(percent)}`;
     },
   },
 
