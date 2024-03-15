@@ -79,7 +79,10 @@
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import poolsConfig from "@/configs/pools/pools";
+import { formatUnits, type Address } from "viem";
+import type { ContractInfo } from "@/types/global";
 import { approveTokenViem } from "@/helpers/approval";
+import type { PoolConfig } from "@/configs/pools/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { getCoinsPrices, type TokenPrice } from "@/helpers/prices/defiLlama";
 import type { PriceInfo, TokenInfo } from "@/helpers/pools/swap/tokens";
@@ -96,8 +99,6 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import { swapTokensForTokens } from "@/helpers/pools/swap/actions/swapTokensForTokens";
 import { sellBaseTokensForTokens } from "@/helpers/pools/swap/actions/sellBaseTokensForTokens";
 import { sellQuoteTokensForTokens } from "@/helpers/pools/swap/actions/sellQuoteTokensForTokens";
-import type { PoolConfig } from "@/configs/pools/types";
-import { formatUnits, type Address } from "viem";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -192,6 +193,17 @@ export default {
       },
       deep: true,
     },
+
+    poolsList: {
+      async handler() {
+        this.actionConfig.fromToken =
+          this.tokensList.find(
+            (token: TokenInfo) =>
+              token.config.name === this.actionConfig.fromToken.config.name
+          ) || this.actionConfig.fromToken;
+      },
+      deep: true,
+    },
   },
 
   methods: {
@@ -213,7 +225,7 @@ export default {
       }
     },
 
-    updateSelectedToken(token: any) {
+    updateSelectedToken(token: TokenInfo) {
       if (this.tokenType === "to") {
         if (this.actionConfig.fromToken.config.name === token.config.name) {
           this.actionConfig.fromToken = this.actionConfig.toToken;
@@ -275,10 +287,10 @@ export default {
       const uniqueTokens = getAllUniqueTokens(poolsConfig);
       const coins = uniqueTokens.map(({ contract }) => contract.address);
       coins.push(this.wethAddress);
-      return await getCoinsPrices(81457, coins);
+      return await getCoinsPrices(this.chainId, coins);
     },
 
-    async approveTokenHandler(contract: any) {
+    async approveTokenHandler(contract: ContractInfo) {
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -289,7 +301,6 @@ export default {
         this.swapInfo.transactionInfo.swapRouterAddress
       );
 
-      // if (approve) await this.createStakeInfo(); //todo updated config
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
       return false;
@@ -361,6 +372,7 @@ export default {
         }
 
         this.successNotification(notificationId);
+        this.isConfirmationPopupOpened = false;
       } catch (error) {
         console.log("Swap Error", error);
         const errorNotification = {
@@ -386,30 +398,6 @@ export default {
 
       this.prices = await this.getTokensPrices(filteredPoolsConfig);
 
-      // this.prices = [
-      //   {
-      //     address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
-      //     price: 0.990929,
-      //   },
-      //   {
-      //     address: "0x4200000000000000000000000000000000000023",
-      //     price: 4000.1,
-      //   },
-      //   {
-      //     address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
-      //     price: 0.984804,
-      //   },
-      //   {
-      //     address: "0x4300000000000000000000000000000000000003",
-      //     price: 1.019,
-      //   },
-
-      //   {
-      //     address: "0x4300000000000000000000000000000000000004",
-      //     price: 3676.64,
-      //   },
-      // ];
-
       this.tokensList = await getTokenListByPools(
         filteredPoolsConfig,
         this.chainId,
@@ -426,7 +414,7 @@ export default {
 
     if (this.tokensList.length) {
       this.actionConfig.fromToken = this.tokensList.find(
-        (token: any) => token.config.name === "MIM"
+        (token: TokenInfo) => token.config.name === "MIM"
       );
     }
   },
