@@ -46,26 +46,32 @@ export default {
     routesInfo() {
       if (!this.routes?.length || !this.tokensList?.length) return [];
 
-      const addresses = this.routes.flatMap(
-        ({ inputToken, outputToken }: any) => [inputToken, outputToken]
-      );
+      // const addresses = this.routes.flatMap(
+      //   ({ inputToken, outputToken }: any) => [inputToken, outputToken]
+      // );
 
-      const icons = this.tokensList
-        .filter(({ config }: any) =>
-          addresses.includes(config.contract.address)
-        )
-        .map(({ config }: any) => config.icon);
+      // const icons = this.tokensList
+      //   .filter(({ config }: any) =>
+      //     addresses.includes(config.contract.address)
+      //   )
+      //   .map(({ config }: any) => config.icon);
 
-      return addresses.map((address: string, index: number) => {
-        // @ts-ignore
-        const text = !index ? "100" : formatUnits(this.routes[0].fees, 18);
+      // return addresses.map((address: string, index: number) => {
+      //   // @ts-ignore
+      //   const text = !index ? "100" : formatUnits(this.routes[0].fees, 18);
 
-        return {
-          address,
-          icon: icons[index],
-          percent: `${text}%`,
-        };
-      });
+      return [
+        {
+          address: this.fromTokenIcon,
+          icon: this.fromTokenIcon,
+          percent: "100%",
+        },
+        {
+          address: this.toTokenIcon,
+          icon: this.toTokenIcon,
+          percent: formatUnits(this.routes[0].fees, 18),
+        },
+      ];
     },
   },
 };
