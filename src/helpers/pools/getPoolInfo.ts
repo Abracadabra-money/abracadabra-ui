@@ -4,8 +4,7 @@ import poolsConfig from "@/configs/pools/pools";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
-
-const SwapRouter = "0x15f57fbCB7A443aC6022e051a46cAE19491bC298";
+import { getSwapRouterByChain } from "@/configs/pools/routers"
 
 const RATE_PRECISION: bigint = parseUnits("1", 18);
 
@@ -27,7 +26,7 @@ export const getPoolInfo = async (
   return {
     ...getLpInfoResult,
     tokens,
-    swapRouter: SwapRouter,
+    swapRouter: getSwapRouterByChain(poolChainId),
   };
 };
 

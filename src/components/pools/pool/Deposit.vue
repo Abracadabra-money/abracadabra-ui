@@ -83,7 +83,7 @@
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
@@ -354,6 +354,84 @@ export default {
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
+
+    //for deletion
+    calculateLiquidityRate(fromBase = false) {
+      const fromToken = {
+        tokenReserve: fromBase
+          ? this.pool.vaultReserve[0]
+          : this.pool.vaultReserve[1],
+        tokenInfo: fromBase ? this.baseToken : this.quoteToken,
+      };
+
+      const toToken = {
+        tokenReserve: fromBase
+          ? this.pool.vaultReserve[1]
+          : this.pool.vaultReserve[0],
+        tokenInfo: fromBase ? this.quoteToken : this.baseToken,
+      };
+
+      console.log({ fromToken, toToken });
+
+      const fromTokenAmount = parseUnits("1", this.baseToken.config.decimals);
+
+      const fromTokenPrice = fromToken.tokenInfo.price;
+      const toTokenPrice = toToken.tokenInfo.price;
+
+      const fromTokenValue =
+        fromToken.tokenReserve * parseUnits(fromTokenPrice.toString(), 18);
+
+      const toTokenValue =
+        toToken.tokenReserve * parseUnits(toTokenPrice.toString(), 18);
+      // 100 / 1000 = 0.1;
+      const rate = (fromTokenValue * parseUnits("1", 18)) / toTokenValue;
+
+      const parsedRate = Number(formatUnits(rate, 18));
+
+      console.log("rate", rate);
+
+      const toTokenAmount =
+        (((fromTokenAmount * parseUnits("1", 18)) / rate) * 100n) / 100n;
+      console.log({ fromTokenAmount, toTokenAmount });
+
+      const toTokenUpdated = fromBase
+        ? (toTokenAmount * 120n) / 100n
+        : (toTokenAmount * 120n) / 100n;
+
+      const baseTokenAmount = fromBase ? fromTokenAmount : toTokenUpdated;
+      const quoteTokenAmount = fromBase ? toTokenUpdated : fromTokenAmount;
+
+      console.log({ baseTokenAmount, quoteTokenAmount });
+
+      const previewAddLiquidityTest = previewAddLiquidity(
+        baseTokenAmount,
+        quoteTokenAmount,
+        this.pool
+      );
+
+      const previewAddLiquidityTest2 = previewAddLiquidity(
+        previewAddLiquidityTest.baseAdjustedInAmount,
+        previewAddLiquidityTest.quoteAdjustedInAmount,
+        this.pool
+      );
+
+      console.log("previewAddLiquidityTest", previewAddLiquidityTest);
+      console.log("previewAddLiquidityTest2", previewAddLiquidityTest2);
+      // console.log({
+      //   base: formatUnits(
+      //     previewAddLiquidityTest.baseAdjustedInAmount,
+      //     this.quoteToken.config.decimals
+      //   ),
+      //   quote: formatUnits(
+      //     previewAddLiquidityTest.quoteAdjustedInAmount,
+      //     this.quoteToken.config.decimals
+      //   ),
+      // });
+    },
+  },
+
+  created() {
+    this.calculateLiquidityRate();
   },
 
   components: {
