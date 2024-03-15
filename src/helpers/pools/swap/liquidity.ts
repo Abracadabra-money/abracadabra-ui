@@ -61,14 +61,20 @@ export const previewAddLiquidity = (
   } else if (baseReserve > 0n && quoteReserve > 0n) {
     const baseInputRatio = divFloor(baseInAmountUpdated, baseReserve);
     const quoteInputRatio = divFloor(quoteInAmountUpdated, quoteReserve);
-    if (baseInputRatio <= quoteInputRatio) {
+
+    if (baseInputRatio < quoteInputRatio) {
       result.baseAdjustedInAmount = baseInAmountUpdated;
       result.quoteAdjustedInAmount = mulCeil(quoteReserve, baseInputRatio);
       result.shares = mulFloor(totalSupply, baseInputRatio);
-    } else {
+    } else if (baseInputRatio > quoteInputRatio) {
       result.quoteAdjustedInAmount = quoteInAmountUpdated;
       result.baseAdjustedInAmount = mulCeil(baseReserve, quoteInputRatio);
       result.shares = mulFloor(totalSupply, quoteInputRatio);
+    } else {
+      // Notice: this is added by FE, to make avoid input update loop
+      result.baseAdjustedInAmount = baseInAmountUpdated;
+      result.quoteAdjustedInAmount = quoteInAmountUpdated;
+      result.shares = mulFloor(totalSupply, baseInputRatio);
     }
   }
 

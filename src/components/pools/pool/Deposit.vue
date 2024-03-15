@@ -8,7 +8,7 @@
         :decimals="baseToken.config.decimals"
         :max="baseToken.userInfo.balance"
         :value="baseInputValue"
-        @updateInputValue="updateBaseValue($event)"
+        @updateInputValue="updateValue($event, true)"
       />
 
       <BaseTokenInput
@@ -18,7 +18,7 @@
         :decimals="quoteToken.config.decimals"
         :max="quoteToken.userInfo.balance"
         :value="quoteInputValue"
-        @updateInputValue="updateQuoteValue($event)"
+        @updateInputValue="updateValue($event)"
       />
 
       <IconButton
@@ -109,7 +109,6 @@ export default {
       baseInputValue: "",
       quoteInputAmount: 0n,
       quoteInputValue: "",
-      rateCalculatingIteration: 0,
 
       isActionProcessing: false,
     };
@@ -195,71 +194,51 @@ export default {
     },
   },
 
-  watch: {
-    baseInputAmount(value) {
-      if (this.rateCalculatingIteration > 1) {
-        this.rateCalculatingIteration = 0;
-        return false;
-      }
-
-      if (value == 0) {
-        this.baseInputValue = "";
-        this.quoteInputValue = "";
-        return false;
-      }
-
-      this.baseInputValue = trimZeroDecimals(
-        formatUnits(value, this.baseToken.config.decimals)
-      );
-
-      this.quoteInputAmount =
-        (value * this.pool.midPrice) / this.pool.tokens.ratePrecision;
-
-      this.rateCalculatingIteration += 1;
-    },
-
-    quoteInputAmount(value) {
-      if (this.rateCalculatingIteration > 1) {
-        this.rateCalculatingIteration = 0;
-        return false;
-      }
-
-      if (value == 0) {
-        this.baseInputValue = "";
-        this.quoteInputValue = "";
-        return false;
-      }
-
-      this.quoteInputValue = trimZeroDecimals(
-        formatUnits(value, this.quoteToken.config.decimals)
-      );
-
-      this.baseInputAmount =
-        (value * this.pool.tokens.ratePrecision) / this.pool.midPrice;
-
-      this.rateCalculatingIteration += 1;
-    },
-  },
-
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateBaseValue(value) {
-      if (value === null) return (this.baseInputAmount = 0n);
-      this.baseInputAmount = value;
-    },
-
-    updateQuoteValue(value) {
-      if (value === null) return (this.quoteInputAmount = 0n);
-      this.quoteInputAmount = value;
-    },
-
-    resetInputs() {
-      this.baseInputValue = "";
+    clearData() {
       this.baseInputAmount = 0n;
-      this.quoteInputValue = "";
       this.quoteInputAmount = 0n;
+      this.baseInputValue = "";
+      this.quoteInputValue = "";
+    },
+
+    updateTokenInputs(adjustmendResults) {
+      this.baseInputAmount = adjustmendResults.baseAdjustedInAmount;
+      this.quoteInputAmount = adjustmendResults.quoteAdjustedInAmount;
+      this.quoteInputValue = trimZeroDecimals(
+        formatUnits(
+          adjustmendResults.quoteAdjustedInAmount,
+          this.quoteToken.config.decimals
+        )
+      );
+      this.baseInputValue = trimZeroDecimals(
+        formatUnits(
+          adjustmendResults.baseAdjustedInAmount,
+          this.baseToken.config.decimals
+        )
+      );
+    },
+
+    updateValue(value, fromBase = false) {
+      if (value === null) {
+        this.clearData();
+        return false;
+      }
+
+      const otherTokenCurrentAmount = fromBase
+        ? this.quoteInputAmount
+        : this.baseInputAmount;
+
+      const adjustmendResults = this.calculateAdjustmentAmounts(
+        value,
+        otherTokenCurrentAmount,
+        fromBase
+      );
+
+      this.updateTokenInputs(adjustmendResults);
     },
 
     createDepositPayload() {
@@ -317,7 +296,7 @@ export default {
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
-        this.resetInputs();
+        this.clearData();
       } catch (error) {
         console.log("add liquidity err:", error);
 
@@ -355,8 +334,35 @@ export default {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    //for deletion
-    calculateLiquidityRate(fromBase = false) {
+    calculateAdjustmentAmounts(
+      fromTokenAmount,
+      currentToTokenAmount = 0n,
+      fromBase = false
+    ) {
+      if (currentToTokenAmount !== 0n) {
+        const baseTokenAmount = fromBase
+          ? fromTokenAmount
+          : currentToTokenAmount;
+        const quoteTokenAmount = fromBase
+          ? currentToTokenAmount
+          : fromTokenAmount;
+        const initialResults = previewAddLiquidity(
+          baseTokenAmount,
+          quoteTokenAmount,
+          this.pool
+        );
+
+        if (
+          initialResults.baseAdjustedInAmount === baseTokenAmount &&
+          initialResults.quoteAdjustedInAmount === quoteTokenAmount
+        ) {
+          return initialResults;
+        }
+      }
+
+      const deviationFactor = 120n;
+      const ratePresicion = parseUnits("1", 18);
+
       const fromToken = {
         tokenReserve: fromBase
           ? this.pool.vaultReserve[0]
@@ -371,10 +377,6 @@ export default {
         tokenInfo: fromBase ? this.quoteToken : this.baseToken,
       };
 
-      console.log({ fromToken, toToken });
-
-      const fromTokenAmount = parseUnits("1", this.baseToken.config.decimals);
-
       const fromTokenPrice = fromToken.tokenInfo.price;
       const toTokenPrice = toToken.tokenInfo.price;
 
@@ -383,55 +385,26 @@ export default {
 
       const toTokenValue =
         toToken.tokenReserve * parseUnits(toTokenPrice.toString(), 18);
-      // 100 / 1000 = 0.1;
-      const rate = (fromTokenValue * parseUnits("1", 18)) / toTokenValue;
+      const rate = (fromTokenValue * ratePresicion) / toTokenValue;
 
-      const parsedRate = Number(formatUnits(rate, 18));
-
-      console.log("rate", rate);
-
-      const toTokenAmount =
-        (((fromTokenAmount * parseUnits("1", 18)) / rate) * 100n) / 100n;
+      const toTokenAmount = (fromTokenAmount * ratePresicion) / rate;
       console.log({ fromTokenAmount, toTokenAmount });
 
       const toTokenUpdated = fromBase
-        ? (toTokenAmount * 120n) / 100n
-        : (toTokenAmount * 120n) / 100n;
+        ? (toTokenAmount * deviationFactor) / 100n
+        : (toTokenAmount * deviationFactor) / 100n;
 
       const baseTokenAmount = fromBase ? fromTokenAmount : toTokenUpdated;
       const quoteTokenAmount = fromBase ? toTokenUpdated : fromTokenAmount;
 
-      console.log({ baseTokenAmount, quoteTokenAmount });
-
-      const previewAddLiquidityTest = previewAddLiquidity(
+      const previewAddLiquidityResults = previewAddLiquidity(
         baseTokenAmount,
         quoteTokenAmount,
         this.pool
       );
 
-      const previewAddLiquidityTest2 = previewAddLiquidity(
-        previewAddLiquidityTest.baseAdjustedInAmount,
-        previewAddLiquidityTest.quoteAdjustedInAmount,
-        this.pool
-      );
-
-      console.log("previewAddLiquidityTest", previewAddLiquidityTest);
-      console.log("previewAddLiquidityTest2", previewAddLiquidityTest2);
-      // console.log({
-      //   base: formatUnits(
-      //     previewAddLiquidityTest.baseAdjustedInAmount,
-      //     this.quoteToken.config.decimals
-      //   ),
-      //   quote: formatUnits(
-      //     previewAddLiquidityTest.quoteAdjustedInAmount,
-      //     this.quoteToken.config.decimals
-      //   ),
-      // });
+      return previewAddLiquidityResults;
     },
-  },
-
-  created() {
-    this.calculateLiquidityRate();
   },
 
   components: {
