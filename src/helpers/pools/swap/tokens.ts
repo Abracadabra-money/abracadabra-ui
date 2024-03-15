@@ -17,8 +17,8 @@ type PairTokensInfo = {
   baseToken: TokenInfo;
 };
 
-type PriceInfo = {
-  address: string;
+export type PriceInfo = {
+  address: Address;
   price: number;
 };
 

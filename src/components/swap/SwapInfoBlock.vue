@@ -2,53 +2,108 @@
   <div class="swap-info">
     <div class="swap-info-item">
       <div class="info-title">Current price</div>
-      <CurrentPrice :fromToken="fromToken" :toToken="toToken" />
+      <CurrentPrice
+        :fromToken="actionConfig?.fromToken"
+        :toToken="actionConfig?.toToken"
+      />
     </div>
     <div class="swap-info-item" v-if="showPriceImpact">
       <div class="info-title">Price Impact</div>
-      <div class="info-value">93.00%</div>
+      <div class="info-value" v-if="isSelectedTokens">{{ priceImpact }}</div>
+      <div class="info-value" v-else>-</div>
     </div>
     <div class="swap-info-item">
       <div class="info-title">Minimum received</div>
       <div class="info-value" v-if="isSelectedTokens">
-        {{ minimumReceived }} {{ toToken?.config.name }}
+        {{ minimumReceived }} {{ actionConfig?.toToken?.config.name }}
       </div>
       <div class="info-value" v-else>-</div>
     </div>
     <div class="swap-info-item">
       <div class="info-title">Network Fee</div>
-      <div class="info-value"><FeeIcon /> $0.01</div>
+      <div class="info-value" v-if="networkFee">
+        <FeeIcon /> {{ formatUSD(networkFee) }}
+      </div>
+      <div v-else>-</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import {
+  formatPercent,
+  formatTokenBalance,
+  formatUSD,
+} from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { defineAsyncComponent, type Prop } from "vue";
-import { formatTokenBalance } from "@/helpers/filters";
-import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import type { TokenPrice } from "@/helpers/prices/defiLlama";
+import type { ActionConfig } from "@/helpers/pools/swap/getSwapInfo";
 
 export default {
   props: {
-    fromToken: Object as Prop<TokenInfo>,
-    toToken: Object as Prop<TokenInfo>,
     minAmount: BigInt as Prop<bigint>,
+    actionConfig: Object as Prop<ActionConfig>,
+    prices: {
+      type: Array<TokenPrice>,
+      default: () => [],
+    },
+    networkFee: { type: Number, default: 0 },
     showPriceImpact: { type: Boolean, default: true },
   },
 
   computed: {
     isSelectedTokens() {
-      if (!this.toToken || !this.fromToken) return false;
-      const { name: toTokenName } = this.toToken.config;
-      const { name: fromTokenName } = this.fromToken.config;
+      if (!this.actionConfig) return false;
+      const { fromToken, toToken } = this.actionConfig;
+      const { name: toTokenName } = toToken.config;
+      const { name: fromTokenName } = fromToken.config;
       return ![toTokenName, fromTokenName].includes("Select Token");
     },
 
     minimumReceived() {
       return formatTokenBalance(
-        formatUnits(this.minAmount || 0n, this.toToken?.config.decimals || 18)
+        formatUnits(
+          this.minAmount || 0n,
+          this.actionConfig?.toToken?.config.decimals || 18
+        )
       );
     },
+
+    priceImpact() {
+      const { fromToken, toToken, fromInputValue, toInputValue }: any =
+        this.actionConfig;
+
+      const fromTokenPrice =
+        this.prices.find(
+          (price) => price.address === fromToken?.config.contract.address
+        )?.price || 0;
+
+      const toTokenPrice =
+        this.prices.find(
+          (price) => price.address === toToken?.config.contract.address
+        )?.price || 0;
+
+      const fromTokenAmountUsd =
+        fromTokenPrice *
+        +formatUnits(fromInputValue, toToken?.config.decimals || 18);
+
+      const toTokenAmountUsd =
+        toTokenPrice *
+        +formatUnits(toInputValue || 0n, toToken?.config.decimals || 18);
+
+      const priceImpact = fromTokenAmountUsd / toTokenAmountUsd;
+
+      if (!priceImpact) return formatPercent(priceImpact);
+
+      const sign = fromTokenAmountUsd > toTokenAmountUsd ? "-" : "+";
+
+      return `${sign}${formatPercent(priceImpact)}`;
+    },
+  },
+
+  methods: {
+    formatUSD,
   },
 
   components: {

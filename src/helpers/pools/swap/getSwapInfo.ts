@@ -6,7 +6,7 @@ import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 
-type ActionConfig = {
+export type ActionConfig = {
   fromToken: TokenInfo;
   toToken: TokenInfo;
   fromInputValue: bigint;

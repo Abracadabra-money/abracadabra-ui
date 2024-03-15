@@ -26,7 +26,10 @@
         <SwapInfoBlock
           :fromToken="actionConfig.fromToken"
           :toToken="actionConfig.toToken"
+          :actionConfig="actionConfig"
           :minAmount="swapInfo.outputAmountWithSlippage"
+          :networkFee="networkFeeUsd"
+          :prices="prices"
         />
 
         <SwapRouterInfoBlock
@@ -75,15 +78,15 @@
 <script lang="ts">
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
-import { fetchFeeData } from "@wagmi/core";
 import poolsConfig from "@/configs/pools/pools";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { getCoinsPrices } from "@/helpers/prices/defiLlama";
-import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import { getCoinsPrices, type TokenPrice } from "@/helpers/prices/defiLlama";
+import type { PriceInfo, TokenInfo } from "@/helpers/pools/swap/tokens";
 import { getSwapInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
+import { getTransactionFee } from "@/helpers/getTransactionFee";
 import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
 import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
@@ -93,6 +96,8 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import { swapTokensForTokens } from "@/helpers/pools/swap/actions/swapTokensForTokens";
 import { sellBaseTokensForTokens } from "@/helpers/pools/swap/actions/sellBaseTokensForTokens";
 import { sellQuoteTokensForTokens } from "@/helpers/pools/swap/actions/sellQuoteTokensForTokens";
+import type { PoolConfig } from "@/configs/pools/types";
+import { formatUnits, type Address } from "viem";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -116,6 +121,9 @@ export default {
       tokenType: "from",
       isTokensPopupOpened: false,
       isConfirmationPopupOpened: false,
+      networkFee: 0n,
+      wethAddress: "0x4300000000000000000000000000000000000004" as Address,
+      prices: [] as TokenPrice[],
       actionConfig: {
         fromToken: emptyTokenInfo,
         toToken: emptyTokenInfo,
@@ -148,11 +156,41 @@ export default {
         this.account
       );
     },
+
+    feePayload(): Array<string | bigint | number> {
+      const { payload }: any = this.swapInfo.transactionInfo;
+      if (!Object.keys(payload).length) return [];
+      return Object.values(payload);
+    },
+
+    nativeTokenPrice(): number {
+      return (
+        this.prices.find(
+          ({ address }: PriceInfo) => address === this.wethAddress
+        )?.price || 0
+      );
+    },
+
+    networkFeeUsd() {
+      return +formatUnits(this.networkFee, 18) * this.nativeTokenPrice;
+    },
   },
 
   watch: {
     chainId() {
       this.createSwapInfo();
+    },
+
+    actionConfig: {
+      async handler() {
+        this.networkFee = await getTransactionFee(
+          this.chainId,
+          this.swapInfo.transactionInfo.methodName,
+          this.feePayload,
+          this.account
+        );
+      },
+      deep: true,
     },
   },
 
@@ -231,6 +269,13 @@ export default {
       this.actionConfig.toToken = fromToken;
 
       this.updateFromValue(this.actionConfig.fromInputValue);
+    },
+
+    async getTokensPrices(poolsConfig: PoolConfig[]) {
+      const uniqueTokens = getAllUniqueTokens(poolsConfig);
+      const coins = uniqueTokens.map(({ contract }) => contract.address);
+      coins.push(this.wethAddress);
+      return await getCoinsPrices(81457, coins);
     },
 
     async approveTokenHandler(contract: any) {
@@ -328,29 +373,6 @@ export default {
     },
 
     async createSwapInfo() {
-      // const uniqueTokens = getAllUniqueTokens(poolsConfig);
-      // const coins = uniqueTokens.map(({ contract }) => contract.address);
-      // const prices = await getCoinsPrices(81457, coins);
-
-      const prices = [
-        {
-          address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
-          price: 0.990929,
-        },
-        {
-          address: "0x4200000000000000000000000000000000000023",
-          price: 4000.1,
-        },
-        {
-          address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
-          price: 0.984804,
-        },
-        {
-          address: "0x4300000000000000000000000000000000000003",
-          price: 1.019,
-        },
-      ];
-
       const filteredPoolsConfig = poolsConfig.filter(
         ({ chainId }) => chainId === this.chainId
       );
@@ -362,10 +384,36 @@ export default {
         return;
       }
 
+      this.prices = await this.getTokensPrices(filteredPoolsConfig);
+
+      // this.prices = [
+      //   {
+      //     address: "0x0eb13D9C49C31B57e896c1637766E9EcDC1989CD",
+      //     price: 0.990929,
+      //   },
+      //   {
+      //     address: "0x4200000000000000000000000000000000000023",
+      //     price: 4000.1,
+      //   },
+      //   {
+      //     address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
+      //     price: 0.984804,
+      //   },
+      //   {
+      //     address: "0x4300000000000000000000000000000000000003",
+      //     price: 1.019,
+      //   },
+
+      //   {
+      //     address: "0x4300000000000000000000000000000000000004",
+      //     price: 3676.64,
+      //   },
+      // ];
+
       this.tokensList = await getTokenListByPools(
         filteredPoolsConfig,
         this.chainId,
-        prices,
+        this.prices,
         this.account
       );
 
@@ -376,12 +424,11 @@ export default {
   async created() {
     await this.createSwapInfo();
 
-    this.actionConfig.fromToken = this.tokensList.find(
-      (token: any) => token.config.name === "MIM"
-    );
-
-    const feeData = await fetchFeeData();
-    console.log("feeData", feeData);
+    if (this.tokensList.length) {
+      this.actionConfig.fromToken = this.tokensList.find(
+        (token: any) => token.config.name === "MIM"
+      );
+    }
   },
 
   components: {

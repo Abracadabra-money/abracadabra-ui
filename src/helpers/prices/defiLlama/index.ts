@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Address } from "viem";
 
-type TokenPrice = {
+export type TokenPrice = {
   address: Address;
   price: number;
 };
