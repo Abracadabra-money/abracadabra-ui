@@ -169,7 +169,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  height: 158px;
+  min-height: 158px;
   border: 1px solid #fcfd02;
   border-radius: 16px;
   padding: 21px 12px 16px 12px;
@@ -201,7 +201,7 @@ export default {
 }
 
 .pool {
-  justify-content: space-evenly;
+  gap: 16px;
   background: linear-gradient(
       104deg,
       rgba(251, 253, 3, 0.36) 0%,
@@ -223,6 +223,10 @@ export default {
   align-items: center;
 }
 
+.pool-info {
+  margin-top: 8px;
+}
+
 .pool-name,
 .cauldron-name {
   font-size: 20px;
@@ -236,6 +240,7 @@ export default {
 .total-by-token {
   justify-content: space-between;
   flex-wrap: wrap;
+  gap: 6px;
 }
 
 .token-part {

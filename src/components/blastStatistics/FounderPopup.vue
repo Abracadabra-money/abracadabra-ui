@@ -51,19 +51,23 @@
         <div class="decorative-line"></div>
       </div>
 
+      <Notification
+        :notification="notification"
+        constant
+        v-if="!isBecomeFounder"
+      />
+
       <FounderCheckBox :value="isBecomeFounder" @update="toggleBecomeFounder" />
 
-      <BaseButton primary>Confirm</BaseButton>
+      <BaseButton :error="!isBecomeFounder" :primary="isBecomeFounder">
+        Confirm
+      </BaseButton>
     </div>
   </div>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { approveTokenViem } from "@/helpers/approval";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
 import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
@@ -82,7 +86,15 @@ export default {
     };
   },
 
-  computed: {},
+  computed: {
+    notification() {
+      return {
+        title: "Title",
+        msg: "Thanks for taking part in the innovation",
+        type: "error",
+      };
+    },
+  },
 
   methods: {
     formatTokenBalance(value) {
@@ -115,6 +127,9 @@ export default {
     FounderCheckBox: defineAsyncComponent(() =>
       import("@/components/blastStatistics/FounderCheckBox.vue")
     ),
+    Notification: defineAsyncComponent(() =>
+      import("@/components/notifications/Notification.vue")
+    ),
   },
 };
 </script>
@@ -132,6 +147,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0 10px;
   background: rgba(25, 25, 25, 0.1);
   backdrop-filter: blur(10px);
 }
@@ -142,9 +158,9 @@ export default {
   align-items: start;
   gap: 24px;
   padding: 32px;
-  width: 533px;
-  max-width: 100%;
-  height: 503px;
+  max-width: 533px;
+  width: 100%;
+  min-height: 503px;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: #101622;
@@ -186,7 +202,8 @@ export default {
 .promo-label {
   display: flex;
   align-items: center;
-  width: 425px;
+  max-width: 425px;
+  width: 100%;
   height: 45px;
   padding: 12px;
   border-radius: 16px 0 0 16px;
@@ -205,7 +222,8 @@ export default {
 .total-by-token {
   display: flex;
   align-items: center;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .token-part {

@@ -1,6 +1,10 @@
 <template>
   <div class="notification" :class="['notification-' + notification.type]">
-    <button class="close-button" @click="closeNotification"></button>
+    <button
+      class="close-button"
+      @click="closeNotification"
+      v-if="!constant"
+    ></button>
     <img
       class="notification-icon"
       :src="getImgUrl(notification.type)"
@@ -25,6 +29,8 @@ export default {
       type: Object,
       required: true,
     },
+
+    constant: { type: Boolean },
   },
 
   data() {

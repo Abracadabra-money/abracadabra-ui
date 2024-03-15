@@ -164,7 +164,7 @@ export default {
   width: 1px;
   height: 86px;
   background: linear-gradient(
-    90deg,
+    180deg,
     rgba(255, 255, 255, 0.12) 0%,
     rgba(255, 255, 255, 0) 0.01%,
     rgba(255, 255, 255, 0.12) 46.96%,
@@ -209,8 +209,9 @@ export default {
   }
 
   .total-by-token {
-    display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
     gap: 12px;
   }
 
@@ -223,6 +224,13 @@ export default {
   }
 
   .divider {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0) 0.01%,
+      rgba(255, 255, 255, 0.12) 46.96%,
+      rgba(255, 255, 255, 0) 100%
+    );
     width: 445px;
     height: 1px;
     margin: auto;
@@ -230,6 +238,15 @@ export default {
 }
 
 @media screen and (max-width: 620px) {
+  .info-card {
+    align-items: center;
+  }
+
+  .total-deposited,
+  .total-by-token {
+    justify-content: center;
+  }
+
   .title {
     font-size: 24px;
   }

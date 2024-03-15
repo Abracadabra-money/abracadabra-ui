@@ -154,6 +154,7 @@ export default {
   flex-direction: column;
   gap: 24px;
   width: 100%;
+  max-width: 410px;
 }
 
 .points-earned-title {
@@ -249,6 +250,7 @@ export default {
   width: 330px;
   padding: 12px 24px;
   border-radius: 16px;
+  border: none;
   background: #fcfd02;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
