@@ -9,7 +9,7 @@
       :max="fromToken.userInfo.balance"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'from')"
-      @updateInputValue="$emit('updateFromInputValue', $event)"
+      @updateInputValue="updateFromInputValue"
     />
 
     <button class="swap-button" @click="$emit('onToogleTokens')">
@@ -51,11 +51,28 @@ export default {
   },
 
   watch: {
-    toTokenAmount(value) {
-      const { decimals } = this.toToken!.config;
+    toTokenAmount: {
+      handler(value) {
+        const { decimals } = this.toToken!.config;
 
-      if (!value) this.toInputValue = "";
-      else this.toInputValue = trimZeroDecimals(formatUnits(value, decimals));
+        if (!value) {
+          this.toInputValue = "";
+          this.fromInputValue = "";
+        } else
+          this.toInputValue = trimZeroDecimals(formatUnits(value, decimals));
+      },
+      immediate: true,
+    },
+  },
+
+  methods: {
+    updateFromInputValue(value: bigint) {
+      if (!value) this.fromInputValue = "";
+      else {
+        this.fromInputValue = trimZeroDecimals(formatUnits(value, 18));
+      }
+
+      this.$emit("updateFromInputValue", value);
     },
   },
 

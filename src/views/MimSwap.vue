@@ -70,7 +70,7 @@
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
         :networkFee="networkFeeUsd"
-        @confirm="isConfirmationPopupOpened = false"
+        @confirm="closeConfirmationPopup"
       />
     </LocalPopupWrap>
   </div>
@@ -272,6 +272,12 @@ export default {
 
     openConfirmationPopup() {
       this.isConfirmationPopupOpened = true;
+    },
+
+    closeConfirmationPopup() {
+      this.actionConfig.fromInputValue = 0n;
+      this.actionConfig.toInputValue = 0n;
+      this.isConfirmationPopupOpened = false;
     },
 
     toogleTokens() {
