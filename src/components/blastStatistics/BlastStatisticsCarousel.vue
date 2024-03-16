@@ -1,11 +1,14 @@
 <template>
-  <Carousel :wrap-around="true" :transition="500" :autoplay="3000">
+  <Carousel :wrap-around="true" :transition="500">
     <slide :index="0">
-      <PoolCard :stakeInfo="stakeInfo" />
+      <PoolCard
+        :stakeInfo="stakeInfo"
+        v-if="this.stakeInfo.userLpInfo.balance"
+      />
     </slide>
 
-    <slide :index="1">
-      <BlastCauldronCard />
+    <slide :index="1" v-if="cauldronInfo?.userPosition?.collateralDeposited">
+      <BlastCauldronCard :cauldronInfo="cauldronInfo" />
     </slide>
 
     <template #addons>
@@ -23,6 +26,7 @@ import BlastCauldronCard from "@/components/blastStatistics/cards/BlastCauldronC
 export default {
   props: {
     stakeInfo: { type: Object },
+    cauldronInfo: { type: Object },
   },
 
   components: {

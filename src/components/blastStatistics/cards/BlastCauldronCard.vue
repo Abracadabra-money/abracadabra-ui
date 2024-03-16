@@ -1,15 +1,5 @@
 <template>
-  <router-link
-    :to="{
-      name: 'Market',
-      params: {
-        chainId: cauldronInfo.config.chainId,
-        cauldronId: cauldronInfo.config.id,
-      },
-    }"
-    class="deposit-card cauldron"
-    v-if="cauldronInfo"
-  >
+  <div class="deposit-card cauldron">
     <div class="label">Minter</div>
     <div class="cauldron-info">
       <TokenChainIcon
@@ -32,43 +22,21 @@
         {{ formatTokenBalance(cauldronInfo.userPosition.collateralDeposited) }}
       </div>
     </div>
-  </router-link>
+  </div>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
-import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
-  data() {
-    return {
-      cauldronInfo: null,
-      cauldronChainId: 81457,
-      cauldronId: 1,
-      updateInterval: null,
-    };
+  props: {
+    cauldronInfo: { type: Object },
   },
-
   methods: {
     formatTokenBalance(value) {
       return formatTokenBalance(formatUnits(value, 18));
-    },
-
-    async createCauldronInfo() {
-      const currentRpc = defaultRpc[this.cauldronChainId];
-
-      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
-
-      this.cauldronInfo = await getCauldronInfo(
-        this.cauldronId,
-        this.cauldronChainId,
-        chainProvider,
-        chainProvider
-      );
     },
   },
 
@@ -79,13 +47,6 @@ export default {
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),
-  },
-
-  async created() {
-    await this.createCauldronInfo();
-    this.updateInterval = setInterval(async () => {
-      await this.createCauldronInfo();
-    }, 60000);
   },
 };
 </script>

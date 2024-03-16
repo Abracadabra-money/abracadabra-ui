@@ -12,6 +12,7 @@ import type {
 import { blastStakeConfig } from "@/configs/blast/stake";
 import blastCauldronsConfigs from "@/configs/cauldrons/blastCauldrons";
 import { getPublicClient } from "@/helpers/getPublicClient";
+import { getUserLpInfo } from "@/helpers/pools/swap/magicLp";
 
 const tokenInfoEmptyState = {
   allowance: 0n,
@@ -48,10 +49,18 @@ export const getStakeInfo = async (
     )
   );
 
+  const userLpInfo = await getUserLpInfo(
+    "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8",
+    "0x73a5487f13fab384db55bb9a054f2d35ef21737e",
+    account,
+    chainId
+  );
+
   return {
     config,
     state: state.result,
     tokensInfo,
+    userLpInfo,
   };
 };
 

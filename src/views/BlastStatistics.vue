@@ -62,7 +62,6 @@ import {
 } from "@/helpers/blast/stake/points";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
 import { defineAsyncComponent } from "vue";
-import PointsEarnedCard from "@/components/blastStatistics/cards/PointsEarnedCard.vue";
 
 export default {
   data() {
