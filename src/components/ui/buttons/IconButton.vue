@@ -2,14 +2,14 @@
   <component
     @mouseover="hover = true"
     @mouseleave="hover = false"
-    class="button-wrap"
+    :class="['button-wrap', { disable }]"
     :style="`border-radius: ${borderRadius}`"
     :is="tagName"
     :href="href"
     :target="href"
   >
     <span
-      class="inner-wrap"
+      :class="['inner-wrap', { active }]"
       :style="`width: ${width}px; height: ${height}px; padding: ${padding}; border-radius: ${borderRadius}`"
     >
       <WalletIcon v-if="wallet" :fill="svgFill" />
@@ -78,6 +78,7 @@ export default {
       type: Boolean,
       default: false,
     },
+    disable: { type: Boolean, default: false },
   },
 
   data() {
@@ -139,9 +140,14 @@ export default {
   width: 32px;
   transition: all 0.3s ease;
 
-  &:hover {
+  &:hover,
+  &.active {
     background: #191f2f;
     box-shadow: 0px 0px 4px 0px rgba(255, 255, 255, 0.13);
   }
+}
+
+.disable {
+  cursor: auto;
 }
 </style>

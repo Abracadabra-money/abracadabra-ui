@@ -25,6 +25,7 @@
         class="plus-icon"
         plus
         active
+        disable
         :width="44"
         :height="44"
         borderRadius="16px"
