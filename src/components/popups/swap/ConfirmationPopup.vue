@@ -61,7 +61,6 @@
       :actionConfig="actionConfig"
       :minAmount="BigInt(localData.outputAmountWithSlippage)"
       :showPriceImpact="false"
-      :networkFee="networkFee"
     />
 
     <PriceUpdatedBlock v-if="isUpdatedPrice" @updatedPrice="updatedPrice" />
@@ -90,10 +89,6 @@ export default {
     swapInfo: {
       type: Object,
       required: true,
-    },
-    networkFee: {
-      type: Number,
-      default: 0,
     },
   },
 

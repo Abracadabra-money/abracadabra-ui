@@ -7,6 +7,7 @@
       :icon="fromToken.config.icon"
       :decimals="fromToken.config.decimals"
       :max="fromToken.userInfo.balance"
+      :tokenPrice="fromTokenPrice"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'from')"
       @updateInputValue="updateFromInputValue"
@@ -24,6 +25,7 @@
       :icon="toToken.config.icon"
       :decimals="toToken.config.decimals"
       :max="toToken.userInfo.balance"
+      :tokenPrice="toTokenPrice"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'to')"
     />
@@ -41,6 +43,8 @@ export default {
     fromToken: Object as Prop<TokenInfo>,
     toToken: Object as Prop<TokenInfo>,
     toTokenAmount: BigInt as Prop<bigint>,
+    fromTokenPrice: { type: Number, default: 0 },
+    toTokenPrice: { type: Number, default: 0 },
   },
 
   data() {
@@ -109,5 +113,9 @@ export default {
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(68px);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 2px;
 }
 </style>

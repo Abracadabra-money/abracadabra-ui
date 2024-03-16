@@ -8,7 +8,7 @@ export const validationActions = (actionConfig: any, chainId: number) => {
   const connectedError = validateConnection();
   if (connectedError.btnText) return connectedError;
 
-  const chainError = validateChain(chainId);
+  const chainError = validateChain(chainId, "Switch to Blast");
   if (chainError.btnText) return chainError;
 
   if (fromToken.config.name === "Select Token")
@@ -18,11 +18,11 @@ export const validationActions = (actionConfig: any, chainId: number) => {
     return { btnText: "Select Token", isAllowed: false };
 
   if (!fromInputValue || !toInputValue)
-    return { btnText: "Nothing to do", isAllowed: false };
+    return { btnText: "Enter the amount", isAllowed: false };
 
   if (fromInputValue > fromToken.userInfo.balance)
     return {
-      btnText: `Insufficient balance ${fromToken.name}`,
+      btnText: `Insufficient balance`,
       isAllowed: false,
     };
 
@@ -36,10 +36,10 @@ export const validationActions = (actionConfig: any, chainId: number) => {
   return { btnText: "Swap", isAllowed: true, method: "swap" };
 };
 
-const validateChain = (connectedChainId: number) => {
+const validateChain = (connectedChainId: number, btnText = "Switch Chain") => {
   if (!SUPPORTED_CHAINS.includes(connectedChainId))
     return {
-      btnText: "Switch Chain",
+      btnText,
       isAllowed: true,
       method: "switchNetwork",
     };

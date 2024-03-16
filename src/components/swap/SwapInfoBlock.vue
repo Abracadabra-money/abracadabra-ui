@@ -9,7 +9,12 @@
     </div>
     <div class="swap-info-item" v-if="showPriceImpact">
       <div class="info-title">Price Impact</div>
-      <div class="info-value" v-if="isSelectedTokens">{{ priceImpact }}</div>
+      <div
+        :class="['info-value', { warning: isWarning }]"
+        v-if="priceImpactPercent && isSelectedTokens"
+      >
+        {{ priceImpactSign }} {{ formatPercent(priceImpactPercent) }}
+      </div>
       <div class="info-value" v-else>-</div>
     </div>
     <div class="swap-info-item">
@@ -19,13 +24,6 @@
       </div>
       <div class="info-value" v-else>-</div>
     </div>
-    <!-- <div class="swap-info-item">
-      <div class="info-title">Network Fee</div>
-      <div class="info-value" v-if="networkFee">
-        <FeeIcon /> {{ formatUSD(networkFee) }}
-      </div>
-      <div v-else>-</div>
-    </div> -->
   </div>
 </template>
 
@@ -37,18 +35,13 @@ import {
 } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { defineAsyncComponent, type Prop } from "vue";
-import type { TokenPrice } from "@/helpers/prices/defiLlama";
 import type { ActionConfig } from "@/helpers/pools/swap/getSwapInfo";
 
 export default {
   props: {
     minAmount: BigInt as Prop<bigint>,
     actionConfig: Object as Prop<ActionConfig>,
-    prices: {
-      type: Array<TokenPrice>,
-      default: () => [],
-    },
-    networkFee: { type: Number, default: 0 },
+    priceImpact: { type: Number, default: 0 },
     showPriceImpact: { type: Boolean, default: true },
   },
 
@@ -61,6 +54,10 @@ export default {
       return ![toTokenName, fromTokenName].includes("Select Token");
     },
 
+    isWarning() {
+      return this.priceImpact <= 0.9;
+    },
+
     minimumReceived() {
       return formatTokenBalance(
         formatUnits(
@@ -70,51 +67,24 @@ export default {
       );
     },
 
-    priceImpact() {
-      const { fromToken, toToken, fromInputValue, toInputValue }: any =
-        this.actionConfig;
+    priceImpactSign() {
+      return this.priceImpact > 1 ? "+" : "-";
+    },
 
-      const fromTokenPrice =
-        this.prices.find(
-          (price) => price.address === fromToken?.config.contract.address
-        )?.price || 0;
-
-      const toTokenPrice =
-        this.prices.find(
-          (price) => price.address === toToken?.config.contract.address
-        )?.price || 0;
-
-      const fromTokenAmountUsd =
-        fromTokenPrice *
-        +formatUnits(fromInputValue, toToken?.config.decimals || 18);
-
-      const toTokenAmountUsd =
-        toTokenPrice *
-        +formatUnits(toInputValue || 0n, toToken?.config.decimals || 18);
-
-      const priceImpact = toTokenAmountUsd / fromTokenAmountUsd;
-
-      if (!priceImpact) return formatPercent(priceImpact);
-
-      const sign = priceImpact > 1 ? "+" : "-";
-
-      const percent = Math.abs(1 - priceImpact) * 100;
-
-      return `${sign}${formatPercent(percent)}`;
+    priceImpactPercent() {
+      return Math.abs(1 - this.priceImpact) * 100;
     },
   },
 
   methods: {
     formatUSD,
+    formatPercent,
   },
 
   components: {
     CurrentPrice: defineAsyncComponent(
       () => import("@/components/pools/CurrentPrice.vue")
     ),
-    // FeeIcon: defineAsyncComponent(
-    //   () => import("@/components/ui/icons/FeeIcon.vue")
-    // ),
   },
 };
 </script>
@@ -152,5 +122,9 @@ export default {
 
 .info-price {
   color: #575c62;
+}
+
+.warning {
+  color: #8c4040;
 }
 </style>

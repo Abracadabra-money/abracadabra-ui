@@ -30,9 +30,12 @@
 </template>
 
 <script lang="ts">
-import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
-import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import { formatUnits } from "viem";
+import { formatPercent } from "@/helpers/filters";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
+
+const FEES_DECIMALS = 16;
 
 export default {
   props: {
@@ -46,20 +49,6 @@ export default {
     routesInfo() {
       if (!this.routes?.length || !this.tokensList?.length) return [];
 
-      // const addresses = this.routes.flatMap(
-      //   ({ inputToken, outputToken }: any) => [inputToken, outputToken]
-      // );
-
-      // const icons = this.tokensList
-      //   .filter(({ config }: any) =>
-      //     addresses.includes(config.contract.address)
-      //   )
-      //   .map(({ config }: any) => config.icon);
-
-      // return addresses.map((address: string, index: number) => {
-      //   // @ts-ignore
-      //   const text = !index ? "100" : formatUnits(this.routes[0].fees, 18);
-
       return [
         {
           address: this.fromTokenIcon,
@@ -68,8 +57,10 @@ export default {
         },
         {
           address: this.toTokenIcon,
-          icon: this.toTokenIcon,
-          percent: formatUnits(this.routes[0].fees, 18),
+          icon: this.routes[0].lpInfo.icon,
+          percent: formatPercent(
+            formatUnits(this.routes[0].fees, FEES_DECIMALS)
+          ),
         },
       ];
     },

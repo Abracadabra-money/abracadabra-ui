@@ -15,6 +15,8 @@
 
       <div class="swap-body">
         <SwapForm
+          :fromTokenPrice="fromTokenPrice"
+          :toTokenPrice="toTokenPrice"
           :fromToken="actionConfig.fromToken"
           :toToken="actionConfig.toToken"
           :toTokenAmount="actionConfig.toInputValue"
@@ -24,12 +26,9 @@
         />
 
         <SwapInfoBlock
-          :fromToken="actionConfig.fromToken"
-          :toToken="actionConfig.toToken"
           :actionConfig="actionConfig"
+          :priceImpact="priceImpact"
           :minAmount="swapInfo.outputAmountWithSlippage"
-          :networkFee="networkFeeUsd"
-          :prices="prices"
         />
 
         <SwapRouterInfoBlock
@@ -40,8 +39,9 @@
         />
 
         <BaseButton
-          :primary="true"
+          :primary="!isWarningBtn"
           :disabled="!actionValidationData.isAllowed || isFetchSwapInfo"
+          :warning="isWarningBtn"
           @click="actionHandler"
           >{{ actionValidationData.btnText }}</BaseButton
         >
@@ -69,7 +69,6 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        :networkFee="networkFeeUsd"
         @confirm="closeConfirmationPopup"
       />
     </LocalPopupWrap>
@@ -84,15 +83,14 @@ import type { ContractInfo } from "@/types/global";
 import { approveTokenViem } from "@/helpers/approval";
 import type { PoolConfig } from "@/configs/pools/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { getCoinsPrices, type TokenPrice } from "@/helpers/prices/defiLlama";
-import type { PriceInfo, TokenInfo } from "@/helpers/pools/swap/tokens";
 import { getSwapInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
-import { getTransactionFee } from "@/helpers/getTransactionFee";
 import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
 import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
+import type { PriceInfo, TokenInfo } from "@/helpers/pools/swap/tokens";
+import { getCoinsPrices, type TokenPrice } from "@/helpers/prices/defiLlama";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 
 const emptyTokenInfo: TokenInfo = {
@@ -117,7 +115,6 @@ export default {
       tokenType: "from",
       isTokensPopupOpened: false,
       isConfirmationPopupOpened: false,
-      networkFee: 0n,
       wethAddress: "0x4300000000000000000000000000000000000004" as Address,
       prices: [] as TokenPrice[],
       actionConfig: {
@@ -135,6 +132,11 @@ export default {
 
   computed: {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+
+    isWarningBtn() {
+      if (!this.priceImpact) return false;
+      return this.priceImpact <= 0.9;
+    },
 
     selectedToken() {
       return this.tokenType === "from"
@@ -169,26 +171,49 @@ export default {
       );
     },
 
-    networkFeeUsd() {
-      return +formatUnits(this.networkFee, 18) * this.nativeTokenPrice;
+    fromTokenPrice() {
+      const { fromToken } = this.actionConfig;
+
+      return (
+        this.prices.find(
+          (price) => price.address === fromToken?.config.contract.address
+        )?.price || 0
+      );
+    },
+
+    toTokenPrice() {
+      const { toToken } = this.actionConfig;
+
+      return (
+        this.prices.find(
+          (price) => price.address === toToken?.config.contract.address
+        )?.price || 0
+      );
+    },
+
+    priceImpact() {
+      const { fromToken, toToken, fromInputValue, toInputValue }: any =
+        this.actionConfig;
+
+      const fromTokenAmountUsd =
+        this.fromTokenPrice *
+        +formatUnits(fromInputValue, fromToken?.config.decimals || 18);
+
+      const toTokenAmountUsd =
+        this.toTokenPrice *
+        +formatUnits(toInputValue || 0n, toToken?.config.decimals || 18);
+
+      const priceImpact = toTokenAmountUsd / fromTokenAmountUsd;
+
+      if (!priceImpact) return priceImpact;
+
+      return priceImpact;
     },
   },
 
   watch: {
     chainId() {
       this.createSwapInfo();
-    },
-
-    actionConfig: {
-      async handler() {
-        this.networkFee = await getTransactionFee(
-          this.chainId,
-          this.swapInfo.transactionInfo.methodName,
-          this.feePayload,
-          this.account
-        );
-      },
-      deep: true,
     },
 
     poolsList: {
@@ -353,6 +378,7 @@ export default {
         this.tokensList = [];
         this.poolsList = [];
         this.resetActionCaonfig();
+        this.isFetchSwapInfo = false;
         return;
       }
 

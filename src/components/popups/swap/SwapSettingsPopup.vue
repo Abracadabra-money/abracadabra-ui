@@ -9,7 +9,7 @@
 
       <div>
         <h4 class="subtitle">
-          MEV protected slippage
+          Slippage tolerance
 
           <TooltipIcon
             :width="20"
