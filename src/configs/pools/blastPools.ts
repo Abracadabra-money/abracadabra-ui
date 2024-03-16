@@ -8,7 +8,7 @@ const blastPools: Array<PoolConfig> = [
     id: 1,
     chainId: 81457,
     name: "MIM / USDB",
-    icon: useImage(`assets/images/tokens/MIM-WETH.png`),
+    icon: useImage(`assets/images/tokens/MIM-USDB.png`),
     decimals: 18,
     contract: {
       address: "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8",

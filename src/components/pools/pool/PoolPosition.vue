@@ -24,7 +24,7 @@
             <span class="value">
               {{ formatTokenBalance(pool.userInfo.balance, pool.decimals) }}
             </span>
-            <span class="usd"></span>
+            <span class="usd">{{ depositedTokenInfo.usd }}</span>
           </div>
         </div>
 
@@ -50,7 +50,7 @@
         </ul>
       </div>
 
-      <div class="reward">
+      <!-- <div class="reward">
         <h4 class="subtitle">Reward</h4>
 
         <ul class="reward-tokens token-list">
@@ -73,9 +73,14 @@
             </div>
           </li>
         </ul>
-      </div>
+      </div> -->
 
-      <BaseButton primary @click="harvest" :disabled="disableEarnedButton">
+      <BaseButton
+        primary
+        @click="harvest"
+        :disabled="disableEarnedButton"
+        v-if="!disableEarnedButton"
+      >
         Harvest
       </BaseButton>
     </div>
@@ -284,7 +289,6 @@ export default {
 .token-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   list-style: none;
 }
 
@@ -307,6 +311,8 @@ export default {
 .token-amount {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: end;
 }
 

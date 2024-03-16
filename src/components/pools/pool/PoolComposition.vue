@@ -31,6 +31,7 @@
       </div>
     </div>
 
+    <!-- 
     <div class="pool-composition-info">
       <div class="info-tag">
         <span class="info-tag-title">
@@ -55,7 +56,7 @@
           {{ formatTokenBalance(pool.statisticsData.dayFees, pool.decimals) }}
         </span>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 

@@ -15,36 +15,36 @@
       <div class="info-block base">
         <div class="tag">
           <span class="title">
-            {{ this.pool.tokens.baseToken.config.name }}
-          </span>
-          <span class="value">
             <BaseTokenIcon
               :name="this.pool.tokens.baseToken.config.name"
               :icon="this.pool.tokens.baseToken.config.icon"
               size="24px"
             />
+            {{ this.pool.tokens.baseToken.config.name }}
+          </span>
+          <span class="value">
             {{ formatTokenBalances.base }}
           </span>
         </div>
 
         <div class="tag">
           <span class="title">
-            {{ this.pool.tokens.quoteToken.config.name }}
-          </span>
-          <span class="value">
             <BaseTokenIcon
               :name="this.pool.tokens.quoteToken.config.name"
               :icon="this.pool.tokens.quoteToken.config.icon"
               size="24px"
             />
+            {{ this.pool.tokens.quoteToken.config.name }}
+          </span>
+          <span class="value">
             {{ formatTokenBalances.quote }}
           </span>
         </div>
 
-        <div class="tag">
+        <!-- <div class="tag">
           <span class="title">APR</span>
           <span class="value apr"> 102.21% </span>
-        </div>
+        </div> -->
       </div>
 
       <div class="info-block swap">
@@ -56,14 +56,14 @@
           />
         </div>
 
-        <div class="tag">
+        <!-- <div class="tag">
           <span class="title">Network Fee</span>
 
           <span class="value">
             <img class="gas-icon" src="@/assets/images/gas.svg" />
             $0.01
           </span>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -392,10 +392,10 @@ export default {
   font-weight: 500;
 }
 
-.value {
+.value,
+.title {
   display: flex;
   align-items: center;
-  gap: 4px;
 }
 
 .apr {

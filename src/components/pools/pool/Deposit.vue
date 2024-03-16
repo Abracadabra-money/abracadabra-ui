@@ -34,13 +34,15 @@
     <div class="info-blocks">
       <div class="info-block lp">
         <div class="tag">
-          <span class="title">{{ this.pool.name }}</span>
-          <span class="value">
+          <span class="title">
             <BaseTokenIcon
               :name="this.pool.name"
               :icon="this.pool.icon"
               size="24px"
             />
+            {{ this.pool.name }}
+          </span>
+          <span class="value">
             {{
               formatTokenBalance(
                 previewAddLiquidityResult.shares,
@@ -50,10 +52,10 @@
           </span>
         </div>
 
-        <div class="tag">
+        <!-- <div class="tag">
           <span class="title">APR</span>
           <span class="value apr"> 102.21% </span>
-        </div>
+        </div> -->
       </div>
 
       <div class="info-block swap">
@@ -62,14 +64,14 @@
           <CurrentPrice :fromToken="baseToken" :toToken="quoteToken" />
         </div>
 
-        <div class="tag">
+        <!-- <div class="tag">
           <span class="title">Network Fee</span>
 
           <span class="value">
             <img class="gas-icon" src="@/assets/images/gas.svg" />
             $0.01
           </span>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -388,7 +390,6 @@ export default {
       const rate = (fromTokenValue * ratePresicion) / toTokenValue;
 
       const toTokenAmount = (fromTokenAmount * ratePresicion) / rate;
-      console.log({ fromTokenAmount, toTokenAmount });
 
       const toTokenUpdated = fromBase
         ? (toTokenAmount * deviationFactor) / 100n
@@ -493,10 +494,10 @@ export default {
   font-weight: 500;
 }
 
-.value {
+.value,
+.title {
   display: flex;
   align-items: center;
-  gap: 4px;
 }
 
 .apr {
