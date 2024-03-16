@@ -187,7 +187,8 @@ export default {
   .info-card {
     min-width: 100%;
     flex-direction: column;
-    align-items: normal;
+    align-items: center;
+    justify-content: center;
     gap: 12px;
   }
 
@@ -231,7 +232,7 @@ export default {
       rgba(255, 255, 255, 0.12) 46.96%,
       rgba(255, 255, 255, 0) 100%
     );
-    width: 445px;
+    width: 100%;
     height: 1px;
     margin: auto;
   }

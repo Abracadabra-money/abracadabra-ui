@@ -8,14 +8,7 @@
 
       <div class="statistics-wrap">
         <div class="statistics-cards">
-          <div class="points-earned-card">
-            <div class="points-earned-title">POINTS EARNED</div>
-            <div class="points-earned-value-border">
-              <div class="points-earned-value">
-                {{ formatAmount(userPointsEarned) }}
-              </div>
-            </div>
-          </div>
+          <PointsEarnedCard :userPointsEarned="userPointsEarned" />
 
           <UserDeposits
             :stakeInfo="stakeInfo"
@@ -69,6 +62,7 @@ import {
 } from "@/helpers/blast/stake/points";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
 import { defineAsyncComponent } from "vue";
+import PointsEarnedCard from "@/components/blastStatistics/cards/PointsEarnedCard.vue";
 
 export default {
   data() {
@@ -125,6 +119,9 @@ export default {
     FounderPopup: defineAsyncComponent(() =>
       import("@/components/blastStatistics/FounderPopup.vue")
     ),
+    PointsEarnedCard: defineAsyncComponent(() =>
+      import("@/components/blastStatistics/cards/PointsEarnedCard.vue")
+    ),
   },
 };
 </script>
@@ -152,6 +149,7 @@ export default {
 .statistics-cards {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 24px;
   width: 100%;
   max-width: 410px;
@@ -217,11 +215,12 @@ export default {
   justify-content: center;
   align-items: center;
   width: 100%;
+  height: 458px;
 }
 
 .chart-image {
-  width: 458px;
-  height: 458px;
+  width: 402px;
+  height: 342px;
 }
 
 .chart-description {
