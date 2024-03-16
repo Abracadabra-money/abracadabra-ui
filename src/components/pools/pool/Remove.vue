@@ -23,12 +23,7 @@
               :icon="this.pool.tokens.baseToken.config.icon"
               size="24px"
             />
-            {{
-              formatTokenBalance(
-                previewRemoveLiquidityResult.baseAmountOut,
-                this.pool.tokens.baseToken.config.decimals
-              )
-            }}
+            {{ formatTokenBalances.base }}
           </span>
         </div>
 
@@ -42,12 +37,7 @@
               :icon="this.pool.tokens.quoteToken.config.icon"
               size="24px"
             />
-            {{
-              formatTokenBalance(
-                previewRemoveLiquidityResult.quoteAmountOut,
-                this.pool.tokens.quoteToken.decimals
-              )
-            }}
+            {{ formatTokenBalances.quote }}
           </span>
         </div>
 
@@ -124,7 +114,6 @@ export default {
     isAllowed() {
       return this.pool.userInfo.allowance >= this.inputAmount;
     },
-
     previewRemoveLiquidityResult() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
         this.inputAmount,
@@ -142,6 +131,25 @@ export default {
       );
 
       return previewRemoveLiquidityResult;
+    },
+
+    formatTokenBalances() {
+      if (!this.previewRemoveLiquidityResult) return { base: 0, quote: 0 };
+
+      return {
+        base: formatTokenBalance(
+          formatUnits(
+            this.previewRemoveLiquidityResult.baseAmountOut,
+            this.pool.tokens.baseToken.config.decimals
+          )
+        ),
+        quote: formatTokenBalance(
+          formatUnits(
+            this.previewRemoveLiquidityResult.quoteAmountOut,
+            this.pool.tokens.quoteToken.config.decimals
+          )
+        ),
+      };
     },
 
     isValid() {
