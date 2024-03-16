@@ -2,7 +2,12 @@
   <a
     class="default-button"
     :style="{ 'max-width': setWidth() }"
-    :class="{ primary: primary, disabled: disabled || loading, borderless }"
+    :class="{
+      primary: primary,
+      disabled: disabled || loading,
+      borderless,
+      warning,
+    }"
   >
     <div><slot></slot></div>
     <span v-if="loading" class="loader"></span>
@@ -26,6 +31,9 @@ export default {
       type: String,
     },
     disabled: {
+      type: Boolean,
+    },
+    warning: {
       type: Boolean,
     },
   },
@@ -91,7 +99,23 @@ export default {
       );
     }
   }
-  &:not(.primary, .borderless) {
+
+  &.warning {
+    border: none;
+    color: #fff;
+    background: rgba(140, 64, 64, 1);
+
+    &.disabled {
+      background: #40557e;
+      background: linear-gradient(
+        90deg,
+        rgba(35, 65, 151, 0.4) 0.01%,
+        rgba(87, 68, 143, 0.4) 100%
+      );
+    }
+  }
+
+  &:not(.primary, .borderless, .warning) {
     &:hover:not(.disabled) {
       border: 2px solid #86a2f1;
       color: #86a2f1;
