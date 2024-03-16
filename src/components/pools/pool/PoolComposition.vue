@@ -2,10 +2,7 @@
   <div class="pool-composition-wrap">
     <div class="pool-composition-header">
       <h3 class="title">Pool composition</h3>
-      <span class="tvl"
-        >TVL:
-        {{ formatTokenBalance(pool.statisticsData.tvl, pool.decimals) }}</span
-      >
+      <span class="tvl">TVL {{ formatUSD(tvl, pool.decimals) }}</span>
     </div>
 
     <div class="pool-composition">
@@ -62,8 +59,12 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { formatUnits } from "viem";
-import { formatTokenBalance, formatPercent } from "@/helpers/filters";
+import { formatUnits, parseUnits } from "viem";
+import {
+  formatTokenBalance,
+  formatPercent,
+  formatUSD,
+} from "@/helpers/filters";
 
 export default {
   props: {
@@ -71,41 +72,68 @@ export default {
   },
 
   computed: {
+    tvl() {
+      return this.baseToken.value + this.quoteToken.value;
+    },
+
+    baseToken() {
+      const baseTokenReserve = Number(
+        formatUnits(
+          this.pool.vaultReserve[0],
+          this.pool.tokens.baseToken.config.decimals
+        )
+      );
+      const baseTokenPrice = this.pool.tokens.baseToken.price;
+      const baseTokenValue = baseTokenReserve * baseTokenPrice;
+
+      return {
+        config: this.pool.tokens.baseToken.config,
+        reserve: baseTokenReserve,
+        price: baseTokenPrice,
+        value: baseTokenValue,
+      };
+    },
+
+    quoteToken() {
+      const quoteTokenReserve = Number(
+        formatUnits(
+          this.pool.vaultReserve[1],
+          this.pool.tokens.quoteToken.config.decimals
+        )
+      );
+      const quoteTokenPrice = this.pool.tokens.quoteToken.price;
+      const quoteTokenValue = quoteTokenReserve * quoteTokenPrice;
+
+      return {
+        config: this.pool.tokens.quoteToken.config,
+        reserve: quoteTokenReserve,
+        price: quoteTokenPrice,
+        value: quoteTokenValue,
+      };
+    },
+
     tokenParts() {
-      const tokensSum = this.pool.vaultReserve.reduce((acc, cur) => acc + cur);
       const tokenParts = [
         {
-          name: this.pool.tokens.baseToken.config.name,
-          icon: this.pool.tokens.baseToken.config.icon,
+          name: this.baseToken.config.name,
+          icon: this.baseToken.config.icon,
           type: "base",
-          amount: this.formatTokenBalance(
-            this.pool.vaultReserve[0],
-            this.pool.tokens.baseToken.config.decimals
-          ),
+          amount: formatTokenBalance(this.baseToken.reserve),
           percent: formatPercent(
-            formatUnits(
-              this.calculatePercentage(this.pool.vaultReserve[0], tokensSum),
-              18
-            )
+            this.calculatePercentage(this.baseToken.value, this.tvl)
           ),
         },
         {
-          name: this.pool.tokens.quoteToken.config.name,
-          icon: this.pool.tokens.quoteToken.config.icon,
+          name: this.quoteToken.config.name,
+          icon: this.quoteToken.config.icon,
           type: "quote",
-          amount: this.formatTokenBalance(
-            this.pool.vaultReserve[0],
-            this.pool.tokens.baseToken.config.decimals
-          ),
+          amount: formatTokenBalance(this.quoteToken.reserve),
           percent: formatPercent(
-            formatUnits(
-              this.calculatePercentage(this.pool.vaultReserve[1], tokensSum),
-              18
-            )
+            this.calculatePercentage(this.quoteToken.value, this.tvl)
           ),
         },
       ].filter((e) => e.name && e.amount);
-
+      console.log({ base: this.baseToken, quote: this.quoteToken });
       return tokenParts.length ? tokenParts : false;
     },
   },
@@ -115,15 +143,16 @@ export default {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
+    formatUSD(value) {
+      return formatUSD(value);
+    },
+
     calculatePercentage(part, total) {
-      return (part * 100000000000000000000n) / total;
+      return (part * 100) / total;
     },
   },
 
   components: {
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
-    ),
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),

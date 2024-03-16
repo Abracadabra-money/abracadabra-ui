@@ -24,7 +24,7 @@
             <span class="value">
               {{ formatTokenBalance(pool.userInfo.balance, pool.decimals) }}
             </span>
-            <span class="usd">{{ depositedTokenInfo.usd }}</span>
+            <span class="usd"></span>
           </div>
         </div>
 
@@ -111,13 +111,6 @@ export default {
   computed: {
     chainIcon() {
       return getChainById(this.selectedpool.chainId).icon;
-    },
-
-    depositedTokenInfo() {
-      return this.prepBalanceData(
-        this.selectedpool.accountInfo.userInfo.amount,
-        this.selectedpool.lpPrice
-      );
     },
 
     rewardTokensInfo() {
@@ -320,13 +313,14 @@ export default {
   color: #fff;
   font-size: 14px;
   font-weight: 500;
-  margin-bottom: -8px;
+  line-height: normal;
 }
 
 .usd {
   color: rgba(255, 255, 255, 0.8);
   font-size: 12px;
   font-weight: 400;
+  line-height: normal;
 }
 
 .close {
