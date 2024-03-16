@@ -33,7 +33,7 @@ export const validationActions = (actionConfig: any, chainId: number) => {
       method: "approvefromToken",
     };
 
-  return { btnText: "Swap", isAllowed: true, method: "swap" };
+  return { btnText: "Preview", isAllowed: true, method: "swap" };
 };
 
 const validateChain = (connectedChainId: number, btnText = "Switch Chain") => {
