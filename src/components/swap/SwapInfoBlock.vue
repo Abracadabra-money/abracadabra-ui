@@ -19,13 +19,13 @@
       </div>
       <div class="info-value" v-else>-</div>
     </div>
-    <div class="swap-info-item">
+    <!-- <div class="swap-info-item">
       <div class="info-title">Network Fee</div>
       <div class="info-value" v-if="networkFee">
         <FeeIcon /> {{ formatUSD(networkFee) }}
       </div>
       <div v-else>-</div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -112,9 +112,9 @@ export default {
     CurrentPrice: defineAsyncComponent(
       () => import("@/components/pools/CurrentPrice.vue")
     ),
-    FeeIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/FeeIcon.vue")
-    ),
+    // FeeIcon: defineAsyncComponent(
+    //   () => import("@/components/ui/icons/FeeIcon.vue")
+    // ),
   },
 };
 </script>
