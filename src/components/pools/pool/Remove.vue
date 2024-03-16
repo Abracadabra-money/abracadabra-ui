@@ -70,6 +70,15 @@
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
     </BaseButton>
+
+    <PreviewLiquidityPopup
+      v-if="isPreviewPopupOpened"
+      :pool="pool"
+      :previewInfo="previewInfo"
+      remove
+      @deposit="removeHandler"
+      @close="closePreviewPopup"
+    />
   </div>
 </template>
 
@@ -102,6 +111,7 @@ export default {
       inputAmount: 0n,
       inputValue: "",
       isActionProcessing: false,
+      isPreviewPopupOpened: false,
     };
   },
 
@@ -114,6 +124,7 @@ export default {
     isAllowed() {
       return this.pool.userInfo.allowance >= this.inputAmount;
     },
+
     previewRemoveLiquidityResult() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
         this.inputAmount,
@@ -131,6 +142,14 @@ export default {
       );
 
       return previewRemoveLiquidityResult;
+    },
+
+    previewInfo() {
+      return {
+        lpAmount: this.inputAmount,
+        baseTokenAmount: this.previewRemoveLiquidityResult.baseAmountOut,
+        quoteTokenAmount: this.previewRemoveLiquidityResult.quoteAmountOut,
+      };
     },
 
     formatTokenBalances() {
@@ -204,6 +223,11 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    closePreviewPopup() {
+      this.isPreviewPopupOpened = false;
+      this.isActionProcessing = false;
+    },
 
     updateValue(value) {
       if (value === null) return (this.inputAmount = 0n);
@@ -283,6 +307,10 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+
+      await this.$emit("updatePoolInfo");
+
+      this.closePreviewPopup();
     },
 
     async actionHandler() {
@@ -297,11 +325,7 @@ export default {
 
       if (!this.isAllowed) await this.approveHandler();
 
-      await this.removeHandler();
-
-      await this.$emit("updatePoolInfo");
-
-      this.isActionProcessing = false;
+      this.isPreviewPopupOpened = true;
     },
 
     formatTokenBalance(value, decimals) {
@@ -321,6 +345,9 @@ export default {
     ),
     CurrentPrice: defineAsyncComponent(() =>
       import("@/components/pools/CurrentPrice.vue")
+    ),
+    PreviewLiquidityPopup: defineAsyncComponent(() =>
+      import("@/components/pools/pool/popups/PreviewLiquidityPopup.vue")
     ),
   },
 };

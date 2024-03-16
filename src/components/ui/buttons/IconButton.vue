@@ -17,6 +17,7 @@
       <SetingIcon v-else-if="seting" :fill="svgFill" />
       <ChartIcon v-else-if="chart" :fill="svgFill" />
       <PlusIcon v-else-if="plus" :fill="svgFill" />
+      <ArrowRightIcon v-else-if="arrowRight" :fill="svgFill" />
     </span>
   </component>
 </template>
@@ -43,6 +44,10 @@ export default {
       default: false,
     },
     plus: {
+      type: Boolean,
+      default: false,
+    },
+    arrowRight: {
       type: Boolean,
       default: false,
     },
@@ -112,6 +117,9 @@ export default {
     ),
     PlusIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/PlusIcon.vue")
+    ),
+    ArrowRightIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/ArrowRightIcon.vue")
     ),
   },
 

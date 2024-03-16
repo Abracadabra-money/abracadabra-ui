@@ -133,7 +133,7 @@ export default {
           ),
         },
       ].filter((e) => e.name && e.amount);
-      console.log({ base: this.baseToken, quote: this.quoteToken });
+
       return tokenParts.length ? tokenParts : false;
     },
   },

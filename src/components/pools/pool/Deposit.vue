@@ -79,6 +79,13 @@
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
     </BaseButton>
+    <PreviewLiquidityPopup
+      v-if="isPreviewPopupOpened"
+      :pool="pool"
+      :previewInfo="previewInfo"
+      @deposit="depositHandler"
+      @close="closePreviewPopup"
+    />
   </div>
 </template>
 
@@ -114,6 +121,7 @@ export default {
       quoteInputValue: "",
 
       isActionProcessing: false,
+      isPreviewPopupOpened: false,
     };
   },
 
@@ -150,6 +158,14 @@ export default {
       );
 
       return previewAddLiquidityResult;
+    },
+
+    previewInfo() {
+      return {
+        lpAmount: this.previewAddLiquidityResult.shares,
+        baseTokenAmount: this.previewAddLiquidityResult.baseAdjustedInAmount,
+        quoteTokenAmount: this.previewAddLiquidityResult.quoteAdjustedInAmount,
+      };
     },
 
     isValid() {
@@ -200,6 +216,11 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    closePreviewPopup() {
+      this.isPreviewPopupOpened = false;
+      this.isActionProcessing = false;
+    },
 
     clearData() {
       this.baseInputAmount = 0n;
@@ -311,6 +332,10 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+
+      await this.$emit("updatePoolInfo");
+
+      this.closePreviewPopup();
     },
 
     async actionHandler() {
@@ -326,11 +351,7 @@ export default {
       if (!this.isQuoteAllowed)
         await this.approveHandler(this.quoteToken.config);
 
-      await this.depositHandler();
-
-      await this.$emit("updatePoolInfo");
-
-      this.isActionProcessing = false;
+      this.isPreviewPopupOpened = true;
     },
 
     formatTokenBalance(value, decimals) {
@@ -424,6 +445,9 @@ export default {
     ),
     CurrentPrice: defineAsyncComponent(() =>
       import("@/components/pools/CurrentPrice.vue")
+    ),
+    PreviewLiquidityPopup: defineAsyncComponent(() =>
+      import("@/components/pools/pool/popups/PreviewLiquidityPopup.vue")
     ),
   },
 };

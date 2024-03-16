@@ -6,7 +6,7 @@
         <SwapSettingsPopup
           :slippage="100n"
           :defaultSlippage="100n"
-          :deadline="3000n"
+          :deadline="100n"
           @updateSlippageValue="updateSlippageValue"
           @updateDeadlineValue="updateDeadlineValue"
         />

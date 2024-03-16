@@ -239,6 +239,7 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  z-index: 3;
 }
 
 .pool-position {
@@ -348,6 +349,7 @@ export default {
     align-items: end;
     background: rgba(25, 25, 25, 0.1);
     backdrop-filter: blur(10px);
+    z-index: 2;
   }
 
   .pool-position-wrap {
