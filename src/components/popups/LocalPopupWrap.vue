@@ -113,4 +113,10 @@ export default {
   backdrop-filter: blur(12.5px);
   width: 374px;
 }
+
+@media screen and (max-width: 600px) {
+  .popup {
+    padding: 24px 16px;
+  }
+}
 </style>

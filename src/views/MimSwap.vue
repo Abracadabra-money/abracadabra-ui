@@ -69,6 +69,7 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
+        :priceImpact="priceImpact"
         @confirm="closeConfirmationPopup"
       />
     </LocalPopupWrap>
