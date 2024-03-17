@@ -112,6 +112,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/MimSwap.vue"),
   },
   {
+    path: "/test",
+    name: "Test",
+    component: () => import("@/views/Test.vue"),
+  },
+  {
     path: "/my-points",
     name: "MyPoints",
     component: () => import("@/views/MyPoints.vue"),
