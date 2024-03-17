@@ -166,7 +166,7 @@ export default {
 @include scrollbar;
 
 .popup-content {
-  gap: 16px;
+  gap: 24px;
   display: flex;
   flex-direction: column;
 }
