@@ -7,6 +7,7 @@
         :decimals="pool.decimals"
         :max="pool.userInfo.balance"
         :value="inputValue"
+        :tokenPrice="pool.price"
         @updateInputValue="updateValue($event)"
       />
     </div>
@@ -22,9 +23,15 @@
             />
             {{ this.pool.tokens.baseToken.config.name }}
           </span>
-          <span class="value">
-            {{ formatTokenBalances.base }}
-          </span>
+
+          <div class="token-amount">
+            <span class="value">
+              {{ formattedTokenExpecteds.base.value }}
+            </span>
+            <span class="usd">
+              {{ formattedTokenExpecteds.base.usd }}
+            </span>
+          </div>
         </div>
 
         <div class="tag">
@@ -36,9 +43,15 @@
             />
             {{ this.pool.tokens.quoteToken.config.name }}
           </span>
-          <span class="value">
-            {{ formatTokenBalances.quote }}
-          </span>
+
+          <div class="token-amount">
+            <span class="value">
+              {{ formattedTokenExpecteds.quote.value }}
+            </span>
+            <span class="usd">
+              {{ formattedTokenExpecteds.quote.usd }}
+            </span>
+          </div>
         </div>
 
         <!-- <div class="tag">
@@ -47,7 +60,7 @@
         </div> -->
       </div>
 
-      <div class="info-block swap">
+      <!-- <div class="info-block swap">
         <div class="tag">
           <span class="title">Current Price</span>
           <CurrentPrice
@@ -56,15 +69,15 @@
           />
         </div>
 
-        <!-- <div class="tag">
+        <div class="tag">
           <span class="title">Network Fee</span>
 
           <span class="value">
             <img class="gas-icon" src="@/assets/images/gas.svg" />
             $0.01
           </span>
-        </div> -->
-      </div>
+        </div>
+      </div> -->
     </div>
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -94,7 +107,7 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
-import { formatTokenBalance } from "@/helpers/filters";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
@@ -152,22 +165,40 @@ export default {
       };
     },
 
-    formatTokenBalances() {
-      if (!this.previewRemoveLiquidityResult) return { base: 0, quote: 0 };
+    formattedTokenExpecteds() {
+      if (!this.previewRemoveLiquidityResult)
+        return {
+          base: { value: "0.0", usd: "$ 0.0" },
+          quote: { value: "0.0", usd: "$ 0.0" },
+        };
+
+      const formattedBaseValue = Number(
+        formatUnits(
+          this.previewRemoveLiquidityResult.baseAmountOut,
+          this.pool.tokens.baseToken.config.decimals
+        )
+      );
+      const formattedQuoteValue = Number(
+        formatUnits(
+          this.previewRemoveLiquidityResult.quoteAmountOut,
+          this.pool.tokens.quoteToken.config.decimals
+        )
+      );
+
+      const baseValueUsdEquivalent =
+        formattedBaseValue * this.pool.tokens.baseToken.price;
+      const quoteValueUsdEquivalent =
+        formattedQuoteValue * this.pool.tokens.quoteToken.price;
 
       return {
-        base: formatTokenBalance(
-          formatUnits(
-            this.previewRemoveLiquidityResult.baseAmountOut,
-            this.pool.tokens.baseToken.config.decimals
-          )
-        ),
-        quote: formatTokenBalance(
-          formatUnits(
-            this.previewRemoveLiquidityResult.quoteAmountOut,
-            this.pool.tokens.quoteToken.config.decimals
-          )
-        ),
+        base: {
+          value: formatTokenBalance(formattedBaseValue),
+          usd: formatUSD(baseValueUsdEquivalent),
+        },
+        quote: {
+          value: formatTokenBalance(formattedQuoteValue),
+          usd: formatUSD(quoteValueUsdEquivalent),
+        },
       };
     },
 
@@ -415,6 +446,18 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   color: #878b93;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.token-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.value {
+  color: #fff;
   font-size: 16px;
   font-weight: 500;
 }

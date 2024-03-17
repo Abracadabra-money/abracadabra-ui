@@ -8,6 +8,7 @@
         :decimals="baseToken.config.decimals"
         :max="baseToken.userInfo.balance"
         :value="baseInputValue"
+        :tokenPrice="baseToken.price"
         @updateInputValue="updateValue($event, true)"
       />
 
@@ -18,6 +19,7 @@
         :decimals="quoteToken.config.decimals"
         :max="quoteToken.userInfo.balance"
         :value="quoteInputValue"
+        :tokenPrice="quoteToken.price"
         @updateInputValue="updateValue($event)"
       />
 
@@ -43,14 +45,14 @@
             />
             {{ this.pool.name }}
           </span>
-          <span class="value">
-            {{
-              formatTokenBalance(
-                previewAddLiquidityResult.shares,
-                this.pool.decimals
-              )
-            }}
-          </span>
+          <div class="token-amount">
+            <span class="value">
+              {{ formattedLpTokenExpected.value }}
+            </span>
+            <span class="usd">
+              {{ formattedLpTokenExpected.usd }}
+            </span>
+          </div>
         </div>
 
         <!-- <div class="tag">
@@ -59,21 +61,21 @@
         </div> -->
       </div>
 
-      <div class="info-block swap">
+      <!-- <div class="info-block swap">
         <div class="tag">
           <span class="title">Current Price</span>
           <CurrentPrice :fromToken="baseToken" :toToken="quoteToken" />
         </div>
 
-        <!-- <div class="tag">
+        <div class="tag">
           <span class="title">Network Fee</span>
 
           <span class="value">
             <img class="gas-icon" src="@/assets/images/gas.svg" />
             $0.01
           </span>
-        </div> -->
-      </div>
+        </div>
+      </div> -->
     </div>
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -100,7 +102,7 @@ import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
 import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
-import { formatTokenBalance } from "@/helpers/filters";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
@@ -168,6 +170,22 @@ export default {
       };
     },
 
+    formattedLpTokenExpected() {
+      if (!this.previewAddLiquidityResult)
+        return { value: "0.0", usd: "$ 0.0" };
+
+      const formattedLpTokenValue = Number(
+        formatUnits(this.previewAddLiquidityResult.shares, this.pool.decimals)
+      );
+
+      const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
+
+      return {
+        value: formatTokenBalance(formattedLpTokenValue),
+        usd: formatUSD(lpTokenValueUsdEquivalent),
+      };
+    },
+
     isValid() {
       return !!this.baseInputAmount && !!this.quoteInputAmount;
     },
@@ -216,6 +234,8 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    formatUSD,
 
     closePreviewPopup() {
       this.isPreviewPopupOpened = false;
@@ -515,6 +535,18 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   color: #878b93;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.token-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.value {
+  color: #fff;
   font-size: 16px;
   font-weight: 500;
 }

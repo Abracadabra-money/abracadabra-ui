@@ -23,10 +23,8 @@
             {{ pool.name }}
           </span>
           <div class="token-amount">
-            <span class="value">
-              {{ formatTokenBalance(pool.userInfo.balance, pool.decimals) }}
-            </span>
-            <span class="usd"></span>
+            <span class="value">{{ lpToken.amount }}</span>
+            <span class="usd">{{ lpToken.amountUsd }}</span>
           </div>
         </div>
 
@@ -140,6 +138,23 @@ export default {
           name: "USDT",
         },
       ];
+    },
+
+    lpToken() {
+      return {
+        name: this.pool.name,
+        icon: this.pool.icon,
+        amount: this.formatTokenBalance(
+          this.pool.userInfo.balance,
+          this.pool.decimals
+        ),
+        amountUsd: this.formatUSD(
+          this.formatTokenBalance(
+            this.pool.userInfo.balance,
+            this.pool.decimals
+          ) * this.pool.price
+        ),
+      };
     },
 
     tokensList() {

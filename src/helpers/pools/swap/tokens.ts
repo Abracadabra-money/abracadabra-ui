@@ -12,7 +12,7 @@ export type TokenInfo = {
   price: number;
 };
 
-type PairTokensInfo = {
+export type PairTokensInfo = {
   quoteToken: TokenInfo;
   baseToken: TokenInfo;
 };

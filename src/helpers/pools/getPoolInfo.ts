@@ -1,12 +1,13 @@
 import { getLpInfo } from "@/helpers/pools/swap/magicLp";
-import { parseUnits, type Address } from "viem";
 import poolsConfig from "@/configs/pools/pools";
+import { formatUnits, type Address } from "viem";
 import type { PoolConfig } from "@/configs/pools/types";
+import type { PairTokensInfo } from "@/helpers/pools/swap/tokens";
+
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
-import { getSwapRouterByChain } from "@/configs/pools/routers"
-
-const RATE_PRECISION: bigint = parseUnits("1", 18);
+import { getSwapRouterByChain } from "@/configs/pools/routers";
 
 export const getPoolInfo = async (
   poolChainId: number,
@@ -23,8 +24,11 @@ export const getPoolInfo = async (
 
   const tokens = await getTokensInfo(poolChainId, poolConfig, account);
 
+  const lpTokenPrice = getLpTokenPrice(getLpInfoResult, tokens);
+
   return {
     ...getLpInfoResult,
+    price: lpTokenPrice,
     tokens,
     swapRouter: getSwapRouterByChain(poolChainId),
   };
@@ -47,5 +51,32 @@ const getTokensInfo = async (
     account
   );
 
-  return { ...tokens, ratePrecision: RATE_PRECISION };
+  return tokens;
+};
+
+export const getLpTokenPrice = (
+  lpInfo: MagicLPInfo,
+  tokens: PairTokensInfo
+) => {
+  const formattedTotalSupply = Number(
+    formatUnits(lpInfo.totalSupply, lpInfo.decimals)
+  );
+
+  const baseTokenReserve = Number(
+    formatUnits(lpInfo.vaultReserve[0], tokens.baseToken.config.decimals)
+  );
+  const baseTokenPrice = tokens.baseToken.price;
+  const baseTokenValue = baseTokenReserve * baseTokenPrice;
+
+  const quoteTokenReserve = Number(
+    formatUnits(lpInfo.vaultReserve[1], tokens.quoteToken.config.decimals)
+  );
+  const quoteTokenPrice = tokens.quoteToken.price;
+  const quoteTokenValue = quoteTokenReserve * quoteTokenPrice;
+
+  const tvl = baseTokenValue + quoteTokenValue;
+
+  const lpTokenPrice = tvl / formattedTotalSupply;
+
+  return lpTokenPrice;
 };
