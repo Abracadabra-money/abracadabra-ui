@@ -10,7 +10,9 @@
       alt="Close popup"
       @click="closePopup"
     />
-    <PointsEarned />
+
+    <PointsEarned class="points-earned" />
+
     <div class="pool-position">
       <div class="deposited">
         <h4 class="subtitle">My Position</h4>
@@ -74,6 +76,17 @@
           </li>
         </ul>
       </div> -->
+
+      <div class="points-earned-row list-item">
+        <span class="token-name">
+          <img class="blast-icon" src="@/assets/images/networks/blast.png" />
+          Points earned
+        </span>
+
+        <div class="token-amount">
+          <span class="value">4,254,420.55</span>
+        </div>
+      </div>
 
       <BaseButton
         primary
@@ -324,6 +337,17 @@ export default {
   line-height: normal;
 }
 
+.points-earned {
+  display: none !important;
+}
+
+.blast-icon {
+  width: 28px;
+  height: 28px;
+  margin-right: 10px;
+  border-radius: 50px;
+}
+
 .close {
   align-self: flex-end;
   display: none;
@@ -379,6 +403,14 @@ export default {
   .close {
     align-self: flex-end;
     display: block;
+  }
+
+  .points-earned {
+    display: flex !important;
+  }
+
+  .points-earned-row {
+    display: none;
   }
 
   .isOpened {

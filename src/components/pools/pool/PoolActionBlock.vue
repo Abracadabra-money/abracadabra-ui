@@ -13,6 +13,8 @@
       </div>
 
       <div class="pool-management">
+        <TokenPair class="token-pair" :pool="pool" />
+
         <Tabs :name="activeTab" :items="tabItems" @select="selectTab" />
 
         <button
@@ -85,6 +87,9 @@ export default {
 
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    TokenPair: defineAsyncComponent(() =>
+      import("@/components/pools/pool/TokenPair.vue")
+    ),
     SwapSettingsPopup: defineAsyncComponent(() =>
       import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
@@ -101,8 +106,10 @@ export default {
 <style lang="scss" scoped>
 .pool-header {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   min-height: 66px;
   width: 100%;
   margin-bottom: 16px;
@@ -110,8 +117,10 @@ export default {
 
 .title-settings {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
 .title-settings .title {
@@ -123,6 +132,8 @@ export default {
 .pool-management {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .my-position-button {
@@ -145,14 +156,12 @@ export default {
 }
 
 @media (max-width: 1300px) {
-  .pool-header {
-    flex-direction: column;
-    align-items: start;
-    gap: 16px;
-  }
-
   .pool-management {
     width: 100%;
+  }
+
+  .token-pair {
+    display: none !important;
   }
 
   .my-position-button {

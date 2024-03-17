@@ -161,6 +161,9 @@ export default {
 
 <style lang="scss" scoped>
 .settings-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 52px;
   height: 52px;
   outline: transparent;
