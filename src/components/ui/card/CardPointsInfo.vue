@@ -73,6 +73,7 @@ export default {
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);
   border: 1px solid #fcfd02;
+  margin: 0 auto;
 }
 
 .gold {

@@ -1,22 +1,24 @@
 <template>
   <div class="my-points-view">
     <div class="my-points-wrapper">
-      <div class="row">
+      <div class="row head-row">
         <div class="btns-wrap">
           <h3 class="title">My points</h3>
-          <h4 class="subtitle">Manage your positions</h4>
-          <div class="row">
+          <h4 class="subtitle">
+            Track your Blast Points and Gold earned on Abracadarba
+          </h4>
+          <div class="links-wrap">
             <BaseButton class="btn" @click="console.log('')"
               >MIM/USDB Pool</BaseButton
             >
-            <BaseButton class="btn" @click="console.log('')"
-              >MIMSwap</BaseButton
-            >
+            <BaseButton class="btn" @click="goToSwap">MIMSwap</BaseButton>
           </div>
         </div>
 
-        <CardPointsPending />
-        <CardPointsPending />
+        <div class="row">
+          <CardPointsPending />
+          <CardPointsPending />
+        </div>
       </div>
 
       <div class="banner">
@@ -25,10 +27,12 @@
           <div>
             <h3 class="description-title">Abracadabra blast</h3>
             <h4 class="description-subtitle">
-              Use your favourite assets as collateral to borrow
+              Native Yiled & Airdrops included
             </h4>
           </div>
         </div>
+
+        <img class="grid-img" src="@/assets/images/myPoints/grid.png" alt="" />
 
         <div class="totals-wrap">
           <div class="total-item">
@@ -42,7 +46,7 @@
         </div>
       </div>
 
-      <div class="row">
+      <div class="row card-info-row">
         <CardPointsInfo
           v-for="pointsInfo in pointsInfoArr"
           :key="pointsInfo.label"
@@ -138,14 +142,18 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
   },
 
-  watch: {},
-
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
-  },
 
-  async created() {},
+    goToPool() {
+      console.log("goToPool");
+    },
+
+    goToSwap() {
+      this.$router.push({ name: "MimSwap" });
+    },
+  },
 
   components: {
     BaseButton: defineAsyncComponent(
@@ -163,8 +171,7 @@ export default {
 
 <style lang="scss" scoped>
 .my-points-view {
-  padding: 124px 0;
-
+  padding: 124px 0 60px;
   min-height: 100vh;
   width: 100%;
 }
@@ -179,7 +186,8 @@ export default {
   gap: 24px;
 }
 
-.row {
+.row,
+.links-wrap {
   gap: 12px;
   width: 100%;
   display: flex;
@@ -189,6 +197,7 @@ export default {
 .btns-wrap {
   max-width: 427px;
   width: 100%;
+  min-width: 337px;
 }
 
 .title {
@@ -206,16 +215,20 @@ export default {
 }
 
 .banner {
+  position: relative;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .description {
-  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
   gap: 8px;
   display: flex;
   align-items: center;
@@ -244,10 +257,14 @@ export default {
   line-height: 16px;
 }
 
+.grid-img {
+  display: none;
+}
+
 .totals-wrap {
   padding: 4px 24px 4px 0;
   margin-left: -1px;
-  width: 150%;
+  min-width: 700px;
   height: 74px;
   background-image: url("@/assets/images/myPoints/baner-bg.png");
   background-size: cover;
@@ -260,7 +277,7 @@ export default {
 }
 
 .total-item {
-  gap: 46px;
+  gap: 30px;
   display: flex;
   align-items: center;
 }
@@ -278,6 +295,55 @@ export default {
   line-height: 100%;
 }
 
+@media screen and (max-width: 1024px) {
+  .head-row {
+    flex-direction: column;
+    gap: 24px;
+
+    .row {
+      justify-content: center;
+      gap: 24px;
+    }
+  }
+
+  .card-info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .banner {
+    flex-direction: column;
+  }
+
+  .description {
+    position: inherit;
+    width: 100%;
+  }
+
+  .grid-img {
+    display: block;
+    width: 100%;
+    height: 25px;
+    object-fit: cover;
+  }
+
+  .totals-wrap {
+    width: 100%;
+    background: transparent;
+    padding: 0;
+    height: auto;
+    gap: 8px;
+  }
+
+  .total-item {
+    background: #fcfd02;
+    width: 100%;
+    padding: 13px 16px;
+    justify-content: center;
+  }
+}
 @media screen and (max-width: 600px) {
   .my-points-wrapper {
     gap: 16px;
@@ -288,24 +354,37 @@ export default {
     flex-direction: column;
   }
 
-  .banner {
-    flex-direction: column;
-    background: #fcfd02;
+  .title {
+    font-size: 24px;
   }
 
-  .description {
-    padding: 12px;
+  .subtitle {
+    font-size: 14px;
   }
 
-  .totals-wrap {
-    background: #fcfd02;
-    height: auto;
-    align-items: center;
+  .card-info-row {
+    grid-template-columns: 1fr;
+  }
+
+  .description-title {
+    font-size: 20px;
+  }
+
+  .description-subtitle {
+    font-size: 14px;
   }
 
   .total-item {
-    gap: 4px;
-    flex-direction: column;
+    gap: 19px;
+  }
+
+  .total-title {
+    font-size: 14px;
+    width: 165px;
+  }
+
+  .total-value {
+    font-size: 20px;
   }
 }
 </style>

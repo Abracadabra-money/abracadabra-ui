@@ -28,8 +28,7 @@ export default {};
 <style lang="scss" scoped>
 .card {
   max-width: 411px;
-  height: 148px;
-  padding: 20px 2px;
+  padding: 20px 2px 2px;
   width: 100%;
   background: #fcfd02;
   border-radius: 12px;
@@ -45,6 +44,7 @@ export default {};
     0 27px,
     20px 10px
   );
+  margin: 0 auto;
 }
 
 .card-head {
@@ -89,10 +89,9 @@ export default {};
 .card-body {
   width: 100%;
   background: #000;
-  height: 85px;
   border-radius: 0 0 0 12px;
   clip-path: polygon(100% 0, 100% 62px, 384px 100%, 0 100%, 0 0);
-  padding: 12px 14px;
+  padding: 12px 14px 26px;
   display: flex;
   flex-direction: column;
 }
