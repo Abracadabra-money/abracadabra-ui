@@ -22,6 +22,7 @@ const blastPools: Array<PoolConfig> = [
         address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
         abi: erc20Abi,
       },
+      mainColor: "#C9E5FF",
     },
     quoteToken: {
       name: "USDB",
@@ -31,6 +32,7 @@ const blastPools: Array<PoolConfig> = [
         abi: erc20Abi,
       },
       decimals: 18,
+      mainColor: "#FCFC03",
     },
     settings: {
       isNew: true,

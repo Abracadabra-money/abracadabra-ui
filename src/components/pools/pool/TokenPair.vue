@@ -34,7 +34,6 @@ export default {
 
   computed: {
     baseTokenConfig() {
-      console.log(this.pool);
       return this.pool.tokens.baseToken.config;
     },
 

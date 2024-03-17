@@ -22,9 +22,30 @@
 
       <div class="scale-wrap">
         <div
-          class="filling-scale"
-          :style="`width: ${tokenParts[0].percent}`"
-        ></div>
+          class="base scale"
+          :style="`${formatScaleWidth(tokenParts[0].percent)}
+          background:${baseToken.config.mainColor}`"
+        >
+          <BaseTokenIcon
+            class="scale-token-icon"
+            :name="tokenParts[0].name"
+            :icon="tokenParts[0].icon"
+            size="18px"
+          />
+        </div>
+
+        <div
+          class="quote scale"
+          :style="`${formatScaleWidth(tokenParts[1].percent)} 
+          background:${quoteToken.config.mainColor}`"
+        >
+          <BaseTokenIcon
+            class="scale-token-icon"
+            :name="tokenParts[1].name"
+            :icon="tokenParts[1].icon"
+            size="18px"
+          />
+        </div>
       </div>
     </div>
 
@@ -59,7 +80,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits } from "viem";
 import {
   formatTokenBalance,
   formatPercent,
@@ -139,6 +160,10 @@ export default {
   },
 
   methods: {
+    formatScaleWidth(percentWidth) {
+      return `width: calc( ${percentWidth} - 2px );`;
+    },
+
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
@@ -223,6 +248,7 @@ export default {
 
 .base .token-part-values {
   align-items: flex-start;
+  margin-left: 10px;
 }
 
 .quote .token-part-values {
@@ -244,21 +270,37 @@ export default {
 }
 
 .scale-wrap {
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   height: 24px;
   border-radius: 10px;
+}
+
+.scale-token-icon,
+.token-icon {
+  margin-right: 0 !important;
+}
+
+.scale {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.scale.base {
+  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+  border-radius: 10px 0 0 10px;
+}
+
+.scale.quote {
   background: linear-gradient(
     90deg,
     rgba(45, 74, 150, 0.12) 0%,
     rgba(116, 92, 210, 0.12) 100%
   );
-}
-
-.filling-scale {
-  height: 100%;
-  border-radius: 10px 0 0 10px;
-  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+  border-radius: 0 10px 10px 0;
 }
 
 .filled-amount {
