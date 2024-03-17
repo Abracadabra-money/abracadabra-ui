@@ -49,14 +49,16 @@
     </div>
 
     <LocalPopupWrap
-      isSwapPopup
+      isFarm
       :isOpened="isTokensPopupOpened"
       @closePopup="isTokensPopupOpened = false"
     >
       <SwapListPopup
         :tokensList="tokensList"
         :popularTokens="tokensList"
-        :selectedToken="selectedToken"
+        :tokenType="tokenType"
+        :fromTokenAddress="actionConfig.fromToken.config.contract.address"
+        :toTokenAddress="actionConfig.toToken.config.contract.address"
         @updateSelectedToken="updateSelectedToken"
       />
     </LocalPopupWrap>
@@ -137,12 +139,6 @@ export default {
     isWarningBtn() {
       if (!this.priceImpact) return false;
       return this.priceImpact <= 0.9;
-    },
-
-    selectedToken() {
-      return this.tokenType === "from"
-        ? this.actionConfig.fromToken
-        : this.actionConfig.toToken;
     },
 
     actionValidationData() {

@@ -23,6 +23,7 @@ const blastPools: Array<PoolConfig> = [
         abi: erc20Abi,
       },
       mainColor: "#C9E5FF",
+      isPopular: true,
     },
     quoteToken: {
       name: "USDB",
@@ -33,6 +34,7 @@ const blastPools: Array<PoolConfig> = [
       },
       decimals: 18,
       mainColor: "#FCFC03",
+      isPopular: true,
     },
     settings: {
       isNew: true,

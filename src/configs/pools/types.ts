@@ -25,4 +25,5 @@ export type TokenConfig = {
   decimals: number;
   contract: Contract;
   mainColor?: string;
+  isPopular?: boolean;
 };

@@ -25,11 +25,14 @@
         <div
           :class="[
             'token-item',
-            { active: token.config.name === selectedToken.config.name },
+            { active: token.config.contract.address === activeTokenAddress },
+            {
+              disabled: token.config.contract.address === disabledTokenAddress,
+            },
           ]"
           v-for="token in filteredTokensList"
           :key="token.config.name"
-          @click="$emit('updateSelectedToken', token)"
+          @click="updatedSelectedToken(token)"
         >
           <div class="token-info">
             <div class="wrap-icon">
@@ -63,21 +66,29 @@
 </template>
 
 <script lang="ts">
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
 export default {
   props: {
     tokensList: {
-      type: Array as () => any[],
+      type: Array as () => TokenInfo[],
       requred: true,
       default: () => [],
     },
-    selectedToken: {
-      type: Object as () => any,
-      requred: true,
-      default: () => {},
+    tokenType: {
+      type: String,
+      default: "from",
+    },
+    fromTokenAddress: {
+      type: String,
+      default: "",
+    },
+    toTokenAddress: {
+      type: String,
+      default: "",
     },
   },
 
@@ -101,7 +112,17 @@ export default {
     },
 
     popularTokens() {
-      return this.tokensList.filter(({ isPopular }) => isPopular);
+      return this.tokensList.filter(({ config }) => config.isPopular);
+    },
+
+    activeTokenAddress() {
+      if (this.tokenType === "from") return this.toTokenAddress;
+      return this.fromTokenAddress;
+    },
+
+    disabledTokenAddress() {
+      if (this.tokenType === "from") return this.fromTokenAddress;
+      return this.toTokenAddress;
     },
   },
 
@@ -109,15 +130,21 @@ export default {
     formatUnits,
     formatTokenBalance,
 
-    changeSearch({ target }: any) {
+    changeSearch(event: InputEvent) {
+      const target = event.target as HTMLInputElement;
       this.search = target.value;
     },
 
-    getTokenBalance(token: any) {
+    getTokenBalance(token: TokenInfo) {
       return formatUSD(
         +formatUnits(token.userInfo.balance, token.config.decimals) *
           token.price
       );
+    },
+
+    updatedSelectedToken(token: TokenInfo) {
+      if (token.config.contract.address !== this.disabledTokenAddress)
+        this.$emit("updateSelectedToken", token);
     },
   },
 
@@ -229,6 +256,21 @@ export default {
 .active {
   .wrap-icon {
     display: block;
+  }
+}
+
+.disabled {
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+
+  .token-chain,
+  .token-balance-usd {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .token-icon {
+    -webkit-filter: brightness(40%);
+    filter: brightness(40%);
   }
 }
 
