@@ -247,7 +247,7 @@ export default {
 .totals-wrap {
   padding: 4px 24px 4px 0;
   margin-left: -1px;
-  width: 110%;
+  width: 150%;
   height: 74px;
   background-image: url("@/assets/images/myPoints/baner-bg.png");
   background-size: cover;
