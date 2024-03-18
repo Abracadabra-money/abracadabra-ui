@@ -33,22 +33,21 @@
     </div>
 
     <div class="description" v-if="activePhase === 1">
-      The MIMSwap Liquidity Launch Event stands as the cornerstone of our
-      journey on Blast, marking the grand unveiling of MIMSwap. This unique
-      opportunity allows users to deposit MIM or USDB, with the option to lock
-      these assets for enhanced point earnings.
+      The MIMSwap Liquidity Launch Event marks a pivotal moment in our journey
+      on Blast, introducing MIMSwap in a grand fashion. It presents a unique
+      chance for users to deposit MIM or USDB, offering an option to lock these
+      assets for improved point gains.
     </div>
     <div class="description" v-if="activePhase === 2">
-      Phase 2 has been initialized. During this phase point distributions become
-      more frequent as well as Gold and Potion points are being prepared to roll
-      out. It is the last chance to deposit and become eligible to obtain the
-      Founder’s Boost, Abracadabra’s largest reward incentive program to date.
-      Read more about it here.
+      Stage where point distributions become more frequent and the introduction
+      of Gold and Potion points is imminent. This phase represents the final
+      opportunity for deposits to qualify for the Founder’s Boost, the most
+      significant reward incentive from Abracadabra to date.
     </div>
     <div class="description" v-if="activePhase === 3">
-      The final step of the LLE initiative. <br />
-      MIMswap contracts deployed, migration starts and LPs seeding and launch.
-      Founder’s Boost achieved and live.
+      This phase concludes the LLE initiative with the deployment of MIMswap
+      contracts, beginning the migration process and seeding and launching LPs.
+      At this juncture, the Founder’s Boost is realized and activated.
     </div>
   </div>
 </template>
