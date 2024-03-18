@@ -24,7 +24,7 @@ export default {
   data() {
     return {
       startDate: moment.utc("2024-03-01 00:00:00"),
-      endDate: moment.utc("2024-01-29 02:00:00"),
+      endDate: moment.utc("2024-03-29 02:00:00"),
       intervalId: null,
       timerValues: ["0d", "00h", "00m", "00s"],
     };
@@ -33,12 +33,33 @@ export default {
   methods: {
     updateTimer() {
       const now = moment().utc();
-      const duration = moment.duration(this.endDate.diff(now));
 
-      if (duration.asSeconds() <= 0) {
-        clearInterval(this.intervalId);
-        this.timerValues = ["00h", "00m", "00s"];
-        return;
+      let duration;
+
+      if (this.airdrop) {
+        const midnight = moment.utc().startOf("day").add(24, "hours"); // next midnight
+        const noon = moment.utc().startOf("day").add(12, "hours"); // next noon
+
+        if (now.isBefore(noon)) {
+          duration = moment.duration(noon.diff(now));
+        } else {
+          duration = moment.duration(midnight.diff(now));
+        }
+
+        if (duration.asSeconds() <= 0) {
+          clearInterval(this.intervalId);
+          this.timerValues = ["0d", "00h", "00m", "00s"];
+          return;
+        }
+      } else {
+        duration = moment.duration(this.endDate.diff(now));
+        // const duration = moment.duration(this.endDate.diff(now));
+
+        if (duration.asSeconds() <= 0) {
+          clearInterval(this.intervalId);
+          this.timerValues = ["0d", "00h", "00m", "00s"];
+          return;
+        }
       }
 
       const days = Math.max(Math.floor(duration.asDays()), 0);
@@ -54,7 +75,7 @@ export default {
         ];
       } else {
         this.timerValues = [
-          // `${days.toString().padStart(2, "0")}d`,
+          `${days.toString().padStart(2, "0")}d`,
           `${hours.toString().padStart(2, "0")}h`,
           `${minutes.toString().padStart(2, "0")}m`,
           `${seconds.toString().padStart(2, "0")}s`,
