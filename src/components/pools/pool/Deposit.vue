@@ -81,13 +81,6 @@
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
     </BaseButton>
-    <PreviewLiquidityPopup
-      v-if="isPreviewPopupOpened"
-      :pool="pool"
-      :previewInfo="previewInfo"
-      @deposit="depositHandler"
-      @close="closePreviewPopup"
-    />
   </div>
 </template>
 
@@ -110,7 +103,7 @@ export default {
   props: {
     pool: { type: Object },
     slippage: { type: BigInt, default: 100n },
-    deadline: { type: BigInt, default: 30n },
+    deadline: { type: BigInt, default: 100n },
   },
 
   emits: ["updatePoolInfo"],
@@ -123,7 +116,6 @@ export default {
       quoteInputValue: "",
 
       isActionProcessing: false,
-      isPreviewPopupOpened: false,
     };
   },
 
@@ -160,14 +152,6 @@ export default {
       );
 
       return previewAddLiquidityResult;
-    },
-
-    previewInfo() {
-      return {
-        lpAmount: this.previewAddLiquidityResult.shares,
-        baseTokenAmount: this.previewAddLiquidityResult.baseAdjustedInAmount,
-        quoteTokenAmount: this.previewAddLiquidityResult.quoteAdjustedInAmount,
-      };
     },
 
     formattedLpTokenExpected() {
@@ -236,11 +220,6 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     formatUSD,
-
-    closePreviewPopup() {
-      this.isPreviewPopupOpened = false;
-      this.isActionProcessing = false;
-    },
 
     clearData() {
       this.baseInputAmount = 0n;
@@ -330,7 +309,6 @@ export default {
 
       try {
         const payload = this.createDepositPayload();
-
         const { error, result } = await addLiquidity(
           this.pool?.swapRouter,
           payload
@@ -352,10 +330,6 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
-
-      await this.$emit("updatePoolInfo");
-
-      this.closePreviewPopup();
     },
 
     async actionHandler() {
@@ -371,7 +345,11 @@ export default {
       if (!this.isQuoteAllowed)
         await this.approveHandler(this.quoteToken.config);
 
-      this.isPreviewPopupOpened = true;
+      await this.depositHandler();
+
+      await this.$emit("updatePoolInfo");
+
+      this.isActionProcessing = false;
     },
 
     formatTokenBalance(value, decimals) {
@@ -463,12 +441,9 @@ export default {
     IconButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/IconButton.vue")
     ),
-    CurrentPrice: defineAsyncComponent(() =>
-      import("@/components/pools/CurrentPrice.vue")
-    ),
-    PreviewLiquidityPopup: defineAsyncComponent(() =>
-      import("@/components/pools/pool/popups/PreviewLiquidityPopup.vue")
-    ),
+    // CurrentPrice: defineAsyncComponent(() =>
+    //   import("@/components/pools/CurrentPrice.vue")
+    // ),
   },
 };
 </script>

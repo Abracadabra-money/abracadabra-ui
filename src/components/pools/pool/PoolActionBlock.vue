@@ -61,7 +61,7 @@ export default {
       activeTab: "deposit",
       tabItems: ["deposit", "remove"],
       slippage: 100n,
-      deadline: 3000n,
+      deadline: 100n,
     };
   },
 
