@@ -15,12 +15,8 @@
 
         <div class="row">
           <CardPointsPending
-            :distributionAmount="
-              userPointsStatistics.distributionAmountSumByAddress
-            "
-            :pendingDistributionAmount="
-              userPointsStatistics.pendingDistributionAmountSumByAddress
-            "
+            :distributionAmount="userPointsStatistics.total"
+            :pendingDistributionAmount="userPointsStatistics.totalPending"
           />
           <CardPointsPending />
         </div>
@@ -43,7 +39,7 @@
           <div class="total-item">
             <span class="total-title">Total Points Distributed</span>
             <span class="total-value">{{
-              formatTokenBalance(pointsStatistics.distributionAmountSum)
+              formatTokenBalance(pointsStatistics.total)
             }}</span>
           </div>
           <div class="total-item">
@@ -84,21 +80,24 @@ export default {
   data() {
     return {
       pointsStatistics: {
-        distributionAmountAvgSumForAddresses: 0,
-        distributionAmountSum: 0,
-        distributionAmountSumFromCauldron: 0,
-        distributionAmountSumFromLle: 0,
-        pendingDistributionAmountSum: 0,
-        pendingDistributionAmountSumFromCauldron: 0,
-        pendingDistributionAmountSumFromLle: 0,
+        cauldron: 0,
+        locked: 0,
+        pendingCauldron: 0,
+        pendingLocked: 0,
+        pendingUnlocked: 0,
+        total: 0,
+        totalPending: 0,
+        unlocked: 0,
       },
       userPointsStatistics: {
-        distributionAmountSumByAddress: 0,
-        distributionAmountSumByAddressFromCauldron: 0,
-        distributionAmountSumByAddressFromLle: 0,
-        pendingDistributionAmountSumByAddress: 0,
-        pendingDistributionAmountSumByAddressFromCauldron: 0,
-        pendingDistributionAmountSumByAddressFromLle: 0,
+        cauldron: 0,
+        locked: 0,
+        pendingCauldron: 0,
+        pendingLocked: 0,
+        pendingUnlocked: 0,
+        total: 0,
+        totalPending: 0,
+        unlocked: 0,
       },
       poolInfo: null as any,
       cauldronInfo: null as any,
@@ -113,11 +112,6 @@ export default {
     }),
 
     cauldronPointsInfo() {
-      console.log(
-        "this.cauldronInfo?.userTokensInfo?.collateralDeposited",
-        this.cauldronInfo?.userTokensInfo?.collateralDeposited
-      );
-
       return {
         chainId: BLAST_CHAIN_ID,
         label: "Minter",
@@ -127,11 +121,8 @@ export default {
         deposited: this.cauldronInfo?.userPosition?.collateralDeposited || 0,
         depositedUsd:
           this.cauldronInfo?.userPosition?.collateralDepositedUsd || 0,
-        distributionAmount:
-          this.userPointsStatistics.distributionAmountSumByAddressFromCauldron,
-        pendingDistributionAmount:
-          this.userPointsStatistics
-            .pendingDistributionAmountSumByAddressFromCauldron,
+        distributionAmount: this.userPointsStatistics.cauldron,
+        pendingDistributionAmount: this.userPointsStatistics.pendingCauldron,
       };
     },
 
@@ -143,6 +134,12 @@ export default {
 
       const depositedUsd = deposited * this.poolInfo?.price || 0;
 
+      const distributionAmount =
+        this.userPointsStatistics.locked + this.userPointsStatistics.unlocked;
+      const pendingDistributionAmount =
+        this.userPointsStatistics.pendingLocked +
+        this.userPointsStatistics.pendingUnlocked;
+
       return {
         chainId: BLAST_CHAIN_ID,
         label: "Lp’er",
@@ -151,11 +148,8 @@ export default {
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
-        distributionAmount:
-          this.userPointsStatistics.distributionAmountSumByAddressFromLle,
-        pendingDistributionAmount:
-          this.userPointsStatistics
-            .pendingDistributionAmountSumByAddressFromLle,
+        distributionAmount,
+        pendingDistributionAmount,
       };
     },
 

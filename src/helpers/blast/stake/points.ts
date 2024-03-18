@@ -9,7 +9,6 @@ export const fetchPointsStatistics = async () => {
     const query = `{
         distributionAmountSum
         pendingDistributionAmountSum
-        distributionAmountAvgSumForAddresses
         distributionAmountSumFromUsdbUnlockedLle: distributionAmountSumByReason(reason: "lle_deposit_usdb")
         pendingDistributionAmountSumFromUsdbUnlockedLle: pendingDistributionAmountSumByReason(reason: "lle_deposit_usdb")
         distributionAmountSumFromMimUnlockedLle: distributionAmountSumByReason(reason: "lle_deposit_mim")
@@ -22,59 +21,73 @@ export const fetchPointsStatistics = async () => {
         pendingDistributionAmountSumFromMimLockedLle: pendingDistributionAmountSumByReason(reason: "lle_lock_mim")
         distributionAmountSumFromDepositBorrowedMimLle: distributionAmountSumByReason(reason: "lle_deposit_borrowed_mim")
         pendingDistributionAmountSumFromDepositBorrowedMimLle: pendingDistributionAmountSumByReason(reason: "lle_deposit_borrowed_mim")
+        distributionAmountSumFromMimUsdbLpUnlocked: distributionAmountSumByReason(reason: "deposit_mim_usdb_lp")
+        pendingDistributionAmountSumFromMimUsdbLpUnlocked: pendingDistributionAmountSumByReason(reason: "deposit_mim_usdb_lp")
+        distributionAmountSumFromMimUsdbLpLocked: distributionAmountSumByReason(reason: "lock_mim_usdb_lp")
+        pendingDistributionAmountSumFromMimUsdbLpLocked: pendingDistributionAmountSumByReason(reason: "lock_mim_usdb_lp")
       }`;
 
     const {
       data: { data },
     } = await axios.post(GRAPHQL, { query });
 
-    const lleKeys = [
+    const lleUnlockedKeys = [
       "distributionAmountSumFromUsdbUnlockedLle",
       "distributionAmountSumFromMimUnlockedLle",
-      "distributionAmountSumFromUsdbLockedLle",
-      "distributionAmountSumFromMimLockedLle",
       "distributionAmountSumFromDepositBorrowedMimLle",
+      "distributionAmountSumFromMimUsdbLpUnlocked",
     ];
-    const pendingLleKeys = [
+    const pendingLleUnlockedKeys = [
       "pendingDistributionAmountSumFromUsdbUnlockedLle",
       "pendingDistributionAmountSumFromMimUnlockedLle",
+      "pendingDistributionAmountSumFromDepositBorrowedMimLle",
+      "pendingDistributionAmountSumFromMimUsdbLpUnlocked",
+    ];
+    const lleLockedKeys = [
+      "distributionAmountSumFromUsdbLockedLle",
+      "distributionAmountSumFromMimLockedLle",
+      "distributionAmountSumFromMimUsdbLpLocked",
+    ];
+    const pendingLleLockedKeys = [
       "pendingDistributionAmountSumFromUsdbLockedLle",
       "pendingDistributionAmountSumFromMimLockedLle",
-      "pendingDistributionAmountSumFromDepositBorrowedMimLle",
+      "pendingDistributionAmountSumFromMimUsdbLpLocked",
     ];
 
-    const distributionAmountSumFromLle = lleKeys
+    const unlocked = lleUnlockedKeys
       .map((key) => Number(data[key]))
       .reduce((a, b) => a + b, 0);
-    const pendingDistributionAmountSumFromLle = pendingLleKeys
+    const pendingUnlocked = pendingLleUnlockedKeys
+      .map((key) => Number(data[key]))
+      .reduce((a, b) => a + b, 0);
+    const locked = lleLockedKeys
+      .map((key) => Number(data[key]))
+      .reduce((a, b) => a + b, 0);
+    const pendingLocked = pendingLleLockedKeys
       .map((key) => Number(data[key]))
       .reduce((a, b) => a + b, 0);
 
     return {
-      distributionAmountSum: Number(data.distributionAmountSum),
-      pendingDistributionAmountSum: Number(data.pendingDistributionAmountSum),
-      distributionAmountAvgSumForAddresses: Number(
-        data.distributionAmountAvgSumForAddresses
-      ),
-      distributionAmountSumFromLle,
-      pendingDistributionAmountSumFromLle,
-      distributionAmountSumFromCauldron: Number(
-        data.distributionAmountSumFromCauldron
-      ),
-      pendingDistributionAmountSumFromCauldron: Number(
-        data.pendingDistributionAmountSumFromCauldron
-      ),
+      total: Number(data.distributionAmountSum),
+      totalPending: Number(data.pendingDistributionAmountSum),
+      unlocked,
+      pendingUnlocked,
+      locked,
+      pendingLocked,
+      cauldron: Number(data.distributionAmountSumFromCauldron),
+      pendingCauldron: Number(data.pendingDistributionAmountSumFromCauldron),
     };
   } catch (error) {
     console.log("Error fetching points statistics", error);
     return {
-      distributionAmountSum: 0,
-      pendingDistributionAmountSum: 0,
-      distributionAmountAvgSumForAddresses: 0,
-      distributionAmountSumFromLle: 0,
-      pendingDistributionAmountSumFromLle: 0,
-      distributionAmountSumFromCauldron: 0,
-      pendingDistributionAmountSumFromCauldron: 0,
+      total: 0,
+      totalPending: 0,
+      unlocked: 0,
+      pendingUnlocked: 0,
+      locked: 0,
+      pendingLocked: 0,
+      cauldron: 0,
+      pendingCauldron: 0,
     };
   }
 };
@@ -82,12 +95,14 @@ export const fetchPointsStatistics = async () => {
 export const fetchUserPointsStatistics = async (address: Address) => {
   if (!address)
     return {
-      distributionAmountSumByAddress: 0,
-      pendingDistributionAmountSumByAddress: 0,
-      distributionAmountSumByAddressFromLle: 0,
-      pendingDistributionAmountSumByAddressFromLle: 0,
-      distributionAmountSumByAddressFromCauldron: 0,
-      pendingDistributionAmountSumByAddressFromCauldron: 0,
+      total: 0,
+      totalPending: 0,
+      unlocked: 0,
+      pendingUnlocked: 0,
+      locked: 0,
+      pendingLocked: 0,
+      cauldron: 0,
+      pendingCauldron: 0,
     };
 
   try {
@@ -106,59 +121,75 @@ export const fetchUserPointsStatistics = async (address: Address) => {
         pendingDistributionAmountSumByAddressFromMimLockedLle: pendingDistributionAmountSumByAddressByReason(address: "${address.toLowerCase()}", reason: "lle_lock_mim")
         distributionAmountSumByAddressFromDepositBorrowedMimLle: distributionAmountSumByAddressByReason(address: "${address.toLowerCase()}", reason: "lle_deposit_borrowed_mim")
         pendingDistributionAmountSumByAddressFromDepositBorrowedMimLle: pendingDistributionAmountSumByAddressByReason(address: "${address.toLowerCase()}", reason: "lle_deposit_borrowed_mim")
+        distributionAmountSumByAddressFromMimUsdbLpUnlocked: distributionAmountSumByAddressByReason(address: "${address.toLowerCase()}", reason: "deposit_mim_usdb_lp")
+        pendingDistributionAmountSumByAddressFromMimUsdbLpUnlocked: pendingDistributionAmountSumByAddressByReason(address: "${address.toLowerCase()}", reason: "deposit_mim_usdb_lp")
+        distributionAmountSumByAddressFromMimUsdbLpLocked: distributionAmountSumByAddressByReason(address: "${address.toLowerCase()}", reason: "lock_mim_usdb_lp")
+        pendingDistributionAmountSumByAddressFromMimUsdbLpLocked: pendingDistributionAmountSumByAddressByReason(address: "${address.toLowerCase()}", reason: "lock_mim_usdb_lp")
       }`;
 
     const {
       data: { data },
     } = await axios.post(GRAPHQL, { query });
 
-    const lleKeys = [
+    const lleUnlockedKeys = [
       "distributionAmountSumByAddressFromUsdbUnlockedLle",
       "distributionAmountSumByAddressFromMimUnlockedLle",
-      "distributionAmountSumByAddressFromUsdbLockedLle",
-      "distributionAmountSumByAddressFromMimLockedLle",
       "distributionAmountSumByAddressFromDepositBorrowedMimLle",
+      "distributionAmountSumByAddressFromMimUsdbLpUnlocked",
     ];
-    const pendingLleKeys = [
+    const pendingLleUnlockedKeys = [
       "pendingDistributionAmountSumByAddressFromUsdbUnlockedLle",
       "pendingDistributionAmountSumByAddressFromMimUnlockedLle",
+      "pendingDistributionAmountSumByAddressFromDepositBorrowedMimLle",
+      "pendingDistributionAmountSumByAddressFromMimUsdbLpUnlocked",
+    ];
+    const lleLockedKeys = [
+      "distributionAmountSumByAddressFromUsdbLockedLle",
+      "distributionAmountSumByAddressFromMimLockedLle",
+      "distributionAmountSumByAddressFromMimUsdbLpLocked",
+    ];
+    const pendingLleLockedKeys = [
       "pendingDistributionAmountSumByAddressFromUsdbLockedLle",
       "pendingDistributionAmountSumByAddressFromMimLockedLle",
-      "pendingDistributionAmountSumByAddressFromDepositBorrowedMimLle",
+      "pendingDistributionAmountSumByAddressFromMimUsdbLpLocked",
     ];
 
-    const distributionAmountSumByAddressFromLle = lleKeys
+    const unlocked = lleUnlockedKeys
       .map((key) => Number(data[key]))
       .reduce((a, b) => a + b, 0);
-    const pendingDistributionAmountSumByAddressFromLle = pendingLleKeys
+    const pendingUnlocked = pendingLleUnlockedKeys
+      .map((key) => Number(data[key]))
+      .reduce((a, b) => a + b, 0);
+    const locked = lleLockedKeys
+      .map((key) => Number(data[key]))
+      .reduce((a, b) => a + b, 0);
+    const pendingLocked = pendingLleLockedKeys
       .map((key) => Number(data[key]))
       .reduce((a, b) => a + b, 0);
 
     return {
-      distributionAmountSumByAddress: Number(
-        data.distributionAmountSumByAddress
-      ),
-      pendingDistributionAmountSumByAddress: Number(
-        data.pendingDistributionAmountSumByAddress
-      ),
-      distributionAmountSumByAddressFromLle,
-      pendingDistributionAmountSumByAddressFromLle,
-      distributionAmountSumByAddressFromCauldron: Number(
-        data.distributionAmountSumByAddressFromCauldron
-      ),
-      pendingDistributionAmountSumByAddressFromCauldron: Number(
+      total: Number(data.distributionAmountSumByAddress),
+      totalPending: Number(data.pendingDistributionAmountSumByAddress),
+      unlocked,
+      pendingUnlocked,
+      locked,
+      pendingLocked,
+      cauldron: Number(data.distributionAmountSumByAddressFromCauldron),
+      pendingCauldron: Number(
         data.pendingDistributionAmountSumByAddressFromCauldron
       ),
     };
   } catch (error) {
     console.log("Error fetching user points statistics", error);
     return {
-      distributionAmountSumByAddress: 0,
-      pendingDistributionAmountSumByAddress: 0,
-      distributionAmountSumByAddressFromLle: 0,
-      pendingDistributionAmountSumByAddressFromLle: 0,
-      distributionAmountSumByAddressFromCauldron: 0,
-      pendingDistributionAmountSumByAddressFromCauldron: 0,
+      total: 0,
+      totalPending: 0,
+      unlocked: 0,
+      pendingUnlocked: 0,
+      locked: 0,
+      pendingLocked: 0,
+      cauldron: 0,
+      pendingCauldron: 0,
     };
   }
 };
