@@ -415,6 +415,12 @@ export default {
     flex-direction: column;
   }
 
+  .head-row {
+    .row {
+      gap: 12px;
+    }
+  }
+
   .title {
     font-size: 24px;
   }
@@ -446,6 +452,7 @@ export default {
 
   .total-value {
     font-size: 20px;
+    min-width: initial;
   }
 }
 </style>
