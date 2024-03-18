@@ -52,7 +52,7 @@ export default {
       updateInterval: null as any,
       userPointsEarned: null as any,
       pointsStatistics: null as any,
-      actionActiveTab: "Withdraw",
+      actionActiveTab: "Stake",
       currentMobileTab: 0,
       mobileMode: false,
     };
