@@ -241,5 +241,9 @@ export default {
   .border02 {
     transform: rotate(90deg);
   }
+
+  .description {
+    min-height: 130px;
+  }
 }
 </style>
