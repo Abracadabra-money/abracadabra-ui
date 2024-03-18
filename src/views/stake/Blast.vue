@@ -50,7 +50,7 @@ export default {
       updateInterval: null as any,
       userPointsEarned: 0 as any,
       pointsStatistics: null as any,
-      actionActiveTab: "Stake",
+      actionActiveTab: "Withdraw",
       currentMobileTab: 0,
       mobileMode: false,
     };

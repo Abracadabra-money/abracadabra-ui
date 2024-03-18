@@ -13,6 +13,7 @@
       class="tabs"
       :name="actionActiveTab"
       :items="actionTabs"
+      :disabledTabs="disabledTabs"
       activeColor="#FCFC03"
       @select="changeActionTab"
       v-if="isActionTab"
@@ -40,8 +41,9 @@ export default {
 
   data() {
     return {
-      actionActiveTab: "Stake" as string,
+      actionActiveTab: "Withdraw" as string,
       actionTabs: ["Stake", "Withdraw"] as string[],
+      disabledTabs: ["Stake"] as string[],
       isLock: false as boolean,
     };
   },
