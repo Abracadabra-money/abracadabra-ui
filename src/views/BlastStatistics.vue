@@ -22,23 +22,15 @@
         <div class="chart-wrap">
           <div class="chart">
             <p class="chart-description top-left">
-              During the Abracadabra Liquidity Launch Event
-              <span class="distributed-points"
-                >{{ totalDistributedPoints }}
-              </span>
-              Points have been distributed amount all Founders
-            </p>
-            <p class="chart-description bottom-right">
-              During the Abracadabra Liquidity Launch Event
-              <span class="distributed-points">
-                {{ totalDistributedPoints }}
-              </span>
-              Points have been distributed amount all Founders
+              Users of Abracadabra products on Blast will receive rewards
             </p>
             <img
               class="chart-image"
               src="../assets/images/blast/blast-chart-image.png"
             />
+            <p class="chart-description bottom-right">
+              30 % of all Points will be destributed to Founders
+            </p>
           </div>
           <button class="button-next">Next</button>
         </div>
@@ -96,7 +88,9 @@ export default {
 
     async createStakeInfo() {
       this.stakeInfo = await getStakeInfo(this.account);
-      this.userPointsEarned = await fetchUserPointsStatistics(this.account);
+      this.userPointsEarned = (
+        await fetchUserPointsStatistics(this.account)
+      ).total;
       this.pointsStatistics = await fetchPointsStatistics();
     },
   },

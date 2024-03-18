@@ -1,6 +1,9 @@
 <template>
-  <div class="deposit-card pool" @click="$emit('openFounderPopup')">
-    <div class="label">Founder</div>
+  <div
+    :class="['deposit-card', 'pool', { locked: isLocked }]"
+    @click="$emit('openFounderPopup')"
+  >
+    <div class="label">{{ labelText }}</div>
 
     <div class="pool-info">
       <TokenChainIcon
@@ -27,7 +30,12 @@
           size="32px"
         />
         $
-        {{ formatTokenBalance(token.totals.total, token.config.decimals) }}
+        {{
+          formatTokenBalance(
+            token.userInfo.balances[stakeType],
+            token.config.decimals
+          )
+        }}
       </div>
     </div>
   </div>
@@ -40,12 +48,25 @@ import { formatTokenBalance } from "@/helpers/filters";
 import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
 
 export default {
-  props: { stakeInfo: { type: Object } },
+  props: {
+    stakeInfo: { type: Object },
+    isLocked: { type: Boolean, default: false },
+  },
 
   data() {
     return {
       mimUsdbIcon,
     };
+  },
+
+  computed: {
+    stakeType() {
+      return this.isLocked ? "locked" : "unlocked";
+    },
+
+    labelText() {
+      return this.isLocked ? "Founder" : "LP’er";
+    },
   },
 
   methods: {
@@ -70,29 +91,31 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
   height: 174px;
-  max-width: 410px;
   width: 100%;
   border: 1px solid #fcfd02;
   border-radius: 16px;
   padding: 21px 12px 16px 12px;
   background: linear-gradient(
-      104deg,
-      rgba(251, 253, 3, 0.36) 0%,
-      rgba(251, 253, 3, 0.36) 28.64%,
-      rgba(254, 255, 172, 0.36) 52.14%,
-      rgba(253, 255, 0, 0.36) 70.64%,
-      rgba(253, 255, 0, 0.36) 100%
-    ),
-    linear-gradient(
-      146deg,
-      rgba(35, 0, 0, 0.12) 0%,
-      rgba(156, 0, 0, 0.12) 101.49%
-    );
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
   backdrop-filter: blur(12.5px);
   color: white;
   transition: all 0.5s ease-in-out;
+}
+
+.locked {
+  background: linear-gradient(
+    104deg,
+    rgba(251, 253, 3, 0.36) 0%,
+    rgba(251, 253, 3, 0.36) 28.64%,
+    rgba(254, 255, 172, 0.36) 52.14%,
+    rgba(253, 255, 0, 0.36) 70.64%,
+    rgba(253, 255, 0, 0.36) 100%
+  );
 }
 
 .label {
@@ -115,6 +138,10 @@ export default {
   display: flex;
   align-items: center;
   margin-top: 8px;
+}
+
+.pool-text {
+  text-align: start;
 }
 
 .pool-name {

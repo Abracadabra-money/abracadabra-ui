@@ -1,13 +1,14 @@
 <template>
-  <Carousel :wrap-around="true" :transition="500">
-    <slide :index="0">
-      <PoolCard
-        :stakeInfo="stakeInfo"
-        v-if="this.stakeInfo.userLpInfo.balance"
-      />
+  <Carousel :wrap-around="true" :transition="500" :breakpoints="breakpoints">
+    <slide :index="0" v-if="isLockedPosition">
+      <PoolCard :stakeInfo="stakeInfo" isLocked />
     </slide>
 
-    <slide :index="1" v-if="cauldronInfo?.userPosition?.collateralDeposited">
+    <slide :index="1" v-if="isUnlockedPosition">
+      <PoolCard :stakeInfo="stakeInfo" />
+    </slide>
+
+    <slide :index="2" v-if="cauldronInfo?.userPosition?.collateralDeposited">
       <BlastCauldronCard :cauldronInfo="cauldronInfo" />
     </slide>
 
@@ -27,6 +28,19 @@ export default {
   props: {
     stakeInfo: { type: Object },
     cauldronInfo: { type: Object },
+    isLockedPosition: { type: Boolean },
+    isUnlockedPosition: { type: Boolean },
+    isCauldronPosition: { type: Boolean },
+  },
+
+  data() {
+    return {
+      breakpoints: {
+        1350: {
+          itemsToShow: 1,
+        },
+      },
+    };
   },
 
   components: {
@@ -47,7 +61,8 @@ export default {
 }
 
 .carousel::v-deep(.carousel__slide) {
-  padding: 0 8px;
+  width: 100%;
+  padding: 0 4px 0 10px;
 }
 
 .carousel::v-deep(.carousel__pagination-button::after) {

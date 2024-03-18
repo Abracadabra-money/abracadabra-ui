@@ -58,11 +58,10 @@ export default {
   flex-direction: column;
   justify-content: center;
   height: 174px;
-  max-width: 410px;
   width: 100%;
   border: 1px solid #fcfd02;
   border-radius: 16px;
-  padding: 21px 12px 16px 12px;
+  padding: 21px 14px 16px 14px;
   background: linear-gradient(
     146deg,
     rgba(0, 10, 35, 0.07) 0%,

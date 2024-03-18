@@ -1,10 +1,17 @@
 <template>
-  <div class="user-deposits" v-if="isPoolPosition || isCauldronPosition">
+  <div class="user-deposits">
     <h3 class="user-deposits-title">Your deposits</h3>
+
     <BlastStatisticsCarousel
       :stakeInfo="stakeInfo"
       :cauldronInfo="cauldronInfo"
+      :isLockedPosition="isLockedPosition"
+      :isUnlockedPosition="isUnlockedPosition"
+      :isCauldronPosition="isCauldronPosition"
+      v-if="isLockedPosition || isUnlockedPosition || isCauldronPosition"
     />
+
+    <BaseSearchEmpty class="empty" v-else />
   </div>
 </template>
 
@@ -36,12 +43,23 @@ export default {
   },
 
   computed: {
-    isPoolPosition() {
-      return this.stakeInfo.userLpInfo.balance;
+    isLockedPosition() {
+      const [usdb, mim] = this.stakeInfo.tokensInfo;
+      return (
+        usdb.userInfo.balances.locked > 0 || mim.userInfo.balances.locked > 0
+      );
+    },
+
+    isUnlockedPosition() {
+      const [usdb, mim] = this.stakeInfo.tokensInfo;
+      return (
+        usdb.userInfo.balances.unlocked > 0 ||
+        mim.userInfo.balances.unlocked > 0
+      );
     },
 
     isCauldronPosition() {
-      return this.cauldronInfo?.userPosition?.collateralDeposited;
+      return this.cauldronInfo?.userPosition?.collateralDeposited > 0;
     },
   },
 
@@ -71,6 +89,9 @@ export default {
     BlastStatisticsCarousel: defineAsyncComponent(() =>
       import("@/components/blastStatistics/BlastStatisticsCarousel.vue")
     ),
+    BaseSearchEmpty: defineAsyncComponent(() =>
+      import("@/components/base/BaseSearchEmpty.vue")
+    ),
   },
 };
 </script>
@@ -85,8 +106,32 @@ export default {
   cursor: pointer;
 }
 
+.user-deposits {
+  max-width: 411px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+}
+
 .user-deposits-title {
   font-size: 24px;
   font-weight: 500;
+}
+
+.empty {
+  padding: 0px 0px !important;
+}
+
+@media (max-width: 600px) {
+  .user-deposits {
+    padding: 16px;
+  }
 }
 </style>
