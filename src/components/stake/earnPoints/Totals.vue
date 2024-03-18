@@ -29,14 +29,14 @@
 
       <div class="info-wrap">
         <div class="pending-info">
-          <span>Next airdrop in</span>
+          <span>Pending</span>
           <span class="pending-value">
             {{ formatAmount(pointsStatistics?.totalPending || 0) }}</span
           >
         </div>
 
         <div class="airdrop-info">
-          <span>Pending</span>
+          <span>Next airdrop in</span>
           <span class="pending-value"> <Timer airdrop /></span>
         </div>
       </div>
