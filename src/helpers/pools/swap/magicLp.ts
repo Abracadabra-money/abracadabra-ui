@@ -43,7 +43,7 @@ export const getLpInfo = async (
     quoteToken,
     lpFeeRate,
     baseBalance,
-    quoteBalance
+    quoteBalance,
   ]: any = await publicClient.multicall({
     contracts: [
       //testnet method

@@ -21,6 +21,9 @@ export default {
     primary: {
       type: Boolean,
     },
+    error: {
+      type: Boolean,
+    },
     borderless: {
       type: Boolean,
     },
@@ -79,6 +82,19 @@ export default {
 
     &:hover {
       background: #616068;
+    }
+  }
+
+  &.error {
+    color: white;
+    background: #8c4040;
+    border: none;
+    transition: none;
+    &:hover {
+      background: #ab4a4a;
+    }
+    &.disabled {
+      background: #642e2e;
     }
   }
 

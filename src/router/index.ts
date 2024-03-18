@@ -115,6 +115,9 @@ const routes: Array<RouteRecordRaw> = [
     path: "/my-points",
     name: "MyPoints",
     component: () => import("@/views/MyPoints.vue"),
+    path: "/blast-statistics",
+    name: "BlastStatistics",
+    component: () => import("@/views/BlastStatistics.vue"),
   },
   {
     path: "/:catchAll(.*)",
