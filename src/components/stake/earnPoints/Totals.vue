@@ -1,47 +1,54 @@
 <template>
   <div class="totals-wrap">
     <div class="total">
-      <img class="m-icon" src="@/assets/images/market/m-icon.svg" />
-
-      <h3 class="title">
-        Total deposited
-        <!-- <Tooltip
-          :tooltip="'Sum of MIM and USDb deposited.'"
-          fill="#878B93"
-          :width="20"
-          :height="20"
-        /> -->
-      </h3>
+      <h3 class="title">Total deposited</h3>
       <div class="value">$ {{ totalDeposited }}</div>
+
+      <div class="line"></div>
+
+      <div class="tokens-wrap">
+        <div class="token-info">
+          <BaseTokenIcon :icon="mimIcon" name="USDB" size="32px" />
+          <span class="token-total"> {{ totalMimDeposited }}</span>
+        </div>
+
+        <div class="token-info">
+          <BaseTokenIcon :icon="usdbIcon" name="USDB" size="32px" />
+          <span class="token-total">{{ totalUsdbDeposited }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="total">
-      <img
-        class="m-icon"
-        src="@/assets/images/market/m-icon.svg"
-        alt="Mim icon"
-      />
-
-      <h3 class="title">
-        Total Point Distributed
-        <!-- <Tooltip
-          :tooltip="'Total Point Distributed.'"
-          fill="#878B93"
-          :width="20"
-          :height="20"
-        /> -->
-      </h3>
+      <h3 class="title">Total Point Distributed</h3>
       <div class="value">
         {{ formatAmount(pointsStatistics?.distributionAmountSum) }}
+      </div>
+
+      <div class="line"></div>
+
+      <div class="info-wrap">
+        <div class="pending-info">
+          <span>Next airdrop in</span>
+          <span class="pending-value">4,000,000.00 </span>
+        </div>
+
+        <div class="airdrop-info">
+          <span>Pending</span>
+          <span class="pending-value"> <Timer airdrop /></span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
-import { formatTokenBalance } from "@/helpers/filters";
+import { defineAsyncComponent } from "vue";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+
+import mimIcon from "@/assets/images/tokens/MIM.png";
+import usdbIcon from "@/assets/images/tokens/USDB.png";
 
 export default {
   props: {
@@ -55,6 +62,10 @@ export default {
     },
   },
 
+  data() {
+    return { mimIcon, usdbIcon, windowWidth: window.innerWidth };
+  },
+
   computed: {
     totalDeposited() {
       let totalDeposited = 0n;
@@ -62,6 +73,17 @@ export default {
         (token: any) => (totalDeposited += token.totals.total)
       );
       return this.formatTokenBalance(totalDeposited);
+    },
+
+    totalMimDeposited() {
+      return formatUSD(
+        formatUnits(this.stakeInfo.tokensInfo[1].totals.total, 18)
+      );
+    },
+    totalUsdbDeposited() {
+      return formatUSD(
+        formatUnits(this.stakeInfo.tokensInfo[0].totals.total, 18)
+      );
     },
   },
 
@@ -76,8 +98,12 @@ export default {
   },
 
   components: {
-    Tooltip: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    Timer: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/stake/earnPoints/Timer.vue")
     ),
   },
 };
@@ -85,12 +111,18 @@ export default {
 
 <style lang="scss" scoped>
 .totals-wrap {
+  gap: 20px;
   display: flex;
   align-items: center;
-  gap: 20px;
 }
 
 .total {
+  padding: 24px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(
@@ -100,38 +132,72 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-  padding: 24px;
-  width: 100%;
-  height: 150px;
-  position: relative;
-  overflow: hidden;
-  gap: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.m-icon {
-  position: absolute;
-  top: 17px;
-  left: -11px;
 }
 
 .title {
-  color: #99a0b2;
+  text-align: center;
+  font-size: 20px;
   font-weight: 500;
-  line-height: 150%;
-  gap: 4px;
-  display: flex;
-  align-items: center;
+  margin-bottom: 4px;
 }
 
 .value {
+  text-align: center;
   font-size: 32px;
   font-weight: 500;
   line-height: 32px;
 }
+
+.line {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0) 0.01%,
+    rgba(255, 255, 255, 0.12) 46.96%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  margin: 16px 0;
+}
+
+.tokens-wrap {
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.token-info {
+  gap: 9px;
+  display: flex;
+  align-items: center;
+}
+
+.token-total {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.info-wrap {
+  width: 100%;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pending-info,
+.airdrop-info {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+// ------
 
 @media (max-width: 700px) {
   .total {

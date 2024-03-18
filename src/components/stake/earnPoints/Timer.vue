@@ -1,5 +1,5 @@
 <template>
-  <div :class="['timer', { small }]">
+  <div :class="['timer', { small }, { airdrop }]">
     <div class="time-block" v-for="(value, index) in timerValues" :key="index">
       {{ value }}
     </div>
@@ -12,6 +12,10 @@ import moment from "moment";
 export default {
   props: {
     small: {
+      type: Boolean,
+      default: false,
+    },
+    airdrop: {
       type: Boolean,
       default: false,
     },
@@ -42,12 +46,20 @@ export default {
       const minutes = Math.max(duration.minutes(), 0);
       const seconds = Math.max(duration.seconds(), 0);
 
-      this.timerValues = [
-        `${days.toString().padStart(2, "0")}d`,
-        `${hours.toString().padStart(2, "0")}h`,
-        `${minutes.toString().padStart(2, "0")}m`,
-        `${seconds.toString().padStart(2, "0")}s`,
-      ];
+      if (this.airdrop) {
+        this.timerValues = [
+          `${hours.toString().padStart(2, "0")}h`,
+          `${minutes.toString().padStart(2, "0")}m`,
+          `${seconds.toString().padStart(2, "0")}s`,
+        ];
+      } else {
+        this.timerValues = [
+          `${days.toString().padStart(2, "0")}d`,
+          `${hours.toString().padStart(2, "0")}h`,
+          `${minutes.toString().padStart(2, "0")}m`,
+          `${seconds.toString().padStart(2, "0")}s`,
+        ];
+      }
     },
   },
 
@@ -89,6 +101,16 @@ export default {
   background: transparent;
   min-width: 48px;
   height: auto;
+}
+
+.airdrop .time-block {
+  color: #fff;
+  font-size: 12px;
+  background: transparent;
+  min-width: 48px;
+  height: 30px;
+  padding: 6px;
+  min-width: 44px;
 }
 
 @media (max-width: 700px) {
