@@ -1,6 +1,6 @@
 <template>
   <div class="swap-view">
-    <img src="../assets/gifs/Loader1.gif" alt="" />
+    <img class="gif" src="../assets/gifs/Preview.gif" alt="" />
   </div>
 </template>
 
@@ -12,5 +12,10 @@
   gap: 20px;
   min-height: 100vh;
   width: 100%;
+}
+
+.gif {
+  max-width: 1200px;
+  margin: auto;
 }
 </style>
