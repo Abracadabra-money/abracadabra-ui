@@ -30,13 +30,23 @@
       </div>
     </div>
 
-    <div class="description">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt.
+    <div class="description" v-if="activePhase === 1">
+      The MIMSwap Liquidity Launch Event stands as the cornerstone of our
+      journey on Blast, marking the grand unveiling of MIMSwap. This unique
+      opportunity allows users to deposit MIM or USDB, with the option to lock
+      these assets for enhanced point earnings.
+    </div>
+    <div class="description" v-if="activePhase === 2">
+      Phase 2 has been initialized. During this phase point distributions become
+      more frequent as well as Gold and Potion points are being prepared to roll
+      out. It is the last chance to deposit and become eligible to obtain the
+      Founder’s Boost, Abracadabra’s largest reward incentive program to date.
+      Read more about it here.
+    </div>
+    <div class="description" v-if="activePhase === 3">
+      The final step of the LLE initiative. <br />
+      MIMswap contracts deployed, migration starts and LPs seeding and launch.
+      Founder’s Boost achieved and live.
     </div>
   </div>
 </template>
@@ -52,7 +62,7 @@ export default {
 
   data() {
     return {
-      activePhase: 1,
+      activePhase: 2,
     };
   },
 
@@ -161,5 +171,9 @@ export default {
 .stages-item-disabled {
   border-color: rgba(252, 252, 3, 0.2);
   color: rgba(252, 252, 3, 0.2);
+}
+
+.description {
+  min-height: 100px;
 }
 </style>
