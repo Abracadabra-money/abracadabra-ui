@@ -1,5 +1,5 @@
 <template>
-  <div :class="['timer', { small }]">
+  <div :class="['timer', { small }, { airdrop }]">
     <div class="time-block" v-for="(value, index) in timerValues" :key="index">
       {{ value }}
     </div>
@@ -15,12 +15,16 @@ export default {
       type: Boolean,
       default: false,
     },
+    airdrop: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
     return {
       startDate: moment.utc("2024-03-01 00:00:00"),
-      endDate: moment.utc("2024-03-29 02:00:00"),
+      endDate: moment.utc("2024-01-29 02:00:00"),
       intervalId: null,
       timerValues: ["0d", "00h", "00m", "00s"],
     };
@@ -33,7 +37,7 @@ export default {
 
       if (duration.asSeconds() <= 0) {
         clearInterval(this.intervalId);
-        this.timerValues = ["0d", "00h", "00m", "00s"];
+        this.timerValues = ["00h", "00m", "00s"];
         return;
       }
 
@@ -42,12 +46,20 @@ export default {
       const minutes = Math.max(duration.minutes(), 0);
       const seconds = Math.max(duration.seconds(), 0);
 
-      this.timerValues = [
-        `${days.toString().padStart(2, "0")}d`,
-        `${hours.toString().padStart(2, "0")}h`,
-        `${minutes.toString().padStart(2, "0")}m`,
-        `${seconds.toString().padStart(2, "0")}s`,
-      ];
+      if (this.airdrop) {
+        this.timerValues = [
+          `${hours.toString().padStart(2, "0")}h`,
+          `${minutes.toString().padStart(2, "0")}m`,
+          `${seconds.toString().padStart(2, "0")}s`,
+        ];
+      } else {
+        this.timerValues = [
+          // `${days.toString().padStart(2, "0")}d`,
+          `${hours.toString().padStart(2, "0")}h`,
+          `${minutes.toString().padStart(2, "0")}m`,
+          `${seconds.toString().padStart(2, "0")}s`,
+        ];
+      }
     },
   },
 
@@ -89,6 +101,16 @@ export default {
   background: transparent;
   min-width: 48px;
   height: auto;
+}
+
+.airdrop .time-block {
+  color: #fff;
+  font-size: 12px;
+  background: transparent;
+  min-width: 48px;
+  height: 30px;
+  padding: 6px;
+  min-width: 44px;
 }
 
 @media (max-width: 700px) {

@@ -1,23 +1,25 @@
 <template>
   <div class="stake-view">
     <div class="stake-wrap" v-if="stakeInfo">
-      <BlastHead
-        class="head"
-        :mobileMode="mobileMode"
-        :currentMobileTab="currentMobileTab"
-        @changeActionTab="changeActionTab"
-        @changeCurrentMobileTab="changeCurrentMobileTab"
-      />
+      <div class="actions-wrap">
+        <BlastHead
+          class="head"
+          :mobileMode="mobileMode"
+          :currentMobileTab="currentMobileTab"
+          @changeActionTab="changeActionTab"
+          @changeCurrentMobileTab="changeCurrentMobileTab"
+        />
 
-      <ActionBlock
-        class="action"
-        :stakeInfo="stakeInfo"
-        :actionActiveTab="actionActiveTab"
-        :userPointsEarned="userPointsEarned"
-        :mobileMode="mobileMode"
-        @updateStakeInfo="createStakeInfo"
-        v-if="isActionTab"
-      />
+        <ActionBlock
+          class="action"
+          :stakeInfo="stakeInfo"
+          :actionActiveTab="actionActiveTab"
+          :userPointsEarned="userPointsEarned"
+          :mobileMode="mobileMode"
+          @updateStakeInfo="createStakeInfo"
+          v-if="isActionTab"
+        />
+      </div>
 
       <StakeInfo
         class="info"
@@ -48,7 +50,7 @@ export default {
     return {
       stakeInfo: null as any,
       updateInterval: null as any,
-      userPointsEarned: 0 as any,
+      userPointsEarned: null as any,
       pointsStatistics: null as any,
       actionActiveTab: "Stake",
       currentMobileTab: 0,
@@ -145,6 +147,12 @@ export default {
   grid-template-areas: "head info" "action info";
   grid-gap: 24px;
   margin: 0 auto;
+}
+
+.actions-wrap {
+  gap: 32px;
+  display: flex;
+  flex-direction: column;
 }
 
 .head {
