@@ -11,7 +11,11 @@
       @click="closePopup"
     />
 
-    <PointsEarned class="points-earned" />
+    <PointsEarned
+      class="points-earned"
+      :pointsEarned="pointsEarned"
+      v-if="pointsEarned"
+    />
 
     <div class="pool-position">
       <div class="deposited">
@@ -82,7 +86,7 @@
         </span>
 
         <div class="token-amount">
-          <span class="value">4,254,420.55</span>
+          <span class="value">{{ pointsEarned }}</span>
         </div>
       </div>
 
@@ -100,6 +104,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { mapGetters } from "vuex";
 import {
   prepareWriteContract,
   waitForTransaction,
@@ -109,6 +114,7 @@ import { formatUnits } from "viem";
 import { getChainById } from "@/helpers/chains/index";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
+import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
@@ -119,7 +125,17 @@ export default {
 
   emits: ["closePopup"],
 
+  data() {
+    return {
+      userPointsStatistics: null,
+    };
+  },
+
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+
     chainIcon() {
       return getChainById(this.selectedpool.chainId).icon;
     },
@@ -138,6 +154,10 @@ export default {
           name: "USDT",
         },
       ];
+    },
+
+    pointsEarned() {
+      return formatTokenBalance(this.userPointsStatistics?.total);
     },
 
     lpToken() {
@@ -242,6 +262,10 @@ export default {
     closePopup() {
       this.$emit("closePopup");
     },
+  },
+
+  async created() {
+    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
   },
 
   components: {

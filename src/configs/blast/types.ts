@@ -42,5 +42,4 @@ export type BlastStakeInfo = {
   config: BlastStakeConfig;
   state: 0 | 1 | 2; // TODO: check
   tokensInfo: Array<BlastStakeTokenInfo>;
-  userLpInfo: any;
 };

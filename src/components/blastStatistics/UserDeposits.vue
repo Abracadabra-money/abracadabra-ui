@@ -2,24 +2,13 @@
   <div class="user-deposits">
     <h3 class="user-deposits-title">Your deposits</h3>
 
-    <BlastStatisticsCarousel
-      :stakeInfo="stakeInfo"
-      :cauldronInfo="cauldronInfo"
-      :isLockedPosition="isLockedPosition"
-      :isUnlockedPosition="isUnlockedPosition"
-      :isCauldronPosition="isCauldronPosition"
-      v-if="isLockedPosition || isUnlockedPosition || isCauldronPosition"
-    />
-
+    <PoolCard :stakeInfo="stakeInfo" isLocked v-if="isLpPosition" />
     <BaseSearchEmpty class="empty" v-else />
   </div>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
-import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
 export default {
   props: {
@@ -29,61 +18,15 @@ export default {
     },
   },
 
-  data() {
-    return {
-      cauldronInfo: null,
-      cauldronChainId: 81457,
-      cauldronId: 1,
-      updateInterval: null,
-    };
-  },
-
   computed: {
-    isLockedPosition() {
-      const [usdb, mim] = this.stakeInfo.tokensInfo;
-      return (
-        usdb.userInfo.balances.locked > 0 || mim.userInfo.balances.locked > 0
-      );
+    isLpPosition() {
+      return this.stakeInfo.lpInfo?.userInfo?.balance > 0;
     },
-
-    isUnlockedPosition() {
-      const [usdb, mim] = this.stakeInfo.tokensInfo;
-      return (
-        usdb.userInfo.balances.unlocked > 0 ||
-        mim.userInfo.balances.unlocked > 0
-      );
-    },
-
-    isCauldronPosition() {
-      return this.cauldronInfo?.userPosition?.collateralDeposited > 0;
-    },
-  },
-
-  methods: {
-    async createCauldronInfo() {
-      const currentRpc = defaultRpc[this.cauldronChainId];
-
-      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
-
-      this.cauldronInfo = await getCauldronInfo(
-        this.cauldronId,
-        this.cauldronChainId,
-        chainProvider,
-        chainProvider
-      );
-    },
-  },
-
-  async created() {
-    await this.createCauldronInfo();
-    this.updateInterval = setInterval(async () => {
-      await this.createCauldronInfo();
-    }, 60000);
   },
 
   components: {
-    BlastStatisticsCarousel: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/BlastStatisticsCarousel.vue")
+    PoolCard: defineAsyncComponent(() =>
+      import("@/components/blastStatistics/cards/PoolCard.vue")
     ),
     BaseSearchEmpty: defineAsyncComponent(() =>
       import("@/components/base/BaseSearchEmpty.vue")

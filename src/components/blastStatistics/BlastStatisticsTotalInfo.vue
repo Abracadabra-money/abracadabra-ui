@@ -147,7 +147,7 @@ export default {
 
 .total-by-token {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: 12px;
 }
 

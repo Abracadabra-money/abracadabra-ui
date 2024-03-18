@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="['deposit-card', 'pool', { locked: isLocked }]"
-    @click="$emit('openFounderPopup')"
-  >
+  <div :class="['deposit-card', 'pool', { locked: isLocked }]">
     <div class="label">{{ labelText }}</div>
 
     <div class="pool-info">
@@ -22,20 +19,11 @@
       <div
         class="token-part"
         :key="index"
-        v-for="(token, index) in stakeInfo.tokensInfo"
+        v-for="(token, index) in lpPartsExpected"
       >
-        <BaseTokenIcon
-          :name="token.config.name"
-          :icon="token.config.icon"
-          size="32px"
-        />
+        <BaseTokenIcon :name="token.name" :icon="token.icon" size="32px" />
         $
-        {{
-          formatTokenBalance(
-            token.userInfo.balances[stakeType],
-            token.config.decimals
-          )
-        }}
+        {{ token.amount }}
       </div>
     </div>
   </div>
@@ -45,6 +33,8 @@
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
+
 import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
 
 export default {
@@ -60,6 +50,37 @@ export default {
   },
 
   computed: {
+    lpInfo() {
+      return this.stakeInfo.lpInfo;
+    },
+
+    lpPartsExpected() {
+      const lpPartsOut = previewRemoveLiquidity(
+        this.lpInfo.userInfo.balance,
+        this.lpInfo
+      );
+
+      return [
+        {
+          name: this.stakeInfo.tokensInfo[1].config.name,
+          icon: this.stakeInfo.tokensInfo[1].config.icon,
+          amount: this.formatTokenBalance(
+            lpPartsOut.baseAmountOut,
+            this.stakeInfo.tokensInfo[1].config.decimals
+          ),
+        },
+
+        {
+          name: this.stakeInfo.tokensInfo[0].config.name,
+          icon: this.stakeInfo.tokensInfo[0].config.icon,
+          amount: this.formatTokenBalance(
+            lpPartsOut.quoteAmountOut,
+            this.stakeInfo.tokensInfo[0].config.decimals
+          ),
+        },
+      ];
+    },
+
     stakeType() {
       return this.isLocked ? "locked" : "unlocked";
     },
@@ -70,8 +91,8 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(value) {
-      return formatTokenBalance(formatUnits(value, 18));
+    formatTokenBalance(value, decimals) {
+      return formatTokenBalance(formatUnits(value, decimals));
     },
   },
 
@@ -164,6 +185,7 @@ export default {
   align-items: center;
   font-size: 20px;
   line-height: 32px;
+  flex-grow: 1;
 }
 
 @media screen and (max-width: 600px) {

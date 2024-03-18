@@ -5,15 +5,15 @@
       Points earned
     </div>
 
-    <div class="points-earned-amount">500</div>
+    <div class="points-earned-amount">{{ pointsEarned }}</div>
   </div>
 </template>
 
 <script>
-import { formatLargeSum } from "@/helpers/filters";
-
 export default {
-  props: {},
+  props: {
+    pointsEarned: { type: String },
+  },
 
   computed: {},
 

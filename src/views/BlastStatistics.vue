@@ -1,6 +1,6 @@
 <template>
-  <div class="blast-statistics-view">
-    <div class="blast-statistics-page" v-if="stakeInfo">
+  <div class="blast-statistics-view" v-if="stakeInfo">
+    <div class="blast-statistics-page" v-if="!isFounderBuffOpened">
       <BlastStatisticsTotalInfo
         :stakeInfo="stakeInfo"
         :totalDistributedPoints="totalDistributedPoints"
@@ -46,20 +46,28 @@
               30 % of all Points will be destributed to Founders
             </p>
           </div>
-          <button class="button-next">Next</button>
+          <button class="button-next" @click="nextHandler">Next</button>
         </div>
       </div>
     </div>
+
+    <FounderBuff
+      :stakeInfo="stakeInfo"
+      v-if="isFounderBuffOpened"
+      @openFounderPopup="isFounderPopupOpened = true"
+    />
+
     <FounderPopup
-      v-if="isFounderPopupOpened"
       :stakeInfo="stakeInfo"
       @close="isFounderPopupOpened = false"
+      v-if="isFounderPopupOpened"
     />
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
 import {
@@ -67,7 +75,8 @@ import {
   fetchUserPointsStatistics,
 } from "@/helpers/blast/stake/points";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
-import { defineAsyncComponent } from "vue";
+import { getLpInfo } from "@/helpers/pools/swap/magicLp";
+import blastPools from "@/configs/pools/blastPools";
 
 export default {
   data() {
@@ -76,6 +85,7 @@ export default {
       updateInterval: null,
       userPointsEarned: 0,
       pointsStatistics: null,
+      isFounderBuffOpened: false,
       isFounderPopupOpened: false,
     };
   },
@@ -89,6 +99,16 @@ export default {
     totalDistributedPoints() {
       return this.formatAmount(this.pointsStatistics?.total);
     },
+
+    lpConfig() {
+      return blastPools.find(
+        (config) =>
+          config.contract.address ===
+          "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8"
+        // "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8"
+        // "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061" lp address from stake contract
+      );
+    },
   },
 
   methods: {
@@ -100,13 +120,26 @@ export default {
       return formatTokenBalance(value);
     },
 
+    nextHandler() {
+      if (this.stakeInfo.lpInfo.userInfo.balance > 0) {
+        this.isFounderBuffOpened = true;
+      } else {
+        this.$router.push({ name: "MyPoints" });
+      }
+    },
+
     async createStakeInfo() {
       this.stakeInfo = await getStakeInfo(this.account);
+      this.stakeInfo.lpInfo = await getLpInfo(
+        this.lpConfig,
+        this.chainId,
+        this.account
+      );
+
       this.userPointsEarned = (
         await fetchUserPointsStatistics(this.account)
       ).total;
       this.pointsStatistics = await fetchPointsStatistics();
-      console.log("distributedPoints", this.pointsStatistics);
     },
   },
 
@@ -125,7 +158,10 @@ export default {
       import("@/components/blastStatistics/UserDeposits.vue")
     ),
     FounderPopup: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/FounderPopup.vue")
+      import("@/components/blastStatistics/founderBuff/FounderPopup.vue")
+    ),
+    FounderBuff: defineAsyncComponent(() =>
+      import("@/components/blastStatistics/founderBuff/FounderBuff.vue")
     ),
     PointsEarnedCard: defineAsyncComponent(() =>
       import("@/components/blastStatistics/cards/PointsEarnedCard.vue")
