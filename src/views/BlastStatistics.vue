@@ -22,6 +22,14 @@
         <div class="chart-wrap">
           <div class="chart">
             <p class="chart-description top-left">
+              <img
+                class="top-description-corner"
+                src="@/assets/images/blast/blast-corner.svg"
+              />
+              <img
+                class="top-description-corner-mobile"
+                src="@/assets/images/blast/blast-corner-mobile.svg"
+              />
               Users of Abracadabra products on Blast will receive rewards
             </p>
             <img
@@ -29,6 +37,14 @@
               src="../assets/images/blast/blast-chart-image.png"
             />
             <p class="chart-description bottom-right">
+              <img
+                class="bottom-description-corner"
+                src="@/assets/images/blast/blast-corner.svg"
+              />
+              <img
+                class="bottom-description-corner-mobile"
+                src="@/assets/images/blast/blast-corner-mobile.svg"
+              />
               30 % of all Points will be destributed to Founders
             </p>
           </div>
@@ -128,7 +144,7 @@ export default {
 }
 
 .blast-statistics-page {
-  margin: 150px 15px 60px 15px;
+  margin: 150px 25px 60px 25px;
   width: 1280px;
   max-width: 100%;
   box-sizing: border-box;
@@ -233,6 +249,25 @@ export default {
   text-align: end;
 }
 
+.top-description-corner {
+  position: absolute;
+  top: -23px;
+  left: -4px;
+  transform: rotate(270deg);
+}
+
+.bottom-description-corner {
+  position: absolute;
+  bottom: -7px;
+  right: -21px;
+}
+
+.top-description-corner-mobile,
+.bottom-description-corner-mobile {
+  position: absolute;
+  display: none;
+}
+
 .button-next {
   display: flex;
   justify-content: center;
@@ -263,12 +298,47 @@ export default {
 }
 
 @media screen and (max-width: 1000px) {
-  .chart-wrap {
-    display: none;
+  .statistics-wrap {
+    align-items: center;
+    flex-direction: column;
   }
 
-  .statistics-wrap {
-    justify-content: center;
+  .chart {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 13px;
+    max-width: 343px;
+  }
+
+  .chart-description {
+    position: static;
+    text-align: start;
+    padding: 0px 13px;
+  }
+
+  .chart-image {
+    align-self: center;
+    width: 318px;
+    height: 285px;
+  }
+
+  .top-description-corner-mobile {
+    top: 0;
+    left: 0;
+    display: block;
+    transform: rotate(90deg);
+  }
+
+  .bottom-description-corner-mobile {
+    bottom: 0;
+    left: 0;
+    display: block;
+  }
+
+  .top-description-corner,
+  .bottom-description-corner {
+    display: none;
   }
 
   .button-next {
