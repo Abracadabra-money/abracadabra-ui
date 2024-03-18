@@ -1,7 +1,7 @@
 <template>
   <div class="popup-body">
     <div class="popup-page" v-if="step === 1">
-      <h3 class="title">Withdraw Pop Up</h3>
+      <h3 class="title">Withdraw From LLE</h3>
       <p class="description">
         You are about to withdraw your locked funds, forfeiting the imminent
         launch of MIMswap as well as all the LLE available rewards for its
@@ -23,7 +23,7 @@
     </div>
 
     <div class="popup-page" v-if="step === 2">
-      <h3 class="title">Withdraw Pop Up 2</h3>
+      <h3 class="title">Withdraw From LLE</h3>
       <p class="description">
         By doing so, you are missing out on the Founder’s Boost, the largest
         incentivisation tool in the Abracadabra and MIMswap Ecosystem as well as
@@ -55,7 +55,7 @@
     </div>
 
     <div class="popup-page" v-if="step === 3">
-      <h3 class="title">Withdraw Pop Up</h3>
+      <h3 class="title">Withdraw From LLE</h3>
       <p class="description">
         You are about to withdraw your locked funds, forfeiting the imminent
         launch of MIMswap as well as all the LLE available rewards for its
