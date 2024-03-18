@@ -15,7 +15,7 @@
 
       <li class="boost-way">
         <span class="title">Deposit WETH in the Cauldron</span>
-        <span class="value">2x Points</span>
+        <span class="value">2X Points</span>
       </li>
 
       <li class="boost-way">
