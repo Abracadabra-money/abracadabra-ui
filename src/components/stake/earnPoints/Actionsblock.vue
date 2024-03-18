@@ -22,6 +22,13 @@
             :selected="isLock"
             @updateToggle="changeLockToggle"
           />
+
+          <Toggle
+            v-if="!isStakeAction"
+            text="Withdraw Locked"
+            :selected="isWithdrawLock"
+            @updateToggle="changeIsWithdrawLock"
+          />
         </div>
 
         <BaseTokenInput
@@ -31,6 +38,7 @@
           :max="maxInput"
           :primaryMax="!isStakeAction"
           :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
+          :disabled="isWithdrawLock"
           @updateInputValue="updateMainValue"
         />
 
@@ -153,6 +161,7 @@ export default {
       activeToken: "USDb" as string,
       tokensList: ["USDb", "MIM"] as string[],
       isLock: false as boolean,
+      isWithdrawLock: false as boolean,
       inputValue: "" as string | bigint,
       inputAmount: BigInt(0) as bigint,
       mimPrice: 0 as number,
@@ -171,8 +180,7 @@ export default {
 
     maxInput() {
       if (this.actionActiveTab === "Stake") return this.fromToken.balance;
-      if (this.actionActiveTab === "Withdraw")
-        return this.fromToken.unlockAmount;
+      return this.fromToken.unlockAmount;
     },
 
     isStakeAction() {
@@ -203,6 +211,12 @@ export default {
         if (this.isMaxCaps) return true;
         return this.isInsufficientBalance;
       }
+
+      if (this.isWithdrawLock) {
+        return this.inputAmount !== this.fromToken.lockedAmount;
+      }
+
+      return this.inputAmount > this.fromToken.unlockAmount;
     },
 
     actionButtonText() {
@@ -333,10 +347,19 @@ export default {
     changeActiveToken(token: string) {
       this.activeToken = token;
       this.inputValue = "";
+      this.isWithdrawLock = false;
     },
 
     changeLockToggle() {
       this.isLock = !this.isLock;
+    },
+
+    changeIsWithdrawLock() {
+      this.isWithdrawLock = !this.isWithdrawLock;
+      this.inputValue = formatUnits(
+        this.fromToken.lockedAmount,
+        this.fromToken.decimals
+      );
     },
 
     updateMainValue(amount: bigint) {
@@ -474,9 +497,6 @@ export default {
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
-    ),
-    IconButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/IconButton.vue")
     ),
     LiquidityInfo: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/LiquidityInfo.vue")
