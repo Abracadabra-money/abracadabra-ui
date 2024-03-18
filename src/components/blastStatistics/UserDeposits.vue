@@ -27,10 +27,6 @@ export default {
       type: Object,
       required: true,
     },
-    pointsStatistics: {
-      type: Object,
-      requared: true,
-    },
   },
 
   data() {

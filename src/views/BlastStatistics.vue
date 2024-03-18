@@ -3,7 +3,7 @@
     <div class="blast-statistics-page" v-if="stakeInfo">
       <BlastStatisticsTotalInfo
         :stakeInfo="stakeInfo"
-        :pointsStatistics="pointsStatistics"
+        :totalDistributedPoints="totalDistributedPoints"
       />
 
       <div class="statistics-wrap">
@@ -15,8 +15,6 @@
             :pointsStatistics="pointsStatistics"
             @openFounderPopup="isFounderPopupOpened = true"
           />
-
-          <button class="button-next mobile-button">Next</button>
         </div>
 
         <div class="chart-wrap">
@@ -89,7 +87,7 @@ export default {
     }),
 
     totalDistributedPoints() {
-      return this.formatAmount(this.pointsStatistics?.distributionAmountSum);
+      return this.formatAmount(this.pointsStatistics?.total);
     },
   },
 
@@ -108,6 +106,7 @@ export default {
         await fetchUserPointsStatistics(this.account)
       ).total;
       this.pointsStatistics = await fetchPointsStatistics();
+      console.log("distributedPoints", this.pointsStatistics);
     },
   },
 
@@ -338,10 +337,6 @@ export default {
 
   .top-description-corner,
   .bottom-description-corner {
-    display: none;
-  }
-
-  .button-next {
     display: none;
   }
 

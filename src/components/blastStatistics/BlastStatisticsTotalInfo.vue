@@ -9,7 +9,7 @@
         <span class="desc-line">
           During the Abracadabra Liquidity Launch Event
           <span class="distributed-points">
-            {{ formatAmount(pointsStatistics?.distributionAmountSum) }}
+            {{ totalDistributedPoints }}
           </span>
           Blast Points have been distributed amount all Founders
         </span>
@@ -53,9 +53,8 @@ export default {
       type: Object,
       required: true,
     },
-    pointsStatistics: {
-      type: Object,
-      requared: true,
+    totalDistributedPoints: {
+      type: String,
     },
   },
 
