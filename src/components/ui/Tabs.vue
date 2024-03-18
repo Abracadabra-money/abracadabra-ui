@@ -6,6 +6,7 @@
       class="switch-btn"
       :class="{ 'switch-btn-active': name === item, small }"
       :key="i"
+      :disabled="disabledTabs.includes(item)"
       @click="$emit('select', item)"
     >
       <img class="icon" v-if="icons[i]" :src="icons[i]" alt="Tab icon" />
@@ -41,6 +42,10 @@ export default {
       type: String,
       default: "#7088cc",
     },
+    disabledTabs: {
+      type: Array,
+      default: () => [],
+    },
   },
 
   emits: ["select"],
@@ -58,6 +63,11 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(16, 18, 23, 0.38);
   padding: 6px;
+
+  *:disabled {
+    color: rgba(255, 255, 255, 0.2);
+    cursor: not-allowed;
+  }
 }
 
 .switch-btn {

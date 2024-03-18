@@ -1,69 +1,58 @@
 <template>
-  <div class="liquidity-info">
-    <div class="header">
-      <div class="title-subtitle">
-        <h3 class="title">MIM Swap</h3>
-        <p class="subtitle">Liquidity Launch Event</p>
-      </div>
+  <div class="road-map">
+    <h3 class="title">MIMSwap Roadmap</h3>
 
-      <div class="timer-wrap">
-        <a
-          target="_blank"
-          href="https://mirror.xyz/0x5744b051845B62D6f5B6Db095cc428bCbBBAc6F9/XAW4Yd1tfc9Bg_x3AiHS-sA55ZRbwteGhusV3LtP45k"
-          >Extended LLE Period: Earning Points!</a
+    <div class="phases-wrap">
+      <div class="stages">
+        <div class="stages-item">1</div>
+        <hr class="border02" />
+        <div class="stages-item">2</div>
+        <hr class="border03" />
+        <div class="stages-item stages-item-disabled">3</div>
+      </div>
+      <div class="phases-list">
+        <div
+          :class="['phases-item', { active: activePhase === 1 }]"
+          @click="changePhase(1)"
         >
-        <Timer />
+          Liquidity Launch Event
+        </div>
+        <div
+          :class="['phases-item', 'next', { active: activePhase === 2 }]"
+          @click="changePhase(2)"
+        >
+          Initiation Phase
+        </div>
+        <div
+          :class="['phases-item', 'prev', { active: activePhase === 3 }]"
+          @click="changePhase(3)"
+        >
+          MIM Swap Launch
+        </div>
       </div>
     </div>
 
-    <div class="fill-indicators">
-      <div class="fill-indicator usdb">
-        <BaseTokenIcon :icon="usdbIcon" name="USDB" :size="tokenIconSize" />
-
-        <div class="scale-wrap">
-          <div
-            class="filling-scale"
-            :style="`width: ${calculatePercentage(
-              indicatorsInfo[0].total,
-              indicatorsInfo[0].caps
-            )}%`"
-          ></div>
-          <div class="filled-amount">
-            {{ formatTokenBalance(indicatorsInfo[0].total) }} out of
-            {{ formatTokenBalance(indicatorsInfo[0].caps) }}
-          </div>
-        </div>
-      </div>
-
-      <div class="fill-indicator mim">
-        <BaseTokenIcon :icon="mimIcon" name="MIM" :size="tokenIconSize" />
-
-        <div class="scale-wrap">
-          <div
-            class="filling-scale"
-            :style="`width: ${calculatePercentage(
-              indicatorsInfo[1].total,
-              indicatorsInfo[1].caps
-            )}%`"
-          ></div>
-          <div class="filled-amount">
-            {{ formatTokenBalance(indicatorsInfo[1].total) }} out of
-            {{ formatTokenBalance(indicatorsInfo[1].caps) }}
-          </div>
-        </div>
-      </div>
+    <div class="description" v-if="activePhase === 1">
+      The MIMSwap Liquidity Launch Event marks a pivotal moment in our journey
+      on Blast, introducing MIMSwap in a grand fashion. It presents a unique
+      chance for users to deposit MIM or USDB, offering an option to lock these
+      assets for improved point gains.
+    </div>
+    <div class="description" v-if="activePhase === 2">
+      Stage where point distributions become more frequent and the introduction
+      of Gold and Potion points is imminent. This phase represents the final
+      opportunity for deposits to qualify for the Founder’s Boost, the most
+      significant reward incentive from Abracadabra to date.
+    </div>
+    <div class="description" v-if="activePhase === 3">
+      This phase concludes the LLE initiative with the deployment of MIMswap
+      contracts, beginning the migration process and seeding and launching LPs.
+      At this juncture, the Founder’s Boost is realized and activated.
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import Timer from "@/components/stake/earnPoints/Timer.vue";
-import mimIcon from "@/assets/images/tokens/MIM.png";
-import usdbIcon from "@/assets/images/tokens/USDB.png";
-import { formatUnits } from "viem";
-import { formatTokenBalance } from "@/helpers/filters";
-
 export default {
   props: {
     stakeInfo: {
@@ -73,87 +62,21 @@ export default {
   },
 
   data() {
-    return { mimIcon, usdbIcon, windowWidth: window.innerWidth };
-  },
-
-  computed: {
-    indicatorsInfo() {
-      return this.stakeInfo.tokensInfo.map(({ caps, totals }: any) => {
-        return {
-          caps: caps,
-          total: totals.total,
-        };
-      });
-    },
-
-    tokenIconSize() {
-      if (this.windowWidth < 600) return "28px";
-      return "32px";
-    },
+    return {
+      activePhase: 2,
+    };
   },
 
   methods: {
-    formatTokenBalance(value: bigint) {
-      return formatTokenBalance(formatUnits(value, 18));
-    },
-
-    calculatePercentage(total: bigint, caps: bigint) {
-      if (!caps) return 100;
-      const pers = (total * 100n) / caps;
-      return formatUnits(pers, 0);
-    },
-
-    onResize() {
-      this.windowWidth = window.innerWidth;
+    changePhase(phase: number) {
+      this.activePhase = phase;
     },
   },
-
-  mounted() {
-    this.$nextTick(() => {
-      window.addEventListener("resize", this.onResize);
-    });
-  },
-
-  beforeDestroy() {
-    window.removeEventListener("resize", this.onResize);
-  },
-
-  components: { BaseTokenIcon, Timer },
 };
 </script>
 
 <style lang="scss" scoped>
-.timer-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-
-  a {
-    font-size: 14px;
-    font-weight: 400;
-    color: #fff;
-    text-decoration: none;
-    transition: all .3s ease;
-
-    &:hover {
-      color: #FED84F;
-      padding-left: 5px;
-    }
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .timer-wrap a {
-    text-decoration: underline;
-  }
-  
-}
-
-.liquidity-info {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.road-map {
   padding: 24px;
   border-radius: 16px;
   border: 1px solid #00296b;
@@ -164,94 +87,163 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.title-subtitle {
+  gap: 24px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8;
 }
 
 .title {
+  text-align: center;
   font-size: 24px;
   font-weight: 500;
 }
 
-.subtitle {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.fill-indicators {
+.phases-list {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  justify-content: space-between;
 }
 
-.fill-indicator {
+.phases-item {
+  box-sizing: border-box;
+  width: 100%;
+  height: 60px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  background-image: url("@/assets/images/blast/default.png");
+  background-size: cover;
+
+  &:hover {
+    background-image: url("@/assets/images/blast/default-hover.png");
+    color: #fff;
+  }
 }
 
-.scale-wrap {
-  position: relative;
+.next {
+  background-image: url("@/assets/images/blast/next.png");
+  background-size: cover;
+}
+
+.prev {
+  background-image: url("@/assets/images/blast/prev.png");
+  background-size: cover;
+
+  &:hover {
+    background-image: url("@/assets/images/blast/prev-hover.png");
+    color: #fff;
+  }
+}
+
+.active {
+  background-image: url("@/assets/images/blast/active.png");
+  background-size: cover;
+  color: #000;
+
+  &:hover {
+    background-image: url("@/assets/images/blast/active.png");
+    color: #000;
+  }
+}
+
+.stages {
+  margin: 0 auto;
+  width: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.stages-item {
+  border-radius: 50%;
+  border: 1px solid #fcfc03;
+  width: 35px;
+  min-width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stages-item-disabled {
+  border-color: rgba(252, 252, 3, 0.2);
+  color: rgba(252, 252, 3, 0.2);
+}
+
+.description {
+  min-height: 100px;
+}
+
+.border02 {
   width: 100%;
-  height: 24px;
-  border-radius: 10px;
+  height: 1px;
+  background-image: linear-gradient(
+    90deg,
+    #fcfc03,
+    #fcfc03 75%,
+    transparent 75%,
+    transparent 100%
+  );
+  background-size: 5px 5px;
+  border: none;
+}
+
+.border03 {
+  width: 100%;
+  height: 1px;
   background: linear-gradient(
     90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
+    rgba(252, 252, 3, 0.2),
+    rgba(252, 252, 3, 0.2) 75%,
+    transparent 75%,
+    transparent 100%
   );
+  background-size: 5px 5px;
+  border: none;
 }
 
-.filling-scale {
-  height: 100%;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
-}
+@media screen and (max-width: 1200px) {
+  .phases-wrap {
+    display: flex;
+    gap: 26px;
+    justify-content: center;
+  }
 
-.filled-amount {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-@media (max-width: 600px) {
-  .liquidity-info {
+  .road-map {
     padding: 16px;
   }
 
-  .header {
+  .stages {
+    width: auto;
+    height: 200px;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    margin: initial;
+    padding-top: 20px;
   }
 
-  .title {
-    font-size: 20px;
+  .phases-list {
+    gap: 15px;
+    flex-direction: column;
+    max-width: 250px;
+    width: 100%;
   }
 
-  .subtitle {
-    font-size: 14px;
+  .phases-item {
+    height: 65px;
   }
 
-  .token-icon {
-    width: 28px;
-    height: 28px;
+  .border03,
+  .border02 {
+    transform: rotate(90deg);
+  }
+
+  .description {
+    min-height: 130px;
   }
 }
 </style>
