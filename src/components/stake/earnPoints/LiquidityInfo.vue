@@ -5,7 +5,9 @@
     <div class="phases-wrap">
       <div class="stages">
         <div class="stages-item">1</div>
+        <hr class="border02" />
         <div class="stages-item">2</div>
+        <hr class="border03" />
         <div class="stages-item stages-item-disabled">3</div>
       </div>
       <div class="phases-list">
@@ -162,6 +164,7 @@ export default {
   border-radius: 50%;
   border: 1px solid #fcfc03;
   width: 35px;
+  min-width: 35px;
   height: 35px;
   display: flex;
   align-items: center;
@@ -175,6 +178,34 @@ export default {
 
 .description {
   min-height: 100px;
+}
+
+.border02 {
+  width: 100%;
+  height: 1px;
+  background-image: linear-gradient(
+    90deg,
+    #fcfc03,
+    #fcfc03 75%,
+    transparent 75%,
+    transparent 100%
+  );
+  background-size: 5px 5px;
+  border: none;
+}
+
+.border03 {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(252, 252, 3, 0.2),
+    rgba(252, 252, 3, 0.2) 75%,
+    transparent 75%,
+    transparent 100%
+  );
+  background-size: 5px 5px;
+  border: none;
 }
 
 @media screen and (max-width: 1200px) {
@@ -205,6 +236,11 @@ export default {
 
   .phases-item {
     height: 65px;
+  }
+
+  .border03,
+  .border02 {
+    transform: rotate(90deg);
   }
 }
 </style>
