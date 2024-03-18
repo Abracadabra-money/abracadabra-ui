@@ -1,6 +1,9 @@
 <template>
   <div class="swap-view">
-    <img class="gif" src="../assets/gifs/Preview.gif" alt="" />
+    <div class="animation-wrap">
+      <img class="bg-img" src="@/assets/gifs/Preview_00299.png" alt="">
+      <img class="gif-img" src="@/assets/gifs/Preview_2.gif" alt="">
+    </div>
   </div>
 </template>
 
@@ -14,8 +17,26 @@
   width: 100%;
 }
 
-.gif {
-  max-width: 1200px;
-  margin: auto;
+.animation-wrap {
+  margin: 0 auto;
+  width: 1000px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  .bg-img {
+    width: 100%;
+    height: auto;
+  }
+
+  .gif-img {
+    position: absolute;
+    left: 0;
+    top: tranlateY(-50%);
+    width: 100%;
+    height: auto;
+  }
 }
 </style>
