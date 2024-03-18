@@ -114,6 +114,14 @@
         </div>
       </div>
     </div>
+
+    <LocalPopupWrap
+      :isOpened="isWithdrawPopup"
+      :isFarm="true"
+      @closePopup="isWithdrawPopup = false"
+    >
+      <WithdrawLockPopup @withdrawLocked="withdrawLocked" />
+    </LocalPopupWrap>
   </div>
 </template>
 
@@ -130,6 +138,7 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { deposit } from "@/helpers/blast/stake/actions/deposit";
 import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
 
 const BLAST_CHAIN_ID = 81457;
 
@@ -162,6 +171,7 @@ export default {
       tokensList: ["USDb", "MIM"] as string[],
       isLock: false as boolean,
       isWithdrawLock: false as boolean,
+      isWithdrawPopup: false as boolean,
       inputValue: "" as string | bigint,
       inputAmount: BigInt(0) as bigint,
       mimPrice: 0 as number,
@@ -408,6 +418,11 @@ export default {
         return false;
       }
 
+      if (this.isWithdrawLock) {
+        this.isWithdrawPopup = true;
+        return false;
+      }
+
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -476,6 +491,28 @@ export default {
         await this.createNotification(notification.success);
       }
     },
+
+    async withdrawLocked() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { error }: any = await withdrawLocked(
+        this.stakeInfo.config.contract, //todo contract
+        this.fromToken.contract.address,
+        this.fromToken.lockedAmount
+      );
+
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.$emit("updateStakeInfo");
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
+    },
   },
 
   async created() {
@@ -500,6 +537,14 @@ export default {
     ),
     LiquidityInfo: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/LiquidityInfo.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    WithdrawLockPopup: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/popups/WithdrawLockPopup.vue")
     ),
   },
 };
