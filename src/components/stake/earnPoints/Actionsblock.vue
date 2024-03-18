@@ -68,7 +68,7 @@
             <div class="lock-info-row">
               <span class="lock-info-title">Points earned</span>
               <span class="lock-info-value">{{
-                formatTokenBalance(userPointsEarned)
+                formatTokenBalance(userPointsEarned?.total || 0)
               }}</span>
             </div>
 
@@ -155,8 +155,7 @@ export default {
       required: true,
     },
     userPointsEarned: {
-      type: Number,
-      default: 0,
+      type: Object,
     },
     mobileMode: {
       type: Boolean,

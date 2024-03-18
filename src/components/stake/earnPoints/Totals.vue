@@ -22,7 +22,7 @@
     <div class="total">
       <h3 class="title">Total Point Distributed</h3>
       <div class="value">
-        {{ formatAmount(pointsStatistics?.distributionAmountSum) }}
+        {{ formatAmount(pointsStatistics?.total || 0) }}
       </div>
 
       <div class="line"></div>
@@ -30,7 +30,9 @@
       <div class="info-wrap">
         <div class="pending-info">
           <span>Next airdrop in</span>
-          <span class="pending-value">4,000,000.00 </span>
+          <span class="pending-value">
+            {{ formatAmount(pointsStatistics?.totalPending || 0) }}</span
+          >
         </div>
 
         <div class="airdrop-info">
@@ -197,11 +199,8 @@ export default {
   line-height: 32px;
 }
 
-// ------
-
 @media (max-width: 700px) {
   .total {
-    height: 101px;
     padding: 12px;
   }
 

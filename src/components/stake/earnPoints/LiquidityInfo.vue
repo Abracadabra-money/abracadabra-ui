@@ -176,4 +176,35 @@ export default {
 .description {
   min-height: 100px;
 }
+
+@media screen and (max-width: 1200px) {
+  .phases-wrap {
+    display: flex;
+    gap: 26px;
+    justify-content: center;
+  }
+
+  .road-map {
+    padding: 16px;
+  }
+
+  .stages {
+    width: auto;
+    height: 200px;
+    flex-direction: column;
+    margin: initial;
+    padding-top: 20px;
+  }
+
+  .phases-list {
+    gap: 15px;
+    flex-direction: column;
+    max-width: 250px;
+    width: 100%;
+  }
+
+  .phases-item {
+    height: 65px;
+  }
+}
 </style>

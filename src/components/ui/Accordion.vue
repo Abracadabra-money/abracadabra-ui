@@ -214,4 +214,9 @@ hr {
     text-align: start;
   }
 }
+@media (max-width: 700px) {
+  .card {
+    display: none;
+  }
+}
 </style>

@@ -50,7 +50,7 @@ export default {
     return {
       stakeInfo: null as any,
       updateInterval: null as any,
-      userPointsEarned: 0 as any,
+      userPointsEarned: null as any,
       pointsStatistics: null as any,
       actionActiveTab: "Withdraw",
       currentMobileTab: 0,

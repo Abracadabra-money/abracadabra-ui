@@ -32,6 +32,8 @@
     </div>
 
     <Accordion />
+
+    <PointsInfo />
   </div>
 </template>
 
@@ -39,6 +41,7 @@
 import Accordion from "@/components/ui/Accordion.vue";
 import LiquidityInfo from "@/components/stake/earnPoints/LiquidityInfo.vue";
 import Totals from "@/components/stake/earnPoints/Totals.vue";
+import PointsInfo from "@/components/stake/earnPoints/PointsInfo.vue";
 
 export default {
   props: {
@@ -60,7 +63,7 @@ export default {
     return {};
   },
 
-  components: { LiquidityInfo, Totals, Accordion },
+  components: { LiquidityInfo, Totals, Accordion, PointsInfo },
 };
 </script>
 
@@ -103,5 +106,13 @@ export default {
 .code4rena {
   max-width: 145px;
   width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+  .audits {
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>
