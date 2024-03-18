@@ -24,7 +24,7 @@ export default {
   data() {
     return {
       startDate: moment.utc("2024-03-01 00:00:00"),
-      endDate: moment.utc("2024-03-29 02:00:00"),
+      endDate: moment.utc("2024-01-29 02:00:00"),
       intervalId: null,
       timerValues: ["0d", "00h", "00m", "00s"],
     };
@@ -37,7 +37,7 @@ export default {
 
       if (duration.asSeconds() <= 0) {
         clearInterval(this.intervalId);
-        this.timerValues = ["0d", "00h", "00m", "00s"];
+        this.timerValues = ["00h", "00m", "00s"];
         return;
       }
 
@@ -54,7 +54,7 @@ export default {
         ];
       } else {
         this.timerValues = [
-          `${days.toString().padStart(2, "0")}d`,
+          // `${days.toString().padStart(2, "0")}d`,
           `${hours.toString().padStart(2, "0")}h`,
           `${minutes.toString().padStart(2, "0")}m`,
           `${seconds.toString().padStart(2, "0")}s`,
