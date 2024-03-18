@@ -120,7 +120,7 @@
       :isFarm="true"
       @closePopup="isWithdrawPopup = false"
     >
-      <WithdrawLockPopup @withdrawLocked="withdrawLocked" />
+      <WithdrawLockPopup @withdrawLocked="withdrawLocked" :tokenInfo="fromToken"  />
     </LocalPopupWrap>
   </div>
 </template>
@@ -492,6 +492,7 @@ export default {
     },
 
     async withdrawLocked() {
+      this.isWithdrawPopup = false;
       const notificationId = await this.createNotification(
         notification.pending
       );

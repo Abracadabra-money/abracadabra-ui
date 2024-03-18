@@ -2,7 +2,12 @@
   <a
     class="default-button"
     :style="{ 'max-width': setWidth() }"
-    :class="{ primary: primary, disabled: disabled || loading, borderless }"
+    :class="{
+      warning: warning,
+      primary: primary,
+      disabled: disabled || loading,
+      borderless,
+    }"
   >
     <div><slot></slot></div>
     <span v-if="loading" class="loader"></span>
@@ -14,6 +19,9 @@ export default {
   name: "BaseButton",
   props: {
     primary: {
+      type: Boolean,
+    },
+    warning: {
       type: Boolean,
     },
     borderless: {
@@ -61,6 +69,15 @@ export default {
   color: #7088cc;
   transition: all 0.3s ease;
 
+  &.warning {
+    color: #fff;
+    background: #8c4040;
+    border: none;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
   &.disabled {
     pointer-events: none;
     cursor: not-allowed;
@@ -91,7 +108,7 @@ export default {
       );
     }
   }
-  &:not(.primary, .borderless) {
+  &:not(.primary, .borderless, .warning) {
     &:hover:not(.disabled) {
       border: 2px solid #86a2f1;
       color: #86a2f1;
