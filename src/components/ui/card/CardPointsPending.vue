@@ -11,18 +11,33 @@
     <div class="card-body">
       <div class="info">
         <span class="info-title">Points Earned</span>
-        <span class="info-earned">10,435.00</span>
+        <span class="info-earned">{{
+          formatTokenBalance(distributionAmount)
+        }}</span>
       </div>
       <div class="info">
         <span class="info-title">Points Pending</span>
-        <span class="info-pending">646,710.00</span>
+        <span class="info-pending">{{
+          formatTokenBalance(pendingDistributionAmount)
+        }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-export default {};
+import { formatTokenBalance } from "@/helpers/filters";
+
+export default {
+  props: {
+    distributionAmount: { type: Number, default: 0 },
+    pendingDistributionAmount: { type: Number, default: 0 },
+  },
+
+  methods: {
+    formatTokenBalance,
+  },
+};
 </script>
 
 <style lang="scss" scoped>

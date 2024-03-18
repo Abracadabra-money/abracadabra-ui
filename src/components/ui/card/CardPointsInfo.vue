@@ -1,12 +1,16 @@
 <template>
-  <div :class="['card', { gold: pointsInfo?.gold }]">
+  <div :class="['card', { gold: pointsInfo?.isGold }]">
     <div class="label">{{ pointsInfo.label }}</div>
 
     <div class="source-points">
       <div class="icons-wrap">
         <img class="source-icon" :src="pointsInfo.icon" alt="Token icon" />
 
-        <img class="chain-icon" :src="getChainIcon(81457)" alt="Chain icon" />
+        <img
+          class="chain-icon"
+          :src="getChainIcon(pointsInfo.chainId)"
+          alt="Chain icon"
+        />
       </div>
 
       <div class="source-description">
@@ -18,13 +22,13 @@
     <div class="deposited">
       <div class="deposited-text">Deposited</div>
       <div class="deposited-value">
-        <img
-          v-if="pointsInfo.deposited?.icon"
-          class="deposited-icon"
-          :src="pointsInfo.deposited.icon"
-          alt="Token icon"
-        />
-        {{ pointsInfo.deposited.value }}
+        <div class="deposited-amount">
+          <img class="deposited-icon" :src="pointsInfo.icon" alt="Token icon" />
+          {{ formatTokenBalance(pointsInfo.deposited) }}
+        </div>
+        <div class="deposited-price">
+          {{ formatUSD(pointsInfo.depositedUsd) }}
+        </div>
       </div>
     </div>
 
@@ -34,13 +38,16 @@
       <li class="list-item">
         <div class="item-title">Points Earned</div>
         <div class="item-value">
-          <div class="item-amount">220,395</div>
-          <div class="item-price">$200,000</div>
+          <div class="item-amount">
+            {{ formatTokenBalance(pointsInfo.distributionAmount) }}
+          </div>
         </div>
       </li>
       <li class="list-item">
         <div class="item-title">Points Pending</div>
-        <div class="item-value">410.00</div>
+        <div class="item-value">
+          {{ formatTokenBalance(pointsInfo.pendingDistributionAmount) }}
+        </div>
       </li>
     </ul>
   </div>
@@ -48,6 +55,7 @@
 
 <script lang="ts">
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
 export default {
   props: {
@@ -59,7 +67,7 @@ export default {
     },
   },
 
-  methods: { getChainIcon },
+  methods: { getChainIcon, formatTokenBalance, formatUSD },
 };
 </script>
 
@@ -174,9 +182,19 @@ export default {
   font-size: 16px;
   font-weight: 500;
   line-height: 150%;
+}
+
+.deposited-amount {
   gap: 4px;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+}
+
+.deposited-price {
+  text-align: right;
+  color: #878b93;
+  font-size: 14px;
 }
 
 .deposited-icon {
@@ -216,10 +234,5 @@ export default {
 
 .item-amount {
   color: #fcfd02;
-}
-
-.item-price {
-  color: #878b93;
-  font-size: 14px;
 }
 </style>

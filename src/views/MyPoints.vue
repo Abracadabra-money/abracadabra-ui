@@ -8,15 +8,20 @@
             Track your Blast Points and Gold earned on Abracadarba
           </h4>
           <div class="links-wrap">
-            <BaseButton class="btn" @click="console.log('')"
-              >MIM/USDB Pool</BaseButton
-            >
+            <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
             <BaseButton class="btn" @click="goToSwap">MIMSwap</BaseButton>
           </div>
         </div>
 
         <div class="row">
-          <CardPointsPending />
+          <CardPointsPending
+            :distributionAmount="
+              userPointsStatistics.distributionAmountSumByAddress
+            "
+            :pendingDistributionAmount="
+              userPointsStatistics.pendingDistributionAmountSumByAddress
+            "
+          />
           <CardPointsPending />
         </div>
       </div>
@@ -37,122 +42,182 @@
         <div class="totals-wrap">
           <div class="total-item">
             <span class="total-title">Total Points Distributed</span>
-            <span class="total-value">10,000,000.00</span>
+            <span class="total-value">{{
+              formatTokenBalance(pointsStatistics.distributionAmountSum)
+            }}</span>
           </div>
           <div class="total-item">
             <span class="total-title">Total Gold Distributed</span>
-            <span class="total-value">10,000,000.00</span>
+            <span class="total-value">{{ formatTokenBalance(0) }}</span>
           </div>
         </div>
       </div>
 
       <div class="row card-info-row">
-        <CardPointsInfo
-          v-for="pointsInfo in pointsInfoArr"
-          :key="pointsInfo.label"
-          :pointsInfo="pointsInfo"
-        />
+        <CardPointsInfo :pointsInfo="cauldronPointsInfo" />
+        <CardPointsInfo :pointsInfo="llePointsInfo" />
+        <CardPointsInfo :pointsInfo="goldPointsInfo" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { useImage } from "@/helpers/useImage";
+import {
+  fetchPointsStatistics,
+  fetchUserPointsStatistics,
+} from "@/helpers/blast/stake/points";
+import { formatUnits } from "viem";
+import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
+import { defaultRpc } from "@/helpers/chains";
+import { formatTokenBalance } from "@/helpers/filters";
+import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+
+const BLAST_CHAIN_ID = 81457;
+const MIM_USDB_POOL_ID = 1;
 
 export default {
   data() {
     return {
-      pointsInfoArr: [
-        {
-          label: "Minter",
-          title: "WETH cauldron",
-          subtitle: "Deposited WETH into Cauldron",
-          icon: useImage("assets/images/tokens/WETH.png"),
-          deposited: {
-            value: 410.0,
-            icon: useImage("assets/images/tokens/WETH.png"),
-          },
-          list: [
-            {
-              title: "Points Earned",
-              value: {
-                amount: 220395,
-                price: "$200,000",
-              },
-            },
-            {
-              title: "Points Pending",
-              value: 410.0,
-            },
-          ],
-        },
-        {
-          label: "Lp’er",
-          title: "MIM / USDB Pool",
-          subtitle: "Added liquidity into pool",
-          icon: useImage("assets/images/tokens/MIM-USDB.png"),
-          deposited: {
-            value: 410.0,
-          },
-          list: [
-            {
-              title: "Points Earned",
-              value: {
-                amount: 220395,
-                price: "$200,000",
-              },
-            },
-            {
-              title: "Points Pending",
-              value: 410.0,
-            },
-          ],
-        },
-        {
-          gold: true,
-          label: "Founder buff",
-          title: "MIM / USDB Pool",
-          subtitle: "Added liquidity into pool",
-          icon: useImage("assets/images/tokens/MIM-USDB.png"),
-          deposited: {
-            value: 410.0,
-          },
-          list: [
-            {
-              title: "Points Earned",
-              value: {
-                amount: 220395,
-                price: "$200,000",
-              },
-            },
-            {
-              title: "Points Pending",
-              value: 410.0,
-            },
-          ],
-        },
-      ],
+      pointsStatistics: {
+        distributionAmountAvgSumForAddresses: 0,
+        distributionAmountSum: 0,
+        distributionAmountSumFromCauldron: 0,
+        distributionAmountSumFromLle: 0,
+        pendingDistributionAmountSum: 0,
+        pendingDistributionAmountSumFromCauldron: 0,
+        pendingDistributionAmountSumFromLle: 0,
+      },
+      userPointsStatistics: {
+        distributionAmountSumByAddress: 0,
+        distributionAmountSumByAddressFromCauldron: 0,
+        distributionAmountSumByAddressFromLle: 0,
+        pendingDistributionAmountSumByAddress: 0,
+        pendingDistributionAmountSumByAddressFromCauldron: 0,
+        pendingDistributionAmountSumByAddressFromLle: 0,
+      },
+      poolInfo: null as any,
+      cauldronInfo: null as any,
     };
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
+    ...mapGetters({
+      chainId: "getChainId",
+      account: "getAccount",
+      signer: "getSigner",
+    }),
+
+    cauldronPointsInfo() {
+      console.log(
+        "this.cauldronInfo?.userTokensInfo?.collateralDeposited",
+        this.cauldronInfo?.userTokensInfo?.collateralDeposited
+      );
+
+      return {
+        chainId: BLAST_CHAIN_ID,
+        label: "Minter",
+        title: "WETH cauldron",
+        subtitle: "Deposited WETH into Cauldron",
+        icon: useImage("assets/images/tokens/WETH.png"),
+        deposited: this.cauldronInfo?.userPosition?.collateralDeposited || 0,
+        depositedUsd:
+          this.cauldronInfo?.userPosition?.collateralDepositedUsd || 0,
+        distributionAmount:
+          this.userPointsStatistics.distributionAmountSumByAddressFromCauldron,
+        pendingDistributionAmount:
+          this.userPointsStatistics
+            .pendingDistributionAmountSumByAddressFromCauldron,
+      };
+    },
+
+    llePointsInfo() {
+      const deposited = +formatUnits(
+        this.poolInfo?.userInfo?.balance || 0n,
+        this.poolInfo?.decimals || 18
+      );
+
+      const depositedUsd = deposited * this.poolInfo?.price || 0;
+
+      return {
+        chainId: BLAST_CHAIN_ID,
+        label: "Lp’er",
+        title: "MIM / USDB Pool",
+        subtitle: "Added liquidity into pool",
+        icon: useImage("assets/images/tokens/MIM-USDB.png"),
+        deposited,
+        depositedUsd,
+        distributionAmount:
+          this.userPointsStatistics.distributionAmountSumByAddressFromLle,
+        pendingDistributionAmount:
+          this.userPointsStatistics
+            .pendingDistributionAmountSumByAddressFromLle,
+      };
+    },
+
+    goldPointsInfo() {
+      return {
+        chainId: BLAST_CHAIN_ID,
+        isGold: true,
+        label: "Founder buff",
+        title: "MIM / USDB Pool",
+        subtitle: "LLE contributor",
+        icon: useImage("assets/images/tokens/MIM-USDB.png"),
+        deposited: 0,
+        depositedUsd: 0,
+        distributionAmount: 0,
+        pendingDistributionAmount: 0,
+      };
+    },
   },
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+    formatTokenBalance,
 
     goToPool() {
-      console.log("goToPool");
+      this.$router.push({
+        name: "Pool",
+        params: { id: MIM_USDB_POOL_ID, poolChainId: BLAST_CHAIN_ID },
+      });
     },
 
     goToSwap() {
       this.$router.push({ name: "MimSwap" });
     },
+  },
+
+  async created() {
+    this.pointsStatistics = await fetchPointsStatistics();
+
+    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+
+    this.poolInfo = await getPoolInfo(
+      BLAST_CHAIN_ID,
+      MIM_USDB_POOL_ID,
+      this.account
+    );
+
+    const currentRpc = defaultRpc[BLAST_CHAIN_ID as keyof typeof defaultRpc];
+
+    const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+
+    const userSigner =
+      this.account && this.chainId === BLAST_CHAIN_ID
+        ? this.signer
+        : chainProvider;
+
+    this.cauldronInfo = await getCauldronInfo(
+      MIM_USDB_POOL_ID,
+      BLAST_CHAIN_ID,
+      chainProvider,
+      userSigner
+    );
   },
 
   components: {
@@ -228,7 +293,7 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  width: 50%;
+  width: 45%;
   gap: 8px;
   display: flex;
   align-items: center;
@@ -264,7 +329,7 @@ export default {
 .totals-wrap {
   padding: 4px 24px 4px 0;
   margin-left: -1px;
-  min-width: 700px;
+  min-width: 720px;
   height: 74px;
   background-image: url("@/assets/images/myPoints/baner-bg.png");
   background-size: cover;
@@ -293,6 +358,8 @@ export default {
   font-size: 26px;
   font-weight: 600;
   line-height: 100%;
+  min-width: 200px;
+  text-align: end;
 }
 
 @media screen and (max-width: 1024px) {
