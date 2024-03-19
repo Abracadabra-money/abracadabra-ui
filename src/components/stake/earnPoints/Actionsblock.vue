@@ -73,17 +73,17 @@
             </div>
 
             <div class="lock-info-row">
-              <span class="lock-info-title">You Locked</span>
-              <span class="lock-info-value">
-                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.lockedAmount) }}</span>
-            </div>
-
-            <div class="lock-info-row">
               <span class="lock-info-title"
                 >Earning <span class="gold">{{ userTotalPending }}</span> Points
                 per hour</span
               >
+            </div>
+
+            <div class="lock-info-row">
+              <span class="lock-info-title">You Locked</span>
+              <span class="lock-info-value">
+                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
+                {{ formatAmount(fromToken.lockedAmount) }}</span>
             </div>
 
             <div class="line"></div>
