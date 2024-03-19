@@ -1,5 +1,5 @@
 <template>
-  <div class="blast-statistics-view" v-if="stakeInfo?.lpInfo">
+  <div class="blast-statistics-view" v-if="stakeInfo">
     <div class="blast-statistics-page" v-if="!isFounderBuffOpened">
       <BlastStatisticsTotalInfo
         :stakeInfo="stakeInfo"
@@ -133,12 +133,14 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfo = await getStakeInfo(this.account);
-      this.stakeInfo.lpInfo = await getPoolInfo(
+      const stakeInfo = await getStakeInfo(this.account);
+      stakeInfo.lpInfo = await getPoolInfo(
         MIM_USDB_POOL_CHAIN_ID,
         MIM_USDB_POOL_ID,
         this.account
       );
+
+      this.stakeInfo = stakeInfo;
       this.userPointsEarned = (
         await fetchUserPointsStatistics(this.account)
       ).total;

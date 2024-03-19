@@ -1,18 +1,18 @@
 <template>
   <div :class="['deposit-card', 'pool', { locked: isLocked }]">
-    <div class="label">{{ labelText }}</div>
+    <div class="label">Founder`s buff</div>
 
     <div class="pool-info">
       <TokenChainIcon
         class="pool-icon"
-        :icon="mimUsdbIcon"
-        name="MIM/USDB"
+        :icon="lpToken.icon"
+        :name="lpToken.name"
         :chainId="81457"
         size="44px"
       />
       <div class="pool-text">
-        <p class="pool-name">MIM / USDB Pool</p>
-        <p class="values-description">Liquidity added into the pool</p>
+        <p class="pool-name">{{ lpToken.name }} Pool</p>
+        <p class="values-description">LLE Contributor</p>
       </div>
     </div>
 
@@ -49,23 +49,15 @@ import { formatUnits } from "viem";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 
-import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
-
 export default {
   props: {
     stakeInfo: { type: Object },
     isLocked: { type: Boolean, default: false },
   },
 
-  data() {
-    return {
-      mimUsdbIcon,
-    };
-  },
-
   computed: {
     lpInfo() {
-      return this.stakeInfo.lpInfo;
+      return this.stakeInfo?.lpInfo;
     },
 
     lpToken() {
@@ -144,7 +136,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100%;
-  border: 1px solid #fcfd02;
+  border: 1px solid #8b8b03;
   border-radius: 16px;
   padding: 21px 12px 16px 12px;
   background: linear-gradient(
@@ -159,13 +151,23 @@ export default {
 
 .locked {
   background: linear-gradient(
-    104deg,
-    rgba(251, 253, 3, 0.36) 0%,
-    rgba(251, 253, 3, 0.36) 28.64%,
-    rgba(254, 255, 172, 0.36) 52.14%,
-    rgba(253, 255, 0, 0.36) 70.64%,
-    rgba(253, 255, 0, 0.36) 100%
-  );
+      104deg,
+      rgba(251, 253, 3, 0.21) 0%,
+      rgba(251, 253, 3, 0.21) 28.64%,
+      rgba(254, 255, 172, 0.21) 52.14%,
+      rgba(253, 255, 0, 0.21) 70.64%,
+      rgba(253, 255, 0, 0.21) 100%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(35, 0, 0, 0.07) 0%,
+      rgba(156, 0, 0, 0.07) 101.49%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
+    );
 }
 
 .label {

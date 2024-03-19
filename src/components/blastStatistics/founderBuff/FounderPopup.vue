@@ -19,16 +19,23 @@
       <div class="pool-info-wrap" v-if="stakeInfo && stakeLpInfo">
         <div class="promo-label">Founders will recieve 30% of Points</div>
 
-        <div class="pool-info">
-          <TokenChainIcon
-            class="pool-icon"
-            :icon="lpInfo.icon"
-            name="MIM/USDB"
-            :chainId="81457"
-          />
-          <div class="pool-text">
-            <p class="pool-name">{{ lpInfo.name }} Pool</p>
-            <p class="values-description">Extend Liquidity Lock</p>
+        <div class="pool-info-value">
+          <div class="pool-info">
+            <TokenChainIcon
+              class="pool-icon"
+              :icon="lpToken.icon"
+              :name="lpToken.name"
+              :chainId="81457"
+            />
+            <div class="pool-text">
+              <p class="pool-name">{{ lpInfo.name }} Pool</p>
+              <p class="values-description">Extend Liquidity Lock</p>
+            </div>
+          </div>
+
+          <div class="token-amount">
+            <span class="value">{{ lpToken.amount }}</span>
+            <span class="usd">{{ lpToken.amountUsd }}</span>
           </div>
         </div>
 
@@ -73,7 +80,7 @@ import { mapActions, mapMutations } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
 import { formatUnits } from "viem";
-import { formatTokenBalance } from "@/helpers/filters";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
 import { approveTokenViem } from "@/helpers/approval";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
@@ -141,6 +148,23 @@ export default {
 
     lpInfo() {
       return this.stakeInfo.lpInfo;
+    },
+
+    lpToken() {
+      return {
+        name: this.lpInfo.name,
+        icon: this.lpInfo.icon,
+        amount: this.formatTokenBalance(
+          this.lpInfo.userInfo.balance,
+          this.lpInfo.decimals
+        ),
+        amountUsd: formatUSD(
+          this.formatTokenBalance(
+            this.lpInfo.userInfo.balance,
+            this.lpInfo.decimals
+          ) * this.lpInfo.price
+        ),
+      };
     },
 
     lpPartsExpected() {
@@ -395,9 +419,33 @@ export default {
   font-weight: 500;
 }
 
+.pool-info-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .pool-info {
   display: flex;
   align-items: center;
+}
+
+.token-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.value {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: -8px;
+}
+
+.usd {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .total-by-token {
