@@ -20,7 +20,7 @@
     </div>
 
     <div class="total">
-      <h3 class="title">Total Point Distributed</h3>
+      <h3 class="title">Total Points Distributed</h3>
       <div class="value">
         {{ formatAmount(pointsStatistics?.total || 0) }}
       </div>
@@ -30,8 +30,8 @@
       <div class="info-wrap">
         <div class="pending-info">
           <span>Pending</span>
-          <span class="pending-value">
-            {{ formatAmount(pointsStatistics?.totalPending || 0) }}</span
+          <span class="pending-value roboto">
+            {{ totalPending }}</span
           >
         </div>
 
@@ -62,6 +62,10 @@ export default {
       type: Object,
       requared: true,
     },
+    timeInfo: {
+      type: Object,
+      required: true,
+    }
   },
 
   data() {
@@ -75,6 +79,15 @@ export default {
         (token: any) => (totalDeposited += token.totals.total)
       );
       return this.formatTokenBalance(totalDeposited);
+    },
+
+    totalPending() {
+      const totalPending = this.pointsStatistics?.totalPending || 0;
+      const percentagePassed = this.timeInfo?.percentagePassed || 0;
+    
+      const updatedTotalPending = totalPending * (percentagePassed / 100);
+      const parsedValue = parseFloat(updatedTotalPending.toFixed(0));
+      return this.formatAmount(parsedValue);
     },
 
     totalMimDeposited() {
@@ -112,6 +125,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap');
+.roboto {
+  font-family: "Roboto Mono", monospace;
+}
+
 .totals-wrap {
   gap: 20px;
   display: flex;
