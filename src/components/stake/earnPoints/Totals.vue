@@ -28,16 +28,13 @@
       <div class="line"></div>
 
       <div class="info-wrap">
-        <div class="pending-info">
-          <span>Pending</span>
-          <span class="pending-value roboto">
-            {{ totalPending }}</span
-          >
-        </div>
-
         <div class="airdrop-info">
           <span>Next airdrop in</span>
           <span class="pending-value"> <Timer airdrop /></span>
+        </div>
+        <div class="pending-info">
+          <span>To be distributed</span>
+          <span class="pending-value roboto"> {{ totalPending }}</span>
         </div>
       </div>
     </div>
@@ -65,7 +62,7 @@ export default {
     timeInfo: {
       type: Object,
       required: true,
-    }
+    },
   },
 
   data() {
@@ -84,7 +81,7 @@ export default {
     totalPending() {
       const totalPending = this.pointsStatistics?.totalPending || 0;
       const percentagePassed = this.timeInfo?.percentagePassed || 0;
-    
+
       const updatedTotalPending = totalPending * (percentagePassed / 100);
       const parsedValue = parseFloat(updatedTotalPending.toFixed(0));
       return this.formatAmount(parsedValue);
@@ -125,7 +122,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap");
 .roboto {
   font-family: "Roboto Mono", monospace;
 }
