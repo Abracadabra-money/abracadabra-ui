@@ -37,14 +37,8 @@ export default {
       let duration;
 
       if (this.airdrop) {
-        const midnight = moment.utc().startOf("day").add(24, "hours"); // next midnight
-        const noon = moment.utc().startOf("day").add(12, "hours"); // next noon
-
-        if (now.isBefore(noon)) {
-          duration = moment.duration(noon.diff(now));
-        } else {
-          duration = moment.duration(midnight.diff(now));
-        }
+        const nextHour = moment.utc().startOf("hour").add(1, "hours"); // next hour
+        duration = moment.duration(nextHour.diff(now));
 
         if (duration.asSeconds() <= 0) {
           clearInterval(this.intervalId);
