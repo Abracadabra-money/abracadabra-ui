@@ -30,7 +30,7 @@
       <div class="info-wrap">
         <div class="pending-info">
           <span>Pending</span>
-          <span class="pending-value">
+          <span class="pending-value roboto">
             {{ totalPending }}</span
           >
         </div>
@@ -86,7 +86,8 @@ export default {
       const percentagePassed = this.timeInfo?.percentagePassed || 0;
     
       const updatedTotalPending = totalPending * (percentagePassed / 100);
-      return this.formatAmount(updatedTotalPending);
+      const parsedValue = parseFloat(updatedTotalPending.toFixed(0));
+      return this.formatAmount(parsedValue);
     },
 
     totalMimDeposited() {
@@ -124,6 +125,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap');
+.roboto {
+  font-family: "Roboto Mono", monospace;
+}
+
 .totals-wrap {
   gap: 20px;
   display: flex;
