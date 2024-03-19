@@ -51,10 +51,10 @@
             <span>Multiplier</span>
             <span class="multiplier-value">{{ multiplier }}X</span>
           </div>
-          <div class="info-row" v-if="isLock && isStakeAction">
+          <!-- <div class="info-row" v-if="isLock && isStakeAction">
             <span>Locking for</span>
             <span> <Timer small /></span>
-          </div>
+          </div> -->
         </div>
 
         <BaseButton primary :disabled="isActionDisabled" @click="actionHandler"
@@ -70,6 +70,13 @@
               <span class="lock-info-value">{{
                 formatTokenBalance(userPointsEarned?.total || 0)
               }}</span>
+            </div>
+
+            <div class="lock-info-row">
+              <span class="lock-info-title">You Locked</span>
+              <span class="lock-info-value">
+                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
+                {{ formatAmount(fromToken.lockedAmount) }}</span>
             </div>
 
             <div class="lock-info-row">
