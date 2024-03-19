@@ -16,6 +16,7 @@
           :actionActiveTab="actionActiveTab"
           :userPointsEarned="userPointsEarned"
           :mobileMode="mobileMode"
+          :timeInfo="timeInfo"
           @updateStakeInfo="createStakeInfo"
           v-if="isActionTab"
         />
@@ -26,6 +27,7 @@
         :stakeInfo="stakeInfo"
         :pointsStatistics="pointsStatistics"
         :mobileMode="mobileMode"
+        :timeInfo="timeInfo"
         v-if="isInfoTab"
       />
     </div>
@@ -44,6 +46,7 @@ import {
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
+import moment from "moment";
 
 export default {
   data() {
@@ -55,6 +58,11 @@ export default {
       actionActiveTab: "Stake",
       currentMobileTab: 0,
       mobileMode: false,
+      timerInterval: null as any,
+      timeInfo: {
+        percentagePassed: 0,
+        timerValues: ["00m", "00s"],
+      },
     };
   },
 
@@ -97,6 +105,52 @@ export default {
         this.currentMobileTab = 0;
       }
     },
+
+    updateTimeInfo() {
+      const now = moment().utc();
+
+      let duration;
+
+      const nextHour = moment.utc().startOf("hour").add(1, "hours"); // next hour
+      duration = moment.duration(nextHour.diff(now));
+
+      if (duration.asSeconds() <= 0) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = ["00m", "00s"];
+        return;
+      }
+
+      const minutes = Math.max(duration.minutes(), 0);
+      const seconds = Math.max(duration.seconds(), 0);
+
+      const timerValues = [
+        `${minutes.toString().padStart(2, "0")}m`,
+        `${seconds.toString().padStart(2, "0")}s`,
+      ];
+
+      const minutesPassed = now.minute();
+      const percentagePassed = (minutesPassed / 60) * 100;
+
+      const timerInfo = {
+        percentagePassed: percentagePassed,
+        timerValues,
+      };
+
+      this.timeInfo = timerInfo;
+    },
+
+    stopIntervals() {
+      clearInterval(this.updateInterval);
+      clearInterval(this.timerInterval);
+    },
+
+    createIntervals() {
+      this.updateInterval = setInterval(async () => {
+        await this.createStakeInfo();
+      }, 60000);
+
+      this.timerInterval = setInterval(this.updateTimeInfo, 1000);
+    },
   },
 
   async created() {
@@ -105,13 +159,11 @@ export default {
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
 
-    this.updateInterval = setInterval(async () => {
-      await this.createStakeInfo();
-    }, 60000);
+    this.createIntervals();
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    this.stopIntervals();
     window.removeEventListener("resize", this.getWindowSize);
   },
 

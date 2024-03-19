@@ -66,11 +66,23 @@
         <div class="lock-inner">
           <div class="lock-info">
             <div class="lock-info-row">
-              <span class="lock-info-title">Points earned</span>
+              <span class="lock-info-title">Points</span>
               <span class="lock-info-value">{{
                 formatTokenBalance(userPointsEarned?.total || 0)
               }}</span>
             </div>
+
+            <div class="lock-info-row">
+              <span class="lock-info-title">Earned</span>
+              <span class="lock-info-value">{{ userTotalPending }}</span>
+            </div>
+
+            <!-- <div class="lock-info-row">
+              <span class="lock-info-title"
+                >Earning 
+              </span>
+              <span class="lock-info-value">{{ userTotalPending }} <span class="lock-info-title">Points per hour</span></span>
+            </div> -->
 
             <div class="lock-info-row">
               <span class="lock-info-title">You Locked</span>
@@ -120,7 +132,10 @@
       :isFarm="true"
       @closePopup="isWithdrawPopup = false"
     >
-      <WithdrawLockPopup @withdrawLocked="withdrawLocked" :tokenInfo="fromToken"  />
+      <WithdrawLockPopup
+        @withdrawLocked="withdrawLocked"
+        :tokenInfo="fromToken"
+      />
     </LocalPopupWrap>
   </div>
 </template>
@@ -161,6 +176,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    timeInfo: {
+      type: Object,
+      required: true,
+    },
   },
 
   data() {
@@ -186,6 +205,14 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
     }),
+
+    userTotalPending() {
+      const totalPending = this.userPointsEarned?.totalPending || 0;
+      const percentagePassed = this.timeInfo?.percentagePassed || 0;
+
+      const updatedTotalPending = totalPending * (percentagePassed / 100);
+      return formatTokenBalance(updatedTotalPending);
+    },
 
     maxInput() {
       if (this.actionActiveTab === "Stake") return this.fromToken.balance;

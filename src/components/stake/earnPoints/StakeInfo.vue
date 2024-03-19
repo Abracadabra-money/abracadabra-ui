@@ -2,7 +2,7 @@
   <div class="stake-info">
     <LiquidityInfo :stakeInfo="stakeInfo" v-if="!mobileMode" />
 
-    <Totals :stakeInfo="stakeInfo" :pointsStatistics="pointsStatistics" />
+    <Totals :stakeInfo="stakeInfo" :pointsStatistics="pointsStatistics" :timeInfo="timeInfo" />
 
     <div class="audits">
       <div>Security Audits Completed</div>
@@ -57,6 +57,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    timeInfo: {
+      type: Object,
+      required: true,
+    }
   },
 
   data() {
