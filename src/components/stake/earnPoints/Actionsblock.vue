@@ -51,10 +51,10 @@
             <span>Multiplier</span>
             <span class="multiplier-value">{{ multiplier }}X</span>
           </div>
-          <div class="info-row" v-if="isLock && isStakeAction">
+          <!-- <div class="info-row" v-if="isLock && isStakeAction">
             <span>Locking for</span>
             <span> <Timer small /></span>
-          </div>
+          </div> -->
         </div>
 
         <BaseButton primary :disabled="isActionDisabled" @click="actionHandler"
@@ -66,18 +66,24 @@
         <div class="lock-inner">
           <div class="lock-info">
             <div class="lock-info-row">
-              <span class="lock-info-title">Points earned</span>
+              <span class="lock-info-title">Points</span>
               <span class="lock-info-value">{{
                 formatTokenBalance(userPointsEarned?.total || 0)
               }}</span>
+            </div>
+
+            <div class="lock-info-row" v-if="account">
+              <span class="lock-info-title"
+                >Earning <span class="gold">{{ userTotalPending }}</span> Points
+                per hour</span
+              >
             </div>
 
             <div class="lock-info-row">
               <span class="lock-info-title">You Locked</span>
               <span class="lock-info-value">
                 <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.lockedAmount) }}</span
-              >
+                {{ formatAmount(fromToken.lockedAmount) }}</span>
             </div>
 
             <div class="line"></div>
@@ -120,7 +126,10 @@
       :isFarm="true"
       @closePopup="isWithdrawPopup = false"
     >
-      <WithdrawLockPopup @withdrawLocked="withdrawLocked" :tokenInfo="fromToken"  />
+      <WithdrawLockPopup
+        @withdrawLocked="withdrawLocked"
+        :tokenInfo="fromToken"
+      />
     </LocalPopupWrap>
   </div>
 </template>
@@ -186,6 +195,11 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
     }),
+
+    userTotalPending() {
+      const totalPending = this.userPointsEarned?.totalPending || 0;
+      return formatTokenBalance(totalPending);
+    },
 
     maxInput() {
       if (this.actionActiveTab === "Stake") return this.fromToken.balance;
@@ -551,6 +565,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.gold {
+  color: #fcfd02;
+}
+
 .action-wrap {
   border-radius: 20px;
   border: 1px solid #00296b;
