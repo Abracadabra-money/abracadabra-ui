@@ -127,11 +127,11 @@ export default {
         `${seconds.toString().padStart(2, "0")}s`,
       ];
 
-      const minutesPassed = now.minute();
-      const percentagePassed = (minutesPassed / 60) * 100;
+      const secondsPassed = now.seconds() + now.minutes() * 60;
+      const percentagePassedInSeconds = (secondsPassed / 3600) * 100;
 
       const timerInfo = {
-        percentagePassed: percentagePassed,
+        percentagePassed: percentagePassedInSeconds,
         timerValues,
       };
 
