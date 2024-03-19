@@ -16,7 +16,6 @@
           :actionActiveTab="actionActiveTab"
           :userPointsEarned="userPointsEarned"
           :mobileMode="mobileMode"
-          :timeInfo="timeInfo"
           @updateStakeInfo="createStakeInfo"
           v-if="isActionTab"
         />

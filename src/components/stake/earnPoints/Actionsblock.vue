@@ -73,22 +73,9 @@
             </div>
 
             <div class="lock-info-row">
-              <span class="lock-info-title">Earned</span>
-              <span class="lock-info-value">{{ userTotalPending }}</span>
-            </div>
-
-            <!-- <div class="lock-info-row">
               <span class="lock-info-title"
-                >Earning 
-              </span>
-              <span class="lock-info-value">{{ userTotalPending }} <span class="lock-info-title">Points per hour</span></span>
-            </div> -->
-
-            <div class="lock-info-row">
-              <span class="lock-info-title">You Locked</span>
-              <span class="lock-info-value">
-                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.lockedAmount) }}</span
+                >Earning <span class="gold">{{ userTotalPending }}</span> Points
+                per hour</span
               >
             </div>
 
@@ -176,10 +163,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    timeInfo: {
-      type: Object,
-      required: true,
-    },
   },
 
   data() {
@@ -208,10 +191,7 @@ export default {
 
     userTotalPending() {
       const totalPending = this.userPointsEarned?.totalPending || 0;
-      const percentagePassed = this.timeInfo?.percentagePassed || 0;
-
-      const updatedTotalPending = totalPending * (percentagePassed / 100);
-      return formatTokenBalance(updatedTotalPending);
+      return formatTokenBalance(totalPending);
     },
 
     maxInput() {
@@ -578,6 +558,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.gold {
+  color: #fcfd02;
+}
+
 .action-wrap {
   border-radius: 20px;
   border: 1px solid #00296b;
