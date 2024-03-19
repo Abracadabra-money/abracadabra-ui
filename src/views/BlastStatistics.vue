@@ -1,5 +1,5 @@
 <template>
-  <div class="blast-statistics-view" v-if="stakeInfo">
+  <div class="blast-statistics-view" v-if="stakeInfo?.lpInfo">
     <div class="blast-statistics-page" v-if="!isFounderBuffOpened">
       <BlastStatisticsTotalInfo
         :stakeInfo="stakeInfo"
@@ -28,7 +28,8 @@
                 class="top-description-corner-mobile"
                 src="@/assets/images/blast/blast-corner-mobile.svg"
               />
-              Users of Abracadabra products on Blast will receive rewards
+              Abracadabra and MIMswap users on Blast will receive multiple
+              rewards.
             </p>
             <img
               class="chart-image"
@@ -43,7 +44,8 @@
                 class="bottom-description-corner-mobile"
                 src="@/assets/images/blast/blast-corner-mobile.svg"
               />
-              30 % of all Points will be destributed to Founders
+              30% of all Points received by the Abracadabra Ecosystem will be
+              distributed to Founder’s users
             </p>
           </div>
           <button class="button-next" @click="nextHandler">Next</button>
@@ -75,8 +77,10 @@ import {
   fetchUserPointsStatistics,
 } from "@/helpers/blast/stake/points";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
-import { getLpInfo } from "@/helpers/pools/swap/magicLp";
-import blastPools from "@/configs/pools/blastPools";
+
+import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+const MIM_USDB_POOL_ID = 1;
+const MIM_USDB_POOL_CHAIN_ID = 81457;
 
 export default {
   data() {
@@ -130,12 +134,11 @@ export default {
 
     async createStakeInfo() {
       this.stakeInfo = await getStakeInfo(this.account);
-      this.stakeInfo.lpInfo = await getLpInfo(
-        this.lpConfig,
-        this.chainId,
+      this.stakeInfo.lpInfo = await getPoolInfo(
+        MIM_USDB_POOL_CHAIN_ID,
+        MIM_USDB_POOL_ID,
         this.account
       );
-
       this.userPointsEarned = (
         await fetchUserPointsStatistics(this.account)
       ).total;
@@ -269,7 +272,10 @@ export default {
 
 .chart-description {
   position: absolute;
-  width: 219px;
+  width: 262px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .top-left {
@@ -293,8 +299,8 @@ export default {
 
 .bottom-description-corner {
   position: absolute;
-  bottom: -7px;
-  right: -21px;
+  bottom: 10px;
+  right: -15px;
 }
 
 .top-description-corner-mobile,
@@ -349,7 +355,6 @@ export default {
   .chart-description {
     position: static;
     text-align: start;
-    padding: 0px 13px;
   }
 
   .chart-image {
@@ -359,15 +364,15 @@ export default {
   }
 
   .top-description-corner-mobile {
-    top: 0;
-    left: 0;
+    top: -13px;
+    left: -8px;
     display: block;
     transform: rotate(90deg);
   }
 
   .bottom-description-corner-mobile {
-    bottom: 0;
-    left: 0;
+    bottom: -10px;
+    left: -13px;
     display: block;
   }
 

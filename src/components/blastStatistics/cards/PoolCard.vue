@@ -8,6 +8,7 @@
         :icon="mimUsdbIcon"
         name="MIM/USDB"
         :chainId="81457"
+        size="44px"
       />
       <div class="pool-text">
         <p class="pool-name">MIM / USDB Pool</p>
@@ -26,13 +27,26 @@
         {{ token.amount }}
       </div>
     </div>
+
+    <div class="divider"></div>
+
+    <div class="lp-balance">
+      <span class="token-name">
+        <BaseTokenIcon :name="lpToken.name" :icon="lpToken.icon" size="32px" />
+        {{ lpToken.name }}
+      </span>
+      <div class="token-amount">
+        <span class="value">{{ lpToken.amount }}</span>
+        <span class="usd">{{ lpToken.amountUsd }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
-import { formatTokenBalance } from "@/helpers/filters";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 
 import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
@@ -52,6 +66,23 @@ export default {
   computed: {
     lpInfo() {
       return this.stakeInfo.lpInfo;
+    },
+
+    lpToken() {
+      return {
+        name: this.lpInfo.name,
+        icon: this.lpInfo.icon,
+        amount: this.formatTokenBalance(
+          this.lpInfo.userInfo.balance,
+          this.lpInfo.decimals
+        ),
+        amountUsd: formatUSD(
+          this.formatTokenBalance(
+            this.lpInfo.userInfo.balance,
+            this.lpInfo.decimals
+          ) * this.lpInfo.price
+        ),
+      };
     },
 
     lpPartsExpected() {
@@ -112,8 +143,6 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  height: 174px;
   width: 100%;
   border: 1px solid #fcfd02;
   border-radius: 16px;
@@ -158,7 +187,7 @@ export default {
 .pool-info {
   display: flex;
   align-items: center;
-  margin-top: 8px;
+  margin: 12px 0 16px 0;
 }
 
 .pool-text {
@@ -186,6 +215,48 @@ export default {
   font-size: 20px;
   line-height: 32px;
   flex-grow: 1;
+}
+
+.lp-balance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.token-name {
+  display: flex;
+  align-items: center;
+}
+
+.token-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.value {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: -8px;
+}
+
+.usd {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.divider {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0) 0.01%,
+    rgba(255, 255, 255, 0.12) 46.96%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  width: 100%;
+  height: 1px;
+  margin: 12px auto 4px auto;
 }
 
 @media screen and (max-width: 600px) {
