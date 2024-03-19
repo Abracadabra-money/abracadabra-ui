@@ -2,7 +2,7 @@
   <div class="backdrop" @click.self="closePopup">
     <div class="founder-popup" v-if="lpInfo">
       <div class="header">
-        <h3 class="title">Become a Founder</h3>
+        <h3 class="title">{{ titleAndDescriptionText.title }}</h3>
         <img
           class="close-img"
           src="@/assets/images/cross.svg"
@@ -12,8 +12,7 @@
       </div>
 
       <p class="description">
-        Lock your Liquduituy for 3 month to becone a MIM Swap founder and get
-        permanent buff
+        {{ titleAndDescriptionText.description }}
       </p>
 
       <div class="pool-info-wrap" v-if="stakeInfo && stakeLpInfo">
@@ -194,9 +193,20 @@ export default {
       ];
     },
 
+    titleAndDescriptionText() {
+      return {
+        title: this.isBecomeFounder
+          ? "Become a Founder!"
+          : "Withdraw your funds",
+        description: this.isBecomeFounder
+          ? "Lock your MagicLPs for 3 months to become a MIMswap Founder and get a permanent reward boost!"
+          : "Withdraw your MagicLPs and receive back your share of the MIM/USDB pool.",
+      };
+    },
+
     buttonText() {
       if (!this.isAllowed) return "Approve";
-      return "Confirm";
+      return this.isBecomeFounder ? "Confirm" : "Withdraw your funds";
     },
 
     isAllowed() {
