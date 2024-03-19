@@ -344,6 +344,7 @@ export default {
   .statistics-wrap {
     align-items: center;
     flex-direction: column;
+    gap: 16px;
   }
 
   .chart {

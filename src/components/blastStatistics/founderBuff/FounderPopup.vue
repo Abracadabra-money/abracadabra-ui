@@ -205,8 +205,8 @@ export default {
 
     notification() {
       return {
-        title: "Title",
-        msg: "Thanks for taking part in the innovation",
+        title: "This action is irreversible!",
+        msg: "By withdrawing your LP tokens, you are giving up the Founder’s Boost. You will not be able to achieve it again!",
         type: "error",
       };
     },

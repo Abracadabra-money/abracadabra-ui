@@ -1,17 +1,15 @@
 <template>
   <div class="blast-statistics-info">
     <div class="title-desc">
-      <h2 class="title">MIM Pools</h2>
+      <h2 class="title">The LLE Event has concluded!</h2>
       <p class="description">
         <span class="desc-line">
-          Use your favourite assets as collateral to borrow
+          During the MIMswap Liquidity Launch Event
+          <span class="distributed-points"> {{ totalDistributedPoints }} </span>
+          Blast Points have been distributed among participants
         </span>
         <span class="desc-line">
-          During the Abracadabra Liquidity Launch Event
-          <span class="distributed-points">
-            {{ totalDistributedPoints }}
-          </span>
-          Blast Points have been distributed amount all Founders
+          Locked USDB and MIM deposits have been turned into MLP
         </span>
       </p>
     </div>
@@ -91,6 +89,10 @@ export default {
   display: flex;
   justify-content: space-between;
   margin-bottom: 32px;
+}
+
+.title-desc {
+  max-width: 675px;
 }
 
 .title {

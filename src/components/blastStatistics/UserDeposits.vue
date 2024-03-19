@@ -2,8 +2,7 @@
   <div class="user-deposits">
     <h3 class="user-deposits-title">Your deposit</h3>
 
-    <PoolCard :stakeInfo="stakeInfo" isLocked v-if="isLpPosition" />
-    <BaseSearchEmpty class="empty" v-else />
+    <PoolCard :stakeInfo="stakeInfo" isLocked />
   </div>
 </template>
 
@@ -18,18 +17,9 @@ export default {
     },
   },
 
-  computed: {
-    isLpPosition() {
-      return this.stakeInfo.lpInfo?.userInfo?.balance > 0;
-    },
-  },
-
   components: {
     PoolCard: defineAsyncComponent(() =>
       import("@/components/blastStatistics/cards/PoolCard.vue")
-    ),
-    BaseSearchEmpty: defineAsyncComponent(() =>
-      import("@/components/base/BaseSearchEmpty.vue")
     ),
   },
 };

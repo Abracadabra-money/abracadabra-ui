@@ -33,7 +33,7 @@
     <div class="lp-balance">
       <span class="token-name">
         <BaseTokenIcon :name="lpToken.name" :icon="lpToken.icon" size="32px" />
-        {{ lpToken.name }}
+        MLP
       </span>
       <div class="token-amount">
         <span class="value">{{ lpToken.amount }}</span>
