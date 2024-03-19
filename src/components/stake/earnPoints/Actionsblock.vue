@@ -72,7 +72,7 @@
               }}</span>
             </div>
 
-            <div class="lock-info-row">
+            <div class="lock-info-row" v-if="account">
               <span class="lock-info-title"
                 >Earning <span class="gold">{{ userTotalPending }}</span> Points
                 per hour</span
