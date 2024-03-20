@@ -1,8 +1,8 @@
 <template>
   <div class="swap-view">
     <div class="animation-wrap">
-      <img class="bg-img" src="@/assets/gifs/Preview_00299.png" alt="">
-      <img class="gif-img" src="@/assets/gifs/Preview_2.gif" alt="">
+      <!-- <img class="bg-img" src="@/assets/gifs/Preview_00299.png" alt=""> -->
+      <img class="bg-img" src="@/assets/gifs/Preview_3_1.gif" alt="">
     </div>
   </div>
 </template>
@@ -19,7 +19,7 @@
 
 .animation-wrap {
   margin: 0 auto;
-  width: 1000px;
+  width: 1200px;
   height: auto;
   display: flex;
   align-items: center;
