@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { formatUnits } from "viem";
+import { formatUnits, type Address } from "viem";
 import { formatPercent } from "@/helpers/filters";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
@@ -47,22 +47,41 @@ export default {
 
   computed: {
     routesInfo() {
-      if (!this.routes?.length || !this.tokensList?.length) return [];
+      if (!this.tokensList?.length || !this.routes?.length) return [];
 
-      return [
-        {
-          address: this.fromTokenIcon,
-          icon: this.fromTokenIcon,
+      const path: {
+        address: Address | undefined;
+        icon: string | undefined;
+        percent: string;
+      }[] = [];
+
+      this.routes?.forEach((route: any) => {
+        const inputTokenInfo = this.tokensList?.find(
+          ({ config }) =>
+            config.contract.address.toLowerCase() ===
+            route.inputToken.toLowerCase()
+        );
+
+        const outputTokenTokenInfo = this.tokensList?.find(
+          ({ config }) =>
+            config.contract.address.toLowerCase() ===
+            route.outputToken.toLowerCase()
+        );
+
+        path.push({
+          address: inputTokenInfo?.config.contract.address,
+          icon: inputTokenInfo?.config.icon,
           percent: "100%",
-        },
-        {
-          address: this.toTokenIcon,
-          icon: this.routes[0].lpInfo.icon,
-          percent: formatPercent(
-            formatUnits(this.routes[0].fees, FEES_DECIMALS)
-          ),
-        },
-      ];
+        });
+
+        path.push({
+          address: outputTokenTokenInfo?.config.contract.address,
+          icon: route.lpInfo.icon,
+          percent: formatPercent(formatUnits(route.fees, FEES_DECIMALS)),
+        });
+      });
+
+      return path;
     },
   },
 };
