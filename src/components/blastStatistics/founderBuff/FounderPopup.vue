@@ -2,7 +2,7 @@
   <div class="backdrop" @click.self="closePopup">
     <div class="founder-popup" v-if="lpInfo">
       <div class="header">
-        <h3 class="title">{{ titleAndDescriptionText.title }}</h3>
+        <h3 class="title">{{ texts.title }}</h3>
         <img
           class="close-img"
           src="@/assets/images/cross.svg"
@@ -12,7 +12,7 @@
       </div>
 
       <p class="description">
-        {{ titleAndDescriptionText.description }}
+        {{ texts.description }}
       </p>
 
       <div class="pool-info-wrap" v-if="stakeInfo && stakeLpInfo">
@@ -59,7 +59,9 @@
         v-if="!isBecomeFounder"
       />
 
-      <FounderCheckBox :value="isBecomeFounder" @update="toggleBecomeFounder" />
+      <FounderCheckBox :value="isBecomeFounder" @update="toggleBecomeFounder">
+        {{ texts.checkbox }}
+      </FounderCheckBox>
 
       <BaseButton
         :warning="!isBecomeFounder"
@@ -193,7 +195,7 @@ export default {
       ];
     },
 
-    titleAndDescriptionText() {
+    texts() {
       return {
         title: this.isBecomeFounder
           ? "Become a Founder!"
@@ -201,12 +203,15 @@ export default {
         description: this.isBecomeFounder
           ? "Lock your MagicLPs for 3 months to become a MIMswap Founder and get a permanent reward boost!"
           : "Withdraw your MagicLPs and receive back your share of the MIM/USDB pool.",
+        checkbox: this.isBecomeFounder
+          ? "Lock MLPs for 3 months and achieve Founder’s Boost"
+          : "Lock MLP for 3 month and get Buff",
       };
     },
 
     buttonText() {
       if (!this.isAllowed) return "Approve";
-      return this.isBecomeFounder ? "Confirm" : "Withdraw your funds";
+      return this.isBecomeFounder ? "Confirm" : "Lose Founder’s Buff";
     },
 
     isAllowed() {

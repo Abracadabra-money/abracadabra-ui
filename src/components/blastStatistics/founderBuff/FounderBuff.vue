@@ -6,22 +6,34 @@
 
         <div class="description">
           <p class="description-paragraph">
-            Thank you for participating in LLE by locking your MIM / USDB
-            tokens. All tokens you've locked will be added to the MIM/USDB Pool
-            on Abracadabra, serving as liquidity for traders.
+            Thank you for joining the Liquidity Launch Event by locking your
+            <img
+              :src="stakeInfo.tokensInfo[0].config.icon"
+              :alt="stakeInfo.tokensInfo[0].config.name"
+              class="text-token-icon"
+            />
+            &
+            <img
+              :src="stakeInfo.tokensInfo[1].config.icon"
+              :alt="stakeInfo.tokensInfo[1].config.name"
+              class="text-token-icon"
+            />
+            ahead of <span class="highlight"> MIMswap </span> launch. Your
+            locked tokens contribute to the
+            <span class="highlight"> MIM/USDB </span> Pool on Abracadabra,
+            providing liquidity for traders. In return, you receive
+            <span class="highlight"> MagicLPs </span> , representing your pool
+            share.
           </p>
 
           <p class="description-paragraph">
-            We're thrilled to reward all Founders of MIM Swap who locked their
-            tokens with an exclusive Buff. To become a Founder, simply lock your
-            MIM/USDB for 3 months.
-          </p>
-
-          <p class="description-paragraph">
-            30% of all Blast Points that Abracadabra obtains will be distributed
-            to Founders. The Buff is permanent and remains active even after the
-            3-month locking period. The only way to lose the Buff is by removing
-            your liquidity from the MIM / USDB Pool
+            Participants in the LLE can now gain an exclusive Founder’s Boost by
+            locking their MagicLP tokens for an additional 3 months. Founders
+            receive <span class="highlight yellow"> 30% </span> of Abracadabra's
+            Blast Points, and this boost remains even after the lock-in period
+            ends. Removing liquidity from the
+            <span class="highlight"> MIM/USDB </span> Pool forfeits the
+            Founder’s Boost permanently.
           </p>
         </div>
       </div>
@@ -72,7 +84,7 @@ export default {
 }
 
 .text-wrap {
-  max-width: 789px;
+  max-width: 823px;
 }
 
 .title {
@@ -91,6 +103,26 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   font-size: 16px;
   font-weight: 400;
+}
+
+.text-token-icon {
+  position: relative;
+  top: 2px;
+  width: 18px;
+  height: 18px;
+  margin: 0 3px;
+}
+
+.highlight {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.highlight.yellow {
+  color: #fcfd02;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .pool-card {

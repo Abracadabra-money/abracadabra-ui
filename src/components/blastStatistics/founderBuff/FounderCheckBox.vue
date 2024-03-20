@@ -6,7 +6,7 @@
   >
     <img src="@/assets/images/checkbox/rectangle-active.svg" v-if="value" />
     <img src="@/assets/images/checkbox/rectangle-default.svg" v-else />
-    {{ checkBoxText }}
+    <slot></slot>
   </div>
 </template>
 
@@ -20,15 +20,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
-    },
-  },
-
-  computed: {
-    checkBoxText() {
-      if (this.value)
-        return "Lock MLPs for 3 months and achieve Founder’s Boost";
-
-      return "Lock MLP for 3 month and get Buff";
     },
   },
 
