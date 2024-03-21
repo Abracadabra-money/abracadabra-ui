@@ -16,20 +16,32 @@
       </p>
 
       <div class="pool-info-wrap" v-if="stakeInfo && stakeLpInfo">
-        <div class="promo-label">Founders will recieve 30% of Points</div>
+        <div class="promo-label">{{ texts.blastTitle }}</div>
 
-        <div class="pool-info-value">
+        <div class="pool-info-value" v-if="isBecomeFounder">
           <div class="pool-info">
             <TokenChainIcon
               class="pool-icon"
               :icon="lpToken.icon"
               :name="lpToken.name"
               :chainId="81457"
+              size="44px"
             />
             <div class="pool-text">
               <p class="pool-name">{{ lpInfo.name }} Pool</p>
               <p class="values-description">Extend Liquidity Lock</p>
             </div>
+          </div>
+        </div>
+
+        <div class="lp-info-wrap" v-if="isBecomeFounder">
+          <div class="lp-info">
+            <BaseTokenIcon
+              :name="lpToken.name"
+              :icon="lpToken.icon"
+              size="32px"
+            />
+            MLP
           </div>
 
           <div class="token-amount">
@@ -38,7 +50,7 @@
           </div>
         </div>
 
-        <div class="total-by-token">
+        <div class="total-by-token" v-else>
           <div
             class="token-part"
             :key="index"
@@ -53,11 +65,11 @@
         <div class="decorative-line"></div>
       </div>
 
-      <Notification
-        :notification="notification"
-        constant
-        v-if="!isBecomeFounder"
-      />
+      <p class="notification" v-if="!isBecomeFounder">
+        Caution: Withdrawing your MLP tokens permanently forfeits the Founder's
+        Boost. This action cannot be undone, and you will never be able to
+        reclaim the Founder Boost
+      </p>
 
       <FounderCheckBox :value="isBecomeFounder" @update="toggleBecomeFounder">
         {{ texts.checkbox }}
@@ -136,7 +148,7 @@ export default {
     return {
       stakeLpInfo: null,
       mimUsdbIcon,
-      isBecomeFounder: false,
+      isBecomeFounder: true,
       isActionProcessing: false,
     };
   },
@@ -173,23 +185,23 @@ export default {
         this.lpInfo.userInfo.balance,
         this.lpInfo
       );
-
+      console.log("this.stakeInfo", this.stakeInfo);
       return [
-        {
-          name: this.stakeInfo.tokensInfo[0].config.name,
-          icon: this.stakeInfo.tokensInfo[0].config.icon,
-          amount: this.formatTokenBalance(
-            lpPartsOut.baseAmountOut,
-            this.stakeInfo.tokensInfo[0].config.decimals
-          ),
-        },
-
         {
           name: this.stakeInfo.tokensInfo[1].config.name,
           icon: this.stakeInfo.tokensInfo[1].config.icon,
           amount: this.formatTokenBalance(
-            lpPartsOut.quoteAmountOut,
+            lpPartsOut.baseAmountOut,
             this.stakeInfo.tokensInfo[1].config.decimals
+          ),
+        },
+
+        {
+          name: this.stakeInfo.tokensInfo[0].config.name,
+          icon: this.stakeInfo.tokensInfo[0].config.icon,
+          amount: this.formatTokenBalance(
+            lpPartsOut.quoteAmountOut,
+            this.stakeInfo.tokensInfo[0].config.decimals
           ),
         },
       ];
@@ -200,8 +212,11 @@ export default {
         title: this.isBecomeFounder
           ? "Become a Founder!"
           : "Withdraw your funds",
+        blastTitle: this.isBecomeFounder
+          ? "Receiving 20% of total ecosystem points"
+          : "You will receive",
         description: this.isBecomeFounder
-          ? "Lock your MagicLPs for 3 months to become a MIMswap Founder and get a permanent reward boost!"
+          ? "Lock you Magic LP for 3 months to obtain the Founder Boost, a permanent reward boost exclusive to LLE participants!"
           : "Withdraw your MagicLPs and receive back your share of the MIM/USDB pool.",
         checkbox: this.isBecomeFounder
           ? "Lock MLPs for 3 months and achieve Founder’s Boost"
@@ -210,20 +225,14 @@ export default {
     },
 
     buttonText() {
-      if (!this.isAllowed) return "Approve";
-      return this.isBecomeFounder ? "Confirm" : "Lose Founder’s Buff";
+      if (!this.isAllowed) return "Approve MLP tokens spending";
+      return this.isBecomeFounder
+        ? "Claim Founder’s Boost"
+        : "Give Up Founder’s Boost";
     },
 
     isAllowed() {
       return this.stakeLpInfo?.allowance > 0;
-    },
-
-    notification() {
-      return {
-        title: "This action is irreversible!",
-        msg: "By withdrawing your LP tokens, you are giving up the Founder’s Boost. You will not be able to achieve it again!",
-        type: "error",
-      };
     },
   },
 
@@ -374,12 +383,12 @@ export default {
 .founder-popup {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: start;
-  gap: 24px;
   padding: 32px;
   max-width: 533px;
   width: 100%;
-  min-height: 503px;
+  height: 556px;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: #101622;
@@ -462,6 +471,17 @@ export default {
   font-weight: 500;
 }
 
+.lp-info-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lp-info {
+  display: flex;
+  align-items: center;
+}
+
 .total-by-token {
   display: flex;
   align-items: center;
@@ -481,5 +501,25 @@ export default {
   border-radius: 16px 0 0 16px;
   background: #fcfd02;
   clip-path: polygon(0 1%, 100% 0%, 98% 100%, 0 100%);
+}
+
+.notification {
+  width: 100%;
+  padding: 16px;
+  gap: 12px;
+  border-radius: 16px;
+  border: 1px solid #8c4040;
+  background: linear-gradient(
+      0deg,
+      rgba(16, 22, 34, 0.4) 0%,
+      rgba(16, 22, 34, 0.4) 100%
+    ),
+    rgba(140, 64, 64, 0.36);
+  box-shadow: 0px 0px 16.9px 0px rgba(140, 64, 64, 0.47);
+  backdrop-filter: blur(50px);
+
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
 }
 </style>
