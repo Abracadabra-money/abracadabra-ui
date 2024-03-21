@@ -2,7 +2,7 @@ import type { Address } from "viem";
 
 export const routers = {
   168587773: "0x15f57fbCB7A443aC6022e051a46cAE19491bC298" as Address,
-  81457: "0x85FAAfc31bc8B16bE7039F869cD2006dA257b705" as Address,
+  81457: "0x887837F02cab42aF0E88a2e3B842B472E2a382ca" as Address,
 };
 
 export const getSwapRouterByChain = (chainId: number): Address => {
