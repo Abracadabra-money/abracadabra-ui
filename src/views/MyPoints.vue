@@ -134,12 +134,6 @@ export default {
 
       const depositedUsd = deposited * this.poolInfo?.price || 0;
 
-      const distributionAmount =
-        this.userPointsStatistics.locked + this.userPointsStatistics.unlocked;
-      const pendingDistributionAmount =
-        this.userPointsStatistics.pendingLocked +
-        this.userPointsStatistics.pendingUnlocked;
-
       return {
         chainId: BLAST_CHAIN_ID,
         label: "Lp’er",
@@ -148,8 +142,8 @@ export default {
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
-        distributionAmount,
-        pendingDistributionAmount,
+        distributionAmount: this.userPointsStatistics.unlocked,
+        pendingDistributionAmount: this.userPointsStatistics.pendingUnlocked,
       };
     },
 
@@ -163,8 +157,8 @@ export default {
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited: 0,
         depositedUsd: 0,
-        distributionAmount: 0,
-        pendingDistributionAmount: 0,
+        distributionAmount: this.userPointsStatistics.locked,
+        pendingDistributionAmount: this.userPointsStatistics.pendingLocked,
       };
     },
   },
