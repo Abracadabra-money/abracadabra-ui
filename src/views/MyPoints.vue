@@ -151,9 +151,9 @@ export default {
       return {
         chainId: BLAST_CHAIN_ID,
         isGold: true,
-        label: "Founder buff",
+        label: "Founder Boost",
         title: "MIM / USDB Pool",
-        subtitle: "LLE contributor",
+        subtitle: "Receive 20% of total ecosystem points",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited: 0,
         depositedUsd: 0,
