@@ -1,7 +1,6 @@
 <template>
   <div class="user-deposits">
     <h3 class="user-deposits-title">Deposited</h3>
-
     <PoolCard :stakeInfo="stakeInfo" isLocked />
   </div>
 </template>
@@ -32,7 +31,6 @@ export default {
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  cursor: pointer;
 }
 
 .user-deposits-title {
