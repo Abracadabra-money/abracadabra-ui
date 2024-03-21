@@ -7,6 +7,11 @@ export default [
         type: "address",
       },
       {
+        internalType: "contract IFactory",
+        name: "factory",
+        type: "address",
+      },
+      {
         internalType: "address",
         name: "governor_",
         type: "address",
@@ -18,6 +23,11 @@ export default [
   {
     inputs: [],
     name: "ErrBadPath",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ErrDecimalsDifferenceTooLarge",
     type: "error",
   },
   {
@@ -38,6 +48,11 @@ export default [
   {
     inputs: [],
     name: "ErrInvalidBaseToken",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ErrInvalidQuoteTarget",
     type: "error",
   },
   {
@@ -73,7 +88,27 @@ export default [
   },
   {
     inputs: [],
+    name: "ErrTooLargeDecimals",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ErrUnknownPool",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ErrZeroAddress",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ErrZeroDecimals",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Reentrancy",
     type: "error",
   },
   {
@@ -88,6 +123,19 @@ export default [
     ],
     name: "LogBlastNativeClaimableEnabled",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "MAX_BASE_QUOTE_DECIMALS_DIFFERENCE",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
@@ -284,7 +332,32 @@ export default [
     inputs: [
       {
         internalType: "address",
-        name: "lp",
+        name: "baseToken",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "quoteToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "lpFeeRate",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "i",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "k",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "to",
         type: "address",
       },
       {
@@ -297,8 +370,119 @@ export default [
         name: "quoteInAmount",
         type: "uint256",
       },
+      {
+        internalType: "bool",
+        name: "protocolOwnedPool",
+        type: "bool",
+      },
     ],
-    name: "previewAddLiquidity",
+    name: "createPool",
+    outputs: [
+      {
+        internalType: "address",
+        name: "clone",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "shares",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "useTokenAsQuote",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "lpFeeRate",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "i",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "k",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "tokenInAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "protocolOwnedPool",
+        type: "bool",
+      },
+    ],
+    name: "createPoolETH",
+    outputs: [
+      {
+        internalType: "address",
+        name: "clone",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "shares",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "factory",
+    outputs: [
+      {
+        internalType: "contract IFactory",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "i",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "baseInAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "quoteInAmount",
+        type: "uint256",
+      },
+    ],
+    name: "previewCreatePool",
     outputs: [
       {
         internalType: "uint256",
@@ -316,7 +500,7 @@ export default [
         type: "uint256",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -750,7 +934,7 @@ export default [
         type: "uint256",
       },
     ],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -807,13 +991,6 @@ export default [
         type: "address",
       },
     ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
-    name: "balanceOf",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },

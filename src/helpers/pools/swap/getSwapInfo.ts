@@ -77,7 +77,7 @@ const getEmptyState = (actionConfig: ActionConfig) => {
   };
 };
 
-const findBestRoutes = (
+export const findBestRoutes = (
   pools: MagicLPInfo[],
   { fromToken, toToken, fromInputValue }: ActionConfig
 ): RouteInfo[] | null => {

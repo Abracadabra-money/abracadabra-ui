@@ -11,7 +11,7 @@ const blastPools: Array<PoolConfig> = [
     icon: useImage(`assets/images/tokens/MIM-USDB.png`),
     decimals: 18,
     contract: {
-      address: "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8",
+      address: "0xd9F58d32d3F89B56112269718317DB94c27d34c4",
       abi: BlastMIMSwapRouterAbi,
     },
     baseToken: {
