@@ -292,8 +292,6 @@ export default {
       await this.deleteNotification(notificationId);
 
       if (error) {
-        console.log("stake lp err:", error);
-
         const errorNotification = {
           msg: error.msg,
           type: "error",
@@ -303,6 +301,7 @@ export default {
         await this.createNotification(errorNotification);
       } else {
         await this.createNotification(notification.success);
+        this.$router.push({ name: "MyPoints" });
       }
     },
 
