@@ -6,6 +6,8 @@ import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 
+const EMPTY_TOKEN_NAME = "Select Token";
+
 export type ActionConfig = {
   fromToken: TokenInfo;
   toToken: TokenInfo;
@@ -80,6 +82,12 @@ const findBestRoutes = (
   { fromToken, toToken, fromInputValue }: ActionConfig
 ): RouteInfo[] | null => {
   let bestRoute: RouteInfo[] | null = null;
+
+  const fromTokenName = fromToken.config.name;
+  const toTokenName = toToken.config.name;
+
+  if (fromTokenName === EMPTY_TOKEN_NAME || toTokenName === EMPTY_TOKEN_NAME)
+    return null;
 
   // Create a map of token to pool for quick lookup
   const tokenToPools: Record<string, MagicLPInfo[]> = {};

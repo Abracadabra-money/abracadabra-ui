@@ -30,12 +30,9 @@
 </template>
 
 <script lang="ts">
-import { formatUnits, type Address } from "viem";
-import { formatPercent } from "@/helpers/filters";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
-
-const FEES_DECIMALS = 16;
+import { getRoutesInfo } from "@/helpers/pools/swap/getRoutesInfo";
 
 export default {
   props: {
@@ -47,41 +44,7 @@ export default {
 
   computed: {
     routesInfo() {
-      if (!this.tokensList?.length || !this.routes?.length) return [];
-
-      const path: {
-        address: Address | undefined;
-        icon: string | undefined;
-        percent: string;
-      }[] = [];
-
-      this.routes?.forEach((route: any) => {
-        const inputTokenInfo = this.tokensList?.find(
-          ({ config }) =>
-            config.contract.address.toLowerCase() ===
-            route.inputToken.toLowerCase()
-        );
-
-        const outputTokenTokenInfo = this.tokensList?.find(
-          ({ config }) =>
-            config.contract.address.toLowerCase() ===
-            route.outputToken.toLowerCase()
-        );
-
-        path.push({
-          address: inputTokenInfo?.config.contract.address,
-          icon: inputTokenInfo?.config.icon,
-          percent: "100%",
-        });
-
-        path.push({
-          address: outputTokenTokenInfo?.config.contract.address,
-          icon: route.lpInfo.icon,
-          percent: formatPercent(formatUnits(route.fees, FEES_DECIMALS)),
-        });
-      });
-
-      return path;
+      return getRoutesInfo(this.tokensList, this.routes);
     },
   },
 };
