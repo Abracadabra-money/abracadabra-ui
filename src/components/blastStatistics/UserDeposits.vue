@@ -1,6 +1,6 @@
 <template>
   <div class="user-deposits">
-    <h3 class="user-deposits-title">Your deposit</h3>
+    <h3 class="user-deposits-title">Deposited</h3>
 
     <PoolCard :stakeInfo="stakeInfo" isLocked />
   </div>

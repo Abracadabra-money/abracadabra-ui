@@ -1,6 +1,6 @@
 <template>
   <AppHeader />
-  <div class="router-wrap" v-if="checkInProcess">
+  <div class="router-wrap" :style="pageBackground" v-if="checkInProcess">
     <img
       class="mim-top-bg"
       src="@/assets/images/main-mim-top-bg.png"
@@ -60,6 +60,13 @@ export default {
       checkInProcess: "getWalletIsConnected",
       signer: "getSigner",
     }),
+
+    pageBackground() {
+      if (this.$route.name === "BlastStatistics") {
+        return "background:#14182C";
+      }
+      return "";
+    },
   },
 
   async beforeCreate() {
@@ -93,7 +100,7 @@ export default {
     // await blastTestingHelpers()
     // await liquidityTests()
   },
- 
+
   components: {
     AppHeader: defineAsyncComponent(() =>
       import("@/components/app/AppHeader.vue")

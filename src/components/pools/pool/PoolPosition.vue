@@ -358,8 +358,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  text-align: end;
+  align-items: end;
 }
 
 .value {

@@ -18,8 +18,9 @@
               :alt="stakeInfo.tokensInfo[1].config.name"
               class="text-token-icon"
             />
-            ahead of <span class="highlight"> MIMswap </span> launch. Your
-            locked tokens contribute to the
+            ahead of <span class="highlight"> MIMswap </span> launch.
+            <br />
+            Your locked tokens contribute to the
             <span class="highlight"> MIM/USDB </span> Pool on Abracadabra,
             providing liquidity for traders. In return, you receive
             <span class="highlight"> MagicLPs </span> , representing your pool
@@ -29,7 +30,7 @@
           <p class="description-paragraph">
             Participants in the LLE can now gain an exclusive Founder’s Boost by
             locking their MagicLP tokens for an additional 3 months. Founders
-            receive <span class="highlight yellow"> 30% </span> of Abracadabra's
+            receive <span class="highlight yellow"> 20% </span> of Abracadabra's
             Blast Points, and this boost remains even after the lock-in period
             ends. Removing liquidity from the
             <span class="highlight"> MIM/USDB </span> Pool forfeits the
@@ -41,7 +42,25 @@
       <PoolCard class="pool-card" :stakeInfo="stakeInfo" isLocked />
     </div>
 
-    <img class="founder-gif" src="@/assets/gifs/founder-buff.gif" />
+    <div class="founder-gif-wrap">
+      <img
+        class="blast-gif-corner top left"
+        src="@/assets/images/blast/blast-gif-corner.svg"
+      />
+      <img
+        class="blast-gif-corner top right"
+        src="@/assets/images/blast/blast-gif-corner.svg"
+      />
+      <img class="founder-gif" src="@/assets/gifs/founder-buff.gif" />
+      <img
+        class="blast-gif-corner bottom left"
+        src="@/assets/images/blast/blast-gif-corner.svg"
+      />
+      <img
+        class="blast-gif-corner bottom right"
+        src="@/assets/images/blast/blast-gif-corner.svg"
+      />
+    </div>
 
     <button class="button-next" @click="$emit('openFounderPopup')">Next</button>
   </div>
@@ -129,6 +148,38 @@ export default {
   max-width: 410px;
 }
 
+.founder-gif-wrap {
+  position: relative;
+  margin: 20px 0;
+}
+
+.blast-gif-corner {
+  position: absolute;
+}
+
+.top.left {
+  top: 0;
+  left: 0;
+  transform: scaleX(-1);
+}
+
+.top.right {
+  top: 0;
+  right: 0;
+}
+
+.bottom.left {
+  bottom: 0;
+  left: 0;
+  transform: rotate(180deg);
+}
+
+.bottom.right {
+  bottom: 0;
+  right: 0;
+  transform: scaleX(-1) rotate(180deg);
+}
+
 .button-next {
   display: flex;
   justify-content: center;
@@ -136,6 +187,7 @@ export default {
   align-self: center;
   gap: 10px;
   width: 330px;
+  margin-top: 20px;
   padding: 12px 24px;
   border-radius: 16px;
   border: none;
@@ -150,5 +202,19 @@ export default {
 
 .founder-gif {
   max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .info {
+    gap: 20px;
+  }
+
+  .description-paragraph {
+    font-size: 14px;
+  }
+
+  .founder-gif-wrap {
+    display: none;
+  }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div :class="['deposit-card', 'pool', { locked: isLocked }]">
-    <div class="label">Founder`s buff</div>
+    <div class="label">Founder Boost</div>
 
     <div class="pool-info">
       <TokenChainIcon
@@ -12,7 +12,7 @@
       />
       <div class="pool-text">
         <p class="pool-name">{{ lpToken.name }} Pool</p>
-        <p class="values-description">LLE Contributor</p>
+        <p class="values-description">Receive 20% of total ecosystem points</p>
       </div>
     </div>
 

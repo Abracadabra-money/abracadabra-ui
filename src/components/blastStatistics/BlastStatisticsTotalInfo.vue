@@ -9,7 +9,7 @@
           Blast Points have been distributed among participants
         </span>
         <span class="desc-line">
-          Locked USDB and MIM deposits have been turned into MLP
+          Locked USDB and MIM deposits have now been migrated to magic LP (MLP).
         </span>
       </p>
     </div>

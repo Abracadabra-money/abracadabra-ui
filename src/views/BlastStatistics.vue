@@ -28,8 +28,8 @@
                 class="top-description-corner-mobile"
                 src="@/assets/images/blast/blast-corner-mobile.svg"
               />
-              Abracadabra and MIMswap users on Blast will receive multiple
-              rewards.
+              Receive multiple rewards including Blast Points, Gold and the
+              upcoming SPELL airdrop.
             </p>
             <img
               class="chart-image"
@@ -44,8 +44,8 @@
                 class="bottom-description-corner-mobile"
                 src="@/assets/images/blast/blast-corner-mobile.svg"
               />
-              30% of all Points received by the Abracadabra Ecosystem will be
-              distributed to Founder’s users
+              20% of all future Points received by the Abracadabra Ecosystem
+              will be distributed towards the Founder Boost.
             </p>
           </div>
           <button class="button-next" @click="nextHandler">Next</button>
@@ -139,8 +139,8 @@ export default {
         MIM_USDB_POOL_ID,
         this.account
       );
-
       this.stakeInfo = stakeInfo;
+
       this.userPointsEarned = (
         await fetchUserPointsStatistics(this.account)
       ).total;
@@ -301,8 +301,8 @@ export default {
 
 .bottom-description-corner {
   position: absolute;
-  bottom: 10px;
-  right: -15px;
+  bottom: 36px;
+  right: -14px;
 }
 
 .top-description-corner-mobile,
@@ -367,14 +367,14 @@ export default {
   }
 
   .top-description-corner-mobile {
-    top: -13px;
+    top: -26px;
     left: -8px;
     display: block;
     transform: rotate(90deg);
   }
 
   .bottom-description-corner-mobile {
-    bottom: -10px;
+    bottom: -18px;
     left: -13px;
     display: block;
   }
