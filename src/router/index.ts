@@ -94,33 +94,33 @@ const routes: Array<RouteRecordRaw> = [
     name: "Blast",
     component: () => import("@/views/stake/Blast.vue"),
   },
-  // {
-  //   path: "/pools",
-  //   name: "Pools",
-  //   component: () => import("@/views/Pools.vue"),
-  // },
-  // {
-  //   path: "/pool/:id?/:poolChainId?",
-  //   name: "Pool",
-  //   component: () => import("@/views/Pool.vue"),
-  //   props: true,
-  //   beforeEnter: [removeQueryParams],
-  // },
-  // {
-  //   path: "/mim-swap",
-  //   name: "MimSwap",
-  //   component: () => import("@/views/MimSwap.vue"),
-  // },
-  // {
-  //   path: "/points-dashboard",
-  //   name: "PointsDashboard",
-  //   component: () => import("@/views/PointsDashboard.vue"),
-  // },
-  // {
-  //   path: "/blast-onboarding",
-  //   name: "BlastOnboarding",
-  //   component: () => import("@/views/BlastOnboarding.vue"),
-  // },
+  {
+    path: "/pools",
+    name: "Pools",
+    component: () => import("@/views/Pools.vue"),
+  },
+  {
+    path: "/pool/:id?/:poolChainId?",
+    name: "Pool",
+    component: () => import("@/views/Pool.vue"),
+    props: true,
+    beforeEnter: [removeQueryParams],
+  },
+  {
+    path: "/mim-swap",
+    name: "MimSwap",
+    component: () => import("@/views/MimSwap.vue"),
+  },
+  {
+    path: "/points-dashboard",
+    name: "PointsDashboard",
+    component: () => import("@/views/PointsDashboard.vue"),
+  },
+  {
+    path: "/blast-onboarding",
+    name: "BlastOnboarding",
+    component: () => import("@/views/BlastOnboarding.vue"),
+  },
   {
     path: "/:catchAll(.*)",
     redirect: "/",

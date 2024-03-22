@@ -27,7 +27,6 @@
           :icon="token.icon"
           size="32px"
         />
-        $
         {{ token.amount }}
       </div>
     </div>

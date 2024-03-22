@@ -18,7 +18,7 @@
       <div class="pool-info-wrap" v-if="stakeInfo">
         <div class="promo-label">{{ texts.blastTitle }}</div>
 
-        <div class="pool-info-value" v-if="isBecomeFounder">
+        <!-- <div class="pool-info-value" v-if="isBecomeFounder">
           <div class="pool-info">
             <TokenChainIcon
               class="pool-icon"
@@ -32,9 +32,9 @@
               <p class="values-description">Extend Liquidity Lock</p>
             </div>
           </div>
-        </div>
+        </div> -->
 
-        <div class="lp-info-wrap">
+        <!-- <div class="lp-info-wrap">
           <div class="lp-info">
             <BaseTokenIcon
               :name="lpToken.name"
@@ -48,27 +48,27 @@
             <span class="value">{{ lpToken.amount }}</span>
             <span class="usd">{{ lpToken.amountUsd }}</span>
           </div>
-        </div>
+        </div> -->
 
-        <!-- <div class="total-by-token" v-else>
+        <div class="total-by-token">
           <div
             class="token-part"
             :key="index"
-            v-for="(token, index) in lpPartsExpected"
+            v-for="(token, index) in tokensInfo"
           >
             <BaseTokenIcon :name="token.name" :icon="token.icon" size="32px" />
-            $
+
             {{ token.amount }}
           </div>
-        </div> -->
+        </div>
 
         <div class="decorative-line"></div>
       </div>
 
       <p class="notification" v-if="!isBecomeFounder">
-        Caution: Withdrawing your MLP tokens permanently forfeits the Founder's
-        Boost. This action cannot be undone, and you will never be able to
-        reclaim the Founder Boost
+        Caution: Staking your tokens permanently forfeits the Founder's Boost.
+        This action cannot be undone, and you will never be able to reclaim the
+        Founder Boost
       </p>
 
       <div class="btns-wrap">
@@ -96,7 +96,7 @@ import { mapActions, mapMutations, mapGetters } from "vuex";
 import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
 import notification from "@/helpers/notification/notification";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { lockStake } from "@/helpers/blast/stake/actions/lockStake";
+import { claim } from "@/helpers/blast/stake/actions/claim";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { withdrawStake } from "@/helpers/blast/stake/actions/withdrawStake";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -143,6 +143,25 @@ export default {
       };
     },
 
+    tokensInfo() {
+      return this.stakeInfo.data.tokensInfo.map((token) => {
+        return {
+          name: token.config.name,
+          icon: token.config.icon,
+          amount: this.formatTokenBalance(
+            token.userInfo.balances.locked,
+            token.config.decimals
+          ),
+          amountUsd: formatUSD(
+            this.formatTokenBalance(
+              token.userInfo.balances.locked,
+              token.config.decimals
+            ) * token.config.price
+          ),
+        };
+      });
+    },
+
     lpPartsExpected() {
       const lpPartsOut = previewRemoveLiquidity(
         this.stakeInfo.lpBalance,
@@ -172,18 +191,14 @@ export default {
 
     texts() {
       return {
-        title: this.isBecomeFounder
-          ? "Become a Founder!"
-          : "Withdraw your funds",
+        title: this.isBecomeFounder ? "Become a Founder!" : "Stake your funds",
         blastTitle: this.isBecomeFounder
           ? "Receiving 20% of total ecosystem points"
-          : "You will receive",
+          : "You will stake",
         description: this.isBecomeFounder
-          ? "Lock you Magic LP for 3 months to obtain the Founder Boost, a permanent reward boost exclusive to LLE participants!"
-          : "Withdraw your MagicLPs and receive back your share of the MIM/USDB pool.",
-        checkbox: this.isBecomeFounder
-          ? "Lock MLPs for 3 months and achieve Founder’s Boost"
-          : "Lock MLP for 3 month and get Buff",
+          ? "Lock you tokens for 3 months to obtain the Founder Boost, a permanent reward boost exclusive to LLE participants!"
+          : "Stake your tokens and receive back your share of the MIM/USDB pool.",
+        checkbox: "Lock you tokens for 3 month and get Buff",
       };
     },
 
@@ -210,54 +225,26 @@ export default {
       this.isBecomeFounder = !this.isBecomeFounder;
     },
 
-    async lockHandler() {
+    async claimHandler(lock = false) {
       const notificationId = await this.createNotification(
         notification.pending
       );
 
-      const deadline = moment().add(90, "days").unix();
+      const { contract } = this.stakeInfo.data.config;
 
-      const { error } = await lockStake(
-        this.stakeInfo.contract,
-        this.stakeInfo.lpBalance,
-        deadline
-      );
+      console.log(contract);
 
-      await this.deleteNotification(notificationId);
+      const { error } = await claim(contract, lock);
+
+      this.deleteNotification(notificationId);
 
       if (error) {
         const errorNotification = {
-          msg: await notificationErrorMsg({ message: error.msg }),
+          msg: notificationErrorMsg({ message: error.msg }),
           type: "error",
         };
 
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      } else {
-        await this.createNotification(notification.success);
-        this.$router.push({ name: "PointsDashboard" });
-      }
-    },
-
-    async withdrawHandler() {
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const { error } = await withdrawStake(
-        this.stakeInfo.contract,
-        this.stakeInfo.lpBalance
-      );
-
-      await this.deleteNotification(notificationId);
-
-      if (error) {
-        const errorNotification = {
-          msg: await notificationErrorMsg({ message: error.msg }),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
+        this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       } else {
         await this.createNotification(notification.success);
@@ -268,8 +255,8 @@ export default {
     async actionHandler() {
       this.isActionProcessing = true;
 
-      if (this.isBecomeFounder) await this.lockHandler();
-      else this.withdrawHandler();
+      if (this.isBecomeFounder) await this.claimHandler(true);
+      else this.claimHandler(false);
 
       this.isActionProcessing = false;
     },
@@ -318,11 +305,12 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 20px;
   align-items: start;
   padding: 32px;
   max-width: 533px;
   width: 100%;
-  height: 556px;
+  height: auto;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: #101622;
