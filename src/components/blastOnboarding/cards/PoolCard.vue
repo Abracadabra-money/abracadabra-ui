@@ -65,12 +65,12 @@ export default {
         name: this.lpInfo.name,
         icon: this.lpInfo.icon,
         amount: this.formatTokenBalance(
-          this.lpInfo.userInfo.balance,
+          this.stakeInfo.lpBalance,
           this.lpInfo.decimals
         ),
         amountUsd: formatUSD(
           this.formatTokenBalance(
-            this.lpInfo.userInfo.balance,
+            this.stakeInfo.lpBalance,
             this.lpInfo.decimals
           ) * this.lpInfo.price
         ),
@@ -79,7 +79,7 @@ export default {
 
     lpPartsExpected() {
       const lpPartsOut = previewRemoveLiquidity(
-        this.lpInfo.userInfo.balance,
+        this.stakeInfo.lpBalance,
         this.lpInfo
       );
 

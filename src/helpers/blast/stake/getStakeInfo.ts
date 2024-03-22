@@ -55,7 +55,7 @@ export const getStakeInfo = async (
   };
 };
 
-const getStakeTokenInfo = async (
+export const getStakeTokenInfo = async (
   stakeConfig: BlastStakeConfig,
   tokenConfig: DepositTokenConfig,
   publicClient: any,

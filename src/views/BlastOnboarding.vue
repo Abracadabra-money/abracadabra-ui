@@ -83,17 +83,20 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { defineAsyncComponent } from "vue";
-import { formatUnits } from "viem";
-import { formatTokenBalance } from "@/helpers/filters";
 import {
   fetchPointsStatistics,
   fetchUserPointsStatistics,
 } from "@/helpers/blast/stake/points";
-import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
-
+import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
+import { formatTokenBalance } from "@/helpers/filters";
+import { blastStakeConfig } from "@/configs/blast/stake";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import { getPublicClient } from "@/helpers/getPublicClient";
+import { getStakeTokenInfo } from "@/helpers/blast/stake/getStakeInfo";
+import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
+
 const MIM_USDB_POOL_ID = 1;
 const MIM_USDB_POOL_CHAIN_ID = 81457;
 
@@ -118,15 +121,15 @@ export default {
     totalDistributedPoints() {
       return this.formatAmount(this.pointsStatistics?.total);
     },
+  },
 
-    lpConfig() {
-      return blastPools.find(
-        (config) =>
-          config.contract.address ===
-          "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8"
-        // "0xC83D75Dd43cc7B11317b89b7163604aFb184EFF8"
-        // "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061" lp address from stake contract
-      );
+  watch: {
+    account() {
+      this.createStakeInfo();
+    },
+
+    chainId() {
+      this.createStakeInfo();
     },
   },
 
@@ -148,13 +151,42 @@ export default {
     },
 
     async createStakeInfo() {
-      const stakeInfo = await getStakeInfo(this.account);
-      stakeInfo.lpInfo = await getPoolInfo(
+      const publicClient = getPublicClient(this.chainId);
+
+      const [balance] = await publicClient.multicall({
+        contracts: [
+          {
+            address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
+            abi: BlastLockingMultiRewardsAbi,
+            functionName: "balanceOf",
+            args: [this.account],
+          },
+        ],
+      });
+
+      const config = blastStakeConfig;
+
+      const tokensInfo = await Promise.all(
+        config.tokens.map((tokenConfig) =>
+          getStakeTokenInfo(config, tokenConfig, publicClient, this.account)
+        )
+      );
+
+      const lpInfo = await getPoolInfo(
         MIM_USDB_POOL_CHAIN_ID,
         MIM_USDB_POOL_ID,
         this.account
       );
-      this.stakeInfo = stakeInfo;
+
+      this.stakeInfo = {
+        contract: {
+          address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
+          abi: BlastLockingMultiRewardsAbi,
+        },
+        lpBalance: balance.result || 0n,
+        lpInfo,
+        tokensInfo,
+      };
 
       this.userPointsEarned = (
         await fetchUserPointsStatistics(this.account)

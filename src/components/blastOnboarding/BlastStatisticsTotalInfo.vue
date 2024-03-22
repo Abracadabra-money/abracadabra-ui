@@ -6,7 +6,7 @@
         <span class="desc-line">
           During the MIMswap Liquidity Launch Event
           <span class="distributed-points"> {{ totalDistributedPoints }} </span>
-          Blast Points have been distributed among participants
+          Blast Points have been distributed among participants.
         </span>
         <span class="desc-line">
           Locked USDB and MIM deposits have now been migrated to magic LP (MLP).
