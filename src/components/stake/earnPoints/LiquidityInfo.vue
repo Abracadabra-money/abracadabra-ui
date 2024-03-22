@@ -7,8 +7,8 @@
         <div class="stages-item">1</div>
         <hr class="border02" />
         <div class="stages-item">2</div>
-        <hr class="border02" />
-        <div class="stages-item">3</div>
+        <hr class="border03" />
+        <div class="stages-item stages-item-disabled">3</div>
       </div>
       <div class="phases-list">
         <div
