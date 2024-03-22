@@ -97,6 +97,9 @@ import { getPublicClient } from "@/helpers/getPublicClient";
 import { getStakeTokenInfo } from "@/helpers/blast/stake/getStakeInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
+import { BlastLockingMultiRewards } from "@/constants/blast";
+
+// NOTICE: Pool ID and Chain ID are hardcoded for now
 const MIM_USDB_POOL_ID = 1;
 const MIM_USDB_POOL_CHAIN_ID = 81457;
 
@@ -156,7 +159,7 @@ export default {
       const [balance] = await publicClient.multicall({
         contracts: [
           {
-            address: "0xF1eD28fa139f2dF5CF3ed140aa9F803C79554519",
+            address: BlastLockingMultiRewards,
             abi: BlastLockingMultiRewardsAbi,
             functionName: "balanceOf",
             args: [this.account],
@@ -180,7 +183,7 @@ export default {
 
       this.stakeInfo = {
         contract: {
-          address: "0xF1eD28fa139f2dF5CF3ed140aa9F803C79554519",
+          address: BlastLockingMultiRewards,
           abi: BlastLockingMultiRewardsAbi,
         },
         lpBalance: balance.result || 0n,
