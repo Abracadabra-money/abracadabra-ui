@@ -20,6 +20,7 @@ export default [
     stateMutability: "nonpayable",
     type: "constructor",
   },
+  { inputs: [], name: "ErrExpired", type: "error" },
   { inputs: [], name: "ErrInsufficientRemainingTime", type: "error" },
   { inputs: [], name: "ErrInvalidBoostMultiplier", type: "error" },
   { inputs: [], name: "ErrInvalidDurationRatio", type: "error" },
@@ -399,21 +400,6 @@ export default [
     type: "event",
   },
   {
-    inputs: [
-      { internalType: "address", name: "rewardToken", type: "address" },
-      {
-        internalType: "uint256",
-        name: "lastTimeRewardApplicable_",
-        type: "uint256",
-      },
-      { internalType: "uint256", name: "totalSupply_", type: "uint256" },
-    ],
-    name: "_rewardPerToken",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [{ internalType: "address", name: "rewardToken", type: "address" }],
     name: "addReward",
     outputs: [],
@@ -511,7 +497,10 @@ export default [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
+    inputs: [
+      { internalType: "uint256", name: "amount", type: "uint256" },
+      { internalType: "uint256", name: "lockingDeadline", type: "uint256" },
+    ],
     name: "lock",
     outputs: [],
     stateMutability: "nonpayable",
@@ -748,10 +737,7 @@ export default [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "uint256", name: "amount", type: "uint256" },
-      { internalType: "bool", name: "lock_", type: "bool" },
-    ],
+    inputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
     name: "stake",
     outputs: [],
     stateMutability: "nonpayable",
@@ -762,8 +748,19 @@ export default [
       { internalType: "address", name: "account", type: "address" },
       { internalType: "uint256", name: "amount", type: "uint256" },
       { internalType: "bool", name: "lock_", type: "bool" },
+      { internalType: "uint256", name: "lockingDeadline", type: "uint256" },
     ],
     name: "stakeFor",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "uint256", name: "amount", type: "uint256" },
+      { internalType: "uint256", name: "lockingDeadline", type: "uint256" },
+    ],
+    name: "stakeLocked",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

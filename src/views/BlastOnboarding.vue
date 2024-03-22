@@ -94,9 +94,12 @@ import { formatTokenBalance } from "@/helpers/filters";
 import { blastStakeConfig } from "@/configs/blast/stake";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPublicClient } from "@/helpers/getPublicClient";
-import { getStakeTokenInfo } from "@/helpers/blast/stake/getStakeInfo";
+import { getStakeTokenInfo, getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
+import { BlastLockingMultiRewards } from "@/constants/blast";
+
+// NOTICE: Pool ID and Chain ID are hardcoded for now
 const MIM_USDB_POOL_ID = 1;
 const MIM_USDB_POOL_CHAIN_ID = 81457;
 
@@ -107,7 +110,7 @@ export default {
       updateInterval: null,
       userPointsEarned: 0,
       pointsStatistics: null,
-      isFounderBuffOpened: true,
+      isFounderBuffOpened: false,
       isFounderPopupOpened: false,
     };
   },
@@ -143,7 +146,11 @@ export default {
     },
 
     nextHandler() {
-      if (this.stakeInfo.lpBalance > 0) {
+      const userHasLockedAmounts = this.stakeInfo.data.tokensInfo.some(
+        (token) => token.userInfo.balances.locked > 0n
+      );
+
+      if (userHasLockedAmounts) {
         this.isFounderBuffOpened = true;
       } else {
         this.$router.push({ name: "PointsDashboard" });
@@ -151,14 +158,18 @@ export default {
     },
 
     async createStakeInfo() {
-      const publicClient = getPublicClient(this.chainId);
+      const publicClient = getPublicClient(MIM_USDB_POOL_CHAIN_ID);
+
+      const stakeInfo = await getStakeInfo(this.account);
+
+      // console.log("stakeInfo", stakeInfo);
 
       const [balance] = await publicClient.multicall({
         contracts: [
           {
-            address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
+            address: BlastLockingMultiRewards,
             abi: BlastLockingMultiRewardsAbi,
-            functionName: "balanceOf",
+            functionName: "unlocked",
             args: [this.account],
           },
         ],
@@ -180,12 +191,13 @@ export default {
 
       this.stakeInfo = {
         contract: {
-          address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
+          address: BlastLockingMultiRewards,
           abi: BlastLockingMultiRewardsAbi,
         },
         lpBalance: balance.result || 0n,
         lpInfo,
         tokensInfo,
+        data: stakeInfo
       };
 
       this.userPointsEarned = (

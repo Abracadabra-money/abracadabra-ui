@@ -1,6 +1,6 @@
-import { useImage } from "@/helpers/useImage";
 import erc20Abi from "@/abis/farm/erc20Abi";
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
+import { useImage } from "@/helpers/useImage";
+import BlastMagicLpAbi from "@/abis/BlastMagicLP";
 import type { PoolConfig } from "@/configs/pools/types";
 
 const blastPools: Array<PoolConfig> = [
@@ -11,8 +11,8 @@ const blastPools: Array<PoolConfig> = [
     icon: useImage(`assets/images/tokens/MIM-USDB.png`),
     decimals: 18,
     contract: {
-      address: "0xd9F58d32d3F89B56112269718317DB94c27d34c4",
-      abi: BlastMIMSwapRouterAbi,
+      address: "0x163B234120aaE59b46b228d8D88f5Bc02e9baeEa",
+      abi: BlastMagicLpAbi,
     },
     baseToken: {
       name: "MIM",

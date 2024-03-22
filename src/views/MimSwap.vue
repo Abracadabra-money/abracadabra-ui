@@ -6,7 +6,7 @@
 
         <SwapSettingsPopup
           :slippage="actionConfig.slippage"
-          :defaultSlippage="100n"
+          :defaultSlippage="30n"
           :deadline="actionConfig.deadline"
           @updateSlippageValue="updateSlippageValue"
           @updateDeadlineValue="updateDeadlineValue"
@@ -125,8 +125,8 @@ export default {
         toToken: emptyTokenInfo,
         fromInputValue: 0n,
         toInputValue: 0n,
-        slippage: 100n, //todo
-        deadline: 300n, //todo
+        slippage: 30n,
+        deadline: 500n,
       },
       updateInterval: null as any,
       isFetchSwapInfo: false,

@@ -221,7 +221,7 @@ export default {
       const [balance] = await publicClient.multicall({
         contracts: [
           {
-            address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
+            address: "0xF1eD28fa139f2dF5CF3ed140aa9F803C79554519",
             // @ts-ignore
             abi: BlastLockingMultiRewardsAbi,
             functionName: "balanceOf",

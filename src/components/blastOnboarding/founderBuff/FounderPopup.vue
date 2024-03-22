@@ -89,6 +89,7 @@
 </template>
 
 <script>
+import moment from "moment";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapMutations, mapGetters } from "vuex";
@@ -214,9 +215,12 @@ export default {
         notification.pending
       );
 
+      const deadline = moment().add(90, "days").unix();
+
       const { error } = await lockStake(
         this.stakeInfo.contract,
-        this.stakeInfo.lpBalance
+        this.stakeInfo.lpBalance,
+        deadline
       );
 
       await this.deleteNotification(notificationId);

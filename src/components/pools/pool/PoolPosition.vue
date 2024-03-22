@@ -54,50 +54,7 @@
         </ul>
       </div>
 
-      <!-- <div class="reward">
-        <h4 class="subtitle">Reward</h4>
-
-        <ul class="reward-tokens token-list">
-          <li
-            class="reward-token list-item"
-            v-for="token in rewardTokensInfo"
-            :key="token"
-          >
-            <span class="token-name">
-              <BaseTokenIcon
-                :name="token.name"
-                :icon="token.icon"
-                size="28px"
-              />
-              {{ token.name }}</span
-            >
-            <div class="token-amount">
-              <span class="value">{{ token.earned }}</span>
-              <span class="usd">{{ token.usd }}</span>
-            </div>
-          </li>
-        </ul>
-      </div> -->
-
-      <!-- <div class="points-earned-row list-item">
-        <span class="token-name">
-          <img class="blast-icon" src="@/assets/images/networks/blast.png" />
-          Points earned
-        </span>
-
-        <div class="token-amount">
-          <span class="value">{{ pointsEarned }}</span>
-        </div>
-      </div> -->
-
-      <!-- <BaseButton
-        primary
-        @click="harvest"
-        :disabled="disableEarnedButton"
-        v-if="!disableEarnedButton"
-      >
-        Harvest
-      </BaseButton> -->
+      <LockBlock :pool="pool" @updateInfo="onUpdate"/>
     </div>
   </div>
 </template>
@@ -105,11 +62,6 @@
 <script>
 import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
-import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
 import { formatUnits } from "viem";
 import { getChainById } from "@/helpers/chains/index";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
@@ -123,7 +75,7 @@ export default {
     isMyPositionPopupOpened: { type: Boolean, default: false },
   },
 
-  emits: ["closePopup"],
+  emits: ["closePopup", "updateInfo"],
 
   data() {
     return {
@@ -238,25 +190,8 @@ export default {
       };
     },
 
-    async harvest() {
-      if (this.disableEarnedButton) return;
-      try {
-        const config = await prepareWriteContract({
-          ...this.selectedpool.contractInfo,
-          functionName: this.selectedpool.isMultiReward
-            ? "getRewards"
-            : "withdraw",
-          args: this.selectedpool.isMultiReward
-            ? []
-            : [this.selectedpool.poolId, 0],
-        });
-
-        const { hash } = await writeContract(config);
-
-        await waitForTransaction({ hash });
-      } catch (error) {
-        console.log("harvest err:", error);
-      }
+    onUpdate() {
+      this.$emit("updateInfo");
     },
 
     closePopup() {
@@ -277,6 +212,9 @@ export default {
     ),
     PointsEarned: defineAsyncComponent(() =>
       import("@/components/pools/pool/PointsEarned.vue")
+    ),
+    LockBlock: defineAsyncComponent(() =>
+      import("@/components/pools/pool/LockBlock.vue")
     ),
   },
 };
