@@ -93,7 +93,7 @@ export default {
 <style lang="scss" scoped>
 .card {
   max-width: 501px;
-  padding: 20px 2px 2px;
+  padding: 7px 2px 2px;
   width: 100%;
   background: #fcfd02;
   border-radius: 12px;
@@ -115,7 +115,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 11px;
+  margin-bottom: 6px;
   padding: 0 14px;
 }
 
@@ -135,7 +135,7 @@ export default {
 .tabs-wrap {
   max-width: 228px;
   width: 100%;
-  padding: 6px;
+  padding: 5px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(16, 18, 23, 0.81);
@@ -195,10 +195,10 @@ export default {
   align-items: center;
   justify-content: center;
   background: #000;
-  padding: 10px;
+  padding: 15px;
   text-align: center;
   border-radius: 0 0 12px 12px;
-  clip-path: polygon(100% 0, 100% 20%, 90% 100%, 0 100%, 0 0);
+  clip-path: polygon(100% 0, 100% 40%, 90% 100%, 0 100%, 0 0);
   color: var(--additional-ffffff, #fff);
   font-size: 16px;
   font-weight: 500;
@@ -215,8 +215,8 @@ export default {
 .empty-info {
   background: #000;
   width: 100%;
-  height: 96px;
-  clip-path: polygon(100% 0, 100% 64%, 90% 100%, 0 100%, 0 0);
+  height: 106px;
+  clip-path: polygon(100% 0, 100% 69%, 90% 100%, 0 100%, 0 0);
   border-radius: 0 0 12px 12px;
   display: flex;
   align-items: center;
