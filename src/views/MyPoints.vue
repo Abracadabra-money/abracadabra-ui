@@ -3,9 +3,10 @@
     <div class="my-points-wrapper">
       <div class="row head-row">
         <div class="btns-wrap">
-          <h3 class="title">My points</h3>
+          <h3 class="title">Points Dashboard</h3>
           <h4 class="subtitle">
-            Track your Blast Points and Gold earned on Abracadarba
+            Track your Blast, Potion and Gold points earned by taking part in
+            the Abracadabra Ecosystem.
           </h4>
           <div class="links-wrap">
             <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
@@ -29,8 +30,6 @@
             </h4>
           </div>
         </div>
-
-        <!-- <img class="grid-img" src="@/assets/images/myPoints/grid.png" alt="" /> -->
 
         <div class="totals-wrap">
           <div class="total-item">
@@ -111,7 +110,7 @@ export default {
     cauldronPointsInfo() {
       return {
         chainId: BLAST_CHAIN_ID,
-        label: "Minter",
+        label: "Cauldron User",
         title: "WETH cauldron",
         subtitle: "Deposited WETH into Cauldron",
         icon: useImage("assets/images/tokens/WETH.png"),
@@ -133,9 +132,9 @@ export default {
 
       return {
         chainId: BLAST_CHAIN_ID,
-        label: "Lp’er",
+        label: "Liquidity Provider",
         title: "MIM / USDB Pool",
-        subtitle: "Added liquidity into pool",
+        subtitle: "Providing Liquidity in Pool",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,

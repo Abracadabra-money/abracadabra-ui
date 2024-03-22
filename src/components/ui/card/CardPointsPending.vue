@@ -109,6 +109,7 @@ export default {
     0 27px,
     20px 10px
   );
+  max-height: 168px;
 }
 
 .card-head {
@@ -198,7 +199,7 @@ export default {
   padding: 15px;
   text-align: center;
   border-radius: 0 0 12px 12px;
-  clip-path: polygon(100% 0, 100% 40%, 90% 100%, 0 100%, 0 0);
+  clip-path: polygon(100% 0, 100% 37%, 90% 100%, 0 100%, 0 0);
   color: var(--additional-ffffff, #fff);
   font-size: 16px;
   font-weight: 500;
@@ -232,6 +233,15 @@ export default {
 }
 
 @media screen and (max-width: 600px) {
+  .card {
+    max-height: initial;
+    padding-top: 18px;
+  }
+
+  .card-head {
+    margin-bottom: 8px;
+  }
+
   .title {
     gap: 4px;
     flex-direction: column;
@@ -243,6 +253,14 @@ export default {
 
   .tabs-item {
     max-width: 48px;
+  }
+
+  .pending-info {
+    clip-path: polygon(100% 0, 100% 34%, 90% 100%, 0 100%, 0 0);
+  }
+
+  .empty-info {
+    clip-path: polygon(100% 0, 100% 66%, 90% 100%, 0 100%, 0 0);
   }
 }
 </style>

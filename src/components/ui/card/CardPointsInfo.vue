@@ -62,9 +62,9 @@
       </li>
 
       <li class="list-item">
-        <div :class="['item-title', 'gold-title']" v-if="pointsInfo.isGold">
+        <div :class="['item-title', { 'gold-title': pointsInfo.isGold }]">
           To Be Distributed
-          <span class="boost">
+          <span class="boost" v-if="pointsInfo.isGold">
             <img
               v-tooltip="'tooltip'"
               src="@/assets/images/myPoints/rocket.png"
@@ -72,7 +72,6 @@
             />
           </span>
         </div>
-        <div class="item-title" v-else>Points Pending</div>
         <div :class="['item-value', { 'gold-title': pointsInfo.isGold }]">
           {{ formatTokenBalance(pointsInfo.pendingDistributionAmount) }}
         </div>
