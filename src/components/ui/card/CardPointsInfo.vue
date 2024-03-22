@@ -2,6 +2,15 @@
   <div :class="['card', { gold: pointsInfo?.isGold }]">
     <div class="label">{{ pointsInfo.label }}</div>
 
+    <!-- design will change -->
+    <button
+      v-if="showWithdrawButton"
+      class="withdraw-button"
+      @click="onWithdraw"
+    >
+      Withdraw
+    </button>
+
     <div class="source-points">
       <div class="icons-wrap">
         <img class="source-icon" :src="pointsInfo.icon" alt="Token icon" />
@@ -89,6 +98,7 @@ import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
 export default {
+  emits: ["showWithdrawPopup"],
   props: {
     pointsInfo: {} as any,
 
@@ -96,9 +106,27 @@ export default {
       type: Boolean,
       default: false,
     },
+
+    withdrawLogic: {
+      type: Boolean,
+      default: false,
+    },
   },
 
-  methods: { getChainIcon, formatTokenBalance, formatUSD },
+  data() {
+    return {
+      showWithdrawPopup: false,
+    };
+  },
+  computed: {
+    showWithdrawButton() {
+      return this.withdrawLogic && this.pointsInfo?.deposited > 0;
+    }
+  },
+
+  methods: { getChainIcon, formatTokenBalance, formatUSD, onWithdraw() {
+    this.$emit("showWithdrawPopup");
+  } },
 };
 </script>
 
@@ -113,6 +141,41 @@ export default {
   backdrop-filter: blur(12.5px);
   border: 1px solid #fcfd02;
   margin: 0 auto;
+}
+
+.withdraw-button {
+  border: none;
+  outline: none;
+  width: max-content;
+  padding: 0 10px;
+  height: 39px;
+  border-radius: 10px;
+  background: rgb(252, 253, 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    top: 6px;
+    background: #fcfc06;
+    opacity: 0.8;
+  }
+
+  &:active {
+    top: 8px;
+    background: #fcfc06;
+    opacity: 0.8;
+  }
 }
 
 .gold {

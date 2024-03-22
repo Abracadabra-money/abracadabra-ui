@@ -8,7 +8,7 @@
         </h4>
       </div>
 
-      <router-link class="launch-link disabled" :to="{ name: 'Home' }">
+      <router-link class="launch-link" :to="{ name: 'BlastOnboarding' }">
         Launch
       </router-link>
     </div>

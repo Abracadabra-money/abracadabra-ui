@@ -62,10 +62,18 @@
 
       <div class="row card-info-row">
         <CardPointsInfo :pointsInfo="cauldronPointsInfo" />
-        <CardPointsInfo :pointsInfo="llePointsInfo" />
+        <CardPointsInfo :pointsInfo="llePointsInfo" :withdrawLogic="true" @showWithdrawPopup="showWithdrawPopup = true" />
         <CardPointsInfo :pointsInfo="goldPointsInfo" />
       </div>
     </div>
+
+    <WlpWithdrawPopup
+      :balances="stakeLpBalances"
+      :poolInfo="poolInfo"
+      @close="showWithdrawPopup = false"
+      @updateInfo="updateBalances"
+      v-if="showWithdrawPopup"
+    />
   </div>
 </template>
 
@@ -85,6 +93,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { getPublicClient } from "@/helpers/getPublicClient";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
+import { BlastLockingMultiRewards } from "@/constants/blast";
 
 const BLAST_CHAIN_ID = 81457;
 const MIM_USDB_POOL_ID = 1;
@@ -118,8 +127,13 @@ export default {
       },
       poolInfo: null as any,
       cauldronInfo: null as any,
-      stakeLpBalance: 0n as any,
+      stakeLpBalances: {
+        balance: 0n,
+        locked: 0n,
+        unlocked: 0n,
+      } as any,
       updateInterval: null as any,
+      showWithdrawPopup: false as any,
     };
   },
 
@@ -147,7 +161,7 @@ export default {
 
     llePointsInfo() {
       const deposited = +formatUnits(
-        this.poolInfo?.userInfo?.balance || 0n,
+        this.stakeLpBalances.unlocked || 0n,
         this.poolInfo?.decimals || 18
       );
 
@@ -168,7 +182,7 @@ export default {
 
     goldPointsInfo() {
       const deposited = +formatUnits(
-        this.stakeLpBalance || 0n,
+        this.stakeLpBalances.locked || 0n,
         this.poolInfo?.decimals || 18
       );
 
@@ -218,27 +232,50 @@ export default {
     async getStakeLpBalance() {
       const publicClient = getPublicClient(this.chainId);
 
-      const [balance] = await publicClient.multicall({
+      const [balance, locked, unlocked] = await publicClient.multicall({
         contracts: [
           {
-            address: "0xF1eD28fa139f2dF5CF3ed140aa9F803C79554519",
+            address: BlastLockingMultiRewards,
             // @ts-ignore
             abi: BlastLockingMultiRewardsAbi,
             functionName: "balanceOf",
             args: [this.account],
           },
+          {
+            address: BlastLockingMultiRewards,
+            // @ts-ignore
+            abi: BlastLockingMultiRewardsAbi,
+            functionName: "locked",
+            args: [this.account],
+          },
+          {
+            address: BlastLockingMultiRewards,
+            // @ts-ignore
+            abi: BlastLockingMultiRewardsAbi,
+            functionName: "unlocked",
+            args: [this.account],
+          },
         ],
       });
 
-      return balance.result || 0n;
+      return {
+        balance: balance.result,
+        locked: locked.result,
+        unlocked: unlocked.result,
+      };
     },
 
+    async updateBalances() {
+      this.stakeLpBalances = await this.getStakeLpBalance();
+    },
+
+    // TODO: refactor
     async createDashboardInfo() {
       this.pointsStatistics = await fetchPointsStatistics();
 
       this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
 
-      this.stakeLpBalance = await this.getStakeLpBalance();
+      this.stakeLpBalances = await this.getStakeLpBalance();
 
       this.poolInfo = await getPoolInfo(
         BLAST_CHAIN_ID,
@@ -281,6 +318,9 @@ export default {
     ),
     CardPointsInfo: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsInfo.vue")
+    ),
+    WlpWithdrawPopup: defineAsyncComponent(() =>
+      import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
     ),
   },
 };
