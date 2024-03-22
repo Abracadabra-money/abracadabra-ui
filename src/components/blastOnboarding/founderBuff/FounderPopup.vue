@@ -353,7 +353,7 @@ export default {
       import("@/components/base/BaseButton.vue")
     ),
     FounderCheckBox: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/founderBuff/FounderCheckBox.vue")
+      import("@/components/blastOnboarding/founderBuff/FounderCheckBox.vue")
     ),
     Notification: defineAsyncComponent(() =>
       import("@/components/notifications/Notification.vue")

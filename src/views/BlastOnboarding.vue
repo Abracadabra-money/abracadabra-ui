@@ -31,10 +31,25 @@
               Receive multiple rewards including Blast Points, Gold and the
               upcoming SPELL airdrop.
             </p>
+
+            <p class="chart-description top-right">
+              <img
+                class="bottom-description-corner"
+                src="@/assets/images/blast/blast-corner.svg"
+              />
+              <img
+                class="bottom-description-corner-mobile"
+                src="@/assets/images/blast/blast-corner-mobile.svg"
+              />
+              Base yield from USDB will be distributed to Founder's including
+              all yield from USDB, collected during the LLE.
+            </p>
+
             <img
               class="chart-image"
               src="../assets/images/blast/blast-chart-image.png"
             />
+
             <p class="chart-description bottom-right">
               <img
                 class="bottom-description-corner"
@@ -157,19 +172,19 @@ export default {
 
   components: {
     BlastStatisticsTotalInfo: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/BlastStatisticsTotalInfo.vue")
+      import("@/components/blastOnboarding/BlastStatisticsTotalInfo.vue")
     ),
     UserDeposits: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/UserDeposits.vue")
+      import("@/components/blastOnboarding/UserDeposits.vue")
     ),
     FounderPopup: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/founderBuff/FounderPopup.vue")
+      import("@/components/blastOnboarding/founderBuff/FounderPopup.vue")
     ),
     FounderBuff: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/founderBuff/FounderBuff.vue")
+      import("@/components/blastOnboarding/founderBuff/FounderBuff.vue")
     ),
     PointsEarnedCard: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/cards/PointsEarnedCard.vue")
+      import("@/components/blastOnboarding/cards/PointsEarnedCard.vue")
     ),
   },
 };
@@ -284,6 +299,12 @@ export default {
   top: 0;
   left: 0;
   text-align: start;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+  text-align: end;
 }
 
 .bottom-right {

@@ -76,7 +76,7 @@ export default {
 
   components: {
     PoolCard: defineAsyncComponent(() =>
-      import("@/components/blastStatistics/cards/PoolCard.vue")
+      import("@/components/blastOnboarding/cards/PoolCard.vue")
     ),
   },
 };

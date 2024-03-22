@@ -62,7 +62,7 @@ export default {
     }),
 
     pageBackground() {
-      if (this.$route.name === "BlastStatistics") {
+      if (this.$route.name === "BlastOnboarding") {
         return "background:#14182C";
       }
       return "";

@@ -21,8 +21,8 @@
 <script>
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination } from "vue3-carousel";
-import PoolCard from "@/components/blastStatistics/cards/PoolCard.vue";
-import BlastCauldronCard from "@/components/blastStatistics/cards/BlastCauldronCard.vue";
+import PoolCard from "@/components/blastOnboarding/cards/PoolCard.vue";
+import BlastCauldronCard from "@/components/blastOnboarding/cards/BlastCauldronCard.vue";
 
 export default {
   props: {
