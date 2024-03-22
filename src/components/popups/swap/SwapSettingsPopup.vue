@@ -131,6 +131,10 @@ export default {
         parseUnits(String(this.deadlineValue), PERCENT_PRESITION)
       );
     },
+
+    slippage() {
+      this.slippageValue = this.getFormattedAmount(this.slippage);
+    },
   },
 
   methods: {
