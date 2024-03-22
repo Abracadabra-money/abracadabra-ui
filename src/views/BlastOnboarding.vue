@@ -161,7 +161,7 @@ export default {
           {
             address: BlastLockingMultiRewards,
             abi: BlastLockingMultiRewardsAbi,
-            functionName: "balanceOf",
+            functionName: "unlocked",
             args: [this.account],
           },
         ],
