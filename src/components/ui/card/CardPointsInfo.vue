@@ -67,7 +67,7 @@
           <span class="boost" v-if="pointsInfo.isGold">
             <img
               v-tooltip="'tooltip'"
-              src="@/assets/images/myPoints/rocket.png"
+              src="@/assets/images/myPoints/rocket.svg"
               alt=""
             />
           </span>
@@ -278,7 +278,6 @@ export default {
 
 .boost {
   box-shadow: 0px 0px 10px 0px rgba(237, 232, 96, 0.1);
-  padding-right: 2px;
 }
 
 .gold-title {
