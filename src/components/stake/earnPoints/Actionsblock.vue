@@ -23,12 +23,12 @@
             @updateToggle="changeLockToggle"
           />
 
-          <Toggle
+          <!-- <Toggle
             v-if="!isStakeAction"
             text="Withdraw Locked"
             :selected="isWithdrawLock"
             @updateToggle="changeIsWithdrawLock"
-          />
+          /> -->
         </div>
 
         <BaseTokenInput
@@ -83,7 +83,8 @@
               <span class="lock-info-title">You Locked</span>
               <span class="lock-info-value">
                 <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.lockedAmount) }}</span>
+                {{ formatAmount(fromToken.lockedAmount) }}</span
+              >
             </div>
 
             <div class="line"></div>
