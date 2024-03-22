@@ -113,9 +113,9 @@
 
             <BaseButton
               primary
-              :disabled="isLockDisabled"
+              :disabled="true"
               @click="lockHandler"
-              >{{ lockButtonText }}</BaseButton
+              >Lock</BaseButton
             >
           </div>
         </div>
