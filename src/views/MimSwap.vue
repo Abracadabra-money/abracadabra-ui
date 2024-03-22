@@ -213,6 +213,10 @@ export default {
       this.createSwapInfo();
     },
 
+    account() {
+      this.createSwapInfo();
+    },
+
     poolsList: {
       async handler() {
         this.actionConfig.fromToken =
