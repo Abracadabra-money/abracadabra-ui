@@ -15,7 +15,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="tooltip"
+            tooltip="Your transaction will revert if the price changes unfavorably by more than this percentage."
           />
         </h4>
 
@@ -47,7 +47,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="tooltip"
+            tooltip="Your transaction will revert if it is pending for more than this period of time."
           />
         </h4>
 
