@@ -405,12 +405,15 @@ export default {
     flex-direction: column;
     align-items: start;
     gap: 13px;
+    padding: 16px;
+    height: auto;
     max-width: 343px;
   }
 
   .chart-description {
     position: static;
     text-align: start;
+    font-size: 14px;
   }
 
   .chart-image {
@@ -420,15 +423,15 @@ export default {
   }
 
   .top-description-corner-mobile {
-    top: -26px;
-    left: -8px;
+    top: 0;
+    left: 8px;
     display: block;
     transform: rotate(90deg);
   }
 
   .bottom-description-corner-mobile {
-    bottom: -18px;
-    left: -13px;
+    bottom: 4px;
+    left: 4px;
     display: block;
   }
 
