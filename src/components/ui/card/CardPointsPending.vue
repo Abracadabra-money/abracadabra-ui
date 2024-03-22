@@ -1,31 +1,64 @@
 <template>
   <div class="card">
     <div class="card-head">
-      <h3 class="title">Pending points will be sent in</h3>
-      <div class="timer">
-        <span class="timer-value">22m</span>
-        <span class="timer-value">12s</span>
+      <h3 class="title"><span>Next Airdrop in</span> <Timer airdrop dark /></h3>
+
+      <div class="tabs-wrap">
+        <button
+          :class="['tabs-item', { 'tab-active': activeTab === 1 }]"
+          @click="changeTab(1)"
+        >
+          <img
+            class="tab-icon"
+            src="@/assets/images/myPoints/blast.png"
+            alt=""
+          />
+        </button>
+        <button
+          :class="['tabs-item', { 'tab-active': activeTab === 2 }]"
+          @click="changeTab(2)"
+        >
+          <img
+            class="tab-icon"
+            src="@/assets/images/myPoints/gold-points.svg"
+            alt=""
+          />
+        </button>
+        <button
+          :class="['tabs-item', { 'tab-active': activeTab === 3 }]"
+          @click="changeTab(3)"
+        >
+          <img
+            class="tab-icon"
+            src="@/assets/images/myPoints/potion.png"
+            alt=""
+          />
+        </button>
       </div>
     </div>
 
-    <div class="card-body">
-      <div class="info">
-        <span class="info-title">Points Earned</span>
-        <span class="info-earned">{{
+    <div class="card-body" v-if="activeTab === 1">
+      <div class="total-points">
+        <span class="total-title">Points</span>
+        <span class="total-earned">{{
           formatTokenBalance(distributionAmount)
         }}</span>
       </div>
-      <div class="info">
-        <span class="info-title">Points Pending</span>
-        <span class="info-pending">{{
+
+      <div class="pending-info">
+        Earning
+        <span class="pending-amount">{{
           formatTokenBalance(pendingDistributionAmount)
         }}</span>
+        Points Per Hours
       </div>
     </div>
+    <div v-else class="empty-info">Coming soon</div>
   </div>
 </template>
 
 <script lang="ts">
+import { defineAsyncComponent } from "vue";
 import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
@@ -34,15 +67,32 @@ export default {
     pendingDistributionAmount: { type: Number, default: 0 },
   },
 
+  data() {
+    return {
+      activeTab: 1,
+    };
+  },
+
   methods: {
     formatTokenBalance,
+
+    changeTab(tab: number) {
+      this.activeTab = tab;
+    },
+  },
+
+  components: {
+    Timer: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/stake/earnPoints/Timer.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .card {
-  max-width: 411px;
+  max-width: 501px;
   padding: 20px 2px 2px;
   width: 100%;
   background: #fcfd02;
@@ -51,15 +101,14 @@ export default {
     87px 10px,
     100px 0,
     100% 0,
-    100% 124px,
-    387px 100%,
+    100% 80%,
+    90% 100%,
     51% 100%,
     22% 100%,
     0 100%,
     0 27px,
     20px 10px
   );
-  margin: 0 auto;
 }
 
 .card-head {
@@ -78,58 +127,122 @@ export default {
   font-weight: 500;
   line-height: normal;
   text-transform: uppercase;
-}
-
-.timer {
-  gap: 2px;
+  gap: 12px;
   display: flex;
   align-items: center;
 }
 
-.timer-value {
-  min-width: 40px;
-  min-height: 30px;
-  border-radius: var(--Radius-Tiny, 10px);
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: #171717;
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 150%;
+.tabs-wrap {
+  max-width: 228px;
+  width: 100%;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.81);
+  display: flex;
+  align-items: center;
+}
+
+.tabs-item {
+  max-width: 72px;
+  width: 100%;
+  height: 36px;
+  border: none;
+  outline: transparent;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
-.card-body {
-  width: 100%;
-  background: #000;
-  border-radius: 0 0 0 12px;
-  clip-path: polygon(100% 0, 100% 62px, 384px 100%, 0 100%, 0 0);
-  padding: 12px 14px 26px;
-  display: flex;
-  flex-direction: column;
+.tab-active {
+  border-radius: 8px;
+  background: #101217;
+  object-fit: cover;
 }
 
-.info {
+.tab-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.total-points {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
   font-weight: 500;
   line-height: 150%;
+  border-bottom: 2px solid #fcfd02;
+  background: #000;
+  padding: 10px 16px;
 }
 
-.info-earned {
-  color: #fcfd02;
+.total-title {
+  font-weight: 500;
+}
+
+.total-earned {
   font-size: 20px;
   font-weight: 600;
-  line-height: 150%;
+  line-height: normal;
 }
 
-.info-pending {
+.pending-info {
+  width: 100%;
+  display: block;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  padding: 10px;
+  text-align: center;
+  border-radius: 0 0 12px 12px;
+  clip-path: polygon(100% 0, 100% 20%, 90% 100%, 0 100%, 0 0);
+  color: var(--additional-ffffff, #fff);
   font-size: 16px;
   font-weight: 500;
-  line-height: 150%;
+  line-height: normal;
+}
+
+.pending-amount {
+  color: #fcfd02;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.empty-info {
+  background: #000;
+  width: 100%;
+  height: 96px;
+  clip-path: polygon(100% 0, 100% 64%, 90% 100%, 0 100%, 0 0);
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+@media screen and (max-width: 1024px) {
+  .card {
+    margin: 0 auto;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .title {
+    gap: 4px;
+    flex-direction: column;
+  }
+
+  .tabs-wrap {
+    max-width: 156px;
+  }
+
+  .tabs-item {
+    max-width: 48px;
+  }
 }
 </style>

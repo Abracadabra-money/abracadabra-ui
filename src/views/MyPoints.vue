@@ -13,27 +13,24 @@
           </div>
         </div>
 
-        <div class="row">
-          <CardPointsPending
-            :distributionAmount="userPointsStatistics.total"
-            :pendingDistributionAmount="userPointsStatistics.totalPending"
-          />
-          <CardPointsPending />
-        </div>
+        <CardPointsPending
+          :distributionAmount="userPointsStatistics.total"
+          :pendingDistributionAmount="userPointsStatistics.totalPending"
+        />
       </div>
 
       <div class="banner">
         <div class="description">
           <img class="blast-icon" src="@/assets/images/networks/blast.png" />
           <div>
-            <h3 class="description-title">Abracadabra blast</h3>
+            <h3 class="description-title">Build on Blast</h3>
             <h4 class="description-subtitle">
-              Native Yiled & Airdrops included
+              Native Yield & Airdrops included
             </h4>
           </div>
         </div>
 
-        <img class="grid-img" src="@/assets/images/myPoints/grid.png" alt="" />
+        <!-- <img class="grid-img" src="@/assets/images/myPoints/grid.png" alt="" /> -->
 
         <div class="totals-wrap">
           <div class="total-item">
@@ -247,8 +244,11 @@ export default {
   justify-content: space-between;
 }
 
+.links-wrap {
+  max-width: 426px;
+}
+
 .btns-wrap {
-  max-width: 427px;
   width: 100%;
   min-width: 337px;
 }
@@ -264,7 +264,7 @@ export default {
   font-size: 16px;
   font-weight: 400;
   line-height: normal;
-  margin-bottom: 12px;
+  margin-bottom: 47px;
 }
 
 .banner {
@@ -375,6 +375,7 @@ export default {
   .description {
     position: inherit;
     width: 100%;
+    margin-bottom: 8px;
   }
 
   .grid-img {
@@ -390,15 +391,18 @@ export default {
     padding: 0;
     height: auto;
     gap: 8px;
+    min-width: initial;
   }
 
   .total-item {
     background: #fcfd02;
+
     width: 100%;
     padding: 13px 16px;
-    justify-content: center;
+    justify-content: space-between;
   }
 }
+
 @media screen and (max-width: 600px) {
   .my-points-wrapper {
     gap: 16px;
@@ -421,10 +425,16 @@ export default {
 
   .subtitle {
     font-size: 14px;
+    margin-bottom: 16px;
   }
 
   .card-info-row {
     grid-template-columns: 1fr;
+  }
+
+  .description {
+    padding: 13px;
+    justify-content: center;
   }
 
   .description-title {
@@ -436,12 +446,13 @@ export default {
   }
 
   .total-item {
-    gap: 19px;
+    gap: 6px;
+    padding: 13px;
   }
 
   .total-title {
     font-size: 14px;
-    width: 165px;
+    width: auto;
   }
 
   .total-value {
