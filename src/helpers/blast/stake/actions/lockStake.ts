@@ -3,12 +3,16 @@ import type { ContractInfo } from "@/types/global";
 import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
-export const lockStake = async (contract: ContractInfo, amount: bigint) => {
+export const lockStake = async (
+  contract: ContractInfo,
+  amount: bigint,
+  deadline: number
+) => {
   try {
     const config = await prepareWriteContract({
       ...contract,
       functionName: "lock",
-      args: [amount],
+      args: [amount, deadline],
     });
 
     const { hash } = await writeContract(config);

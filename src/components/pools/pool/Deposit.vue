@@ -175,10 +175,10 @@ export default {
 
     error() {
       if (this.baseInputAmount > this.baseToken.userInfo?.balance)
-        return "Insufficient base token balance";
+        return `Insufficient ${this.baseToken.config.name} balance`;
 
       if (this.quoteInputAmount > this.quoteToken.userInfo?.balance)
-        return "Insufficient quote token balance";
+        return `Insufficient ${this.quoteToken.config.name} balance`;
 
       return null;
     },
@@ -187,14 +187,12 @@ export default {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
-      if (this.baseInputValue == "")
-        return `Enter ${this.baseToken.config.name} token amount`;
-      if (this.quoteInputValue == "")
-        return `Enter ${this.quoteToken.config.name} token amount`;
+      if (this.baseInputValue == "" || this.quoteInputValue == "")
+        return `Enter amount`;
 
       if (this.isActionProcessing) return "Processing...";
-      if (!this.isBaseAllowed) return "Approve base token";
-      if (!this.isQuoteAllowed) return "Approve quote token";
+      if (!this.isBaseAllowed) return `Approve ${this.baseToken.config.name}`;
+      if (!this.isQuoteAllowed) return `Approve ${this.quoteToken.config.name}`;
 
       return "Deposit";
     },

@@ -14,6 +14,7 @@
         :pool="pool"
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
+        @updateInfo="getPoolInfo"
         v-if="isUserPositionOpen && account"
       />
     </div>

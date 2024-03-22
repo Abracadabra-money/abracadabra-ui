@@ -18,7 +18,7 @@ export const validationActions = (actionConfig: any, chainId: number) => {
     return { btnText: "Select Token", isAllowed: false };
 
   if (!fromInputValue || !toInputValue)
-    return { btnText: "Enter the amount", isAllowed: false };
+    return { btnText: "Enter amount", isAllowed: false };
 
   if (fromInputValue > fromToken.userInfo.balance)
     return {

@@ -84,7 +84,7 @@ export default {
   justify-content: space-between;
   align-items: end;
   height: 73px;
-  padding: 12px;
+  padding: 9px;
   font-size: 32px;
   font-weight: 600;
   line-height: normal;
@@ -107,7 +107,7 @@ export default {
   align-items: center;
   gap: 8px;
   padding: 12px;
-  max-width: 303.5px;
+  max-width: 290px;
   width: 100%;
   height: 71px;
   border-radius: 12px 0 0 12px;

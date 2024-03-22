@@ -15,7 +15,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="tooltip"
+            tooltip="Your transaction will revert if the price changes unfavorably by more than this percentage."
           />
         </h4>
 
@@ -25,7 +25,7 @@
             v-model="slippageValue"
             min="0"
             max="100"
-            step="1"
+            step="0.1"
             type="text"
             placeholder="1 - 100"
           />
@@ -47,7 +47,7 @@
             :width="20"
             :height="20"
             fill="#878B93"
-            tooltip="tooltip"
+            tooltip="Your transaction will revert if it is pending for more than this period of time."
           />
         </h4>
 
@@ -113,7 +113,7 @@ export default {
       if (!value) return this.$emit("updateSlippageValue", 0n);
       if (isNaN(value)) this.slippageValue = Number(oldValue);
       if (Number(value) > 100) this.slippageValue = 100;
-      else this.slippageValue = Number(value);
+      else this.slippageValue = value;
 
       this.$emit(
         "updateSlippageValue",
@@ -130,6 +130,10 @@ export default {
         "updateDeadlineValue",
         parseUnits(String(this.deadlineValue), PERCENT_PRESITION)
       );
+    },
+
+    slippage() {
+      this.slippageValue = this.getFormattedAmount(this.slippage);
     },
   },
 

@@ -22,7 +22,11 @@
     <div class="deposited">
       <div class="deposited-text">
         Deposited
-        <span class="lock" v-if="pointsInfo.isGold" v-tooltip="'tooltip'">
+        <span
+          class="lock"
+          v-if="pointsInfo.isGold"
+          v-tooltip="'Locked for 3 months'"
+        >
           <svg
             class="lock-icon"
             xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +70,7 @@
           To Be Distributed
           <span class="boost" v-if="pointsInfo.isGold">
             <img
-              v-tooltip="'tooltip'"
+              v-tooltip="'Boosted Airdrop for Founders'"
               src="@/assets/images/points-dashboard/rocket.svg"
               alt=""
             />
