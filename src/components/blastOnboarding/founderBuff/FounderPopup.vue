@@ -15,7 +15,7 @@
         {{ texts.description }}
       </p>
 
-      <div class="pool-info-wrap" v-if="stakeInfo && stakeLpInfo">
+      <div class="pool-info-wrap" v-if="stakeInfo">
         <div class="promo-label">{{ texts.blastTitle }}</div>
 
         <div class="pool-info-value" v-if="isBecomeFounder">
@@ -71,71 +71,34 @@
         reclaim the Founder Boost
       </p>
 
-      <FounderCheckBox :value="isBecomeFounder" @update="toggleBecomeFounder">
-        {{ texts.checkbox }}
-      </FounderCheckBox>
+      <div class="btns-wrap">
+        <FounderCheckBox :value="isBecomeFounder" @update="toggleBecomeFounder">
+          {{ texts.checkbox }}
+        </FounderCheckBox>
 
-      <BaseButton
-        :warning="!isBecomeFounder"
-        :primary="isBecomeFounder"
-        @click="actionHandler"
-      >
-        {{ buttonText }}
-      </BaseButton>
+        <BaseButton
+          :warning="!isBecomeFounder"
+          :primary="isBecomeFounder"
+          @click="actionHandler"
+        >
+          {{ buttonText }}
+        </BaseButton>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
-import { mapActions, mapMutations } from "vuex";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
 import { formatUnits } from "viem";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { defineAsyncComponent } from "vue";
+import { mapActions, mapMutations, mapGetters } from "vuex";
 import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
-import { approveTokenViem } from "@/helpers/approval";
+import notification from "@/helpers/notification/notification";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { lockStake } from "@/helpers/blast/stake/actions/lockStake";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { stake } from "@/helpers/blast/stake/actions/stakeLocked";
-import BlastLockingMultiRewards from "@/abis/BlastLockingMultiRewards";
-
-//
-import { getPublicClient } from "@/helpers/getPublicClient";
-import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
-
-const getLpBalanceAndAllowance = async (account, chainId) => {
-  if (!account) {
-    return {
-      allowance: 0n,
-      balance: 0n,
-    };
-  }
-
-  const publicClient = getPublicClient(chainId);
-
-  const [allowance, balance] = await publicClient.multicall({
-    contracts: [
-      {
-        address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
-        abi: BlastMagicLPAbi,
-        functionName: "allowance",
-        args: [account, "0x4f53357F3Af4B7a73B6C720b9d76626B36eE5300"],
-      },
-      {
-        address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
-        abi: BlastMagicLPAbi,
-        functionName: "balanceOf",
-        args: [account],
-      },
-    ],
-  });
-
-  return {
-    allowance: allowance.result,
-    balance: balance.result,
-  };
-};
+import { withdrawStake } from "@/helpers/blast/stake/actions/withdrawStake";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   props: {
@@ -146,7 +109,6 @@ export default {
 
   data() {
     return {
-      stakeLpInfo: null,
       mimUsdbIcon,
       isBecomeFounder: true,
       isActionProcessing: false,
@@ -168,12 +130,12 @@ export default {
         name: this.lpInfo.name,
         icon: this.lpInfo.icon,
         amount: this.formatTokenBalance(
-          this.lpInfo.userInfo.balance,
+          this.stakeInfo.lpBalance,
           this.lpInfo.decimals
         ),
         amountUsd: formatUSD(
           this.formatTokenBalance(
-            this.lpInfo.userInfo.balance,
+            this.stakeInfo.lpBalance,
             this.lpInfo.decimals
           ) * this.lpInfo.price
         ),
@@ -182,10 +144,10 @@ export default {
 
     lpPartsExpected() {
       const lpPartsOut = previewRemoveLiquidity(
-        this.lpInfo.userInfo.balance,
+        this.stakeInfo.lpBalance,
         this.lpInfo
       );
-      console.log("this.stakeInfo", this.stakeInfo);
+
       return [
         {
           name: this.stakeInfo.tokensInfo[1].config.name,
@@ -225,14 +187,9 @@ export default {
     },
 
     buttonText() {
-      if (!this.isAllowed) return "Approve MLP tokens spending";
       return this.isBecomeFounder
         ? "Claim Founder’s Boost"
         : "Give Up Founder’s Boost";
-    },
-
-    isAllowed() {
-      return this.stakeLpInfo?.allowance > 0;
     },
   },
 
@@ -252,57 +209,47 @@ export default {
       this.isBecomeFounder = !this.isBecomeFounder;
     },
 
-    async approveHandler() {
+    async lockHandler() {
       const notificationId = await this.createNotification(
-        notification.approvePending
+        notification.pending
       );
 
-      try {
-        await approveTokenViem(
-          {
-            address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
-            abi: BlastMagicLPAbi,
-          },
-          "0x4f53357F3Af4B7a73B6C720b9d76626B36eE5300"
-        );
+      const { error } = await lockStake(
+        this.stakeInfo.contract,
+        this.stakeInfo.lpBalance
+      );
 
-        await this.createStakeLpInfo();
+      await this.deleteNotification(notificationId);
 
-        await this.deleteNotification(notificationId);
-      } catch (error) {
-        console.log("approve err:", error);
-
+      if (error) {
         const errorNotification = {
-          msg: await notificationErrorMsg(error),
+          msg: await notificationErrorMsg({ message: error.msg }),
           type: "error",
         };
 
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
+      } else {
+        await this.createNotification(notification.success);
+        this.$router.push({ name: "MyPoints" });
       }
     },
 
-    async stakeHandler() {
+    async withdrawHandler() {
       const notificationId = await this.createNotification(
         notification.pending
       );
 
-      const contract = {
-        address: "0x4f53357F3Af4B7a73B6C720b9d76626B36eE5300",
-        abi: BlastLockingMultiRewards,
-      };
-
-      const { error, result } = await stake(
-        contract,
-        "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
-        this.stakeLpInfo.balance,
-        this.isBecomeFounder
+      const { error } = await withdrawStake(
+        this.stakeInfo.contract,
+        this.stakeInfo.lpBalance
       );
+
       await this.deleteNotification(notificationId);
 
       if (error) {
         const errorNotification = {
-          msg: error.msg,
+          msg: await notificationErrorMsg({ message: error.msg }),
           type: "error",
         };
 
@@ -316,9 +263,9 @@ export default {
 
     async actionHandler() {
       this.isActionProcessing = true;
-      if (!this.isAllowed) return await this.approveHandler();
 
-      await this.stakeHandler();
+      if (this.isBecomeFounder) await this.lockHandler();
+      else this.withdrawHandler();
 
       this.isActionProcessing = false;
     },
@@ -326,20 +273,6 @@ export default {
     closePopup() {
       this.$emit("close");
     },
-
-    async createStakeLpInfo() {
-      this.stakeLpInfo = await getLpBalanceAndAllowance(
-        this.account,
-        this.chainId
-      );
-    },
-  },
-
-  async created() {
-    await this.createStakeLpInfo();
-    this.updateInterval = setInterval(async () => {
-      await this.createStakeLpInfo();
-    }, 60000);
   },
 
   components: {
@@ -354,9 +287,6 @@ export default {
     ),
     FounderCheckBox: defineAsyncComponent(() =>
       import("@/components/blastOnboarding/founderBuff/FounderCheckBox.vue")
-    ),
-    Notification: defineAsyncComponent(() =>
-      import("@/components/notifications/Notification.vue")
     ),
   },
 };
@@ -521,5 +451,12 @@ export default {
   color: #fff;
   font-size: 14px;
   font-weight: 500;
+}
+
+.btns-wrap {
+  width: 100%;
+  gap: 24px;
+  display: flex;
+  flex-direction: column;
 }
 </style>
