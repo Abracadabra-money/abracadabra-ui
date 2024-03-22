@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <div class="lp-info-wrap" v-if="isBecomeFounder">
+        <div class="lp-info-wrap">
           <div class="lp-info">
             <BaseTokenIcon
               :name="lpToken.name"
@@ -50,7 +50,7 @@
           </div>
         </div>
 
-        <div class="total-by-token" v-else>
+        <!-- <div class="total-by-token" v-else>
           <div
             class="token-part"
             :key="index"
@@ -60,7 +60,7 @@
             $
             {{ token.amount }}
           </div>
-        </div>
+        </div> -->
 
         <div class="decorative-line"></div>
       </div>

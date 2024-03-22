@@ -107,7 +107,7 @@ export default {
       updateInterval: null,
       userPointsEarned: 0,
       pointsStatistics: null,
-      isFounderBuffOpened: false,
+      isFounderBuffOpened: true,
       isFounderPopupOpened: false,
     };
   },
