@@ -348,7 +348,7 @@ export default {
   margin-left: -1px;
   min-width: 720px;
   height: 74px;
-  background-image: url("@/assets/images/myPoints/baner-bg.png");
+  background-image: url("@/assets/images/points-dashboard/baner-bg.png");
   background-size: cover;
   color: #000;
   display: flex;
