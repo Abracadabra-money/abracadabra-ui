@@ -63,7 +63,7 @@ export default {
 
   data() {
     return {
-      activePhase: 3,
+      activePhase: 2,
     };
   },
 
