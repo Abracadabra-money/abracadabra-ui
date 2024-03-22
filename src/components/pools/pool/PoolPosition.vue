@@ -79,7 +79,7 @@
         </ul>
       </div> -->
 
-      <div class="points-earned-row list-item">
+      <!-- <div class="points-earned-row list-item">
         <span class="token-name">
           <img class="blast-icon" src="@/assets/images/networks/blast.png" />
           Points earned
@@ -88,16 +88,16 @@
         <div class="token-amount">
           <span class="value">{{ pointsEarned }}</span>
         </div>
-      </div>
+      </div> -->
 
-      <BaseButton
+      <!-- <BaseButton
         primary
         @click="harvest"
         :disabled="disableEarnedButton"
         v-if="!disableEarnedButton"
       >
         Harvest
-      </BaseButton>
+      </BaseButton> -->
     </div>
   </div>
 </template>
@@ -325,7 +325,7 @@ export default {
 }
 
 .deposited-token .token-name {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .deposited-token .token-amount .value {
