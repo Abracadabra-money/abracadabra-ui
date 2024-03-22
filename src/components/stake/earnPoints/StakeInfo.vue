@@ -2,13 +2,13 @@
   <div class="stake-info">
     <div class="launch-wrap">
       <div>
-        <h3 class="launch-title">The LLE Event has concluded!</h3>
+        <!-- <h3 class="launch-title">The LLE Event has concluded!</h3> -->
         <h4 class="launch-subtitle">
-          Head to MIMSwap to participate in Phase 3!
+          The MIMswap infrastructure is being deployed, Phase 3 is coming! <br/> Stay tuned in the next 24 hours!
         </h4>
       </div>
 
-      <router-link class="launch-link" :to="{ name: 'BlastOnboarding' }">
+      <router-link class="launch-link disabled" :to="{ name: 'Home' }">
         Launch
       </router-link>
     </div>
@@ -138,6 +138,11 @@ export default {
   font-weight: 600;
   line-height: normal;
   transition: all 0.3s ease;
+
+  &.disabled {
+    background: rgba(252, 252, 3, 0.2);
+    pointer-events: none;
+  }
 
   &:hover {
     background: rgba(252, 253, 2, 0.8);
