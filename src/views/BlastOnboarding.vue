@@ -154,7 +154,7 @@ export default {
     },
 
     async createStakeInfo() {
-      const publicClient = getPublicClient(this.chainId);
+      const publicClient = getPublicClient(MIM_USDB_POOL_CHAIN_ID);
 
       const [balance] = await publicClient.multicall({
         contracts: [
