@@ -100,6 +100,7 @@ export default {
       poolInfo: null as any,
       cauldronInfo: null as any,
       stakeLpBalance: 0n as any,
+      updateInterval: null as any,
     };
   },
 
@@ -169,6 +170,16 @@ export default {
     },
   },
 
+  watch: {
+    async account() {
+      await this.createDashboardInfo();
+    },
+
+    async chainId() {
+      await this.createDashboardInfo();
+    },
+  },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
@@ -202,36 +213,44 @@ export default {
 
       return balance.result || 0n;
     },
+
+    async createDashboardInfo() {
+      this.pointsStatistics = await fetchPointsStatistics();
+
+      this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+
+      this.stakeLpBalance = await this.getStakeLpBalance();
+
+      this.poolInfo = await getPoolInfo(
+        BLAST_CHAIN_ID,
+        MIM_USDB_POOL_ID,
+        this.account
+      );
+
+      const currentRpc = defaultRpc[BLAST_CHAIN_ID as keyof typeof defaultRpc];
+
+      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+
+      const userSigner =
+        this.account && this.chainId === BLAST_CHAIN_ID
+          ? this.signer
+          : chainProvider;
+
+      this.cauldronInfo = await getCauldronInfo(
+        MIM_USDB_POOL_ID,
+        BLAST_CHAIN_ID,
+        chainProvider,
+        userSigner
+      );
+    },
   },
 
   async created() {
-    this.pointsStatistics = await fetchPointsStatistics();
+    await this.createDashboardInfo();
 
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
-
-    this.stakeLpBalance = await this.getStakeLpBalance();
-
-    this.poolInfo = await getPoolInfo(
-      BLAST_CHAIN_ID,
-      MIM_USDB_POOL_ID,
-      this.account
-    );
-
-    const currentRpc = defaultRpc[BLAST_CHAIN_ID as keyof typeof defaultRpc];
-
-    const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
-
-    const userSigner =
-      this.account && this.chainId === BLAST_CHAIN_ID
-        ? this.signer
-        : chainProvider;
-
-    this.cauldronInfo = await getCauldronInfo(
-      MIM_USDB_POOL_ID,
-      BLAST_CHAIN_ID,
-      chainProvider,
-      userSigner
-    );
+    this.updateInterval = setInterval(async () => {
+      await this.createDashboardInfo();
+    }, 60000);
   },
 
   components: {
