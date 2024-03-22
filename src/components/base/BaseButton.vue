@@ -21,7 +21,7 @@ export default {
     primary: {
       type: Boolean,
     },
-    warning: {
+    error: {
       type: Boolean,
     },
     borderless: {
@@ -34,6 +34,9 @@ export default {
       type: String,
     },
     disabled: {
+      type: Boolean,
+    },
+    warning: {
       type: Boolean,
     },
   },
@@ -91,6 +94,19 @@ export default {
     }
   }
 
+  &.error {
+    color: white;
+    background: #8c4040;
+    border: none;
+    transition: none;
+    &:hover {
+      background: #ab4a4a;
+    }
+    &.disabled {
+      background: #642e2e;
+    }
+  }
+
   &.primary {
     color: #fff;
     line-height: 50px;
@@ -108,6 +124,22 @@ export default {
       );
     }
   }
+
+  &.warning {
+    border: none;
+    color: #fff;
+    background: rgba(140, 64, 64, 1);
+
+    &.disabled {
+      background: #40557e;
+      background: linear-gradient(
+        90deg,
+        rgba(35, 65, 151, 0.4) 0.01%,
+        rgba(87, 68, 143, 0.4) 100%
+      );
+    }
+  }
+
   &:not(.primary, .borderless, .warning) {
     &:hover:not(.disabled) {
       border: 2px solid #86a2f1;

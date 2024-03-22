@@ -1,7 +1,7 @@
 <template>
   <div class="search-empty">
     <img class="icon" src="@/assets/images/not-found.png" :alt="text" />
-    <p class="text">{{ text }}</p>
+    <p class="text" v-if="text">{{ text }}</p>
   </div>
 </template>
 
@@ -10,7 +10,7 @@ export default {
   props: {
     text: {
       type: String,
-      required: true,
+      default: "",
     },
   },
 };

@@ -24,7 +24,7 @@ export default {
 <style scoped lang="scss">
 .token-info-icon {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
@@ -35,5 +35,6 @@ export default {
   right: 4px;
   width: 20px;
   height: 20px;
+  border-radius: 50px;
 }
 </style>

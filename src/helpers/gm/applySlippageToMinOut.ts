@@ -1,6 +1,7 @@
 import type { BigNumber } from "ethers";
 export const DEFAULT_SLIPPAGE_AMOUNT = 30; // 0.3% slippage
 export const BASIS_POINTS_DIVISOR = 10000;
+export const BASIS_POINTS_DIVISOR_BIG_INT = 10000n;
 
 export function applySlippageToMinOut(
   allowedSlippage: number,
@@ -9,4 +10,13 @@ export function applySlippageToMinOut(
   const slippageBasisPoints = BASIS_POINTS_DIVISOR - allowedSlippage;
 
   return minOutputAmount.mul(slippageBasisPoints).div(BASIS_POINTS_DIVISOR);
+}
+
+export function applySlippageToMinOutBigInt(
+  allowedSlippage: bigint,
+  minOutputAmount: bigint
+): bigint {
+  const slippageBasisPoints = BASIS_POINTS_DIVISOR_BIG_INT - allowedSlippage;
+
+  return (minOutputAmount * slippageBasisPoints) / BASIS_POINTS_DIVISOR_BIG_INT;
 }

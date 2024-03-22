@@ -1,0 +1,29 @@
+import type { Address } from "viem";
+import { waitForTransaction } from "@wagmi/core";
+import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
+import { prepareWriteContract, writeContract } from "@wagmi/core";
+
+export type SellQuoteTokensForTokensPayload = {
+  lp: Address;
+  to: Address;
+  amountIn: bigint;
+  minimumOut: bigint;
+  deadline: bigint;
+};
+
+export const sellQuoteTokensForTokens = async (
+  swapRouterAddress: Address,
+  payload: SellQuoteTokensForTokensPayload
+) => {
+  const { lp, to, amountIn, minimumOut, deadline } = payload;
+
+  const config = await prepareWriteContract({
+    address: swapRouterAddress,
+    abi: BlastMIMSwapRouterAbi,
+    functionName: "sellQuoteTokensForTokens",
+    args: [lp, to, amountIn, minimumOut, deadline],
+  });
+
+  const { hash } = await writeContract(config);
+  return await waitForTransaction({ hash });
+};
