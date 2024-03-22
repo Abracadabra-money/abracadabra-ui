@@ -10,6 +10,19 @@
           @changeCurrentMobileTab="changeCurrentMobileTab"
         />
 
+        <div class="launch-wrap" v-if="currentMobileTab === 0">
+          <div>
+            <h3 class="launch-title">The LLE Event has concluded!</h3>
+            <h4 class="launch-subtitle">
+              Head to MIMSwap to participate in Phase 3!
+            </h4>
+          </div>
+
+          <router-link class="launch-link" :to="{ name: 'BlastOnboarding' }">
+            Launch
+          </router-link>
+        </div>
+
         <ActionBlock
           class="action"
           :stakeInfo="stakeInfo"
@@ -225,10 +238,64 @@ export default {
   height: 100vh;
 }
 
+.launch-wrap {
+  display: none;
+}
+
 @media screen and (max-width: 1200px) {
   .stake-wrap {
     display: flex;
     flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .launch-wrap {
+    width: 100%;
+    padding: 24px 16px;
+    border-radius: 16px;
+    border: 1px solid #00296b;
+    background: linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
+    );
+    box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+    backdrop-filter: blur(12.5px);
+    gap: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .launch-title {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: normal;
+  }
+
+  .launch-subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+  }
+
+  .launch-link {
+    width: 100%;
+    height: 39px;
+    border-radius: 10px;
+    background: rgba(252, 253, 2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(252, 253, 2, 0.8);
+    }
   }
 }
 </style>
