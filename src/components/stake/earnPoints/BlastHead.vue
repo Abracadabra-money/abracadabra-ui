@@ -41,9 +41,9 @@ export default {
 
   data() {
     return {
-      actionActiveTab: "Stake" as string,
+      actionActiveTab: "Withdraw" as string,
       actionTabs: ["Stake", "Withdraw"] as string[],
-      disabledTabs: [] as string[],
+      disabledTabs: ["Stake"] as string[],
       isLock: false as boolean,
     };
   },

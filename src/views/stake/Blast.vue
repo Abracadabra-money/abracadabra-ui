@@ -10,7 +10,7 @@
           @changeCurrentMobileTab="changeCurrentMobileTab"
         />
 
-        <div class="launch-wrap" v-if="currentMobileTab === 0">
+        <!-- <div class="launch-wrap" v-if="currentMobileTab === 0">
           <div>
             <h3 class="launch-title">The LLE Event has concluded!</h3>
             <h4 class="launch-subtitle">
@@ -21,7 +21,7 @@
           <router-link class="launch-link" :to="{ name: 'BlastOnboarding' }">
             Launch
           </router-link>
-        </div>
+        </div> -->
 
         <ActionBlock
           class="action"
@@ -67,7 +67,7 @@ export default {
       updateInterval: null as any,
       userPointsEarned: null as any,
       pointsStatistics: null as any,
-      actionActiveTab: "Stake",
+      actionActiveTab: "Withdraw",
       currentMobileTab: 0,
       mobileMode: false,
       timerInterval: null as any,

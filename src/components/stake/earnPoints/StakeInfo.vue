@@ -1,6 +1,6 @@
 <template>
   <div class="stake-info">
-    <div class="launch-wrap">
+    <!-- <div class="launch-wrap">
       <div>
         <h3 class="launch-title">The LLE Event has concluded!</h3>
         <h4 class="launch-subtitle">
@@ -11,7 +11,7 @@
       <router-link class="launch-link" :to="{ name: 'BlastOnboarding' }">
         Launch
       </router-link>
-    </div>
+    </div> -->
 
     <LiquidityInfo :stakeInfo="stakeInfo" v-if="!mobileMode" />
 
