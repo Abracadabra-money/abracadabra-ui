@@ -15,7 +15,7 @@
 
       <li class="boost-way">
         <span class="title">Deposit WETH in the Cauldron</span>
-        <span class="value">2x Points</span>
+        <span class="value">2X Points</span>
       </li>
 
       <li class="boost-way">
@@ -39,7 +39,7 @@ export default {};
 
 <style lang="scss" scoped>
 .points-info {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 16px;
   padding: 24px;
@@ -101,6 +101,12 @@ export default {};
 
   .value {
     text-align: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .points-info {
+    display: flex;
   }
 }
 </style>

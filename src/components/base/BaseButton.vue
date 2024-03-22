@@ -3,10 +3,10 @@
     class="default-button"
     :style="{ 'max-width': setWidth() }"
     :class="{
+      warning: warning,
       primary: primary,
       disabled: disabled || loading,
       borderless,
-      warning,
     }"
   >
     <div><slot></slot></div>
@@ -71,6 +71,15 @@ export default {
   height: 48px;
   color: #7088cc;
   transition: all 0.3s ease;
+
+  &.warning {
+    color: #fff;
+    background: #8c4040;
+    border: none;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 
   &.disabled {
     pointer-events: none;

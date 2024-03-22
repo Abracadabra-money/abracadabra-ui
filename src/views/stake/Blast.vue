@@ -1,29 +1,32 @@
 <template>
   <div class="stake-view">
     <div class="stake-wrap" v-if="stakeInfo">
-      <BlastHead
-        class="head"
-        :mobileMode="mobileMode"
-        :currentMobileTab="currentMobileTab"
-        @changeActionTab="changeActionTab"
-        @changeCurrentMobileTab="changeCurrentMobileTab"
-      />
+      <div class="actions-wrap">
+        <BlastHead
+          class="head"
+          :mobileMode="mobileMode"
+          :currentMobileTab="currentMobileTab"
+          @changeActionTab="changeActionTab"
+          @changeCurrentMobileTab="changeCurrentMobileTab"
+        />
 
-      <ActionBlock
-        class="action"
-        :stakeInfo="stakeInfo"
-        :actionActiveTab="actionActiveTab"
-        :userPointsEarned="userPointsEarned"
-        :mobileMode="mobileMode"
-        @updateStakeInfo="createStakeInfo"
-        v-if="isActionTab"
-      />
+        <ActionBlock
+          class="action"
+          :stakeInfo="stakeInfo"
+          :actionActiveTab="actionActiveTab"
+          :userPointsEarned="userPointsEarned"
+          :mobileMode="mobileMode"
+          @updateStakeInfo="createStakeInfo"
+          v-if="isActionTab"
+        />
+      </div>
 
       <StakeInfo
         class="info"
         :stakeInfo="stakeInfo"
         :pointsStatistics="pointsStatistics"
         :mobileMode="mobileMode"
+        :timeInfo="timeInfo"
         v-if="isInfoTab"
       />
     </div>
@@ -42,17 +45,23 @@ import {
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
+import moment from "moment";
 
 export default {
   data() {
     return {
       stakeInfo: null as any,
       updateInterval: null as any,
-      userPointsEarned: 0 as any,
+      userPointsEarned: null as any,
       pointsStatistics: null as any,
       actionActiveTab: "Stake",
       currentMobileTab: 0,
       mobileMode: false,
+      timerInterval: null as any,
+      timeInfo: {
+        percentagePassed: 0,
+        timerValues: ["00m", "00s"],
+      },
     };
   },
 
@@ -95,6 +104,52 @@ export default {
         this.currentMobileTab = 0;
       }
     },
+
+    updateTimeInfo() {
+      const now = moment().utc();
+
+      let duration;
+
+      const nextHour = moment.utc().startOf("hour").add(1, "hours"); // next hour
+      duration = moment.duration(nextHour.diff(now));
+
+      if (duration.asSeconds() <= 0) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = ["00m", "00s"];
+        return;
+      }
+
+      const minutes = Math.max(duration.minutes(), 0);
+      const seconds = Math.max(duration.seconds(), 0);
+
+      const timerValues = [
+        `${minutes.toString().padStart(2, "0")}m`,
+        `${seconds.toString().padStart(2, "0")}s`,
+      ];
+
+      const secondsPassed = now.seconds() + now.minutes() * 60;
+      const percentagePassedInSeconds = (secondsPassed / 3600) * 100;
+
+      const timerInfo = {
+        percentagePassed: percentagePassedInSeconds,
+        timerValues,
+      };
+
+      this.timeInfo = timerInfo;
+    },
+
+    stopIntervals() {
+      clearInterval(this.updateInterval);
+      clearInterval(this.timerInterval);
+    },
+
+    createIntervals() {
+      this.updateInterval = setInterval(async () => {
+        await this.createStakeInfo();
+      }, 60000);
+
+      this.timerInterval = setInterval(this.updateTimeInfo, 1000);
+    },
   },
 
   async created() {
@@ -103,13 +158,11 @@ export default {
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
 
-    this.updateInterval = setInterval(async () => {
-      await this.createStakeInfo();
-    }, 60000);
+    this.createIntervals();
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    this.stopIntervals();
     window.removeEventListener("resize", this.getWindowSize);
   },
 
@@ -145,6 +198,12 @@ export default {
   grid-template-areas: "head info" "action info";
   grid-gap: 24px;
   margin: 0 auto;
+}
+
+.actions-wrap {
+  gap: 32px;
+  display: flex;
+  flex-direction: column;
 }
 
 .head {

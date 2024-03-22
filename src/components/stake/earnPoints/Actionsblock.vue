@@ -22,6 +22,13 @@
             :selected="isLock"
             @updateToggle="changeLockToggle"
           />
+
+          <Toggle
+            v-if="!isStakeAction"
+            text="Withdraw Locked"
+            :selected="isWithdrawLock"
+            @updateToggle="changeIsWithdrawLock"
+          />
         </div>
 
         <BaseTokenInput
@@ -31,6 +38,7 @@
           :max="maxInput"
           :primaryMax="!isStakeAction"
           :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
+          :disabled="isWithdrawLock"
           @updateInputValue="updateMainValue"
         />
 
@@ -43,10 +51,10 @@
             <span>Multiplier</span>
             <span class="multiplier-value">{{ multiplier }}X</span>
           </div>
-          <div class="info-row" v-if="isLock && isStakeAction">
+          <!-- <div class="info-row" v-if="isLock && isStakeAction">
             <span>Locking for</span>
             <span> <Timer small /></span>
-          </div>
+          </div> -->
         </div>
 
         <BaseButton primary :disabled="isActionDisabled" @click="actionHandler"
@@ -58,18 +66,24 @@
         <div class="lock-inner">
           <div class="lock-info">
             <div class="lock-info-row">
-              <span class="lock-info-title">Points earned</span>
+              <span class="lock-info-title">Points</span>
               <span class="lock-info-value">{{
-                formatTokenBalance(userPointsEarned)
+                formatTokenBalance(userPointsEarned?.total || 0)
               }}</span>
+            </div>
+
+            <div class="lock-info-row" v-if="account">
+              <span class="lock-info-title"
+                >Earning <span class="gold">{{ userTotalPending }}</span> Points
+                per hour</span
+              >
             </div>
 
             <div class="lock-info-row">
               <span class="lock-info-title">You Locked</span>
               <span class="lock-info-value">
                 <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.lockedAmount) }}</span
-              >
+                {{ formatAmount(fromToken.lockedAmount) }}</span>
             </div>
 
             <div class="line"></div>
@@ -106,6 +120,17 @@
         </div>
       </div>
     </div>
+
+    <LocalPopupWrap
+      :isOpened="isWithdrawPopup"
+      :isFarm="true"
+      @closePopup="isWithdrawPopup = false"
+    >
+      <WithdrawLockPopup
+        @withdrawLocked="withdrawLocked"
+        :tokenInfo="fromToken"
+      />
+    </LocalPopupWrap>
   </div>
 </template>
 
@@ -122,6 +147,7 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { deposit } from "@/helpers/blast/stake/actions/deposit";
 import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
 
 const BLAST_CHAIN_ID = 81457;
 
@@ -138,8 +164,7 @@ export default {
       required: true,
     },
     userPointsEarned: {
-      type: Number,
-      default: 0,
+      type: Object,
     },
     mobileMode: {
       type: Boolean,
@@ -153,6 +178,8 @@ export default {
       activeToken: "USDb" as string,
       tokensList: ["USDb", "MIM"] as string[],
       isLock: false as boolean,
+      isWithdrawLock: false as boolean,
+      isWithdrawPopup: false as boolean,
       inputValue: "" as string | bigint,
       inputAmount: BigInt(0) as bigint,
       mimPrice: 0 as number,
@@ -169,10 +196,14 @@ export default {
       account: "getAccount",
     }),
 
+    userTotalPending() {
+      const totalPending = this.userPointsEarned?.totalPending || 0;
+      return formatTokenBalance(totalPending);
+    },
+
     maxInput() {
       if (this.actionActiveTab === "Stake") return this.fromToken.balance;
-      if (this.actionActiveTab === "Withdraw")
-        return this.fromToken.unlockAmount;
+      return this.fromToken.unlockAmount;
     },
 
     isStakeAction() {
@@ -203,6 +234,12 @@ export default {
         if (this.isMaxCaps) return true;
         return this.isInsufficientBalance;
       }
+
+      if (this.isWithdrawLock) {
+        return this.inputAmount !== this.fromToken.lockedAmount;
+      }
+
+      return this.inputAmount > this.fromToken.unlockAmount;
     },
 
     actionButtonText() {
@@ -333,10 +370,19 @@ export default {
     changeActiveToken(token: string) {
       this.activeToken = token;
       this.inputValue = "";
+      this.isWithdrawLock = false;
     },
 
     changeLockToggle() {
       this.isLock = !this.isLock;
+    },
+
+    changeIsWithdrawLock() {
+      this.isWithdrawLock = !this.isWithdrawLock;
+      this.inputValue = formatUnits(
+        this.fromToken.lockedAmount,
+        this.fromToken.decimals
+      );
     },
 
     updateMainValue(amount: bigint) {
@@ -382,6 +428,11 @@ export default {
 
       if (!this.isTokenApproved) {
         await this.approveTokenHandler();
+        return false;
+      }
+
+      if (this.isWithdrawLock) {
+        this.isWithdrawPopup = true;
         return false;
       }
 
@@ -453,6 +504,29 @@ export default {
         await this.createNotification(notification.success);
       }
     },
+
+    async withdrawLocked() {
+      this.isWithdrawPopup = false;
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { error }: any = await withdrawLocked(
+        this.stakeInfo.config.contract, //todo contract
+        this.fromToken.contract.address,
+        this.fromToken.lockedAmount
+      );
+
+      if (error) {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(error);
+      } else {
+        await this.$emit("updateStakeInfo");
+        this.inputValue = "";
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
+    },
   },
 
   async created() {
@@ -475,17 +549,26 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
-    IconButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/IconButton.vue")
-    ),
     LiquidityInfo: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/LiquidityInfo.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    WithdrawLockPopup: defineAsyncComponent(
+      // @ts-ignore
+      () => import("@/components/popups/WithdrawLockPopup.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.gold {
+  color: #fcfd02;
+}
+
 .action-wrap {
   border-radius: 20px;
   border: 1px solid #00296b;
