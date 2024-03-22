@@ -1,6 +1,5 @@
-import type { Address } from "viem";
 import type { MagicLPInfo } from "./types";
-import { divFloor, mulFloor, mulCeil } from "./libs/DecimalMath";
+import DecimalMath, { divFloor, mulFloor, mulCeil } from "./libs/DecimalMath";
 
 export const previewAddLiquidity = (
   baseInAmount: bigint,
@@ -94,4 +93,142 @@ export const previewRemoveLiquidity = (
     baseAmountOut: (baseBalance * sharesIn) / totalShares,
     quoteAmountOut: (quoteBalance * sharesIn) / totalShares,
   };
+};
+
+// Alternative implementation of addLiquidity
+
+const adjustAddLiquidity = (
+  baseInAmount: bigint,
+  quoteInAmount: bigint,
+  lpInfo: MagicLPInfo
+) => {
+  const { totalSupply, vaultReserve, PMMState, balances } = lpInfo;
+  const { i } = PMMState;
+  const baseReserve = vaultReserve[0]; // TODO
+  const quoteReserve = vaultReserve[1]; // TODO
+
+  let baseAdjustedInAmount = 0n;
+  let quoteAdjustedInAmount = 0n;
+
+  if (totalSupply == 0n) {
+    const shares =
+      quoteInAmount < DecimalMath.mulFloor(baseInAmount, i)
+        ? DecimalMath.divFloor(quoteInAmount, i)
+        : baseInAmount;
+    baseAdjustedInAmount = shares;
+    quoteAdjustedInAmount = DecimalMath.mulFloor(shares, i);
+  } else {
+    if (quoteReserve > 0n && baseReserve > 0n) {
+      const baseIncreaseRatio = DecimalMath.divFloor(baseInAmount, baseReserve);
+      const quoteIncreaseRatio = DecimalMath.divFloor(
+        quoteInAmount,
+        quoteReserve
+      );
+      if (baseIncreaseRatio < quoteIncreaseRatio) {
+        baseAdjustedInAmount = baseInAmount;
+        quoteAdjustedInAmount = DecimalMath.mulFloor(
+          quoteReserve,
+          baseIncreaseRatio
+        );
+      } else if (baseIncreaseRatio > quoteIncreaseRatio) {
+        quoteAdjustedInAmount = quoteInAmount;
+        baseAdjustedInAmount = DecimalMath.mulFloor(
+          baseReserve,
+          quoteIncreaseRatio
+        );
+      } else {
+        // Notice: this is added by FE, to make avoid input update loop
+        baseAdjustedInAmount = baseInAmount;
+        quoteAdjustedInAmount = quoteInAmount;
+      }
+    }
+  }
+
+  return { baseAdjustedInAmount, quoteAdjustedInAmount };
+};
+
+const buyShares = (
+  baseAdjustedInAmount: bigint,
+  quoteAdjustedInAmount: bigint,
+  lpInfo: MagicLPInfo
+) => {
+  const { vaultReserve, totalSupply, PMMState, balances } = lpInfo;
+  const { i } = PMMState; // TODO
+
+  const baseBalance = balances.baseBalance + baseAdjustedInAmount;
+  const quoteBalance = balances.quoteBalance + quoteAdjustedInAmount;
+
+  const baseReserve = vaultReserve[0]; // TODO
+  const quoteReserve = vaultReserve[1]; // TODO
+
+  const baseInAmountUpdated = baseBalance - baseReserve;
+  const quoteInAmountUpdated = quoteBalance - quoteReserve;
+
+  let shares = 0n;
+  if (baseInAmountUpdated == 0n) {
+    return {
+      baseAdjustedInAmount: 0n,
+      quoteAdjustedInAmount: 0n,
+      shares: 0n,
+    };
+  }
+
+  if (totalSupply == 0n) {
+    if (quoteBalance == 0n) {
+      return {
+        baseAdjustedInAmount: 0n,
+        quoteAdjustedInAmount: 0n,
+        shares: 0n,
+      };
+    }
+
+    shares =
+      quoteBalance < mulFloor(baseBalance, i)
+        ? divFloor(quoteBalance, i)
+        : baseBalance;
+
+    const _QUOTE_TARGET_ = DecimalMath.mulFloor(shares, i);
+
+    if (_QUOTE_TARGET_ == 0n) {
+      console.log("buyShares: ErrZeroQuoteTarget");
+      return {
+        baseAdjustedInAmount: 0n,
+        quoteAdjustedInAmount: 0n,
+        shares: 0n,
+      };
+    }
+
+    if (shares <= 2001n) {
+      console.log("buyShares: ErrMintAmountNotEnough");
+      return {
+        baseAdjustedInAmount: 0n,
+        quoteAdjustedInAmount: 0n,
+        shares: 0n,
+      };
+    }
+
+    shares -= BigInt(1001);
+  } else if (baseReserve > 0n && quoteReserve > 0n) {
+    const baseInputRatio = divFloor(baseInAmountUpdated, baseReserve);
+    const quoteInputRatio = divFloor(quoteInAmountUpdated, quoteReserve);
+
+    const mintRatio =
+      quoteInputRatio < baseInputRatio ? quoteInputRatio : baseInputRatio;
+    shares = DecimalMath.mulFloor(totalSupply, mintRatio);
+  }
+
+  return { shares, baseAdjustedInAmount, quoteAdjustedInAmount };
+};
+
+export const previewAddLiquidityAlternative = (
+  baseInAmount: bigint,
+  quoteInAmount: bigint,
+  lpInfo: MagicLPInfo
+) => {
+  const { baseAdjustedInAmount, quoteAdjustedInAmount } = adjustAddLiquidity(
+    baseInAmount,
+    quoteInAmount,
+    lpInfo
+  );
+  return buyShares(baseAdjustedInAmount, quoteAdjustedInAmount, lpInfo);
 };

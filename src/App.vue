@@ -24,7 +24,6 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
-//import { blastTestingHelpers, liquidityTests } from "@/helpers/pools/swap/testing";   // TESTING
 export default {
   data() {
     return {
@@ -93,12 +92,6 @@ export default {
     } catch (error) {
       console.log("VPN", error);
     }
-  },
-
-  // TESTING
-  async mounted() {
-    // await blastTestingHelpers()
-    // await liquidityTests()
   },
 
   components: {
