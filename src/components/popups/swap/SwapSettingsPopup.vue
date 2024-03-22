@@ -25,7 +25,7 @@
             v-model="slippageValue"
             min="0"
             max="100"
-            step="1"
+            step="0.1"
             type="text"
             placeholder="1 - 100"
           />
@@ -113,7 +113,7 @@ export default {
       if (!value) return this.$emit("updateSlippageValue", 0n);
       if (isNaN(value)) this.slippageValue = Number(oldValue);
       if (Number(value) > 100) this.slippageValue = 100;
-      else this.slippageValue = Number(value);
+      else this.slippageValue = value;
 
       this.$emit(
         "updateSlippageValue",

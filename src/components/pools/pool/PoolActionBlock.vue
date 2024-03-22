@@ -4,9 +4,10 @@
       <div class="title-settings">
         <h3 class="title">MIM Pool</h3>
         <SwapSettingsPopup
-          :slippage="100n"
-          :defaultSlippage="100n"
+          :slippage="50n"
+          :defaultSlippage="50n"
           :deadline="100n"
+          pool
           @updateSlippageValue="updateSlippageValue"
           @updateDeadlineValue="updateDeadlineValue"
         />
