@@ -67,7 +67,7 @@
           <span class="boost" v-if="pointsInfo.isGold">
             <img
               v-tooltip="'tooltip'"
-              src="@/assets/images/myPoints/rocket.svg"
+              src="@/assets/images/points-dashboard/rocket.svg"
               alt=""
             />
           </span>

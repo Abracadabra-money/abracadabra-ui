@@ -10,7 +10,7 @@
         >
           <img
             class="tab-icon"
-            src="@/assets/images/myPoints/blast.png"
+            src="@/assets/images/points-dashboard/blast.png"
             alt=""
           />
         </button>
@@ -20,7 +20,7 @@
         >
           <img
             class="tab-icon"
-            src="@/assets/images/myPoints/gold-points.svg"
+            src="@/assets/images/points-dashboard/gold-points.svg"
             alt=""
           />
         </button>
@@ -30,7 +30,7 @@
         >
           <img
             class="tab-icon"
-            src="@/assets/images/myPoints/potion.png"
+            src="@/assets/images/points-dashboard/potion.png"
             alt=""
           />
         </button>

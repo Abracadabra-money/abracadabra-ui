@@ -112,9 +112,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/MimSwap.vue"),
   },
   {
-    path: "/my-points",
-    name: "MyPoints",
-    component: () => import("@/views/MyPoints.vue"),
+    path: "/points-dashboard",
+    name: "PointsDashboard",
+    component: () => import("@/views/PointsDashboard.vue"),
   },
   {
     path: "/blast-onboarding",

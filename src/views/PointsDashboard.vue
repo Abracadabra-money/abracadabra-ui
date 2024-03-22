@@ -67,7 +67,9 @@ import { defaultRpc } from "@/helpers/chains";
 import { formatTokenBalance } from "@/helpers/filters";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import { getPublicClient } from "@/helpers/getPublicClient";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
 const BLAST_CHAIN_ID = 81457;
 const MIM_USDB_POOL_ID = 1;
@@ -97,6 +99,7 @@ export default {
       },
       poolInfo: null as any,
       cauldronInfo: null as any,
+      stakeLpBalance: 0n as any,
     };
   },
 
@@ -144,6 +147,13 @@ export default {
     },
 
     goldPointsInfo() {
+      const deposited = +formatUnits(
+        this.stakeLpBalance || 0n,
+        this.poolInfo?.decimals || 18
+      );
+
+      const depositedUsd = deposited * this.poolInfo?.price || 0;
+
       return {
         chainId: BLAST_CHAIN_ID,
         isGold: true,
@@ -151,8 +161,8 @@ export default {
         title: "MIM / USDB Pool",
         subtitle: "Receive 20% of total ecosystem points",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
-        deposited: 0,
-        depositedUsd: 0,
+        deposited,
+        depositedUsd,
         distributionAmount: this.userPointsStatistics.locked,
         pendingDistributionAmount: this.userPointsStatistics.pendingLocked,
       };
@@ -174,12 +184,32 @@ export default {
     goToSwap() {
       this.$router.push({ name: "MimSwap" });
     },
+
+    async getStakeLpBalance() {
+      const publicClient = getPublicClient(this.chainId);
+
+      const [balance] = await publicClient.multicall({
+        contracts: [
+          {
+            address: "0xB2Eb529F4A461aaCa1a8A5E1E2E454c742cB7061",
+            // @ts-ignore
+            abi: BlastLockingMultiRewardsAbi,
+            functionName: "balanceOf",
+            args: [this.account],
+          },
+        ],
+      });
+
+      return balance.result || 0n;
+    },
   },
 
   async created() {
     this.pointsStatistics = await fetchPointsStatistics();
 
     this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+
+    this.stakeLpBalance = await this.getStakeLpBalance();
 
     this.poolInfo = await getPoolInfo(
       BLAST_CHAIN_ID,

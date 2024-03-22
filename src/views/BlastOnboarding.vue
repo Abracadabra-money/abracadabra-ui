@@ -146,7 +146,7 @@ export default {
       if (this.stakeInfo.lpBalance > 0) {
         this.isFounderBuffOpened = true;
       } else {
-        this.$router.push({ name: "MyPoints" });
+        this.$router.push({ name: "PointsDashboard" });
       }
     },
 

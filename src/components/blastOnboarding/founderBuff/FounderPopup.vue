@@ -231,7 +231,7 @@ export default {
         await this.createNotification(errorNotification);
       } else {
         await this.createNotification(notification.success);
-        this.$router.push({ name: "MyPoints" });
+        this.$router.push({ name: "PointsDashboard" });
       }
     },
 
@@ -257,7 +257,7 @@ export default {
         await this.createNotification(errorNotification);
       } else {
         await this.createNotification(notification.success);
-        this.$router.push({ name: "MyPoints" });
+        this.$router.push({ name: "PointsDashboard" });
       }
     },
 
