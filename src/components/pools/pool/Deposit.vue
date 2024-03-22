@@ -45,7 +45,7 @@
             />
             {{ this.pool.name }}
           </span>
-          <div class="token-amount" v-if="+formattedLpTokenExpected.value">
+          <div class="token-amount">
             <span class="value">
               {{ formattedLpTokenExpected.value }}
             </span>
@@ -53,7 +53,6 @@
               {{ formattedLpTokenExpected.usd }}
             </span>
           </div>
-          <div v-else>-</div>
         </div>
 
         <!-- <div class="tag">
@@ -99,9 +98,6 @@ import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { createPublicClient, http } from "viem";
-import { chainsList } from "@/helpers/chains/index";
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 
 export default {
   props: {
@@ -119,8 +115,6 @@ export default {
       quoteInputAmount: 0n,
       quoteInputValue: "",
       isActionProcessing: false,
-      publicClient: null,
-      minimumLpAmount: 0n,
     };
   },
 
@@ -164,7 +158,7 @@ export default {
         return { value: "0.0", usd: "$ 0.0" };
 
       const formattedLpTokenValue = Number(
-        formatUnits(this.minimumLpAmount, this.pool.decimals)
+        formatUnits(this.previewAddLiquidityResult.shares, this.pool.decimals)
       );
 
       const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
@@ -220,12 +214,6 @@ export default {
     },
   },
 
-  watch: {
-    async baseInputAmount() {
-      this.minimumLpAmount = await this.getMinimumLpAmount();
-    },
-  },
-
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
@@ -276,7 +264,7 @@ export default {
     },
 
     createDepositPayload() {
-      const { baseAdjustedInAmount, quoteAdjustedInAmount } =
+      const { baseAdjustedInAmount, quoteAdjustedInAmount, shares } =
         this.previewAddLiquidityResult;
       const deadline = moment().unix() + Number(this.deadline);
 
@@ -285,7 +273,7 @@ export default {
         to: this.account,
         baseInAmount: baseAdjustedInAmount,
         quoteInAmount: quoteAdjustedInAmount,
-        minimumShares: this.minimumLpAmount,
+        minimumShares: shares,
         deadline,
       };
     },
@@ -437,38 +425,6 @@ export default {
 
       return previewAddLiquidityResults;
     },
-
-    async getMinimumLpAmount() {
-      try {
-        const deadline = moment().unix() + Number(this.deadline);
-
-        const { result } = await this.publicClient.simulateContract({
-          address: this.pool?.swapRouter,
-          abi: BlastMIMSwapRouterAbi,
-          functionName: "addLiquidity",
-          account: this.account,
-          args: [
-            this.pool?.contract?.address,
-            this.account,
-            this.baseInputAmount,
-            this.quoteInputAmount,
-            0,
-            deadline,
-          ],
-        });
-
-        return applySlippageToMinOutBigInt(this.slippage, result[2]);
-      } catch (error) {
-        return 0n;
-      }
-    },
-  },
-
-  async created() {
-    this.publicClient = createPublicClient({
-      chain: chainsList[this.pool.chainId],
-      transport: http(),
-    });
   },
 
   components: {
