@@ -62,6 +62,10 @@
       />
     </div>
 
+    <video class="mobile-animation" laysinline autoplay muted loop>
+        <source src="@/assets/gifs/Preview_mob.webm" type="video/webm" />
+      </video>
+
     <button class="button-next" @click="$emit('openFounderPopup')">Next</button>
   </div>
 </template>
@@ -92,6 +96,10 @@ export default {
   width: 1280px;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+.mobile-animation {
+  display: none;
 }
 
 .info {
@@ -215,6 +223,12 @@ export default {
 
   .founder-gif-wrap {
     display: none;
+  }
+
+  .mobile-animation {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
   }
 }
 </style>
