@@ -1,5 +1,5 @@
 <template>
-  <div :class="['timer', { small }, { airdrop }]">
+  <div :class="['timer', { small }, { airdrop }, { dark }]">
     <div class="time-block" v-for="(value, index) in timerValues" :key="index">
       {{ value }}
     </div>
@@ -16,6 +16,10 @@ export default {
       default: false,
     },
     airdrop: {
+      type: Boolean,
+      default: false,
+    },
+    dark: {
       type: Boolean,
       default: false,
     },
@@ -125,6 +129,10 @@ export default {
   height: 30px;
   padding: 6px;
   min-width: 44px;
+}
+
+.dark .time-block {
+  background: #171717;
 }
 
 @media (max-width: 700px) {

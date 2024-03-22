@@ -9,6 +9,7 @@ export const RPC_ARB = "https://arb1.arbitrum.io/rpc";
 export const RPC_AVAX = "https://avax-pokt.nodies.app/ext/bc/C/rpc";
 export const RPC_KAVA = "https://kava-evm.publicnode.com";
 export const PRC_LINEA = "https://rpc.linea.build";
-export const RPC_BERRA_ARTIO = "https://artio.rpc.berachain.com"
-export const RPC_BLAST_SEPOLIA = "https://sepolia.blast.io"
-export const RPC_BLAST = "https://rpc.blast.io"
+export const RPC_BERRA_ARTIO = "https://rpc.ankr.com/berachain_testnet";
+export const RPC_BLAST_SEPOLIA =
+  "https://blast-sepolia.blockpi.network/v1/rpc/public";
+export const RPC_BLAST = "https://rpc.blast.io";

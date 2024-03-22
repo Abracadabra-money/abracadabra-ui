@@ -23,7 +23,6 @@ export default {
       type: Boolean,
       default: false,
     },
-
     isFarm: {
       type: Boolean,
       default: false,
@@ -96,5 +95,11 @@ export default {
   background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+}
+
+@media screen and (max-width: 600px) {
+  .farmPopup {
+    padding: 24px 16px;
+  }
 }
 </style>

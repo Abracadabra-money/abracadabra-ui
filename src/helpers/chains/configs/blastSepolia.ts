@@ -9,12 +9,12 @@ export const blastSepoliaConfig = {
   rpcUrls: {
     public: {
       http: [
-        "https://sepolia.blast.io",
+        "https://blast-sepolia.blockpi.network/v1/rpc/public",
       ],
     },
     default: {
       http: [
-        "https://sepolia.blast.io",
+        "https://blast-sepolia.blockpi.network/v1/rpc/public",
       ],
     },
   },
