@@ -94,7 +94,7 @@ import { formatTokenBalance } from "@/helpers/filters";
 import { blastStakeConfig } from "@/configs/blast/stake";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPublicClient } from "@/helpers/getPublicClient";
-import { getStakeTokenInfo } from "@/helpers/blast/stake/getStakeInfo";
+import { getStakeTokenInfo, getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
 import { BlastLockingMultiRewards } from "@/constants/blast";
@@ -146,7 +146,11 @@ export default {
     },
 
     nextHandler() {
-      if (this.stakeInfo.lpBalance > 0) {
+      const userHasLockedAmounts = this.stakeInfo.data.tokensInfo.some(
+        (token) => token.userInfo.balances.locked > 0n
+      );
+
+      if (userHasLockedAmounts) {
         this.isFounderBuffOpened = true;
       } else {
         this.$router.push({ name: "PointsDashboard" });
@@ -155,6 +159,10 @@ export default {
 
     async createStakeInfo() {
       const publicClient = getPublicClient(MIM_USDB_POOL_CHAIN_ID);
+
+      const stakeInfo = await getStakeInfo(this.account);
+
+      // console.log("stakeInfo", stakeInfo);
 
       const [balance] = await publicClient.multicall({
         contracts: [
@@ -189,6 +197,7 @@ export default {
         lpBalance: balance.result || 0n,
         lpInfo,
         tokensInfo,
+        data: stakeInfo
       };
 
       this.userPointsEarned = (

@@ -3,16 +3,16 @@
     <div class="label">Founder Boost</div>
 
     <div class="pool-info">
-      <TokenChainIcon
+      <!-- <TokenChainIcon
         class="pool-icon"
         :icon="lpToken.icon"
         :name="lpToken.name"
         :chainId="81457"
         size="44px"
-      />
+      /> -->
       <div class="pool-text">
-        <p class="pool-name">{{ lpToken.name }} Pool</p>
-        <p class="values-description">Receive 20% of total ecosystem points</p>
+        <!-- <p class="pool-name">Your balances</p> -->
+        <p class="values-description">Locked amounts</p>
       </div>
     </div>
 
@@ -20,9 +20,13 @@
       <div
         class="token-part"
         :key="index"
-        v-for="(token, index) in lpPartsExpected"
+        v-for="(token, index) in tokensInfo"
       >
-        <BaseTokenIcon :name="token.name" :icon="token.icon" size="32px" />
+        <BaseTokenIcon
+          :name="token.name"
+          :icon="token.icon"
+          size="32px"
+        />
         $
         {{ token.amount }}
       </div>
@@ -30,7 +34,7 @@
 
     <div class="divider"></div>
 
-    <div class="lp-balance">
+    <!-- <div class="lp-balance">
       <span class="token-name">
         <BaseTokenIcon :name="lpToken.name" :icon="lpToken.icon" size="32px" />
         MLP
@@ -39,7 +43,7 @@
         <span class="value">{{ lpToken.amount }}</span>
         <span class="usd">{{ lpToken.amountUsd }}</span>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -75,6 +79,39 @@ export default {
           ) * this.lpInfo.price
         ),
       };
+    },
+
+    // lockedTokens() {
+    //   return this.stakeInfo.data.tokensInfo.map(token => {
+    //     return {
+    //       name: token.config.name,
+    //     icon: token.config.icon,
+    //     amount: this.formatTokenBalance(
+    //       token.userInfo.balances.locked,
+    //       token.config.decimals
+    //     )
+    //     }
+
+    //   }
+    // },
+
+    tokensInfo() {
+        return this.stakeInfo.data.tokensInfo.map(token => {
+          return {
+            name: token.config.name,
+            icon: token.config.icon,
+            amount: this.formatTokenBalance(
+              token.userInfo.balances.locked,
+              token.config.decimals
+            ),
+            amountUsd: formatUSD(
+              this.formatTokenBalance(
+                token.userInfo.balances.locked,
+                token.config.decimals
+              ) * token.config.price
+            ),
+          };
+        });
     },
 
     lpPartsExpected() {
