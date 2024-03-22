@@ -201,11 +201,9 @@ export default {
 
     isButtonDisabled() {
       return (
-        (!this.isValid ||
-          !!this.error ||
-          this.isActionProcessing ||
-          !this.account) &&
-        this.isProperNetwork
+        (!this.isValid || !!this.error || this.isActionProcessing) &&
+        this.isProperNetwork &&
+        !!this.account
       );
     },
 
