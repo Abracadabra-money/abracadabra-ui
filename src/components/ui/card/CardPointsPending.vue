@@ -109,7 +109,7 @@ export default {
     0 27px,
     20px 10px
   );
-  max-height: 168px;
+  max-height: 169px;
 }
 
 .card-head {
@@ -216,7 +216,7 @@ export default {
 .empty-info {
   background: #000;
   width: 100%;
-  height: 106px;
+  height: 107px;
   clip-path: polygon(100% 0, 100% 69%, 90% 100%, 0 100%, 0 0);
   border-radius: 0 0 12px 12px;
   display: flex;

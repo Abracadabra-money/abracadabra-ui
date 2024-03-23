@@ -188,6 +188,19 @@ export default {
       );
     },
 
+    // Alternative price impact calculation
+    // async getPriceImpact() {
+
+    //   https://blastscan.io/address/0xd5448076C44847212c3dAaCd789ad077153AEe16#readContract
+    //   change all to bigint
+    //   const midPrice = 0.998; // get from contrat above
+    //   const tokenAmountIn = 0.634289351962547665;
+    //   const tokenAmountOut = 0.632650225967643819;
+    //   const executionPrice = tokenAmountIn/tokenAmountOut;
+    //   const priceImpact = (midPrice - executionPrice) / midPrice;
+    //   console.log(priceImpact)
+    // }
+
     priceImpact() {
       const { fromToken, toToken, fromInputValue, toInputValue }: any =
         this.actionConfig;

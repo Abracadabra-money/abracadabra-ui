@@ -18,6 +18,7 @@
       <ChartIcon v-else-if="chart" :fill="svgFill" />
       <PlusIcon v-else-if="plus" :fill="svgFill" />
       <ArrowRightIcon v-else-if="arrowRight" :fill="svgFill" />
+      <ExitIcon v-else-if="exit" :fill="svgFill" />
     </span>
   </component>
 </template>
@@ -48,6 +49,10 @@ export default {
       default: false,
     },
     arrowRight: {
+      type: Boolean,
+      default: false,
+    },
+    exit: {
       type: Boolean,
       default: false,
     },
@@ -120,6 +125,9 @@ export default {
     ),
     ArrowRightIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/ArrowRightIcon.vue")
+    ),
+    ExitIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/ExitIcon.vue")
     ),
   },
 

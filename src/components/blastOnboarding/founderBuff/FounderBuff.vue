@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <PoolCard class="pool-card" :stakeInfo="stakeInfo" isLocked />
+      <UsersLockedTokensCard class="pool-card" :stakeInfo="stakeInfo" />
     </div>
 
     <div class="founder-gif-wrap">
@@ -63,8 +63,8 @@
     </div>
 
     <video class="mobile-animation" laysinline autoplay muted loop>
-        <source src="@/assets/gifs/Preview_mob.webm" type="video/webm" />
-      </video>
+      <source src="@/assets/gifs/Preview_mob.webm" type="video/webm" />
+    </video>
 
     <button class="button-next" @click="$emit('openFounderPopup')">Next</button>
   </div>
@@ -79,8 +79,8 @@ export default {
   },
 
   components: {
-    PoolCard: defineAsyncComponent(() =>
-      import("@/components/blastOnboarding/cards/PoolCard.vue")
+    UsersLockedTokensCard: defineAsyncComponent(() =>
+      import("@/components/blastOnboarding/cards/UsersLockedTokensCard.vue")
     ),
   },
 };
@@ -153,7 +153,7 @@ export default {
 }
 
 .pool-card {
-  max-width: 410px;
+  width: 411px;
 }
 
 .founder-gif-wrap {
@@ -213,6 +213,10 @@ export default {
 }
 
 @media (max-width: 600px) {
+  .founder-buff {
+    padding: 0 5px;
+  }
+
   .info {
     gap: 20px;
   }
