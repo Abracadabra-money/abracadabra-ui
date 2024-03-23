@@ -223,7 +223,7 @@ export default {
     },
 
     goToSwap() {
-      this.$router.push({ name: "MimSwap" });
+      // this.$router.push({ name: "MimSwap" });
     },
 
     async getStakeLpBalance() {

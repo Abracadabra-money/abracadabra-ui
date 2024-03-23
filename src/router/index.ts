@@ -106,11 +106,11 @@ const routes: Array<RouteRecordRaw> = [
     props: true,
     beforeEnter: [removeQueryParams],
   },
-  {
-    path: "/mim-swap",
-    name: "MimSwap",
-    component: () => import("@/views/MimSwap.vue"),
-  },
+  // {
+  //   path: "/mim-swap",
+  //   name: "MimSwap",
+  //   component: () => import("@/views/MimSwap.vue"),
+  // },
   {
     path: "/points-dashboard",
     name: "PointsDashboard",
