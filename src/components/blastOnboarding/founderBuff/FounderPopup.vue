@@ -1,19 +1,21 @@
 <template>
   <div class="backdrop" @click.self="closePopup">
     <div class="founder-popup" v-if="lpInfo">
-      <div class="header">
-        <h3 class="title">{{ texts.title }}</h3>
-        <img
-          class="close-img"
-          src="@/assets/images/cross.svg"
-          alt="Close popup"
-          @click="closePopup"
-        />
-      </div>
+      <div class="title-description-wrap">
+        <div class="header">
+          <h3 class="title">{{ texts.title }}</h3>
+          <img
+            class="close-img"
+            src="@/assets/images/cross.svg"
+            alt="Close popup"
+            @click="closePopup"
+          />
+        </div>
 
-      <p class="description">
-        {{ texts.description }}
-      </p>
+        <p class="description">
+          {{ texts.description }}
+        </p>
+      </div>
 
       <div class="pool-info-wrap" v-if="stakeInfo">
         <div class="promo-label">{{ texts.blastTitle }}</div>
@@ -66,9 +68,9 @@
       </div>
 
       <p class="notification" v-if="!isBecomeFounder">
-        Caution: Staking your tokens permanently forfeits the Founder's Boost.
-        This action cannot be undone, and you will never be able to reclaim the
-        Founder Boost
+        The Founder’s boost can only be claimed during Phase 3. If you fail to
+        lock in time, you will lose your chance to earn the Founder Boost
+        forever.
       </p>
 
       <div class="btns-wrap">
@@ -191,21 +193,21 @@ export default {
 
     texts() {
       return {
-        title: this.isBecomeFounder ? "Become a Founder!" : "Stake your funds",
+        title: this.isBecomeFounder
+          ? "Become a Founder!"
+          : "Migrate MLP and Stake",
         blastTitle: this.isBecomeFounder
           ? "Receiving 20% of total ecosystem points"
-          : "You will stake",
+          : "You are about to stake into MLP",
         description: this.isBecomeFounder
-          ? "Lock you tokens for 3 months to obtain the Founder Boost, a permanent reward boost exclusive to LLE participants!"
-          : "Stake your tokens and receive back your share of the MIM/USDB pool.",
-        checkbox: "Lock you tokens for 3 month and get Buff",
+          ? "Lock your MagicLP for 3 months to obtain the Founder Boost, a permanent reward boost exclusive to Phase 3."
+          : "Staked MLP will earn rewards, they remain unlocked and withdrawable.",
+        checkbox: "Lock MLP and obtain Founder’s Boost",
       };
     },
 
     buttonText() {
-      return this.isBecomeFounder
-        ? "Claim Founder’s Boost"
-        : "Give Up Founder’s Boost";
+      return this.isBecomeFounder ? "Claim Founder’s Boost" : "Migrate & Stake";
     },
   },
 
@@ -310,7 +312,7 @@ export default {
   padding: 32px;
   max-width: 533px;
   width: 100%;
-  height: auto;
+  height: 556px;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: #101622;
@@ -337,6 +339,7 @@ export default {
 }
 
 .description {
+  margin-top: 24px;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
