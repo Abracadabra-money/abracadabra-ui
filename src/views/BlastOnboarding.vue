@@ -163,7 +163,7 @@ export default {
 
       const config = blastStakeConfig;
 
-      const [balance, isClaimed] = await publicClient.multicall({
+      const [balance, isClaimed, mlpAmount] = await publicClient.multicall({
         contracts: [
           {
             address: BlastLockingMultiRewards,
@@ -175,6 +175,12 @@ export default {
             address: config.contract.address,
             abi: config.contract.abi,
             functionName: "claimed",
+            args: [this.account],
+          },
+          {
+            address: config.contract.address,
+            abi: config.contract.abi,
+            functionName: "claimable",
             args: [this.account],
           },
         ],
@@ -205,6 +211,7 @@ export default {
         },
         lpBalance: balance.result || 0n,
         lpInfo,
+        mlpAmount: mlpAmount.result || 0n,
         tokensInfo,
         data: stakeInfo,
       };

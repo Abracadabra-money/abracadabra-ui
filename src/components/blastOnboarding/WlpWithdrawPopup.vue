@@ -50,13 +50,13 @@
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapMutations, mapGetters } from "vuex";
+import { BlastLockingMultiRewards } from "@/constants/blast";
 import notification from "@/helpers/notification/notification";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 import { withdrawStake } from "@/helpers/blast/stake/actions/withdrawStake";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-
-import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
-import { BlastLockingMultiRewards } from "@/constants/blast";
 
 export default {
   emits: ["close", "updateInfo"],
@@ -90,13 +90,13 @@ export default {
         name: this.lpInfo.name,
         icon: this.lpInfo.icon,
         amount: this.formatTokenBalance(
-          this.balances.unlocked,
-          this.lpInfo.decimals
+          this.balances.unlocked || 0n,
+          this.lpInfo.decimals || 18
         ),
         amountUsd: formatUSD(
           this.formatTokenBalance(
-            this.balances.unlocked,
-            this.lpInfo.decimals
+            this.balances.unlocked || 0n,
+            this.lpInfo.decimals || 18
           ) * this.lpInfo.price
         ),
       };
@@ -112,7 +112,9 @@ export default {
     },
 
     buttonText() {
-      return "Unstake";
+      if (this.chainId !== 81457) {
+        return "Switch to Blast";
+      } else return "Unstake";
     },
   },
 
@@ -164,7 +166,8 @@ export default {
     async actionHandler() {
       this.isActionProcessing = true;
 
-      await this.withdrawHandler(false);
+      if (this.chainId !== 81457) return switchNetwork(81457);
+      else await this.withdrawHandler(false);
 
       this.isActionProcessing = false;
     },
@@ -175,18 +178,18 @@ export default {
   },
 
   components: {
-    TokenChainIcon: defineAsyncComponent(() =>
-      import("@/components/ui/icons/TokenChainIcon.vue")
-    ),
+    // TokenChainIcon: defineAsyncComponent(() =>
+    //   import("@/components/ui/icons/TokenChainIcon.vue")
+    // ),
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    FounderCheckBox: defineAsyncComponent(() =>
-      import("@/components/blastOnboarding/founderBuff/FounderCheckBox.vue")
-    ),
+    // FounderCheckBox: defineAsyncComponent(() =>
+    //   import("@/components/blastOnboarding/founderBuff/FounderCheckBox.vue")
+    // ),
   },
 };
 </script>

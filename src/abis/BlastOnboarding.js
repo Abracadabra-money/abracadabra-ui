@@ -679,6 +679,25 @@ export default [
     inputs: [
       {
         internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "claimable",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
 
         name: "token",
         type: "address",
