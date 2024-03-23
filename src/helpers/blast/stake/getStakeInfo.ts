@@ -31,7 +31,7 @@ export const getStakeInfo = async (
   const config = blastStakeConfig;
   const publicClient = getPublicClient(chainId);
 
-  const [state]: any = await publicClient.multicall({
+  const [state, isClaimed]: any = await publicClient.multicall({
     contracts: [
       {
         address: config.contract.address,
@@ -39,12 +39,24 @@ export const getStakeInfo = async (
         functionName: "state",
         args: [],
       },
+      {
+        address: config.contract.address,
+        abi: config.contract.abi,
+        functionName: "claimed",
+        args: [account],
+      },
     ],
   });
 
   const tokensInfo = await Promise.all(
     config.tokens.map((tokenConfig: any) =>
-      getStakeTokenInfo(config, tokenConfig, publicClient, account)
+      getStakeTokenInfo(
+        config,
+        tokenConfig,
+        publicClient,
+        !!isClaimed.result,
+        account
+      )
     )
   );
 
@@ -59,6 +71,7 @@ export const getStakeTokenInfo = async (
   stakeConfig: BlastStakeConfig,
   tokenConfig: DepositTokenConfig,
   publicClient: any,
+  isClaimed: boolean = false,
   account?: Address
 ): Promise<BlastStakeTokenInfo> => {
   const [caps, isSupported, totals]: any = await publicClient.multicall({
@@ -85,7 +98,13 @@ export const getStakeTokenInfo = async (
   });
 
   const userInfo = account
-    ? await getUserTokenInfo(account, stakeConfig, tokenConfig, publicClient)
+    ? await getUserTokenInfo(
+        account,
+        stakeConfig,
+        tokenConfig,
+        publicClient,
+        isClaimed
+      )
     : tokenInfoEmptyState;
 
   return {
@@ -101,7 +120,8 @@ const getUserTokenInfo = async (
   account: Address,
   stakeConfig: BlastStakeConfig,
   tokenConfig: DepositTokenConfig,
-  publicClient: any
+  publicClient: any,
+  isClaimed: boolean = false
 ): Promise<BlastUserTokenInfo> => {
   const [allowance, balance, balances, userBorrowPart]: any =
     await publicClient.multicall({
@@ -136,17 +156,18 @@ const getUserTokenInfo = async (
   return {
     allowance: allowance.result,
     balance: balance.result,
-    balances: parseBalances(balances.result),
+    balances: parseBalances(balances.result, isClaimed),
     userBorrowPart: userBorrowPart.result,
   };
 };
 
 const parseBalances = (
-  balances: [bigint, bigint, bigint]
+  balances: [bigint, bigint, bigint],
+  isClaimed: boolean = false
 ): DepositedBalances => {
   return {
     unlocked: balances[0],
-    locked: balances[1],
-    total: balances[2],
+    locked: !isClaimed ? balances[1] : 0n,
+    total: !isClaimed ? balances[2] : balances[2] - balances[1],
   };
 };
