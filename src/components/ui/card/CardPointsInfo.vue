@@ -2,14 +2,14 @@
   <div :class="['card', { gold: pointsInfo?.isGold }]">
     <div class="label">{{ pointsInfo.label }}</div>
 
-    <!-- design will change -->
-    <button
+    <IconButton
       v-if="showWithdrawButton"
       class="withdraw-button"
+      exit
+      :width="39"
+      :height="39"
       @click="onWithdraw"
-    >
-      Withdraw
-    </button>
+    />
 
     <div class="source-points">
       <div class="icons-wrap">
@@ -94,6 +94,7 @@
 </template>
 
 <script lang="ts">
+import { defineAsyncComponent } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
@@ -132,6 +133,12 @@ export default {
       this.$emit("showWithdrawPopup");
     },
   },
+
+  components: {
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+  },
 };
 </script>
 
@@ -153,7 +160,6 @@ export default {
   outline: none;
   width: max-content;
   padding: 0 10px;
-  height: 39px;
   border-radius: 10px;
   background: rgb(252, 253, 2);
   display: flex;
