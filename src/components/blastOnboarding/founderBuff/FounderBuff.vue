@@ -66,16 +66,34 @@
       <source src="@/assets/gifs/Preview_mob.webm" type="video/webm" />
     </video>
 
-    <button class="button-next" @click="$emit('openFounderPopup')">Next</button>
+    <button class="button-next" @click="actionHandler">{{ btnText }}</button>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   props: {
     stakeInfo: { type: Object },
+  },
+
+  computed: {
+    ...mapGetters({ chainId: "getChainId" }),
+
+    btnText() {
+      if (this.chainId !== 81457) return "Switch to Blast";
+      else return "Next";
+    },
+  },
+
+  methods: {
+    actionHandler() {
+      if (this.chainId !== 81457) return switchNetwork(81457);
+      else this.$emit("openFounderPopup");
+    },
   },
 
   components: {
