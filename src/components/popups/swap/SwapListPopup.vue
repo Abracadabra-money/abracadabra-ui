@@ -41,7 +41,6 @@
             <img class="token-icon" :src="token.config.icon" alt="" />
             <div>
               <div class="token-name">{{ token.config.name }}</div>
-              <div class="token-chain">Ethereum</div>
             </div>
           </div>
 
