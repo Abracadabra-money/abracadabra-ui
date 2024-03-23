@@ -2,11 +2,9 @@
   <div class="stake-info">
     <div class="launch-wrap">
       <div>
-        <!-- <h3 class="launch-title">The LLE Event has concluded!</h3> -->
+        <h3 class="launch-title">The LLE Event has concluded!</h3>
         <h4 class="launch-subtitle">
-          The MIMswap infrastructure is being deployed, Phase 3 is coming!
-          <br />
-          Stay tuned in the next 24 hours!
+          Head to MIMSwap to participate in Phase 3!
         </h4>
       </div>
 
