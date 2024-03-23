@@ -11,7 +11,14 @@
           <div class="links-wrap">
             <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
 
-            <BaseButton class="btn" @click="goToSwap">MIMSwap</BaseButton>
+            <div
+              class="tooltip-container"
+              v-tooltip="{ content: 'Initializing', placement: 'top' }"
+            >
+              <BaseButton disabled class="btn" @click="goToSwap"
+                >MIMSwap</BaseButton
+              >
+            </div>
           </div>
         </div>
 
@@ -317,6 +324,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.tooltip-container {
+  width: 100%;
+}
+
 .my-points-view {
   padding: 124px 0 60px;
   min-height: 100vh;
