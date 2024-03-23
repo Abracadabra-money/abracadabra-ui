@@ -161,9 +161,9 @@ export default {
 
       const stakeInfo = await getStakeInfo(this.account);
 
-      // console.log("stakeInfo", stakeInfo);
+      const config = blastStakeConfig;
 
-      const [balance] = await publicClient.multicall({
+      const [balance, isClaimed] = await publicClient.multicall({
         contracts: [
           {
             address: BlastLockingMultiRewards,
@@ -171,14 +171,24 @@ export default {
             functionName: "unlocked",
             args: [this.account],
           },
+          {
+            address: config.contract.address,
+            abi: config.contract.abi,
+            functionName: "claimed",
+            args: [this.account],
+          },
         ],
       });
 
-      const config = blastStakeConfig;
-
       const tokensInfo = await Promise.all(
         config.tokens.map((tokenConfig) =>
-          getStakeTokenInfo(config, tokenConfig, publicClient, this.account)
+          getStakeTokenInfo(
+            config,
+            tokenConfig,
+            publicClient,
+            !!isClaimed.result,
+            this.account
+          )
         )
       );
 
@@ -218,6 +228,7 @@ export default {
       import("@/components/blastOnboarding/BlastStatisticsTotalInfo.vue")
     ),
     UsersLockedTokensCard: defineAsyncComponent(() =>
+      // @ts-ignore
       import("@/components/blastOnboarding/cards/UsersLockedTokensCard.vue")
     ),
     FounderPopup: defineAsyncComponent(() =>
