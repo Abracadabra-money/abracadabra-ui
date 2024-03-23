@@ -13,10 +13,13 @@
 
             <div
               class="tooltip-container"
-              v-tooltip="{ content: 'Initializing', placement: 'top' }"
+              v-tooltip="{
+                content: 'Finalising, Coming Soon!',
+                placement: 'top',
+              }"
             >
               <BaseButton disabled class="btn" @click="goToSwap"
-                >MIMSwap</BaseButton
+                >Swap</BaseButton
               >
             </div>
           </div>
