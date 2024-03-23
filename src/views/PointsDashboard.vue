@@ -62,7 +62,11 @@
 
       <div class="row card-info-row">
         <CardPointsInfo :pointsInfo="cauldronPointsInfo" />
-        <CardPointsInfo :pointsInfo="llePointsInfo" :withdrawLogic="true" @showWithdrawPopup="showWithdrawPopup = true" />
+        <CardPointsInfo
+          :pointsInfo="llePointsInfo"
+          :withdrawLogic="true"
+          @showWithdrawPopup="showWithdrawPopup = true"
+        />
         <CardPointsInfo :pointsInfo="goldPointsInfo" />
       </div>
     </div>
@@ -171,7 +175,7 @@ export default {
         chainId: BLAST_CHAIN_ID,
         label: "Liquidity Provider",
         title: "MIM / USDB Pool",
-        subtitle: "Providing Liquidity in Pool",
+        subtitle: "Staking Liquidity in Pool",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
@@ -319,8 +323,8 @@ export default {
     CardPointsInfo: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsInfo.vue")
     ),
-    WlpWithdrawPopup: defineAsyncComponent(() =>
-      import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
+    WlpWithdrawPopup: defineAsyncComponent(
+      () => import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
     ),
   },
 };
