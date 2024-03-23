@@ -269,9 +269,9 @@ export default {
   },
 
   components: {
-    TokenChainIcon: defineAsyncComponent(() =>
-      import("@/components/ui/icons/TokenChainIcon.vue")
-    ),
+    // TokenChainIcon: defineAsyncComponent(() =>
+    //   import("@/components/ui/icons/TokenChainIcon.vue")
+    // ),
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),

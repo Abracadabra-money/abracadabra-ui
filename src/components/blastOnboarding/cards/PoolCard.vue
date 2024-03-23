@@ -17,17 +17,9 @@
     </div>
 
     <div class="total-by-token">
-      <div
-        class="token-part"
-        :key="index"
-        v-for="(token, index) in tokensInfo"
-      >
-        <BaseTokenIcon
-          :name="token.name"
-          :icon="token.icon"
-          size="32px"
-        />
-        {{ token.amount }}
+      <div class="token-part" :key="index" v-for="(token, index) in tokensInfo">
+        <BaseTokenIcon :name="token.name" :icon="token.icon" size="32px" />
+        $ {{ token.amount }}
       </div>
     </div>
 
@@ -95,22 +87,22 @@ export default {
     // },
 
     tokensInfo() {
-        return this.stakeInfo.data.tokensInfo.map(token => {
-          return {
-            name: token.config.name,
-            icon: token.config.icon,
-            amount: this.formatTokenBalance(
+      return this.stakeInfo.data.tokensInfo.map((token) => {
+        return {
+          name: token.config.name,
+          icon: token.config.icon,
+          amount: this.formatTokenBalance(
+            token.userInfo.balances.locked,
+            token.config.decimals
+          ),
+          amountUsd: formatUSD(
+            this.formatTokenBalance(
               token.userInfo.balances.locked,
               token.config.decimals
-            ),
-            amountUsd: formatUSD(
-              this.formatTokenBalance(
-                token.userInfo.balances.locked,
-                token.config.decimals
-              ) * token.config.price
-            ),
-          };
-        });
+            ) * token.config.price
+          ),
+        };
+      });
     },
 
     lpPartsExpected() {
@@ -156,9 +148,9 @@ export default {
   },
 
   components: {
-    TokenChainIcon: defineAsyncComponent(() =>
-      import("@/components/ui/icons/TokenChainIcon.vue")
-    ),
+    // TokenChainIcon: defineAsyncComponent(() =>
+    //   import("@/components/ui/icons/TokenChainIcon.vue")
+    // ),
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),

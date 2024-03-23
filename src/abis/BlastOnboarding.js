@@ -679,6 +679,7 @@ export default [
     inputs: [
       {
         internalType: "address",
+
         name: "token",
         type: "address",
       },

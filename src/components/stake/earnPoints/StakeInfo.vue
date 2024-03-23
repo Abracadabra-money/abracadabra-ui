@@ -4,7 +4,9 @@
       <div>
         <!-- <h3 class="launch-title">The LLE Event has concluded!</h3> -->
         <h4 class="launch-subtitle">
-          The MIMswap infrastructure is being deployed, Phase 3 is coming! <br/> Stay tuned in the next 24 hours!
+          The MIMswap infrastructure is being deployed, Phase 3 is coming!
+          <br />
+          Stay tuned in the next 24 hours!
         </h4>
       </div>
 
