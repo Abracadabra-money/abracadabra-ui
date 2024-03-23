@@ -104,16 +104,15 @@ export default {
 
     texts() {
       return {
-        title: "Withdraw your funds",
-        blastTitle: "You will withdraw",
-        description:
-          "Withdraw your WLP and receive back your share of the MIM/USDB pool.",
+        title: "Unstake MLP",
+        blastTitle: "You will receive in your wallet",
+        description: "You are unstaking MLP",
         checkbox: "Lock you tokens for 3 month and get Buff",
       };
     },
 
     buttonText() {
-      return "Withdraw";
+      return "Unstake";
     },
   },
 
@@ -156,7 +155,7 @@ export default {
         await this.createNotification(errorNotification);
       } else {
         await this.createNotification(notification.success);
-        this.$emit("updateInfo")
+        this.$emit("updateInfo");
         this.closePopup();
         // this.$router.push({ name: "PointsDashboard" });
       }
