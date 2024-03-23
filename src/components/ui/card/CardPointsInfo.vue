@@ -121,12 +121,17 @@ export default {
   computed: {
     showWithdrawButton() {
       return this.withdrawLogic && this.pointsInfo?.deposited > 0;
-    }
+    },
   },
 
-  methods: { getChainIcon, formatTokenBalance, formatUSD, onWithdraw() {
-    this.$emit("showWithdrawPopup");
-  } },
+  methods: {
+    getChainIcon,
+    formatTokenBalance,
+    formatUSD,
+    onWithdraw() {
+      this.$emit("showWithdrawPopup");
+    },
+  },
 };
 </script>
 
@@ -356,9 +361,10 @@ export default {
 
 .item-value {
   font-weight: 500;
+  color: #fcfd02;
 }
 
 .item-amount {
-  color: #fcfd02;
+  color: white;
 }
 </style>
