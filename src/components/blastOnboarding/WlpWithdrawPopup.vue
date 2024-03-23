@@ -1,42 +1,24 @@
 <template>
   <div class="backdrop" @click.self="closePopup">
     <div class="founder-popup" v-if="lpInfo">
-      <div class="title-description-wrap">
-        <div class="header">
-          <h3 class="title">{{ texts.title }}</h3>
-          <img
-            class="close-img"
-            src="@/assets/images/cross.svg"
-            alt="Close popup"
-            @click="closePopup"
-          />
-        </div>
-
-        <p class="description">
-          {{ texts.description }}
-        </p>
+      <div class="header">
+        <h3 class="title">{{ texts.title }}</h3>
+        <img
+          class="close-img"
+          src="@/assets/images/cross.svg"
+          alt="Close popup"
+          @click="closePopup"
+        />
       </div>
 
-      <div class="pool-info-wrap" v-if="stakeInfo">
+      <p class="description">
+        {{ texts.description }}
+      </p>
+
+      <div class="pool-info-wrap">
         <div class="promo-label">{{ texts.blastTitle }}</div>
 
-        <!-- <div class="pool-info-value" v-if="isBecomeFounder">
-          <div class="pool-info">
-            <TokenChainIcon
-              class="pool-icon"
-              :icon="lpToken.icon"
-              :name="lpToken.name"
-              :chainId="81457"
-              size="44px"
-            />
-            <div class="pool-text">
-              <p class="pool-name">{{ lpInfo.name }} Pool</p>
-              <p class="values-description">Extend Liquidity Lock</p>
-            </div>
-          </div>
-        </div> -->
-
-        <!-- <div class="lp-info-wrap">
+        <div class="lp-info-wrap">
           <div class="lp-info">
             <BaseTokenIcon
               :name="lpToken.name"
@@ -50,39 +32,13 @@
             <span class="value">{{ lpToken.amount }}</span>
             <span class="usd">{{ lpToken.amountUsd }}</span>
           </div>
-        </div> -->
-
-        <div class="total-by-token">
-          <div
-            class="token-part"
-            :key="index"
-            v-for="(token, index) in tokensInfo"
-          >
-            <BaseTokenIcon :name="token.name" :icon="token.icon" size="32px" />
-
-            {{ token.amount }}
-          </div>
         </div>
 
         <div class="decorative-line"></div>
       </div>
 
-      <p class="notification" v-if="!isBecomeFounder">
-        The Founder’s boost can only be claimed during Phase 3. If you fail to
-        lock in time, you will lose your chance to earn the Founder Boost
-        forever.
-      </p>
-
       <div class="btns-wrap">
-        <FounderCheckBox :value="isBecomeFounder" @update="toggleBecomeFounder">
-          {{ texts.checkbox }}
-        </FounderCheckBox>
-
-        <BaseButton
-          :warning="!isBecomeFounder"
-          :primary="isBecomeFounder"
-          @click="actionHandler"
-        >
+        <BaseButton primary @click="actionHandler">
           {{ buttonText }}
         </BaseButton>
       </div>
@@ -91,29 +47,30 @@
 </template>
 
 <script>
-import moment from "moment";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapMutations, mapGetters } from "vuex";
-import mimUsdbIcon from "@/assets/images/tokens/MIM-USDB.png";
 import notification from "@/helpers/notification/notification";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { claim } from "@/helpers/blast/stake/actions/claim";
-import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { withdrawStake } from "@/helpers/blast/stake/actions/withdrawStake";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
+import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
+import { BlastLockingMultiRewards } from "@/constants/blast";
+
 export default {
+  emits: ["close", "updateInfo"],
   props: {
-    stakeInfo: {
+    balances: {
+      type: Object,
+    },
+    poolInfo: {
       type: Object,
     },
   },
 
   data() {
     return {
-      mimUsdbIcon,
-      isBecomeFounder: true,
       isActionProcessing: false,
     };
   },
@@ -125,7 +82,7 @@ export default {
     }),
 
     lpInfo() {
-      return this.stakeInfo.lpInfo;
+      return this.poolInfo;
     },
 
     lpToken() {
@@ -133,81 +90,29 @@ export default {
         name: this.lpInfo.name,
         icon: this.lpInfo.icon,
         amount: this.formatTokenBalance(
-          this.stakeInfo.lpBalance,
+          this.balances.unlocked,
           this.lpInfo.decimals
         ),
         amountUsd: formatUSD(
           this.formatTokenBalance(
-            this.stakeInfo.lpBalance,
+            this.balances.unlocked,
             this.lpInfo.decimals
           ) * this.lpInfo.price
         ),
       };
     },
 
-    tokensInfo() {
-      return this.stakeInfo.data.tokensInfo.map((token) => {
-        return {
-          name: token.config.name,
-          icon: token.config.icon,
-          amount: this.formatTokenBalance(
-            token.userInfo.balances.locked,
-            token.config.decimals
-          ),
-          amountUsd: formatUSD(
-            this.formatTokenBalance(
-              token.userInfo.balances.locked,
-              token.config.decimals
-            ) * token.config.price
-          ),
-        };
-      });
-    },
-
-    lpPartsExpected() {
-      const lpPartsOut = previewRemoveLiquidity(
-        this.stakeInfo.lpBalance,
-        this.lpInfo
-      );
-
-      return [
-        {
-          name: this.stakeInfo.tokensInfo[1].config.name,
-          icon: this.stakeInfo.tokensInfo[1].config.icon,
-          amount: this.formatTokenBalance(
-            lpPartsOut.baseAmountOut,
-            this.stakeInfo.tokensInfo[1].config.decimals
-          ),
-        },
-
-        {
-          name: this.stakeInfo.tokensInfo[0].config.name,
-          icon: this.stakeInfo.tokensInfo[0].config.icon,
-          amount: this.formatTokenBalance(
-            lpPartsOut.quoteAmountOut,
-            this.stakeInfo.tokensInfo[0].config.decimals
-          ),
-        },
-      ];
-    },
-
     texts() {
       return {
-        title: this.isBecomeFounder
-          ? "Become a Founder!"
-          : "Migrate MLP and Stake",
-        blastTitle: this.isBecomeFounder
-          ? "Receiving 20% of total ecosystem points"
-          : "You are about to stake into MLP",
-        description: this.isBecomeFounder
-          ? "Lock your MagicLP for 3 months to obtain the Founder Boost, a permanent reward boost exclusive to Phase 3."
-          : "Staked MLP will earn rewards, they remain unlocked and withdrawable.",
-        checkbox: "Lock MLP and obtain Founder’s Boost",
+        title: "Unstake MLP",
+        blastTitle: "You will receive in your wallet",
+        description: "You are unstaking MLP",
+        checkbox: "Lock you tokens for 3 month and get Buff",
       };
     },
 
     buttonText() {
-      return this.isBecomeFounder ? "Claim Founder’s Boost" : "Migrate & Stake";
+      return "Unstake";
     },
   },
 
@@ -223,20 +128,20 @@ export default {
       return formatTokenBalance(value);
     },
 
-    toggleBecomeFounder() {
-      this.isBecomeFounder = !this.isBecomeFounder;
-    },
-
-    async claimHandler(lock = false) {
+    async withdrawHandler() {
       const notificationId = await this.createNotification(
         notification.pending
       );
 
-      const { contract } = this.stakeInfo.data.config;
+      const contract = {
+        address: BlastLockingMultiRewards,
+        abi: BlastLockingMultiRewardsAbi,
+      };
 
-      console.log(contract);
+      // !NOTICE: for now amount is all unlocked balance
+      const amount = this.balances.unlocked;
 
-      const { error } = await claim(contract, lock);
+      const { error } = await withdrawStake(contract, amount);
 
       this.deleteNotification(notificationId);
 
@@ -250,15 +155,16 @@ export default {
         await this.createNotification(errorNotification);
       } else {
         await this.createNotification(notification.success);
-        this.$router.push({ name: "PointsDashboard" });
+        this.$emit("updateInfo");
+        this.closePopup();
+        // this.$router.push({ name: "PointsDashboard" });
       }
     },
 
     async actionHandler() {
       this.isActionProcessing = true;
 
-      if (this.isBecomeFounder) await this.claimHandler(true);
-      else this.claimHandler(false);
+      await this.withdrawHandler(false);
 
       this.isActionProcessing = false;
     },
@@ -269,9 +175,9 @@ export default {
   },
 
   components: {
-    // TokenChainIcon: defineAsyncComponent(() =>
-    //   import("@/components/ui/icons/TokenChainIcon.vue")
-    // ),
+    TokenChainIcon: defineAsyncComponent(() =>
+      import("@/components/ui/icons/TokenChainIcon.vue")
+    ),
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),
@@ -312,7 +218,7 @@ export default {
   padding: 32px;
   max-width: 533px;
   width: 100%;
-  height: 556px;
+  height: auto;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: #101622;
@@ -339,7 +245,6 @@ export default {
 }
 
 .description {
-  margin-top: 24px;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;

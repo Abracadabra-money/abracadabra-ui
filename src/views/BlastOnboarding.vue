@@ -10,11 +10,7 @@
         <div class="statistics-cards">
           <PointsEarnedCard :userPointsEarned="userPointsEarned" />
 
-          <UserDeposits
-            :stakeInfo="stakeInfo"
-            :pointsStatistics="pointsStatistics"
-            @openFounderPopup="isFounderPopupOpened = true"
-          />
+          <UsersLockedTokensCard :stakeInfo="stakeInfo" />
         </div>
 
         <div class="chart-wrap">
@@ -94,7 +90,10 @@ import { formatTokenBalance } from "@/helpers/filters";
 import { blastStakeConfig } from "@/configs/blast/stake";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPublicClient } from "@/helpers/getPublicClient";
-import { getStakeTokenInfo, getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
+import {
+  getStakeTokenInfo,
+  getStakeInfo,
+} from "@/helpers/blast/stake/getStakeInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
 import { BlastLockingMultiRewards } from "@/constants/blast";
@@ -162,9 +161,9 @@ export default {
 
       const stakeInfo = await getStakeInfo(this.account);
 
-      // console.log("stakeInfo", stakeInfo);
+      const config = blastStakeConfig;
 
-      const [balance] = await publicClient.multicall({
+      const [balance, isClaimed] = await publicClient.multicall({
         contracts: [
           {
             address: BlastLockingMultiRewards,
@@ -172,14 +171,24 @@ export default {
             functionName: "unlocked",
             args: [this.account],
           },
+          {
+            address: config.contract.address,
+            abi: config.contract.abi,
+            functionName: "claimed",
+            args: [this.account],
+          },
         ],
       });
 
-      const config = blastStakeConfig;
-
       const tokensInfo = await Promise.all(
         config.tokens.map((tokenConfig) =>
-          getStakeTokenInfo(config, tokenConfig, publicClient, this.account)
+          getStakeTokenInfo(
+            config,
+            tokenConfig,
+            publicClient,
+            !!isClaimed.result,
+            this.account
+          )
         )
       );
 
@@ -197,7 +206,7 @@ export default {
         lpBalance: balance.result || 0n,
         lpInfo,
         tokensInfo,
-        data: stakeInfo
+        data: stakeInfo,
       };
 
       this.userPointsEarned = (
@@ -218,8 +227,9 @@ export default {
     BlastStatisticsTotalInfo: defineAsyncComponent(() =>
       import("@/components/blastOnboarding/BlastStatisticsTotalInfo.vue")
     ),
-    UserDeposits: defineAsyncComponent(() =>
-      import("@/components/blastOnboarding/UserDeposits.vue")
+    UsersLockedTokensCard: defineAsyncComponent(() =>
+      // @ts-ignore
+      import("@/components/blastOnboarding/cards/UsersLockedTokensCard.vue")
     ),
     FounderPopup: defineAsyncComponent(() =>
       import("@/components/blastOnboarding/founderBuff/FounderPopup.vue")

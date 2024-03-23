@@ -12,14 +12,12 @@
 
         <div class="launch-wrap" v-if="currentMobileTab === 0">
           <div>
-            <!-- <h3 class="launch-title">The LLE Event has concluded!</h3> -->
+            <h3 class="launch-title">The LLE Event has concluded!</h3>
             <h4 class="launch-subtitle">
-              The MIMswap infrastructure is being deployed, Phase 3 is coming!
-              Stay tuned in the next 24 hours!
+              Head to MIMSwap to participate in Phase 3!
             </h4>
           </div>
-
-          <router-link class="launch-link disabled" :to="{ name: 'Home' }">
+          <router-link class="launch-link" :to="{ name: 'BlastOnboarding' }">
             Launch
           </router-link>
         </div>
