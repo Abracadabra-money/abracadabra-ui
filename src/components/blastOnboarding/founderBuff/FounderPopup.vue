@@ -53,14 +53,17 @@
         </div> -->
 
         <div class="total-by-token">
-          <div
-            class="token-part"
-            :key="index"
-            v-for="(token, index) in tokensInfo"
-          >
-            <BaseTokenIcon :name="token.name" :icon="token.icon" size="32px" />
+          <div class="token-part">
+            <span>
+              <BaseTokenIcon
+                :name="lpToken.name"
+                :icon="lpToken.icon"
+                size="32px"
+              />
+              MLP</span
+            >
 
-            {{ token.amount }}
+            <span> {{ lpToken.mlpAmount }}</span>
           </div>
         </div>
 
@@ -141,6 +144,10 @@ export default {
             this.stakeInfo.lpBalance,
             this.lpInfo.decimals
           ) * this.lpInfo.price
+        ),
+        mlpAmount: this.formatTokenBalance(
+          this.stakeInfo.mlpAmount,
+          this.lpInfo.decimals
         ),
       };
     },
@@ -418,6 +425,12 @@ export default {
   display: flex;
   align-items: center;
   flex-grow: 1;
+  justify-content: space-between;
+
+  span {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .decorative-line {
