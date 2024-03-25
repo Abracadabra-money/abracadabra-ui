@@ -228,13 +228,13 @@ export const querySellBase = (
   lpInfo: MagicLPInfo,
   userLpInfo: MagicLPInfoUserInfo
 ) => {
-  const { PMMState, lpFeeRate } = lpInfo;
+  const { PMMState } = lpInfo;
   const { receiveQuoteAmount, newR } = PMMPricing.sellBaseToken(
     PMMState,
     payBaseAmount
   );
 
-  const { mtFeeRate } = userLpInfo.userFeeRate;
+  const { mtFeeRate, lpFeeRate } = userLpInfo.userFeeRate;
 
   const mtFee = DecimalMath.mulFloor(receiveQuoteAmount, mtFeeRate);
   const receiveQuoteAmountAfterFee =
@@ -257,13 +257,14 @@ export const querySellQuote = (
   lpInfo: MagicLPInfo,
   userLpInfo: MagicLPInfoUserInfo
 ) => {
-  const { PMMState, lpFeeRate } = lpInfo;
+  const { PMMState } = lpInfo;
   const { receiveBaseAmount, newR } = PMMPricing.sellQuoteToken(
     PMMState,
     payQuoteAmount
   );
 
-  const { mtFeeRate } = userLpInfo.userFeeRate;
+  const { mtFeeRate, lpFeeRate } = userLpInfo.userFeeRate;
+
   const mtFee = DecimalMath.mulFloor(receiveBaseAmount, mtFeeRate);
   const receiveBaseAmountAfterFee =
     receiveBaseAmount -
