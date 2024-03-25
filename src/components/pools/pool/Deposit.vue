@@ -81,6 +81,16 @@
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
     </BaseButton>
+
+    <PreviewAddLiquidityPopup
+      v-if="isPreviewPopupOpened"
+      :pool="pool"
+      :previewInfo="previewPopupInfo"
+      :isActionProcessing="isActionProcessing"
+      @approve="approveHandler"
+      @deposit="depositHandler"
+      @close="closePreviewPopup"
+    />
   </div>
 </template>
 
@@ -115,6 +125,7 @@ export default {
       quoteInputAmount: 0n,
       quoteInputValue: "",
       isActionProcessing: false,
+      isPreviewPopupOpened: true,
     };
   },
 
@@ -131,13 +142,6 @@ export default {
       return this.pool.tokens.quoteToken;
     },
 
-    isBaseAllowed() {
-      return this.baseToken.userInfo.allowance >= this.baseInputAmount;
-    },
-    isQuoteAllowed() {
-      return this.quoteToken.userInfo.allowance >= this.quoteInputAmount;
-    },
-
     previewAddLiquidityResult() {
       const previewAddLiquidityResult = previewAddLiquidity(
         this.baseInputAmount,
@@ -151,6 +155,14 @@ export default {
       );
 
       return previewAddLiquidityResult;
+    },
+
+    previewPopupInfo() {
+      return {
+        lpAmount: this.previewAddLiquidityResult.shares,
+        baseTokenAmount: this.previewAddLiquidityResult.baseAdjustedInAmount,
+        quoteTokenAmount: this.previewAddLiquidityResult.quoteAdjustedInAmount,
+      };
     },
 
     formattedLpTokenExpected() {
@@ -191,8 +203,6 @@ export default {
         return `Enter amount`;
 
       if (this.isActionProcessing) return "Processing...";
-      if (!this.isBaseAllowed) return `Approve ${this.baseToken.config.name}`;
-      if (!this.isQuoteAllowed) return `Approve ${this.quoteToken.config.name}`;
 
       return "Deposit";
     },
@@ -221,6 +231,11 @@ export default {
       this.quoteInputAmount = 0n;
       this.baseInputValue = "";
       this.quoteInputValue = "";
+    },
+
+    closePreviewPopup() {
+      this.isPreviewPopupOpened = false;
+      this.isActionProcessing = false;
     },
 
     updateTokenInputs(adjustmendResults) {
@@ -335,16 +350,7 @@ export default {
         return this.$openWeb3modal();
       }
 
-      this.isActionProcessing = true;
-      if (!this.isBaseAllowed) await this.approveHandler(this.baseToken.config);
-      if (!this.isQuoteAllowed)
-        await this.approveHandler(this.quoteToken.config);
-
-      await this.depositHandler();
-
-      await this.$emit("updatePoolInfo");
-
-      this.isActionProcessing = false;
+      this.isPreviewPopupOpened = true;
     },
 
     formatTokenBalance(value, decimals) {
@@ -435,6 +441,9 @@ export default {
     ),
     IconButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/IconButton.vue")
+    ),
+    PreviewAddLiquidityPopup: defineAsyncComponent(() =>
+      import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
     ),
     // CurrentPrice: defineAsyncComponent(() =>
     //   import("@/components/pools/CurrentPrice.vue")

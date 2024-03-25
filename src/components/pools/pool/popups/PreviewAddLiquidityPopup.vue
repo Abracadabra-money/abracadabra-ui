@@ -11,55 +11,55 @@
         />
       </div>
 
-      <div :class="['preview-tokens-wrap', { remove }]">
-        <div class="base-quote-wrap">
-          <div class="token-info-wrap">
-            <div class="tokenIcon">
-              <BaseTokenIcon
-                :icon="pool.tokens.baseToken.config.icon"
-                :name="pool.tokens.baseToken.config.name"
-                size="60px"
-              />
-            </div>
-            <div class="token-value">
-              {{
-                formatTokenBalance(
-                  previewInfo.baseTokenAmount,
-                  pool.tokens.baseToken.config.decimals
-                )
-              }}
-            </div>
-          </div>
-
-          <div class="icon-button-wrap">
-            <IconButton
-              class="icon-button"
-              plus
-              active
-              disable
-              :width="40"
-              :height="40"
-              borderRadius="16px"
+      <div class="preview-tokens-wrap">
+        <div class="token-info-wrap">
+          <div class="tokenIcon">
+            <BaseTokenIcon
+              :icon="tokensSortedByApprove[0].config.icon"
+              :name="tokensSortedByApprove[0].config.name"
+              size="60px"
             />
           </div>
-          <div class="token-info-wrap">
-            <div class="tokenIcon">
-              <BaseTokenIcon
-                :icon="pool.tokens.quoteToken.config.icon"
-                :name="pool.tokens.quoteToken.config.name"
-                size="60px"
-              />
-            </div>
-            <div class="token-value">
-              {{
-                formatTokenBalance(
-                  previewInfo.quoteTokenAmount,
-                  pool.tokens.quoteToken.config.decimals
-                )
-              }}
-            </div>
+          <div class="token-value">
+            {{
+              formatTokenBalance(
+                tokensSortedByApprove[0].transactionAmount,
+                tokensSortedByApprove[0].config.decimals
+              )
+            }}
           </div>
         </div>
+
+        <div class="icon-button-wrap">
+          <IconButton
+            class="icon-button"
+            plus
+            active
+            disable
+            :width="40"
+            :height="40"
+            borderRadius="16px"
+          />
+        </div>
+
+        <div class="token-info-wrap">
+          <div class="tokenIcon">
+            <BaseTokenIcon
+              :icon="tokensSortedByApprove[1].config.icon"
+              :name="tokensSortedByApprove[1].config.name"
+              size="60px"
+            />
+          </div>
+          <div class="token-value">
+            {{
+              formatTokenBalance(
+                tokensSortedByApprove[1].transactionAmount,
+                tokensSortedByApprove[1].config.decimals
+              )
+            }}
+          </div>
+        </div>
+
         <div class="icon-button-wrap">
           <IconButton
             class="icon-button"
@@ -71,6 +71,7 @@
             borderRadius="16px"
           />
         </div>
+
         <div class="token-info-wrap">
           <div class="tokenIcon">
             <BaseTokenIcon :icon="pool.icon" :name="pool.name" size="60px" />
@@ -81,26 +82,15 @@
         </div>
       </div>
 
-      <div class="info-block swap">
-        <div class="tag">
-          <span class="title">Current Price</span>
-          <CurrentPrice
-            :fromToken="pool.tokens.baseToken"
-            :toToken="pool.tokens.quoteToken"
-          />
-        </div>
+      <div class="flow-wrap">
+        <FlowBlock :stepNumber="1" status="waiting">Allowance</FlowBlock>
 
-        <!-- <div class="tag">
-          <span class="title">Network Fee</span>
+        <FlowBlock :stepNumber="2" status="pending">Allowance</FlowBlock>
 
-          <span class="value">
-            <img class="gas-icon" src="@/assets/images/gas.svg" />
-            $0.01
-          </span>
-        </div> -->
+        <FlowBlock :stepNumber="3" status="success" final>Deposit</FlowBlock>
       </div>
 
-      <BaseButton primary @click="$emit('deposit')"> Confirm </BaseButton>
+      <BaseButton primary @click="actionHandler"> {{ buttonText }} </BaseButton>
     </div>
   </div>
 </template>
@@ -120,14 +110,59 @@ export default {
       type: Object,
     },
 
-    remove: {
+    isActionProcessing: {
       type: Boolean,
       default: false,
     },
   },
 
   data() {
-    return {};
+    return {
+      currentlyProcessingToken: "",
+    };
+  },
+
+  computed: {
+    isBaseTokenApproved() {
+      return (
+        this.pool.tokens.baseToken.userInfo.allowance >
+        this.previewInfo.baseTokenAmount
+      );
+    },
+
+    isQuoteTokenApproved() {
+      return (
+        this.pool.tokens.quoteToken.userInfo.allowance >
+        this.previewInfo.quoteTokenAmount
+      );
+    },
+
+    tokensSortedByApprove() {
+      console.log("tokensSortedByApprove", this.pool);
+      const baseToken = this.pool.tokens.baseToken;
+      const quoteToken = this.pool.tokens.quoteToken;
+
+      baseToken.transactionAmount = this.previewInfo.baseTokenAmount;
+      baseToken.isApproved =
+        baseToken.userInfo.allowance > this.previewInfo.baseTokenAmount;
+
+      quoteToken.transactionAmount = this.previewInfo.quoteTokenAmount;
+      quoteToken.isApproved =
+        quoteToken.userInfo.allowance > this.previewInfo.quoteTokenAmount;
+
+      return [baseToken, quoteToken].sort(
+        (a, b) => a.isApproved - b.isApproved
+      );
+    },
+
+    buttonText() {
+      if (this.isActionProcessing) return "Processing...";
+      if (!this.isBaseTokenApproved)
+        return `Approve ${this.pool.tokens.baseToken.config.name}`;
+      if (!this.isQuoteTokenApproved)
+        return `Approve ${this.pool.tokens.quoteToken.config.name}`;
+      return "Deposit";
+    },
   },
 
   methods: {
@@ -139,9 +174,13 @@ export default {
       return formatTokenBalance(value);
     },
 
-    confirmTransaction() {
+    actionHandler() {
+      if (!this.isBaseTokenApproved)
+        return this.$emit("approve", this.pool.tokens.baseToken);
+      if (!this.isQuoteTokenApproved)
+        return this.$emit("approve", this.pool.tokens.quoteToken);
+
       this.$emit("deposit");
-      this.closePopup();
     },
 
     closePopup() {
@@ -150,9 +189,6 @@ export default {
   },
 
   components: {
-    CurrentPrice: defineAsyncComponent(() =>
-      import("@/components/pools/CurrentPrice.vue")
-    ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
@@ -161,6 +197,9 @@ export default {
     ),
     IconButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/IconButton.vue")
+    ),
+    FlowBlock: defineAsyncComponent(() =>
+      import("@/components/pools/pool/FlowBlock.vue")
     ),
   },
 };
@@ -255,17 +294,6 @@ export default {
   width: 100%;
 }
 
-.remove {
-  flex-direction: row-reverse;
-}
-
-.base-quote-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-grow: 3;
-}
-
 .token-info-wrap {
   display: flex;
   flex-direction: column;
@@ -298,5 +326,12 @@ export default {
 
 .icon-button {
   margin-bottom: 25px;
+}
+
+.flow-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 </style>
