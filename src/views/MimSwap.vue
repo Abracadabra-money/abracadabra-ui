@@ -86,7 +86,11 @@ import type { ContractInfo } from "@/types/global";
 import { approveTokenViem } from "@/helpers/approval";
 import type { PoolConfig } from "@/configs/pools/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { getSwapInfo } from "@/helpers/pools/swap/getSwapInfo";
+import {
+  getSwapInfo,
+  getSwapInfoEmptyState,
+  type ActionConfig,
+} from "@/helpers/pools/swap/getSwapInfo";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
@@ -127,9 +131,17 @@ export default {
         toInputValue: 0n,
         slippage: 30n,
         deadline: 500n,
-      },
+      } as ActionConfig,
       updateInterval: null as any,
       isFetchSwapInfo: false,
+      swapInfo: getSwapInfoEmptyState({
+        fromToken: emptyTokenInfo,
+        toToken: emptyTokenInfo,
+        fromInputValue: 0n,
+        toInputValue: 0n,
+        slippage: 30n,
+        deadline: 500n,
+      } as ActionConfig),
     };
   },
 
@@ -145,14 +157,14 @@ export default {
       return validationActions(this.actionConfig, this.chainId);
     },
 
-    swapInfo() {
-      return getSwapInfo(
-        this.poolsList,
-        this.actionConfig,
-        this.chainId,
-        this.account
-      );
-    },
+    // swapInfo() {
+    //   return getSwapInfo(
+    //     this.poolsList,
+    //     this.actionConfig,
+    //     this.chainId,
+    //     this.account
+    //   );
+    // },
 
     feePayload(): Array<string | bigint | number> {
       const { payload }: any = this.swapInfo.transactionInfo;
@@ -237,6 +249,21 @@ export default {
             (token: TokenInfo) =>
               token.config.name === this.actionConfig.fromToken.config.name
           ) || this.actionConfig.fromToken;
+      },
+      deep: true,
+    },
+
+    actionConfig: {
+      async handler(value: ActionConfig) {
+        //@ts-ignore
+        this.swapInfo = await getSwapInfo(
+          this.poolsList,
+          value,
+          this.chainId,
+          this.account
+        );
+
+        this.actionConfig.toInputValue = this.swapInfo.outputAmount
       },
       deep: true,
     },

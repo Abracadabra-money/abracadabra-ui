@@ -10,18 +10,7 @@
           </h4>
           <div class="links-wrap">
             <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
-
-            <div
-              class="tooltip-container"
-              v-tooltip="{
-                content: 'Finalising, Coming Soon!',
-                placement: 'top',
-              }"
-            >
-              <BaseButton disabled class="btn" @click="goToSwap"
-                >Swap</BaseButton
-              >
-            </div>
+            <BaseButton class="btn" @click="goToSwap">Swap</BaseButton>
           </div>
         </div>
 
@@ -226,7 +215,7 @@ export default {
     },
 
     goToSwap() {
-      // this.$router.push({ name: "MimSwap" });
+      this.$router.push({ name: "MimSwap" });
     },
 
     async getStakeLpBalance() {
