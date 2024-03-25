@@ -89,7 +89,7 @@ export default {
     toTokenAmount() {
       return formatTokenBalance(
         formatUnits(
-          BigInt(this.localData.outputAmountWithSlippage),
+          BigInt(this.localData.outputAmount),
           this.actionConfig.toToken.config.decimals
         )
       );

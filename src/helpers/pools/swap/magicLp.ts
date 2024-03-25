@@ -2,12 +2,15 @@ import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/getPublicClient";
 //@ts-ignore
 import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
+import MagicLPPrice from "@/abis/MagicLPPrice";
 import type { MagicLPInfo, MagicLPInfoUserInfo } from "./types";
 import PMMPricing from "./libs/PMMPricing";
 import DecimalMath from "./libs/DecimalMath";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import poolsConfig from "@/configs/pools/pools";
 import type { PoolConfig } from "@/configs/pools/types";
+
+import { MagicLPPriceAddress } from "@/constants/blast";
 
 export const getAllPoolsByChain = async (
   chainId: number,
@@ -67,10 +70,10 @@ export const getLpInfo = async (
         args: [],
       },
       {
-        address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        address: MagicLPPriceAddress,
+        abi: MagicLPPrice as any,
         functionName: "getMidPrice",
-        args: [],
+        args: [lp.contract.address],
       },
       {
         address: lp.contract.address,
