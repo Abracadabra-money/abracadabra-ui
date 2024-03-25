@@ -223,12 +223,16 @@ const sellBaseTokensForTokensPayload = (
 ) => {
   const { lpInfo, inputAmount, outputAmount } = route;
   const deadline = moment().unix() + Number(actionConfig.deadline);
+  const outputAmountWithSlippage = applySlippageToMinOutBigInt(
+    actionConfig.slippage,
+    outputAmount
+  );
 
   return {
     lp: lpInfo.contract.address,
     to: account,
     amountIn: inputAmount,
-    minimumOut: outputAmount,
+    minimumOut: outputAmountWithSlippage,
     deadline,
   };
 };
@@ -241,11 +245,16 @@ const sellQuoteTokensForTokensPayload = (
   const { lpInfo, inputAmount, outputAmount } = route;
   const deadline = moment().unix() + Number(actionConfig.deadline);
 
+  const outputAmountWithSlippage = applySlippageToMinOutBigInt(
+    actionConfig.slippage,
+    outputAmount
+  );
+
   return {
     lp: lpInfo.contract.address,
     to: account,
     amountIn: inputAmount,
-    minimumOut: outputAmount,
+    minimumOut: outputAmountWithSlippage,
     deadline,
   };
 };
