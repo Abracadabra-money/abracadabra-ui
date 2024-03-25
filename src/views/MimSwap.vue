@@ -201,17 +201,24 @@ export default {
     },
 
     // Alternative price impact calculation
-    // async getPriceImpact() {
+    // priceImpactPair() {
+    //   const routeInfo = this.swapInfo.routes[this.swapInfo.routes.length - 1];
 
-    //   https://blastscan.io/address/0xd5448076C44847212c3dAaCd789ad077153AEe16#readContract
-    //   change all to bigint
-    //   const midPrice = 0.998; // get from contrat above
-    //   const tokenAmountIn = 0.634289351962547665;
-    //   const tokenAmountOut = 0.632650225967643819;
-    //   const executionPrice = tokenAmountIn/tokenAmountOut;
-    //   const priceImpact = (midPrice - executionPrice) / midPrice;
-    //   console.log(priceImpact)
-    // }
+    //   if (!routeInfo) return 0;
+
+    //   //@ts-ignore
+    //   const { midPrice } = routeInfo.lpInfo;
+    //   //@ts-ignore
+    //   const tokenAmountIn = this.swapInfo.inputAmount;
+    //   const tokenAmountOut = this.swapInfo.outputAmount;
+
+    //   const parsedMidPrice = formatUnits(midPrice, 18);
+    //   const executionPrice = Number(tokenAmountIn) / Number(tokenAmountOut);
+    //   const priceImpact = (Number(parsedMidPrice) - executionPrice) / Number(parsedMidPrice);
+
+    //   console.log("priceImpact", priceImpact);
+    //   return Number(priceImpact * 100).toFixed(2);
+    // },
 
     priceImpact() {
       const { fromToken, toToken, fromInputValue, toInputValue }: any =
@@ -228,7 +235,6 @@ export default {
       const priceImpact = toTokenAmountUsd / fromTokenAmountUsd;
 
       if (!priceImpact) return priceImpact;
-
       return priceImpact;
     },
   },
@@ -263,7 +269,7 @@ export default {
           this.account
         );
 
-        this.actionConfig.toInputValue = this.swapInfo.outputAmount
+        this.actionConfig.toInputValue = this.swapInfo.outputAmount;
       },
       deep: true,
     },
