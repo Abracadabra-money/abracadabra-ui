@@ -168,6 +168,10 @@ export default {
     height: 100%;
   }
 
+  .indicator-line.success {
+    border-right: 1px solid #67a069;
+  }
+
   .flow-block {
     flex-direction: row;
     gap: 16px;
