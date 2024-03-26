@@ -54,28 +54,7 @@
             </span>
           </div>
         </div>
-
-        <!-- <div class="tag">
-          <span class="title">APR</span>
-          <span class="value apr"> 102.21% </span>
-        </div> -->
       </div>
-
-      <!-- <div class="info-block swap">
-        <div class="tag">
-          <span class="title">Current Price</span>
-          <CurrentPrice :fromToken="baseToken" :toToken="quoteToken" />
-        </div>
-
-        <div class="tag">
-          <span class="title">Network Fee</span>
-
-          <span class="value">
-            <img class="gas-icon" src="@/assets/images/gas.svg" />
-            $0.01
-          </span>
-        </div>
-      </div> -->
     </div>
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -87,6 +66,7 @@
       :pool="pool"
       :previewInfo="previewPopupInfo"
       :isActionProcessing="isActionProcessing"
+      :transactionStatus="transactionStatus"
       @approve="approveHandler"
       @deposit="depositHandler"
       @close="closePreviewPopup"
@@ -108,6 +88,7 @@ import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 export default {
   props: {
@@ -125,7 +106,8 @@ export default {
       quoteInputAmount: 0n,
       quoteInputValue: "",
       isActionProcessing: false,
-      isPreviewPopupOpened: true,
+      transactionStatus: actionStatus.WAITING,
+      isPreviewPopupOpened: false,
     };
   },
 
@@ -236,6 +218,7 @@ export default {
     closePreviewPopup() {
       this.isPreviewPopupOpened = false;
       this.isActionProcessing = false;
+      this.transactionStatus = actionStatus.WAITING;
     },
 
     updateTokenInputs(adjustmendResults) {
@@ -293,6 +276,7 @@ export default {
       const notificationId = await this.createNotification(
         notification.approvePending
       );
+      this.isActionProcessing = true;
 
       try {
         await approveTokenViem(token.contract, this.pool.swapRouter);
@@ -310,9 +294,12 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+      this.isActionProcessing = false;
     },
 
     async depositHandler() {
+      this.isActionProcessing = true;
+      this.transactionStatus = "pending";
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -323,13 +310,13 @@ export default {
           this.pool?.swapRouter,
           payload
         );
-
+        this.transactionStatus = "success";
         await this.$emit("updatePoolInfo");
-
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
         this.clearData();
       } catch (error) {
+        this.transactionStatus = "error";
         console.log("add liquidity err:", error);
 
         const errorNotification = {
@@ -340,6 +327,7 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+      this.isActionProcessing = false;
     },
 
     async actionHandler() {

@@ -2,13 +2,9 @@
   <div :class="['flow-block', { final }]">
     <div class="indicator-wrap">
       <div :class="['indicator-icon', status]">
-        <span class="step-number" v-if="status == 'waiting'">
-          {{ stepNumber }}
-        </span>
-
         <svg
           class="loader"
-          v-else-if="status == 'pending'"
+          v-if="status == 'pending'"
           xmlns="http://www.w3.org/2000/svg"
           width="20"
           height="21"
@@ -27,14 +23,21 @@
           fill="#67A069"
           v-else-if="status == 'success'"
         />
+
+        <span class="step-number" v-else>
+          {{ stepNumber }}
+        </span>
       </div>
 
       <div :class="['indicator-line', status]" v-if="!final"></div>
     </div>
-    <h4 class="title">
-      <slot></slot>
-    </h4>
-    <p :class="['status-text', status]">{{ status }}</p>
+
+    <div class="text-wrap">
+      <h4 class="title">
+        <slot></slot>
+      </h4>
+      <p :class="['status-text', status]">{{ renderStatus }}</p>
+    </div>
   </div>
 </template>
 
@@ -45,10 +48,16 @@ export default {
   props: {
     stepNumber: { type: Number },
     status: { type: String, default: "waiting" },
+    isApprove: { type: Boolean, default: false },
     final: { type: Boolean, default: false },
   },
 
-  computed: {},
+  computed: {
+    renderStatus() {
+      if (this.isApprove && this.status == "success") return "approved";
+      return this.status;
+    },
+  },
 
   components: {
     CheckMarkIcon: defineAsyncComponent(() =>
@@ -81,7 +90,7 @@ export default {
   justify-content: center;
   align-items: center;
   width: 32px;
-  height: 32px;
+  min-height: 32px;
   border: 1px solid #7088cc;
   border-radius: 50px;
 }
@@ -143,6 +152,25 @@ export default {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .indicator-wrap {
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .indicator-line {
+    margin: 3px 0;
+    border-right: 1px dashed #7088cc;
+    flex-grow: 1;
+    height: 100%;
+  }
+
+  .flow-block {
+    flex-direction: row;
+    gap: 16px;
   }
 }
 </style>

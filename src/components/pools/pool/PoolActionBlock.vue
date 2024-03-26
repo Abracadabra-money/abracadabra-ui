@@ -48,6 +48,12 @@
 <script>
 import { defineAsyncComponent } from "vue";
 
+export const actionStatus = {
+  SUCCESS: "success",
+  PENDING: "pending",
+  WAITING: "waiting",
+};
+
 export default {
   props: {
     pool: { type: Object },

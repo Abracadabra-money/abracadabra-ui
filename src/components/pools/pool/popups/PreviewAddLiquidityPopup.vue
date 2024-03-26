@@ -83,14 +83,35 @@
       </div>
 
       <div class="flow-wrap">
-        <FlowBlock :stepNumber="1" status="waiting">Allowance</FlowBlock>
+        <FlowBlock
+          :stepNumber="1"
+          isApprove
+          :status="getApprovingStatus(this.tokensSortedByApprove[0])"
+        >
+          Allowance
+        </FlowBlock>
 
-        <FlowBlock :stepNumber="2" status="pending">Allowance</FlowBlock>
+        <FlowBlock
+          :stepNumber="2"
+          isApprove
+          :status="getApprovingStatus(this.tokensSortedByApprove[1])"
+        >
+          Allowance
+        </FlowBlock>
 
-        <FlowBlock :stepNumber="3" status="success" final>Deposit</FlowBlock>
+        <FlowBlock :stepNumber="3" :status="transactionStatus" final>
+          Deposit
+        </FlowBlock>
       </div>
 
-      <BaseButton primary @click="actionHandler"> {{ buttonText }} </BaseButton>
+      <BaseButton
+        class="action-button"
+        primary
+        @click="actionHandler"
+        :disabled="isActionProcessing"
+      >
+        {{ buttonText }}
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -99,6 +120,7 @@
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
+import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 export default {
   props: {
@@ -114,31 +136,35 @@ export default {
       type: Boolean,
       default: false,
     },
+
+    transactionStatus: {
+      type: String,
+      default: actionStatus.WAITING,
+    },
   },
 
   data() {
     return {
-      currentlyProcessingToken: "",
+      currentlyApprovingToken: "",
     };
   },
 
   computed: {
     isBaseTokenApproved() {
       return (
-        this.pool.tokens.baseToken.userInfo.allowance >
+        this.pool.tokens.baseToken.userInfo.allowance >=
         this.previewInfo.baseTokenAmount
       );
     },
 
     isQuoteTokenApproved() {
       return (
-        this.pool.tokens.quoteToken.userInfo.allowance >
+        this.pool.tokens.quoteToken.userInfo.allowance >=
         this.previewInfo.quoteTokenAmount
       );
     },
 
     tokensSortedByApprove() {
-      console.log("tokensSortedByApprove", this.pool);
       const baseToken = this.pool.tokens.baseToken;
       const quoteToken = this.pool.tokens.quoteToken;
 
@@ -151,11 +177,12 @@ export default {
         quoteToken.userInfo.allowance > this.previewInfo.quoteTokenAmount;
 
       return [baseToken, quoteToken].sort(
-        (a, b) => a.isApproved - b.isApproved
+        (a, b) => b.isApproved - a.isApproved
       );
     },
 
     buttonText() {
+      if (this.transactionStatus == actionStatus.SUCCESS) return "Close popup";
       if (this.isActionProcessing) return "Processing...";
       if (!this.isBaseTokenApproved)
         return `Approve ${this.pool.tokens.baseToken.config.name}`;
@@ -166,6 +193,18 @@ export default {
   },
 
   methods: {
+    getApprovingStatus(token) {
+      if (
+        token.config.name == this.currentlyApprovingToken &&
+        this.isActionProcessing
+      )
+        return actionStatus.PENDING;
+
+      if (token.isApproved) return actionStatus.SUCCESS;
+
+      return actionStatus.WAITING;
+    },
+
     formatTokenBalance(value) {
       return formatTokenBalance(formatUnits(value, 18));
     },
@@ -175,10 +214,21 @@ export default {
     },
 
     actionHandler() {
-      if (!this.isBaseTokenApproved)
-        return this.$emit("approve", this.pool.tokens.baseToken);
-      if (!this.isQuoteTokenApproved)
-        return this.$emit("approve", this.pool.tokens.quoteToken);
+      if (this.isActionProcessing) return false;
+
+      if (this.transactionStatus == actionStatus.SUCCESS)
+        return this.closePopup();
+
+      if (!this.isBaseTokenApproved) {
+        this.currentlyApprovingToken = this.pool.tokens.baseToken.config.name;
+        return this.$emit("approve", this.pool.tokens.baseToken.config);
+      }
+      if (!this.isQuoteTokenApproved) {
+        this.currentlyApprovingToken = this.pool.tokens.quoteToken.config.name;
+        return this.$emit("approve", this.pool.tokens.quoteToken.config);
+      }
+
+      this.currentlyApprovingToken = "";
 
       this.$emit("deposit");
     },
@@ -333,5 +383,27 @@ export default {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.action-button {
+  margin-top: auto;
+}
+
+@media (max-width: 600px) {
+  .backdrop {
+    padding: 0;
+  }
+
+  .preview-popup {
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .flow-wrap {
+    flex-direction: column;
+    align-items: start;
+    height: 237px;
+  }
 }
 </style>
