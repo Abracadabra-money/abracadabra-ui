@@ -200,6 +200,8 @@ export default {
 
       if (!routeInfo) return 0;
 
+      const isBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
+
       //@ts-ignore
       const { midPrice } = routeInfo.lpInfo;
 
@@ -209,7 +211,10 @@ export default {
       if (!tokenAmountIn || !tokenAmountOut) return 0;
 
       const parsedMidPrice = formatUnits(midPrice, 18);
-      const executionPrice = Number(tokenAmountIn) / Number(tokenAmountOut);
+
+      const executionPrice = isBase
+        ? Number(tokenAmountOut) / Number(tokenAmountIn)
+        : Number(tokenAmountIn) / Number(tokenAmountOut);
 
       const priceImpact =
         (Number(parsedMidPrice) - executionPrice) / Number(parsedMidPrice);
