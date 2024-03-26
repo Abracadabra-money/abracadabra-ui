@@ -217,7 +217,8 @@ export default {
         : Number(tokenAmountIn) / Number(tokenAmountOut);
 
       const priceImpact =
-        (Math.abs(Number(parsedMidPrice) - executionPrice)) / Number(parsedMidPrice);
+        Math.abs(Number(parsedMidPrice) - executionPrice) /
+        Number(parsedMidPrice);
 
       console.log("priceImpact", priceImpact);
       return Number(priceImpact * 100).toFixed(2);
@@ -454,6 +455,9 @@ export default {
     if (this.tokensList.length) {
       this.actionConfig.fromToken = this.tokensList.find(
         (token: TokenInfo) => token.config.name === "MIM"
+      );
+      this.actionConfig.toToken = this.tokensList.find(
+        (token: TokenInfo) => token.config.name === "USDB"
       );
     }
 
