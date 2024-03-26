@@ -14,6 +14,10 @@
 
         <HeaderMoreDropdown />
 
+        <router-link class="header-link" :to="{ name: 'MimSwap' }">
+          MIMSwap
+        </router-link>
+
         <router-link class="header-link blast-link" :to="{ name: 'Blast' }">
           <img src="@/assets/images/blast-text.svg" alt="" />
         </router-link>
@@ -307,7 +311,7 @@ export default {
 }
 
 .general-activities {
-  gap: 40px;
+  gap: 25px;
 }
 
 .account-activities {
