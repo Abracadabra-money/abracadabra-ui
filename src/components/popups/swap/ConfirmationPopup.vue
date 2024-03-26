@@ -65,7 +65,7 @@ export default {
       type: Object,
       required: true,
     },
-    priceImpact: { type: Number, default: 0 },
+    priceImpact: { type: [String, Number], default: 0 },
   },
 
   data() {
@@ -89,7 +89,7 @@ export default {
     toTokenAmount() {
       return formatTokenBalance(
         formatUnits(
-          BigInt(this.localData.outputAmountWithSlippage),
+          BigInt(this.localData.outputAmount),
           this.actionConfig.toToken.config.decimals
         )
       );

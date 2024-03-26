@@ -5,6 +5,8 @@ import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { getPublicClient } from "@/helpers/getPublicClient";
+import DecimalMath from "./libs/DecimalMath";
 
 const EMPTY_TOKEN_NAME = "Select Token";
 
@@ -22,20 +24,48 @@ export type RouteInfo = {
   outputToken: Address;
   inputAmount: bigint;
   outputAmount: bigint;
+  outputAmountWithoutFee: bigint;
+  mtFee: bigint;
+  lpFee: bigint;
   fees: bigint;
   lpInfo: MagicLPInfo;
 };
 
-export const getSwapInfo = (
+const fetchOutputAmount = async (
+  lpInfo: any,
+  account: any,
+  sellBase = true,
+  amount: bigint
+) => {
+  // NOTICE: chainId is hardcoded for now
+  const chainId = 81457; // BlastChain
+  const publicClient = getPublicClient(chainId);
+  const result = await publicClient.readContract({
+    address: lpInfo.contract.address,
+    abi: lpInfo.contract.abi,
+    functionName: sellBase ? "querySellBase" : "querySellQuote",
+    args: [account, amount],
+  });
+
+  console.log("queryResult", result);
+
+  return {
+    receiveAmount: result[0] ? result[0] : 0n,
+    mtFee: result[1] ? result[1] : 0n,
+  };
+};
+
+export const getSwapInfo = async (
   pools: MagicLPInfo[],
   actionConfig: ActionConfig,
   chainId: number,
   account: Address
 ) => {
-  if (!pools || !pools.length) return getEmptyState(actionConfig);
+  if (!pools || !pools.length) return getSwapInfoEmptyState(actionConfig);
 
-  const routes = findBestRoutes(pools, actionConfig);
-  if (!routes || routes.length === 0) return getEmptyState(actionConfig);
+  const routes = await findBestRoutes(pools, actionConfig, account);
+  if (!routes || routes.length === 0)
+    return getSwapInfoEmptyState(actionConfig);
 
   const inputAmount = routes[0].inputAmount;
   const outputAmount = routes[routes?.length - 1].outputAmount;
@@ -61,7 +91,7 @@ export const getSwapInfo = (
   };
 };
 
-const getEmptyState = (actionConfig: ActionConfig) => {
+export const getSwapInfoEmptyState = (actionConfig: ActionConfig) => {
   const { fromInputValue } = actionConfig;
 
   return {
@@ -77,10 +107,11 @@ const getEmptyState = (actionConfig: ActionConfig) => {
   };
 };
 
-export const findBestRoutes = (
+export const findBestRoutes = async (
   pools: MagicLPInfo[],
-  { fromToken, toToken, fromInputValue }: ActionConfig
-): RouteInfo[] | null => {
+  { fromToken, toToken, fromInputValue }: ActionConfig,
+  account: Address
+): Promise<RouteInfo[] | null> => {
   let bestRoute: RouteInfo[] | null = null;
 
   const fromTokenName = fromToken.config.name;
@@ -132,35 +163,54 @@ export const findBestRoutes = (
       continue;
     }
 
-    tokenToPools[token].forEach((pool: any) => {
-      const nextToken =
-        pool.baseToken === token ? pool.quoteToken : pool.baseToken;
-      if (visited.has(nextToken)) {
-        return;
-      }
+    await Promise.all(
+      tokenToPools[token].map(async (pool: any) => {
+        const nextToken =
+          pool.baseToken === token ? pool.quoteToken : pool.baseToken;
+        if (visited.has(nextToken)) {
+          return;
+        }
 
-      const outputAmount = !fromInputValue
-        ? 0n
-        : pool.baseToken === token
-        ? querySellBase(amount, pool, pool.userInfo).receiveQuoteAmount
-        : querySellQuote(amount, pool, pool.userInfo).receiveBaseAmount;
+        const { receiveAmount, mtFee } = !fromInputValue
+          ? { receiveAmount: 0n, mtFee: 0n }
+          : await fetchOutputAmount(
+              pool,
+              account,
+              pool.baseToken === token,
+              amount
+            );
 
-      stack.push({
-        token: nextToken,
-        amount: outputAmount,
-        route: route.concat([
-          {
-            inputToken: token,
-            outputToken: nextToken,
-            inputAmount: amount,
-            outputAmount,
-            fees: pool.lpFeeRate,
-            lpInfo: pool,
-          },
-        ]),
-        visited: new Set(visited),
-      });
-    });
+        const lpFeeRate = pool.userInfo.userFeeRate.lpFeeRate;
+        const mtFeeRate = pool.userInfo.userFeeRate.mtFeeRate;
+
+        // Notice: need to review
+        const lpFeeAmount =
+          mtFeeRate === lpFeeRate
+            ? mtFee
+            : DecimalMath.mulFloor(receiveAmount, lpFeeRate);
+
+        const receiveAmountWithoutFee = receiveAmount + mtFee + lpFeeAmount;
+
+        stack.push({
+          token: nextToken,
+          amount: receiveAmount,
+          route: route.concat([
+            {
+              inputToken: token,
+              outputToken: nextToken,
+              inputAmount: amount,
+              outputAmount: receiveAmount,
+              outputAmountWithoutFee: receiveAmountWithoutFee,
+              mtFee,
+              lpFee: lpFeeAmount,
+              fees: pool.lpFeeRate,
+              lpInfo: pool,
+            },
+          ]),
+          visited: new Set(visited),
+        });
+      })
+    );
   }
 
   return bestRoute;
@@ -223,12 +273,16 @@ const sellBaseTokensForTokensPayload = (
 ) => {
   const { lpInfo, inputAmount, outputAmount } = route;
   const deadline = moment().unix() + Number(actionConfig.deadline);
+  const outputAmountWithSlippage = applySlippageToMinOutBigInt(
+    actionConfig.slippage,
+    outputAmount
+  );
 
   return {
     lp: lpInfo.contract.address,
     to: account,
     amountIn: inputAmount,
-    minimumOut: outputAmount,
+    minimumOut: outputAmountWithSlippage,
     deadline,
   };
 };
@@ -241,11 +295,16 @@ const sellQuoteTokensForTokensPayload = (
   const { lpInfo, inputAmount, outputAmount } = route;
   const deadline = moment().unix() + Number(actionConfig.deadline);
 
+  const outputAmountWithSlippage = applySlippageToMinOutBigInt(
+    actionConfig.slippage,
+    outputAmount
+  );
+
   return {
     lp: lpInfo.contract.address,
     to: account,
     amountIn: inputAmount,
-    minimumOut: outputAmount,
+    minimumOut: outputAmountWithSlippage,
     deadline,
   };
 };

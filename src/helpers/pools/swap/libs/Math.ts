@@ -2,15 +2,19 @@
 import DecimalMath from "./DecimalMath";
 
 // NOTICE
-const sqrt = (x: bigint) => {
-  let z = x / 2n + 1n;
-  let y = x;
-  while (z < y) {
-    y = z;
-    z = (x / z + z) / 2n;
+const sqrt = (y: bigint): bigint => {
+  let z: bigint = 0n;
+  if (y > 3n) {
+    z = y;
+    let x = y / 2n + 1n;
+    while (x < z) {
+      z = x;
+      x = (y / x + x) / 2n;
+    }
+  } else if (y != 0n) {
+    z = 1n;
   }
-
-  return y;
+  return z;
 };
 
 const divCeil = (a: bigint, b: bigint): bigint => {
