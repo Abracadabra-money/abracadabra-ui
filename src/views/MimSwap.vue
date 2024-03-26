@@ -20,6 +20,7 @@
           :fromToken="actionConfig.fromToken"
           :toToken="actionConfig.toToken"
           :toTokenAmount="actionConfig.toInputValue"
+          :differencePrice="differencePrice"
           @onToogleTokens="toogleTokens"
           @openTokensPopup="openTokensPopup"
           @updateFromInputValue="updateFromValue"
@@ -27,7 +28,7 @@
 
         <SwapInfoBlock
           :actionConfig="actionConfig"
-          :priceImpact="priceImpact"
+          :priceImpact="priceImpactPair"
           :minAmount="swapInfo.outputAmountWithSlippage"
         />
 
@@ -71,7 +72,7 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        :priceImpact="priceImpact"
+        :priceImpact="priceImpactPair"
         @confirm="closeConfirmationPopup"
       />
     </LocalPopupWrap>
@@ -86,7 +87,12 @@ import type { ContractInfo } from "@/types/global";
 import { approveTokenViem } from "@/helpers/approval";
 import type { PoolConfig } from "@/configs/pools/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { getSwapInfo } from "@/helpers/pools/swap/getSwapInfo";
+import {
+  getSwapInfo,
+  getSwapInfoEmptyState,
+  type ActionConfig,
+  type RouteInfo,
+} from "@/helpers/pools/swap/getSwapInfo";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
@@ -127,9 +133,17 @@ export default {
         toInputValue: 0n,
         slippage: 30n,
         deadline: 500n,
-      },
+      } as ActionConfig,
       updateInterval: null as any,
       isFetchSwapInfo: false,
+      swapInfo: getSwapInfoEmptyState({
+        fromToken: emptyTokenInfo,
+        toToken: emptyTokenInfo,
+        fromInputValue: 0n,
+        toInputValue: 0n,
+        slippage: 30n,
+        deadline: 500n,
+      } as ActionConfig),
     };
   },
 
@@ -137,21 +151,12 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     isWarningBtn() {
-      if (!this.priceImpact) return false;
-      return this.priceImpact <= 0.9;
+      if (!this.priceImpactPair) return false;
+      return +this.priceImpactPair <= -15;
     },
 
     actionValidationData() {
       return validationActions(this.actionConfig, this.chainId);
-    },
-
-    swapInfo() {
-      return getSwapInfo(
-        this.poolsList,
-        this.actionConfig,
-        this.chainId,
-        this.account
-      );
     },
 
     feePayload(): Array<string | bigint | number> {
@@ -189,21 +194,41 @@ export default {
     },
 
     // Alternative price impact calculation
-    // async getPriceImpact() {
+    priceImpactPair(): string | number {
+      const routeInfo: RouteInfo =
+        this.swapInfo.routes[this.swapInfo.routes.length - 1];
 
-    //   https://blastscan.io/address/0xd5448076C44847212c3dAaCd789ad077153AEe16#readContract
-    //   change all to bigint
-    //   const midPrice = 0.998; // get from contrat above
-    //   const tokenAmountIn = 0.634289351962547665;
-    //   const tokenAmountOut = 0.632650225967643819;
-    //   const executionPrice = tokenAmountIn/tokenAmountOut;
-    //   const priceImpact = (midPrice - executionPrice) / midPrice;
-    //   console.log(priceImpact)
-    // }
+      if (!routeInfo) return 0;
 
-    priceImpact() {
+      const isBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
+
+      //@ts-ignore
+      const { midPrice } = routeInfo.lpInfo;
+
+      //@ts-ignore
+      const tokenAmountIn = this.swapInfo.inputAmount;
+      const tokenAmountOut = routeInfo.outputAmountWithoutFee;
+      if (!tokenAmountIn || !tokenAmountOut) return 0;
+
+      const parsedMidPrice = formatUnits(midPrice, 18);
+
+      const executionPrice = isBase
+        ? Number(tokenAmountOut) / Number(tokenAmountIn)
+        : Number(tokenAmountIn) / Number(tokenAmountOut);
+
+      const priceImpact =
+        Math.abs(Number(parsedMidPrice) - executionPrice) /
+        Number(parsedMidPrice);
+
+      console.log("priceImpact", priceImpact);
+      return Number(priceImpact * 100).toFixed(2);
+    },
+
+    differencePrice() {
       const { fromToken, toToken, fromInputValue, toInputValue }: any =
         this.actionConfig;
+
+      if (!fromInputValue || !toInputValue) return 0;
 
       const fromTokenAmountUsd =
         this.fromTokenPrice *
@@ -213,11 +238,10 @@ export default {
         this.toTokenPrice *
         +formatUnits(toInputValue || 0n, toToken?.config.decimals || 18);
 
-      const priceImpact = toTokenAmountUsd / fromTokenAmountUsd;
+      const differencePrice = toTokenAmountUsd / fromTokenAmountUsd;
 
-      if (!priceImpact) return priceImpact;
-
-      return priceImpact;
+      if (!differencePrice) return differencePrice;
+      return (differencePrice - 1) * 100;
     },
   },
 
@@ -237,6 +261,21 @@ export default {
             (token: TokenInfo) =>
               token.config.name === this.actionConfig.fromToken.config.name
           ) || this.actionConfig.fromToken;
+      },
+      deep: true,
+    },
+
+    actionConfig: {
+      async handler(value: ActionConfig) {
+        //@ts-ignore
+        this.swapInfo = await getSwapInfo(
+          this.poolsList,
+          value,
+          this.chainId,
+          this.account
+        );
+
+        this.actionConfig.toInputValue = this.swapInfo.outputAmount;
       },
       deep: true,
     },
@@ -383,7 +422,7 @@ export default {
     },
 
     async createSwapInfo() {
-      this.isFetchSwapInfo = true;
+      // this.isFetchSwapInfo = true;
       const filteredPoolsConfig = poolsConfig.filter(
         ({ chainId }) => chainId === this.chainId
       );
@@ -392,7 +431,7 @@ export default {
         this.tokensList = [];
         this.poolsList = [];
         this.resetActionCaonfig();
-        this.isFetchSwapInfo = false;
+        // this.isFetchSwapInfo = false;
         return;
       }
 
@@ -406,7 +445,7 @@ export default {
       );
 
       this.poolsList = await getAllPoolsByChain(this.chainId, this.account);
-      this.isFetchSwapInfo = false;
+      // this.isFetchSwapInfo = false;
     },
   },
 
@@ -416,6 +455,9 @@ export default {
     if (this.tokensList.length) {
       this.actionConfig.fromToken = this.tokensList.find(
         (token: TokenInfo) => token.config.name === "MIM"
+      );
+      this.actionConfig.toToken = this.tokensList.find(
+        (token: TokenInfo) => token.config.name === "USDB"
       );
     }
 

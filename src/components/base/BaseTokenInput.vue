@@ -10,7 +10,15 @@
           placeholder="0.0"
           :disabled="disabled"
         />
-        <p class="usd-equivalent" v-if="tokenPrice">{{ usdEquivalent }}</p>
+        <div class="usd-wrap">
+          <p class="usd-equivalent" v-if="tokenPrice">{{ usdEquivalent }}</p>
+          <p
+            :class="['difference-price', { warning: differencePrice < 0 }]"
+            v-if="differencePrice"
+          >
+            ( {{ formatToFixed(differencePrice, 2) }}%)
+          </p>
+        </div>
       </div>
 
       <div class="token-input-info">
@@ -79,6 +87,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    differencePrice: {
+      type: Number,
+      default: 0,
+    },
   },
 
   data(): any {
@@ -141,6 +153,7 @@ export default {
 
   methods: {
     formatTokenBalance,
+    formatToFixed,
 
     onSelectClick() {
       if (this.allowSelectToken) this.$emit("onSelectClick");
@@ -209,10 +222,26 @@ export default {
   border: none;
 }
 
+.usd-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .usd-equivalent {
   color: #575c62;
   font-size: 14px;
   font-weight: 400;
+}
+
+.difference-price {
+  font-size: 14px;
+  font-weight: 400;
+  color: #67a069;
+}
+
+.warning {
+  color: #8c4040;
 }
 
 .token-input-info {
