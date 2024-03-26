@@ -6,6 +6,7 @@ import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { getPublicClient } from "@/helpers/getPublicClient";
+import DecimalMath from "./libs/DecimalMath";
 
 const EMPTY_TOKEN_NAME = "Select Token";
 
@@ -23,6 +24,9 @@ export type RouteInfo = {
   outputToken: Address;
   inputAmount: bigint;
   outputAmount: bigint;
+  outputAmountWithoutFee: bigint;
+  mtFee: bigint;
+  lpFee: bigint;
   fees: bigint;
   lpInfo: MagicLPInfo;
 };
@@ -43,7 +47,12 @@ const fetchOutputAmount = async (
     args: [account, amount],
   });
 
-  return result[0] ? result[0] : 0n;
+  console.log("queryResult", result);
+
+  return {
+    receiveAmount: result[0] ? result[0] : 0n,
+    mtFee: result[1] ? result[1] : 0n,
+  };
 };
 
 export const getSwapInfo = async (
@@ -162,8 +171,8 @@ export const findBestRoutes = async (
           return;
         }
 
-        const outputAmount = !fromInputValue
-          ? 0n
+        const { receiveAmount, mtFee } = !fromInputValue
+          ? { receiveAmount: 0n, mtFee: 0n }
           : await fetchOutputAmount(
               pool,
               account,
@@ -171,15 +180,29 @@ export const findBestRoutes = async (
               amount
             );
 
+        const lpFeeRate = pool.userInfo.userFeeRate.lpFeeRate;
+        const mtFeeRate = pool.userInfo.userFeeRate.mtFeeRate;
+
+        // Notice: need to review
+        const lpFeeAmount =
+          mtFeeRate === lpFeeRate
+            ? mtFee
+            : DecimalMath.mulFloor(receiveAmount, lpFeeRate);
+
+        const receiveAmountWithoutFee = receiveAmount + mtFee + lpFeeAmount;
+
         stack.push({
           token: nextToken,
-          amount: outputAmount,
+          amount: receiveAmount,
           route: route.concat([
             {
               inputToken: token,
               outputToken: nextToken,
               inputAmount: amount,
-              outputAmount,
+              outputAmount: receiveAmount,
+              outputAmountWithoutFee: receiveAmountWithoutFee,
+              mtFee,
+              lpFee: lpFeeAmount,
               fees: pool.lpFeeRate,
               lpInfo: pool,
             },

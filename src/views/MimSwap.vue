@@ -91,6 +91,7 @@ import {
   getSwapInfo,
   getSwapInfoEmptyState,
   type ActionConfig,
+  type RouteInfo,
 } from "@/helpers/pools/swap/getSwapInfo";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -194,7 +195,8 @@ export default {
 
     // Alternative price impact calculation
     priceImpactPair(): string | number {
-      const routeInfo = this.swapInfo.routes[this.swapInfo.routes.length - 1];
+      const routeInfo: RouteInfo =
+        this.swapInfo.routes[this.swapInfo.routes.length - 1];
 
       if (!routeInfo) return 0;
 
@@ -203,11 +205,12 @@ export default {
 
       //@ts-ignore
       const tokenAmountIn = this.swapInfo.inputAmount;
-      const tokenAmountOut = this.swapInfo.outputAmount;
+      const tokenAmountOut = routeInfo.outputAmountWithoutFee;
       if (!tokenAmountIn || !tokenAmountOut) return 0;
 
       const parsedMidPrice = formatUnits(midPrice, 18);
       const executionPrice = Number(tokenAmountIn) / Number(tokenAmountOut);
+
       const priceImpact =
         (Number(parsedMidPrice) - executionPrice) / Number(parsedMidPrice);
 
