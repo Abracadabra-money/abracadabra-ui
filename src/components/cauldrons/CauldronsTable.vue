@@ -140,8 +140,8 @@ export default {
     },
 
     deprecatedButtonText() {
-      if (this.showActiveCauldrons) return " Show Deprecated Cauldrons";
-      return "Hide Deprecated Cauldrons";
+      if (this.showActiveCauldrons) return " Show deprecated cauldrons";
+      return "Hide deprecated cauldrons";
     },
   },
 

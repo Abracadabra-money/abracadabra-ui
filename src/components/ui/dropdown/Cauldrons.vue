@@ -36,7 +36,7 @@
         </button>
       </template>
       <button class="dropdown-item" v-else>
-        No borrow on this network In the future they will be displayed here
+        No borrow on this network in the future they will be displayed here
       </button>
     </div>
   </div>

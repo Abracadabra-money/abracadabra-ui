@@ -23,7 +23,7 @@
       </button>
 
       <button class="button" @click="routeTo">
-        Leverage your Yield (up to {{ expectedLeverageApy }}%)
+        Leverage your yield (up to {{ expectedLeverageApy }}%)
         <ArrowTopRight :width="14" :height="14" fill="#7088CC" />
       </button>
     </div>

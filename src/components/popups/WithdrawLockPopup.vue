@@ -114,7 +114,7 @@ export default {
       );
     },
     buttonText() {
-      return this.step === 3 ? "Withdraw and Exit LLE" : "Next";
+      return this.step === 3 ? "Withdraw and exit LLE" : "Next";
     },
     isPrimary() {
       return this.step !== 3;

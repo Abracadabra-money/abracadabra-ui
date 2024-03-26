@@ -196,7 +196,7 @@ export default {
     },
 
     buttonText() {
-      if (!this.isProperNetwork) return "Switch network";
+      if (!this.isProperNetwork) return "Switch chain";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
       if (this.inputValue == "") return "Enter amount";

@@ -219,14 +219,14 @@ export default {
     },
     buttonText() {
       if (this.orderType === ORDER_TYPE_LEVERAGE) {
-        if (this.processState === STATE_FAIL) return "Retry Leverage";
+        if (this.processState === STATE_FAIL) return "Retry leverage";
       }
       if (this.orderType === ORDER_TYPE_DELEVERAGE) {
         if (
           this.processState === STATE_DELEVERAGE &&
           this.deleverageinProgress === false
         )
-          return "Retry Deleverage";
+          return "Retry deleverage";
       }
 
       return "...";

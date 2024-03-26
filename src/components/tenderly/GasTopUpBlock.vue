@@ -28,7 +28,7 @@
         :primary="!isDisabledGetGasBtn"
         :disabled="isDisabledGetGasBtn"
         @click="actionHandler"
-        >Get Gas</BaseButton
+        >Get gas</BaseButton
       >
     </div>
   </div>

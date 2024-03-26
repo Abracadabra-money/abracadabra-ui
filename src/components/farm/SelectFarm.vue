@@ -8,7 +8,7 @@
         size="38px"
       />
       <span class="select-text">
-        {{ selectedFarm ? selectedFarm.name : "Select Farm" }}
+        {{ selectedFarm ? selectedFarm.name : "Select farm" }}
       </span>
     </div>
     <img class="select-arrow" src="@/assets/images/arrow.svg" alt="Arrow" />

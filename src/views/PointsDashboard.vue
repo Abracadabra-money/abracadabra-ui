@@ -9,7 +9,7 @@
             the Abracadabra Ecosystem.
           </h4>
           <div class="links-wrap">
-            <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
+            <BaseButton class="btn" @click="goToPool">MIM/USDB pool</BaseButton>
 
             <div
               class="tooltip-container"

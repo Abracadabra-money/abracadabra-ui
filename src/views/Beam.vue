@@ -276,7 +276,7 @@ export default {
       if (this.isInsufficientBalance) return "Insufficient balance";
       if (this.isEnterDstAddress) return "Set destination address";
       if (this.dstAddressError) return "Set destination address";
-      if (!this.isSelectedChain) return "Choose Destination Chain";
+      if (!this.isSelectedChain) return "Choose destination chain";
       if (this.isApproving) return "Approving";
       if (!this.isTokenApproved) return "Approve";
       if (this.isBeaming) return "Beaming";

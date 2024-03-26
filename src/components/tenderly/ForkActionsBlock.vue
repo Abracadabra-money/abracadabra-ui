@@ -5,17 +5,17 @@
       <BaseButton
         :primary="primaryTab === 'WalletTopUpBlock'"
         @click="$emit('changeTab', 'WalletTopUpBlock')"
-        >Wallet Top Up</BaseButton
+        >Wallet top up</BaseButton
       >
       <BaseButton
         :primary="primaryTab === 'GasTopUpBlock'"
         @click="$emit('changeTab', 'GasTopUpBlock')"
-        >Gas Top Up</BaseButton
+        >Gas top up</BaseButton
       >
       <BaseButton
         :primary="primaryTab === 'CauldronTopUpBlock'"
         @click="$emit('changeTab', 'CauldronTopUpBlock')"
-        >Cauldron Top Up</BaseButton
+        >Cauldron top up</BaseButton
       >
     </div>
   </div>

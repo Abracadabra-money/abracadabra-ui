@@ -245,13 +245,13 @@ export default {
 
     actionButtonText() {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
-      if (!this.isUnsupportedChain) return "Switch Network";
+      if (!this.isUnsupportedChain) return "Switch chain";
 
       if (this.actionActiveTab === "Stake") {
         if (this.isMaxCaps) return "Max cap limit";
         if (this.isInsufficientBalance) return "Insufficient balance";
         if (!this.isTokenApproved) return "Approve";
-        if (this.isLock) return "Deposit And Lock";
+        if (this.isLock) return "Deposit and lock";
 
         return "Deposit";
       }

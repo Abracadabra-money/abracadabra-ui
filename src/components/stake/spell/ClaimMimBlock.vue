@@ -52,7 +52,7 @@ export default {
 
     buttonText() {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
-      if (!this.isUnsupportedChain) return "Switch Network";
+      if (!this.isUnsupportedChain) return "Switch chain";
       return "Claim";
     },
 

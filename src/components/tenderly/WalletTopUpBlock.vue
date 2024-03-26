@@ -60,7 +60,7 @@
       :disabled="!isDisabledGetGasBtn"
       :primary="isDisabledGetGasBtn"
       @click="actionHandler"
-      >Top Up</BaseButton
+      >Top up</BaseButton
     >
   </div>
 </template>

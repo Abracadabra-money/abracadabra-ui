@@ -30,7 +30,7 @@
             :width="isMobile ? '288px' : '200px'"
             @click="toCauldronsPage"
           >
-            Discover Cauldrons
+            Discover cauldrons
           </BaseButton>
         </div>
       </div>

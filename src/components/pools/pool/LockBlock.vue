@@ -76,7 +76,7 @@ export default {
     },
 
     lockButtonText() {
-      if (!this.isProperNetwork) return "Switch network";
+      if (!this.isProperNetwork) return "Switch chain";
       if (this.isPending) return "Processing...";
       if (this.lockAllowance < this.pool.userInfo.balance) return "Approve";
       return "Lock";

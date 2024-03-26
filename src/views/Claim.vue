@@ -279,11 +279,11 @@ export default {
     btnText() {
       if (this.account) {
         if (this.isApproveMasterContracts && !this.isConnectedAddress)
-          return "Revoke Contract & Claim Funds";
+          return "Revoke contract & claim funds";
 
-        if (this.isApproveMasterContracts) return "Revoke Contract";
+        if (this.isApproveMasterContracts) return "Revoke contract";
 
-        if (!this.isConnectedAddress) return "Claim Funds";
+        if (!this.isConnectedAddress) return "Claim funds";
 
         return "No further actions required";
       } else return "Connect wallet";

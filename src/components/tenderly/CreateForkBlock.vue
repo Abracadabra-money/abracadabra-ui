@@ -11,7 +11,7 @@
           class="tenderly-icon"
           src="@/assets/images/tenderly/tenderly_icon.png"
           alt="Tenderly icon"
-        />Create Fork
+        />Create fork
       </button>
     </div>
   </div>

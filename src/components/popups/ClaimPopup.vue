@@ -26,7 +26,7 @@
       >
     </div>
 
-    <BaseButton primary>Secure Funds</BaseButton>
+    <BaseButton primary>Secure funds</BaseButton>
   </div>
 </template>
 

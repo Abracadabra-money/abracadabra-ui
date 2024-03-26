@@ -17,7 +17,7 @@
       <p class="info-subtitle">Head over to my position to view it.</p>
     </div>
 
-    <BaseButton @click="toMyPosition">My Position</BaseButton>
+    <BaseButton @click="toMyPosition">My position</BaseButton>
   </div>
 </template>
 

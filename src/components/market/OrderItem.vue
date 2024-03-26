@@ -60,9 +60,9 @@
 
     <div class="btns-wrap" v-else>
       <BaseButton v-if="showToLeverageButton" primary @click="toMarket">
-        Retry Order
+        Retry order
       </BaseButton>
-      <BaseButton primary @click="toMarket"> Retry Order </BaseButton>
+      <BaseButton primary @click="toMarket"> Retry order </BaseButton>
     </div>
   </div>
 </template>
@@ -178,7 +178,7 @@ export default {
 
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
-        if (this.status === ORDER_FAIL) return "Retry Order";
+        if (this.status === ORDER_FAIL) return "Retry order";
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {

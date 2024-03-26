@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <div class="card-head">
-      <h3 class="title"><span>Next Airdrop in</span> <Timer airdrop dark /></h3>
+      <h3 class="title"><span>Next airdrop in</span> <Timer airdrop dark /></h3>
 
       <div class="tabs-wrap">
         <button

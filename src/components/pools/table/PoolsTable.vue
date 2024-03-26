@@ -134,8 +134,8 @@ export default {
     },
 
     deprecatedButtonText() {
-      if (this.showActivePools) return " Show Deprecated pools";
-      return "Hide Deprecated pools";
+      if (this.showActivePools) return " Show deprecated pools";
+      return "Hide deprecated pools";
     },
   },
 
