@@ -421,7 +421,7 @@ export default {
     },
 
     async createSwapInfo() {
-      this.isFetchSwapInfo = true;
+      // this.isFetchSwapInfo = true;
       const filteredPoolsConfig = poolsConfig.filter(
         ({ chainId }) => chainId === this.chainId
       );
@@ -430,7 +430,7 @@ export default {
         this.tokensList = [];
         this.poolsList = [];
         this.resetActionCaonfig();
-        this.isFetchSwapInfo = false;
+        // this.isFetchSwapInfo = false;
         return;
       }
 
@@ -444,7 +444,7 @@ export default {
       );
 
       this.poolsList = await getAllPoolsByChain(this.chainId, this.account);
-      this.isFetchSwapInfo = false;
+      // this.isFetchSwapInfo = false;
     },
   },
 
