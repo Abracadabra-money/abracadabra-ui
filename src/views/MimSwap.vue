@@ -217,7 +217,7 @@ export default {
         : Number(tokenAmountIn) / Number(tokenAmountOut);
 
       const priceImpact =
-        (Number(parsedMidPrice) - executionPrice) / Number(parsedMidPrice);
+        (Math.abs(Number(parsedMidPrice) - executionPrice)) / Number(parsedMidPrice);
 
       console.log("priceImpact", priceImpact);
       return Number(priceImpact * 100).toFixed(2);
