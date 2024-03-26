@@ -14,12 +14,12 @@
       </div>
 
       <ul class="popup-links">
-
         <li class="popup-link-wrap blast-wrap" @click="closePopup">
           <router-link class="popup-link blast-link" :to="{ name: 'Blast' }">
-          <img src="@/assets/images/blast-text.svg" alt="" />
-        </router-link>
+            <img src="@/assets/images/blast-text.svg" alt="" />
+          </router-link>
         </li>
+
         <li class="popup-link-wrap" @click="closePopup">
           <router-link
             class="popup-link my-positions"
@@ -36,6 +36,13 @@
               src="@/assets/images/header/dropdown/more/cauldrons-icon.png"
             />
             <span class="link-text"> Cauldrons </span>
+          </router-link>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'MimSwap' }">
+            <img src="@/assets/images/header/dropdown/more/swap-icon.svg" />
+            <span class="link-text"> MimSwap </span>
           </router-link>
         </li>
 
@@ -210,7 +217,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: start;
-  gap: 28px;
+  gap: 23px;
   list-style: none;
 }
 
