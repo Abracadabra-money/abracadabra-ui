@@ -11,9 +11,9 @@
       <div class="info-title">Price Impact</div>
       <div
         :class="['info-value', { warning: isWarning }]"
-        v-if="priceImpactPercent && isSelectedTokens"
+        v-if="priceImpact && isSelectedTokens"
       >
-        {{ priceImpactSign }} {{ formatPercent(priceImpactPercent) }}
+        {{ priceImpact }}%
       </div>
       <div class="info-value" v-else>-</div>
     </div>
@@ -41,7 +41,7 @@ export default {
   props: {
     minAmount: BigInt as Prop<bigint>,
     actionConfig: Object as Prop<ActionConfig>,
-    priceImpact: { type: Number, default: 0 },
+    priceImpact: { type: [String, Number], default: 0 },
     showPriceImpact: { type: Boolean, default: true },
   },
 
@@ -55,7 +55,7 @@ export default {
     },
 
     isWarning() {
-      return this.priceImpact <= 0.9;
+      return +this.priceImpact <= -15;
     },
 
     minimumReceived() {
@@ -65,14 +65,6 @@ export default {
           this.actionConfig?.toToken?.config.decimals || 18
         )
       );
-    },
-
-    priceImpactSign() {
-      return this.priceImpact > 1 ? "+" : "-";
-    },
-
-    priceImpactPercent() {
-      return Math.abs(1 - this.priceImpact) * 100;
     },
   },
 

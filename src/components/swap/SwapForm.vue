@@ -26,6 +26,7 @@
       :decimals="toToken.config.decimals"
       :max="toToken.userInfo.balance"
       :tokenPrice="toTokenPrice"
+      :differencePrice="differencePrice"
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'to')"
     />
@@ -45,6 +46,7 @@ export default {
     toTokenAmount: BigInt as Prop<bigint>,
     fromTokenPrice: { type: Number, default: 0 },
     toTokenPrice: { type: Number, default: 0 },
+    differencePrice: { type: Number, default: 0 },
   },
 
   data() {

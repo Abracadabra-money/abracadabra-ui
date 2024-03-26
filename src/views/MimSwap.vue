@@ -20,6 +20,7 @@
           :fromToken="actionConfig.fromToken"
           :toToken="actionConfig.toToken"
           :toTokenAmount="actionConfig.toInputValue"
+          :differencePrice="differencePrice"
           @onToogleTokens="toogleTokens"
           @openTokensPopup="openTokensPopup"
           @updateFromInputValue="updateFromValue"
@@ -27,7 +28,7 @@
 
         <SwapInfoBlock
           :actionConfig="actionConfig"
-          :priceImpact="priceImpact"
+          :priceImpact="priceImpactPair"
           :minAmount="swapInfo.outputAmountWithSlippage"
         />
 
@@ -71,7 +72,7 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        :priceImpact="priceImpact"
+        :priceImpact="priceImpactPair"
         @confirm="closeConfirmationPopup"
       />
     </LocalPopupWrap>
@@ -149,22 +150,13 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     isWarningBtn() {
-      if (!this.priceImpact) return false;
-      return this.priceImpact <= 0.9;
+      if (!this.priceImpactPair) return false;
+      return +this.priceImpactPair <= -15;
     },
 
     actionValidationData() {
       return validationActions(this.actionConfig, this.chainId);
     },
-
-    // swapInfo() {
-    //   return getSwapInfo(
-    //     this.poolsList,
-    //     this.actionConfig,
-    //     this.chainId,
-    //     this.account
-    //   );
-    // },
 
     feePayload(): Array<string | bigint | number> {
       const { payload }: any = this.swapInfo.transactionInfo;
@@ -201,28 +193,33 @@ export default {
     },
 
     // Alternative price impact calculation
-    // priceImpactPair() {
-    //   const routeInfo = this.swapInfo.routes[this.swapInfo.routes.length - 1];
+    priceImpactPair(): string | number {
+      const routeInfo = this.swapInfo.routes[this.swapInfo.routes.length - 1];
 
-    //   if (!routeInfo) return 0;
+      if (!routeInfo) return 0;
 
-    //   //@ts-ignore
-    //   const { midPrice } = routeInfo.lpInfo;
-    //   //@ts-ignore
-    //   const tokenAmountIn = this.swapInfo.inputAmount;
-    //   const tokenAmountOut = this.swapInfo.outputAmount;
+      //@ts-ignore
+      const { midPrice } = routeInfo.lpInfo;
 
-    //   const parsedMidPrice = formatUnits(midPrice, 18);
-    //   const executionPrice = Number(tokenAmountIn) / Number(tokenAmountOut);
-    //   const priceImpact = (Number(parsedMidPrice) - executionPrice) / Number(parsedMidPrice);
+      //@ts-ignore
+      const tokenAmountIn = this.swapInfo.inputAmount;
+      const tokenAmountOut = this.swapInfo.outputAmount;
+      if (!tokenAmountIn || !tokenAmountOut) return 0;
 
-    //   console.log("priceImpact", priceImpact);
-    //   return Number(priceImpact * 100).toFixed(2);
-    // },
+      const parsedMidPrice = formatUnits(midPrice, 18);
+      const executionPrice = Number(tokenAmountIn) / Number(tokenAmountOut);
+      const priceImpact =
+        (Number(parsedMidPrice) - executionPrice) / Number(parsedMidPrice);
 
-    priceImpact() {
+      console.log("priceImpact", priceImpact);
+      return Number(priceImpact * 100).toFixed(2);
+    },
+
+    differencePrice() {
       const { fromToken, toToken, fromInputValue, toInputValue }: any =
         this.actionConfig;
+
+      if (!fromInputValue || !toInputValue) return 0;
 
       const fromTokenAmountUsd =
         this.fromTokenPrice *
@@ -232,10 +229,10 @@ export default {
         this.toTokenPrice *
         +formatUnits(toInputValue || 0n, toToken?.config.decimals || 18);
 
-      const priceImpact = toTokenAmountUsd / fromTokenAmountUsd;
+      const differencePrice = toTokenAmountUsd / fromTokenAmountUsd;
 
-      if (!priceImpact) return priceImpact;
-      return priceImpact;
+      if (!differencePrice) return differencePrice;
+      return (differencePrice - 1) * 100;
     },
   },
 

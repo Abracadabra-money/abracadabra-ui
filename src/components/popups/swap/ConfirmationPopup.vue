@@ -65,7 +65,7 @@ export default {
       type: Object,
       required: true,
     },
-    priceImpact: { type: Number, default: 0 },
+    priceImpact: { type: [String, Number], default: 0 },
   },
 
   data() {
