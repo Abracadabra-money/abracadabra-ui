@@ -3,6 +3,26 @@ import { useImage } from "@/helpers/useImage";
 
 export const arbitrumConfig = {
   ...arbitrum,
+  rpcUrls: {
+    public: {
+      http: [
+        "https://arbitrum.llamarpc.com",
+        "https://arbitrum-one.publicnode.com",
+        "https://rpc.ankr.com/arbitrum",
+        "https://arbitrum-one.publicnode.com",
+        "https://arbitrum.meowrpc.com",
+      ],
+    },
+    default: {
+      http: [
+        "https://arbitrum.llamarpc.com",
+        "https://arbitrum-one.publicnode.com",
+        "https://rpc.ankr.com/arbitrum",
+        "https://arbitrum-one.publicnode.com",
+        "https://arbitrum.meowrpc.com",
+      ],
+    },
+  },
   chainId: arbitrum.id,
   chainName: "Arbitrum",
   symbol: "AETH",

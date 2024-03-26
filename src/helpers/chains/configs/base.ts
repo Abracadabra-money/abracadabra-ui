@@ -7,8 +7,24 @@ export const baseConfig = {
   network: "base-mainnet",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
-    public: { http: ["https://mainnet.base.org"] },
-    default: { http: ["https://mainnet.base.org"] },
+    public: {
+      http: [
+        "https://mainnet.base.org",
+        "https://base.llamarpc.com",
+        "https://gateway.subquery.network/rpc/base",
+        "https://base.drpc.org",
+        "https://base-rpc.publicnode.com",
+      ],
+    },
+    default: {
+      http: [
+        "https://mainnet.base.org",
+        "https://base.llamarpc.com",
+        "https://gateway.subquery.network/rpc/base",
+        "https://base.drpc.org",
+        "https://base-rpc.publicnode.com",
+      ],
+    },
   },
   blockExplorers: {
     etherscan: { name: "Basescan", url: "https://basescan.org" },

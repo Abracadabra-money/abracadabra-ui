@@ -3,6 +3,26 @@ import { useImage } from "@/helpers/useImage";
 
 export const optimismConfig = {
   ...optimism,
+  rpcUrls: {
+    public: {
+      http: [
+        "https://optimism-rpc.publicnode.com",
+        "https://rpc.ankr.com/optimism",
+        "https://op-pokt.nodies.app",
+        "https://optimism.drpc.org",
+        "https://endpoints.omniatech.io/v1/op/mainnet/public",
+      ],
+    },
+    default: {
+      http: [
+        "https://optimism-rpc.publicnode.com",
+        "https://rpc.ankr.com/optimism",
+        "https://op-pokt.nodies.app",
+        "https://optimism.drpc.org",
+        "https://endpoints.omniatech.io/v1/op/mainnet/public",
+      ],
+    },
+  },
   chainId: optimism.id,
   chainName: "Optimism",
   symbol: "OP",

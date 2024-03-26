@@ -12,8 +12,24 @@ export const kavaConfig = {
     symbol: "Kava",
   },
   rpcUrls: {
-    public: { http: [RPC_KAVA] },
-    default: { http: [RPC_KAVA] },
+    public: {
+      http: [
+        RPC_KAVA,
+        "https://evm.kava-rpc.com",
+        "https://evm.kava.chainstacklabs.com",
+        "https://kava.drpc.org",
+        "https://evm.kava.io",
+      ],
+    },
+    default: {
+      http: [
+        RPC_KAVA,
+        "https://evm.kava-rpc.com",
+        "https://evm.kava.chainstacklabs.com",
+        "https://kava.drpc.org",
+        "https://evm.kava.io",
+      ],
+    },
   },
   blockExplorers: {
     etherscan: { name: "Kava", url: "https://explorer.kava.io" },

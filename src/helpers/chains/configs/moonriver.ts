@@ -3,6 +3,26 @@ import { moonriver } from "@wagmi/core/chains";
 
 export const moonriverConfig = {
   ...moonriver,
+  rpcUrls: {
+    public: {
+      http: [
+        "https://moonriver-rpc.publicnode.com",
+        "https://moonriver.drpc.org",
+        "https://moonriver-rpc.dwellir.com",
+        "https://moonriver.public.blastapi.io",
+        "https://rpc.api.moonriver.moonbeam.network",
+      ],
+    },
+    default: {
+      http: [
+        "https://moonriver-rpc.publicnode.com",
+        "https://moonriver.drpc.org",
+        "https://moonriver-rpc.dwellir.com",
+        "https://moonriver.public.blastapi.io",
+        "https://rpc.api.moonriver.moonbeam.network",
+      ],
+    },
+  },
   chainId: moonriver.id,
   chainName: "Moonriver",
   symbol: "Moonriver",

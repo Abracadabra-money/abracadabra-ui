@@ -10,10 +10,22 @@ export const mainnetConfig = {
   ...config,
   rpcUrls: {
     public: {
-      http: [RPC_ETH],
+      http: [
+        RPC_ETH,
+        "https://eth.llamarpc.com",
+        "https://rpc.ankr.com/eth",
+        "https://eth-mainnet.public.blastapi.io",
+        "https://eth.drpc.org",
+      ],
     },
     default: {
-      http: [RPC_ETH],
+      http: [
+        RPC_ETH,
+        "https://eth.llamarpc.com",
+        "https://rpc.ankr.com/eth",
+        "https://eth-mainnet.public.blastapi.io",
+        "https://eth.drpc.org",
+      ],
     },
   },
   chainId: config.id,
