@@ -198,6 +198,12 @@ export default {
   opacity: 0.7;
 }
 
+.highlight.yellow {
+  color: #fcfc06;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 @media (max-width: 1400px) {
   .banner {
     width: calc(100% - 30px);
