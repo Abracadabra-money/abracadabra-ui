@@ -15,10 +15,18 @@
         </div>
 
         <CardPointsPending
-          :liquidityPoints="userPointsStatistics?.liquidityPoints?.total?.finalized ?? 0"
-          :pendingLiquidityPoints="userPointsStatistics?.liquidityPoints?.total?.pending ?? 0"
-          :developerPoints="userPointsStatistics?.developerPoints?.total?.finalized ?? 0"
-          :pendingDeveloperPoints="userPointsStatistics?.developerPoints?.total?.pending ?? 0"
+          :liquidityPoints="
+            userPointsStatistics?.liquidityPoints?.total?.finalized ?? 0
+          "
+          :pendingLiquidityPoints="
+            userPointsStatistics?.liquidityPoints?.total?.pending ?? 0
+          "
+          :developerPoints="
+            userPointsStatistics?.developerPoints?.total?.finalized ?? 0
+          "
+          :pendingDeveloperPoints="
+            userPointsStatistics?.developerPoints?.total?.pending ?? 0
+          "
         />
       </div>
 
@@ -37,12 +45,18 @@
           <div class="total-item">
             <span class="total-title">Total Points Distributed</span>
             <span class="total-value">{{
-              formatTokenBalance(pointsStatistics?.liquidityPoints?.total?.finalized ?? 0)
+              formatTokenBalance(
+                pointsStatistics?.liquidityPoints?.total?.finalized ?? 0
+              )
             }}</span>
           </div>
           <div class="total-item">
             <span class="total-title">Total Gold Distributed</span>
-            <span class="total-value">{{ formatTokenBalance(pointsStatistics?.developerPoints?.total?.finalized ?? 0) }}</span>
+            <span class="total-value">{{
+              formatTokenBalance(
+                pointsStatistics?.developerPoints?.total?.finalized ?? 0
+              )
+            }}</span>
           </div>
         </div>
       </div>
@@ -54,7 +68,7 @@
           :withdrawLogic="true"
           @showWithdrawPopup="showWithdrawPopup = true"
         />
-        <CardPointsInfo :pointsInfo="goldPointsInfo" />
+        <CardGoldPointsInfo :pointsInfo="goldPointsInfo" />
       </div>
     </div>
 
@@ -124,8 +138,10 @@ export default {
         deposited: this.cauldronInfo?.userPosition?.collateralDeposited || 0,
         depositedUsd:
           this.cauldronInfo?.userPosition?.collateralDepositedUsd || 0,
-        distributionAmount: this.userPointsStatistics?.liquidityPoints?.cauldron?.finalized ?? 0,
-        pendingDistributionAmount: this.userPointsStatistics?.liquidityPoints?.cauldron?.pending ?? 0,
+        distributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.cauldron?.finalized ?? 0,
+        pendingDistributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.cauldron?.pending ?? 0,
       };
     },
 
@@ -145,8 +161,10 @@ export default {
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
-        distributionAmount: this.userPointsStatistics?.liquidityPoints?.lp?.finalized ?? 0,
-        pendingDistributionAmount: this.userPointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
+        distributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.lp?.finalized ?? 0,
+        pendingDistributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
       };
     },
 
@@ -167,8 +185,14 @@ export default {
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
-        distributionAmount: this.userPointsStatistics?.liquidityPoints?.founder?.finalized ?? 0,
-        pendingDistributionAmount: this.userPointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
+        distributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.founder?.finalized ?? 0,
+        pendingDistributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
+        goldDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0,
+        goldPendingDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0,
       };
     },
   },
@@ -271,6 +295,8 @@ export default {
         fetchPointsStatistics(),
         fetchUserPointsStatistics(this.account),
       ]);
+
+      console.log("this.userPointsStatistics", this.userPointsStatistics);
     },
   },
 
@@ -301,6 +327,9 @@ export default {
     ),
     CardPointsInfo: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsInfo.vue")
+    ),
+    CardGoldPointsInfo: defineAsyncComponent(
+      () => import("@/components/ui/card/CardGoldPointsInfo.vue")
     ),
     WlpWithdrawPopup: defineAsyncComponent(
       () => import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
