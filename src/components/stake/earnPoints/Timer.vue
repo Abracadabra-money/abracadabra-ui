@@ -103,10 +103,9 @@ export default {
       const timerValues = [];
 
       unparsedValues.forEach((value, index) => {
-        if (value > 0)
-          timerValues.push(
-            `${value.toString().padStart(2, "0")}${measureUnits[index]}`
-          );
+        timerValues.push(
+          `${value.toString().padStart(2, "0")}${measureUnits[index]}`
+        );
       });
 
       return timerValues;

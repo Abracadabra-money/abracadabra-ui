@@ -20,16 +20,22 @@
       </div>
 
       <div class="title-desc">
-        <h4 class="title">Liquidity Launch Event Phase 3 ending soon!</h4>
+        <h4 class="title">
+          Secure Your Founder's Bonus by locking liquidity in the MIM/USDB Pool
+        </h4>
         <p class="description">
-          Last chance to become a Founder & earn extra rewards by locking your
-          MIM/USDB MLP for 3 months
+          Founders earn <span class="highlight yellow"> 20% </span>of all
+          Points, Gold, and Potions acquired by protocol.
+          <span class="bonus-link" @click="goToPool">
+            Get Bonus
+            <img class="link-image" src="@/assets/images/link-arrow.svg" />
+          </span>
         </p>
       </div>
     </div>
 
     <div class="timer-wrap">
-      <Timer class="timer" :endDateTimestamp="1711562400" small medium />
+      <Timer class="timer" :endDateTimestamp="1712364937" small medium />
       <p class="timer-description">Time left to lock</p>
     </div>
 
@@ -45,11 +51,23 @@
 <script>
 import { defineAsyncComponent } from "vue";
 
+const BLAST_CHAIN_ID = 81457;
+const MIM_USDB_POOL_ID = 1;
+
 export default {
   data() {
     return {
       showBanner: true,
     };
+  },
+
+  methods: {
+    goToPool() {
+      this.$router.push({
+        name: "Pool",
+        params: { id: MIM_USDB_POOL_ID, poolChainId: BLAST_CHAIN_ID },
+      });
+    },
   },
 
   components: {
@@ -63,19 +81,26 @@ export default {
 <style lang="scss" scoped>
 .banner {
   position: relative;
+  top: 100px;
   display: flex;
   justify-content: start;
   align-items: center;
   flex-wrap: wrap;
+  max-width: 1280px;
+  margin: auto;
   padding: 16px 60px 16px 22px;
   border-radius: 12px;
   border: 1px solid #2d4a96;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.52) 0%,
-    rgba(116, 92, 210, 0.52) 100%
-  );
+  background: url("../../assets/images/blast/launch-banner-background.png"),
+    linear-gradient(
+      90deg,
+      rgba(45, 74, 150, 0.52) 0%,
+      rgba(116, 92, 210, 0.52) 100%
+    );
   backdrop-filter: blur(19.600000381469727px);
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: 1;
 }
 
 .icons {
@@ -126,6 +151,20 @@ export default {
   font-weight: 400;
 }
 
+.bonus-link {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.link-image {
+  height: 18px;
+  width: 18px;
+}
+
 .timer-wrap {
   display: flex;
   flex-direction: column;
@@ -159,9 +198,50 @@ export default {
   opacity: 0.7;
 }
 
+@media (max-width: 1400px) {
+  .banner {
+    width: calc(100% - 30px);
+  }
+}
+
 @media (max-width: 1100px) {
   .banner {
     padding-right: 22px;
+  }
+}
+
+@media (max-width: 600px) {
+  .banner {
+    background: url("../../assets/images/blast/launch-banner-background-mobile.png"),
+      linear-gradient(
+        90deg,
+        rgba(45, 74, 150, 0.52) 0%,
+        rgba(116, 92, 210, 0.52) 100%
+      );
+
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .banner-info {
+    flex-direction: column-reverse;
+    align-items: start;
+    gap: 13px;
+  }
+
+  .title-desc {
+    max-width: 320px;
+  }
+
+  .bonus-link {
+    display: flex;
+    margin-top: 5px;
+  }
+
+  .timer-wrap {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
   }
 }
 </style>
