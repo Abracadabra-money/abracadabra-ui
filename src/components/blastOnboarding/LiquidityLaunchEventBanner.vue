@@ -62,11 +62,12 @@ export default {
 
 <style lang="scss" scoped>
 .banner {
+  position: relative;
   display: flex;
   justify-content: start;
   align-items: center;
-
-  padding: 16px 22px;
+  flex-wrap: wrap;
+  padding: 16px 60px 16px 22px;
   border-radius: 12px;
   border: 1px solid #2d4a96;
   background: linear-gradient(
@@ -103,6 +104,7 @@ export default {
 .banner-info {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
@@ -146,13 +148,20 @@ export default {
 }
 
 .close {
-  align-self: self-start;
-  margin-left: 24px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
 }
 
 .close:hover {
   opacity: 0.7;
+}
+
+@media (max-width: 1100px) {
+  .banner {
+    padding-right: 22px;
+  }
 }
 </style>
