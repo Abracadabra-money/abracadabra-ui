@@ -199,6 +199,7 @@ export default {
 }
 
 .total-title {
+  font-size: 18px;
   font-weight: 500;
 }
 

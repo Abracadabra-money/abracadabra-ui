@@ -147,7 +147,7 @@ export default {
   position: relative;
   max-width: 411px;
   width: 100%;
-  padding: 40px 16px 22px;
+  padding: 60px 16px 22px;
   border-radius: 16px;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);

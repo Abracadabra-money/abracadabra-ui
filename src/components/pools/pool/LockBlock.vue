@@ -5,7 +5,10 @@
 
     <div class="info-item">
       <p>Lock for 3 months</p>
-      <div class="icon-wrap" v-tooltip="'Locked for 3 months'">
+      <div
+        class="icon-wrap"
+        v-tooltip="'Lock your MLP for 3 months to get a Founder Boost'"
+      >
         <svg
           class="lock-icon"
           xmlns="http://www.w3.org/2000/svg"

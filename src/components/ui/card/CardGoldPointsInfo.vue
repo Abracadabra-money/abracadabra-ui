@@ -105,7 +105,9 @@
           To Be Distributed
           <span class="boost" v-if="pointsInfo.isGold">
             <img
-              v-tooltip="'Boosted Airdrop for Founders'"
+              v-tooltip="
+                'Receiving 20% of total ecosystem points: Points, Gold, Potions'
+              "
               src="@/assets/images/points-dashboard/rocket.svg"
               alt=""
             />
