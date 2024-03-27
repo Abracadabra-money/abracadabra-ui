@@ -1,12 +1,12 @@
-import { markRaw } from "vue";
-import { Contract } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
 import cauldronsConfig from "@/configs/cauldrons";
+import { Contract, providers } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import type { CauldronPositionItem } from "@/helpers/cauldron/types";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
-import { getEtherStaticJsonRpcProvider } from "@/helpers/getPublicClient";
+import { getMainParams } from "@/helpers/cauldron/getMainParams";
+import { defaultRpc } from "@/helpers/chains";
+
+import type { CauldronPositionItem } from "@/helpers/cauldron/types";
+import { markRaw } from "vue";
 
 export const getUserOpenPositions = async (
   account: string,
@@ -23,7 +23,11 @@ export const getUserOpenPositions = async (
       );
       if (!configs) return [];
 
-      const provider = markRaw(await getEtherStaticJsonRpcProvider(chainId));
+      const provider = markRaw(
+        new providers.StaticJsonRpcProvider(
+          defaultRpc[chainId as keyof typeof defaultRpc]
+        )
+      );
 
       // const multicallProvider = MulticallWrapper.wrap(provider);
       // NOTICE: BERA TEST
