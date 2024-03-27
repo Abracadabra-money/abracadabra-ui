@@ -77,7 +77,7 @@ const getIncentivesBonusApr = async (provider) => {
     )[1].poolValue;
     let incentivesApr = BigNumber.from(0);
 
-    if (poolValue?.gt(0)) {
+    if (poolValue?.gt(0) && arbTokensAmount?.gt(0)) {
       incentivesApr = arbTokensAmount
         .mul(arbitrumTokenPrice)
         .div(poolValue)

@@ -8,10 +8,10 @@ export const berachainConfig = {
   nativeCurrency: { name: "BERA", symbol: "BERA", decimals: 18 },
   rpcUrls: {
     public: {
-      http: ["https://artio.rpc.berachain.com/"],
+      http: ["https://artio.rpc.berachain.com"],
     },
     default: {
-      http: ["https://artio.rpc.berachain.com/"],
+      http: ["https://artio.rpc.berachain.com"],
     },
   },
   blockExplorers: {
