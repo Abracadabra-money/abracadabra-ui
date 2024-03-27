@@ -6,8 +6,8 @@ export const arbitrumConfig = {
   rpcUrls: {
     public: {
       http: [
-        "https://arbitrum.llamarpc.com",
         "https://arbitrum-one.publicnode.com",
+        "https://arbitrum.llamarpc.com",
         "https://rpc.ankr.com/arbitrum",
         "https://arbitrum-one.publicnode.com",
         "https://arbitrum.meowrpc.com",
@@ -15,8 +15,8 @@ export const arbitrumConfig = {
     },
     default: {
       http: [
-        "https://arbitrum.llamarpc.com",
         "https://arbitrum-one.publicnode.com",
+        "https://arbitrum.llamarpc.com",
         "https://rpc.ankr.com/arbitrum",
         "https://arbitrum-one.publicnode.com",
         "https://arbitrum.meowrpc.com",
