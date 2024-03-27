@@ -9,7 +9,7 @@ export const avalancheConfig = {
         "https://api.avax.network/ext/bc/C/rpc",
         "https://avalanche.drpc.org",
         "https://rpc.tornadoeth.cash/avax",
-        "https://avax-pokt.nodies.app/ext/bc/C/rpc",
+        "https://avalanche.drpc.org",
       ],
     },
     default: {
@@ -17,7 +17,7 @@ export const avalancheConfig = {
         "https://api.avax.network/ext/bc/C/rpc",
         "https://avalanche.drpc.org",
         "https://rpc.tornadoeth.cash/avax",
-        "https://avax-pokt.nodies.app/ext/bc/C/rpc"
+        "https://avalanche.drpc.org"
       ],
     },
   },
