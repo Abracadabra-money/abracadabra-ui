@@ -92,7 +92,7 @@
 
     <ul class="list" v-else>
       <li class="list-item">
-        <div class="item-title">Points Earned</div>
+        <div class="item-title">{{ cardText }}</div>
         <div class="item-value">
           <div class="item-amount">
             {{ formatTokenBalance(userPointsInfo.earned) }}
@@ -158,6 +158,11 @@ export default {
         earned: this.pointsInfo.goldDistributionAmount,
         distributed: this.pointsInfo.goldPendingDistributionAmount,
       };
+    },
+
+    cardText() {
+      if (this.activeTab === 2) return "Gold earned ";
+      return "Points earned";
     },
   },
 
