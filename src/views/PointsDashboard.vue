@@ -92,8 +92,8 @@ const MIM_USDB_POOL_ID = 1;
 export default {
   data() {
     return {
-      pointsStatistics: null,
-      userPointsStatistics: null,
+      pointsStatistics: null as any,
+      userPointsStatistics: null as any,
       poolInfo: null as any,
       cauldronInfo: null as any,
       stakeLpBalances: {
