@@ -8,7 +8,6 @@ export const optimismConfig = {
       http: [
         "https://optimism-rpc.publicnode.com",
         "https://rpc.ankr.com/optimism",
-        "https://op-pokt.nodies.app",
         "https://optimism.drpc.org",
         "https://endpoints.omniatech.io/v1/op/mainnet/public",
       ],
@@ -17,7 +16,6 @@ export const optimismConfig = {
       http: [
         "https://optimism-rpc.publicnode.com",
         "https://rpc.ankr.com/optimism",
-        "https://op-pokt.nodies.app",
         "https://optimism.drpc.org",
         "https://endpoints.omniatech.io/v1/op/mainnet/public",
       ],

@@ -13,18 +13,18 @@ export const mainnetConfig = {
       http: [
         RPC_ETH,
         "https://eth.llamarpc.com",
-        "https://rpc.ankr.com/eth",
         "https://eth-mainnet.public.blastapi.io",
         "https://eth.drpc.org",
+        "https://rpc.ankr.com/eth",
       ],
     },
     default: {
       http: [
         RPC_ETH,
         "https://eth.llamarpc.com",
-        "https://rpc.ankr.com/eth",
         "https://eth-mainnet.public.blastapi.io",
         "https://eth.drpc.org",
+        "https://rpc.ankr.com/eth",
       ],
     },
   },

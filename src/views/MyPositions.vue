@@ -64,9 +64,9 @@ import {
   formatToFixed,
 } from "@/helpers/filters";
 import { mapGetters } from "vuex";
-import { providers } from "ethers";
+// import { providers } from "ethers";
 import { APR_KEY } from "@/constants/global";
-import { defaultRpc } from "@/helpers/chains";
+// import { defaultRpc } from "@/helpers/chains";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
 import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
@@ -74,6 +74,7 @@ import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import { getEtherStaticJsonRpcProvider } from "@/helpers/getPublicClient";
 import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
 import ConnectWalletBlock from "@/components/myPositions/ConnectWalletBlock.vue";
 import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
@@ -234,7 +235,8 @@ export default {
     },
 
     async fetchCollateralApy(cauldron, chainId, address) {
-      const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+      // const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+      const provider = await getEtherStaticJsonRpcProvider(chainId);
       const apr = await fetchTokenApy(cauldron, chainId, provider);
       const localData = localStorage.getItem(APR_KEY);
       const parsedData = localData ? JSON.parse(localData) : {};
