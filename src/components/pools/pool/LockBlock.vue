@@ -27,7 +27,12 @@
 
     <div class="info-item gold">
       <p>Founder boost</p>
-      <div class="icon-wrap" v-tooltip="'Boosted Airdrop for Founders'">
+      <div
+        class="icon-wrap"
+        v-tooltip="
+          'Receiving 20% of total ecosystem points: Points, Gold, Potions'
+        "
+      >
         <img src="@/assets/images/points-dashboard/rocket.svg" alt="" />
       </div>
     </div>
