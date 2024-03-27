@@ -6,18 +6,20 @@ export const avalancheConfig = {
   rpcUrls: {
     public: {
       http: [
+        avalanche.rpcUrls.default.http[0],
+        "https://avalanche.drpc.org",
+        "https://rpc.ankr.com/avalanche",
+        "https://avalanche-c-chain-rpc.publicnode.com",
         "https://api.avax.network/ext/bc/C/rpc",
-        "https://avalanche.drpc.org",
-        "https://rpc.tornadoeth.cash/avax",
-        "https://avalanche.drpc.org",
       ],
     },
     default: {
       http: [
-        "https://api.avax.network/ext/bc/C/rpc",
+        avalanche.rpcUrls.default.http[0],
         "https://avalanche.drpc.org",
-        "https://rpc.tornadoeth.cash/avax",
-        "https://avalanche.drpc.org"
+        "https://rpc.ankr.com/avalanche",
+        "https://avalanche-c-chain-rpc.publicnode.com",
+        "https://api.avax.network/ext/bc/C/rpc",
       ],
     },
   },

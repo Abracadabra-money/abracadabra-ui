@@ -8,13 +8,21 @@ export const blastConfig = {
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
     public: {
-      http: ["https://rpc.blast.io"],
+      http: [
+        "https://rpc.blast.io",
+        "https://blast.din.dev/rpc",
+        "https://blast.blockpi.network/v1/rpc/public",
+        "https://blastl2-mainnet.public.blastapi.io",
+        "https://rpc.ankr.com/blast",
+      ],
     },
     default: {
       http: [
         "https://rpc.blast.io",
+        "https://blast.din.dev/rpc",
         "https://blast.blockpi.network/v1/rpc/public",
         "https://blastl2-mainnet.public.blastapi.io",
+        "https://rpc.ankr.com/blast",
       ],
     },
   },

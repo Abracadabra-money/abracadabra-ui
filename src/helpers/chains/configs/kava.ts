@@ -1,30 +1,30 @@
+import { kava } from "@wagmi/core/chains";
 import { RPC_KAVA } from "@/constants/rpc";
 import { useImage } from "@/helpers/useImage";
 
 export const kavaConfig = {
-  id: 2222,
-  chainId: 2222,
-  name: "Kava EVM",
-  network: "Kava EVM",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Kava EVM",
-    symbol: "Kava",
-  },
+  ...kava,
   rpcUrls: {
-    public: { http: [RPC_KAVA] },
-    default: { http: [RPC_KAVA] },
-  },
-  blockExplorers: {
-    etherscan: { name: "Kava", url: "https://explorer.kava.io" },
-    default: { name: "Kava", url: "https://explorer.kava.io" },
-  },
-  contracts: {
-    multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-      blockCreated: 3661165,
+    public: {
+      http: [
+        kava.rpcUrls.default.http[0],
+        RPC_KAVA,
+        "https://evm.kava.io",
+        "https://rpc.ankr.com/kava_evm",
+        "https://evm.kava.chainstacklabs.com",
+      ],
+    },
+    default: {
+      http: [
+        kava.rpcUrls.default.http[0],
+        RPC_KAVA,
+        "https://evm.kava.io",
+        "https://rpc.ankr.com/kava_evm",
+        "https://evm.kava.chainstacklabs.com",
+      ],
     },
   },
+  chainId: kava.id,
   chainName: "KAVA",
   symbol: "Kava EVM",
   icon: useImage("assets/images/networks/kava.png"),

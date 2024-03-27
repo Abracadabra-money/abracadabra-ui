@@ -1,31 +1,29 @@
+import { linea } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 
 export const lineaConfig = {
-  id: 59144,
-  chainId: 59144,
-  name: "Linea",
-  network: "Linea Mainnet",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  ...linea,
   rpcUrls: {
-    public: { http: ["https://rpc.linea.build"] },
-    default: { http: ["https://rpc.linea.build"] },
-  },
-  blockExplorers: {
-    etherscan: {
-      name: "Lineascan",
-      url: "https://lineascan.build",
+    public: {
+      http: [
+        linea.rpcUrls.default.http[0],
+        "https://linea.decubate.com",
+        "https://linea.drpc.org",
+        "https://1rpc.io/linea",
+        "https://linea.blockpi.network/v1/rpc/public",
+      ],
     },
     default: {
-      name: "Lineascan",
-      url: "https://lineascan.build",
+      http: [
+        linea.rpcUrls.default.http[0],
+        "https://linea.decubate.com",
+        "https://linea.drpc.org",
+        "https://1rpc.io/linea",
+        "https://linea.blockpi.network/v1/rpc/public",
+      ],
     },
   },
-  contracts: {
-    multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-      blockCreated: 498623,
-    },
-  },
+  chainId: linea.id,
   chainName: "Linea",
   symbol: "Linea",
   icon: useImage("assets/images/networks/linea.png"),

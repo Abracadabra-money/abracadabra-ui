@@ -3,6 +3,26 @@ import { useImage } from "@/helpers/useImage";
 
 export const fantomConfig = {
   ...fantom,
+  rpcUrls: {
+    public: {
+      http: [
+        fantom.rpcUrls.default.http[0],
+        "https://1rpc.io/ftm",
+        "https://fantom-rpc.publicnode.com",
+        "https://rpcapi.fantom.network",
+        "https://fantom-mainnet.public.blastapi.io",
+      ],
+    },
+    default: {
+      http: [
+        fantom.rpcUrls.default.http[0],
+        "https://1rpc.io/ftm",
+        "https://fantom-rpc.publicnode.com",
+        "https://rpcapi.fantom.network",
+        "https://fantom-mainnet.public.blastapi.io",
+      ],
+    },
+  },
   chainId: fantom.id,
   chainName: "Fantom",
   symbol: "FTM",

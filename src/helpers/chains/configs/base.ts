@@ -1,25 +1,29 @@
 import { useImage } from "@/helpers/useImage";
+import { base } from "@wagmi/core/chains";
 
 export const baseConfig = {
-  id: 8453,
-  chainId: 8453,
-  name: "Base",
-  network: "base-mainnet",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  ...base,
   rpcUrls: {
-    public: { http: ["https://mainnet.base.org"] },
-    default: { http: ["https://mainnet.base.org"] },
-  },
-  blockExplorers: {
-    etherscan: { name: "Basescan", url: "https://basescan.org" },
-    default: { name: "Basescan", url: "https://basescan.org" },
-  },
-  contracts: {
-    multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-      blockCreated: 5022,
+    public: {
+      http: [
+        base.rpcUrls.default.http[0],
+        "https://base.llamarpc.com",
+        "https://base.drpc.org",
+        "https://base-rpc.publicnode.com",
+        "https://base.meowrpc.com",
+      ],
+    },
+    default: {
+      http: [
+        base.rpcUrls.default.http[0],
+        "https://base.llamarpc.com",
+        "https://base.drpc.org",
+        "https://base-rpc.publicnode.com",
+        "https://base.meowrpc.com",
+      ],
     },
   },
+  chainId: 8453,
   chainName: "BASE",
   symbol: "Base",
   icon: useImage("assets/images/networks/base.png"),

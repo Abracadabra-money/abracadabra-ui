@@ -9,14 +9,14 @@ export const berachainConfig = {
   rpcUrls: {
     public: {
       http: [
-        "https://rpc.ankr.com/berachain_testnet",
         "https://artio.rpc.berachain.com/",
+        "https://rpc.ankr.com/berachain_testnet",
       ],
     },
     default: {
       http: [
-        "https://rpc.ankr.com/berachain_testnet",
         "https://artio.rpc.berachain.com/",
+        "https://rpc.ankr.com/berachain_testnet",
       ],
     },
   },
